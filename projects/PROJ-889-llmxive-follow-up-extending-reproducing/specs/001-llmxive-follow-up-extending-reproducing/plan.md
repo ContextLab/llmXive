@@ -13,11 +13,11 @@ This feature implements a statistical detector for "reward hacking" in LLM train
 **Primary Dependencies**: `pandas`, `numpy`, `scipy` (for Wilcoxon tests), `datasets` (Hugging Face), `pyyaml`, `pytest`  
 **Storage**: `data/raw` (downloaded CHERRL logs, checksummed) and `data/processed` (derived divergence signals, labels)  
 **Testing**: `pytest` (unit tests for math logic, integration tests for pipeline), `ruff`/`black` for linting  
-**Target Platform**: GitHub Actions `ubuntu-latest` (vCPU, 7GB RAM)  
+**Target Platform**: GitHub Actions `ubuntu-latest` (vCPU, sufficient RAM for the workload)  
 **Project Type**: Data analysis pipeline / Research tool  
 **Performance Goals**: Complete analysis of N≥5 seeds within 4 hours; memory usage < 6GB.  
 **Constraints**: No GPU; must handle edge cases (zero variance, missing timesteps); strict adherence to data independence (Constitution Principle VI).  
-**Scale/Scope**: Processing time-series logs (thousands of timesteps per seed) for 4 bias types across multiple random seeds.
+**Scale/Scope**: Processing time-series logs (thousands of timesteps per seed) for multiple bias types across multiple random seeds.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

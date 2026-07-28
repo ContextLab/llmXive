@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-research"
 version = "0.1.0"
-description = "llmXive automated science pipeline"
+description = "Automated science pipeline for detecting reward hacking in rubric-based RL"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -37,11 +37,8 @@ exclude = '''
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
-
 [tool.ruff]
+# Linting rules (referenced from T003a context, included here for completeness if needed)
+lint.select = ["E", "F", "W", "I", "N"]
 line-length = 88
 target-version = "py311"

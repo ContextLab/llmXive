@@ -1,22 +1,51 @@
 [lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # line-too-long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in fastapi/pytest)
-]
+# Enable specific rule sets: E (pycodestyle errors), F (Pyflakes), W (pycodestyle warnings),
+# I (isort imports), N (pep8-naming).
+select = ["E", "F", "W", "I", "N"]
+
+# Allow unused variables starting with underscore (common in Python for ignored args).
+# Allow unused variables in list comprehensions starting with underscore.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Ignore specific rules that conflict with Google style or are too noisy for this project.
+# E501: Line too long (handled by black formatter)
+# N806: Variable in function should be lowercase (Google style allows mixed case in some contexts, but we stick to lowercase mostly)
+ignore = ["E501"]
+
+# Target Python version
+target-version = "py311"
+
+# Line length for formatting (matches black default)
+line-length = 88
 
 [lint.isort]
-force-single-line = true
+# Configure isort to match Google style import ordering
+known-first-party = ["code"]
+force-single-line = false
 lines-after-imports = 2
+order-by-type = true
+force-sort-within-sections = false
+
+[lint.per-file-ignores]
+# Ignore specific rules in test files if necessary (optional, can be added later)
+"tests/*" = ["N802"] # Allow uppercase function names in tests if needed
 
 [format]
-line-length = 88
-indent-width = 4
+# Format settings (though black is primary, ruff format can be a fallback)
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[lint.flake8-quotes]
+# Enforce double quotes as per Google style
+inline-quotes = "double"
+multiline-quotes = "double"
+docstring-quotes = "double"
+avoid-escape = true
+
+[lint.pep8-naming]
+# Enforce Google/Naming conventions
+ignore-names = ["setUp", "tearDown", "setUpClass", "tearDownClass"]
+classmethod-decorators = ["classmethod"]
+staticmethod-decorators = ["staticmethod"]

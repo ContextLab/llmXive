@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-889-llmxive-follow-up-extending-reproducing
-last_run_id: d2136004-25e7-43e5-9e8e-0457edd61584
+last_run_id: 8c2e925f-fb55-45e7-94c7-9571273fe612
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing
 title: 'llmXive follow-up: extending "Reproducing, Analyzing, and Detecting Reward
   Hacking in Rubric-Based R"'
-updated_at: '2026-07-26T02:26:33.269022Z'
+updated_at: '2026-07-28T14:49:33.756598Z'

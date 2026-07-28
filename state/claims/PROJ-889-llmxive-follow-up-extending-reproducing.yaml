@@ -917,3 +917,1237 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T02:16:45Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL repository source validated against arXiv:2606.04923
+  claim_id: c_9badf10d
+  context: 'T013b Unit test for download validation logic. Logic: Verify that the
+    validation function correctly validates the CHERRL repository source (arXiv:2606.04923),
+    handles invalid sources by raising the correct error, and exits with code 2.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The validation function correctly validates the CHERRL repository source
+    (arXiv:2606.04923)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:26:33Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Exit code 2 for data source unreachable or mismatch
+  claim_id: c_48f751eb
+  context: 'T013 Implement download_cherrl_logs.py. Logic: If fetch fails or the source
+    does not match the verified arXiv reference, log ''ERROR: Data source unreachable
+    or mismatch'' and exit with code 2 (data_missing).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must exit with code 2 if the data source is unreachable or
+    mismatched
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:26:55Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL repository source is arXiv:2606.04923
+  claim_id: c_9f7a0094
+  context: 'T013b [P] [US1] Unit test for download validation logic... Logic: Verify
+    that the validation function correctly validates the CHERRL repository source
+    (arXiv:2606.04923)...'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The validation function validates the CHERRL repository source (arXiv:2606.04923).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:27:20Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL repository source validated against arXiv:2606.04923
+  claim_id: c_0a29dfb4
+  context: 'Unit test for download validation logic. Logic: Verify that the validation
+    function correctly validates the CHERRL repository source (arXiv:2606.04923),
+    handles invalid sources by raising the correct error, and exits with code 2.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Verify that the validation function correctly validates the CHERRL repository
+    source (arXiv:2606.04923)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:28:34Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Download validation exits with code 2 on failure
+  claim_id: c_4806884a
+  context: 'Unit test for download validation logic. Logic: Verify that the validation
+    function correctly validates the CHERRL repository source (arXiv:2606.04923),
+    handles invalid sources by raising the correct error, and exits with code 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exit with code 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:28:58Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: 'Integration test assertions for multi-seed aggregation: row count, seed_id
+    distribution, G(t) and dG(t) numeric columns'
+  claim_id: c_82573c9a
+  context: 'Integration test for multi-seed aggregation. Logic: Run the full aggregation
+    pipeline on a small set of mock logs. Assertions: Assert merged CSV has expected
+    row count, assert seed_id distribution matches input, assert G(t) and dG(t) columns
+    exist and are numeric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_test_assertions_for_multi-seed_aggregation:_row
+  kind: entity_fact
+  raw_text: Assert merged CSV has expected row count, assert seed_id distribution
+    matches input, assert G(t) and dG(t) columns exist and are numeric
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:29:54Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: G(t) calculated as absolute difference between J_biased and J_unbiased
+  claim_id: c_c08f5798
+  context: Implement code/ingestion.py to load logs and compute G(t) = |J_biased -
+    J_unbiased| (FR-001).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/G(t)_calculated_as_absolute_difference_between_J_biased_and
+  kind: entity_fact
+  raw_text: compute G(t) = |J_biased - J_unbiased|
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:30:31Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Linear interpolation used for missing timesteps in G(t) computation
+  claim_id: c_8695400d
+  context: 'Edge Case Logic: Use linear interpolation for missing timesteps. If variance
+    of G(t) is zero, set z-score to 0 (using epsilon=1e-9 floor for division).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_interpolation_used_for_missing_timesteps_in_G(t)_comp
+  kind: entity_fact
+  raw_text: Use linear interpolation for missing timesteps
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:30:49Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Z-score set to 0 if G(t) variance is zero with 1e-9 epsilon floor
+  claim_id: c_fb931611
+  context: 'Edge Case Logic: Use linear interpolation for missing timesteps. If variance
+    of G(t) is zero, set z-score to 0 (using epsilon=1e-9 floor for division).'
+  evidence:
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: set z-score to 0 if variance of G(t) is zero, using epsilon=1e-9 floor
+    for division
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:30:50Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Windows with hacking duration > 20 excluded from z-score baseline
+  claim_id: c_a595dcae
+  context: 'Implement contaminated window exclusion logic (FR-009). Logic: Detect
+    windows where hacking event duration > W=20 and exclude them from the z-score
+    baseline calculation to prevent suppression.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: detect windows where hacking event duration > W=20 and exclude them from
+    the z-score baseline calculation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:31:44Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Hacked flag triggered if z-score > 3.0 or Delta G(t) exceeds dynamic
+    threshold
+  claim_id: c_da31c5ae
+  context: 'Implement logic in code/detector.py to flag ''hacked'' if z(G(t)) > 3.0
+    OR if Delta G(t) exceeds a dynamic threshold. Config: Load DYNAMIC_THRESHOLD_MULTIPLIER
+    from code/config.py (default 2.0).'
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: flag 'hacked' if z(G(t)) > 3.0 OR if Delta G(t) exceeds a dynamic threshold
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:31:44Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Baseline noise floor calculated from standard deviation of preceding
+    100 timesteps
+  claim_id: c_0734056b
+  context: 'Baseline: Calculate baseline noise floor as the standard deviation of
+    the preceding 100 timesteps (or all available if <100) using the corrected baseline
+    from T025.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate baseline noise floor as the standard deviation of the preceding
+    100 timesteps (or all available if <100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:32:00Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Dynamic threshold multiplier default is 2.0
+  claim_id: c_f0e6745c
+  context: 'Config: Load DYNAMIC_THRESHOLD_MULTIPLIER from code/config.py (default
+    2.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default DYNAMIC_THRESHOLD_MULTIPLIER is 2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:32:21Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised with exit code 1 if correlation > 0.8 threshold
+  claim_id: c_a4e60d90
+  context: 'Logic: If correlation is strictly greater than CORRELATION_THRESHOLD (default
+    0.8), raise RuntimeError with message ''CIRCULAR_VALIDATION: Correlation > threshold''
+    and exit with code 1 immediately. Do not proceed.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_with_exit_code_1_if_correlation_%3E_0.8_th
+  kind: magnitude
+  raw_text: 'If correlation is strictly greater than CORRELATION_THRESHOLD (default
+    0.8), raise RuntimeError with message ''CIRCULAR_VALIDATION: Correlation > threshold''
+    and exit with code 1'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:32:51Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps drop threshold over set 0.05, 0.1, 0.15
+  claim_id: c_6df43303
+  context: 'Implement sensitivity analysis for ground-truth drop threshold (FR-007).
+    Logic: Sweep threshold over the specific set {0.05, 0.1, 0.15} and report variation
+    in F1-scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep threshold over the specific set {0.05, 0.1, 0.15}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:33:15Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sequential seed processing runtime under 4 hours
+  claim_id: c_278fe5e7
+  context: Implement sequential seed processing in code/main.py to ensure memory safety
+    and runtime < 4 hours (process seeds one by one if needed).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: runtime < 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:33:15Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: F1 standard deviation across rubric types must be less than or equal
+    to 0.15
+  claim_id: c_7f6b7849
+  context: 'Implement code/evaluation.py to check SC-003 (F1 std dev <= 0.15). Logic:
+    Calculate the standard deviation of F1-scores across rubric types. If the standard
+    deviation exceeds 0.15, halt the pipeline immediately and report this as a research
+    failure.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/F1_standard_deviation_across_rubric_types_must_be_less_than
+  kind: magnitude
+  raw_text: standard deviation of F1-scores across rubric types <= 0.15
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:33:37Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Exit code 1 returned if F1 standard deviation exceeds 0.15
+  claim_id: c_dcd0ebe2
+  context: 'If the standard deviation exceeds 0.15, halt the pipeline immediately
+    and report this as a research failure (do not attempt tuning). If the standard
+    deviation is <= 0.15, continue to report generation. Exit Code: Exit with code
+    1 to signal a failed research outcome.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exit with code 1 to signal a failed research outcome if F1 std dev > 0.15
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:33:56Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL repository artifacts linked to arXiv:2606.04923
+  claim_id: c_7e9b8651
+  context: Fetch data from the CHERRL repository artifacts explicitly linked to arXiv:2606.04923
+    as described in the 'input block' of `plan.md`.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The CHERRL repository artifacts are explicitly linked to arXiv:2606.04923.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:34:54Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 0
+  canonical: CHERRL repository source arXiv:2606.04923
+  claim_id: c_6a81f3e7
+  context: T013b [P] [US1] Unit test for download validation logic... Verify that
+    the validation function correctly validates the CHERRL repository source (arXiv:2606.04923)...
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The validation function validates the CHERRL repository source (arXiv:2606.04923).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:35:41Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Detector flags hacked if z(G(t)) > 3.0
+  claim_id: c_7bce1982
+  context: "T022 [US2] Implement logic in code/detector.py to flag 'hacked' if z(G(t))\
+    \ > 3.0 OR if \u0394G(t) exceeds a dynamic threshold."
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: magnitude
+  raw_text: The detector flags a timestep as hacked if z(G(t)) is greater than 3.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:35:42Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sliding window z-score W=20 min 5 samples
+  claim_id: c_0db0f432
+  context: T021 [US2] Implement code/detector.py to calculate sliding window z-score
+    (W=20, min 5 samples) per FR-002...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The detector calculates a sliding window z-score with a window size of
+    20 and a minimum of 5 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:36:06Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Baseline noise floor preceding 100 timesteps
+  claim_id: c_16f757e4
+  context: T022 [US2] ...Calculate baseline noise floor as the standard deviation
+    of the preceding 100 timesteps (or all available if <100)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline noise floor is calculated as the standard deviation of the
+    preceding 100 timesteps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:36:20Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth J_gold drop >= 0.1 over 50 steps sustained 3 steps
+  claim_id: c_6505eb54
+  context: "T031 [US3] Implement code/ground_truth.py to derive labels from J_gold\
+    \ drops (\u22650.1 decrease over 50 steps, sustained 3 steps) per FR-004."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ground truth labels are derived from J_gold drops of 0.1 or greater
+    over 50 steps, sustained for 3 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:36:48Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Circular validation error if correlation > 0.8
+  claim_id: c_b76e710d
+  context: T032a [US3] ...If correlation is strictly greater than CORRELATION_THRESHOLD
+    (default 0.8), raise RuntimeError...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Circular_validation_error_if_correlation_%3E_0.8
+  kind: magnitude
+  raw_text: The circular validation check raises an error if the Pearson correlation
+    is strictly greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:37:29Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep thresholds 0.05 0.1 0.15
+  claim_id: c_4a26f95c
+  context: 'T037 [US3] Implement sensitivity analysis for ground-truth drop threshold
+    (FR-007). Logic: Sweep threshold over the specific set {0.05, 0.1, 0.15}...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the drop threshold over the set {0.05,
+    0.1, 0.15}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:38:06Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Pipeline halt if F1 std dev > 0.15
+  claim_id: c_08f082ec
+  context: T035 [US3] ...If the standard deviation exceeds 0.15, halt the pipeline
+    immediately...
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline halts if the standard deviation of F1-scores across rubric
+    types exceeds 0.15.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:38:06Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Project requires Python 3.11
+  claim_id: c_0305a650
+  context: T002 Initialize Python 3.11 project with dependencies...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:38:30Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL repository source is arXiv:2606.04923
+  claim_id: c_daf8138d
+  context: 'Unit test for download validation logic in tests/unit/test_download_validation.py.
+    Logic: Verify that the validation function correctly validates the CHERRL repository
+    source (arXiv:2606.04923), handles invalid sources by raising the correct error,
+    and exits with code 2.'
+  evidence:
+    ok: true
+    reason: ''
+    status: grounded
+  kind: citation
+  raw_text: Verify that the validation function correctly validates the CHERRL repository
+    source (arXiv:2606.04923)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:38:43Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps threshold over set {0.05, 0.1, 0.15}
+  claim_id: c_59609314
+  context: 'Implement sensitivity analysis for ground-truth drop threshold (FR-007).
+    Logic: Sweep threshold over the specific set {0.05, 0.1, 0.15} and report variation
+    in F1-scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep threshold over the specific set {0.05, 0.1, 0.15}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:39:27Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 0
+  canonical: Hacking detection z-score threshold 3.0
+  claim_id: c_cd4140d3
+  context: "Implement logic in code/detector.py to flag hacked if z(G(t)) > 3.0 OR\
+    \ if \u0394G(t) exceeds a dynamic threshold."
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Flag hacked if z(G(t)) > 3.0
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:40:30Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: CHERRL repository source validation arXiv 2606.04923
+  claim_id: c_f0b49a7a
+  context: 'Unit test for download validation logic in tests/unit/test_download_validation.py.
+    Logic: Verify that the validation function correctly validates the CHERRL repository
+    source (arXiv:2606.04923), handles invalid sources by raising the correct error,
+    and exits with code 2.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Verify that the validation function correctly validates the CHERRL repository
+    source (arXiv:2606.04923)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:40:35Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Fetch CHERRL artifacts linked to arXiv 2606.04923
+  claim_id: c_c4fa8a0f
+  context: 'Implement download_cherrl_logs.py to fetch real data. Logic: 1. Fetch
+    data from the CHERRL repository artifacts explicitly linked to arXiv:2606.04923
+    as described in the ''input block'' of plan.md.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Fetch data from the CHERRL repository artifacts explicitly linked to arXiv:2606.04923
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:40:37Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Fixed-step window defined in Spec Assumption 6
+  claim_id: c_51831b12
+  context: "Implement code/ground_truth.py to derive labels from J_gold drops (\u2265\
+    0.1 decrease over 50 steps, sustained 3 steps) per FR-004. Traceability: The fixed-step\
+    \ window is defined in Spec Assumption 6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed-step window is defined in Spec Assumption 6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:41:00Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Circular validation check correlation threshold 0.8
+  claim_id: c_d3840c46
+  context: 'Implement code/ground_truth.py to check Pearson correlation for J_unbiased
+    vs J_gold (FR-006). Logic: If correlation is strictly greater than CORRELATION_THRESHOLD
+    (default 0.8), raise RuntimeError with message CIRCULAR_VALIDATION: Correlation
+    > threshold and exit with code 1 immediately.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Circular_validation_check_correlation_threshold_0.8
+  kind: magnitude
+  raw_text: If correlation is strictly greater than CORRELATION_THRESHOLD (default
+    0.8), raise RuntimeError
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:41:27Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold sweep set 0.05 0.1 0.15
+  claim_id: c_5c3d363e
+  context: 'Implement sensitivity analysis for ground-truth drop threshold (FR-007).
+    Logic: Sweep threshold over the specific set {0.05, 0.1, 0.15} and report variation
+    in F1-scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep threshold over the specific set {0.05, 0.1, 0.15}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:41:27Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: F1 standard deviation threshold 0.15 halt pipeline
+  claim_id: c_0f0f2e0b
+  context: "Implement code/evaluation.py to check SC-003 (F1 std dev \u2264 0.15).\
+    \ Logic: Calculate the standard deviation of F1-scores across rubric types. If\
+    \ the standard deviation exceeds 0.15, halt the pipeline immediately and report\
+    \ this as a research failure."
+  evidence:
+    asserted: '0.15'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If the standard deviation exceeds 0.15, halt the pipeline immediately
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:41:27Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Contaminated window exclusion duration threshold 20
+  claim_id: c_ba33cc67
+  context: 'Implement contaminated window exclusion logic (FR-009). Logic: Detect
+    windows where hacking event duration > W=20 and exclude them from the z-score
+    baseline calculation to prevent suppression.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Detect windows where hacking event duration > W=20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:42:07Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Dynamic threshold multiplier default 2.0
+  claim_id: c_de5b2203
+  context: "Implement logic in code/detector.py to flag hacked if z(G(t)) > 3.0 OR\
+    \ if \u0394G(t) exceeds a dynamic threshold. Config: Load DYNAMIC_THRESHOLD_MULTIPLIER\
+    \ from code/config.py (default 2.0)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load DYNAMIC_THRESHOLD_MULTIPLIER from code/config.py (default 2.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:42:22Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Baseline noise floor preceding 100 timesteps
+  claim_id: c_0b62a73e
+  context: "Implement logic in code/detector.py to flag hacked if z(G(t)) > 3.0 OR\
+    \ if \u0394G(t) exceeds a dynamic threshold. Baseline: Calculate baseline noise\
+    \ floor as the standard deviation of the preceding 100 timesteps (or all available\
+    \ if <100) using the corrected baseline from T025."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate baseline noise floor as the standard deviation of the preceding
+    100 timesteps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:42:22Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Pinned random seed BASELINE_SEED
+  claim_id: c_d6fb9d90
+  context: 'Implement code/evaluation.py to generate a Stratified Random Baseline.
+    Seed Requirement: Use a pinned random seed defined in code/config.py as BASELINE_SEED.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pinned_random_seed_BASELINE_SEED
+  kind: entity_fact
+  raw_text: Use a pinned random seed defined in code/config.py as BASELINE_SEED
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:42:49Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Exit code 2 data source unreachable
+  claim_id: c_ce774c8e
+  context: 'Implement download_cherrl_logs.py to fetch real data. Fail Loud: If fetch
+    fails or the source does not match the verified arXiv reference, log ERROR: Data
+    source unreachable or mismatch and exit with code 2 (data_missing).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with code 2 if data source unreachable or mismatch
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:43:10Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Exit code 1 circular validation correlation
+  claim_id: c_08b22e42
+  context: 'Implement code/ground_truth.py to check Pearson correlation for J_unbiased
+    vs J_gold (FR-006). Logic: If correlation is strictly greater than CORRELATION_THRESHOLD
+    (default 0.8), raise RuntimeError with message CIRCULAR_VALIDATION: Correlation
+    > threshold and exit with code 1 immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with code 1 if correlation > threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:43:29Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Exit code 1 F1 standard deviation threshold
+  claim_id: c_c1a5b771
+  context: "Implement code/evaluation.py to check SC-003 (F1 std dev \u2264 0.15).\
+    \ Logic: Calculate the standard deviation of F1-scores across rubric types. If\
+    \ the standard deviation exceeds 0.15, halt the pipeline immediately and report\
+    \ this as a research failure (do not attempt tuning). Exit Code: Exit with code\
+    \ 1 to signal a failed research outcome."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with code 1 if F1 std dev > 0.15
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:43:49Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Exit code 2 validation failure
+  claim_id: c_8701a633
+  context: 'Unit test for download validation logic in tests/unit/test_download_validation.py.
+    Logic: Verify that the validation function correctly validates the CHERRL repository
+    source (arXiv:2606.04923), handles invalid sources by raising the correct error,
+    and exits with code 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with code 2 if validation fails
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:44:07Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Exit code 1 missing BASELINE_SEED
+  claim_id: c_f4a89f0e
+  context: 'Implement code/evaluation.py to generate a Stratified Random Baseline.
+    Error Handling: If BASELINE_SEED is missing from config, raise RuntimeError with
+    message MISSING_CONFIG: BASELINE_SEED required for reproducibility and exit with
+    code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with code 1 if BASELINE_SEED is missing from config
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:44:24Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 2
+  canonical: CHERRL repository source validated against arXiv:2606.04923
+  claim_id: c_cb8d3b66
+  context: 'Unit test for download validation logic in tests/unit/test_download_validation.py.
+    Logic: Verify that the validation function correctly validates the CHERRL repository
+    source (arXiv:2606.04923), handles invalid sources by raising the correct error,
+    and exits with code 2.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Verify that the validation function correctly validates the CHERRL repository
+    source (arXiv:2606.04923)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:45:20Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Data fetch failure exits with code 2 and logs specific error message
+  claim_id: c_a0f079f8
+  context: 'Implement download_cherrl_logs.py to fetch real data. Logic: 1. Fetch
+    data from the CHERRL repository artifacts explicitly linked to arXiv:2606.04923...
+    2. Fail Loud: If fetch fails or the source does not match the verified arXiv reference,
+    log ''ERROR: Data source unreachable or mismatch'' and exit with code 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If fetch fails or the source does not match the verified arXiv reference,
+    log ''ERROR: Data source unreachable or mismatch'' and exit with code 2.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:45:35Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Hacking detection threshold z-score greater than 3.0
+  claim_id: c_32fbbb7d
+  context: "Implement logic in code/detector.py to flag 'hacked' if z(G(t)) > 3.0\
+    \ OR if \u0394G(t) exceeds a dynamic threshold."
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: magnitude
+  raw_text: The detector flags 'hacked' if z(G(t)) > 3.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:45:35Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Baseline noise floor calculated over preceding 100 timesteps
+  claim_id: c_aaa43461
+  context: Calculate baseline noise floor as the standard deviation of the preceding
+    100 timesteps (or all available if <100) using the corrected baseline from T025.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline noise floor is calculated as the standard deviation of the
+    preceding 100 timesteps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:45:35Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Circular validation check halts if Pearson correlation exceeds 0.8
+  claim_id: c_cd3dd238
+  context: 'Implement code/ground_truth.py to check Pearson correlation for J_unbiased
+    vs J_gold (FR-006). Logic: If correlation is strictly greater than CORRELATION_THRESHOLD
+    (default 0.8), raise RuntimeError with message ''CIRCULAR_VALIDATION: Correlation
+    > threshold'' and exit with code 1 immediately.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Circular_validation_check_halts_if_Pearson_correlation_excee
+  kind: magnitude
+  raw_text: 'If correlation is strictly greater than 0.8, raise RuntimeError with
+    message ''CIRCULAR_VALIDATION: Correlation > threshold'' and exit with code 1.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:45:37Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth labels derived from 0.1 drop over 50 steps sustained 3 steps
+  claim_id: c_15f41681
+  context: "Implement code/ground_truth.py to derive labels from J_gold drops (\u2265\
+    0.1 decrease over 50 steps, sustained 3 steps) per FR-004."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ground truth labels are derived from J_gold drops of \u22650.1 decrease\
+    \ over 50 steps, sustained for 3 steps."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:45:37Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps drop threshold over 0.05, 0.1, 0.15
+  claim_id: c_6729e729
+  context: 'Implement sensitivity analysis for ground-truth drop threshold (FR-007).
+    Logic: Sweep threshold over the specific set {0.05, 0.1, 0.15} and report variation
+    in F1-scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps the drop threshold over the set {0.05, 0.1,
+    0.15}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:45:37Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if F1 standard deviation exceeds 0.15
+  claim_id: c_32ccbbce
+  context: "Implement code/evaluation.py to check SC-003 (F1 std dev \u2264 0.15).\
+    \ Logic: Calculate the standard deviation of F1-scores across rubric types. If\
+    \ the standard deviation exceeds 0.15, halt the pipeline immediately and report\
+    \ this as a research failure."
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If the standard deviation of F1-scores exceeds 0.15, halt the pipeline
+    immediately and report as a research failure.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:45:38Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 0
+  canonical: CHERRL repository source arXiv:2606.04923
+  claim_id: c_8920f110
+  context: Verify that the validation function correctly validates the CHERRL repository
+    source (arXiv:2606.04923), handles invalid sources by raising the correct error,
+    and exits with code 2.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The validation function validates the CHERRL repository source (arXiv:2606.04923).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:47:03Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 0
+  canonical: Pipeline halt if F1 std dev > 0.15
+  claim_id: c_499b0384
+  context: If the standard deviation exceeds 0.15, halt the pipeline immediately and
+    report this as a research failure (do not attempt tuning). If the standard deviation
+    is <= 0.15, continue to report generation.
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline halts if the standard deviation of F1-scores across rubric
+    types exceeds 0.15.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:47:05Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Data ingestion exit code 2 on source mismatch
+  claim_id: c_cabc1574
+  context: 'If fetch fails or the source does not match the verified arXiv reference,
+    log ''ERROR: Data source unreachable or mismatch'' and exit with code 2 (data_missing).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion script exits with code 2 if the fetch fails or the
+    source does not match the verified arXiv reference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:47:19Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: G(t) = |J_biased - J_unbiased|
+  claim_id: c_28b5c191
+  context: Implement code/ingestion.py to load logs and compute G(t) = |J_biased -
+    J_unbiased| (FR-001).
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/G(t)_=_%7CJ_biased_-_J_unbiased%7C
+    source_value: https://en.wikipedia.org/wiki/G(t)_=_|J_biased_-_J_unbiased|
+    subject: G(t) = |J_biased - J_unbiased|
+  kind: relational
+  raw_text: The divergence gap G(t) is calculated as the absolute difference between
+    J_biased and J_unbiased.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:47:55Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Hacking flag condition z(G(t)) > 3.0
+  claim_id: c_bcac0645
+  context: Implement logic in code/detector.py to flag 'hacked' if z(G(t)) > 3.0 OR
+    if Delta G(t) exceeds a dynamic threshold.
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: The detector flags a timestep as 'hacked' if the z-score of G(t) exceeds
+    3.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T14:47:55Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Dynamic threshold multiplier default 2.0
+  claim_id: c_175df838
+  context: 'Config: Load DYNAMIC_THRESHOLD_MULTIPLIER from code/config.py (default
+    2.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dynamic threshold multiplier defaults to 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:47:55Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Baseline noise floor calculated over preceding 100 timesteps
+  claim_id: c_c6f7116b
+  context: 'Baseline: Calculate baseline noise floor as the standard deviation of
+    the preceding 100 timesteps (or all available if <100) using the corrected baseline
+    from T025.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline noise floor is calculated as the standard deviation of the
+    preceding 100 timesteps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:47:56Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Ground truth derived from J_gold drops >= 0.1 over 50 steps sustained
+    3 steps
+  claim_id: c_826fe426
+  context: Implement code/ground_truth.py to derive labels from J_gold drops (>=0.1
+    decrease over 50 steps, sustained 3 steps) per FR-004.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_derived_from_J_gold_drops_%3E=_0.1_over_50_steps_
+  kind: magnitude
+  raw_text: Ground truth labels are derived from J_gold drops of at least 0.1 decrease
+    over 50 steps, sustained for 3 steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:48:22Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 2
+  canonical: Circular validation error if correlation > 0.8
+  claim_id: c_08cabbcb
+  context: 'If correlation is strictly greater than CORRELATION_THRESHOLD (default
+    0.8), raise RuntimeError with message ''CIRCULAR_VALIDATION: Correlation > threshold''
+    and exit with code 1 immediately.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Circular_validation_error_if_correlation_%3E_0.8
+  kind: magnitude
+  raw_text: The circular validation check raises an error if the correlation between
+    J_unbiased and J_gold is strictly greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:48:52Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 0.05, 0.1, 0.15
+  claim_id: c_94f3442a
+  context: 'Implement sensitivity analysis for ground-truth drop threshold (FR-007).
+    Logic: Sweep threshold over the specific set {0.05, 0.1, 0.15} and report variation
+    in F1-scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the ground-truth drop threshold over the
+    set {0.05, 0.1, 0.15}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:49:15Z'
+- artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_5efd2197
+  context: 'Initialize Python 3.11 project with dependencies: pandas, numpy, scipy,
+    requests, pyyaml, jsonschema, pytest in requirements.txt'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T14:49:33Z'

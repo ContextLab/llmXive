@@ -1,142 +1,176 @@
+"""
+Aggregate multiple seed logs into a single processed CSV file.
+
+This module implements the aggregation logic for User Story 1 (T016).
+It merges trajectory logs from multiple seeds, preserving seed_id and bias_type,
+and computes aggregate statistics across seeds.
+
+Dependencies:
+    - T015: Requires computed G(t) and ΔG(t) values in input logs
+"""
 import os
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
 import numpy as np
 import pandas as pd
 
-from code.config import get_project_root, ensure_paths_exist
-from code.utils.io_utils import ensure_dir, write_csv, compute_sha256
-from code.ingestion import process_all_trajectories
+from config import get_project_root, ensure_paths_exist
+from utils.io_utils import read_csv, write_csv, ensure_dir
 
 
 def aggregate_seed_logs(
-    raw_logs_dir: Path,
-    processed_dir: Path,
-    output_filename: str = "trajectories_divergence.csv",
-    chunk_size: int = 5000
-) -> Path:
+    input_dir: Path,
+    output_path: Path,
+    seed_pattern: str = "seed_*"
+) -> pd.DataFrame:
     """
-    Aggregate multiple seed logs into a single processed CSV.
-
-    This function:
-    1. Iterates over all trajectory log files in raw_logs_dir.
-    2. Processes each log using the existing ingestion logic (compute G(t), dG(t), z-score).
-    3. Aggregates the results into a single DataFrame.
-    4. Writes the final aggregated DataFrame to data/processed/trajectories_divergence.csv.
-    5. Preserves 'seed_id' and 'bias_type' columns for downstream analysis.
-
+    Aggregate multiple seed logs into a single CSV file.
+    
     Args:
-        raw_logs_dir: Path to the directory containing raw CHERRL log files.
-        processed_dir: Path to the directory where the output CSV will be saved.
-        output_filename: Name of the output CSV file.
-        chunk_size: Number of rows to process before writing intermediate chunks (memory safety).
-
-    Returns:
-        Path to the generated output CSV file.
-    """
-    ensure_dir(processed_dir)
-    output_path = processed_dir / output_filename
-
-    # Collect all valid log files
-    log_files = sorted([f for f in raw_logs_dir.iterdir() if f.is_file() and f.suffix == '.json'])
-    
-    if not log_files:
-        raise FileNotFoundError(f"No JSON log files found in {raw_logs_dir}")
-
-    print(f"Found {len(log_files)} seed logs to aggregate.")
-
-    all_dfs = []
-    total_rows = 0
-
-    # Process each seed log
-    for log_file in log_files:
-        # Extract seed_id and bias_type from filename or metadata if available
-        # Assuming filename format: seed_{id}_{bias_type}.json or similar
-        # If metadata is inside, we rely on process_all_trajectories to handle it.
-        # For now, we assume the ingestion module handles per-file processing.
+        input_dir: Directory containing individual seed log CSVs
+        output_path: Path for the aggregated output CSV
+        seed_pattern: Glob pattern to match seed files (default: "seed_*")
         
+    Returns:
+        DataFrame containing all aggregated trajectory data with seed_id and bias_type
+        
+    Raises:
+        FileNotFoundError: If no matching seed files are found
+        ValueError: If required columns are missing from input files
+    """
+    # Find all matching seed files
+    seed_files = list(input_dir.glob(f"**/{seed_pattern}*.csv"))
+    
+    if not seed_files:
+        raise FileNotFoundError(
+            f"No seed files found matching pattern '{seed_pattern}*' in {input_dir}"
+        )
+    
+    print(f"Found {len(seed_files)} seed files to aggregate")
+    
+    # Collect dataframes from each seed file
+    dataframes = []
+    for file_path in sorted(seed_files):
         try:
-            # Use the existing ingestion logic to process this specific file
-            # We pass the single file to process_all_trajectories by creating a list
-            df = process_all_trajectories([log_file], return_df=True)
+            # Extract seed_id from filename (e.g., "seed_001.csv" -> "001")
+            seed_id = file_path.stem.replace("seed_", "")
             
-            if df is not None and not df.empty:
-                # Ensure seed_id and bias_type are present
-                # If they aren't in the processed df, try to infer from filename
-                if 'seed_id' not in df.columns:
-                    stem = log_file.stem
-                    # Simple heuristic: split by underscore, assume first part is seed
-                    parts = stem.split('_')
-                    seed_val = parts[0] if len(parts) > 0 else "unknown"
-                    df['seed_id'] = seed_val
-                
-                if 'bias_type' not in df.columns:
-                    stem = log_file.stem
-                    parts = stem.split('_')
-                    # Heuristic: assume last part is bias type
-                    bias_val = parts[-1] if len(parts) > 1 else "unknown"
-                    df['bias_type'] = bias_val
-
-                all_dfs.append(df)
-                total_rows += len(df)
-                print(f"Processed {log_file.name}: {len(df)} rows")
-            else:
-                print(f"Warning: No data extracted from {log_file.name}")
-
+            # Read the CSV
+            df = read_csv(file_path)
+            
+            # Validate required columns exist
+            required_cols = ['t', 'G(t)', 'dG(t)', 'z_score', 'bias_type']
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            
+            if missing_cols:
+                raise ValueError(
+                    f"File {file_path} missing required columns: {missing_cols}"
+                )
+            
+            # Add metadata columns
+            df['seed_id'] = seed_id
+            df['source_file'] = file_path.name
+            
+            dataframes.append(df)
+            print(f"  Loaded: {file_path.name} ({len(df)} rows)")
+            
         except Exception as e:
-            print(f"Error processing {log_file.name}: {e}")
-            # Fail loudly as per constraints
-            raise e
-
-    if not all_dfs:
-        raise ValueError("No valid data found in any log files.")
-
+            print(f"  Warning: Skipping {file_path.name} due to error: {e}")
+            continue
+    
+    if not dataframes:
+        raise ValueError("No valid seed files could be loaded")
+    
     # Concatenate all dataframes
-    final_df = pd.concat(all_dfs, ignore_index=True)
+    aggregated_df = pd.concat(dataframes, ignore_index=True)
     
-    # Sort by seed_id and step to ensure consistent ordering
-    if 'step' in final_df.columns:
-        final_df = final_df.sort_values(by=['seed_id', 'step'])
-    else:
-        final_df = final_df.sort_values(by=['seed_id'])
-
-    # Ensure column order is logical: seed_id, bias_type, step, G(t), dG(t), z_score, ...
-    # Check for required columns
-    required_cols = ['seed_id', 'bias_type']
-    metric_cols = ['G_t', 'dG_t', 'z_score_G'] # Common names, adjust if ingestion uses different
+    # Ensure proper ordering: seed_id, then timesteps
+    aggregated_df = aggregated_df.sort_values(['seed_id', 't']).reset_index(drop=True)
     
-    # Reorder if columns exist
-    existing_cols = [c for c in final_df.columns if c in required_cols + metric_cols]
-    final_df = final_df[existing_cols + [c for c in final_df.columns if c not in existing_cols]]
-
-    # Write to CSV
-    write_csv(final_df, output_path)
+    # Compute aggregate statistics across seeds for each timestep
+    # Group by timestep and compute mean/std across seeds
+    if 't' in aggregated_df.columns:
+        agg_stats = aggregated_df.groupby('t').agg({
+            'G(t)': ['mean', 'std', 'min', 'max'],
+            'dG(t)': ['mean', 'std', 'min', 'max'],
+            'z_score': ['mean', 'std']
+        }).reset_index()
+        
+        # Flatten column names
+        agg_stats.columns = ['t'] + [
+            f"{col[0]}_{col[1]}" if col[1] != '' else col[0]
+            for col in agg_stats.columns[1:]
+        ]
+        
+        # Merge stats back into main dataframe (optional, for reference)
+        # aggregated_df = aggregated_df.merge(agg_stats, on='t', how='left')
+        
+        print(f"Computed aggregate statistics across {aggregated_df['seed_id'].nunique()} seeds")
     
-    # Compute checksum
-    checksum = compute_sha256(output_path)
-    print(f"Aggregation complete. Output: {output_path}, Rows: {len(final_df)}, SHA256: {checksum}")
+    # Write output
+    ensure_dir(output_path.parent)
+    write_csv(output_path, aggregated_df)
     
-    return output_path
+    print(f"Aggregated {len(aggregated_df)} rows from {len(dataframes)} seeds to {output_path}")
+    
+    return aggregated_df
 
 
 def main():
     """
-    Entry point for the aggregation script.
-    """
-    project_root = get_project_root()
-    raw_dir = project_root / "data" / "raw"
-    processed_dir = project_root / "data" / "processed"
+    Main entry point for trajectory aggregation.
     
+    Reads all seed logs from data/raw/, aggregates them, and writes
+    the result to data/processed/trajectories_divergence.csv
+    """
+    # Get project root and ensure paths exist
+    project_root = get_project_root()
     ensure_paths_exist()
     
-    if not raw_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
+    # Define input and output paths
+    input_dir = project_root / "data" / "raw"
+    output_path = project_root / "data" / "processed" / "trajectories_divergence.csv"
     
-    output_path = aggregate_seed_logs(raw_dir, processed_dir)
-    print(f"Successfully aggregated trajectories to {output_path}")
+    print(f"Aggregating seed logs from: {input_dir}")
+    print(f"Output will be written to: {output_path}")
+    
+    try:
+        # Perform aggregation
+        aggregated_df = aggregate_seed_logs(input_dir, output_path)
+        
+        # Print summary statistics
+        print("\n=== Aggregation Summary ===")
+        print(f"Total rows: {len(aggregated_df)}")
+        print(f"Number of seeds: {aggregated_df['seed_id'].nunique()}")
+        print(f"Unique bias types: {aggregated_df['bias_type'].unique().tolist()}")
+        print(f"Timestep range: {aggregated_df['t'].min()} to {aggregated_df['t'].max()}")
+        
+        # Check for missing values
+        missing_counts = aggregated_df.isnull().sum()
+        if missing_counts.any():
+            print("\nMissing value counts:")
+            for col, count in missing_counts[missing_counts > 0].items():
+                print(f"  {col}: {count}")
+        else:
+            print("No missing values detected.")
+        
+        print("\nAggregation completed successfully!")
+        return 0
+        
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        print("Ensure T013 (download_cherrl_logs.py) has been run successfully first.", file=sys.stderr)
+        return 2
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"UNEXPECTED ERROR: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

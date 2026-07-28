@@ -45,7 +45,8 @@
 
 - [X] T001 Create project structure per implementation plan: Create directories `code/`, `data/raw`, `data/processed`, `tests/`, `tests/unit`, `tests/integration`, `contracts/`. Create files `requirements.txt`, `.gitignore`, `README.md`, `code/__init__.py`.
 - [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `requests`, `pyyaml`, `jsonschema`, `pytest` in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T003a [P] Configure linting (ruff): Create `.ruff.toml` with rules for E (Error), F (Pyflakes), W (Warning), I (Import), N (Naming) enforcing PEP8 and Google style.
+- [X] T003b [P] Configure formatting (black): Create `pyproject.toml` for Black formatting configuration.
 
 ---
 
@@ -76,14 +77,14 @@
 
 - [X] T010 [P] [US1] Unit test for $G(t)$ calculation logic in `tests/unit/test_ingestion_math.py`
 - [X] T011 [P] [US1] Unit test for $\Delta G(t)$ derivative logic in `tests/unit/test_ingestion_math.py`
-- [ ] T013b [P] [US1] Unit test for download script validation logic in `tests/unit/test_download_validation.py`. **Logic**: Verify that the script correctly parses the arXiv paper to find the data link, handles invalid links by raising the correct error, and exits with code 2. **Assertion**: Assert that a valid link returns success and an invalid link triggers the specific error message.
-- [ ] T012 [US1] Integration test for multi-seed aggregation in `tests/integration/test_ingestion_pipeline.py`. **Logic**: Run the full aggregation pipeline on a small set of mock logs. **Assertions**: Assert merged CSV has expected row count, assert `seed_id` distribution matches input, assert `G(t)` and `dG(t)` columns exist and are numeric.
+- [X] T013b [P] [US1] Unit test for download validation logic in `tests/unit/test_download_validation.py`. **Logic**: Verify that the validation function correctly validates the CHERRL repository source (arXiv:2606.04923), handles invalid sources by raising the correct error, and exits with code 2. This is a unit test of the validation logic with mocked network calls. **Assertion**: Assert that a valid source returns success and an invalid source triggers the specific error message.
+- [X] T012 [US1] Integration test for multi-seed aggregation in `tests/integration/test_ingestion_pipeline.py`. **Logic**: Run the full aggregation pipeline on a small set of mock logs. **Assertions**: Assert merged CSV has expected row count, assert `seed_id` distribution matches input, assert `G(t)` and `dG(t)` columns exist and are numeric.
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `download_cherrl_logs.py` to fetch real data. **Logic**: 1. Fetch and parse arXiv:2606.04923 to locate the official data repository link. 2. If link points to HuggingFace, use `datasets.load_dataset('cherrl-rewards', split='train')` (or the specific ID found). 3. If link points elsewhere, fetch via `requests`. 4. **Fail Loud**: If fetch fails or link is invalid, log "ERROR: Data source unreachable" and exit with code 2 (data_missing). **NO** synthetic fallback allowed. This ensures the pipeline halts visibly if data is missing, making the failure mode testable.
-- [ ] T014 [US1] Implement `code/ingestion.py` to load logs and compute $G(t) = |J_{\text{biased}} - J_{\text{unbiased}}|$ (FR-001). **Dependency**: Requires T013 to complete successfully and produce raw logs.
-- [ ] T015 [US1] Implement `code/ingestion.py` to compute $\Delta G(t)$ (discrete derivative), rolling z-score (FR-002), and handle edge cases. **Edge Case Logic**: Use `linear interpolation` for missing timesteps. If variance of $G(t)$ is zero, set z-score to 0 (using epsilon=1e-9 floor for division). **Dependency**: Requires T014.
+- [ ] T013 [US1] Implement `download_cherrl_logs.py` to fetch real data. **Logic**: 1. Fetch data from the CHERRL repository artifacts explicitly linked to arXiv:2606.04923 as described in the 'input block' of `plan.md`. 2. **Fail Loud**: If fetch fails or the source does not match the verified arXiv reference, log "ERROR: Data source unreachable or mismatch" and exit with code 2 (data_missing). **NO** synthetic fallback allowed. This ensures the pipeline halts visibly if data is missing, making the failure mode testable.
+- [X] T014 [US1] Implement `code/ingestion.py` to load logs and compute $G(t) = |J_{\text{biased}} - J_{\text{unbiased}}|$ (FR-001). **Dependency**: Requires T013 to complete successfully and produce raw logs.
+- [X] T015 [US1] Implement `code/ingestion.py` to compute $\Delta G(t)$ (discrete derivative), rolling z-score (FR-002), and handle edge cases. **Edge Case Logic**: Use `linear interpolation` for missing timesteps. If variance of $G(t)$ is zero, set z-score to 0 (using epsilon=1e-9 floor for division). **Dependency**: Requires T014.
 - [ ] T016 [US1] Implement aggregation logic to merge multiple seed logs into `data/processed/trajectories_divergence.csv` preserving `seed_id` and `bias_type`. **Dependency**: Requires T015.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -105,7 +106,8 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] Implement `code/detector.py` to calculate sliding window z-score ($W=20$, min 5 samples) per FR-002, reading from `data/processed/trajectories_divergence.csv`.
-- [ ] T022 [US2] Implement logic in `code/detector.py` to flag "hacked" if $z(G(t)) > 3.0$ OR if $\Delta G(t)$ exceeds a dynamic threshold. **Config**: Load `DYNAMIC_THRESHOLD_MULTIPLIER` from `code/config.py` (default 2.0). **Baseline**: Calculate baseline noise floor as the standard deviation of the first 10 timesteps (or all available if <10).
+- [ ] T025 [US2] Implement contaminated window exclusion logic (FR-009). **Logic**: Detect windows where hacking event duration > W=20 and exclude them from the z-score baseline calculation to prevent suppression. **Dependency**: Requires T021.
+- [ ] T022 [US2] Implement logic in `code/detector.py` to flag "hacked" if $z(G(t)) > 3.0$ OR if $\Delta G(t)$ exceeds a dynamic threshold. **Config**: Load `DYNAMIC_THRESHOLD_MULTIPLIER` from `code/config.py` (default 2.0). **Baseline**: Calculate baseline noise floor as the standard deviation of the **preceding 100 timesteps** (or all available if <100) using the corrected baseline from T025.
 - [ ] T023 [US2] Generate `data/processed/trajectories_labeled.csv` by appending `hacked_label` column to the US1 output, preserving separation of concerns (FR-001 vs FR-003).
 - [ ] T024 [US2] Add error handling for NaN values in standard deviation calculations.
 
@@ -117,28 +119,28 @@
 
 **Goal**: Evaluate detector performance against ground truth ($J_{\text{gold}}$ drops) and perform statistical significance testing.
 
-**⚠️ GATE**: Wait for Phase 3 completion (T014/T015 verified) before attempting T030a/T030b.
+**⚠️ GATE**: Wait for Phase 3 completion (T014/T015 verified) before attempting T032a/T032b/T031.
 
 **Independent Test**: Run evaluation on a pre-labeled test set and verify confusion matrix, F1-scores, and p-value output.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Unit test for ground-truth derivation logic ($J_{\text{gold}}$ drops) in `tests/unit/test_ground_truth.py`
-- [ ] T026 [P] [US3] Unit test for independence check (Pearson correlation) in `tests/unit/test_ground_truth.py`
-- [ ] T027 [P] [US3] Unit test for Paired t-test implementation in `tests/unit/test_evaluation.py`
-- [ ] T028 [P] [US3] Integration test for full evaluation pipeline in `tests/integration/test_evaluation_pipeline.py`
+- [ ] T026 [P] [US3] Unit test for ground-truth derivation logic ($J_{\text{gold}}$ drops) in `tests/unit/test_ground_truth.py`
+- [ ] T027 [P] [US3] Unit test for independence check (Pearson correlation) in `tests/unit/test_ground_truth.py`
+- [ ] T028 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_evaluation.py`
+- [ ] T029 [P] [US3] Unit test for baseline generation logic in `tests/unit/test_evaluation.py`
+- [ ] T030 [P] [US3] Integration test for full evaluation pipeline in `tests/integration/test_evaluation_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/ground_truth.py` to derive labels from $J_{\text{gold}}$ drops (≥0.1 decrease over 50 steps, sustained 3 steps) per FR-004. **Traceability**: The fixed-step window is defined in **Spec Assumption 6**. (Note: Spec FR-004 should be updated to include this window size for full traceability).
-- [ ] T030a [US3] Implement `code/ground_truth.py` to check Pearson correlation for $J_{\text{unbiased}}$ vs $J_{\text{gold}}$ (FR-006). **Logic**: If correlation is **greater than or equal to** `CORRELATION_THRESHOLD` (default 0.8), raise `RuntimeError` with message "CIRCULAR_VALIDATION: Correlation >= threshold" and exit with code 1 immediately. Do not proceed. **Dependency**: Requires T014, T015 (data ingestion).
-- [ ] T030b [US3] Implement `code/ground_truth.py` to check Pearson correlation for $J_{\text{biased}}$ vs $J_{\text{gold}}$ as a **Plan Extension** (not Spec Requirement). **Logic**: Same threshold and exit behavior as T030a. This is an additional safety check mandated by Plan.md Complexity Tracking.
-- [ ] T031 [US3] Implement `code/evaluation.py` to calculate Precision, Recall, F1 per bias type (Lexical, Format, Tone, Self-praise) per FR-005. **Baseline Generation**: Generate a "Static-threshold baseline" label set (flags last [deferred] of training steps as hacked) to be used by T032a.
-- [ ] T032a [US3] Implement `code/evaluation.py` to perform a **Paired t-test** (Primary, per FR-005) comparing the detector's F1-scores against the **Static-threshold baseline** (generated in T031). **Output**: Report p-value and effect size.
-- [ ] T032b [US3] Implement `code/evaluation.py` to perform a **Wilcoxon signed-rank test** (Secondary) comparing the detector's F1-scores against **Neutral baselines** for robustness. **Baseline Logic**: Generate random-guess labels (uniform 0/1, p=0.5) and mean-divergence labels (flag if G(t) > mean(G)). **Output**: Report p-value and effect size.
-- [ ] T033 [US3] Implement `code/evaluation.py` to check SC-003 (F1 std dev ≤ 0.15); if failed, trigger logic to call `code/tune_rubric_specific.py` for grid search per rubric type (Lexical, Format, Tone, Self-praise). **Inputs**: Pass per-rubric F1 scores and raw data path. **Output**: JSON with optimized thresholds per rubric.
-- [ ] T034 [US3] Implement `code/tune_rubric_specific.py` for grid search per rubric type. **Inputs**: Raw data path and per-rubric F1 scores. **Output**: JSON with optimized thresholds per rubric.
-- [ ] T035 [US3] Generate final `data/processed/metrics.csv` and evaluation report with p-values and F1 scores.
+- [ ] T032a [US3] Implement `code/ground_truth.py` to check Pearson correlation for $J_{\text{unbiased}}$ vs $J_{\text{gold}}$ (FR-006). **Logic**: If correlation is **strictly greater than** `CORRELATION_THRESHOLD` (default 0.8), raise `RuntimeError` with message "CIRCULAR_VALIDATION: Correlation > threshold" and exit with code 1 immediately. Do not proceed. **Dependency**: Requires T014, T015 (data ingestion).
+- [ ] T032b [US3] Implement `code/ground_truth.py` to check Pearson correlation for $J_{\text{biased}}$ vs $J_{\text{gold}}$ (FR-008). **Logic**: If correlation is **strictly greater than** `CORRELATION_THRESHOLD` (default 0.8), raise `RuntimeError` with message "CIRCULAR_VALIDATION: Correlation > threshold" and exit with code 1 immediately. Do not proceed. **Dependency**: Requires T014, T015 (data ingestion).
+- [ ] T031 [US3] Implement `code/ground_truth.py` to derive labels from $J_{\text{gold}}$ drops (≥0.1 decrease over 50 steps, sustained 3 steps) per FR-004. **Traceability**: The fixed-step window is defined in **Spec Assumption 6**. **Edge Case Logic**: Use `linear interpolation` for missing timesteps. If the running mean window is not fully available at the start of the trajectory, compute the mean over the available steps. (Note: Spec FR-004 should be updated to include this window size for full traceability). **Dependency**: Requires T032a and T032b to pass successfully.
+- [ ] T033 [US3] Implement `code/evaluation.py` to generate a "Stratified Random Baseline". **Logic**: Sample a fraction of timesteps defined in `code/config.py` as `BASELINE_SAMPLE_FRACTION`. **Seed Requirement**: Use a pinned random seed defined in `code/config.py` as `BASELINE_SEED`. **Error Handling**: If `BASELINE_SEED` is missing from config, raise `RuntimeError` with message "MISSING_CONFIG: BASELINE_SEED required for reproducibility" and exit with code 1. **Output**: A binary label set for the baseline.
+- [ ] T034a [US3] Implement `code/evaluation.py` to perform a **Wilcoxon signed-rank test** (Primary, per FR-005) comparing the detector's F1-scores against the **Stratified Random Baseline** (generated in T033). **Inputs**: F1-scores from detector and baseline across all seeds. **Output**: Report p-value and effect size.
+- [ ] T035 [US3] Implement `code/evaluation.py` to check SC-003 (F1 std dev ≤ 0.15). **Logic**: Calculate the standard deviation of F1-scores across rubric types. If the standard deviation exceeds 0.15, **halt the pipeline immediately** and report this as a research failure (do not attempt tuning). If the standard deviation is ≤ 0.15, **continue to report generation**. **Exit Code**: Exit with code 1 to signal a failed research outcome.
+- [ ] T037 [US3] Implement sensitivity analysis for ground-truth drop threshold (FR-007). **Logic**: Sweep threshold over the specific set `{0.05, 0.1, 0.15}` and report variation in F1-scores.
+- [ ] T038 [US3] Generate final `data/processed/metrics.csv` and evaluation report with p-values, F1 scores, and sensitivity analysis results.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,11 +150,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T037 Code cleanup and refactoring
-- [ ] T038 Implement sequential seed processing in `code/main.py` to ensure memory safety and runtime < 4 hours (process seeds one by one if needed).
-- [ ] T039 [P] Additional unit tests for edge cases (missing data, zero variance) in `tests/unit/`
-- [ ] T040 Run quickstart.md validation and verify all artifacts are checksummed
+- [ ] T039 [P] Documentation updates in `README.md` and `quickstart.md`
+- [ ] T040a [P] Refactor `code/utils.py` for modularity and readability: Split large functions into smaller, reusable components and ensure consistent naming conventions.
+- [ ] T040b [P] Refactor `code/config.py` for clarity: Organize constants into logical groups and add docstrings for all configuration parameters.
+- [ ] T041 Implement sequential seed processing in `code/main.py` to ensure memory safety and runtime < 4 hours (process seeds one by one if needed).
+- [ ] T042 [P] Additional unit tests for edge cases (missing data, zero variance) in `tests/unit/`
+- [ ] T043 Run quickstart.md validation and verify all artifacts are checksummed
 
 ---
 
@@ -177,8 +180,8 @@
 
 - Tests (if included) MUST be written and FAIL before implementation
 - Data ingestion (T013) MUST precede math computation (T014)
-- Ground truth derivation (T029) MUST precede evaluation (T031)
-- Independence check (T030a/T030b) MUST run before any ground truth is used for metrics
+- Ground truth derivation (T031) MUST be preceded by Independence Checks (T032a/T032b)
+- Independence check (T032a/T032b) MUST run before any ground truth is used for metrics
 
 ### Parallel Opportunities
 
@@ -230,7 +233,7 @@ With multiple developers:
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data Pipeline)
  - Developer B: User Story 2 (Detector Logic) - can start once T013 (download) is done
- - Developer C: User Story 3 (Evaluation) - can start once T029 (ground truth logic) is defined
+ - Developer C: User Story 3 (Evaluation) - can start once T031 (ground truth logic) is defined
 3. Stories complete and integrate independently
 
 ---
@@ -243,9 +246,16 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **CRITICAL**: Ensure all data download tasks (T013) validate the source against the arXiv paper (arXiv:2606.04923) before fetching. No fake data generation is allowed.
-- **CRITICAL**: Ensure T030a (independence check) runs before T031 (evaluation) to prevent circular validation. T030a must check J_unbiased vs J_gold and halt if correlation >= 0.8. T030b is an extension for J_biased.
-- **CRITICAL**: If SC-003 fails (F1 std dev > 0.15), T033/T034 must be executed to attempt rubric-specific tuning for Lexical, Format, Tone, and Self-praise types.
-- **CRITICAL**: T032a uses Paired t-test as the PRIMARY method per FR-005. T032b uses Wilcoxon as a secondary check.
-- **CRITICAL**: T013 must implement a "fail loud" strategy: if the real fetch fails, the script MUST exit with code 2 and log "ERROR: Data source unreachable". It must NOT contain any `try/except` block that falls back to synthetic data generation or mock data.
-- **CRITICAL**: T022 and T030a/b must load empirical constants (multiplier, correlation threshold) from `code/config.py` rather than hardcoding them, to defer empirical specifics as per Spec Assumptions.
+- **CRITICAL**: Ensure all data download tasks (T013) validate the source against the verified dataset URLs in the plan's input block (arXiv:2606.04923) before fetching. No fake data generation is allowed.
+- **CRITICAL**: Ensure T032a (independence check) and T032b run BEFORE T031 (ground truth generation) to prevent circular validation. T032a must check J_unbiased vs J_gold and T032b must check J_biased vs J_gold. Both must halt if correlation > 0.8 (strictly greater).
+- **CRITICAL**: If SC-003 fails (F1 std dev > 0.15), T035 must halt the pipeline with exit code 1. No automatic tuning (T036) is permitted.
+- **CRITICAL**: T034a must use the Wilcoxon signed-rank test as the primary method per FR-005, comparing against the Stratified Random Baseline generated in T033.
+- **CRITICAL**: T013 must implement a "fail loud" strategy: if the real fetch fails or source mismatch, the script MUST exit with code 2 and log "ERROR: Data source unreachable". It must NOT contain any `try/except` block that falls back to synthetic data generation or mock data.
+- **CRITICAL**: T022, T032a, and T032b must load empirical constants (multiplier, correlation threshold) from `code/config.py` rather than hardcoding them, to defer empirical specifics as per Spec Assumptions.
+- **CRITICAL**: T025 must implement FR-009 to exclude contaminated windows where hacking duration exceeds the sliding window size, preventing suppression of the z-score baseline. T025 must run before T022.
+- **CRITICAL**: T037 must implement FR-007 sensitivity analysis to validate robustness across rubric types by sweeping the drop threshold over the specific set {0.05, 0.1, 0.15}.
+- **CRITICAL**: T033 and T034a must use a pinned random seed from `code/config.py` (`BASELINE_SEED`). If the seed is missing, the task must raise an error and exit.
+- **CRITICAL**: T033 must use a fixed sample fraction defined in `code/config.py` (`BASELINE_SAMPLE_FRACTION`) for the stratified random baseline, not hardcoded.
+- **CRITICAL**: T017 must implement linear interpolation for missing timesteps and epsilon floor (1e-9) for zero variance.
+- **CRITICAL**: T040 has been split into T040a and T040b for specific file refactoring.
+- **CRITICAL**: T017 has been implemented as a concrete task with specific logic for interpolation and epsilon floor.
