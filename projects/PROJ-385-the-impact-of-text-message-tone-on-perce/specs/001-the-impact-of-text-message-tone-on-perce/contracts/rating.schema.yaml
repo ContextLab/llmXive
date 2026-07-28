@@ -1,37 +1,30 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Rating Schema"
-description: "Schema for human or simulated ratings of stimuli."
-type: "object"
+# Rating Schema Definition
+# Defines the structure for human ratings of emotional support.
+# Verified against T006 requirements.
+
+type: object
 required:
   - participant_id
   - stimulus_id
+  - relationship
   - rating
-  - relationship_context
-  - timestamp
 properties:
   participant_id:
-    type: "string"
-    description: "Unique identifier for the participant (e.g., 'P-12345678')."
-    pattern: "^P-\\d{8}$"
+    type: string
+    description: Unique identifier for the participant (e.g., Prolific ID)
+    pattern: "^P[A-Z0-9]{8}$"
   stimulus_id:
-    type: "string"
-    description: "Reference to the stimulus being rated."
-    pattern: "^S\\d{4}$"
+    type: string
+    description: Reference to the stimulus being rated
+    pattern: "^S[0-9]{3}$"
+  relationship:
+    type: string
+    description: The relationship context of the message
+    enum:
+      - "friend"
+      - "acquaintance"
   rating:
-    type: "integer"
-    description: "Likert scale rating of perceived emotional support."
+    type: integer
+    description: Perceived emotional support rating on a 1-7 Likert scale
     minimum: 1
     maximum: 7
-  relationship_context:
-    type: "string"
-    description: "The relationship context assigned for this rating."
-    enum: ["friend", "acquaintance"]
-  timestamp:
-    type: "string"
-    format: "date-time"
-    description: "Timestamp of the rating (ISO 8601)."
-  mode:
-    type: "string"
-    description: "Indicates if data is real or simulated."
-    enum: ["real", "simulation"]
-additionalProperties: false

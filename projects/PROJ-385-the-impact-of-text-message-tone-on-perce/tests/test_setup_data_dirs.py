@@ -1,48 +1,63 @@
+"""
+Tests for the data directory setup script.
+Verifies that the required directories and .gitkeep files are created.
+"""
 import os
-from pathlib import Path
 import pytest
-import shutil
-import sys
+from pathlib import Path
+from config import get_project_root, get_raw_data_dir, get_processed_data_dir, get_consent_dir
+from setup_data_dirs import create_directories
 
-# Add the code directory to the path for imports
-code_dir = Path(__file__).resolve().parent.parent / "code"
-sys.path.insert(0, str(code_dir))
 
-from setup_data_dirs import main
-
-def test_data_directories_created(tmp_path):
-    """
-    Test that setup_data_dirs creates the required directory structure.
-    We patch the working directory to use a temporary directory to avoid
-    polluting the actual project tree during tests.
-    """
-    # Save original cwd
-    original_cwd = os.getcwd()
+def test_create_directories_creates_folders():
+    """Test that create_directories creates the required folders."""
+    # Run the setup
+    create_directories()
     
-    try:
-        # Change to temp directory (simulating project root)
-        os.chdir(tmp_path)
-        
-        # Create a dummy code directory so the script's logic finds the parent
-        (tmp_path / "code").mkdir()
-        
-        # Run the main function
-        main()
-        
-        # Verify directories exist
-        data_raw = tmp_path / "data" / "raw"
-        data_processed = tmp_path / "data" / "processed"
-        data_consent = tmp_path / "data" / "consent"
-        
-        assert data_raw.exists(), "data/raw directory was not created"
-        assert data_raw.is_dir(), "data/raw is not a directory"
-        
-        assert data_processed.exists(), "data/processed directory was not created"
-        assert data_processed.is_dir(), "data/processed is not a directory"
-        
-        assert data_consent.exists(), "data/consent directory was not created"
-        assert data_consent.is_dir(), "data/consent is not a directory"
-        
-    finally:
-        # Restore original cwd
-        os.chdir(original_cwd)
+    # Verify directories exist
+    assert get_raw_data_dir().exists(), f"Directory {get_raw_data_dir()} does not exist"
+    assert get_processed_data_dir().exists(), f"Directory {get_processed_data_dir()} does not exist"
+    assert get_consent_dir().exists(), f"Directory {get_consent_dir()} does not exist"
+    
+    # Verify they are directories
+    assert get_raw_data_dir().is_dir(), f"{get_raw_data_dir()} is not a directory"
+    assert get_processed_data_dir().is_dir(), f"{get_processed_data_dir()} is not a directory"
+    assert get_consent_dir().is_dir(), f"{get_consent_dir()} is not a directory"
+
+
+def test_gitkeep_files_exist():
+    """Test that .gitkeep files are created in each directory."""
+    create_directories()
+    
+    # Check for .gitkeep files
+    raw_gitkeep = get_raw_data_dir() / ".gitkeep"
+    processed_gitkeep = get_processed_data_dir() / ".gitkeep"
+    consent_gitkeep = get_consent_dir() / ".gitkeep"
+    
+    assert raw_gitkeep.exists(), f".gitkeep missing in {get_raw_data_dir()}"
+    assert processed_gitkeep.exists(), f".gitkeep missing in {get_processed_data_dir()}"
+    assert consent_gitkeep.exists(), f".gitkeep missing in {get_consent_dir()}"
+    
+    # Verify they are files
+    assert raw_gitkeep.is_file(), f"{raw_gitkeep} is not a file"
+    assert processed_gitkeep.is_file(), f"{processed_gitkeep} is not a file"
+    assert consent_gitkeep.is_file(), f"{consent_gitkeep} is not a file"
+
+
+def test_directory_structure_matches_spec():
+    """Test that the directory structure matches the project specification."""
+    create_directories()
+    
+    # Verify the structure under data/
+    data_dir = get_project_root() / "data"
+    assert data_dir.exists(), "data/ directory does not exist"
+    
+    # Check subdirectories
+    assert (data_dir / "raw").exists(), "data/raw/ missing"
+    assert (data_dir / "processed").exists(), "data/processed/ missing"
+    assert (data_dir / "consent").exists(), "data/consent/ missing"
+    
+    # Verify .gitkeep files
+    assert (data_dir / "raw" / ".gitkeep").exists(), "data/raw/.gitkeep missing"
+    assert (data_dir / "processed" / ".gitkeep").exists(), "data/processed/.gitkeep missing"
+    assert (data_dir / "consent" / ".gitkeep").exists(), "data/consent/.gitkeep missing"

@@ -1,171 +1,95 @@
+"""Unit tests for the setup_data_dirs script (Task T005).
+
+These tests verify that:
+1. The required directories (data/raw, data/processed, data/consent) are created.
+2. Each directory contains a .gitkeep file.
+3. The directories are empty except for the .gitkeep file.
 """
-Unit tests for the setup_data_dirs module.
-Verifies that the data directory structure is created correctly.
-"""
+
 import os
-import pytest
+import shutil
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pytest
 
-from setup_data_dirs import create_directories, main
-from config import get_project_root, get_raw_data_dir, get_processed_data_dir, get_consent_dir
+# We need to mock the config to use a temporary directory
+import sys
+from unittest.mock import patch
 
-
-class TestCreateDirectories:
-    """Tests for the create_directories function."""
-
-    def test_creates_missing_directories(self, tmp_path, monkeypatch):
-        """Test that missing directories are created."""
-        # Mock the config functions to use a temporary directory
-        def mock_get_project_root():
-            return tmp_path
-
-        monkeypatch.setattr("setup_data_dirs.get_project_root", mock_get_project_root)
-        
-        # Mock the config functions to return specific paths under tmp_path
-        def mock_get_raw_data_dir():
-            return tmp_path / "data" / "raw"
-
-        def mock_get_processed_data_dir():
-            return tmp_path / "data" / "processed"
-
-        def mock_get_consent_dir():
-            return tmp_path / "data" / "consent"
-
-        monkeypatch.setattr("setup_data_dirs.get_raw_data_dir", mock_get_raw_data_dir)
-        monkeypatch.setattr("setup_data_dirs.get_processed_data_dir", mock_get_processed_data_dir)
-        monkeypatch.setattr("setup_data_dirs.get_consent_dir", mock_get_consent_dir)
-
-        # Run the function
-        result = create_directories()
-
-        # Assert that the directories were created
-        assert result is True
-        assert mock_get_raw_data_dir().exists()
-        assert mock_get_processed_data_dir().exists()
-        assert mock_get_consent_dir().exists()
-
-    def test_skips_existing_directories(self, tmp_path, monkeypatch):
-        """Test that existing directories are not recreated."""
-        # Mock the config functions to use a temporary directory
-        def mock_get_project_root():
-            return tmp_path
-
-        monkeypatch.setattr("setup_data_dirs.get_project_root", mock_get_project_root)
-
-        # Create the directories beforehand
-        raw_dir = tmp_path / "data" / "raw"
-        processed_dir = tmp_path / "data" / "processed"
-        consent_dir = tmp_path / "data" / "consent"
-
-        raw_dir.mkdir(parents=True, exist_ok=True)
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        consent_dir.mkdir(parents=True, exist_ok=True)
-
-        # Mock the config functions to return specific paths under tmp_path
-        def mock_get_raw_data_dir():
-            return raw_dir
-
-        def mock_get_processed_data_dir():
-            return processed_dir
-
-        def mock_get_consent_dir():
-            return consent_dir
-
-        monkeypatch.setattr("setup_data_dirs.get_raw_data_dir", mock_get_raw_data_dir)
-        monkeypatch.setattr("setup_data_dirs.get_processed_data_dir", mock_get_processed_data_dir)
-        monkeypatch.setattr("setup_data_dirs.get_consent_dir", mock_get_consent_dir)
-
-        # Run the function
-        result = create_directories()
-
-        # Assert that the function succeeded
-        assert result is True
-        # Assert that the directories still exist
-        assert raw_dir.exists()
-        assert processed_dir.exists()
-        assert consent_dir.exists()
-
-    def test_creates_parent_directories(self, tmp_path, monkeypatch):
-        """Test that parent directories are created if they don't exist."""
-        # Mock the config functions to use a temporary directory
-        def mock_get_project_root():
-            return tmp_path
-
-        monkeypatch.setattr("setup_data_dirs.get_project_root", mock_get_project_root)
-
-        # Mock the config functions to return specific paths under tmp_path
-        # Ensure the 'data' parent directory doesn't exist
-        raw_dir = tmp_path / "data" / "raw"
-        processed_dir = tmp_path / "data" / "processed"
-        consent_dir = tmp_path / "data" / "consent"
-
-        def mock_get_raw_data_dir():
-            return raw_dir
-
-        def mock_get_processed_data_dir():
-            return processed_dir
-
-        def mock_get_consent_dir():
-            return consent_dir
-
-        monkeypatch.setattr("setup_data_dirs.get_raw_data_dir", mock_get_raw_data_dir)
-        monkeypatch.setattr("setup_data_dirs.get_processed_data_dir", mock_get_processed_data_dir)
-        monkeypatch.setattr("setup_data_dirs.get_consent_dir", mock_get_consent_dir)
-
-        # Run the function
-        result = create_directories()
-
-        # Assert that the directories were created
-        assert result is True
-        assert raw_dir.exists()
-        assert processed_dir.exists()
-        assert consent_dir.exists()
-        # Assert that the parent 'data' directory was created
-        assert (tmp_path / "data").exists()
+from setup_data_dirs import create_directories
 
 
-class TestMain:
-    """Tests for the main function."""
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to act as the project root."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    # Cleanup after test
+    shutil.rmtree(temp_dir, ignore_errors=True)
 
-    def test_main_returns_zero_on_success(self, tmp_path, monkeypatch, capsys):
-        """Test that main returns 0 on success."""
-        # Mock the config functions to use a temporary directory
-        def mock_get_project_root():
-            return tmp_path
 
-        monkeypatch.setattr("setup_data_dirs.get_project_root", mock_get_project_root)
+@pytest.fixture
+def mocked_config(temp_project_root):
+    """Mock the config functions to use our temporary directory."""
+    with patch("setup_data_dirs.get_project_root", return_value=temp_project_root), \
+         patch("setup_data_dirs.get_raw_data_dir", return_value=temp_project_root / "data" / "raw"), \
+         patch("setup_data_dirs.get_processed_data_dir", return_value=temp_project_root / "data" / "processed"), \
+         patch("setup_data_dirs.get_consent_dir", return_value=temp_project_root / "data" / "consent"):
+        yield
 
-        # Mock the config functions to return specific paths under tmp_path
-        def mock_get_raw_data_dir():
-            return tmp_path / "data" / "raw"
 
-        def mock_get_processed_data_dir():
-            return tmp_path / "data" / "processed"
+def test_directories_created(mocked_config, temp_project_root):
+    """Test that the required directories are created."""
+    create_directories()
 
-        def mock_get_consent_dir():
-            return tmp_path / "data" / "consent"
+    raw_dir = temp_project_root / "data" / "raw"
+    processed_dir = temp_project_root / "data" / "processed"
+    consent_dir = temp_project_root / "data" / "consent"
 
-        monkeypatch.setattr("setup_data_dirs.get_raw_data_dir", mock_get_raw_data_dir)
-        monkeypatch.setattr("setup_data_dirs.get_processed_data_dir", mock_get_processed_data_dir)
-        monkeypatch.setattr("setup_data_dirs.get_consent_dir", mock_get_consent_dir)
+    assert raw_dir.exists(), "data/raw directory should exist"
+    assert processed_dir.exists(), "data/processed directory should exist"
+    assert consent_dir.exists(), "data/consent directory should exist"
 
-        # Run the main function
-        result = main()
+    assert raw_dir.is_dir(), "data/raw should be a directory"
+    assert processed_dir.is_dir(), "data/processed should be a directory"
+    assert consent_dir.is_dir(), "data/consent should be a directory"
 
-        # Assert that the result is 0
-        assert result == 0
 
-    def test_main_returns_one_on_failure(self, tmp_path, monkeypatch, capsys):
-        """Test that main returns 1 on failure."""
-        # Mock the create_directories to raise an exception
-        def mock_create_directories():
-            raise Exception("Test exception")
+def test_gitkeep_files_created(mocked_config, temp_project_root):
+    """Test that .gitkeep files are created in each directory."""
+    create_directories()
 
-        monkeypatch.setattr("setup_data_dirs.create_directories", mock_create_directories)
+    raw_dir = temp_project_root / "data" / "raw"
+    processed_dir = temp_project_root / "data" / "processed"
+    consent_dir = temp_project_root / "data" / "consent"
 
-        # Run the main function
-        result = main()
+    gitkeep_raw = raw_dir / ".gitkeep"
+    gitkeep_processed = processed_dir / ".gitkeep"
+    gitkeep_consent = consent_dir / ".gitkeep"
 
-        # Assert that the result is 1
-        assert result == 1
+    assert gitkeep_raw.exists(), ".gitkeep should exist in data/raw"
+    assert gitkeep_processed.exists(), ".gitkeep should exist in data/processed"
+    assert gitkeep_consent.exists(), ".gitkeep should exist in data/consent"
+
+    assert gitkeep_raw.is_file(), ".gitkeep in data/raw should be a file"
+    assert gitkeep_processed.is_file(), ".gitkeep in data/processed should be a file"
+    assert gitkeep_consent.is_file(), ".gitkeep in data/consent should be a file"
+
+    # Verify .gitkeep files have content
+    assert gitkeep_raw.read_text().strip() != "", ".gitkeep in data/raw should have content"
+    assert gitkeep_processed.read_text().strip() != "", ".gitkeep in data/processed should have content"
+    assert gitkeep_consent.read_text().strip() != "", ".gitkeep in data/consent should have content"
+
+
+def test_directories_empty_except_gitkeep(mocked_config, temp_project_root):
+    """Test that directories only contain the .gitkeep file."""
+    create_directories()
+
+    raw_dir = temp_project_root / "data" / "raw"
+    processed_dir = temp_project_root / "data" / "processed"
+    consent_dir = temp_project_root / "data" / "consent"
+
+    # Check that only .gitkeep exists in each directory
+    assert len(list(raw_dir.iterdir())) == 1, "data/raw should only contain .gitkeep"
+    assert len(list(processed_dir.iterdir())) == 1, "data/processed should only contain .gitkeep"
+    assert len(list(consent_dir.iterdir())) == 1, "data/consent should only contain .gitkeep"

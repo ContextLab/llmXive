@@ -1,104 +1,71 @@
 """
-Task T001: Create project structure per implementation plan.
-Creates the required directories: code/, data/, tests/, specs/
-and their subdirectories as defined in the project plan.
+Script to create the required project directory structure.
+This ensures all necessary folders exist before running the pipeline.
 """
 import os
 from pathlib import Path
-from config import (
-    get_project_root,
-    get_data_dir,
-    get_raw_data_dir,
-    get_processed_data_dir,
-    get_consent_dir,
-    get_specs_dir,
-    get_contracts_dir,
-    get_code_dir,
-    get_tests_dir,
-    get_figures_dir
-)
+from config import get_project_root, get_raw_data_dir, get_processed_data_dir, get_consent_dir, get_specs_dir, get_contracts_dir, get_figures_dir
 
 def create_directories():
-    """
-    Creates the full project directory structure.
-    """
-    project_root = get_project_root()
-    print(f"Project root: {project_root}")
-
+    """Create the full project directory tree."""
+    root = get_project_root()
+    
     # Core directories
-    dirs_to_create = [
-        get_code_dir(),
-        get_tests_dir(),
-        get_specs_dir(),
-        get_figures_dir(),
-        get_data_dir(),
+    dirs = [
+        root / "code",
+        root / "data",
+        root / "tests",
+        root / "specs",
+        # Data subdirectories
         get_raw_data_dir(),
         get_processed_data_dir(),
         get_consent_dir(),
+        root / "data" / "figures", # Ensure figures dir exists if not in config
+        # Tests subdirectories
+        root / "tests" / "contract",
+        root / "tests" / "unit",
+        # Specs subdirectories
+        get_specs_dir(),
         get_contracts_dir(),
     ]
 
-    created_count = 0
-    for dir_path in dirs_to_create:
-        path_obj = Path(dir_path)
-        if not path_obj.exists():
-            path_obj.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {dir_path}")
-            created_count += 1
+    created = []
+    for d in dirs:
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            created.append(str(d.relative_to(root)))
         else:
-            print(f"Exists: {dir_path}")
+            # Ensure .gitkeep exists in data folders to keep them tracked
+            if "data" in str(d) and d.is_dir():
+                gitkeep = d / ".gitkeep"
+                if not gitkeep.exists():
+                    gitkeep.touch()
+                    created.append(f"{str(d.relative_to(root))}/.gitkeep")
+    
+    # Create .gitkeep in root data folder if needed
+    data_root = root / "data"
+    if data_root.exists():
+        gitkeep = data_root / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
+            created.append("data/.gitkeep")
 
-    # Create placeholder __init__.py files for code and tests to make them packages
-    code_init = get_code_dir() / "__init__.py"
-    tests_init = get_tests_dir() / "__init__.py"
-    tests_unit_init = get_tests_dir() / "unit" / "__init__.py"
-    tests_integration_init = get_tests_dir() / "integration" / "__init__.py"
-    tests_contract_init = get_tests_dir() / "contract" / "__init__.py"
-
-    init_files = [code_init, tests_init, tests_unit_init, tests_integration_init, tests_contract_init]
-
-    for init_file in init_files:
-        path_obj = Path(init_file)
-        path_obj.parent.mkdir(parents=True, exist_ok=True)
-        if not path_obj.exists():
-            path_obj.touch()
-            print(f"Created: {init_file}")
-        else:
-            print(f"Exists: {init_file}")
-
-    # Create placeholder data files to ensure structure is visible
-    # (Optional, but helps verify structure)
-    raw_data = get_raw_data_dir()
-    processed_data = get_processed_data_dir()
-    consent_dir = get_consent_dir()
-
-    # Create .gitkeep files to ensure directories are tracked by git
-    gitkeep_files = [
-        raw_data / ".gitkeep",
-        processed_data / ".gitkeep",
-        consent_dir / ".gitkeep",
-        get_specs_dir() / ".gitkeep",
-        get_contracts_dir() / ".gitkeep",
-        get_figures_dir() / ".gitkeep",
-    ]
-
-    for gitkeep in gitkeep_files:
-        path_obj = Path(gitkeep)
-        path_obj.parent.mkdir(parents=True, exist_ok=True)
-        if not path_obj.exists():
-            path_obj.touch()
-            print(f"Created: {gitkeep}")
-        else:
-            print(f"Exists: {gitkeep}")
-
-    print(f"\nTotal directories created: {created_count}")
-    print("Project structure setup complete.")
+    return created
 
 def main():
-    """
-    Entry point for the script.
-    """
-    create_directories()
+    """Entry point for CLI."""
+    print("Setting up project directory structure...")
+    created = create_directories()
+    if created:
+        print(f"Created directories and files: {', '.join(created)}")
+    else:
+        print("All directories already exist.")
+    
+    # Verify structure
+    root = get_project_root()
+    print(f"\nVerifying structure at {root}:")
+    for item in sorted(root.iterdir()):
+        print(f"  {item.name}/")
 
 if __name__ == "__main__":
     main()
