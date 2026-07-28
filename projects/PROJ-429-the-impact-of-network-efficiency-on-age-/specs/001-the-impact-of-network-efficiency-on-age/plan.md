@@ -14,7 +14,7 @@ This project quantifies the relationship between resting-state brain network eff
 **Primary Dependencies**: `mne`, `numpy`, `pandas`, `scikit-learn`, `networkx`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `requests`  
 **Storage**: Local CSV/JSON/Parquet files in `data/` and `results/`  
 **Testing**: `pytest` (unit tests for graph metrics, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: standard CPU allocation, GB RAM)  
 **Project Type**: Computational Neuroscience / Data Analysis Pipeline  
 **Performance Goals**: Process full available corpus in batches (20 subjects/batch) within 6 hours; memory usage < 6GB.  
 **Constraints**: No GPU; no large-LLM inference; strict adherence to verified dataset URLs; no circular predictor-outcome construction.  

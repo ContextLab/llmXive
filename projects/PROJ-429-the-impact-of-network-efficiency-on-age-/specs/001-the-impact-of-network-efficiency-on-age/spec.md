@@ -15,7 +15,7 @@ This project investigates the relationship between age-related cognitive decline
 - Preprocess EEG data using MNE-Python:
  - Bandpass filter (1-40 Hz).
  - Apply Independent Component Analysis (ICA) for artifact removal.
- - **Epoch the continuous data into 10-second segments** (Ratified Design Decision: Deviation from initial 2s to improve spectral resolution for coherence estimation).
+ - **Epoch the continuous data into fixed-duration segments** (Ratified Design Decision: Deviation from initial 2s to improve spectral resolution for coherence estimation).
  - Reject epochs with >50% artifacts.
  - Calculate Signal-to-Noise Ratio (SNR) per epoch; flag SNR < 10dB.
 
@@ -38,7 +38,7 @@ This project investigates the relationship between age-related cognitive decline
 - Conduct power analysis to ensure minimum power >= 0.80 for target effect size r=0.3.
 
 ### FR-005: Visualization
-- Generate age-stratified bar plots of network metrics with 95% Confidence Intervals.
+- Generate age-stratified bar plots of network metrics with confidence intervals.
 - Visualize network topology changes across age groups.
 
 ### FR-006: Reproducibility
