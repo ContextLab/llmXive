@@ -40,12 +40,12 @@
 
 - [X] T005 [P] Implement `code/data/generator.py` to generate the **Test Set** (500 (2509.23775, https://arxiv.org/abs/2509.23775) queries) for FR-007. **Deliverable**: Create `data/derived/synthetic_queries_test.json` containing a list of objects with keys `prompt`, `ground_truth`, `steps`, `seed`, and `domain`.
 - [ ] T005a [P] Extend `code/data/generator.py` to generate the **Warm-up Set** (100 queries) for FR-007. **Deliverable**: Create `data/derived/synthetic_queries_warmup.json` with the same schema as T005.
-- [ ] T006 [P] Define `BenchmarkQuery` entity schema (dataclass/pydantic model) and create stub `code/data/loaders.py` with placeholder functions for loading the schema.
+- [X] T006 [P] Define `BenchmarkQuery` entity schema (dataclass/pydantic model) and create stub `code/data/loaders.py` with placeholder functions for loading the schema.
 - [X] T007 Implement `code/cache/semantic_cache.py`: Custom LRU class wrapping `cachetools` for `CacheEntry` objects (embedding, output, timestamp).
-- [ ] T008 Implement `code/cache/utils.py`: Cosine similarity calculation and thresholding logic.
+- [X] T008 Implement `code/cache/utils.py`: Cosine similarity calculation and thresholding logic.
 - [X] T009 Implement `code/pipeline/eywa_orchestra.py`: Mock/Wrapper for EywaOrchestra pipeline (CPU-tractable, deterministic).
-- [~] T010 Implement `state/manifest.json` logic and `state/hashes/` directory structure for reproducibility (Principle V). **Deliverable**: Create `state/manifest.json` with schema `{ "files": [{ "path": "str", "sha256": "str" }] }` using SHA-256 hashing for all files in `data/` and `code/`.
-- [~] T011 Create `data/raw/` and `data/derived/` directory structure with checksumming hooks
+- [ ] T010 Implement `state/manifest.json` logic and `state/hashes/` directory structure for reproducibility (Principle V). **Deliverable**: Create `state/manifest.json` with schema `{ "files": [{ "path": "str", "sha256": "str" }] }` using SHA-256 hashing for all files in `data/` and `code/`.
+- [ ] T011 Create `data/raw/` and `data/derived/` directory structure with checksumming hooks
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,19 +66,19 @@
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement full `BenchmarkQuery` entity parsing logic in `code/data/loaders.py` to ingest `data/derived/synthetic_queries_test.json` (Test Set).
+- [ ] T014 [US1] Implement full `BenchmarkQuery` entity parsing logic in `code/data/loaders.py` to ingest `data/derived/synthetic_queries_test.json` (Test Set).
 - [X] T015 [US1] Implement embedding generation using a sentence-transformer model in `code/cache/utils.py` (CPU-only).
-- [~] T016 [US1] Implement cache population logic (Warm-up Phase) in `code/cache/semantic_cache.py` using `data/derived/synthetic_queries_warmup.json`.
+- [ ] T016 [US1] Implement cache population logic (Warm-up Phase) in `code/cache/semantic_cache.py` using `data/derived/synthetic_queries_warmup.json`.
 - [X] T017 [US1] Implement cache retrieval logic with a configurable similarity threshold in `code/cache/semantic_cache.py`. <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
 - [X] T018 [US1] Implement error handling for embedding failures (log as miss) in `code/cache/semantic_cache.py`. <!-- FAILED: unspecified -->
-- [~] T019 [US1] Implement LRU eviction policy when cache limit is exceeded in `code/cache/semantic_cache.py` **AND** log every eviction event to `data/derived/cache_events.log` to satisfy Edge Case logging requirements.
+- [ ] T019 [US1] Implement LRU eviction policy when cache limit is exceeded in `code/cache/semantic_cache.py` **AND** log every eviction event to `data/derived/cache_events.log` to satisfy Edge Case logging requirements.
 - [X] T020 [US1] Create `code/pipeline/runner.py` to orchestrate the cache population and query processing loop.
 - [X] T021 [US1] Add logging for Cache Hits and Cache Misses with exact similarity scores in `code/pipeline/runner.py`.
-- [ ] T021a [US1] Define the data structure (e.g., a named tuple or class) in `code/pipeline/runner.py` to explicitly separate warm-up metrics from test set metrics.
-- [ ] T021b [US1] Implement the aggregation function in `code/pipeline/runner.py` that filters metrics using the structure from T021a to isolate test set performance.
+- [X] T021a [US1] Define the data structure (e.g., a named tuple or class) in `code/pipeline/runner.py` to explicitly separate warm-up metrics from test set metrics.
+- [X] T021b [US1] Implement the aggregation function in `code/pipeline/runner.py` that filters metrics using the structure from T021a to isolate test set performance.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,7 +92,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T022 [P] [US2] Integration test for baseline vs. cached execution in `tests/integration/test_pipeline.py`
+- [X] T022 [P] [US2] Integration test for baseline vs. cached execution in `tests/integration/test_pipeline.py`
 - [ ] T023 [P] [US2] Unit test for statistical significance calculation (Permutation Test, Linear Regression) in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 2

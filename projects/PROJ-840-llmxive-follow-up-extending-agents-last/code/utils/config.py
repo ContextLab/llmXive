@@ -4,113 +4,130 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 from dataclasses import dataclass, field
 import logging
-import sys
 
 @dataclass
 class ModelConfig:
-    path: str = "models/llama-3-8b-instruct.Q4_K_M.gguf"
+    model_path: str = ""
     quantization: str = "Q4_K_M"
-    max_tokens: int = 4096
+    context_window: int = 4096
+    max_tokens: int = 512
 
 @dataclass
 class CheckpointConfig:
     interval: int = 3
-    max_tokens: int = 2048
+    compression: str = "truncation"
+    max_size: int = 1024
 
 @dataclass
 class LoggingConfig:
     level: str = "INFO"
-    file: str = "logs/llmxive.log"
+    file: Optional[str] = None
+    format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 @dataclass
 class DataPathsConfig:
     raw_data: str = "data/raw"
     processed_data: str = "data/processed"
-    models: str = "models"
+    figures: str = "figures"
 
 @dataclass
 class NormalizationConfig:
-    float_tolerance: float = 1e-6
+    tolerance: float = 1e-6
+    strip_timestamps: bool = True
+    canonicalize_ids: bool = True
 
 @dataclass
 class StatsConfig:
+    test: str = "mcnemar"
     alpha: float = 0.05
-    method: str = "mcnemar"
+    correction: str = "bonferroni"
 
 @dataclass
 class RunnerConfig:
-    timeout_seconds: int = 21600
-    memory_limit_mb: int = 7000
-    checkpoint_interval: int = 0  # Added to satisfy runner.py contract
+    """Configuration for the execution runner."""
+    checkpoint_interval: int = 0
+    memory_limit: float = 7000.0  # MB
+    timeout: int = 21600  # seconds
+    model_path: str = ""
+    
+    # Additional attributes for compatibility with logging_config
+    def info(self, *args, **kwargs):
+        """No-op for logging compatibility."""
+        pass
 
-    def __init__(self, timeout_seconds: int = 21600, memory_limit_mb: int = 7000, checkpoint_interval: int = 0):
-        self.timeout_seconds = timeout_seconds
-        self.memory_limit_mb = memory_limit_mb
-        self.checkpoint_interval = checkpoint_interval
+    def debug(self, *args, **kwargs):
+        """No-op for logging compatibility."""
+        pass
+
+    def warning(self, *args, **kwargs):
+        """No-op for logging compatibility."""
+        pass
+
+    def error(self, *args, **kwargs):
+        """No-op for logging compatibility."""
+        pass
+
+    def critical(self, *args, **kwargs):
+        """No-op for logging compatibility."""
+        pass
 
 @dataclass
 class PipelineConfig:
     model: ModelConfig = field(default_factory=ModelConfig)
     checkpoint: CheckpointConfig = field(default_factory=CheckpointConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
-    data_paths: DataPathsConfig = field(default_factory=DataPathsConfig)
+    paths: DataPathsConfig = field(default_factory=DataPathsConfig)
     normalization: NormalizationConfig = field(default_factory=NormalizationConfig)
     stats: StatsConfig = field(default_factory=StatsConfig)
-    runner: RunnerConfig = field(default_factory=lambda: RunnerConfig())
+    runner: RunnerConfig = field(default_factory=RunnerConfig)
 
 class PipelineConfigWrapper:
-    def __init__(self, config_dict: Dict[str, Any]):
-        self.config = PipelineConfig()
-        self._update_from_dict(config_dict)
+    """Wrapper to provide backward compatibility."""
+    def __init__(self, config: Optional[PipelineConfig] = None):
+        self.config = config or PipelineConfig()
+
+def load_config(config_path: str = "code/utils/config.yaml") -> PipelineConfig:
+    """Load configuration from YAML file."""
+    path = Path(config_path)
+    if not path.exists():
+        # Return default config
+        return PipelineConfig()
     
-    def _update_from_dict(self, config_dict: Dict[str, Any]):
-        for key, value in config_dict.items():
-            if hasattr(self.config, key):
-                attr = getattr(self.config, key)
-                if hasattr(attr, '__dataclass_fields__'):
-                    if isinstance(value, dict):
-                        for sub_key, sub_value in value.items():
-                            if hasattr(attr, sub_key):
-                                setattr(attr, sub_key, sub_value)
-                else:
-                    setattr(self.config, key, value)
+    with open(path, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    config = PipelineConfig()
+    if 'model' in data:
+        config.model = ModelConfig(**data['model'])
+    if 'checkpoint' in data:
+        config.checkpoint = CheckpointConfig(**data['checkpoint'])
+    if 'logging' in data:
+        config.logging = LoggingConfig(**data['logging'])
+    if 'paths' in data:
+        config.paths = DataPathsConfig(**data['paths'])
+    if 'normalization' in data:
+        config.normalization = NormalizationConfig(**data['normalization'])
+    if 'stats' in data:
+        config.stats = StatsConfig(**data['stats'])
+    if 'runner' in data:
+        config.runner = RunnerConfig(**data['runner'])
+    
+    return config
 
-def load_config(config_path: Path) -> PipelineConfigWrapper:
-    """
-    Loads configuration from a YAML file.
-    """
-    with open(config_path, 'r') as f:
-        config_dict = yaml.safe_load(f)
-    return PipelineConfigWrapper(config_dict)
-
-def validate_config(config: PipelineConfigWrapper) -> bool:
-    """
-    Validates the configuration.
-    """
-    if not config.config.model.path:
-        return False
-    if config.config.runner.memory_limit_mb <= 0:
-        return False
+def validate_config(config: PipelineConfig) -> bool:
+    """Validate configuration values."""
+    if not config.model.model_path:
+        raise ValueError("Model path is required")
+    if config.runner.memory_limit <= 0:
+        raise ValueError("Memory limit must be positive")
+    if config.runner.timeout <= 0:
+        raise ValueError("Timeout must be positive")
     return True
 
 def main():
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Test configuration loading")
-    parser.add_argument("--config", type=str, default="code/utils/config_schema.yaml", help="Config file path")
-    
-    args = parser.parse_args()
-    
-    config_path = Path(args.config)
-    if not config_path.exists():
-        print(f"Config file not found: {config_path}")
-        sys.exit(1)
-    
-    config = load_config(config_path)
-    print(f"Config loaded successfully:")
-    print(f"  Model path: {config.config.model.path}")
-    print(f"  Checkpoint interval: {config.config.checkpoint.interval}")
-    print(f"  Runner memory limit: {config.config.runner.memory_limit_mb} MB")
+    """Main entry point for config module."""
+    config = load_config()
+    print(f"Loaded config: {config}")
 
 if __name__ == "__main__":
     main()

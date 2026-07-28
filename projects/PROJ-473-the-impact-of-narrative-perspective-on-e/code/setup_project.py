@@ -1,40 +1,38 @@
-"""
-Project structure initialization script for PROJ-473.
-Creates the required directory hierarchy: code/, data/, tests/, artifacts/.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create the project directory structure."""
-    # Define the root directory (current working directory or project root)
-    root = Path(os.getcwd())
+    """
+    Creates the required project directory structure for PROJ-473.
+    Directories created: code/, data/, tests/, artifacts/
+    Subdirectories for data and processing are also created.
+    """
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Define required directories relative to root
+    # Define required directories relative to project root
     directories = [
         "code",
-        "data",
         "data/raw",
         "data/processed",
+        "data/figures",
         "tests",
         "tests/integration",
         "artifacts",
-        "figures",
         "specs"
     ]
     
     created_count = 0
     for dir_name in directories:
-        target_path = root / dir_name
-        if not target_path.exists():
-            target_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {target_path}")
+        dir_path = project_root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
         else:
-            print(f"Directory exists: {target_path}")
+            print(f"Directory exists: {dir_path}")
     
-    print(f"\nProject structure initialization complete. Created {created_count} new directories.")
+    print(f"\nProject structure setup complete. {created_count} new directories created.")
     return 0
 
 if __name__ == "__main__":

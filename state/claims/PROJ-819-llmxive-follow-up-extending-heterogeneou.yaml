@@ -389,22 +389,6 @@
   status: not_enough_info
   updated_at: '2026-07-12T22:05:18Z'
 - artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
-  attempts: 2
-  canonical: Permutation Test uses 10000 permutations
-  claim_id: c_0ca62d69
-  context: 'Implement code/analysis/stats.py for Permutation Test on accuracy differences.
-    Parameters: n_permutations=10000.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Permutation Test parameters set to n_permutations=10000.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T22:05:41Z'
-- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
   attempts: 1
   canonical: Sensitivity analysis iterates through thresholds 0.90, 0.95, and 0.99
   claim_id: c_fc662c6c
@@ -680,3 +664,143 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T22:20:39Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: run permutation test with 10000 permutations
+  claim_id: c_954cba4e
+  context: 'Implement code/analysis/stats.py for Permutation Test on accuracy differences.
+    Parameters: n_permutations=10000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Permutation Test with n_permutations=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T07:08:45Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: sweep thresholds 0.90 0.95 0.99
+  claim_id: c_815a1c93
+  context: 'Implement sensitivity analysis loop in code/main.py iterating through
+    the exact discrete threshold set: [0.90, 0.95, 0.99].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Iterate through the discrete threshold set: [0.90, 0.95, 0.99].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T07:09:21Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: optimize threshold using score formula runtime_reduction minus 10 times
+    accuracy_deviation
+  claim_id: c_f1035ff7
+  context: 'Identify optimal threshold based on the defined optimization rule: maximize
+    score = runtime_reduction - 10 * accuracy_deviation, where the weight (10) reflects
+    the high priority of accuracy stability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Maximize score = runtime_reduction - 10 * accuracy_deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T07:10:18Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Test Set contains 500 queries
+  claim_id: c_e882b844
+  context: Implement code/data/generator.py to generate the Test Set (500 (2509.23775,
+    https://arxiv.org/abs/2509.23775) queries) for FR-007.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: '2500'
+      source_id: '2509.23775'
+      url: https://arxiv.org/abs/2509.23775
+      value: '500'
+    filled: true
+  kind: numeric
+  raw_text: The Test Set consists of 500 queries (2509.23775, https://arxiv.org/abs/2509.23775).
+  resolved_value: '500'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T07:11:39Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Warm-up Set contains 100 queries
+  claim_id: c_83c43d7a
+  context: Extend code/data/generator.py to generate the Warm-up Set (100 queries)
+    for FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Warm-up Set consists of 100 queries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T07:12:00Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 3
+  canonical: Permutation Test uses 10000 permutations
+  claim_id: c_0ca62d69
+  context: 'Implement code/analysis/stats.py for Permutation Test on accuracy differences.
+    Parameters: n_permutations=10000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Test parameters set to n_permutations=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T07:16:54Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.90, 0.95, and 0.99
+  claim_id: c_606572b5
+  context: 'Implement sensitivity analysis loop in code/main.py iterating through
+    the exact discrete threshold set: [0.90, 0.95, 0.99].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The sensitivity analysis loop iterates through the discrete threshold
+    set: [0.90, 0.95, 0.99].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T07:17:29Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Optimization score formula is runtime_reduction minus 10 times accuracy_deviation
+  claim_id: c_fddaf67d
+  context: 'Identify optimal threshold based on the defined optimization rule: maximize
+    score = runtime_reduction - 10 * accuracy_deviation, where the weight (10) reflects
+    the high priority of accuracy stability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimization rule for the optimal threshold is score = runtime_reduction
+    - 10 * accuracy_deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T07:17:58Z'

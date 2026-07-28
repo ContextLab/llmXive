@@ -30,12 +30,11 @@ T010:
     \ not satisfied."
 T016:
   c: false
-  h: 035bf48445f67e0ddab20ff43d5b4d864f3bc81ccb0cb30675755a0250c49cd7
-  r: "The repository contains a `code/main.py` that correctly implements the entry\u2011\
-    point logic, but the required output artifact `data/processed/perspective_features.json`\
-    \ is absent (the file does not exist). Without this JSON file the task of producing\
-    \ the processed records is not fulfilled. The missing output must be generated\
-    \ (and be non\u2011empty) for the task to be complete."
+  h: befe4a484a6a44542ee99e5eda3a27c05b00cbb34a295afc13cd73e9e798b8d6
+  r: "The repository contains a `code/main.py` that implements the required entry\
+    \ point, but the expected output artifact `data/processed/perspective_features.json`\
+    \ is missing, so the pipeline\u2019s result has not been produced. The task is\
+    \ not fully satisfied until that JSON file exists with the extracted records."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,3 +44,20 @@ T017:
     \ no new files, functions, or test results demonstrating the requested feature.\
     \ The missing artifact is the implementation (e.g., updated extraction script)\
     \ and evidence (e.g., JSON output, unit test) showing the flagging behavior."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration file, or log output showing the added \u201Cdata_quality_insufficient\u201D\
+    \ warning logging was provided. Without an artifact demonstrating that the extraction\
+    \ pipeline now emits the required quality\u2011warning logs, the task\u2019s requirement\
+    \ is not satisfied. The next implementer must add and commit the logging implementation\
+    \ (e.g., a log statement in the extraction script and a sample log file) and provide\
+    \ the corresponding artifact."
+T025:
+  c: false
+  h: 2dc5ffa4c9b16b189fd344eac89c15ce598cc033945ce93fa07880bbf1030cf9
+  r: "The repository contains a `code/main.py`, but it implements a perspective\u2011\
+    feature extraction pipeline and writes `perspective_features.json`, not a sub\u2011\
+    command for matching validation. Moreover, the required output file `data/processed/matching_results.json`\
+    \ is absent. Both the correct script behavior and the expected output artifact\
+    \ are missing."

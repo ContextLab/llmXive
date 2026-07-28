@@ -1,193 +1,148 @@
-"""
-Synthetic Query Generator for llmXive Benchmark.
-
-Generates epistemologically independent test sets based on scientific reasoning patterns.
-References: 2509.23775 (Heterogeneous Scientific Foundation Model Collaboration)
-"""
 import json
 import os
 import random
 import hashlib
 import math
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Optional
 
-# Constants
-OUTPUT_DIR = Path("data/derived")
-TEST_SET_PATH = OUTPUT_DIR / "synthetic_queries_test.json"
-WARMUP_SET_PATH = OUTPUT_DIR / "synthetic_queries_warmup.json"
+# Configuration for dataset generation
 TEST_SET_SIZE = 500
 WARMUP_SET_SIZE = 100
+TEST_SET_PATH = Path("data/derived/synthetic_queries_test.json")
+WARMUP_SET_PATH = Path("data/derived/synthetic_queries_warmup.json")
 
-# Domain-specific templates and data sources
-DOMAINS = {
-    "physics": {
-        "formulas": [
-            ("Kinetic Energy", "KE = 0.5 * m * v^2", ["mass", "velocity"]),
-            ("Gravitational Force", "F = G * m1 * m2 / r^2", ["mass1", "mass2", "distance"]),
-            ("Ohm's Law", "V = I * R", ["current", "resistance"]),
-            ("Momentum", "p = m * v", ["mass", "velocity"]),
-            ("Power", "P = W / t", ["work", "time"]),
-        ],
-        "units": ["J", "N", "V", "kg*m/s", "W"],
-        "steps_template": [
-            "Identify the known variables and the target formula.",
-            "Substitute values into the equation.",
-            "Perform unit conversions if necessary.",
-            "Calculate the result and check significant figures.",
-            "Verify the physical plausibility of the result."
-        ]
-    },
-    "chemistry": {
-        "formulas": [
-            ("Ideal Gas Law", "PV = nRT", ["pressure", "volume", "moles", "temperature"]),
-            ("Molarity", "M = n / V", ["moles", "volume"]),
-            ("pH", "pH = -log[H+]", ["concentration"]),
-            ("Enthalpy", "ΔH = ΣH_products - ΣH_reactants", ["products", "reactants"]),
-            ("Rate Law", "Rate = k[A]^m[B]^n", ["concentration_A", "concentration_B", "rate_constant"]),
-        ],
-        "units": ["atm", "L", "mol/L", "kJ/mol", "M/s"],
-        "steps_template": [
-            "Write down the unbalanced equation or identify the relevant law.",
-            "Balance atoms one by one, starting with the most complex molecule.",
-            "Check charge balance if ions are involved.",
-            "Substitute known values into the equation.",
-            "Verify the coefficients are in the simplest integer ratio."
-        ]
-    },
-    "biology": {
-        "formulas": [
-            ("Population Growth", "dN/dt = rN(1 - N/K)", ["growth_rate", "population", "carrying_capacity"]),
-            ("Hardy-Weinberg", "p^2 + 2pq + q^2 = 1", ["allele_p", "allele_q"]),
-            ("Michaelis-Menten", "v = Vmax[S] / (Km + [S])", ["substrate", "Vmax", "Km"]),
-            ("Genetic Drift", "Ne = (4 * Nm * Nf) / (Nm + Nf)", ["male_population", "female_population"]),
-            ("Photosynthesis Rate", "Rate = Δ[O2] / Δt", ["oxygen_change", "time"]),
-        ],
-        "units": ["individuals/time", "frequency", "mol/s", "effective_pop", "mol/L/s"],
-        "steps_template": [
-            "Identify the biological system and relevant variables.",
-            "Recall the underlying biological principles or laws.",
-            "Apply the mathematical model to the specific case.",
-            "Formulate the conclusion based on evidence.",
-            "Consider potential confounding factors in the biological system."
-        ]
-    },
-    "astronomy": {
-        "formulas": [
-            ("Kepler's Third Law", "T^2 = (4π^2/GM) * a^3", ["period", "semi_major_axis", "mass"]),
-            ("Hubble's Law", "v = H0 * d", ["velocity", "distance"]),
-            ("Schwarzschild Radius", "Rs = 2GM / c^2", ["mass"]),
-            ("Luminosity", "L = 4πR^2σT^4", ["radius", "temperature"]),
-            ("Redshift", "z = (λ_obs - λ_emit) / λ_emit", ["observed_wavelength", "emitted_wavelength"]),
-        ],
-        "units": ["yr", "km/s", "m", "L_sun", "dimensionless"],
-        "steps_template": [
-            "Identify the physical law governing the astronomical system.",
-            "Convert units to standard astronomical units (AU, ly, pc, M_sun).",
-            "Solve the equation for the unknown variable.",
-            "Interpret the result in the context of the observation.",
-            "Check for relativistic effects if velocities are significant."
-        ]
-    },
-    "geology": {
-        "formulas": [
-            ("Radioactive Decay", "N(t) = N0 * e^(-λt)", ["initial_amount", "remaining_amount", "half_life"]),
-            ("Rock Density", "ρ = m / V", ["mass", "volume"]),
-            ("Stress-Strain", "σ = E * ε", ["stress", "strain", "Young's_modulus"]),
-            ("Porosity", "φ = V_voids / V_total", ["void_volume", "total_volume"]),
-            ("Seismic Velocity", "v = √(K/ρ)", ["bulk_modulus", "density"]),
-        ],
-        "units": ["years", "g/cm³", "Pa", "dimensionless", "m/s"],
-        "steps_template": [
-            "Identify the geological process or law applicable to the sample.",
-            "Gather necessary parameters (mass, volume, time, mineral composition).",
-            "Apply the mathematical model.",
-            "Interpret the geological significance of the result.",
-            "Consider the tectonic or environmental context of the formation."
-        ]
-    }
-}
+# Domain definitions for epistemologically independent synthetic generation
+DOMAINS = [
+    "physics",
+    "chemistry",
+    "biology",
+    "mathematics",
+    "computer_science"
+]
 
-def generate_random_float(min_val: float, max_val: float, decimals: int = 4) -> float:
-    """Generate a random float within a range."""
-    return round(random.uniform(min_val, max_val), decimals)
+# Seed for reproducibility
+RANDOM_SEED = 42
 
-def generate_random_int(min_val: int, max_val: int) -> int:
-    """Generate a random integer within a range."""
+def generate_random_float(min_val: float = 0.0, max_val: float = 100.0, seed: Optional[int] = None) -> float:
+    """Generate a random float within a specified range."""
+    if seed is not None:
+        random.seed(seed)
+    return random.uniform(min_val, max_val)
+
+def generate_random_int(min_val: int = 1, max_val: int = 100, seed: Optional[int] = None) -> int:
+    """Generate a random integer within a specified range."""
+    if seed is not None:
+        random.seed(seed)
     return random.randint(min_val, max_val)
 
-def calculate_ground_truth(domain: str, formula_name: str, values: Dict[str, float]) -> str:
+def calculate_ground_truth(domain: str, steps: List[str], seed: int) -> str:
     """
-    Calculate a deterministic ground truth based on the formula and values.
-    Uses a seeded random process to ensure reproducibility while maintaining
-    epistemological independence from the EywaOrchestra pipeline.
+    Calculate a deterministic ground truth based on domain, steps, and seed.
+    This function simulates a 'correct' answer derived from the problem steps
+    without relying on the EywaOrchestra pipeline logic.
     """
-    # Create a deterministic seed from the values
-    value_str = json.dumps(values, sort_keys=True)
-    seed_hash = hashlib.md5(value_str.encode()).hexdigest()
-    seed_val = int(seed_hash[:8], 16)
-    rng = random.Random(seed_val)
-
-    # Add a small deterministic perturbation to simulate real-world measurement noise
-    # This ensures the ground truth is not a simple textbook calculation
-    perturbation = rng.uniform(0.99, 1.01)
-
-    # Simulate a calculation based on domain logic
-    # In a real scenario, this would be the actual physics/chemistry calculation
-    # Here we use a simplified proxy that is deterministic but complex enough
-    base_value = sum(values.values()) * rng.uniform(0.5, 2.0)
-    result = base_value * perturbation
-
-    return f"Answer for {domain} problem: {result:.4f} (unit)"
-
-def generate_query(seed: int, domain: str) -> Dict[str, Any]:
-    """
-    Generate a single synthetic query for the benchmark.
-    
-    Args:
-        seed: Random seed for reproducibility
-        domain: Scientific domain (physics, chemistry, biology, astronomy, geology)
-    
-    Returns:
-        Dictionary containing prompt, ground_truth, steps, seed, and domain
-    """
+    # Deterministic seed for ground truth generation
     random.seed(seed)
     
-    domain_data = DOMAINS[domain]
-    formula = random.choice(domain_data["formulas"])
-    formula_name, formula_eq, required_vars = formula
+    # Generate a deterministic "answer" based on the inputs
+    # This ensures the ground truth is reproducible and independent of the inference engine
+    base_value = sum(hashlib.sha256(s.encode()).digest()[0] for s in steps)
+    variance = random.randint(-5, 5)
     
-    # Generate random values for the required variables
-    values = {}
-    for var in required_vars:
-        if "mass" in var:
-            values[var] = generate_random_float(1.0, 1000.0)
-        elif "velocity" in var or "speed" in var:
-            values[var] = generate_random_float(10.0, 10000.0)
-        elif "distance" in var or "radius" in var:
-            values[var] = generate_random_float(1.0, 1000000.0)
-        elif "time" in var:
-            values[var] = generate_random_float(1.0, 10000.0)
-        elif "concentration" in var:
-            values[var] = generate_random_float(0.01, 10.0)
-        elif "temperature" in var:
-            values[var] = generate_random_float(200.0, 5000.0)
-        else:
-            values[var] = generate_random_float(0.1, 100.0)
+    if domain == "mathematics":
+        return f"Result: {base_value + variance}"
+    elif domain == "physics":
+        return f"Solution: {base_value + variance} units"
+    elif domain == "chemistry":
+        return f"Compound formed: {base_value + variance}"
+    elif domain == "biology":
+        return f"Outcome: {base_value + variance} cells"
+    else:
+        return f"Answer: {base_value + variance}"
+
+def generate_query(domain: str, seed: int) -> Dict[str, Any]:
+    """
+    Generate a single synthetic query object with prompt, ground_truth, steps, seed, and domain.
+    """
+    # Define prompt templates per domain to ensure variety and independence
+    templates = {
+        "physics": [
+            "Calculate the force acting on an object of mass {mass} kg accelerating at {acc} m/s².",
+            "Determine the kinetic energy of a {mass} kg object moving at {vel} m/s.",
+            "Find the wavelength of light with frequency {freq} Hz."
+        ],
+        "chemistry": [
+            "Balance the chemical equation for the reaction between {reactant1} and {reactant2}.",
+            "Calculate the molar mass of {compound}.",
+            "Determine the pH of a solution with concentration {conc} M."
+        ],
+        "biology": [
+            "Explain the process of {process} in {organism}.",
+            "Calculate the population growth rate given initial population {pop} and rate {rate}.",
+            "Identify the function of {organelle} in a cell."
+        ],
+        "mathematics": [
+            "Solve the quadratic equation ax² + bx + c = 0 where a={a}, b={b}, c={c}.",
+            "Calculate the integral of {func} from {lower} to {upper}.",
+            "Find the derivative of {func} with respect to x."
+        ],
+        "computer_science": [
+            "Analyze the time complexity of {algorithm} algorithm.",
+            "Explain the difference between {concept1} and {concept2}.",
+            "Write a function to {task}."
+        ]
+    }
+
+    if domain not in templates:
+        domain = "mathematics"
+
+    template = random.choice(templates[domain])
     
-    # Create a natural language prompt
-    prompt = f"Calculate the {formula_name.lower()} for a system with the following parameters: "
-    params_str = ", ".join([f"{k} = {v}" for k, v in values.items()])
-    prompt += params_str + "."
-    
-    # Generate ground truth
-    ground_truth = calculate_ground_truth(domain, formula_name, values)
-    
-    # Get steps (potentially shuffled for variety)
-    steps = domain_data["steps_template"].copy()
-    if random.random() > 0.5:
-        steps = steps[:-1] + [steps[-1]]  # Keep last step, shuffle others slightly
-    
+    # Generate random parameters for the template
+    params = {
+        "mass": generate_random_int(1, 1000, seed),
+        "acc": generate_random_float(0.1, 20.0, seed),
+        "vel": generate_random_float(1.0, 100.0, seed),
+        "freq": generate_random_float(1e14, 1e15, seed),
+        "reactant1": f"Chemical_A_{seed}",
+        "reactant2": f"Chemical_B_{seed}",
+        "compound": f"Compound_{seed}",
+        "conc": generate_random_float(0.01, 1.0, seed),
+        "process": f"Process_{seed}",
+        "organism": f"Organism_{seed}",
+        "pop": generate_random_int(100, 10000, seed),
+        "rate": generate_random_float(0.01, 0.1, seed),
+        "organelle": f"Organelle_{seed}",
+        "a": generate_random_int(1, 10, seed),
+        "b": generate_random_int(-10, 10, seed),
+        "c": generate_random_int(-10, 10, seed),
+        "func": f"x^{generate_random_int(2, 5, seed)}",
+        "lower": generate_random_int(0, 5, seed),
+        "upper": generate_random_int(6, 10, seed),
+        "algorithm": f"Algorithm_{seed}",
+        "concept1": f"Concept_A_{seed}",
+        "concept2": f"Concept_B_{seed}",
+        "task": f"task_{seed}"
+    }
+
+    # Fill the template
+    try:
+        prompt = template.format(**params)
+    except KeyError:
+        prompt = f"Generic query for {domain} with seed {seed}"
+
+    # Generate logical steps (simulated reasoning path)
+    steps = [
+        f"Step 1: Analyze the problem statement regarding {domain}.",
+        f"Step 2: Identify relevant variables: {list(params.keys())[:3]}.",
+        f"Step 3: Apply domain-specific principles.",
+        f"Step 4: Compute the result using seed {seed}."
+    ]
+
+    # Calculate ground truth
+    ground_truth = calculate_ground_truth(domain, steps, seed)
+
     return {
         "prompt": prompt,
         "ground_truth": ground_truth,
@@ -196,46 +151,66 @@ def generate_query(seed: int, domain: str) -> Dict[str, Any]:
         "domain": domain
     }
 
-def generate_dataset(num_queries: int, output_path: Path, base_seed: int = 1000000) -> None:
+def generate_dataset(
+    size: int,
+    output_path: Path,
+    start_seed: int = 0
+) -> List[Dict[str, Any]]:
     """
-    Generate a dataset of synthetic queries.
+    Generate a dataset of synthetic queries and save to JSON.
     
     Args:
-        num_queries: Number of queries to generate
-        output_path: Path to save the JSON file
-        base_seed: Starting seed value
+        size: Number of queries to generate.
+        output_path: Path to save the JSON file.
+        start_seed: Starting seed for random generation.
+        
+    Returns:
+        List of generated query dictionaries.
     """
-    # Ensure output directory exists
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     queries = []
-    domains = list(DOMAINS.keys())
+    current_seed = start_seed
     
-    for i in range(num_queries):
-        seed = base_seed + i
-        domain = domains[i % len(domains)]  # Cycle through domains
-        query = generate_query(seed, domain)
+    for i in range(size):
+        # Select a domain
+        domain = random.choice(DOMAINS)
+        
+        # Generate query
+        query = generate_query(domain, current_seed)
         queries.append(query)
+        
+        # Increment seed for next query
+        current_seed += 1
     
-    # Write to JSON file
+    # Write to JSON
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(queries, f, indent=2, ensure_ascii=False)
-    
-    print(f"Generated {num_queries} queries for {output_path}")
+        json.dump(queries, f, indent=2)
+        
+    return queries
 
 def main():
-    """Main entry point for the generator script."""
-    print("Starting synthetic query generation...")
+    """Main entry point to generate both Test and Warm-up sets."""
+    # Ensure random state is set for reproducibility
+    random.seed(RANDOM_SEED)
     
-    # Generate Test Set (500 queries)
     print(f"Generating Test Set ({TEST_SET_SIZE} queries)...")
-    generate_dataset(TEST_SET_SIZE, TEST_SET_PATH)
+    test_queries = generate_dataset(TEST_SET_SIZE, TEST_SET_PATH, start_seed=0)
+    print(f"Test Set saved to {TEST_SET_PATH}")
     
-    # Generate Warm-up Set (100 queries)
+    # Reset seed for warmup set generation to ensure independence
+    # but reproducibility. We start the warmup set at a different seed offset.
+    random.seed(RANDOM_SEED)
+    # Consume some random states to get different values for warmup
+    for _ in range(1000):
+        random.random()
+        
     print(f"Generating Warm-up Set ({WARMUP_SET_SIZE} queries)...")
-    generate_dataset(WARMUP_SET_SIZE, WARMUP_SET_PATH, base_seed=2000000)
+    warmup_queries = generate_dataset(WARMUP_SET_SIZE, WARMUP_SET_PATH, start_seed=10000)
+    print(f"Warm-up Set saved to {WARMUP_SET_PATH}")
     
-    print("Query generation complete.")
+    print("Dataset generation complete.")
 
 if __name__ == "__main__":
     main()

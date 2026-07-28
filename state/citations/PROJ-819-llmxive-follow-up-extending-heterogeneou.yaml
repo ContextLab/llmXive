@@ -1,4 +1,4 @@
-- artifact_hash: 8664f72a514fbb32d50bc5e5db08c6f94b35334b8f2ae9e77b3b50e190b65687
+- artifact_hash: 503860b5ae71f41f848fd6d050f051e8bcfc032c6971effd1c8a405cb5afd847
   artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -6,6 +6,6 @@
   fetched_title: '[2509.23775] NeuSO: Neural Optimizer for Subgraph Queries'
   kind: url
   value: https://arxiv.org/abs/2509.23775
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2509.23775
-  verified_at: '2026-07-12T22:26:37.346628Z'
+  verified_at: '2026-07-28T07:16:03.925202Z'

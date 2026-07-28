@@ -82,7 +82,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description="Validate state reconstruction against golden subset")
-    parser.add_argument("--golden", type=str, default="data/raw/golden_subset.json", help="Golden subset JSON")
+    parser.add_argument("--golden", type=str, default="data/raw/golden_fixture.json", help="Golden subset JSON (static fixture)")
     parser.add_argument("--input", type=str, default="data/processed/classified_traces.json", help="Input reconstructed traces JSON")
     parser.add_argument("--output", type=str, default="data/processed/reconstruction_accuracy.json", help="Output accuracy JSON")
     
@@ -121,7 +121,10 @@ def main():
     print(f"Passed: {result['passed']}")
     
     if not result['passed']:
+        print("GATE FAILED: Reconstruction accuracy below 0.95 threshold.")
         sys.exit(1)
+    else:
+        print("GATE PASSED: Reconstruction accuracy meets threshold.")
 
 if __name__ == "__main__":
     main()

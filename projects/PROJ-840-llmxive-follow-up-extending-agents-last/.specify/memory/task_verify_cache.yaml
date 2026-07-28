@@ -1,10 +1,26 @@
+T012:
+  c: false
+  h: cfee3bb5314fe9ec850c7647e6cd472336f72e6ab0604d63b1459c419f0c506b
+  r: The provided `goal_validator.py` is truncated and does not contain the logic
+    that writes extracted constraints to `data/processed/static_constraints.json`,
+    and that JSON file is missing entirely. Consequently the required output artifact
+    is absent and the implementation is incomplete.
+T013:
+  c: false
+  h: 0942ef1524a17c846bf98cf42a498ecb9c40d65479400b240b9590601ad6159e
+  r: "The repository contains `code/classification/state_validator.py`, which implements\
+    \ accuracy\u2011calculation logic, but the required input file `data/raw/golden_fixture.json`\
+    \ is absent, so the validator cannot be run against the golden fixture. Additionally,\
+    \ the `main` function is truncated, leaving the command\u2011line interface incomplete.\
+    \ The missing golden fixture (and incomplete script) must be added for the task\
+    \ to be fulfilled."
 T015:
   c: false
-  h: cded9d36e5e4aa942fd13e1d20e4931f78a6865f86a908af489518d159963077
-  r: The required `data/raw/golden_subset.json` file is absent, and the provided `generator.py`
-    snippet shows an import of `verify_pairing` but no evidence that the function
-    is actually invoked. Consequently the script does not demonstrably produce the
-    mandated JSON output with the specified schema.
+  h: c236f6e02020bb41de436f4269d8e36c6360d2145e53c90b79565662e749329c
+  r: "The required output file `data/raw/golden_subset.json` does not exist, and the\
+    \ provided `generator.py` snippet shows no evidence of actually invoking `verify_pairing`\
+    \ or producing the specified JSON schema. The task\u2019s core deliverable is\
+    \ missing."
 T017:
   c: false
   h: d9608e8a8c48df43d7c624a43e72442941422c960649f8374aa52f47da695b6c
@@ -17,6 +33,14 @@ T018:
   r: "The required file `tests/integration/test_memory_limit.py` does not exist, so\
     \ no integration test for memory limit compliance is present. The task\u2019s\
     \ artifact is missing, making the implementation incomplete."
+T026:
+  c: false
+  h: c7545ac8efd5cddb3b6578ab5f89e056b2e03c91c2525746c2749182d67144ec
+  r: "The `code/analysis/stats.py` file shown does not contain a McNemar\u2019s test\
+    \ implementation nor the required pre\u2011check that reads `data/processed/pairing_verification_report.json`\
+    \ and aborts on a \u201CFAIL\u201D status. Moreover, the JSON file `data/processed/pairing_verification_report.json`\
+    \ is missing entirely. These essential artifacts are absent, so the task is not\
+    \ satisfied."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -31,3 +31,14 @@
   verification_status: verified
   verified_against_url: https://semver.org/spec/v2.0.0.html
   verified_at: '2026-07-12T12:52:01.417440Z'
+- artifact_hash: 77da02b095348f960dc3ea06ec377d98dd301b8b604e4b616156cef968d75d1d
+  artifact_path: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Power - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q42506454
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q42506454
+  verified_at: '2026-07-28T07:49:35.688359Z'
