@@ -1,325 +1,343 @@
+"""
+Differential Expression Analysis Module.
+
+Implements DESeq2 Wald test via rpy2 for identifying predictive biomarkers.
+Operates strictly on discovery sets to prevent data leakage.
+"""
 import os
 import sys
 import json
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Set
 
-import pandas as pd
-import numpy as np
-from rpy2.robjects import pandas2ri, r
+import rpy2
+import rpy2.robjects as ro
+from rpy2.robjects import pandas2ri
+from rpy2.robjects.conversion import localconverter
 from rpy2.robjects.packages import importr
 from rpy2.rinterface_lib.embedded import RRuntimeError
 
-# Import project config
-from code.src.config import get_project_root
+import pandas as pd
+import numpy as np
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+from src.config import get_project_root, ensure_directories
+from src.utils import setup_logging
+
+# Configure logging
 logger = logging.getLogger(__name__)
 
-def setup_r_environment():
+# Thresholds
+FDR_THRESHOLD = 0.05
+LOG2FC_THRESHOLD = 1.0
+
+def setup_r_environment() -> None:
     """
-    Initialize R environment and load necessary packages (DESeq2).
-    Raises an error if DESeq2 is not available.
+    Initialize R environment and load required packages (DESeq2).
+    Raises an error if packages are missing or R is unavailable.
     """
-    logger.info("Initializing R environment...")
+    # Activate pandas conversion
+    pandas2ri.activate()
+
     try:
-        # Activate pandas2ri for automatic conversion
-        pandas2ri.activate()
-        
-        # Try to import DESeq2
-        try:
-            deseq2 = importr('DESeq2')
-            logger.info("DESeq2 package loaded successfully.")
-        except ImportError:
-            logger.error("DESeq2 R package is not installed. Please install it via: BiocManager::install('DESeq2')")
-            raise RuntimeError("DESeq2 R package missing")
-        
-        # Import base R utils
-        utils = importr('utils')
-        return deseq2
-    except Exception as e:
-        logger.error(f"Failed to setup R environment: {e}")
+        # Load base and stats
+        base = importr('base')
+        stats = importr('stats')
+    except ImportError as e:
+        logger.error(f"Failed to import base R packages: {e}")
         raise
 
-def run_deseq2_analysis(counts_df: pd.DataFrame, 
-                        col_data: pd.DataFrame, 
-                        design_formula: str = " ~ response") -> Dict[str, Any]:
+    # Check for DESeq2
+    try:
+        deseq2 = importr('DESeq2')
+        logger.info("DESeq2 package loaded successfully.")
+    except ImportError:
+        logger.error("DESeq2 package not found in R. Please install it via BiocManager.")
+        raise RuntimeError("DESeq2 package is required but not installed.")
+
+    # Check for BiocGenerics (dependency)
+    try:
+        bioc_generics = importr('BiocGenerics')
+    except ImportError:
+        logger.error("BiocGenerics package not found.")
+        raise RuntimeError("BiocGenerics package is required.")
+
+    return deseq2
+
+def _load_discovery_file(file_path: Path) -> pd.DataFrame:
     """
-    Execute DESeq2 Wald test on the provided count data.
+    Load a discovery set CSV and validate its structure.
     
     Args:
-        counts_df: DataFrame with genes as rows, samples as columns.
-        col_data: DataFrame with sample metadata (must include 'response').
-        design_formula: R formula string for the design matrix.
+        file_path: Path to the CSV file.
         
     Returns:
-        Dictionary containing:
-            - 'significant_genes': List of gene symbols meeting FDR and log2FC thresholds.
-            - 'results_df': Full results DataFrame.
-            - 'stats': Summary statistics.
+        DataFrame with gene expression data.
+        
+    Raises:
+        ValueError: If file is not a discovery set or missing columns.
     """
-    logger.info("Running DESeq2 analysis...")
+    if not file_path.exists():
+        raise FileNotFoundError(f"Discovery file not found: {file_path}")
     
-    # Ensure row names are gene symbols
-    if counts_df.index.name is None:
-        counts_df.index.name = 'gene'
-        
-    # Ensure col_data index matches counts columns
-    if not all(counts_df.columns == col_data.index):
-        # Reorder col_data to match counts
-        col_data = col_data.loc[counts_df.columns]
-        
-    # Convert to R objects
-    r_counts = pandas2ri.py2rpy(counts_df)
-    r_col_data = pandas2ri.py2rpy(col_data)
-    
-    # Create DESeqDataSet
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.R', delete=False) as f:
-        r_script = f"""
-        library(DESeq2)
-        counts <- {r_counts}
-        colData <- {r_col_data}
-        
-        # Ensure rownames are preserved
-        rownames(counts) <- rownames(counts)
-        rownames(colData) <- rownames(colData)
-        
-        dds <- DESeqDataSetFromMatrix(countData = counts,
-                                      colData = colData,
-                                      design = {design_formula})
-        
-        # Run DESeq
-        dds <- DESeq(dds)
-        res <- results(dds)
-        
-        # Convert to data frame for Python
-        res_df <- as.data.frame(res)
-        """
-        f.write(r_script)
-        script_path = f.name
+    # Strict check for discovery set naming
+    if not str(file_path).endswith("_discovery_set.csv"):
+        raise ValueError(
+            f"Data Leakage Prevention: Input file '{file_path}' "
+            f"does not end with '_discovery_set.csv'. "
+            f"DE analysis must ONLY run on discovery sets."
+        )
 
     try:
-        # Execute R script
-        r.source(script_path)
-        res_df = r['res_df']
-        results_df = pandas2ri.r2py(res_df)
-    except RRuntimeError as e:
-        logger.error(f"DESeq2 analysis failed: {e}")
-        raise
-    finally:
-        os.unlink(script_path)
-    
-    # Filter significant genes
-    # Thresholds: FDR < 0.05, |log2FC| > 1.0
-    fdr_col = 'padj'
-    lfc_col = 'log2FoldChange'
-    
-    # Handle NA values in padj
-    results_df[fdr_col] = results_df[fdr_col].fillna(1.0)
-    
-    mask = (results_df[fdr_col] < 0.05) & (results_df[lfc_col].abs() > 1.0)
-    significant_genes = results_df[mask].index.tolist()
-    
-    stats = {
-        'total_genes': len(results_df),
-        'significant_genes': len(significant_genes),
-        'fdr_threshold': 0.05,
-        'lfc_threshold': 1.0
-    }
-    
-    logger.info(f"DESeq2 analysis complete. Found {len(significant_genes)} significant genes.")
-    
-    return {
-        'significant_genes': significant_genes,
-        'results_df': results_df,
-        'stats': stats
-    }
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read CSV {file_path}: {e}")
 
-def process_tumor_type_discovery(tumor_type: str, 
-                                 discovery_path: Path, 
-                                 output_dir: Path) -> Dict[str, Any]:
+    # Validate required columns
+    required_cols = {'gene_symbol', 'response'}
+    # Check if gene symbols are in columns or if rows are genes
+    # Assuming standard format: rows=genes, columns=samples OR rows=samples, columns=genes+metadata
+    # Based on T020 output description: "Save distinct CSV/Parquet files to data/processed/{tumor_type}_discovery_set.csv"
+    # Typically for DE: Rows = Samples, Columns = Genes + Metadata (gene_symbol, response)
+    
+    if 'gene_symbol' not in df.columns:
+        # Try to infer if it's the first column and unnamed
+        if df.columns[0] == 'gene_symbol' or df.columns[0] == 'Gene':
+            df = df.rename(columns={df.columns[0]: 'gene_symbol'})
+        else:
+            raise ValueError(f"Missing 'gene_symbol' column in {file_path}. Found: {df.columns.tolist()}")
+
+    if 'response' not in df.columns:
+        raise ValueError(f"Missing 'response' column in {file_path}. Found: {df.columns.tolist()}")
+
+    return df
+
+def _prepare_deseq2_input(df: pd.DataFrame) -> Tuple[Any, Any]:
     """
-    Process a single tumor type's discovery set:
-    1. Load discovery set data (counts + response labels).
-    2. Run DESeq2.
-    3. Save results.
+    Prepare count matrix and colData for DESeq2.
     
     Args:
-        tumor_type: Name of the tumor type (e.g., 'BRCA').
-        discovery_path: Path to the discovery set CSV/Parquet file.
+        df: DataFrame with gene symbols as a column and samples as rows.
+            
+    Returns:
+        Tuple of (count_matrix_r, coldata_r)
+    """
+    # Separate metadata and expression
+    # Assume 'gene_symbol' and 'response' are metadata, rest are counts
+    meta_cols = ['gene_symbol', 'response']
+    expression_cols = [c for c in df.columns if c not in meta_cols]
+    
+    if len(expression_cols) == 0:
+        raise ValueError("No expression columns found in discovery set.")
+
+    # Pivot to standard DE format: Rows = Genes, Columns = Samples
+    # Input: Rows=Samples, Cols=Genes
+    # We need: Rows=Genes, Cols=Samples for DESeq2
+    count_matrix = df.set_index('gene_symbol')[expression_cols].T
+    count_matrix.columns.name = 'sample_id'
+    
+    # Ensure counts are integers (DESeq2 requirement)
+    count_matrix = count_matrix.astype(int)
+    
+    # Create colData
+    col_data = df[['response']].copy()
+    col_data.index = count_matrix.columns
+    
+    # Convert response to factor (Response vs Non-Response)
+    # Assuming binary: 1/0 or 'Responder'/'NonResponder'
+    # DESeq2 expects factors
+    if not pd.api.types.is_numeric_dtype(col_data['response']):
+        col_data['response'] = col_data['response'].astype('category')
+    else:
+        # If numeric, treat as factor levels
+        col_data['response'] = col_data['response'].astype('category')
+
+    return count_matrix, col_data
+
+def run_deseq2_analysis(
+    tumor_type: str,
+    discovery_path: Path,
+    output_dir: Path
+) -> Dict[str, Any]:
+    """
+    Run DESeq2 Wald test on a single tumor type's discovery set.
+    
+    Args:
+        tumor_type: Name of the tumor type.
+        discovery_path: Path to the _discovery_set.csv file.
         output_dir: Directory to save results.
         
     Returns:
-        Dictionary with analysis results and file paths.
+        Dictionary containing analysis results and metadata.
     """
-    logger.info(f"Processing discovery set for tumor type: {tumor_type}")
+    logger.info(f"Starting DESeq2 analysis for {tumor_type}...")
     
     # Load data
-    if discovery_path.suffix == '.csv':
-        df = pd.read_csv(discovery_path, index_col=0)
-    elif discovery_path.suffix == '.parquet':
-        df = pd.read_parquet(discovery_path)
-    else:
-        raise ValueError(f"Unsupported file format: {discovery_path.suffix}")
+    df = _load_discovery_file(discovery_path)
+    logger.info(f"Loaded {len(df)} samples for {tumor_type}.")
+
+    # Prepare R objects
+    count_matrix, col_data = _prepare_deseq2_input(df)
     
-    # Expected columns: genes as rows, samples as columns, plus metadata
-    # We assume the file has a 'response' column or similar metadata
-    # For DESeq2, we need a counts matrix and a colData frame.
-    # Assuming the input file is structured as:
-    # - Rows: Genes
-    # - Columns: Sample IDs
-    # - A separate metadata file or embedded column 'response'
+    # Filter low count genes (basic pre-filtering for DESeq2 stability)
+    # Keep genes with at least 10 counts in at least 2 samples
+    row_sums = count_matrix.sum(axis=1)
+    count_matrix = count_matrix[row_sums > 10]
+    if count_matrix.empty:
+        raise ValueError(f"No genes passed pre-filtering for {tumor_type}.")
     
-    # Check if 'response' is a column (metadata) or if we need to infer
-    # Based on T020, the split data should have been saved with metadata.
-    # We assume the file contains both expression and a 'response' column.
-    # If 'response' is in the columns, we separate it.
-    
-    if 'response' not in df.columns:
-        # Try to find a column that looks like response (e.g., 'label', 'outcome')
-        possible_cols = [c for c in df.columns if 'response' in c.lower() or 'label' in c.lower()]
-        if not possible_cols:
-            logger.error(f"No response column found in {discovery_path}")
-            raise ValueError("Missing response column in discovery set")
-        response_col = possible_cols[0]
-    else:
-        response_col = 'response'
-        
-    # Separate counts and metadata
-    # Assuming the first N columns are expression, and the last is metadata
-    # Or we need to detect which columns are numeric (expression) vs categorical (metadata)
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
-    
-    if response_col not in categorical_cols:
-        logger.error(f"Response column '{response_col}' is not categorical.")
-        raise ValueError("Response column must be categorical")
-        
-    # Construct colData
-    col_data = df[[response_col]]
-    col_data.index = col_data.index # Ensure index matches rows if genes are rows
-    
-    # Wait, standard format for these files is usually:
-    # Rows = Samples, Columns = Genes + Metadata
-    # Let's re-evaluate based on typical pandas usage in T020.
-    # T020 saves distinct CSVs. Usually: index=sample_id, columns=genes + metadata.
-    
-    # Re-check: If index is sample_id, then columns are genes + metadata.
-    # If index is gene_id, then columns are samples + metadata (unlikely for CSVs).
-    
-    # Let's assume standard: Index = Sample ID, Columns = Genes + Metadata
-    # We need to identify which columns are genes.
-    
-    # Heuristic: Columns that are numeric and not 'response' are genes?
-    # No, metadata can be numeric too.
-    # We rely on the fact that the file was generated by T020 which likely
-    # saved the expression matrix + a 'response' column.
-    
-    # If the file has a 'response' column, the rest are likely genes.
-    # But we need to be sure. Let's assume the user provided a schema or
-    # the file has a specific structure.
-    # Given the constraints, we assume:
-    # - The file has a 'response' column.
-    # - All other columns are gene expression values.
-    
-    gene_cols = [c for c in df.columns if c != response_col]
-    
-    if len(gene_cols) == 0:
-        logger.error("No gene columns found.")
-        raise ValueError("No gene columns found")
-        
-    counts_df = df[gene_cols].T # Transpose to genes x samples
-    col_data = df[[response_col]]
-    col_data.index = col_data.index # Sample IDs
-    
-    # Ensure col_data index matches counts columns
-    if not all(counts_df.columns == col_data.index):
-        logger.warning("Sample order mismatch, reordering col_data...")
-        col_data = col_data.loc[counts_df.columns]
-    
+    # Update col_data to match
+    col_data = col_data.loc[count_matrix.columns]
+
     # Run DESeq2
-    deseq2_pkg = setup_r_environment()
-    results = run_deseq2_analysis(counts_df, col_data)
+    try:
+        with localconverter(ro.default_converter + pandas2ri.converter):
+          # Convert to R DataFrame
+          r_count_matrix = ro.conversion.py2rpy(count_matrix)
+          r_col_data = ro.conversion.py2rpy(col_data)
+          
+          # Create DESeqDataSet
+          # dds <- DESeqDataSetFromMatrix(countData = count_matrix, colData = col_data, design = ~ response)
+          dds = ro.r('DESeqDataSetFromMatrix')(
+              countData = r_count_matrix,
+              colData = r_col_data,
+              design = ro.StrVector(['~', 'response'])
+          )
+          
+          # Run DESeq
+          # dds <- DESeq(dds)
+          dds = ro.r('DESeq')(dds)
+          
+          # Get results
+          # res <- results(dds, alpha = FDR_THRESHOLD)
+          res = ro.r('results')(dds, alpha=FDR_THRESHOLD)
+          
+          # Convert back to pandas
+          res_df = ro.conversion.rpy2py(res)
+          
+    except RRuntimeError as e:
+        logger.error(f"R error during DESeq2 execution for {tumor_type}: {e}")
+        raise RuntimeError(f"DESeq2 failed for {tumor_type}: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error during DESeq2 execution for {tumor_type}: {e}")
+        raise
+
+    # Process results
+    # res_df typically has: baseMean, log2FoldChange, lfcSE, stat, pvalue, padj
+    # Filter by FDR and log2FC
+    if 'padj' not in res_df.columns:
+        raise ValueError("DESeq2 results missing 'padj' column.")
+    if 'log2FoldChange' not in res_df.columns:
+        raise ValueError("DESeq2 results missing 'log2FoldChange' column.")
+
+    significant_genes = res_df[
+        (res_df['padj'] < FDR_THRESHOLD) & 
+        (abs(res_df['log2FoldChange']) > LOG2FC_THRESHOLD)
+    ]
     
+    # Reset index to get gene names as a column if they were the index
+    if significant_genes.index.name == 'gene':
+        significant_genes = significant_genes.reset_index()
+        significant_genes = significant_genes.rename(columns={'gene': 'gene_symbol'})
+    elif 'gene_symbol' not in significant_genes.columns:
+        # Assume index is gene symbol
+        significant_genes = significant_genes.reset_index()
+        significant_genes = significant_genes.rename(columns={'index': 'gene_symbol'})
+
     # Save results
-    output_dir.mkdir(parents=True, exist_ok=True)
-    results_file = output_dir / f"{tumor_type}_de_results.csv"
-    results['results_df'].to_csv(results_file)
+    output_file = output_dir / f"{tumor_type}_deseq2_results.csv"
+    significant_genes.to_csv(output_file, index=False)
     
-    summary_file = output_dir / f"{tumor_type}_de_summary.json"
-    with open(summary_file, 'w') as f:
-        json.dump({
-            'tumor_type': tumor_type,
-            'significant_genes': results['significant_genes'],
-            'stats': results['stats'],
-            'output_file': str(results_file)
-        }, f, indent=2)
-        
-    logger.info(f"Saved results for {tumor_type} to {results_file}")
-    
+    logger.info(f"Saved {len(significant_genes)} significant genes to {output_file}")
+
     return {
-        'tumor_type': tumor_type,
-        'significant_genes': results['significant_genes'],
-        'summary_file': str(summary_file)
+        "tumor_type": tumor_type,
+        "total_samples": len(df),
+        "genes_tested": len(count_matrix),
+        "significant_genes_count": len(significant_genes),
+        "fdr_threshold": FDR_THRESHOLD,
+        "log2fc_threshold": LOG2FC_THRESHOLD,
+        "output_file": str(output_file)
     }
+
+def process_tumor_type_discovery(
+    tumor_type: str,
+    processed_dir: Path,
+    results_dir: Path
+) -> Dict[str, Any]:
+    """
+    Wrapper to process a single tumor type discovery set.
+    
+    Args:
+        tumor_type: Name of the tumor type.
+        processed_dir: Directory containing processed discovery sets.
+        results_dir: Directory to save DE results.
+        
+    Returns:
+        Result dictionary from run_deseq2_analysis.
+    """
+    discovery_file = processed_dir / f"{tumor_type}_discovery_set.csv"
+    
+    if not discovery_file.exists():
+        logger.warning(f"Discovery file not found for {tumor_type}: {discovery_file}")
+        return {
+            "tumor_type": tumor_type,
+            "status": "skipped",
+            "reason": "discovery_file_not_found"
+        }
+
+    return run_deseq2_analysis(tumor_type, discovery_file, results_dir)
 
 def main():
     """
-    Main entry point for T024: Execute DE on full discovery_set once per tumor type.
+    Main entry point for differential expression analysis.
+    Iterates over all available discovery sets in data/processed/.
     """
-    logger.info("Starting T024: Differential Expression on Discovery Sets")
-    
+    setup_logging()
     project_root = get_project_root()
-    processed_dir = project_root / "code" / "data" / "processed"
-    results_dir = project_root / "code" / "results" / "meta_analysis"
+    processed_dir = project_root / "data" / "processed"
+    results_dir = project_root / "results" / "meta_analysis"
+    ensure_directories([results_dir])
+
+    logger.info("Initializing Differential Expression Analysis...")
     
-    # Find discovery sets
+    # Setup R
+    try:
+        setup_r_environment()
+    except Exception as e:
+        logger.critical(f"R environment setup failed: {e}")
+        sys.exit(1)
+
+    # Identify available discovery sets
     discovery_files = list(processed_dir.glob("*_discovery_set.csv"))
     
     if not discovery_files:
-        logger.error("No discovery set files found in data/processed/")
-        sys.exit(1)
-        
-    logger.info(f"Found {len(discovery_files)} discovery sets.")
-    
-    all_results = []
-    
-    for discovery_file in discovery_files:
-        # Extract tumor type from filename (e.g., BRCA_discovery_set.csv -> BRCA)
-        tumor_type = discovery_file.stem.replace("_discovery_set", "")
-        
+        logger.warning("No discovery set files found in data/processed/.")
+        sys.exit(0)
+
+    tumor_types = [f.stem.replace("_discovery_set", "") for f in discovery_files]
+    logger.info(f"Found {len(tumor_types)} tumor types to process: {tumor_types}")
+
+    results = []
+    for tumor_type in tumor_types:
         try:
-            result = process_tumor_type_discovery(
-                tumor_type=tumor_type,
-                discovery_path=discovery_file,
-                output_dir=results_dir
-            )
-            all_results.append(result)
+            result = process_tumor_type_discovery(tumor_type, processed_dir, results_dir)
+            results.append(result)
         except Exception as e:
             logger.error(f"Failed to process {tumor_type}: {e}")
-            # Continue with other types or exit? 
-            # Based on FR-005, we need to generate candidates for each type.
-            # If one fails, we might not have enough for meta-analysis, 
-            # but we log and continue.
-            continue
+            results.append({
+                "tumor_type": tumor_type,
+                "status": "failed",
+                "error": str(e)
+            })
+
+    # Save summary
+    summary_file = results_dir / "de_analysis_summary.json"
+    with open(summary_file, 'w') as f:
+        json.dump(results, f, indent=2)
     
-    # Save combined summary
-    combined_summary = {
-        'total_tumor_types_processed': len(all_results),
-        'results': all_results
-    }
-    
-    combined_file = results_dir / "de_combined_summary.json"
-    with open(combined_file, 'w') as f:
-        json.dump(combined_summary, f, indent=2)
-        
-    logger.info(f"Completed T024. Results saved to {combined_file}")
+    logger.info(f"DE analysis complete. Summary saved to {summary_file}")
 
 if __name__ == "__main__":
     main()

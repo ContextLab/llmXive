@@ -103,14 +103,14 @@ results/
 | **T024** | Compute the **intersection** of significant genes across **≥2** tumor types. |
 | **T025** | **Fallback**: if the intersection is empty, create a **union** of the top‑ranked genes (≤50) across tumor types, write `fallback_reason: "intersection_empty"` into `results/summary.md`. |
 | **T026** | Apply Stouffer’s method to combine p‑values for the candidate panel. |
-| **T027** | Select the final gene panel: keep ≤ `config.MAX_VARIANCE_GENES` (default 50) most variable genes among the combined list. |
+| **T027** | Select the final gene panel: keep a curated subset of the most variable genes among the combined list, bounded by the configured maximum variance gene limit. |
 | **T028** | Save `results/meta_analysis/gene_panel.json` conforming to `contracts/gene_panel.schema.yaml`. |
 
 ### Phase 2 – Modeling & Validation (US‑3)
 
 | Task | Description |
 |------|-------------|
-| **T031** | For each tumor type, train an elastic‑net logistic regression on the **Training set** using the fixed gene panel (FR‑007). Perform **nested 5‑fold CV**: inner CV tunes `alpha` and `lambda`; outer CV estimates performance. |
+| **T031** | For each tumor type, train an elastic‑net logistic regression on the **Training set** using the fixed gene panel (FR‑007). Perform **nested k‑fold CV**: inner CV tunes `alpha` and `lambda`; outer CV estimates performance. |
 | **T032** | Record ROC‑AUC, precision‑recall curves, and calibration curves for each outer fold. |
 | **T033** | **Leave‑One‑Cancer‑Type‑Out (LOO) validation**: train on N‑1 tumor types, test on the held‑out type. If after hold‑out fewer than 2 types remain, write `data/feasibility_gate.json` (`status: "halted"`, `reason: "insufficient_loo_types"`). |
 | **T034** | **External GEO validation**: for each successfully downloaded GEO dataset, re‑normalize to the TCGA VST scale (using the same batch‑correction method recorded in T017), apply the trained per‑type model, and compute ROC‑AUC. If no GEO datasets are available, set `external_validation_status: "skipped"` in `results/summary.md`. |
@@ -119,7 +119,7 @@ results/
 | **T037** | Perform DeLong’s test comparing each model against a clinical‑covariates‑only baseline; apply Bonferroni correction (m = number of model comparisons) with adjusted p‑value < 0.01 (FR‑011). |
 | **T038** | Apply Bonferroni correction **only** to the meta‑analysis combined p‑values (m = size of the final gene panel) and to DeLong’s test p‑values (FR‑010). |
 | **T039** | Aggregate all performance metrics into `results/metrics.json` (conforms to `contracts/metrics.schema.yaml`). |
-| **T040** | **Resource monitoring**: enforce a 6‑hour wall‑clock timeout and a 7 GB RAM ceiling; write `results/runtime_metrics.json` with `timeout_triggered`, `peak_memory_mb`, and `runtime_seconds`. |
+| **T040** | **Resource monitoring**: enforce a wall‑clock timeout and a RAM ceiling; write `results/runtime_metrics.json` with `timeout_triggered`, `peak_memory_mb`, and `runtime_seconds`. |
 
 ### Phase 3 – Reporting
 

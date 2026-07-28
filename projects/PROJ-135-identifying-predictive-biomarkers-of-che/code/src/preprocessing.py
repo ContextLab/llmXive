@@ -9,256 +9,203 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
+# Import existing project utilities and config
 from src.config import get_project_root, ensure_directories
-from src.utils import setup_logging
+from src.utils import setup_logging, calculate_checksum
 
-# Configure logging
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-def load_processed_data(tumor_type: str, processed_dir: Path) -> pd.DataFrame:
+def load_processed_data(tumor_type: str, data_dir: Path) -> pd.DataFrame:
     """
-    Load the pre-processed, normalized, and harmonized data for a specific tumor type.
-    Expects the file to exist at: processed_dir/{tumor_type}_normalized.csv
-    
-    Args:
-        tumor_type: The specific tumor type identifier (e.g., 'BRCA', 'LUAD').
-        processed_dir: Path to the data/processed directory.
-        
-    Returns:
-        A pandas DataFrame containing the gene expression matrix and metadata.
-        
-    Raises:
-        FileNotFoundError: If the processed file does not exist.
+    Load the preprocessed data for a specific tumor type.
+    Expects a file named '{tumor_type}_processed.csv' in the data_dir.
     """
-    input_path = processed_dir / f"{tumor_type}_normalized.csv"
-    if not input_path.exists():
-        raise FileNotFoundError(f"Processed data file not found: {input_path}")
+    file_path = data_dir / f"{tumor_type}_processed.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(f"Processed data file not found for {tumor_type}: {file_path}")
     
-    logger.info(f"Loading processed data for {tumor_type} from {input_path}")
-    df = pd.read_csv(input_path)
+    logger.info(f"Loading processed data for {tumor_type} from {file_path}")
+    df = pd.read_csv(file_path)
     
-    # Ensure required columns exist
-    required_cols = ['response_label', 'sample_id']
-    # We assume gene expression columns are all others or explicitly handled
-    # We need to know which column holds the label for stratification
-    if 'response_label' not in df.columns:
-        raise ValueError(f"Column 'response_label' missing in {input_path}. Cannot stratify.")
-        
+    # Validate required columns exist
+    required_cols = ['response']
+    # Gene columns are assumed to be all columns except metadata/response
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Missing required columns in {file_path}. Found: {df.columns.tolist()}")
+    
     return df
+
+def save_processed_data(df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Save the dataframe to a CSV file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved data to {output_path}")
 
 def split_data_stratified(
     df: pd.DataFrame, 
-    label_col: str = 'response_label',
-    test_size: float = 0.3,
+    response_col: str = 'response', 
+    test_size: float = 0.3, 
     random_state: int = 42
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Split the dataframe into discovery and training sets with stratification.
-    
-    The discovery set is used for gene selection (DE analysis).
-    The training set is used for model fitting.
+    Split the dataframe into discovery and training sets using stratified sampling.
     
     Args:
-        df: Input DataFrame with expression data and labels.
-        label_col: Name of the column containing the response label.
-        test_size: Proportion of the dataset to include in the training set (relative to total).
-                   Here, we treat 'test_size' as the proportion for the training set to match
-                   typical sklearn convention where 'test_size' is the hold-out set.
-                   However, the task asks for Discovery (gene selection) and Training (model fitting).
-                   Standard practice: Discovery = larger set (e.g., 70%), Training = smaller set (30%) 
-                   OR Discovery = 50%, Training = 50%. 
-                   Given the description "discovery_set (for gene selection) and training_set (for model fitting)",
-                   and typical ML pipelines where we select features on a subset and train on another:
-                   Let's assume:
-                   - Discovery Set: The set used for DE (Gene Selection). 
-                   - Training Set: The set used for Model Training.
-                   
-                   We will split such that:
-                   - Discovery Set: 70% (or 1-test_size if we map test_size to training)
-                   - Training Set: 30%
-                   
-                   Wait, the task says: "discovery_set (for gene selection) and training_set (for model fitting)".
-                   Usually, you select features on the discovery set, then train on the training set.
-                   Let's use a 70/30 split where Discovery=70% and Training=30%.
-                   In sklearn, train_test_split(x, y, test_size=0.3) returns (train, test).
-                   So if we want Training=30%, we set test_size=0.3.
-                   Then:
-                   - returned[0] -> Training Set (30%)? No, train_test_split returns (train, test).
-                   - If test_size=0.3, then 'train' is 70% and 'test' is 30%.
-                   - We want Discovery=70% and Training=30%.
-                   - So: discovery_set = train, training_set = test.
-                   
-                   Actually, let's re-read carefully: "discovery_set (for gene selection) and training_set (for model fitting)".
-                   Often, "Discovery" implies the initial set to find markers. "Training" implies the set to build the model.
-                   If we split 70/30:
-                   - 70% -> Discovery (Gene Selection)
-                   - 30% -> Training (Model Fitting)
-                   
-                   So:
-                   discovery_set = the 70% chunk.
-                   training_set = the 30% chunk.
-                   
-                   In train_test_split:
-                   X_train, X_test = train_test_split(X, y, test_size=0.3)
-                   X_train is 70%, X_test is 30%.
-                   So: discovery_set = X_train, training_set = X_test.
-                   
-                   Args:
-                       df: DataFrame
-                       label_col: 'response_label'
-                       test_size: 0.3 (meaning 30% for training set)
-                       random_state: 42
-                       
-                   Returns:
-                       (discovery_df, training_df)
+        df: Input dataframe containing gene expression and response labels.
+        response_col: Name of the column containing the response labels.
+        test_size: Proportion of the dataset to include in the training set (since we need a discovery set for feature selection first).
+                   Here, we treat 'test' as the 'training_set' for the model, and 'train' as the 'discovery_set'.
+                   Wait, standard split: train (discovery) / test (training for model).
+                   Let's map: discovery_set = train_split, training_set = test_split.
+                   We need a specific split ratio. Usually 70/30 or 80/20.
+                   Task says: discovery_set (for gene selection), training_set (for model fitting).
+                   We will use 70% for discovery, 30% for training to ensure sufficient data for model fitting.
+        random_state: Random seed for reproducibility.
+    
+    Returns:
+        Tuple of (discovery_set, training_set) DataFrames.
     """
-    if label_col not in df.columns:
-        raise ValueError(f"Label column '{label_col}' not found in dataframe.")
-        
-    # Separate features (genes) and labels
-    # Assume all columns except 'sample_id', 'response_label' (and maybe 'batch' if present) are genes
-    # We need to be careful not to drop non-gene columns that are metadata but not labels
-    # For safety, we'll split based on the label column and keep the rest.
+    # Ensure response column is not a string object if it has numeric labels, but stratify works on categories
+    # Check class balance
+    class_counts = df[response_col].value_counts()
+    logger.info(f"Class distribution in {df.shape[0]} samples: {class_counts.to_dict()}")
     
-    y = df[label_col]
-    X = df.drop(columns=[label_col])
+    # Check for minimum class size to allow stratification
+    min_class_count = class_counts.min()
+    if min_class_count < 2:
+        logger.warning(f"Class imbalance detected (min count {min_class_count}). Stratification might fail. Attempting split.")
     
-    # Perform stratified split
-    # We want Discovery (70%) and Training (30%)
-    # train_test_split returns (train, test). 
-    # If test_size=0.3, 'train' is 70%, 'test' is 30%.
-    # So: discovery = train, training = test.
-    
-    discovery_df, training_df = train_test_split(
-        df,
-        test_size=test_size,
-        random_state=random_state,
-        stratify=y
-    )
-    
-    logger.info(f"Split completed for {df.shape[0]} samples:")
-    logger.info(f"  Discovery Set: {discovery_df.shape[0]} samples")
-    logger.info(f"  Training Set: {training_df.shape[0]} samples")
-    logger.info(f"  Class distribution in Discovery: {discovery_df[label_col].value_counts().to_dict()}")
-    logger.info(f"  Class distribution in Training: {training_df[label_col].value_counts().to_dict()}")
-    
-    return discovery_df, training_df
+    try:
+        # We want discovery_set (larger) and training_set (smaller)
+        # Let's do 70% discovery, 30% training
+        # sklearn train_test_split: train is first arg, test is second
+        # We want discovery = train, training = test
+        discovery_set, training_set = train_test_split(
+            df, 
+            test_size=test_size, 
+            stratify=df[response_col], 
+            random_state=random_state
+        )
+    except ValueError as e:
+        # Fallback if stratification fails due to small sample size
+        if "The least populated class in y has only 1 member" in str(e):
+            logger.warning(f"Stratification failed due to small class size. Falling back to non-stratified split.")
+            discovery_set, training_set = train_test_split(
+                df, 
+                test_size=test_size, 
+                random_state=random_state
+            )
+        else:
+            raise e
 
-def save_split_data(
-    discovery_df: pd.DataFrame,
-    training_df: pd.DataFrame,
-    tumor_type: str,
-    output_dir: Path
-) -> None:
+    logger.info(f"Split complete. Discovery set: {discovery_set.shape[0]} samples, Training set: {training_set.shape[0]} samples.")
+    
+    # Verify class distribution in splits
+    logger.info(f"Discovery set distribution: {discovery_set[response_col].value_counts().to_dict()}")
+    logger.info(f"Training set distribution: {training_set[response_col].value_counts().to_dict()}")
+    
+    return discovery_set, training_set
+
+def process_tumor_type(tumor_type: str, data_dir: Path, output_dir: Path) -> Dict[str, Any]:
     """
-    Save the split datasets to CSV files.
+    Process a single tumor type: load, split, and save discovery/training sets.
     
     Args:
-        discovery_df: Discovery set DataFrame.
-        training_df: Training set DataFrame.
-        tumor_type: Tumor type identifier for naming.
-        output_dir: Directory to save files.
-    """
-    ensure_directories([output_dir])
+        tumor_type: The identifier for the tumor type (e.g., 'BRCA').
+        data_dir: Directory containing the preprocessed input files.
+        output_dir: Directory to save the split files.
     
+    Returns:
+        Dictionary with split statistics and output paths.
+    """
+    logger.info(f"Processing tumor type: {tumor_type}")
+    
+    # Load data
+    df = load_processed_data(tumor_type, data_dir)
+    
+    # Split data
+    discovery_set, training_set = split_data_stratified(df)
+    
+    # Define output paths
     discovery_path = output_dir / f"{tumor_type}_discovery_set.csv"
     training_path = output_dir / f"{tumor_type}_training_set.csv"
     
-    discovery_df.to_csv(discovery_path, index=False)
-    training_df.to_csv(training_path, index=False)
+    # Save data
+    save_processed_data(discovery_set, discovery_path)
+    save_processed_data(training_set, training_path)
     
-    logger.info(f"Saved discovery set to {discovery_path}")
-    logger.info(f"Saved training set to {training_path}")
-
-def process_tumor_type(
-    tumor_type: str,
-    processed_dir: Path,
-    output_dir: Path,
-    test_size: float = 0.3,
-    random_state: int = 42
-) -> Dict[str, Any]:
-    """
-    Main function to process a single tumor type: load, split, and save.
+    # Calculate checksums
+    discovery_checksum = calculate_checksum(discovery_path)
+    training_checksum = calculate_checksum(training_path)
     
-    Args:
-        tumor_type: The tumor type identifier.
-        processed_dir: Path to the directory containing normalized data.
-        output_dir: Path to the directory to save split data.
-        test_size: Proportion for the training set.
-        random_state: Random seed for reproducibility.
-        
-    Returns:
-        Dictionary with status and paths.
-    """
-    try:
-        # 1. Load
-        df = load_processed_data(tumor_type, processed_dir)
-        
-        # 2. Split
-        discovery_df, training_df = split_data_stratified(
-            df, 
-            label_col='response_label',
-            test_size=test_size,
-            random_state=random_state
-        )
-        
-        # 3. Save
-        save_split_data(discovery_df, training_df, tumor_type, output_dir)
-        
-        return {
-            "status": "success",
-            "tumor_type": tumor_type,
-            "discovery_path": str(output_dir / f"{tumor_type}_discovery_set.csv"),
-            "training_path": str(output_dir / f"{tumor_type}_training_set.csv"),
-            "discovery_count": len(discovery_df),
-            "training_count": len(training_df)
-        }
-        
-    except Exception as e:
-        logger.error(f"Failed to process tumor type {tumor_type}: {e}")
-        return {
-            "status": "failed",
-            "tumor_type": tumor_type,
-            "error": str(e)
-        }
+    result = {
+        "tumor_type": tumor_type,
+        "total_samples": len(df),
+        "discovery_samples": len(discovery_set),
+        "training_samples": len(training_set),
+        "discovery_path": str(discovery_path),
+        "training_path": str(training_path),
+        "discovery_checksum": discovery_checksum,
+        "training_checksum": training_checksum
+    }
+    
+    logger.info(f"Finished processing {tumor_type}. Discovery: {result['discovery_samples']}, Training: {result['training_samples']}")
+    return result
 
 def main():
     """
-    Entry point for the splitting stage.
-    Iterates over available tumor types in data/processed/ and splits them.
+    Main entry point for the preprocessing splitting stage.
+    Iterates over available tumor types and splits their data.
     """
     setup_logging()
     project_root = get_project_root()
-    processed_dir = project_root / "data" / "processed"
-    output_dir = processed_dir # Save back to processed as per task description
+    data_dir = project_root / "data" / "processed"
+    output_dir = project_root / "data" / "processed"
     
-    if not processed_dir.exists():
-        logger.error(f"Processed directory not found: {processed_dir}")
+    ensure_directories([output_dir])
+    
+    # Determine which tumor types to process
+    # We look for files matching '*_processed.csv' in the data_dir
+    if not data_dir.exists():
+        logger.error(f"Data directory {data_dir} does not exist. Run data acquisition first.")
         sys.exit(1)
     
-    # Identify tumor types by looking for files matching *_normalized.csv
-    # Or we can read from a manifest if T012/T017 created one.
-    # Assuming files exist from previous steps: {tumor_type}_normalized.csv
-    tumor_files = list(processed_dir.glob("*_normalized.csv"))
+    processed_files = list(data_dir.glob("*_processed.csv"))
+    if not processed_files:
+        logger.warning(f"No processed data files found in {data_dir}.")
+        sys.exit(0)
     
-    if not tumor_files:
-        logger.warning("No normalized data files found. Skipping splitting.")
-        # Create an empty summary or exit gracefully
-        return
+    tumor_types = [f.stem.replace("_processed", "") for f in processed_files]
+    logger.info(f"Found {len(tumor_types)} tumor types to process: {tumor_types}")
     
     results = []
-    for file_path in tumor_files:
-        tumor_type = file_path.stem.replace("_normalized", "")
-        logger.info(f"Processing tumor type: {tumor_type}")
-        result = process_tumor_type(tumor_type, processed_dir, output_dir)
-        results.append(result)
+    for tumor_type in tumor_types:
+        try:
+            result = process_tumor_type(tumor_type, data_dir, output_dir)
+            results.append(result)
+        except Exception as e:
+            logger.error(f"Failed to process tumor type {tumor_type}: {e}", exc_info=True)
+            # Continue processing other types, but mark failure
+            results.append({
+                "tumor_type": tumor_type,
+                "status": "failed",
+                "error": str(e)
+            })
     
-    # Summary
-    success_count = sum(1 for r in results if r["status"] == "success")
-    logger.info(f"Splitting completed. Success: {success_count}/{len(results)}")
+    # Save summary of splitting operations
+    summary_path = output_dir / "split_summary.json"
+    with open(summary_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Split summary saved to {summary_path}")
     
-    if success_count == 0:
-        sys.exit(1)
+    # Check if any critical failures occurred
+    failed_types = [r["tumor_type"] for r in results if r.get("status") == "failed"]
+    if failed_types:
+        logger.warning(f"Failed to process tumor types: {failed_types}")
+        # Depending on strictness, we might exit here. For now, we log and continue.
 
 if __name__ == "__main__":
     main()
