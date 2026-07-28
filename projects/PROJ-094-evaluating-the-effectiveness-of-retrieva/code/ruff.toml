@@ -1,0 +1,36 @@
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Line length (matching Black default)
+line-length = 88
+
+# Exclude directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    "*.egg-info",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+    "data",
+    "results",
+    "figures"
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
+select = ["E", "F", "I", "W", "UP"]
+
+# Ignore specific rules if necessary
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Per-file-ignores can be added here if needed
+# Example: [tool.ruff.lint.per-file-ignores]
+# "tests/*" = ["S101"]

@@ -1,16 +1,13 @@
-# T001/T002: Project dependencies
-# Note: T002 will pin exact versions, this is a placeholder for structure
-ir-datasets>=1.2.10
-sentence-transformers>=2.7.0
-faiss-cpu>=1.8.0
-rank-bm25>=0.2.2
-scikit-learn>=1.5.0
-pandas>=2.2.0
-numpy>=1.26.0
-psutil>=6.0.0
-transformers>=4.42.0
-torch>=2.3.0
-accelerate>=0.31.0
-pytest>=7.0.0
-black>=24.0.0
-ruff>=0.4.0
+ir-datasets
+sentence-transformers
+faiss-cpu
+rank_bm25
+scikit-learn
+pandas
+numpy
+psutil
+transformers
+torch
+accelerate
+pytest
+bitsandbytes

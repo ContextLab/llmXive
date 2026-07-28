@@ -1,145 +1,218 @@
 """
-Module for verifying raw data integrity via SHA-256 hashes.
+src/data/checksum.py
 
-This module provides utilities to compute, store, and verify SHA-256 checksums
-for raw data files downloaded by the pipeline. It ensures data integrity
-against corruption or tampering.
+Implements raw data hash verification and state file management.
+This module ensures data integrity by calculating SHA-256 checksums
+and maintaining a state file that tracks registered files and their hashes.
 """
 import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, Optional, Tuple, List
+
+# Configuration
+STATE_FILE_NAME = "data_state.json"
+CHUNK_SIZE = 8192  # Read files in 8KB chunks for memory efficiency
 
 
-def compute_sha256(file_path: str, chunk_size: int = 8192) -> str:
+def get_state_file_path(project_root: Optional[Path] = None) -> Path:
     """
-    Compute the SHA-256 hash of a file.
+    Returns the path to the state file.
+    
+    Args:
+        project_root: Optional base path. Defaults to current working directory.
+        
+    Returns:
+        Path to the data state JSON file.
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+    return project_root / "data" / STATE_FILE_NAME
+
+
+def calculate_sha256(file_path: Path) -> str:
+    """
+    Calculates the SHA-256 hash of a file.
     
     Args:
         file_path: Path to the file to hash.
-        chunk_size: Size of chunks to read at a time.
         
     Returns:
         Hexadecimal string of the SHA-256 hash.
         
     Raises:
         FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        IsADirectoryError: If the path is a directory.
     """
-    sha256_hash = hashlib.sha256()
-    path = Path(file_path)
-    
-    if not path.exists():
+    if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-        
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(chunk_size), b""):
+    if file_path.is_dir():
+        raise IsADirectoryError(f"Path is a directory, not a file: {file_path}")
+
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(CHUNK_SIZE), b""):
             sha256_hash.update(chunk)
-            
     return sha256_hash.hexdigest()
 
 
-def verify_checksum(file_path: str, expected_hash: str) -> bool:
+def load_state(project_root: Optional[Path] = None) -> Dict:
     """
-    Verify a file's SHA-256 hash against an expected value.
+    Loads the current state from the JSON file.
+    
+    Args:
+        project_root: Optional base path. Defaults to current working directory.
+        
+    Returns:
+        Dictionary containing the state data. Returns empty dict if file missing.
+    """
+    state_path = get_state_file_path(project_root)
+    if not state_path.exists():
+        return {"files": {}, "metadata": {"created": None, "last_updated": None}}
+    
+    try:
+        with open(state_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        raise RuntimeError(f"Failed to load state file {state_path}: {e}")
+
+
+def save_state(state: Dict, project_root: Optional[Path] = None) -> None:
+    """
+    Saves the state dictionary to the JSON file.
+    
+    Args:
+        state: Dictionary to save.
+        project_root: Optional base path. Defaults to current working directory.
+    """
+    import datetime
+    state_path = get_state_file_path(project_root)
+    
+    # Ensure directory exists
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Update metadata
+    now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    state["metadata"]["last_updated"] = now
+    if state["metadata"].get("created") is None:
+        state["metadata"]["created"] = now
+        
+    with open(state_path, "w", encoding="utf-8") as f:
+        json.dump(state, f, indent=2)
+
+
+def verify_file(file_path: Path, expected_hash: str, project_root: Optional[Path] = None) -> Tuple[bool, str]:
+    """
+    Verifies a file's hash against an expected value.
     
     Args:
         file_path: Path to the file to verify.
-        expected_hash: The expected SHA-256 hex string.
+        expected_hash: The expected SHA-256 hash.
+        project_root: Optional base path.
         
     Returns:
-        True if the computed hash matches the expected hash.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the expected_hash format is invalid.
+        Tuple of (is_valid, message).
     """
-    if not isinstance(expected_hash, str) or len(expected_hash) != 64:
-        raise ValueError("Expected hash must be a 64-character hex string.")
-        
-    computed_hash = compute_sha256(file_path)
-    return computed_hash.lower() == expected_hash.lower()
+    if not file_path.exists():
+        return False, f"File missing: {file_path}"
+    
+    try:
+        actual_hash = calculate_sha256(file_path)
+    except Exception as e:
+        return False, f"Error calculating hash: {e}"
+    
+    if actual_hash == expected_hash:
+        return True, "Hash verified successfully"
+    else:
+        return False, f"Hash mismatch. Expected: {expected_hash}, Got: {actual_hash}"
 
 
-def generate_manifest(file_paths: List[str], output_path: str) -> Dict[str, str]:
+def register_file(file_path: Path, project_root: Optional[Path] = None) -> str:
     """
-    Generate a manifest file containing SHA-256 hashes for multiple files.
+    Calculates hash for a file and registers it in the state file.
     
     Args:
-        file_paths: List of file paths to include in the manifest.
-        output_path: Path where the JSON manifest will be saved.
+        file_path: Path to the file to register.
+        project_root: Optional base path.
         
     Returns:
-        Dictionary mapping file paths to their SHA-256 hashes.
+        The calculated hash.
         
     Raises:
-        FileNotFoundError: If any file in file_paths does not exist.
+        FileNotFoundError: If file does not exist.
     """
-    manifest = {}
-    for file_path in file_paths:
-        manifest[file_path] = compute_sha256(file_path)
-        
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
-        
-    return manifest
+    if not file_path.exists():
+        raise FileNotFoundError(f"Cannot register missing file: {file_path}")
+    
+    file_hash = calculate_sha256(file_path)
+    state = load_state(project_root)
+    
+    # Store relative path from project root for portability
+    if project_root is None:
+        project_root = Path.cwd()
+    relative_path = str(file_path.relative_to(project_root))
+    
+    state["files"][relative_path] = {
+        "hash": file_hash,
+        "registered_at": file_path.stat().st_mtime,
+        "size_bytes": file_path.stat().st_size
+    }
+    
+    save_state(state, project_root)
+    return file_hash
 
 
-def verify_manifest(manifest_path: str) -> Dict[str, bool]:
+def verify_all(project_root: Optional[Path] = None) -> Dict[str, bool]:
     """
-    Verify all files listed in a manifest against their stored hashes.
+    Verifies all registered files against their stored hashes.
     
     Args:
-        manifest_path: Path to the JSON manifest file.
+        project_root: Optional base path.
         
     Returns:
-        Dictionary mapping file paths to verification status (True/False).
-        
-    Raises:
-        FileNotFoundError: If the manifest file or any listed file is missing.
-        json.JSONDecodeError: If the manifest file is not valid JSON.
+        Dictionary mapping relative paths to verification status (True/False).
     """
-    with open(manifest_path, "r", encoding="utf-8") as f:
-        manifest = json.load(f)
-        
+    state = load_state(project_root)
     results = {}
-    for file_path, expected_hash in manifest.items():
-        try:
-            results[file_path] = verify_checksum(file_path, expected_hash)
-        except FileNotFoundError:
-            results[file_path] = False
-            
+    
+    if project_root is None:
+        project_root = Path.cwd()
+        
+    for relative_path, info in state.get("files", {}).items():
+        full_path = project_root / relative_path
+        is_valid, _ = verify_file(full_path, info["hash"])
+        results[relative_path] = is_valid
+        
     return results
 
 
-def update_manifest_if_changed(file_path: str, manifest_path: str) -> bool:
+def check_and_register_missing_files(file_paths: List[Path], project_root: Optional[Path] = None) -> List[Path]:
     """
-    Update the manifest for a single file if its hash has changed.
+    Checks a list of files against the state. Registers any that are missing
+    from the state file.
     
     Args:
-        file_path: Path to the file to check.
-        manifest_path: Path to the manifest file.
+        file_paths: List of file paths to check.
+        project_root: Optional base path.
         
     Returns:
-        True if the manifest was updated, False otherwise.
-        
-    Raises:
-        FileNotFoundError: If the file or manifest does not exist.
+        List of files that were newly registered.
     """
-    manifest = {}
-    if Path(manifest_path).exists():
-        with open(manifest_path, "r", encoding="utf-8") as f:
-            manifest = json.load(f)
-            
-    current_hash = compute_sha256(file_path)
-    stored_hash = manifest.get(file_path)
+    state = load_state(project_root)
+    newly_registered = []
     
-    if stored_hash != current_hash:
-        manifest[file_path] = current_hash
-        with open(manifest_path, "w", encoding="utf-8") as f:
-            json.dump(manifest, f, indent=2)
-        return True
+    if project_root is None:
+        project_root = Path.cwd()
         
-    return False
+    for file_path in file_paths:
+        if not file_path.exists():
+            continue
+            
+        relative_path = str(file_path.relative_to(project_root))
+        
+        if relative_path not in state.get("files", {}):
+            register_file(file_path, project_root)
+            newly_registered.append(file_path)
+            
+    return newly_registered

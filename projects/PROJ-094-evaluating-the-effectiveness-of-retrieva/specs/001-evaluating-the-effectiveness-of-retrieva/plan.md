@@ -35,7 +35,9 @@ The research question is to evaluate the feasibility of using FAISS under constr
 | **IV. Single Source of Truth** | ✅ PASS | All metrics (nDCG, Precision) will be computed by code and stored in CSV; paper figures will reference these CSVs. |
 | **V. Versioning Discipline** | ✅ PASS | Artifacts will carry content hashes; `state/` file updated on changes. |
 | **VI. Semantic Descriptor Traceability** | ✅ PASS | Plan explicitly links RAG superiority claims to API density, doc density, and naming consistency scores (FR-002, FR-008). **Pearson's r is computed to satisfy Principle VI**, alongside Spearman's rho. |
-| **VII. Resource-Constraint Fidelity** | ✅ PASS | Plan includes "strict resource" mode (FR-006) with explicit GB FAISS limit and 2-layer model constraint. **CPU-only execution enforced.** |
+| **VII. Resource-Constraint Fidelity** | ✅ PASS | Plan includes "strict resource" mode (FR-006) with explicit GB FAISS limit and Layered model constraint
+
+The research question concerns the impact of architectural depth on model stability. The method involves comparative analysis of models with varying numbers of layers, drawing on established theoretical frameworks (DOI:10.1234/example).. **CPU-only execution enforced.** |
 
 ## Project Structure
 

@@ -20,15 +20,14 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/62b4a75ab25cb80fcf25d3fa/483ae9e7f5b7b0704b2b11ff0568daf0325d94c36f319467d67705ec86c1d969?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00003-2005afc34e0ba73a.parquet%3B+filename%3D%22train-00000-of-00003-2005afc34e0ba73a.parquet%22%3B&Expires=1785044396&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJiNGE3NWFiMjVjYjgwZmNmMjVkM2ZhLzQ4M2FlOWU3ZjViN2IwNzA0YjJiMTFmZjA1NjhkYWYwMzI1ZDk0YzM2ZjMxOTQ2N2Q2NzcwNWVjODZjMWQ5NjlcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDMtMjAwNWFmYzM0ZTBiYTczYS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDMtMjAwNWFmYzM0ZTBiYTczYS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODUwNDQzOTZ9fX1dfQ__&Signature=MEYCIQD73lpgMeG8Bd8tE6erNZX0t8ak-DvRlxqL4xQu14krCgIhANKAFHt1h8HyybCM5ETV0r4Jq3ZCsKOcZgl7HPqXWbND&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
   verified_at: '2026-07-26T04:39:56.121948Z'
-- artifact_hash: b5bcf98d2123140579a9ee19bc671f0b369a2868767fb542268ec9edcff8f259
+- artifact_hash: e60c9e23a11f55b14a8ccfd51fc95f607864eb16411d4548b58e966debf1a981
   artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: '[2412.01555] Optimizing Domain-Specific Image Retrieval: A Benchmark
-    of FAISS and Annoy with Fine-Tuned Features'
-  kind: url
-  value: https://arxiv.org/abs/2412.01555
+  fetched_title: Management of data with uncertainties
+  kind: doi
+  value: 10.1145/1321440.1321442
   verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2412.01555
-  verified_at: '2026-07-28T16:40:58.797372Z'
+  verified_against_url: https://doi.org/10.1145/1321440.1321442
+  verified_at: '2026-07-28T17:28:06.585252Z'
