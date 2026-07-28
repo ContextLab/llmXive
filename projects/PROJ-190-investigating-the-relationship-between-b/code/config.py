@@ -1,84 +1,91 @@
 """
-Configuration module for the Brain Network Efficiency and Fluid Intelligence project.
+Configuration module - Single Source of Truth for project settings.
 
-This module serves as the Single Source of Truth for:
-- Random seeds (for reproducibility)
-- File paths (data directories, output locations)
-- Processing thresholds (FD cutoffs, graph densities)
-- Analysis parameters (permutation counts, time limits)
+This module defines all configurable parameters including random seeds,
+file paths, and analysis thresholds.
 """
 import os
 from pathlib import Path
 from typing import Final
 
-# --- Project Root & Directories ---
-# Assume config.py is at code/config.py, so root is two levels up
-_ROOT_DIR = Path(__file__).resolve().parent.parent
-PROJECT_ROOT: Final[Path] = _ROOT_DIR
+# Project root directory
+PROJECT_ROOT: Final[Path] = Path(__file__).parent.parent
 
-# Standardized directory structure
-DIR_RAW: Final[Path] = PROJECT_ROOT / "data" / "raw"
-DIR_PROCESSED: Final[Path] = PROJECT_ROOT / "data" / "processed"
-DIR_RESULTS: Final[Path] = PROJECT_ROOT / "data" / "results"
-DIR_STATE: Final[Path] = PROJECT_ROOT / "state"
-DIR_CODE: Final[Path] = PROJECT_ROOT / "code"
-DIR_TESTS: Final[Path] = PROJECT_ROOT / "tests"
-DIR_DOCS: Final[Path] = PROJECT_ROOT / "docs"
+# Data directories
+DATA_RAW: Final[Path] = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED: Final[Path] = PROJECT_ROOT / "data" / "processed"
+DATA_RESULTS: Final[Path] = PROJECT_ROOT / "data" / "results"
 
-# --- Random Seeds ---
-# Fixed seed for reproducibility across numpy, random, etc.
+# State directory for checksums and pipeline state
+STATE_DIR: Final[Path] = PROJECT_ROOT / "state" / "projects" / "PROJ-190-investigating-the-relationship-between-b"
+
+# Random seed for reproducibility
 RANDOM_SEED: Final[int] = 42
 
-# --- Data Quality Thresholds ---
-# Framewise Displacement (FD) thresholds for subject exclusion and quality checks
-FD_EXCLUSION_THRESHOLD: Final[float] = 0.5  # Exclude subjects with mean FD > 0.5 mm
-FD_QUALITY_WARNING_THRESHOLD: Final[float] = 0.2  # Warn if mean FD of retained cohort > 0.2 mm
+# Analysis thresholds
+MAX_FRAMING_DISPLACEMENT: Final[float] = 0.5  # mm - subjects above this are excluded
+MEAN_FD_WARNING_THRESHOLD: Final[float] = 0.2  # mm - warn if mean FD exceeds this
+MIN_SUBJECT_RETENTION_RATIO: Final[float] = 0.5  # Minimum ratio of subjects to retain
 
-# --- Graph Analysis Parameters ---
-# Target graph densities for thresholding (as per FR-009/SC-003)
-GRAPH_DENSITIES: Final[list[float]] = [0.15, 0.20, 0.25]
+# Graph analysis parameters
+GRAPH_DENSITIES: Final[tuple] = (0.15, 0.20, 0.25)
+RETAIN_POSITIVE_EDGES_ONLY: Final[bool] = True
 
-# Atlas configuration
-ATLAS_NAME: Final[str] = "Schaefer"
-ATLAS_RESOLUTION: Final[int] = 100  # Default resolution (e.g., 100 parcels)
+# Statistical analysis parameters
+PERMUTATION_WARMUP: Final[int] = 100
+MAX_EXECUTION_TIME_HOURS: Final[float] = 6.0
+MAX_EXECUTION_TIME_WARMUP_HOURS: Final[float] = 5.5
+MIN_PERMUTATIONS: Final[int] = 1000
+MAX_SUBJECTS_FOR_PERMUTATION: Final[int] = 500
 
-# --- Statistical Analysis Parameters ---
-# Permutation testing settings
-PERMUTATION_BASE_COUNT: Final[int] = 10000  # Default number of permutations
-PERMUTATION_WARMUP_COUNT: Final[int] = 100  # Warm-up permutations to estimate time
-MAX_ANALYSIS_TIME_HOURS: Final[float] = 6.0  # Hard time limit for analysis
-WARMUP_TIME_THRESHOLD_HOURS: Final[float] = 5.5  # Switch to adaptive mode if elapsed > 5.5h
+# Atlas parameters
+SCHAEFER_ROI_NODES: Final[int] = 100
+SCHAEFER_MULTIPARCEL_NODES: Final[int] = 400
 
-# Covariates for regression
-COVARIATES: Final[list[str]] = ["age", "sex", "mean_fd"]
+# VIF threshold
+VIF_THRESHOLD: Final[float] = 5.0
 
-# --- Logging Configuration ---
-LOG_LEVEL: Final[str] = "INFO"
-LOG_FORMAT: Final[str] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-# --- File Paths (Constants) ---
-# Output paths for specific artifacts
-PATH_REPORT: Final[Path] = DIR_RESULTS / "report.md"
-PATH_CHECKSUMS: Final[Path] = DIR_STATE / "checksums.yaml"
-
-# Ensure directories exist (lazy initialization helper)
 def ensure_directories() -> None:
-    """Create all required data and state directories if they don't exist."""
-    for directory in [DIR_RAW, DIR_PROCESSED, DIR_RESULTS, DIR_STATE]:
+    """Create all required directories if they don't exist."""
+    directories = [
+        DATA_RAW,
+        DATA_PROCESSED,
+        DATA_RESULTS,
+        STATE_DIR,
+    ]
+    for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
 
-# --- Validation Helper ---
+
 def validate_config() -> bool:
-    """
-    Validates that critical configuration values are within expected ranges.
-    Returns True if valid, raises ValueError otherwise.
-    """
-    if not (0.0 < FD_EXCLUSION_THRESHOLD <= 1.0):
-        raise ValueError(f"FD_EXCLUSION_THRESHOLD must be between 0 and 1, got {FD_EXCLUSION_THRESHOLD}")
-    if not (0.0 < FD_QUALITY_WARNING_THRESHOLD <= 1.0):
-        raise ValueError(f"FD_QUALITY_WARNING_THRESHOLD must be between 0 and 1, got {FD_QUALITY_WARNING_THRESHOLD}")
-    if not all(0.0 < d <= 1.0 for d in GRAPH_DENSITIES):
-        raise ValueError(f"GRAPH_DENSITIES must be between 0 and 1, got {GRAPH_DENSITIES}")
-    if PERMUTATION_BASE_COUNT < 100:
-        raise ValueError(f"PERMUTATION_BASE_COUNT must be at least 100, got {PERMUTATION_BASE_COUNT}")
+    """Validate configuration settings."""
+    # Check that all directories are valid paths
+    if not PROJECT_ROOT.exists():
+        raise ValueError(f"Project root does not exist: {PROJECT_ROOT}")
+
+    # Validate thresholds
+    if not 0 < MAX_FRAMING_DISPLACEMENT < 10:
+        raise ValueError(f"Invalid MAX_FRAMING_DISPLACEMENT: {MAX_FRAMING_DISPLACEMENT}")
+
+    if not 0 < MEAN_FD_WARNING_THRESHOLD < 10:
+        raise ValueError(f"Invalid MEAN_FD_WARNING_THRESHOLD: {MEAN_FD_WARNING_THRESHOLD}")
+
+    if not 0 < MIN_SUBJECT_RETENTION_RATIO <= 1:
+        raise ValueError(f"Invalid MIN_SUBJECT_RETENTION_RATIO: {MIN_SUBJECT_RETENTION_RATIO}")
+
+    # Validate graph densities
+    for density in GRAPH_DENSITIES:
+        if not 0 < density <= 1:
+            raise ValueError(f"Invalid graph density: {density}")
+
+    # Validate permutation parameters
+    if PERMUTATION_WARMUP < 1:
+        raise ValueError(f"Invalid PERMUTATION_WARMUP: {PERMUTATION_WARMUP}")
+
+    if MAX_EXECUTION_TIME_HOURS <= 0:
+        raise ValueError(f"Invalid MAX_EXECUTION_TIME_HOURS: {MAX_EXECUTION_TIME_HOURS}")
+
+    if MIN_PERMUTATIONS < 1:
+        raise ValueError(f"Invalid MIN_PERMUTATIONS: {MIN_PERMUTATIONS}")
+
     return True

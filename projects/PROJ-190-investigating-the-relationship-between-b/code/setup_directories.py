@@ -1,75 +1,63 @@
 """
-Directory structure setup for the llmXive research pipeline.
+Directory setup utilities for the project.
 
-This module creates the necessary directory structure for the project,
-specifically the data subdirectories required for raw, processed, and results data.
+Creates the required directory structure for data, code, and state.
 """
 import os
 from pathlib import Path
 from typing import List
 
-# Import the logger from the existing utils module
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def create_directories(base_path: Path) -> None:
+
+def create_directories(paths: List[Path]) -> None:
     """
-    Create the required directory structure for the project.
-    
-    This function creates the standard data subdirectories:
-    - data/raw: For raw, unprocessed data
-    - data/processed: For preprocessed data
-    - data/results: For analysis results and reports
-    
+    Create a list of directories, including parents if needed.
+
     Args:
-        base_path: The root path of the project where directories should be created.
+        paths: List of directory paths to create
     """
-    # Define the directory structure to create
-    directories: List[Path] = [
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "data" / "results",
+    for path in paths:
+        path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {path}")
+
+
+def ensure_data_structure() -> None:
+    """
+    Ensure the complete project directory structure exists.
+
+    Creates:
+    - data/raw, data/processed, data/results
+    - state/projects
+    - code/data, code/graph, code/stats, code/utils
+    - tests/unit
+    - docs
+    """
+    base_dir = Path(__file__).parent.parent
+
+    directories = [
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "data" / "results",
+        base_dir / "state" / "projects",
+        base_dir / "code" / "data",
+        base_dir / "code" / "graph",
+        base_dir / "code" / "stats",
+        base_dir / "code" / "utils",
+        base_dir / "tests" / "unit",
+        base_dir / "docs",
     ]
 
-    created_count = 0
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            logger.debug(f"Directory already exists: {dir_path}")
+    create_directories(directories)
+    logger.info("Project directory structure created")
 
-    logger.info(f"Directory setup complete. Created {created_count} new directories.")
 
-    # Verify all directories exist
-    for dir_path in directories:
-        if not dir_path.is_dir():
-            raise RuntimeError(f"Failed to create required directory: {dir_path}")
+def main() -> None:
+    """Entry point for directory setup script."""
+    ensure_data_structure()
 
-def ensure_data_structure(project_root: Path) -> None:
-    """
-    Ensure the full data directory structure exists.
-    
-    This is a convenience wrapper that creates the directories if they don't exist.
-    
-    Args:
-        project_root: The root path of the project.
-    """
-    create_directories(project_root)
 
 if __name__ == "__main__":
-    # When run directly, create directories in the current working directory's parent
-    # or use a specified path from command line
-    import sys
-
-    if len(sys.argv) > 1:
-        root = Path(sys.argv[1])
-    else:
-        # Default to the project root (parent of code/)
-        root = Path(__file__).resolve().parent.parent
-
-    print(f"Creating data directories at: {root}")
-    ensure_data_structure(root)
-    print("Done.")
+    main()

@@ -70,9 +70,9 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/evaluator.py` with `RepeatedStratifiedKFold` logic.
- - **Logic**: Check `n_samples < 100`. If true, log warning and return early (skip dataset). If valid, run `RepeatedStratifiedKFold(n_splits=10, n_repeats=10)`.
+ - **Logic**: Check `n_samples < 100`. If true, log warning and return early (skip dataset). If valid, run `RepeatedStratifiedKFold(n_splits=10, n_repeats=10)`. [UNRESOLVED-CLAIM: c_4eb14ad2 — status=not_enough_info]
  - **Constraint**: It MUST NOT reduce the fold count or alter the dataset for valid cases.
-- [X] T012 [US1] Implement training loop for Logistic Regression, Random Forest (n_estimators=100), and Linear SVM in `code/evaluator.py` (Depends on T011 structure)
+- [X] T012 [US1] Implement training loop for Logistic Regression, Random Forest (n_estimators=100 [UNRESOLVED-CLAIM: c_49c5816e — status=not_enough_info]), and Linear SVM in `code/evaluator.py` (Depends on T011 structure)
 - [ ] T013 [US1] Implement metric calculation (Accuracy, F1) inside the CV loop to prevent leakage
 - [ ] T014 [US1] Write raw evaluation results to `results/raw_evaluations.csv` with exact columns: `dataset_id` (OpenML ID), `model_name`, `fold_id`, `repeat_id`, `accuracy`, `f1_score`. (Output path must match Plan.md `results/` schema).
 

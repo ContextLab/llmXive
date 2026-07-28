@@ -1,0 +1,42 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or data files were presented that create a local cache
+    in `data/raw/`, nor any implementation that computes and stores immutable checksums
+    for raw API responses. The required artifact (caching mechanism) is missing entirely.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, dataset, or output file was provided that shows the `age_in_days`\
+    \ calculation logic or the handling of null `release_date` values. Consequently,\
+    \ there is no evidence that rows with missing release metadata have `age_in_days`\
+    \ set to null while still retaining a non\u2011null `vulnerability_count`. The\
+    \ required artifact is missing."
+T021a:
+  c: false
+  h: cf35a19ec08b66d355232a26c84cd39561aacf58fc7c83446b4f71bb4ecb3c09
+  r: "The required file `data/processed/power_analysis_notes.md` does not exist, so\
+    \ no documentation of power assumptions or sample size justification is present.\
+    \ The task\u2019s core deliverable is missing."
+T024:
+  c: true
+  h: 20b5e01cb48b09159bc61b831c6d22ab5c13b733405f53e199d2f82fa758e424
+  r: "The repository contains a non\u2011empty `src/cli/run_analysis.py` (3.4\u202F\
+    KB) that imports the data\u2011loading and correlation functions, writes the analysis\
+    \ results to `data/processed/results_correlation.json`, and logs the process.\
+    \ The missing `results_correlation.json` file is a runtime product, not a required\
+    \ artifact for the task."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or report artifact was provided that demonstrates the addition\
+    \ of logic to detect p\u202F<\u202F0.05 and flag statistical significance in the\
+    \ output report, as required by US\u20112 Acceptance\u202F3. The implementer\u2019\
+    s claim cannot be verified without such evidence."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` directory or `quickstart.md` file was presented; the claim of documentation
+    updates cannot be verified because the required artifacts are missing. The task
+    specifically requires a `quickstart.md` in `docs/` describing how to run the pipeline,
+    which is absent.

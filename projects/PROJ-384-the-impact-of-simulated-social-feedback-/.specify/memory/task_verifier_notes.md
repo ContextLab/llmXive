@@ -3,6 +3,7 @@
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
 - **T001** — No evidence of the required directories (`code/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`) being present was provided; the claim lacks any artifact listing or file‑system snapshot confirming the project structure exists.
-- **T004** — declared artifact(s) missing/empty/invalid: code/utils/config.py
 - **T006** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T008** — The `code/utils/model_loader.py` file exists and implements the model initialization and caching, but the required lexicon file `data/raw/lexicons/rosenberg_words.txt` is missing, so the loader cannot fulfill its purpose of loading the Rosenberg self‑esteem lexicon. Add the lexicon file (with the expected word list) to complete the task.
+- **T014** — declared artifact(s) missing/empty/invalid: code/01_ingest.py
+- **T015** — The required `code/01_ingest.py` file does not exist, and the referenced schema file `contracts/interaction_schema.schema.yaml` (or `schema.yaml`) is also missing, so no validation logic can be present. The task’s core artifact is absent.
+- **T016** — The required file `code/01_ingest.py` is missing from the repository, so no implementation applying the RoBERTa model and normalizing scores is present. Consequently the task’s core deliverable is absent.

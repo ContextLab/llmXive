@@ -43,7 +43,7 @@
   verification_status: pending
   verified_against_url: https://balsa.wustl.edu
   verified_at: '2026-07-05T00:21:53.969983Z'
-- artifact_hash: a6b79865f67aedc27e0290fcd8adb1aa70cc0f2b4470390179f3750771b4b215
+- artifact_hash: c04597f7deb97f9cb49dfb77721fb22e34129e0e72cd592ba573381eb89974c5
   artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -51,10 +51,10 @@
   fetched_title: Vif - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q113106917
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-07-05T00:53:50.812510Z'
-- artifact_hash: a6b79865f67aedc27e0290fcd8adb1aa70cc0f2b4470390179f3750771b4b215
+  verified_at: '2026-07-28T10:11:49.798760Z'
+- artifact_hash: c04597f7deb97f9cb49dfb77721fb22e34129e0e72cd592ba573381eb89974c5
   artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -62,6 +62,6 @@
   fetched_title: Human Connectome Project - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q387749
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q387749
-  verified_at: '2026-07-05T00:53:50.812510Z'
+  verified_at: '2026-07-28T10:11:49.798760Z'

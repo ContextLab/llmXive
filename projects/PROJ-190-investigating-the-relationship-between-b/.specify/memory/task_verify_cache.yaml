@@ -1,0 +1,15 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the `data/raw/`, `data/processed/`, and `data/results/`\
+    \ directories actually exist; the response contains only the task description\
+    \ without any file\u2011system listing or screenshots confirming the directory\
+    \ structure. The required artifacts are missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No checksum utility (e.g., a script, module, or documentation showing SHA\u2011\
+    256 generation and verification) is present; the only artifacts described relate\
+    \ to HCP data handling and graph analysis, not to the required checksumming feature.\
+    \ The task therefore lacks the required implementation and cannot be considered\
+    \ complete."

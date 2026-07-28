@@ -36,11 +36,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `code/utils/config.py` to define paths, random seeds, and thresholds (VIF limit, sentiment range [negative, positive])
+- [X] T004 [P] Create `code/utils/config.py` to define paths, random seeds, and thresholds (VIF limit, sentiment range [negative, positive])
 - [X] T005 [P] Create `code/utils/logger.py` to set up logging with file and console handlers, ensuring logs are written to `logs/pipeline.log`
 - [ ] T006 Create `contracts/interaction_schema.schema.yaml` defining the JSON schema for raw interaction data (post_text, reply_text, timestamp, user_id) with strict type enforcement
 - [X] T007 Create `code/utils/data_validation.py` to load the schema and provide a `validate_dataframe(df)` function that raises on schema mismatch
-- [ ] T008 Create `code/utils/model_loader.py` to initialize the RoBERTa sentiment model (CPU-optimized) and load the Rosenberg self-esteem lexicon from `data/raw/lexicons/rosenberg_words.txt`, caching them in memory
+- [X] T008 Create `code/utils/model_loader.py` to initialize the RoBERTa sentiment model (CPU-optimized) and load the Rosenberg self-esteem lexicon from `data/raw/lexicons/rosenberg_words.txt`, caching them in memory
 - [X] T009 [P] Create `tests/test_config.py` to verify config loading and seed reproducibility
 - [X] T010 [P] Create `tests/test_validation.py` to verify schema validation logic raises on malformed data
 

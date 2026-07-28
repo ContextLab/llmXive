@@ -18,3 +18,15 @@ T008:
     \ is missing, so the loader cannot fulfill its purpose of loading the Rosenberg\
     \ self\u2011esteem lexicon. Add the lexicon file (with the expected word list)\
     \ to complete the task."
+T015:
+  c: false
+  h: 038075d805c80573c0c5e56fa64f8b8782aa9fd032d40ec71771ff4d0bbb0de4
+  r: "The required `code/01_ingest.py` file does not exist, and the referenced schema\
+    \ file `contracts/interaction_schema.schema.yaml` (or `schema.yaml`) is also missing,\
+    \ so no validation logic can be present. The task\u2019s core artifact is absent."
+T016:
+  c: false
+  h: 44032301468328d20148662deeef678ec0e18d6e71af3215784f2c5158edf9de
+  r: "The required file `code/01_ingest.py` is missing from the repository, so no\
+    \ implementation applying the RoBERTa model and normalizing scores is present.\
+    \ Consequently the task\u2019s core deliverable is absent."

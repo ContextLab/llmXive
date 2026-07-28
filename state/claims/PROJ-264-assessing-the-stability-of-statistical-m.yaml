@@ -744,3 +744,179 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T10:06:37Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: supports direct URL fetch for UCI datasets
+  claim_id: c_1d5f8e09
+  context: Implement `code/data_loader.py` with OpenML fetch logic, binary-class validation,
+    and SHA-256 checksum caching to `data/raw/`. MUST support direct URL fetch for
+    UCI datasets if not available on OpenML.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Supports_direct_URL_fetch_for_UCI_datasets
+  kind: entity_fact
+  raw_text: MUST support direct URL fetch for UCI datasets if not available on OpenML.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T10:56:28Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: selects 15 binary classification datasets
+  claim_id: c_8483ace7
+  context: Implement `code/data_loader.py` with OpenML fetch logic, binary-class validation,
+    and SHA-256 checksum caching to `data/raw/`. MUST support direct URL fetch for
+    UCI datasets if not available on OpenML. MUST explicitly select 15 binary classification
+    datasets (OpenML IDs) defined in `code/config.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST explicitly select 15 binary classification datasets (OpenML IDs)
+    defined in `code/config.py`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T10:56:46Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 2
+  canonical: skips datasets with fewer than 100 samples or more than 100000 samples
+  claim_id: c_2922bce5
+  context: 'Logic:\n 1. Validate each dataset: if `n_samples < 100` or `n_samples
+    > 100000`, log a warning and skip only that specific dataset (do not fail the
+    whole run).'
+  evidence:
+    entailment_evidence: Skips datasets with fewer than 100 samples or more than 1000
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Skips_datasets_with_fewer_than_100_samples_or_more_than_1000
+  kind: magnitude
+  raw_text: if `n_samples < 100` or `n_samples > 100000`, log a warning and skip only
+    that specific dataset
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-28T10:57:30Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: requires scikit-learn version 1.3.0 or higher
+  claim_id: c_c058b8f3
+  context: 'Initialize Python 3.11 project with `requirements.txt` containing pinned
+    versions: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`,
+    `openml>=0.13.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '"scikit-learn>=1.3.0",'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T10:57:44Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: requires pandas version 2.0.0 or higher
+  claim_id: c_c4dea2c8
+  context: 'Initialize Python 3.11 project with `requirements.txt` containing pinned
+    versions: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`,
+    `openml>=0.13.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '"pandas>=2.0.0",'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T10:58:00Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: requires numpy version 1.24.0 or higher
+  claim_id: c_c35658c1
+  context: 'Initialize Python 3.11 project with `requirements.txt` containing pinned
+    versions: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`,
+    `openml>=0.13.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '"numpy>=1.24.0",'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T10:58:14Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: requires scipy version 1.11.0 or higher
+  claim_id: c_588b04e7
+  context: 'Initialize Python 3.11 project with `requirements.txt` containing pinned
+    versions: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`,
+    `openml>=0.13.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '"scipy>=1.11.0",'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T10:59:07Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: requires openml version 0.13.0 or higher
+  claim_id: c_3c892732
+  context: 'Initialize Python 3.11 project with `requirements.txt` containing pinned
+    versions: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`,
+    `openml>=0.13.0`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '"openml>=0.13.0",'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T10:59:36Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 2
+  canonical: uses RepeatedStratifiedKFold with 10 splits and 10 repeats
+  claim_id: c_4eb14ad2
+  context: 'Implement `code/evaluator.py` with `RepeatedStratifiedKFold` logic.\n
+    - **Logic**: Check `n_samples < 100`. If true, log warning and return early (skip
+    dataset). If valid, run `RepeatedStratifiedKFold(n_splits=10, n_repeats=10)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '`RepeatedStratifiedKFold(n_splits=10, n_repeats=10)`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T10:59:38Z'
+- artifact_path: projects/PROJ-264-assessing-the-stability-of-statistical-m/specs/001-assessing-the-stability-of-statistical-m/tasks.md
+  attempts: 1
+  canonical: uses Random Forest with 100 estimators
+  claim_id: c_49c5816e
+  context: Implement training loop for Logistic Regression, Random Forest (n_estimators=100),
+    and Linear SVM in `code/evaluator.py` (Depends on T011 structure)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T10:59:42Z'

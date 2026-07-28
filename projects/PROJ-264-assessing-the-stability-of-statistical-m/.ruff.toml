@@ -1,11 +1,22 @@
 [lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = []
-target-version = "py311"
-line-length = 88
+# Enable default rules
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "ARG", "DTZ", "TCH"]
+
+# Ignore specific rules that may be too strict for scientific code
+ignore = [
+  "E501",  # Line too long (handled by Black)
+  "B008",  # Do not perform function call in argument defaults (often needed for data loading)
+  "C408",  # Unnecessary dict/list/tuple call (style preference)
+]
+
+# Allow unused variables for specific patterns (e.g., _ for unused)
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Match Black settings
+line-length = 88
+target-version = "py311"
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true

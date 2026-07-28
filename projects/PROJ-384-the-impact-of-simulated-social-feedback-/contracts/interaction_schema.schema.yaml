@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Interaction Schema
-description: JSON Schema for raw interaction data in the LOST dataset pipeline.
+description: JSON Schema for raw interaction data (post_text, reply_text, timestamp, user_id) with strict type enforcement.
 type: object
 required:
   - post_text
@@ -10,7 +10,7 @@ required:
 properties:
   post_text:
     type: string
-    description: The text content of the user's post.
+    description: The text content of the user's original post.
     minLength: 0
   reply_text:
     type: string

@@ -39,8 +39,8 @@
 - [X] T004 Create data models for `Package`, `Dependency`, and `AnalysisResult` in `src/models/data_models.py` (Pydantic/Dict schemas)
 - [X] T005 [P] Implement utility functions for exponential backoff in `src/utils/backoff.py` with EXPLICIT parameters: a limited number of retries, initial delay=1s, multiplier=2.0, max delay=60s. Also implement checksum generation in `src/utils/checksum.py`.
 - [X] T006 [P] Setup environment configuration management in `src/config/settings.py`: create file with default values for `NPM_API_KEY`, `GITHUB_TOKEN`, and `RATE_LIMIT` (requests/min)
-- [ ] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
-- [ ] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
+- [X] T007 Create base logging infrastructure in `src/utils/logging_config.py` to track API success/failure rates (FR-009)
+- [X] T007a [P] Implement API log aggregation utility in `src/utils/api_metrics.py` to calculate and report the success/failure ratio as required by SC-004.
 - [ ] T008 Implement local file caching mechanism to save raw API responses to `data/raw/` with immutable checksums (Constitution Principle III & VI)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -57,18 +57,18 @@
 
 > **NOTE**: These are 'Write Test' tasks. They define the expected behavior and can be written in parallel with each other. They verify the logic once the implementation (T012-T018) is present.
 
-- [ ] T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`
-- [ ] T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`
-- [ ] T011 [US1] Write integration test for mocked NPM/GitHub API responses in `tests/integration/test_api_clients.py`
+- [X] T009 [US1] Write unit test for dependency age calculation (handling null dates) in `tests/unit/test_age_calc.py`
+- [X] T010 [US1] Write unit test for backoff logic (max retries) in `tests/unit/test_backoff.py`
+- [X] T011 [US1] Write integration test for mocked NPM/GitHub API responses in `tests/integration/test_api_clients.py`
 
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `NpmClient` in `src/services/npm_client.py` to query top packages by weekly downloads and fetch package metadata
 - [ ] T013 [P] [US1] Implement `GithubClient` in `src/services/github_client.py` to fetch `last_commit_date` and `last_release_date` for repositories
-- [ ] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
+- [X] T014 [P] [US1] Implement `AuditClient` in `src/services/audit_client.py` to query npm audit for unpatched CVE counts
 - [X] T015 [US1] Implement recursive dependency tree resolver in `src/services/dependency_resolver.py` to flatten direct and transitive dependencies (FR-002)
 - [ ] T016 [US1] Implement the main data collection pipeline in `src/cli/collect_data.py` that orchestrates clients, handles missing repos (null dates), and skips private packages <!-- ATOMIZE: requested -->
-- [~] T017 [US1] Implement logic to calculate `age_in_days` and exclude dependencies with missing release metadata from age calculation but include in vulnerability counts (FR-010). **VERIFY**: rows with null release_date have age_in_days=null but non-null vulnerability_count. <!-- FAILED: unspecified -->
+- [ ] T017 [US1] Implement logic to calculate `age_in_days` and exclude dependencies with missing release metadata from age calculation but include in vulnerability counts (FR-010). **VERIFY**: rows with null release_date have age_in_days=null but non-null vulnerability_count. <!-- FAILED: unspecified -->
 - [ ] T017a [US1] Implement calculation of the proportion of dependencies with missing release metadata and write the result to `data/processed/metrics.json` to satisfy SC-002.
 - [ ] T018 [US1] Implement data export to `data/processed/dependencies_raw.csv` with checksum generation (must contain calculated `age_in_days` from T017 and depend on T017a completion)
 
@@ -90,10 +90,10 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] Implement statistical analysis module in `src/analysis/correlation.py` to calculate Spearman rho and p-value (FR-006). **DEPENDENCY**: Must run after T018 to access `dependencies_raw.csv`.
-- [~] T021a [US2] Document statistical power assumptions (target ≥ 0.8) and sample size justification in `data/processed/power_analysis_notes.md` to satisfy SC-006, treating it as a documented assumption rather than a verification gate.
-- [~] T024 [US2] Create the analysis runner script in `src/cli/run_analysis.py` that loads `dependencies_raw.csv`, runs correlation, and saves results to `data/processed/results_correlation.json`
+- [ ] T021a [US2] Document statistical power assumptions (target ≥ 0.8) and sample size justification in `data/processed/power_analysis_notes.md` to satisfy SC-006, treating it as a documented assumption rather than a verification gate.
+- [X] T024 [US2] Create the analysis runner script in `src/cli/run_analysis.py` that loads `dependencies_raw.csv`, runs correlation, and saves results to `data/processed/results_correlation.json`
 - [X] T023 [US2] Implement visualization generator in `src/analysis/visualizer.py` to create scatter plots (age vs. vulnerability count) (FR-008)
-- [~] T025 [US2] Add logic to flag statistical significance (p < 0.05) in the output report (US-2 Acceptance 3)
+- [ ] T025 [US2] Add logic to flag statistical significance (p < 0.05) in the output report (US-2 Acceptance 3)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,7 +127,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T033 [P] Documentation updates in `docs/` including `quickstart.md` for running the pipeline
+- [ ] T033 [P] Documentation updates in `docs/` including `quickstart.md` for running the pipeline
 - [~] T034 Code cleanup and refactoring of API client error handling
 - [~] T035 Performance optimization: ensure full pipeline runs within 6 hours on 2 vCPU (SC-005)
 - [~] T036 [P] Additional unit tests for edge cases (private packages, rate limits) in `tests/unit/`

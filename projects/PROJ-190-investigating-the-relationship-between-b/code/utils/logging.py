@@ -1,8 +1,8 @@
 """
-Structured logging utility for the Brain Network Efficiency and Fluid Intelligence project.
+Structured logging utilities for the pipeline.
 
-Provides a centralized logging configuration that formats logs as JSON for
-structured parsing, while maintaining human-readable output for local development.
+Provides consistent logging format with context information for debugging
+and auditing purposes.
 """
 import logging
 import json
@@ -11,206 +11,130 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 from pathlib import Path
 
-# Constants
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-DEFAULT_LOG_LEVEL = logging.INFO
-
-# Global logger instance
-_logger: Optional[logging.Logger] = None
+from config import PROJECT_ROOT
 
 
 class StructuredFormatter(logging.Formatter):
-    """
-    Custom formatter that outputs logs as JSON for structured logging.
-    Includes timestamp, level, logger name, message, and optional extra fields.
-    """
+    """Custom formatter that outputs structured JSON logs."""
+
     def format(self, record: logging.LogRecord) -> str:
-        log_entry: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+        log_entry = {
+            "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
-            "line": record.lineno
+            "line": record.lineno,
         }
 
-        # Include exception info if present
+        # Add exception info if present
         if record.exc_info:
             log_entry["exception"] = self.formatException(record.exc_info)
 
-        # Include extra fields if present
-        if hasattr(record, "extra_data"):
-            log_entry["data"] = record.extra_data
+        # Add extra fields if present
+        if hasattr(record, "context"):
+            log_entry["context"] = record.context
 
         return json.dumps(log_entry)
 
 
-def get_logger(name: str = "brain_network_efficiency") -> logging.Logger:
+def setup_logging(
+    log_level: int = logging.INFO,
+    log_file: Optional[Path] = None,
+    json_format: bool = True
+) -> None:
     """
-    Get or create a configured logger instance.
+    Configure logging for the entire application.
 
     Args:
-        name: The name for the logger (default: "brain_network_efficiency")
+        log_level: Logging level (default INFO)
+        log_file: Optional path to log file
+        json_format: If True, use structured JSON format (default True)
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+
+    # Clear existing handlers
+    root_logger.handlers.clear()
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+
+    if json_format:
+        console_handler.setFormatter(StructuredFormatter())
+    else:
+        console_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+        )
+
+    root_logger.addHandler(console_handler)
+
+    # File handler if specified
+    if log_file:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(StructuredFormatter() if json_format else logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+        root_logger.addHandler(file_handler)
+
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get a logger instance with the specified name.
+
+    Args:
+        name: Logger name (typically __name__)
 
     Returns:
-        A configured logger instance
+        Configured logger instance
     """
-    global _logger
-
-    if _logger is None:
-        _logger = logging.getLogger(name)
-        _logger.setLevel(DEFAULT_LOG_LEVEL)
-
-        # Avoid adding handlers multiple times if this function is called repeatedly
-        if not _logger.handlers:
-            # Console handler
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setLevel(DEFAULT_LOG_LEVEL)
-
-            # Check if we're running in a structured environment (CI, production)
-            # by checking an environment variable
-            import os
-            is_structured = os.getenv("STRUCTURED_LOGGING", "false").lower() == "true"
-
-            if is_structured:
-                console_handler.setFormatter(StructuredFormatter())
-            else:
-                console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-
-            _logger.addHandler(console_handler)
-
-    return _logger
+    return logging.getLogger(name)
 
 
 def log_with_context(
     logger: logging.Logger,
     level: int,
     message: str,
-    **context: Any
+    context: Optional[Dict[str, Any]] = None
 ) -> None:
     """
-    Log a message with additional context data.
+    Log a message with optional context.
 
     Args:
-        logger: The logger instance to use
-        level: The logging level (e.g., logging.INFO, logging.ERROR)
-        message: The log message
-        **context: Additional context data to include in the log
+        logger: Logger instance
+        level: Log level
+        message: Message to log
+        context: Optional context dictionary
     """
-    record = logger.makeRecord(
-        logger.name,
-        level,
-        "(unknown file)",
-        0,
-        message,
-        (),
-        None
-    )
-    record.extra_data = context
-    logger.handle(record)
+    extra = {"context": context} if context else {}
+    logger.log(level, message, extra=extra)
 
 
-def setup_logging(
-    log_level: Optional[str] = None,
-    log_file: Optional[Path] = None,
-    structured: bool = False
-) -> logging.Logger:
-    """
-    Configure the root logger for the application.
-
-    Args:
-        log_level: Logging level as a string (e.g., "DEBUG", "INFO")
-        log_file: Optional path to a log file
-        structured: If True, use JSON formatting for all handlers
-
-    Returns:
-        The configured logger instance
-    """
-    global _logger
-
-    if log_level:
-        level = getattr(logging, log_level.upper(), DEFAULT_LOG_LEVEL)
-    else:
-        level = DEFAULT_LOG_LEVEL
-
-    _logger = logging.getLogger("brain_network_efficiency")
-    _logger.setLevel(level)
-
-    # Clear existing handlers
-    _logger.handlers.clear()
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-
-    if structured:
-        console_handler.setFormatter(StructuredFormatter())
-    else:
-        console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-
-    _logger.addHandler(console_handler)
-
-    # File handler if specified
-    if log_file:
-        # Ensure directory exists
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-
-        if structured:
-            file_handler.setFormatter(StructuredFormatter())
-        else:
-            file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-
-        _logger.addHandler(file_handler)
-
-    return _logger
+# Convenience functions
+def info(logger: logging.Logger, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+    """Log an info message."""
+    log_with_context(logger, logging.INFO, message, context)
 
 
-# Convenience functions for common logging operations
-def info(msg: str, **context: Any) -> None:
-    """Log an info message with optional context."""
-    logger = get_logger()
-    if context:
-        log_with_context(logger, logging.INFO, msg, **context)
-    else:
-        logger.info(msg)
+def warning(logger: logging.Logger, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+    """Log a warning message."""
+    log_with_context(logger, logging.WARNING, message, context)
 
 
-def warning(msg: str, **context: Any) -> None:
-    """Log a warning message with optional context."""
-    logger = get_logger()
-    if context:
-        log_with_context(logger, logging.WARNING, msg, **context)
-    else:
-        logger.warning(msg)
+def error(logger: logging.Logger, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+    """Log an error message."""
+    log_with_context(logger, logging.ERROR, message, context)
 
 
-def error(msg: str, **context: Any) -> None:
-    """Log an error message with optional context."""
-    logger = get_logger()
-    if context:
-        log_with_context(logger, logging.ERROR, msg, **context)
-    else:
-        logger.error(msg)
+def debug(logger: logging.Logger, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+    """Log a debug message."""
+    log_with_context(logger, logging.DEBUG, message, context)
 
 
-def debug(msg: str, **context: Any) -> None:
-    """Log a debug message with optional context."""
-    logger = get_logger()
-    if context:
-        log_with_context(logger, logging.DEBUG, msg, **context)
-    else:
-        logger.debug(msg)
-
-
-def critical(msg: str, **context: Any) -> None:
-    """Log a critical message with optional context."""
-    logger = get_logger()
-    if context:
-        log_with_context(logger, logging.CRITICAL, msg, **context)
-    else:
-        logger.critical(msg)
+def critical(logger: logging.Logger, message: str, context: Optional[Dict[str, Any]] = None) -> None:
+    """Log a critical message."""
+    log_with_context(logger, logging.CRITICAL, message, context)

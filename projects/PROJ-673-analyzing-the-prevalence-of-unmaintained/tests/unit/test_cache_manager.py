@@ -1,307 +1,235 @@
+"""
+Unit tests for the CacheManager class.
+
+Tests cover:
+- Cache key generation
+- Cache hit/miss behavior
+- Checksum verification
+- Immutability (no overwrites)
+- Error handling
+"""
 import json
-import os
+import pytest
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from datetime import datetime, timezone
+import hashlib
 
-import pytest
-
-from src.utils.cache_manager import CacheManager, generate_checksum
-from src.utils.checksum import write_checksum_file
-
-
-@pytest.fixture
-def temp_cache_dir():
-    """Create a temporary directory for cache testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
-
-
-@pytest.fixture
-def cache_manager(temp_cache_dir):
-    """Create a CacheManager instance with temp directory."""
-    return CacheManager(cache_dir=temp_cache_dir)
+from src.utils.cache_manager import CacheManager, get_cached_or_fetch
+from src.utils.checksum import generate_checksum
 
 
 class TestCacheManager:
     """Test suite for CacheManager functionality."""
 
-    def test_cache_directory_creation(self, temp_cache_dir):
-        """Test that cache directory is created if it doesn't exist."""
-        non_existent_dir = temp_cache_dir / "new_cache"
-        manager = CacheManager(cache_dir=non_existent_dir)
-        assert non_existent_dir.exists()
-        assert manager.cache_dir == non_existent_dir
+    @pytest.fixture
+    def temp_cache_dir(self):
+        """Create a temporary directory for cache tests."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
 
-    def test_generate_cache_key(self, cache_manager):
-        """Test cache key generation is deterministic."""
-        endpoint = "/packages/lodash"
-        params = {"timeout": 5000, "fields": "version"}
-        
-        key1 = cache_manager._generate_cache_key(endpoint, params)
-        key2 = cache_manager._generate_cache_key(endpoint, params)
-        
+    @pytest.fixture
+    def cache_manager(self, temp_cache_dir):
+        """Create a CacheManager instance with temporary directory."""
+        return CacheManager(cache_dir=temp_cache_dir)
+
+    def test_cache_key_generation_deterministic(self, cache_manager):
+        """Test that cache key generation is deterministic for same params."""
+        params = {"package": "lodash", "version": "4.17.21"}
+        key1 = cache_manager._generate_cache_key(params)
+        key2 = cache_manager._generate_cache_key(params)
         assert key1 == key2
-        assert len(key1) == 64  # SHA256 hex length
+        assert len(key1) == 16  # Expected length
 
-    def test_cache_key_varies_with_params(self, cache_manager):
-        """Test that different params produce different keys."""
-        endpoint = "/packages/lodash"
-        params1 = {"timeout": 5000}
-        params2 = {"timeout": 10000}
-        
-        key1 = cache_manager._generate_cache_key(endpoint, params1)
-        key2 = cache_manager._generate_cache_key(endpoint, params2)
-        
+    def test_cache_key_generation_different_params(self, cache_manager):
+        """Test that different params produce different cache keys."""
+        params1 = {"package": "lodash"}
+        params2 = {"package": "react"}
+        key1 = cache_manager._generate_cache_key(params1)
+        key2 = cache_manager._generate_cache_key(params2)
         assert key1 != key2
 
-    def test_cache_key_varies_with_endpoint(self, cache_manager):
-        """Test that different endpoints produce different keys."""
-        params = {"timeout": 5000}
-        endpoint1 = "/packages/lodash"
-        endpoint2 = "/packages/express"
-        
-        key1 = cache_manager._generate_cache_key(endpoint1, params)
-        key2 = cache_manager._generate_cache_key(endpoint2, params)
-        
-        assert key1 != key2
+    def test_is_cached_miss_initially(self, cache_manager):
+        """Test that is_cached returns False for non-existent cache."""
+        params = {"package": "nonexistent"}
+        assert cache_manager.is_cached(params) is False
 
-    def test_is_cached_returns_false_for_missing_cache(self, cache_manager):
-        """Test is_cached returns False when cache doesn't exist."""
-        endpoint = "/packages/test"
-        params = {"version": "1.0"}
+    def test_save_and_load_from_cache(self, cache_manager):
+        """Test basic save and load functionality."""
+        params = {"package": "test-package"}
+        data = {"result": "success", "value": 42}
         
-        assert not cache_manager.is_cached(endpoint, params)
-
-    def test_set_and_get_cache(self, cache_manager):
-        """Test basic cache set and get operations."""
-        endpoint = "/packages/lodash"
-        params = {"fields": "version"}
-        response_data = {
-            "name": "lodash",
-            "version": "4.17.21",
-            "downloads": 1000000
-        }
-        
-        # Set cache
-        cache_key = cache_manager.set(endpoint, params, response_data)
-        
-        # Verify files exist
-        cache_path = cache_manager._get_cache_path(cache_key)
-        checksum_path = cache_manager._get_checksum_path(cache_key)
+        # Save
+        cache_path = cache_manager.save_to_cache(params, data)
         assert cache_path.exists()
-        assert checksum_path.exists()
         
-        # Get cache
-        cached_data = cache_manager.get(endpoint, params)
-        assert cached_data is not None
-        assert cached_data["data"]["name"] == "lodash"
-        assert cached_data["data"]["version"] == "4.17.21"
+        # Load
+        loaded_data = cache_manager.load_from_cache(params)
+        assert loaded_data is not None
+        assert loaded_data["result"] == "success"
+        assert loaded_data["value"] == 42
+        assert "_cached_at" in loaded_data
+        assert "_cache_key" in loaded_data
 
-    def test_cache_integrity_verification(self, cache_manager):
-        """Test that cache integrity is verified via checksum."""
-        endpoint = "/packages/test"
-        params = {"version": "1.0"}
-        response_data = {"value": "test"}
+    def test_cache_immutability_prevents_overwrite(self, cache_manager):
+        """Test that saving to existing cache raises FileExistsError."""
+        params = {"package": "immutable-test"}
+        data1 = {"version": 1}
+        data2 = {"version": 2}
         
-        # Set cache
-        cache_key = cache_manager.set(endpoint, params, response_data)
+        # First save succeeds
+        cache_manager.save_to_cache(params, data1)
         
-        # Corrupt the cache file
-        cache_path = cache_manager._get_cache_path(cache_key)
-        with open(cache_path, 'w') as f:
-            f.write('{"corrupted": true}')
+        # Second save should raise
+        with pytest.raises(FileExistsError):
+            cache_manager.save_to_cache(params, data2)
         
-        # Verify is_cached returns False
-        assert not cache_manager.is_cached(endpoint, params)
-        
-        # Verify get returns None
-        assert cache_manager.get(endpoint, params) is None
+        # Verify original data is unchanged
+        loaded = cache_manager.load_from_cache(params)
+        assert loaded["version"] == 1
 
-    def test_cache_persistence(self, cache_manager):
-        """Test that cache persists across manager instances."""
-        endpoint = "/packages/persistent"
-        params = {"test": "value"}
-        response_data = {"data": "persistent"}
+    def test_checksum_verification_on_load(self, cache_manager):
+        """Test that corrupted cache files are detected via checksum."""
+        params = {"package": "corruption-test"}
+        data = {"original": "data"}
         
-        # Set cache with first instance
-        cache_manager.set(endpoint, params, response_data)
-        
-        # Create new instance
-        new_manager = CacheManager(cache_dir=cache_manager.cache_dir)
-        
-        # Verify cache is accessible
-        assert new_manager.is_cached(endpoint, params)
-        cached = new_manager.get(endpoint, params)
-        assert cached["data"]["data"] == "persistent"
-
-    def test_clear_cache(self, cache_manager):
-        """Test cache clearing functionality."""
-        endpoint1 = "/packages/test1"
-        endpoint2 = "/packages/test2"
-        params = {"test": "value"}
-        
-        # Set multiple caches
-        cache_manager.set(endpoint1, params, {"data": "1"})
-        cache_manager.set(endpoint2, params, {"data": "2"})
-        
-        # Verify they exist
-        assert cache_manager.is_cached(endpoint1, params)
-        assert cache_manager.is_cached(endpoint2, params)
-        
-        # Clear cache
-        deleted_count = cache_manager.clear()
-        assert deleted_count == 2
-        
-        # Verify they're gone
-        assert not cache_manager.is_cached(endpoint1, params)
-        assert not cache_manager.is_cached(endpoint2, params)
-
-    def test_get_stats(self, cache_manager):
-        """Test cache statistics retrieval."""
-        endpoint = "/packages/stats"
-        params = {"test": "value"}
-        response_data = {"data": "test"}
-        
-        # Add some cache entries
-        for i in range(3):
-            cache_manager.set(endpoint, {**params, "i": i}, response_data)
-        
-        stats = cache_manager.get_stats()
-        
-        assert "cache_dir" in stats
-        assert "total_files" in stats
-        assert "total_size_bytes" in stats
-        assert stats["total_files"] == 3
-        assert stats["total_size_mb"] >= 0
-
-    def test_invalid_json_handling(self, cache_manager):
-        """Test handling of invalid JSON in cache file."""
-        endpoint = "/packages/invalid"
-        params = {"version": "1.0"}
-        response_data = {"valid": True}
-        
-        # Set cache
-        cache_key = cache_manager.set(endpoint, params, response_data)
-        
-        # Corrupt with invalid JSON
-        cache_path = cache_manager._get_cache_path(cache_key)
-        with open(cache_path, 'w') as f:
-            f.write('not valid json {')
-        
-        # Verify get returns None and doesn't crash
-        result = cache_manager.get(endpoint, params)
-        assert result is None
-
-    def test_checksum_file_format(self, cache_manager):
-        """Test that checksum files contain valid SHA256 hashes."""
-        endpoint = "/packages/checksum"
-        params = {"test": "value"}
-        response_data = {"data": "test"}
-        
-        cache_key = cache_manager.set(endpoint, params, response_data)
-        checksum_path = cache_manager._get_checksum_path(cache_key)
-        
-        with open(checksum_path, 'r') as f:
-            checksum = f.read().strip()
-        
-        # SHA256 hex is 64 characters
-        assert len(checksum) == 64
-        assert all(c in '0123456789abcdef' for c in checksum)
-
-class TestCacheManagerEdgeCases:
-    """Test edge cases and error handling."""
-
-    def test_empty_params(self, cache_manager):
-        """Test caching with empty parameters."""
-        endpoint = "/packages/empty"
-        params = {}
-        response_data = {"data": "test"}
-        
-        cache_key = cache_manager.set(endpoint, params, response_data)
-        cached = cache_manager.get(endpoint, params)
-        
-        assert cached is not None
-        assert cached["data"]["data"] == "test"
-
-    def test_special_characters_in_params(self, cache_manager):
-        """Test caching with special characters in parameters."""
-        endpoint = "/packages/special"
-        params = {"filter": "name:lodash@^4.0.0", "sort": "downloads desc"}
-        response_data = {"data": "test"}
-        
-        cache_key = cache_manager.set(endpoint, params, response_data)
-        assert cache_manager.is_cached(endpoint, params)
-
-    def test_large_response_data(self, cache_manager):
-        """Test caching large response data."""
-        endpoint = "/packages/large"
-        params = {"version": "1.0"}
-        # Create a large response (1MB of data)
-        large_data = {"data": "x" * (1024 * 1024)}
-        
-        cache_key = cache_manager.set(endpoint, params, large_data)
-        cached = cache_manager.get(endpoint, params)
-        
-        assert cached is not None
-        assert len(cached["data"]["data"]) == 1024 * 1024
-
-    def test_concurrent_cache_access(self, cache_manager):
-        """Test that cache handles concurrent access safely."""
-        endpoint = "/packages/concurrent"
-        params = {"test": "value"}
-        response_data = {"data": "test"}
-        
-        # Set cache
-        cache_manager.set(endpoint, params, response_data)
-        
-        # Read multiple times
-        for _ in range(10):
-            cached = cache_manager.get(endpoint, params)
-            assert cached is not None
-
-    def test_cache_key_normalization(self, cache_manager):
-        """Test that params are normalized for consistent hashing."""
-        endpoint = "/packages/normal"
-        params1 = {"b": 2, "a": 1}  # Different order
-        params2 = {"a": 1, "b": 2}
-        response_data = {"data": "test"}
-        
-        # Both should produce same key
-        key1 = cache_manager._generate_cache_key(endpoint, params1)
-        key2 = cache_manager._generate_cache_key(endpoint, params2)
-        
-        assert key1 == key2
-
-def test_convenience_functions(temp_cache_dir):
-    """Test convenience functions work correctly."""
-    with patch('src.utils.cache_manager.CacheManager') as MockManager:
-        mock_instance = MagicMock()
-        MockManager.return_value = mock_instance
-        
-        from src.utils.cache_manager import (
-            get_cache_manager,
-            cache_response,
-            get_cached_response,
-            is_response_cached
+        # Save valid cache
+        cache_path = cache_manager.save_to_cache(params, data)
+        checksum_path = cache_manager._get_checksum_path(
+            cache_manager._generate_cache_key(params)
         )
         
-        # Test get_cache_manager returns instance
-        manager = get_cache_manager()
-        assert manager == mock_instance
+        # Corrupt the file
+        with open(cache_path, 'w') as f:
+            f.write('corrupted content')
         
-        # Test cache_response
-        mock_instance.set.return_value = "test_key"
-        result = cache_response("/test", {"p": 1}, {"d": 1})
-        assert result == "test_key"
-        mock_instance.set.assert_called_once_with("/test", {"p": 1}, {"d": 1})
+        # Load should fail with ValueError
+        with pytest.raises(ValueError, match="Checksum mismatch"):
+            cache_manager.load_from_cache(params)
+
+    def test_load_from_cache_missing_file(self, cache_manager):
+        """Test loading when cache file doesn't exist."""
+        params = {"package": "missing-file"}
+        result = cache_manager.load_from_cache(params)
+        assert result is None
+
+    def test_load_from_cache_invalid_json(self, cache_manager):
+        """Test loading when cache contains invalid JSON."""
+        params = {"package": "invalid-json"}
+        cache_key = cache_manager._generate_cache_key(params)
+        cache_path = cache_manager._get_cache_path(cache_key)
+        checksum_path = cache_manager._get_checksum_path(cache_key)
         
-        # Test get_cached_response
-        mock_instance.get.return_value = {"data": "value"}
-        result = get_cached_response("/test", {"p": 1})
-        assert result == {"data": "value"}
+        # Write invalid JSON
+        with open(cache_path, 'w') as f:
+            f.write('not valid json {{{')
         
-        # Test is_response_cached
-        mock_instance.is_cached.return_value = True
-        result = is_response_cached("/test", {"p": 1})
-        assert result is True
+        # Write a checksum (even if mismatched)
+        checksum = generate_checksum('not valid json {{{')
+        checksum_path.write_text(checksum)
+        
+        # Load should return None (not raise)
+        result = cache_manager.load_from_cache(params)
+        assert result is None
+
+    def test_get_cache_stats(self, cache_manager, temp_cache_dir):
+        """Test cache statistics reporting."""
+        # Initially empty
+        stats = cache_manager.get_cache_stats()
+        assert stats["cache_files"] == 0
+        assert stats["checksum_files"] == 0
+        
+        # Add some files
+        for i in range(3):
+            params = {"package": f"pkg-{i}"}
+            cache_manager.save_to_cache(params, {"data": i})
+        
+        stats = cache_manager.get_cache_stats()
+        assert stats["cache_files"] == 3
+        assert stats["checksum_files"] == 3
+        assert stats["total_files"] == 6
+        assert stats["total_size_bytes"] > 0
+
+    def test_clear_cache_dry_run(self, cache_manager, temp_cache_dir):
+        """Test clear_cache with dry_run=True."""
+        # Add files
+        for i in range(2):
+            params = {"package": f"pkg-{i}"}
+            cache_manager.save_to_cache(params, {"data": i})
+        
+        result = cache_manager.clear_cache(dry_run=True)
+        assert result["dry_run"] is True
+        assert result["would_delete"] == 4  # 2 json + 2 sha256
+        
+        # Files should still exist
+        assert len(list(temp_cache_dir.glob("*"))) == 4
+
+    def test_clear_cache_actual(self, cache_manager, temp_cache_dir):
+        """Test actual cache clearing."""
+        # Add files
+        for i in range(2):
+            params = {"package": f"pkg-{i}"}
+            cache_manager.save_to_cache(params, {"data": i})
+        
+        result = cache_manager.clear_cache(dry_run=False)
+        assert result["deleted"] == 4
+        assert len(list(temp_cache_dir.glob("*"))) == 0
+
+    def test_get_cached_or_fetch_hit(self, cache_manager):
+        """Test get_cached_or_fetch when cache hit occurs."""
+        params = {"package": "fetch-test"}
+        data = {"fetched": False}
+        
+        # Pre-populate cache
+        cache_manager.save_to_cache(params, data)
+        
+        fetch_called = False
+        def mock_fetch():
+            nonlocal fetch_called
+            fetch_called = True
+            return {"fetched": True}
+        
+        result = get_cached_or_fetch(cache_manager, params, mock_fetch)
+        assert result["fetched"] is False  # From cache
+        assert fetch_called is False  # Fetch function not called
+
+    def test_get_cached_or_fetch_miss(self, cache_manager):
+        """Test get_cached_or_fetch when cache miss occurs."""
+        params = {"package": "fetch-miss-test"}
+        
+        fetch_data = {"fetched": True, "value": 123}
+        def mock_fetch():
+            return fetch_data
+        
+        result = get_cached_or_fetch(cache_manager, params, mock_fetch)
+        assert result["fetched"] is True
+        assert result["value"] == 123
+        
+        # Verify it was cached
+        assert cache_manager.is_cached(params) is True
+
+    def test_cache_with_string_data(self, cache_manager):
+        """Test caching string data instead of dict."""
+        params = {"package": "string-test"}
+        string_data = '{"raw": "json", "value": "test"}'
+        
+        cache_path = cache_manager.save_to_cache(params, string_data)
+        assert cache_path.exists()
+        
+        # Check file content
+        with open(cache_path, 'r') as f:
+            content = f.read()
+        assert content == string_data
+
+    def test_cache_path_construction(self, cache_manager):
+        """Test that cache paths are constructed correctly."""
+        params = {"package": "path-test"}
+        cache_key = cache_manager._generate_cache_key(params)
+        
+        cache_path = cache_manager._get_cache_path(cache_key, "json")
+        assert cache_path.name == f"{cache_key}.json"
+        assert cache_path.parent == cache_manager.cache_dir
+
+        checksum_path = cache_manager._get_checksum_path(cache_key)
+        assert checksum_path.name == f"{cache_key}.sha256"
+        assert checksum_path.parent == cache_manager.cache_dir
