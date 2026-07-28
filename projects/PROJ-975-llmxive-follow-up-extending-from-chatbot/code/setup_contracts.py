@@ -1,68 +1,41 @@
-"""
-Script to ensure the contracts directory and schema files exist.
-This is a helper script to verify T004 completion.
-"""
 import os
 import yaml
 
-CONTRACTS_DIR = "contracts"
-SCHEMAS = {
-    "task.schema.yaml": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Task Schema",
-        "type": "object",
-        "required": ["task_id", "description", "ground_truth_skills", "difficulty_level"],
-        "properties": {
-            "task_id": {"type": "string"},
-            "description": {"type": "string"},
-            "ground_truth_skills": {"type": "array", "items": {"type": "string"}},
-            "difficulty_level": {"type": "string", "enum": ["low", "medium", "high"]}
-        }
-    },
-    "skill.schema.yaml": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Skill Schema",
-        "type": "object",
-        "required": ["skill_id", "code", "description", "embedding_vector"],
-        "properties": {
-            "skill_id": {"type": "string"},
-            "code": {"type": "string"},
-            "description": {"type": "string"},
-            "embedding_vector": {"type": "array", "items": {"type": "number"}}
-        }
-    },
-    "experiment_log.schema.yaml": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Experiment Log Schema",
-        "type": "object",
-        "required": [
-            "task_id", "skill_id", "success", "latency", "tokens",
-            "retrieval_precision", "retrieval_diversity",
-            "pruning_risk_count", "library_size", "pruning_enabled"
-        ],
-        "properties": {
-            "task_id": {"type": "string"},
-            "skill_id": {"type": "string"},
-            "success": {"type": "boolean"},
-            "latency": {"type": "number"},
-            "tokens": {"type": "integer"},
-            "retrieval_precision": {"type": "number"},
-            "retrieval_diversity": {"type": "number"},
-            "pruning_risk_count": {"type": "integer"},
-            "library_size": {"type": "integer"},
-            "pruning_enabled": {"type": "boolean"}
-        }
-    }
-}
-
 def main():
-    os.makedirs(CONTRACTS_DIR, exist_ok=True)
-    
-    for filename, schema in SCHEMAS.items():
-        filepath = os.path.join(CONTRACTS_DIR, filename)
-        with open(filepath, 'w') as f:
-            yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
-        print(f"Created {filepath}")
+    """
+    Validates that the contract schemas exist and are valid YAML.
+    This script serves as a setup verification for T009.
+    """
+    contracts_dir = "contracts"
+    schemas = [
+        "task.schema.yaml",
+        "skill.schema.yaml",
+        "experiment_log.schema.yaml"
+    ]
+
+    if not os.path.exists(contracts_dir):
+        print(f"Error: Directory '{contracts_dir}' does not exist.")
+        return 1
+
+    for schema_file in schemas:
+        path = os.path.join(contracts_dir, schema_file)
+        if not os.path.exists(path):
+            print(f"Error: Missing schema file: {path}")
+            return 1
+
+        try:
+            with open(path, 'r') as f:
+                content = yaml.safe_load(f)
+                if not isinstance(content, dict):
+                    print(f"Error: {schema_file} is not a valid YAML object.")
+                    return 1
+                print(f"Verified: {schema_file} is valid YAML.")
+        except yaml.YAMLError as e:
+            print(f"Error: {schema_file} has invalid YAML syntax: {e}")
+            return 1
+
+    print("All contract schemas validated successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -1,41 +1,37 @@
 """
-Integration module to demonstrate logging usage in the simulation loop.
-This file shows how the logging system from progress_logger.py is used
-within the main orchestration logic (T013).
-
-Note: This is a reference implementation showing integration points.
-The actual simulation loop logic resides in code/main.py.
+Integration module for simulation logging.
+Wraps the SimulationProgressLogger to provide high-level logging functions
+for the coverage simulation pipeline.
 """
 from typing import List, Dict, Any, Optional
-from .progress_logger import SimulationProgressLogger
 from pathlib import Path
+import logging
+
+from .progress_logger import SimulationProgressLogger
+from .logging_config import setup_simulation_logger
+
 
 def create_simulation_logging_integration(
-    datasets: List[str],
-    epsilon_values: List[float],
-    noise_types: List[str],
-    statistics: List[str],
-    log_file: Optional[Path] = None
+    output_dir: Optional[Path] = None,
+    log_level: int = logging.INFO
 ) -> SimulationProgressLogger:
     """
-    Create a configured logger for the full simulation grid.
-    
+    Initialize and return a configured SimulationProgressLogger.
+
     Args:
-        datasets: List of dataset names
-        epsilon_values: List of epsilon values to test
-        noise_types: List of noise types ('laplace', 'gaussian')
-        statistics: List of statistics to compute ('mean', 'regression_coef', etc.)
-        log_file: Optional path for log output
-    
+        output_dir: Directory where log files will be written. Defaults to project root.
+        log_level: Logging level (e.g., logging.INFO, logging.DEBUG).
+
     Returns:
-        Configured SimulationProgressLogger instance
+        Configured SimulationProgressLogger instance.
     """
-    total_conditions = len(datasets) * len(epsilon_values) * len(noise_types) * len(statistics)
-    
-    logger = SimulationProgressLogger(log_file=log_file)
-    logger.set_total_conditions(total_conditions)
-    
-    return logger
+    logger = setup_simulation_logger(
+        logger_name="simulation_progress",
+        log_level=log_level,
+        output_dir=output_dir
+    )
+    return SimulationProgressLogger(logger)
+
 
 def log_simulation_condition(
     logger: SimulationProgressLogger,
@@ -43,61 +39,38 @@ def log_simulation_condition(
     epsilon: float,
     noise_type: str,
     statistic: str,
-    phase: str,
-    result: Optional[Dict[str, Any]] = None
-):
+    sample_size: int,
+    seed: int,
+    status: str = "START"
+) -> None:
     """
-    Unified logging function for simulation condition events.
-    
-    Args:
-        logger: The progress logger instance
-        dataset: Dataset name
-        epsilon: Privacy budget
-        noise_type: Noise type
-        statistic: Statistic name
-        phase: Either 'start' or 'complete'
-        result: Optional dictionary containing coverage_rate, point_estimate, etc.
-    """
-    if phase == 'start':
-        logger.log_start(dataset, epsilon, noise_type, statistic)
-    elif phase == 'complete':
-        coverage_rate = result.get('coverage_rate') if result else None
-        logger.log_completion(
-            dataset, epsilon, noise_type, statistic, coverage_rate
-        )
-    elif phase == 'failure':
-        error_msg = result.get('error_message') if result else None
-        logger.log_failure(dataset, epsilon, noise_type, statistic, error_msg)
+    Log the start, progress, or completion of a specific simulation condition.
 
-# Example usage context (for documentation):
-#
-# In code/main.py (T013 orchestration logic):
-#
-#   from analysis.integrate_logging import create_simulation_logging_integration, log_simulation_condition
-#   from analysis.progress_logger import SimulationProgressLogger
-#
-#   # Initialize logger
-#   logger = create_simulation_logging_integration(
-#       datasets=config.DATASETS,
-#       epsilon_values=config.EPSILON_VALUES,
-#       noise_types=config.NOISE_TYPES,
-#       statistics=config.STATISTICS,
-#       log_file=Path("artifacts/simulation.log")
-#   )
-#
-#   # Inside the simulation loop:
-#   for dataset in config.DATASETS:
-#       for epsilon in config.EPSILON_VALUES:
-#           for noise_type in config.NOISE_TYPES:
-#               for statistic in config.STATISTICS:
-#                   log_simulation_condition(logger, dataset, epsilon, noise_type, statistic, 'start')
-#                   
-#                   try:
-#                       # ... run simulation ...
-#                       result = run_single_simulation(...)
-#                       log_simulation_condition(logger, dataset, epsilon, noise_type, statistic, 'complete', result)
-#                   except Exception as e:
-#                       log_simulation_condition(logger, dataset, epsilon, noise_type, statistic, 'failure', {'error_message': str(e)})
-#
-#   # At the end
-#   logger.log_summary()
+    This function formats a structured log message containing the key parameters
+    of the current simulation run (dataset, epsilon, noise type, statistic, etc.)
+    and the current status (START, PROGRESS, COMPLETE, ERROR).
+
+    Args:
+        logger: The SimulationProgressLogger instance.
+        dataset: Name of the dataset being processed (e.g., 'adult', 'iris').
+        epsilon: The differential privacy budget (epsilon) value.
+        noise_type: Type of noise applied ('laplace' or 'gaussian').
+        statistic: The statistic being computed ('mean' or 'regression_coefficient').
+        sample_size: Number of samples drawn for this iteration.
+        seed: Random seed used for reproducibility.
+        status: Status of the condition ('START', 'PROGRESS', 'COMPLETE', 'ERROR').
+    """
+    message = (
+        f"[{status}] Condition: dataset={dataset}, "
+        f"epsilon={epsilon:.4f}, noise_type={noise_type}, "
+        f"statistic={statistic}, sample_size={sample_size}, seed={seed}"
+    )
+
+    if status == "START":
+        logger.info(message)
+    elif status == "COMPLETE":
+        logger.info(message)
+    elif status == "ERROR":
+        logger.error(message)
+    else:
+        logger.debug(message)

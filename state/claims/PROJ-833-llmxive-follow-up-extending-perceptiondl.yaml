@@ -382,3 +382,312 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T18:42:50Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: runtime memory monitoring triggers retry if Peak RSS exceeds 7 GB
+  claim_id: c_fa53c205
+  context: 'Phase 6: Orchestration & Polish - Memory management tasks'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T014b [P] Implement runtime memory monitoring logic in code/main.py and
+    an adaptive reduction mechanism: if Peak RSS > 7 GB, implement a retry loop'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:45:42Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Random seed of 42 and region counts of 20, 25, 30, 35, 40, 45, and 50
+  claim_id: c_82c96b92
+  context: T004 [P] Create configuration module `code/config.py` defining paths, random
+    seeds (42), and hyperparameters for region counts (20, 25, 30, 35, 40, 45, 50).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure random seeds (42) and hyperparameters for region counts (20,
+    25, 30, 35, 40, 45, 50)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:48:11Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Peak RSS memory limit of 7 GB
+  claim_id: c_abf5877d
+  context: T023 [US1] Add error handling in `code/main.py` for memory limits (Peak
+    RSS < 7GB) using the logic from T014b and graceful failure if model loading fails
+    on CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/main.py` to handle memory limits (Peak RSS < 7GB)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:48:11Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Memory retry threshold of 7 GB
+  claim_id: c_cc21c9c1
+  context: 'T014b [P] Implement **runtime memory monitoring logic** in `code/main.py`
+    (reading `/proc/self/status` or using `psutil`) and an **adaptive reduction mechanism**:
+    if Peak RSS > 7 GB, **implement a retry loop that reduces the image count per
+    bin by [deferred] and retries inference**, failing only if the count drops below
+    the minimum threshold (per FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement runtime memory monitoring logic with an adaptive reduction
+    mechanism: if Peak RSS > 7 GB, implement a retry loop'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:48:11Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: Peak RSS threshold 7 GB for memory management
+  claim_id: c_d4337316
+  context: 'Phase 6: Orchestration & Polish, T014b description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement runtime memory monitoring logic in code/main.py and an adaptive
+    reduction mechanism: if Peak RSS > 7 GB, implement a retry loop'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:49:41Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: region counts 20, 25, 30, 35, 40, 45, 50
+  claim_id: c_123be8ca
+  context: 'Phase 2: Foundational tasks, T024 description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/synthetic/generator.py to generate images for region counts
+    20, 25, 30, 35, 40, 45, and 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:50:05Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: generate synthetic images for region counts 20 25 30 35 40 45 and 50
+  claim_id: c_2397cad8
+  context: 'Phase 2: Foundational tasks, specifically task T024 and T004 configuration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/synthetic/generator.py` to generate images for region
+    counts 20, 25, 30, 35, 40, 45, and 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:51:20Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: load PerceptionDLM in FP32 or FP16 precision
+  claim_id: c_13a151d9
+  context: 'Phase 2: Foundational tasks, task T051 regarding parallel runner implementation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_PerceptionDLM_in_FP32_or_FP16_precision
+  kind: entity_fact
+  raw_text: Implement `code/models/parallel_runner.py` to load PerceptionDLM in FP32/FP16
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:51:44Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: use PerceptionDLM with context-reset for sequential baseline
+  claim_id: c_2b6d0415
+  context: 'Phase 2: Foundational tasks, task T052 regarding sequential runner implementation
+    and design decision notes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_PerceptionDLM_with_context-reset_for_sequential_baseline
+  kind: entity_fact
+  raw_text: Implement `code/models/sequential_runner.py` to load PerceptionDLM (SAME
+    model) and run sequential autoregressive inference with context-reset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:52:06Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: capture wall-clock inference time using time.perf_counter
+  claim_id: c_77036272
+  context: 'Phase 2: Foundational tasks, task T051 regarding parallel runner implementation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Capture_wall-clock_inference_time_using_time.perf_counter
+  kind: entity_fact
+  raw_text: Implement `code/models/parallel_runner.py` to include `time.perf_counter`
+    instrumentation to capture wall-clock inference time
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:52:21Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: capture wall-clock inference time using time.perf_counter for sequential
+    runner
+  claim_id: c_bfeece32
+  context: 'Phase 2: Foundational tasks, task T052 regarding sequential runner implementation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Capture_wall-clock_inference_time_using_time.perf_counter_fo
+  kind: entity_fact
+  raw_text: Implement `code/models/sequential_runner.py` to include `time.perf_counter`
+    instrumentation to capture wall-clock inference time
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:52:35Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction to regression significance tests
+  claim_id: c_8216fdb0
+  context: 'Phase 2: Foundational tasks, task T053 regarding statistical analysis
+    requirements.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_regression_significance_tests
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction logic to regression significance tests
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:53:12Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: compute Semantic Coherence Score and BLEU-4 for parallel and sequential
+    methods
+  claim_id: c_e163e188
+  context: 'Phase 4: User Story 1 implementation, task T021.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/main.py` to compute Semantic Coherence Score and BLEU-4
+    for both methods
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:53:31Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: output degradation curve CSV with region count parallel score sequential
+    score and inference time
+  claim_id: c_b1cfa535
+  context: 'Phase 4: User Story 1 implementation, task T022.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_degradation_curve_CSV_with_region_count_parallel_scor
+  kind: entity_fact
+  raw_text: Output `data/processed/degradation_curve.csv` containing region count,
+    parallel score, sequential score, and Inference Time
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:53:52Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: enforce Peak RSS limit of 7 GB
+  claim_id: c_0545cc2a
+  context: 'Phase 4: User Story 1 implementation, task T023 regarding memory limits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/main.py` for error handling with Peak RSS < 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:53:52Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: trigger adaptive reduction if Peak RSS exceeds 7 GB
+  claim_id: c_8bdb0a4c
+  context: 'Phase 6: Orchestration tasks, task T014b regarding memory management.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/main.py` for runtime memory monitoring and adaptive reduction
+    if Peak RSS > 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:53:52Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: use FP32 or FP16 precision on CPU without 8-bit quantization or CUDA
+  claim_id: c_93f5b7d1
+  context: Notes section, constraints on model loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All model loading MUST use default precision (FP32/FP16) on CPU; NO 8-bit
+    quantization or CUDA
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:54:16Z'
+- artifact_path: projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/specs/001-llmxive-follow-up-extending-perceptiondl/tasks.md
+  attempts: 1
+  canonical: statistical analysis must include Bonferroni correction
+  claim_id: c_f414b869
+  context: Notes section, constraints on statistical analysis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_must_include_Bonferroni_correction
+  kind: entity_fact
+  raw_text: Statistical analysis MUST include Bonferroni correction
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:54:45Z'

@@ -2189,3 +2189,443 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T12:38:55Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: generate 1000000 synthetic populations for UCI Adult, UCI Iris, and UCI
+    Wine Quality
+  claim_id: c_2dc23b75
+  context: T005 [P] Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for **UCI Adult**, **UCI Iris**, and **UCI Wine Quality** distributions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for UCI Adult, UCI Iris, and UCI Wine Quality distributions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:35:58Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 2
+  canonical: verify formulas against Covington et al. 2021 and Karwa & Vadhan 2017
+  claim_id: c_968f161e
+  context: 'T020 [P] [US2] Implement code/analysis/adjustments.py with bias-correction
+    and variance-inflation methods. **Mandatory**: Verify the specific formulas against
+    the cited literature (**Covington et al. 2021** and **Karwa & Vadhan 2017**) before
+    implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the specific formulas against the cited literature (Covington et
+    al. 2021 and Karwa & Vadhan 2017) before implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:36:21Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: verify standard error of coverage less than 0.5 percent
+  claim_id: c_331b000a
+  context: T031 [P] Implement code/analysis/convergence_check.py to run simulation
+    with multiple seeds and verify standard error of coverage < 0.5%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_less_than_0.5_percent
+  kind: magnitude
+  raw_text: Run simulation with multiple seeds and verify standard error of coverage
+    < 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:36:47Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: ensure pipeline runs within 6 hours on a standard runner
+  claim_id: c_3f9ff2a3
+  context: T036 Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:37:05Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: generate 1000000 synthetic populations for UCI Adult Iris and Wine Quality
+    distributions
+  claim_id: c_421b82b1
+  context: T005 [P] Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for **UCI Adult**, **UCI Iris**, and **UCI Wine Quality** distributions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for UCI Adult, UCI Iris, and UCI Wine Quality distributions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:38:18Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: perform 1000 bootstrap resamples for 95% CI construction using percentile
+    method
+  claim_id: c_bd2dde09
+  context: T012 [P] [US1] Implement code/analysis/ci_builder.py for 1,000 bootstrap
+    resamples and 95% CI construction (Percentile method)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/ci_builder.py for 1,000 bootstrap resamples and
+    95% CI construction (Percentile method).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:38:35Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: verify standard error of coverage is less than 0.5 percent
+  claim_id: c_c8867dd9
+  context: T031 [P] Implement code/analysis/convergence_check.py to run simulation
+    with multiple seeds and verify standard error of coverage < 0.5%
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_is_less_than_0.5_percent
+  kind: magnitude
+  raw_text: Verify standard error of coverage is less than 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:38:57Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: pipeline runs within 6 hours on a standard runner
+  claim_id: c_3a587e58
+  context: T036 Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entire pipeline runs within 6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:39:19Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: apply Covington bias correction to means and Karwa Vadhan variance inflation
+    to regression coefficients
+  claim_id: c_5ba90308
+  context: 'T020 [P] [US2] Implement code/analysis/adjustments.py with bias-correction
+    and variance-inflation methods. **Mandatory**: Verify the specific formulas against
+    the cited literature (**Covington et al. 2021** and **Karwa & Vadhan 2017**) before
+    implementation... Apply bias-correction (Covington) to means and variance-inflation
+    (Karwa & Vadhan) to regression coefficients.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Covington_bias_correction_to_means_and_Karwa_Vadhan_va
+  kind: entity_fact
+  raw_text: Apply bias-correction (Covington) to means and variance-inflation (Karwa
+    & Vadhan) to regression coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:39:45Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: generate N=1,000,000 synthetic populations with known ground truth parameters
+    for UCI Adult, UCI Iris, and UCI Wine Quality
+  claim_id: c_46a4b880
+  context: T005 [P] Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for UCI Adult, UCI Iris, and UCI Wine Quality distributions. The generation
+    MUST create a population with known parameters (mean, variance, coefficients)
+    to serve as ground truth, ensuring independence from sample realization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generation MUST create a population with known parameters (mean, variance,
+    coefficients) to serve as ground truth, ensuring independence from sample realization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:40:24Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: perform 1,000 bootstrap resamples for 95% confidence interval construction
+    using the percentile method
+  claim_id: c_ee9a59ff
+  context: T012 [P] [US1] Implement code/analysis/ci_builder.py for 1,000 bootstrap
+    resamples and 95% CI construction (Percentile method)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/ci_builder.py for 1,000 bootstrap resamples and
+    95% CI construction (Percentile method)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:40:24Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: apply Covington bias-correction to means and Karwa & Vadhan variance-inflation
+    to regression coefficients
+  claim_id: c_f8bf88d0
+  context: 'T020 [P] [US2] Implement code/analysis/adjustments.py with bias-correction
+    and variance-inflation methods. Mandatory: Verify the specific formulas against
+    the cited literature (Covington et al. 2021 and Karwa & Vadhan 2017) before implementation...
+    Apply bias-correction (Covington) to means and variance-inflation (Karwa & Vadhan)
+    to regression coefficients.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Covington_bias-correction_to_means_and_Karwa_%26_Vadhan
+  kind: entity_fact
+  raw_text: Apply bias-correction (Covington) to means and variance-inflation (Karwa
+    & Vadhan) to regression coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:40:26Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: fit generalized linear model with binomial link using formula covered
+    ~ epsilon + noise_type + epsilon:noise_type
+  claim_id: c_722162cd
+  context: 'T026 [P] [US3] Implement code/analysis/glm_analysis.py to fit GLM: covered
+    ~ epsilon + noise_type + epsilon:noise_type with binomial link.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P4755: GLM'
+      source_id: Q2086117
+      url: https://www.wikidata.org/wiki/Q2086117
+      value: GLM
+    filled: true
+  kind: entity_fact
+  raw_text: 'fit GLM: covered ~ epsilon + noise_type + epsilon:noise_type with binomial
+    link'
+  resolved_value: GLM
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T21:40:37Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: verify standard error of coverage is less than 0.5%
+  claim_id: c_76dfd7a0
+  context: T031 [P] Implement code/analysis/convergence_check.py to run simulation
+    with multiple seeds and verify standard error of coverage < 0.5%
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_is_less_than_0.5%25
+  kind: magnitude
+  raw_text: verify standard error of coverage < 0.5%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-28T21:40:56Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: execute simulation pipeline within 6 hours on a standard runner
+  claim_id: c_5e024ad5
+  context: T036 Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run the entire pipeline within 6 hours on a standard runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:40:56Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Synthetic populations generated with known ground truth parameters independent
+    of sample realization
+  claim_id: c_2fb6bdea
+  context: Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for UCI Adult, UCI Iris, and UCI Wine Quality distributions. The generation
+    MUST create a population with known parameters...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_populations_generated_with_known_ground_truth_para
+  kind: entity_fact
+  raw_text: The generation MUST create a population with known parameters (mean, variance,
+    coefficients) to serve as ground truth, ensuring independence from sample realization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:43:37Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: System tested by running simulation on UCI Adult dataset outputting coverage
+    rate CSV
+  claim_id: c_1db808b5
+  context: "Independent Test: The system can be tested by running the simulation pipeline\
+    \ on a single dataset (e.g., UCI Adult) with a fixed set of \u03B5 values and\
+    \ noise types, outputting a CSV of coverage rates."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_by_running_simulation_on_UCI_Adult_dataset_out
+  kind: entity_fact
+  raw_text: The system can be tested by running the simulation pipeline on a single
+    dataset (e.g., UCI Adult) with a fixed set of epsilon values and noise types,
+    outputting a CSV of coverage rates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:43:57Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: CI construction using 1000 bootstrap resamples and 95% confidence interval
+  claim_id: c_abc27a97
+  context: Implement code/analysis/ci_builder.py for 1,000 bootstrap resamples and
+    95% CI construction (Percentile method)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/ci_builder.py for 1,000 bootstrap resamples and
+    95% CI construction (Percentile method)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:43:58Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Bias-correction by Covington applied to means; variance-inflation by
+    Karwa & Vadhan applied to regression coefficients
+  claim_id: c_35b31cae
+  context: Apply bias-correction (Covington) to means and variance-inflation (Karwa
+    & Vadhan) to regression coefficients.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bias-correction_by_Covington_applied_to_means;_variance-infl
+  kind: entity_fact
+  raw_text: Apply bias-correction (Covington) to means and variance-inflation (Karwa
+    & Vadhan) to regression coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:44:00Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Formulas verified against Covington et al. 2021 and Karwa & Vadhan 2017
+  claim_id: c_052c4b97
+  context: 'Mandatory: Verify the specific formulas against the cited literature (Covington
+    et al. 2021 and Karwa & Vadhan 2017) before implementation to satisfy the ''Verified
+    Accuracy'' constitution principle.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the specific formulas against the cited literature (Covington et
+    al. 2021 and Karwa & Vadhan 2017) before implementation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:44:00Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis run with default thresholds 0.93 and 0.95
+  claim_id: c_9ab29351
+  context: 'Execute sensitivity analysis sweep: Run code/analysis/sensitivity_analysis.py
+    with thresholds defined in config.py (default: [high, 0.93, 0.95]) and generate
+    artifacts/sensitivity_analysis.csv'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Run `code/analysis/sensitivity_analysis.py` with thresholds defined in
+    `config.py` (default: [high, 0.93, 0.95])'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:44:28Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time under 6 hours on standard runner
+  claim_id: c_8ee3f23d
+  context: Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the entire pipeline within 6 hours on a standard runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:44:28Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Standard error of coverage less than 0.5%
+  claim_id: c_937a1045
+  context: Implement code/analysis/convergence_check.py to run simulation with multiple
+    seeds and verify standard error of coverage < 0.5%
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_error_of_coverage_less_than_0.5%25
+  kind: magnitude
+  raw_text: Verify standard error of coverage < 0.5%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T21:44:30Z'

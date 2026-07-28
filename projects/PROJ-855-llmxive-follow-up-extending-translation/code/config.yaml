@@ -1,52 +1,21 @@
-# Configuration for llmXive Follow-up: Translation as a Bridging Action
-# This file contains physics thresholds, simulation settings, and sensitivity analysis parameters.
+# Configuration for stability thresholds
+# These values are used to label episodes as stable (1) or unstable (0)
+thresholds:
+  tipping_angle_threshold: 0.15  # radians (approx 8.6 degrees)
+  slippage_distance_threshold: 0.05  # meters (5 cm)
 
-# Physics Metrics Thresholds (Claim c_6de95fdb)
-# These thresholds determine stability labels based on tipping angle and slippage distance.
-physics:
-  tipping_angle_threshold_deg: 15.0  # Max tilt before considered unstable
-  slippage_distance_threshold_mm: 10.0  # Max displacement before considered unstable
-  force_threshold_n: 5.0  # Max force threshold (if applicable)
-
-# Simulation Settings
+# Simulation parameters
 simulation:
+  time_step: 0.004166666666666667  # 1/240 seconds
+  max_steps: 100
+  gravity: -9.81
+
+# Data generation parameters
+data_generation:
   num_episodes: 5000
-  episode_duration_steps: 200
-  dt: 0.01
-  gravity: 9.81
-  noise_std_dev: 0.05  # Standard deviation for noise injection
+  noise_scale: 1.0
 
-# Training Settings
-training:
-  batch_size: 64
-  learning_rate: 0.001
-  num_epochs: 10
-  hidden_dim: 64
-  num_heads: 4
-  num_layers: 2
-  dropout: 0.1
-  seq_len: 50
-  seed: 42
-
-# Sensitivity Analysis Parameters
-# Used for T018 and T033 to sweep thresholds and re-evaluate.
+# Sensitivity analysis parameters (for T018)
 sensitivity:
-  enabled: true
-  # Percentages to sweep around the base threshold
-  tipping_angle_sweep_percent: [0.90, 0.95, 1.0, 1.05, 1.10]
-  slippage_distance_sweep_percent: [0.90, 0.95, 1.0, 1.05, 1.10]
-  # Number of random seeds to test per configuration
-  num_seeds: 3
-
-# Data Paths
-paths:
-  raw_data_dir: "data/raw"
-  processed_data_dir: "data/processed"
-  models_dir: "data/processed"
-  checksums_file: "data/checksums.json"
-
-# Model Architecture Constraints
-model_constraints:
-  max_parameters: 10000000
-  max_training_time_hours: 6
-  max_ram_gb: 7
+  threshold_sweep_range: 0.05  # 5% variation
+  num_sweeps: 10

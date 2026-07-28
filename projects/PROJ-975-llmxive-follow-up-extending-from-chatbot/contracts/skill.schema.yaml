@@ -1,46 +1,55 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Skill Schema
-description: Schema for Python "skills" (functions) in the synthetic library.
+description: Schema for individual skill entries in the skills library.
 type: object
 required:
-  - skill_id
-  - code
+  - id
+  - name
   - description
-  - embedding
-  - metadata
+  - code
+  - embedding_vector
+  - similarity_stats
 properties:
-  skill_id:
+  id:
     type: string
     description: Unique identifier for the skill (e.g., "skill_001").
-  code:
+  name:
     type: string
-    description: The actual Python source code of the function.
+    description: Human-readable name of the skill.
   description:
     type: string
-    description: Natural language description of what the skill does.
-  embedding:
+    description: Brief description of what the skill does.
+  code:
+    type: string
+    description: The actual Python code implementation as a string.
+  embedding_vector:
     type: array
-    description: Vector embedding of the skill description/code.
+    description: The pre-computed sentence embedding vector for this skill.
     items:
       type: number
-      format: float
-    minItems: 384
-    maxItems: 384
+  similarity_stats:
+    type: object
+    description: Statistics about this skill's similarity to others.
+    required:
+      - mean_similarity
+      - min_similarity
+      - max_similarity
+    properties:
+      mean_similarity:
+        type: number
+        description: Mean cosine similarity to all other skills.
+      min_similarity:
+        type: number
+        description: Minimum cosine similarity to any other skill.
+      max_similarity:
+        type: number
+        description: Maximum cosine similarity to any other skill.
   metadata:
     type: object
-    description: Skill metadata.
+    description: Optional metadata fields.
     properties:
-      complexity:
-        type: integer
-        description: Complexity score of the skill.
-      similarity_stats:
-        type: object
-        description: Pre-calculated similarity statistics if available.
-        properties:
-          mean_pairwise:
-            type: number
-            format: float
-          max_pairwise:
-            type: number
-            format: float
+      created_at:
+        type: string
+      version:
+        type: string
 additionalProperties: false

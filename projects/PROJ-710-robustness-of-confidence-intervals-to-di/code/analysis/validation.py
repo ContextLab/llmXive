@@ -1,9 +1,3 @@
-"""
-Validation utilities for the CI robustness pipeline.
-
-This module ensures all computations adhere to strict numerical and execution
-constraints: double-precision floats (float64) and CPU-only execution.
-"""
 import numpy as np
 import os
 import warnings
@@ -11,161 +5,278 @@ from typing import Any, Union, List, Tuple, Optional, Dict
 from scipy import stats
 import torch
 
-# Global flag to enforce CPU-only execution
-FORCE_CPU_ONLY = True
-FORCE_FLOAT64 = True
 
-def enforce_float64(arr: np.ndarray) -> np.ndarray:
+def enforce_float64(data: Union[np.ndarray, List, float, int, 'pd.DataFrame']) -> np.ndarray:
     """
-    Ensures the input array is strictly float64.
-    If not, converts it. If it's not a numpy array, attempts conversion.
-    
+    Enforce double-precision (float64) arithmetic for all numerical computations.
+
+    This function ensures that all input data is converted to float64 dtype,
+    which is critical for numerical stability in statistical computations,
+    especially when dealing with confidence intervals and DP noise.
+
     Args:
-        arr: Input array or sequence.
-        
+        data: Input data that can be an array, list, scalar, or DataFrame
+
     Returns:
-        A numpy array of dtype float64.
-        
+        numpy.ndarray: Data converted to float64 dtype
+
     Raises:
-        TypeError: If conversion to float64 is not possible.
+        TypeError: If data cannot be converted to float64
     """
-    if not isinstance(arr, np.ndarray):
-        try:
-            arr = np.asarray(arr)
-        except Exception as e:
-            raise TypeError(f"Cannot convert input to numpy array: {e}")
-    
-    if arr.dtype != np.float64:
-        if np.issubdtype(arr.dtype, np.floating):
-            if FORCE_FLOAT64:
-                warnings.warn(f"Converting array from {arr.dtype} to float64 as per validation requirements.")
-                arr = arr.astype(np.float64)
-            else:
-                # If not forced, we still convert to ensure consistency in downstream stats
-                arr = arr.astype(np.float64)
-        elif np.issubdtype(arr.dtype, np.integer):
-            if FORCE_FLOAT64:
-                warnings.warn(f"Converting integer array {arr.dtype} to float64.")
-                arr = arr.astype(np.float64)
-            else:
-                arr = arr.astype(np.float64)
-        else:
-            # Complex or object types that can't be safely cast to float64
-            raise TypeError(f"Array dtype {arr.dtype} cannot be safely converted to float64.")
-    
-    return arr
+    # Handle pandas DataFrame/Series if available
+    try:
+        import pandas as pd
+        if isinstance(data, (pd.DataFrame, pd.Series)):
+            data = data.values
+    except ImportError:
+        pass
 
-def ensure_cpu_only() -> None:
-    """
-    Validates that no GPU device is active for torch or other libraries.
-    Raises RuntimeError if GPU usage is detected and FORCE_CPU_ONLY is True.
-    """
-    if FORCE_CPU_ONLY:
-        if torch.cuda.is_available():
-            if torch.cuda.current_device() >= 0:
-                raise RuntimeError(
-                    "GPU device is active. This pipeline is configured for CPU-only execution "
-                    "to ensure reproducibility and avoid hardware-specific floating point variations. "
-                    "Set CUDA_VISIBLE_DEVICES='' or disable FORCE_CPU_ONLY in validation.py if GPU is required."
-                )
-        
-        # Check for MPS (Apple Silicon) if applicable
-        if hasattr(torch, 'mps') and torch.mps.is_available():
-            # MPS is technically a GPU backend, though often used as "default" on Mac
-            # We enforce CPU-only strictly as per task requirement
-             raise RuntimeError(
-                  "MPS (Metal Performance Shaders) is available. This pipeline enforces CPU-only execution."
-             )
+    # Convert to numpy array if not already
+    if not isinstance(data, np.ndarray):
+        data = np.array(data)
 
-def validate_input_data(data: Any, name: str = "data") -> None:
+    # Ensure float64 dtype
+    if data.dtype != np.float64:
+        data = data.astype(np.float64)
+
+    return data
+
+
+def ensure_cpu_only() -> bool:
     """
-    Performs comprehensive validation on input data before processing.
-    
-    Args:
-        data: The data to validate.
-        name: A descriptive name for the data (used in error messages).
-        
+    Ensure all computations are restricted to CPU-only execution.
+
+    This function checks that no GPU acceleration is being used, which is
+    critical for:
+    1. Reproducibility across different hardware configurations
+    2. Avoiding non-deterministic GPU operations that can affect DP noise
+    3. Ensuring consistent behavior in CI/CD environments
+
+    Returns:
+        bool: True if CPU-only execution is enforced
+
     Raises:
-        TypeError: If data is not a numpy array or cannot be converted.
-        ValueError: If data contains NaN or Inf values.
+        EnvironmentError: If GPU is detected or CUDA is available
     """
-    arr = enforce_float64(data)
-    
-    if np.any(np.isnan(arr)):
-        raise ValueError(f"Input '{name}' contains NaN values. All inputs must be finite.")
-    
-    if np.any(np.isinf(arr)):
-        raise ValueError(f"Input '{name}' contains Inf values. All inputs must be finite.")
-    
-    # Ensure no complex numbers (which might have passed dtype check if not handled)
-    if np.iscomplexobj(arr):
-        raise TypeError(f"Input '{name}' contains complex numbers. Only real float64 is allowed.")
-
-def validate_config_precision(config_module: Any) -> None:
-    """
-    Validates that a config module does not force float32 or GPU defaults.
-    
-    Args:
-        config_module: The config module object.
-    """
-    # Check for common float32 defaults in config
-    if hasattr(config_module, 'DTYPE') and config_module.DTYPE != np.float64:
-        warnings.warn(f"Config DTYPE is {config_module.DTYPE}, expected float64. Forcing float64.")
-    
-    if hasattr(config_module, 'DEVICE') and config_module.DEVICE != 'cpu':
-        raise RuntimeError(
-            f"Config DEVICE is set to '{config_module.DEVICE}'. This pipeline requires CPU-only execution."
+    # Check if CUDA is available and raise error if so
+    if torch.cuda.is_available():
+        raise EnvironmentError(
+            "GPU execution detected. All computations must be CPU-only for "
+            "reproducibility and DP noise consistency. "
+            "Please set CUDA_VISIBLE_DEVICES='' or use CPU-only PyTorch."
         )
+
+    # Check if MPS (Apple Silicon) is available
+    if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        raise EnvironmentError(
+            "MPS (Metal Performance Shaders) detected. All computations must be "
+            "CPU-only for reproducibility and DP noise consistency. "
+            "Please set PYTORCH_ENABLE_MPS_FALLBACK=0 or use CPU-only PyTorch."
+        )
+
+    # Verify no GPU devices are visible
+    if torch.cuda.device_count() > 0:
+        raise EnvironmentError(
+            f"Detected {torch.cuda.device_count()} CUDA devices. "
+            "GPU execution is not permitted. "
+            "Set CUDA_VISIBLE_DEVICES='' to enforce CPU-only execution."
+        )
+
+    return True
+
+
+def validate_input_data(data: Union[np.ndarray, List], 
+                      min_size: int = 1,
+                      allow_nan: bool = False,
+                      allow_inf: bool = False) -> bool:
+    """
+    Validate input data for statistical computations.
+
+    This function performs comprehensive validation to ensure data quality
+    before statistical operations, preventing silent failures in CI calculations.
+
+    Args:
+        data: Input data to validate
+        min_size: Minimum required array size (default: 1)
+        allow_nan: Whether NaN values are permitted (default: False)
+        allow_inf: Whether infinite values are permitted (default: False)
+
+    Returns:
+        bool: True if validation passes
+
+    Raises:
+        ValueError: If validation fails
+        TypeError: If input is not numeric
+    """
+    # Convert to float64 array
+    data = enforce_float64(data)
+
+    # Check minimum size
+    if len(data) < min_size:
+        raise ValueError(f"Input data has {len(data)} elements, "
+                       f"but minimum required size is {min_size}")
+
+    # Check for NaN values
+    if not allow_nan and np.any(np.isnan(data)):
+        raise ValueError("Input data contains NaN values. "
+                       "NaN values are not permitted in statistical computations.")
+
+    # Check for infinite values
+    if not allow_inf and np.any(np.isinf(data)):
+        raise ValueError("Input data contains infinite values. "
+                       "Infinite values are not permitted in statistical computations.")
+
+    # Check for empty arrays after filtering
+    if np.all(np.isnan(data)) or np.all(np.isinf(data)):
+        raise ValueError("Input data contains only NaN or infinite values.")
+
+    return True
+
+
+def validate_config_precision(config: Any) -> bool:
+    """
+    Validate that configuration uses appropriate precision settings.
+
+    This function ensures that all numerical parameters in the configuration
+    are set to appropriate precision levels for statistical computations.
+
+    Args:
+        config: Configuration object or dictionary
+
+    Returns:
+        bool: True if validation passes
+
+    Raises:
+        ValueError: If precision settings are inadequate
+    """
+    if isinstance(config, dict):
+        # Check for float64-related settings
+        for key, value in config.items():
+            if 'precision' in key.lower() or 'float' in key.lower():
+                if isinstance(value, (float, np.floating)):
+                    if np.dtype(type(value)) != np.float64:
+                        raise ValueError(
+                            f"Configuration parameter '{key}' should use float64 "
+                            f"precision, but has dtype {np.dtype(type(value))}"
+                        )
+    elif hasattr(config, '__dict__'):
+        # Check object attributes
+        for attr in dir(config):
+            if not attr.startswith('_'):
+                value = getattr(config, attr)
+                if isinstance(value, (float, np.floating)):
+                    if np.dtype(type(value)) != np.float64:
+                        raise ValueError(
+                            f"Configuration attribute '{attr}' should use float64 "
+                            f"precision, but has dtype {np.dtype(type(value))}"
+                        )
+
+    return True
+
 
 def wrap_numpy_function(func):
     """
-    Decorator to ensure a numpy function operates on float64 inputs and returns float64.
+    Decorator to wrap numpy functions with input validation and float64 enforcement.
+
+    This decorator ensures that all numpy functions used in statistical computations
+    automatically enforce double-precision arithmetic and validate inputs.
+
+    Args:
+        func: Numpy function to wrap
+
+    Returns:
+        Wrapped function with validation
     """
     def wrapper(*args, **kwargs):
-        # Validate inputs
-        validated_args = []
+        # Convert all array-like arguments to float64
+        new_args = []
         for arg in args:
+            if isinstance(arg, (np.ndarray, list, tuple)):
+                new_args.append(enforce_float64(arg))
+            else:
+                new_args.append(arg)
+
+        # Convert all array-like keyword arguments to float64
+        new_kwargs = {}
+        for key, value in kwargs.items():
+            if isinstance(value, (np.ndarray, list, tuple)):
+                new_kwargs[key] = enforce_float64(value)
+            else:
+                new_kwargs[key] = value
+
+        # Validate inputs
+        for arg in new_args:
             if isinstance(arg, np.ndarray):
-                validated_args.append(enforce_float64(arg))
-            else:
-                validated_args.append(arg)
-        
-        validated_kwargs = {}
-        for k, v in kwargs.items():
-            if isinstance(v, np.ndarray):
-                validated_kwargs[k] = enforce_float64(v)
-            else:
-                validated_kwargs[k] = v
-        
-        result = func(*validated_args, **validated_kwargs)
-        
+                validate_input_data(arg)
+
+        for value in new_kwargs.values():
+            if isinstance(value, np.ndarray):
+                validate_input_data(value)
+
+        # Execute the function
+        result = func(*new_args, **new_kwargs)
+
         # Ensure result is float64 if it's an array
         if isinstance(result, np.ndarray):
-            return enforce_float64(result)
+            result = enforce_float64(result)
+
         return result
+
     return wrapper
 
-def validate_pipeline_environment() -> Dict[str, Any]:
+
+def validate_pipeline_environment() -> bool:
     """
-    Runs a full validation check on the current execution environment.
-    
+    Comprehensive validation of the entire pipeline environment.
+
+    This function performs a complete check of:
+    1. CPU-only execution enforcement
+    2. Float64 precision requirements
+    3. Available libraries and their versions
+    4. Environment variables that might affect computations
+
     Returns:
-        A dictionary with validation status and details.
+        bool: True if all validations pass
+
+    Raises:
+        EnvironmentError: If environment validation fails
+        ValueError: If configuration validation fails
     """
+    # Ensure CPU-only execution
     ensure_cpu_only()
-    
-    # Check numpy version and settings
-    np_version = np.__version__
-    np_float_info = np.finfo(np.float64)
-    
-    return {
-        "cpu_only_enforced": True,
-        "float64_enforced": True,
-        "numpy_version": np_version,
-        "float64_info": {
-            "eps": np_float_info.eps,
-            "max": np_float_info.max,
-            "min": np_float_info.min
-        },
-        "status": "PASS"
-    }
+
+    # Validate configuration precision
+    try:
+        import config
+        validate_config_precision(config)
+    except ImportError:
+        # If config module doesn't exist, skip this check
+        pass
+
+    # Check critical environment variables
+    cuda_visible = os.environ.get('CUDA_VISIBLE_DEVICES', '')
+    if cuda_visible:
+        warnings.warn(
+            "CUDA_VISIBLE_DEVICES is set. This may affect reproducibility. "
+            "Consider unsetting it for CPU-only execution."
+        )
+
+    # Verify critical libraries are available
+    required_libs = ['numpy', 'scipy', 'pandas']
+    for lib in required_libs:
+        try:
+            __import__(lib)
+        except ImportError:
+            raise EnvironmentError(
+                f"Required library '{lib}' is not installed. "
+                "Please install it via pip."
+            )
+
+    # Verify numpy version supports float64 operations
+    if not hasattr(np, 'float64'):
+        raise EnvironmentError(
+            "NumPy version does not support float64 operations. "
+            "Please upgrade NumPy."
+        )
+
+    return True

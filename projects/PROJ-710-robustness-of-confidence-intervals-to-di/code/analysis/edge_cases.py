@@ -1,305 +1,429 @@
 """
-Edge case handling utilities for Differential Privacy confidence interval analysis.
+Edge case handling utilities for the DP-CI robustness pipeline.
 
-This module encapsulates reusable functions to handle:
-1. Clamping noise scale for small epsilon values to prevent numerical instability.
-2. Collinearity detection in regression analysis.
-3. Minimum sample size enforcement for bootstrap resampling.
+This module provides reusable functions to handle:
+1. Clamping noise scale for small epsilon values
+2. Collinearity detection in regression
+3. Minimum sample size enforcement for bootstrap
+4. Zero variance handling
+5. Covariance matrix validation
+
+These functions are designed to be called by the orchestration loop (main.py)
+before or during simulation steps to ensure numerical stability and valid results.
 """
 
 import numpy as np
-from typing import Union, Tuple, Optional, Dict, Any
+from typing import Union, Tuple, Optional, Dict, Any, List
 from scipy import stats
 import warnings
+import logging
 
-
-# Constants for edge case handling
-MIN_EPSILON = 1e-6  # Minimum epsilon to prevent division by zero
-MIN_SAMPLE_SIZE_BOOTSTRAP = 30  # Minimum sample size for reliable bootstrap
-MIN_SAMPLE_SIZE_REGRESSION = 10  # Minimum sample size for regression
-VARIANCE_FLOOR = 1e-10  # Floor for variance to prevent numerical issues
-COLLINEARITY_THRESHOLD = 0.99  # Correlation threshold for detecting collinearity
+# Configure logger
+logger = logging.getLogger(__name__)
 
 
 def clamp_noise_scale(
     epsilon: float,
     sensitivity: float,
     noise_type: str = "laplace",
-    min_epsilon: float = MIN_EPSILON
+    min_epsilon: float = 0.1,
+    max_scale: Optional[float] = None
 ) -> Tuple[float, bool]:
     """
-    Clamp the noise scale parameter to prevent numerical instability for very small epsilon.
+    Clamp noise scale parameters to prevent numerical instability for very small epsilon.
 
-    For Laplace noise: scale = sensitivity / epsilon
-    For Gaussian noise: scale = sensitivity * sqrt(2 * log(1.25/delta)) / epsilon
+    For differential privacy, the noise scale is proportional to 1/epsilon.
+    As epsilon approaches 0, the noise scale approaches infinity, causing
+    numerical overflow and meaningless results.
+
+    This function enforces a minimum epsilon threshold and optionally a maximum
+    noise scale to ensure stable computations.
 
     Args:
-        epsilon: Privacy budget (must be > 0)
-        sensitivity: Query sensitivity
-        noise_type: Type of noise ("laplace" or "gaussian")
-        min_epsilon: Minimum epsilon threshold
+        epsilon: The privacy budget (must be > 0)
+        sensitivity: The global sensitivity of the query
+        noise_type: Either "laplace" or "gaussian"
+        min_epsilon: Minimum epsilon value to use (default: 0.1)
+        max_scale: Maximum allowed noise scale (default: None, uses 10 * sensitivity)
 
     Returns:
-        Tuple of (clamped_scale, was_clamped)
+        Tuple of (effective_epsilon, was_clamped):
+            - effective_epsilon: The epsilon value actually used (may be clamped)
+            - was_clamped: True if the original epsilon was below min_epsilon
     """
     if epsilon <= 0:
-        warnings.warn(f"Epsilon {epsilon} is non-positive. Clamping to {min_epsilon}.")
-        epsilon = min_epsilon
-        was_clamped = True
-    elif epsilon < min_epsilon:
-        warnings.warn(f"Epsilon {epsilon} is below threshold {min_epsilon}. Clamping to {min_epsilon}.")
-        epsilon = min_epsilon
-        was_clamped = True
-    else:
-        was_clamped = False
+        raise ValueError(f"Epsilon must be positive, got {epsilon}")
 
+    was_clamped = False
+    effective_epsilon = epsilon
+
+    # Clamp epsilon to minimum threshold
+    if epsilon < min_epsilon:
+        effective_epsilon = min_epsilon
+        was_clamped = True
+        logger.warning(
+            f"Epsilon {epsilon} below minimum {min_epsilon}, "
+            f"clamping to {min_epsilon} to prevent numerical instability"
+        )
+
+    # Calculate noise scale
     if noise_type.lower() == "laplace":
-        scale = sensitivity / epsilon
+        # Laplace noise scale = sensitivity / epsilon
+        scale = sensitivity / effective_epsilon
     elif noise_type.lower() == "gaussian":
-        # Using delta = 1e-5 as a common default for approximate DP
-        delta = 1e-5
-        scale = sensitivity * np.sqrt(2 * np.log(1.25 / delta)) / epsilon
+        # Gaussian noise scale (simplified, assuming delta is handled elsewhere)
+        # For (epsilon, delta)-DP, scale = sensitivity * sqrt(2 * ln(1.25/delta)) / epsilon
+        # Using a simplified version here
+        scale = sensitivity / effective_epsilon
     else:
-        raise ValueError(f"Unsupported noise type: {noise_type}. Use 'laplace' or 'gaussian'.")
+        raise ValueError(f"Unknown noise type: {noise_type}. Use 'laplace' or 'gaussian'")
 
-    # Ensure scale is not too small (prevents division by zero later)
-    scale = max(scale, 1e-10)
+    # Enforce maximum scale if specified
+    if max_scale is not None and scale > max_scale:
+        effective_epsilon = sensitivity / max_scale
+        was_clamped = True
+        logger.warning(
+            f"Noise scale {scale} exceeds maximum {max_scale}, "
+            f"adjusting epsilon to {effective_epsilon:.4f}"
+        )
 
-    return scale, was_clamped
+    return effective_epsilon, was_clamped
 
 
-def detect_collinearity(X: np.ndarray, threshold: float = COLLINEARITY_THRESHOLD) -> Dict[str, Any]:
+def detect_collinearity(
+    X: np.ndarray,
+    tol: float = 1e-6,
+    condition_number_threshold: float = 30.0
+) -> Dict[str, Any]:
     """
-    Detect collinearity in regression design matrix X.
+    Detect collinearity in predictor matrix for regression analysis.
 
-    Uses Variance Inflation Factor (VIF) and correlation matrix to detect
-    multicollinearity issues that would destabilize regression coefficient estimates.
+    This function checks for:
+    1. Near-zero variance predictors
+    2. High condition number (indicating multicollinearity)
+    3. Perfect or near-perfect correlations between columns
 
     Args:
-        X: Design matrix (n_samples, n_features), should include intercept if needed
-        threshold: Correlation threshold for flagging collinearity
+        X: Predictor matrix (n_samples, n_features)
+        tol: Tolerance for detecting near-zero variance
+        condition_number_threshold: Threshold above which collinearity is flagged
 
     Returns:
-        Dictionary with:
-        - 'has_collinearity': bool
-        - 'max_correlation': float
-        - 'vif_values': list of VIF for each feature
-        - 'problematic_pairs': list of (i, j) pairs with high correlation
-        - 'condition_number': float (matrix condition number)
+        Dictionary with keys:
+            - 'is_collinear': bool, True if collinearity detected
+            - 'condition_number': float, condition number of X^T X
+            - 'near_zero_var': list, indices of near-zero variance columns
+            - 'high_corr_pairs': list of tuples, pairs with correlation > 0.99
+            - 'recommendation': str, suggested action
     """
+    result = {
+        'is_collinear': False,
+        'condition_number': float('inf'),
+        'near_zero_var': [],
+        'high_corr_pairs': [],
+        'recommendation': 'No issues detected'
+    }
+
     if X.ndim == 1:
         X = X.reshape(-1, 1)
 
     n_samples, n_features = X.shape
 
     if n_samples < n_features:
-        return {
-            'has_collinearity': True,
-            'max_correlation': float('inf'),
-            'vif_values': [float('inf')] * n_features,
-            'problematic_pairs': [(i, j) for i in range(n_features) for j in range(i+1, n_features)],
-            'condition_number': float('inf'),
-            'message': "Sample size smaller than feature count - perfect multicollinearity"
-        }
+        result['is_collinear'] = True
+        result['recommendation'] = (
+            f"Samples ({n_samples}) < features ({n_features}). "
+            "Cannot fit regression model. Consider dimensionality reduction."
+        )
+        return result
 
-    # Compute correlation matrix
+    # Check for near-zero variance columns
+    col_stds = np.std(X, axis=0)
+    near_zero_indices = np.where(col_stds < tol)[0].tolist()
+    result['near_zero_var'] = near_zero_indices
+
+    if near_zero_indices:
+        result['is_collinear'] = True
+        result['recommendation'] = (
+            f"Found {len(near_zero_indices)} near-zero variance columns. "
+            "Remove these predictors or apply regularization."
+        )
+
+    # Calculate condition number
     try:
-        corr_matrix = np.corrcoef(X, rowvar=False)
-        if np.any(np.isnan(corr_matrix)):
-            # Handle case with constant features
-            corr_matrix = np.eye(n_features)
-    except:
-        corr_matrix = np.eye(n_features)
+        # Use X^T X for condition number calculation
+        XtX = X.T @ X
+        # Add small regularization for numerical stability
+        XtX_reg = XtX + tol * np.eye(n_features)
+        eigvals = np.linalg.eigvalsh(XtX_reg)
+        condition_number = np.max(eigvals) / np.min(eigvals)
+        result['condition_number'] = float(condition_number)
 
-    # Find max off-diagonal correlation
-    mask = ~np.eye(n_features, dtype=bool)
-    max_corr = np.max(np.abs(corr_matrix[mask])) if n_features > 1 else 0.0
+        if condition_number > condition_number_threshold:
+            result['is_collinear'] = True
+            result['recommendation'] = (
+                f"High condition number ({condition_number:.2f}) indicates "
+                "multicollinearity. Consider PCA, regularization, or removing correlated features."
+            )
+    except np.linalg.LinAlgError:
+        result['is_collinear'] = True
+        result['condition_number'] = float('inf')
+        result['recommendation'] = (
+            "Matrix is singular. Cannot compute condition number. "
+            "Remove linearly dependent features."
+        )
 
-    # Compute VIF (Variance Inflation Factor)
-    vif_values = []
-    for i in range(n_features):
+    # Check for high correlations between pairs
+    if n_features > 1:
         try:
-            # Regress feature i against all other features
-            y = X[:, i]
-            X_other = np.delete(X, i, axis=1)
-            if X_other.shape[1] > 0:
-                # Add intercept if not present
-                if not np.allclose(X_other.mean(axis=0), 0) or n_features == 2:
-                    X_other_with_intercept = np.column_stack([np.ones(n_samples), X_other])
-                else:
-                    X_other_with_intercept = X_other
+            corr_matrix = np.corrcoef(X, rowvar=False)
+            # Handle NaN correlations (from constant columns)
+            corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
 
-                coeffs, residuals, rank, s = np.linalg.lstsq(X_other_with_intercept, y, rcond=None)
-                if rank < X_other_with_intercept.shape[1]:
-                    vif = float('inf')
-                else:
-                    # R-squared from the auxiliary regression
-                    ss_res = np.sum((y - X_other_with_intercept @ coeffs) ** 2)
-                    ss_tot = np.sum((y - y.mean()) ** 2)
-                    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
-                    vif = 1 / (1 - r_squared) if (1 - r_squared) > 1e-10 else float('inf')
-            else:
-                vif = 1.0  # Single feature, no collinearity possible
-        except:
-            vif = float('inf')
-        vif_values.append(vif)
+            for i in range(n_features):
+                for j in range(i + 1, n_features):
+                    if abs(corr_matrix[i, j]) > 0.99:
+                        result['high_corr_pairs'].append((i, j))
 
-    # Identify problematic pairs
-    problematic_pairs = []
-    for i in range(n_features):
-        for j in range(i + 1, n_features):
-            if np.abs(corr_matrix[i, j]) > threshold:
-                problematic_pairs.append((i, j))
+            if result['high_corr_pairs']:
+                result['is_collinear'] = True
+                if result['recommendation'] == 'No issues detected':
+                    result['recommendation'] = (
+                        f"Found {len(result['high_corr_pairs'])} highly correlated "
+                        "feature pairs (r > 0.99). Consider removing one from each pair."
+                    )
+        except Exception as e:
+            logger.warning(f"Could not compute correlation matrix: {e}")
 
-    # Compute condition number
-    try:
-        condition_number = np.linalg.cond(X)
-    except:
-        condition_number = float('inf')
-
-    has_collinearity = (
-        max_corr > threshold or
-        any(v > 10 for v in vif_values) or
-        condition_number > 1e10
-    )
-
-    return {
-        'has_collinearity': has_collinearity,
-        'max_correlation': float(max_corr),
-        'vif_values': vif_values,
-        'problematic_pairs': problematic_pairs,
-        'condition_number': float(condition_number),
-        'message': "Collinearity detected" if has_collinearity else "No significant collinearity"
-    }
+    return result
 
 
 def enforce_minimum_sample_size(
-    data: np.ndarray,
-    min_size: int = MIN_SAMPLE_SIZE_BOOTSTRAP,
-    method: str = "truncate"
-) -> Tuple[np.ndarray, Dict[str, Any]]:
+    n_samples: int,
+    min_samples: int = 30,
+    bootstrap_resamples: int = 1000,
+    statistic_type: str = "mean"
+) -> Tuple[bool, str]:
     """
-    Enforce minimum sample size requirements for bootstrap/resampling operations.
+    Enforce minimum sample size requirements for valid statistical inference.
+
+    Different statistics and methods have different minimum sample size requirements:
+    - Mean/Proportion: Central Limit Theorem typically requires n >= 30
+    - Regression: Need n > p (features), ideally n >= 10 * p
+    - Bootstrap: Need sufficient samples to generate stable resamples
 
     Args:
-        data: Input data array
-        min_size: Minimum required sample size
-        method: How to handle insufficient data ("truncate", "error", "warn")
+        n_samples: Current number of samples
+        min_samples: Minimum required samples (default: 30)
+        bootstrap_resamples: Number of bootstrap resamples requested
+        statistic_type: Type of statistic ('mean', 'regression', 'variance')
 
     Returns:
-        Tuple of (processed_data, status_info)
-        status_info contains:
-        - 'original_size': int
-        - 'final_size': int
-        - 'was_truncated': bool
-        - 'enforcement_applied': bool
-        - 'message': str
+        Tuple of (is_valid, message):
+            - is_valid: True if sample size is sufficient
+            - message: Explanation of the check result
     """
-    if data.ndim == 1:
-        n = len(data)
-    else:
-        n = data.shape[0]
+    if n_samples < min_samples:
+        msg = (
+            f"Insufficient samples: {n_samples} < {min_samples} (minimum). "
+            f"Cannot perform reliable {statistic_type} estimation with "
+            f"{bootstrap_resamples} bootstrap resamples. "
+            "Consider increasing population size or reducing bootstrap resamples."
+        )
+        return False, msg
 
-    status = {
-        'original_size': n,
-        'final_size': n,
-        'was_truncated': False,
-        'enforcement_applied': False,
-        'message': "Sample size sufficient"
-    }
+    # Additional checks for bootstrap
+    if n_samples < bootstrap_resamples:
+        # This is not strictly an error, but worth noting
+        msg = (
+            f"Sample size ({n_samples}) is less than bootstrap resamples "
+            f"({bootstrap_resamples}). Bootstrap may have many duplicate samples. "
+            "Consider reducing bootstrap resamples or increasing sample size."
+        )
+        warnings.warn(msg, UserWarning)
+        logger.warning(msg)
 
-    if n < min_size:
-        status['enforcement_applied'] = True
-        status['message'] = f"Sample size {n} below minimum {min_size}"
-
-        if method == "error":
-            raise ValueError(
-                f"Insufficient samples: {n} < {min_size}. "
-                f"Bootstrap requires at least {min_size} samples."
+    # Regression-specific check
+    if statistic_type == "regression":
+        # We can't know the number of features here, but we can enforce a hard minimum
+        regression_min = 50  # Heuristic minimum for regression
+        if n_samples < regression_min:
+            msg = (
+                f"Sample size ({n_samples}) may be too small for regression analysis. "
+                f"Minimum recommended: {regression_min}."
             )
-        elif method == "warn":
-            warnings.warn(
-                f"Insufficient samples: {n} < {min_size}. "
-                f"Bootstrap results may be unreliable."
-            )
-            status['message'] += " - proceeding with warning"
-        elif method == "truncate":
-            # Use available data but flag the issue
-            status['message'] += " - proceeding with available data"
-        else:
-            raise ValueError(f"Unknown method: {method}. Use 'truncate', 'error', or 'warn'.")
+            warnings.warn(msg, UserWarning)
+            logger.warning(msg)
 
-    return data, status
+    return True, f"Sample size {n_samples} meets minimum requirement of {min_samples}."
 
 
 def validate_covariance_matrix(
     cov_matrix: np.ndarray,
-    floor: float = VARIANCE_FLOOR
-) -> Tuple[np.ndarray, bool]:
+    tol: float = 1e-10
+) -> Tuple[bool, str]:
     """
-    Ensure covariance matrix is positive semi-definite and numerically stable.
+    Validate that a covariance matrix is positive semi-definite and well-conditioned.
+
+    A valid covariance matrix must be:
+    1. Symmetric
+    2. Positive semi-definite (all eigenvalues >= 0)
+    3. Well-conditioned (not near-singular)
 
     Args:
-        cov_matrix: Input covariance matrix
-        floor: Minimum value for diagonal elements
+        cov_matrix: Covariance matrix to validate
+        tol: Tolerance for numerical checks
 
     Returns:
-        Tuple of (valid_cov_matrix, was_corrected)
+        Tuple of (is_valid, message)
     """
-    was_corrected = False
-    cov = cov_matrix.copy()
+    if cov_matrix.shape[0] != cov_matrix.shape[1]:
+        return False, "Covariance matrix must be square"
 
-    # Ensure diagonal is positive
-    np.fill_diagonal(cov, np.maximum(np.diag(cov), floor))
+    # Check symmetry
+    if not np.allclose(cov_matrix, cov_matrix.T, atol=tol):
+        return False, "Covariance matrix is not symmetric"
 
-    # Check for positive semi-definiteness
+    # Check positive semi-definiteness
     try:
-        eigvals = np.linalg.eigvalsh(cov)
-        if np.min(eigvals) < 0:
-            # Apply nearest PSD correction
-            cov = (cov + cov.T) / 2  # Symmetrize
-            eigvals, eigvecs = np.linalg.eigh(cov)
-            eigvals = np.maximum(eigvals, 0)
-            cov = eigvecs @ np.diag(eigvals) @ eigvecs.T
-            was_corrected = True
-    except:
-        # Fallback: return identity scaled by average variance
-        avg_var = np.mean(np.diag(cov_matrix))
-        cov = np.eye(cov_matrix.shape[0]) * avg_var
-        was_corrected = True
+        eigvals = np.linalg.eigvalsh(cov_matrix)
+        if np.any(eigvals < -tol):
+            return False, f"Covariance matrix has negative eigenvalues (min: {np.min(eigvals)})"
+    except np.linalg.LinAlgError as e:
+        return False, f"Could not compute eigenvalues: {e}"
 
-    return cov, was_corrected
+    # Check condition number
+    try:
+        eigvals = np.linalg.eigvalsh(cov_matrix)
+        pos_eigvals = eigvals[eigvals > tol]
+        if len(pos_eigvals) == 0:
+            return False, "Covariance matrix is singular (all eigenvalues near zero)"
+
+        condition_number = np.max(pos_eigvals) / np.min(pos_eigvals)
+        if condition_number > 1e10:
+            return False, f"Covariance matrix is ill-conditioned (cond: {condition_number})"
+    except Exception as e:
+        return False, f"Condition number check failed: {e}"
+
+    return True, "Covariance matrix is valid"
 
 
 def handle_zero_variance(
     data: np.ndarray,
-    floor: float = VARIANCE_FLOOR
-) -> Tuple[np.ndarray, bool]:
+    axis: int = 0,
+    replace_value: float = 0.0,
+    warn: bool = True
+) -> Tuple[np.ndarray, List[int]]:
     """
-    Handle zero or near-zero variance in data to prevent division by zero.
+    Handle zero-variance columns in data by replacing them with a constant value.
+
+    Zero-variance columns can cause division by zero in CI calculations and
+    lead to infinite or NaN confidence intervals.
 
     Args:
         data: Input data array
-        floor: Minimum variance floor
+        axis: Axis along which to compute variance (0 for columns, 1 for rows)
+        replace_value: Value to replace zero-variance entries with
+        warn: Whether to issue a warning
 
     Returns:
-        Tuple of (processed_data, was_modified)
+        Tuple of (cleaned_data, zero_var_indices):
+            - cleaned_data: Data with zero-variance columns replaced
+            - zero_var_indices: Indices of columns/rows that had zero variance
     """
-    was_modified = False
     data = np.asarray(data, dtype=np.float64)
+    zero_var_indices = []
 
-    if data.ndim == 1:
-        var = np.var(data)
-        if var < floor:
-            # Add tiny noise to break degeneracy
-            data = data + np.random.normal(0, np.sqrt(floor), size=data.shape)
-            was_modified = True
+    if axis == 0:
+        variances = np.var(data, axis=0)
+        zero_mask = variances < 1e-15
+        zero_var_indices = np.where(zero_mask)[0].tolist()
+
+        if zero_var_indices and warn:
+            msg = f"Found {len(zero_var_indices)} zero-variance columns at indices {zero_var_indices}"
+            warnings.warn(msg, UserWarning)
+            logger.warning(msg)
+
+        # Replace zero-variance columns with replace_value
+        if zero_var_indices:
+            data[:, zero_var_indices] = replace_value
+
+    elif axis == 1:
+        variances = np.var(data, axis=1)
+        zero_mask = variances < 1e-15
+        zero_var_indices = np.where(zero_mask)[0].tolist()
+
+        if zero_var_indices and warn:
+            msg = f"Found {len(zero_var_indices)} zero-variance rows at indices {zero_var_indices}"
+            warnings.warn(msg, UserWarning)
+            logger.warning(msg)
+
+        if zero_var_indices:
+            data[zero_var_indices, :] = replace_value
     else:
-        vars = np.var(data, axis=0)
-        if np.any(vars < floor):
-            for i in range(data.shape[1]):
-                if vars[i] < floor:
-                    data[:, i] = data[:, i] + np.random.normal(0, np.sqrt(floor), size=data.shape[0])
-            was_modified = True
+        raise ValueError(f"Axis must be 0 or 1, got {axis}")
 
-    return data, was_modified
+    return data, zero_var_indices
+
+
+def get_edge_case_status(
+    epsilon: float,
+    n_samples: int,
+    X: Optional[np.ndarray] = None,
+    noise_type: str = "laplace",
+    bootstrap_resamples: int = 1000
+) -> Dict[str, Any]:
+    """
+    Comprehensive edge case status check for a simulation condition.
+
+    This is a convenience function that runs all edge case checks and returns
+    a unified status report.
+
+    Args:
+        epsilon: Privacy budget
+        n_samples: Sample size
+        X: Optional predictor matrix for regression checks
+        noise_type: Type of DP noise
+        bootstrap_resamples: Number of bootstrap resamples
+
+    Returns:
+        Dictionary with status for all edge case checks
+    """
+    status = {
+        'epsilon_clamped': False,
+        'clamped_epsilon': epsilon,
+        'sample_size_valid': True,
+        'sample_size_message': '',
+        'collinearity_detected': False,
+        'collinearity_details': {},
+        'zero_variance_detected': False,
+        'warnings': []
+    }
+
+    # Check epsilon
+    clamped_eps, was_clamped = clamp_noise_scale(epsilon, sensitivity=1.0, noise_type=noise_type)
+    status['epsilon_clamped'] = was_clamped
+    status['clamped_epsilon'] = clamped_eps
+    if was_clamped:
+        status['warnings'].append(f"Epsilon clamped from {epsilon} to {clamped_eps}")
+
+    # Check sample size
+    is_valid, msg = enforce_minimum_sample_size(
+        n_samples,
+        min_samples=30,
+        bootstrap_resamples=bootstrap_resamples
+    )
+    status['sample_size_valid'] = is_valid
+    status['sample_size_message'] = msg
+    if not is_valid:
+        status['warnings'].append(msg)
+
+    # Check collinearity if X provided
+    if X is not None:
+        collinearity_info = detect_collinearity(X)
+        status['collinearity_details'] = collinearity_info
+        status['collinearity_detected'] = collinearity_info['is_collinear']
+        if collinearity_info['is_collinear']:
+            status['warnings'].append(f"Collinearity detected: {collinearity_info['recommendation']}")
+
+    return status

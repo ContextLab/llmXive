@@ -58,7 +58,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/config.py` with hyperparameters, random seeds, artifact paths, and `nominal_coverage_target` (default 0.95)
-- [ ] T005 [P] Implement `code/data/synthetic_pop.py` to generate N=1,000,000 synthetic populations for **UCI Adult**, **UCI Iris**, and **UCI Wine Quality** distributions. The generation MUST create a population with **known parameters** (mean, variance, coefficients) to serve as ground truth, ensuring independence from sample realization. **Output to `code/data/ground_truth.json`** containing these known parameters for each population. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T005 [P] Implement `code/data/synthetic_pop.py` to generate N=1,000,000 synthetic populations for **UCI Adult**, **UCI Iris**, and **UCI Wine Quality** distributions. The generation MUST create a population with **known parameters** (mean, variance, coefficients) to serve as ground truth, ensuring independence from sample realization. **Output to `code/data/ground_truth.json`** containing these known parameters for each population. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T006 [P] Implement `code/data/dp_noise.py` for calibrated Laplace and Gaussian noise injection (CPU-only, no 8-bit quantization)
 - [X] T007 [P] Create `code/utils/update_state.py` for post-run artifact hashing and state updates
 - [X] T008 [P] Implement `code/data/__init__.py` and `code/utils/__init__.py` package initializers
@@ -85,7 +85,7 @@
 
 - [X] T012 [P] [US1] Implement `code/analysis/ci_builder.py` for 1,000 bootstrap resamples and 95% CI construction (Percentile method)
 - [ ] T014 [P] [US1] Implement logic to handle edge cases: clamping noise scale for small $\epsilon$, collinearity detection in regression, and minimum sample size enforcement for bootstrap. This logic must be encapsulated as reusable functions to be called by the orchestration loop.
-- [ ] T013 [US1] Implement `code/main.py` orchestration logic: Outer Loop (**[deferred] independent samples**) $\times$ Inner Loop (1,000 bootstrap resamples). **Crucially**, the CI construction (T012) MUST be executed for *every single one* of the [deferred] outer samples to generate the full coverage distribution. **Read ground_truth.json from `code/data/ground_truth.json` (T005)**. **Calculate deviation_from_nominal using `config.nominal_coverage_target`**. **Write intermediate coverage rows to `artifacts/coverage_intermediate.csv`**. Integrate the edge-case logic from T014 into this loop. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T013 [US1] Implement `code/main.py` orchestration logic: Outer Loop (**[deferred] independent samples**) $\times$ Inner Loop (1,000 bootstrap resamples). **Crucially**, the CI construction (T012) MUST be executed for *every single one* of the [deferred] outer samples to generate the full coverage distribution. **Read ground_truth.json from `code/data/ground_truth.json` (T005)**. **Calculate deviation_from_nominal using `config.nominal_coverage_target`**. **Write intermediate coverage rows to `artifacts/coverage_intermediate.csv`**. Integrate the edge-case logic from T014 into this loop. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T015 [US1] Implement result aggregation to read `artifacts/coverage_intermediate.csv` and write `artifacts/coverage_results.csv` (columns: dataset, epsilon, noise_type, statistic, covered, ci_lower, ci_upper, point_estimate, **deviation_from_nominal**). Explicitly calculate and store the `deviation_from_nominal` value for each row using the nominal target from config.py to satisfy SC-001.
 - [ ] T016 [US1] Add validation to ensure all computations use double-precision floats and CPU-only execution
 - [ ] T017 [US1] Add logging for simulation progress and completion of each (dataset, $\epsilon$, noise_type) combination
@@ -102,11 +102,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement `code/analysis/adjustments.py` with bias-correction and variance-inflation methods. **Mandatory**: Verify the specific formulas against the cited literature (**Covington et al. 2021** and **Karwa & Vadhan 2017**) before implementation to satisfy the "Verified Accuracy" constitution principle. **Apply bias-correction (Covington) to means and variance-inflation (Karwa & Vadhan) to regression coefficients. [UNRESOLVED-CLAIM: c_0460b7a4 — status=not_enough_info] **.
-- [~] T021 [US2] Modify the orchestration logic in `code/main.py` (T013) to apply adjustments to point estimates and standard errors before CI construction <!-- FAILED: unspecified -->
-- [~] T022 [US2] Extend `artifacts/coverage_results.csv` to include columns for `adjusted_coverage`, `adjustment_method`, and `improvement_delta`
-- [~] T023 [US2] Integrate adjustment logic into the simulation loop, ensuring it runs after noise injection but before bootstrap resampling
-- [~] T024 [US2] Add logging to record which adjustment methods were applied and the resulting coverage rates for each condition
+- [X] T020 [P] [US2] Implement `code/analysis/adjustments.py` with bias-correction and variance-inflation methods. **Mandatory**: Verify the specific formulas against the cited literature (**Covington et al. 2021** and **Karwa & Vadhan 2017**) before implementation to satisfy the "Verified Accuracy" constitution principle. **Apply bias-correction (Covington) to means and variance-inflation (Karwa & Vadhan) to regression coefficients. [UNRESOLVED-CLAIM: c_35b31cae — status=not_enough_info] **.
+- [X] T021 [US2] Modify the orchestration logic in `code/main.py` (T013) to apply adjustments to point estimates and standard errors before CI construction <!-- FAILED: unspecified -->
+- [ ] T022 [US2] Extend `artifacts/coverage_results.csv` to include columns for `adjusted_coverage`, `adjustment_method`, and `improvement_delta`
+- [ ] T023 [US2] Integrate adjustment logic into the simulation loop, ensuring it runs after noise injection but before bootstrap resampling
+- [ ] T024 [US2] Add logging to record which adjustment methods were applied and the resulting coverage rates for each condition
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -119,16 +119,16 @@
 
 ## Phase 5: User Story 3 - Statistical Comparison and Visualization of Coverage Trends (Priority: P3)
 
-**Goal**: Perform a Generalized Linear Model (GLM) with a binomial link to test the effects of $\epsilon$ and noise type on coverage, and generate plots comparing coverage vs. $\epsilon$.
+**Goal**: Perform a Generalized Linear Model (GLM (Wikidata Q2086117, https://www.wikidata.org/wiki/Q2086117)) with a binomial link to test the effects of $\epsilon$ and noise type on coverage, and generate plots comparing coverage vs. $\epsilon$.
 
 **Independent Test**: The system can be tested by running the GLM script on the aggregated coverage data and generating the required plots. The test verifies that the GLM output includes p-values for the main effects and interaction.
 
 ### Implementation for User Story 3
 
 - [X] T026 [P] [US3] Implement `code/analysis/glm_analysis.py` to fit GLM: `covered ~ epsilon + noise_type + epsilon:noise_type` with binomial link. **Load `artifacts/coverage_results.csv` generated by T015**.
-- [~] T027 [US3] Implement extraction of p-values and coefficients from GLM results and save to `artifacts/glm_summary.json`
+- [ ] T027 [US3] Implement extraction of p-values and coefficients from GLM results and save to `artifacts/glm_summary.json`
 - [X] T028 [US3] Implement visualization script in `code/analysis/plotting.py` to generate line plots of coverage vs. $\epsilon$ with error bars (SE) for Laplace and Gaussian noise
-- [~] T029 [US3] Implement summary table generation listing coverage rates for each (dataset, statistic, $\epsilon$, noise_type) combination
+- [ ] T029 [US3] Implement summary table generation listing coverage rates for each (dataset, statistic, $\epsilon$, noise_type) combination
 - [~] T030 [US3] Add validation to ensure GLM assumptions are met (binary outcome) and handle convergence warnings
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
@@ -145,7 +145,7 @@
 
 - [X] T031 [P] Implement `code/analysis/convergence_check.py` to run simulation with multiple seeds and verify standard error of coverage < 0.5%
 - [ ] T032 [P] Implement `code/analysis/sensitivity_analysis.py` to sweep decision thresholds for 'acceptable coverage'. **Mandatory**: Thresholds MUST be configurable via `config.py` (e.g., a list of values) to allow sweeping *arbitrary* thresholds, not hardcoded to specific values, ensuring robustness to arbitrary choices as per FR-006.
-- [ ] T037 [US3] Execute sensitivity analysis sweep: Run `code/analysis/sensitivity_analysis.py` with thresholds defined in `config.py` (default: [high, 0.93, 0.95]) and generate `artifacts/sensitivity_analysis.csv` to satisfy SC-005 and FR-006.
+- [ ] T037 [US3] Execute sensitivity analysis sweep: Run `code/analysis/sensitivity_analysis.py` with thresholds defined in `config.py` (default: [high, 0.93, 0.95]) [UNRESOLVED-CLAIM: c_9ab29351 — status=not_enough_info] and generate `artifacts/sensitivity_analysis.csv` to satisfy SC-005 and FR-006.
 - [ ] T033 Code cleanup and refactoring to ensure memory usage stays within acceptable limits (process one condition at a time)
 - [ ] T034 Performance optimization: batch bootstrap resampling to reduce overhead in `code/analysis/ci_builder.py`
 - [ ] T035 [P] Documentation updates in `projects/PROJ-710-robustness-of-confidence-intervals-to-di/README.md` explaining the simulation pipeline and adjustment methods

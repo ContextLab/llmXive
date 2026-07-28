@@ -64,11 +64,11 @@
 - [X] T047 [P] Implement `code/synthetic/placer.py` to contain the core algorithm for placing non-overlapping bounding boxes on images, **including retry logic to reduce region count or skip images if placement fails**.
 - [X] T048 [P] Implement `code/synthetic/deriver.py` to explicitly implement ground-truth relation derivation logic: deriving spatial prepositions (e.g., "left of", "above") from bounding box centroids as mandated by FR-004 and Spec Assumptions.
 - [X] T049 [P] Implement `code/synthetic/serializer.py` to save generated images and JSON annotation files (including derived geometric relations) to `data/synthetic/`.
-- [ ] T024 [US2] Implement `code/synthetic/generator.py` to orchestrate T046-T049: loop through a sampled subset of ParaDLC-Bench (n≥50 per bin) and generate images for region counts 20, 25, 30, 35, 40, 45, and 50, **ensuring JSON outputs include derived geometric relations**.
-- [ ] T025 [US2] Ensure `code/synthetic/generator.py` saves corresponding JSON annotation files with coordinates to `data/synthetic/`. (Note: Retry logic is in T047).
-- [ ] T026 [US2] Integrate `code/synthetic/validator.py` to validate every generated image before saving to disk.
-- [ ] T027 [US2] Add logging in `code/main.py` to track dataset generation progress and failure counts per image.
-- [ ] T051 [P] Implement `code/models/parallel_runner.py` to load PerceptionDLM in FP32/FP16, run batched inference (batch size 8) without cross-batch context, **and include `time.perf_counter` instrumentation to capture wall-clock inference time**.
+- [X] T024 [US2] Implement `code/synthetic/generator.py` to orchestrate T046-T049: loop through a sampled subset of ParaDLC-Bench (n≥50 per bin) and generate images for region counts 20, 25, 30, 35, 40, 45, and 50, **ensuring JSON outputs include derived geometric relations**.
+- [X] T025 [US2] Ensure `code/synthetic/generator.py` saves corresponding JSON annotation files with coordinates to `data/synthetic/`. (Note: Retry logic is in T047).
+- [X] T026 [US2] Integrate `code/synthetic/validator.py` to validate every generated image before saving to disk.
+- [X] T027 [US2] Add logging in `code/main.py` to track dataset generation progress and failure counts per image.
+- [ ] T051 [P] Implement `code/models/parallel_runner.py` to load PerceptionDLM in FP32/FP16 [UNRESOLVED-CLAIM: c_13a151d9 — status=not_enough_info], run batched inference (batch size 8) without cross-batch context, **and include `time.perf_counter` instrumentation to capture wall-clock inference time**.
 - [ ] T052 [P] Implement `code/models/sequential_runner.py` to load **PerceptionDLM (SAME model)** and run sequential autoregressive inference with **context-reset** for each region to establish ground-truth baseline, **and include `time.perf_counter` instrumentation to capture wall-clock inference time**. **Note: This overrides Spec FR-003 (LLaVA) per Plan Summary.**
 - [ ] T010 [P] Create `code/metrics/consistency.py` to extract spatial prepositional phrases via spaCy, **call `code/synthetic/deriver.py` (T048) to compute ground-truth relations**, and calculate Geometric Consistency Score.
 - [ ] T011 [P] Create `code/metrics/bleu.py` to calculate BLEU-4 scores for generated captions.
@@ -254,10 +254,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All model loading MUST use default precision (FP32/FP16) on CPU; NO 8-bit quantization or CUDA.
+- **Constraint**: All model loading MUST use default precision (FP32/FP16) on CPU; NO 8-bit quantization or CUDA [UNRESOLVED-CLAIM: c_93f5b7d1 — status=not_enough_info].
 - **Constraint**: Synthetic data generation MUST guarantee non-overlapping boxes; if generation fails, reduce count or skip, never fabricate fake data.
 - **Constraint**: Sequential baseline MUST use PerceptionDLM with context-reset to avoid architectural confounds (resolving Spec/Plan conflict).
 - **Constraint**: Region counts MUST include intermediate bins for non-linear regression..
-- **Constraint**: Statistical analysis MUST include Bonferroni correction (T053).
+- **Constraint**: Statistical analysis MUST include Bonferroni correction [UNRESOLVED-CLAIM: c_f414b869 — status=not_enough_info] (T053).
 - **Constraint**: Memory management MUST include automatic sample reduction logic (T014b).
 - **Constraint**: Tipping point threshold MUST be configurable via `config.py` (T033).

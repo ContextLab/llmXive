@@ -1,6 +1,3 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Experiment Log Schema
-description: Schema for the experiment log entries recorded during agent execution.
 type: object
 required:
   - task_id
@@ -16,35 +13,31 @@ required:
 properties:
   task_id:
     type: string
-    description: ID of the task being executed.
+    description: ID of the task being executed
   skill_id:
     type: string
-    description: ID of the primary skill attempted or the top retrieved skill.
+    description: ID of the skill retrieved
   success:
     type: boolean
-    description: Whether the task was completed successfully.
+    description: Whether the task execution was successful
   latency:
     type: number
-    format: float
-    description: Time taken to complete the task in seconds.
+    description: Execution latency in seconds
   tokens:
     type: integer
-    description: Number of tokens consumed during the execution.
+    description: Number of tokens used
   retrieval_precision:
     type: number
-    format: float
-    description: Jaccard similarity between retrieved skills and ground truth.
+    description: Precision of the retrieval (Jaccard similarity)
   retrieval_diversity:
     type: number
-    format: float
-    description: Inverse variance of cosine similarities of retrieved skills.
+    description: Diversity of retrieved skills
   pruning_risk_count:
     type: integer
-    description: Count of pruned skills that had high similarity to ground truth.
+    description: Count of pruned skills that had high similarity to ground truth
   library_size:
     type: integer
-    description: The size of the skill library used for this run.
+    description: Size of the library at execution time
   pruning_enabled:
     type: boolean
-    description: Whether the pruning heuristic was active during this run.
-additionalProperties: false
+    description: Whether pruning was enabled for this run

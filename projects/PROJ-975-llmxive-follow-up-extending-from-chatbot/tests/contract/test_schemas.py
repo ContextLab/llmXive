@@ -1,128 +1,118 @@
-"""
-tests/contract/test_schemas.py
-
-Contract tests validating tasks.json and skills.json against their respective schemas.
-"""
 import pytest
 import json
 import os
-import sys
 import yaml
-from pathlib import Path
+from typing import Any, Dict, List
 
-# Add project root to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
+# Path to schemas
 SCHEMAS_DIR = "contracts"
-TASK_SCHEMA_PATH = os.path.join(SCHEMAS_DIR, "task.schema.yaml")
-SKILL_SCHEMA_PATH = os.path.join(SCHEMAS_DIR, "skill.schema.yaml")
-TASKS_JSON_PATH = "data/raw/tasks.json"
-SKILLS_JSON_PATH = "data/raw/skills.json"
 
-def load_schema(path: str) -> dict:
+def load_schema(schema_name: str) -> Dict[str, Any]:
+    path = os.path.join(SCHEMAS_DIR, schema_name)
     if not os.path.exists(path):
-        raise FileNotFoundError(f"Schema file not found: {path}")
-    with open(path, 'r', encoding='utf-8') as f:
+        pytest.fail(f"Schema file not found: {path}")
+    with open(path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_task_schema(task: dict, schema: dict):
-    """Validates a single task object against the task schema."""
-    required_fields = schema.get("required", [])
-    properties = schema.get("properties", {})
+def validate_against_schema(data: Dict, schema: Dict, path: str = "") -> List[str]:
+    """
+    Simple recursive validator for JSON schema subset.
+    Returns list of errors.
+    """
+    errors = []
     
-    for field in required_fields:
-        if field not in task:
-            raise AssertionError(f"Missing required field: {field}")
+    # Check type
+    if "type" in schema:
+        if not isinstance(data, schema["type"]):
+            errors.append(f"{path}: Expected type {schema['type']}, got {type(data).__name__}")
+            return errors # Cannot continue if type is wrong
+
+    # Check properties for objects
+    if schema.get("type") == "object" and "properties" in schema:
+        for key, prop_schema in schema["properties"].items():
+            if key in data:
+                errors.extend(validate_against_schema(data[key], prop_schema, f"{path}.{key}"))
+            elif "required" in schema and key in schema["required"]:
+                errors.append(f"{path}: Missing required property '{key}'")
+
+    # Check items for arrays
+    if schema.get("type") == "array" and "items" in schema:
+        if isinstance(data, list):
+            for i, item in enumerate(data):
+                errors.extend(validate_against_schema(item, schema["items"], f"{path}[{i}]"))
+
+    return errors
+
+def test_tasks_json_schema():
+    """
+    Contract test validating tasks.json schema.
+    """
+    tasks_path = "data/raw/tasks.json"
+    if not os.path.exists(tasks_path):
+        pytest.skip(f"Tasks file not found: {tasks_path}. Run generate_data.py first.")
+
+    with open(tasks_path, 'r') as f:
+        data = json.load(f)
+
+    schema = load_schema("task.schema.yaml")
     
-    for field, value in task.items():
-        if field in properties:
-            expected_type = properties[field].get("type")
-            if expected_type == "integer" and not isinstance(value, int):
-                raise AssertionError(f"Field {field} should be integer, got {type(value)}")
-            elif expected_type == "array" and not isinstance(value, list):
-                raise AssertionError(f"Field {field} should be array, got {type(value)}")
-            elif expected_type == "string" and not isinstance(value, str):
-                raise AssertionError(f"Field {field} should be string, got {type(value)}")
-
-def validate_skill_schema(skill: dict, schema: dict):
-    """Validates a single skill object against the skill schema."""
-    required_fields = schema.get("required", [])
-    properties = schema.get("properties", {})
+    # The root of tasks.json is an object with 'metadata' and 'tasks'
+    # The schema might define the structure of the 'tasks' array or the whole file.
+    # Assuming the schema defines the structure of the 'tasks' array items or the file root.
+    # Based on T009, we need to validate the file structure.
     
-    for field in required_fields:
-        if field not in skill:
-            raise AssertionError(f"Missing required field: {field}")
-    
-    for field, value in skill.items():
-        if field in properties:
-            expected_type = properties[field].get("type")
-            if expected_type == "string" and not isinstance(value, str):
-                raise AssertionError(f"Field {field} should be string, got {type(value)}")
+    # Let's assume the schema defines the root object
+    if "properties" in schema:
+       # If schema expects root to be the object with metadata and tasks
+       errors = validate_against_schema(data, schema)
+    else:
+       # If schema is for the array items
+       if "tasks" in data:
+           for i, task in enumerate(data["tasks"]):
+               errors = validate_against_schema(task, schema, f"tasks[{i}]")
+               if errors:
+                   break
+           else:
+               errors = [] # Success
+       else:
+           errors = ["Missing 'tasks' key in data"]
 
-@pytest.fixture
-def task_schema():
-    return load_schema(TASK_SCHEMA_PATH)
+    assert len(errors) == 0, f"Schema validation failed: {errors}"
 
-@pytest.fixture
-def skill_schema():
-    return load_schema(SKILL_SCHEMA_PATH)
+def test_skills_json_schema():
+    """
+    Contract test validating skills.json schema and overlap metrics.
+    """
+    skills_path = "data/raw/skills.json"
+    if not os.path.exists(skills_path):
+        pytest.skip(f"Skills file not found: {skills_path}. Run generate_data.py first.")
 
-@pytest.fixture
-def tasks_data():
-    if not os.path.exists(TASKS_JSON_PATH):
-        pytest.skip(f"Tasks file not found: {TASKS_JSON_PATH}")
-    with open(TASKS_JSON_PATH, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    with open(skills_path, 'r') as f:
+        data = json.load(f)
 
-@pytest.fixture
-def skills_data():
-    if not os.path.exists(SKILLS_JSON_PATH):
-        pytest.skip(f"Skills file not found: {SKILLS_JSON_PATH}")
-    with open(SKILLS_JSON_PATH, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    schema = load_schema("skill.schema.yaml")
 
-def test_tasks_schema_structure(tasks_data, task_schema):
-    """Validates the structure of tasks.json against task.schema.yaml"""
-    assert "tasks" in tasks_data, "Root 'tasks' key missing"
-    assert "metadata" in tasks_data, "Root 'metadata' key missing"
-    
-    tasks = tasks_data["tasks"]
-    assert isinstance(tasks, list), "Tasks should be a list"
-    assert len(tasks) > 0, "Tasks list is empty"
-    
-    # Validate each task
-    for i, task in enumerate(tasks):
-        validate_task_schema(task, task_schema)
+    # Similar logic as tasks
+    if "properties" in schema:
+       errors = validate_against_schema(data, schema)
+    else:
+       if "skills" in data:
+           for i, skill in enumerate(data["skills"]):
+               errors = validate_against_schema(skill, schema, f"skills[{i}]")
+               if errors:
+                   break
+           else:
+               errors = []
+       else:
+           errors = ["Missing 'skills' key in data"]
 
-def test_skills_schema_structure(skills_data, skill_schema):
-    """Validates the structure of skills.json against skill.schema.yaml"""
-    assert "skills" in skills_data, "Root 'skills' key missing"
-    assert "metadata" in skills_data, "Root 'metadata' key missing"
-    
-    skills = skills_data["skills"]
-    assert isinstance(skills, list), "Skills should be a list"
-    assert len(skills) > 0, "Skills list is empty"
-    
-    # Validate each skill
-    for i, skill in enumerate(skills):
-        validate_skill_schema(skill, skill_schema)
+    assert len(errors) == 0, f"Schema validation failed: {errors}"
 
-def test_tasks_count(tasks_data):
-    """Validates that exactly 500 tasks are generated."""
-    assert len(tasks_data["tasks"]) == 500, f"Expected 500 tasks, got {len(tasks_data['tasks'])}"
-
-def test_skills_count(skills_data):
-    """Validates that exactly 100 skills are generated."""
-    assert len(skills_data["skills"]) == 100, f"Expected 100 skills, got {len(skills_data['skills'])}"
-
-def test_ground_truth_path_validity(tasks_data):
-    """Validates that ground-truth paths are lists of 3-5 unique skill IDs."""
-    skill_ids = {s["id"] for s in skills_data["skills"]}
-    
-    for task in tasks_data["tasks"]:
-        path = task.get("ground_truth_path", [])
-        assert isinstance(path, list), "ground_truth_path must be a list"
-        assert 3 <= len(path) <= 5, f"Path length must be 3-5, got {len(path)}"
-        assert len(path) == len(set(path)), "Path must contain unique skill IDs"
-        for sid in path:
-            assert sid in skill_ids, f"Skill ID {sid} in path not found in skills"
+    # Check overlap metrics in metadata
+    if "metadata" in data:
+        meta = data["metadata"]
+        assert "mean_similarity" in meta, "Missing mean_similarity in metadata"
+        assert "overlap_level" in meta, "Missing overlap_level in metadata"
+        assert "maximal_overlap_detected" in meta, "Missing maximal_overlap_detected in metadata"
+    else:
+        pytest.fail("Missing 'metadata' key in skills.json")

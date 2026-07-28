@@ -4,25 +4,27 @@ import time
 import json
 import gc
 import signal
-import argparse
-import psutil
+import random
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
+import torch.optim as optim
+from torch.utils.data import DataLoader, Dataset
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
+import psutil
 
 # Import from sibling modules as per API surface
 from models.transformer import TranslationTransformer, count_parameters
-from utils.data_utils import compute_checksum, update_checksums
+from utils.data_utils import update_checksums
 from utils.physics_metrics import load_config
 
-# --- Timeout Handling ---
+# --- Timeout Handling (from T023) ---
 class TimeoutError(Exception):
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutError("Training timeout exceeded")
+    raise TimeoutError("Training timed out")
 
 def set_timeout(seconds: int):
     signal.signal(signal.SIGALRM, timeout_handler)
@@ -31,170 +33,200 @@ def set_timeout(seconds: int):
 def reset_timeout():
     signal.alarm(0)
 
-# --- Memory Monitoring ---
-def get_peak_memory_mb():
+# --- Memory Monitoring (from T023) ---
+_peak_memory_mb = 0.0
+
+def get_peak_memory_mb() -> float:
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / (1024 * 1024)
 
-_peak_memory = 0.0
-
-def update_peak_memory(current_mb: float):
-    global _peak_memory
-    if current_mb > _peak_memory:
-        _peak_memory = current_mb
+def update_peak_memory():
+    global _peak_memory_mb
+    current = get_peak_memory_mb()
+    if current > _peak_memory_mb:
+        _peak_memory_mb = current
 
 def log_peak_memory():
-    global _peak_memory
-    print(f"[RAM-PEAK-MB]: {_peak_memory:.2f}")
+    global _peak_memory_mb
+    update_peak_memory()
+    print(f"[RAM-PEAK-MB]: {_peak_memory_mb:.2f}")
 
-# --- Dataset Class (Minimal Implementation for Context) ---
-class StabilityDataset(torch.utils.data.Dataset):
+# --- Dataset ---
+class StabilityDataset(Dataset):
     def __init__(self, data_path: str):
         import pandas as pd
-        self.df = pd.read_parquet(data_path)
-        # Assuming columns 'translation_vector' (list/array) and 'label' exist
-        # In a real scenario, we would parse the parquet properly
-        self.data = self.df['translation_vector'].apply(lambda x: torch.tensor(x, dtype=torch.float32)).tolist()
-        self.labels = self.df['label'].tolist()
+        self.data = pd.read_parquet(data_path)
+        
+        # Identify columns
+        # Assuming columns: 'translation_trajectory' (list/array), 'initial_object_bounds' (list/array), 'label'
+        # We need to flatten or handle sequences. For simplicity in this implementation,
+        # we assume the parquet stores lists that we convert to tensors.
+        
+        self.trajectories = self.data['translation_trajectory'].tolist()
+        self.bounds = self.data['initial_object_bounds'].tolist()
+        self.labels = self.data['label'].tolist()
+        
+        # Convert to tensors
+        self.trajectories = [torch.tensor(t, dtype=torch.float32) for t in self.trajectories]
+        self.bounds = [torch.tensor(b, dtype=torch.float32) for b in self.bounds]
+        self.labels = torch.tensor(self.labels, dtype=torch.float32)
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, idx):
-        return self.data[idx], torch.tensor(self.labels[idx], dtype=torch.float32)
+        return self.trajectories[idx], self.bounds[idx], self.labels[idx]
 
-# --- Training Functions ---
+def collate_fn(batch):
+    # Unpack batch
+    trajs, bounds, labels = zip(*batch)
+    
+    # Pad trajectories to max length in batch
+    max_len = max(t.shape[0] for t in trajs)
+    padded_trajs = []
+    for t in trajs:
+        if t.shape[0] < max_len:
+            pad = torch.zeros(max_len - t.shape[0], t.shape[1])
+            t = torch.cat([t, pad], dim=0)
+        padded_trajs.append(t)
+    
+    trajs_tensor = torch.stack(padded_trajs)
+    bounds_tensor = torch.stack(bounds)
+    labels_tensor = torch.stack(labels)
+    
+    return trajs_tensor, bounds_tensor, labels_tensor
+
+# --- Training Loop ---
 def set_seed(seed: int = 42):
+    random.seed(seed)
+    np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-def train_epoch(model: nn.Module, loader: DataLoader, optimizer: torch.optim.Optimizer, criterion: nn.Module, device: torch.device):
+def train_epoch(model, loader, optimizer, criterion, device):
     model.train()
     total_loss = 0.0
-    for batch_x, batch_y in loader:
-        batch_x = torch.stack(batch_x).to(device) # Shape: (B, Seq, F)
-        batch_y = batch_y.to(device)
-
+    for trajs, bounds, labels in loader:
+        trajs, bounds, labels = trajs.to(device), bounds.to(device), labels.to(device)
+        
         optimizer.zero_grad()
-        outputs = model(batch_x)
-        loss = criterion(outputs, batch_y)
+        outputs = model(trajs, bounds)
+        loss = criterion(outputs, labels)
+        
         loss.backward()
         optimizer.step()
+        
         total_loss += loss.item()
-
-        # Update memory stats periodically
-        update_peak_memory(get_peak_memory_mb())
-
+        update_peak_memory()
+        
+        # GC to prevent memory bloat
+        if len(loader) % 100 == 0:
+            gc.collect()
+    
     return total_loss / len(loader)
 
-def evaluate(model: nn.Module, loader: DataLoader, criterion: nn.Module, device: torch.device):
+def evaluate(model, loader, criterion, device):
     model.eval()
     total_loss = 0.0
     correct = 0
     total = 0
     with torch.no_grad():
-        for batch_x, batch_y in loader:
-            batch_x = torch.stack(batch_x).to(device)
-            batch_y = batch_y.to(device)
-
-            outputs = model(batch_x)
-            loss = criterion(outputs, batch_y)
+        for trajs, bounds, labels in loader:
+            trajs, bounds, labels = trajs.to(device), bounds.to(device), labels.to(device)
+            outputs = model(trajs, bounds)
+            loss = criterion(outputs, labels)
+            
             total_loss += loss.item()
-
-            preds = (torch.sigmoid(outputs) > 0.5).float()
-            correct += (preds == batch_y).sum().item()
-            total += batch_y.size(0)
-
-            update_peak_memory(get_peak_memory_mb())
-
+            preds = (outputs > 0.5).float()
+            correct += (preds == labels).sum().item()
+            total += labels.size(0)
+            
+            update_peak_memory()
+    
     return total_loss / len(loader), correct / total
 
+# --- Main Entry Point ---
 def main():
-    parser = argparse.ArgumentParser(description="Train Stability Model")
-    parser.add_argument("--data", type=str, default="data/processed/train.parquet", help="Path to training data")
-    parser.add_argument("--output", type=str, default="data/processed/trained_model.pt", help="Path to save model")
-    parser.add_argument("--epochs", type=int, default=10, help="Number of epochs")
-    parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
-    parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
-    parser.add_argument("--timeout", type=int, default=21600, help="Timeout in seconds (6 hours)")
-    args = parser.parse_args()
-
-    # Load config
-    config = load_config("code/config.yaml")
+    # Configuration
+    config = load_config()
+    data_path = "data/processed/train.parquet"
+    model_save_path = "data/processed/trained_model.pt"
+    timeout_seconds = 6 * 3600  # 6 hours
     
-    # Device setup (CPU only as per constraints)
-    device = torch.device("cpu")
-    print(f"Using device: {device}")
-
-    # Data Loading
-    print(f"Loading data from {args.data}...")
-    dataset = StabilityDataset(args.data)
-    loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
-
-    # Model Setup
-    # Assuming input dim is based on translation vector length (e.g., 3) and sequence length
-    # We need to infer or set these. For this implementation, we assume a fixed config or derive from first batch.
-    # Let's assume sequence length 10 and feature dim 3 for translation vectors.
-    input_dim = 3 
-    seq_len = 10 
-    model = TranslationTransformer(input_dim=input_dim, seq_len=seq_len, hidden_dim=64, num_layers=4, num_heads=4, dropout=0.1)
-    model = model.to(device)
-
-    # Parameter Count Verification (T025 Requirement)
-    param_count = count_parameters(model)
-    print(f"Model Parameter Count: {param_count:,}")
+    # Hyperparameters
+    batch_size = 32
+    learning_rate = 1e-4
+    epochs = 10
+    device = torch.device("cpu") # Enforce CPU-only as per T022
     
-    if param_count >= 10_000_000:
-        raise ValueError(f"Model has {param_count:,} parameters, which exceeds the 10,000,000 limit.")
+    print(f"Starting training on {device}")
+    print(f"Loading data from {data_path}...")
     
-    print("Parameter count verified: < 10,000,000")
-
-    # Loss and Optimizer
-    criterion = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-
-    # Timeout Setup
-    set_timeout(args.timeout)
-
+    # Set timeout
+    set_timeout(timeout_seconds)
+    
     try:
-        print("Starting training...")
-        for epoch in range(args.epochs):
-            start_time = time.time()
+        dataset = StabilityDataset(data_path)
+        loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+        
+        # Model
+        # Assuming model expects specific hidden dims. 
+        # We'll use defaults that keep it under 10M params as per T021
+        model = TranslationTransformer(d_model=64, nhead=4, num_layers=4, dim_feedforward=128)
+        
+        total_params = count_parameters(model)
+        print(f"Model parameter count: {total_params:,}")
+        
+        if total_params >= 10_000_000:
+            raise ValueError(f"Model has {total_params} parameters, exceeds 10M limit.")
+        
+        model = model.to(device)
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        criterion = nn.BCEWithLogitsLoss()
+        
+        # Training Loop
+        for epoch in range(epochs):
             train_loss = train_epoch(model, loader, optimizer, criterion, device)
             val_loss, val_acc = evaluate(model, loader, criterion, device)
-            end_time = time.time()
-
-            print(f"Epoch {epoch+1}/{args.epochs} - Loss: {train_loss:.4f} - Val Loss: {val_loss:.4f} - Val Acc: {val_acc:.4f} - Time: {end_time - start_time:.2f}s")
-            log_peak_memory() # Log memory usage periodically
-
-        print("Training completed successfully.")
+            print(f"Epoch {epoch+1}/{epochs} - Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
+            log_peak_memory()
+        
+        # Save Model
+        print(f"Saving model to {model_save_path}...")
+        os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
+        
+        # Save state dict and config info
+        save_dict = {
+            'model_state_dict': model.state_dict(),
+            'param_count': total_params,
+            'config': {
+                'd_model': 64,
+                'nhead': 4,
+                'num_layers': 4,
+                'dim_feedforward': 128
+            }
+        }
+        torch.save(save_dict, model_save_path)
+        
+        # Log parameter count explicitly as required by T024
+        print(f"MODEL_SAVED: {model_save_path}")
+        print(f"PARAMETER_COUNT: {total_params}")
+        
+        # Update checksums
+        update_checksums(model_save_path)
+        
     except TimeoutError:
-        print("Training timed out.")
+        print("ERROR: Training timed out.")
+        reset_timeout()
+        sys.exit(1)
+    except Exception as e:
+        print(f"ERROR during training: {e}")
+        reset_timeout()
         sys.exit(1)
     finally:
         reset_timeout()
-
-    # Save Model (T024)
-    print(f"Saving model to {args.output}...")
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    torch.save({
-        'model_state_dict': model.state_dict(),
-        'param_count': param_count,
-        'config': {
-            'input_dim': input_dim,
-            'seq_len': seq_len,
-            'hidden_dim': 64,
-            'num_layers': 4,
-            'num_heads': 4
-        }
-    }, args.output)
-
-    # Update Checksums (T006 dependency)
-    if os.path.exists("data/checksums.json"):
-        update_checksums("data/checksums.json", args.output)
-
-    print(f"Model saved. Total parameters: {param_count:,}")
+        log_peak_memory()
 
 if __name__ == "__main__":
     main()

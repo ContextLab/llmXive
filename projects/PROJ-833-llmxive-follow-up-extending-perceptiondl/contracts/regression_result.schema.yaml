@@ -1,96 +1,167 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Regression Result Schema"
-description: "Schema for the final regression analysis output containing metrics across region counts."
+$schema: http://json-schema.org/draft-07/schema#
+title: Regression Result Schema
+description: >
+  Defines the structure for analysis results containing regression metrics,
+  statistical tests, and performance data for parallel vs sequential inference.
 type: object
 required:
-  - experiment_id
-  - configuration
+  - experiment_metadata
   - results
+  - statistical_analysis
 properties:
-  experiment_id:
-    type: string
-    description: "Unique identifier for the experimental run."
-  configuration:
+  experiment_metadata:
     type: object
     required:
+      - experiment_id
       - model_name
-      - region_bins
-      - bonferroni_corrected
+      - inference_methods
+      - region_counts
+      - timestamp
     properties:
+      experiment_id:
+        type: string
+        description: Unique identifier for the experiment run
       model_name:
         type: string
-        description: "Name of the model used (e.g., 'PerceptionDLM')."
-      region_bins:
+        description: Name of the model used (e.g., "PerceptionDLM")
+      inference_methods:
+        type: array
+        items:
+          type: string
+        description: List of methods tested (e.g., ["parallel", "sequential"])
+      region_counts:
         type: array
         items:
           type: integer
-        description: "List of region counts tested (e.g., [20, 25, 30...])."
-      bonferroni_corrected:
-        type: boolean
-        description: "Whether Bonferroni correction was applied to significance tests."
-      threshold:
-        type: number
-        description: "Configured threshold for the tipping point analysis."
+        description: List of region counts tested
+      timestamp:
+        type: string
+        format: date-time
+      config_path:
+        type: string
+        description: Path to the configuration file used
   results:
     type: array
-    description: "Aggregated metrics for each region count bin."
+    description: Per-region-count results for each inference method
     items:
       type: object
       required:
         - region_count
-        - parallel_metrics
-        - sequential_metrics
-        - statistical_significance
+        - method
+        - metrics
       properties:
         region_count:
           type: integer
-        parallel_metrics:
+          description: Number of regions in the test sample
+        method:
+          type: string
+          enum:
+            - parallel
+            - sequential
+          description: Inference method used
+        metrics:
           type: object
           required:
-            - mean_coherence
-            - std_coherence
-            - mean_bleu
-            - mean_inference_time
+            - semantic_coherence_score
+            - bleu_score
+            - inference_time
           properties:
-            mean_coherence:
+            semantic_coherence_score:
               type: number
-            std_coherence:
+              minimum: 0.0
+              maximum: 1.0
+              description: Geometric consistency score (0-1)
+            bleu_score:
               type: number
-            mean_bleu:
+              minimum: 0.0
+              maximum: 1.0
+              description: BLEU-4 score
+            inference_time:
               type: number
-            mean_inference_time:
+              minimum: 0.0
+              description: Wall-clock inference time in seconds
+            sample_size:
+              type: integer
+              minimum: 1
+              description: Number of samples used for this measurement
+        memory_peak_rss:
+          type: integer
+          description: Peak memory usage in bytes
+  statistical_analysis:
+    type: object
+    required:
+      - regression_coefficients
+      - p_values
+      - bonferroni_corrected
+    properties:
+      regression_coefficients:
+        type: object
+        description: Coefficients from linear regression of score vs region count
+        properties:
+          parallel:
+            type: object
+            properties:
+              slope:
+                type: number
+              intercept:
+                type: number
+              r_squared:
+                type: number
+                minimum: 0.0
+                maximum: 1.0
+          sequential:
+            type: object
+            properties:
+              slope:
+                type: number
+              intercept:
+                type: number
+              r_squared:
+                type: number
+                minimum: 0.0
+                maximum: 1.0
+      p_values:
+        type: object
+        description: P-values for slope significance
+        properties:
+          parallel:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          sequential:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+      bonferroni_corrected:
+        type: object
+        description: Bonferroni-corrected p-values
+        properties:
+          parallel:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          sequential:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          alpha:
+            type: number
+            description: Original alpha level used
+          comparisons:
+            type: integer
+            description: Number of comparisons made
+      tipping_point:
+        type: object
+        description: Identified tipping point where parallel performance degrades
+        properties:
+          region_count:
+            type: integer
+          coherence_drop_threshold:
+            type: number
+          confidence_interval:
+            type: array
+            items:
               type: number
-        sequential_metrics:
-          type: object
-          required:
-            - mean_coherence
-            - std_coherence
-            - mean_bleu
-            - mean_inference_time
-          properties:
-            mean_coherence:
-              type: number
-            std_coherence:
-              type: number
-            mean_bleu:
-              type: number
-            mean_inference_time:
-              type: number
-        statistical_significance:
-          type: object
-          required:
-            - p_value
-            - is_significant
-            - corrected_p_value
-          properties:
-            p_value:
-              type: number
-            is_significant:
-              type: boolean
-            corrected_p_value:
-              type: number
-              description: "P-value after Bonferroni correction."
-        tipping_point_indicator:
-          type: boolean
-          description: "True if this region count is the identified tipping point."
+            minItems: 2
+            maxItems: 2
 additionalProperties: false

@@ -10,6 +10,29 @@ T003:
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `quickstart.md` file was presented; there is no evidence of its existence,
     content, or installation instructions, so the required artifact is missing.
+T011:
+  c: false
+  h: 50863e67dadacb46837bd7f77c3fe12e841a2591c786d2364cef274e7428ec89
+  r: The test file `tests/contract/test_schemas.py` is present, but the required schema
+    `contracts/task.schema.yaml` does not exist, causing the test to fail (or be skipped)
+    and preventing any real validation of `tasks.json`. The missing schema file must
+    be added for the contract test to be functional.
+T012:
+  c: false
+  h: 50863e67dadacb46837bd7f77c3fe12e841a2591c786d2364cef274e7428ec89
+  r: "The provided `tests/contract/test_schemas.py` ends abruptly inside `test_skills_json_schema`\
+    \ and does not contain the full validation logic or overlap\u2011metric checks.\
+    \ Moreover, the required schema file `contracts/skill.schema.yaml` is absent,\
+    \ so the test cannot even load the schema. Both the test implementation and the\
+    \ referenced schema are missing, so the task is not satisfied."
+T015:
+  c: false
+  h: a61cc0e3f7b83cdf076afc6dfc52c66c90f6af612d244591fe895a4842b266eb
+  r: "The repository lacks the required output files `data/raw/skills.json` and `data/raw/tasks.json`,\
+    \ and the shown portion of `code/generate_data.py` does not contain any JSON\u2011\
+    serialization logic that writes those files (the code is truncated before any\
+    \ file\u2011output code). The task\u2019s core requirement\u2014producing the\
+    \ two JSON files with embedded metadata\u2014is therefore not satisfied."
 T032:
   c: false
   h: 90ee48ded2f6fa2f4deb7b5fdda65d18b26e901cb9777a5fc422a25bb4ea9566

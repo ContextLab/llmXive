@@ -12,6 +12,16 @@ T011:
   r: "The required artifact `code/tests/test_coverage_pipeline.py` does not exist\
     \ in the repository, so no integration test is present to verify end\u2011to\u2011\
     end coverage calculation. The task\u2019s core deliverable is missing."
+T013:
+  c: false
+  h: 5299940bcde84fb0b6e4fddedb1e391973110a2ce566bebaaa9fbe2072fd62fe
+  r: "The repository lacks the required `code/data/ground_truth.json` file, so the\
+    \ script cannot read the ground\u2011truth data as specified. Moreover, the provided\
+    \ excerpt of `code/main.py` does not show the inner 1,000\u2011bootstrap\u2011\
+    resample loop, the per\u2011sample CI construction, deviation calculation, or\
+    \ writing to `artifacts/coverage_intermediate.csv`, and the file is truncated\
+    \ before any such logic. These essential components are missing, so the task is\
+    \ not genuinely completed."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,3 +52,38 @@ T017:
     \ was added. The submission contains only the task description and specifications,\
     \ but provides no concrete artifact (e.g., modified source files, example log\
     \ output, or test results) to verify the required logging functionality."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of an `artifacts/coverage_results.csv` file containing the new columns
+    `adjusted_coverage`, `adjustment_method`, and `improvement_delta` was presented.
+    The required CSV extension is missing, so the task is not satisfied.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation showing that the adjustment logic was added
+    to the simulation loop (i.e., executed after noise injection and before bootstrap
+    resampling) was provided. The evidence consists only of the task description and
+    feature specification, with no concrete implementation artifact to verify the
+    required integration.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided that add logging of adjustment
+    methods and their resulting coverage rates. The claim lacks any concrete artifact
+    (e.g., Python module, logging statements, example log output, or documentation)
+    demonstrating that the required logging was implemented.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/glm_summary.json` file was presented, and there is no code or\
+    \ output showing that p\u2011values and coefficients were extracted from GLM results\
+    \ and written to that JSON. The required artifact is missing, so the task is not\
+    \ satisfied."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No summary table (e.g., CSV, markdown, or figure) was supplied, nor any code\
+    \ or output showing coverage rates for each (dataset, statistic,\u202F\u03B5,\
+    \ noise_type) combination. The claim lacks the required artifact, so the task\
+    \ is not satisfied."

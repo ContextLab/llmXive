@@ -1,4 +1,2 @@
-"""
-llmXive Follow-up: Extending PerceptionDLM Parallel Region Perception
-Core codebase package.
-"""
+# llmXive Follow-up: Extending PerceptionDLM Parallel Region Perception
+# Code package initialization
