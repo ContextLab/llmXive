@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T15:33:37.325249Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-877-llmxive-follow-up-extending-mellum2-tech
-last_run_id: 107d7cdd-0e8a-4216-87f0-71b39e461053
+last_run_id: b00d4aef-ec98-4efb-baa0-2bed87ac6fff
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech
 title: 'llmXive follow-up: extending "Mellum2 Technical Report"'
-updated_at: '2026-07-26T01:18:16.052061Z'
+updated_at: '2026-07-28T11:49:32.299144Z'

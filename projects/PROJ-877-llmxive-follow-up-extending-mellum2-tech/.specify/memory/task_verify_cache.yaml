@@ -1,13 +1,22 @@
-T008:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files or code snippets for `code/contracts/CodeChunk.py`, `Threshold.py`,
-    or `CorrelationResult.py` were provided, and there is no evidence that these schemas
-    with explicit field definitions exist in the repository. The required artifact
-    is missing, so the task is not satisfied.
-T009:
+  r: "No evidence of the required directory tree (`projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/`\
+    \ with `code/`, `data/`, `tests/` subfolders) was provided; without visible artifacts\
+    \ we cannot confirm the structure exists. The implementer must supply a listing\
+    \ or screenshots showing those directories are created and non\u2011empty."
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.env` file, loading code, or documentation for Hugging Face token handling
-    was provided; the implementer supplied no tangible artifact demonstrating environment
-    configuration management, so the requirement is not met.
+  r: No `.gitignore` or `README.md` files were presented in the evidence, and there
+    is no content showing they exist or contain a project overview. The required artifacts
+    are missing, so the task is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., a `pyproject.toml` section\
+    \ for Black, a `.ruff.toml` or `ruff.toml`, or any setup script invoking ruff/black)\
+    \ were presented. Without concrete, non\u2011empty config artifacts, the claim\
+    \ that linting and formatting tools are configured cannot be verified. The next\
+    \ implementer should add the appropriate configuration files and ensure they are\
+    \ committed to the repository."

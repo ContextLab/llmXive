@@ -1,186 +1,145 @@
 """
-Unit tests for code/data/download.py
-Specifically testing error handling for network timeouts and empty datasets.
+Unit tests for code/data/download.py (T015).
+
+Tests:
+- test_download_handles_network_timeout: Simulates network timeout during fetch.
+- test_download_handles_empty_dataset: Simulates empty dataset response.
 """
 import pytest
-import time
 from unittest.mock import patch, MagicMock
-from pathlib import Path
 import sys
+from pathlib import Path
+import json
+import tempfile
 import os
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add parent to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.data import download
-from code.utils.logging import NetworkError
-from datasets import Dataset
+from utils.logging import NetworkError
 
+class MockDataset:
+    """Mock Hugging Face dataset for testing."""
+    def __init__(self, items=None, raise_on_iter=False):
+        self.items = items or []
+        self.raise_on_iter = raise_on_iter
+        self.iterated = False
+    
+    def __iter__(self):
+        if self.raise_on_iter:
+            raise Exception("Network timeout or error")
+        self.iterated = True
+        return iter(self.items)
 
-class TestDownloadNetworkTimeout:
-    """Tests for handling network timeouts during dataset fetching."""
-
-    @patch('code.data.download.datasets')
-    def test_download_handles_network_timeout(self, mock_datasets):
-        """
-        Verify that download.py handles network timeouts gracefully.
+def test_download_handles_network_timeout():
+    """
+    Test that download.py handles network timeouts gracefully.
+    
+    Expected behavior:
+    - Should raise NetworkError when dataset fetch fails.
+    - Should NOT return synthetic data.
+    """
+    with patch("code.data.download.load_dataset") as mock_load:
+        # Simulate network timeout
+        mock_load.side_effect = Exception("Connection timeout")
         
-        When the dataset fetch times out, the function should:
-        1. Raise a specific NetworkError (or let the underlying exception propagate)
-        2. NOT fall back to synthetic data
-        3. Log the error appropriately
-        """
-        # Mock the load_dataset to raise a timeout exception
-        mock_datasets.load_dataset.side_effect = Exception("Timeout: The read operation timed out")
+        # Import main function
+        from code.data.download import fetch_dataset_subset
         
-        # Mock config to avoid needing real config setup
-        with patch('code.data.download.get_config') as mock_config:
-            mock_config.return_value = MagicMock(
-                data_dir=Path("data"),
-                max_chunks=10,
-                languages=["python"]
-            )
-            
-            # Mock logging to capture output
-            with patch('code.data.download.get_logger') as mock_logger:
-                mock_logger.return_value = MagicMock()
-                
-                # Verify that the function raises an error and doesn't proceed
-                with pytest.raises(Exception, match="Timeout"):
-                    # We expect the download function to fail loudly
-                    # The actual implementation should not catch and swallow this
-                    download.fetch_dataset_sample(
-                        dataset_name="codeparrot/github-code",
-                        languages=["python"],
-                        max_samples=10
-                    )
+        # Should raise NetworkError (wrapped)
+        with pytest.raises(NetworkError):
+            fetch_dataset_subset(capped_n=10, languages=["python"])
 
-    @patch('code.data.download.datasets')
-    def test_download_retry_logic_on_timeout(self, mock_datasets):
-        """
-        Verify that the download function attempts retries on transient network errors.
-        """
-        # First two calls fail with timeout, third succeeds
-        mock_datasets.load_dataset.side_effect = [
-            Exception("Timeout: The read operation timed out"),
-            Exception("Timeout: The read operation timed out"),
-            MagicMock(return_value=Dataset.from_dict({"code": ["sample"], "lang": ["python"]}))
+def test_download_handles_empty_dataset():
+    """
+    Test that download.py handles empty dataset response.
+    
+    Expected behavior:
+    - Should return empty list if no chunks match.
+    - Should NOT return synthetic data.
+    """
+    with patch("code.data.download.load_dataset") as mock_load:
+        # Return empty dataset
+        mock_load.return_value = MockDataset(items=[])
+        
+        from code.data.download import fetch_dataset_subset
+        
+        # Should return empty list
+        result = fetch_dataset_subset(capped_n=10, languages=["python"])
+        assert result == []
+
+def test_download_filters_languages():
+    """Test that download correctly filters by language."""
+    with patch("code.data.download.load_dataset") as mock_load:
+        # Create mock items with different languages
+        items = [
+            {"language": "python", "code": "print('hello')"},
+            {"language": "java", "code": "System.out.println('hello')"},
+            {"language": "python", "code": "x = 1"},
+            {"language": "cpp", "code": "cout << 'hello';"},
         ]
+        mock_load.return_value = MockDataset(items=items)
         
-        with patch('code.data.download.get_config') as mock_config:
-            mock_config.return_value = MagicMock(
-                data_dir=Path("data"),
-                max_chunks=10,
-                languages=["python"]
-            )
+        from code.data.download import fetch_dataset_subset
+        
+        # Fetch only python
+        result = fetch_dataset_subset(capped_n=10, languages=["python"])
+        assert len(result) == 2
+        assert all(item["language"] == "python" for item in result)
+
+def test_download_respects_capped_n():
+    """Test that download respects the capped_N limit."""
+    with patch("code.data.download.load_dataset") as mock_load:
+        # Create more items than capped_n
+        items = [
+            {"language": "python", "code": f"code_{i}"}
+            for i in range(100)
+        ]
+        mock_load.return_value = MockDataset(items=items)
+        
+        from code.data.download import fetch_dataset_subset
+        
+        # Fetch with capped_n=10
+        result = fetch_dataset_subset(capped_n=10, languages=["python"])
+        assert len(result) == 10
+
+def test_load_feasibility_report_missing():
+    """Test that load_feasibility_report raises error if report missing."""
+    from code.data.download import load_feasibility_report
+    
+    with patch("code.data.download.get_config") as mock_config:
+        mock_config.return_value = {"project_root": "/tmp/nonexistent"}
+        
+        with pytest.raises(FileNotFoundError):
+            load_feasibility_report()
+
+def test_load_feasibility_report_proceed_false():
+    """Test that load_feasibility_report raises error if proceed_flag is False."""
+    from code.data.download import load_feasibility_report
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        report_path = Path(tmpdir) / "feasibility_report.json"
+        with open(report_path, 'w') as f:
+            json.dump({"proceed_flag": False, "capped_N": 10}, f)
+        
+        with patch("code.data.download.get_config") as mock_config:
+            mock_config.return_value = {"project_root": tmpdir}
             
-            with patch('code.data.download.get_logger') as mock_logger:
-                mock_logger.return_value = MagicMock()
-                
-                # Should succeed on third attempt
-                result = download.fetch_dataset_sample(
-                    dataset_name="codeparrot/github-code",
-                    languages=["python"],
-                    max_samples=10
-                )
-                
-                # Verify load_dataset was called 3 times
-                assert mock_datasets.load_dataset.call_count == 3
-                assert result is not None
+            with pytest.raises(RuntimeError):
+                load_feasibility_report()
 
-
-class TestDownloadEmptyDataset:
-    """Tests for handling empty datasets."""
-
-    @patch('code.data.download.datasets')
-    def test_download_handles_empty_dataset(self, mock_datasets):
-        """
-        Verify that download.py handles empty datasets (no matching chunks) gracefully.
+def test_load_feasibility_report_success():
+    """Test successful loading of feasibility report."""
+    from code.data.download import load_feasibility_report
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        report_path = Path(tmpdir) / "feasibility_report.json"
+        with open(report_path, 'w') as f:
+            json.dump({"proceed_flag": True, "capped_N": 50}, f)
         
-        When the dataset returns no results:
-        1. The function should raise a clear error
-        2. It should NOT generate synthetic data as fallback
-        3. It should log the specific error
-        """
-        # Mock an empty dataset
-        mock_datasets.load_dataset.return_value = Dataset.from_dict({
-            "code": [],
-            "lang": []
-        })
-        
-        with patch('code.data.download.get_config') as mock_config:
-            mock_config.return_value = MagicMock(
-                data_dir=Path("data"),
-                max_chunks=10,
-                languages=["python"]
-            )
+        with patch("code.data.download.get_config") as mock_config:
+            mock_config.return_value = {"project_root": tmpdir}
             
-            with patch('code.data.download.get_logger') as mock_logger:
-                mock_logger.return_value = MagicMock()
-                
-                # Verify that the function raises an error for empty dataset
-                with pytest.raises(ValueError, match="No chunks found"):
-                    download.fetch_dataset_sample(
-                        dataset_name="codeparrot/github-code",
-                        languages=["python"],
-                        max_samples=10
-                    )
-
-    @patch('code.data.download.datasets')
-    def test_download_handles_empty_filtered_result(self, mock_datasets):
-        """
-        Verify handling when filtering by language results in empty dataset.
-        """
-        # Mock dataset with data but none matching the requested language
-        mock_datasets.load_dataset.return_value = Dataset.from_dict({
-            "code": ["sample1", "sample2"],
-            "lang": ["java", "javascript"]  # No "python"
-        })
-        
-        with patch('code.data.download.get_config') as mock_config:
-            mock_config.return_value = MagicMock(
-                data_dir=Path("data"),
-                max_chunks=10,
-                languages=["python"]
-            )
-            
-            with patch('code.data.download.get_logger') as mock_logger:
-                mock_logger.return_value = MagicMock()
-                
-                # Should raise error because no python chunks found
-                with pytest.raises(ValueError, match="No chunks found"):
-                    download.fetch_dataset_sample(
-                        dataset_name="codeparrot/github-code",
-                        languages=["python"],
-                        max_samples=10
-                    )
-
-    @patch('code.data.download.datasets')
-    def test_download_success_with_data(self, mock_datasets):
-        """
-        Verify normal operation when data is available.
-        """
-        # Mock a dataset with valid data
-        mock_datasets.load_dataset.return_value = Dataset.from_dict({
-            "code": ["print('hello')", "def foo(): pass"],
-            "lang": ["python", "python"]
-        })
-        
-        with patch('code.data.download.get_config') as mock_config:
-            mock_config.return_value = MagicMock(
-                data_dir=Path("data"),
-                max_chunks=10,
-                languages=["python"]
-            )
-            
-            with patch('code.data.download.get_logger') as mock_logger:
-                mock_logger.return_value = MagicMock()
-                
-                result = download.fetch_dataset_sample(
-                    dataset_name="codeparrot/github-code",
-                    languages=["python"],
-                    max_samples=10
-                )
-                
-                assert result is not None
-                assert len(result) > 0
+            report = load_feasibility_report()
+            assert report["proceed_flag"] is True
+            assert report["capped_N"] == 50

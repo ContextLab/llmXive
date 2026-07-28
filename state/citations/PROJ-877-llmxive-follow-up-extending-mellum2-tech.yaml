@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 19397daf9d795de922b92429505314f0e46d09c1b5f0b6e65bd92899a83c2bb7
+  artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2309.06305] Sensitivity Analysis for Linear Estimators'
+  kind: url
+  value: https://arxiv.org/abs/2309.06305
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2309.06305
+  verified_at: '2026-07-28T11:48:28.594509Z'
