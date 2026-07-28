@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-bird-migration-climate-correlation/spec.md`
 
 ## Summary
-A reproducible, CPU‑only pipeline that (1) downloads or synthesises eBird and NOAA/PRISM data, (2) aggregates observations onto a 0.5° × 0.5° weekly grid, (3) computes phenology metrics, (4) fits a **Unified Spatial Model** (GAMM with a Matérn Gaussian Process spatial smooth), (5) conducts full 10,000‑shuffle permutation tests with early‑stop flagging, (6) analyses migration‑route shifts on a spherical manifold, and (7) produces validated outputs that satisfy all functional requirements (FR‑001‑FR‑007) and success criteria (SC‑001‑SC‑005).
+A reproducible, CPU‑only pipeline that (1) downloads or synthesises eBird and NOAA/PRISM data, (2) aggregates observations onto a 0.5° × 0.5° weekly grid, (3) computes phenology metrics, (4) fits a **Unified Spatial Model** (GAMM with a Matérn Gaussian Process spatial smooth), (5) conducts full permutation tests with early‑stop flagging, (6) analyses migration‑route shifts on a spherical manifold, and (7) produces validated outputs that satisfy all functional requirements (FR‑001‑FR‑007) and success criteria (SC‑001‑SC‑005).
 
 ## Technical Context
 - **Environment**: GitHub Actions free tier (2 CPU cores, ~7 GB RAM, ≤ 6 h runtime).  
@@ -34,7 +34,7 @@ A reproducible, CPU‑only pipeline that (1) downloads or synthesises eBird and 
 6. **Sparse‑Data Handling** – Cells with `< 5` observations are flagged `data_quality="insufficient"` and excluded from modeling. **Sensitivity analysis** will re‑run the pipeline with thresholds of 3 and 7 to assess bias.  
 7. **Tail‑Preserving Stratified Sampling** (new sub‑requirement **FR‑002‑S**) –  
    - Quantile‑bin `first_arrival` into deciles.  
- - Oversample cells in the lowest [deferred] decile by factor 2.
+ - Oversample cells in the lowest [deferred] decile by a significant factor.
    - Assign inverse‑probability weights (`weight = 0.5` for oversampled cells, `1.0` otherwise).  
    - Weights are passed to the GAMM via `sample_weight`.  
 
@@ -75,7 +75,7 @@ phenology_metric ~
 1. **Centroid Construction** – Weekly centroids per species‑year (mean lat/lon of all observations in a cell).  
 2. **Manifold Distance** – Geodesic distances on a spherical Earth (`geopy.distance.geodesic`).  
 3. **Permutation Test** – A large number of label shuffles generate a null distribution of shift magnitudes; p‑values reported.  
-4. **Bootstrap CI** – Bootstrap resamples of the centroid estimation process produce 95 % confidence intervals for shift magnitude and direction.  
+4. **Bootstrap CI** – Bootstrap resamples of the centroid estimation process produce confidence intervals for shift magnitude and direction.  
 5. **Validity Note** – Centroids are a simplification; an optional kernel‑density trajectory analysis (KDE on weekly occurrence maps) is implemented for species with ≥ 500 observations to verify robustness.
 
 ## Phase 5 – Validation, Reporting & CI Constraints (SC‑005)

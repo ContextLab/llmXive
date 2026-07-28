@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project analyzes the correlation between bird migration patterns and climate change using publicly available eBird and NOAA data.
+This project analyzes bird migration patterns and their correlation with climate change using publicly available data from eBird and NOAA.
 
 ## Prerequisites
 
@@ -13,36 +13,35 @@ This project analyzes the correlation between bird migration patterns and climat
 ## Installation
 
 1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd PROJ-132-statistical-analysis-of-publicly-availab
- ```
+```bash
+git clone <repository-url>
+cd PROJ-132-statistical-analysis-of-publicly-availab
+```
 
-2. Create and activate a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2. Create a virtual environment and activate it:
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
 
 3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+```bash
+pip install -r requirements.txt
+```
 
 4. Install pre-commit hooks:
- ```bash
- pre-commit install
- ```
+```bash
+pre-commit install
+```
 
 ## Pre-commit Configuration
 
-This project uses `pre-commit` to automatically format and lint code before commits.
+This project uses `pre-commit` to enforce code quality standards before commits. The following hooks are configured:
 
-The following hooks are configured:
 - **black**: Code formatting (line-length=88, target-version=['py311'])
-- **ruff**: Linting (select=['E','F','W','I'])
+- **ruff**: Linting (select=['E','F','W','I'], ignore=[])
 
-To run pre-commit manually:
+To run pre-commit manually on all files:
 ```bash
 pre-commit run --all-files
 ```
@@ -59,25 +58,37 @@ pre-commit autoupdate
 ├── code/
 │ ├── src/
 │ │ ├── data/
+│ │ │ ├── download.py
+│ │ │ ├── preprocess.py
+│ │ │ └── impute.py
 │ │ ├── models/
+│ │ │ ├── gamm_fit.py
+│ │ │ ├── trajectory.py
+│ │ │ └── utils.py
 │ │ └── lib/
+│ │ └── config.py
 │ ├── tests/
-│ └──...
+│ │ ├── contract/
+│ │ ├── unit/
+│ │ └── integration/
+│ ├── run_pipeline.py
+│ └── benchmark_runtime.py
 ├── data/
 │ ├── raw/
 │ ├── processed/
 │ └── interim/
-├── logs/
 ├── docs/
 ├──.pre-commit-config.yaml
-├── README.md
+├── pyproject.toml
 ├── requirements.txt
-└── pyproject.toml
+└── README.md
 ```
 
 ## Usage
 
 ### Running the Pipeline
+
+To run the complete data analysis pipeline:
 
 ```bash
 python code/run_pipeline.py
@@ -88,16 +99,53 @@ For development with synthetic data:
 python code/run_pipeline.py --mode=synthetic
 ```
 
+For production with real data:
+```bash
+python code/run_pipeline.py --mode=real
+```
+
 ### Running Tests
 
+Run all tests:
 ```bash
-python -m pytest tests/
+pytest code/tests/
+```
+
+Run specific test suites:
+```bash
+pytest code/tests/unit/
+pytest code/tests/integration/
+pytest code/tests/contract/
+```
+
+### Benchmarking
+
+To benchmark runtime performance:
+```bash
+python code/benchmark_runtime.py
 ```
 
 ## Configuration
 
-Random seeds and sampling parameters are managed via `code/src/lib/config.py`.
+Key constants are defined in `code/src/lib/config.py`:
+- `SEED=42`: Random seed for reproducibility
+- `GRID_RES=0.5`: Spatial grid resolution in degrees
+- `PERMUTATIONS=10000`: Number of permutations for statistical tests
+
+## Data Sources
+
+- **eBird**: Bird observation data (real or synthetic)
+- **NOAA**: Climate data (real or synthetic)
+
+See `code/src/data/download.py` for data acquisition details.
+
+## Contributing
+
+1. Ensure pre-commit hooks pass before committing
+2. Write tests for new functionality
+3. Follow the existing code style (black + ruff)
+4. Update documentation as needed
 
 ## License
 
-[Insert License Information]
+[License information]

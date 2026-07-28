@@ -1,17 +1,24 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or other evidence was provided to show that the required
-    folders (`src/data`, `src/models`, `src/analysis`, `data/raw`, `data/processed`,
-    `data/interim`, `tests/contract`, `tests/unit`, `tests/integration`, `docs`) actually
-    exist. The implementer must supply a manifest (e.g., `tree` output or a screenshot)
-    confirming the creation of these directories.
 T014:
   c: false
   h: e54b4837935106f97bcc5c25898dc65a522cf61cfa2919768ebbeaa547451908
   r: "The required file `src/data/preprocess.py` does not exist, so no code can call\
     \ the T005 download functions or perform file\u2011presence and checksum verification.\
     \ The artifact is missing, making the task unfulfilled."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration file, or test output was provided that implements\
+    \ the required logic to flag grid cells with fewer than 5 observations per Plan\
+    \ Phase\u202F2 and to exclude them from downstream modeling. Consequently, the\
+    \ artifact demanded by T018 is missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, notebooks, or output files implementing the Riemannian\u2011\
+    manifold trajectory analysis on the 2\u2011sphere are present. The claim lacks\
+    \ any concrete artifact (e.g., a Python module using `scipy` and `geopy` to compute\
+    \ geodesics on S\xB2, example data, and resulting analysis plots or metrics).\
+    \ Without these deliverables, the requirement is not satisfied."
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,3 +27,47 @@ T042:
     \ that the runtime has been reduced to under 4\u202Fhours. The required evidence\
     \ (e.g., before/after runtime measurements, code changes, or performance logs)\
     \ is missing."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, notebook, CSV, or report) showing the calculation\
+    \ of SC\u2011002 \u2013 the proportion of grid cells marked \u201Cinsufficient\
+    \ data\u201D \u2013 was provided. Without any output or code, the requirement\
+    \ cannot be verified as met. The implementer must supply the actual computation\
+    \ (e.g., a numeric result, a data file, or reproducible code) that derives this\
+    \ proportion from the preprocessed dataset."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided only the task description and project specifications
+    but no actual artifact (e.g., script, log, or report) showing the calculation
+    of the GAMM convergence rate. Without a concrete output or evidence, the requirement
+    is not satisfied. The missing deliverable is the computed convergence rate (e.g.,
+    number of iterations, time to converge, diagnostic plots) and associated code
+    or results.
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no code, script, or documentation implementing a file\u2011\
+    based lock, nor any reference to a lock file or module that would serialize tasks\
+    \ T025 and T032. Without a tangible artifact (e.g., a Python/ Bash file implementing\
+    \ lock acquisition/release, usage examples, or test showing serialization), the\
+    \ requirement is unmet. The next implementer must add the lock implementation\
+    \ and evidence of its operation."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logs, runtime reports, or lock\u2011mechanism verification artifacts are\
+    \ present; without evidence of a lock check or total runtime measurement, the\
+    \ post\u2011run validation requirement cannot be confirmed. The implementer must\
+    \ provide concrete validation output (e.g., a summary file or console log showing\
+    \ lock status and runtime vs. budget)."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided excerpt still contains \u201C[deferred]\u201D placeholders (e.g.,\
+    \ \u201Cminimum of 208 weeks ([deferred] coverage)\u201D and \u201Cat least [deferred]%\
+    \ of species\u2011year combinations\u201D), and no updated `spec.md` or `plan.md`\
+    \ files with concrete numeric values were supplied. The required artifacts are\
+    \ missing or unchanged, so the success\u2011criteria thresholds have not been\
+    \ defined."

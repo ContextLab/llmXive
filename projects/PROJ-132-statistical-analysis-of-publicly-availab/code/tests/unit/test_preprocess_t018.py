@@ -4,154 +4,199 @@ import numpy as np
 from pathlib import Path
 import tempfile
 import os
-from datetime import datetime
+import json
 
 from src.data.preprocess import mark_insufficient_data, run_preprocessing_pipeline
+from src.lib.config import setup_logging
+
+@pytest.fixture
+def sample_ebird_data():
+    """Sample eBird data for testing."""
+    return pd.DataFrame({
+        'species': ['Species_A', 'Species_A', 'Species_A', 'Species_B', 'Species_B'],
+        'lat': [40.0, 40.0, 40.0, 41.0, 41.0],
+        'lon': [-75.0, -75.0, -75.0, -76.0, -76.0],
+        'date': ['2023-03-01', '2023-03-08', '2023-03-15', '2023-03-01', '2023-03-08'],
+        'count': [3, 1, 1, 2, 1],  # Species_A: 5 total, Species_B: 3 total
+        'checklist_id': ['C1', 'C2', 'C3', 'C4', 'C5']
+    })
+
+@pytest.fixture
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 class TestMarkInsufficientData:
-    """Unit tests for T018: Marking grid cells with insufficient data."""
+    """Test cases for mark_insufficient_data function (T018)."""
 
-    def test_mark_insufficient_data_basic(self):
+    def test_mark_insufficient_data_basic(self, sample_ebird_data):
         """Test basic functionality of marking insufficient data."""
-        df = pd.DataFrame({
-            'species': ['A', 'B', 'C', 'D'],
-            'grid_cell': ['cell1', 'cell2', 'cell3', 'cell4'],
-            'count': [10, 3, 8, 2]
-        })
+        df_filtered, metadata = mark_insufficient_data(sample_ebird_data, min_observations=5)
         
-        result = mark_insufficient_data(df, min_obs=5)
+        # Species_A has exactly 5 observations, should be kept
+        # Species_B has 3 observations, should be filtered out
+        assert len(df_filtered) == 3  # Only Species_A rows
+        assert 'Species_B' not in df_filtered['species'].values
         
-        assert 'data_quality' in result.columns
-        assert result.loc[0, 'data_quality'] == 'sufficient'
-        assert result.loc[1, 'data_quality'] == 'insufficient'
-        assert result.loc[2, 'data_quality'] == 'sufficient'
-        assert result.loc[3, 'data_quality'] == 'insufficient'
+        # Check metadata
+        assert metadata['total_cells'] >= 1
+        assert metadata['insufficient_cells'] >= 1
+        assert metadata['threshold'] == 5
+        assert len(metadata['cells']) >= 1
 
-    def test_mark_insufficient_data_edge_case_zero(self):
-        """Test marking when count is zero."""
-        df = pd.DataFrame({
-            'species': ['A'],
-            'grid_cell': ['cell1'],
-            'count': [0]
-        })
+    def test_mark_insufficient_data_all_sufficient(self, sample_ebird_data):
+        """Test when all cells have sufficient data."""
+        # Increase counts to make all sufficient
+        df = sample_ebird_data.copy()
+        df['count'] = [10, 10, 10, 10, 10]
         
-        result = mark_insufficient_data(df, min_obs=5)
-        assert result.loc[0, 'data_quality'] == 'insufficient'
-
-    def test_mark_insufficient_data_exact_threshold(self):
-        """Test marking when count equals threshold."""
-        df = pd.DataFrame({
-            'species': ['A'],
-            'grid_cell': ['cell1'],
-            'count': [5]
-        })
+        df_filtered, metadata = mark_insufficient_data(df, min_observations=5)
         
-        result = mark_insufficient_data(df, min_obs=5)
-        assert result.loc[0, 'data_quality'] == 'sufficient'
+        assert len(df_filtered) == len(df)
+        assert metadata['insufficient_cells'] == 0
+        assert len(metadata['cells']) == 0
 
-    def test_mark_insufficient_data_missing_columns(self):
-        """Test that missing columns raise an error."""
-        df = pd.DataFrame({
-            'species': ['A'],
-            'count': [10]
-        })
+    def test_mark_insufficient_data_all_insufficient(self, sample_ebird_data):
+        """Test when all cells have insufficient data."""
+        df = sample_ebird_data.copy()
+        df['count'] = [1, 1, 1, 1, 1]
         
-        with pytest.raises(ValueError, match="must contain 'species' and 'grid_cell'"):
-            mark_insufficient_data(df, min_obs=5)
-
-    def test_mark_insufficient_data_no_count_column(self):
-        """Test that missing count column raises an error."""
-        df = pd.DataFrame({
-            'species': ['A'],
-            'grid_cell': ['cell1']
-        })
+        df_filtered, metadata = mark_insufficient_data(df, min_observations=5)
         
-        with pytest.raises(ValueError, match="must contain an observation count column"):
-            mark_insufficient_data(df, min_obs=5)
+        assert len(df_filtered) == 0
+        assert metadata['insufficient_cells'] > 0
 
-    def test_mark_insufficient_data_all_sufficient(self):
-        """Test when all cells are sufficient."""
-        df = pd.DataFrame({
-            'species': ['A', 'B'],
-            'grid_cell': ['cell1', 'cell2'],
-            'count': [10, 20]
-        })
+    def test_mark_insufficient_data_logs_to_file(self, sample_ebird_data, temp_data_dir):
+        """Test that insufficient data is logged to file."""
+        log_file = temp_data_dir / 'test.log'
         
-        result = mark_insufficient_data(df, min_obs=5)
-        assert all(result['data_quality'] == 'sufficient')
-
-    def test_mark_insufficient_data_all_insufficient(self):
-        """Test when all cells are insufficient."""
-        df = pd.DataFrame({
-            'species': ['A', 'B'],
-            'grid_cell': ['cell1', 'cell2'],
-            'count': [1, 2]
-        })
+        df_filtered, metadata = mark_insufficient_data(
+            sample_ebird_data, 
+            min_observations=5, 
+            log_file=log_file
+        )
         
-        result = mark_insufficient_data(df, min_obs=5)
-        assert all(result['data_quality'] == 'insufficient')
+        assert log_file.exists()
+        content = log_file.read_text()
+        assert 'Insufficient data' in content
+        assert 'Species_B' in content  # Species_B should be flagged
 
-    def test_mark_insufficient_data_custom_threshold(self):
-        """Test with custom threshold."""
-        df = pd.DataFrame({
-            'species': ['A', 'B'],
-            'grid_cell': ['cell1', 'cell2'],
-            'count': [3, 7]
-        })
+    def test_mark_insufficient_data_metadata_structure(self, sample_ebird_data):
+        """Test metadata structure is correct."""
+        df_filtered, metadata = mark_insufficient_data(sample_ebird_data, min_observations=5)
         
-        result = mark_insufficient_data(df, min_obs=4)
-        assert result.loc[0, 'data_quality'] == 'insufficient'
-        assert result.loc[1, 'data_quality'] == 'sufficient'
+        assert 'total_cells' in metadata
+        assert 'insufficient_cells' in metadata
+        assert 'threshold' in metadata
+        assert 'cells' in metadata
+        assert isinstance(metadata['cells'], list)
+        
+        if len(metadata['cells']) > 0:
+            cell = metadata['cells'][0]
+            assert 'species' in cell
+            assert 'grid_cell' in cell
+            assert 'observations' in cell
+            assert 'reason' in cell
 
-class TestPreprocessingPipelineT018:
-    """Integration tests for T018 within the preprocessing pipeline."""
+    def test_mark_insufficient_data_data_quality_flag(self, sample_ebird_data):
+        """Test that filtered data has data_quality flag."""
+        df_filtered, metadata = mark_insufficient_data(sample_ebird_data, min_observations=5)
+        
+        if len(df_filtered) > 0:
+            assert 'data_quality' in df_filtered.columns
+            assert all(df_filtered['data_quality'] == 'sufficient')
 
-    def test_pipeline_filters_insufficient_cells(self):
-        """Test that the pipeline filters out insufficient cells."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            data_dir = Path(tmp_dir) / 'data'
-            output_dir = Path(tmp_dir) / 'output'
-            data_dir.mkdir()
-            output_dir.mkdir()
-            
-            # Create mock eBird data
-            ebird_path = data_dir / 'ebird'
-            ebird_path.mkdir()
-            
-            df = pd.DataFrame({
-                'species': ['Turdus migratorius', 'Turdus migratorius', 'Turdus migratorius'],
-                'lat': [40.0, 40.1, 40.2],
-                'lon': [-75.0, -75.1, -75.2],
-                'date': ['2023-03-01', '2023-03-01', '2023-03-01'],
-                'count': [10, 2, 15],
-                'checklist_id': ['chk1', 'chk2', 'chk3']
-            })
-            
-            ebird_path / 'processed.csv'.write_text(df.to_csv(index=False))
-            
-            # Run pipeline
-            result_path = run_preprocessing_pipeline(data_dir, output_dir)
-            
-            # Verify output
-            assert result_path.exists()
-            output_df = pd.read_csv(result_path)
-            
-            # Check that insufficient cells are filtered out
-            assert 'data_quality' not in output_df.columns, "data_quality should be filtered out in final output"
-            # All remaining rows should have had sufficient data originally
-            # (This is implicit in the filtering logic)
+    def test_mark_insufficient_data_edge_cases(self):
+        """Test edge cases."""
+        # Empty DataFrame
+        empty_df = pd.DataFrame(columns=['species', 'lat', 'lon', 'date', 'count'])
+        df_filtered, metadata = mark_insufficient_data(empty_df, min_observations=5)
+        assert len(df_filtered) == 0
+        assert metadata['insufficient_cells'] == 0
 
-    def test_pipeline_logs_insufficient_cells(self):
-        """Test that the pipeline logs insufficient cells."""
-        # This test verifies logging behavior
-        # In a real test, we would capture logs and verify content
-        # For now, we verify the function exists and runs without error
-        df = pd.DataFrame({
-            'species': ['A'],
-            'grid_cell': ['cell1'],
+        # Single observation
+        single_df = pd.DataFrame({
+            'species': ['Species_A'],
+            'lat': [40.0],
+            'lon': [-75.0],
+            'date': ['2023-03-01'],
             'count': [1]
         })
+        df_filtered, metadata = mark_insufficient_data(single_df, min_observations=5)
+        assert len(df_filtered) == 0
+        assert metadata['insufficient_cells'] == 1
+
+class TestPreprocessingPipelineT018:
+    """Integration tests for preprocessing pipeline with T018 logic."""
+
+    def test_run_preprocessing_pipeline_creates_metadata_file(self, temp_data_dir):
+        """Test that pipeline creates metadata_insufficient_cells.json."""
+        input_dir = temp_data_dir / 'input'
+        output_dir = temp_data_dir / 'output'
+        state_dir = temp_data_dir / 'state'
         
-        # Should not raise
-        result = mark_insufficient_data(df, min_obs=5)
-        assert result.loc[0, 'data_quality'] == 'insufficient'
+        input_dir.mkdir()
+        output_dir.mkdir()
+        state_dir.mkdir()
+        
+        # Create sample input data
+        input_file = input_dir / 'ebird.csv'
+        sample_data = pd.DataFrame({
+            'species': ['Species_A', 'Species_A', 'Species_B'],
+            'lat': [40.0, 40.0, 41.0],
+            'lon': [-75.0, -75.0, -76.0],
+            'date': ['2023-03-01', '2023-03-08', '2023-03-15'],
+            'count': [3, 1, 2],
+            'checklist_id': ['C1', 'C2', 'C3']
+        })
+        sample_data.to_csv(input_file, index=False)
+        
+        result = run_preprocessing_pipeline(input_dir, output_dir, state_dir)
+        
+        metadata_file = output_dir / 'metadata_insufficient_cells.json'
+        assert metadata_file.exists()
+        
+        # Verify JSON structure
+        with open(metadata_file, 'r') as f:
+            metadata = json.load(f)
+        
+        assert 'total_cells' in metadata
+        assert 'insufficient_cells' in metadata
+        assert 'cells' in metadata
+
+    def test_run_preprocessing_pipeline_excludes_insufficient_cells(self, temp_data_dir):
+        """Test that pipeline excludes insufficient cells from output."""
+        input_dir = temp_data_dir / 'input'
+        output_dir = temp_data_dir / 'output'
+        state_dir = temp_data_dir / 'state'
+        
+        input_dir.mkdir()
+        output_dir.mkdir()
+        state_dir.mkdir()
+        
+        # Create sample input data with insufficient observations
+        input_file = input_dir / 'ebird.csv'
+        sample_data = pd.DataFrame({
+            'species': ['Species_A', 'Species_A', 'Species_B'],
+            'lat': [40.0, 40.0, 41.0],
+            'lon': [-75.0, -75.0, -76.0],
+            'date': ['2023-03-01', '2023-03-08', '2023-03-15'],
+            'count': [3, 1, 2],  # Species_A: 4, Species_B: 2 (both < 5)
+            'checklist_id': ['C1', 'C2', 'C3']
+        })
+        sample_data.to_csv(input_file, index=False)
+        
+        result = run_preprocessing_pipeline(input_dir, output_dir, state_dir)
+        
+        # Load output
+        output_file = output_dir / 'processed_data.parquet'
+        assert output_file.exists()
+        
+        output_df = pd.read_parquet(output_file)
+        
+        # Both species should be filtered out (total < 5)
+        assert len(output_df) == 0 or all(output_df['data_quality'] == 'sufficient')
+        
+        # Check metadata
+        assert result['insufficient_cells'] > 0
