@@ -1,1 +1,1 @@
-# Tests package for llmXive research pipeline
+# Test package initialization

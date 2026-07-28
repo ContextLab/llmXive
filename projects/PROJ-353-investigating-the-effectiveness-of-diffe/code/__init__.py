@@ -1,1 +1,2 @@
-# Code package for llmXive research pipeline
+# llmXive Project: Investigating Loss Functions on Small-World Graphs
+# Package initialization

@@ -1,0 +1,25 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required project directories (`code/`, `data/`, `artifacts/`,
+    `tests/`) is provided; the claim lacks any artifact listing or file tree confirming
+    their existence. The task therefore remains unverified.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or notebook was provided that adds a `pot_incomplete` boolean\
+    \ column to the output DataFrame or emits the required warning log when the z\u2011\
+    axis data is missing. Consequently the required artifact is absent."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `energy_samples.csv` file was presented in the evidence, nor any listing of
+    its location under `data/derived/`. Consequently the required output file with
+    the specified columns is missing, so the task is not satisfied.
+T021:
+  c: false
+  h: d2800f2938c76f5bc7fa4acfe6bcd3ac530162603deff7d586805193e1862f8a
+  r: The `code/stats.py` file only defines a binning function that expects a DataFrame
+    argument and never reads `data/derived/energy_samples.csv`. Moreover, the required
+    CSV file is absent from the repository. Both the input data and the required reading
+    logic are missing, so the task is not fulfilled.

@@ -1,58 +1,67 @@
+"""
+Project Structure Initialization Script.
+Creates the required directory hierarchy for the research pipeline.
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Creates the foundational project directory structure.
-    Ensures code/, tests/, and data/ subdirectories exist.
-    """
-    project_root = Path(__file__).parent.parent
+    """Create the standard project directories."""
+    root = Path(__file__).parent.parent
     
     directories = [
-        project_root / "code",
-        project_root / "tests",
-        project_root / "data" / "raw",
-        project_root / "data" / "logs",
-        project_root / "data" / "analysis",
-        project_root / "data" / "figures",
+        root / "code",
+        root / "tests",
+        root / "data" / "raw",
+        root / "data" / "logs",
+        root / "data" / "analysis",
+        root / "data" / "figures",
+        root / "specs",
+        root / "contracts",
     ]
-
+    
     created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
+    for dir_path in directories:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path.relative_to(root)}")
             created_count += 1
-            print(f"Created directory: {directory.relative_to(project_root)}")
         else:
-            print(f"Directory already exists: {directory.relative_to(project_root)}")
-
-    # Ensure __init__.py files exist for python packages
+            print(f"Directory exists: {dir_path.relative_to(root)}")
+    
+    # Create __init__.py files if missing
     init_files = [
-        project_root / "code" / "__init__.py",
-        project_root / "tests" / "__init__.py",
+        root / "code" / "__init__.py",
+        root / "tests" / "__init__.py",
     ]
     
     for init_file in init_files:
         if not init_file.exists():
-            init_file.touch()
-            print(f"Created package init: {init_file.relative_to(project_root)}")
-        
-    # Create .gitkeep files in data directories to prevent git from ignoring them
+            init_file.write_text("# Package initialization\n")
+            print(f"Created init file: {init_file.relative_to(root)}")
+            created_count += 1
+
+    # Create .gitkeep files for data directories to ensure they are tracked
     data_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "logs",
-        project_root / "data" / "analysis",
-        project_root / "data" / "figures",
+        root / "data" / "raw",
+        root / "data" / "logs",
+        root / "data" / "analysis",
+        root / "data" / "figures",
     ]
     
     for data_dir in data_dirs:
-        gitkeep = data_dir / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
-            print(f"Created .gitkeep in: {data_dir.relative_to(project_root)}")
+        keep_file = data_dir / ".gitkeep"
+        if not keep_file.exists():
+            keep_file.write_text("# Keep directory in git\n")
+            print(f"Created .gitkeep: {keep_file.relative_to(root)}")
+            created_count += 1
 
-    print(f"Project structure verification complete. {created_count} new directories created.")
+    if created_count == 0:
+        print("Project structure already exists. Nothing to do.")
+    else:
+        print(f"Successfully created/verified {created_count} items.")
+    
     return 0
 
 if __name__ == "__main__":

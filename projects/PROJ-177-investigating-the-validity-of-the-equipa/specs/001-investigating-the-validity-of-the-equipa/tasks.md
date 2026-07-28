@@ -32,8 +32,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `artifacts/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, statsmodels, pyyaml, tqdm, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `pyproject.toml`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, statsmodels, pyyaml, tqdm, pytest)
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `pyproject.toml`
 
 ---
 
@@ -44,7 +44,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/checksum_raw_data.py` to generate SHA-256 hashes for `data/raw/` and write to a local log file (NOT the shared state YAML) (Constitution Principle III)
-- [ ] T005 [P] Implement `code/hash_artifacts.py` to generate content hashes for `artifacts/` and update `state/...yaml` (Constitution Principle V)
+- [X] T005 [P] Implement `code/hash_artifacts.py` to generate content hashes for `artifacts/` and update `state/...yaml` (Constitution Principle V)
 - [X] T006 Create `code/config.py` to load material properties (mass, inertia, roughness proxy) and frequency bins from `data/config.yaml`
 - [X] T007 Implement `code/main.py` orchestration script with argument parsing for pipeline stages
 - [X] T008 Setup `tests/conftest.py` with fixtures for synthetic data generation and random seed pinning
@@ -63,7 +63,7 @@
 
 ### Tests for User Story 1
 
-- [~] T009 [P] [US1] Unit test for energy formulas in `tests/test_energy.py` (verify $E_{trans} = 0.5mv^2$, etc. with known inputs)
+- [X] T009 [P] [US1] Unit test for energy formulas in `tests/test_energy.py` (verify $E_{trans} = 0.5mv^2$, etc. with known inputs)
 - [X] T010 [P] [US1] Integration test for missing frame interpolation in `tests/test_ingestion.py` (verify linear interpolation logic)
 - [X] T011 [P] [US1] Integration test for material-specific mass application in `tests/test_ingestion.py` (verify steel vs. polymer constants)
 
@@ -72,9 +72,9 @@
 - [X] T012 [US1] Implement `code/ingestion.py` function to load and sync particle tracking CSVs with driving signal logs (FR-001)
 - [X] T013 [US1] Implement `code/ingestion.py` function to handle missing frames via linear interpolation or flagging (Edge Case: missing frames)
 - [X] T014 [US1] Implement `code/ingestion.py` function to compute $v$ and $\omega$ via finite differences from positions/orientations
-- [~] T016 [US1] Implement logic to handle datasets lacking z-axis data: add a 'pot_incomplete' boolean column to the output dataframe and write a specific warning log entry (Edge Case: missing z-axis)
+- [ ] T016 [US1] Implement logic to handle datasets lacking z-axis data: add a 'pot_incomplete' boolean column to the output dataframe and write a specific warning log entry (Edge Case: missing z-axis)
 - [X] T015 [US1] Implement `code/ingestion.py` function to calculate $E_{trans}$, $E_{rot}$, $E_{pot}$, and $E_{vib}$ using independent physics formulas (e.g., $E_{vib}$ derived from high-frequency acceleration variance or specific vibrational mode analysis, NOT as a residual) using config constants (FR-002)
-- [~] T017 [US1] Output computed `energy_samples.csv` to `data/derived/` with columns: particle_id, timestamp, $E_{trans}$, $E_{rot}$, $E_{pot}$, $E_{vib}$, pot_incomplete <!-- FAILED: unspecified -->
+- [ ] T017 [US1] Output computed `energy_samples.csv` to `data/derived/` with columns: particle_id, timestamp, $E_{trans}$, $E_{rot}$, $E_{pot}$, $E_{vib}$, pot_incomplete <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,14 +92,14 @@
 
 - [X] T018 [P] [US2] Unit test for KS test logic in `tests/test_stats.py` (verify p-value calculation against known distribution)
 - [X] T019 [P] [US2] Unit test for Chi-squared test logic in `tests/test_stats.py` (verify statistic and rejection boolean)
-- [ ] T020 [P] [US2] Integration test for multi-frequency aggregation in `tests/test_stats.py` (verify summary table generation)
+- [X] T020 [P] [US2] Integration test for multi-frequency aggregation in `tests/test_stats.py` (verify summary table generation)
 
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] Implement `code/stats.py` function to bin energy data by driving frequency and material type, reading input from `data/derived/energy_samples.csv` (Constitution Principle VII)
-- [ ] T022 [US2] Implement `code/stats.py` function to perform Kolmogorov-Smirnov test against the theoretical Maxwell-Boltzmann distribution (using sample mean to estimate scale parameter if required by KS variant, but explicitly targeting MB) (FR-003)
-- [ ] T023 [US2] Implement `code/stats.py` function to perform Chi-squared goodness-of-fit test: bin observed counts using standard binning rules and calculate expected counts by integrating the Maxwell-Boltzmann PDF over these bins (FR-004)
-- [ ] T024 [US2] Implement `code/stats.py` function to apply Benjamini-Hochberg (FDR) correction for multiple comparisons (FR-006)
+- [X] T022 [US2] Implement `code/stats.py` function to perform Kolmogorov-Smirnov test against the theoretical Maxwell-Boltzmann distribution (using sample mean to estimate scale parameter if required by KS variant, but explicitly targeting MB) (FR-003)
+- [X] T023 [US2] Implement `code/stats.py` function to perform Chi-squared goodness-of-fit test: bin observed counts using standard binning rules and calculate expected counts by integrating the Maxwell-Boltzmann PDF over these bins (FR-004)
+- [X] T024 [US2] Implement `code/stats.py` function to apply Benjamini-Hochberg (FDR) correction for multiple comparisons (FR-006)
 - [ ] T025 [US2] Generate `statistical_results.json` in `artifacts/` containing test types, statistics, p-values, and rejection flags
 - [ ] T026 [US2] Implement logic to handle non-stationary segments (chirped signals) by binning or exclusion (Edge Case: chirped signals)
 

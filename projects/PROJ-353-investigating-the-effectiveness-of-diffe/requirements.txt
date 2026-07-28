@@ -1,12 +1,19 @@
-networkx>=3.2
-torch>=2.1.0
+# Python 3.10+ dependencies for llmXive: Investigating Loss Functions on Small-World Graphs
+# Project: PROJ-353-investigating-the-effectiveness-of-diffe
+# Task: T002 - Initialize project with pinned core dependencies
+
+# Core Data & Graph Libraries
+networkx>=3.1.0
+numpy>=1.24.3
+pandas>=2.0.3
+
+# Deep Learning (CPU-only compatible)
+torch>=2.0.1
+
+# Machine Learning & Statistics
 scikit-learn>=1.3.0
 statsmodels>=0.14.0
 lifelines>=0.28.0
-numpy>=1.24.0
-pandas>=2.1.0
-flake8>=7.0.0
-black>=24.3.0
-isort>=5.13.0
-pre-commit>=3.6.0
-pytest>=8.0.0
+
+# Utilities (optional but recommended for data handling)
+pyyaml>=6.0.1

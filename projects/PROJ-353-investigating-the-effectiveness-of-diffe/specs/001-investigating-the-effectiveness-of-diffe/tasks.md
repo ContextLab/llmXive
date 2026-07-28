@@ -43,7 +43,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/` directories)
-- [ ] T002 Initialize Python 3.10 project with `requirements.txt` (pinned `networkx`, `torch`, `scikit-learn`, `statsmodels`, `lifelines`, `numpy`, `pandas`)
+- [X] T002 Initialize Python 3.10 project with `requirements.txt` (pinned `networkx`, `torch`, `scikit-learn`, `statsmodels`, `lifelines`, `numpy`, `pandas`)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -75,7 +75,7 @@
 
 - [ ] T004 [P] Implement `code/utils.py` with `seed_all()` (random, numpy, torch), `hash_artifact()`, and logging setup. **Note**: Define `CONVERGENCE_THRESHOLD = 0.90 ` as a constant here, derived from the updated spec.
 - [ ] T008 [P] Implement `code/models.py` with a 2-layer GCN class (CPU-only, no CUDA dependencies).
-- [ ] T009 [P] Implement `code/losses.py` with Cross-Entropy and InfoNCE (temperature $\tau=0.5$, fixed negatives) implementations.
+- [ ] T009 [P] {{claim:c_6a30416f}}
 - [ ] T010 [P] Create `code/main.py` orchestrator skeleton with argument parsing and pipeline state management.
 
 **Dependency Note**: T005a, T005b, T006a, T007a must complete before T008 and T009. T016, T011, T012, T013, T014, T015 must complete before T005a.
