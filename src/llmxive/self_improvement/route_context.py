@@ -8,6 +8,7 @@ derivation that makes a replayed call recognizable as a replay.
 
 from __future__ import annotations
 
+import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -89,6 +90,9 @@ class LaneRouteContext:
     call_ledger: LaneCallLedger
     config: LaneLogConfig | None = None
     _repeats: dict[str, int] = field(default_factory=dict, repr=False, compare=False)
+    _repeats_lock: threading.Lock = field(
+        default_factory=threading.Lock, repr=False, compare=False
+    )
 
     def next_operation_id(self, base: str) -> str:
         """Resolve a caller's content-derived ``base`` into THIS call's operation id: the
@@ -104,9 +108,18 @@ class LaneRouteContext:
         previous round's. Those are new logical calls that already dispatched once, so they
         need new ids and their own ceiling charge — the ``+2`` per round exists for exactly
         the reviser's second attempt. Without the sequencer they would replay the first
-        claim, receive the first ``route_id``, and be REFUSED at the dispatch gate."""
-        seen = self._repeats.get(base, 0)
-        self._repeats[base] = seen + 1
+        claim, receive the first ``route_id``, and be REFUSED at the dispatch gate.
+
+        Locked because the read-modify-write below is the whole guarantee: two threads that
+        both read the same count would both return the bare ``base``, and the second call
+        would then replay the first's claim and be refused at that same gate. Today's
+        callers key by lens so they cannot collide, and the engine does not re-enter one
+        reviewer concurrently — but this context is explicitly SHARED across the panel's
+        thread pool, so the uniqueness it promises should not rest on who happens to call
+        it."""
+        with self._repeats_lock:
+            seen = self._repeats.get(base, 0)
+            self._repeats[base] = seen + 1
         return base if seen == 0 else f"{base}#{seen}"
 
     def claim_route(self, *, operation_id: str, leg: str = "primary") -> str:

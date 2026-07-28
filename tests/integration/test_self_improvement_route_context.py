@@ -8,6 +8,8 @@ objects implementing the protocols, not mocks.
 from __future__ import annotations
 
 import subprocess
+import sys
+import threading
 
 import pytest
 
@@ -163,6 +165,48 @@ def test_next_operation_id_separates_in_process_repeats_but_not_restarts(repo):
     assert fresh.next_operation_id("reviser:abc") == "reviser:abc"
     assert fresh.claim_route(operation_id="reviser:abc") == ctx.claim_route(operation_id=a)
     assert fresh.calls_used() == 2  # the replay charged nothing
+
+
+def test_concurrent_repeats_of_one_base_all_get_distinct_ids(repo):
+    """The context is SHARED across the panel's thread pool, so the uniqueness this method
+    promises must not depend on callers happening to use different keys: two threads that
+    read the same count would both return the bare base, and the second call would replay
+    the first's claim and be refused at the dispatch gate.
+
+    The switch interval is dropped to make the scheduler adversarial. At the default
+    interval the read-modify-write never interleaves — an unlocked version passes this test
+    100% of the time, which would make it worthless as a guard. At 1e-6 the unlocked
+    version fails ~12% of ROUNDS, so 200 rounds detect it with probability ~1 - 1e-10.
+    """
+    ctx = _ctx(repo, ceiling=64)
+    workers, rounds = 32, 200
+    original_interval = sys.getswitchinterval()
+    sys.setswitchinterval(1e-6)
+    try:
+        for round_index in range(rounds):
+            barrier = threading.Barrier(workers, timeout=30)
+            ids, lock = [], threading.Lock()
+
+            def _take(_barrier=barrier, _ids=ids, _lock=lock, _round=round_index):
+                _barrier.wait()
+                oid = ctx.next_operation_id(f"reviser:round-{_round}")
+                with _lock:
+                    _ids.append(oid)
+
+            threads = [threading.Thread(target=_take) for _ in range(workers)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join(timeout=60)
+
+            assert len(ids) == workers
+            assert len(set(ids)) == workers, (
+                f"round {round_index}: duplicate operation ids under concurrency "
+                f"({workers - len(set(ids))} collisions) — a replayed claim would be "
+                f"refused at the dispatch gate"
+            )
+    finally:
+        sys.setswitchinterval(original_interval)
 
 
 def test_a_restarted_context_does_not_get_a_fresh_ceiling(repo):
