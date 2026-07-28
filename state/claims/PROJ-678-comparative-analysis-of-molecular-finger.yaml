@@ -1086,3 +1086,195 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T22:20:34Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Tox21 dataset source is deepchem/tox on HuggingFace
+  claim_id: c_10958f77
+  context: T011 [US1] Implement `code/download.py` to fetch Tox dataset from HuggingFace
+    `datasets.load_dataset("deepchem/tox")`, including checksum verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tox21_dataset_source_is_deepchem/tox_on_HuggingFace
+  kind: entity_fact
+  raw_text: The Tox21 dataset is fetched from HuggingFace using datasets.load_dataset('deepchem/tox').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:36:39Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: SMARTS pattern for organophosphate filtering is [P](=O)([O,SC])[O,SC]
+  claim_id: c_517f1110
+  context: 'T006 [US1] Create `code/constants.py` with exact variable definitions:
+    `SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"` (str)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SMARTS_pattern_for_organophosphate_filtering_is_%5BP%5D(=O)(%5BO,S
+  kind: entity_fact
+  raw_text: The SMARTS pattern used to filter organophosphates is '[P](=O)([O,SC])[O,SC]'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:36:58Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: 'Morgan fingerprint parameters: radius 2, 2048 bits'
+  claim_id: c_38f83751
+  context: 'T006 [US1] Create `code/constants.py` with exact variable definitions:
+    ... `MORGAN_RADIUS = 2` (int), `MORGAN_BITS = 2048` (int)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Morgan fingerprint generation uses a radius of 2 and 2048 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:37:12Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: 'MACCS fingerprint parameters: 166 bits'
+  claim_id: c_e5efd95a
+  context: 'T006 [US1] Create `code/constants.py` with exact variable definitions:
+    ... `MACCS_BITS = 166` (int)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MACCS fingerprint generation uses 166 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:37:20Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: K-Fold Cross-Validation uses 5 folds
+  claim_id: c_4d5ea2c1
+  context: 'T006 [US1] Create `code/constants.py` with exact variable definitions:
+    ... `N_FOLDS = 5` (int).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The K-Fold Cross-Validation is configured with 5 folds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:38:03Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: 'Random Forest model: 100 trees, max_depth 15'
+  claim_id: c_fbba639e
+  context: T019 [US2] Implement `code/train.py` to train Random Forest models (100
+    trees, max_depth=15) using **K-Fold Cross-Validation**...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest model is trained with 100 trees and a maximum depth
+    of 15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:38:35Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Test set size limit for greedy split is 20% of total
+  claim_id: c_ad9871ae
+  context: T018a [US2] ... 3. Add to test set if distance > threshold and test set
+    size < 20% of total.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_set_size_limit_for_greedy_split_is_20%25_of_total
+  kind: magnitude
+  raw_text: The test set for the single greedy split must be less than 20% of the
+    total dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:38:41Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Statistical test skipped if sample size < 50
+  claim_id: c_b03ba296
+  context: 'T013a [US1] ... If total sample size < 50, write the exact string "WARNING:
+    Low Sample Size (n < 50)" to `data/processed/filter_log.txt`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_test_skipped_if_sample_size_%3C_50
+  kind: magnitude
+  raw_text: The statistical comparison is considered invalid if the total sample size
+    is less than 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:38:45Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit is 60 minutes on 2-core CPU
+  claim_id: c_ee9b52e6
+  context: 'Independent Test: Execute training script on a sample subset to verify
+    memory safety, artifact generation, and completion within 60 minutes on 2-core
+    CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is required to complete within 60 minutes on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:38:50Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: Statistical test is Corrected Resampled t-test (Nadeau & Bengio) on K-Fold
+    ROC-AUC
+  claim_id: c_7bd256b0
+  context: T025a [US3] Implement `code/evaluate.py` to perform the **Corrected Resampled
+    t-test (Nadeau & Bengio)** on the **K-Fold ROC-AUC scores**...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_test_is_Corrected_Resampled_t-test_(Nadeau_&_Ben
+  kind: entity_fact
+  raw_text: The statistical test uses the Corrected Resampled t-test (Nadeau & Bengio)
+    on K-Fold ROC-AUC scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:38:56Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md
+  attempts: 1
+  canonical: 'Morgan fingerprint chunked processing: batch 500 if memory > 7GB'
+  claim_id: c_37c2dcde
+  context: T017 [US2] ... implement chunked processing (batch=500) if memory > 7GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Morgan fingerprint generation includes chunked processing with a batch
+    size of 500 if memory usage exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T06:39:02Z'

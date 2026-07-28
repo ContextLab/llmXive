@@ -1,16 +1,23 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or screenshots were provided to confirm that `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
+    \ (with the sub\u2011folders `data/raw`, `data/processed`, `code`, and `tests`)\
+    \ actually exists, nor that a sibling `specs/` directory was created. The implementer\u2019\
+    s claim cannot be verified without concrete filesystem evidence."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided showing a `tests/` directory with the required `unit/`
     and `integration/` subfolders; the claim lacks any artifact confirming the directory
     structure exists.
-T012:
+T008:
   c: false
-  h: 0efc1df77c0a5efd53268db0e2751c81b9c8995546b80bc61dc6d1a6eee453e7
-  r: "The repository contains a `code/filter.py` implementation, but the required\
-    \ output file `data/processed/organophosphates_filtered.csv` is absent, so the\
-    \ filtering step has not produced the mandated CSV. Without this file the task\u2019\
-    s core requirement is unmet."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md` file
+    (or its contents) was presented; the required schema definitions for Compound,
+    Fingerprint, Model, and PerformanceMetric are absent. The task therefore lacks
+    the essential artifact.
 T013a:
   c: false
   h: 4fd5268ba41d568fbb400365296ea02c2c70be264cd8a1c89b49bbef2d2b28e4
@@ -20,14 +27,13 @@ T013a:
     \ logging a low\u2011sample\u2011size warning is not demonstrated. The missing\
     \ file and incomplete implementation must be added for the task to be considered\
     \ complete."
-T013b:
+T018b:
   c: false
-  h: 65d39a365f7c59ada3b169541f0f3564349372b1288b192cef2cad18ac5da5ac
-  r: "The required output file `data/processed/sample_size_status.json` does not exist,\
-    \ so the task\u2019s core requirement (writing a JSON status file based on sample\
-    \ size) is not met. Additionally, the `write_sample_size_status` function in `code/filter.py`\
-    \ is truncated and its implementation cannot be verified. The missing file must\
-    \ be created with the correct JSON content for the task to be complete."
+  h: 0723d4bb10155a4c9d81cea537abccfb274cf7af6149790543093a6ffc48e8a3
+  r: "The repository lacks the required `data/processed/split_indices.json` file,\
+    \ and the provided `code/split.py` does not read that JSON or check a `\"status\"\
+    ` field to log the specified failure message. Instead, it contains unrelated fingerprint\u2011\
+    splitting logic, so the task\u2019s core requirement is unmet."
 T018c:
   c: false
   h: 8b019f3d9b2025644bde250f94405c5c3c610d792ca99cf39a517fb8c5297d76

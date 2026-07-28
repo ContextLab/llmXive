@@ -22,9 +22,9 @@ K-fold cross-validation will be employed to assess model generalization performa
 **Primary Dependencies**: `rdkit` (2024.3.x), `scikit-learn` (1.4.x), `pandas` (2.2.x), `numpy` (1.26.x), `requests` (2.31.x)  
 **Storage**: Local CSV/Parquet files under `data/` (raw and derived); no external database.  
 **Testing**: `pytest` (8.x) with unit tests for SMARTS filtering, fingerprint generation, and statistical test logic.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple vCPU, 7GB RAM, no GPU).  
 **Project Type**: Computational chemistry research pipeline.  
-**Performance Goals**: Complete full pipeline (filtering -> 5-fold CV training -> evaluation) within 60 minutes on the filtered subset; memory usage < 7 GB.  
+**Performance Goals**: Complete full pipeline (filtering -> -fold CV training -> evaluation) within 60 minutes on the filtered subset; memory usage < 7 GB.  
 **Constraints**: CPU-only execution; strict Tanimoto similarity threshold (<0.85) for each fold split; no GPU/CUDA operations.  
 **Scale/Scope**: Filtered dataset expected to be < 5,000 compounds; toxicity endpoints.
 
@@ -76,7 +76,11 @@ projects/PROJ-678-comparative-analysis-of-molecular-finger/
 │   ├── filter.py        # SMARTS filtering logic
 │   ├── fingerprints.py  # Morgan and MACCS generation + Bit-to-Atom mapping
 │   ├── split.py         # Greedy maximal dissimilarity split (per fold)
-│   ├── train.py         # Random Forest training (CPU only, 5-fold loop)
+│   ├── train.py         # Random Forest training (CPU only, k-fold loop)
+
+The specific value to remove/generalize: 'k'
+
+Rewritten passage:
 │   ├── evaluate.py      # Metrics, Nadeau & Bengio t-test, bootstrapping, SC-003 analysis
 │   └── utils.py         # Shared helpers (logging, config)
 ├── tests/
