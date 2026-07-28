@@ -1,41 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Regression Result Schema"
 description: "Schema for the regression_results.json file containing model coefficients and metrics."
-type: object
+type: "object"
 properties:
   model_name:
-    type: string
-    description: "Name of the regression model (GAM)."
+    type: "string"
+    description: "Name of the regression model (e.g., Polynomial Regression)."
   asr_model:
-    type: string
+    type: "string"
     description: "The ASR model it predicts for."
   snr_coef:
-    type: number
+    type: "number"
     description: "Coefficient for SNR (linear part)."
   rt60_coef:
-    type: number
+    type: "number"
     description: "Coefficient for RT60 (linear part)."
-  interaction_smooth:
-    type: string
-    description: "Description of the smooth interaction term."
+  interaction_coef:
+    type: "number"
+    description: "Coefficient for the SNR × RT60 interaction term."
   r_squared:
-    type: number
+    type: "number"
     description: "Model R² score."
   p_value_interaction:
-    type: number
-    description: "P-value for the interaction term (GAM smooth term)."
+    type: "number"
+    description: "P-value for the interaction term."
   p_value_interaction_fdr:
-    type: number
+    type: "number"
     description: "FDR-corrected p-value for the interaction term."
   fdr_corrected:
-    type: boolean
+    type: "boolean"
     description: "True if significant after FDR correction."
 required:
   - model_name
   - asr_model
   - snr_coef
   - rt60_coef
-  - interaction_smooth
+  - interaction_coef
   - r_squared
   - p_value_interaction
   - p_value_interaction_fdr

@@ -1,43 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Collapse Point Data Schema"
-description: "Schema for the collapse_points.parquet file containing derived failure thresholds."
-type: object
+title: "CollapseIntensity"
+description: "Schema for identified semantic collapse points (used for sensitivity analysis only)."
+type: "object"
 properties:
-  collapse_id:
-    type: string
-    description: "Unique identifier for the collapse point."
-  clip_id:
-    type: string
-    description: "Foreign key to the AudioClip."
-  asr_model:
-    type: string
-    description: "Name of the ASR model."
-  collapse_snr:
-    type: number
-    description: "The SNR value at collapse (float)."
-  collapse_rt60:
-    type: number
-    description: "The RT60 value at collapse (float)."
-  collapse_intensity:
-    type: number
-    description: "A scalar proxy for intensity."
-  validation_status:
-    type: string
-    description: "Status: Confirmed, None, or Max Tested."
-    enum:
-      - "Confirmed"
-      - "None"
-      - "Max Tested"
-  human_validated:
-    type: boolean
-    description: "True if validated by human annotation."
+  audio_clip_id:
+    type: "string"
+    description: "Unique identifier for the audio clip."
+  model_name:
+    type: "string"
+    description: "Name of the ASR model used."
+  collapse_intensity_id:
+    type: "string"
+    description: "ID of the distortion vector where collapse occurred."
+  ss_threshold:
+    type: "number"
+    description: "The SSS threshold at collapse."
+  wer_spike_factor:
+    type: "number"
+    description: "WER multiplier at collapse (e.g., 2.0 for 2× baseline)."
+  sensitivity_threshold:
+    type: "number"
+    description: "The threshold value used in sensitivity analysis."
 required:
-  - collapse_id
-  - clip_id
-  - asr_model
-  - collapse_snr
-  - collapse_rt60
-  - collapse_intensity
-  - validation_status
-  - human_validated
+  - audio_clip_id
+  - model_name
+  - collapse_intensity_id
+  - ss_threshold
+  - wer_spike_factor
+  - sensitivity_threshold
 additionalProperties: false

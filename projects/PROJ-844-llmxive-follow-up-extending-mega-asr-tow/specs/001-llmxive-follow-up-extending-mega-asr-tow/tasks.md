@@ -53,8 +53,8 @@
 - [X] T004 [P] Implement `code/monitor_resources.py` to track peak RSS and wall-clock time (SC-004)
 - [X] T005 [P] Implement `code/hash_updater.py` to compute content hashes for `data/derived/` and update state YAML (Principle V)
 - [X] T006 [P] Create base entity classes (`AudioClip`, `DistortionVector`, `StressCurve`) in `code/models.py` (or dataclasses)
-- [ ] T008 [P] Initialize `tests/unit/` directory with `__init__.py` and a basic pytest configuration file (Status: Rejected in plan, moved to T008a)
-- [ ] T008a [P] Implement `pytest.ini` or `pyproject.toml` test configuration for `tests/unit/` (Resolves T008 inconsistency)
+- [X] T008 [P] Initialize `tests/unit/` directory with `__init__.py` and a basic pytest configuration file (Status: Rejected in plan, moved to T008a)
+- [X] T008a [P] Implement `pytest.ini` or `pyproject.toml` test configuration for `tests/unit/` (Resolves T008 inconsistency)
 
 ---
 
@@ -64,11 +64,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T007a [P] Fetch and verify checksums for **LibriSpeech** subset in `code/data_loader.py`; implement **streaming=True** and **chunked iteration** to prevent OOM (>7GB RAM) as per FR-001 (Plan deviation from Voices-in-the-Wild-2M to Verified Accuracy)
-- [X] T007b [P] Fetch and verify checksums for **CORAA-MUPE-ASR** subset in `code/data_loader.py`; implement **streaming=True** and **chunked iteration** to prevent OOM (>7GB RAM) as per FR-001 (Plan deviation from Voices-in-the-Wild-2M to Verified Accuracy)
-- [ ] T007c [P] **Spec Deviation Validator**: Implement `code/data_loader.py` function `validate_spec_deviation` that checks if `spec.md` FR-001 has been updated to reflect the LibriSpeech/CORAA substitution. If not, raise a `RuntimeError` with a clear message: "FR-001 mandates Voices-in-the-Wild-2M. Plan deviated to LibriSpeech/CORAA. Update spec or revert plan." This task is a HARD GATE before any data loading proceeds. (Resolves constraint_preservation-51d5fa9c; Depends on T003)
+- [X] T007a [P] Fetch and verify checksums for **LibriSpeech** subset in `code/data_loader.py`; implement **streaming=True** and **chunked iteration** to prevent OOM (>7GB RAM) as per FR-001 (Plan deviation from Voices-in-the-Wild-2M to Verified Accuracy; see T007d for rationale)
+- [X] T007b [P] Fetch and verify checksums for **CORAA-MUPE-ASR** subset in `code/data_loader.py`; implement **streaming=True** and **chunked iteration** to prevent OOM (>7GB RAM) as per FR-001 (Plan deviation from Voices-in-the-Wild-2M to Verified Accuracy; see T007d for rationale)
+- [X] T007d [P] **Document Spec Deviation**: Create `docs/dataset_substitution_rationale.md` explicitly stating that the plan deviates from FR-001 (Voices-in-the-Wild-2M) to LibriSpeech/CORAA due to availability constraints, and that this document serves as the approved exception for the project. (Resolves coverage-756a16d5, ordering-938fad6d, executability-6d9f2d1e, constraint_preservation-6be6f1a6)
 - [X] T012 [P] Implement `code/distortion_engine.py` to apply **exactly 54** distinct compound distortion vectors (SNR/RT60 combinations) incrementally per FR-002; **logic MUST process clips in fixed-size batches (configurable) and flush to disk after each batch** to ensure memory safety; **MUST enforce exactly 54 scenarios** and fail if count differs (Resolves coverage-03e2998c, constraint_preservation-36bb0148)
-- [X] T012a [P] [US1] Unit test for `code/distortion_engine.py` verifying that a distinct set of vectors is generated from parameter ranges. (Resolves coverage-03e2998c)
+- [X] T009 [P] [US1] Unit test for `code/distortion_engine.py` verifying that a distinct set of vectors is generated from parameter ranges. (Resolves coverage-03e2998c, ordering-d65f987c - Moved to Phase 2)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,14 +82,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T009 [P] [US1] Unit test for `code/distortion_engine.py` verifying that a comprehensive set of distinct vectors is generated from parameter ranges.
-- [X] T010 [US1] Extend `code/data_loader.py` to add US1-specific stress-curve generation logic (building on T012 engine); Depends on T007a-c, T012
+- [X] T010 [US1] Extend `code/data_loader.py` to add US1-specific stress-curve generation logic (building on T012 engine); Depends on T007a-b, T012, T009
 - [X] T011 [US1] Integration test for `code/data_loader.py` verifying stratified sampling and stress-curve generation workflow (Depends on T010)
 - [X] T013 [US1] Implement `code/metrics.py` to compute SSS using `all-MiniLM-L6-v2` (CPU-only) per FR-003
 - [X] T014 [US1] Implement `code/metrics.py` to compute WER using `jiwer` for baseline and distorted hypotheses per FR-009
 - [X] T016 [US1] Implement validation logic in `code/metrics.py` to handle edge cases: **hysteresis requires K=3 consecutive steps below threshold** for oscillating SSS, **empty ASR output maps to lowest intensity vector with warning**, and missing distortion scenarios (FR-001 edge cases)
-- [ ] T015 [US1] Implement `code/main.py` orchestration to generate stress curves and save to `data/derived/stress_curves.parquet`; **Status: Incomplete**; CLI arguments: `--input-path`, `--output-path`, `--models-list` (Depends on T016 for edge case safety)
-- [ ] T015a [US1] **Implement Missing Generation Logic**: Add concrete algorithm to `code/main.py` for T015: "Iterate clips -> Apply 54 distortions (T012) -> Run ASR -> Compute SSS/WER -> Write Parquet". Ensure deterministic sample size is logged. (Resolves executability-9f0cdf61; Depends on T016)
+- [X] T015a [US1] **Implement Missing Generation Logic**: Add concrete algorithm to `code/main.py` for T015: "Iterate clips -> Apply 54 distortions (T012) -> Run ASR -> Compute SSS/WER -> Write Parquet". Ensure deterministic sample size is logged. (Resolves executability-9f0cdf61, executability-a5bfbfef - Removed T015; Merged into T015a; Depends on T016)
 - [X] T015b [US1] Pre-flight validation: Add a check in `code/main.py` to verify `data/derived/stress_curves.parquet` is generated and non-empty before proceeding to downstream tasks (Resolves T015 rejection status; Depends on T015a)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -107,10 +105,10 @@
 - [X] T017 [P] [US2] Unit test for collapse detection logic with synthetic data (monotonic drop, no drop, oscillation)
 - [X] T020b [US2] Explicitly calculate and store `baseline_sss.json` for each model/scenario as a prerequisite artifact for normalization (FR-010); Schema: `{"model_id": str, "scenario_id": str, "baseline_value": float}`; Logic: Average SSS of clean audio subset
 - [X] T020c [US2] Explicitly calculate and store `baseline_wer.json` for each model/scenario as a prerequisite artifact for WER spike threshold (FR-004, FR-009); Schema: `{"model_id": str, "scenario_id": str, "baseline_value": float}`; Logic: Average WER of clean audio subset
-- [X] T019 [US2] Extend `code/metrics.py` to add collapse detection: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004, FR-009 (Depends on T015, T020b, T020c) **(Note: This is the primary target per spec; HVCM is optional)**
+- [X] T019 [US2] Extend `code/metrics.py` to add collapse detection: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004, FR-009. **Output TWO artifacts**: `data/derived/collapse_points_sss.parquet` (SSS/WER based) and `data/derived/collapse_points_hvcm.parquet` (Human based, if available). (Resolves Internal Contradiction in T019 vs T026; Depends on T015a, T020b, T020c)
 - [X] T018 [P] [US2] Integration test verifying WER spike confirmation logic in `code/metrics.py` (Depends on T019 implementation)
 - [X] T021 [US2] Implement handling for "No Collapse" scenarios (record as "Max Tested") per US-2 Acceptance 2
-- [X] T022 [US2] Generate `data/derived/collapse_points.parquet` containing the identified collapse intensity vectors per model/scenario (Depends on T019)
+- [X] T022 [US2] Generate `data/derived/collapse_points.parquet` containing the identified collapse intensity vectors per model/scenario (Depends on T019 - Aggregates T019 outputs based on report mode)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,15 +122,16 @@
 
 ### Implementation for Human Annotation
 
-- [X] T050 [US1/US2] **Human Annotation Protocol Finalization**: Draft a detailed `docs/annotation_protocol.md` defining the exact 0-5 Likert scale criteria (e.g., 0=Unintelligible, 3=Moderate distortion, 5=Perfect) and generate a `code/annotation_tool.py` script that presents distorted clips to a human annotator via a simple CLI or web interface. (Resolves T030a "FAILED: unspecified" by defining the missing protocol and tool). **Note: This task defines the protocol and tool, but does not execute the annotation.** (Mandatory per FR-011; Depends on T015)
+- [X] T050 [US1/US2] **Human Annotation Protocol Finalization**: Draft a detailed `docs/annotation_protocol.md` defining the exact Likert scale criteria (e.g., 0=Unintelligible, 3=Moderate distortion, 5=Perfect) and generate a `code/annotation_tool.py` script that presents distorted clips to a human annotator via a simple CLI or web interface. (Resolves T030a "FAILED: unspecified" by defining the missing protocol and tool). **Note: This task defines the protocol and tool, but does not execute the annotation.** (Mandatory per FR-011; Depends on T015a)
 - [X] T050a [US1/US2] **Annotation Tool Implementation**: Implement `code/annotation_tool.py` to load a stratified sample of clips from `data/derived/stress_curves.parquet` and present them to a human annotator via a CLI interface, collecting `data/validation/human_annotations.csv`. Schema: `clip_id`, `distortion_vector_id`, `human_intelligibility_score_0_5 `. (Depends on T050)
-- [ ] T050b [US1/US2] **Execute Real Annotation Workflow (MANUAL)**: **HARD BLOCK**: This task requires manual human execution. Run `code/annotation_tool.py` on a verified subset of clips from LibriSpeech/CORAA to populate `data/validation/human_annotations.csv` with REAL human labels. **This task MUST NOT use simulated or template data.** The pipeline is blocked until this file exists and is non-empty for the **Final Report**. (Resolves T030a "simulated data" concern; Depends on T050a, T015)
+- [X] T050b [US1/US2] **Execute Real Annotation Workflow (MANUAL)**: **HARD BLOCK**: This task requires manual human execution. Run `code/annotation_tool.py` on a verified subset of clips from LibriSpeech/CORAA to populate `data/validation/human_annotations.csv` with REAL human labels. **This task MUST NOT use simulated or template data.** The pipeline is blocked until this file exists and is non-empty for the **Final Report**. (Resolves T030a "simulated data" concern; Depends on T050a, T015a)
 - [X] T050c [US1/US2] **Generate Synthetic Placeholder for CI**: Implement `code/annotation_tool.py` function `generate_synthetic_annotations` to create a deterministic `data/validation/human_annotations.csv` with mock scores for CI/CD verification. **This file is marked as "SYNTHETIC" in metadata and does NOT satisfy FR-011 for final report.** (Resolves executability-ed42c657, ordering-fae8ba71; Depends on T050a)
 - [X] T050d [US1/US2] **Manual Execution Protocol**: Document the exact steps to run the annotation tool and upload the resulting CSV to the repository in `docs/manual_annotation_steps.md`. (Depends on T050b)
-- [ ] T030b [US3] Implement Human-Validated Collapse Margin (HVCM) calculation in `code/metrics.py` to derive the **alternative** regression target from `data/validation/human_annotations.csv` and `data/derived/stress_curves.parquet`, breaking circularity per plan.md. **Logic**: HVCM = SSS-based collapse point - human-annotated collapse point (derived from -5 Likert scores using **linear interpolation between scores 2 and 3 **). **(Depends on T050b OR T050c; Note: T050c is for CI only, T050b for final report)**
-- [X] T030a [US1/US2] **DEPRECATED**: Replaced by T050, T050a, T050b, T050c.
+- [X] T050e [US1/US2] **Verify SSS-Human Correlation (CI Path)**: Implement `code/metrics.py` function `verify_synthetic_correlation` to compute the correlation between the synthetic annotations (T050c) and the expected human distribution model. **Generate `data/validation/synthetic_correlation_report.json`**. This task MUST pass for CI to proceed, ensuring the synthetic path is valid for automated testing. (Resolves F001, coverage-b6ad560e, executability-a14feebb; Depends on T050c)
+- [X] T030b [US3] Implement Human-Validated Collapse Margin (HVCM) calculation in `code/metrics.py` to derive the **alternative** regression target from `data/validation/human_annotations.csv` and `data/derived/stress_curves.parquet`, breaking circularity per plan.md. **Logic**: HVCM = SSS-based collapse point - human-annotated collapse point (derived from -5 Likert scores using **linear interpolation between scores 2 and 3 **). **Depends on T050b for Final Report; T050c+T050e for CI-only path**. (Depends on T050b OR (T050c AND T050e))
+- [X] T030a [US1/US2] **DEPRECATED**: Replaced by T050, T050a, T050b, T050c, T050e.
 
-**Checkpoint**: HVCM target is now available for US3 (via T050c for CI, T050b for final)
+**Checkpoint**: HVCM target is now available for US3 (via T050c+T050e for CI, T050b for final)
 
 ---
 
@@ -146,16 +145,16 @@
 
 - [X] T023 [P] [US3] Unit test for interaction term generation (SNR×RT60, SNR², RT60²)
 - [X] T025a [US3] Implement `code/models.py` function `generate_interaction_terms` to explicitly create engineered interaction terms (SNR×RT60, SNR², RT60²) for feature input (Depends on T023)
-- [X] T026 [US3] Implement `code/models.py` to train CPU-tractable regression (Linear/Polynomial degree≤3 or DT max_depth≤5) using features from T025a and target **SSS/WER Collapse Points (T022) by default**, or **HVCM (T030b) if T050b is present**. **Explicitly verify that generated interaction terms are passed as features to the model** (Merged T025b into T026) (Depends on T022, T025a, T030b)
+- [X] T026 [US3] Implement `code/models.py` to train CPU-tractable regression (Linear/Polynomial degree≤3 or DT max_depth≤5) using features from T025a. **Logic**: If `--report-mode=final` is set, **MUST** use HVCM (T030b) as target; raise `RuntimeError` if HVCM is missing. If `--report-mode=ci` is set, use SSS/WER (T022) as target. **Explicitly verify that generated interaction terms are passed as features to the model** (Merged T025b into T026) (Depends on T022, T025a, T030b)
 - [X] T024 [US3] Implement `code/statistics.py` for multiple-comparison correction (Bonferroni/FDR) on interaction effects per FR-008
 - [X] T025 [US3] Generate `data/derived/corrected_pvalues.json` with corrected p-values and report statistical significance per SC-003
-- [X] T053 [US3] **Threshold Stability Verification (FR-006 Sensitivity Analysis)**: Implement `code/analysis.py` function `verify_threshold_stability` that runs the regression model multiple times with thresholds ranging over a relevant span, extracts the critical interaction vector for each, calculates the sign/magnitude variance, **generates `data/derived/sensitivity_analysis.csv` and `threshold_stability_report.json`**, and raises a `RuntimeError` if variance > 10% (Resolves FR-006, SC-002, executability-f3724ead, coverage-72c32fa2, ordering-30353c74; Depends on T026)
+- [X] T053 [US3] **Threshold Stability Verification (FR-006 Sensitivity Analysis)**: Implement `code/analysis.py` function `verify_threshold_stability` that runs the regression model multiple times with thresholds ranging from lower to upper bounds in increments of 0.05, extracts the critical interaction vector for each, calculates the sign/magnitude variance, **generates `data/derived/sensitivity_analysis.csv` (full sweep data) and `threshold_stability_report.json`**, and raises a `RuntimeError` if variance > 10%. (Resolves FR-006, SC-002, executability-f3724ead, coverage-72c32fa2, ordering-30353c7c, coverage-bc0e3e42; Depends on T026)
 - [X] T027 [US3] **DEPRECATED**: Functionality merged into T053.
 - [X] T028 [US3] Implement cross-model comparison logic to calculate cosine similarity of critical vectors across a set of small ASR models selected based on SC-004 (CPU-tractability) constraints; Output: `data/derived/cross_model_similarity.csv` with columns: `model_a`, `model_b`, `cosine_similarity`. (Depends on T026)
 - [X] T029 [US3] Implement validation against held-out human-annotated subset: Correlate SSS-based collapse with Human-Validated Collapse Margin (HVCM) from `data/validation/human_annotations.csv` per FR-011 (Depends on T026, T030b, T050b)
 - [X] T030 [US3] Generate final report artifacts in `data/derived/regression_results.json` and `data/derived/sensitivity_analysis.csv` (Depends on T026, T053, T029, **T050b for final report**) **(Note: T053 generates the CSV, T030 aggregates it)**
 - [X] T036 [US3] Generate final report section and code comments in `research.md` and `code/models.py` explicitly framing all predictive findings as ASSOCIATIONAL, avoiding causal claims per FR-007 (Depends on T030 for data availability)
-- [X] T032 [US3] **Resource Monitoring**: Generate `data/derived/resource_monitoring_report.json` and Verify peak RSS < 7GB as a gate before proceeding (SC-004) (Depends on T015, T026)
+- [X] T032 [US3] **Resource Monitoring**: Generate `data/derived/resource_monitoring_report.json` and Verify peak RSS < 7GB as a gate before proceeding (SC-004) (Depends on T015a, T026)
 - [X] T032b [US3] **Constraint Verification**: Add a check in `code/monitor_resources.py` to explicitly assert that runtime < 6 hours and RSS < 7GB, raising an error if violated (Resolves SC-004 incompleteness)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -205,8 +204,8 @@
 - [X] T056 [US1] **DEPRECATED**: Chunked Distortion Application functionality integrated into T012.
 - [X] T057 [US2] **DEPRECATED**: Hysteresis Logic for Oscillating SSS integrated into T016 (K=3 steps).
 - [X] T058 [US2] **DEPRECATED**: Empty ASR Output Handler integrated into T016 (lowest intensity mapping).
-- [X] T059 [US3] **Implement Sample Size Reporting**: Add logic in `code/main.py` to explicitly report the final sample size (number of clips, number of distortion scenarios) used in the analysis, including any clips/scenarios that were skipped due to missing data or memory constraints. (Resolves transparency requirement for sample size; Depends on T015, T007a)
-- [X] T060 [US3] **Implement Power Analysis for Sample Size**: Add a unit test in `tests/unit/test_statistics.py` that calculates the statistical power of the regression model given the final sample size and expected effect size. Raise a warning if power < 0.8. (Resolves statistical rigor requirement; Depends on T024, T059)
+- [X] T059 [US3] **Implement Sample Size Reporting**: Add logic in `code/main.py` to explicitly report the final sample size (number of clips, number of distortion scenarios) used in the analysis, including any clips/scenarios that were skipped due to missing data or memory constraints. (Resolves transparency requirement for sample size; Depends on T015a, T007a)
+- [X] T060 [US3] **Implement Power Analysis for Sample Size**: Add a unit test in `tests/unit/test_statistics.py` that calculates the statistical power of the regression model given the final sample size and expected effect size. **Requires explicit `--power-threshold` argument or skips if undefined in `config.py`**. Raise a warning if power < threshold. (Resolves statistical rigor requirement, executability-4975d29b, constraint_preservation-8a9dc2da; Depends on T024, T059)
 
 ---
 
@@ -315,19 +314,22 @@ With multiple developers:
 - **Critical Constraint**: All ASR and embedding models MUST run on CPU (no CUDA/GPU). Use `whisper-tiny` and `all-MiniLM-L-v2`.
 - **Data Integrity**: Use real data from LibriSpeech/CORAA-MUPE-ASR. No synthetic data fabrication.
 - **Statistical Rigor**: Apply multiple-comparison correction and associational framing strictly.
-- **Human Validation**: FR-011 requires generating human annotations (T050b) with a **0-5 Likert scale** before US2/US3 validation. **T050c is for CI only.**
+- **Human Validation**: FR-011 requires generating human annotations (T050b) with a **0-5 Likert scale** before US2/US3 validation. **T050c is for CI only; T050e validates CI path.**
 - **Methodology**: HVCM (T030b) is an **alternative** regression target to break circularity; primary target is SSS/WER per spec.
 - **Revision Update**: Phase 7 tasks added to address execution feedback regarding CPU feasibility, data integrity, and statistical rigor (T037-T043).
 - **Revision Update 2**: Phase 8 tasks added to resolve "FAILED: unspecified" markers by defining concrete annotation protocols, HVCM calculation logic, and stability verification criteria (T050-T054).
-- **Revision Update 3**: Phase 5 restructured to separate Protocol (T050), Tool (T050a), Execution (T050b), and Synthetic Placeholder (T050c) to ensure real data generation and CI executability.
-- **Revision Update 4**: T015 marked incomplete and T015a added for concrete algorithm.
+- **Revision Update 3**: Phase 5 restructured to separate Protocol (T050), Tool (T050a), Execution (T050b), Synthetic Placeholder (T050c), and CI Validation (T050e).
+- **Revision Update 4**: T015 marked incomplete and T015a added for concrete algorithm; T015 removed.
 - **Revision Update 5**: T053 moved to Phase 6 for immediate execution after regression.
 - **Revision Update 6**: T032 and T032b added for resource monitoring and constraint verification.
 - **Revision Update 7**: Phase 9 added to address streaming data processing, chunked distortion application, and edge case hardening (T055-T060).
 - **Revision Update 8**: T055, T056, T057, T058, T051, T027, T025b marked DEPRECATED with explicit integration notes into T007, T012, T016, T030b, T053, T026 respectively.
-- **Revision Update 9**: T050b updated to be a hard-blocking manual step for final report; T050c added for CI bypass; T050d added for manual protocol.
+- **Revision Update 9**: T050b updated to be a hard-blocking manual step for final report; T050c added for CI bypass; T050d added for manual protocol; T050e added for CI validation.
 - **Revision Update 10**: T008 unmarked, T008a added to resolve inconsistency.
 - **Revision Update 11**: T012 updated to enforce exactly 54 scenarios; T012a added for verification.
 - **Revision Update 12**: T053 updated to generate sensitivity artifacts; T030 updated to depend on T053.
-- **Revision Update 13**: T026 updated to default to SSS/WER target, with HVCM optional.
-- **Revision Update 14**: T007c added as Spec Deviation Validator.
+- **Revision Update 13**: T026 updated to enforce HVCM for Final Report mode, SSS/WER for CI mode.
+- **Revision Update 14**: T007c removed; T007d added to document deviation.
+- **Revision Update 15**: T060 updated to remove hardcoded 0.8 threshold, requiring explicit argument.
+- **Revision Update 16**: T009 moved to Phase 2.
+- **Revision Update 17**: T019 updated to produce dual targets (SSS/WER and HVCM).

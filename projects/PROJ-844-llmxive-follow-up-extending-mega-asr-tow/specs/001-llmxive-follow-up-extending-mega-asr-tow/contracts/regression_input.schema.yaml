@@ -1,43 +1,46 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Regression Input Schema
-description: Schema for the flattened dataset used to train the collapse prediction model. Includes Human-Validated Collapse Margin (HVCM) as the target to break circularity.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Input Schema"
+description: "Schema for the flattened dataset used to train the collapse prediction model. Target is the Semantic Decay Slope (SSD) or Area Under Stress Curve (AUSC)."
+type: "object"
 properties:
-  collapse_id:
-    type: string
-    description: Foreign key to the CollapseIntensity table.
+  audio_clip_id:
+    type: "string"
+    description: "Unique identifier for the audio clip."
   model_name:
-    type: string
-    description: Name of the ASR model.
+    type: "string"
+    description: "Name of the ASR model."
   snr:
-    type: number
-    description: SNR value (feature).
+    type: "number"
+    description: "SNR value (feature)."
   rt60:
-    type: number
-    description: RT60 value (feature).
+    type: "number"
+    description: "RT60 value (feature)."
   snr_sq:
-    type: number
-    description: SNR squared (feature).
+    type: "number"
+    description: "SNR squared (feature)."
   rt60_sq:
-    type: number
-    description: RT60 squared (feature).
+    type: "number"
+    description: "RT60 squared (feature)."
   snr_rt60:
-    type: number
-    description: Interaction term (SNR * RT60).
-  target_hvcm:
-    type: number
-    description: Target variable for regression (Human-Validated Collapse Margin).
+    type: "number"
+    description: "Interaction term (SNR * RT60)."
+  target_ssd:
+    type: "number"
+    description: "Target variable: Semantic Decay Slope (slope of sigmoid at inflection point)."
+  target_ausc:
+    type: "number"
+    description: "Target variable: Area Under Stress Curve."
   p_value_adjusted:
-    type: number
-    description: Adjusted p-value for the interaction term (GAM smooth term).
+    type: "number"
+    description: "Adjusted p-value for the interaction term (FDR corrected)."
 required:
-  - collapse_id
+  - audio_clip_id
   - model_name
   - snr
   - rt60
   - snr_sq
   - rt60_sq
   - snr_rt60
-  - target_hvcm
+  - target_ssd
   - p_value_adjusted
 additionalProperties: false

@@ -1,11 +1,19 @@
 status: none
-intent: download Voices-in-the-Wild-2M audio dataset pip install python package dataset
+intent: download CAIMAN-ASR-BackgroundNoise audio_clips sbbdata_snr_0 clean speech
+  transcripts python package dataset
 required_fields:
-- audio_filepath
+- audio_id
 - speaker_id
 - transcript
+- audio_filepath
 - sampling_rate
-- language
-cache_key: 38b19c03ebe074cea473d3a49dbb9278ec6795c6f33eee3e38726b23f6e33c7a
-searched_at: '2026-07-26T00:47:34.236374+00:00'
+- duration
+- snr
+- rt60
+- noise_type
+- reverb_type
+- asr_hypothesis
+- semantic_similarity_score
+cache_key: e49b95d6e1e710392b723c16474449ec58aa13c1a801cf56e8d92d7e89a0e33d
+searched_at: '2026-07-28T10:10:37.259745+00:00'
 retry_count: 1
