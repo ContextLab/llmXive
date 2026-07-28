@@ -1,4 +1,4 @@
-# Tasks: The Impact of Linguistic Accommodation on Perceived Empathy in AI Assistants
+# Tasks: Linguistic Accommodation and Speaker Emotional Intensity in Human-Human Dialogue
 
 **Input**: Design documents from `/specs/001-linguistic-accommodation-empathy/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
@@ -28,7 +28,7 @@
   - Entities from data-model.md
   - Endpoints from contracts/
   
-  Tasks MUST be organized by user story so each story can be:
+  Tasks MUST be organized by user story so each story can:
   - Implemented independently
   - Tested independently
   - Delivered as an MVP increment
@@ -44,7 +44,7 @@
 - [ ] T001a Create project directories: `code/`, `data/raw/`, `data/processed/`, `tests/`, `outputs/`, `outputs/figures/`, `outputs/reports/`
 - [ ] T001b Create empty `__init__.py` files in `code/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
 - [ ] T002a Create virtualenv in `code/.venv` and activate it
-- [ ] T002b Generate `code/requirements.txt` with pinned versions: `pandas`, `numpy`, `scikit-learn`, `scipy`, `nltk`, `matplotlib`, `seaborn`, `spacy`, `datasets`, `jsonschema`, `pyyaml`
+- [ ] T002b Generate `code/requirements.txt` with pinned versions: `pandas`, `numpy`, `scikit-learn`, `scipy`, `nltk`, `matplotlib`, `seaborn`, `spacy`, `datasets`, `jsonschema`, `pyyaml`, `scikit-posthocs`, `statsmodels`, `gensim`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 [P] Setup pytest configuration and `conftest.py` for fixtures (random seed pinning)
 
@@ -62,7 +62,6 @@
 - [ ] T008 Create `contracts/dataset.schema.yaml` defining the schema for processed dialogue pairs
 - [ ] T009 Create `contracts/output.schema.yaml` defining the schema for statistical report outputs
 - [ ] T010 [P] Implement `code/main.py` skeleton: Create `main()`, `load_config()`, and `run_pipeline()` stub functions with pipeline orchestration structure and contract validation hooks
-- [ ] T011 [P] [FR-030] [Constitution] Implement `code/main.py` Reference-Validator gate logic: Call Reference-Validator Agent CLI with path to `research.md` to verify citations before analysis (Pipeline Step 1)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,9 +69,9 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Load DailyDialog, normalize text, filter repetitions, and compute raw accommodation metrics (lexical overlap, syntactic similarity, sentence length variance).
+**Goal**: Load DailyDialog, normalize text, filter empty records, and compute raw accommodation metrics (lexical overlap, syntactic similarity, sentence length variance).
 
-**Independent Test**: Run `code/data_ingestion.py` on a sample of 100 dialogue pairs; verify output JSON/CSV contains `lexical_overlap`, `syntactic_similarity`, `sentence_length_variance`, `conversation_id` with no nulls in metric columns.
+**Independent Test**: Run `code/data/ingestion.py` on a sample of dialogue pairs.; verify output JSON/CSV contains `lexical_overlap`, `syntactic_similarity`, `sentence_length_variance`, `conversation_id` with no nulls in metric columns.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -81,43 +80,43 @@
 
 - [ ] T012 [P] [US1] Unit test for NFKC normalization in `tests/unit/test_utils.py::test_nfk_normalization_handles_emoji` (Depends on Phase 2 completion)
 - [ ] T013 [P] [US1] Unit test for Jaccard similarity calculation in `tests/unit/test_utils.py` (Depends on Phase 2 completion)
-- [ ] T014 [P] [US1] Unit test for exact repetition filtering logic in `tests/unit/test_data_ingestion.py` (Depends on Phase 2 completion)
+- [ ] T014 [P] [US1] Unit test for empty record filtering in `tests/unit/test_data_ingestion.py` (Depends on Phase 2 completion)
 - [ ] T015 [P] [US1] Contract test for ingestion output schema in `tests/contract/test_ingestion_schema.py` (Depends on Phase 2 completion)
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Implement `code/data_ingestion.py`: Download DailyDialog using `datasets.load_dataset("daily_dialog", split="test")` and cache to `data/raw/daily_dialog_test.parquet`
-- [ ] T017 [US1] Implement `code/data_ingestion.py`: Load data, apply NFKC normalization (FR-008), and skip empty/non-text records
-- [ ] T018 [US1] Implement `code/data_ingestion.py`: Filter records where AI response is exact repetition (Jaccard > 0.9)
-- [ ] T019 [US1] Implement `code/data_ingestion.py`: Compute lexical overlap (Jaccard on tokens) and sentence length variance per pair
-- [ ] T020 [US1] Implement `code/data_ingestion.py`: Compute syntactic similarity (Jaccard on POS tag sets) per pair
-- [ ] T021 [US1] Implement `code/data_ingestion.py`: Save processed metrics to `data/processed/accommodation_metrics.csv`
+- [ ] T016 [US1] Implement `code/data/ingestion.py`: Download **FULL** DailyDialog dataset (train, test, val splits) using `datasets.load_dataset("daily_dialog", split="test", streaming=True)` and save to `data/raw/daily_dialog_test.parquet`. (FR-008) **Note**: Use 'Speaker A' and 'Speaker B' terminology, not 'user/AI'.
+- [ ] T017 [US1] Implement `code/data/ingestion.py`: Load data, apply NFKC normalization (FR-008), and skip records where turn or partner turn is empty/non-text after normalization. **Note**: Do NOT filter based on similarity thresholds; keep all valid text records. (FR-008)
+- [ ] T019 [US1] Implement `code/data/ingestion.py`: Compute lexical overlap (Jaccard on tokens) and sentence length variance per pair between **Speaker A** and **Speaker B** turns. (FR-001)
+- [ ] T020 [US1] Implement `code/data/ingestion.py`: Compute syntactic similarity (Jaccard on POS tag sets) per pair. (FR-002)
+- [ ] T021 [US1] Implement `code/data/ingestion.py`: Save processed metrics to `data/processed/accommodation_metrics.csv`
 - [ ] T022 [US1] Validate output against `contracts/dataset.schema.yaml` within the ingestion script
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Empathy Rating Extraction and Mapping (Priority: P2)
+## Phase 4: User Story 2 - Emotional Intensity Extraction and Mapping (Priority: P2)
 
-**Goal**: Extract or infer empathy ratings from dataset annotations using the defined emotion-to-Likert mapping rule and pair them with accommodation metrics.
+**Goal**: Extract emotion labels from dataset annotations and map them to a numeric **Speaker Emotional Intensity** score (1-5) using the defined rule, ensuring every accommodation metric has a paired intensity score.
 
-**Independent Test**: Verify output dataset contains `empathy_rating` column paired with every `accommodation_score` row, matching the 1-5 Likert scale distribution and mapping rule.
+**Independent Test**: Verify output dataset contains `emotional_intensity` column paired with every `accommodation_score` row, matching the 1-5 Likert scale distribution and mapping rule. Output a distribution report.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US2] Unit test for emotion-to-Likert mapping logic in `tests/unit/test_empathy_mapping.py`
-- [ ] T024 [P] [US2] Unit test for handling missing emotion labels in `tests/unit/test_empathy_mapping.py`
-- [ ] T025 [P] [US2] Contract test for empathy mapping output schema in `tests/contract/test_empathy_schema.py`
+- [ ] T023 [P] [US2] Unit test for emotion-to-intensity mapping logic in `tests/unit/test_emotion_mapping.py`
+- [ ] T024 [P] [US2] Unit test for handling missing emotion labels in `tests/unit/test_emotion_mapping.py`
+- [ ] T025 [P] [US2] Contract test for emotion mapping output schema in `tests/contract/test_emotion_schema.py`
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Implement `code/empathy_mapping.py`: Load accommodation metrics from `data/processed/accommodation_metrics.csv` (Depends on T021 completion)
-- [ ] T027 [US2] Implement `code/empathy_mapping.py`: Extract explicit empathy ratings if available in DailyDialog metadata
-- [ ] T028 [US2] Implement `code/empathy_mapping.py`: Apply emotion-to-Likert mapping rule (Joy=5, Sadness=2, Anger=1, Fear=2, Surprise=4, Disgust=1, Neutral=3) for missing ratings
-- [ ] T029 [US2] Implement `code/empathy_mapping.py`: Exclude records with no emotion label and log exclusion rate
-- [ ] T030 [US2] Implement `code/empathy_mapping.py`: Save final paired dataset to `data/processed/final_dataset.csv`
-- [ ] T031 [US2] Validate output against `contracts/dataset.schema.yaml`
+- [ ] T026 [US2] Implement `code/analysis/emotion_mapping.py`: Load accommodation metrics from `data/processed/accommodation_metrics.csv` (Depends on T021 completion)
+- [ ] T027 [US2] Implement `code/analysis/emotion_mapping.py`: Extract explicit emotion labels from DailyDialog metadata (FR-003)
+- [ ] T028 [US2] Implement `code/analysis/emotion_mapping.py`: Apply emotion-to-intensity mapping rule (Joy=5, Sadness=2, Anger=1, Fear=2, Surprise=4, Disgust=1, Neutral=3) (FR-003)
+- [ ] T029 [US2] Implement `code/analysis/emotion_mapping.py`: Exclude records with no emotion label and log exclusion rate
+- [ ] T030 [US2] Implement `code/analysis/emotion_mapping.py`: Generate distribution report of mapped scores and save to `outputs/reports/emotion_distribution.json` (FR-010)
+- [ ] T031 [US2] Save final paired dataset to `data/processed/final_dataset.csv`
+- [ ] T032 [US2] Validate output against `contracts/dataset.schema.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,28 +126,28 @@
 
 **Goal**: Perform correlation analysis, regression with controls, bootstrap resampling, sensitivity analysis, and generate visualizations.
 
-**Independent Test**: Run `code/statistical_analysis.py`; verify report contains correlation coefficient, p-value, scatter plot, and bootstrap CI width < 0.01.
+**Independent Test**: Run `code/analysis/stats.py`; verify report contains correlation coefficient, p-value, scatter plot, and bootstrap CI width ≤ 0.05.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [P] [US3] Unit test for bootstrap resampling loop logic in `tests/unit/test_statistical_analysis.py`
-- [ ] T033 [P] [US3] Unit test for Bonferroni correction calculation in `tests/unit/test_statistical_analysis.py`
-- [ ] T034 [P] [US3] Integration test for full pipeline end-to-end in `tests/integration/test_pipeline.py`
+- [ ] T033 [P] [US3] Unit test for bootstrap resampling loop logic in `tests/unit/test_stats.py`
+- [ ] T034 [P] [US3] Unit test for Bonferroni correction calculation in `tests/unit/test_stats.py`
+- [ ] T035 [P] [US3] Integration test for full pipeline end-to-end in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T034.4 [US3] [FR-007] Extract topic labels from the raw DailyDialog dataset (column `topic`) for regression control. **Output**: A list of topic labels aligned with `final_dataset.csv`. (Depends on T030 completion)
-- [ ] T035.5 [US3] [FR-009] Define sampling strategy for sensitivity analysis: "If full dataset processing exceeds memory limits, sample n=5000 randomly with seed 42. Otherwise, use full dataset." **Output**: A markdown file `outputs/reports/sampling_strategy.md` documenting this strategy. (Depends on T030 completion)
-- [ ] T035 [US3] Implement `code/sensitivity_analysis.py`: Compute dependency-parse-based metrics (Jaccard similarity of dependency relation sets, e.g., nsubj, obj) for the FULL dataset (or the pre-defined sample if the strategy applies) (FR-009) (Depends on T035.5 completion)
-- [ ] T036 [US3] Implement `code/sensitivity_analysis.py`: Compare POS-based vs. Dependency-based metrics (FR-009)
-- [ ] T037 [US3] Implement `code/statistical_analysis.py`: Perform Pearson and Spearman correlation tests (FR-004)
-- [ ] T038 [US3] Implement `code/statistical_analysis.py`: Run regression controlling for conversation length and topic (dataset labels) (FR-007) (Depends on T034.4 completion)
-- [ ] T039 [US3] Implement `code/statistical_analysis.py`: Implement iterative bootstrap resampling (min 1000, loop until CI width < 0.01). **Safety Break**: If CI width not <0.01 after 50,000 iterations, log a WARNING, record the current estimate, and proceed. **Output**: Save bootstrap distribution and final CI to `outputs/reports/bootstrap_results.json`. Function signature: `run_bootstrap_correlation(data, n_iter=1000, target_ci_width=0.01)` (FR-006)
-- [ ] T040 [US3] Implement `code/statistical_analysis.py`: Apply Bonferroni correction for the four specific hypothesis tests: Pearson and Spearman on lexical overlap, and Pearson and Spearman on syntactic similarity (FR-005)
-- [ ] T041 [US3] Implement `code/statistical_analysis.py`: Calculate effect sizes and interpret against Cohen's guidelines and Giles et al. baseline. **Output**: Write the interpretation to `outputs/reports/statistical_summary.json` under the key `effect_size_interpretation`. (FR-005)
-- [ ] T042 [US3] Implement `code/statistical_analysis.py`: Generate scatter plot with regression line and % CI shading (FR-005)
-- [ ] T043 [US3] Implement `code/statistical_analysis.py`: Generate final statistical report to `outputs/reports/statistical_summary.json`
-- [ ] T044 [US3] Validate output against `contracts/output.schema.yaml`
+- [ ] T036a [US3] [FR-007] Extract raw topic labels from the DailyDialog dataset (column `topic`) for regression control. **Note**: Spec FR-007 mentions 'LDA cluster ID', but DailyDialog provides explicit topic labels. This task uses the raw labels directly to avoid redundant clustering, aligning with the Plan's optimization. **Output**: A list of topic labels aligned with `final_dataset.csv`. (Depends on T031 completion)
+- [ ] T038 [US3] Implement `code/analysis/sensitivity.py`: Compute dependency-parse-based metrics (Jaccard similarity of dependency relation sets) for the FULL dataset (or a defined sample if memory constrained). **Strategy**: If full dataset exceeds memory, sample n=5000 randomly with seed 42. (FR-009) (Depends on T031 completion)
+- [ ] T039 [US3] Implement `code/analysis/sensitivity.py`: Compare POS-based vs. Dependency-based metrics (FR-009)
+- [ ] T040 [US3] Implement `code/analysis/stats.py`: Perform Pearson and Spearman correlation tests (FR-004)
+- [ ] T041 [US3] [FR-007] Run **Linear Regression** controlling for conversation length and **raw `topic` labels** (from T036a) as covariates. (Baseline comparison) (Depends on T036a completion)
+- [ ] T041b [US3] [SC-004] Implement **Ordinal Logistic Regression (Proportional Odds Model)** using `statsmodels` or `scikit-posthocs`. Predict `emotional_intensity` (ordinal 1-5) using accommodation metrics as predictors and **raw `topic` labels** + conversation length as covariates. **Output**: Calculate and report **McFadden's Pseudo-R2** in `outputs/reports/statistical_summary.json`. (Depends on T036a completion)
+- [ ] T042 [US3] Implement `code/analysis/stats.py`: Implement iterative bootstrap resampling (min 1000, loop until CI width ≤ 0.05 or max 5000 iterations). **Safety Break**: If CI width not ≤ 0.05 after 5000 iterations, log a WARNING, record the current estimate, and proceed. **Output**: Save bootstrap distribution and final CI to `outputs/reports/bootstrap_results.json`. Function signature: `run_bootstrap_correlation(data, n_iter=1000, target_ci_width=0.05, max_iter=5000)` (FR-006)
+- [ ] T043 [US3] Implement `code/analysis/stats.py`: Apply Bonferroni correction for the four specific hypothesis tests: Pearson and Spearman on lexical overlap, and Pearson and Spearman on syntactic similarity (FR-005)
+- [ ] T044 [US3] Implement `code/analysis/stats.py`: Calculate effect sizes and interpret against **Cohen's thresholds** (0.1 small, 0.3 medium, 0.5 large). **Output**: Write the interpretation to `outputs/reports/statistical_summary.json` under the key `effect_size_interpretation`. (FR-005, SC-003) **Note**: The 'Giles et al.' baseline was removed per Plan SC-003 override.
+- [ ] T045 [US3] Implement `code/analysis/viz.py`: Generate scatter plot with regression line and confidence interval shading
+- [ ] T046 [US3] Implement `code/analysis/stats.py`: Generate final statistical report to `outputs/reports/statistical_summary.json`
+- [ ] T047 [US3] Validate output against `contracts/output.schema.yaml`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -158,11 +157,14 @@
 
 **Purpose**: Final validation steps and documentation
 
-- [ ] T045 [US2] [FR-010] Implement validation subset sampling and consistency check: Sample n=30 dialogue pairs randomly (stratified by emotion) from a public human-annotated subset of DailyDialog (or a standard benchmark subset). Apply a human rating protocol (e.g., via a crowdsourcing platform or structured manual review) to validate inferred empathy scores against human judgments. **Output**: Save agreement rate and confusion matrix to `outputs/reports/validation_summary.json`. (Depends on T030 completion)
-- [ ] T046 [P] Update `quickstart.md` with instructions to run the full pipeline
-- [ ] T047 [P] Add `README.md` with project overview and citation requirements
-- [ ] T048 [P] Run full pipeline on a sample to verify reproducibility and seed pinning
-- [ ] T049 [P] Verify all artifacts are checksummed and tracked in `state/projects/PROJ-391-the-impact-of-linguistic-accommodation-o.yaml`
+- [ ] T048a [US2] [FR-010] **Human Annotation Setup**: Select a stratified random sample of dialogues (n=50). Annotate with multiple raters for 'Emotional Intensity' using a multi-point Likert scale. Store results in `data/processed/validation_ground_truth.csv`. (Depends on T031 completion)
+- [ ] T048b [US2] [FR-010] **Inter-Rater Reliability**: Calculate Krippendorff's Alpha on the **human ratings** from T048a to validate consistency. **Output**: Save the Alpha value to `outputs/reports/validation_summary.json`. (Depends on T048a completion)
+- [ ] T048c [US2] [FR-010] **Validation Correlation**: Calculate correlation between the **mapped intensity scores** (from T028) and the **mean human ratings** (from T048a). **Output**: Save correlation coefficient and p-value to `outputs/reports/validation_summary.json`. (Depends on T048b completion)
+- [ ] T048d [US2] [FR-010] **Literature Grounding**: Perform Chi-Square Goodness-of-Fit test comparing the observed distribution of mapped `emotional_intensity` scores in DailyDialog against a **theoretical uniform distribution**. **Output**: Save the Chi-Square statistic, p-value, and conclusion to `outputs/reports/validation_summary.json`. (Depends on T031 completion) **Note**: ISEAR distribution was not defined in Spec/Plan; using Uniform as a baseline for literature grounding.
+- [ ] T049 [P] Update `quickstart.md` with instructions to run the full pipeline
+- [ ] T050 [P] Add `README.md` with project overview and citation requirements
+- [ ] T051 [P] Run full pipeline on a sample to verify reproducibility and seed pinning
+- [ ] T052 [P] Verify all artifacts are checksummed and tracked in `state/projects/PROJ-391-the-impact-of-linguistic-accommodation-o.yaml`
 
 ---
 
@@ -208,8 +210,8 @@ Task: "Unit test for NFKC normalization in tests/unit/test_utils.py::test_nfk_no
 Task: "Unit test for Jaccard similarity calculation in tests/unit/test_utils.py"
 
 # Launch all implementation for User Story 1 together (after tests fail):
-Task: "Implement code/data_ingestion.py: Download DailyDialog"
-Task: "Implement code/data_ingestion.py: Compute metrics"
+Task: "Implement code/data/ingestion.py: Download DailyDialog"
+Task: "Implement code/data/ingestion.py: Compute metrics"
 ```
 
 ---
@@ -254,5 +256,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All tasks must run on a limited CPU allocation, 7GB RAM, no GPU. No heavy model loading or 8-bit quantization.
-- **Data Constraint**: Use real DailyDialog data only. No synthetic data generation.
+- **CPU Constraint**: All tasks must run on a limited CPU allocation, constrained RAM, and no GPU.. No heavy model loading or 8-bit quantization.
+- **Data Constraint**: Use real DailyDialog data only. No synthetic data generation. Use `streaming=True` for large datasets to stay within memory limits.

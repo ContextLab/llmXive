@@ -1,0 +1,13 @@
+status: none
+intent: DailyDialog dataset download Hugging Face datasets python package dataset
+required_fields:
+- dialogue_id
+- turn_index
+- human_turn
+- partner_turn
+- lexical_overlap_jaccard
+- syntactic_similarity
+- sentence_length_variance
+cache_key: 2fd72ff1d789fe69f470ff9b535702489c816ced5b47d0eee38db426c7a616af
+searched_at: '2026-07-28T12:00:08.178800+00:00'
+retry_count: 1

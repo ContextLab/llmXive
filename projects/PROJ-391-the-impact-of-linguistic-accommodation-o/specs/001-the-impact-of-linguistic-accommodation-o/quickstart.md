@@ -1,63 +1,82 @@
-# Quickstart: Linguistic Accommodation & Human‑Rated Empathy
+# Quickstart: Linguistic Accommodation and Speaker Emotional Intensity
 
-## 1. Prerequisites
+## Prerequisites
 
-- Python 3.11+
-- `pip`
-- ≤ 7 GB RAM
-- Internet access (for dataset download and human‑rating collection)
+- Python 3.11+
+- `pip` or `poetry`
+- Access to internet (for downloading datasets)
 
-## 2. Installation
+## Installation
 
+1. **Clone the repository** (if not already done).
+2. **Navigate to the project directory**:
+   ```bash
+   cd projects/PROJ-391-the-impact-of-linguistic-accommodation-o
+   ```
+3. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+4. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Data Setup
+
+The project automatically downloads the DailyDialog dataset on first run. To manually verify:
+1. Ensure `data/raw/` exists.
+2. Run the ingestion script:
+   ```bash
+   python code/main.py --step ingest
+   ```
+   This will fetch the dataset from the verified HuggingFace URL and save it to `data/raw/`.
+
+## Running the Pipeline
+
+### Full Analysis
+To run the entire pipeline (Ingest -> Process -> Validate -> Analyze -> Visualize):
 ```bash
-# Clone the repository (or cd to the project root)
-git clone <repo-url>
-cd projects/PROJ-391-the-impact-of-linguistic-accommodation-o
-
-# Create a virtual environment
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
-
-# Install pinned dependencies
-pip install -r code/requirements.txt
-
-# Download the small English spaCy model
-python -m spacy download en_core_web_sm
+python code/main.py --full
 ```
+This will:
+1. Download and preprocess DailyDialog.
+2. Compute accommodation metrics (Lexical, Syntactic, Bigram).
+3. Map emotion labels to intensity (with validation check).
+4. Run statistical tests (Spearman correlation, Ordinal Logistic Regression, bootstrap).
+5. Generate plots and save reports to `data/artifacts/`.
 
-## 3. Data Collection (FR‑010)
+### Individual Steps
+- **Ingest Only**:
+  ```bash
+  python code/main.py --step ingest
+  ```
+- **Process Only** (requires raw data):
+  ```bash
+  python code/main.py --step process
+  ```
+- **Validate Only** (requires processed data):
+  ```bash
+  python code/main.py --step validate
+  ```
+- **Analyze Only** (requires processed data):
+  ```bash
+  python code/main.py --step analyze
+  ```
 
-```bash
-# Phase 0a: collect human empathy ratings (requires IRB‑approved consent)
-python code/00_collect_human_empathy.py
-# This script will prompt the annotator(s) to rate AI responses and will
-# produce data/raw/human_empathy/human_empathy.csv.
-```
+## Expected Outputs
 
-## 4. Running the Full Pipeline
+After a successful run, check the `data/artifacts/` directory for:
+- `correlation_report.json`: Statistical results (Spearman coefficients, p-values, CIs).
+- `regression_summary.json`: Ordinal Logistic Regression results (Odds Ratios, McFadden's Pseudo-R2).
+- `scatter_lexical_intensity.png`: Scatter plot of lexical overlap vs. intensity.
+- `scatter_syntactic_intensity.png`: Scatter plot of syntactic similarity vs. intensity.
+- `distribution_report.csv`: Frequency of mapped emotional intensity scores.
+- `validation_report.json`: Krippendorff's Alpha and mapping validation results.
 
-All steps must be run in order; each script produces the next script’s input.
+## Troubleshooting
 
-| Step | Command | Output |
-| ---- | ------- | ------ |
-| 0b | `python code/01_ingest_and_preprocess.py` | `data/raw/daily_dialog_raw.csv` |
-| 1 | `python code/02_map_emotion_score.py` | `data/processed/emotion_mapped.csv` |
-| 2 | `python code/03_compute_metrics.py` | `data/processed/metrics.csv` |
-| 3 | `python code/04_define_sampling_strategy.py` | `config/sampling_config.json` |
-| 4 | `python code/05_sensitivity_analysis.py` | `outputs/reports/sensitivity_results.json` |
-| 5 | `python code/06_generate_topics.py` | `data/processed/lda_topics.csv` |
-| 6 | `python code/07_analyze_correlations.py` | `outputs/reports/correlation_summary.json` + `outputs/figures/scatter_plot.png` |
-| 7 | `python code/08_regression_control.py` | `outputs/reports/regression_summary.json` |
-| 8 | `python code/09_manual_validation.py` | `outputs/reports/validation_summary.json` |
-
-## 5. Verification
-
-```bash
-pytest tests/
-```
-
-## 6. Troubleshooting
-
-- **MemoryError** in any step: reduce batch size in `config.py`.  
-- **Bootstrap non‑convergence**: check `bootstrap_results.json`; the pipeline will abort with an error if CI < 0.01 is not reached after 50 000 iterations.  
-- **Missing spaCy model**: ensure `en_core_web_sm` is installed; run `python -m spacy download en_core_web_sm` again.  
+- **Missing Data**: If the download fails, verify internet connectivity and check the HuggingFace URL validity.
+- **Memory Errors**: The pipeline is optimized for 7GB RAM. If errors occur, reduce the `--sample-size` flag (if implemented) or increase swap space.
+- **Missing Emotions**: If a large portion of data lacks emotion labels, check the `distribution_report.csv` for exclusion rates.

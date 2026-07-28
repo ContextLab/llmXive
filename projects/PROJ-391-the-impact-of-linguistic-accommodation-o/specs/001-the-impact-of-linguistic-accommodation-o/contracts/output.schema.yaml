@@ -5,16 +5,16 @@ type: object
 properties:
   metric_type:
     type: string
-    description: "Type of accommodation metric (lexical, syntactic, or dependency)."
+    description: "Type of accommodation metric (lexical, syntactic, bigram, or dependency)."
     enum:
       - "lexical"
       - "syntactic"
+      - "bigram"
       - "dependency"
   correlation_method:
     type: string
     description: "Correlation method used."
     enum:
-      - "pearson"
       - "spearman"
   correlation_coefficient:
     type: number
@@ -58,7 +58,7 @@ properties:
     description: "Whether the bootstrap procedure converged (CI width < 0.01)."
   interpretation:
     type: string
-    description: "Interpretation of the results against Cohen's guidelines and Giles et al. baseline."
+    description: "Interpretation of the results against Cohen's guidelines."
 required:
   - metric_type
   - correlation_method
