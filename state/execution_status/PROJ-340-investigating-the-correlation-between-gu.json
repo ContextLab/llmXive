@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-340-investigating-the-correlation-between-gu",
   "ok": false,
-  "reason": "28 fabricated/simulated-result signal(s) \u2014 results are not real measurements: data/results/harmonized_vs_synthetic_comparison.json: self-declared fabricated metric \u2014 \u201c\u2026ts detected. (Note: This is a placeholder result until the full pipeline is ex\u2026\u201d; code/data_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generate synthetic metagenomic count data.\u2026\u201d; code/data_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generate synthetic sleep architecture metri\u2026\u201d; 2 command(s) failed: python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv (rc=1); python code/main.py --input data/raw/synthetic_data.csv --output data/results/ (rc=1); 7 declared deliverable(s) absent: data/metadata/synthetic_data_manifest.json; data/processed/filtered_data.parquet; data/raw/large_proxy.csv",
+  "reason": "41 fabricated/simulated-result signal(s) \u2014 results are not real measurements: data/results/harmonized_vs_synthetic_comparison.json: self-declared fabricated metric \u2014 \u201c\u2026ts detected. (Note: This is a placeholder result until the full pipeline is ex\u2026\u201d; code/constitution_checker.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026egrity check skipped for synthetic data mode.\",\u2026\u201d; code/data_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Deterministic Synthetic Data Generator for Pipeline V\u2026\u201d; 2 command(s) failed: python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv (rc=1); python code/main.py --input data/raw/synthetic_data.csv --output data/results/ (rc=2); 7 declared deliverable(s) absent: data/processed/filtered_data.parquet; data/raw/large_proxy.csv; data/raw/real_data.csv",
   "artifacts": [],
   "failures": [
-    "python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/ingest.py\", line 4, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
-    "python code/main.py --input data/raw/synthetic_data.csv --output data/results/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/main.py\", line 14, in <module>\n    from ingest import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/ingest.py\", line 4, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+    "python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/ingest.py\", line 469, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/ingest.py\", line 431, in main\n    parser = argparse.ArgumentParser(description=\"Data Ingestion and Validation Module\")\n             ^^^^^^^^\nNameError: name 'argparse' is not defined",
+    "python code/main.py --input data/raw/synthetic_data.csv --output data/results/ -> rc=2\n    usage: main.py [-h] [--project_root PROJECT_ROOT] [--mode {synthetic,real}]\n               [--input INPUT] [--n_subjects N_SUBJECTS] [--n_taxa N_TAXA]\nmain.py: error: unrecognized arguments: --output data/results/"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-23T10:00:28Z"
+  "updated_at": "2026-07-28T01:09:26Z"
 }

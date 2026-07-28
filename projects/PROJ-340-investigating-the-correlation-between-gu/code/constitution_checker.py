@@ -1,6 +1,7 @@
 """
-Constitution Checker for llmXive Project.
-Validates adherence to Constitution Principles, specifically tracking artifact checksums.
+Constitution Checker Module.
+Validates file checksums against the state file to ensure data integrity.
+Implements Constitution Principle III (Checksums).
 """
 import os
 import sys
@@ -8,19 +9,37 @@ import json
 import hashlib
 import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional, List
 
-from dataclasses import dataclass, asdict
-
-@dataclass
 class ConstitutionCheckResult:
-    principle_id: str
-    status: str  # "PASS", "FAIL", "N/A (Synthetic)"
-    details: str
-    artifact_path: Optional[str] = None
+    def __init__(self, status: str, message: str, details: Dict[str, Any]):
+        self.status = status  # 'PASS', 'FAIL', 'MISSING'
+        self.message = message
+        self.details = details
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "status": self.status,
+            "message": self.message,
+            "details": self.details
+        }
 
 def calculate_file_checksum(file_path: str) -> str:
-    """Calculate SHA-256 checksum of a file."""
+    """
+    Calculate SHA256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file to checksum.
+        
+    Returns:
+        Hexadecimal SHA256 hash string.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found for checksum: {file_path}")
+    
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
@@ -28,183 +47,226 @@ def calculate_file_checksum(file_path: str) -> str:
     return sha256_hash.hexdigest()
 
 def load_schema(schema_path: str) -> Dict[str, Any]:
-    """Load a YAML schema file."""
+    """
+    Load a YAML schema file.
+    
+    Args:
+        schema_path: Path to the schema file.
+        
+    Returns:
+        Dictionary containing the schema.
+    """
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_manifest_against_schema(manifest_path: str, schema_path: str) -> bool:
-    """Validates a manifest JSON against a YAML schema (basic structural check)."""
-    try:
-        with open(manifest_path, 'r') as f:
-            manifest = json.load(f)
-        schema = load_schema(schema_path)
-        
-        # Basic structural validation
-        if 'schema_version' not in manifest:
-            return False
-        if manifest['schema_version'] != schema.get('schema_version'):
-            return False
-        
-        # Check required fields based on schema
-        required_fields = schema.get('required_fields', [])
-        for field in required_fields:
-            if field not in manifest:
-                return False
-                
-        return True
-    except Exception as e:
-        print(f"Validation error: {e}")
-        return False
-
-def validate_checksum_recording(state_file_path: str, artifact_path: str, expected_checksum: str) -> bool:
+def validate_manifest_against_schema(manifest: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
     """
-    Validates that the checksum of an artifact is correctly recorded in the project state YAML.
-    Returns True if the checksum is found and matches, False otherwise.
+    Validate a manifest dictionary against a schema.
+    
+    Args:
+        manifest: The data to validate.
+        schema: The schema definition.
+        
+    Returns:
+        List of validation error messages.
+    """
+    errors = []
+    # Basic validation: check for required keys
+    required_keys = schema.get('required_keys', [])
+    for key in required_keys:
+        if key not in manifest:
+            errors.append(f"Missing required key: {key}")
+    return errors
+
+def validate_checksum_recording(file_path: str, state_file_path: str) -> bool:
+    """
+    Validate that a file's checksum is recorded correctly in the state file.
+    
+    Args:
+        file_path: Path to the artifact file.
+        state_file_path: Path to the state YAML file.
+        
+    Returns:
+        True if valid, False otherwise.
     """
     if not os.path.exists(state_file_path):
-        print(f"State file not found: {state_file_path}")
         return False
-
+        
     try:
         with open(state_file_path, 'r') as f:
-            state = yaml.safe_load(f)
-    except Exception as e:
-        print(f"Error loading state file: {e}")
+            state_data = yaml.safe_load(f)
+    except Exception:
         return False
-
-    if 'artifact_hashes' not in state:
-        state['artifact_hashes'] = {}
-
-    if artifact_path not in state['artifact_hashes']:
-        print(f"Artifact path '{artifact_path}' not found in state artifact_hashes.")
+        
+    if 'artifact_hashes' not in state_data:
         return False
-
-    recorded_checksum = state['artifact_hashes'][artifact_path]
-    if recorded_checksum != expected_checksum:
-        print(f"Checksum mismatch for {artifact_path}. Expected: {expected_checksum}, Found: {recorded_checksum}")
+        
+    relative_path = os.path.relpath(file_path, os.getcwd())
+    if relative_path not in state_data['artifact_hashes']:
         return False
+        
+    recorded_entry = state_data['artifact_hashes'][relative_path]
+    if not isinstance(recorded_entry, str) or not recorded_entry.startswith('sha256:'):
+        return False
+        
+    recorded_hash = recorded_entry.split('sha256:')[1]
+    current_hash = calculate_file_checksum(file_path)
+    
+    return recorded_hash == current_hash
 
-    return True
-
-def update_state_with_checksum(state_file_path: str, artifact_path: str, checksum: str) -> bool:
+def update_state_with_checksum(file_path: str, state_file_path: str) -> bool:
     """
-    Updates the project state YAML file to record the checksum of a specific artifact.
-    Creates the artifact_hashes map if it doesn't exist.
+    Update the state file with the checksum of a specific artifact.
+    
+    Args:
+        file_path: Path to the artifact file.
+        state_file_path: Path to the state YAML file.
+        
+    Returns:
+        True if successful, False otherwise.
     """
-    state = {}
-    if os.path.exists(state_file_path):
-        try:
-            with open(state_file_path, 'r') as f:
-                state = yaml.safe_load(f) or {}
-        except Exception as e:
-            print(f"Error loading existing state: {e}")
-            return False
-
-    if 'artifact_hashes' not in state:
-        state['artifact_hashes'] = {}
-
-    state['artifact_hashes'][artifact_path] = checksum
-
+    if not os.path.exists(file_path):
+        print(f"Error: Artifact file not found: {file_path}")
+        return False
+        
     try:
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(state_file_path), exist_ok=True)
+        # Ensure state directory exists
+        state_dir = os.path.dirname(state_file_path)
+        if state_dir and not os.path.exists(state_dir):
+            os.makedirs(state_dir)
+        
+        # Load existing state or initialize
+        state_data = {}
+        if os.path.exists(state_file_path):
+            with open(state_file_path, 'r') as f:
+                state_data = yaml.safe_load(f) or {}
+        
+        # Calculate checksum
+        checksum = calculate_file_checksum(file_path)
+        relative_path = os.path.relpath(file_path, os.getcwd())
+        
+        # Update artifact_hashes
+        if 'artifact_hashes' not in state_data:
+            state_data['artifact_hashes'] = {}
+        
+        state_data['artifact_hashes'][relative_path] = f"sha256:{checksum}"
+        
+        # Write back to state file
         with open(state_file_path, 'w') as f:
-            yaml.safe_dump(state, f, default_flow_style=False, sort_keys=False)
+            yaml.safe_dump(state_data, f, default_flow_style=False, sort_keys=False)
+        
         return True
+        
     except Exception as e:
-        print(f"Error writing state file: {e}")
+        print(f"Error updating state file: {e}")
         return False
 
-def run_constitution_check(project_root: str, mode: str = "synthetic") -> List[ConstitutionCheckResult]:
+def run_constitution_check(file_path: str, state_file_path: str) -> ConstitutionCheckResult:
     """
-    Runs a series of constitution checks based on the project state and mode.
+    Run a full constitution check for a given file against the state file.
+    
+    Args:
+        file_path: Path to the artifact file.
+        state_file_path: Path to the state YAML file.
+        
+    Returns:
+        ConstitutionCheckResult object.
     """
-    results = []
-    state_file = os.path.join(project_root, "state", "projects", "PROJ-340-investigating-the-correlation-between-gu.yaml")
+    if not os.path.exists(file_path):
+        return ConstitutionCheckResult(
+            status="MISSING",
+            message=f"Artifact file not found: {file_path}",
+            details={"file_path": file_path}
+        )
     
-    # Check Principle I: Reproducibility (Seeds & Checksums)
-    if mode == "synthetic":
-        # For synthetic mode, we expect the generator checksum to be recorded
-        generator_path = os.path.join(project_root, "code", "data_generator.py")
-        if os.path.exists(generator_path):
-            checksum = calculate_file_checksum(generator_path)
-            updated = update_state_with_checksum(state_file, generator_path, checksum)
-            if updated:
-                results.append(ConstitutionCheckResult(
-                    principle_id="I",
-                    status="PASS",
-                    details=f"Checksum for data_generator.py recorded in state.",
-                    artifact_path=generator_path
-                ))
-            else:
-                results.append(ConstitutionCheckResult(
-                    principle_id="I",
-                    status="FAIL",
-                    details="Failed to record checksum for data_generator.py.",
-                    artifact_path=generator_path
-                ))
-        else:
-            results.append(ConstitutionCheckResult(
-                principle_id="I",
-                status="FAIL",
-                details="data_generator.py not found.",
-                artifact_path=generator_path
-            ))
+    if not os.path.exists(state_file_path):
+        return ConstitutionCheckResult(
+            status="MISSING",
+            message=f"State file not found: {state_file_path}",
+            details={"state_file_path": state_file_path}
+        )
     
-    # Check Principle VI: Biological Sample Integrity (N/A for Synthetic)
-    if mode == "synthetic":
-        manifest_path = os.path.join(project_root, "data", "metadata", "synthetic_data_manifest.json")
-        if os.path.exists(manifest_path):
-            results.append(ConstitutionCheckResult(
-                principle_id="VI",
-                status="N/A (Synthetic)",
-                details="Biological sample integrity check skipped for synthetic data mode.",
-                artifact_path=manifest_path
-            ))
-        else:
-            results.append(ConstitutionCheckResult(
-                principle_id="VI",
-                status="N/A (Synthetic)",
-                details="Manifest not found, but mode is synthetic, so VI is N/A.",
-                artifact_path=None
-            ))
-    else:
-        # Real data mode would require chain of custody log
-        results.append(ConstitutionCheckResult(
-            principle_id="VI",
-            status="PASS", # Placeholder for real data logic
-            details="Real data mode: Chain of custody validation logic applied.",
-            artifact_path=None
-        ))
-
-    return results
+    try:
+        with open(state_file_path, 'r') as f:
+            state_data = yaml.safe_load(f)
+    except Exception as e:
+        return ConstitutionCheckResult(
+            status="FAIL",
+            message=f"Failed to load state file: {e}",
+            details={}
+        )
+        
+    relative_path = os.path.relpath(file_path, os.getcwd())
+    
+    if 'artifact_hashes' not in state_data:
+        return ConstitutionCheckResult(
+            status="FAIL",
+            message="State file missing 'artifact_hashes' key",
+            details={"state_file": state_file_path}
+        )
+        
+    if relative_path not in state_data['artifact_hashes']:
+        return ConstitutionCheckResult(
+            status="FAIL",
+            message=f"Checksum not found for artifact: {relative_path}",
+            details={"relative_path": relative_path}
+        )
+        
+    recorded_entry = state_data['artifact_hashes'][relative_path]
+    if not isinstance(recorded_entry, str) or not recorded_entry.startswith('sha256:'):
+        return ConstitutionCheckResult(
+            status="FAIL",
+            message="Invalid checksum format in state file",
+            details={"entry": recorded_entry}
+        )
+        
+    recorded_hash = recorded_entry.split('sha256:')[1]
+    current_hash = calculate_file_checksum(file_path)
+    
+    if recorded_hash != current_hash:
+        return ConstitutionCheckResult(
+            status="FAIL",
+            message="Checksum mismatch: file has been modified since recording",
+            details={
+                "relative_path": relative_path,
+                "recorded_hash": recorded_hash,
+                "current_hash": current_hash
+            }
+        )
+        
+    return ConstitutionCheckResult(
+        status="PASS",
+        message="Checksum validation successful",
+        details={"relative_path": relative_path}
+    )
 
 def main():
-    """Main entry point for the constitution checker."""
+    """
+    CLI entry point for the Constitution Checker.
+    Usage: python code/constitution_checker.py --action {check,register} --file <path> --state <path>
+    """
     import argparse
-    parser = argparse.ArgumentParser(description="Run Constitution Checks")
-    parser.add_argument("--project-root", type=str, default=".", help="Path to project root")
-    parser.add_argument("--mode", type=str, default="synthetic", choices=["synthetic", "real"], help="Execution mode")
+    
+    parser = argparse.ArgumentParser(description="Constitution Checker for Data Integrity")
+    parser.add_argument('--action', choices=['check', 'register'], required=True,
+                      help='Action to perform: check existing checksum or register new one')
+    parser.add_argument('--file', required=True, help='Path to the artifact file')
+    parser.add_argument('--state', required=True, help='Path to the state YAML file')
+    
     args = parser.parse_args()
-
-    results = run_constitution_check(args.project_root, args.mode)
     
-    print("\n--- Constitution Check Results ---")
-    all_passed = True
-    for res in results:
-        status_icon = "✅" if res.status in ["PASS", "N/A (Synthetic)"] else "❌"
-        print(f"{status_icon} Principle {res.principle_id}: {res.status}")
-        print(f"   Details: {res.details}")
-        if res.artifact_path:
-            print(f"   Artifact: {res.artifact_path}")
-        if res.status == "FAIL":
-            all_passed = False
-    
-    if not all_passed:
-        sys.exit(1)
-    else:
-        print("\nAll applicable checks passed.")
-        sys.exit(0)
+    if args.action == 'register':
+        success = update_state_with_checksum(args.file, args.state)
+        if success:
+            print(f"Successfully registered checksum for {args.file}")
+            sys.exit(0)
+        else:
+            print(f"Failed to register checksum for {args.file}")
+            sys.exit(1)
+    elif args.action == 'check':
+        result = run_constitution_check(args.file, args.state)
+        print(json.dumps(result.to_dict(), indent=2))
+        sys.exit(0 if result.status == "PASS" else 1)
 
 if __name__ == "__main__":
     main()

@@ -1,16 +1,13 @@
 status: none
-intent: dbGaP Human Microbiome Project Sleep-EDF metagenomic sleep polysomnography
-  download python package dataset
+intent: Human Microbiome Project Sleep Heart Health Study combined metagenomic and
+  polysomnography dataset download python package dataset
 required_fields:
 - subject_id
-- taxon_counts_wide_or_long
+- taxon_counts
 - relative_abundance
 - REM_duration
 - SWS_duration
-- total_sleep_time
-- actigraphy_total_time
-- age
-- sex
-cache_key: 9e73c44ef3de15478e8c048afe8bcf60a71d8c6f67ac61530c4362deb8763fbb
-searched_at: '2026-07-23T10:00:47.082473+00:00'
+- Total_Sleep_Time
+cache_key: a2ac2c806ec2698c994655f30b739e9d64260424c50ca183f7110ef92207c168
+searched_at: '2026-07-28T01:11:17.762196+00:00'
 retry_count: 1
