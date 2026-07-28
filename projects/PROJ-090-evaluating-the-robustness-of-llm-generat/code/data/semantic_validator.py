@@ -3,9 +3,13 @@ Semantic Similarity Validation
 Uses sentence-transformers to ensure perturbed prompts are semantically similar
 to the original.
 
-STRICT CONSTRAINT: Only perturbations with score > 0.95 are retained.
-No fallback logic allowed. If the real source (model) cannot be loaded or
-similarity cannot be computed, the process must fail loudly.
+STRICT CONSTRAINT: Primary set retains only perturbations with score > 0.95.
+FALLBACK LOGIC: If the valid yield is < 20% of the total task count, the system
+MUST re-evaluate the raw candidate pool with a threshold of > 0.90 to ensure
+a minimum sample size for feasibility, as authorized by plan.md.
+
+This module provides the core validation logic used by the perturbation pipeline.
+It must be integrated with the generation and filtering stages.
 """
 
 import torch
@@ -72,8 +76,7 @@ def validate_perturbation(
     Validates a single perturbation against the strict threshold.
     Returns (is_valid, score).
     
-    STRICT CONSTRAINT: Only scores > threshold are considered valid.
-    No fallback logic.
+    STRICT CONSTRAINT: Only scores > threshold are considered valid for the primary set.
     """
     score = compute_similarity(original, perturbed)
     is_valid = score > threshold
@@ -89,14 +92,37 @@ def validate_perturbation_batch(
     """
     Validates a batch of candidates against the strict threshold.
     Returns list of (candidate, score, is_valid).
-    
-    STRICT CONSTRAINT: No fallback for failed validations.
     """
     results = []
     for cand in candidates:
         is_valid, score = validate_perturbation(original, cand, threshold)
         results.append((cand, score, is_valid))
     return results
+
+def evaluate_feasibility(
+    candidates_with_scores: List[Tuple[str, float, bool]],
+    total_tasks: int
+) -> Tuple[float, bool]:
+    """
+    Evaluates if the current threshold yields enough valid candidates.
+    
+    Args:
+        candidates_with_scores: List of (candidate, score, is_valid) tuples.
+        total_tasks: Total number of original tasks attempted.
+        
+    Returns:
+        Tuple of (yield_percentage, is_feasible).
+        is_feasible is True if yield >= 20%.
+    """
+    valid_count = sum(1 for _, _, is_valid in candidates_with_scores if is_valid)
+    # Calculate yield based on total tasks (assuming max 3 candidates per task)
+    # But the constraint says "valid yield < 20% of the total task count"
+    # So we compare valid candidates to total tasks.
+    yield_percentage = (valid_count / total_tasks) * 100 if total_tasks > 0 else 0.0
+    is_feasible = yield_percentage >= 20.0
+    
+    logger.info(f"Feasibility check: {valid_count} valid / {total_tasks} tasks = {yield_percentage:.2f}%")
+    return yield_percentage, is_feasible
 
 def main():
     """CLI test for the validator using real data simulation."""

@@ -62,16 +62,16 @@
 ### Implementation for User Story 1
 
 - [ ] T010 [P] [US1] Define JSON schemas for `CharacterAxis` (Coarse/Fine) in `specs/001-gene-regulation/contracts/axis.schema.yaml`
-- [ ] T011 [US1] Implement `src/services/axis_generator.py` with manual input interface for defining axes, including serialization logic to produce `data/derived/axes.jsonl` (T013) AND implement `display_axis_output(coarse, fine)` in `src/cli/run_experiment.py` to print the two distinct JSON objects to the console (US-1) <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+- [X] T011 [US1] Implement `src/services/axis_generator.py` with manual input interface for defining axes, including serialization logic to produce `data/derived/axes.jsonl` (T013) AND implement `display_axis_output(coarse, fine)` in `src/cli/run_experiment.py` to print the two distinct JSON objects to the console (US-1) <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
 expected <block end>, but found ':'
  in "<unicode string>", line 1, column 1:
 : |
  ^) -->
-- [ ] T011a [US1] Implement `src/cli/axis_input.py` with independent input validation logic: requires two separate text blocks for Coarse and Fine axes, prevents copy-paste between fields, and validates that Fine axes originate from independent narrative observations (FR-001, US-1). The validation MUST compare the 'Fine' axis text against a provided 'Source Text Segment' from the narrative using a semantic similarity threshold to prove independence.
-- [ ] T012 [US1] Implement semantic validation logic in `src/services/axis_generator.py` (lexical overlap > 0.4, embedding cosine distance < 0.3)
-- [ ] T012a [US1] Implement logic in `src/cli/axis_input.py` to verify that input data originates from independent narrative observations as per FR-001 (e.g., separate input streams, validation against source text segments)
-- [ ] T013 [US1] Create `data/derived/axes.jsonl` writer to store validated axis definitions
-- [ ] T014 [US1] Add CLI entry point in `src/cli/run_experiment.py` to initialize axes for a given character
+- [X] T011a [US1] Implement `src/cli/axis_input.py` with independent input validation logic: requires two separate text blocks for Coarse and Fine axes, prevents copy-paste between fields, and validates that Fine axes originate from independent narrative observations (FR-001, US-1). The validation MUST compare the 'Fine' axis text against a provided 'Source Text Segment' from the narrative using a semantic similarity threshold to prove independence.
+- [X] T012 [US1] Implement semantic validation logic in `src/services/axis_generator.py` (lexical overlap > 0.4, embedding cosine distance < 0.3)
+- [X] T012a [US1] Implement logic in `src/cli/axis_input.py` to verify that input data originates from independent narrative observations as per FR-001 (e.g., separate input streams, validation against source text segments)
+- [X] T013 [US1] Create `data/derived/axes.jsonl` writer to store validated axis definitions
+- [X] T014 [US1] Add CLI entry point in `src/cli/run_experiment.py` to initialize axes for a given character
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -85,13 +85,13 @@ expected <block end>, but found ':'
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [ ] T015 [P] [US2] Unit test for probe regeneration loop and similarity threshold in `tests/unit/test_probe_generation.py`
+- [X] T015 [P] [US2] Unit test for probe regeneration loop and similarity threshold in `tests/unit/test_probe_generation.py`
 
 ### Implementation for User Story 2
 
 - [ ] T016 [P] [US2] Define JSON schema for `Probe` in `specs/001-gene-regulation/contracts/probe.schema.yaml`
-- [ ] T017 [US2] Implement `src/services/probe_generator.py` with logic to generate novel scenarios based on character axes
-- [ ] T018 [US2] Implement semantic similarity check (cosine similarity < 0.3) against source text corpus in `src/services/probe_generator.py`
+- [X] T017 [US2] Implement `src/services/probe_generator.py` with logic to generate novel scenarios based on character axes
+- [X] T018 [US2] Implement semantic similarity check (cosine similarity < 0.3) against source text corpus in `src/services/probe_generator.py`
 - [ ] T019 [US2] Implement regeneration loop (max reasonable attempts) with discard logic for invalid probes in `src/services/probe_generator.py`, including specific error handling: implement logic to log 'Generation Limit Exceeded' and proceed with available valid probes (if >= 50) or mark character as invalid if attempts > 150 (Edge Cases, FR-002)
 - [ ] T020 [US2] Create `data/derived/probes.jsonl` writer to store validated out-of-world probes
 - [ ] T021 [US2] Implement error handling for "Generation Limit Exceeded" (log error, proceed if >= 50 valid probes)

@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive"
 version = "0.1.0"
-description = "Automated science pipeline for gene regulation analysis"
+description = "Automated science pipeline for gene regulation character arc analysis"
 requires-python = ">=3.11"
 dependencies = [
     "transformers",
@@ -22,15 +22,42 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
+    "ruff>=0.4.0",
+    "black>=24.0.0",
 ]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101"] # assert allowed in tests
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
     \.git
     | \.hg
@@ -44,49 +71,16 @@ extend-exclude = '''
 )/
 '''
 
-[tool.ruff]
-# Same as Black.
-line-length = 88
-target-version = "py311"
-extend-exclude = [
-    "__pycache__",
-    "*.egg-info",
-    ".venv",
-    "build",
-    "dist",
-]
-
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["src"]
-known-third-party = [
-    "datasets",
-    "huggingface_hub",
-    "numpy",
-    "pandas",
-    "pytest",
-    "scipy",
-    "sklearn",
-    "tiktoken",
-    "transformers",
-]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
 addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Marks tests that take a long time to run",
+]
+
+[tool.setuptools]
+packages = ["src", "src.lib", "src.services", "src.cli", "src.models", "src.analysis", "tests", "tests.unit", "tests.integration"]
+package-dir = {"" = "code"}

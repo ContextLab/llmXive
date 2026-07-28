@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`code/`, `data/`, `tests/`, `data/raw/`, `data/processed/`,
+    `data/stimuli/`, `data/ethics/`) is present or described in the provided artifacts;
+    the implementer only supplied a textual specification without creating any of
+    the required folders or files.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration artifacts (e.g., .flake8, pyproject.toml,\
+    \ or pre\u2011commit setup) were provided; the evidence consists only of a unrelated\
+    \ feature specification, so the requirement to configure flake8 and black is not\
+    \ satisfied."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No stimulus\u2011generation script, CSV files, or randomisation code were supplied;\
+    \ consequently there is no evidence that \u201CPartner\u201D and \u201CTool\u201D\
+    \ vignettes are produced from a controlled template, nor that participants are\
+    \ assigned to conditions with the required 50/50 split. The implementer must provide\
+    \ the actual script(s) and example output files to satisfy the task."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data file was provided that implements or demonstrates the
+    `manipulation_check_failed` boolean logic. Without an artifact showing the flagging
+    mechanism, the requirement is not satisfied.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, configuration file, or documentation was provided that shows
+    logic for detecting and removing partial responses from the dataset. The only
+    material present is the original feature specification; there is no artifact demonstrating
+    the required exclusion functionality.
+T025:
+  c: false
+  h: ff66db471f01cc5eee76ccbe80058baaec258c73331508f7a924fcbcdb3663cd
+  r: The required file `data/processed/pilot_validation_report.json` does not exist,
+    so no validation results have been logged as the task demands. The implementer
+    must generate the pilot study validation output and save it at the specified path.

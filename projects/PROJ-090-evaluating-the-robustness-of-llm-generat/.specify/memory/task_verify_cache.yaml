@@ -1,11 +1,28 @@
-T017:
+T016:
   c: false
-  h: ec77f4ff7e706ecf9be23ead7de3ddbb8ba068105778baa3fc238293da1d4b00
-  r: "The required output file `data/processed/perturbation_candidates_raw.json` does\
-    \ not exist, so the validation step cannot be performed. Without this artifact\
-    \ the pipeline\u2019s result cannot be verified as meeting the \u201Cexactly one\
-    \ valid variant per task\u201D and schema requirements. The implementer must generate\
-    \ the raw perturbation JSON (and ensure it passes `validate_schema.py`)."
+  h: e814d7f7c419c5139772e2ddca45161cb2f052bc8db59562ca686f9b70de44d2
+  r: "The repository contains `code/data/semantic_validator.py`, but the file is truncated\
+    \ and does not show any logic that filters a candidate pool, applies the fallback\
+    \ threshold, or writes a `raw_score` field to `data/processed/perturbation_candidates_raw.json`.\
+    \ Moreover, the required `data/processed/perturbation_candidates_raw.json` file\
+    \ is absent, so the verification command cannot succeed. The task\u2019s primary\
+    \ and fallback requirements and the verification step are not satisfied."
+T018:
+  c: false
+  h: f227582b1ebf158b02f459dfced7c379ab5aabdf27e4b94ec9157958538c8c4c
+  r: "The `data/processed/perturbation_candidates.json` file does not exist, and the\
+    \ provided `filter_perturbations.py` snippet shows no code that writes the filtered\
+    \ candidates to that path (nor any citation of FR\u2011003/FR\u2011009). Consequently\
+    \ the required primary dataset is not generated, so the task is not satisfied."
+T021:
+  c: false
+  h: 18ad8782ae6d3eeae58d8a45e050551edb80aae25e6096aaa41342b7044dba9f
+  r: "The provided `inference.py` loads `bigcode/starcoder2-3b` instead of the required\
+    \ `bigcode/starcoder-3b`, and the file does not show any implementation that records\
+    \ a `confidence_score` in the output logs. Moreover, the required `data/processed/inference_logs.json`\
+    \ file is missing, so the verification command cannot succeed. The task needs\
+    \ the correct model ID, proper confidence\u2011score logging, and the generation\
+    \ of the expected JSON log file."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,14 +30,6 @@ T023:
     \ per\u2011test\u2011case timeout was provided; the claim lacks any artifact demonstrating\
     \ that such an executor has been integrated or that it enforces the required timeout.\
     \ The required implementation and evidence are missing."
-T033:
-  c: false
-  h: 268c84a55b362039220173f14fc203e85dfdfd7d324b72d93f6e29746d6e777b
-  r: "The repository lacks `data/processed/mixed_effects_results.json`, and the `MixedEffectsResult`\
-    \ dataclass in `statistics.py` does not match the fields the tests expect (e.g.,\
-    \ no `fixed_effects` or `variance_component_task`). Moreover, the required `run_mixed_effects_logistic_regression`\
-    \ implementation is not present in the provided snippet, so the pytest suite cannot\
-    \ pass. The task\u2019s deliverable is therefore not satisfied."
 T034:
   c: false
   h: 5d8f73661e5ddf5c2155637d8cc060d0df101a5e3570504930c7859e931832d3

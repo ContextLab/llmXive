@@ -6,10 +6,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.ruff.toml`, or a `requirements-dev.txt` including these tools) were provided, nor any documentation or scripts showing they have been set up and integrated into the project. The required artifacts are missing.
 - **T004** — No evidence of the required directories (`data/raw/`, `data/derived/`, `data/gold_standard/`, `artifacts/`) is provided; the claim lacks any artifact listing or screenshots confirming their existence or contents.
 - **T008** — No code, configuration, or documentation was provided that creates or demonstrates logging of experiment run IDs, timestamps, and parameter hashes. The evidence consists only of a high‑level feature specification unrelated to state‑tracking, so the required artifact is missing.
-- **T009a** — declared artifact(s) missing/empty/invalid: data/gold_standard/human_annotations.json, schema.yaml
+- **T009a** — The `human_annotations.json` file exists and contains the required fields, but the referenced `calibration.schema.yaml` is missing, so compliance cannot be verified, and no SHA‑256 checksum or project‑state entry is provided. Both the schema validation and checksum recording are absent.
 - **T010** — The required file `specs/001-gene-regulation/contracts/axis.schema.yaml` (or `schema.yaml`) does not exist, so no JSON schema for `CharacterAxis` (Coarse/Fine) is provided. The task’s primary artifact is missing.
-- **T011** — declared artifact(s) missing/empty/invalid: src/services/axis_generator.py, data/derived/axes.jsonl, src/cli/run_experiment.py
-- **T011a** — declared artifact(s) missing/empty/invalid: src/cli/axis_input.py
-- **T012** — declared artifact(s) missing/empty/invalid: src/services/axis_generator.py
-- **T012a** — declared artifact(s) missing/empty/invalid: src/cli/axis_input.py
-- **T013** — declared artifact(s) missing/empty/invalid: data/derived/axes.jsonl
+- **T016** — The required file `specs/001-gene-regulation/contracts/probe.schema.yaml` (or any `schema.yaml` defining the Probe JSON schema) is missing, so no schema was provided to satisfy the task. The implementer must create the specified schema file with the appropriate JSON schema content.

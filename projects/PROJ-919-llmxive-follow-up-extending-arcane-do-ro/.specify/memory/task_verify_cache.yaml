@@ -27,9 +27,23 @@ T008:
     \ logging of experiment run IDs, timestamps, and parameter hashes. The evidence\
     \ consists only of a high\u2011level feature specification unrelated to state\u2011\
     tracking, so the required artifact is missing."
+T009a:
+  c: false
+  h: 45892bc3b9ad00ffd526d136044dd4654f39475ddf7ce3f5aafc380c047debd0
+  r: "The `human_annotations.json` file exists and contains the required fields, but\
+    \ the referenced `calibration.schema.yaml` is missing, so compliance cannot be\
+    \ verified, and no SHA\u2011256 checksum or project\u2011state entry is provided.\
+    \ Both the schema validation and checksum recording are absent."
 T010:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
   r: "The required file `specs/001-gene-regulation/contracts/axis.schema.yaml` (or\
     \ `schema.yaml`) does not exist, so no JSON schema for `CharacterAxis` (Coarse/Fine)\
     \ is provided. The task\u2019s primary artifact is missing."
+T016:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required file `specs/001-gene-regulation/contracts/probe.schema.yaml` (or
+    any `schema.yaml` defining the Probe JSON schema) is missing, so no schema was
+    provided to satisfy the task. The implementer must create the specified schema
+    file with the appropriate JSON schema content.

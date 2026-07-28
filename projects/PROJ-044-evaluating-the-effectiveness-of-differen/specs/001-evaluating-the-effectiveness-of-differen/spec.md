@@ -33,7 +33,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a homogeneous partition (α=1.0) and ε=10.0, **When** the DP-FedAvg training completes, **Then** the global test accuracy is within 5% of the non-DP baseline.
+1. **Given** a homogeneous partition (α=1.0) and ε=10.0, **When** the DP-FedAvg training completes, **Then** the global test accuracy is within 5% of the non-DP baseline (defined as FedAvg with α=1.0, no privacy noise, using the same random seeds).
 2. **Given** a highly heterogeneous partition (α=0.1) and ε=0.1, **When** the DP-FedAvg training completes, **Then** the system logs the accuracy for both the global model and the specific "minority" clients (those with rare labels).
 3. **Given** a valid privacy budget ε, **When** the training step executes, **Then** the Gaussian noise multiplier (σ) is calculated and applied to the gradients as per the moments accountant algorithm.
 
@@ -41,7 +41,7 @@
 
 ### User Story 3 - Statistical Analysis and Threshold Sensitivity (Priority: P3)
 
-**As a** data analyst, **I want** to run statistical tests (paired t-tests) comparing majority vs. minority performance and perform a sensitivity analysis on the heterogeneity threshold, **so that** I can determine if the observed degradation is statistically significant and robust to parameter choices.
+**As a** data analyst, **I want** to run statistical tests (unpaired t-tests or Mann-Whitney U) comparing majority vs. minority performance and perform a sensitivity analysis on the heterogeneity threshold (α ≤ 0.1), **so that** I can determine if the observed degradation is statistically significant and robust to parameter choices.
 
 **Why this priority**: This transforms raw metrics into scientific conclusions. It addresses the "methodological soundness" requirement by ensuring findings are not artifacts of arbitrary thresholds or random chance.
 
@@ -49,9 +49,9 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** accuracy results from 5 independent seeds for ε=0.5, **When** the t-test is run, **Then** the system outputs a p-value indicating if the difference between majority and minority client accuracy is significant (p < 0.05).
-2. **Given** a set of results across α ∈ {0.1, 0.5, 1.0}, **When** the sensitivity analysis script runs, **Then** it generates a plot showing how the "accuracy gap" between majority and minority clients changes as heterogeneity increases.
-3. **Given** a critical heterogeneity threshold hypothesis, **When** the analysis is performed, **Then** the system explicitly reports whether the degradation for ε < 0.5 exceeds a defined statistical significance level.
+1. **Given** accuracy results from 5 independent seeds for ε=0.5, **When** the unpaired t-test is run, **Then** the system outputs a p-value indicating if the difference between majority and minority client accuracy is significant (p < 0.05).
+2. **Given** a set of results across α ∈ {0.05, 0.1, 0.5, 1.0}, **When** the sensitivity analysis script runs, **Then** it generates a plot showing how the "accuracy gap" between majority and minority clients changes as heterogeneity increases.
+3. **Given** the critical heterogeneity threshold hypothesis (α ≤ 0.1), **When** the analysis is performed, **Then** the system explicitly reports whether the degradation for ε < 0.5 exceeds a defined statistical significance level.
 
 ### Edge Cases
 
@@ -63,12 +63,12 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and partition the FEMNIST and Shakespeare datasets from the LEAF benchmark using Dirichlet distributions with concentration parameters α ∈ {0.1, 0.5, 1.0} (See US-1).
+- **FR-001**: System MUST download and partition the FEMNIST and Shakespeare datasets from the LEAF benchmark using Dirichlet distributions with concentration parameters α ∈ {0.1, 0.5, 1.0} for the baseline experimental set (See US-1).
 - **FR-002**: System MUST implement FedAvg with Opacus to apply Gaussian noise to client gradients, supporting privacy budgets ε ∈ {0.1, 0.5, 1.0, 5.0, 10.0} (See US-2).
 - **FR-003**: System MUST track and log global test accuracy, as well as per-client test accuracy to distinguish between majority and minority client performance (See US-2).
 - **FR-004**: System MUST execute 5 independent training runs (seeds) for every configuration of (dataset, α, ε) to enable statistical power (See US-3).
-- **FR-005**: System MUST perform paired t-tests comparing (a) DP vs. non-DP baselines and (b) majority vs. minority client accuracies for each configuration (See US-3).
-- **FR-006**: System MUST perform a sensitivity analysis sweeping the heterogeneity parameter α over a small concrete set (e.g., {0.05, 0.1, 0.5}) and report the variation in the accuracy gap (See US-3).
+- **FR-005**: System MUST perform paired t-tests on the accuracy difference (DP accuracy minus Non-DP accuracy) per seed for DP vs. non-DP baselines, and unpaired t-tests (or Mann-Whitney U) comparing majority vs. minority client accuracies for each configuration (See US-3).
+- **FR-006**: System MUST perform a sensitivity analysis sweeping the heterogeneity parameter α over an extended set {0.05, 0.1, 0.5, 1.0} and report the variation in the accuracy gap (See US-3).
 - **FR-007**: System MUST compute privacy loss using the moments accountant mechanism to ensure accurate ε tracking (See US-2).
 
 ### Key Entities
@@ -84,10 +84,10 @@
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The difference in convergence speed (rounds to reach [deferred] of final accuracy) between majority and minority clients is measured against the non-DP baseline to quantify heterogeneity impact (See FR-003, US-2).
+- **SC-001**: The difference in convergence speed (rounds to reach [deferred] of the non-DP baseline peak accuracy) between majority and minority clients is measured against the non-DP baseline to quantify heterogeneity impact (See FR-003, US-2).
 - **SC-002**: The statistical significance (p-value) of the accuracy gap between majority and minority clients is measured against the threshold p < 0.05 to validate the "critical heterogeneity" hypothesis (See FR-005, US-3).
-- **SC-003**: The variation in the "accuracy gap" metric across the sensitivity sweep of α (e.g., {0.05, 0.1, 0.5}) is measured to ensure the observed effects are robust to parameter selection (See FR-006, US-3).
-- **SC-004**: The privacy-utility trade-off curve (Global Accuracy vs. ε) is measured against the theoretical expectation of smooth degradation in homogeneous settings vs. steep degradation in heterogeneous settings (See FR-002, US-2).
+- **SC-003**: The variation in the "accuracy gap" metric across the sensitivity sweep of α (e.g., {0.05, 0.1, 0.5, 1.0}) is measured to ensure the observed effects are robust to parameter selection (See FR-006, US-3).
+- **SC-004**: The privacy-utility trade-off curve (Global Accuracy vs. ε) is measured against established literature benchmarks for DP-FL in homogeneous settings (α=1.0), and the slope of the accuracy vs. ε curve for α=0.1 must be ≥ 2x steeper (more negative) than the slope for α=1.0 to confirm heterogeneity impact (See FR-002, US-2).
 - **SC-005**: The reproducibility of results is measured by the variance of accuracy metrics across the 5 independent seeds for a fixed configuration (See FR-004, US-3).
 
 ## Assumptions
@@ -99,3 +99,4 @@
 - The privacy budget ε values (0.1 to 10.0) cover the relevant range where the privacy-utility trade-off is observable without rendering the model completely useless (accuracy ≈ random chance) for the chosen dataset.
 - The computational resources of a standard GitHub Actions runner (2 CPU, 7GB RAM) are sufficient to process the sampled datasets and train the small models for the specified number of rounds and seeds.
 - The analysis assumes that the noise added by Opacus is purely Gaussian and that the moments accountant provides an accurate estimate of the cumulative privacy loss.
+- **Critical Heterogeneity Threshold**: The hypothesis of "critical heterogeneity" is defined as any configuration where α ≤ 0.1, representing the regime where data imbalance is severe enough to significantly degrade minority client performance under DP.

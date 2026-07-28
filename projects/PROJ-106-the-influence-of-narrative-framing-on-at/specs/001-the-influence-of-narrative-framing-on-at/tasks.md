@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `data/raw/`, `data/processed/`, `data/stimuli/`, `data/ethics/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (`pandas`, `numpy`, `scipy`, `statsmodels`, `textstat`, `vaderSentiment`, `pytest`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (`pandas`, `numpy`, `scipy`, `statsmodels`, `textstat`, `vaderSentiment`, `pytest`)
 - [ ] T003 [P] Configure linting (flake8) and formatting (black) tools
 
 ---
@@ -58,8 +58,8 @@
 - [X] T004 Implement `code/00_ethics_gate.py` to check for IRB approval existence and block execution if missing (Constitution VI)
 - [X] T005 Create base data schemas and validation utilities in `code/utils/data_validation.py`
 - [X] T006 Setup random seed management utility in `code/utils/random_utils.py` to ensure reproducibility across all scripts
-- [ ] T007 Configure logging infrastructure in `code/utils/logger.py` for audit trails of data processing steps
-- [ ] T008 [US3] Implement `code/00_power_analysis.py` to perform prospective power analysis (G*Power equivalent) calculating required N for 80% power at d=0.4, alpha=0.05, and enforce the N=300 target for recruitment planning (FR-009, SC-002)
+- [X] T007 Configure logging infrastructure in `code/utils/logger.py` for audit trails of data processing steps
+- [X] T008 [US3] Implement `code/00_power_analysis.py` to perform prospective power analysis (G*Power equivalent) calculating required N for 80% power at d=0.4, alpha=0.05, and enforce the N=300 target for recruitment planning (FR-009, SC-002)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,13 +73,13 @@
 
 ### Sub-phase 3A: Test File Creation (Prerequisite to Implementation)
 
-- [ ] T009 [P] [US1] Create test file `tests/test_stimuli.py` with test for readability check (Flesch-Kincaid diff ≤ 2.0)
+- [X] T009 [P] [US1] Create test file `tests/test_stimuli.py` with test for readability check (Flesch-Kincaid diff ≤ 2.0)
 - [X] T010 [P] [US1] Create test file `tests/test_stimuli.py` with test for sentiment check (VADER diff ≤ 0.05)
 - [X] T011 [P] [US1] Create test file `tests/test_randomization.py` with test for randomization distribution (k runs, balanced split)
 
 ### Sub-phase 3B: Implementation
 
-- [~] T012 [US1] Implement the stimulus generation script to generate "Partner" and "Tool" vignettes based on a controlled template, ensuring no other linguistic variables change
+- [ ] T012 [US1] Implement the stimulus generation script to generate "Partner" and "Tool" vignettes based on a controlled template, ensuring no other linguistic variables change
 - [X] T013 [US1] Integrate `textstat` in `code/01_stimulus_generation.py` to calculate Flesch-Kincaid scores and enforce ≤ 2.0 point difference (FR-001, SC-001)
 - [X] T014 [US1] Integrate `vaderSentiment` in `code/01_stimulus_generation.py` to calculate compound scores, enforce ≤ 0.05 difference, AND implement a rejection/regeneration loop with a `max_attempts` limit (e.g., 10) and a fallback strategy to log a warning and halt if constraints cannot be met (FR-010, SC-005)
 - [X] T015 [US1] Implement `code/02_randomization.py` to Assign a unique Participant ID to exactly one condition (Partner/Tool) with a balanced ratio. (FR-002)
@@ -99,12 +99,12 @@
 ### Pilot Study Validation (Must precede Main Data Collection)
 
 - [X] T024 [US2] Implement `code/03_pilot_study.py` to execute a pilot study (n≥30) and validate that the manipulation check question accurately discriminates between readers and non-readers (FR-011)
-- [~] T025 [P] [US2] Run pilot study validation and log results to `data/processed/pilot_validation_report.json`
+- [ ] T025 [P] [US2] Run pilot study validation and log results to `data/processed/pilot_validation_report.json`
 
 ### Main Data Collection Implementation
 
 - [X] T019 [US2] Implement `code/04_data_collection.py` to ingest raw survey data (simulated or imported) and map responses to `Participant` entities
-- [ ] T020 [P] [US2] Implement validation logic in `code/04_data_collection.py` to ensure Likert scales are integers within the expected range. (US-2, FR-003)
+- [X] T020 [P] [US2] Implement validation logic in `code/04_data_collection.py` to ensure Likert scales are integers within the expected range. (US-2, FR-003)
 - [ ] T021 [P] [US2] Implement logic to flag `manipulation_check_failed` boolean based on the manipulation check question response (US-2, FR-003)
 - [ ] T022 [US2] Implement logic to exclude partial responses (participants who abandoned halfway) from the final dataset (Edge Case)
 - [ ] T023 [US2] Export cleaned data to `data/processed/cleaned_responses.csv` with columns: `participant_id`, `condition`, `manipulation_check`, `manipulation_check_failed`, AND individual raw item responses: `attitude_item_1` through `attitude_item_7`, `usefulness_item_1` through `usefulness_item_3`, `trust_item_1` through `trust_item_4` (FR-003, Constitution VII)

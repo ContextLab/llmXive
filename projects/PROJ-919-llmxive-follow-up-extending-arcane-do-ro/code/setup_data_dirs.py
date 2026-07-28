@@ -1,63 +1,61 @@
 """
-Setup script for llmXive data directory structure.
+Setup script to initialize the data directory structure for the llmXive project.
 
-This script creates the required directory hierarchy for the project:
-- data/raw/          : Raw, unprocessed data from external sources
-- data/derived/      : Processed data, intermediate results, and artifacts
-- data/gold_standard/: Human annotations and ground truth data
-- artifacts/         : Model checkpoints, logs, and experiment artifacts
+This script creates the following directories under the project root:
+- data/raw: For raw, unprocessed external data
+- data/derived: For processed/generated data (axes, probes, results)
+- data/gold_standard: For human annotations and validation sets
+- artifacts: For model checkpoints, logs, and experiment artifacts
 
-The script is idempotent and will not fail if directories already exist.
+Usage:
+    python code/setup_data_dirs.py
 """
 import os
 from pathlib import Path
-
-# Define the base project root (assumed to be the parent of the code/ directory)
-# In a standard setup, this script is at code/setup_data_dirs.py
-PROJECT_ROOT = Path(__file__).parent.parent
-
-# Define the directory structure relative to PROJECT_ROOT
-DIRECTORIES = [
-    "data/raw",
-    "data/derived",
-    "data/gold_standard",
-    "artifacts",
-]
+import sys
 
 def setup_directories():
-    """Create the required data directory structure."""
-    created_dirs = []
-    skipped_dirs = []
-
-    for dir_path_str in DIRECTORIES:
-        dir_path = PROJECT_ROOT / dir_path_str
-        
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(dir_path.relative_to(PROJECT_ROOT)))
-            print(f"Created: {dir_path.relative_to(PROJECT_ROOT)}")
-        else:
-            skipped_dirs.append(str(dir_path.relative_to(PROJECT_ROOT)))
-            # Only print if it's not just a parent directory check
-            # We want to be quiet if it exists but not necessarily "created"
-            # But for a setup script, a little feedback is good.
-            # Let's only print if it's explicitly a leaf we checked.
-            pass
-
-    # Summary
-    if created_dirs:
-        print(f"\nSuccessfully created {len(created_dirs)} directory(ies).")
-    else:
-        print("\nAll required directories already exist.")
-
-    if skipped_dirs:
-        print(f"Skipped (already exist): {', '.join(skipped_dirs)}")
-
-    return created_dirs, skipped_dirs
+    """
+    Creates the required data directory structure.
+    
+    Returns:
+        dict: A dictionary mapping directory names to their absolute paths.
+    """
+    # Determine project root (assuming this script is in code/)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+    
+    # Define the required directories relative to project root
+    data_dirs = [
+        "data/raw",
+        "data/derived",
+        "data/gold_standard",
+        "artifacts"
+    ]
+    
+    created_dirs = {}
+    
+    for dir_path in data_dirs:
+        full_path = project_root / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_dirs[dir_path] = str(full_path)
+            print(f"✓ Created/Verified directory: {full_path}")
+        except OSError as e:
+            print(f"✗ Failed to create directory {full_path}: {e}", file=sys.stderr)
+            raise
+    
+    # Create a .gitkeep file in each directory to ensure they are tracked by git
+    for dir_path in data_dirs:
+        full_path = project_root / dir_path
+        keep_file = full_path / ".gitkeep"
+        try:
+            keep_file.touch(exist_ok=True)
+        except OSError as e:
+            print(f"Warning: Could not create .gitkeep in {full_path}: {e}", file=sys.stderr)
+    
+    print(f"\nSuccessfully initialized {len(created_dirs)} directories under {project_root}")
+    return created_dirs
 
 if __name__ == "__main__":
-    print(f"Setting up data directories for llmXive project at: {PROJECT_ROOT}")
-    print("-" * 50)
     setup_directories()
-    print("-" * 50)
-    print("Setup complete.")

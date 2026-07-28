@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T23:25:06.369481Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-417-assessing-the-impact-of-data-heterogenei
-last_run_id: f8b2d9fd-759b-478c-a828-030d682ba1ea
+last_run_id: d74fb8ac-c7b2-4a78-8ec0-480b7f9abb57
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei
 title: Assessing the Impact of Data Heterogeneity on Meta-Analysis Results
-updated_at: '2026-07-26T18:12:57.565047Z'
+updated_at: '2026-07-28T13:14:07.085161Z'

@@ -645,3 +645,443 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T00:13:06Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 0
+  canonical: 'requirements.txt pinned versions: transformers 4.42.0, datasets 2.20.0,
+    sentence-transformers 3.0.1, bitsandbytes 0.43.1, scikit-learn 1.5.0, statsmodels
+    0.14.2, pandas 2.2.2, pytest 8.2.2'
+  claim_id: c_07f96ce9
+  context: 'Phase 1: Setup (Shared Infrastructure) - T004 Create requirements.txt
+    with pinned versions.'
+  evidence:
+    asserted: '4.42'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'requirements.txt with pinned versions: transformers==4.42.0, datasets==2.20.0,
+    sentence-transformers==3.0.1, bitsandbytes==0.43.1, scikit-learn==1.5.0, statsmodels==0.14.2,
+    pandas==2.2.2, pytest==8.2.2.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T13:27:08Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: HumanEval download using datasets.load_dataset('openai_humaneval')
+  claim_id: c_7f9e12be
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T012'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_download_using_datasets.load_dataset('openai_human
+  kind: entity_fact
+  raw_text: Implement HumanEval download script in code/data/download_humaneval.py
+    using datasets.load_dataset('openai_humaneval').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:27:27Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Semantic validation using sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_688d4cce
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T016'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_validation_using_sentence-transformers/all-MiniLM-L
+  kind: entity_fact
+  raw_text: Implement semantic validation using sentence-transformers/all-MiniLM-L6-v2
+    in code/data/semantic_validator.py to calculate cosine similarity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:27:48Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Primary perturbation set retains scores > 0.95
+  claim_id: c_65298a2e
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T016'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Primary set retains only perturbations with score > 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:27:49Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Fallback threshold > 0.90 if valid yield < 20% of total tasks
+  claim_id: c_373c1d1f
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T016'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the valid yield is < 20% of the total task count, the system MUST re-evaluate
+    the raw candidate pool with a threshold of > 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:27:49Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Generate up to 3 candidates per task (synonym, typo, rephrase)
+  claim_id: c_781b4da5
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T017'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement perturbation generation pipeline in code/data/generate_perturbations.py
+    that generates up to 3 candidates (one per transformation type: synonym, typo,
+    rephrase) per task.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:28:17Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: StarCoder-3B loading with bitsandbytes 4-bit quantization and CPU offload
+  claim_id: c_2bf451b3
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T021'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement StarCoder-3B loading with bitsandbytes 4-bit quantization and
+    CPU offload in code/model/inference.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:28:37Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Model ID bigcode/starcoder-3b
+  claim_id: c_a3bf6f18
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T021'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must use bigcode/starcoder-3b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:29:06Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'Stratified sampling for error classification: <= 50 failures or sample
+    of 50'
+  claim_id: c_cfa84b3d
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T035'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement error classifier for stratified sampling (\u226450 failures\
+    \ or sample of 50) to tag as syntax/logic."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:29:35Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: CPU usage < 6GB per process
+  claim_id: c_946e38ac
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T041'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU_usage_%3C_6GB_per_process
+  kind: entity_fact
+  raw_text: Optimize memory usage to ensure CPU usage < 6GB per process.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:30:05Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Runtime verification < 21600 seconds
+  claim_id: c_5d4dd20b
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T045'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run pipeline and check data/logs/runtime.log for total time < 21600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:30:05Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 0
+  canonical: pinned library versions in requirements.txt
+  claim_id: c_075b9b5b
+  context: 'Phase 1: Setup (Shared Infrastructure) - T004'
+  evidence:
+    asserted: '4.42'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'requirements.txt with pinned versions: transformers==4.42.0, datasets==2.20.0,
+    sentence-transformers==3.0.1, bitsandbytes==0.43.1, scikit-learn==1.5.0, statsmodels==0.14.2,
+    pandas==2.2.2, pytest==8.2.2'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-28T13:34:02Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset identifier
+  claim_id: c_d2522958
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T012'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_identifier
+  kind: entity_fact
+  raw_text: Implement HumanEval download script using datasets.load_dataset("openai_humaneval")
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:35:08Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: semantic validation model identifier
+  claim_id: c_70f1a4d2
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T016'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_validation_model_identifier
+  kind: entity_fact
+  raw_text: Implement semantic validation using sentence-transformers/all-MiniLM-L6-v2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:35:30Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: primary semantic similarity threshold
+  claim_id: c_07628923
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T016'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Primary set retains only perturbations with score > 0.95
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:35:30Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: fallback semantic similarity threshold condition
+  claim_id: c_1cd0b066
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T016'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the valid yield is < 20% of the total task count, the system MUST re-evaluate
+    the raw candidate pool with a threshold of > 0.90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:35:31Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: maximum candidates per task
+  claim_id: c_f842e316
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T017'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'generate up to 3 candidates (one per transformation type: synonym, typo,
+    rephrase) per task'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:35:44Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: model quantization and device configuration
+  claim_id: c_f4016113
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T021'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement StarCoder-3B loading with bitsandbytes 4-bit quantization and
+    CPU offload
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:35:53Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: model ID for inference
+  claim_id: c_3ed94dbe
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T021'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must use bigcode/starcoder-3b
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:35:53Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: statistical model and library
+  claim_id: c_9e649d55
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T033'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_model_and_library
+  kind: entity_fact
+  raw_text: Implement Mixed-Effects Logistic Regression with 'task' as random effect
+    using statsmodels
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:36:23Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: sensitivity report columns
+  claim_id: c_4cc6d49f
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T034'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_report_columns
+  kind: entity_fact
+  raw_text: 'Generate data/processed/sensitivity_report.csv with columns: threshold,
+    pass_rate, delta_from_baseline, sample_count'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:36:46Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: specific thresholds in sensitivity report
+  claim_id: c_8ab845b1
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T034'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert len(df)==4 and set(df['threshold'])=={0.85,0.90,0.95,0.99}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:37:09Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: maximum sample size for error classification
+  claim_id: c_cf1040e7
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T035'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement error classifier for stratified sampling (\u226450 failures\
+    \ or sample of 50)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:37:32Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: random seed for error classifier
+  claim_id: c_936e92d1
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T035'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: tag as syntax/logic using stratification by perturbation type and random
+    seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:37:53Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: CPU memory usage limit
+  claim_id: c_2bffde80
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T041'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU_memory_usage_limit
+  kind: entity_fact
+  raw_text: Optimize memory usage to ensure CPU usage < 6GB per process
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:38:06Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: maximum pipeline runtime in seconds
+  claim_id: c_b1b8a4d1
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T045'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert total time < 21600 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T13:38:06Z'
