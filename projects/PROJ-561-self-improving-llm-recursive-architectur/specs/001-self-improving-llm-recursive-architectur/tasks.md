@@ -53,20 +53,24 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `utils/memory.py` with gradient checkpointing, batch size auto-scaling (low-to-moderate range) and hard RAM watchdog: create `utils/memory.py` with function `check_and_terminate_if_exceeds(limit_gb: float)` that kills process if RAM exceeds limit. **Verification**: Add a unit test in `tests/unit/test_memory.py` that mocks `psutil.virtual_memory` using `unittest.mock.patch` to return a value > limit and asserts `sys.exit` is called.
-- [ ] T005b [P] Implement exponential backoff wrapper in `pipeline/loader.py` with initial delay=30s, max retries=5 for HuggingFace API calls.
-- [ ] T005a [P] Implement dataset loaders in `pipeline/loader.py` for OpenWebText, GSM8K, ARC-Challenge, Wikitext-2 with Fail-Fast logic: **Logic**: For transient network errors, use T005b (backoff); for missing data files, raise `FileNotFoundError` immediately (no synthetic fallback). **Verification**: Verify that loading a non-existent dataset raises `FileNotFoundError` and does NOT fallback to synthetic data. (DEPENDS ON T005b)
-- [ ] T006 [P] Implement `pipeline/model.py` with GPT checkpoint loading and CPU-compatible weight manipulation (DEPENDS ON T005a)
-- [ ] T013 [P] Define modification proposal JSON schema: Create `schemas/modification_proposal.py` with Pydantic model `ModificationProposal` including fields: modification_type, magnitude, rationale, estimated_param_count. **Verification**: Validate that the schema correctly rejects invalid JSON inputs.
-- [ ] T013b [P] Implement persistent state store: Create `utils/state_store.py` with functions `load_state()`, `save_state()`, `update_retry_count(mod_id)`, `update_mod_history(mod_id)`, `update_degradation_flag()`. State MUST be persisted to `results/state.json` to survive process restarts. **Verification**: Write a unit test using `subprocess.run` to spawn a worker process, modify state, force termination via `os.kill(pid, signal.SIGKILL)`, restart a new subprocess, and verify state is recovered.
-- [ ] T014 [P] Implement distinctness validation logic in `pipeline/model.py`: Create function `validate_modification_distinctness(proposal: ModificationProposal, history: List[ModificationProposal])` that returns True if proposal is distinct in type or magnitude from all items in history, False otherwise. (DEPENDS ON T013)
-- [ ] T007 [P] Implement `pipeline/stats.py` with paired bootstrap testing (α=0.05 strict) and exponential decay curve fitting
-- [ ] T008 [P] Create `config.py` with hyperparameters (lr=5e-5, bs=4, seed), constraints (≤30% param increase), and path definitions
-- [ ] T009 [P] Implement `utils/logging.py` for structured cycle logging and checkpointing
-- [ ] T010 [P] Implement `pipeline/evaluator.py` with benchmark runners for GSM8K, ARC-Challenge, and Wikitext-2 ECE
+- [X] T004 [P] Implement `utils/memory.py` with gradient checkpointing, batch size auto-scaling and hard RAM watchdog: create `utils/memory.py` with function `check_and_terminate_if_exceeds(limit_gb: float=7.0)` that kills process if RAM exceeds 7.0GB. **Verification**: Add a unit test in `tests/unit/test_memory.py` that mocks `psutil.virtual_memory` using `unittest.mock.patch` to return a value > 6.5GB (read from config.py) and asserts `sys.exit` is called.
+- [ ] T005b [P] Implement exponential backoff wrapper in `pipeline/loader.py` with initial delay=30s, max retries=5 for HuggingFace API calls. **Verification**: Add unit test in `tests/unit/test_loader.py` that mocks `time.sleep` and asserts retry count increments correctly on simulated failures, explicitly verifying the initial delay is 30 seconds.
+- [ ] T005a [P] Implement dataset loaders in `pipeline/loader.py` for OpenWebText, GSM8K, ARC-Challenge, Wikitext-2 with Fail-Fast logic: **Logic**: For transient network errors, use T005b (backoff); for missing data files, raise `FileNotFoundError` immediately (no synthetic fallback). **Verification**: Verify that loading a non-existent dataset raises `FileNotFoundError` and does NOT fallback to synthetic data. Also verify that simulated network errors trigger retry logic. (DEPENDS ON T005b)
+- [ ] T006 [P] Implement `pipeline/model.py` with GPT checkpoint loading and CPU-compatible weight manipulation. **Verification**: Verify model loads without error and state_dict keys match baseline by adding a unit test in `tests/unit/test_model.py`. (DEPENDS ON T005a)
+- [ ] T013 [P] Define modification proposal JSON schema: Create `schemas/modification_proposal.py` with Pydantic model `ModificationProposal` including fields: modification_type, magnitude, rationale, estimated_param_count. **Verification**: Add unit test in `tests/unit/test_schema.py` using pytest that asserts ValidationError is raised for invalid JSON.
+- [ ] T013b [P] Implement persistent state store: Create `utils/state_store.py` with functions `load_state()`, `save_state()`, `update_retry_count(mod_id)`, `update_mod_history(mod_id)`, `update_degradation_flag()`. State MUST be persisted to `results/state.json` with schema `{'cycle_number': int, 'retry_count': int, 'mod_history': list, 'degradation_flag': bool}` to survive process restarts. **Verification**: Write a unit test using `subprocess.run` to spawn a worker process, modify state, force termination via `os.kill(pid, signal.SIGKILL)`, restart a new subprocess, and verify state is recovered with the correct schema.
+- [ ] T014 [P] Implement distinctness validation logic in `pipeline/model.py`: Create function `validate_modification_distinctness(proposal: ModificationProposal, history: List[ModificationProposal])` that returns True if proposal is distinct in type or magnitude from all items in history, False otherwise. **Verification**: Add unit test in `tests/unit/test_model.py` that asserts True/False for distinct/non-distinct proposals. (DEPENDS ON T013)
+- [ ] T007 [P] Implement `pipeline/stats.py` with paired bootstrap testing (α=0.05 strict) and exponential decay curve fitting. **Verification**: Add unit test in `tests/unit/test_stats.py` that asserts p-value calculation for known inputs.
+- [ ] T008 [P] Create `config.py` with hyperparameters (lr=5e-5, bs=4, seed), constraints (≤30% param increase), and path definitions. **Verification**: Verify config.py loads successfully and asserts default values match spec.
+- [ ] T009 [P] Implement `utils/logging.py` for structured cycle logging and checkpointing. **Verification**: Verify log file is created with structured JSON format after running a mock cycle.
+- [ ] T010 [P] Implement `pipeline/evaluator.py` with benchmark runners for GSM8K, ARC-Challenge, and Wikitext-2 ECE. **Verification**: Add unit test that mocks dataset and asserts accuracy calculation returns expected float.
 - [ ] T034 [P] Implement per-cycle timeout enforcement in `pipeline/trainer.py`: add timeout wrapper that terminates cycle if exceeded, logs "Timeout" to `results/logs/cycle_N.log`, and records partial metrics to `results/trajectory.json` (spec Edge Cases). **Verification**: Add integration test using `subprocess.run(timeout=...)` to simulate timeout and verify log file creation.
-- [ ] T037 [P] Implement "Separation of Generative/Verification Logic" in `main.py`: Ensure the modification proposal prompt explicitly excludes any access to benchmark results or evaluation metrics, using only training loss and internal weights as the basis for the proposal (Addressing spec Edge Cases on logic separation). (DEPENDS ON T010)
-- [ ] T050 [P] Document exception to FR-004 (fixed batch size): Create `docs/exception_log.md` to explicitly document the "Graceful Degradation" strategy (dynamic batch size reduction) required by the GB RAM constraint, distinguishing it from the strict "Fail-Fast" policy for data. **Verification**: Verify the document exists and explicitly references the storage constraint and the specific batch size reduction logic. (DEPENDS ON T004, T032)
+- [ ] T052b [P] Implement External Invariant Check (Constitution Principle VII, FR-011): Create `pipeline/verification.py` with function `enforce_invariant(prompt_context: dict)` that raises `SecurityViolation` if benchmark data (GSM8K/ARC/Wikitext) is detected in the prompt context. **Verification**: Add unit test in `tests/unit/test_verification.py` that mocks a generative call containing benchmark data and asserts `SecurityViolation` is raised. (Addressing FR-011 and Constitution Principle VII)
+- [ ] T059 [P] Implement Fixed-Point Oracle for Evaluation: Create `pipeline/oracle.py` with an immutable evaluation functional `evaluate_cycle(modification, model_weights)` that strictly returns performance metrics without accepting any modification to its own logic or criteria during the recursion cycle (Addressing von Neumann's "Fixed-Point Problem"). **Verification**: Add unit test in `tests/unit/test_oracle.py` that asserts the oracle returns consistent results for identical inputs across multiple cycles and cannot be patched by the generative model. (DEPENDS ON T010)
+- [ ] T066 [P] Implement External Validation Protocol: Create `pipeline/external_validator.py` to enforce a fixed, immutable benchmark suite that the machine cannot manipulate or select from, ensuring "genuine improvement" vs "overfitting" (Addressing Turing's "External Validation" and "Curriculum" concerns). **Verification**: Add unit test in `tests/unit/test_external_validator.py` that asserts the validator rejects any attempt by the model to modify the benchmark set. (DEPENDS ON T010, T059)
+- [ ] T067 [P] Implement Rollback Mechanism with Verification: Create `pipeline/rollback.py` to automatically revert to the previous stable architecture if performance falls below a threshold, with a verification procedure to detect defects (Addressing Turing's "Rollback" and "Defect Detection" concerns). **Verification**: Add unit test in `tests/unit/test_rollback.py` that asserts successful rollback and state restoration after a simulated degradation event. (DEPENDS ON T013b, T059)
+
+**Removed Scope Note**: Tasks T053-T071 (Computational Irreducibility Logging, Stupidity Metric, Bird vs. Frog Search, Thermodynamic Bounds, Rule Space Miner, etc.) were removed as they had no traceable origin in spec.md or plan.md and constituted unrequested scope creep.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -89,17 +93,18 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `pipeline/model.py` method to parse model's self-prompted architectural modification proposal (using schema from T013) and validate parameter count ≤130% baseline. **Prompt Template**: Create `templates/modification_proposal.j2` containing the exact prompt string. **Logic**: Limit prompt attempts to a reasonable number per cycle; if still invalid after the maximum allowed attempts, fail the cycle. Training retries (up to 2) are handled by T044. **Verification**: Verify `templates/modification_proposal.j2` renders valid JSON for a mock input using a hardcoded mock dict in `tests/integration/test_model.py`. (DEPENDS ON T013, T006, T013b, T037)
-- [ ] T016 [US1] Implement `pipeline/model.py` method to apply architectural modification (e.g., layer addition, head count change) to GPT 124M weights using manual reconstruction: create new `nn.Module` subclass, map weights via state_dict, initialize new layers with `torch.nn.init.xavier_uniform_`. Allowed modifications: layer_add (add N layers), head_count_change (change heads by M). (DEPENDS ON T013)
-- [ ] T017a [US1] Implement training loop in `pipeline/trainer.py::train_epoch` for a single training epoch on an OpenWebText subset (AdamW, bs=4, lr=5e-5) with CPU offloading. Use gradient accumulation steps=4 to simulate batch. Checkpoint periodically. (DEPENDS ON T008)
-- [ ] T032 [US1] Implement `pipeline/memory.py` dynamic batch size reduction: If RAM > 6.5GB during training, halve batch size and restart epoch. If batch size < 1, terminate and log "OOM". Explicitly verify GB limit is respected; if not, terminate (SC-005 enforcement). **Verification**: Unit test mocking `utils.memory.get_ram_usage` to return > 6.5GB to trigger reduction logic. (DEPENDS ON T004, T017a, T049)
-- [ ] T017b [US1] Implement FLOP counter in `pipeline/trainer.py::count_flops` for accurate FLOP measurement during training
-- [ ] T018 [US1] Implement `pipeline/evaluator.py` logic to compute GSM8K accuracy, ARC-Challenge accuracy, and Wikitext-2 ECE
-- [ ] T019 [US1] Implement `pipeline/stats.py` logic to run paired bootstrap comparison (baseline vs. post-mod) and output p-values (DEPENDS ON T007)
-- [ ] T044 [US1] Implement retry logic for training failures in `main.py`: retry failed training up to 2 times with the SAME modification; if still failing, log failure, increment cycle counter, and proceed to next cycle number with a NEW modification proposal. **State Persistence**: Use `utils/state_store.py` (T013b) to persist retry counts to `results/state.json` so they survive restarts. **Note**: This implements the training retry logic from spec Edge Cases, distinct from T005b (API backoff). (DEPENDS ON T013b, T009)
-- [ ] T036 [US1] Implement early-stop logic in `main.py`: if degradation ≥5% from baseline, record degradation cycle, log "Early Stop", increment cycle counter, and terminate gracefully. **State Persistence**: Persist 'degradation_cycle' and 'early_stop' flag to `utils/state_store.py` (T013b) to survive restarts. Save checkpoint to `data/checkpoints/cycle_N.pt` before termination (spec Edge Cases). (DEPENDS ON T013b, T009)
-- [ ] T051 [US1] Implement integration test for timeout logic in `tests/integration/test_timeout.py`: Use `subprocess.run` with a hard timeout to verify that the system logs "Timeout" and records partial metrics when a cycle exceeds the time budget. (DEPENDS ON T034)
-- [ ] T020 [US1] Implement `main.py::run_single_cycle()` orchestrating: load_model() → propose_modification() → validate_modification() (using T014) → apply_modification() → train_epoch() → evaluate() → compare_stats(). **Integration**: Must import and invoke T044 (retry), T036 (early-stop), and T037 (validation) logic. **Verification**: Add integration test `tests/integration/test_single_cycle.py` that runs the full flow and asserts `results/trajectory.json` contains at least one entry. (DEPENDS ON T013, T014, T008, T007, T010, T017a, T018, T019, T044, T036, T037, T032, T050)
+- [ ] T015 [US1] Implement `pipeline/model.py` method to parse model's self-prompted architectural modification proposal (using schema from T013) and validate parameter count ≤130% baseline. **Prompt Template**: Create `templates/modification_proposal.j2` containing the exact prompt string. **Logic**: Limit prompt attempts to a reasonable number per cycle; if still invalid after the maximum allowed attempts, fail the cycle. Training retries (up to 2) are handled by T044. **Verification**: Verify `templates/modification_proposal.j2` renders valid JSON for a mock input using a hardcoded mock dict in `tests/integration/test_model.py`, asserting `json.loads(rendered) is not None and contains required keys`. (DEPENDS ON T013, T006, T013b, T037)
+- [ ] T016 [US1] Implement `pipeline/model.py` method to apply architectural modification (e.g., layer addition, head count change) to GPT medium-scale weights using manual reconstruction: create new `nn.Module` subclass, map weights via state_dict, initialize new layers with `torch.nn.init.xavier_uniform_`. Allowed modifications: layer_add (add N layers), head_count_change (change heads by M). **Verification**: Add unit test in `tests/unit/test_model.py` that asserts new model has correct parameter count and state_dict mapping. (DEPENDS ON T013)
+- [ ] T017a [US1] Implement training loop in `pipeline/trainer.py::train_epoch` for a single training epoch on an OpenWebText subset (AdamW, bs=4, lr=5e-5) with CPU offloading. Use gradient accumulation steps=4 to simulate batch. Checkpoint periodically. **Verification**: Add unit test in `tests/unit/test_trainer.py` that asserts loss decreases over epochs on mock data. (DEPENDS ON T008)
+- [ ] T032 [US1] Implement `pipeline/memory.py` dynamic batch size reduction: If RAM > 6.5GB during training, halve batch size and restart epoch. If batch size < 1, terminate and log "OOM". Explicitly verify 7GB limit is respected; if not, terminate (SC-005 enforcement). **Verification**: Unit test mocking `utils.memory.get_ram_usage` to return > 6.5GB to trigger reduction logic, asserting batch_size is reduced and epoch restarts. (DEPENDS ON T004, T017a)
+- [ ] T017b [US1] Implement FLOP counter in `pipeline/trainer.py::count_flops` for accurate FLOP measurement during training. **Verification**: Add unit test in `tests/unit/test_trainer.py` that asserts FLOP count matches theoretical calculation for a mock layer.
+- [ ] T018 [US1] Implement `pipeline/evaluator.py` logic to compute GSM8K accuracy, ARC-Challenge accuracy, and Wikitext-2 ECE. **Verification**: Add unit test in `tests/unit/test_evaluator.py` that asserts accuracy/ECE calculation on mock predictions.
+- [ ] T019 [US1] Implement `pipeline/stats.py` logic to run paired bootstrap comparison (baseline vs. post-mod) and output p-values. **Verification**: Add unit test in `tests/unit/test_stats.py` that asserts p-value is calculated correctly for known distributions. (DEPENDS ON T007)
+- [ ] T044 [US1] Implement retry logic for training failures in `main.py`: retry failed training up to 2 times with the SAME modification; if still failing, log failure, increment cycle counter, and proceed to next cycle number with a NEW modification proposal. **State Persistence**: Use `utils/state_store.py` (T013b) to persist retry counts to `results/state.json` so they survive restarts. **Verification**: Add unit test in `tests/unit/test_main.py` that asserts retry count increments and state is persisted after failure. (DEPENDS ON T013b, T009)
+- [ ] T036 [US1] Implement early-stop logic in `main.py`: if degradation ≥5% from baseline, record degradation cycle, log "Early Stop", increment cycle counter, and terminate gracefully. **State Persistence**: Persist 'degradation_cycle' and 'early_stop' flag to `utils/state_store.py` (T013b) to survive restarts. Save checkpoint to `data/checkpoints/cycle_N.pt` before termination (spec Edge Cases). **Verification**: Add unit test in `tests/unit/test_main.py` that asserts pipeline terminates and checkpoint is saved when degradation threshold is met. (DEPENDS ON T013b, T009)
+- [ ] T037 [US1] Implement "Separation of Generative/Verification Logic" in `pipeline/model.py::generate_proposal`: Ensure the modification proposal prompt explicitly excludes any access to benchmark results or evaluation metrics, using only training loss and internal weights as the basis for the proposal (Addressing FR-005 and Constitution Principle VII). **Verification**: Add unit test in `tests/unit/test_model.py` that asserts benchmark data is not present in the prompt context. (DEPENDS ON T010, T015)
+- [ ] T051 [US1] Implement integration test for timeout logic in `tests/integration/test_timeout.py`: Use `subprocess.run` with a hard timeout to verify that the system logs "Timeout" and records partial metrics when a cycle exceeds the time budget. **Verification**: Assert log file contains "Timeout" and trajectory.json has partial metrics. (DEPENDS ON T034)
+- [ ] T020 [US1] Implement `main.py::run_single_cycle()` orchestrating: load_model() → propose_modification() → validate_modification() (using T014) → apply_modification() → train_epoch() → evaluate() → compare_stats(). **Integration**: Must import and invoke T044 (retry), T036 (early-stop), T037 (validation), T052b (invariant check), T059 (oracle), T066 (external validator), T067 (rollback) logic. **Verification**: Add integration test `tests/integration/test_single_cycle.py` that runs the full flow and asserts `results/trajectory.json` contains at least one entry with keys `cycle_number`, `GSM8K`, `ARC`. (DEPENDS ON T013, T014, T008, T007, T010, T017a, T018, T019, T044, T036, T037, T032, T052b, T059, T066, T067)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -120,13 +125,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Implement `pipeline/stats.py` logic to fit exponential decay model (y = a * e^(-bx) + c) and identify plateau/degradation cycle. **Output**: Must write the identified `plateau_cycle` and `degradation_cycle` to `results/decay_summary.json` and update `results/trajectory.json`. (DEPENDS ON T007)
-- [ ] T029 [US2] Implement results/trajectory.json schema and writer: Create `results/trajectory_schema.py` with Pydantic model `TrajectoryEntry` and writer function `write_trajectory()` capturing cycle_number, param_count, GSM8K, ARC, ECE, FLOPs, training_time. **Output Requirement**: Must also include keys `plateau_cycle` and `degradation_cycle` as identified by T027. **Verification**: Run a mock cycle and validate the output file with Pydantic. (DEPENDS ON T013, T014, T027)
-- [ ] T026 [US2] Implement `pipeline/model.py` logic to track and enforce "distinct modification" constraint across cycles using schema from T013 and trajectory from T029. (DEPENDS ON T013, T029, T014)
-- [ ] T025 [US2] Implement `main.py` loop logic to execute multiple cycles, ensuring each cycle's modification is distinct in type or magnitude from all previous cycles by tracking modification history in `utils/state_store.py` (T013b) and validating new proposals against that history before application. If not distinct, prompt model again. **Integration**: Must import and invoke T044 (retry) and T036 (early-stop) logic from Phase 3. (DEPENDS ON T013, T029, T014, T013b, T020, T044, T036, T026)
-- [ ] T028 [US2] Implement `main.py` retry logic for training failures across cycles (reuses T044 logic)
-- [ ] T030 [US2] Implement logic to compute and record FLOPs for each cycle in `pipeline/model.py` (Note: FLOP counting logic is in T017b, this task focuses on trajectory aggregation)
-- [ ] T046 [US2] Implement "Early Termination on Degradation" in `main.py`: If a cycle results in performance degradation ≥5% from baseline, record the degradation cycle, log "Early Stop", increment cycle counter, and terminate the pipeline (spec Edge Cases). (DEPENDS ON T036, T013b)
+- [ ] T027 [US2] Implement `pipeline/stats.py` logic to fit exponential decay model (y = a * e^(-bx) + c) and identify plateau/degradation cycle. **Output**: Must write the identified `plateau_cycle` and `degradation_cycle` to `results/decay_analysis.json` (separate from trajectory). **Verification**: Add unit test in `tests/unit/test_stats.py` that asserts decay model fits mock data and plateau_cycle is identified. (DEPENDS ON T007)
+- [ ] T029 [US2] Implement results/trajectory.json schema and writer: Create `results/trajectory_schema.py` with Pydantic model `TrajectoryEntry` and writer function `write_trajectory()` capturing cycle_number, param_count, GSM8K, ARC, ECE, FLOPs, training_time. **Output Requirement**: Must NOT include derived analysis fields (plateau_cycle, degradation_cycle) here; those belong in results/decay_analysis.json. **Verification**: Run a mock cycle and validate the output file with Pydantic, asserting all required raw keys exist. (DEPENDS ON T013, T014, T027)
+- [ ] T026 [US2] Implement `pipeline/model.py` logic to track and enforce "distinct modification" constraint across cycles using schema from T013 and trajectory from T029. **Verification**: Add unit test in `tests/unit/test_model.py` that asserts distinctness check rejects duplicate proposals. (DEPENDS ON T013, T029, T014)
+- [ ] T025 [US2] Implement `main.py` loop logic to execute multiple cycles, ensuring each cycle's modification is distinct in type or magnitude from all previous cycles by tracking modification history in `utils/state_store.py` (T013b) and validating new proposals against that history before application. If not distinct, prompt model again. **Integration**: Must import and invoke T044 (retry), T036 (early-stop), T059 (oracle), T066 (external validator), T067 (rollback) logic from Phase 2. **Verification**: Add integration test in `tests/integration/test_multi_cycle.py` that asserts 3 cycles run with distinct modifications. (DEPENDS ON T013, T029, T014, T013b, T020, T044, T036, T026, T059, T066, T067)
+- [ ] T028 [US2] Implement `main.py` retry logic for training failures across cycles (reuses T044 logic). **Verification**: Add unit test in `tests/unit/test_main.py` that asserts retry logic works across multiple cycles.
+- [ ] T030 [US2] Implement logic to compute and record FLOPs for each cycle in `pipeline/model.py` (Note: FLOP counting logic is in T017b, this task focuses on trajectory aggregation). **Verification**: Add unit test in `tests/unit/test_model.py` that asserts FLOPs are correctly aggregated in trajectory.json.
+- [ ] T046 [US2] Implement "Early Termination on Degradation" in `main.py`: If a cycle results in performance degradation ≥5% from baseline, record the degradation cycle, log "Early Stop", increment cycle counter, and terminate the pipeline (spec Edge Cases). **Verification**: Add unit test in `tests/unit/test_main.py` that asserts pipeline terminates when degradation >= 5%. (DEPENDS ON T036, T013b)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (conditional on US-1 success)
 
@@ -140,9 +145,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T048 [US3] Implement `main.py` resource monitoring to log peak RAM and total wall-clock time; implement graceful logging and early termination if total runtime exceeds a significant duration (log "Timeout", record partial metrics, exit gracefully) instead of hard assertion (spec Edge Cases). (DEPENDS ON T004, T032)
-- [ ] T031 [US3] Implement `pipeline/stats.py` logic to compute performance-per-FLOP and performance-per-hour metrics for *each cycle* and *compare across cycles* to identify diminishing returns. Append results to `results/trade_off_analysis.json` with keys: `cycle`, `perf_per_flop`, `perf_per_hour`. **Verification**: Verify the file contains keys `cycle`, `perf_per_flop`, `perf_per_hour` for each cycle. (DEPENDS ON T030, T048)
-- [ ] T033 [US3] Generate `results/trade_off_analysis.json` with computed metrics and comparison across cycles (DEPENDS ON T031)
+- [ ] T048 [US3] Implement `main.py` resource monitoring to log peak RAM and total wall-clock time; implement graceful logging and early termination if total runtime exceeds a significant duration (log "Timeout", record partial metrics, exit gracefully) instead of hard assertion (spec Edge Cases). **Verification**: Add unit test in `tests/unit/test_main.py` that asserts timeout log is created and metrics recorded. (DEPENDS ON T004, T032)
+- [ ] T031 [US3] Implement `pipeline/stats.py` logic to compute performance-per-FLOP and performance-per-hour metrics for *each cycle* and *compare across cycles* to identify diminishing returns. Append results to `results/trade_off_analysis.json` with keys: `cycle`, `perf_per_flop`, `perf_per_hour`. **Verification**: Add unit test in `tests/unit/test_stats.py` that asserts trade_off_analysis.json has correct keys. (DEPENDS ON T030, T048)
+- [ ] T033 [US3] Generate `results/trade_off_analysis.json` with computed metrics and comparison across cycles. **Verification**: Add integration test that runs analysis and asserts file exists with valid JSON. (DEPENDS ON T031)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -240,37 +245,19 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: No task may use GPU, quantization, or synthetic data. All tasks must run on CPU-only free-tier CI.
-- **Removed**: Phase 6 (T040-T043) entirely to eliminate scope creep and unlinked reviewer logic.
-- **Removed**: T040-T051 as they were unexecutable scope creep (philosophical concepts without FRs).
-- **Removed**: T036 (Code cleanup), T037 (Performance optimization), T038 (Additional unit tests) as they were non-executable without specific targets.
-- **Moved**: T034 (per-cycle timeout) moved from Phase 7 to Phase 2 (Foundational).
-- **Split**: T005 split into T005a (loaders) and T005b (backoff); T017 split into T017a (training) and T017b (FLOPs).
-- **Enhanced**: T025 now explicitly includes tracking and validation logic for modification distinctness using persistent state.
-- **Fixed**: T032 now implements dynamic batch size reduction in Phase 3 for enforcement, and graceful logging in Phase 5 for total runtime.
-- **Reordered**: T027 before T029, T026, T025, T046 in Phase 4.
-- **New**: T014 added in Phase 2 for distinctness validation.
-- **New**: T013b added in Phase 2 for persistent state store.
-- **New**: T044 added in Phase 3 for retry logic with persistent state (renamed from T035).
-- **New**: T036 added in Phase 3 for early-stop logic with persistent state.
-- **Deleted**: T021 (duplicate backoff) removed.
-- **Deleted**: T040-T045 (unapproved scope) removed.
-- **Deleted**: T042 (unapproved rollback) removed.
-- **Deleted**: Duplicate T032 in Phase 5 removed.
-- **New**: T037 added in Phase 2 for Separation of Generative/Verification Logic (Constitution Principle VII).
-- **New**: T050 added in Phase 2 for documenting batch size exceptions (Constraint Preservation).
-- **Renamed**: Phase 3 T014 (test) to T014b to avoid duplicate ID.
-- **Renamed**: Phase 5 T032 (resource monitoring) to T048 to avoid duplicate ID.
-- **Renamed**: Phase 3 T035 (retry) to T044.
-- **Renamed**: Phase 4 T039 (early stop) to T046.
-- **Renamed**: Phase N T035 (docs) to T045.
-- **Renamed**: Phase N T039 (validation) to T047.
-- **Reordered**: T005b before T005a in Phase 2.
-- **Reordered**: T027 before T029, T026, T025, T046 in Phase 4.
-- **Reordered**: T048 before T031 in Phase 5.
+- **Removed**: T053-T071 (unrequested scope creep) due to lack of spec anchor.
+- **Moved**: T037 from Phase 2 to Phase 3 as an implementation detail of prompt generation.
+- **Renamed**: T052 to T052b for clarity.
+- **Clarified**: T005a now distinguishes between network errors (retry) and missing data (fail-fast).
+- **Clarified**: T015 now limits prompt retries and delegates execution retries to T044.
+- **Clarified**: T032, T048, T044, T036, T025 now explicitly depend on T013b for persistence.
+- **Clarified**: T027 now outputs explicit plateau/degradation keys to a separate file.
+- **Clarified**: T029 now depends on T027 to ensure schema includes decay results.
+- **Clarified**: T031 now depends on T048 for resource data.
 - **Verified**: T033 depends on T031 and is correctly ordered after T031 in Phase 5.
 - **Verified**: T019 depends on T007 and is correctly ordered after T007 in Phase 3.
-- **Verified**: T020 depends on T044, T036, T037.
-- **Verified**: T025 depends on T020.
+- **Verified**: T020 depends on T044, T036, T037, T052b, T059, T066, T067.
+- **Verified**: T025 depends on T020, T059, T066, T067.
 - **Verified**: T032 depends on T004, T017a.
 - **Verified**: T048 depends on T004, T032.
 - **Clarified**: T005a now distinguishes between network errors (retry) and missing data (fail-fast).
@@ -280,4 +267,9 @@ With multiple developers:
 - **Clarified**: T045 now specifies `make validate-quickstart`.
 - **Clarified**: T029 now depends on T027 to ensure schema includes decay results.
 - **Clarified**: T031 now depends on T048 for resource data.
-- **Clarified**: T050 documents the exception to FR-004 (batch size) to preserve constraint integrity.
+- **Verified**: T033 depends on T031 and is correctly ordered after T031 in Phase 5.
+- **Verified**: T019 depends on T007 and is correctly ordered after T007 in Phase 3.
+- **Verified**: T020 depends on T044, T036, T037, T052b, T059, T066, T067.
+- **Verified**: T025 depends on T020, T059, T066, T067.
+- **Verified**: T032 depends on T004, T017a.
+- **Verified**: T048 depends on T004, T032.

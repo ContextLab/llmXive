@@ -1,38 +1,39 @@
-T007:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `pipeline/stats.py` file or any code implementing paired bootstrap testing
-    and exponential decay curve fitting is present; without the artifact we cannot
-    verify that the required functionality exists or meets the specifications. The
-    task therefore remains unfinished.
-T008:
+  r: "No directory or file listings were provided, so we cannot confirm that the required\
+    \ folders (`code/`, `data/raw/`, `data/processed/`, `results/`, `specs/`, `tests/`,\
+    \ `tests/unit/`, `tests/integration/`) exist nor that `__init__.py` files were\
+    \ created. The implementer must supply a file\u2011system snapshot or listing\
+    \ showing these directories and the `__init__.py` files."
+T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `config.py` file or its contents were presented; therefore the required hyperparameters,\
-    \ constraint definition, and path settings are missing. The implementer must add\
-    \ a `config.py` containing `lr = 5e-5`, `bs = 4`, a seed variable, a constraint\
-    \ ensuring \u226430% parameter increase, and appropriate path definitions."
-T009:
+  r: No `pipeline/loader.py` file or any code implementing the required dataset loaders
+    is present, nor is there a test demonstrating that loading a missing dataset raises
+    `FileNotFoundError` without falling back to synthetic data. The necessary artifact
+    and verification are missing.
+T005b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/logging.py` file or any code implementing structured cycle logging\
-    \ and checkpointing is present in the provided artifacts. Without the required\
-    \ module, the task\u2019s core deliverable is missing."
-T010:
+  r: "No evidence of a `pipeline/loader.py` file containing an exponential backoff\
+    \ wrapper with the specified initial delay of 30\u202Fseconds and a maximum of\
+    \ 5 retries is provided. The required code artifact is missing, so the task cannot\
+    \ be considered completed."
+T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pipeline/evaluator.py` file or its contents were provided; without the actual\
-    \ code implementing benchmark runners for GSM8K, ARC\u2011Challenge, and Wikitext\u2011\
-    2 ECE, we cannot confirm that the required functionality exists or meets the specification.\
-    \ The implementer must supply a non\u2011empty `pipeline/evaluator.py` with the\
-    \ three benchmark runners."
-T014:
+  r: "No `pipeline/model.py` file or its contents were presented; therefore the required\
+    \ code for loading a GPT checkpoint and performing CPU\u2011compatible weight\
+    \ manipulation is missing. The task cannot be considered done without the actual\
+    \ implementation artifact."
+T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code for `validate_modification_distinctness` in `pipeline/model.py` was presented;
-    the required function is missing from the provided evidence. The task cannot be
-    considered fulfilled until the function exists and implements the distinctness
-    check.
+  r: The required file `schemas/modification_proposal.py` with a Pydantic `ModificationProposal`
+    model is not present, and no tests or validation code demonstrating rejection
+    of invalid JSON inputs are provided. The implementer must add the schema file
+    with the specified fields and include validation examples or unit tests.
 T015#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -75,10 +76,3 @@ T019:
   r: "No evidence of a `pipeline/stats.py` file or its contents was provided; thus\
     \ we cannot confirm that the paired bootstrap comparison logic and p\u2011value\
     \ output were implemented. The required artifact is missing."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `pipeline/evaluator.py` file or code snippet was provided showing
-    a separation layer between generative modification logic and benchmark evaluation
-    logic, nor any tests or documentation confirming that evaluation results are inaccessible
-    during proposal generation. The required artifact is missing.

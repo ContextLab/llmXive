@@ -97,7 +97,7 @@ projects/PROJ-561-self-improving-llm-recursive-architectur/
 | **Single Cycle Primary** | Required by US-1 to verify the mechanism. 3 cycles (US-2) is a scaling study due to time constraints. | Attempting 3 cycles on free-tier risks timeout, invalidating the entire experiment. |
 | **Fail-Fast for All Datasets** | Required to prevent invalid scientific claims on synthetic data. Synthetic data cannot measure reasoning or language modeling. | Allowing synthetic data for any part of the experiment would render the "recursive improvement" hypothesis untestable. |
 | **Paired Bootstrap Testing** | Required by US-1 and SC-001/002 to establish statistical significance without parametric assumptions on small benchmark samples. | Standard t-tests assume normality which may not hold for accuracy metrics on small held-out sets; bootstrap is more robust. |
-| **Memory Management Module** | Required to fit GPT 124M + training overhead into 7GB RAM. | Standard PyTorch loading often exceeds substantial memory thresholds with gradient accumulation; explicit gradient checkpointing, CPU offloading, and batch size reduction are necessary. |
+| **Memory Management Module** | Required to fit GPT small-scale model + training overhead into 7GB RAM. | Standard PyTorch loading often exceeds substantial memory thresholds with gradient accumulation; explicit gradient checkpointing, CPU offloading, and batch size reduction are necessary. |
 | **No Synthetic Data Fallback** | Required because synthetic data lacks semantic structure for training or evaluation. | Relying on synthetic data would invalidate the scientific hypothesis. |
 
 ## Risk Mitigation

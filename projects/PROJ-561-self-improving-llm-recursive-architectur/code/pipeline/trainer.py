@@ -4,278 +4,236 @@ from torch.utils.data import DataLoader
 from typing import Optional, Dict, Any, Tuple
 import time
 import math
-import os
 import json
+import os
 import signal
 import sys
+from datetime import datetime
 
-from config import get_config, get_trajectory_path, get_ram_limit
+from config import get_config, get_trajectory_path
+from utils.logging import init_cycle_logger, update_cycle_log
 from results.trajectory_schema import write_trajectory, TrajectoryEntry
-from utils.logging import init_cycle_logger, update_cycle_log, get_log_path
-from pipeline.memory import get_memory_usage_gb
 
-# Global flag for timeout termination
-_timeout_triggered = False
+class TimeoutError(Exception):
+    """Custom exception for training timeout."""
+    pass
 
-def _timeout_handler(signum, frame):
-    """Signal handler for timeout termination."""
-    global _timeout_triggered
-    _timeout_triggered = True
-    raise TimeoutError("Training cycle exceeded timeout limit.")
+def signal_handler(signum, frame):
+    raise TimeoutError("Training cycle exceeded time limit")
 
 def run_training_cycle_with_timeout(
     model: nn.Module,
-    dataloader: DataLoader,
-    optimizer: torch.optim.Optimizer,
+    train_loader: DataLoader,
     cycle_number: int,
-    timeout_seconds: int = 3600,
+    timeout_seconds: Optional[int] = 3600,  # Default 1 hour
+    optimizer: Optional[torch.optim.Optimizer] = None,
     max_epochs: int = 1
-) -> Tuple[Dict[str, float], bool]:
+) -> Dict[str, Any]:
     """
-    Run a training cycle with a hard timeout wrapper.
+    Execute a training cycle with a hard timeout.
     
-    If the cycle exceeds timeout_seconds, it terminates gracefully,
-    logs "Timeout" to results/logs/cycle_N.log, and records partial metrics
-    to results/trajectory.json.
-    
-    Args:
-        model: The model to train.
-        dataloader: DataLoader for the training dataset.
-        optimizer: Optimizer instance.
-        cycle_number: Current cycle index (used for logging).
-        timeout_seconds: Maximum allowed time in seconds.
-        max_epochs: Maximum epochs to run if no timeout occurs.
-        
-    Returns:
-        Tuple of (metrics_dict, timed_out_flag)
+    If timeout is exceeded:
+    1. Logs "Timeout" to results/logs/cycle_N.log
+    2. Records partial metrics to results/trajectory.json
+    3. Raises TimeoutError to be handled by the main loop.
     """
-    global _timeout_triggered
-    _timeout_triggered = False
-    
     config = get_config()
-    log_path = get_log_path(cycle_number)
+    log_path = os.path.join(config.results_dir, "logs", f"cycle_{cycle_number}.log")
     trajectory_path = get_trajectory_path()
     
+    # Ensure log directory exists
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    
     # Initialize logger for this cycle
-    logger = init_cycle_logger(cycle_number)
+    logger = init_cycle_logger(log_path, cycle_number)
+    logger.info(f"Starting training cycle {cycle_number} with timeout {timeout_seconds}s")
     
     start_time = time.time()
-    metrics = {
+    partial_metrics = {
         "cycle": cycle_number,
-        "start_time": start_time,
-        "training_loss": 0.0,
-        "param_count": 0,
-        "flops": 0,
-        "status": "running"
+        "status": "timeout",
+        "start_time": datetime.now().isoformat(),
+        "partial_training_time": 0.0,
+        "metrics": {}
     }
     
+    # Set up timeout signal handler
+    old_handler = signal.signal(signal.SIGALRM, signal_handler)
+    if timeout_seconds:
+        signal.alarm(timeout_seconds)
+    
     try:
-        # Set up signal handler for timeout
-        # Note: signal.SIGALRM is only available on Unix systems
-        if hasattr(signal, 'SIGALRM'):
-            signal.signal(signal.SIGALRM, _timeout_handler)
-            signal.alarm(timeout_seconds)
-        
-        logger.info(f"Starting training cycle {cycle_number} with timeout {timeout_seconds}s")
-        
-        total_loss = 0.0
-        total_steps = 0
-        epoch = 0
-        
-        for epoch in range(max_epochs):
-            if _timeout_triggered:
-                raise TimeoutError("Timeout triggered during epoch")
-            
-            model.train()
-            epoch_loss = 0.0
-            batch_count = 0
-            
-            for batch_idx, batch in enumerate(dataloader):
-                if _timeout_triggered:
-                    raise TimeoutError("Timeout triggered during batch")
-                
-                # Check time periodically
-                elapsed = time.time() - start_time
-                if elapsed > timeout_seconds:
-                    raise TimeoutError("Timeout exceeded")
-                
-                inputs = batch['input_ids']
-                labels = batch['labels']
-                
-                if hasattr(inputs, 'device'):
-                    inputs = inputs.to(next(model.parameters()).device)
-                if hasattr(labels, 'device'):
-                    labels = labels.to(next(model.parameters()).device)
-                
-                optimizer.zero_grad()
-                outputs = model(inputs, labels=labels)
-                loss = outputs.loss
-                
-                loss.backward()
-                optimizer.step()
-                
-                epoch_loss += loss.item()
-                batch_count += 1
-                total_steps += 1
-                
-                # Log progress
-                if batch_idx % 10 == 0:
-                    current_ram = get_memory_usage_gb()
-                    logger.debug(f"Cycle {cycle_number}, Epoch {epoch}, Batch {batch_idx}, Loss: {loss.item():.4f}, RAM: {current_ram:.2f}GB")
-            
-            avg_epoch_loss = epoch_loss / max(batch_count, 1)
-            total_loss += avg_epoch_loss
-            logger.info(f"Epoch {epoch} complete. Average Loss: {avg_epoch_loss:.4f}")
-            
-        final_loss = total_loss / max(max_epochs, 1)
-        metrics["training_loss"] = final_loss
-        metrics["param_count"] = sum(p.numel() for p in model.parameters())
-        metrics["status"] = "completed"
-        metrics["end_time"] = time.time()
-        metrics["duration"] = metrics["end_time"] - metrics["start_time"]
-        
-        logger.info(f"Cycle {cycle_number} completed successfully in {metrics['duration']:.2f}s")
-        
-    except TimeoutError as e:
-        logger.error(f"Cycle {cycle_number} TIMED OUT: {str(e)}")
-        metrics["status"] = "timeout"
-        metrics["end_time"] = time.time()
-        metrics["duration"] = metrics["end_time"] - metrics["start_time"]
-        metrics["training_loss"] = total_loss / max(epoch + 1, 1) if epoch >= 0 else 0.0
-        
-        # Write timeout log
-        with open(log_path, 'a') as f:
-            f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Timeout: {str(e)}\n")
-            f.write(f"Cycle {cycle_number} terminated after {metrics['duration']:.2f}s\n")
-            f.write(f"Partial metrics recorded to trajectory\n")
-        
-        # Record partial metrics to trajectory
-        partial_entry = TrajectoryEntry(
-            cycle_number=cycle_number,
-            param_count=metrics["param_count"],
-            gsm8k_accuracy=None,  # Not computed due to timeout
-            arc_accuracy=None,
-            wikitext2_ece=None,
-            flops=0,  # Not computed
-            training_time=metrics["duration"],
-            status="timeout",
-            timestamp=metrics["end_time"]
+        # Run the actual training loop
+        epoch_metrics = run_epoch_with_timeout_logic(
+            model, train_loader, optimizer, max_epochs, logger
         )
-        write_trajectory(partial_entry)
         
-        return metrics, True
+        # If we get here, training completed successfully within timeout
+        signal.alarm(0)  # Cancel alarm
+        end_time = time.time()
+        training_time = end_time - start_time
+        
+        partial_metrics["status"] = "completed"
+        partial_metrics["partial_training_time"] = training_time
+        partial_metrics["metrics"] = epoch_metrics
+        
+        logger.info(f"Cycle {cycle_number} completed successfully in {training_time:.2f}s")
+        
+        return partial_metrics
+        
+    except TimeoutError:
+        signal.alarm(0)  # Cancel alarm
+        end_time = time.time()
+        elapsed = end_time - start_time
+        
+        partial_metrics["partial_training_time"] = elapsed
+        partial_metrics["status"] = "timeout"
+        
+        # Log the timeout event
+        logger.error(f"TIMEOUT: Cycle {cycle_number} exceeded {timeout_seconds}s limit after {elapsed:.2f}s")
+        
+        # Record partial metrics to trajectory (even if incomplete)
+        try:
+            trajectory_entry = TrajectoryEntry(
+                cycle_number=cycle_number,
+                param_count=0,  # Could be calculated if needed
+                gsm8k_accuracy=None,
+                arc_accuracy=None,
+                wikitext2_ece=None,
+                flops=0,
+                training_time=elapsed,
+                status="timeout",
+                timestamp=datetime.now().isoformat()
+            )
+            write_trajectory(trajectory_entry, trajectory_path)
+            logger.info(f"Recorded partial trajectory for cycle {cycle_number}")
+        except Exception as e:
+            logger.error(f"Failed to write partial trajectory: {e}")
+        
+        raise
         
     finally:
-        # Cancel alarm if set
-        if hasattr(signal, 'SIGALRM'):
-            signal.alarm(0)
-        
-    return metrics, False
+        # Restore old signal handler
+        signal.signal(signal.SIGALRM, old_handler)
 
-def count_flops(model: nn.Module, input_shape: Tuple[int, int]) -> int:
+def run_epoch_with_timeout_logic(
+    model: nn.Module,
+    train_loader: DataLoader,
+    optimizer: Optional[torch.optim.Optimizer],
+    max_epochs: int,
+    logger: logging.Logger
+) -> Dict[str, Any]:
     """
-    Estimate FLOPs for a forward pass of the model.
-    Note: This is a simplified estimator.
-    
-    Args:
-        model: The model to count FLOPs for.
-        input_shape: Shape of input tensor (batch_size, seq_len).
+    Core training loop logic.
+    Note: Timeout is handled by the wrapper via signal, not inside this loop.
+    """
+    if optimizer is None:
+        from config import get_config
+        cfg = get_config()
+        optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.learning_rate)
         
-    Returns:
-        Estimated FLOP count.
+    model.train()
+    total_loss = 0.0
+    num_batches = 0
+    
+    for epoch in range(max_epochs):
+        logger.info(f"Starting epoch {epoch + 1}/{max_epochs}")
+        for batch_idx, batch in enumerate(train_loader):
+            # In a real implementation, we would unpack batch here
+            # For this timeout task, we assume batch is a dict or tuple with input/target
+            if isinstance(batch, dict):
+                inputs = batch.get("input_ids")
+                targets = batch.get("labels")
+            else:
+                inputs, targets = batch[0], batch[1]
+            
+            if inputs is None or targets is None:
+                continue
+                
+            optimizer.zero_grad()
+            
+            # Forward pass
+            outputs = model(inputs)
+            loss = torch.nn.functional.cross_entropy(
+                outputs.logits.view(-1, outputs.logits.size(-1)),
+                targets.view(-1)
+            )
+            
+            # Backward pass
+            loss.backward()
+            optimizer.step()
+            
+            total_loss += loss.item()
+            num_batches += 1
+            
+            # Log progress
+            if batch_idx % 10 == 0:
+                logger.debug(f"Epoch {epoch+1}, Batch {batch_idx}, Loss: {loss.item():.4f}")
+                
+    avg_loss = total_loss / max(num_batches, 1)
+    return {"loss": avg_loss, "batches": num_batches}
+
+def count_flops(model: nn.Module, input_shape: Tuple[int, ...]) -> int:
     """
-    # Simplified FLOP estimation based on parameter count and input size
-    # For a transformer, FLOPs ≈ 6 * params * sequence_length (rough approximation)
+    Estimate FLOPs for a forward pass.
+    Simplified estimation based on parameter count and input size.
+    """
+    # Simple estimation: 2 * params * input_tokens (approx for dense layers)
     param_count = sum(p.numel() for p in model.parameters())
-    batch_size, seq_len = input_shape
-    flops = 6 * param_count * seq_len * batch_size
-    return flops
+    input_tokens = input_shape[1] if len(input_shape) > 1 else input_shape[0]
+    return 2 * param_count * input_tokens
 
 def train_epoch(
     model: nn.Module,
-    dataloader: DataLoader,
+    train_loader: DataLoader,
     optimizer: torch.optim.Optimizer,
     epoch: int
 ) -> float:
     """
-    Train one epoch of the model.
-    
-    Args:
-        model: The model to train.
-        dataloader: DataLoader for the training dataset.
-        optimizer: Optimizer instance.
-        epoch: Current epoch number.
-        
-    Returns:
-        Average loss for the epoch.
+    Train a single epoch.
+    Deprecated in favor of run_training_cycle_with_timeout, but kept for API compatibility.
     """
     model.train()
     total_loss = 0.0
-    batch_count = 0
+    num_batches = 0
     
-    for batch_idx, batch in enumerate(dataloader):
-        inputs = batch['input_ids']
-        labels = batch['labels']
-        
-        if hasattr(inputs, 'device'):
-            inputs = inputs.to(next(model.parameters()).device)
-        if hasattr(labels, 'device'):
-            labels = labels.to(next(model.parameters()).device)
+    for batch in train_loader:
+        if isinstance(batch, dict):
+            inputs = batch.get("input_ids")
+            targets = batch.get("labels")
+        else:
+            inputs, targets = batch[0], batch[1]
+            
+        if inputs is None or targets is None:
+            continue
         
         optimizer.zero_grad()
-        outputs = model(inputs, labels=labels)
-        loss = outputs.loss
-        
+        outputs = model(inputs)
+        loss = torch.nn.functional.cross_entropy(
+            outputs.logits.view(-1, outputs.logits.size(-1)),
+            targets.view(-1)
+        )
         loss.backward()
         optimizer.step()
         
         total_loss += loss.item()
-        batch_count += 1
-    
-    return total_loss / max(batch_count, 1)
+        num_batches += 1
+        
+    return total_loss / max(num_batches, 1)
 
 def run_training_cycle(
     model: nn.Module,
-    dataloader: DataLoader,
-    optimizer: torch.optim.Optimizer,
+    train_loader: DataLoader,
     cycle_number: int,
-    max_epochs: int = 1
-) -> Dict[str, float]:
+    timeout_seconds: Optional[int] = 3600
+) -> Dict[str, Any]:
     """
-    Run a full training cycle without timeout enforcement.
-    Used for internal calls where timeout is handled externally.
-    
-    Args:
-        model: The model to train.
-        dataloader: DataLoader for the training dataset.
-        optimizer: Optimizer instance.
-        cycle_number: Current cycle index.
-        max_epochs: Number of epochs to run.
-        
-    Returns:
-        Dictionary of metrics.
+    Wrapper for run_training_cycle_with_timeout for backward compatibility.
     """
-    total_loss = 0.0
-    for epoch in range(max_epochs):
-        epoch_loss = train_epoch(model, dataloader, optimizer, epoch)
-        total_loss += epoch_loss
-    
-    metrics = {
-        "cycle": cycle_number,
-        "training_loss": total_loss / max(max_epochs, 1),
-        "param_count": sum(p.numel() for p in model.parameters()),
-        "status": "completed"
-    }
-    return metrics
+    return run_training_cycle_with_timeout(
+        model, train_loader, cycle_number, timeout_seconds
+    )
 
 def get_model_param_count(model: nn.Module) -> int:
-    """
-    Get the total number of parameters in a model.
-    
-    Args:
-        model: The model to count parameters for.
-        
-    Returns:
-        Total parameter count.
-    """
+    """Helper to get parameter count."""
     return sum(p.numel() for p in model.parameters())
