@@ -2,22 +2,22 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip`
-- Internet access (for data download)
-- A GitHub Actions runner or a local machine with ≥ 7 GB RAM
+- Python 3.11+
+- Git
+- Access to GitHub Actions (for CI execution) or local Linux environment.
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project directory):
+1. **Clone the repository**:
    ```bash
+   git clone <repo-url>
    cd projects/PROJ-503-predicting-plant-defense-compound-produc
    ```
 
-2. **Create a virtual environment**:
+2. **Create virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate   # Windows: venv\Scripts\activate
+   source venv/bin/activate
    ```
 
 3. **Install dependencies**:
@@ -25,47 +25,59 @@
    pip install -r requirements.txt
    ```
 
+## Data Acquisition
+
+The pipeline automatically downloads data upon first run. To manually verify:
+
+1. **Download Expression Data**:
+   ```bash
+   python code/data/download.py --source geo --ids GSE21857,GSE167633
+   ```
+   *Output*: `data/raw/geo_expression.csv`
+
+2. **Download Metabolite Data**:
+   ```bash
+   python code/data/download.py --source mw --ids ST002565
+   ```
+   *Output*: `data/raw/mw_metabolites.csv`
+
+3. **Verify Checksums**:
+   ```bash
+   python code/utils/checksum.py --verify
+   ```
+   *Output*: "All checksums valid" or raises `E-DATASET`.
+
 ## Running the Pipeline
 
-The pipeline is executed via the main entry point. It will automatically:
+Execute the full pipeline:
 
-1. Check for existing data.  
-2. Download new data if missing (or abort with `E‑DATA`).  
-3. Perform preprocessing, pairing, and feature selection.  
-4. Run modeling, nested CV, permutation testing, and diagnostics.  
-5. Abort if any runtime, pairing, power, or checksum constraint is violated (`E‑TIMEOUT`, `E‑PAIRING`, `E‑POWER`, `E‑CHECKSUM`).  
-
-**Command**:
 ```bash
 python code/main.py
 ```
 
-### Expected Output
+### Steps Performed:
+1. **Pairing**: Matches samples by ID. Aborts if < 95% match rate (`E-PAIRING`) or if final paired set size < 40 (`E-POWER`).
+2. **Preprocessing**: Normalizes expression, log-transforms metabolites, filters zero-variance genes, applies z-score normalization and ComBat batch correction.
+3. **Feature Selection**: Filters for KEGG defense pathways.
+4. **Modeling**: Trains Ridge Regression (nested 5-fold CV).
+5. **Validation**: Runs max-T permutation test with a sufficient number of iterations to ensure stable p-value estimation and Bonferroni correction.
+6. **Species Confounding Check**: Validates that predictions are not driven by species identity.
 
-- **Logs**: `logs/runtime.log`, `logs/data_pairing.json`, `logs/feature_filtering.csv`, `logs/vif_diagnostics.csv`  
-- **Data**: `data/processed/` (CSV files)  
-- **Models**: `outputs/models/` (pickle files)  
-- **Metrics**: `outputs/metrics/model_results.json`  
-
-## Validation
-
-To verify that the quickstart works on a fresh environment:
-
-1. Run the quickstart script on a clean checkout (no `data/` or `outputs/` present).  
-2. After completion, check that `outputs/metrics/model_results.json` exists and contains non‑empty results.  
-3. Ensure `logs/runtime.log` does **not** contain an error code.  
-4. Execute the validation script:
-   ```bash
-   pytest tests/integration/test_quickstart_validation.py
-   ```
-   This test logs success to `docs/quickstart_validation.md`.
+### Output:
+- `data/processed/paired_data.csv`: Final dataset.
+- `results/model_metrics.json`: RMSE, Pearson r, p-values.
+- `logs/data_pairing.json`: Log of unmatched samples.
+- `logs/feature_filtering.csv`: Log of removed genes.
 
 ## Troubleshooting
 
-- **Error `E‑PAIRING`**: < 95 % of samples could not be paired. Review `logs/data_pairing.json`.  
-- **Error `E‑POWER`**: Sample size < 28 or power < 0.8. Review `logs/power_analysis.log`.  
-- **Error `E‑TIMEOUT`**: Total CPU time exceeded 4 h. Consider reducing permutation iterations or using a more powerful runner.  
-- **Error `E‑CHECKSUM`**: < 99 % of downloaded files failed checksum verification. Review `logs/checksum_report.log`.  
-- **Error `E‑DATA`**: No suitable paired GEO/Metabolomics Workbench study found. The pipeline cannot proceed.
+- **Error: E-PAIRING**: Check `logs/data_pairing.json` to see which samples failed to match. Ensure sample IDs in GEO and Metabolomics Workbench align.
+- **Error: E-POWER**: The final paired set size is < 40. The study is underpowered. Consider expanding the dataset or reframing the question.
+- **Error: E-TIMEOUT**: The pipeline exceeded the target duration. Consider reducing the dataset size or optimizing the permutation test iterations (if allowed by spec).
+- **Error: E-DATASET**: Checksum mismatch. Re-run download or verify internet connection.
 
---- End of Quickstart ---
+## Data Hygiene
+
+- **Raw Data**: Never modify files in `data/raw/`.
+- **Derived Data**: All processed files in `data/processed/` are versioned.
+- **Reproducibility**: Set `PYTHONHASHSEED=0` before running to ensure deterministic results.

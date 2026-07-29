@@ -2,72 +2,116 @@
 
 ## Overview
 
-This document defines the data schemas for the pipeline, ensuring type safety and structural integrity across the download, preprocessing, and modeling stages. All data artifacts must conform to these schemas to pass contract tests.
+This document defines the data structures, error handling framework, and file formats required for the implementation. All artifacts must be checksummed and versioned.
 
-## Entity Definitions
+## Core Entities
 
 ### 1. ExpressionMatrix
-**Description**: Normalized gene expression values (TPM/FPKM) for defense‑pathway genes.  
-**Source**: `data/processed/expression_matrix.csv`  
-**Dimensions**: Rows = Gene IDs, Columns = Sample IDs.
-
-| Column Name | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `gene_id` | string | Unique gene identifier (e.g., AT1G01010) | Primary Key, Non‑null |
-| `species` | string | Species name (*Arabidopsis* or *Solanum*) | Enum: ['Arabidopsis', 'Solanum'] |
-| `pathway` | string | KEGG pathway name | Enum: ['Terpenoid', 'Alkaloid', 'Phenylpropanoid'] |
-| `sample_001` | float | Expression value for sample 001 | ≥ 0.0, No NaN |
-| `sample_002` | float | Expression value for sample 002 | ≥ 0.0, No NaN |
-| … | float | … | … |
+- **Type**: `pandas.DataFrame`
+- **Description**: Normalized gene expression data.
+- **Columns**: `gene_id`, `sample_id_1`, `sample_id_2`, ...
+- **Index**: `gene_id` (string)
+- **Values**: TPM or FPKM (float)
+- **Constraints**: No negative values; no NaNs (imputed or dropped).
+- **Attributes**: `species`, `condition`, `pathway_id`, `variance`.
 
 ### 2. MetaboliteMatrix
-**Description**: Log‑transformed concentrations of defense metabolites.  
-**Source**: `data/processed/metabolite_matrix.csv`  
-**Dimensions**: Rows = Metabolite IDs, Columns = Sample IDs.
+- **Type**: `pandas.DataFrame`
+- **Description**: Log-transformed metabolite concentrations.
+- **Columns**: `metabolite_id`, `sample_id_1`, `sample_id_2`, ...
+- **Index**: `metabolite_id` (string)
+- **Values**: Log-concentration (float)
+- **Constraints**: No NaNs; values > 0 before log transform.
 
-| Column Name | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `metabolite_id` | string | Unique metabolite identifier | Primary Key, Non‑null |
-| `compound_class` | string | Chemical class | Enum: ['Terpenoid', 'Alkaloid', 'Phenylpropanoid'] |
-| `sample_001` | float | Log‑concentration for sample 001 | Real number, No NaN |
-| `sample_002` | float | Log‑concentration for sample 002 | Real number, No NaN |
-| … | float | … | … |
+### 3. FeatureSet
+- **Type**: `list[str]` or `pandas.Index`
+- **Description**: Subset of `gene_id`s belonging to defense pathways.
+- **Source**: KEGG pathway IDs (terpenoid, alkaloid, phenylpropanoid).
+- **Constraint**: Must map to at least 75% of known defense genes (SC-006).
 
-### 3. PairedSampleIndex
-**Description**: A mapping of sample IDs that exist in both matrices.  
-**Source**: `data/processed/paired_samples.csv`
+### 4. ModelArtifact
+- **Type**: `dict` (serialized via `pickle` or `joblib`)
+- **Description**: Trained Ridge Regression model and metrics.
+- **Keys**:
+  - `model`: `Ridge` object.
+  - `metrics`: `dict` containing `rmse`, `pearson_r`, `p_value` (per metabolite).
+  - `coefficients`: `dict` mapping `metabolite_id` to `gene_id` coefficients.
+  - `timestamp`: ISO 8601 string.
 
-| Column Name | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `sample_id` | string | Unique biological sample ID | Primary Key |
-| `expression_source` | string | GEO Accession ID | Non‑null |
-| `metabolite_source` | string | Metabolomics Workbench Study ID | Non‑null |
-| `pairing_confidence` | string | Confidence level | Enum: ['exact', 'inferred'] |
+## Error Handling Framework
 
-### 4. ModelOutput
-**Description**: Results from the Ridge Regression and permutation tests.  
-**Source**: `outputs/metrics/model_results.json`
+The system uses custom exceptions to enforce strict constraints. All errors must be logged to `logs/error.log`.
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `metabolite_id` | string | Target metabolite | Non‑null |
-| `rmse_mean` | float | Mean RMSE across CV folds | ≥ 0.0 |
-| `rmse_std` | float | Std dev of RMSE | ≥ 0.0 |
-| `pearson_r` | float | Mean Pearson correlation | [-1.0, 1.0] |
-| `p_value_raw` | float | Raw permutation p‑value | [0.0, 1.0] |
-| `p_value_corrected` | float | Bonferroni‑corrected p‑value | [0.0, 1.0] |
-| `is_significant` | boolean | True if corrected p < 0.05 | Boolean |
+| Error Code | Exception Class | Condition | Action |
+|------------|-----------------|-----------|--------|
+| `E-DATASET` | `DatasetError` | Dataset download fails or checksum mismatch (<99% match). | Abort pipeline. |
+| `E-PAIRING` | `PairingError` | < 95% of samples have matched expression/metabolite records. | Abort with `E-PAIRING`. |
+| `E-TIMEOUT` | `TimeoutError` | CPU time > 4 hours. | Abort and log resource usage. |
+| `E-POWER` | `PowerError` | Sample size insufficient for power analysis (N < 40). | Abort with `E-POWER`. |
 
-## Data Flow
+## Logging Specifications
 
-1. **Raw Download**: `data/raw/` contains unmodified files from GEO and Metabolomics Workbench.  
-2. **Preprocessing**:  
-   - Pairing logic creates `PairedSampleIndex`.  
-   - Filtering creates `ExpressionMatrix` and `MetaboliteMatrix`.  
-   - Retention audit logs ensure ≥ 75 % of known defense pathway genes are kept (SC‑006).  
-3. **Modeling**:  
-   - Input: `ExpressionMatrix` (columns subset to paired samples).  
-   - Input: `MetaboliteMatrix` (columns subset to paired samples).  
-   - Output: `ModelOutput` (metrics) and serialized model artifacts (`outputs/models/`).  
+### 1. Data Pairing Log (`logs/data_pairing.json`)
+- **Format**: JSON array of objects.
+- **Schema**:
+  ```json
+  [
+    {
+      "sample_id": "GSM123456",
+      "expression_source": "GSE12345",
+      "metabolite_source": "ST000000",
+      "reason": "no_sample_level_pair",
+      "timestamp": "2026-06-24T10:00:00Z"
+    }
+  ]
+  ```
+- **Trigger**: When a sample in the expression matrix lacks a corresponding metabolite record.
 
---- End of Data Model ---
+### 2. Feature Filtering Log (`logs/feature_filtering.csv`)
+- **Format**: CSV file.
+- **Columns**: `gene_id`, `variance`, `reason`
+- **Content**:
+  - `gene_id`: Identifier.
+  - `variance`: Float (variance value).
+  - `reason`: "zero_variance" (if variance < 1e-10).
+
+### 3. Feature Selection Summary (`logs/feature_selection_summary.csv`)
+- **Format**: CSV file.
+- **Columns**: `metric`, `value`, `threshold`, `status`
+- **Content**:
+  - `metric`: e.g., "retention_rate".
+  - `value`: e.g., 0.78.
+  - `threshold`: e.g., 0.75.
+  - `status`: "passed" or "failed".
+
+### 4. Edge Cases Log (`docs/edge_cases.md`)
+- **Format**: Markdown table.
+- **Content**:
+  - Original Gene ID.
+  - Substituted Gene ID (ortholog).
+  - Sequence Identity (%).
+  - Species.
+
+## File Structure & Checksums
+
+### Directory Layout
+- `data/raw/`: Original downloaded files.
+- `data/processed/`: Cleaned, paired, and normalized data.
+- `logs/`: Runtime logs and error reports.
+- `docs/`: Documentation and edge case logs.
+
+### Checksum Utility (`code/utils/checksum.py`)
+- **Function**: `verify_checksums(file_path, expected_hash)`
+- **Algorithm**: SHA-256.
+- **Usage**: Called after download to validate `data/raw/*`.
+- **Output**: `True` if match, `False` otherwise (raises `E-DATASET` if false).
+
+## Configuration
+
+- **File**: `config.yaml` (to be created in Phase 1).
+- **Key Parameters**:
+  - `pairing_threshold`: 0.95 (FR-009).
+  - `variance_threshold`: 1e-10 (FR-003).
+  - `vif_threshold`: 5.0 (for diagnostics).
+  - `max_runtime_hours`: 4.0 (FR-008).
+  - `min_viable_n`: 40 (Power Analysis).

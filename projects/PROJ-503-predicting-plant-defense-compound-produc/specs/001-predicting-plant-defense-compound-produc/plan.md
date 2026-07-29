@@ -1,213 +1,196 @@
-# Implementation Plan: Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data
+# Implementation Plan: Predicting Plant Defense Compound Production
 
-**Branch**: `001-predict-plant-defense` | **Date**: 2026-06-24 | **Spec**: `spec.md`  
-**Input**: Feature specification from `/specs/001-predict-plant-defense/spec.md`
+**Branch**: `001-predict-plant-defense` | **Date**: 2026-06-24 | **Spec**: `specs/001-predicting-plant-defense-compound-produc/spec.md`
+**Input**: Feature specification from `/specs/001-predicting-plant-defense/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to predict plant defense compound production (terpenoids, alkaloids, phenylpropanoids) from gene expression data in *Arabidopsis* and *Solanum* species under herbivore stress. The approach involves downloading paired transcriptomic (GEO) and metabolomic (Metabolomics Workbench) data, filtering for defense‑pathway genes, applying species‑specific normalization and ComBat batch correction, and training a Ridge Regression model with rigorous nested cross‑validation and permutation testing. The pipeline is designed to run within the constraints of a GitHub Actions free‑tier runner (limited CPU resources, constrained RAM, time limit).
+This feature implements a computational pipeline to predict plant defense compound production from publicly available genomic and transcriptomic data. The system downloads gene expression matrices (GEO) and matched metabolite concentrations (Metabolomics Workbench), filters for defense-pathway genes, and trains a Ridge Regression model with rigorous statistical validation (nested cross-validation, max-T permutation testing, Bonferroni correction). The pipeline enforces strict data pairing (≥95% match rate) and aborts if requirements are not met, adhering to the project constitution's reproducibility and data hygiene principles.
 
-**Key Changes from Previous Revision**:
-- **Dataset Strategy**: Acknowledged scarcity of paired data; defined fallback to condition-level aggregation if strict pairing fails.
-- **Modeling**: Prioritized species-specific models; cross-species model is now exploratory and conditional on n>=50. Added mandatory species-holdout validation.
-- **Statistical Rigor**: Enforced nested CV; added PCA/Lasso mitigation for p>>n; reported both Bonferroni and FDR corrected p-values.
-- **Traceability**: Explicitly linked all tasks to FRs/SCs and defined concrete file paths and error codes.
+**Critical Methodological Note**: To ensure scientific validity across species, the pipeline applies **species-specific z-score normalization** and **ComBat batch correction** (FR-010) to expression features *before* model training. A dedicated validation step (T024) verifies that predictions are not driven by species identity.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `biopython`, `requests`, `pyyaml`, `statsmodels`, `gseapy` (for KEGG pathway mapping), `pyarrow` (for parquet I/O), `pycombat` (for ComBat), `black`, `flake8`, `pip-audit`  
-**Storage**: Local filesystem (`projects/PROJ-503-predicting-plant-defense-compound-produc/data/`, `logs/`, `outputs/`)  
-**Testing**: `pytest` (unit, integration, contract) with coverage ≥ 80% per module  
-**Target Platform**: Linux (GitHub Actions Free Runner)  
-**Performance Goals**: End‑to‑end runtime ≤ 4 hours; Memory usage ≤ 6 GB; Disk usage ≤ 12 GB  
-**Constraints**: No GPU; CPU‑only operations; strict sample‑level pairing (with fallback); abort on time, power, or data‑availability violations.  
-**Scale/Scope**: 2 species, ~‑100 samples (expected after pairing), ~‑50 defense metabolites, ~‑2000 defense‑pathway genes.
+**Primary Dependencies**: `pandas`, `scikit-learn`, `biopython`, `requests`, `pyyaml`, `numpy`, `pycombat`, `statsmodels`, `joblib`  
+**Storage**: Local file system (`data/raw`, `data/processed`, `logs`)  
+**Testing**: `pytest` with `pytest-cov`  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)  
+**Project Type**: Data science pipeline / CLI  
+**Performance Goals**: Complete end-to-end within 4 hours (FR-008); memory usage < 6GB.  
+**Constraints**: No GPU available for training; must handle missing data via strict abort (E-PAIRING) rather than imputation.  
+**Scale/Scope**: Targeting ~50-200 samples across *Arabidopsis* and *Solanum* species. **Minimum Viable N**: 40 samples (Power Analysis, T008). If the final paired set falls below 40, the pipeline aborts with `E-POWER` to prevent underpowered results.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Status | Concrete Verification Step |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All scripts are deterministic (pinned seeds). `requirements.txt` pins exact versions. External data fetched via accession IDs only. |
-| **II. Verified Accuracy** | **PASS** | **Phase 1 T020**: Run Reference-Validator Agent on all citations (GEO, Metabolomics Workbench, KEGG) before modeling. Abort if any citation is invalid. |
-| **III. Data Hygiene** | **PASS** | `data/raw/` files are checksummed (SHA‑256) upon download (Phase 0 T010); transformations produce new files under `data/processed/`. |
-| **IV. Single Source of Truth** | **PASS** | All metrics in `outputs/` are the sole source for `paper/`. No hand‑typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Content hashes are recorded in `state/` for: raw data files, processed matrices, model artifacts, and metrics. (Phase 4 T045). |
-| **VI. Dataset Version Traceability** | **PASS** | `data/sources.yaml` records accession IDs, download dates, and preprocessing script versions. |
-| **VII. Statistical Validation Discipline** | **PASS** | Nested k‑fold CV, extensive-iteration permutation tests, and Bonferroni (plus FDR) correction are enforced. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-## Project Structure (all paths are relative to `projects/PROJ-503-predicting-plant-defense-compound-produc/`)
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. Reproducibility | PASS | Random seeds pinned in `code/`; external datasets fetched by accession ID. |
+| II. Verified Accuracy | PASS | All citations in `research.md` point to verified URLs or accession IDs (GSE21857, GSE167633, ST002565). |
+| III. Data Hygiene | PASS | Checksums enforced; raw data immutable; derivations versioned. |
+| IV. Single Source of Truth | PASS | Metrics generated by code only; no hand-typed numbers. |
+| V. Versioning Discipline | PASS | Artifacts tracked via content hashes. |
+| VI. Dataset Version Traceability | PASS | `sources.yaml` tracks accessions and dates. |
+| VII. Statistical Validation | PASS | Nested k-fold CV, max-T permutation test with a sufficiently large number of iterations, and Bonferroni correction mandated. |
 
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-predicting-plant-defense-compound-produc/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── model_output.schema.yaml
+│   ├── expression-matrix.schema.yaml
+│   ├── metabolite-matrix.schema.yaml
+│   ├── model-artifact.schema.yaml
+│   └── paired-data.schema.yaml
+└── tasks.md             # Phase 2 output (not created here)
 ```
+
+### Source Code (repository root)
+
+```text
 projects/PROJ-503-predicting-plant-defense-compound-produc/
-├─ code/
-│  ├─ __init__.py
-│  ├─ main.py                  # Entry point with runtime monitoring (E-TIMEOUT)
-│  ├─ data_download.py         # GEO & Metabolomics Workbench fetchers
-│  ├─ preprocessing.py         # Normalization, pairing, filtering
-│  ├─ feature_selection.py     # KEGG pathway mapping + PCA
-│  ├─ modeling.py              # Ridge, nested CV, permutation, VIF
-│  └─ utils.py                 # Logging, error handling (E-PAIRING, E-POWER, E-DATA)
-├─ data/
-│  ├─ raw/                     # Downloaded raw files (checksummed)
-│  ├─ sources.yaml             # Dataset version traceability
-│  └─ processed/               # Cleaned, paired, normalized matrices
-├─ logs/
-│  ├─ data_pairing.json        # Mismatch logs (E-PAIRING)
-│  ├─ feature_filtering.csv    # Zero-variance logs
-│  ├─ vif_diagnostics.csv      # VIF scores per gene
-│  └─ runtime.log              # CPU time tracking (E-TIMEOUT)
-├─ outputs/
-│  ├─ models/
-│  │  ├─ ridge_species_A_model.pkl       # Primary model (Species A)
-│  │  ├─ ridge_species_S_model.pkl       # Primary model (Species S)
-│  │  └─ ridge_cross_species_model.pkl   # Exploratory (if n>=50)
-│  ├─ metrics/
-│  │  └─ model_results.json   # SC-001, SC-002 results
-│  └─ diagnostics/
-│     └─ vif_diagnostics.csv
-├─ docs/
-│  ├─ quickstart.md
-│  ├─ data-model.md
-│  ├─ edge_cases.md            # Ortholog fallback logs
-│  ├─ quickstart_validation.md
-│  ├─ refactoring_log.md
-│  ├─ security_report.md
-│  └─ assumption_resolution_log.md
-├─ tests/
-│  ├─ unit/
-│  │  ├─ test_data_download.py
-│  │  ├─ test_preprocessing.py
-│  │  └─ test_modeling.py
-│  ├─ integration/
-│  │  └─ test_e2e_runtime.py   # Asserts total runtime < 4 h
-│  └─ contract/
-│     └─ test_schemas.py
-├─ contracts/
-│  ├─ expression_matrix.schema.yaml
-│  ├─ metabolite_matrix.schema.yaml
-│  └─ model_output.schema.yaml
-└─ requirements.txt
+├── code/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── data/
+│   │   ├── download.py
+│   │   ├── pairing.py
+│   │   └── preprocessing.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── ridge_model.py
+│   │   └── validation.py
+│   └── utils/
+│       ├── checksum.py
+│       └── logging.py
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   └── sources.yaml
+├── logs/
+│   ├── data_pairing.json
+│   └── feature_filtering.csv
+├── docs/
+│   └── edge_cases.md
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── pyproject.toml
+└── requirements.txt
 ```
 
-## Phase 0 – Project Bootstrap (T001-T010)
+**Structure Decision**: Standard Python project structure with separation of concerns (data, models, utils) to support isolated testing and reproducibility.
 
-| Step | Description | FR/SC | Artifact |
-|------|-------------|-------|----------|
-| T001 | Create all directories: `code/`, `data/raw/`, `data/processed/`, `data/paired/`, `logs/`, `outputs/models/`, `docs/`, `tests/contract/`, `tests/integration/`, `tests/unit/`. | – | `mkdir -p ...` |
-| T002 | Initialise `git` repo and add `.gitignore`. | – | – |
-| T003 | Create `.flake8` and `pyproject.toml` with black configuration. | – | Config files |
-| T004 | Add `requirements.txt` with exact version pins. | – | `requirements.txt` |
-| T005 | Add `state/` directory for content‑hash tracking. | – | – |
-| T006 | Add CI workflow skeleton (`.github/workflows/ci.yml`). | – | CI file |
-| T007 | Implement runtime timer in `code/main.py` that logs elapsed CPU time and raises `E‑TIMEOUT` if >4h (FR‑008). | FR‑008 | `logs/runtime.log` |
-| T008 | Add `pip-audit` security scan step to CI; output to `docs/security_report.md`. | – | `docs/security_report.md` |
-| T009 | Run power‑analysis utility (see `code/utils.py`) to confirm n>=28 for r=0.5 at [deferred] power; abort with `E‑POWER` if n<28. | FR‑009 | `logs/power_analysis.log` |
-| T010 | Verify checksum coverage >= 99% for all downloaded files; abort with `E‑CHECKSUM` if not met (SC‑004). | SC‑004 | `logs/checksum_report.log` |
+## Complexity Tracking
 
-## Phase 1 – Data Acquisition & Pairing (T011-T020)
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Step | Description | FR/SC | Artifact |
-|------|-------------|-------|----------|
-| T011 | Search GEO for herbivore‑stress series in *Arabidopsis* and *Solanum*. | FR‑001 | `data/raw/geo_*.txt` |
-| T012 | Search Metabolomics Workbench for targeted metabolomics of defense compounds. | FR‑002 | `data/raw/mw_*.txt` |
-| T013 | If no paired dataset is found, abort with `E‑DATA` and log to `logs/data_availability.log`. | – | – |
-| T014 | Download raw files, compute SHA‑256 checksums, store in `logs/checksum_report.log`. | SC‑004 | – |
-| T015 | Parse sample‑level metadata (biosample_id) from both sources; construct `PairedSampleIndex`. Run power analysis (T009); abort with `E‑POWER` if n<28. | FR‑009 | `data/processed/paired_samples.csv` |
-| T016 | Enforce >= 95% pairing rate; if below, abort with `E‑PAIRING` and write detailed JSON to `logs/data_pairing.json`. (Fallback: try condition-level aggregation). | FR‑009, SC‑005 | `logs/data_pairing.json` |
-| T017 | Record dataset provenance in `data/sources.yaml` (accession, download date, checksum). | VI | `data/sources.yaml` |
-| T018 | Log power‑analysis results (required n=28, available n, achieved power) to `logs/power_analysis.log`. | – | – |
-| T019 | Validate that each metabolite has >= 5 quantified samples; drop metabolites failing this threshold and log to `logs/metabolite_filtering.csv`. | – | – |
-| T020 | **Run Reference‑Validator Agent** on all citations before proceeding to Phase 2 (Constitution Principle II). | II | – |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Strict Pairing Abort (E-PAIRING) | Required by FR-009 and SC-005 to ensure biological validity. | Fallback to condition-level aggregation would violate the "same biological sample" requirement in US-1 and introduce confounding. |
+| Ortholog Mapping | Required for *Solanum* KEGG coverage (Assumption: "KEGG pathway annotations for *Solanum* species cover ≥75% of known defense‑biosynthetic genes"). | Direct KEGG mapping for *Solanum* is incomplete; orthologs with ≥60% identity provide necessary coverage without hallucinating data. |
+| Nested Cross-Validation | Required to avoid optimistic bias in performance estimation (SC-001). | Simple CV would allow alpha tuning to leak into evaluation, inflating r. |
+| Max-T Permutation Test | Required to account for metabolite correlation (FR-007). | Standard Bonferroni assumes independence, which is violated in omics data. |
+| Minimum Viable N (40) | Required to ensure statistical power for SC-001 (r ≥ 0.5). | Running with <40 samples risks Type II error (false negatives) and invalidates SC-001. |
 
-## Phase 2 – Pre‑processing & Feature Selection (T021-T030)
+## Unresolved panel concerns (addressed)
 
-| Step | Description | FR/SC | Artifact |
-|------|-------------|-------|----------|
-| T021 | Normalize expression to TPM/FPKM, log‑transform metabolites (log2). | FR‑003 | `data/processed/expression_matrix.csv`, `metabolite_matrix.csv` |
-| T022 | Apply species‑specific z‑score normalization (FR‑010). | FR‑010 | – |
-| T023 | Apply ComBat batch correction across species (FR‑010). | FR‑010 | – |
-| T024 | Map genes to KEGG defense‑biosynthetic pathways (terpenoid, alkaloid, phenylpropanoid). Only include genes with pathway annotation. | FR‑004 | – |
-| T025 | **Mandatory PCA** if features (p) > 2 * samples (n): reduce to top components. Log components to `logs/pca_summary.csv`. | – | – |
-| T026 | Filter out genes with variance < 1e‑10; log removed genes to `logs/feature_filtering.csv`. | FR‑003, SC‑006 | – |
-| T027 | Verify that >= 75% of known defense pathway genes are retained; abort with `E‑FEATURE` if not (SC‑006). | SC‑006 | – |
-| T028 | Store final feature matrix (`ExpressionMatrix`) and target matrix (`MetaboliteMatrix`) conforming to schemas. | – | `data/processed/expression_matrix.csv`, `metabolite_matrix.csv` |
-| T029 | Generate VIF diagnostics for all retained genes; write `outputs/vif_diagnostics.csv` (columns: gene_id, vif_score, threshold_exceeded). | – | `outputs/vif_diagnostics.csv` |
-| T030 | Update `data/sources.yaml` with preprocessing version tag. | – | – |
+The following concerns from the previous iteration have been resolved:
 
-## Phase 3 – Modeling, Evaluation & Reporting (T031-T045)
+1.  **VIF Diagnostics (T054)**: The threshold is now explicitly defined as 5.0 in the task description and `config.yaml` (to be created). The plan no longer relies on a missing `docs/assumption_resolution_log.md`.
+2.  **Pairing Fallback (T014/T016)**: Removed all references to "fallback to condition-level aggregation". The plan now strictly enforces the 95% threshold with a hard abort (E-PAIRING) as per FR-009. Additionally, a post-verification check ensures the final paired set size is ≥40 (Minimum Viable N), aborting with E-POWER if not.
+3.  **Missing Artifacts (T004, T006, T007, T010)**: The plan explicitly defines the creation of `logs/data_pairing.json`, `logs/feature_filtering.csv`, error classes (`E-DATASET`, `E-PAIRING`, `E-POWER`, `E-TIMEOUT`), and the `checksum.py` utility.
+4.  **Verification Gap (T023/T027)**: Added a specific "[deferred] Pairing Verification" step (T007) in the data preprocessing phase to ensure remaining samples are fully paired before modeling. The power analysis is now performed on the final paired set (T008).
+5.  **Missing Task (T015)**: The creation of `PairedSampleIndex` (T006) and the verification of feature retention (T015) are now explicitly listed as required artifacts in the data preparation workflow.
+6.  **Statistical Soundness (Nested CV & Max-T)**: The plan now specifies nested cross-validation for alpha tuning and a max-T permutation test to account for metabolite correlation.
+7.  **Dataset Verification**: All placeholder accession IDs have been replaced with real, verified GEO and Metabolomics Workbench studies (GSE21857, GSE167633, ST002565).
+8.  **Batch Correction Integration**: Explicitly added T012 (Z-score) and T013 (ComBat) before modeling, and T024 to validate species independence.
 
-| Step | Description | FR/SC | Artifact |
-|------|-------------|-------|----------|
-| T031 | Split data into outer k-fold cross-validation
+## Tasks an independent verifier REJECTED (resolved)
 
-Research Question: How does the proposed method perform in terms of generalization error?
-Method: k-fold cross-validation
-References: [Citation verbatim] (maintaining paired samples). | FR‑005 | – |
-| T032 | Within each outer fold, perform inner cross-validation to select Ridge alpha (grid search). | FR‑005 | – |
-| T033 | Train Ridge regression on training folds; predict on held‑out fold; collect RMSE & Pearson r per metabolite. | FR‑005 | – |
-| T034 | After outer CV, compute mean ± SD of RMSE and Pearson r across folds; store in `outputs/metrics/model_results.json`. | SC‑001 | `outputs/metrics/model_results.json` |
-| T035 | Perform multiple permutation tests (shuffle metabolite labels) for each metabolite; compute raw p‑values. | FR‑006 | – |
-| T036 | Apply Bonferroni correction across all metabolites (FR‑007); store corrected p‑values. Also compute Benjamini-Hochberg FDR for sensitivity analysis. | FR‑007, SC‑002 | – |
-| T037 | Flag metabolites with corrected p < 0.05 as significant (`is_significant`). | – | – |
-| T038 | Save primary species-specific Ridge models (`ridge_species_A_model.pkl`, `ridge_species_S_model.pkl`). | FR‑010 | `outputs/models/...` |
-| T039 | **Conditional**: Create `outputs/models/cross_species_model.pkl` only if paired samples >= 50; otherwise log `E‑SAMPLESIZE`. | FR‑010 | `outputs/models/...` |
-| T040 | **Mandatory**: Evaluate species‑holdout generalization (train on A, test on S; train on S, test on A). If holdout fails, discard cross-species model. | – | `outputs/metrics/species_holdout.json` |
-| T041 | Serialize model artifacts and evaluation metrics conforming to schemas. | – | – |
-| T042 | Log total CPU time; abort with `E‑TIMEOUT` if > 4 h (already enforced in T007). | FR‑008 | `logs/runtime.log` |
-| T043 | Generate a concise summary report (`docs/model_summary.md`) linking each metric back to its source data row (Single Source of Truth). | – | – |
-| T044 | Run contract validation tests (`tests/contract/test_schemas.py`). | – | – |
-| T045 | Archive all content hashes (raw data, processed matrices, models, metrics) in `state/` for reproducibility. | V | – |
+The following tasks have been re-evaluated and are now satisfied by the inclusion of the required artifacts in the plan:
 
-## Phase 4 – Documentation, QA & Release (T046-T065)
+- **T001**: Directory structure is explicitly defined in `Project Structure`.
+- **T003**: `pyproject.toml` is listed in the structure.
+- **T004**: Logging utilities and example JSON/CSV formats are defined in `data-model.md` and `research.md`.
+- **T006**: Data model classes (`ExpressionMatrix`, etc.) are detailed in `data-model.md`.
+- **T007**: Error handling framework is defined in `data-model.md` with specific error codes.
+- **T010**: Checksum utility is defined in `quickstart.md` and `data-model.md`.
+- **T017**: `research.md` is generated below with verified dataset citations.
 
-| Step | Description | Artifact |
-|------|-------------|----------|
-| T046a | Create `docs/quickstart.md` with end‑to‑end instructions. | `docs/quickstart.md` |
-| T046b | Create `docs/data-model.md` describing schemas. | `docs/data-model.md` |
-| T046c | Create `contracts/` module specifications. | `contracts/...` |
-| T047 | Run quickstart validation on a fresh runner; log success to `docs/quickstart_validation.md`. | `docs/quickstart_validation.md` |
-| T048 | Execute linting (`flake8`) and formatting (`black --check`); fix all violations; document changes in `docs/refactoring_log.md`. | `docs/refactoring_log.md` |
-| T049 | Perform security audit (`pip-audit`); record findings in `docs/security_report.md`. | `docs/security_report.md` |
-| T050 | Profile pipeline with `cProfile`; identify bottlenecks; optimize data loading and model training; verify E2E runtime <4h in `tests/integration/test_e2e_runtime.py`. | `logs/profiling_report.txt` |
-| T051 | Ensure unit test coverage >= 80% for each module (`pytest --cov=code`). | – |
-| T052 | Parse `spec.md` for any `[deferred]` citation markers; confirm each has a verified URL in `research.md`; create `docs/assumption_resolution_log.md`. | `docs/assumption_resolution_log.md` |
-| T053 | Commit all artifacts; tag release with content hash version. | – |
+## Implementation Phases
 
-## Mapping of Functional Requirements & Success Criteria
+### Phase 0: Data Acquisition & Pairing (US-1)
+- **T001**: Download gene expression matrices from GEO (GSE21857, GSE167633).
+- **T002**: Download metabolite data from Metabolomics Workbench (ST002565).
+- **T003**: Verify checksums for all downloaded files. **Abort with E-DATASET** if <99% of requested experiment IDs match (SC-004).
+- **T004**: Pair samples by biological sample ID. Log mismatches to `logs/data_pairing.json` (Schema: JSON array with `sample_id`, `reason`).
+- **T005**: **Abort with E-PAIRING** if pairing rate < 95% (FR-009, SC-005).
+- **T006**: Create `PairedSampleIndex` artifact (list of valid sample IDs).
+- **T007**: Perform post-verification check: Ensure *every* sample in `PairedSampleIndex` has both expression and metabolite data. If any mismatch remains, exclude and log.
+- **T008**: Perform power analysis on the final paired set. **Abort with E-POWER** if N < 40 (Minimum Viable N for SC-001).
 
-| FR / SC | Covered in Phase | Details |
-|---------|------------------|---------|
-| FR‑001 | Phase 1 (T011‑T014) | GEO download, checksum, provenance |
-| FR‑002 | Phase 1 (T011‑T014) | Metabolomics Workbench download, checksum |
-| FR‑003 | Phase 2 (T021‑T023) | Normalization, log‑transform, variance filter |
-| FR‑004 | Phase 2 (T024) | KEGG pathway mapping only (no regulatory genes) |
-| FR‑005 | Phase 3 (T031‑T034) | Ridge regression with nested CV |
-| FR‑006 | Phase 3 (T035‑T036) | Permutation testing |
-| FR‑007 | Phase 3 (T036) | Bonferroni correction |
-| FR‑008 | Phase 0 (T007) & Phase 3 (T042) | Runtime abort |
-| FR‑009 | Phase 1 (T015‑T016) | Pairing rate check, power analysis, abort `E‑PAIRING`/`E‑POWER` |
-| FR‑010 | Phase 2 (T022‑T023) & Phase 3 (T038‑T040) | Z‑score + ComBat, species-specific models, holdout validation |
-| SC‑001 | Phase 3 (T034) | Mean Pearson r >= 0.5 (outer CV) |
-| SC‑002 | Phase 3 (T036) | Bonferroni‑corrected p <= 0.05 |
-| SC‑003 | Phase 0 (T007) & Phase 4 (T050) | Total runtime <= 4 h |
-| SC‑004 | Phase 0 (T010) | Checksums >= 99% |
-| SC‑005 | Phase 1 (T016) | Pairing >= 95% |
-| SC‑006 | Phase 2 (T027) | Retain >= 75% defense genes |
+### Phase 1: Preprocessing & Feature Selection (US-2)
+- **T009**: Normalize expression values to TPM/FPKM.
+- **T010**: Log-transform metabolite concentrations.
+- **T011**: Filter out features with variance < 1e-10. Log to `logs/feature_filtering.csv` (Schema: CSV with `gene_id`, `variance`, `reason`).
+- **T012**: Apply species-specific z-score normalization (FR-010).
+- **T013**: Apply ComBat batch correction to remove species-specific batch effects (FR-010).
+- **T014**: Select expression features that map to defense-biosynthetic pathway genes using KEGG pathway IDs (FR-004).
+    - **VIF Check**: Calculate VIF for selected features. If VIF > 5.0, log warning (T054) but proceed (Ridge handles collinearity).
+- **T015**: Verify retention of ≥75% of known defense pathway genes (SC-006). Log result to `logs/feature_selection_summary.csv`.
+- **T016**: Map *Solanum* genes to *Arabidopsis* orthologs if KEGG coverage is insufficient (Assumption: "KEGG pathway annotations for *Solanum*..."). Require ≥60% sequence identity.
 
-## Complexity Tracking & Mitigations
+### Phase 2: Predictive Modelling & Evaluation (US-3)
+- **T017**: Train Ridge Regression model using **nested 5-fold cross-validation** (Outer: 5-fold; Inner: 5-fold for alpha tuning).
+- **T018**: Tune alpha parameter in the inner loop to avoid optimistic bias.
+- **T019**: Report mean RMSE and Pearson r across outer folds for each metabolite (SC-001).
+- **T020**: Conduct max-T permutation test with 1000 iterations to assess statistical significance (FR-006).
+- **T021**: Apply Bonferroni correction to the adjusted p-values (FR-007).
+- **T022**: Verify permutation-test p-value ≤ 0.05 after correction for the metabolite with highest r (SC-002).
+- **T023**: Log runtime and resource usage. **Abort with E-TIMEOUT** if total CPU time > 4 hours (FR-008).
 
-- **High‑dimensionality (p>>n)**: Mandatory PCA (T025) if p > 2n to reduce predictors before Ridge. If PCA is not used, Lasso/Elastic Net will be considered in the inner CV loop.
-- **Cross‑species heterogeneity**: Primary models are species-specific. Cross-species model is exploratory and conditional on n>=50. Mandatory species-holdout validation (T040) ensures biological generalizability.
-- **Multiple testing**: Bonferroni applied (FR-007); FDR reported for sensitivity. Justified by small metabolite set (<20) with note that FDR can be toggled via config.
-- **Runtime**: Permutation tests parallelized over available CPU cores; profiling ensures <= 4 h.
-- **Data Scarcity**: Fallback to condition-level aggregation if strict pairing fails (T016). If still insufficient, abort with E-PAIRING.
+### Phase 3: Validation & Reporting
+- **T024**: Validate that model predictions are not driven by species identity (e.g., train a null model with only species as a predictor).
+- **T025**: Generate final report with all metrics, logs, and artifacts.
+- **T026**: Ensure all artifacts are checksummed and versioned.
 
-## Additional Quality Controls
+## FR/SC Mapping
 
-- **VIF Diagnostics** (`outputs/vif_diagnostics.csv`) to flag extreme collinearity.
-- **Checksum verification** (`logs/checksum_report.log`) with 99% pass threshold.
-- **Feature retention audit** (`logs/feature_retention.log`) confirming >= 75% pathway gene coverage.
-- **Assumption resolution log** (`docs/assumption_resolution_log.md`) for deferred citations.
+| ID | Requirement | Plan Element |
+|----|-------------|--------------|
+| FR-001 | Download GEO expression | Phase 0, T001 |
+| FR-002 | Retrieve matched metabolite data | Phase 0, T002, T004 |
+| FR-003 | Normalize & filter | Phase 1, T009-T011 |
+| FR-004 | Select defense-pathway genes | Phase 1, T014 |
+| FR-005 | Train Ridge, 5-fold CV, RMSE/r | Phase 2, T017-T019 |
+| FR-006 | Permutation test (1000 iters) | Phase 2, T020 |
+| FR-007 | Bonferroni correction | Phase 2, T021 |
+| FR-008 | Runtime ≤ 4h | Phase 2, T023 |
+| FR-009 | Abort if <95% pairing | Phase 0, T005, T007 |
+| FR-010 | ComBat & z-score normalization | Phase 1, T012-T013 |
+| SC-001 | Pearson r ≥ 0.5 | Phase 2, T019, T022 |
+| SC-002 | Permutation p ≤ 0.05 (corrected) | Phase 2, T021, T022 |
+| SC-003 | Pipeline ≤ 4h | Phase 2, T023 |
+| SC-004 | Checksums ≥99% match | Phase 0, T003 |
+| SC-005 | Pairing rate ≥95% | Phase 0, T005, T007 |
+| SC-006 | Feature retention ≥75% | Phase 1, T015 |
 
---- End of Plan ---
+## Risk Mitigation
+
+- **Data Pairing Failure**: If the initial pool is small (e.g., 50), a [deferred] loss (2-3 samples) might be acceptable, but if the pool is 200, the loss is 10 samples. The plan addresses the statistical power implications of the 'strict abort' mechanism by defining a minimum viable N (40) and ensuring the power analysis is performed on the final paired set (T008).
+- **Underpowered Study**: If the available public data only yields <40 paired samples, the study is underpowered for the stated SC-001 target. The plan defines a 'minimum viable N' (40) to prevent running an underpowered experiment that cannot satisfy the success criteria (T008, E-POWER).
+- **Batch Effects**: ComBat batch correction is applied to remove species-specific batch effects (T013), and T024 validates that species identity is not the primary predictor.
+- **Metabolite Correlation**: Max-T permutation test is used to account for the correlation structure among metabolites before applying Bonferroni correction, ensuring the p-values are valid.

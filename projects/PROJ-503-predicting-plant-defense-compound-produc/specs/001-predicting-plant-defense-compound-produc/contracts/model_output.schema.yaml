@@ -1,68 +1,76 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelOutput"
-description: "Schema for the Ridge Regression model results."
+title: "ModelOutputSchema"
+description: "Schema for the model evaluation metrics and artifacts."
 type: "object"
 properties:
-  results:
-    type: "array"
-    description: "List of results for each metabolite"
-    items:
-      type: "object"
-      properties:
-        metabolite_id:
-          type: "string"
-        rmse_mean:
-          type: "number"
-          minimum: 0.0
-        rmse_std:
-          type: "number"
-          minimum: 0.0
-        pearson_r:
-          type: "number"
-          minimum: -1.0
-          maximum: 1.0
-        p_value_raw:
-          type: "number"
-          minimum: 0.0
-          maximum: 1.0
-        p_value_corrected:
-          type: "number"
-          minimum: 0.0
-          maximum: 1.0
-        is_significant:
-          type: "boolean"
-      required:
-        - metabolite_id
-        - rmse_mean
-        - rmse_std
-        - pearson_r
-        - p_value_raw
-        - p_value_corrected
-        - is_significant
-    minItems: 1
-  summary:
+  model_info:
     type: "object"
     properties:
-      total_metabolites_tested:
-        type: "integer"
-        minimum: 0
-      significant_metabolites:
-        type: "integer"
-        minimum: 0
-      max_pearson_r:
+      model_type:
+        type: "string"
+        const: "RidgeRegression"
+      alpha:
         type: "number"
-        minimum: -1.0
-        maximum: 1.0
-      min_p_value_corrected:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
+        description: "Ridge regularization parameter"
+      cv_folds:
+        type: "integer"
+        const: 5
     required:
-      - total_metabolites_tested
-      - significant_metabolites
-      - max_pearson_r
-      - min_p_value_corrected
+      - "model_type"
+      - "alpha"
+      - "cv_folds"
+  metrics:
+    type: "object"
+    description: "Metrics per metabolite"
+    additionalProperties:
+      type: "object"
+      properties:
+        rmse:
+          type: "number"
+          description: "Root Mean Squared Error"
+        pearson_r:
+          type: "number"
+          description: "Pearson correlation coefficient"
+        p_value_raw:
+          type: "number"
+          description: "Permutation test p-value (uncorrected)"
+        p_value_corrected:
+          type: "number"
+          description: "Bonferroni corrected p-value"
+        is_significant:
+          type: "boolean"
+          description: "True if p_value_corrected <= 0.05"
+      required:
+        - "rmse"
+        - "pearson_r"
+        - "p_value_raw"
+        - "p_value_corrected"
+        - "is_significant"
+  permutation_test:
+    type: "object"
+    properties:
+      iterations:
+        type: "integer"
+        const: 1000
+      method:
+        type: "string"
+        const: "label_shuffling"
+    required:
+      - "iterations"
+      - "method"
+  runtime:
+    type: "object"
+    properties:
+      total_cpu_seconds:
+        type: "number"
+      max_memory_mb:
+        type: "number"
+    required:
+      - "total_cpu_seconds"
+      - "max_memory_mb"
 required:
-  - results
-  - summary
+  - "model_info"
+  - "metrics"
+  - "permutation_test"
+  - "runtime"
 additionalProperties: false
