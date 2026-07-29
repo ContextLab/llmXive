@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GraphMetadata"
+description: "Schema for metadata describing the generated graph topology"
+type: "object"
+properties:
+  graph_id:
+    type: string
+    description: "Unique identifier for the graph instance"
+  seed:
+    type: integer
+    description: "Random seed used"
+  node_count:
+    type: integer
+    description: "Total number of nodes"
+  edge_count:
+    type: integer
+    description: "Total number of edges"
+  avg_degree:
+    type: number
+    description: "Average node degree"
+  diameter:
+    type: number
+    description: "Graph diameter (infinity if disconnected)"
+  is_connected:
+    type: boolean
+    description: "Whether the graph is fully connected"
+  source_node:
+    type: integer
+    description: "Index of the source node (min x, max y tie-break)"
+  sink_node:
+    type: integer
+    description: "Index of the sink node (max x, min y tie-break)"
+required:
+  - graph_id
+  - seed
+  - node_count
+  - edge_count
+  - avg_degree
+  - is_connected
+  - source_node
+  - sink_node
+additionalProperties: false

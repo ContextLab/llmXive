@@ -1,75 +1,74 @@
-# Quickstart: Influence of Network Topology on Thermal Conductivity
+# Quickstart: Influence of Network Topology on Thermal Conductivity in Nanomaterials
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- Git
-- A terminal with `pip` access
+-   Python 3.11+
+-   `pip` (package manager)
+-   Git
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project root).
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-332-exploring-the-influence-of-network-topol
+    ```
+
 2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
+
 3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins specific versions of `networkx`, `scipy`, `numpy`, etc.*
 
 ## Running the Simulation
 
-### Default Grid Sweep
-To run the full simulation grid (Multiple connectivity levels, 100 simulations each):
+### Basic Run (Single Graph)
+Generate a single network with target degree 4.0 and compute conductivity:
 ```bash
-python code/main.py --grid
-```
-This will:
-1.  Generate a large set of random geometric graphs.
-2.  Assign thermal resistances (using NIST defaults).
-3.  Solve for effective conductivity.
-4.  Perform sensitivity analysis.
-5.  Output `data/processed/simulation_results.csv`.
-
-### Single Simulation
-To run a single simulation with custom parameters:
-```bash
-python code/main.py --N 500 --p 0.05 --material Si --seed 42
+python code/main.py --target-degree 4.0 --seed 42 --material Si
 ```
 
-### Running Sensitivity Analysis Only
+### Full Pipeline (Default Grid)
+Run the full study (10 levels, 100 runs each) with sensitivity analysis:
 ```bash
-python code/main.py --sensitivity-only --base-k 10.0
+python code/main.py --run-full-grid --material Si
+```
+*Note: This will take a moderate amount of time on a standard CPU.*
+
+### Sensitivity Sweep Only
+Run sensitivity analysis on a specific result set:
+```bash
+python code/main.py --sensitivity-only --input data/processed/simulation_results.csv
 ```
 
-### Providing Custom Material Values
-For non-standard materials, provide the thermal conductivity value:
+### Custom Material
+Use a non-standard material (e.g., "Custom" with k=200):
 ```bash
-python code/main.py --material "CustomAlloy" --k-value 25.5
+python code/main.py --material-override "Custom=200.0" --target-degree 4.0
 ```
 
-## Verifying Results
+## Output Locations
 
-### Check CSV Output
-Verify the output file was created and contains data:
-```bash
-head data/processed/simulation_results.csv
-```
-Expected columns: `seed`, `N`, `p`, `measured_degree`, `k_eff`, `convergence_status`, `percolation_threshold`, `is_connected`.
+-   **Raw Logs**: `data/logs/`
+-   **Processed Results**: `data/processed/simulation_results.csv`
+-   **Analysis Reports**: `data/processed/regression_summary.json`
+-   **Plots**: `data/figures/` (if enabled)
 
-### Run Tests
-Ensure the solver and generator are working correctly:
+## Verification
+
+To verify the installation and basic functionality:
 ```bash
-pytest code/tests/ -v
+pytest tests/unit/test_generate.py -v
+pytest tests/unit/test_physics.py -v
 ```
-This runs unit tests for graph generation, convergence checks, and regression logic.
 
 ## Troubleshooting
 
-- **"Material not found"**: Ensure the material name matches one of the NIST defaults (Si, CNT, Ag, Au) or provide a custom value via `--k-value`.
-- **"Solver failed to converge"**: Check if the graph is disconnected. The system logs warnings for disconnected graphs and sets $k_{eff}=0$.
-- **"Memory Error"**: The default $N=1000$ should fit in 7GB RAM. If using larger $N$, reduce the number of simulations per level.
-- **"Timeout"**: The job exceeded the allocated time limit. Reduce the grid size or node count.
+-   **Solver Convergence Failure**: If `convergence_rate` < 1.0, check if the graph is disconnected. The system logs a warning and sets $k_{eff} = 0$.
+-   **Memory Error**: Unlikely with N=1000. If it occurs, reduce `N` in `config.py`.
+-   **Material Not Found**: Use `--material-override` for non-standard materials.

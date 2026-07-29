@@ -9,3 +9,14 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
   verified_at: '2026-07-16T00:47:07.178076Z'
+- artifact_hash: a310658d85537b5584bd3373bd682e96040ad9dcb0d414fa23db92978689c9b5
+  artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1038/s41586-021-03512-9
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1038/s41586-021-03512-9
+  verified_at: '2026-07-29T06:34:50.440736Z'

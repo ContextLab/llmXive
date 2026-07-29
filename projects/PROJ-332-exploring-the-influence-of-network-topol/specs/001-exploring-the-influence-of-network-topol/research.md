@@ -2,69 +2,64 @@
 
 ## Scientific Background
 
-The effective thermal conductivity ($k_{eff}$) of nanowire networks is governed by the percolation of heat flow paths and the thermal resistance at wire junctions. Unlike bulk materials, where $k$ is an intrinsic property, network $k_{eff}$ depends heavily on topology (connectivity, path length) and nanoscale effects (surface scattering). The Fuchs-Sondheimer model is the standard approach for correcting bulk conductivity ($k_{bulk}$) for nanowires with diameter $d < 100$ nm:
-$$ k_{eff} = k_{bulk} \left( 1 - \frac{3}{8} \frac{\lambda}{d} (1-p) \right) $$
-where $\lambda$ is the phonon mean free path and $p$ is the specularity parameter. For this study, we assume a simplified size-correction factor $F(d)$ applied to the bulk value to calculate edge resistance $R = L / (k_{eff} \cdot A)$.
-
-**Construct Validity Note**: This study assumes a **homogeneous** network (constant wire diameter $d$) to isolate the effect of *topology*. In realistic networks, diameter heterogeneity and contact (Kapitza) resistance are significant. These are treated as limitations; the current model focuses on the topological contribution. Contact resistance is omitted as a first-order approximation to isolate the connectivity effect, though this may overestimate $k_{eff}$ in real heterogeneous networks.
+The effective thermal conductivity ($k_{eff}$) of nanowire networks is governed by both the intrinsic properties of the wires and the topological arrangement of the network. As wire diameter decreases into the nanoscale regime, surface scattering becomes significant, reducing thermal conductivity relative to bulk values. This is modeled by the Fuchs-Sondheimer theory. Additionally, the network must be percolated (connected) to conduct heat between boundaries. Near the percolation threshold ($k_c$), $k_{eff}$ follows a power-law scaling: $k_{eff} \propto (k - k_c)^t$, where $t$ is the critical exponent.
 
 ## Dataset Strategy
 
-This project generates **synthetic data** via simulation; no external static dataset is required. The "dataset" is the set of generated graphs and their computed properties.
+**Data Source**: Synthetic Generation.
+No external dataset is required. The study generates its own data via Random Geometric Graphs (RGGs) to precisely control the connectivity parameter ($p$) and node count ($N$). This approach is necessary because existing datasets of nanowire networks rarely provide the ground-truth topology and thermal parameters simultaneously required for this specific scaling analysis.
 
-| Dataset Name | Source Type | URL / Loader | Verification Status |
-| :--- | :--- | :--- | :--- |
-| Synthetic Nanowire Networks | Generated | `networks.generate_random_geometric_graph(N, p)` | **Verified**: Generated at runtime via NetworkX. No external download. |
-| Material Properties (NIST) | Internal Default | `code/config.py` (Hardcoded NIST 300K values) | **Verified**: Values match NIST standard references for Si, CNT, Ag, Au. |
-
-**Note**: No external datasets (e.g., Hugging Face, UCI) are used because the research question requires controlled variation of topology parameters ($N$, $p$) that do not exist in static observational datasets. The "data" is the output of the simulation engine itself.
+**Generation Method**:
+1.  **Spatial Domain**: Fixed square domain of $10 \mu m \times 10 \mu m$.
+2.  **Nodes**: $N=1000$ nodes distributed uniformly at random.
+3.  **Edges**: Two nodes are connected if their Euclidean distance $r \le r_c$. $r_c$ is derived from the target average degree $\langle k \rangle$ using the relation $\langle k \rangle = (N-1) \pi r_c^2 / A$, where $A$ is the domain area.
+4.  **Reproducibility**: All random seeds are fixed and logged.
 
 ## Methodology
 
-### 1. Graph Generation
-- **Algorithm**: Random Geometric Graph (RGG) in a **unit square domain [0,1]x[0,1]**.
-- **Parameters**: Node count $N=1000$, Target Average Degree $\langle k \rangle \in [2, 10]$.
-- **Mapping**: Connection probability $p$ is derived from target degree to ensure density remains constant while topology varies.
-- **Validation**: Ensure measured $\langle k \rangle$ is within $\pm 5\%$ of target. If not, regenerate.
-- **Spatial Constraint**: Fixed domain size ensures that varying $p$ changes connectivity without changing node density.
+### 1. Network Generation (FR-001, FR-014)
+Generate RGGs for 10 connectivity levels (target $\langle k \rangle$ ranging from 2.0 to 6.0, step 0.4). For each level, perform a pilot study (N=10) to estimate variance and adjust sample size dynamically (FR-018) up to a maximum of 200 runs per level. The pilot study calculates variance $\sigma^2$ and uses the formula $N = (Z_{\alpha/2} + Z_{\beta})^2 \sigma^2 / \delta^2$ (assuming $\delta$ = 10% deviation from $t=1.3$ i.e., $\delta=0.13$, power=0.8) to determine if the sample size must be doubled.
 
-### 2. Thermal Resistance Assignment
-- **Edge Weight**: $R_{ij} = \frac{L}{k_{material} \cdot F(d) \cdot A}$.
-- **Size Correction**: Apply Fuchs-Sondheimer factor for $d < 100$ nm.
-- **Defaults**: Si (149), CNT (3500), Ag (429), Au (318) W/(m·K).
-- **Error Handling**: If material not in defaults, raise `ValueError` requiring user input via `--k-value`.
-- **Limitation**: Assumes homogeneous diameter; contact resistance is neglected.
+### 2. Physics Modeling (FR-002, FR-011, FR-012)
+-   **Bulk Conductivity ($k_{bulk}$)**: Use NIST values (Si: high thermal conductivity, CNT: significantly higher, etc.).
+-   **Size Correction**: Apply Fuchs-Sondheimer model: $k_{eff\_wire} = k_{bulk} [1 - \frac{3}{8}(1-p)\frac{\lambda}{d}]$, where $p=0.5$, $\lambda=40nm$, $d=50nm$.
+-   **Junction Resistance**: Add series resistance $R_{junction}$ to each edge. **Sensitivity**: Perform a specific sweep on $R_{junction}$ over $\pm 10\%$ of the nominal value ($10^{-9}$ K/W), in addition to the general scaling factor sweep.
+-   **Edge Resistance**: $R_{edge} = \frac{L}{k_{eff\_wire} \cdot A_{cross}} + R_{junction}$.
 
-### 3. Heat Flow Solver
-- **Method**: Solve $G \cdot T = I$ where $G$ is the conductance matrix (Laplacian), $T$ is node temperature, $I$ is current source/sink.
-- **Boundary Conditions**: **Source and Sink are the pair of nodes with the maximum Euclidean distance** in the graph. $T=1$ at source, $T=0$ at sink.
-- **Convergence**: Iterative solver (CG) or direct solver (sparse LU) with residual $\le 10^{-6}$.
-- **Edge Case**: If graph disconnected, $k_{eff} = 0$.
+### 3. Solver (FR-003, FR-013)
+-   **Boundary Conditions**: To mitigate systematic bias from fixed X-axis alignment, the simulation is run with **multiple boundary condition pairs**: (MinX, MaxX), (MinY, MaxY), (MinX+MinY, MaxX+MaxY), (MinX+MaxY, MaxX+MinY).
+-   **Equation**: Solve $G \mathbf{V} = \mathbf{I}$ for each pair where $G$ is the conductance matrix (Laplacian), $\mathbf{V}$ is node potential, $\mathbf{I}$ is current injection (A).
+-   **Method**: `scipy.sparse.linalg.spsolve` (LU decomposition) with tolerance sufficiently small.
+-   **Output**: $k_{eff}^{iso} = \text{mean}(k_{eff}^{X}, k_{eff}^{Y}, k_{eff}^{D1}, k_{eff}^{D2})$. If disconnected, $k_{eff}=0$.
 
-### 4. Statistical Analysis
-- **Metrics**: Average degree ($\langle k \rangle$), Average Path Length ($L_{avg}$), Clustering Coefficient ($C$).
-- **Percolation Threshold**: Identify $\langle k \rangle_c$ as the smallest average degree where $P(\text{connected})$ reaches a high probability threshold (operational definition for N=1000). Error bars on this estimate will be reported via bootstrapping.
-- **Scaling Law**:
-  1.  Exclude disconnected graphs ($k_{eff}=0$) from regression.
-  2.  Fit critical scaling law: $k_{eff} \propto (\langle k \rangle - \langle k \rangle_c)^t$ for $\langle k \rangle > \langle k \rangle_c$.
-  3.  Report scaling exponent $t$, 95% CI, and p-value.
-- **Power Analysis**: A sufficient number of samples per level is used as a heuristic minimum based on typical percolation transition widths. Bootstrapping will be used to estimate confidence intervals for the exponent and validate the power assumption.
-- **Robustness**: Sensitivity sweep on resistance scaling factor $\{0.9, 1.0, 1.1\}$.
+### 4. Analysis (FR-005, FR-006, FR-017)
+-   **Percolation Threshold ($k_c$)**: Estimate $k_c$ via the inflection point of the giant component size curve ($P_{\infty}$) using a **sigmoid fit** on the *entire* dataset (including disconnected graphs). This step is performed **first** and $k_c$ is **fixed**.
+-   **Scaling Law**: Fit $k_{eff} = A (\langle k \rangle - k_c)^t$ using non-linear least squares on the subset of **connected** graphs ($k_{eff} > 0$).
+-   **Selection Bias Correction**: To address the bias of excluding disconnected graphs, the analysis employs a **two-part model**:
+    1.  Model $P_{\infty}(\langle k \rangle)$ using logistic regression on the binary connected/disconnected outcome.
+    2.  The final "effective" conductivity is reported as $k_{eff}^{adj} = k_{eff}^{fitted} \times P_{\infty}$.
+-   **Collinearity**: Compute Pearson correlation matrix of $\langle k \rangle$, average path length, and clustering coefficient. Use $\langle k \rangle$ as the primary predictor. Note: In RGGs, $\langle k \rangle$ is a proxy for connection radius $r_c$. The study frames the result as "scaling with connection density" rather than pure topology.
+-   **Sensitivity**: Sweep resistance scaling factor $\alpha \in \{0.9, 1.0, 1.1\}$ and $R_{junction} \in \{0.9 \times R_{nom}, 1.1 \times R_{nom}\}$.
+-   **Theoretical Comparison**: Calculate the deviation $|t_{fitted} - 1.3|$ and report the p-value for the hypothesis $H_0: t = 1.3$ (using bootstrapped standard errors). Note: The comparison is framed as a consistency check for the RGG model in the finite-size regime (N=1000), acknowledging that finite-size effects may cause deviations from the asymptotic $t \approx 1.3$.
 
-## Compute Feasibility & Decision Rationale
+## Statistical Rigor & Feasibility
 
-**Decision**: CPU-First Implementation.
+-   **Multiple Comparisons**: Only one primary regression reported.
+-   **Power Analysis**: Pilot study (N=10) estimates variance. If power < 0.80 (alpha=0.05, effect size=0.13), sample size doubles (max 200).
+-   **Causal Claims**: None. The study reports associational scaling laws.
+-   **Collinearity**: Acknowledged. $\langle k \rangle$ is the sole predictor, but it is a proxy for connection radius $r_c$ in RGGs. The study frames the result as "scaling with connection density" rather than pure topology.
+-   **Construct Validity**: The study frames the result as "scaling with connection density" acknowledging that in RGGs, $\langle k \rangle$ is a proxy for geometric radius $r_c$.
+-   **Finite-Size Effects**: The comparison to $t \approx 1.3$ is framed as a consistency check. The analysis notes that N=1000 is in the finite-size regime and deviations are expected.
+-   **Compute Feasibility**:
+    -   **CPU**: All operations CPU-tractable.
+    -   **Memory**: Sparse matrices < 1MB.
+    -   **Time**: ~1000 graphs * 0.1s/graph = 100s total.
+    -   **GPU**: Not required.
 
-**Rationale**:
-1.  **Algorithm Nature**: The core operations (graph generation, sparse matrix factorization, OLS regression) are classical linear algebra and combinatorial problems. They do not require GPU acceleration.
-2.  **Scale**: The grid (1,000 simulations) involves small matrices ($N=1000$). Sparse solvers in `scipy` handle this efficiently on a limited number of CPU cores.
-3.  **Constraints**: A reasonable time limit and memory capacity are sufficient for this workload. The research question, method, and references remain as specified in the planning document. No transformer or diffusion models are involved.
-4.  **No GPU Escape Hatch Needed**: A scaled-down GPU version is unnecessary and would add complexity without performance benefit. The plan explicitly avoids GPU libraries.
+## Decision/Rationale
 
-## Statistical Rigor
-
-- **Multiple Comparisons**: Only one primary metric ($\langle k \rangle$) is used for regression to avoid family-wise error inflation. Correlation matrix is reported for other metrics ($L_{avg}, C$) but not used for hypothesis testing.
-- **Sample Size**: 1,000 simulations (100 per connectivity level) provide sufficient power to detect scaling exponents with $p < 0.05$, assuming typical percolation transition widths. Bootstrapping will be used to verify.
-- **Causal Claims**: The study reports **associational** relationships. No random assignment of physical parameters occurs; the "cause" is the synthetic topology parameter.
-- **Collinearity**: $L_{avg}$ and $C$ are often correlated with $\langle k \rangle$. The plan uses $\langle k \rangle$ as the primary predictor and reports the correlation matrix to acknowledge this dependency, avoiding claims of independent effects for derived metrics.
-- **Measurement Validity**: The Fuchs-Sondheimer model is the standard for nanowire thermal transport; validation is assumed based on literature consensus.
+-   **Method Choice**: Random Geometric Graphs are the standard model for nanowire networks.
+-   **Solver**: Sparse direct solver chosen for stability. Isotropic averaging (4 directions) mitigates directional bias.
+-   **Dataset**: Synthetic generation is the only viable option for controlled topology studies without access to proprietary experimental data.
+-   **Bias Correction**: The two-part model (Logistic + Power Law) is selected over simple exclusion to correct the severe selection bias near the percolation threshold.
+-   **Threshold Estimation**: Two-stage estimation (Sigmoid for $k_c$ -> Fixed $k_c$ for Power Law) avoids circular validation and overfitting.

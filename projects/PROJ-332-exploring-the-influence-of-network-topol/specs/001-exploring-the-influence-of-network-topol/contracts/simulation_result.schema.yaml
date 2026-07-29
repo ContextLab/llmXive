@@ -1,75 +1,82 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Simulation Result Record"
-description: "Schema for a single row in data/processed/simulation_results.csv"
+title: "SimulationResult"
+description: "Schema for a single row in data/processed/simulation_results.csv (includes global stats)"
 type: "object"
 properties:
   seed:
     type: integer
-    description: "Random seed used for reproducibility"
+    description: "Random seed used for generation"
   N:
     type: integer
     description: "Number of nodes in the graph"
+    const: 1000
   p:
     type: number
-    format: float
     description: "Connection probability"
+    minimum: 0.0
+    maximum: 1.0
   target_degree:
     type: number
-    format: float
-    description: "Target average degree"
-  measured_degree:
+    description: "Target average degree specified by user"
+  avg_degree:
     type: number
-    format: float
-    description: "Actual measured average degree"
-  material:
-    type: string
-    description: "Material name (e.g., Si, CNT)"
-  diameter:
-    type: number
-    format: float
-    description: "Wire diameter in meters"
-  length:
-    type: number
-    format: float
-    description: "Wire length in meters"
-  k_eff:
-    type: number
-    format: float
-    description: "Effective thermal conductivity in W/(m·K)"
-  residual:
-    type: number
-    format: float
-    description: "Solver residual norm"
-  convergence_status:
-    type: string
-    enum:
-      - "success"
-      - "failed"
-    description: "Solver convergence status"
-  is_connected:
+    description: "Actual average degree of the generated graph (mapped from measured_degree to satisfy FR-009)"
+  percolation_status:
     type: boolean
     description: "True if source-sink path exists"
-  scaling_factor:
+  k_eff:
     type: number
-    format: float
-    description: "Resistance scaling factor used (0.9, 1.0, or 1.1)"
+    description: "Effective thermal conductivity in W/(m·K)"
+    minimum: 0.0
+  avg_path_length:
+    type: number
+    description: "Average shortest path length (Infinity if disconnected)"
+    minimum: 0.0
+  clustering_coeff:
+    type: number
+    description: "Global clustering coefficient"
+    minimum: 0.0
+    maximum: 1.0
+  convergence_rate:
+    type: number
+    description: "L2 residual norm of the solver"
+    minimum: 0.0
+  total_runtime:
+    type: number
+    description: "Execution time in seconds"
+    minimum: 0.0
+  material_name:
+    type: string
+    description: "Name of the material used (e.g., Si, CNT)"
   percolation_threshold:
     type: number
-    format: float
-    description: "Operational percolation threshold (avg degree where P(connected)>=0.80)"
+    description: "Global percolation threshold (k_c_80) estimated via FR-017"
+  scaling_exponent_t:
+    type: number
+    description: "Global scaling exponent t from power-law fit"
+  p_value:
+    type: number
+    description: "Global p-value from regression (test H0: t=0)"
+  R_squared:
+    type: number
+    description: "Goodness-of-fit metric (R^2)"
+    minimum: 0.0
+    maximum: 1.0
 required:
   - seed
   - N
   - p
   - target_degree
-  - measured_degree
-  - material
-  - diameter
-  - length
+  - avg_degree
+  - percolation_status
   - k_eff
-  - residual
-  - convergence_status
-  - is_connected
-  - scaling_factor
+  - avg_path_length
+  - clustering_coeff
+  - convergence_rate
+  - total_runtime
+  - material_name
   - percolation_threshold
+  - scaling_exponent_t
+  - p_value
+  - R_squared
 additionalProperties: false
