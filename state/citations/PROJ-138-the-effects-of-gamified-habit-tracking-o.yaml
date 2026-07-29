@@ -1,11 +1,46 @@
-- artifact_hash: a4956fee088f413ab2ce4e4d47285866aa2e4da5d1b5c41b40b4320f361b2c5b
+- artifact_hash: 4ac99e90fa9ee45e16d307e53afa508801ef6ae7dc26eabcfee9947aabef66f6
   artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: test-00000-of-00001-c96a814948b69df7.parquet
+  fetched_title: Redirecting
   kind: url
-  value: https://huggingface.co/datasets/holistic-ai/Personality_mypersonality/resolve/main/data/test-00000-of-00001-c96a814948b69df7.parquet
+  value: https://doi.org/10.1016/j.jrp.2006.07.001
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64e3a71d4392e3565ce17a7c/01b2806696a9bcc5daa644427b0ae483c60a59858ac29454f929c70700dccda0?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-c96a814948b69df7.parquet%3B+filename%3D%22test-00000-of-00001-c96a814948b69df7.parquet%22%3B&user_id=public&Expires=1784855856&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlM2E3MWQ0MzkyZTM1NjVjZTE3YTdjLzAxYjI4MDY2OTZhOWJjYzVkYWE2NDQ0MjdiMGFlNDgzYzYwYTU5ODU4YWMyOTQ1NGY5MjljNzA3MDBkY2NkYTBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1jOTZhODE0OTQ4YjY5ZGY3LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWM5NmE4MTQ5NDhiNjlkZjcucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg0ODU1ODU2fX19XX0_&Signature=MEQCIF6cwn4ecH3TetaNeqRUeVKT2l0AhwlnqY5vGs49J1erAiBSqKomvWjt00AJAlUdUoP%7E7W-8KJ%7EZKiKU2riwBPPhuw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-07-24T00:17:36.090516Z'
+  verified_against_url: https://linkinghub.elsevier.com/retrieve/pii/S0092656606000882
+  verified_at: '2026-07-29T11:41:47.353989Z'
+- artifact_hash: 4ac99e90fa9ee45e16d307e53afa508801ef6ae7dc26eabcfee9947aabef66f6
+  artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Redirecting
+  kind: url
+  value: https://doi.org/10.1016/j.chb.2016.12.033
+  verification_status: pending
+  verified_against_url: https://linkinghub.elsevier.com/retrieve/pii/S074756321630855X
+  verified_at: '2026-07-29T11:41:47.353989Z'
+- artifact_hash: 4ac99e90fa9ee45e16d307e53afa508801ef6ae7dc26eabcfee9947aabef66f6
+  artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Change and stability of sense of coherence in adulthood: Longitudinal
+    evidence from the Healthy Child study'
+  kind: doi
+  value: 10.1016/j.jrp.2006.07.001
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/j.jrp.2006.07.001
+  verified_at: '2026-07-29T11:41:47.353989Z'
+- artifact_hash: 4ac99e90fa9ee45e16d307e53afa508801ef6ae7dc26eabcfee9947aabef66f6
+  artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'How gamification motivates: An experimental study of the effects
+    of specific game design elements on psychological need satisfaction'
+  kind: doi
+  value: 10.1016/j.chb.2016.12.033
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/j.chb.2016.12.033
+  verified_at: '2026-07-29T11:41:47.353989Z'

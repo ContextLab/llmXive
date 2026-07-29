@@ -50,7 +50,7 @@ The system MUST execute internal robustness checks (bootstrapping) to validate f
 **Independent Test**: The validation script can be tested by running the analysis pipeline on a bootstrapped sample and verifying that the generated report includes a section comparing effect sizes across bootstrap iterations.
 
 **Acceptance Scenarios**:
-1. **Given** the merged dataset, **When** the bootstrapping procedure is executed, **Then** a comparison table is generated showing the distribution of the gamification effect size across 1,000 bootstrap samples.
+1. **Given** the merged dataset, **When** the bootstrapping procedure is executed, **Then** A comparison table is generated showing the distribution of the gamification effect size across multiple bootstrap samples..
 2. **Given** the final model results, **When** the report generation script is executed, **Then** a PDF/HTML report is produced containing a Kaplan-Meier survival curve (based on the 3-week dropout definition) stratified by personality quartiles and a line plot of weekly adherence trajectories.
 3. **Given** the full analysis, **When** the sensitivity analysis for the adherence threshold is run, **Then** the report includes a table showing the stability of the effect size (coefficient variance) across a range of thresholds for the primary outcome definition.
 

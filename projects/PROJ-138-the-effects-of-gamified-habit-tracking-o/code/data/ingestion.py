@@ -1,108 +1,91 @@
-"""
-Data ingestion module.
-Loads and validates data from synthetic or real sources.
-Implements strict validation and fails loudly if real data is missing or invalid.
-"""
 import os
 import sys
 import json
 import pandas as pd
+from typing import Optional
+
+# Add project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from code.utils.logging import setup_logger, log_pipeline_stage
 from code.data.validation import check_consent, validate_schema
-from code.data.synthetic_generator import generate_synthetic_data, write_marker
 
 logger = setup_logger("ingestion")
 
-def load_data():
+def load_data() -> pd.DataFrame:
     """
-    Load data based on availability.
-    Prioritizes synthetic data if marker exists, otherwise attempts real data fetch.
-    CRITICAL: If real data is required but missing, this function MUST fail loudly.
+    Load data from the appropriate source.
+    Prioritizes synthetic data if marker exists, otherwise attempts API fetch.
     """
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    marker_path = os.path.join(root, "data", "raw", "synthetic_data_marker.json")
-    csv_path = os.path.join(root, "data", "raw", "synthetic_data.csv")
-    
-    # Check consent first
-    check_consent()
+    marker_path = "data/raw/synthetic_data_marker.json"
+    csv_path = "data/raw/synthetic_data.csv"
     
     if os.path.exists(marker_path):
         logger.info("Synthetic data marker found. Loading synthetic data.")
         if not os.path.exists(csv_path):
-            logger.error("Marker exists but CSV missing. Regenerating...")
-            # Regenerate only if marker exists but file is missing (recovery mode)
-            df = generate_synthetic_data(n_users=100, weeks=50, seed=42)
-            df.to_csv(csv_path, index=False)
-            write_marker(100, len(df))
-        else:
-            df = pd.read_csv(csv_path)
-    else:
-        # Try to load real data (HABITICA_API_URL)
-        api_url = os.getenv("HABITICA_API_URL")
-        if not api_url:
-            logger.warning("No real data source configured and no synthetic marker. Generating synthetic data.")
-            df = generate_synthetic_data(n_users=100, weeks=50, seed=42)
-            df.to_csv(csv_path, index=False)
-            write_marker(100, len(df))
-        else:
-            # Attempt to fetch real data
-            try:
-                logger.info(f"Attempting to fetch data from {api_url}")
-                # Simulate fetch (in real impl, use requests)
-                # For this task, we fall back to synthetic if fetch fails
-                logger.error("Real data fetch not implemented in this context. Falling back to synthetic.")
-                df = generate_synthetic_data(n_users=100, weeks=50, seed=42)
-                df.to_csv(csv_path, index=False)
-                write_marker(100, len(df))
-            except Exception as e:
-                logger.error(f"Failed to fetch real data: {e}")
-                # Generate "Data Insufficiency" report
-                report = {
-                    "status": "data_insufficient",
-                    "reason": str(e),
-                    "fallback": "synthetic"
-                }
-                report_path = os.path.join(root, "data", "reports", "data_insufficiency_report.json")
-                os.makedirs(os.path.dirname(report_path), exist_ok=True)
-                with open(report_path, 'w') as f:
-                    json.dump(report, f, indent=2)
-                logger.info("Data insufficiency report generated. Exiting gracefully.")
-                sys.exit(0)
+            raise FileNotFoundError(f"Marker found but CSV not found at {csv_path}")
+        df = pd.read_csv(csv_path)
+        return df
     
-    return df
+    # If no synthetic marker, check for real data
+    # In this project, we rely on synthetic data for the simulation study
+    # If this were real data mode, we would fetch from API here
+    logger.error("No data source found. Ensure synthetic data generation has run.")
+    raise FileNotFoundError("No data source found. Run synthetic_generator first.")
 
-def validate_group_sizes(df: pd.DataFrame):
-    """Ensure non-gamified group size >= 30."""
-    non_gamified = df[df['gamified_status'] == False]['User_ID'].nunique()
-    if non_gamified < 30:
-        logger.error(f"Non-gamified group too small: {non_gamified}")
+def validate_group_sizes(df: pd.DataFrame) -> bool:
+    """Validate that group sizes meet minimum requirements."""
+    n_gamified = df['gamified_status'].sum()
+    n_non_gamified = len(df) - n_gamified
+    
+    logger.info(f"Group sizes - Gamified: {n_gamified}, Non-gamified: {n_non_gamified}")
+    
+    if n_non_gamified < 30:
+        logger.error(f"Non-gamified group size ({n_non_gamified}) is below minimum 30.")
         return False
+    
+    if len(df) < 100:
+        logger.error(f"Total records ({len(df)}) is below minimum 100.")
+        return False
+    
     return True
 
 def main():
-    """CLI entry point."""
+    parser = argparse.ArgumentParser(description="Ingest and validate data")
+    args = parser.parse_args()
+    
     log_pipeline_stage(logger, "START", "Data Ingestion")
     
-    df = load_data()
-    
-    # Validate schema
     try:
+        # Check consent
+        check_consent()
+        
+        # Load data
+        df = load_data()
+        logger.info(f"Loaded {len(df)} records")
+        
+        # Validate schema
         validate_schema(df)
-    except ValueError as e:
-        logger.error(f"Schema validation failed: {e}")
-        sys.exit(1)
-    
-    # Validate group sizes
-    if not validate_group_sizes(df):
-        logger.error("Group size validation failed.")
-        sys.exit(1)
-    
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    output_path = os.path.join(root, "data", "raw", "habitica_data.csv")
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved ingested data to {output_path}")
-    
-    log_pipeline_stage(logger, "END", "Data Ingestion")
+        
+        # Validate group sizes
+        if not validate_group_sizes(df):
+            # Generate report and exit gracefully
+            report = {
+                "error": "Data insufficiency",
+                "details": "Group sizes below minimum requirements"
+            }
+            os.makedirs("data/reports", exist_ok=True)
+            with open("data/reports/data_insufficiency_report.json", 'w') as f:
+                json.dump(report, f, indent=2)
+            sys.exit(0)
+        
+        log_pipeline_stage(logger, "SUCCESS", "Data Ingestion Complete")
+        return 0
+        
+    except Exception as e:
+        log_pipeline_stage(logger, "ERROR", str(e))
+        return 1
 
 if __name__ == "__main__":
-    main()
+  import argparse
+  sys.exit(main())

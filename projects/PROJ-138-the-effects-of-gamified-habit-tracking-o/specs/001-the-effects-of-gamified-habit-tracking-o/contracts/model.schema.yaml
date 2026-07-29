@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Model Output Schema"
+description: "Schema for the output of the mixed-effects and survival models."
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model (e.g., 'MixedEffects', 'CoxPH')."
+  parameters:
+    type: object
+    description: "Dictionary of model coefficients."
+    additionalProperties:
+      type: object
+      properties:
+        estimate:
+          type: number
+        std_error:
+          type: number
+        p_value:
+          type: number
+        confidence_interval:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+  fit_statistics:
+    type: object
+    description: "Model fit metrics (e.g., AIC, BIC, Log-Likelihood)."
+    additionalProperties:
+      type: number
+  sample_size:
+    type: integer
+    description: "Total number of observations used in the model."
+  convergence_status:
+    type: boolean
+    description: "True if the model converged successfully."
+required:
+  - model_type
+  - parameters
+  - sample_size
+  - convergence_status
+additionalProperties: false

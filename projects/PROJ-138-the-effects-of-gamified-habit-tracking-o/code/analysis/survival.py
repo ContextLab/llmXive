@@ -1,102 +1,141 @@
-"""
-Survival analysis module.
-Performs Kaplan-Meier and Cox proportional hazards analysis.
-"""
 import os
 import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from lifelines import KaplanMeierFitter, CoxPHFitter
-from lifelines.utils import concordance_index
+
+# Add project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from code.utils.logging import setup_logger, log_pipeline_stage
 
 logger = setup_logger("survival")
 
-def count_dropout_events(df: pd.DataFrame):
-    """Count dropout events (consecutive weeks of non-adherence)."""
-    # Simplified: count users with low adherence
-    events = df[df['Adherence'] < 0.5].shape[0]
-    return events
+def count_dropout_events(df: pd.DataFrame) -> int:
+    """
+    Count dropout events (consecutive weeks of non-adherence).
+    
+    Args:
+        df: Aggregated data
+        
+    Returns:
+        Number of dropout events
+    """
+    # Identify users with zero adherence weeks
+    zero_adherence = df[df['weekly_adherence_flag'] == 0]
+    # This is a simplified count; real implementation would track consecutive weeks
+    return len(zero_adherence)
 
 def generate_descriptive_report(df: pd.DataFrame, events: int):
-    """Generate descriptive statistics for survival analysis."""
+    """Generate descriptive statistics if events < 10."""
     report = {
-        "total_users": len(df),
         "dropout_events": events,
-        "gamified_count": df['Gamified'].sum(),
-        "non_gamified_count": len(df) - df['Gamified'].sum()
+        "total_users": df['User_ID'].nunique(),
+        "message": "Insufficient events for survival analysis"
     }
-    return report
+    
+    os.makedirs("data/reports", exist_ok=True)
+    with open("data/reports/survival_descriptive_report.json", 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info("Generated descriptive report for low event count.")
 
 def run_survival_analysis(df: pd.DataFrame):
-    """Run Kaplan-Meier and Cox models."""
-    # Prepare data for lifelines
-    # Create a duration and event indicator
-    # For simplicity, use Adherence as proxy for event
-    df['event'] = (df['Adherence'] < 0.5).astype(int)
-    df['duration'] = df['Adherence'] * 100  # Fake duration for demo
+    """
+    Run Kaplan-Meier and Cox proportional hazards models.
     
+    Args:
+        df: Aggregated data
+    """
+    # Prepare data for survival analysis
+    # Create duration and event columns
+    # Simplified: duration = weeks observed, event = dropout
+    
+    # Group by user
+    user_stats = df.groupby('User_ID').agg({
+        'weekly_adherence_flag': 'sum',
+        'week_number': 'max'
+    }).reset_index()
+    
+    user_stats.columns = ['User_ID', 'total_adherence', 'duration']
+    user_stats['event'] = (user_stats['total_adherence'] == 0).astype(int)
+    
+    # Check event count
+    events = user_stats['event'].sum()
+    if events < 10:
+        logger.warning(f"Too few events ({events}) for survival analysis.")
+        generate_descriptive_report(df, events)
+        return
+    
+    # Kaplan-Meier
     kmf = KaplanMeierFitter()
     
-    # Stratify by Gamified
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Stratify by gamification status
+    for status, group in user_stats.groupby('gamified_status' if 'gamified_status' in df.columns else ['User_ID']):
+        kmf.fit(group['duration'], event_observed=group['event'], label=f'Gamified={status}')
+        kmf.plot()
     
-    for name, group in df.groupby('Gamified'):
-        kmf.fit(group['duration'], group['event'], label=f'Gamified={name}')
-        kmf.plot_survival_function(ax=ax)
+    plt.title("Kaplan-Meier Survival Curve")
+    plt.xlabel("Weeks")
+    plt.ylabel("Survival Probability")
     
-    ax.set_title("Kaplan-Meier Survival Curves by Gamification Status")
-    ax.set_xlabel("Duration (scaled)")
-    ax.set_ylabel("Survival Probability")
-    
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    plt.savefig(os.path.join(root, "figures", "km_curves.png"))
+    output_fig = "figures/km_curve.png"
+    os.makedirs(os.path.dirname(output_fig), exist_ok=True)
+    plt.savefig(output_fig)
     plt.close()
-    logger.info("Saved KM curves to figures/km_curves.png")
+    logger.info(f"Saved KM curve to {output_fig}")
     
-    # Cox model
-    cdf = df[['duration', 'event', 'Gamified', 'Conscientiousness']].copy()
-    cdf = cdf.dropna()
-    
-    if cdf.shape[0] > 10:
+    # Cox PH
+    if 'conscientiousness_score' in df.columns:
+        cdf = user_stats.copy()
+        cdf['conscientiousness_score'] = df.groupby('User_ID')['conscientiousness_score'].first().values
+        
+        if 'gamified_status' in df.columns:
+            cdf['gamified_status'] = df.groupby('User_ID')['gamified_status'].first().values
+        
+        cdf = cdf.dropna()
+        
         cph = CoxPHFitter()
         cph.fit(cdf, duration_col='duration', event_col='event')
-        logger.info("Cox Model Summary:")
-        logger.info(str(cph.summary))
+        cph.print_summary()
         
-        # Save
-        cph_summary_path = os.path.join(root, "data", "processed", "cox_summary.txt")
-        with open(cph_summary_path, 'w') as f:
-            f.write(str(cph.summary))
-    else:
-        logger.warning("Insufficient data for Cox model.")
+        # Save results
+        results_path = "data/processed/survival_results.json"
+        cph.summary.to_json(results_path)
+        logger.info(f"Saved Cox results to {results_path}")
 
 def main():
-    """CLI entry point."""
+    parser = argparse.ArgumentParser(description="Run survival analysis")
+    args = parser.parse_args()
+    
     log_pipeline_stage(logger, "START", "Survival Analysis")
     
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    input_path = os.path.join(root, "data", "processed", "merged_data.csv")
-    
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-    
-    df = pd.read_csv(input_path)
-    events = count_dropout_events(df)
-    
-    if events < 10:
-        logger.warning(f"Low event count ({events}). Generating descriptive report only.")
-        report = generate_descriptive_report(df, events)
-        report_path = os.path.join(root, "data", "processed", "survival_descriptive.json")
-        import json
-        with open(report_path, 'w') as f:
-            json.dump(report, f, indent=2)
-    else:
-        run_survival_analysis(df)
-    
-    log_pipeline_stage(logger, "END", "Survival Analysis")
+    try:
+        # Load data
+        input_path = "data/processed/merged_data.csv"
+        if not os.path.exists(input_path):
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+        
+        df = pd.read_csv(input_path)
+        logger.info(f"Loaded {len(df)} records for survival analysis")
+        
+        # Count events
+        events = count_dropout_events(df)
+        logger.info(f"Dropout events: {events}")
+        
+        if events < 10:
+            generate_descriptive_report(df, events)
+        else:
+            run_survival_analysis(df)
+        
+        log_pipeline_stage(logger, "SUCCESS", "Survival Analysis Complete")
+        return 0
+        
+    except Exception as e:
+        log_pipeline_stage(logger, "ERROR", str(e))
+        return 1
 
 if __name__ == "__main__":
-    main()
+  import argparse
+  sys.exit(main())

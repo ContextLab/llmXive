@@ -1,44 +1,55 @@
-"""
-Utility functions for reporting and formatting.
-"""
 import os
 import json
 import logging
 from code.utils.logging import pipeline_logger
 
-logger = logging.getLogger("report_utils")
-
-def report_cronbach_alpha():
+def report_cronbach_alpha(alpha_value: float):
     """
-    Reads the calculated Cronbach's Alpha from data/processed/psychometrics.json
-    and logs it for inclusion in the final report.
+    Write Cronbach's Alpha value to psychometrics.json.
     
-    This function is called by code/main.py after T012b (validation) runs.
+    Args:
+        alpha_value: The calculated Cronbach's Alpha
     """
-    psychometrics_path = "data/processed/psychometrics.json"
+    output_path = "data/processed/psychometrics.json"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    if not os.path.exists(psychometrics_path):
-        logger.warning(f"Psychometrics file not found at {psychometrics_path}. Skipping alpha report.")
-        return
+    data = {
+        "cronbach_alpha": alpha_value,
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    
+    pipeline_logger.info(f"Written Cronbach's Alpha ({alpha_value:.4f}) to {output_path}")
 
-    try:
-        with open(psychometrics_path, 'r') as f:
-            data = json.load(f)
+def format_limitations(sample_size: int, synthetic: bool = True, underpowered: bool = False) -> str:
+    """
+    Format the limitations section for the report.
+    
+    Args:
+        sample_size: Actual sample size N
+        synthetic: Whether data is synthetic
+        underpowered: Whether power analysis indicated low power
         
-        alpha = data.get('cronbach_alpha')
-        if alpha is not None:
-            logger.info(f"Calculated Cronbach's Alpha: {alpha:.4f}")
-        else:
-            logger.warning("Cronbach's Alpha key missing in psychometrics.json.")
-    except Exception as e:
-        logger.error(f"Failed to read psychometrics.json: {e}")
-        raise
+    Returns:
+        Formatted limitations text
+    """
+    limitations = []
+    
+    limitations.append(f"**Sample Size**: N={sample_size}.")
+    
+    if synthetic:
+        limitations.append("**Synthetic Nature**: Data is synthetically generated with known ground truth, limiting external validity.")
+    
+    if underpowered:
+        limitations.append("**Power**: Study may be underpowered for detecting interaction effects.")
+    
+    limitations.append("**External Validation**: No external validation performed.")
+    
+    return " ".join(limitations)
 
-def format_limitations():
-    """
-    Returns a standard string for the Data Limitations section.
-    """
-    return (
-        "Sample size (N=500), synthetic nature of data, lack of external validation, "
-        "and potential underpowering for interaction effects."
-    )
+if __name__ == "__main__":
+  # Test
+  report_cronbach_alpha(0.85)
+  print(format_limitations(500))

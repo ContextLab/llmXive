@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T10:25:42.709825Z'
-current_stage: analyzed
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-138-the-effects-of-gamified-habit-tracking-o
-last_run_id: c50a73f9-0e73-40b2-8db8-67fc5eac2174
+last_run_id: 12d7fbc0-de93-45c3-9664-dc61d441da64
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o
 title: The Effects of Gamified Habit Tracking on Long-Term Behavioral Change
-updated_at: '2026-07-29T00:18:49.210128Z'
+updated_at: '2026-07-29T11:42:24.685720Z'

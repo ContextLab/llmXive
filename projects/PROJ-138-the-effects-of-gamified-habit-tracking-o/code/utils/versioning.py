@@ -1,6 +1,3 @@
-"""
-Versioning and artifact hashing module.
-"""
 import os
 import sys
 import hashlib
@@ -8,6 +5,10 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
+
+# Add project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from code.utils.logging import setup_logger, log_pipeline_stage
 
 logger = setup_logger("versioning")
@@ -20,63 +21,67 @@ def calculate_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_state(state_path: str = "state.yaml") -> Dict:
-    """Load state file."""
+def load_state() -> Dict:
+    """Load state.yaml if it exists."""
+    state_path = "state.yaml"
     if os.path.exists(state_path):
         with open(state_path, 'r') as f:
             return yaml.safe_load(f) or {}
-    return {"artifacts": {}, "last_updated": None}
+    return {"artifacts": {}}
 
-def save_state(state: Dict, state_path: str = "state.yaml"):
-    """Save state file."""
+def save_state(state: Dict):
+    """Save state to state.yaml."""
+    state_path = "state.yaml"
     with open(state_path, 'w') as f:
-        yaml.dump(state, f)
+        yaml.dump(state, f, default_flow_style=False)
 
-def update_artifact_state(state: Dict, name: str, path: str):
-    """Update artifact state in the dictionary."""
-    if "artifacts" not in state:
-        state["artifacts"] = {}
-    state["artifacts"][name] = {
-        "path": path,
-        "hash": calculate_sha256(path),
-        "timestamp": datetime.now().isoformat()
+def update_artifact_state(file_path: str, state: Dict):
+    """Update state with artifact hash."""
+    if not os.path.exists(file_path):
+        return
+    
+    artifact_name = os.path.relpath(file_path, start=".")
+    file_hash = calculate_sha256(file_path)
+    
+    state["artifacts"][artifact_name] = {
+        "hash": file_hash,
+        "updated": datetime.now().isoformat()
     }
 
 def hash_all_final_artifacts():
     """Hash all final artifacts and update state."""
-    root = Path(__file__).parent.parent.parent
-    state_path = root / "state.yaml"
+    state = load_state()
     
-    artifacts_to_hash = [
-        ("merged_data", "data/processed/merged_data.csv"),
-        ("psychometrics", "data/processed/psychometrics.json"),
-        ("model_summary", "data/processed/model_summary.txt"),
-        ("final_report", "data/reports/final_analysis.html"),
+    final_artifacts = [
+        "data/processed/merged_data.csv",
+        "data/processed/psychometrics.json",
+        "data/processed/model_intercept_results.json",
+        "data/processed/robustness_report.json",
+        "data/reports/final_analysis.html",
+        "data/raw/synthetic_data.csv",
+        "data/raw/synthetic_data_marker.json"
     ]
     
-    state = load_state(str(state_path))
-    state["last_updated"] = datetime.now().isoformat()
+    for artifact in final_artifacts:
+        update_artifact_state(artifact, state)
     
-    for name, rel_path in artifacts_to_hash:
-        full_path = root / rel_path
-        if full_path.exists():
-            update_artifact_state(state, name, rel_path)
-            logger.info(f"Hashed {name}: {calculate_sha256(str(full_path))[:16]}...")
-        else:
-            logger.warning(f"Artifact not found: {full_path}")
-    
-    save_state(state, str(state_path))
-    logger.info("State file updated.")
+    save_state(state)
+    logger.info("Updated state.yaml with artifact hashes.")
 
 def main():
-    """CLI entry point."""
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--action", choices=["hash"], default="hash")
+    parser = argparse.ArgumentParser(description="Versioning and hashing")
     args = parser.parse_args()
     
-    if args.action == "hash":
+    log_pipeline_stage(logger, "START", "Versioning")
+    
+    try:
         hash_all_final_artifacts()
+        log_pipeline_stage(logger, "SUCCESS", "Versioning Complete")
+        return 0
+    except Exception as e:
+        log_pipeline_stage(logger, "ERROR", str(e))
+        return 1
 
 if __name__ == "__main__":
-    main()
+  import argparse
+  sys.exit(main())

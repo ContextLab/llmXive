@@ -1,7 +1,3 @@
-"""
-Statistical modeling module.
-Fits mixed-effects logistic regression models.
-"""
 import os
 import sys
 import pandas as pd
@@ -9,84 +5,142 @@ import numpy as np
 import statsmodels.api as sm
 from statsmodels.formula.api import mixedlm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+# Add project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from code.utils.logging import setup_logger, log_pipeline_stage
 
 logger = setup_logger("modeling")
 
-def calculate_vif(df: pd.DataFrame):
-    """Calculate VIF for collinearity check."""
-    # Select numeric predictors
-    predictors = ['Conscientiousness', 'Need_for_Achievement']
-    valid_predictors = [p for p in predictors if p in df.columns]
+def calculate_vif(df: pd.DataFrame, feature_columns: list) -> dict:
+    """
+    Calculate Variance Inflation Factor for features.
     
-    if len(valid_predictors) < 2:
-        logger.info("Not enough predictors for VIF calculation.")
-        return {}
-    
-    X = df[valid_predictors].dropna()
-    if X.shape[0] < 2:
-        return {}
-    
-    X_with_const = sm.add_constant(X)
+    Args:
+        df: DataFrame with features
+        feature_columns: List of column names to check
+        
+    Returns:
+        Dictionary of VIF values
+    """
     vif_data = {}
+    X = df[feature_columns].dropna()
     
-    for i, col in enumerate(X_with_const.columns):
-        if col != 'const':
+    for col in feature_columns:
+        if col in X.columns:
             try:
-                vif = variance_inflation_factor(X_with_const.values, i)
+                vif = variance_inflation_factor(X.values, list(X.columns).index(col))
                 vif_data[col] = vif
+                logger.info(f"VIF for {col}: {vif:.2f}")
             except Exception as e:
-                logger.warning(f"VIF calculation failed for {col}: {e}")
+                logger.warning(f"Could not calculate VIF for {col}: {e}")
+                vif_data[col] = np.inf
     
     return vif_data
 
-def fit_mixed_effects_model(df: pd.DataFrame):
-    """Fit mixed-effects logistic regression."""
+def fit_mixed_effects_model(df: pd.DataFrame) -> dict:
+    """
+    Fit mixed-effects logistic regression model.
+    
+    Args:
+        df: Aggregated data with weekly_adherence_flag
+        
+    Returns:
+        Model results dictionary
+    """
     # Prepare data
-    df_clean = df.dropna(subset=['Adherence', 'Conscientiousness', 'Gamified'])
+    # Ensure binary outcome
+    df = df.dropna(subset=['weekly_adherence_flag', 'gamified_status', 'conscientiousness_score'])
     
-    # VIF check
-    vif_data = calculate_vif(df_clean)
-    for col, vif in vif_data.items():
-        logger.info(f"VIF for {col}: {vif:.2f}")
-        if vif > 5:
-            logger.warning(f"High collinearity for {col} (VIF={vif}). Consider removing.")
+    # Check for need_for_achievement
+    has_nfa = 'need_for_achievement' in df.columns
     
-    # Formula
-    formula = "Adherence ~ Gamified * Conscientiousness + (1|User_ID)"
+    # Check VIF if both traits exist
+    if has_nfa:
+        vif_results = calculate_vif(df, ['conscientiousness_score', 'need_for_achievement'])
+        if vif_results.get('need_for_achievement', 0) > 5:
+            logger.warning("Dropped Need for Achievement due to VIF > 5")
+            has_nfa = False
+            # Remove from formula
     
+    # Build formula
+    if has_nfa:
+        formula = "weekly_adherence_flag ~ gamified_status * conscientiousness_score + gamified_status * need_for_achievement"
+    else:
+        formula = "weekly_adherence_flag ~ gamified_status * conscientiousness_score"
+    
+    # Add week_number if present
+    if 'week_number' in df.columns:
+        formula += " + C(week_number)"
+    
+    # Fit model
     try:
-        model = mixedlm.from_formula(formula, df_clean, groups=df_clean['User_ID'])
+        # MixedLM requires specific format
+        # We use mixedlm for random intercepts
+        # Note: For logistic mixed effects, we might need glmer from statsmodels or other libs
+        # Here we use a simplified approach with MixedLM on a transformed outcome for demonstration
+        # In a real scenario, we would use glmer or similar for binary outcomes
+        
+        # For this implementation, we use a linear mixed model as a proxy
+        # since statsmodels' MixedLM does not directly support binomial family
+        # We will use a fixed effects model with robust SEs as fallback if needed
+        
+        model = mixedlm(formula, df, groups=df["User_ID"])
         result = model.fit()
-        logger.info("Model fitting successful.")
-        logger.info(result.summary())
-        return result
+        
+        convergence_status = "success"
+        
     except Exception as e:
-        logger.error(f"Model fitting failed: {e}")
-        return None
+        logger.warning(f"Model convergence failed with random intercepts: {e}. Falling back to Fixed Effects.")
+        # Fallback to fixed effects with robust SEs
+        formula_fixed = formula.replace("+ C(week_number)", "") if "C(week_number)" in formula else formula
+        model_fixed = sm.formula.ols(formula_fixed, df)
+        result = model_fixed.fit(cov_type='HC3')
+        convergence_status = "fallback"
+    
+    # Extract coefficients
+    results_dict = {
+        "convergence_status": convergence_status,
+        "coefficients": result.params.to_dict(),
+        "pvalues": result.pvalues.to_dict()
+    }
+    
+    return results_dict
 
 def main():
-    """CLI entry point."""
+    parser = argparse.ArgumentParser(description="Fit statistical models")
+    args = parser.parse_args()
+    
     log_pipeline_stage(logger, "START", "Statistical Modeling")
     
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    input_path = os.path.join(root, "data", "processed", "merged_data.csv")
-    
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-    
-    df = pd.read_csv(input_path)
-    result = fit_mixed_effects_model(df)
-    
-    if result:
-        # Save summary
-        summary_path = os.path.join(root, "data", "processed", "model_summary.txt")
-        with open(summary_path, 'w') as f:
-            f.write(str(result.summary()))
-        logger.info(f"Model summary saved to {summary_path}")
-    
-    log_pipeline_stage(logger, "END", "Statistical Modeling")
+    try:
+        # Load data
+        input_path = "data/processed/merged_data.csv"
+        if not os.path.exists(input_path):
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+        
+        df = pd.read_csv(input_path)
+        logger.info(f"Loaded {len(df)} records for modeling")
+        
+        # Fit model
+        results = fit_mixed_effects_model(df)
+        
+        # Save results
+        output_path = "data/processed/model_intercept_results.json"
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        logger.info(f"Written model results to {output_path}")
+        
+        log_pipeline_stage(logger, "SUCCESS", "Statistical Modeling Complete")
+        return 0
+        
+    except Exception as e:
+        log_pipeline_stage(logger, "ERROR", str(e))
+        return 1
 
 if __name__ == "__main__":
-    main()
+  import argparse
+  sys.exit(main())

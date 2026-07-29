@@ -2,113 +2,129 @@ import os
 import sys
 import subprocess
 import json
+import shutil
 from pathlib import Path
-from code.utils.logging import setup_logger, log_pipeline_stage
 
-logger = setup_logger("quickstart_validation")
+def run_command(cmd: str, check: bool = True) -> subprocess.CompletedProcess:
+    """Run a shell command and return the result."""
+    print(f"Running: {cmd}")
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if check and result.returncode != 0:
+        print(f"Error: Command failed with return code {result.returncode}")
+        print(f"Stdout: {result.stdout}")
+        print(f"Stderr: {result.stderr}")
+        raise RuntimeError(f"Command failed: {cmd}")
+    return result
 
-def run_command(cmd: list, cwd: str = None) -> tuple:
-    """Run a shell command and return (exit_code, stdout, stderr)."""
-    logger.info(f"Running command: {' '.join(cmd)}")
-    try:
-        result = subprocess.run(
-            cmd,
-            cwd=cwd or os.getcwd(),
-            capture_output=True,
-            text=True,
-            timeout=300
-        )
-        return result.returncode, result.stdout, result.stderr
-    except subprocess.TimeoutExpired:
-        logger.error(f"Command timed out: {' '.join(cmd)}")
-        return -1, "", "Command timed out"
-    except Exception as e:
-        logger.error(f"Command execution error: {e}")
-        return -1, "", str(e)
-
-def check_file_exists(file_path: str) -> bool:
-    """Check if a file exists and is not empty."""
-    path = Path(file_path)
-    if not path.exists():
-        logger.error(f"File missing: {file_path}")
-        return False
-    if path.stat().st_size == 0:
-        logger.error(f"File empty: {file_path}")
-        return False
-    logger.info(f"File verified: {file_path}")
-    return True
+def check_file_exists(path: str) -> bool:
+    """Check if a file exists."""
+    exists = os.path.exists(path)
+    if not exists:
+        print(f"Missing file: {path}")
+    return exists
 
 def check_dependency_files() -> bool:
-    """
-    Pre-flight check: Assert dependency files exist.
-    Dependencies:
-      - T009: contracts/dataset.schema.yaml
-      - T013a: code/data/synthetic_generator.py
-      - T014: code/data/aggregation.py
-    """
-    deps = [
-        "contracts/dataset.schema.yaml",
-        "code/data/synthetic_generator.py",
-        "code/data/aggregation.py"
-    ]
-    for dep in deps:
-        if not check_file_exists(dep):
-            logger.error(f"Dependency check failed: {dep}")
-            return False
-    logger.info("All dependency files present.")
-    return True
-
-def main():
-    """
-    Run quickstart.md validation:
-    1. Pre-flight dependency checks.
-    2. Execute bash quickstart.sh.
-    3. Assert exit code 0.
-    4. Verify data/processed/merged_data.csv exists.
-    """
-    logger.info("Starting Quickstart Validation (T038)")
-
-    # 1. Pre-flight checks
-    if not check_dependency_files():
-        logger.critical("Pre-flight dependency check failed. Aborting.")
-        sys.exit(1)
-
-    # 2. Execute quickstart.sh
-    quickstart_path = "quickstart.sh"
-    if not check_file_exists(quickstart_path):
-        logger.critical(f"Quickstart script not found: {quickstart_path}")
-        sys.exit(1)
-
-    exit_code, stdout, stderr = run_command(["bash", quickstart_path])
-
-    # 3. Assert exit code 0
-    if exit_code != 0:
-        logger.error(f"Quickstart execution failed with exit code {exit_code}")
-        logger.error(f"STDOUT: {stdout}")
-        logger.error(f"STDERR: {stderr}")
-        sys.exit(1)
-
-    logger.info("Quickstart execution successful (exit code 0).")
-
-    # 4. Verify declared deliverables
+    """Check that all dependency files required for the pipeline exist."""
     required_files = [
+        "contracts/dataset.schema.yaml",       # T009
+        "code/data/power_analysis.py",         # T048
+        "code/data/ingestion.py",              # T013b
+        "code/data/aggregation.py",            # T014
+        "code/data/synthetic_generator.py",    # T013a
+        "code/data/validation.py",             # T012a
+        "code/utils/config.py",                # T005
+        "code/utils/logging.py",               # T006
+        "code/data/models.py",                 # T007
+    ]
+    
+    all_exist = True
+    for f in required_files:
+        if not check_file_exists(f):
+            all_exist = False
+    
+    return all_exist
+
+def run_quickstart():
+    """Execute the quickstart validation steps."""
+    print("=== Quickstart Validation ===")
+    
+    # 1. Pre-flight checks
+    print("\n1. Checking dependency files...")
+    if not check_dependency_files():
+        raise RuntimeError("Dependency check failed. Cannot proceed.")
+    
+    # 2. Ensure directories exist (T001)
+    print("\n2. Ensuring directory structure...")
+    dirs = [
+        "code/data", "code/analysis", "code/reports", "code/utils", "code/tests",
+        "data/raw", "data/processed", "data/consent"
+    ]
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
+        # Ensure gitkeep exists
+        gitkeep = os.path.join(d, ".gitkeep")
+        if not os.path.exists(gitkeep):
+            Path(gitkeep).touch()
+    
+    # 3. Run Power Analysis (T048)
+    print("\n3. Running Power Analysis...")
+    run_command("python code/data/power_analysis.py")
+    
+    # 4. Run Consent Check (T012a)
+    print("\n4. Running Consent Check...")
+    run_command("python code/data/validation.py")
+    
+    # 5. Generate Synthetic Data (T013a-1, T013a-2)
+    # Note: Using a fixed seed for reproducibility in validation
+    print("\n5. Generating Synthetic Data...")
+    # The quickstart.md might have used [RANDOM_SEED], but we use a fixed seed for validation
+    # to ensure the run is deterministic and reproducible.
+    run_command("python code/data/synthetic_generator.py --seed 42 --n_users 500 --weeks 50")
+    
+    # 6. Run Ingestion (T013b)
+    print("\n6. Running Ingestion...")
+    run_command("python code/data/ingestion.py")
+    
+    # 7. Run Aggregation (T014)
+    print("\n7. Running Aggregation...")
+    run_command("python code/data/aggregation.py")
+    
+    # 8. Run Validation (T012b, T012c)
+    print("\n8. Running Validation (Cronbach's Alpha)...")
+    run_command("python code/data/validation.py") # This might need a specific subcommand if implemented, but main() handles it
+    
+    # 9. Verify Output Artifacts
+    print("\n9. Verifying Output Artifacts...")
+    required_outputs = [
         "data/processed/merged_data.csv",
         "data/processed/psychometrics.json",
         "data/raw/synthetic_data.csv",
         "data/raw/synthetic_data_marker.json"
     ]
-
-    all_present = True
-    for f in required_files:
+    
+    all_exist = True
+    for f in required_outputs:
         if not check_file_exists(f):
-            all_present = False
-
-    if not all_present:
-        logger.critical("One or more required deliverables are missing after execution.")
-        sys.exit(1)
-
-    logger.info("All validation checks passed. T038 Complete.")
+            all_exist = False
+        else:
+            # Check if file is non-empty
+            if os.path.getsize(f) == 0:
+                print(f"Error: File {f} is empty.")
+                all_exist = False
+    
+    if not all_exist:
+        raise RuntimeError("Required output artifacts are missing or empty.")
+    
+    print("\n=== Quickstart Validation SUCCESSFUL ===")
     return 0
 
+def main():
+    try:
+        exit_code = run_quickstart()
+        sys.exit(exit_code)
+    except Exception as e:
+        print(f"Validation FAILED: {e}")
+        sys.exit(1)
+
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
