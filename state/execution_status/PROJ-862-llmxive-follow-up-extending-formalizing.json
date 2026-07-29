@@ -1,16 +1,17 @@
 {
   "project_id": "PROJ-862-llmxive-follow-up-extending-formalizing",
   "ok": false,
-  "reason": "1 command(s) failed: python code/main.py (rc=1); 4 declared deliverable(s) absent: data/processed/memory_profile.json; data/processed/perturbed_vectors.csv; data/processed/statistical_results.json",
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/benchmark_perturbation.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026t) -> tuple:     \"\"\"     Generate synthetic embeddings and model mat\u2026\u201d; code/benchmark_perturbation.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(f\"Generating synthetic benchmark data: {n_samples} samples, di\u2026\u201d; code/benchmark_perturbation.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026xist_ok=True)          # Generate synthetic data for benchmarking\u2026\u201d; 2 command(s) failed: python code/data_loader.py --fetch (rc=1); python code/main.py (rc=1); 12 declared deliverable(s) absent: data/processed/baseline_vectors.csv; data/processed/filtered_pairs_for_analysis.csv; data/processed/filtered_pairs_input_drift.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    Pipeline failed: 'PipelineConfig' object has no attribute 'data_config'"
+    "python code/data_loader.py --fetch -> rc=1\n    t import Dataset\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-862-llmxive-follow-up-extending-formalizing/code/.venv/lib/python3.11/site-packages/datasets/arrow_dataset.py\", line 67, in <module>\n    from .arrow_writer import ArrowWriter, OptimizedTypedSequence\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-862-llmxive-follow-up-extending-formalizing/code/.venv/lib/python3.11/site-packages/datasets/arrow_writer.py\", line 27, in <module>\n    from .features import Features, Image, Value\n  File \"/home/runner/work/llmXive/llmXive/pr",
+    "python code/main.py -> rc=1\n    t import Dataset\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-862-llmxive-follow-up-extending-formalizing/code/.venv/lib/python3.11/site-packages/datasets/arrow_dataset.py\", line 67, in <module>\n    from .arrow_writer import ArrowWriter, OptimizedTypedSequence\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-862-llmxive-follow-up-extending-formalizing/code/.venv/lib/python3.11/site-packages/datasets/arrow_writer.py\", line 27, in <module>\n    from .features import Features, Image, Value\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-862"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-28T00:05:18Z"
+  "updated_at": "2026-07-29T00:29:18Z"
 }

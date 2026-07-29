@@ -1,11 +1,11 @@
 T008b:
   c: false
-  h: 190c75630e001d94547157fd5c8ff91f1d85a6825797ffcd5ac072badca20b4f
-  r: The provided `code/memory_monitor.py` is truncated and does not contain a complete
-    implementation of `save_memory_profile` (e.g., undefined `_pro` variable and no
-    JSON write). Moreover, the required `data/processed/memory_profile.json` file
-    is absent. Consequently, the hard RSS limit enforcement and mandatory logging
-    to the JSON file are not fully realized.
+  h: 63e6bb2bbdd6c1cb57ca6a63aa127f76b710744f52b131f62ac53b8a8b6c01f6
+  r: "The provided `memory_monitor.py` never writes the peak RSS value to `data/processed/memory_profile.json`\
+    \ (the file is missing and the code lacks any JSON\u2011logging logic). Consequently\
+    \ the hard 7\u202FGB limit is only checked when `check_memory_limit` is called\
+    \ manually, not automatically enforced for the whole process, and the required\
+    \ logging for every run is not implemented."
 T013:
   c: false
   h: 3818f0240a09fa257560fc6720a94963d03f61a2b5bc09218490a0afec7d0a39
@@ -22,6 +22,47 @@ T015:
     mismatch validation, base64 encoding of L2\u2011normalized vectors, or tracemalloc\u2011\
     based logging. Consequently the task\u2019s specifications are not demonstrably\
     \ met."
+T019:
+  c: false
+  h: 540b8345e0ca9451fe64b874645a5648a85b13e4454b084d968f787b00680489
+  r: 'The `code/data_loader.py` file is truncated and contains a syntax error (`''TaskType'':
+    task_t` is undefined and the code ends abruptly), so it does not fully implement
+    the required pairing logic. Moreover, the required output file `data/processed/pairing_config.json`
+    is missing entirely. Both the implementation and the expected artifact are absent,
+    so the task is not satisfied.'
+T021:
+  c: false
+  h: ca077c56c3c716833bb8b69dd50a97d07717a7fb8cb53418c0c19a46d1286717
+  r: "The required output file `data/processed/baseline_vectors.csv` does not exist,\
+    \ and the provided `code/main.py` excerpt is truncated and shows no implementation\
+    \ of the baseline extraction loop, dimension\u2011mismatch validation, or tracemalloc\u2011\
+    based RSS logging. The missing CSV file alone means the task\u2019s deliverable\
+    \ is not satisfied."
+T022:
+  c: false
+  h: ae6853103b859272eddd26daeccb233e10de3fad198e879e09c3eb9054eab307
+  r: The repository lacks the required `data/processed/memory_profile.json` file,
+    and there is no evidence (e.g., test results, logs, or a verification script)
+    showing that `code/main.py` logs progress and memory usage as specified or that
+    the produced CSV conforms to the schema. These missing artifacts must be added
+    and demonstrated for the task to be considered complete.
+T026:
+  c: false
+  h: c42c57e2919d75cc0890c33db8f2a4b54a287d2a40a9b67957d96c14d30395f9
+  r: "The repository lacks a `requirements.txt` file, so the required explicit pinning\
+    \ of the `sentence-transformers` version is not present. Without this file the\
+    \ task\u2019s reproducibility requirement is unmet, regardless of the partial\
+    \ implementation of `check_input_drift` and the existence of `validity_log.csv`.\
+    \ The next implementer must add a `requirements.txt` that pins the `sentence-transformers`\
+    \ library (e.g., `sentence-transformers==2.2.2`)."
+T027:
+  c: false
+  h: 688e6b4d854e0307f1d0a2ca9a0218c1aec3ba5062492fe7d9d544a38b455aed
+  r: "The repository contains `code/validity_check.py`, but the provided excerpt never\
+    \ shows a `check_output_validity` implementation (it stops at `check_input_drift`).\
+    \ Moreover, the required output files `data/processed/filtered_pairs_output_validity.csv`\
+    \ and `data/processed/failed_output_validity_pairs.csv` are absent. Hence the\
+    \ task\u2019s functional and artifact requirements are not met."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

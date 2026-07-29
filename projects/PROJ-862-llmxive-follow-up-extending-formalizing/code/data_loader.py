@@ -1,5 +1,7 @@
 import json
 import logging
+import hashlib
+import os
 from typing import Dict, Any, Optional, Iterator, List
 from datasets import load_dataset
 from config import DataConfig, PipelineConfig
@@ -9,6 +11,10 @@ logger = logging.getLogger(__name__)
 
 class ConfigurationError(Exception):
     """Raised when configuration or data requirements are not met."""
+    pass
+
+class DataIntegrityError(Exception):
+    """Raised when data integrity checks (checksums) fail."""
     pass
 
 def load_reasoning_dataset(dataset_name: str, split: str = "train") -> Iterator[Dict[str, Any]]:
@@ -136,3 +142,70 @@ def pair_questions_by_task_type(dataset_iter: Iterator[Dict[str, Any]], config: 
             })
         
     return processed_pairs
+
+def verify_data_integrity(dataset_name: str, checksums_path: str = "data/checksums.json") -> bool:
+    """
+    Pre-flight checksum verification.
+    Calculates the SHA256 hash of the downloaded dataset file (if cached locally)
+    and compares it against the expected hash stored in data/checksums.json.
+    
+    Since we are streaming from HuggingFace, the 'file' is effectively the cache
+    managed by the datasets library. However, if the user has manually downloaded
+    a file (e.g., bigbench_lite.json) to data/raw/, we verify that.
+    
+    If the dataset is only available via streaming and not cached locally as a single file,
+    we attempt to verify the cache directory hash if available, or raise an error
+    if the specific verification file is missing and we cannot verify the source.
+    
+    For this implementation, we assume the dataset might be downloaded to `data/raw/`
+    as a specific file (e.g., bigbench_lite.json) as per the task description context
+    of "downloaded dataset file".
+    """
+    logger.info(f"Verifying data integrity for {dataset_name} against {checksums_path}")
+    
+    if not os.path.exists(checksums_path):
+        logger.warning(f"Checksum file {checksums_path} not found. Skipping verification.")
+        return True
+    
+    with open(checksums_path, 'r') as f:
+        expected_checksums = json.load(f)
+    
+    # Determine the target file name based on dataset_name
+    # If dataset_name is 'bigbench_lite', we look for 'bigbench_lite.json'
+    # This matches the key in the provided checksums.json
+    target_filename = dataset_name.split('/')[-1] + ".json"
+    target_path = os.path.join("data", "raw", target_filename)
+    
+    if not os.path.exists(target_path):
+        # If the file is not in data/raw/, we check if it's in the HuggingFace cache.
+        # However, the task specifically asks to verify the "downloaded dataset file"
+        # against a hash in checksums.json. If the file doesn't exist locally,
+        # we cannot verify it. We should raise an error to halt execution.
+        raise DataIntegrityError(
+            f"Dataset file {target_path} not found. "
+            "Data integrity verification failed. Please download the dataset first."
+        )
+    
+    expected_hash = expected_checksums.get(target_filename)
+    if not expected_hash:
+        logger.warning(f"No expected hash found for {target_filename} in {checksums_path}. Skipping verification.")
+        return True
+    
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(target_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        calculated_hash = sha256_hash.hexdigest()
+    except Exception as e:
+        raise DataIntegrityError(f"Failed to read file {target_path} for hashing: {e}")
+    
+    if calculated_hash != expected_hash:
+        raise DataIntegrityError(
+            f"Data integrity check FAILED for {target_filename}. "
+            f"Expected hash: {expected_hash}, Calculated hash: {calculated_hash}. "
+            "Execution halted to prevent processing corrupted data."
+        )
+    
+    logger.info(f"Data integrity check PASSED for {target_filename}.")
+    return True

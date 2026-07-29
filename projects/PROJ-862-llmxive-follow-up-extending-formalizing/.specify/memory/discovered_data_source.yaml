@@ -1,10 +1,11 @@
 status: none
-intent: bigbench hard dataset pip install python package dataset
+intent: HuggingFace reasoning tasks dataset python package for latent vector extraction
+  python package dataset
 required_fields:
-- task_name
 - question_id
-- question_text
+- task_type
 - pair_id
-cache_key: a6b7c595cbb18ed608c8b8852873bbf38cfe1c3afcce0d5f433a79821298cfae
-searched_at: '2026-07-28T00:06:03.373455+00:00'
+- latent_vector
+cache_key: 59f8d3e4132e92a851d5373a247b8594cda2caf1df833433fd0cac1726edb932
+searched_at: '2026-07-29T00:34:57.890157+00:00'
 retry_count: 1

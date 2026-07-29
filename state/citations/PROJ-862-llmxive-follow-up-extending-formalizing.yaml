@@ -1,4 +1,4 @@
-- artifact_hash: 6829442d920373140854ffc279fd546d1f9064b7104058e2148f44fe0455cd75
+- artifact_hash: fb0a03a46a3b683bed4530a9d13458665c9f0607699146ef9faa05ae2c3867e4
   artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://huggingface.co/datasets/google/bigbench_lite
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/google/bigbench_lite
-  verified_at: '2026-07-28T07:33:58.991834Z'
+  verified_at: '2026-07-29T01:13:29.681545Z'
