@@ -194,6 +194,25 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
     **Reviewer = `REASONING_MAX_TOKENS` (32K); reviser = `GENERATION_MAX_TOKENS` (131K).**
     They are different calls — do not "harmonize" them.
 
+20. **A hand-built dict defeats the guard that makes a payload safe** (T6, fixing a 1A
+    blocker). `_jsonable` RAISES on unknown types — but its `SnapshotProvenance` branch
+    built its result dict field-by-field instead of recursing, so `observed_at`'s
+    `datetime` never met the guard and surfaced as a `TypeError` at `json.dumps`, which
+    nothing normalizes into `RouteAuditError`. Every composite branch must recurse.
+    **The reason it survived 1A: the test passed `observed_at=TS`, a STRING.** These
+    dataclasses are plain and frozen with no runtime type check, so a wrong type in a
+    fixture makes a whole failure class invisible. Build audit fixtures from the REAL
+    slice-0 dataclasses through the REAL `_audit_payload`, and run constructed lane events
+    through the REAL `validate_lane_event`.
+
+21. **Check whether the WRITER already refuses it before calling a reader check
+    load-bearing** (T6). `_validate_review_rerouted` recomputes both route-id legs from the
+    envelope `attempt_id`, so a foreign-attempt or borrowed-leg reroute cannot be
+    persisted; two of the plan's reader-side cases model post-write corruption, not a
+    reachable path. Keeping them is right (the log is a file on a git ref), but the test
+    must construct such input through an explicit `_corrupt()` helper and assert the writer
+    refuses it too — otherwise it silently implies the reader is the only guard.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute

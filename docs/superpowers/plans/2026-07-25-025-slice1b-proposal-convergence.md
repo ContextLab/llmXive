@@ -1862,65 +1862,140 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T5): LaneProposalR
 - [ ] **Step 1: Write the failing test**
 
 ```python
-# tests/unit/test_self_improvement_invocation_identity.py
+"""Audit-derived InvocationIdentity (spec 025 slice 1B, Task 6).
+
+Every audit event here is built from the REAL slice-0 dataclass through the REAL
+``_audit_payload`` projection, and every constructed event is run through the REAL
+``validate_lane_event``. Hand-written payload dicts would let this suite pass against a
+shape production never emits — which is exactly how the sink's ``snapshot_provenance``
+datetime bug survived Slice 1A.
+"""
+
+from __future__ import annotations
+
+import json
 from dataclasses import replace
+from datetime import UTC, datetime
 
 import pytest
 
-from llmxive.self_improvement.events import Event, derive_route_id
+from llmxive.model_selection.attempt_hooks import (
+    ChainResolved,
+    DispatchCompleted,
+    SelectionFailure,
+)
+from llmxive.model_selection.types import ModelRef, SnapshotProvenance
+from llmxive.self_improvement.audit_sink import _audit_payload
+from llmxive.self_improvement.events import (
+    REROUTE_FALLBACK_PROFILE,
+    REROUTE_PRIMARY_PROFILE,
+    REROUTE_RELAXED_CONSTRAINTS,
+    REROUTE_TRIGGER,
+    Event,
+    derive_route_id,
+    event_to_json,
+    validate_lane_event,
+)
 from llmxive.self_improvement.invocation_identity import (
-    InvocationIdentityError, build_invocation_identity,
+    InvocationIdentityError,
+    build_invocation_identity,
 )
 
-_REF = {"backend": "dartmouth", "serving_endpoint": "dartmouth", "model_id": "gemma-3-27b",
-        "model_family": "gemma", "vendor": "google"}
-_PROV = {"catalog": {"source": "live", "observed_at": "2026-07-25T00:00:00+00:00", "age_s": 0.0}}
+TS = "2026-07-25T00:00:00+00:00"
+OBSERVED = datetime(2026, 7, 25, tzinfo=UTC)
+_MODEL = ModelRef(backend="dartmouth", serving_endpoint="chat", model_id="gemma-3-27b",
+                  model_family="gemma", vendor="google")
+_PROV = {"catalog": SnapshotProvenance(source="live", observed_at=OBSERVED, age_s=0.0)}
+#: The projected form the identity actually reads back out of the log.
+_PROV_JSON = {"catalog": {"source": "live", "observed_at": OBSERVED.isoformat(), "age_s": 0.0}}
 
-def _ev(etype, payload, eid):
+
+def _raw_ev(etype, payload, eid, *, attempt="A1"):
+    """A lane Event, NOT run through the write-boundary validator.
+
+    Use only to model a stream that is already CORRUPT — see `_corrupt` below."""
     return Event(event_id=eid, event_type=etype, problem_id="P1", actor="a", payload=payload,
-                 timestamp="2026-07-25T00:00:00+00:00", attempt_id="A1",
-                 expected_problem_revision=0, seq=0)
+                 timestamp=TS, attempt_id=attempt, seq=0,
+                 expected_problem_revision=0, resulting_problem_revision=1)
 
-def _chain(route_id):
-    return _ev("ChainResolved", {"route_id": route_id, "prompt_digest": "pd", "context_digest": "cd",
-                                 "snapshot_digest": "sd", "selection_policy_version": 3,
-                                 "snapshot_provenance": _PROV, "candidates": [_REF]}, "c")
 
-def _done(route_id):
-    return _ev("DispatchCompleted", {"route_id": route_id, "candidate_index": 0,
-                                     "candidate": _REF, "reservation_id": None}, "d")
+def _ev(etype, payload, eid, *, attempt="A1"):
+    """Build a lane Event and PROVE it is well-formed against the real write-boundary
+    validator, so a synthetic event in this file can never drift from a persisted one."""
+    ev = _raw_ev(etype, payload, eid, attempt=attempt)
+    validate_lane_event(json.loads(event_to_json(ev)))
+    return ev
+
+
+def _corrupt(event: Event, **changes) -> Event:
+    """Mutate a validated event into one the writer would REFUSE.
+
+    `_validate_review_rerouted` recomputes both route ids from the envelope `attempt_id` at
+    WRITE time, so a reroute with a foreign attempt or a borrowed primary leg cannot be
+    persisted at all. The reader still checks, because the log is a file on a git ref and a
+    reader at a trust boundary should not assume its input was written by this code. These
+    tests therefore model post-write corruption, NOT a reachable production path — which is
+    exactly why they must bypass validation to construct their input.
+    """
+    return replace(event, **changes)
+
+
+def _chain(route_id, eid="c"):
+    return _ev("ChainResolved", _audit_payload(ChainResolved(
+        route_id=route_id, requirement_digest="rq-1", prompt_digest="pd",
+        context_digest="cd", snapshot_digest="sd", snapshot_provenance=_PROV,
+        selection_policy_version=3, resolved_at=TS, explanation=("only free family",),
+        candidates=(_MODEL,),
+    )), eid)
+
+
+def _done(route_id, eid="d", attempt="A1"):
+    return _ev("DispatchCompleted", _audit_payload(DispatchCompleted(
+        route_id=route_id, candidate_index=0, candidate=_MODEL, reservation_id=None,
+    )), eid, attempt=attempt)
+
+
+def _selfail(route_id, exception_type=REROUTE_TRIGGER, eid="s", message="none live"):
+    return _ev("SelectionFailure", _audit_payload(SelectionFailure(
+        route_id=route_id, exception_type=exception_type, message=message,
+        requirement_digest="rq-1", snapshot_provenance=_PROV,
+    )), eid)
+
 
 _OP = "worthwhile-improvement:identify:abc123"
 #: The two legs of _OP under attempt A1 — the ONLY route ids a valid reroute can name.
 _R_PRIMARY = derive_route_id("A1", _OP, "primary")
 _R_FALLBACK = derive_route_id("A1", _OP, "fallback")
 
-def _rerouted(primary=_R_PRIMARY, fallback=_R_FALLBACK, operation_id=_OP, message="none live"):
+
+def _rerouted(primary=_R_PRIMARY, fallback=_R_FALLBACK, operation_id=_OP, message="none live",
+              eid="rr"):
+    # Built from the SSoT constants `record_reroute` writes and `_validate_review_rerouted`
+    # enforces, so this fixture cannot encode a combination production would refuse.
     return _ev("ReviewRerouted", {
         "operation_id": operation_id, "lens": "worthwhile-improvement",
-        "primary_profile": "independent_review", "fallback_profile": "deep_review",
+        "primary_profile": REROUTE_PRIMARY_PROFILE,
+        "fallback_profile": REROUTE_FALLBACK_PROFILE,
         "primary_route_id": primary, "fallback_route_id": fallback,
-        "primary_failure": {"exception_type": "ModelUnavailable", "message": message},
-        "relaxed_constraints": ["family_independence", "snapshot_freshness"]}, "rr")
+        "primary_failure": {"exception_type": REROUTE_TRIGGER, "message": message},
+        "relaxed_constraints": list(REROUTE_RELAXED_CONSTRAINTS)}, eid)
 
-def _selfail(route_id, exception_type="ModelUnavailable", eid="s", message="none live"):
-    return _ev("SelectionFailure", {"route_id": route_id, "exception_type": exception_type,
-                                    "message": message, "requirement_digest": "rq-1",
-                                    "snapshot_provenance": _PROV}, eid)
 
 def _build(events, route_id="R"):
     return build_invocation_identity(events, route_id=route_id, attempt_id="A1")
+
 
 def test_success_identity_carries_full_selection_provenance():
     ii = _build([_chain("R"), _done("R")])
     assert ii is not None
     assert (ii.model, ii.family, ii.backend) == ("gemma-3-27b", "gemma", "dartmouth")
-    assert (ii.serving_endpoint, ii.vendor) == ("dartmouth", "google")   # reproduce WHY
-    assert ii.snapshot_provenance == _PROV
+    assert (ii.serving_endpoint, ii.vendor) == ("chat", "google")   # reproduce WHY
+    assert ii.snapshot_provenance == _PROV_JSON
     assert (ii.prompt_digest, ii.context_digest, ii.snapshot_digest) == ("pd", "cd", "sd")
     assert ii.selection_policy_version == 3
     assert ii.route_outcome == "success" and ii.degradation is None
     assert ii.actor_instance_id == "R"
+
 
 def test_degradation_joins_the_primary_leg_SelectionFailure():
     # F5: FR-002 (spec line 149) requires primary_failure to carry FOUR fields. The last
@@ -1929,14 +2004,15 @@ def test_degradation_joins_the_primary_leg_SelectionFailure():
     events = [_selfail(_R_PRIMARY), _rerouted(), _chain(_R_FALLBACK), _done(_R_FALLBACK)]
     ii = _build(events, route_id=_R_FALLBACK)
     assert ii.route_outcome == "independence_degraded"
-    assert ii.degradation.primary_profile == "independent_review"
-    assert ii.degradation.fallback_profile == "deep_review"
-    assert ii.degradation.relaxed_constraints == ("family_independence", "snapshot_freshness")
+    assert ii.degradation.primary_profile == REROUTE_PRIMARY_PROFILE
+    assert ii.degradation.fallback_profile == REROUTE_FALLBACK_PROFILE
+    assert ii.degradation.relaxed_constraints == REROUTE_RELAXED_CONSTRAINTS
     pf = ii.degradation.primary_failure
-    assert pf["exception_type"] == "ModelUnavailable"
+    assert pf["exception_type"] == REROUTE_TRIGGER
     assert pf["message"] == "none live"
     assert pf["requirement_digest"] == "rq-1"          # from the SelectionFailure
-    assert pf["snapshot_provenance"] == _PROV          # from the SelectionFailure
+    assert pf["snapshot_provenance"] == _PROV_JSON     # from the SelectionFailure
+
 
 def test_a_reroute_without_its_primary_SelectionFailure_fails_closed():
     # An unjoinable degradation record cannot describe WHY the primary failed; emitting a
@@ -1944,10 +2020,12 @@ def test_a_reroute_without_its_primary_SelectionFailure_fails_closed():
     with pytest.raises(InvocationIdentityError, match="SelectionFailure"):
         _build([_rerouted(), _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
 
+
 def test_a_reroute_whose_primary_failed_for_another_reason_fails_closed():
     with pytest.raises(InvocationIdentityError, match="ModelUnavailable"):
         _build([_selfail(_R_PRIMARY, exception_type="ChainExhausted"), _rerouted(),
                 _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
+
 
 def test_a_reroute_whose_failure_message_diverges_fails_closed():
     # F4: exception_type + message exist on BOTH records. Two sources for one fact can
@@ -1957,20 +2035,39 @@ def test_a_reroute_whose_failure_message_diverges_fails_closed():
                 _rerouted(message="something else entirely"),
                 _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
 
+
 def test_a_reroute_from_ANOTHER_attempt_cannot_mark_this_route_degraded():
     # F3: ReviewRerouted keys on fallback_route_id, not route_id, so the scoped Attempt
     # check never saw it. A foreign reroute must not classify this route.
-    foreign = replace(_rerouted(), attempt_id="A2")
+    foreign = _corrupt(_rerouted(), attempt_id="A2")
     with pytest.raises(InvocationIdentityError, match="attempt"):
         _build([_selfail(_R_PRIMARY), foreign, _chain(_R_FALLBACK), _done(_R_FALLBACK)],
                route_id=_R_FALLBACK)
 
+
 def test_a_reroute_borrowing_a_foreign_primary_leg_fails_closed():
     # Both legs must be THIS Attempt's own claims for the named operation.
-    borrowed = _rerouted(primary=derive_route_id("A2", _OP, "primary"))
+    borrowed_primary = derive_route_id("A2", _OP, "primary")
+    borrowed = _corrupt(_rerouted(), payload={**_rerouted().payload,
+                                              "primary_route_id": borrowed_primary})
     with pytest.raises(InvocationIdentityError, match="primary_route_id"):
-        _build([_selfail(borrowed.payload["primary_route_id"]), borrowed,
+        _build([_selfail(borrowed_primary), borrowed,
                 _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
+
+
+def test_the_WRITER_already_refuses_both_of_those_corruptions():
+    # The two tests above bypass validation on purpose. This one proves WHY that was
+    # necessary: `_validate_review_rerouted` recomputes both legs from the envelope
+    # attempt_id, so neither record can be persisted in the first place. The reader's
+    # checks are defense-in-depth at a trust boundary, not the only guard.
+    foreign = _corrupt(_rerouted(), attempt_id="A2")
+    borrowed = _corrupt(_rerouted(), payload={**_rerouted().payload,
+                                              "primary_route_id": derive_route_id(
+                                                  "A2", _OP, "primary")})
+    for bad in (foreign, borrowed):
+        with pytest.raises(ValueError, match="ReviewRerouted payload invalid"):
+            validate_lane_event(json.loads(event_to_json(bad)))
+
 
 def test_a_selection_failure_alone_does_not_imply_degradation():
     # F10: no inference from an event PATTERN — without an explicit ReviewRerouted record
@@ -1978,31 +2075,49 @@ def test_a_selection_failure_alone_does_not_imply_degradation():
     ii = _build([_selfail("R"), _chain("R"), _done("R")])
     assert ii.route_outcome == "success" and ii.degradation is None
 
+
 def test_no_dispatch_yields_no_identity():
     assert _build([_chain("R")]) is None
 
+
+def test_no_chain_resolved_yields_no_identity():
+    assert _build([_done("R")]) is None
+
+
+def test_events_for_another_route_are_ignored():
+    ii = _build([_chain("R"), _done("R"), _chain("OTHER", eid="c2"), _done("OTHER", eid="d2")])
+    assert ii is not None and ii.actor_instance_id == "R"
+
+
 # ---- F8: uniqueness + Attempt binding ----
+
 
 def test_duplicate_chain_resolved_is_corruption():
     # next() would silently take the first. route.py:393 emits exactly ONE per route_chat.
     with pytest.raises(InvocationIdentityError, match="ChainResolved"):
-        _build([_chain("R"), _chain("R"), _done("R")])
+        _build([_chain("R"), _chain("R", eid="c2"), _done("R")])
+
 
 def test_duplicate_dispatch_completed_is_corruption():
     with pytest.raises(InvocationIdentityError, match="DispatchCompleted"):
-        _build([_chain("R"), _done("R"), _done("R")])
+        _build([_chain("R"), _done("R"), _done("R", eid="d2")])
+
 
 def test_two_reroutes_naming_the_same_fallback_is_corruption():
     with pytest.raises(InvocationIdentityError, match="ReviewRerouted"):
-        _build([_selfail(_R_PRIMARY), _rerouted(), _rerouted(),
+        _build([_selfail(_R_PRIMARY), _rerouted(), _rerouted(eid="rr2"),
                 _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
 
+
+def test_two_selection_failures_for_the_primary_leg_is_corruption():
+    with pytest.raises(InvocationIdentityError, match="SelectionFailure"):
+        _build([_selfail(_R_PRIMARY), _selfail(_R_PRIMARY, eid="s2"), _rerouted(),
+                _chain(_R_FALLBACK), _done(_R_FALLBACK)], route_id=_R_FALLBACK)
+
+
 def test_an_event_from_another_attempt_fails_closed():
-    other = _ev("DispatchCompleted", {"route_id": "R", "candidate_index": 0,
-                                      "candidate": _REF, "reservation_id": None}, "d2")
-    other = replace(other, attempt_id="A2")
     with pytest.raises(InvocationIdentityError, match="attempt"):
-        _build([_chain("R"), other])
+        _build([_chain("R"), _done("R", eid="d2", attempt="A2")])
 ```
 
 (`_ev` builds every event with `attempt_id="A1"`; `replace` is `dataclasses.replace`.)
@@ -2015,14 +2130,18 @@ Expected: FAIL — `ModuleNotFoundError: ... invocation_identity`.
 - [ ] **Step 3: Write minimal implementation**
 
 ```python
-# src/llmxive/self_improvement/invocation_identity.py
 """The audit-derived ``InvocationIdentity`` (spec 025 Key Entities line 227) — sourced
 ENTIRELY from the lane's durable audit events for one ``route_id``, because
 ``route_chat``'s bare ``ChatResponse`` carries none of it.
 
 ``route_outcome`` is read from the EXPLICIT ``ReviewRerouted`` record (maintainer review
 F10) — never inferred from a "SelectionFailure + success" event pattern, which could
-coincide for unrelated reasons."""
+coincide for unrelated reasons.
+
+Everything here fails CLOSED. Ambiguous provenance is worse than none: it still looks
+authoritative, so a reader would trust a claim about which model reviewed what, under which
+constraints, that the log does not actually support.
+"""
 
 from __future__ import annotations
 
@@ -2031,14 +2150,18 @@ from dataclasses import dataclass
 
 from llmxive.self_improvement.events import Event, derive_route_id
 
+
 class InvocationIdentityError(ValueError):
     """The audit stream cannot yield ONE unambiguous identity for this route (duplicate
     authoritative events, an Attempt mismatch, or a reroute whose primary leg has no
     usable ``SelectionFailure``). Fail closed: ambiguous provenance is worse than none,
     because it still LOOKS authoritative."""
 
+
 @dataclass(frozen=True)
 class IndependenceDegraded:
+    """What a sanctioned FR-002 reroute gave up, and why."""
+
     primary_profile: str
     fallback_profile: str
     #: All FOUR spec fields (FR-002, spec line 149): exception_type + message from the
@@ -2047,19 +2170,16 @@ class IndependenceDegraded:
     primary_failure: Mapping[str, object]
     relaxed_constraints: tuple[str, ...]
 
-def _exactly_one(events: list[Event], event_type: str, route_id: str) -> Event | None:
-    """Return the single event of ``event_type``, or None if there are none. More than one
-    is CORRUPTION (F8) — never silently resolved by list order the way ``next()`` would."""
-    matches = [e for e in events if e.event_type == event_type]
-    if len(matches) > 1:
-        raise InvocationIdentityError(
-            f"route {route_id!r} has {len(matches)} {event_type} events; exactly one is "
-            "authoritative — refusing to pick one by list order"
-        )
-    return matches[0] if matches else None
 
 @dataclass(frozen=True)
 class InvocationIdentity:
+    """Who ran this logical call, on what, and under which selection inputs.
+
+    ``serving_endpoint``, ``vendor`` and ``snapshot_provenance`` are what make "reproduce
+    *why that model was chosen*" actually checkable — the model id alone cannot say whether
+    the catalog was live or served from last-known-good.
+    """
+
     actor_instance_id: str
     model: str
     backend: str
@@ -2074,6 +2194,19 @@ class InvocationIdentity:
     route_outcome: str
     degradation: IndependenceDegraded | None = None
 
+
+def _exactly_one(events: list[Event], event_type: str, route_id: str) -> Event | None:
+    """Return the single event of ``event_type``, or None if there are none. More than one
+    is CORRUPTION (F8) — never silently resolved by list order the way ``next()`` would."""
+    matches = [e for e in events if e.event_type == event_type]
+    if len(matches) > 1:
+        raise InvocationIdentityError(
+            f"route {route_id!r} has {len(matches)} {event_type} events; exactly one is "
+            "authoritative — refusing to pick one by list order"
+        )
+    return matches[0] if matches else None
+
+
 def _primary_failure(events: list[Event], reroute_payload: Mapping[str, object],
                      attempt_id: str) -> dict[str, object]:
     """FR-002's four-field ``primary_failure`` (F5): the reroute record's exception_type +
@@ -2086,7 +2219,8 @@ def _primary_failure(events: list[Event], reroute_payload: Mapping[str, object],
     to another Attempt."""
     primary_route_id = reroute_payload["primary_route_id"]
     scoped = [e for e in events
-              if e.event_type == "SelectionFailure" and e.payload.get("route_id") == primary_route_id]
+              if e.event_type == "SelectionFailure"
+              and e.payload.get("route_id") == primary_route_id]
     failure = _exactly_one(scoped, "SelectionFailure", str(primary_route_id))
     if failure is None:
         raise InvocationIdentityError(
@@ -2101,7 +2235,8 @@ def _primary_failure(events: list[Event], reroute_payload: Mapping[str, object],
     if failure.payload.get("exception_type") != "ModelUnavailable":
         raise InvocationIdentityError(
             f"primary leg {primary_route_id!r} failed with "
-            f"{failure.payload.get('exception_type')!r}; FR-002 reroutes ONLY on ModelUnavailable"
+            f"{failure.payload.get('exception_type')!r}; FR-002 reroutes ONLY on "
+            "ModelUnavailable"
         )
     # F4: the reroute record and the SelectionFailure both carry exception_type + message.
     # That is two sources for one fact, and two sources can DISAGREE — a reroute claiming
@@ -2119,73 +2254,101 @@ def _primary_failure(events: list[Event], reroute_payload: Mapping[str, object],
         "exception_type": failure.payload["exception_type"],   # the SELECTION audit is
         "message": failure.payload["message"],                 # authoritative; the reroute
         "requirement_digest": failure.payload["requirement_digest"],   # copy was verified
-        "snapshot_provenance": failure.payload["snapshot_provenance"], # equal just above
+        "snapshot_provenance": failure.payload["snapshot_provenance"],  # equal just above
     }
 
-def build_invocation_identity(events: list[Event], *, route_id: str,
-                              attempt_id: str) -> InvocationIdentity | None:
-    scoped = [e for e in events if e.payload.get("route_id") == route_id]
-    for e in scoped:                                   # F8: Attempt binding
-        if e.attempt_id != attempt_id:
-            raise InvocationIdentityError(
-                f"route {route_id!r} has a {e.event_type} filed under attempt "
-                f"{e.attempt_id!r}, not {attempt_id!r} — refusing to attribute it"
-            )
-    chain = _exactly_one(scoped, "ChainResolved", route_id)
-    completed = _exactly_one(scoped, "DispatchCompleted", route_id)
-    if chain is None or completed is None:
-        return None  # nothing actually ran → a failed logical call, no identity
-    # F3: a ReviewRerouted keys on fallback_route_id, NOT route_id, so the scoped
-    # Attempt check above never saw it. Without this, a reroute recorded under ANOTHER
-    # Attempt could classify this route as independence_degraded.
+
+def _degradation(events: list[Event], route_id: str,
+                 attempt_id: str) -> IndependenceDegraded | None:
+    """The explicit ``ReviewRerouted`` record naming ``route_id`` as its FALLBACK leg, or
+    ``None``. Never inferred from an event pattern (F10)."""
+    # F3: a ReviewRerouted keys on fallback_route_id, NOT route_id, so the caller's scoped
+    # Attempt check never sees it. Without the checks below, a reroute recorded under
+    # ANOTHER Attempt could classify this route as independence_degraded.
     reroutes = [e for e in events
-                if e.event_type == "ReviewRerouted" and e.payload.get("fallback_route_id") == route_id]
-    for e in reroutes:
-        if e.attempt_id != attempt_id:
-            raise InvocationIdentityError(
-                f"route {route_id!r} is named as the fallback leg by a ReviewRerouted filed "
-                f"under attempt {e.attempt_id!r}, not {attempt_id!r}"
-            )
-        # and BOTH legs must be this Attempt's own claims — a reroute that borrows another
-        # Attempt's primary leg would attribute a degradation that never happened here
-        for field in ("primary_route_id", "fallback_route_id"):
-            leg = "primary" if field == "primary_route_id" else "fallback"
-            expected = derive_route_id(attempt_id, e.payload["operation_id"], leg)
-            if e.payload[field] != expected:
-                raise InvocationIdentityError(
-                    f"reroute {field}={e.payload[field]!r} is not attempt {attempt_id!r}'s "
-                    f"{leg} claim for operation {e.payload['operation_id']!r}"
-                )
+                if e.event_type == "ReviewRerouted"
+                and e.payload.get("fallback_route_id") == route_id]
     if len(reroutes) > 1:
         raise InvocationIdentityError(
             f"route {route_id!r} is named as the fallback leg by {len(reroutes)} "
             "ReviewRerouted records — conflicting degradation history"
         )
     if not reroutes:
-        outcome, degradation = "success", None
-    else:
-        p = reroutes[0].payload
-        outcome = "independence_degraded"
-        degradation = IndependenceDegraded(
-            primary_profile=p["primary_profile"], fallback_profile=p["fallback_profile"],
-            primary_failure=_primary_failure(events, p, attempt_id),
-            relaxed_constraints=tuple(p["relaxed_constraints"]),
+        return None
+
+    rerouted = reroutes[0]
+    if rerouted.attempt_id != attempt_id:
+        raise InvocationIdentityError(
+            f"route {route_id!r} is named as the fallback leg by a ReviewRerouted filed "
+            f"under attempt {rerouted.attempt_id!r}, not {attempt_id!r}"
         )
-    ref, cp = completed.payload["candidate"], chain.payload
-    return InvocationIdentity(
-        actor_instance_id=route_id, model=ref["model_id"], backend=ref["backend"],
-        serving_endpoint=ref["serving_endpoint"], vendor=ref["vendor"], family=ref["model_family"],
-        prompt_digest=cp["prompt_digest"], context_digest=cp["context_digest"],
-        selection_policy_version=int(cp["selection_policy_version"]),
-        snapshot_digest=cp["snapshot_digest"], snapshot_provenance=cp.get("snapshot_provenance", {}),
-        route_outcome=outcome, degradation=degradation,
+    # BOTH legs must be this Attempt's own claims — a reroute that borrows another
+    # Attempt's primary leg would attribute a degradation that never happened here.
+    payload = rerouted.payload
+    for field, leg in (("primary_route_id", "primary"), ("fallback_route_id", "fallback")):
+        expected = derive_route_id(attempt_id, payload["operation_id"], leg)
+        if payload[field] != expected:
+            raise InvocationIdentityError(
+                f"reroute {field}={payload[field]!r} is not attempt {attempt_id!r}'s "
+                f"{leg} claim for operation {payload['operation_id']!r}"
+            )
+    return IndependenceDegraded(
+        primary_profile=payload["primary_profile"],
+        fallback_profile=payload["fallback_profile"],
+        primary_failure=_primary_failure(events, payload, attempt_id),
+        relaxed_constraints=tuple(payload["relaxed_constraints"]),
     )
+
+
+def build_invocation_identity(events: list[Event], *, route_id: str,
+                              attempt_id: str) -> InvocationIdentity | None:
+    """The identity of the call that ran on ``route_id``, or ``None`` when none did.
+
+    ``None`` means the route resolved no chain or dispatched nothing — a failed logical
+    call has no identity, which is different from an ambiguous one (that raises)."""
+    scoped = [e for e in events if e.payload.get("route_id") == route_id]
+    for event in scoped:                                   # F8: Attempt binding
+        if event.attempt_id != attempt_id:
+            raise InvocationIdentityError(
+                f"route {route_id!r} has a {event.event_type} filed under attempt "
+                f"{event.attempt_id!r}, not {attempt_id!r} — refusing to attribute it"
+            )
+    chain = _exactly_one(scoped, "ChainResolved", route_id)
+    completed = _exactly_one(scoped, "DispatchCompleted", route_id)
+    if chain is None or completed is None:
+        return None  # nothing actually ran → a failed logical call, no identity
+
+    degradation = _degradation(events, route_id, attempt_id)
+    ref, resolved = completed.payload["candidate"], chain.payload
+    return InvocationIdentity(
+        actor_instance_id=route_id,
+        model=ref["model_id"],
+        backend=ref["backend"],
+        serving_endpoint=ref["serving_endpoint"],
+        vendor=ref["vendor"],
+        family=ref["model_family"],
+        prompt_digest=resolved["prompt_digest"],
+        context_digest=resolved["context_digest"],
+        selection_policy_version=int(resolved["selection_policy_version"]),
+        snapshot_digest=resolved["snapshot_digest"],
+        snapshot_provenance=resolved.get("snapshot_provenance", {}),
+        route_outcome="independence_degraded" if degradation is not None else "success",
+        degradation=degradation,
+    )
+
+
+__all__ = [
+    "IndependenceDegraded",
+    "InvocationIdentity",
+    "InvocationIdentityError",
+    "build_invocation_identity",
+]
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/unit/test_self_improvement_invocation_identity.py -q`
-Expected: PASS (13 passed).
+Expected: PASS (17 passed).
 
 - [ ] **Step 5: Commit**
 
@@ -3144,3 +3307,11 @@ already fixed. Only the DISPATCH (one routed call per `revise()`) ever needed to
 | 3 | **Correctness** — the plan invented a fourth wire format (`{"proposal": "<markdown>"}` in one json fence) that nothing else in the repo speaks, embedding a whole document inside a JSON string. That re-introduces the escaping failures the `===BEGIN_ARTIFACT===` markers exist to eliminate — a proposal contains quotes, backslashes, `$` and fenced code | Adopted the shared stack: `RESPONSE_FORMAT_BLOCK` (prompt) → `parse_reviser_response` + `pick_expected_artifact` (parse) → `build_concern_responses` (change-log). A round-trip test feeds all four hazards through verbatim. Bonus: `parse_reviser_response`'s own failure message already contains `"parseable"`, so `is_malformed_reply_error` accepts it |
 | 4 | **Correctness** — `max_tokens=32_768` is `REASONING_MAX_TOKENS`. Spec-023 defect #20 is precisely what that value does to a revision turn: the reasoning model's hidden CoT consumes the budget before the artifact block closes, so the reply truncates mid-document and parses as malformed (`_self_consistency.py:154-160`) | Defaults to `GENERATION_MAX_TOKENS` (131_072), as every other reviser's revision turn does. Pinned by an assertion in the single-call test |
 | — | Step 0 re-verified against the live engine | (a) `engine.py:525` re-raises `BackendError` first, `:527` gives one retry for any `RuntimeError`; (b) `is_malformed_reply_error` keys on `"no usable"` / `"parseable"` and excludes `BackendError`. Both unchanged — the plan's contract holds |
+
+## Round-14 (Task 6 implementation)
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | **Blocker, Slice 1A** — the lane's MANDATORY audit sink could not write a real `snapshot_provenance`. `SnapshotProvenance.observed_at` is a `datetime`, and `_jsonable`'s branch hand-built its dict instead of recursing, so the datetime slipped past the function's own unknown-type guard and exploded later at `json.dumps` as a `TypeError` nothing normalizes into `RouteAuditError`. Both events carrying provenance (`ChainResolved`, `SelectionFailure`) were unwritable — and `SelectionFailure` is exactly what Task 6's degradation join reads | Fixed in `2c8daa7058`: every composite branch recurses, `datetime` projects to ISO-8601. Slice 1A's test had passed `observed_at=TS` (a **string**) into a dataclass with no runtime type check, asserting a shape production never produces; it now uses a real datetime and asserts the round-trip, plus a new `SelectionFailure` test |
+| 2 | Two of the plan's fail-closed cases are UNREACHABLE at write time | `_validate_review_rerouted` (Task 1) recomputes both legs from the envelope `attempt_id`, so a foreign-attempt or borrowed-primary-leg reroute cannot be persisted. The reader's checks are kept as defense-in-depth at a trust boundary (the log is a file on a git ref), but the tests now construct their input through an explicit `_corrupt()` helper that documents this, and a new test asserts the WRITER refuses both. Silently `replace()`-ing a validated event would have implied the reader was the only guard |
+| — | test construction hardened | Every audit event in the suite is built from the REAL slice-0 dataclass through the REAL `_audit_payload`, and every event is run through the REAL `validate_lane_event`. Hand-written payload dicts are what let finding 1 survive Slice 1A |

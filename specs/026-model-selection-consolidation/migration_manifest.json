@@ -3437,6 +3437,28 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_self_improvement_invocation_identity.py",
+      "kind": "model_id_literal",
+      "line": 42,
+      "models": [
+        "gemma-3-27b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_self_improvement_invocation_identity.py",
+      "kind": "model_id_literal",
+      "line": 127,
+      "models": [
+        "gemma-3-27b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_success_identity_carries_full_selection_provenance"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_state_atomic_io.py",
       "kind": "model_id_literal",
       "line": 299,
