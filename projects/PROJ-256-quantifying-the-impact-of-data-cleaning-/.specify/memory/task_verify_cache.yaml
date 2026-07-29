@@ -1,3 +1,23 @@
+T012:
+  c: false
+  h: 6e80cf2ca9aeae49ef9abe26fa9847f82eb15d67f8c8db83e9c9ce2b5fd627d6
+  r: "The repository contains a partially shown `code/analysis.py` with t\u2011test\
+    \ and regression functions, but there is no evidence that it writes the required\
+    \ `data/processed/baseline_metrics.json`, and that file is missing. Consequently\
+    \ the task\u2019s output artifact and validation steps are not satisfied."
+T014#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No formal specification amendment (e.g., a PR, markdown file, or documented\
+    \ change) is present to lower the dataset count requirement or to record the deviation\
+    \ from FR\u2011001; the required artifact is missing."
+T015:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided specification excerpt includes an explicit amendment lowering the\
+    \ dataset count requirement to as few as\u202F2 datasets, satisfying the required\
+    \ spec change. No additional OpenML datasets were needed, and the amendment is\
+    \ present and non\u2011empty."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,14 +25,6 @@ T030:
     \ analysis is provided, nor any evidence that warnings are logged when a bin contains\
     \ fewer than one dataset. The required artifact (implementation that depends on\
     \ baseline metrics and logs CONSTRAINT_VIOLATION warnings) is missing."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the task description and project specifications;\
-    \ there is no code, script, notebook, or result file that implements the outlier\u2011\
-    threshold sweep, computes false\u2011positive rates, or calculates inconsistency\
-    \ rates as required. Consequently, the essential artifact demonstrating the required\
-    \ calculations is missing."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,3 +32,25 @@ T040:
     \ or documented output containing the required fields (baseline_metrics, cleaned_metrics,\
     \ absolute_diff, relative_diff, sensitivity_analysis). Consequently the task\u2019\
     s deliverable is missing."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the file `specs/001-quantify-cleaning-impact/spec.md`\
+    \ exists, was examined, or that the headings \u201CLLM data quality reports\u201D\
+    \ and \u201Cglioblastoma biomarkers\u201D have been removed. Without the actual\
+    \ file or a diff showing their absence, the requirement cannot be confirmed."
+T050b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `specs/001-quantify-cleaning-impact/spec.md` content was supplied,\
+    \ so we cannot confirm that the \u201CLLM\u201D and \u201Cglioblastoma\u201D paragraphs\
+    \ were removed and that FR\u2011006 now contains only the outlier threshold sweep\
+    \ and FPR logic. The required artifact is missing."
+T071:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No formal specification amendment (e.g., a pull request, markdown amendment\
+    \ file, or documented change) is present; the evidence provided contains only\
+    \ the original spec excerpt and no new artifact showing the lowered dataset count\
+    \ requirement or documentation of the FR\u2011001 deviation. The required spec\
+    \ amendment PR is missing."

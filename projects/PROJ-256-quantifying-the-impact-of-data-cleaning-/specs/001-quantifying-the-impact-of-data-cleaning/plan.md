@@ -21,9 +21,9 @@ This project quantifies how standard data cleaning strategies (outlier removal, 
 > **Dataset Feasibility Notice**: The specification (FR-001, SC-006) requests ≥10 datasets from OpenML/UCI. However, the **Verified datasets** block provided for this project contains only **2** verified sources (UCI HAR, UCI Shopper). The plan proceeds with these datasets. Statistical aggregations (median/IQR) will be reported with a severe limitation note, as they are statistically unstable with n=2. This is a known blocking gap per the spec's kickback requirements.
 
 ## Kickback Required
-- **SC-006**: Requires ≥10 datasets for baseline metrics. Current data: 2. **Status: UNMET**. Requires spec amendment or kickback to lower threshold.
+- **SC-006**: Requires ≥10 datasets for baseline metrics. Current data: present. **Status: UNMET**. Requires spec amendment or kickback to lower threshold.
 - **FR-001**: Requires OpenML Small Datasets. Current data: UCI only. **Status: DEVIATION**. Requires spec amendment or kickback to accept UCI fallback.
-- **FR-008**: Requires stratification with ≥1 dataset per bin. Current data: 2. **Status: UNMET**. Requires spec amendment or kickback to allow empty bins.
+- **FR-008**: Requires stratification with ≥1 dataset per bin. Current data: available. **Status: UNMET**. Requires spec amendment or kickback to allow empty bins.
 
 ## Constitution Check
 

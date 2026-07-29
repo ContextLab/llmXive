@@ -1,9 +1,9 @@
 pandas
 numpy
 scipy
-scikit-learn
 statsmodels
+scikit-learn
 matplotlib
 seaborn
-python-dotenv
 pytest
+pydantic

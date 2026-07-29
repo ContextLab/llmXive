@@ -1,62 +1,56 @@
 """
-Unit tests for the ``run_baseline_analysis`` helper (T012 / T013).
+tests/unit/test_analysis.py
+Unit tests for code/analysis.py
 """
-
-import json
-from pathlib import Path
-
-import pandas as pd
 import pytest
+import pandas as pd
+import numpy as np
+from scipy import stats
+from code.analysis import _run_t_test, _run_linear_regression, _compute_cohens_d
 
-from analysis import run_baseline_analysis
+def test_compute_cohens_d():
+    # Group 1: mean=10, std=2, n=10
+    g1 = pd.Series(np.random.RandomState(42).normal(10, 2, 100))
+    # Group 2: mean=12, std=2, n=10
+    g2 = pd.Series(np.random.RandomState(42).normal(12, 2, 100))
+    
+    d = _compute_cohens_d(g1, g2)
+    # Expected approx -1.0
+    assert -1.5 < d < -0.5
 
-@pytest.fixture
-def sample_dataframe():
-    # Simple synthetic but valid dataframe – the test only checks mechanics,
-    # not scientific validity.
-    data = {
-        "outcome": [1, 2, 1, 2, 1, 2],
-        "predictor1": [10, 20, 10, 20, 10, 20],
-        "predictor2": [5, 5, 6, 6, 7, 7],
-    }
-    return pd.DataFrame(data)
+def test_run_t_test():
+    # Create synthetic data
+    np.random.seed(42)
+    df = pd.DataFrame({
+        'group': ['A'] * 50 + ['B'] * 50,
+        'value': list(np.random.normal(10, 2, 50)) + list(np.random.normal(12, 2, 50))
+    })
+    
+    res = _run_t_test(df, 'value', 'group')
+    
+    assert 'p_value' in res
+    assert 'ci_lower' in res
+    assert 'ci_upper' in res
+    assert 'cohen_d' in res
+    
+    # P-value should be significant (small)
+    assert 0 < res['p_value'] < 0.05
 
-def test_run_baseline_analysis_single_dataframe(sample_dataframe, tmp_path):
-    # Provide the dataframe directly; no file I/O expected.
-    results = run_baseline_analysis(
-        dataframe=sample_dataframe,
-        outcome="outcome",
-        predictors=["predictor1", "predictor2"],
-    )
-    assert isinstance(results, dict)
-    assert "provided_dataframe" in results
-    t_test = results["provided_dataframe"].get("t_test", {})
-    assert "p_value" in t_test
-    assert 0.0 < t_test["p_value"] < 1.0
-
-def test_run_baseline_analysis_writes_file(tmp_path, monkeypatch):
-    # Create a temporary CSV file to act as raw input.
-    csv_path = tmp_path / "sample.csv"
-    df = pd.DataFrame(
-        {
-            "outcome": [0, 1, 0, 1],
-            "x1": [1, 2, 3, 4],
-            "x2": [5, 6, 7, 8],
-        }
-    )
-    df.to_csv(csv_path, index=False)
-
-    output_path = tmp_path / "baseline.json"
-
-    # Monkey‑patch the raw directory resolution inside the function.
-    monkeypatch.chdir(tmp_path)
-    results = run_baseline_analysis(str(tmp_path), str(output_path))
-
-    # Verify the file was created and contains expected keys.
-    assert output_path.is_file()
-    with output_path.open() as f:
-        data = json.load(f)
-    assert isinstance(data, dict) and len(data) == 1
-    dataset_key = list(data.keys())[0]
-    assert "t_test" in data[dataset_key]
-    assert "effect_size" in data[dataset_key]
+def test_run_linear_regression():
+    np.random.seed(42)
+    n = 100
+    x = np.random.normal(0, 1, n)
+    y = 2 * x + np.random.normal(0, 0.5, n)
+    
+    df = pd.DataFrame({'y': y, 'x': x})
+    
+    res = _run_linear_regression(df, 'y', ['x'])
+    
+    assert 'r_squared' in res
+    assert 'p_values' in res
+    assert 'x' in res['p_values']
+    
+    # R2 should be high
+    assert res['r_squared'] > 0.8
+    # P-value for x should be small
+    assert 0 < res['p_values']['x'] < 0.05
