@@ -1,43 +1,13 @@
 # Feature Engineering Module
 
-This directory contains the code for transforming raw solder alloy compositions
-into predictive descriptors and managing feature engineering pipelines.
+This directory contains the logic for transforming raw solder compositions into machine learning-ready descriptors.
 
 ## Components
 
-### Transformer (`transformer.py`)
-- `CLRTransformer`: Implements the Centered Log-Ratio (CLR) transformation
- to handle the compositional nature of alloy data (closure problem).
-
-### Descriptor Engine (`descriptor_engine.py`)
-- `DescriptorEngine`: Calculates physical and chemical descriptors from
- CLR-transformed compositions, including:
- - Weighted mean atomic mass
- - Electronegativity variance
- - Atomic radius variance
- - Weighted average melting point
- - Valence electron concentration
-
-### Collinearity (`collinearity.py`)
-- `calculate_vif`: Computes Variance Inflation Factors to detect
- multicollinearity among engineered features.
+- `transformer.py`: Implements the Centered Log-Ratio (CLR) transform to handle the compositional nature of the data (closure problem).
+- `descriptor_engine.py`: Calculates physical property descriptors (atomic mass, electronegativity, etc.) weighted by composition.
+- `collinearity.py`: Calculates Variance Inflation Factors (VIF) to detect and handle multicollinearity among features.
 
 ## Usage
 
-```python
-from features import CLRTransformer, DescriptorEngine
-
-# Transform compositions
-transformer = CLRTransformer()
-clr_data = transformer.transform(raw_compositions)
-
-# Engineer descriptors
-engine = DescriptorEngine()
-descriptors = engine.compute(clr_data, elemental_properties)
-```
-
-## Dependencies
-
-- `compositional`: For CLR transformation
-- `numpy`, `pandas`: Data manipulation
-- `statsmodels`: VIF calculation
+These modules are typically invoked by `descriptor_engine_main.py` or integrated into the model training pipeline.

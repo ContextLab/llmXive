@@ -1,3 +1,3 @@
 """
-Test suite for the Temporal Discounting in Procrastination project.
+Test suite for the llmXive Research Pipeline.
 """

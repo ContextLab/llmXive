@@ -54,7 +54,7 @@
   verification_status: pending
   verified_against_url: https://app.prolific.com/api
   verified_at: '2026-07-17T02:23:01.480322Z'
-- artifact_hash: 7cc44a726c2482521820aa8c65c36e4328d31661a073ba25012d055b183ade5d
+- artifact_hash: 291b1c99a929ececa301511480ac20993eee4222eafb5ed2e460e425caf0b491
   artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,4 +64,4 @@
   value: https://huggingface.co/datasets/medmisbench/supplementary`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/medmisbench/supplementary
-  verified_at: '2026-07-29T03:59:18.649010Z'
+  verified_at: '2026-07-29T07:47:33.660855Z'

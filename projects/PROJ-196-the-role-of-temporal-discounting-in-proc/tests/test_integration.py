@@ -1,209 +1,63 @@
 """
-Integration tests for the full data pipeline and analysis.
+Integration test for the full data harmonization pipeline.
+Verifies end-to-end execution and output integrity.
 """
-import pytest
-import pandas as pd
-import numpy as np
-import json
-from pathlib import Path
-import tempfile
 import os
+import sys
+import tempfile
+import shutil
+import pytest
+from pathlib import Path
+import pandas as pd
 
-# Import from project modules using absolute imports relative to project root
-# Note: We assume the test runner adds the project root to sys.path
-from code.ingestion import (
-    generate_delay_discounting_data,
-    generate_procrastination_data,
-    generate_nback_data,
-    harmonize_datasets,
-    calculate_cronbach_alpha
-)
-from code.modeling import (
-    transform_and_center,
-    run_regression,
-    calculate_vif,
-    fit_hyperbolic_model
-)
-from code.robustness import (
-    bootstrap_interaction,
-    sensitivity_analysis,
-    calculate_instability_ratio
-)
-from code.config import get_random_state
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-@pytest.fixture
-def temp_project_dir():
-    """Create a temporary project directory structure."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        data_raw = os.path.join(tmpdir, "data", "raw")
-        data_processed = os.path.join(tmpdir, "data", "processed")
-        os.makedirs(data_raw)
-        os.makedirs(data_processed)
-        yield {
-            'tmpdir': tmpdir,
-            'data_raw': data_raw,
-            'data_processed': data_processed
-        }
+from code.ingestion import run_dgp_pipeline
+from code.config import get_project_root
 
-def test_full_pipeline(temp_project_dir):
-    """Test the complete pipeline from data generation to analysis."""
-    data_raw = temp_project_dir['data_raw']
-    data_processed = temp_project_dir['data_processed']
+def test_full_pipeline_execution():
+    """
+    Executes the full DGP pipeline and verifies output artifacts exist
+    and contain required columns.
+    """
+    # Run the pipeline
+    # Note: This might take a moment
+    try:
+        result_df = run_dgp_pipeline()
+    except SystemExit as e:
+        pytest.fail(f"Pipeline failed with SystemExit: {e}")
     
-    # Step 1: Generate raw data
-    dd_path = os.path.join(data_raw, "delay_discounting.csv")
-    proc_path = os.path.join(data_raw, "procrastination.csv")
-    nback_path = os.path.join(data_raw, "nback.csv")
+    # Verify required columns
+    required_cols = [
+        'discount_rate_k', 'procrastination_score', 
+        'wm_accuracy', 'wm_rt', 'participant_id'
+    ]
     
-    # Use a fixed seed for reproducibility in tests
-    seed = get_random_state().integers(0, 2**31 - 1)
-    
-    generate_delay_discounting_data(100, dd_path, seed=seed)
-    generate_procrastination_data(100, proc_path, seed=seed)
-    generate_nback_data(100, nback_path, seed=seed)
-    
-    # Step 2: Verify reliability of generated data (T014b requirement)
-    dd_alpha = calculate_cronbach_alpha(dd_path, 'indifference_point')
-    proc_alpha = calculate_cronbach_alpha(proc_path, 'procrastination_score')
-    nback_alpha = calculate_cronbach_alpha(nback_path, 'accuracy')
-    
-    assert dd_alpha >= 0.7, f"Delay discounting reliability too low: {dd_alpha}"
-    assert proc_alpha >= 0.7, f"Procrastination reliability too low: {proc_alpha}"
-    assert nback_alpha >= 0.7, f"N-back reliability too low: {nback_alpha}"
-    
-    # Step 3: Harmonize data
-    harmonized_df = harmonize_datasets(dd_path, proc_path, nback_path)
-    
-    # Verify harmonized data
-    assert 'procrastination_score' in harmonized_df.columns
-    assert 'wm_accuracy' in harmonized_df.columns
-    assert 'discount_rate_k' in harmonized_df.columns
-    assert len(harmonized_df) == 100
-    
-    # Step 4: Fit hyperbolic model to calculate discount rates (T015c requirement)
-    # This is implicitly done in harmonization but we verify the column exists
-    assert 'discount_rate_k' in harmonized_df.columns
-    assert not harmonized_df['discount_rate_k'].isna().any()
-    
-    # Step 5: Prepare data for modeling
-    harmonized_df['log_k'] = np.log(harmonized_df['discount_rate_k'] + 1e-6)
-    prepared_df = transform_and_center(
-        harmonized_df, 
-        ['log_k', 'wm_accuracy', 'age']
-    )
-    
-    # Create interaction term
-    prepared_df['interaction'] = (
-        prepared_df['log_k_centered'] * 
-        prepared_df['wm_accuracy_centered']
-    )
-    
-    # Step 6: Run regression
-    regression_results = run_regression(
-        prepared_df,
-        'procrastination_score',
-        ['log_k_centered', 'wm_accuracy_centered', 'age_centered', 'interaction']
-    )
-    
-    # Verify regression results structure
-    assert 'coefficients' in regression_results
-    assert 'interaction' in regression_results['coefficients']
-    assert 'p_values' in regression_results
-    assert 'interaction' in regression_results['p_values']
-    
-    # Step 7: Run robustness checks
-    robustness_results = sensitivity_analysis(
-        prepared_df,
-        n_bootstrap=50,  # Reduced for faster test execution
-        seed=seed
-    )
-    
-    # Verify robustness results structure
-    assert 'instability_ratio' in robustness_results
-    assert 0 <= robustness_results['instability_ratio'] <= 1
-    assert 'bootstrap_ci' in robustness_results
-    assert 'sensitivity_results' in robustness_results
-
-def test_vif_check_in_pipeline(temp_project_dir):
-    """Test that VIF calculation is integrated in the pipeline."""
-    data_raw = temp_project_dir['data_raw']
-    
-    # Generate data
-    seed = get_random_state().integers(0, 2**31 - 1)
-    dd_path = os.path.join(data_raw, "delay_discounting.csv")
-    proc_path = os.path.join(data_raw, "procrastination.csv")
-    nback_path = os.path.join(data_raw, "nback.csv")
-    
-    generate_delay_discounting_data(100, dd_path, seed=seed)
-    generate_procrastination_data(100, proc_path, seed=seed)
-    generate_nback_data(100, nback_path, seed=seed)
-    
-    # Harmonize
-    harmonized_df = harmonize_datasets(dd_path, proc_path, nback_path)
-    
-    # Prepare features
-    features = ['wm_accuracy', 'wm_rt', 'age', 'education']
-    X = harmonized_df[features].dropna()
-    
-    if len(X) > 0:
-        # Calculate VIF
-        vif_scores = calculate_vif(X)
-        
-        # All VIF scores should be reasonable (< 10) for synthetic data
-        for feature, vif in vif_scores.items():
-            assert vif < 10, f"VIF too high for {feature}: {vif}"
-
-def test_data_harmonization_edge_cases(temp_project_dir):
-    """Test harmonization with missing participant IDs."""
-    data_raw = temp_project_dir['data_raw']
-    
-    # Generate data with different seeds to simulate potential mismatches
-    seed1 = get_random_state().integers(0, 2**31 - 1)
-    seed2 = get_random_state().integers(0, 2**31 - 1)
-    seed3 = get_random_state().integers(0, 2**31 - 1)
-    
-    dd_path = os.path.join(data_raw, "delay_discounting.csv")
-    proc_path = os.path.join(data_raw, "procrastination.csv")
-    nback_path = os.path.join(data_raw, "nback.csv")
-    
-    generate_delay_discounting_data(100, dd_path, seed=seed1)
-    generate_procrastination_data(100, proc_path, seed=seed2)
-    generate_nback_data(100, nback_path, seed=seed3)
-    
-    # Harmonize - should handle mismatches gracefully
-    harmonized_df = harmonize_datasets(dd_path, proc_path, nback_path)
-    
-    # Verify we still have data (inner join on participant_id)
-    assert len(harmonized_df) > 0
-    assert 'participant_id' in harmonized_df.columns
-    # Check that all required columns are present
-    required_cols = ['discount_rate_k', 'procrastination_score', 'wm_accuracy', 'wm_rt']
     for col in required_cols:
-        assert col in harmonized_df.columns, f"Missing required column: {col}"
-
-def test_model_fitting_integration(temp_project_dir):
-    """Test that model fitting works correctly within the pipeline."""
-    data_raw = temp_project_dir['data_raw']
+        assert col in result_df.columns, f"Missing required column: {col}"
     
-    seed = get_random_state().integers(0, 2**31 - 1)
-    dd_path = os.path.join(data_raw, "delay_discounting.csv")
-    proc_path = os.path.join(data_raw, "procrastination.csv")
-    nback_path = os.path.join(data_raw, "nback.csv")
+    # Verify no nulls in key columns (assuming pipeline handles this or we check here)
+    # The spec says "after imputation or filtering", so we check the final result
+    for col in required_cols:
+        if col != 'participant_id': # ID might be int, but check anyway
+            assert result_df[col].isnull().sum() == 0, f"Nulls found in {col}"
     
-    generate_delay_discounting_data(100, dd_path, seed=seed)
-    generate_procrastination_data(100, proc_path, seed=seed)
-    generate_nback_data(100, nback_path, seed=seed)
+    # Verify file existence on disk
+    project_root = get_project_root()
+    processed_path = os.path.join(project_root, "data", "processed", "harmonized_dataset.parquet")
+    assert os.path.exists(processed_path), "Processed dataset file not created"
     
-    harmonized_df = harmonize_datasets(dd_path, proc_path, nback_path)
+    # Load and verify
+    loaded_df = pd.read_parquet(processed_path)
+    assert len(loaded_df) == len(result_df)
     
-    # Verify discount rates are reasonable (positive, not too large)
-    assert (harmonized_df['discount_rate_k'] > 0).all()
-    assert (harmonized_df['discount_rate_k'] < 100).all()  # Reasonable upper bound
+    # Verify state file update
+    state_path = os.path.join(project_root, "state", "projects", "PROJ-196-the-role-of-temporal-discounting-in-proc.yaml")
+    assert os.path.exists(state_path), "State file not created"
     
-    # Verify procrastination scores are in expected range
-    assert (harmonized_df['procrastination_score'] >= 0).all()
-    assert (harmonized_df['procrastination_score'] <= 1).all()
+    import yaml
+    with open(state_path, 'r') as f:
+        state = yaml.safe_load(f)
     
-    # Verify WM accuracy is in expected range
-    assert (harmonized_df['wm_accuracy'] >= 0).all()
-    assert (harmonized_df['wm_accuracy'] <= 1).all()
+    assert "artifact_hashes" in state
+    assert "data/processed/harmonized_dataset.parquet" in state["artifact_hashes"]

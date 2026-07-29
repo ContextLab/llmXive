@@ -1,47 +1,38 @@
-# The Role of Temporal Discounting in Procrastination on Cognitive Tasks
+# PROJ-196: The Role of Temporal Discounting in Procrastination on Cognitive Tasks
 
-## Project Overview
-This project investigates the relationship between temporal discounting rates and procrastination behaviors in cognitive tasks, moderated by working memory capacity.
-
-## Environment Setup
-This project requires Python 3.11.
-
-### Installation
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-### Development Setup
-Install development tools (linters, formatters, test runners):
-```bash
-pip install -e ".[dev]"
-```
+## Overview
+This project investigates the relationship between temporal discounting (delay discounting)
+and procrastination behaviors in the context of cognitive tasks, specifically examining
+whether working memory capacity moderates this relationship.
 
 ## Project Structure
 ```
 .
-├── code/ # Source code
+├── code/ # Source code for data processing and analysis
 │ ├── config.py # Configuration and seed management
 │ ├── ingestion.py # Data generation and harmonization
-│ ├── modeling.py # Statistical modeling
-│ ├── robustness.py # Robustness checks
-│ └── utils/ # Utility modules
+│ ├── modeling.py # Statistical modeling and regression
+│ ├── robustness.py # Robustness and sensitivity analysis
+│ └── utils/ # Utility functions (checksums, etc.)
 ├── data/
-│ ├── raw/ # Raw/generated data
-│ └── processed/ # Processed datasets
-├── tests/ # Test suite
-├── specs/ # Feature specifications
-├── state/ # Project state tracking
-├── requirements.txt # Pinned dependencies
-├── pyproject.toml # Project configuration
-└── README.md
+│ ├── raw/ # Raw data files (generated or downloaded)
+│ ├── processed/ # Cleaned and harmonized datasets
+│ └── figures/ # Generated plots and visualizations
+├── tests/ # Pytest test suite
+├── state/
+│ └── projects/ # Project state and artifact tracking
+├── specs/ # Feature specifications and design docs
+├── requirements.txt # Python dependencies
+└── README.md # This file
+```
+
+## Prerequisites
+- Python 3.11+
+- pip
+
+## Installation
+```bash
+pip install -r requirements.txt
 ```
 
 ## Execution
@@ -52,13 +43,5 @@ python code/modeling.py
 python code/robustness.py
 ```
 
-Run tests:
-```bash
-pytest tests/
-```
-
-Run linters:
-```bash
-ruff check code/
-black --check code/
-```
+## License
+[License Information]

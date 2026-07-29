@@ -1,3 +1,3 @@
 """
-Code package for the Temporal Discounting in Procrastination project.
+llmXive Research Pipeline - Code Package
 """

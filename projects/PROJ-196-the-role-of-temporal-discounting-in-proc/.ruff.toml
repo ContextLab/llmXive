@@ -1,3 +1,17 @@
-# Extends the configuration in pyproject.toml for specific overrides if needed.
-# Currently, all configuration is managed in pyproject.toml.
+# This file exists to ensure ruff picks up configuration in all environments
+# Primary configuration is in pyproject.toml
 extend = "pyproject.toml"
+
+[lint]
+# Ensure specific rules are active if not covered in pyproject.toml
+select = [
+    "E", "W", "F", "I", "B", "C4", "UP", "S", "N", "C90"
+]
+
+[lint.isort]
+known-first-party = ["code"]
+
+[format]
+line-length = 88
+quote-style = "double"
+indent-style = "space"

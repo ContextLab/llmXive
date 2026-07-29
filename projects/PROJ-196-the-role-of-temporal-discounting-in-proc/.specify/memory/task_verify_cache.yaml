@@ -36,9 +36,24 @@ T006:
     \ or directory layout. The required testing infrastructure is missing."
 T009:
   c: false
-  h: 4cefec4f05eb23ccb3fb322406de0db2d4859a8399c3cc7e4b01b9f5d67b43c4
-  r: The `checksum.py` file exists but is truncated and never creates or updates the
-    required `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`
-    (the file is missing). No evidence shows that the utility is invoked to populate
-    `artifact_hashes` for raw/processed artifacts, so the integration requirement
-    is unmet.
+  h: ceb23dc9b31bbe6cbb6d4ddde6e9d38c276183bc8008dc00668f3b3be32cfdb3
+  r: "The `code/utils/checksum.py` file exists but only defines helper functions;\
+    \ there is no code that scans raw/processed artifacts and calls `update_artifact_hash`\
+    \ for each, nor is the required state file `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`\
+    \ present on disk. Consequently the artifact\u2011hash map is not actually written/updated\
+    \ as the task demands."
+T014:
+  c: false
+  h: c33af27e08e57a14a5acef35a4a6805689c8ae6c676e633b5c2feb1073547b2b
+  r: "The required raw CSV files (`data/raw/delay_discounting.csv`, `data/raw/procrastination.csv`,\
+    \ `data/raw/nback.csv`) are absent, and the provided `code/ingestion.py` does\
+    \ not contain any logic that writes these files (the visible code only defines\
+    \ helper functions and a partially\u2011implemented generator). Consequently the\
+    \ DGP generator does not actually produce the three distinct datasets as required."
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test output was provided that implements the required validation
+    logic (checking for missing `discount_rate_k`, `procrastination_score`, `wm_accuracy`
+    and raising `SystemExit(1)` with the specified message). Consequently, the artifact
+    needed to satisfy T015b is absent.

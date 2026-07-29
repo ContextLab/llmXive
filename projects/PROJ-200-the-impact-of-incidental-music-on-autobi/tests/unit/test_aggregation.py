@@ -1,180 +1,307 @@
 """
-Unit tests for aggregation.py (T025, T026, T027, T036).
+Unit tests for aggregation module.
 """
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-
 import sys
-# Ensure code directory is in path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+from unittest.mock import patch, MagicMock
 
-from aggregation import join_exposure_data, aggregate_to_user_track, filter_zero_variance, enforce_match_rate
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from aggregation import (
+    join_exposure_data,
+    aggregate_to_user_track,
+    filter_zero_variance,
+    enforce_match_rate,
+    load_aggregated_data
+)
 
 class TestJoinExposureData:
-    """Tests for T025: join_exposure_data"""
-
+    """Tests for join_exposure_data function."""
+    
     def test_join_exposure_data_basic(self):
-        """Test basic join functionality."""
+        """Test basic joining of exposure data with cues."""
+        # Create mock cues DataFrame
         cues_df = pd.DataFrame({
             'user_id': [1, 2, 3],
-            'matched_title': ['Song A', 'Song B', 'Song C'],
-            'matched_artist': ['Artist 1', 'Artist 2', 'Artist 3'],
-            'vividness': [5.0, 4.0, 3.0],
-            'valence': [0.8, 0.5, 0.2]
+            'track_id': [101, 102, 103],
+            'mean_vividness': [0.8, 0.6, 0.9],
+            'mean_valence': [0.7, 0.5, 0.8]
         })
-
-        exposure_df = pd.DataFrame({
-            'title': ['Song A', 'Song B', 'Song D'],
-            'artist': ['Artist 1', 'Artist 2', 'Artist 4'],
-            'adolescent_exposure_score': [0.9, 0.1, 0.5],
-            'residualized_exposure_score': [0.8, -0.1, 0.4],
-            'overall_popularity_score': [100, 50, 200]
+        
+        # Create mock cohort DataFrame
+        cohort_df = pd.DataFrame({
+            'user_id': [1, 2, 3],
+            'track_id': [101, 102, 103],
+            'adolescent_exposure_ratio': [0.5, 0.7, 0.3],
+            'overall_popularity_score': [0.8, 0.6, 0.9],
+            'total_listens': [10, 15, 8]
         })
-
-        result = join_exposure_data(cues_df, exposure_df)
-
-        # Should have 2 matches (Song A, Song B). Song C has no match.
-        assert len(result) == 2
-        assert 'adolescent_exposure_score' in result.columns
-        assert 'residualized_exposure_score' in result.columns
-        # Check specific values
-        row_a = result[result['matched_title'] == 'Song A'].iloc[0]
-        assert row_a['adolescent_exposure_score'] == 0.9
-
+        
+        # Perform join
+        result = join_exposure_data(cues_df, cohort_df)
+        
+        # Assert result
+        assert len(result) == 3
+        assert 'adolescent_exposure_ratio' in result.columns
+        assert 'overall_popularity_score' in result.columns
+        assert 'mean_vividness' in result.columns
+        assert 'mean_valence' in result.columns
+        
+        # Check values
+        assert result.iloc[0]['adolescent_exposure_ratio'] == 0.5
+        assert result.iloc[1]['mean_vividness'] == 0.6
+    
     def test_join_exposure_data_missing_columns(self):
         """Test that missing columns raise an error."""
-        cues_df = pd.DataFrame({'user_id': [1]}) # Missing matched_title
-        exposure_df = pd.DataFrame({'title': ['Song A']})
-
-        with pytest.raises(ValueError):
-            join_exposure_data(cues_df, exposure_df)
-
-    def test_join_exposure_data_inner_join(self):
-        """Test that inner join filters out unmatched records."""
         cues_df = pd.DataFrame({
             'user_id': [1],
-            'matched_title': ['Unknown Song'],
-            'matched_artist': ['Unknown Artist']
+            'track_id': [101],
+            'mean_vividness': [0.8]
+            # Missing mean_valence
         })
-        exposure_df = pd.DataFrame({
-            'title': ['Known Song'],
-            'artist': ['Known Artist']
+        
+        cohort_df = pd.DataFrame({
+            'user_id': [1],
+            'track_id': [101],
+            'adolescent_exposure_ratio': [0.5],
+            'overall_popularity_score': [0.8]
         })
-
-        result = join_exposure_data(cues_df, exposure_df)
+        
+        with pytest.raises(ValueError):
+            join_exposure_data(cues_df, cohort_df)
+    
+    def test_join_exposure_data_no_match(self):
+        """Test joining when there are no matching keys."""
+        cues_df = pd.DataFrame({
+            'user_id': [1],
+            'track_id': [101],
+            'mean_vividness': [0.8],
+            'mean_valence': [0.7]
+        })
+        
+        cohort_df = pd.DataFrame({
+            'user_id': [2],
+            'track_id': [102],
+            'adolescent_exposure_ratio': [0.5],
+            'overall_popularity_score': [0.8]
+        })
+        
+        result = join_exposure_data(cues_df, cohort_df)
+        
         assert len(result) == 0
 
 class TestAggregateToUserTrack:
-    """Tests for T026: aggregate_to_user_track"""
-
-    def test_aggregate_mean_values(self):
-        """Test correct aggregation of mean vividness and valence."""
-        df = pd.DataFrame({
-            'user_id': [1, 1, 1, 2],
-            'track_id': [100, 100, 100, 100],
-            'vividness': [5.0, 3.0, 2.0, 4.0],
-            'valence': [0.8, 0.6, 0.4, 0.5],
-            'adolescent_exposure_score': [0.9, 0.9, 0.9, 0.9]
+    """Tests for aggregate_to_user_track function."""
+    
+    def test_aggregate_to_user_track_basic(self):
+        """Test basic aggregation to User-Track pairs."""
+        # Create mock cues DataFrame
+        cues_df = pd.DataFrame({
+            'user_id': [1, 1, 2, 2, 2],
+            'track_id': [101, 101, 102, 102, 102],
+            'cue_id': [1, 2, 3, 4, 5]
         })
-
-        result = aggregate_to_user_track(df)
-
-        assert len(result) == 2
-        # User 1, Track 100: mean vividness = (5+3+2)/3 = 3.333
-        row1 = result[(result['user_id'] == 1) & (result['track_id'] == 100)].iloc[0]
-        assert np.isclose(row1['mean_vividness'], 3.333333, atol=0.001)
-        assert row1['memory_count'] == 3
-
-        # User 2, Track 100: mean vividness = 4.0
-        row2 = result[(result['user_id'] == 2) & (result['track_id'] == 100)].iloc[0]
-        assert np.isclose(row2['mean_vividness'], 4.0, atol=0.001)
-        assert row2['memory_count'] == 1
-
-    def test_aggregate_missing_ids_fallback(self):
-        """Test fallback to title/artist if track_id is missing."""
-        df = pd.DataFrame({
-            'user_id': [1, 1],
-            'matched_title': ['Song X', 'Song X'],
-            'matched_artist': ['Artist X', 'Artist X'],
-            'vividness': [5.0, 5.0],
-            'valence': [0.8, 0.8]
+        
+        # Create mock cues metadata
+        cues_metadata = pd.DataFrame({
+            'cue_id': [1, 2, 3, 4, 5],
+            'vividness': [0.8, 0.9, 0.6, 0.7, 0.8],
+            'valence': [0.7, 0.6, 0.5, 0.6, 0.7]
         })
-
-        result = aggregate_to_user_track(df)
-        assert len(result) == 1
-        assert 'matched_title' in result.columns
-
-    def test_aggregate_dropna(self):
-        """Test that rows with missing vividness are dropped."""
-        df = pd.DataFrame({
-            'user_id': [1, 1],
-            'track_id': [100, 100],
-            'vividness': [5.0, np.nan],
-            'valence': [0.8, 0.5]
-        })
-
-        result = aggregate_to_user_track(df)
-        # Only the first row should be aggregated
-        assert len(result) == 1
-        assert result.iloc[0]['memory_count'] == 1
+        
+        # Perform aggregation
+        result = aggregate_to_user_track(cues_df, cues_metadata)
+        
+        # Assert result
+        assert len(result) == 2  # 2 unique user-track pairs
+        
+        # Check user 1, track 101
+        user1_track101 = result[(result['user_id'] == 1) & (result['track_id'] == 101)]
+        assert len(user1_track101) == 1
+        assert abs(user1_track101.iloc[0]['mean_vividness'] - 0.85) < 0.01
+        assert user1_track101.iloc[0]['cue_count'] == 2
+        
+        # Check user 2, track 102
+        user2_track102 = result[(result['user_id'] == 2) & (result['track_id'] == 102)]
+        assert len(user2_track102) == 1
+        assert abs(user2_track102.iloc[0]['mean_vividness'] - 0.7) < 0.01
+        assert user2_track102.iloc[0]['cue_count'] == 3
+    
+    def test_aggregate_to_user_track_empty(self):
+        """Test aggregation with empty input."""
+        cues_df = pd.DataFrame(columns=['user_id', 'track_id', 'cue_id'])
+        cues_metadata = pd.DataFrame(columns=['cue_id', 'vividness', 'valence'])
+        
+        result = aggregate_to_user_track(cues_df, cues_metadata)
+        
+        assert len(result) == 0
 
 class TestFilterZeroVariance:
-    """Tests for T027: filter_zero_variance"""
-
-    def test_filter_zero_memory_count(self):
-        """Test filtering of records with memory_count < 1."""
+    """Tests for filter_zero_variance function."""
+    
+    def test_filter_zero_variance_basic(self):
+        """Test filtering tracks with zero User-Track pairs."""
+        # Create mock data
         df = pd.DataFrame({
-            'user_id': [1, 2],
-            'track_id': [100, 200],
-            'mean_vividness': [5.0, 3.0],
-            'memory_count': [0, 5]
+            'user_id': [1, 2, 3],
+            'track_id': [101, 102, 102],
+            'mean_vividness': [0.8, 0.6, 0.9],
+            'mean_valence': [0.7, 0.5, 0.8]
         })
-
+        
+        # Track 103 has no pairs (not in dataframe)
+        
         result = filter_zero_variance(df)
-        assert len(result) == 1
-        assert result.iloc[0]['user_id'] == 2
-
-    def test_filter_no_change_if_valid(self):
-        """Test that valid data passes through."""
+        
+        # All tracks in the dataframe should be kept
+        assert len(result) == 3
+        assert set(result['track_id'].unique()) == {101, 102}
+    
+    def test_filter_zero_variance_with_orphans(self):
+        """Test that tracks with no pairs are removed."""
+        # In this function, we're filtering the dataframe itself,
+        # so all rows in the dataframe are by definition pairs
+        # This test verifies the function doesn't remove anything incorrectly
+        
         df = pd.DataFrame({
-            'user_id': [1],
-            'track_id': [100],
-            'mean_vividness': [5.0],
-            'memory_count': [3]
+            'user_id': [1, 2, 3, 4],
+            'track_id': [101, 102, 103, 104],
+            'mean_vividness': [0.8, 0.6, 0.9, 0.7],
+            'mean_valence': [0.7, 0.5, 0.8, 0.6]
         })
-
+        
         result = filter_zero_variance(df)
-        assert len(result) == 1
+        
+        assert len(result) == 4
+        assert set(result['track_id'].unique()) == {101, 102, 103, 104}
 
 class TestEnforceMatchRate:
-    """Tests for T036: enforce_match_rate"""
-
-    def test_match_rate_above_threshold(self):
-        """Test pass when rate is above 80%."""
-        df = pd.DataFrame({
-            'cue_id': [1, 2, 3, 4, 5],
-            'is_matched': [True, True, True, True, False] # 80% match
+    """Tests for enforce_match_rate function."""
+    
+    @patch('aggregation.get_config_dict')
+    def test_enforce_match_rate_deferred(self, mock_config):
+        """Test match rate enforcement with [deferred] threshold."""
+        mock_config.return_value = {'MATCH_RATE_THRESHOLD': '[deferred]'}
+        
+        cues_df = pd.DataFrame({
+            'user_id': [1, 2, 3],
+            'track_id': [101, 102, 103],
+            'cue_id': [1, 2, 3]
         })
-
-        result = enforce_match_rate(df, threshold=0.80)
-        assert result is True
-
-    def test_match_rate_below_threshold(self):
-        """Test warning when rate is below 80%."""
-        df = pd.DataFrame({
-            'cue_id': [1, 2, 3, 4, 5, 6],
-            'is_matched': [True, True, True, False, False, False] # 50% match
+        
+        aggregated_df = pd.DataFrame({
+            'user_id': [1, 2, 3],
+            'track_id': [101, 102, 103],
+            'mean_vividness': [0.8, 0.6, 0.9],
+            'cue_count': [1, 1, 1]
         })
+        
+        result = enforce_match_rate(aggregated_df, cues_df)
+        
+        # Should return the same dataframe
+        assert len(result) == 3
+    
+    @patch('aggregation.get_config_dict')
+    def test_enforce_match_rate_below_threshold(self, mock_config):
+        """Test match rate enforcement when below numeric threshold."""
+        mock_config.return_value = {'MATCH_RATE_THRESHOLD': 0.8}
+        
+        cues_df = pd.DataFrame({
+            'user_id': [1, 2, 3, 4, 5],
+            'track_id': [101, 102, 103, 104, 105],
+            'cue_id': [1, 2, 3, 4, 5]
+        })
+        
+        # Only 3 out of 5 cues matched (60% < 80%)
+        aggregated_df = pd.DataFrame({
+            'user_id': [1, 2, 3],
+            'track_id': [101, 102, 103],
+            'mean_vividness': [0.8, 0.6, 0.9],
+            'cue_count': [1, 1, 1]
+        })
+        
+        result = enforce_match_rate(aggregated_df, cues_df)
+        
+        # Should still return the dataframe (warning logged, not exception)
+        assert len(result) == 3
+    
+    @patch('aggregation.get_config_dict')
+    def test_enforce_match_rate_above_threshold(self, mock_config):
+        """Test match rate enforcement when above numeric threshold."""
+        mock_config.return_value = {'MATCH_RATE_THRESHOLD': 0.5}
+        
+        cues_df = pd.DataFrame({
+            'user_id': [1, 2, 3, 4, 5],
+            'track_id': [101, 102, 103, 104, 105],
+            'cue_id': [1, 2, 3, 4, 5]
+        })
+        
+        # 5 out of 5 cues matched (100% > 50%)
+        aggregated_df = pd.DataFrame({
+            'user_id': [1, 2, 3, 4, 5],
+            'track_id': [101, 102, 103, 104, 105],
+            'mean_vividness': [0.8, 0.6, 0.9, 0.7, 0.5],
+            'cue_count': [1, 1, 1, 1, 1]
+        })
+        
+        result = enforce_match_rate(aggregated_df, cues_df)
+        
+        assert len(result) == 5
+    
+    @patch('aggregation.get_config_dict')
+    def test_enforce_match_rate_invalid_threshold(self, mock_config):
+        """Test match rate enforcement with invalid threshold value."""
+        mock_config.return_value = {'MATCH_RATE_THRESHOLD': 'invalid'}
+        
+        cues_df = pd.DataFrame({
+            'user_id': [1],
+            'track_id': [101],
+            'cue_id': [1]
+        })
+        
+        aggregated_df = pd.DataFrame({
+            'user_id': [1],
+            'track_id': [101],
+            'mean_vividness': [0.8],
+            'cue_count': [1]
+        })
+        
+        result = enforce_match_rate(aggregated_df, cues_df)
+        
+        assert len(result) == 1
 
-        # Should return True but log a warning (we can't easily capture log in this simple test,
-        # but we verify return value)
-        result = enforce_match_rate(df, threshold=0.80)
-        assert result is True
-
-    def test_missing_is_matched_column(self):
-        """Test handling of missing is_matched column."""
-        df = pd.DataFrame({'cue_id': [1]})
-        result = enforce_match_rate(df)
-        assert result is True
+class TestLoadAggregatedData:
+    """Tests for load_aggregated_data function."""
+    
+    @patch('aggregation.get_project_root')
+    @patch('aggregation.pd.read_parquet')
+    def test_load_aggregated_data_success(self, mock_read_parquet, mock_get_root):
+        """Test successful loading of aggregated data."""
+        mock_get_root.return_value = Path('/mock/root')
+        mock_df = pd.DataFrame({
+            'user_id': [1, 2],
+            'track_id': [101, 102],
+            'mean_vividness': [0.8, 0.6]
+        })
+        mock_read_parquet.return_value = mock_df
+        
+        result = load_aggregated_data()
+        
+        assert result is not None
+        assert len(result) == 2
+        mock_read_parquet.assert_called_once()
+    
+    @patch('aggregation.get_project_root')
+    def test_load_aggregated_data_file_not_found(self, mock_get_root):
+        """Test loading when file doesn't exist."""
+        mock_get_root.return_value = Path('/mock/root')
+        
+        with patch('pathlib.Path.exists', return_value=False):
+            result = load_aggregated_data()
+            
+            assert result is None

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T10:29:01.850414Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-486-investigating-the-impact-of-network-topo
-last_run_id: cb4a3bee-c176-4101-b469-0a08b17faba1
+last_run_id: c3978c78-2be0-4af2-a2a9-1638a7eb6df4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo
 title: Investigating the Impact of Network Topology on Neural Entrainment to Rhythmic
   Stimuli
-updated_at: '2026-07-27T21:54:19.527432Z'
+updated_at: '2026-07-29T07:25:24.948054Z'

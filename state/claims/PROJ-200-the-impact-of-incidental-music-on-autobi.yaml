@@ -663,3 +663,303 @@
   source_type: external
   status: verified
   updated_at: '2026-07-27T06:27:38Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: set MSD_URL to hf://brian/MSD
+  claim_id: c_fc8dc088
+  context: 'T062 [US1] Verify Data Source URLs: Update code/config.py to explicitly
+    define the canonical, verified URLs for MSD and AMT datasets. Specifics: Set MSD_URL
+    = "hf://brian/MSD" and AMT_URL = "hf://[validated-AMT-source]".'
+  evidence:
+    entailment_evidence: MSD URL is hf://brian/MSD - Wikipedia Jump to content Main
+      menu Main menu move to sidebar hide
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/MSD_URL_is_hf://brian/MSD
+  kind: entity_fact
+  raw_text: Set MSD_URL to hf://brian/MSD.
+  resolved_value: MSD URL is hf://brian/MSD
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T07:31:26Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: filter user-track pairs where total_listens < 3
+  claim_id: c_eb292c62
+  context: 'T015 [US1] Implement code/data_ingestion.py function apply_frequency_threshold
+    to filter user-track pairs where total_listens < 3. DEPENDS ON: T023, T013a. MUST
+    run after T013a to prevent false fallback triggers (EC-001).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_ingestion.py function apply_frequency_threshold to
+    filter user-track pairs where total_listens < 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:31:26Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: "fuzzy matching with Levenshtein distance \u2264 4"
+  claim_id: c_a117e3cb
+  context: "T047 [US2] Implement code/cue_matching.py function match_cues to perform\
+    \ fuzzy matching with Levenshtein distance \u2264 4 and log unmatched cues"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/cue_matching.py function match_cues to perform fuzzy matching\
+    \ with Levenshtein distance \u2264 4."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:31:27Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: check for multicollinearity VIF > 5
+  claim_id: c_bb674bbf
+  context: T035 [US3] Implement code/modeling.py function check_collinearity to calculate
+    Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529,
+    https://arxiv.org/abs/2605.22529))
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Variance Inflation Factor (VIF) and check for multicollinearity
+    (VIF > 5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:31:27Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: run bootstrap test for 1000 iterations
+  claim_id: c_6b10c28a
+  context: 'T045c-1 [US3] Implement code/modeling.py function run_bootstrap_test to
+    orchestrate the bootstrap test. Procedure: Call run_bootstrap_setup (T045a) to
+    prepare residuals. Call run_bootstrap_iteration (T045b) to generate statistics
+    for each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run bootstrap test for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:31:55Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: verify pipeline runs end-to-end within 6 hours
+  claim_id: c_fffa2a25
+  context: 'T046 [P] Run quickstart.md validation to ensure pipeline runs end-to-end
+    within 6 hours (SC-005). DEPENDS ON: T052.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline runs end-to-end within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:32:14Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: calculate Global Exposure metric when missing birth years > 50%
+  claim_id: c_b1564c39
+  context: 'T023 [US1] Implement code/data_ingestion.py function check_fallback_trigger
+    for FR-008 (Global Exposure metric) check. LOGIC: Calculate missing_pct = count(missing_birth_year)
+    / count(total_raw_records). If missing_pct > 0.5: CALCULATE METRIC: Compute the
+    ''Global Exposure'' metric...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Global Exposure metric when missing birth years percentage exceeds
+    0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:32:36Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: pin random seed from config.py for parametric bootstrap
+  claim_id: c_111f3fa5
+  context: 'T045a [US3] Implement code/modeling.py helper function run_bootstrap_setup
+    to prepare the Parametric Bootstrap. LOGIC: 1. Pin the random seed (from config.py).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pin_random_seed_from_config.py_for_parametric_bootstrap
+  kind: entity_fact
+  raw_text: Pin the random seed from config.py for parametric bootstrap.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:32:58Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: "check bootstrap convergence with tolerance \xB10.01"
+  claim_id: c_44949d8d
+  context: "T102 [US3] Bootstrap Convergence Check: Implement a helper function check_bootstrap_convergence\
+    \ in code/modeling.py that runs a preliminary short bootstrap (e.g., 100 iterations)\
+    \ and checks if the p-value estimate has stabilized within a tolerance (e.g.,\
+    \ \xB10.01) before proceeding to the full 1000 iterations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Check bootstrap convergence with tolerance of \xB10.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:33:19Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: run preliminary short bootstrap for 100 iterations
+  claim_id: c_b351a2c0
+  context: "T102 [US3] Bootstrap Convergence Check: Implement a helper function check_bootstrap_convergence\
+    \ in code/modeling.py that runs a preliminary short bootstrap (e.g., 100 iterations)\
+    \ and checks if the p-value estimate has stabilized within a tolerance (e.g.,\
+    \ \xB10.01) before proceeding to the full 1000 iterations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run preliminary short bootstrap for 100 iterations to check convergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:33:45Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Calculate adolescent exposure ratio for all tracks in MSD for user's
+    birth decade
+  claim_id: c_88bcda0f
+  context: Global Exposure metric calculation logic for fallback when >50% missing
+    birth years.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate adolescent_exposure_ratio for all tracks in the MSD (denominator:
+    all tracks in the MSD for that decade) for the user''s birth decade (e.g., 1980-1999
+    for 1990 birth).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:34:39Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Filter user-track pairs with fewer than 3 total listens
+  claim_id: c_42c360b8
+  context: Implementation of apply_frequency_threshold function to match FR-009.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_user-track_pairs_with_fewer_than_3_total_listens
+  kind: magnitude
+  raw_text: Filter user-track pairs where total_listens < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:35:04Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching using Levenshtein distance less than or equal to 4
+  claim_id: c_92aca65f
+  context: Implementation of match_cues function for AMT free-text cues.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fuzzy_matching_using_Levenshtein_distance_less_than_or_equal
+  kind: magnitude
+  raw_text: "Perform fuzzy matching with Levenshtein distance \u2264 4."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:35:27Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Check multicollinearity using Variance Inflation Factor greater than
+    5
+  claim_id: c_0426be5c
+  context: Implementation of check_collinearity function in modeling.py.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_multicollinearity_using_Variance_Inflation_Factor_grea
+  kind: magnitude
+  raw_text: Calculate Variance Inflation Factor (VIF) and check for multicollinearity
+    (VIF > 5).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:35:45Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Run parametric bootstrap for 1000 iterations
+  claim_id: c_fddeefd9
+  context: Procedure for run_bootstrap_test to generate statistics for each iteration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat bootstrap iterations for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:36:10Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Run preliminary bootstrap of 100 iterations with p-value tolerance of
+    0.01
+  claim_id: c_fd6b8f16
+  context: Proposed helper function check_bootstrap_convergence to verify stability
+    before full run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run a preliminary short bootstrap of 100 iterations to check if p-value\
+    \ estimate has stabilized within a tolerance of \xB10.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:36:32Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Pipeline end-to-end execution time must be under 6 hours
+  claim_id: c_4269984c
+  context: Validation requirement SC-005 for quickstart.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run end-to-end within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T07:36:52Z'

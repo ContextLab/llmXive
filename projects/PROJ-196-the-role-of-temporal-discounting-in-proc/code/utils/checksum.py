@@ -1,24 +1,29 @@
 """
 Checksum verification utility.
 Implements T009: Data checksum verification and state tracking.
+
+This module ensures Single Source of Truth traceability by maintaining
+a manifest of artifact hashes in the project state file.
 """
 import os
 import hashlib
 import yaml
-from typing import Dict, Any, Optional
+import glob
+from typing import Dict, Any, Optional, List
 from pathlib import Path
 
 # Import PROJECT_ROOT from config
 try:
-    from ..config import PROJECT_ROOT
+    from ..config import get_project_root
 except ImportError:
-    # Fallback for direct execution or different import context
     from config import get_project_root
-    PROJECT_ROOT = get_project_root()
+
+# Initialize PROJECT_ROOT
+PROJECT_ROOT = get_project_root()
 
 STATE_FILE = os.path.join(PROJECT_ROOT, "state", "projects", "PROJ-196-the-role-of-temporal-discounting-in-proc.yaml")
 
-def ensure_state_file():
+def ensure_state_file() -> None:
     """
     Ensures the state file exists and has the correct structure.
     Creates the directory and initial file if missing.
@@ -68,7 +73,6 @@ def update_artifact_hash(filepath: str, description: Optional[str] = None) -> No
         
     Raises:
         FileNotFoundError: If the artifact file does not exist.
-        yaml.YAMLError: If the state file is corrupted.
     """
     ensure_state_file()
     
@@ -141,14 +145,12 @@ def update_all_artifacts_in_directory(directory: str, pattern: str = "*.csv", de
     
     Args:
         directory: Relative path from project root to scan (e.g., "data/raw").
-        pattern: Glob pattern for files (e.g., "*.csv", "*.parquet").
+        pattern: Glob pattern for files (e.g., "*.csv", "*.parquet", "*.json").
         description_prefix: Optional prefix for the description field.
         
     Returns:
         Number of artifacts updated.
     """
-    import glob
-    
     full_dir = os.path.join(PROJECT_ROOT, directory)
     if not os.path.isdir(full_dir):
         return 0
@@ -190,3 +192,28 @@ def clear_artifact_hashes() -> None:
     
     with open(STATE_FILE, "w") as f:
         yaml.dump(state, f)
+
+def update_artifacts_for_pipeline() -> None:
+    """
+    Convenience function to update hashes for all standard pipeline artifacts.
+    Scans data/raw and data/processed directories for common data formats.
+    """
+    ensure_state_file()
+    
+    # Define standard directories and patterns
+    targets = [
+        ("data/raw", "*.csv"),
+        ("data/raw", "*.json"),
+        ("data/processed", "*.parquet"),
+        ("data/processed", "*.csv"),
+        ("data/processed", "*.json"),
+        ("figures", "*.png"),
+        ("figures", "*.pdf"),
+    ]
+    
+    total_updated = 0
+    for directory, pattern in targets:
+        count = update_all_artifacts_in_directory(directory, pattern)
+        total_updated += count
+        
+    return total_updated

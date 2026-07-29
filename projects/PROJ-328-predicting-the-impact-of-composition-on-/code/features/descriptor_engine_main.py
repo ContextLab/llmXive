@@ -1,85 +1,99 @@
 """
-Main entry point for descriptor engineering pipeline.
-
-This script orchestrates the computation of compositional descriptors
-from validated solder alloy data.
+Main entry point for the descriptor engineering pipeline.
+Orchestrates the CLR transform and descriptor computation.
 """
-
 import os
 import sys
 import logging
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from seed import init_reproducibility
 from features.descriptor_engine import DescriptorEngine
-from config import get_data_processed_dir, get_data_outputs_dir
+from features.transformer import CLRTransformer
+from features.collinearity import calculate_vif, get_collinear_features, remove_collinear_features
+from utils.logging_config import get_logger
+from config import get_data_processed_dir, get_data_outputs_dir, get_vif_threshold
+
+logger = get_logger(__name__)
+
 
 def main():
     """
-    Main function to run the descriptor engineering pipeline.
-    
-    Reads validated data, computes descriptors, and saves results.
+    Runs the full descriptor engineering and collinearity check.
     """
     init_reproducibility()
-    
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger(__name__)
-    
-    logger.info("Starting descriptor engineering pipeline")
-    
-    # Define paths
+
     processed_dir = get_data_processed_dir()
-    input_path = Path(processed_dir) / "solder_hardness_validated.csv"
     output_dir = get_data_outputs_dir()
-    output_path = Path(output_dir) / "descriptors.csv"
-    
-    # Check if input file exists
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please run the ingestion pipeline first to generate validated data.")
-        sys.exit(1)
-    
-    # Load data
-    import pandas as pd
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
-    
-    # Identify composition columns (all numeric columns except target)
-    target_cols = ['hardness_hv', 'sample_id']
-    composition_cols = [col for col in df.columns if col not in target_cols and df[col].dtype in ['float64', 'int64', 'float32', 'int32']]
-    
-    if not composition_cols:
-        logger.error("No composition columns found in the data.")
-        sys.exit(1)
-    
-    logger.info(f"Found {len(composition_cols)} composition columns: {composition_cols}")
-    
-    # Initialize descriptor engine
-    engine = DescriptorEngine(elements=composition_cols)
-    
-    # Compute descriptors
-    logger.info("Computing descriptors...")
-    descriptors = engine.compute_all_descriptors(df[composition_cols])
-    
-    # Merge with original data
-    result = pd.concat([df, descriptors], axis=1)
-    
+
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save results
-    logger.info(f"Saving descriptors to {output_path}")
-    result.to_csv(output_path, index=False)
-    
-    logger.info(f"Descriptor engineering complete. Output saved to {output_path}")
-    logger.info(f"Total descriptors computed: {len(descriptors.columns)}")
-    logger.info(f"Total samples processed: {len(result)}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    input_file = processed_dir / "solder_hardness_validated.csv"
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}. Run ingestion pipeline first.")
+        sys.exit(1)
+
+    logger.info(f"Loading validated data from {input_file}")
+    import pandas as pd
+    df = pd.read_csv(input_file)
+
+    # Identify composition columns
+    # Assuming columns are element symbols (Sn, Pb, Ag, etc.)
+    # We'll filter based on a list of known elements
+    known_elements = ["Sn", "Pb", "Ag", "Cu", "Bi", "In", "Zn", "Sb", "Au", "Ni", "Fe", "Co", "Mn", "Al", "Mg", "Ca"]
+    composition_cols = [c for c in df.columns if c in known_elements]
+
+    if not composition_cols:
+        logger.error("No composition columns found in the dataset.")
+        sys.exit(1)
+
+    logger.info(f"Detected composition columns: {composition_cols}")
+
+    # Step 1: Compute Descriptors
+    logger.info("Step 1: Computing descriptors...")
+    engine = DescriptorEngine()
+    df_with_descriptors = engine.compute_descriptors(df, composition_cols)
+
+    # Step 2: Save intermediate result
+    intermediate_file = output_dir / "solder_hardness_with_descriptors.csv"
+    df_with_descriptors.to_csv(intermediate_file, index=False)
+    logger.info(f"Saved descriptors to {intermediate_file}")
+
+    # Step 3: Collinearity Check
+    logger.info("Step 2: Checking for collinearity...")
+    descriptor_cols = [c for c in df_with_descriptors.columns if c in engine.compute_descriptors(df.head(1), composition_cols).columns]
+    # Filter out non-descriptor columns if any got mixed in
+    descriptor_cols = [c for c in descriptor_cols if c not in composition_cols and c not in ['hardness', 'alloy_id', 'source']]
+
+    if len(descriptor_cols) > 1:
+        vif_scores = calculate_vif(df_with_descriptors, descriptor_cols)
+        threshold = get_vif_threshold()
+
+        logger.info("VIF Analysis Results:")
+        collinear = []
+        for feat, score in vif_scores.items():
+            flag = " [COLLINEAR]" if score >= threshold else ""
+            logger.info(f"  {feat}: {score:.4f}{flag}")
+            if score >= threshold:
+                collinear.append(feat)
+
+        if collinear:
+            logger.warning(f"Collinear features detected: {collinear}")
+            df_clean = remove_collinear_features(df_with_descriptors, vif_scores, threshold)
+            clean_file = output_dir / "solder_hardness_clean_features.csv"
+            df_clean.to_csv(clean_file, index=False)
+            logger.info(f"Saved cleaned features to {clean_file}")
+        else:
+            logger.info("No collinear features detected.")
+            # Copy as clean
+            df_with_descriptors.to_csv(output_dir / "solder_hardness_clean_features.csv", index=False)
+    else:
+        logger.info("Not enough descriptors for VIF analysis.")
+        df_with_descriptors.to_csv(output_dir / "solder_hardness_clean_features.csv", index=False)
+
+    logger.info("Descriptor engineering pipeline completed.")
+
 
 if __name__ == "__main__":
     main()

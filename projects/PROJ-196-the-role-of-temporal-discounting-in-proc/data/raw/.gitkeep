@@ -1,2 +1,2 @@
 # This directory stores raw data files.
-# Do not modify files in this directory manually.
+# Do not commit large data files; use .gitkeep to preserve directory structure.

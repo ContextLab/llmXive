@@ -1,1 +1,2 @@
-# Keep this directory for generated figures
+# This directory stores generated figures and plots.
+# Do not commit large image files; use .gitkeep to preserve directory structure.

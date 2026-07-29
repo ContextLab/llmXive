@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project directory structure per implementation plan: `projects/PROJ-328-predicting-the-impact-of-composition-on-/data/`, `code/`, `tests/`, and `models/`
-- [ ] T002 Create `requirements.txt` at `projects/PROJ-328-predicting-the-impact-of-composition-on-/code/` with dependencies (PIN EXACT VERSIONS): `pandas`, `scikit-learn`, `xgboost`, `shap`, `numpy`, `matplotlib`, `pyyaml`, `requests`, `compositional`, `pdfplumber`, `pytest`, `flake8`, `black`
+- [X] T002 Create `requirements.txt` at `projects/PROJ-328-predicting-the-impact-of-composition-on-/code/` with dependencies (PIN EXACT VERSIONS): `pandas`, `scikit-learn`, `xgboost`, `shap`, `numpy`, `matplotlib`, `pyyaml`, `requests`, `compositional`, `pdfplumber`, `pytest`, `flake8`, `black`
 - [ ] T003 Configure linting (flake8/black) and formatting tools (must run after T001)
 
 ---
@@ -59,7 +59,7 @@
 - [ ] T005 [P] Implement data ingestion scaffolding in `code/ingestion/` with placeholder for literature aggregator
 - [ ] T006 [P] Setup `code/features/` directory structure for descriptor engineering
 - [ ] T007 Create base data models/entities (`SolderComposition`, `CompositionalDescriptor`) in `code/models/`
-- [~] T008 Configure error handling and logging infrastructure in `code/utils/`
+- [ ] T008 Configure error handling and logging infrastructure in `code/utils/`
 - [X] T009 Setup environment configuration management for paths and thresholds in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -114,12 +114,12 @@
 - [X] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
 - [X] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`
 - [ ] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py`
-- [ ] T026 [US2] Implement bootstrap resampling for confidence intervals on held-out test set in `code/evaluation/bootstrap.py`
-- [ ] T027 [US2] Implement paired t-test comparison on CV folds in `code/evaluation/model_comparison.py`
-- [ ] T028 [US2] Implement SHAP value calculation and top-3 feature ranking in `code/evaluation/shap_analysis.py`
-- [ ] T029 [US2] Implement sensitivity analysis in `code/evaluation/sensitivity.py` sweeping R² thresholds over the specific set {0.3, 0.5, 0.6, 0.7} and saving the fraction of bootstrap samples exceeding each threshold to `data/processed/sensitivity_analysis.yaml` as per SC-005
-- [ ] T030 [US2] Save model artifacts, metrics, and diagnostics to `models/` and `data/processed/`
-- [ ] T031 [US2] Add associational framing warnings in ALL model outputs, visualizations, and the final report per FR-007
+- [X] T026 [US2] Implement bootstrap resampling for confidence intervals on held-out test set in `code/evaluation/bootstrap.py`
+- [X] T027 [US2] Implement paired t-test comparison on CV folds in `code/evaluation/model_comparison.py`
+- [X] T028 [US2] Implement SHAP value calculation and top-3 feature ranking in `code/evaluation/shap_analysis.py`
+- [~] T029 [US2] Implement sensitivity analysis in `code/evaluation/sensitivity.py` sweeping R² thresholds over the specific set {0.3, 0.5, 0.6, 0.7} and saving the fraction of bootstrap samples exceeding each threshold to `data/processed/sensitivity_analysis.yaml` as per SC-005
+- [~] T030 [US2] Save model artifacts, metrics, and diagnostics to `models/` and `data/processed/`
+- [~] T031 [US2] Add associational framing warnings in ALL model outputs, visualizations, and the final report per FR-007
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,8 +133,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [P] [US3] Contract test for visualization output schema in `tests/contract/test_viz_output.py`
-- [ ] T033 [P] [US3] Integration test for visualization pipeline in `tests/integration/test_visualization.py`
+- [X] T032 [P] [US3] Contract test for visualization output schema in `tests/contract/test_viz_output.py`
+- [X] T033 [P] [US3] Integration test for visualization pipeline in `tests/integration/test_visualization.py`
 
 ### Implementation for User Story 3
 

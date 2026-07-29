@@ -1,5 +1,5 @@
 """
-Utilities package.
+Utilities package for the project.
 """
 from .checksum import (
     ensure_state_file,
@@ -8,7 +8,8 @@ from .checksum import (
     verify_artifacts,
     update_all_artifacts_in_directory,
     get_state,
-    clear_artifact_hashes
+    clear_artifact_hashes,
+    update_artifacts_for_pipeline
 )
 
 __all__ = [
@@ -18,5 +19,6 @@ __all__ = [
     "verify_artifacts",
     "update_all_artifacts_in_directory",
     "get_state",
-    "clear_artifact_hashes"
+    "clear_artifact_hashes",
+    "update_artifacts_for_pipeline"
 ]

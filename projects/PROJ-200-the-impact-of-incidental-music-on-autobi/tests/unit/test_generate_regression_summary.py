@@ -3,175 +3,127 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import sys
-import os
+from unittest.mock import Mock, patch, MagicMock
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from generate_regression_summary import (
     calculate_vif,
-    load_regression_results,
     generate_summary_dataframe
 )
-from config import get_project_root
 
-class TestCalculateVif:
-    def test_empty_dataframe(self, caplog):
-        """Test VIF calculation with empty DataFrame."""
-        df = pd.DataFrame()
-        result = calculate_vif(df)
-        assert result.empty
-        assert "Empty results DataFrame" in caplog.text
+class TestCalculateVIF:
+    def test_vif_calculation_no_collinearity(self):
+        """Test VIF calculation when predictors are uncorrelated."""
+        # Create a mock model with uncorrelated predictors
+        mock_model = Mock()
+        
+        # Create uncorrelated design matrix
+        np.random.seed(42)
+        n = 100
+        x1 = np.random.normal(0, 1, n)
+        x2 = np.random.normal(0, 1, n)
+        x3 = np.random.normal(0, 1, n)
+        
+        exog = np.column_stack([np.ones(n), x1, x2, x3])
+        col_names = ['Intercept', 'x1', 'x2', 'x3']
+        
+        mock_model.model.exog = exog
+        mock_model.model.exog_names = col_names
+        
+        vif_dict = calculate_vif(mock_model)
+        
+        # VIF should be close to 1 for uncorrelated variables
+        assert 'x1' in vif_dict
+        assert 'x2' in vif_dict
+        assert 'x3' in vif_dict
+        assert 0.9 <= vif_dict['x1'] <= 1.1
+        assert 0.9 <= vif_dict['x2'] <= 1.1
+        assert 0.9 <= vif_dict['x3'] <= 1.1
 
-    def test_no_predictors(self, caplog):
-        """Test VIF calculation when no predictors exist."""
-        df = pd.DataFrame({'term': ['Intercept'], 'coef': [1.0]})
-        result = calculate_vif(df)
-        assert result.empty
-        assert "No predictors found" in caplog.text
-
-    def test_vif_calculation(self):
-        """Test that VIF is calculated correctly for valid data."""
-        # Create a mock results DataFrame
-        results_df = pd.DataFrame({
-            'term': ['residualized_exposure', 'popularity'],
-            'coef': [0.5, 0.2],
-            'std err': [0.1, 0.05],
-            'P>|t|': [0.01, 0.03]
-        })
+    def test_vif_calculation_high_collinearity(self):
+        """Test VIF calculation when predictors are highly correlated."""
+        mock_model = Mock()
         
-        # This would normally require the actual data file
-        # For unit testing, we mock the behavior
-        # In a real scenario, this would test against actual data
-        pass
-
-class TestLoadRegressionResults:
-    def test_file_not_found(self, caplog, tmp_path):
-        """Test loading when file doesn't exist."""
-        # Temporarily change project root for testing
-        original_root = get_project_root()
+        # Create highly correlated design matrix
+        np.random.seed(42)
+        n = 100
+        x1 = np.random.normal(0, 1, n)
+        x2 = x1 + np.random.normal(0, 0.01, n)  # Highly correlated
+        x3 = np.random.normal(0, 1, n)
         
-        # Create a temporary directory structure
-        test_root = tmp_path / "test_project"
-        test_root.mkdir()
-        (test_root / "data" / "final").mkdir(parents=True)
+        exog = np.column_stack([np.ones(n), x1, x2, x3])
+        col_names = ['Intercept', 'x1', 'x2', 'x3']
         
-        # Mock the get_project_root function
-        import generate_regression_summary as module
-        original_func = module.get_project_root
-        module.get_project_root = lambda: test_root
+        mock_model.model.exog = exog
+        mock_model.model.exog_names = col_names
         
-        result = load_regression_results()
-        assert result is None
-        assert "not found" in caplog.text
+        vif_dict = calculate_vif(mock_model)
         
-        # Restore original function
-        module.get_project_root = original_func
-
-    def test_load_valid_results(self, tmp_path):
-        """Test loading valid regression results."""
-        # Create a temporary directory structure
-        test_root = tmp_path / "test_project"
-        test_root.mkdir()
-        (test_root / "data" / "final").mkdir(parents=True)
-        
-        # Create a mock results file
-        results_path = test_root / "data" / "final" / "regression_results.parquet"
-        mock_data = pd.DataFrame({
-            'term': ['residualized_exposure', 'popularity', 'Intercept'],
-            'coef': [0.5, 0.2, 1.0],
-            'std err': [0.1, 0.05, 0.2],
-            'P>|t|': [0.01, 0.03, 0.001]
-        })
-        mock_data.to_parquet(results_path)
-        
-        # Mock the get_project_root function
-        import generate_regression_summary as module
-        original_func = module.get_project_root
-        module.get_project_root = lambda: test_root
-        
-        result = load_regression_results()
-        
-        # Restore original function
-        module.get_project_root = original_func
-        
-        assert result is not None
-        assert len(result) == 3
-        assert 'term' in result.columns
+        # VIF should be high for correlated variables
+        assert vif_dict['x1'] > 5
+        assert vif_dict['x2'] > 5
+        # x3 should still be low
+        assert 0.9 <= vif_dict['x3'] <= 1.1
 
 class TestGenerateSummaryDataFrame:
-    def test_empty_results(self):
-        """Test summary generation with empty DataFrame."""
-        results_df = pd.DataFrame()
-        vif_df = pd.DataFrame()
-        result = generate_summary_dataframe(results_df, vif_df)
-        assert result.empty
+    def test_summary_dataframe_structure(self):
+        """Test that summary dataframe has correct columns."""
+        # Create a mock model
+        mock_model = Mock()
+        
+        # Mock params, bse, tvalues
+        mock_model.params = pd.Series([0.5, 0.3], index=['x1', 'x2'])
+        mock_model.bse = pd.Series([0.1, 0.15], index=['x1', 'x2'])
+        mock_model.tvalues = pd.Series([5.0, 2.0], index=['x1', 'x2'])
+        mock_model.df_resid = 98
+        
+        vif_dict = {'x1': 1.2, 'x2': 1.5}
+        
+        summary_df = generate_summary_dataframe(mock_model, vif_dict)
+        
+        # Check columns
+        expected_columns = ['variable', 'coefficient', 'std_error', 't_statistic', 'p_value', 'vif']
+        assert list(summary_df.columns) == expected_columns
+        
+        # Check values
+        assert len(summary_df) == 2
+        assert summary_df.loc[summary_df['variable'] == 'x1', 'coefficient'].iloc[0] == 0.5
+        assert summary_df.loc[summary_df['variable'] == 'x1', 'std_error'].iloc[0] == 0.1
+        assert summary_df.loc[summary_df['variable'] == 'x1', 'vif'].iloc[0] == 1.2
 
-    def test_basic_summary_generation(self):
-        """Test basic summary generation with valid data."""
-        results_df = pd.DataFrame({
-            'term': ['residualized_exposure', 'popularity', 'Intercept'],
-            'coef': [0.5, 0.2, 1.0],
-            'std err': [0.1, 0.05, 0.2],
-            'P>|t|': [0.01, 0.03, 0.001]
-        })
+    def test_summary_dataframe_pvalue_calculation(self):
+        """Test that p-values are correctly calculated."""
+        mock_model = Mock()
         
-        vif_df = pd.DataFrame({
-            'term': ['residualized_exposure', 'popularity'],
-            'vif': [1.2, 1.5]
-        })
+        # t-value of 0 should give p-value of 1.0
+        mock_model.params = pd.Series([0.0], index=['x1'])
+        mock_model.bse = pd.Series([1.0], index=['x1'])
+        mock_model.tvalues = pd.Series([0.0], index=['x1'])
+        mock_model.df_resid = 100
         
-        result = generate_summary_dataframe(results_df, vif_df)
+        vif_dict = {'x1': 1.0}
         
-        assert not result.empty
-        assert len(result) == 3
-        assert 'term' in result.columns
-        assert 'coef' in result.columns
-        assert 'std err' in result.columns
-        assert 'P>|t|' in result.columns
-        assert 'vif' in result.columns
+        summary_df = generate_summary_dataframe(mock_model, vif_dict)
+        
+        # p-value should be close to 1.0 for t=0
+        assert 0.99 < summary_df['p_value'].iloc[0] < 1.01
 
-    def test_missing_vif_values(self):
-        """Test summary generation when some VIF values are missing."""
-        results_df = pd.DataFrame({
-            'term': ['residualized_exposure', 'popularity', 'Intercept'],
-            'coef': [0.5, 0.2, 1.0],
-            'std err': [0.1, 0.05, 0.2],
-            'P>|t|': [0.01, 0.03, 0.001]
-        })
+    def test_summary_dataframe_with_nan_vif(self):
+        """Test summary dataframe generation when VIF is missing."""
+        mock_model = Mock()
         
-        # Only one VIF value provided
-        vif_df = pd.DataFrame({
-            'term': ['residualized_exposure'],
-            'vif': [1.2]
-        })
+        mock_model.params = pd.Series([0.5], index=['x1'])
+        mock_model.bse = pd.Series([0.1], index=['x1'])
+        mock_model.tvalues = pd.Series([5.0], index=['x1'])
+        mock_model.df_resid = 98
         
-        result = generate_summary_dataframe(results_df, vif_df)
+        # Empty VIF dict
+        vif_dict = {}
         
-        assert not result.empty
-        assert result.loc[result['term'] == 'popularity', 'vif'].iloc[0] != result.loc[result['term'] == 'popularity', 'vif'].iloc[0]  # NaN check
-        assert result.loc[result['term'] == 'residualized_exposure', 'vif'].iloc[0] == 1.2
-
-    def test_column_ordering(self):
-        """Test that output columns are in the expected order."""
-        results_df = pd.DataFrame({
-            'term': ['residualized_exposure'],
-            'coef': [0.5],
-            'std err': [0.1],
-            'P>|t|': [0.01]
-        })
+        summary_df = generate_summary_dataframe(mock_model, vif_dict)
         
-        vif_df = pd.DataFrame({
-            'term': ['residualized_exposure'],
-            'vif': [1.2]
-        })
-        
-        result = generate_summary_dataframe(results_df, vif_df)
-        
-        expected_order = ['term', 'coef', 'std err', 'P>|t|', 'vif']
-        actual_order = list(result.columns)
-        
-        # Check that expected columns are present in the correct relative order
-        for i, col in enumerate(expected_order):
-            if col in actual_order:
-                assert actual_order.index(col) <= actual_order.index(expected_order[i+1]) or i == len(expected_order)-1
+        assert summary_df['vif'].iloc[0] != summary_df['vif'].iloc[0]  # NaN check
