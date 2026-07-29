@@ -4,141 +4,123 @@ import logging
 import pandas as pd
 from typing import Optional
 
-# Import from existing API surface
+# Add project root to path to allow relative imports if run as script
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from utils.loaders import calculate_sha256
 from config import get_config, ensure_directories
-from utils.logging_utils import setup_logging, get_logger, log_metric
 
-# Constants for schema validation
-EXPECTED_COLUMNS = {'substructure_smiles', 'reactive_type', 'source_literature', 'confidence_score'}
-REQUIRED_COLUMNS = {'substructure_smiles', 'reactive_type'}
-MIN_CONFIDENCE = 0.0
-MAX_CONFIDENCE = 1.0
+def setup_script_logging():
+    """Configure logging for the ingestion script."""
+    config = get_config()
+    ensure_directories()
+    logger = logging.getLogger('ingest_reference_substructures')
+    logger.setLevel(logging.INFO)
+    
+    if not logger.handlers:
+        # Console handler
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+        
+        # File handler for this specific script
+        log_dir = os.path.join(config['paths']['artifacts'], 'logs')
+        os.makedirs(log_dir, exist_ok=True)
+        fh = logging.FileHandler(os.path.join(log_dir, 'ingest_reference_substructures.log'))
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+        
+    return logger
 
 def validate_schema(df: pd.DataFrame, logger: logging.Logger) -> bool:
     """
-    Validates the dataframe against the expected schema for reference substructures.
+    Validate the schema of the reference substructures dataframe.
+    Expected columns based on typical chemical reactivity data:
+    - 'substructure_id': Unique identifier
+    - 'smiles': SMILES string of the substructure
+    - 'name': Human-readable name
+    - 'reactivity_class': Classification of reactivity
+    - 'source_literature': Citation or source reference
     
-    Args:
-        df: The dataframe to validate.
-        logger: The logger instance.
-        
-    Returns:
-        bool: True if validation passes, False otherwise.
+    Returns True if valid, raises ValueError otherwise.
     """
-    if df.empty:
-        logger.error("DataFrame is empty.")
-        return False
-
-    # Check for required columns
-    missing_required = REQUIRED_COLUMNS - set(df.columns)
-    if missing_required:
-        logger.error(f"Missing required columns: {missing_required}")
-        return False
-
-    # Check for unexpected columns (strict validation)
-    unexpected = set(df.columns) - EXPECTED_COLUMNS
-    if unexpected:
-        logger.warning(f"Unexpected columns found: {unexpected}. Proceeding with validation of required columns only.")
-
-    # Validate data types and values
-    # Check substructure_smiles is not empty
-    if df['substructure_smiles'].isna().any() or (df['substructure_smiles'] == '').any():
-        logger.error("Found empty or NaN values in 'substructure_smiles' column.")
-        return False
-
-    # Validate confidence_score if present
-    if 'confidence_score' in df.columns:
-        if not pd.api.types.is_numeric_dtype(df['confidence_score']):
-            logger.error("Column 'confidence_score' must be numeric.")
-            return False
+    required_columns = {'substructure_id', 'smiles', 'name', 'reactivity_class', 'source_literature'}
+    existing_columns = set(df.columns)
+    
+    missing_cols = required_columns - existing_columns
+    if missing_cols:
+        error_msg = f"Schema validation failed: Missing required columns: {missing_cols}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    # Validate SMILES format (basic check: not empty, contains valid chars)
+    if df['smiles'].isna().any():
+        logger.warning("Found NaN values in 'smiles' column. Dropping rows.")
+        df.dropna(subset=['smiles'], inplace=True)
+    
+    if df['smiles'].str.strip().eq('').any():
+        logger.warning("Found empty strings in 'smiles' column. Dropping rows.")
+        df = df[df['smiles'].str.strip().ne('')]
         
-        invalid_scores = df[
-            (df['confidence_score'] < MIN_CONFIDENCE) | 
-            (df['confidence_score'] > MAX_CONFIDENCE)
-        ]
-        if not invalid_scores.empty:
-            logger.error(f"Found {len(invalid_scores)} rows with confidence_score outside [{MIN_CONFIDENCE}, {MAX_CONFIDENCE}].")
-            return False
-
-    logger.info("Schema validation passed.")
+    logger.info(f"Schema validation passed. {len(df)} rows remaining.")
     return True
 
-def ingest_reference_substructures(
-    input_path: str,
-    output_path: str,
-    logger: Optional[logging.Logger] = None
-) -> bool:
+def ingest_reference_substructures(raw_path: str, output_path: str, logger: logging.Logger) -> None:
     """
-    Ingests the verified raw data into the assets directory with schema validation.
+    Ingest raw reference substructures data, validate schema, and save to assets.
     
     Args:
-        input_path: Path to the raw CSV file (data/raw/reference_substructures_raw.csv).
-        output_path: Path to save the validated CSV file (data/assets/reference_substructures.csv).
-        logger: Optional logger instance.
-        
-    Returns:
-        bool: True if ingestion is successful, False otherwise.
+        raw_path: Path to the raw CSV file (data/raw/reference_substructures_raw.csv)
+        output_path: Path for the ingested CSV file (data/assets/reference_substructures.csv)
+        logger: Logger instance
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
-
+    if not os.path.exists(raw_path):
+        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
+    
+    logger.info(f"Loading raw data from {raw_path}")
     try:
-        # Load the raw data
-        logger.info(f"Loading raw data from {input_path}")
-        df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} rows.")
-
-        # Validate schema
-        if not validate_schema(df, logger):
-            logger.error("Schema validation failed. Aborting ingestion.")
-            return False
-
-        # Ensure output directory exists
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-        # Save the validated data
-        logger.info(f"Saving validated data to {output_path}")
-        df.to_csv(output_path, index=False)
-        
-        # Log success metric
-        log_metric("ingestion_rows", len(df), logger=logger)
-        log_metric("ingestion_status", "success", logger=logger)
-
-        logger.info("Ingestion completed successfully.")
-        return True
-
-    except FileNotFoundError:
-        logger.error(f"Input file not found: {input_path}")
-        return False
-    except pd.errors.EmptyDataError:
-        logger.error(f"Input file is empty: {input_path}")
-        return False
+        df = pd.read_csv(raw_path)
     except Exception as e:
-        logger.error(f"Unexpected error during ingestion: {e}")
-        return False
+        logger.error(f"Failed to read raw CSV: {e}")
+        raise
+    
+    logger.info(f"Loaded {len(df)} rows from raw file.")
+    
+    # Validate schema
+    validate_schema(df, logger)
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Save to assets
+    logger.info(f"Saving validated data to {output_path}")
+    df.to_csv(output_path, index=False)
+    
+    # Verify checksum of output for consistency
+    output_sha = calculate_sha256(output_path)
+    logger.info(f"Output file SHA-256: {output_sha}")
+    
+    logger.info("Ingestion completed successfully.")
 
 def main():
     """Main entry point for the ingestion script."""
+    logger = setup_script_logging()
     config = get_config()
-    logger = setup_logging("ingest_reference_substructures")
     
-    input_path = config.get('paths', {}).get('raw_reference_substructures', 'data/raw/reference_substructures_raw.csv')
-    output_path = config.get('paths', {}).get('assets_reference_substructures', 'data/assets/reference_substructures.csv')
-
-    # Ensure directories exist
-    ensure_directories(config)
-
-    logger.info(f"Starting ingestion of reference substructures from {input_path} to {output_path}")
+    raw_path = os.path.join(config['paths']['data_raw'], 'reference_substructures_raw.csv')
+    output_path = os.path.join(config['paths']['data_assets'], 'reference_substructures.csv')
     
-    success = ingest_reference_substructures(input_path, output_path, logger)
-    
-    if success:
+    try:
+        ingest_reference_substructures(raw_path, output_path, logger)
         logger.info("Task T009c completed successfully.")
-        sys.exit(0)
-    else:
-        logger.error("Task T009c failed.")
+    except Exception as e:
+        logger.error(f"Task T009c failed: {e}")
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Report Schema"
+description: "Schema for the results/validation_report.json."
+type: "object"
+properties:
+  total_images:
+    type: "integer"
+    description: "Total number of images in the dataset."
+  valid_pairs:
+    type: "integer"
+    description: "Number of valid image-strength pairs."
+  invalid_pairs:
+    type: "integer"
+    description: "Number of invalid pairs (missing metadata, NaN)."
+  invalid_ratio:
+    type: "number"
+    description: "Ratio of invalid pairs (0.0 to 1.0)."
+  status:
+    type: "string"
+    enum: ["PASS", "FAIL"]
+    description: "Validation status based on the 1% threshold."
+  errors:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of specific error messages."
+required:
+  - "total_images"
+  - "valid_pairs"
+  - "invalid_pairs"
+  - "invalid_ratio"
+  - "status"
+additionalProperties: false

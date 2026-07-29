@@ -57,7 +57,7 @@ properties:
     properties:
       validation_method:
         type: "string"
-        const: "expert_review"
+        const: "grain_size_correlation"
       iou_score:
         type: "number"
         description: "Optional: IoU score if available (usually null)."

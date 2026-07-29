@@ -27,7 +27,7 @@ The researcher MUST be able to download a public microstructure-strength dataset
 
 The researcher MUST be able to train a lightweight CNN (e.g., MobileNetV2 or ResNet-18 with frozen ImageNet weights) on the preprocessed dataset using CPU-only resources, applying data augmentation, and evaluate the model's predictive performance (MSE, R²) against a naive statistical baseline.
 
-**Why this priority**: This is the core research activity. It tests the hypothesis that microstructure images contain sufficient signal for strength prediction. It must run within the 6-hour CPU constraint to be feasible.
+**Why this priority**: This is the core research activity. It tests the hypothesis that microstructure images contain sufficient signal for strength prediction. It must run within a feasible CPU time constraint to be feasible.
 
 **Independent Test**: The model training and evaluation can be tested independently by executing the training script with a fixed random seed and verifying that it completes within the time limit, produces a model artifact, and outputs a report containing MSE and R² metrics for both the CNN and the baseline mean predictor.
 

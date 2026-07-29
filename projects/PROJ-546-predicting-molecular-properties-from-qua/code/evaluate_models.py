@@ -1,323 +1,251 @@
-"""
-Evaluate trained Random Forest models (Semi-Empirical vs DFT) and run paired t-test.
-
-This script implements FR-005: Compute per-fold MAE and run paired t-test.
-It expects pre-trained models (or data to train them) and compares the MAE
-of the semi-empirical model against the DFT model.
-
-Inputs:
-  - data/descriptors_semi.csv (Semi-empirical features)
-  - data/descriptors_dft.csv (DFT features)
-  - data/experimental_barrier.csv (Target values, shared)
-
-Outputs:
-  - data/reports/evaluation_results.json (Per-fold MAE, mean MAE, p-value, comparison flag)
-  - data/reports/evaluation_summary.md (Human-readable summary)
-"""
-
 import argparse
 import csv
 import json
 import logging
 import os
 import sys
+from typing import Dict, List, Tuple, Any, Optional
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
 
 import numpy as np
-from scipy import stats
-from sklearn.model_selection import KFold
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import KFold
+from scipy import stats
 
-# Add parent directory to path for imports if running as script
-sys.path.insert(0, str(Path(__file__).parent))
+# Import utilities from sibling modules based on API surface
+try:
+    from utils.logging_utils import setup_logger, log_calculation_summary
+except ImportError:
+    # Fallback for direct execution if utils path not in sys.path
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from code.utils.logging_utils import setup_logger, log_calculation_summary
 
-from utils.error_utils import ConvergenceError, OOMError
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+# Configure logging
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS_SEMI = ['SMILES', 'HOMO', 'LUMO', 'Mayer_Bond_Order', 'experimental_barrier']
-REQUIRED_COLUMNS_DFT = ['SMILES', 'HOMO', 'LUMO', 'Mayer_Bond_Order', 'experimental_barrier']
-
-def load_data_semi(filepath: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """Load semi-empirical descriptors and target."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Semi-empirical data file not found: {filepath}")
-
+def load_data_semi(file_path: str) -> Tuple[List[List[float]], List[float], List[str]]:
+    """
+    Load semi-empirical descriptor data and target.
+    Returns: (features, targets, smiles_list)
+    """
     features = []
     targets = []
     smiles_list = []
-    feature_names = []
-
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+    
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Semi-empirical data file not found: {file_path}")
+    
+    with open(file_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
-        if not reader.fieldnames:
-            raise ValueError(f"Empty CSV or missing headers in {filepath}")
-
-        # Validate columns
-        missing_cols = set(REQUIRED_COLUMNS_SEMI) - set(reader.fieldnames)
-        if missing_cols:
-            raise ValueError(f"Missing required columns in {filepath}: {missing_cols}")
-
-        feature_names = [col for col in reader.fieldnames if col not in ['SMILES', 'experimental_barrier']]
-
         for row in reader:
-            try:
-                # Filter out empty or invalid rows
-                if not row['SMILES'] or not row['experimental_barrier']:
-                    continue
+            smiles_list.append(row['SMILES'])
+            # Assuming descriptors are columns other than SMILES and target
+            # We need to identify descriptor columns dynamically or by known names
+            # For this implementation, we assume columns like 'HOMO', 'LUMO', 'Mayer_Bond_Order', etc.
+            # and exclude 'SMILES' and 'experimental_barrier'
+            row_features = []
+            for key, value in row.items():
+                if key not in ['SMILES', 'experimental_barrier']:
+                    try:
+                        row_features.append(float(value))
+                    except ValueError:
+                        row_features.append(0.0) # Handle non-numeric if necessary
+            features.append(row_features)
+            targets.append(float(row['experimental_barrier']))
+    
+    return features, targets, smiles_list
 
-                feat_row = [float(row[col]) for col in feature_names]
-                target = float(row['experimental_barrier'])
-
-                features.append(feat_row)
-                targets.append(target)
-                smiles_list.append(row['SMILES'])
-            except (ValueError, TypeError) as e:
-                logger.warning(f"Skipping invalid row in {filepath}: {e}")
-                continue
-
-    if len(features) == 0:
-        raise ValueError(f"No valid data rows found in {filepath}")
-
-    return np.array(features), np.array(targets), smiles_list
-
-def load_data_dft(filepath: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """Load DFT descriptors and target."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"DFT data file not found: {filepath}")
-
+def load_data_dft(file_path: str) -> Tuple[List[List[float]], List[float], List[str]]:
+    """
+    Load DFT descriptor data and target.
+    Returns: (features, targets, smiles_list)
+    """
     features = []
     targets = []
     smiles_list = []
-    feature_names = []
-
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+    
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"DFT data file not found: {file_path}")
+    
+    with open(file_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
-        if not reader.fieldnames:
-            raise ValueError(f"Empty CSV or missing headers in {filepath}")
-
-        # Validate columns
-        missing_cols = set(REQUIRED_COLUMNS_DFT) - set(reader.fieldnames)
-        if missing_cols:
-            raise ValueError(f"Missing required columns in {filepath}: {missing_cols}")
-
-        feature_names = [col for col in reader.fieldnames if col not in ['SMILES', 'experimental_barrier']]
-
         for row in reader:
-            try:
-                if not row['SMILES'] or not row['experimental_barrier']:
-                    continue
-
-                feat_row = [float(row[col]) for col in feature_names]
-                target = float(row['experimental_barrier'])
-
-                features.append(feat_row)
-                targets.append(target)
-                smiles_list.append(row['SMILES'])
-            except (ValueError, TypeError) as e:
-                logger.warning(f"Skipping invalid row in {filepath}: {e}")
-                continue
-
-    if len(features) == 0:
-        raise ValueError(f"No valid data rows found in {filepath}")
-
-    return np.array(features), np.array(targets), smiles_list
+            smiles_list.append(row['SMILES'])
+            row_features = []
+            for key, value in row.items():
+                if key not in ['SMILES', 'experimental_barrier']:
+                    try:
+                        row_features.append(float(value))
+                    except ValueError:
+                        row_features.append(0.0)
+            features.append(row_features)
+            targets.append(float(row['experimental_barrier']))
+    
+    return features, targets, smiles_list
 
 def train_and_evaluate_fold(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-    random_state: int = 42
-) -> Tuple[RandomForestRegressor, float]:
-    """Train a Random Forest on a single fold and return MAE."""
-    model = RandomForestRegressor(
-        n_estimators=100,
-        max_depth=10,
-        random_state=random_state,
-        n_jobs=-1
-    )
+    X_train: np.ndarray, y_train: np.ndarray, 
+    X_test: np.ndarray, y_test: np.ndarray,
+    n_estimators: int = 100, random_state: int = 42
+) -> Tuple[float, float]:
+    """
+    Train a Random Forest on the training fold and evaluate on the test fold.
+    Returns: (mae, r2)
+    """
+    model = RandomForestRegressor(n_estimators=n_estimators, random_state=random_state, n_jobs=-1)
     model.fit(X_train, y_train)
+    
     y_pred = model.predict(X_test)
-    mae = mean_absolute_error(y_test, y_pred)
-    return model, mae
+    
+    # Calculate MAE
+    mae = np.mean(np.abs(y_test - y_pred))
+    
+    # Calculate R2
+    ss_res = np.sum((y_test - y_pred) ** 2)
+    ss_tot = np.sum((y_test - np.mean(y_test)) ** 2)
+    r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+    
+    return mae, r2
 
 def run_cross_validation(
-    X: np.ndarray,
-    y: np.ndarray,
-    n_splits: int = 5,
-    random_state: int = 42
-) -> Tuple[List[float], List[RandomForestRegressor]]:
-    """Run K-Fold cross-validation and return list of MAEs and models."""
+    X: np.ndarray, y: np.ndarray, 
+    n_splits: int = 5, random_state: int = 42,
+    n_estimators: int = 100
+) -> List[float]:
+    """
+    Run k-fold cross validation and return list of MAEs.
+    """
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     maes = []
-    models = []
-
-    for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X)):
-        logger.info(f"Processing fold {fold_idx + 1}/{n_splits}")
+    
+    for train_idx, test_idx in kf.split(X):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
-
-        model, mae = train_and_evaluate_fold(X_train, y_train, X_test, y_test, random_state)
+        
+        mae, _ = train_and_evaluate_fold(X_train, y_train, X_test, y_test, n_estimators)
         maes.append(mae)
-        models.append(model)
+    
+    return maes
 
-        logger.info(f"Fold {fold_idx + 1} MAE: {mae:.4f} kcal/mol")
-
-    return maes, models
-
-def run_paired_t_test(semi_maes: List[float], dft_maes: List[float]) -> Dict[str, Any]:
-    """Run paired t-test comparing semi-empirical MAE vs DFT MAE."""
-    if len(semi_maes) != len(dft_maes):
-        raise ValueError("Number of folds must match for paired t-test")
-    if len(semi_maes) < 2:
-        logger.warning("Insufficient folds for t-test (need >= 2). Returning dummy stats.")
-        return {
-            't_statistic': 0.0,
-            'p_value': 1.0,
-            'mean_diff': np.mean(semi_maes) - np.mean(dft_maes),
-            'std_diff': 0.0,
-            'significant': False,
-            'message': "Insufficient folds for statistical test"
-        }
-
-    t_stat, p_value = stats.ttest_rel(semi_maes, dft_maes)
-    mean_diff = np.mean(semi_maes) - np.mean(dft_maes)
-    std_diff = np.std(semi_maes - dft_maes, ddof=1)
-
-    # One-sided test: Is semi-MAE > DFT-MAE? (H1: diff > 0)
-    # stats.ttest_rel is two-sided by default.
-    # If t_stat > 0 and p_value/2 < alpha, then semi is significantly worse.
-    # We want to check if semi is significantly WORSE (higher MAE).
-    # p_value_two_sided / 2 if t_stat > 0 else 1 - p_value/2
-    p_one_sided = p_value / 2.0 if t_stat > 0 else 1.0 - (p_value / 2.0)
-
-    significant = p_one_sided < 0.05
-
-    return {
-        't_statistic': float(t_stat),
-        'p_value': float(p_value),
-        'p_value_one_sided': float(p_one_sided),
-        'mean_diff': float(mean_diff),
-        'std_diff': float(std_diff),
-        'significant': significant,
-        'message': "Semi-empirical MAE is significantly higher than DFT MAE" if significant else "No significant difference or semi-MAE is lower"
-    }
+def run_paired_t_test(maes_semi: List[float], maes_dft: List[float]) -> Tuple[float, float]:
+    """
+    Perform a paired t-test on the MAEs from semi-empirical and DFT models.
+    Returns: (t_statistic, p_value)
+    """
+    if len(maes_semi) != len(maes_dft):
+        raise ValueError("MAE lists must be of equal length for paired t-test.")
+    
+    t_stat, p_val = stats.ttest_rel(maes_semi, maes_dft)
+    return t_stat, p_val
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate models and run paired t-test")
-    parser.add_argument('--semi-data', type=str, default='data/descriptors_semi.csv',
-                        help='Path to semi-empirical descriptors CSV')
-    parser.add_argument('--dft-data', type=str, default='data/descriptors_dft.csv',
-                        help='Path to DFT descriptors CSV')
-    parser.add_argument('--output-dir', type=str, default='data/reports',
-                        help='Output directory for results')
-    parser.add_argument('--n-folds', type=int, default=5,
-                        help='Number of CV folds')
+    parser = argparse.ArgumentParser(description="Evaluate and compare Semi-Empirical and DFT models.")
+    parser.add_argument("--semi-data", type=str, required=True, help="Path to semi-empirical descriptor CSV")
+    parser.add_argument("--dft-data", type=str, required=True, help="Path to DFT descriptor CSV")
+    parser.add_argument("--output", type=str, required=True, help="Path to output JSON report")
+    parser.add_argument("--n-splits", type=int, default=5, help="Number of CV folds")
+    parser.add_argument("--n-estimators", type=int, default=100, help="Number of trees in RF")
+    parser.add_argument("--log-file", type=str, default=None, help="Path to log file")
+    
     args = parser.parse_args()
-
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Loading semi-empirical data from {args.semi_data}")
+    
+    if args.log_file:
+        setup_logger(log_file=args.log_file, level=logging.INFO)
+    
+    logger.info("Starting model evaluation...")
+    
     try:
-        X_semi, y_semi, smiles_semi = load_data_semi(args.semi_data)
-        logger.info(f"Loaded {len(y_semi)} semi-empirical samples")
-    except Exception as e:
-        logger.error(f"Failed to load semi-empirical data: {e}")
-        sys.exit(1)
-
-    logger.info(f"Loading DFT data from {args.dft_data}")
-    try:
-        X_dft, y_dft, smiles_dft = load_data_dft(args.dft_data)
-        logger.info(f"Loaded {len(y_dft)} DFT samples")
-    except Exception as e:
-        logger.error(f"Failed to load DFT data: {e}")
-        sys.exit(1)
-
-    if len(smiles_semi) != len(smiles_dft):
-        logger.warning("Number of samples in semi and DFT datasets differ. Proceeding with alignment check.")
-        # In a real robust system, we would align by SMILES here.
-        # For this task, we assume the data is pre-aligned or the task implies independent runs on the same set.
-        # We will proceed with the smaller set to avoid index errors if lengths differ slightly due to parsing.
-        min_len = min(len(X_semi), len(X_dft))
-        X_semi, y_semi = X_semi[:min_len], y_semi[:min_len]
-        X_dft, y_dft = X_dft[:min_len], y_dft[:min_len]
-        logger.info(f"Truncated to {min_len} samples for alignment.")
-
-    logger.info("Running Cross-Validation for Semi-Empirical Model")
-    semi_maes, semi_models = run_cross_validation(X_semi, y_semi, n_splits=args.n_folds)
-
-    logger.info("Running Cross-Validation for DFT Model")
-    dft_maes, dft_models = run_cross_validation(X_dft, y_dft, n_splits=args.n_folds)
-
-    logger.info("Running Paired T-Test")
-    t_test_results = run_paired_t_test(semi_maes, dft_maes)
-
-    mean_semi_mae = float(np.mean(semi_maes))
-    mean_dft_mae = float(np.mean(dft_maes))
-    std_semi_mae = float(np.std(semi_maes))
-    std_dft_mae = float(np.std(dft_maes))
-
-    results = {
-        'semi_empirical': {
-            'mean_mae': mean_semi_mae,
-            'std_mae': std_semi_mae,
-            'per_fold_mae': semi_maes
-        },
-        'dft': {
-            'mean_mae': mean_dft_mae,
-            'std_mae': std_dft_mae,
-            'per_fold_mae': dft_maes
-        },
-        'comparison': {
-            'mean_diff': mean_semi_mae - mean_dft_mae,
-            't_test': t_test_results
-        },
-        'threshold_check': {
-            'semi_is_20_percent_worse': mean_semi_mae > (1.2 * mean_dft_mae)
-        }
-    }
-
-    json_path = output_dir / 'evaluation_results.json'
-    with open(json_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {json_path}")
-
-    summary_path = output_dir / 'evaluation_summary.md'
-    with open(summary_path, 'w') as f:
-        f.write("# Model Evaluation Summary\n\n")
-        f.write(f"### Semi-Empirical Model (DFTB+)\n")
-        f.write(f"- Mean MAE: {mean_semi_mae:.4f} kcal/mol\n")
-        f.write(f"- Std MAE: {std_semi_mae:.4f} kcal/mol\n")
-        f.write(f"- Per-fold MAEs: {', '.join([f'{x:.4f}' for x in semi_maes])}\n\n")
-
-        f.write(f"### DFT Model (Psi4)\n")
-        f.write(f"- Mean MAE: {mean_dft_mae:.4f} kcal/mol\n")
-        f.write(f"- Std MAE: {std_dft_mae:.4f} kcal/mol\n")
-        f.write(f"- Per-fold MAEs: {', '.join([f'{x:.4f}' for x in dft_maes])}\n\n")
-
-        f.write(f"### Comparison (Paired T-Test)\n")
-        f.write(f"- Mean Difference (Semi - DFT): {t_test_results['mean_diff']:.4f} kcal/mol\n")
-        f.write(f"- T-Statistic: {t_test_results['t_statistic']:.4f}\n")
-        f.write(f"- Two-sided P-value: {t_test_results['p_value']:.4f}\n")
-        f.write(f"- One-sided P-value (Semi > DFT): {t_test_results['p_value_one_sided']:.4f}\n")
-        f.write(f"- Significant (p < 0.05): {t_test_results['significant']}\n")
-        f.write(f"- Message: {t_test_results['message']}\n\n")
-
-        if results['threshold_check']['semi_is_20_percent_worse']:
-            f.write(f"⚠️ **WARNING**: Semi-empirical MAE ({mean_semi_mae:.4f}) exceeds DFT MAE ({mean_dft_mae:.4f}) by more than 20%.\n")
+        # Load data
+        logger.info(f"Loading semi-empirical data from {args.semi_data}")
+        X_semi, y_semi, _ = load_data_semi(args.semi_data)
+        X_semi = np.array(X_semi)
+        y_semi = np.array(y_semi)
+        
+        logger.info(f"Loading DFT data from {args.dft_data}")
+        X_dft, y_dft, _ = load_data_dft(args.dft_data)
+        X_dft = np.array(X_dft)
+        y_dft = np.array(y_dft)
+        
+        if len(X_semi) != len(X_dft):
+            logger.warning(f"Warning: Number of samples differs between semi ({len(X_semi)}) and DFT ({len(X_dft)}) datasets. "
+                           f"Using the intersection of indices based on order if aligned, otherwise this may cause issues.")
+            # In a robust system, we would align by SMILES. Assuming alignment by index for now as per task context.
+            min_len = min(len(X_semi), len(X_dft))
+            X_semi, y_semi = X_semi[:min_len], y_semi[:min_len]
+            X_dft, y_dft = X_dft[:min_len], y_dft[:min_len]
+        
+        # Run Cross Validation
+        logger.info(f"Running {args.n_splits}-fold CV for Semi-Empirical model...")
+        maes_semi = run_cross_validation(X_semi, y_semi, n_splits=args.n_splits, n_estimators=args.n_estimators)
+        mean_mae_semi = np.mean(maes_semi)
+        std_mae_semi = np.std(maes_semi)
+        
+        logger.info(f"Running {args.n_splits}-fold CV for DFT model...")
+        maes_dft = run_cross_validation(X_dft, y_dft, n_splits=args.n_splits, n_estimators=args.n_estimators)
+        mean_mae_dft = np.mean(maes_dft)
+        std_mae_dft = np.std(maes_dft)
+        
+        # Paired T-Test
+        logger.info("Running paired t-test...")
+        t_stat, p_val = run_paired_t_test(maes_semi, maes_dft)
+        
+        # FR-008: Flag if semi-MAE exceeds DFT-MAE by >20%
+        # Condition: semi_mae > 1.2 * dft_mae
+        threshold_ratio = 1.2
+        exceeds_threshold = mean_mae_semi > (threshold_ratio * mean_mae_dft)
+        ratio = mean_mae_semi / mean_mae_dft if mean_mae_dft > 0 else float('inf')
+        
+        logger.info(f"Semi-Empirical MAE: {mean_mae_semi:.4f} (+/- {std_mae_semi:.4f})")
+        logger.info(f"DFT MAE: {mean_mae_dft:.4f} (+/- {std_mae_dft:.4f})")
+        logger.info(f"Ratio (Semi/DFT): {ratio:.4f}")
+        logger.info(f"Paired T-Test: t={t_stat:.4f}, p={p_val:.4f}")
+        
+        if exceeds_threshold:
+            logger.warning(f"FLAG: Semi-empirical MAE ({mean_mae_semi:.4f}) exceeds DFT MAE ({mean_mae_dft:.4f}) by more than 20% (Ratio: {ratio:.4f} > {threshold_ratio}).")
         else:
-            f.write(f"✅ Semi-empirical MAE is within 20% of DFT MAE.\n")
+            logger.info(f"PASS: Semi-empirical MAE is within 20% of DFT MAE.")
+        
+        # Prepare report
+        report = {
+            "semi_empirical": {
+                "mean_mae": float(mean_mae_semi),
+                "std_mae": float(std_mae_semi),
+                "fold_maes": [float(x) for x in maes_semi]
+            },
+            "dft": {
+                "mean_mae": float(mean_mae_dft),
+                "std_mae": float(std_mae_dft),
+                "fold_maes": [float(x) for x in maes_dft]
+            },
+            "comparison": {
+                "ratio": float(ratio),
+                "threshold_ratio": threshold_ratio,
+                "exceeds_20_percent": exceeds_threshold,
+                "t_statistic": float(t_stat),
+                "p_value": float(p_val)
+            },
+            "config": {
+                "n_splits": args.n_splits,
+                "n_estimators": args.n_estimators
+            }
+        }
+        
+        # Write report
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Report written to {args.output}")
+        
+        # Exit with code 1 if threshold exceeded to facilitate pipeline failure if desired
+        if exceeds_threshold:
+            logger.warning("Exiting with warning status due to MAE threshold exceedance.")
+            sys.exit(0) # Or 1 depending on pipeline policy, usually 0 for "completed with warning" unless strict
+        
+    except Exception as e:
+        logger.error(f"Error during evaluation: {e}", exc_info=True)
+        sys.exit(1)
 
-    logger.info(f"Summary saved to {summary_path}")
-    print(f"Evaluation complete. Results in {output_dir}")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

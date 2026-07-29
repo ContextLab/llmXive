@@ -1,45 +1,33 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molecular-properties-prediction"
+name = "molecular-property-prediction"
 version = "0.1.0"
-description = "Predicting Molecular Properties from Quantum Chemical Calculations"
+description = "Predicting molecular properties from quantum chemical calculations"
 requires-python = ">=3.11"
 dependencies = [
     "scikit-learn>=1.4.0",
     "pandas>=2.2.0",
     "rdkit>=2024.1.0",
     "requests>=2.31.0",
+    "pytest>=8.0.0",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
-
 [tool.ruff]
-# Inherit settings from .ruff.toml or define here if preferred
+# Point to the dedicated config file
+config = ".ruff.toml"
+
+[tool.black]
+# Explicit Black configuration matching the .ruff.toml format settings
 line-length = 88
-target-version = "py311"
+target-version = ["py311"]
+skip-string-normalization = false
 
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "C", "B"]
-ignore = ["E501"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["download_data", "generate_descriptors", "utils", "validators"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

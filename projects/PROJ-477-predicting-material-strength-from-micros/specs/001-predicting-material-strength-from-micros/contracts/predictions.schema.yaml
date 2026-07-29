@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction Results Schema"
+description: "Schema for the predictions.csv output file containing model predictions, confidence intervals, and baseline for paired t-test."
+type: "object"
+properties:
+  image_id:
+    type: "string"
+    description: "Unique identifier for the image."
+  actual_strength:
+    type: "number"
+    description: "Ground truth yield strength in MPa."
+  predicted_strength:
+    type: "number"
+    description: "Model predicted yield strength in MPa."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  baseline_strength:
+    type: "number"
+    description: "Prediction from the naive mean baseline (constant value)."
+  squared_error:
+    type: "number"
+    description: "Squared error (actual - predicted)^2."
+  baseline_squared_error:
+    type: "number"
+    description: "Squared error of the baseline (actual - baseline)^2."
+  grad_cam_path:
+    type: "string"
+    description: "Relative path to the Grad-CAM heatmap image."
+required:
+  - "image_id"
+  - "actual_strength"
+  - "predicted_strength"
+  - "ci_lower"
+  - "ci_upper"
+  - "baseline_strength"
+  - "squared_error"
+  - "baseline_squared_error"
+additionalProperties: false

@@ -1,3 +1,1 @@
-"""
-Test suite for the Moebius project.
-"""
+"""Tests for llmXive."""

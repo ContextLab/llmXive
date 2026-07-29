@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Manifest Schema"
+description: "Schema for the manifest.csv file mapping images to yield strength values."
+type: "object"
+properties:
+  image_id:
+    type: "string"
+    description: "Unique identifier for the image (filename)."
+  image_path:
+    type: "string"
+    description: "Relative path to the 224x224 image file."
+  yield_strength_mpa:
+    type: "number"
+    description: "Yield strength value in MPa."
+  split:
+    type: "string"
+    enum: ["train", "val", "test"]
+    description: "Dataset split assignment."
+  grain_size_um:
+    type: ["number", "null"]
+    description: "Average grain size in micrometers (optional)."
+required:
+  - "image_id"
+  - "image_path"
+  - "yield_strength_mpa"
+  - "split"
+additionalProperties: false

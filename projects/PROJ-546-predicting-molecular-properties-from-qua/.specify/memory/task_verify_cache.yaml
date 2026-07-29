@@ -1,16 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `projects/PROJ-546-predicting-molecular-properties-from-qua/`\
-    \ directory or its expected sub\u2011folders/files was provided; without a visible\
-    \ project structure the requirement cannot be confirmed."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` entries\
-    \ for Black, a `.ruff.toml` or `ruff` section, or a pre\u2011commit hook) were\
-    \ presented, nor any evidence that ruff and black have been set up and integrated\
-    \ into the project. The required artifacts are absent, so the task is not satisfied."
 T012:
   c: false
   h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
@@ -40,3 +27,32 @@ T017:
     provided only the task description and specifications, but no concrete artifact
     (e.g., Python module, logging config, example log output) that fulfills the requirement.
     The missing implementation must be supplied for the task to be considered complete.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or report file implementing FR\u2011008 was provided;\
+    \ the evidence lacks any artifact (e.g., a script, function, or updated `evaluation.json`\
+    \ flag) that actually checks whether the semi\u2011empirical MAE exceeds the DFT\
+    \ MAE by more than 20\u202F%. Consequently the required logic is not demonstrated."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (e.g., updated evaluation report, code implementing the FR\u2011\
+    010 check, or results of a one\u2011sided t\u2011test) are present; the claim\
+    \ cannot be verified because nothing was provided to demonstrate that the semi\u2011\
+    empirical MAE was checked against the 2.0\u202Fkcal/mol threshold or that a one\u2011\
+    sided t\u2011test was performed."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, logs, or report files were provided that demonstrate runtime and memory\
+    \ logging for DFTB+ and Psi4, the calculation of the speedup ratio, or the comparison\
+    \ against the 10\xD7 threshold with failure flagging. The required artifacts are\
+    \ missing, so the task is not satisfied."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation was provided that shows a validation\
+    \ step ensuring the same subset of molecules is used for both DFTB+ and DFT calculations,\
+    \ nor that it respects the different optimized geometries required by FR\u2011\
+    002 and FR\u2011003. The required artifact is missing."

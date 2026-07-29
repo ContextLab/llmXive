@@ -1,96 +1,99 @@
 # Quickstart: Predicting Material Strength from Microstructure Images
 
 ## Prerequisites
-
-- Python 3.11 or higher
-- Git
-- GB free disk space
-- GB RAM (minimum)
+- Python 3.11+
+- pip
+- 7GB+ RAM (for local testing)
+- Access to the verified HuggingFace dataset URL.
 
 ## Installation
 
-1.  **Clone the Repository**
-    ```bash
-    git clone <repository-url>
-    cd projects/PROJ-477-predicting-material-strength-from-micros
-    ```
+1. **Clone the repository** and navigate to the project directory.
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-2.  **Create Virtual Environment**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+## Data Download & Preprocessing
 
-3.  **Install Dependencies**
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+1. **Download the dataset**:
+   ```bash
+   python code/data/download.py
+   ```
+   *Output*: `data/raw/data_synth_ebsd.zip` and checksum verification.
 
-## Data Preparation
+2. **Preprocess and Split**:
+   ```bash
+   python code/data/preprocess.py
+   ```
+   *Output*: `data/processed/` (train/, val/, test/ directories) and `data/processed/manifest.csv`.
 
-1.  **Download and Validate Data**
-    ```bash
-    python code/data/download.py
-    python code/data/validate.py
-    ```
-    This will download the EBSD dataset from the verified Zenodo source and verify its checksum.
+3. **Validate Data**:
+   ```bash
+   python code/data/validate.py
+   ```
+   *Output*: `results/validation_report.json`. Exits with code 1 if invalid pairs > 1%.
 
-2.  **Preprocess Data**
-    ```bash
-    python code/data/preprocess.py
-    ```
-    This will resize images to 224×224, normalize them, split them into train/validation/test sets, and extract grain size features.
+4. **Extract Features**:
+   ```bash
+   python code/data/extract_features.py
+   ```
+   *Output*: `data/features/grain_features.csv`.
 
-## Training
+## Model Training
 
-Run the training script:
+1. **Train the CNN**:
+   ```bash
+   python code/models/train.py
+   ```
+   *Output*: `models/best_checkpoint.pt`, `results/training_log.json`.
+   *Note*: Uses early stopping (patience=5). Runs on CPU by default.
+
+2. **Run Ablation (No Augmentation)**:
+   ```bash
+   python code/models/train_ablation.py
+   ```
+   *Output*: `models/best_ablation_checkpoint.pt`.
+
+## Evaluation & Interpretation
+
+1. **Run Evaluation**:
+   ```bash
+   python code/eval/metrics.py
+   ```
+   *Output*: `results/performance_report.json`, `results/null_hypothesis_report.json`.
+
+2. **Generate Interpretability**:
+   ```bash
+   python code/eval/interpret.py
+   ```
+   *Output*: `results/interpretability_report.json`, Grad-CAM heatmaps in `results/heatmaps/`.
+
+3. **Generate Predictions with Confidence Intervals**:
+   ```bash
+   python code/eval/predictor.py
+   ```
+   *Output*: `results/predictions.csv` (contains `predicted_strength`, `ci_lower`, `ci_upper`, `baseline_strength`).
+
+4. **Sensitivity Analysis**:
+   ```bash
+   python code/eval/sensitivity.py
+   ```
+   *Output*: `results/sensitivity_analysis.csv`.
+
+## Running Tests
+
 ```bash
-python code/models/trainer.py
+pytest tests/
 ```
-This will train the MobileNetV2 model with early stopping and save the best checkpoint to `code/models/checkpoints/best_model.pth`.
 
-## Evaluation
+## Troubleshooting
 
-Run the evaluation script:
-```bash
-python code/eval/evaluator.py
-```
-This will compute MSE, R², perform the paired t-test against the baseline, and generate `results/null_hypothesis_report.json`.
-
-## Interpretability & Sensitivity
-
-1.  **Generate Grad-CAM Heatmaps**
-    ```bash
-    python code/eval/interpretability.py --mode gradcam
-    ```
-    Heatmaps will be saved to `results/heatmaps/`.
-
-2.  **Sensitivity Analysis**
-    ```bash
-    python code/eval/interpretability.py --mode sensitivity
-    ```
-    Results will be saved to `results/sensitivity_report.json`.
-
-3.  **Confidence Intervals**
-    ```bash
-    python code/eval/predictor.py
-    ```
-    Predictions with confidence intervals will be saved to `results/predictions.csv` (FR-008).
-
-## Verification
-
-1.  **Run Unit Tests**
-    ```bash
-    pytest tests/unit/
-    ```
-
-2.  **Lint Code**
-    ```bash
-    ruff check code/ --fix
-    ```
-
-3.  **Check Memory Profile**
-    ```bash
-    python code/utils/memory_profiler.py --stress-test
-    ```
-    Ensure peak memory usage remains within acceptable system constraints.
+- **Memory Error**: Reduce `batch_size` in `code/utils/config.py`.
+- **Data Missing**: Verify the HuggingFace URL is accessible; check `data/raw/` for incomplete downloads.
+- **Baseline Outperforms**: This is a valid scientific result; check `results/null_hypothesis_report.json` for the p-value.

@@ -7,6 +7,7 @@ Compatible with the project's logging and configuration infrastructure.
 """
 
 import time
+import json
 from contextlib import contextmanager
 from typing import Optional, Dict, Any
 from pathlib import Path
@@ -132,7 +133,6 @@ def save_timing_results(output_path: str):
     Args:
         output_path: Path to the output JSON file.
     """
-    import json
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     

@@ -1,4 +1,1 @@
-"""
-llmXive - Moebius 0.2B Follow-up Project
-Automated Science Pipeline Implementation
-"""
+"""llmXive Follow-up: Extending Moebius 0.2B Framework."""

@@ -65,9 +65,9 @@
 - [ ] T009b [P] Verify checksum (SHA-256) of `data/raw/reference_substructures_raw.csv` against the source manifest.
 - [ ] T009c [P] Ingest verified data into `data/assets/reference_substructures.csv` with schema validation.
 - [ ] T009d [P] [FR-009] Download the external kinetic dataset (≥20 molecules) from verified source to `data/raw/kinetic_dataset_raw.csv` (distinct output file).
-- [~] T009e [P] Verify checksum (SHA-256) of `data/raw/kinetic_dataset_raw.csv` against the source manifest.
-- [~] T009f [P] Ingest verified data into `data/assets/kinetic_dataset.csv` with schema validation.
-- [~] T009g [P] Implement **curation logic** for both reference sets: Verify source literature matches "known reactive" criteria (for T009a/c) and "experimental reaction rates" criteria (for T009d/f) before final ingestion. Log validation results to `artifacts/curation_validation.log`.
+- [ ] T009e [P] Verify checksum (SHA-256) of `data/raw/kinetic_dataset_raw.csv` against the source manifest.
+- [ ] T009f [P] Ingest verified data into `data/assets/kinetic_dataset.csv` with schema validation.
+- [ ] T009g [P] Implement **curation logic** for both reference sets: Verify source literature matches "known reactive" criteria (for T009a/c) and "experimental reaction rates" criteria (for T009d/f) before final ingestion. Log validation results to `artifacts/curation_validation.log`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,14 +86,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/01_download_data.py` to fetch QM9 subset (via `datasets.load_dataset` or verified URL) with error handling and retry logic
+- [X] T012 [US1] Implement `code/01_download_data.py` to fetch QM9 subset (via `datasets.load_dataset` or verified URL) with error handling and retry logic
 - [ ] T013 [US1] Implement the preprocessing script to convert SMILES to graphs using RDKit (Node: atomic number, hybridization, formal charge; Edge: bond type, conjugation)
-- [ ] T014a [US1] **Implement runtime detection mechanism**: Add memory profiler hook using `psutil` within `code/02_preprocess_graphs.py`. **Condition**: `if psutil.virtual_memory().percent > 80` (approx 4GB limit) triggers the sampling logic.
-- [ ] T014b [US1] **Implement subset sampling strategy**: Add logic in `code/02_preprocess_graphs.py` that reduces batch size or molecule count when triggered by T014a's hook, logging the adjustment to `artifacts/memory_adjustments.log`.
-- [ ] T015 [US1] Implement Murcko scaffold splitting logic (standard train-test split) in `code/02_preprocess_graphs.py`
+- [X] T014a [US1] **Implement runtime detection mechanism**: Add memory profiler hook using `psutil` within `code/02_preprocess_graphs.py`. **Condition**: `if psutil.virtual_memory().percent > 80` (approx 4GB limit) triggers the sampling logic.
+- [X] T014b [US1] **Implement subset sampling strategy**: Add logic in `code/02_preprocess_graphs.py` that reduces batch size or molecule count when triggered by T014a's hook, logging the adjustment to `artifacts/memory_adjustments.log`.
+- [X] T015 [US1] Implement Murcko scaffold splitting logic (standard train-test split) in `code/02_preprocess_graphs.py`
 - [ ] T016 [US1] Serialize preprocessed graphs to `data/processed/` (`.parquet` or `.pkl`) with derivation logs
 - [ ] T017 [US1] Add validation to ensure excluded invalid SMILES count is < 0.1% and **generate structured artifact** `artifacts/exclusion_report.json` containing the specific count and percentage.
-- [ ] T017a [US1] **Explicit Artifact Generation**: Implement logic in `code/02_preprocess_graphs.py` to write the `exclusion_report.json` file to `artifacts/` upon completion, ensuring the report is a persisted artifact containing `total_molecules`, `excluded_count`, `exclusion_percentage`, and `timestamp`, strictly satisfying the "report" requirement of FR-001 and Edge Cases.
+- [X] T017a [US1] **Explicit Artifact Generation**: Implement logic in `code/02_preprocess_graphs.py` to write the `exclusion_report.json` file to `artifacts/` upon completion, ensuring the report is a persisted artifact containing `total_molecules`, `excluded_count`, `exclusion_percentage`, and `timestamp`, strictly satisfying the "report" requirement of FR-001 and Edge Cases.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,7 +107,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for model architecture initialization (CPU mode) in `tests/unit/test_models.py`
+- [X] T018 [P] [US2] Unit test for model architecture initialization (CPU mode) in `tests/unit/test_models.py`
 - [ ] T019 [P] [US2] Integration test for training loop convergence in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2

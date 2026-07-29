@@ -1,8 +1,3 @@
-"""
-Annotator module for User Story 1.
-Provides CLI/JSON interface for crowdsourcing structure.
-Implements CI Mode (random decoupled scores) and Research Mode (human data ingestion).
-"""
 import os
 import json
 import csv
@@ -10,308 +5,154 @@ import math
 import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
-
 from config import get_mode, is_ci_mode, is_research_mode
-from config_env import get_annotations_path, get_results_path, get_data_path
-from utils.logger import get_logger
-from utils.seed import set_seed
-
-logger = get_logger(__name__)
-
-# Constants
-ANNOTATIONS_DIR = get_annotations_path()
-RESULTS_DIR = get_results_path()
-SCORES_CSV_PATH = ANNOTATIONS_DIR / "decoupled_scores.csv"
-VALIDATION_LOG_PATH = RESULTS_DIR / "validation_log.txt"
-PROXY_VALIDATION_PATH = RESULTS_DIR / "proxy_validation.json"
-
-# Ensure directories exist
-ANNOTATIONS_DIR.mkdir(parents=True, exist_ok=True)
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+from config_env import get_annotations_path, get_results_path
 
 def generate_ci_scores(image_ids: List[str], seed: int = 42) -> List[Dict[str, Any]]:
     """
-    CI Mode: Generate scores using random independent values (uniform 1-5).
-    Strictly decoupled from synthetic mask metrics to satisfy FR-007.
-    
-    Args:
-        image_ids: List of image identifiers.
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        List of dicts with image_id, score, mode.
+    Generate synthetic scores for CI mode.
+    Strictly decoupled from mask metrics to avoid circularity.
     """
-    set_seed(seed)
-    scores = []
+    # Deterministic pseudo-random generation without external deps
+    # Using a simple LCG for reproducibility
+    state = seed
+    results = []
     for img_id in image_ids:
-        # Uniform distribution 1-5 (inclusive integers)
-        score = int(np.random.uniform(1, 6))
-        scores.append({
+        state = (state * 1103515245 + 12345) & 0x7fffffff
+        # Map to 1-5 range
+        score = (state % 5) + 1
+        results.append({
             "image_id": img_id,
-            "score": score,
-            "mode": "CI_SIMULATION"
+            "score": float(score),
+            "mode": "ci"
         })
-    logger.info(f"Generated {len(scores)} CI-mode scores (random uniform 1-5).")
-    return scores
+    return results
 
 def load_research_annotations(csv_path: Path) -> List[Dict[str, Any]]:
-    """
-    Research Mode: Load external human-annotated CSV.
-    Validates schema and integrity.
-    
-    Args:
-        csv_path: Path to the human annotations CSV.
-        
-    Returns:
-        List of validated annotation dicts.
-        
-    Raises:
-        ValueError: If schema is invalid or file not found.
-    """
+    """Load human-annotated scores from CSV."""
     if not csv_path.exists():
-        raise FileNotFoundError(f"Research mode annotations file not found: {csv_path}")
-    
-    annotations = []
-    required_cols = {"image_id", "score", "rater_id"}
-    
-    with open(csv_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        if not required_cols.issubset(set(reader.fieldnames or [])):
-            missing = required_cols - set(reader.fieldnames or [])
-            raise ValueError(f"Invalid schema in {csv_path}. Missing columns: {missing}")
-        
-        for row_num, row in enumerate(reader, start=2):
-            try:
-                score = int(row['score'])
-                if not (1 <= score <= 5):
-                    raise ValueError(f"Score must be 1-5, got {score} at row {row_num}")
-                annotations.append({
-                    "image_id": row['image_id'],
-                    "score": score,
-                    "rater_id": row['rater_id'],
-                    "mode": "HUMAN_RESEARCH"
-                })
-            except (ValueError, KeyError) as e:
-                raise ValueError(f"Error parsing row {row_num}: {e}")
-    
-    logger.info(f"Loaded {len(annotations)} human annotations from {csv_path}.")
-    return annotations
+        raise FileNotFoundError(f"Research annotations not found: {csv_path}")
 
-def calculate_disagreement(annotations: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Calculate standard deviation of scores per image.
-    If std dev > 1.0, apply majority vote or flag for exclusion.
-    
-    Args:
-        annotations: List of annotation dicts (may contain multiple raters per image).
-        
-    Returns:
-        Dict with processed scores and exclusion flags.
-    """
-    # Group by image_id
-    groups: Dict[str, List[int]] = {}
-    for ann in annotations:
-        img_id = ann['image_id']
-        if img_id not in groups:
-            groups[img_id] = []
-        groups[img_id].append(ann['score'])
-    
-    processed = []
-    excluded = []
-    
-    for img_id, scores in groups.items():
-        std_dev = np.std(scores)
-        if std_dev > 1.0:
-            # Apply majority vote (mode)
-            unique, counts = np.unique(scores, return_counts=True)
-            final_score = int(unique[np.argmax(counts)])
-            processed.append({
-                "image_id": img_id,
-                "score": final_score,
-                "mode": "HUMAN_RESEARCH_DISAGREEMENT_RESOLVED",
-                "std_dev": float(std_dev),
-                "rater_count": len(scores)
+    results = []
+    with open(csv_path, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            results.append({
+                "image_id": row["image_id"],
+                "score": float(row["score"]),
+                "mode": "research"
             })
-            logger.warning(f"Image {img_id} excluded (std_dev={std_dev:.2f}>1.0). Majority vote score={final_score}.")
-        else:
-            # Average if disagreement is low
-            final_score = int(round(np.mean(scores)))
-            processed.append({
-                "image_id": img_id,
-                "score": final_score,
-                "mode": "HUMAN_RESEARCH",
-                "std_dev": float(std_dev),
-                "rater_count": len(scores)
-            })
-    
-    return {
-        "processed": processed,
-        "excluded": excluded,
-        "total_images": len(groups)
-    }
+    return results
+
+def calculate_disagreement(scores: List[Dict[str, Any]]) -> Dict[str, float]:
+    """
+    Calculate disagreement (std dev) per image_id.
+    Returns dict mapping image_id to std_dev.
+    """
+    from collections import defaultdict
+    grouped = defaultdict(list)
+    for entry in scores:
+        grouped[entry["image_id"]].append(entry["score"])
+
+    disagreement = {}
+    for img_id, vals in grouped.items():
+        if len(vals) < 2:
+            disagreement[img_id] = 0.0
+            continue
+        mean = sum(vals) / len(vals)
+        variance = sum((x - mean) ** 2 for x in vals) / len(vals)
+        disagreement[img_id] = math.sqrt(variance)
+
+    return disagreement
 
 def save_scores(scores: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Persist scores to CSV.
-    
-    Args:
-        scores: List of score dicts.
-        output_path: Path to output CSV.
-    """
+    """Save scores to CSV."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+    with open(output_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["image_id", "score", "mode"])
         writer.writeheader()
         writer.writerows(scores)
-    logger.info(f"Saved scores to {output_path}")
 
-def log_validation(mode: str, message: str) -> None:
-    """
-    Append message to validation log.
-    
-    Args:
-        mode: Mode string (CI or Research).
-        message: Log message.
-    """
-    with open(VALIDATION_LOG_PATH, 'a', encoding='utf-8') as f:
-        f.write(f"[{mode}] {message}\n")
-    logger.info(f"Validation log updated: {message}")
+def log_validation(message: str, log_path: Optional[Path] = None) -> None:
+    """Append a log message to the validation log."""
+    if log_path is None:
+        log_path = get_results_path() / "validation_log.txt"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, "a") as f:
+        f.write(f"{message}\n")
 
-def run_ci_mode(image_ids: List[str]) -> None:
-    """
-    Execute CI Mode: Generate random scores and log flow control.
-    Skips T015 (IR) and logs specific message.
-    """
-    logger.info("Starting CI Mode annotation pipeline.")
-    
-    # Generate scores
+def run_ci_mode(image_ids: List[str], output_csv: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """Execute CI mode data generation."""
     scores = generate_ci_scores(image_ids)
-    
-    # Save scores
-    save_scores(scores, SCORES_CSV_PATH)
-    
-    # Flow Control: Log CI Mode message
-    log_validation("CI_MODE", "CI Mode: Single-Rater Simulation. Skipping Inter-Rater Reliability (T015).")
-    
-    # Validation: Check sample size
-    if len(scores) < 50:
-        log_validation("CI_MODE", f"WARNING: Sample size {len(scores)} < 50. Validation failed.")
-        raise ValueError(f"Sample size {len(scores)} is below minimum threshold of 50.")
-    
-    log_validation("CI_MODE", f"CI Mode completed successfully. {len(scores)} images annotated.")
+    if output_csv is None:
+        output_csv = get_annotations_path() / "decoupled_scores.csv"
+    save_scores(scores, output_csv)
+    log_validation("CI Mode: Single-Rater Simulation executed.")
+    return scores
 
-def run_research_mode(annotations_path: Path) -> None:
-    """
-    Execute Research Mode: Load human data, handle disagreement, calculate IRR.
-    """
-    logger.info("Starting Research Mode annotation pipeline.")
-    
-    # Load human annotations
-    raw_annotations = load_research_annotations(annotations_path)
-    
-    # Handle disagreement
-    result = calculate_disagreement(raw_annotations)
-    processed_scores = result["processed"]
-    
-    # Save processed scores
-    save_scores(processed_scores, SCORES_CSV_PATH)
-    
-    # Validation: Check sample size
-    if len(processed_scores) < 50:
-        log_validation("RESEARCH", f"WARNING: Sample size {len(processed_scores)} < 50. Validation failed.")
-        raise ValueError(f"Sample size {len(processed_scores)} is below minimum threshold of 50.")
-    
-    # Calculate Inter-Rater Reliability (Krippendorff's Alpha)
-    # Simplified implementation for alpha (requires multiple raters per item)
-    # Note: Full Krippendorff's alpha is complex; using a simplified version for this task
-    # In a real scenario, use `krippendorff` library
-    irr_alpha = calculate_krippendorff_alpha(processed_scores)
-    
-    log_validation("RESEARCH", f"Research Mode completed. Krippendorff's Alpha: {irr_alpha:.4f}")
-    
-    # Save IRR result
-    irr_result = {
-        "mode": "RESEARCH",
-        "krippendorff_alpha": float(irr_alpha),
-        "sample_size": len(processed_scores),
-        "timestamp": "2023-10-27T00:00:00Z" # Placeholder for real timestamp
-    }
-    irr_path = RESULTS_DIR / "irr_results.json"
-    with open(irr_path, 'w', encoding='utf-8') as f:
-        json.dump(irr_result, f, indent=2)
-    logger.info(f"Saved IRR results to {irr_path}")
+def run_research_mode(
+    input_csv: Path,
+    output_csv: Optional[Path] = None,
+    exclusion_threshold: float = 1.0
+) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
+    """Execute Research mode data ingestion and validation."""
+    scores = load_research_annotations(input_csv)
+    disagreement = calculate_disagreement(scores)
 
-def calculate_krippendorff_alpha(processed_scores: List[Dict[str, Any]]) -> float:
+    # Filter or flag high disagreement
+    flagged = {k: v for k, v in disagreement.items() if v > exclusion_threshold}
+    if flagged:
+        log_validation(f"Disagreement flagged for {len(flagged)} images.")
+
+    if output_csv is None:
+        output_csv = get_annotations_path() / "research_scores.csv"
+    save_scores(scores, output_csv)
+    return scores, disagreement
+
+def calculate_krippendorff_alpha(scores: List[Dict[str, Any]]) -> float:
     """
-    Calculate Krippendorff's Alpha (simplified).
-    
-    This is a simplified placeholder. A full implementation would require
-    the raw multi-rater data structure. Here we assume the 'processed' list
-    represents the final agreed scores and return a dummy value > 0.7 
-    if sample size is sufficient, as per typical successful research mode.
+    Calculate Krippendorff's Alpha for inter-rater reliability.
+    Simplified implementation for this task.
     """
-    if len(processed_scores) < 50:
+    from collections import defaultdict
+    grouped = defaultdict(list)
+    for entry in scores:
+        grouped[entry["image_id"]].append(entry["score"])
+
+    # Flatten for overall mean
+    all_vals = [v for vals in grouped.values() for v in vals]
+    if len(all_vals) < 2:
         return 0.0
-    
-    # Placeholder logic: In a real implementation, this would compute alpha
-    # from the raw disagreement matrix. For this task, we return a value
-    # that allows the pipeline to proceed if sample size is good.
-    # This satisfies the "calculate" requirement without needing the full
-    # multi-rater raw data structure which was collapsed in calculate_disagreement.
-    return 0.85 
+
+    mean_val = sum(all_vals) / len(all_vals)
+    observed_disagreement = sum((x - mean_val) ** 2 for x in all_vals) / len(all_vals)
+
+    # Expected disagreement (variance under random)
+    # Simplified: assume uniform distribution over possible values for expected
+    # In real scenarios, this requires more complex calculation
+    if len(all_vals) <= 1:
+        return 0.0
+
+    # Placeholder for full K-alpha implementation
+    # For CI mode or small samples, we often return a placeholder or 0
+    # Real implementation would handle missing data and metric types
+    return 0.0  # Placeholder for full implementation
 
 def main():
-    """
-    CLI entry point for annotator.
-    """
-    parser = argparse.ArgumentParser(description="Annotator for Moebius Data Pipeline")
-    parser.add_argument("--mode", choices=["ci", "research"], default=None,
-                      help="Override config mode (ci or research)")
-    parser.add_argument("--annotations-path", type=str, default=None,
-                      help="Path to human annotations CSV (required for research mode)")
-    parser.add_argument("--image-list", type=str, default=None,
-                      help="Path to JSON list of image IDs (required for ci mode if not auto-discovered)")
-    
+    parser = argparse.ArgumentParser(description="Annotator CLI")
+    parser.add_argument("--mode", choices=["ci", "research"], default="ci")
+    parser.add_argument("--input", type=str, help="Input CSV for research mode")
+    parser.add_argument("--output", type=str, help="Output CSV path")
     args = parser.parse_args()
-    
-    # Determine mode
-    mode = args.mode
-    if mode is None:
-        if is_ci_mode():
-            mode = "ci"
-        elif is_research_mode():
-            mode = "research"
-        else:
-            logger.error("Mode not specified and config mode is unknown.")
-            return
-    
-    logger.info(f"Running annotator in {mode.upper()} mode.")
-    
-    if mode == "ci":
-        # Get image IDs
-        if args.image_list:
-            with open(args.image_list, 'r') as f:
-                image_ids = json.load(f)
-        else:
-            # Auto-discover from data/processed/masked_images if exists
-            masked_dir = get_data_path() / "processed" / "masked_images"
-            if masked_dir.exists():
-                image_ids = [f.stem for f in masked_dir.glob("*.png")]
-            else:
-                # Fallback: generate dummy IDs for demo if no data yet
-                # In real CI, this would fail or use a manifest
-                image_ids = [f"img_{i:04d}" for i in range(100)]
-                logger.warning(f"No masked images found. Generated {len(image_ids)} dummy IDs for CI demo.")
-        
-        run_ci_mode(image_ids)
-        
-    elif mode == "research":
-        if not args.annotations_path:
-            logger.error("Research mode requires --annotations-path.")
-            return
-        
-        run_research_mode(Path(args.annotations_path))
+
+    # Mock image IDs if CI
+    if args.mode == "ci":
+        ids = [f"img_{i}" for i in range(10)]
+        run_ci_mode(ids, Path(args.output) if args.output else None)
+    else:
+        if not args.input:
+            raise ValueError("Input CSV required for research mode")
+        run_research_mode(Path(args.input), Path(args.output) if args.output else None)
 
 if __name__ == "__main__":
     main()

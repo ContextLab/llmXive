@@ -54,7 +54,7 @@
 
 ### Tests for User Story 1
 
-- [ ] T012 [US1] Integration test for `code/generate_descriptors.py` on 50 molecules in `tests/test_descriptors.py` <!-- ATOMIZE: requested -->
+- [X] T012 [US1] Integration test for `code/generate_descriptors.py` on 50 molecules in `tests/test_descriptors.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
@@ -101,11 +101,11 @@
 
 ### Tests for User Story 3
 
-- [ ] T028 [P] [US3] Unit test for `code/sensitivity_analysis.py` in `tests/test_sensitivity.py`
+- [X] T028 [P] [US3] Unit test for `code/sensitivity_analysis.py` in `tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/sensitivity_analysis.py` to extract feature importance from semi-empirical RF (FR-006)
+- [X] T029 [US3] Implement `code/sensitivity_analysis.py` to extract feature importance from semi-empirical RF (FR-006)
 - [ ] T030 [US3] Implement logic to identify top 5 descriptors and calculate cumulative importance (FR-009)
 - [ ] T031 [US3] Implement sensitivity sweep over 5 percentiles of importance distribution (FR-007)
 - [ ] T032 [US3] Report MAE degradation for each sweep and verify stability of top descriptors (SC-003)

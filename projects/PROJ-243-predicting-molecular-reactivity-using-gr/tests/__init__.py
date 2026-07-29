@@ -1,3 +1,3 @@
 """
-llmXive Project: Test suite initialization.
+Test package initialization.
 """

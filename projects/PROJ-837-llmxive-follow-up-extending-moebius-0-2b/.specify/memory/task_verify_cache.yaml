@@ -1,0 +1,12 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree, `plan.md`, or any files under `projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/`
+    were presented. The response only contains feature specifications and user stories,
+    not the required project structure. The required artifact is missing.
+T011:
+  c: false
+  h: 5528347e4d66eec9a586fef5fc4bcbb84fb5a0cd2d218eced670c50878f6cdf9
+  r: "The required integration test file `tests/integration/test_data_independence.py`\
+    \ does not exist in the repository, so the task\u2019s deliverable is missing.\
+    \ No further evidence of a test implementation is provided."

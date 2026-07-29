@@ -1,76 +1,57 @@
-# Quickstart: Predicting Molecular Properties
+# Quick Start Guide
 
 ## Prerequisites
-
 - Python 3.11+
-- `dftb+` and `psi4` installed and available in PATH (CPU-only version).
-- `git` for version control.
-- Access to a GitHub Actions runner (or local machine with equivalent resources).
+- DFTB+ installed and in PATH
+- Psi4 installed and in PATH
+- pip and virtual environment tools
 
 ## Installation
+1. Clone the repository.
+2. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate
+ ```
+3. Install Python dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-546-predicting-molecular-properties-from-qua
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install Python dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-The pipeline consists of four main steps. Execute them in order.
-
-### Step 1: Download and Validate Data
+## Data Download
+Run the data download script to fetch the experimental barrier dataset:
 ```bash
 python code/download_data.py
 ```
-- Downloads the MAESTRO dataset from the verified Zenodo/HuggingFace URL.
-- Computes checksums and stores them in `data/checksums.txt`.
+This will create `data/raw/experimental_barriers.csv`.
 
-### Step 2: Generate Descriptors
+## Generate Descriptors
+Run the descriptor generation script for the semi-empirical method:
 ```bash
-# Semi-Empirical (DFTB) - Uses DFT-optimized geometries
-python code/generate_descriptors.py --method dftb --subset all
-
-# High-Level (DFT) - Restricted to subset
-python code/generate_descriptors.py --method dft --subset 30
+python code/generate_descriptors.py --method dftb --subset 50
 ```
-- **Note**: The DFT step is restricted to a computationally feasible number of molecules to fit within the 6-hour runtime limit.
+This will create `data/processed/descriptors_semi.csv`.
 
-### Step 3: Train and Evaluate Models
+## Train Models
+Train the Random Forest models:
 ```bash
 python code/train_models.py
 ```
-- Trains Random Forest models on both descriptor sets.
-- Performs 5-fold cross-validation.
-- Outputs MAE and p-values for the bootstrap resampling test.
+This will train models on both semi-empirical and DFT data (if available) and save results to `data/processed/model_outputs/`.
 
-### Step 4: Sensitivity Analysis
+## Evaluate
+Evaluate the models and generate the report:
 ```bash
-python code/sensitivity_analysis.py
+python code/evaluate_models.py
 ```
-- Sweeps feature importance thresholds.
-- Generates the sensitivity report.
 
-## Verification
-
-To verify the pipeline:
-1.  Check `data/processed/model_results.json` for MAE values.
-2.  Verify that the semi-empirical MAE is within 20% of the DFT MAE (or flagged if not).
-3.  Ensure `data/checksums.txt` matches the expected hashes.
+## Run Tests
+Run the test suite:
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
-
-- **Out of Memory**: If DFT calculation fails, reduce the subset size in `generate_descriptors.py`.
-- **Convergence Failure**: The script logs failures and skips the molecule. Check `logs/dftb_failures.log`.
-- **Missing Dependencies**: Ensure `dftb+` and `psi4` are in your PATH.
+- **DFTB+ not found**: Ensure DFTB+ is installed and in your PATH.
+- **OOM Error**: Reduce the subset size or increase system memory.
+- **Convergence Failure**: Check log files in `logs/` for details.

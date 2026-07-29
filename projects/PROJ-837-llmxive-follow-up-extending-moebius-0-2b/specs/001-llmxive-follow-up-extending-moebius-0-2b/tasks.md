@@ -1,4 +1,4 @@
-# Tasks: llmXive follow-up: extending "Moebius: 0.2B Lightweight Image Inpainting Framework with 10B-Level Pe"
+# Tasks: llmXive follow-up: extending "Moebius: 0.2B (2606.19195, https://arxiv.org/abs/2606.19195) Lightweight Image Inpainting Framework with 10B-Level Pe"
 
 **Input**: Design documents from `/specs/001-llmxive-moebius-dynamic/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` and `projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/` directory layout
-- [ ] T002 Initialize a Python project with PyTorch (CPU-only), scikit-learn, pillow, numpy, pandas, scipy, datasets, lpips, torchmetrics, torchvision dependencies in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
+- [X] T002 Initialize a Python project with PyTorch (CPU-only), scikit-learn, pillow, numpy, pandas, scipy, datasets, lpips, torchmetrics, torchvision dependencies in `requirements.txt`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
 
@@ -57,9 +57,9 @@
 
 Examples of foundational tasks (adjust based on your plan):
 
-- [ ] T004 Implement `code/config.py` with seeds, paths, hyperparameters, and mode flags (CI vs Research)
+- [X] T004 Implement `code/config.py` with seeds, paths, hyperparameters, and mode flags (CI vs Research)
 - [X] T005 [P] Implement `code/utils/seed.py` for deterministic seeding across all libraries
-- [ ] T006 [P] Implement `code/utils/cpu_profiler.py` for CPU-specific timing utilities (`time.perf_counter`)
+- [X] T006 [P] Implement `code/utils/cpu_profiler.py` for CPU-specific timing utilities (`time.perf_counter`)
 - [ ] T007 Create base data model classes (`MaskedRegion`, `InferenceResult`, `GatingState`) in `code/models/data_models.py`
 - [ ] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
 - [ ] T009 Setup environment configuration management for dataset paths and artifact hashes
@@ -79,7 +79,7 @@ Examples of foundational tasks (adjust based on your plan):
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Unit test for mask generation metrics (gradient variance, entropy) in `tests/unit/test_mask_generator.py`
-- [~] T011 [P] [US1] Integration test for data pipeline independence (no model inference in label gen) in `tests/integration/test_data_independence.py`
+- [ ] T011 [P] [US1] Integration test for data pipeline independence (no model inference in label gen) in `tests/integration/test_data_independence.py`
 
 ### Implementation for User Story 1
 
@@ -89,10 +89,10 @@ Examples of foundational tasks (adjust based on your plan):
  - [ ] T014a [US1] **CI Mode**: Generate `data/annotations/decoupled_scores.csv` with columns `[image_id, score, mode]`. Logic: Generate scores using **random independent values** (uniform distribution 1-5) strictly decoupled from synthetic mask metrics (gradient/entropy) to satisfy FR-007 and avoid circularity. {{claim:c_9f11c331}} (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604).
  - [ ] T014b [US1] **Research Mode**: Implement logic to load external human-annotated CSV. Validate schema and integrity.
  - [ ] T014c [US1] **Research Mode Ingestion**: Implement the specific mechanism to ingest, manage, and validate real human participant data for 'Research Mode' as required by FR-002.
- - [ ] T014d [US1] Implement **Participant Disagreement Logic**: Calculate standard deviation of scores per image. If std dev > 1.0, apply majority vote or flag for exclusion as per spec edge cases.
+ - [ ] T014d [US1] Implement **Participant Disagreement Logic**: Calculate standard deviation of scores per image. If std dev > 1.0, apply majority vote or flag for exclusion [UNRESOLVED-CLAIM: c_76a7af69 — status=not_enough_info] as per spec edge cases.
  - [ ] T014e [US1] **Flow Control**: If CI Mode, skip T015 (IR) and **explicitly log** "CI Mode: Single-Rater Simulation" to `data/results/validation_log.txt` to satisfy Constitution Principle VI auditability. If Research Mode, proceed to T015.
 - [ ] T015 [US1] Implement Inter-Rater Reliability calculation (Krippendorff's alpha) in `code/data/annotator.py` (Research Mode only)
-- [ ] T016 [US1] Add validation logic in `code/data/annotator.py` that raises an error if sample size < 50 or if label independence check fails. Log result to `data/results/validation_log.txt`.
+- [ ] T016 [US1] Add validation logic in `code/data/annotator.py` that raises an error if sample size < 50 [UNRESOLVED-CLAIM: c_72a99a20 — status=not_enough_info] or if label independence check fails. Log result to `data/results/validation_log.txt`.
 - [ ] T017 [US1] Persist masked images to `data/processed/masked_images/` and scores to `data/annotations/`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -129,7 +129,7 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/models/moebius_tiny.py` (Simplified CPU version, ≤15M params total)
+- [ ] T020 [P] [US2] Implement `code/models/moebius_tiny.py` (Simplified CPU version, ≤15M params total [UNRESOLVED-CLAIM: c_8c24df97 — status=not_enough_info])
 - [ ] T021 [US2] Implement `code/models/gating_head.py` (Lightweight conv head, **≤5M parameters**) to output scalar complexity. **Verification**: Count parameters and fail if > 5M.
 - [ ] T022 [US2] Implement `code/models/moebius_dynamic.py` (Deliverable: `code/models/moebius_dynamic.py`) integrating gating head with $L\lambda MI$ linear matrices rank modulation logic.
  - [ ] T022a [US2] Handle edge case: interpolation for score=3
@@ -137,7 +137,7 @@ Examples of foundational tasks (adjust based on your plan):
 - [ ] T023 [US2] Implement `code/training/train_gating.py` with multi-task loss (reconstruction + regression + rank classification)
 - [ ] T024 [US2] Implement `code/training/train_end_to_end.py` for fine-tuning
 - [ ] T025 [US2] Implement permutation test logic in `code/eval/stats.py` to verify no overfitting (FR-008)
-- [ ] T025a [US2] **Pre-Deployment Gate**: Implement a validation step that checks the permutation test p-value. If p ≤ 0.05, block deployment and raise an error. This explicitly satisfies FR-008's requirement for a pre-deployment check.
+- [ ] T025a [US2] **Pre-Deployment Gate**: Implement a validation step that checks the permutation test p-value. If p ≤ 0.05, block deployment and raise an error. [UNRESOLVED-CLAIM: c_0a7b5c7f — status=not_enough_info] This explicitly satisfies FR-008's requirement for a pre-deployment check.
 - [ ] T026 [US2] Save model weights to `code/models/moebius_dynamic.pt` and gating weights to `data/results/`
 
 **Checkpoint**: At this point, User Stories 1, 4, AND 2 should all work independently
@@ -163,7 +163,7 @@ Examples of foundational tasks (adjust based on your plan):
 - [ ] T031 [US3] Implement `code/eval/report.py` to generate `data/results/evaluation_report.json`
 - [ ] T032 [US3] Implement ablation logic in `code/eval/report.py` for counterfactual runs (Static Low Rank vs Dynamic)
 - [ ] T033a [US3] **Run Inference**: Execute inference on test set across complexity bins; save raw latency metrics to `data/results/latency_raw.csv`.
-- [ ] T033b [US3] **Verify Target**: Calculate latency reduction from `latency_raw.csv`. Verify ≥30% reduction for low-complexity regions. Update `data/results/evaluation_report.json`.
+- [ ] T033b [US3] **Verify Target**: Calculate latency reduction from `latency_raw.csv`. Verify ≥30% reduction for low-complexity regions. [UNRESOLVED-CLAIM: c_b546ae44 — status=not_enough_info] Update `data/results/evaluation_report.json`.
 - [ ] T034 [US3] Verify FID difference ≤0.5 vs static baseline and statistical significance (p > 0.05)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -176,7 +176,7 @@ Examples of foundational tasks (adjust based on your plan):
 
 - [ ] T038 [P] Documentation updates in `docs/` and `paper/draft.md` with mode labeling (CI vs Research)
 - [ ] T039 Code cleanup and refactoring
-- [ ] T040 Performance optimization (chunked processing for FID/LPIPS to stay within 7GB RAM)
+- [ ] T040 Performance optimization (chunked processing for FID/LPIPS to stay within 7GB RAM [UNRESOLVED-CLAIM: c_d597f5ea — status=not_enough_info])
 - [ ] T041 [P] Additional unit tests in `tests/unit/`
 - [ ] T042 Run `quickstart.md` validation and ensure all artifacts are checksummed
 - [ ] T043 Generate final `paper/draft.md` with embedded metrics and mode distinctions

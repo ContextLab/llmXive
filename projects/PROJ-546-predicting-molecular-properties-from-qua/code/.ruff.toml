@@ -1,31 +1,29 @@
 # Ruff configuration for PROJ-546
-# Linter rules and formatting settings
-
-target-version = "py311"
-line-length = 88
+# Enforces PEP 8 compliance and project-specific rules
 
 [lint]
-# Enable flake8, pycodestyle, and pyflakes rules
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort (import sorting)
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
 ignore = [
     "E501", # Line too long (handled by Black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
+    "B008", # Do not perform function call in argument defaults (common in ML)
 ]
 
 [lint.isort]
-known-first-party = ["download_data", "generate_descriptors", "utils", "validators"]
+known-first-party = ["utils", "validators"]
 force-sort-within-sections = true
+lines-after-imports = 2
 
 [format]
-# Black-compatible formatting
+# Black-compatible formatting settings
 quote-style = "double"
 indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+line-width = 88

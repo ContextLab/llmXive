@@ -1,29 +1,21 @@
-# Predicting Molecular Properties from Quantum Chemical Calculations
-
-**Project ID**: PROJ-546
-**Status**: Active
+# PROJ-546: Predicting Molecular Properties from Quantum Chemical Calculations
 
 ## Overview
-This project implements a pipeline to predict molecular properties (specifically reaction barrier heights) using descriptors derived from quantum chemical calculations. It compares semi-empirical methods (DFTB+) against high-level DFT baselines (Psi4) to evaluate computational trade-offs.
+This project implements a pipeline to predict molecular barrier heights using semi-empirical (DFTB+) and high-level DFT (Psi4) descriptors, comparing their accuracy and computational cost.
 
 ## Structure
-- `code/`: Python implementation scripts (data download, descriptor generation, model training, evaluation).
-- `data/`: Raw datasets, processed descriptors, and model artifacts.
-- `tests/`: Unit and integration tests.
-- `specs/`: Feature specifications and design documents.
-- `docs/`: Project documentation and reports.
-
-## Prerequisites
-- Python 3.11+
-- DFTB+ (for semi-empirical calculations)
-- Psi4 (for DFT calculations)
-- Required Python packages listed in `code/requirements.txt`
+- `specs/`: Project specifications and user stories
+- `data/`: Raw and processed data artifacts
+- `code/`: Python implementation scripts and utilities
+- `tests/`: Test suite
 
 ## Quick Start
 1. Install dependencies: `pip install -r code/requirements.txt`
 2. Download data: `python code/download_data.py`
-3. Generate descriptors: `python code/generate_descriptors.py`
-4. Train models: `python code/train_models.py`
+3. Generate semi-empirical descriptors: `python code/generate_descriptors.py --method dftb`
+4. Train and evaluate models: `python code/train_models.py`
 
-## License
-Academic Use Only
+## Requirements
+- Python 3.11+
+- DFTB+ (system installation)
+- Psi4 (system installation)
