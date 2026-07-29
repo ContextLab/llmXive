@@ -5,199 +5,191 @@ import json
 import datetime
 import yaml
 import requests
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 
-# Configuration constants based on project requirements
-DATASET_URL = "https://openneuro.org/datasets/ds000246/versions/1.0.0/file_display/ds000246.tar.gz"
-DATASET_VERSION = "1.0.0"
+# Constants for the OpenNeuro dataset
 DATASET_ID = "ds000246"
-EXPECTED_CHECKSUM = "d41d8cd98f00b204e9800998ecf8427e"  # Placeholder, will be fetched dynamically
-MANIFEST_PATH = "data/processed/manifest.yaml"
-STATE_PATH = "state/pipeline_state.yaml"
-RAW_DATA_DIR = "data/raw"
+OPENNEURO_API_URL = "https://openneuro.org/crn/datasets"
+OPENNEURO_DOWNLOAD_URL = "https://openneuro.org/datasets/{dataset_id}/versions"
+TARGET_FILE = "gaze.tsv"
+STATE_FILE = "state/pipeline_state.yaml"
 
-def calculate_file_checksum(file_path: str, algorithm: str = 'md5') -> str:
-    """Calculate checksum of a file."""
+def calculate_file_checksum(file_path: str, algorithm: str = "sha256") -> str:
+    """Calculate the checksum of a file."""
     hash_func = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b''):
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
             hash_func.update(chunk)
     return hash_func.hexdigest()
 
-def fetch_remote_checksum(url: str) -> Optional[str]:
+def fetch_remote_checksum(dataset_id: str, filename: str) -> Optional[Dict[str, Any]]:
     """
-    Fetch the remote checksum from the source.
-    In a real OpenNeuro scenario, this might parse a manifest.json or sidecar.
-    Here we simulate fetching it from a known metadata endpoint or file.
+    Fetch the remote checksum and version info for a specific file from OpenNeuro.
+    Returns a dict with 'version', 'checksum', 'size' or None if not found.
     """
-    # For OpenNeuro ds000246, we might look for a specific metadata file or
-    # derive it from the dataset version.
-    # Since we cannot guarantee a live API for every specific checksum without
-    # a specific manifest URL, we will attempt to fetch a remote hash if available,
-    # otherwise we rely on the dataset version to verify consistency.
-    #
-    # NOTE: In a production pipeline, this would hit a specific API endpoint
-    # like: https://openneuro.org/datasets/ds000246/versions/1.0.0
-    # and extract the 'files' checksums.
-    
-    # Simulating a fetch attempt for a manifest file that might contain the hash
-    # If the actual URL structure is different, this would need adjustment.
-    # For this implementation, we assume the URL provided is the data file.
-    # We will try to get a checksum from a sidecar if it exists, or return None
-    # to indicate we must rely on local verification after download.
-    
-    # Attempting to fetch a manifest.json from the dataset root if available
-    manifest_url = url.replace("file_display", "files").replace(".tar.gz", "/manifest.json")
+    # OpenNeuro API to get dataset versions
+    versions_url = f"https://openneuro.org/crn/datasets/{dataset_id}/versions"
     try:
-        response = requests.get(manifest_url, timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            # Extract checksum if present in the manifest structure
-            if 'checksum' in data:
-                return data['checksum']
-    except Exception:
-        pass
-    
-    return None
+        response = requests.get(versions_url, timeout=30)
+        response.raise_for_status()
+        versions = response.json()
 
-def verify_dataset_integrity(local_path: str, expected_checksum: Optional[str]) -> bool:
-    """Verify the downloaded file against the expected checksum."""
-    if not os.path.exists(local_path):
-        return False
-    
-    local_checksum = calculate_file_checksum(local_path)
-    
-    if expected_checksum:
-        return local_checksum == expected_checksum
-    
-    # If no expected checksum provided, we assume integrity based on successful download
-    # In a real scenario, we would raise an error if checksum is missing
-    return True
+        # We need the latest version or a specific one. Let's assume latest for now.
+        # OpenNeuro API structure might vary, but typically returns a list of versions.
+        if not versions:
+            return None
 
-def generate_manifest(output_path: str, dataset_info: Dict[str, Any]) -> None:
-    """
-    Generate the manifest.yaml file with dataset URL, version, and checksums.
-    This satisfies Constitution Principle VI by recording the source provenance.
-    """
-    manifest = {
-        "dataset_id": dataset_info.get("id"),
-        "version": dataset_info.get("version"),
-        "source_url": dataset_info.get("url"),
-        "download_timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        "checksums": {
-            "raw_file": dataset_info.get("checksum")
-        },
-        "metadata": {
-            "description": "EEG dataset for cognitive load prediction",
-            "subjects": dataset_info.get("subjects", []),
-            "trials": dataset_info.get("trials", 0)
-        }
-    }
-    
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        yaml.dump(manifest, f, default_flow_style=False, sort_keys=False)
+        # Sort by creation date descending to get latest
+        latest_version = max(versions, key=lambda v: v.get('creationDate', 0))
+        version_id = latest_version.get('id')
 
-def update_state(state_path: str, manifest_path: str) -> None:
+        # Now get the manifest for this version to find file checksums
+        # OpenNeuro doesn't always expose file-level checksums directly in the version list.
+        # We might need to download the manifest or check the dataset structure.
+        # For this implementation, we will attempt to fetch the dataset snapshot manifest.
+        # A common pattern is to download the dataset and verify, but here we try to get metadata.
+
+        # Alternative: Use the dataset's snapshot API if available
+        snapshot_url = f"https://openneuro.org/crn/datasets/{dataset_id}/snapshots/{version_id}"
+        snap_response = requests.get(snapshot_url, timeout=30)
+        if snap_response.status_code == 200:
+            snap_data = snap_response.json()
+            # Look for files in the snapshot
+            if 'files' in snap_data:
+                for file_info in snap_data['files']:
+                    if file_info.get('name') == filename or file_info.get('path', '').endswith(filename):
+                        return {
+                            "version": version_id,
+                            "checksum": file_info.get('checksum', file_info.get('md5')),
+                            "size": file_info.get('size'),
+                            "url": file_info.get('url')
+                        }
+        return None
+    except requests.RequestException as e:
+        print(f"Warning: Could not fetch remote metadata for {filename}: {e}")
+        return None
+
+def verify_dataset_integrity(dataset_path: str, filename: str, expected_checksum: str) -> bool:
+    """Verify the local file matches the expected checksum."""
+    full_path = os.path.join(dataset_path, filename)
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(f"Expected file {filename} not found in {dataset_path}")
+
+    actual_checksum = calculate_file_checksum(full_path)
+    return actual_checksum.lower() == expected_checksum.lower()
+
+def generate_manifest(dataset_id: str, dataset_path: str, output_path: str, filename: str = TARGET_FILE):
     """
-    Update the pipeline state YAML with the manifest checksum and timestamp.
+    Generate a manifest.yaml file containing dataset URL, version, and checksums.
+    This satisfies Constitution Principle VI by automatically fetching and verifying.
     """
-    if not os.path.exists(state_path):
-        state = {
-            "pipeline_state": {
-                "version": "1.0",
-                "last_updated": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                "artifacts": {}
-            }
+    print(f"Generating manifest for dataset {dataset_id}...")
+
+    # 1. Fetch remote metadata
+    remote_info = fetch_remote_checksum(dataset_id, filename)
+
+    if not remote_info:
+        # If we can't fetch remote info, we might still generate a manifest based on local file
+        # but we must flag that remote verification failed.
+        print(f"Warning: Could not fetch remote metadata for {filename}. Generating manifest with local data only.")
+        local_path = os.path.join(dataset_path, filename)
+        if not os.path.exists(local_path):
+            raise FileNotFoundError(f"Local file {filename} not found at {local_path} and remote metadata unavailable.")
+        
+        local_checksum = calculate_file_checksum(local_path)
+        manifest_data = {
+            "dataset_id": dataset_id,
+            "source_url": f"https://openneuro.org/datasets/{dataset_id}",
+            "version": "unknown",
+            "files": [
+                {
+                    "name": filename,
+                    "checksum": local_checksum,
+                    "checksum_algorithm": "sha256",
+                    "verified_against_source": False,
+                    "verification_message": "Remote metadata unavailable; checksum is local only."
+                }
+            ],
+            "generated_at": datetime.datetime.now().isoformat()
         }
     else:
-        with open(state_path, 'r') as f:
-            state = yaml.safe_load(f)
+        # Verify local file against remote checksum
+        local_path = os.path.join(dataset_path, filename)
+        if not os.path.exists(local_path):
+            raise FileNotFoundError(f"Local file {filename} not found at {local_path} to verify against remote checksum.")
+
+        is_verified = verify_dataset_integrity(dataset_path, filename, remote_info['checksum'])
+        
+        manifest_data = {
+            "dataset_id": dataset_id,
+            "source_url": f"https://openneuro.org/datasets/{dataset_id}",
+            "version": remote_info['version'],
+            "files": [
+                {
+                    "name": filename,
+                    "checksum": remote_info['checksum'],
+                    "checksum_algorithm": "sha256", # Assuming sha256 based on API, adjust if API returns md5
+                    "verified_against_source": is_verified,
+                    "verification_message": "Verified against OpenNeuro remote metadata." if is_verified else "Checksum mismatch!"
+                }
+            ],
+            "generated_at": datetime.datetime.now().isoformat()
+        }
+        
+        if not is_verified:
+            raise ValueError(f"Checksum verification failed for {filename}. Expected {remote_info['checksum']}, got {calculate_file_checksum(local_path)}.")
+
+    # Write manifest
+    with open(output_path, 'w') as f:
+        yaml.dump(manifest_data, f, default_flow_style=False)
     
-    # Calculate checksum of the manifest itself
-    manifest_checksum = calculate_file_checksum(manifest_path)
-    
-    if "pipeline_state" not in state:
-        state["pipeline_state"] = {}
-    
-    state["pipeline_state"]["artifacts"]["manifest"] = {
-        "path": manifest_path,
-        "checksum": manifest_checksum,
-        "updated_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
+    print(f"Manifest generated at {output_path}")
+    return manifest_data
+
+def update_state(manifest_data: Dict[str, Any], state_file: str = STATE_FILE):
+    """Update the pipeline state YAML with checksums and timestamp."""
+    state_dir = os.path.dirname(state_file)
+    if not os.path.exists(state_dir):
+        os.makedirs(state_dir)
+
+    state = {}
+    if os.path.exists(state_file):
+        with open(state_file, 'r') as f:
+            state = yaml.safe_load(f) or {}
+
+    # Update state with manifest info
+    state['last_manifest_update'] = datetime.datetime.now().isoformat()
+    state['dataset'] = {
+        'id': manifest_data['dataset_id'],
+        'version': manifest_data['version'],
+        'source_url': manifest_data['source_url'],
+        'files_checksums': {f['name']: f['checksum'] for f in manifest_data['files']}
     }
+
+    with open(state_file, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False)
     
-    state["pipeline_state"]["last_updated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    
-    os.makedirs(os.path.dirname(state_path), exist_ok=True)
-    with open(state_path, 'w') as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+    print(f"State updated at {state_file}")
 
 def main():
-    """
-    Main entry point to generate the manifest.
-    1. Fetch remote checksum (if available).
-    2. Download dataset (simulated or actual if needed).
-    3. Verify integrity.
-    4. Generate manifest.yaml.
-    5. Update state/pipeline_state.yaml.
-    """
-    print(f"Generating manifest for dataset: {DATASET_ID}")
-    
-    # 1. Fetch remote checksum
-    remote_checksum = fetch_remote_checksum(DATASET_URL)
-    if not remote_checksum:
-        print("Warning: Could not fetch remote checksum. Proceeding with local verification only.")
-    
-    # 2. Download dataset (This part assumes download.py has already run or we trigger it)
-    # For this task, we assume the file is in data/raw/ds000246.tar.gz if downloaded
-    # or we attempt to download it here.
-    raw_file_path = os.path.join(RAW_DATA_DIR, f"{DATASET_ID}.tar.gz")
-    
-    if not os.path.exists(raw_file_path):
-        print(f"Dataset not found at {raw_file_path}. Attempting download...")
-        # In a real scenario, we would call download_dataset here.
-        # Since T008 handles download, we assume it exists or we raise an error.
-        # For this task to be standalone, we will attempt a simple fetch if not present.
-        try:
-            response = requests.get(DATASET_URL, stream=True)
-            if response.status_code == 200:
-                os.makedirs(RAW_DATA_DIR, exist_ok=True)
-                with open(raw_file_path, 'wb') as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        f.write(chunk)
-                print(f"Downloaded dataset to {raw_file_path}")
-            else:
-                raise FileNotFoundError(f"Failed to download dataset. Status: {response.status_code}")
-        except Exception as e:
-            print(f"Error downloading dataset: {e}")
-            # If download fails, we cannot generate a valid manifest with real checksums
-            # We return early or fail.
-            return
+    """Main entry point for the manifest generator."""
+    # Default paths relative to project root
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    dataset_id = DATASET_ID
+    dataset_path = os.path.join(project_root, "data", "raw", dataset_id)
+    output_path = os.path.join(project_root, "data", "processed", "manifest.yaml")
+    state_file = os.path.join(project_root, "state", "pipeline_state.yaml")
 
-    # 3. Verify integrity
-    if not verify_dataset_integrity(raw_file_path, remote_checksum):
-        print("Error: Dataset integrity verification failed.")
-        return
+    # Ensure directories exist
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # 4. Generate manifest
-    dataset_info = {
-        "id": DATASET_ID,
-        "version": DATASET_VERSION,
-        "url": DATASET_URL,
-        "checksum": calculate_file_checksum(raw_file_path),
-        "subjects": ["S01", "S02"], # Placeholder, would be parsed from data
-        "trials": 100 # Placeholder
-    }
-    
-    generate_manifest(MANIFEST_PATH, dataset_info)
-    print(f"Manifest generated at {MANIFEST_PATH}")
-
-    # 5. Update state
-    if os.path.exists(MANIFEST_PATH):
-        update_state(STATE_PATH, MANIFEST_PATH)
-        print(f"State updated at {STATE_PATH}")
-    else:
-        print("Error: Manifest file not found, cannot update state.")
+    try:
+        manifest_data = generate_manifest(dataset_id, dataset_path, output_path)
+        update_state(manifest_data, state_file)
+        print("Manifest generation and state update completed successfully.")
+    except Exception as e:
+        print(f"Error during manifest generation: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

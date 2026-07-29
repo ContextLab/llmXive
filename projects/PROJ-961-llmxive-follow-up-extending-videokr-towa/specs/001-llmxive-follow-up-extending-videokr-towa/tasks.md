@@ -61,7 +61,7 @@
 - [ ] T004 [P] Implement `code/utils/config.py` for seed management and path configuration
 - [ ] T005 [P] Implement `code/utils/versioning.py` to write SHA-256 hashes of data artifacts (Constitution Principle V)
 - [ ] T006 [P] Create `code/utils/graph_utils.py` with shortest path logic (BFS) handling disconnected graphs
-- [ ] T007 [P] Create `code/utils/entity_linker.py` for mapping question entities to graph nodes (fuzzy/embedding based)
+- [ ] T007 [P] Create `code/utils/entity_linker.py` for mapping question entities to graph nodes (fuzzy/embedding based). **Conditional Logic**: The script must first check if the input dataset already contains a `node_id` or `entity_id` column. If present, it MUST skip the linking process and use the provided IDs. If absent, it MUST implement the fuzzy/embedding linking logic. This satisfies FR-001 without assuming a specific data source structure.
 - [ ] T009 [P] Implement `code/ingest/checksum.py` as a utility script to be invoked by T012 for verifying raw data integrity (Constitution Principle III)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -78,27 +78,27 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation. These are part of the 'Implementation' block for US1.**
 
-- [ ] T010 [US1] Unit test for `graph_utils.py` shortest path logic in `tests/unit/test_graph_utils.py` (handles disconnected nodes, shortest path rule). **Depends on T006 completion.**
-- [ ] T011 [US1] Integration test for `annotate_graph.py` on a sample subset in `tests/integration/test_pipeline.py`
+- [ ] T010 [S] [US1] Unit test for `graph_utils.py` shortest path logic in `tests/unit/test_graph_utils.py` (handles disconnected nodes, shortest path rule). **Depends on T006 completion.**
+- [ ] T011 [S] [US1] Integration test for `annotate_graph.py` on a sample subset in `tests/integration/test_pipeline.py` **Depends on T006, T007, T009 completion.**
 
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `code/ingest/download_data.py` to fetch VideoKR-SFT and Knowledge Graph from verified URLs (NAB/UCI/arXiv) with checksumming, invoking T009 for verification.
-- [ ] T013 [P] [US1] **Implementation (Producer)**: Implement `code/ingest/annotate_graph.py` to:
+- [ ] T013 [S] [US1] **Implementation (Producer)**: Implement `code/ingest/annotate_graph.py` to:
  - **Two-Stage Sampling Strategy**: Implement a strict **Pilot -> Oversample** process as mandated by the Plan:
- 1. **Pilot Phase**: Run a pilot sample (e.g., [deferred] or 1000 rows) using `datasets.load_dataset(name, split=..., streaming=True)` and `itertools.islice` to estimate the distribution of `chain_length`.
+  1. **Pilot Phase**: Run a pilot sample (e.g., 1000 rows) using `datasets.load_dataset(name, split=..., streaming=True)` and `itertools.islice` to estimate the distribution of `chain_length`.
   2. **Oversampling Check**: If any bin (especially '3+') has <50 samples in the pilot, trigger an **Oversampling** step.
-  3. **Oversampling Logic**: Use `sklearn.model_selection.train_test_split` with `strata=chain_length` on the full dataset (if loadable) or continue streaming with `islice` until the target N>=50 for the rare bin is reached. **Explicitly preserve the distribution of hop counts**.
+  3. **Oversampling Logic**: **Exact Algorithm**: Use stratified resampling (with replacement) on the pilot subset to reach N>=50 for rare bins. If the full dataset is loadable, merge this oversampled set with the full dataset. If streaming, continue `islice` until N>=50 is reached for the rare bin. **Explicitly preserve the distribution of hop counts**.
   4. **Logging**: Log the sampling method, pilot size, oversampling target, and final sample size.
  - **Chunked Processing**: Implement chunked streaming (e.g., `pandas.read_csv(chunksize=...)`) to process the dataset in memory-safe batches if full load is not feasible.
  - **Fallback Sampling**: If the full dataset cannot be processed within 7GB RAM (detected via memory monitoring) or pilot phase indicates >6h runtime, **MUST** fall back to the **Two-Stage Sampling** (Pilot -> Oversample) described above. **DO NOT** use generic `islice` without ensuring statistical power. Log the sampling method and size.
- - **Map entities**: Map question entities to graph nodes using `entity_linker.py`.
- - **Input**: `question` text column.
- - **Output**: `entity_node_id` (string) and `confidence` (float).
- - **Handling**: If `confidence < threshold`, mark as `unmapped` and log.
+ - **Map entities**: Map question entities to graph nodes using `entity_linker.py`. **Conditional**: If `entity_linker.py` detects pre-existing node IDs (per T007), use them directly. Otherwise, perform linking.
+  - **Input**: `question` text column.
+  - **Output**: `entity_node_id` (string) and `confidence` (float).
+  - **Handling**: If `confidence < threshold`, mark as `unmapped` and log.
  - **Calculate Exact Hops**: Calculate the **exact integer** shortest path hops (1, 2, 3, 4, 5...) for each record. Output this as the column `chain_length` (integer type).
- - **Algorithm**: Use BFS (Breadth-First Search) for unweighted graphs. If weighted, use Dijkstra.
- - **Tie-Breaking**: If multiple shortest paths exist, use the one with the lexicographically smallest node sequence.
+  - **Algorithm**: Use BFS (Breadth-First Search) for unweighted graphs. If weighted, use Dijkstra.
+  - **Tie-Breaking**: If multiple shortest paths exist, use the one with the lexicographically smallest node sequence.
  - **Generate Binned Column**: Derive a second column `chain_bin` (categorical: '1', '2', '3+') from `chain_length` to satisfy FR-002's requirement for binned categories.
  - **Handle Disconnected**: Exclude or label 'unresolvable' for disconnected graphs.
  - **Enforce Shortest Path**: Use the shortest path rule for multiple paths.
@@ -110,7 +110,6 @@
  - **Logic**: Verify that the row count matches the input (excluding unmapped/unresolvable). Log `total_input_records` (count BEFORE any exclusion), `unresolvable_count`, and `annotated_count`.
  - **Output**: Write `data/processed/annotation_coverage.json` with the counts and `proportion = annotated_count / total_input_records`. (SC-001)
  - **Depends on**: T013 completion.
-- [ ] T015 [US1] **Coverage Log**: (Merged into T013b logic, but kept for traceability) Calculate and log the proportion of questions successfully annotated to `data/processed/annotation_coverage.json`. **Logic**: `proportion = annotated_count / total_input_records`. **Mandatory**: Explicitly log `total_input_records` (count BEFORE any exclusion), `unresolvable_count`, and `annotated_count` as separate fields in the JSON to enable independent verification of SC-001. (SC-001)
 - [ ] T016 [US1] Write hash of `annotated_videokr.csv` to `state/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -136,18 +135,19 @@
 - [ ] T020a [S] [US2] **Bin Preparation & Merging Logic**: Implement `code/analysis/bin_utils.py` to:
  - **Input**: Use **exact integer `chain_length` data from T013** (1, 2, 3, 4, 5...) and bin counts from T019.
  - **Logic**: Check if the highest bin (or any bin used in the test) contains a low number of samples.
- 1. **Attempt Merge**: Merge the underpowered bin with the adjacent bin (e.g., 3+ with 2-hop).
- 2. **Re-check**: If the merged bin has >= 50 samples, proceed with the test on the merged bin and log `bin_status: "merged"` to `data/processed/bin_status.json`.
- 3. **Defer**: If the merged bin still has < 50 samples, **defer** the statistical test for this comparison. Write `status: "deferred"`, `reason: "insufficient_power"`, and `bin_status: "deferred"` to the JSON file. **Do not** fabricate data, merge blindly, or force a test.
- - **Output**: A configuration object or file defining the **final static binning strategy** to be used by T020b.
+  1. **Attempt Merge**: Merge the underpowered bin with the adjacent bin (e.g., 3+ with 2-hop).
+  2. **Re-check**: If the merged bin has >= 50 samples, proceed with the test on the merged bin and log `bin_status: "merged"` to `data/processed/bin_status.json`.
+  3. **Defer**: If the merged bin still has < 50 samples, **defer** the statistical test for this comparison. Write `status: "deferred"`, `reason: "insufficient_power"`, and `bin_status: "deferred"` to the JSON file. **Do not** fabricate data, merge blindly, or force a test.
+ - **Output**: Write a JSON file `data/processed/bin_config.json` containing `{'bins': [...], 'strategy': 'merged' | 'deferred'}`. This defines the **final static binning strategy** to be used by T020b.
  - **Depends on T013** (raw data) and **T019** (bin counts).
-- [ ] T020b [P] [US2] **Threshold Detection (Permutation Test)**: Implement `code/analysis/detect_threshold.py` to:
- - **Input**: Use **exact integer `chain_length` data from T013** and the **static binning strategy from T020a**.
+- [ ] T020b [S] [US2] **Threshold Detection (Permutation Test)**: Implement `code/analysis/detect_threshold.py` to:
+ - **Input**: Use **exact integer `chain_length` data from T013** and the **static binning strategy from T020a** (`data/processed/bin_config.json`).
  - **Methodology**: **Per Plan Complexity Tracking table**, use a **Permutation Test** (n=1000) for change-point detection to avoid inflated Type I errors from data-driven knot selection. **Note**: This overrides Spec FR-004's LRT requirement based on the Plan's explicit rejection of LRT for data-driven knot selection. **Cite Plan.md 'Complexity Tracking' table** as the authority for this deviation.
  - **Grid-Search Logic**: Iterate knot locations from **1 to 5** (fixed range per Spec FR-004). For each knot:
- 1. Fit a linear model (accuracy ~ hop_count).
- 2. Fit a piecewise linear model (accuracy ~ hop_count + max(0, hop_count - knot)).
- 3. Perform the permutation test to derive the p-value for the improvement in fit.
+  1. Fit a linear model (accuracy ~ hop_count).
+  2. Fit a piecewise linear model (accuracy ~ hop_count + max(0, hop_count - knot)).
+  3. **Permutation Engine**: Perform the permutation test by **randomly shuffling the `correctness` labels** (n=1000 times) and recalculating the test statistic for each shuffle to build the null distribution. **DO NOT** rely on asymptotic approximations.
+  4. Calculate the p-value as the proportion of permuted statistics >= observed statistic.
  - **Correction**: Apply **Bonferroni correction** for the number of tests performed (p_corrected = p_raw * num_tests).
  - **Selection**: Select the knot location with the minimum corrected p-value.
  - **Output**: Identify the optimal knot and report the corrected p-value. (FR-004)
@@ -155,7 +155,7 @@
  - **Note**: T019 (binned accuracy) is NOT a dependency for the core grid search; T019 and T020b can run in parallel (T020b depends on T020a, not T019).
 - [ ] T022a [US2] [P] **Continuous Plot Data**: Generate a **CSV file `data/processed/accuracy_vs_hop_raw.csv`** containing the raw data points and mean accuracy per hop count for the continuous plot. **Constraint**: Use **raw, un-binned data** from `data/processed/annotated_videokr.csv` (T013 output). (FR-005)
  - **Depends on T013**.
-- [ ] T022b [US2] [P] **Continuous Plot Image**: Generate a **scatter plot image `data/processed/accuracy_vs_hop_raw.png`** using the data from T022a. **Constraint**: Plot **raw scatter points** AND a **LOESS smooth trend line** (or spline fit) to represent the continuous relationship between hop count and accuracy, satisfying FR-005's 'continuous plot' requirement without binning artifacts. **Write the plot to `data/processed/accuracy_vs_hop_raw.png`**. (FR-005, SC-003)
+- [ ] T022b [S] [US2] **Continuous Plot Image**: Generate a **scatter plot image `data/processed/accuracy_vs_hop_raw.png`** using the data from T022a. **Constraint**: Plot **raw scatter points** AND a **LOESS smooth trend line** (or spline fit) to represent the continuous relationship between hop count and accuracy, satisfying FR-005's 'continuous plot' requirement without binning artifacts. **Write the plot to `data/processed/accuracy_vs_hop_raw.png`**. (FR-005, SC-003)
  - **Depends on T022a**.
 - [ ] T022c [US2] **Binned Summary & Plot**: Generate a summary table and a **binned bar plot `data/processed/accuracy_binned.png`** of accuracy vs. hop bin using data from T019. **Depends on T019**. (FR-003)
 - [ ] T023 [US2] Output `data/processed/threshold_results.json` with p-value, effect size, optimal knot location, deferral reasons (if any), and an explicit `conclusion` field (PASS/FAIL). **Logic**: Explicitly compare the calculated p-value against alpha=0.05. The JSON must include: `p_value` (float), `alpha` (0.05), `is_significant` (boolean), and `conclusion` (string). (SC-002)
@@ -201,26 +201,27 @@
 - [ ] T031c [P] Ensure all scripts in `code/` have docstrings.
 - [ ] T029 [P] Documentation updates in `docs/`:
  - Update `README.md` to include:
- 1. **Usage Section**: Instructions on how to run `code/main.py` end-to-end.
- 2. **Data Requirements**: List of required datasets (VideoKR-SFT, Knowledge Graph) and their sources.
- 3. **Output Artifacts**: List of all generated files (CSV, JSON, MD) and their locations.
+  1. **Usage Section**: Instructions on how to run `code/main.py` end-to-end.
+  2. **Data Requirements**: List of required datasets (VideoKR-SFT, Knowledge Graph) and their sources.
+  3. **Output Artifacts**: List of all generated files (CSV, JSON, MD) and their locations.
  - Ensure usage instructions are clear and reproducible.
  - Ensure `quickstart.md` exists and is up-to-date.
 - [ ] T032 [P] Additional unit tests in `tests/unit/` (if requested)
 - [ ] T033 Run `quickstart.md` validation to ensure reproducibility
-- [ ] T035 [S] Implement `code/utils/runtime_logger.py` (or update main.py) to:
- - Instrument and log the **end-to-end runtime** of the full pipeline (ingestion to final report) to `data/processed/runtime_log.json`.
- - **Logic**: Record `total_runtime_seconds` and explicitly compare against a specified CI limit. Write `limit_exceeded: true/false`.
- - **Purpose**: Satisfy FR-006 and SC-004's 'measured against' requirement. (FR-006, SC-004)
- - **Constraint**: **NOT parallel-safe**. This task MUST run **after the completion of Phase 5**.
-- [ ] T036 [S] **Memory Constraint Verification**: Implement `code/utils/memory_logger.py` (or update main.py) to measure peak memory usage during the full pipeline. **Logic**: This task must implement a **wrapper/decorator** that instruments memory usage (e.g., using `tracemalloc`) during the execution of T013 and T020b (and other heavy tasks). **It must NOT be a post-hoc check**. Log `peak_memory_gb` to `data/processed/memory_log.json` and explicitly compare against the 7GB limit (SC-005). Write `limit_exceeded: true/false`. **Depends on T035** (as T035 wraps the pipeline execution). (SC-005, FR-006)
-- [ ] T034 [S] **Methodology Override Note**: Write a section to the final report `data/processed/final_report.md` (generated by T037) explicitly documenting the rejection of Generalized Additive Models (GAMs) in favor of the Permutation Test. **Content**: Cite the **Plan's 'Complexity Tracking' table** and **Methodology Notes** as the authority for rejecting GAMs due to statistical invalidity on discrete ordinal variables. **Output**: Write `data/processed/methodology_override.md` containing this note, and ensure it is included in the final report aggregation. (Plan Override, Methodology Notes)
+- [ ] T035 [S] **Orchestrator & Runtime/Memory Logger**: Implement `code/main.py` as the **single entry point** that wraps the execution of the entire pipeline.
+ - **Logic**: Implement a decorator or wrapper in `main.py` that:
+  1. Starts a timer and memory monitor (`tracemalloc`) at the very beginning.
+  2. Executes the sequence of tasks: T013 (Ingestion), T019/T020a/T020b (Analysis), T025 (Sensitivity), T022, T023, T028.
+  3. Stops the timer and memory monitor at the very end.
+  4. Writes `data/processed/runtime_log.json` with `total_runtime_seconds`, `limit_exceeded` (boolean), and `peak_memory_gb`.
+  5. Writes `data/processed/memory_log.json` with `peak_memory_gb` and `limit_exceeded`.
+ - **Constraint**: This task **MUST** wrap the execution of all previous phases to satisfy SC-004 (End-to-end runtime) and SC-005 (Peak memory). It is **NOT** a post-hoc check.
+ - **Depends on**: Completion of Phase 5.
 - [ ] T037 [S] **Final Report Aggregation**: Implement `code/analysis/generate_final_report.py` to:
- - **Input**: Aggregate all outputs from US1 (T013b, T016), US2 (T023, T022b, T022c), US3 (T028a, T028b), and logs (T035, T036).
+ - **Input**: Aggregate all outputs from US1 (T013b, T016), US2 (T023, T022b, T022c), US3 (T028a, T028b), and logs (T035).
  - **Action**: Combine these into a single Markdown file `data/processed/final_report.md`.
- - **Integration**: Include the output from T034 (Methodology Override Note) as a dedicated section in this report.
  - **Output**: Write `data/processed/final_report.md`.
- - **Depends on**: Completion of Phase 5 and T034, T035, T036.
+ - **Depends on**: Completion of Phase 5 and T035.
 
 ---
 
@@ -233,7 +234,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on completion of Phase 5. **T035 (Runtime Logger), T036 (Memory Logger), and T037 (Final Report) MUST run last.**
+- **Polish (Final Phase)**: Depends on completion of Phase 5. **T035 (Orchestrator Logger) MUST run last.**
 
 ### User Story Dependencies
 
@@ -258,7 +259,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **Note**: T035 (Runtime Logger), T036 (Memory Logger), and T037 (Final Report) are **NOT** parallel-safe and must run last, after T028a/T028b.
+- **Note**: T035 (Orchestrator Logger) is **NOT** parallel-safe and must run last, after T028a/T028b.
 
 ---
 
@@ -319,4 +320,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All tasks must run on CPU-only CI (limited cores, limited RAM, h limit). No GPU, no low-bit models, no large LLMs.
 - **Data Integrity**: No fake data. All datasets must be fetched from real, verified sources.
-- **Dual-Method Analysis**: Non-linearity is tested via Permutation Test (T020b, discrete) only. GAMs (FR-007) are explicitly rejected by the Plan's 'Complexity Tracking' table as statistically invalid for discrete ordinal variables; T034 documents it in the final report.
+- **Dual-Method Analysis**: Non-linearity is tested via Permutation Test (T020b, discrete) only. GAMs (FR-007) are explicitly rejected by the Plan's 'Complexity Tracking' table as statistically invalid for discrete ordinal variables; T034 removed.

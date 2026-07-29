@@ -1131,24 +1131,6 @@
   updated_at: '2026-07-06T03:39:21Z'
 - artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   attempts: 1
-  canonical: Exclude epochs with more than 5% missing sensor data
-  claim_id: c_f8400501
-  context: Implement code/features/validity.py to identify epochs with > 5% missing
-    sensor data and EXCLUDE them from the final dataset (FR-003)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Exclude_epochs_with_more_than_5%25_missing_sensor_data
-  kind: magnitude
-  raw_text: Identify epochs with > 5% missing sensor data and exclude them
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-06T03:39:45Z'
-- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
-  attempts: 1
   canonical: Perform subject-wise 5-fold cross-validation
   claim_id: c_cbddd435
   context: Implement code/models/train.py to perform subject-wise 5-fold cross-validation
@@ -1682,3 +1664,341 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-09T13:24:57Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 0
+  canonical: Apply 50 Hz notch filter to remove line noise
+  claim_id: c_b858cee7
+  context: 'Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4)
+    to remove DC offset and drift, (2) Apply a 50 (Wikipedia: Noise (electronics),
+    https://en.wikipedia.org/wiki/Noise_(electronics)) Hz notch filter to remove line
+    noise (FR-001)'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "For countries where power transmission is at 50 Hz, the filter would\
+        \ have a 49\u201351 Hz range."
+      source_id: Band-stop filter
+      url: https://en.wikipedia.org/wiki/Band-stop_filter
+      value: "49\u201351 Hz"
+    filled: true
+  kind: numeric
+  raw_text: Apply a 50 Hz notch filter to remove line noise
+  resolved_value: "49\u201351 Hz"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T01:10:46Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Butterworth bandpass filter 1-45 Hz order 4
+  claim_id: c_a1c2627b
+  context: 'Implement code/data/preprocess.py with full module logic: (1) Apply a
+    Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4) to remove
+    DC offset and drift'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a Butterworth bandpass filter with 1 Hz high-pass and 45 Hz low-pass
+    with order=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:12:49Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Extract mean power theta band 4-7 Hz
+  claim_id: c_d1feee91
+  context: "extracting mean power for theta (4\u20137 Hz) and alpha (8\u201312 Hz\
+    \ (Wikipedia: Alpha wave, https://en.wikipedia.org/wiki/Alpha_wave)) bands per\
+    \ channel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extract mean power for theta band (4\u20137 Hz)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:13:29Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Extract mean power alpha band 8-12 Hz
+  claim_id: c_763c657c
+  context: "extracting mean power for theta (4\u20137 Hz) and alpha (8\u201312 Hz\
+    \ (Wikipedia: Alpha wave, https://en.wikipedia.org/wiki/Alpha_wave)) bands per\
+    \ channel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extract mean power for alpha band (8\u201312 Hz)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:13:58Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Subject-wise 5-fold cross-validation
+  claim_id: c_dafcc891
+  context: Implement code/models/train.py to perform subject-wise 5-fold cross-validation
+    and create a distinct, non-overlapping held-out test set (FR-005, FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform subject-wise 5-fold cross-validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:14:30Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Run 1000 permutations for global significance
+  claim_id: c_f1c6a845
+  context: 'Implement code/models/evaluate.py to perform permutation testing for global
+    significance: run 1000 (OEIS A000040, https://oeis.org/A000040) permutations,
+    shuffle labels, output p-value in results/model_metrics.json (Plan Phase 4)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 1000 permutations for global significance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:14:58Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Use EPSILON 1e-9 for division-by-zero
+  claim_id: c_bca4af5c
+  context: Implement code/features/extract.py function compute_theta_alpha_ratio to
+    handle division-by-zero using EPSILON = 1e-9 with logic alpha_power + EPSILON
+    (Edge Case).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use EPSILON = 1e-9 to handle division-by-zero
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:15:23Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with more than 50% rejected epochs
+  claim_id: c_e90cc326
+  context: Explicitly exclude subjects with > 50% rejected epochs to prevent bias
+    (Edge Case)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_more_than_50%25_rejected_epochs
+  kind: magnitude
+  raw_text: Explicitly exclude subjects with > 50% rejected epochs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:15:51Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Halt if epoch retention rate less than 70%
+  claim_id: c_4a095eb8
+  context: Calculate and log epoch retention rate; halt if < 70% (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_epoch_retention_rate_less_than_70%25
+  kind: magnitude
+  raw_text: Halt if epoch retention rate is < 70%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:16:12Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Memory usage under 6.5 GB during chunked loading
+  claim_id: c_8c0d7f8a
+  context: "Implement code/data/loader.py with chunked loading logic (by epoch_id)\
+    \ to ensure memory safety (\u2264 6.5 GB)"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "with 6.21 GB peak HBM, a 32\xD7 regime extension. Set-overlap recall\
+        \ against the"
+      source_id: '2605.02568'
+      url: https://arxiv.org/abs/2605.02568
+      value: '6.21'
+    filled: true
+  kind: numeric
+  raw_text: Ensure memory usage stays under 6.5 GB during chunked loading
+  resolved_value: '6.21'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T01:16:28Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Verify memory peak under 7 GB for chunked loading
+  claim_id: c_69d6af2f
+  context: Unit test for chunked loading logic in tests/unit/test_loader.py (verify
+    memory peak < 7GB)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify memory peak < 7GB for chunked loading logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:16:28Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 2
+  canonical: Exclude epochs with more than 5% missing sensor data
+  claim_id: c_f8400501
+  context: Implement code/features/validity.py to identify epochs with > 5% missing
+    sensor data and EXCLUDE them from the final dataset (FR-003)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_epochs_with_more_than_5%25_missing_sensor_data
+  kind: magnitude
+  raw_text: Identify epochs with > 5% missing sensor data and exclude them
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:16:55Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Fetch and verify dataset ds000246
+  claim_id: c_8fd0945b
+  context: 'Implement code/data/download.py with a strict verification gate: fetch
+    ds000246, check for gaze.tsv; if missing, raise a FileNotFoundError with a clear
+    message and flag spec for ds003465 fallback.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Fetch_and_verify_dataset_ds000246
+  kind: entity_fact
+  raw_text: Fetch and verify dataset ds000246
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-29T01:17:10Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Flag ds003465 fallback if gaze.tsv missing
+  claim_id: c_3bb8a49a
+  context: fetch ds000246, check for gaze.tsv; if missing, raise a FileNotFoundError
+    with a clear message and flag spec for ds003465 fallback.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_ds003465_fallback_if_gaze.tsv_missing
+  kind: entity_fact
+  raw_text: Flag spec for ds003465 fallback if gaze.tsv is missing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:17:29Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Apply 50 Hz notch filter to remove line noise
+  claim_id: c_6dd4b25e
+  context: Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4)
+    to remove DC offset and drift, (2) Apply a 50 Hz notch filter to remove line noise
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Notch filters \u2013 Notch filters or band-rejection filters are useful\
+        \ for eliminating a specific noise frequency. For example, power lines within\
+        \ a building run at 50 or 60 Hz line frequency. A sensitive circuit will pick\
+        \ up this frequency as noise. A notch filter tuned to the line frequency can\
+        \ remove the noise."
+      source_id: Noise (electronics)
+      url: https://en.wikipedia.org/wiki/Noise_(electronics)
+      value: 50 or 60
+    filled: true
+  kind: numeric
+  raw_text: '50 (Wikipedia: Noise (electronics), https://en.wikipedia.org/wiki/Noise_(electronics))
+    Hz notch filter to remove line noise'
+  resolved_value: 50 or 60
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T01:17:57Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Reference arXiv:1712.02859
+  claim_id: c_626aa055
+  context: 'Implement code/data/preprocess.py with full module logic: ... (3) {{claim:c_a6915f96}}
+    (1712.02859, https://arxiv.org/abs/1712.02859)'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 1712.02859, https://arxiv.org/abs/1712.02859
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:18:00Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Alpha wave frequency band is 8-12 Hz
+  claim_id: c_eddfa29f
+  context: "extracting mean power for theta (4\u20137 Hz) and alpha (8\u201312 Hz)\
+    \ bands per channel"
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "alpha (8\u201312 Hz (Wikipedia: Alpha wave, https://en.wikipedia.org/wiki/Alpha_wave))\
+    \ bands per channel"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T01:18:02Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Perform 1000 permutations for global significance
+  claim_id: c_ac92aad1
+  context: 'Implement code/models/evaluate.py to perform permutation testing for global
+    significance: run 1000 permutations, shuffle labels, output p-value'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 1000 (OEIS A000040, https://oeis.org/A000040) permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:18:24Z'

@@ -1,24 +1,3 @@
-T000:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `specs/001-exploring-the-role-of-network-topology-synchronization/spec.md`\
-    \ file is provided, nor any excerpt showing that FR\u2011001 now explicitly mentions\
-    \ a synthetic regular ring lattice instead of the removed \u2018ca\u2011AstroPh\u2019\
-    \ dataset. The required artifact is missing, so the task is not verified as completed."
-T000a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the `constitution.md` file or its contents was provided, so we\
-    \ cannot verify that the \u2018ca-AstroPh\u2019 download requirement was removed\
-    \ and replaced with a synthetic regular ring lattice requirement. The required\
-    \ artifact is missing."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a report, table, or script output) was provided that quantifies\
-    \ the maximum time steps, number of topologies, and run count that can be completed\
-    \ within 6\u202Fhours on a 2\u2011core CPU. Without such concrete data, the feasibility\
-    \ study requirement is not satisfied."
 T009b:
   c: false
   h: 22169d2729c09ef291dcbd5bf07a56f485760791ab1b3c0cba8e043061c3fbd4

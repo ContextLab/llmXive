@@ -4,297 +4,418 @@ import logging
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any, List
 import numpy as np
-from scipy.integrate import solve_ivp
+from scipy import integrate
+from scipy import stats
 
-from utils.logging_utils import init_logging, get_logger
-from utils.stats_utils import spearman_correlation
+# Import from project utils to ensure consistency
+from utils.logging_utils import init_logging, get_logger, log_simulation_params
+from utils.graph_utils import is_connected
+from utils.config import get_seed, get_t_eval
 
-# Initialize logging for this module
-logger = init_logging(__name__)
+# --- Configuration Loading ---
 
 def load_config(config_path: str = "data/processed/config.json") -> Dict[str, Any]:
     """
-    Load the feasibility study configuration.
-    Raises RuntimeError if the configuration indicates a convergence failure.
+    Load the experiment configuration from the generated config file.
+    Raises FileNotFoundError or ValueError if the file is missing or invalid.
     """
     path = Path(config_path)
     if not path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
+        raise FileNotFoundError(f"Configuration file not found at {config_path}")
+    
     with open(path, 'r') as f:
         config = json.load(f)
-
-    # Check for critical errors that prevent simulation
-    if config.get('error') is not None:
-        raise RuntimeError(f"CONVERGENCE_FAILURE: {config['error']}")
-
-    if config.get('time_steps', 0) == 0:
-        raise RuntimeError("CONVERGENCE_FAILURE: time_steps is zero.")
-
+    
+    # Validate critical keys
+    if 'time_steps' not in config:
+        raise ValueError("Config missing 'time_steps'")
+    if 'n_topologies' not in config:
+        raise ValueError("Config missing 'n_topologies'")
+    
+    # Check for fatal convergence failure from feasibility study
+    if config.get('error') == 'CONVERGENCE_FAILURE':
+        raise RuntimeError("CONVERGENCE_FAILURE: Feasibility study failed to determine valid parameters.")
+    
     return config
 
-def kuramoto_derivative(t: float, theta: np.ndarray, K: float, omega: np.ndarray) -> np.ndarray:
+# --- Kuramoto Dynamics ---
+
+def kuramoto_derivative(t: float, theta: np.ndarray, adj_matrix: np.ndarray, K: float) -> np.ndarray:
     """
     Computes the derivative of the phase angles for the Kuramoto model.
-
-    dθ_i/dt = ω_i + (K/N) * Σ_j sin(θ_j - θ_i)
-
-    Parameters
-    ----------
-    t : float
-        Current time (unused, but required by ODE solver).
-    theta : np.ndarray
-        Current phase angles (N,).
-    K : float
-        Global coupling strength.
-    omega : np.ndarray
-        Natural frequencies of the oscillators (N,).
-
-    Returns
-    -------
-    np.ndarray
-        Time derivatives of the phase angles (N,).
+    
+    d(theta_i)/dt = omega_i + (K/N) * sum_j(A_ij * sin(theta_j - theta_i))
+    
+    Assumes natural frequencies omega_i = 0 for simplicity (or can be extended).
+    Here we assume identical oscillators (omega_i = 0) to focus on topology effects.
+    
+    Args:
+        t: Time (unused for autonomous system but required by ODE solver)
+        theta: Current phase angles (array of shape N)
+        adj_matrix: Adjacency matrix of the network (NxN)
+        K: Global coupling strength
+        
+    Returns:
+        d_theta: Time derivative of phases (array of shape N)
     """
     N = len(theta)
-    # Vectorized calculation of the sum of sines
-    # sin(θ_j - θ_i) = sin(θ_j)cos(θ_i) - cos(θ_j)sin(θ_i)
-    # We need sum over j for each i.
-    # sum_j sin(θ_j - θ_i) = sum_j sin(θ_j)cos(θ_i) - sum_j cos(θ_j)sin(θ_i)
-    #                       = cos(θ_i) * sum(sin(θ_j)) - sin(θ_i) * sum(cos(θ_j))
-    
+    # Calculate phase differences
+    # sin(theta_j - theta_i)
+    # Vectorized: sin(theta) - cos(theta) * cot? No, use broadcasting
+    # sin(theta_j - theta_i) = sin(theta_j)cos(theta_i) - cos(theta_j)sin(theta_i)
+    # But simpler: just compute the sum directly
+      
     sin_theta = np.sin(theta)
     cos_theta = np.cos(theta)
     
-    sum_sin = np.sum(sin_theta)
-    sum_cos = np.sum(cos_theta)
+    # sum_j A_ij sin(theta_j - theta_i)
+    # = sum_j A_ij (sin_j cos_i - cos_j sin_i)
+    # = cos_i * sum_j (A_ij sin_j) - sin_i * sum_j (A_ij cos_j)
     
-    coupling_term = (K / N) * (cos_theta * sum_sin - sin_theta * sum_cos)
+    weighted_sin = adj_matrix @ sin_theta  # sum_j A_ij sin_j
+    weighted_cos = adj_matrix @ cos_theta  # sum_j A_ij cos_j
+    
+    coupling_term = (K / N) * (cos_theta * weighted_sin - sin_theta * weighted_cos)
+    
+    # Natural frequencies (assuming 0 for identical oscillators)
+    omega = np.zeros_like(theta)
     
     return omega + coupling_term
 
-def calculate_order_parameter(theta: np.ndarray) -> Tuple[float, float]:
+def calculate_order_parameter(theta: np.ndarray) -> float:
     """
-    Calculates the complex order parameter R and phase Psi.
+    Calculates the Kuramoto order parameter R.
+    R = | (1/N) * sum_j exp(i * theta_j) |
     
-    R * e^(i*Psi) = (1/N) * Σ_j e^(i*θ_j)
-    
-    Parameters
-    ----------
-    theta : np.ndarray
-        Phase angles (N,).
+    Args:
+        theta: Array of phase angles
         
-    Returns
-    -------
-    R : float
-        Magnitude of the order parameter (0 <= R <= 1).
-    Psi : float
-        Average phase.
+    Returns:
+        R: Magnitude of the complex order parameter (float)
     """
-    z = np.mean(np.exp(1j * theta))
-    R = np.abs(z)
-    Psi = np.angle(z)
-    return R, Psi
+    complex_sum = np.sum(np.exp(1j * theta))
+    R = np.abs(complex_sum) / len(theta)
+    return R
 
 def simulate_kuramoto(
-    N: int,
-    omega: np.ndarray,
+    adj_matrix: np.ndarray,
     K: float,
     time_steps: int,
-    dt: float = 0.1,
-    seed: Optional[int] = None
-) -> Tuple[float, float]:
+    dt: float = 0.01,
+    seed: Optional[int] = None,
+    logger: Optional[logging.Logger] = None
+) -> Tuple[float, np.ndarray]:
     """
-    Simulates the Kuramoto model for a given coupling strength K.
+    Simulates the Kuramoto model on a given network for a specified number of steps.
     
-    Returns the time-averaged order parameter <R> and the final R.
-    """
-    if seed is not None:
-        np.random.seed(seed)
+    Args:
+        adj_matrix: Adjacency matrix of the network
+        K: Coupling strength
+        time_steps: Number of time steps to simulate
+        dt: Time step size
+        seed: Random seed for initial phases
+        logger: Logger instance
         
-    # Initialize phases randomly
-    theta0 = np.random.uniform(0, 2 * np.pi, N)
+    Returns:
+        R_avg: Average order parameter over the time series (after transient)
+        R_series: Full time series of R values
+    """
+    N = adj_matrix.shape[0]
     
-    t_eval = np.linspace(0, time_steps * dt, time_steps)
+    # Initialize phases
+    rng = np.random.default_rng(seed)
+    theta = rng.uniform(0, 2 * np.pi, N)
     
-    sol = solve_ivp(
-        fun=lambda t, y: kuramoto_derivative(t, y, K, omega),
-        t_span=(0, t_eval[-1]),
-        y0=theta0,
+    # Integration parameters
+    t_span = (0, time_steps * dt)
+    t_eval = np.linspace(t_span[0], t_span[1], time_steps)
+    
+    # Solve ODE
+    sol = integrate.solve_ivp(
+        fun=lambda t, y: kuramoto_derivative(t, y, adj_matrix, K),
+        t_span=t_span,
+        y0=theta,
         t_eval=t_eval,
         method='RK45',
-        rtol=1e-4,
-        atol=1e-6
+        rtol=1e-5,
+        atol=1e-7
     )
     
     if not sol.success:
-        raise RuntimeError(f"ODE integration failed: {sol.message}")
-        
-    thetas = sol.y.T  # Shape: (time_steps, N)
+        if logger:
+            logger.error(f"ODE integration failed: {sol.message}")
+        raise RuntimeError(f"Simulation failed: {sol.message}")
     
-    # Calculate R for each time step
-    R_values = np.array([calculate_order_parameter(theta)[0] for theta in thetas])
+    # Calculate order parameter time series
+    R_series = np.array([calculate_order_parameter(sol.y[:, i]) for i in range(time_steps)])
     
-    # Discard transient (first 20%)
-    transient_cutoff = int(0.2 * len(R_values))
-    R_steady = R_values[transient_cutoff:]
+    # Discard transient (first 20% of steps)
+    transient_steps = int(time_steps * 0.2)
+    R_avg = np.mean(R_series[transient_steps:])
     
-    if len(R_steady) == 0:
-        R_steady = R_values
-        
-    return np.mean(R_steady), R_values[-1]
+    return R_avg, R_series
+
+# --- Critical Coupling Detection ---
 
 def find_critical_coupling_binary_search(
-    N: int,
-    omega: np.ndarray,
+    adj_matrix: np.ndarray,
     time_steps: int,
-    k_min: float = 0.0,
-    k_max: float = 2.0,
-    tol: float = 0.05,
+    threshold: float = 0.5,
+    tol: float = 0.01,
     max_iter: int = 20,
-    seed: Optional[int] = None
-) -> float:
+    seed: Optional[int] = None,
+    logger: Optional[logging.Logger] = None
+) -> Optional[float]:
     """
-    Finds the critical coupling strength Kc using binary search.
+    Finds the critical coupling strength K_c using binary search.
     
-    The threshold for synchronization is defined as <R> >= 0.5.
+    K_c is defined as the smallest K where the average order parameter R >= threshold.
+    
+    Args:
+        adj_matrix: Adjacency matrix
+        time_steps: Simulation duration
+        threshold: Target order parameter threshold (default 0.5)
+        tol: Convergence tolerance for K
+        max_iter: Maximum iterations for binary search
+        seed: Random seed
+        logger: Logger instance
+        
+    Returns:
+        K_c: Critical coupling strength, or None if binary search fails to converge
     """
-    k_low = k_min
-    k_high = k_max
-    k_mid = (k_low + k_high) / 2.0
+    K_low = 0.0
+    K_high = 10.0 # Upper bound guess
+    K_c = None
     
-    logger.info(f"Starting binary search for Kc in [{k_low}, {k_high}]")
+    if logger:
+        logger.info(f"Starting binary search for K_c with threshold={threshold}, tol={tol}")
     
     for i in range(max_iter):
-        k_mid = (k_low + k_high) / 2.0
-        r_mean, _ = simulate_kuramoto(N, omega, k_mid, time_steps, seed=seed)
+        K_mid = (K_low + K_high) / 2
         
-        logger.debug(f"Iter {i}: K={k_mid:.4f}, R_mean={r_mean:.4f}")
+        try:
+            R_avg, _ = simulate_kuramoto(adj_matrix, K_mid, time_steps, seed=seed, logger=logger)
+        except Exception as e:
+            if logger:
+                logger.warning(f"Simulation failed at K={K_mid}: {e}. Skipping.")
+            K_low = K_mid
+            continue
         
-        if abs(k_high - k_low) < tol:
-            logger.info(f"Binary search converged at K={k_mid:.4f} after {i+1} iterations.")
-            return k_mid
-            
-        if r_mean < 0.5:
-            k_low = k_mid
+        if logger:
+            logger.debug(f"Iter {i}: K={K_mid:.4f}, R_avg={R_avg:.4f}")
+        
+        if R_avg >= threshold:
+            K_c = K_mid
+            K_high = K_mid
         else:
-            k_high = k_mid
-            
-    logger.warning(f"Binary search did not converge within {max_iter} iterations. Returning {k_mid}.")
-    return k_mid
+            K_low = K_mid
+        
+        if (K_high - K_low) < tol:
+            if logger:
+                logger.info(f"Binary search converged at K_c={K_c:.4f} after {i+1} iterations.")
+            return K_c
+    
+    if logger:
+        logger.warning(f"Binary search did not converge within {max_iter} iterations. Last estimate: {K_c}")
+    
+    return K_c
 
 def find_critical_coupling_linear_sweep(
-    N: int,
-    omega: np.ndarray,
+    adj_matrix: np.ndarray,
     time_steps: int,
-    k_start: float = 0.0,
-    k_end: float = 2.0,
-    k_step: float = 0.1,
-    seed: Optional[int] = None
-) -> float:
+    threshold: float = 0.5,
+    K_start: float = 0.0,
+    K_end: float = 10.0,
+    step_size: float = 0.1,
+    seed: Optional[int] = None,
+    logger: Optional[logging.Logger] = None
+) -> Optional[float]:
     """
-    Fallback: Finds Kc using a linear sweep if binary search fails.
-    """
-    logger.info("Performing linear sweep for Kc.")
-    k_val = k_start
-    while k_val <= k_end:
-        r_mean, _ = simulate_kuramoto(N, omega, k_val, time_steps, seed=seed)
-        if r_mean >= 0.5:
-            logger.info(f"Linear sweep found Kc at K={k_val:.4f}")
-            return k_val
-        k_val += k_step
+    Fallback method: Finds K_c using a linear sweep if binary search fails.
+    
+    Scans K from K_start to K_end with step_size. Returns the first K where R >= threshold.
+    
+    Args:
+        adj_matrix: Adjacency matrix
+        time_steps: Simulation duration
+        threshold: Target order parameter threshold
+        K_start: Start of sweep range
+        K_end: End of sweep range
+        step_size: Step size for sweep
+        seed: Random seed
+        logger: Logger instance
         
-    logger.warning("Linear sweep did not find a synchronized state.")
-    return k_end
+    Returns:
+        K_c: Critical coupling strength, or None if no K satisfies the condition
+    """
+    if logger:
+        logger.info(f"Starting linear sweep for K_c from {K_start} to {K_end} with step {step_size}")
+    
+    K_values = np.arange(K_start, K_end + step_size, step_size)
+    
+    for K in K_values:
+        try:
+            R_avg, _ = simulate_kuramoto(adj_matrix, K, time_steps, seed=seed, logger=logger)
+        except Exception as e:
+            if logger:
+                logger.warning(f"Simulation failed at K={K}: {e}. Skipping.")
+            continue
+        
+        if logger:
+            logger.debug(f"Linear Sweep: K={K:.4f}, R_avg={R_avg:.4f}")
+        
+        if R_avg >= threshold:
+            if logger:
+                logger.info(f"Linear sweep found K_c={K:.4f} (R={R_avg:.4f} >= {threshold})")
+            return K
+    
+    if logger:
+        logger.warning("Linear sweep did not find any K satisfying the threshold condition.")
+    
+    return None
+
+# --- Batch Execution ---
 
 def run_simulation_batch(
-    graph_paths: List[str],
+    graph_files: List[str],
     config: Dict[str, Any],
-    output_path: str = "data/processed/simulation_results.csv"
-) -> None:
+    output_path: str,
+    logger: Optional[logging.Logger] = None
+) -> List[Dict[str, Any]]:
     """
-    Runs the simulation for a batch of graphs and saves results to CSV.
+    Runs simulation on a batch of graph files and saves results.
+    
+    Args:
+        graph_files: List of paths to .gpickle files
+        config: Experiment configuration
+        output_path: Path to save results CSV
+        logger: Logger instance
+        
+    Returns:
+        results: List of result dictionaries
     """
     time_steps = config['time_steps']
-    run_count = config.get('run_count', 10)
-    sc_violation = config.get('SC_003_VIOLATION', False)
+    threshold = config.get('threshold', 0.5)
+    run_count = config.get('run_count', 1) # Default 1 if not specified
+    
+    if logger:
+        logger.info(f"Running batch simulation for {len(graph_files)} graphs with {time_steps} steps.")
     
     results = []
     
-    logger.info(f"Starting batch simulation for {len(graph_paths)} graphs.")
-    logger.info(f"Time steps: {time_steps}, Run count (for stability later): {run_count}")
-    
-    if sc_violation:
-        logger.warning("SC_003_VIOLATION flag is set. Proceeding with reduced scope as defined in config.")
+    for i, file_path in enumerate(graph_files):
+        graph_name = Path(file_path).stem
         
-    for i, path in enumerate(graph_paths):
-        logger.info(f"Processing graph {i+1}/{len(graph_paths)}: {path}")
+        if logger:
+            logger.info(f"Processing {i+1}/{len(graph_files)}: {graph_name}")
         
         # Load graph
-        import networkx as nx
-        G = nx.read_gpickle(path)
-        N = G.number_of_nodes()
-        
-        # Assign natural frequencies (uniform distribution for simplicity, or from degree)
-        # Standard Kuramoto often uses identical oscillators (omega=0) or random.
-        # We use random uniform [-0.5, 0.5]
-        omega = np.random.uniform(-0.5, 0.5, N)
-        
-        # Run binary search to find Kc
         try:
-            kc = find_critical_coupling_binary_search(
-                N, omega, time_steps, seed=42 + i
-            )
+            import networkx as nx
+            G = nx.read_gpickle(file_path)
+            adj_matrix = nx.to_numpy_array(G)
         except Exception as e:
-            logger.error(f"Simulation failed for {path}: {e}")
-            # Fallback
-            kc = find_critical_coupling_linear_sweep(N, omega, time_steps, seed=42 + i)
-            
+            if logger:
+                logger.error(f"Failed to load graph {file_path}: {e}")
+            continue
+        
+        # Check connectivity
+        if not is_connected(G):
+            if logger:
+                logger.warning(f"Graph {graph_name} is not connected. Skipping.")
+            continue
+        
+        # Run binary search
+        K_c_binary = find_critical_coupling_binary_search(
+            adj_matrix, 
+            time_steps, 
+            threshold=threshold,
+            seed=get_seed(),
+            logger=logger
+        )
+        
+        # Fallback to linear sweep if binary search fails
+        if K_c_binary is None:
+            if logger:
+                logger.warning(f"Binary search failed for {graph_name}. Attempting linear sweep.")
+            K_c_binary = find_critical_coupling_linear_sweep(
+                adj_matrix,
+                time_steps,
+                threshold=threshold,
+                seed=get_seed(),
+                logger=logger
+            )
+        
+        if K_c_binary is None:
+            if logger:
+                logger.error(f"Failed to determine K_c for {graph_name} after fallback.")
+            continue
+        
         results.append({
-            'graph_path': path,
-            'N': N,
-            'Kc': kc
+            "topology_id": graph_name,
+            "K_c": K_c_binary,
+            "method": "binary_search_fallback" if K_c_binary is not None else "linear_sweep"
         })
+    
+    # Save results to CSV
+    if results:
+        import csv
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=["topology_id", "K_c", "method"])
+            writer.writeheader()
+            writer.writerows(results)
         
-    # Write results
-    import csv
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['graph_path', 'N', 'Kc'])
-        writer.writeheader()
-        writer.writerows(results)
-        
-    logger.info(f"Simulation batch complete. Results saved to {output_path}")
+        if logger:
+            logger.info(f"Saved {len(results)} results to {output_path}")
+    else:
+        if logger:
+            logger.warning("No results were generated.")
+    
+    return results
 
 def main():
     """
     Main entry point for the simulation script.
     """
-    # Load configuration
-    try:
-        config = load_config()
-    except (FileNotFoundError, RuntimeError) as e:
-        logger.error(f"Failed to load config: {e}")
-        # If error is CONVERGENCE_FAILURE, we must stop.
-        if "CONVERGENCE_FAILURE" in str(e):
-            raise
-        # Otherwise, log and try to proceed with defaults if possible, 
-        # but task spec says raise if error key present.
-        raise
-
-    # Determine graph paths
-    graph_dir = Path("data/processed")
-    graph_files = sorted(graph_dir.glob("graph_p*.gpickle"))
+    # Initialize logging
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    logger = init_logging(module_name="simulate_kuramoto", log_dir=log_dir)
     
-    if not graph_files:
-        logger.warning("No graph files found in data/processed. Exiting.")
-        return
-
-    # Run simulation
-    run_simulation_batch(
-        graph_paths=[str(f) for f in graph_files],
-        config=config,
-        output_path="data/processed/simulation_results.csv"
-    )
+    logger.info("Starting Kuramoto Simulation Batch")
+    
+    try:
+        # Load configuration
+        config = load_config()
+        logger.info(f"Configuration loaded: time_steps={config['time_steps']}, n_topologies={config['n_topologies']}")
+        
+        # Find graph files
+        data_dir = Path("data/processed")
+        graph_files = sorted(data_dir.glob("graph_p*.gpickle"))
+        
+        if not graph_files:
+            logger.error("No graph files found in data/processed/.")
+            return
+        
+        logger.info(f"Found {len(graph_files)} graph files.")
+        
+        # Run batch
+        output_file = data_dir / "simulation_results.csv"
+        results = run_simulation_batch(
+            graph_files=[str(f) for f in graph_files],
+            config=config,
+            output_path=str(output_file),
+            logger=logger
+        )
+        
+        logger.info(f"Simulation batch completed. {len(results)} successful runs.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Configuration error: {e}")
+    except RuntimeError as e:
+        logger.error(f"Runtime error: {e}")
+    except Exception as e:
+        logger.exception(f"Unexpected error: {e}")
 
 if __name__ == "__main__":
     main()
