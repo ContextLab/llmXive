@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project extends the "DVAO" framework by deriving a theoretical lower bound on sample complexity for Multi-Objective Reinforcement Learning (MORL) under independent noise, and empirically validating it using synthetic tabular MDPs. The core contribution is a closed-form equation linking the number of objectives $N$ to variance accumulation, validated against a "Moving-Window Heuristic" for variance estimation. The implementation strictly adheres to CPU-only constraints (2 cores, 7GB RAM) using a synthetic data generator, ensuring feasibility on GitHub Actions free-tier runners.
+This project extends the "DVAO" framework by deriving a theoretical lower bound on sample complexity for Multi-Objective Reinforcement Learning (MORL) under independent noise, and empirically validating it using synthetic tabular MDPs. The core contribution is a closed-form equation linking the number of objectives $N$ to variance accumulation, validated against a "Moving-Window Heuristic" for variance estimation. The implementation strictly adheres to CPU-only constraints (A limited number of cores, 7GB RAM) using a synthetic data generator, ensuring feasibility on GitHub Actions free-tier runners.
 
 ## Technical Context
 
@@ -16,8 +16,8 @@ This project extends the "DVAO" framework by deriving a theoretical lower bound 
 **Target Platform**: Linux (GitHub Actions free-tier runner).  
 **Project Type**: Computational Research / Algorithmic Validation.  
 **Performance Goals**: Full experiment suite (N=5,10,20,50, 100 runs each) completes within 6 hours; single run < 15 mins.  
-**Constraints**: Max modest RAM, 2 CPU cores. No GPU usage. Synthetic data only (no external API calls).  
-**Scale/Scope**: Synthetic tabular MDPs with $N \in \{10, 20, 50\}$ objectives.
+**Constraints**: Max modest RAM, limited CPU cores. No GPU usage. Synthetic data only (no external API calls).  
+**Scale/Scope**: Synthetic tabular MDPs with a small number of objectives.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

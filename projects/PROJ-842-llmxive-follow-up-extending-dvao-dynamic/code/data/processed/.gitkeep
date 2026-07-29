@@ -1,2 +1,1 @@
-# This file ensures the data/processed directory exists.
-# Derived artifacts like sample_complexity_derivation.json will be written here.
+# Processed data storage

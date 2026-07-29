@@ -1,3 +1,1 @@
-"""
-Contract tests.
-"""
+# Contract Tests

@@ -1,2 +1,1 @@
-# This file ensures the data/raw directory exists.
-# No real data is stored here as this project uses synthetic MDP generation.
+# Raw data storage

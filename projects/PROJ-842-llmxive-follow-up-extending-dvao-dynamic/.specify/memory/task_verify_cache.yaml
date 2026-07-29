@@ -1,3 +1,17 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree, `__init__.py` files, or `.gitkeep` placeholders are provided\
+    \ as evidence; the required project structure and files are absent, so the task\u2019\
+    s requirement is not demonstrably satisfied."
+T026b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No log file `logs/symbolic_verification.log` was presented, nor any excerpt\
+    \ showing its contents (\u201CVERIFIED\u201D or \u201CFAILED\u201D). Without the\
+    \ required artifact, we cannot confirm that a SymPy verification script was run\
+    \ or that it produced the mandated output. The implementer must supply the actual\
+    \ log file (non\u2011empty) containing the verification result."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,3 +47,9 @@ T039:
     \ of the stability check or that the ratio of heuristic to full\u2011batch variance\
     \ stays within [0.9,\u202F1.1] for at least 95\u202F% of steps. The claim lacks\
     \ any concrete artifact to verify the requirement."
+T055:
+  c: false
+  h: 28dd0debd20074bdd5f57aef1bf92013f9327ca1e3e651fd7450a3a617fc1dec
+  r: The required file `src/analysis/stats.py` is missing, so there is no batched
+    variance calculation function nor any use of `psutil` for memory monitoring. The
+    task deliverable is absent.

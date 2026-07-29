@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T03:20:35.535201Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-842-llmxive-follow-up-extending-dvao-dynamic
-last_run_id: 3f8c8a04-59ae-4900-a0e7-793fb512e174
+last_run_id: fecf3221-3ca6-41aa-aec1-6ed66ee524a2
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic
 title: 'llmXive follow-up: extending "DVAO: Dynamic Variance-adaptive Advantage Optimization
   for Multi-rewar"'
-updated_at: '2026-07-26T15:23:20.939020Z'
+updated_at: '2026-07-29T03:39:13.725269Z'
