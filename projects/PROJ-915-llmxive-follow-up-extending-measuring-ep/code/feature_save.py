@@ -1,170 +1,120 @@
 """
-feature_save.py
-
-Task: T016 [US1] Save final feature-rich dataset to `data/processed/features.csv`.
-
-This module orchestrates the final step of User Story 1:
-1. Ensures the raw feature data (from T013/T014) exists.
-2. Ensures the validation flags (from T015) exist.
-3. Merges them into a single DataFrame.
-4. Saves the result to `data/processed/features.csv`.
-5. Logs the operation and verifies the output file exists.
+Feature Save Module (T016).
+Merges linguistic features with validation data and saves the final feature-rich dataset.
+Ensures `data/processed/features.csv` is written to disk with all required columns.
 """
 import os
 import csv
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional
+import pandas as pd
 
-# Import from sibling modules as per API surface
-from features import run_feature_extraction
-from validation_logic import run_t015_validation_pipeline
 from config import get_config
-from validation import check_pipeline_limit, get_tracker
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-def ensure_feature_data_exists(config: Dict[str, Any]) -> Path:
-    """
-    Ensures that the raw feature data exists.
-    If not, it triggers the feature extraction pipeline (T014) or ingestion (T013).
-    For T016, we assume T013 and T014 have run, but we verify existence.
-    """
-    raw_features_path = Path(config['paths']['raw_features'])
+def ensure_feature_data_exists():
+    """Verify that intermediate feature data exists before proceeding."""
+    config = get_config()
+    feature_path = Path(config['paths']['processed']) / 'features_raw.csv'
     
-    if not raw_features_path.exists():
-        logger.warning(f"Raw feature data not found at {raw_features_path}. "
-                       "Attempting to run feature extraction pipeline.")
-        # Trigger feature extraction if missing
-        run_feature_extraction(config)
-    
-    if not raw_features_path.exists():
+    if not feature_path.exists():
         raise FileNotFoundError(
-            f"Feature data file {raw_features_path} does not exist after "
-            "attempting extraction. Ensure T013 (ingestion) and T014 (features) "
-            "have been completed successfully."
+            f"Intermediate feature data not found at {feature_path}. "
+            "Please run feature extraction (T014) first."
         )
-    
-    logger.info(f"Feature data found at {raw_features_path}")
-    return raw_features_path
+    return feature_path
 
-def ensure_validation_data_exists(config: Dict[str, Any]) -> Path:
-    """
-    Ensures that the validation data (T015 flags) exists.
-    If not, triggers the validation logic.
-    """
-    validation_path = Path(config['paths']['validation_flags'])
+def ensure_validation_data_exists():
+    """Verify that human pilot validation data exists."""
+    config = get_config()
+    validation_path = Path(config['paths']['interim']) / 'human_pilot_cleaned.csv'
     
     if not validation_path.exists():
-        logger.warning(f"Validation flags not found at {validation_path}. "
-                       "Attempting to run T015 validation pipeline.")
-        run_t015_validation_pipeline(config)
-    
-    if not validation_path.exists():
-        raise FileNotFoundError(
-            f"Validation flags file {validation_path} does not exist. "
-            "Ensure T015 has been completed."
-        )
-    
-    logger.info(f"Validation data found at {validation_path}")
+        # This is optional for T016, but we log a warning if missing
+        logger.warning(f"Validation data not found at {validation_path}. "
+                     "Proceeding without human pilot correlation data.")
+        return None
     return validation_path
 
-def merge_and_save_features(config: Dict[str, Any]) -> Path:
+def merge_and_save_features(feature_path, validation_path=None):
     """
-    Merges raw features and validation flags, then saves to the final processed location.
+    Merge linguistic features with optional validation data and save to final CSV.
+    
+    Args:
+        feature_path: Path to raw features CSV
+        validation_path: Optional path to cleaned human pilot data
+    
+    Returns:
+        Path to the saved final features CSV
     """
-    import pandas as pd
+    logger.info(f"Loading features from {feature_path}")
+    df_features = pd.read_csv(feature_path)
+    
+    # Ensure required columns exist
+    required_cols = ['prompt_id', 'modal_verb_freq', 'imperative_ratio', 
+                    'citation_density', 'is_ratio_undefined']
+    missing_cols = [col for col in required_cols if col not in df_features.columns]
+    if missing_cols:
+        raise ValueError(f"Feature file missing required columns: {missing_cols}")
+    
+    df_final = df_features.copy()
+    
+    if validation_path:
+        logger.info(f"Loading validation data from {validation_path}")
+        df_validation = pd.read_csv(validation_path)
+        
+        # Aggregate rater scores by prompt_id
+        if 'authority_density_score' in df_validation.columns:
+            agg_scores = df_validation.groupby('prompt_id')['authority_density_score'].mean().reset_index()
+            agg_scores.rename(columns={'authority_density_score': 'human_authority_density'}, inplace=True)
+            df_final = df_final.merge(agg_scores, on='prompt_id', how='left')
+            logger.info(f"Merged human pilot data. Rows with scores: {df_final['human_authority_density'].notna().sum()}")
+    
+    # Save to final location
+    config = get_config()
+    output_path = Path(config['paths']['processed']) / 'features.csv'
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    df_final.to_csv(output_path, index=False)
+    logger.info(f"Saved final feature-rich dataset to {output_path}")
+    logger.info(f"Dataset shape: {df_final.shape}")
+    logger.info(f"Columns: {list(df_final.columns)}")
+    
+    return output_path
 
-    features_path = ensure_feature_data_exists(config)
-    validation_path = ensure_validation_data_exists(config)
+def run_feature_save_pipeline():
+    """Execute the full feature save pipeline (T016)."""
+    logger.info("Starting Feature Save Pipeline (T016)")
     
-    # Load raw features
-    logger.info(f"Loading features from {features_path}")
-    df_features = pd.read_csv(features_path)
+    feature_path = ensure_feature_data_exists()
+    validation_path = ensure_validation_data_exists()
     
-    # Load validation flags
-    logger.info(f"Loading validation flags from {validation_path}")
-    df_validation = pd.read_csv(validation_path)
-    
-    # Merge on prompt_id
-    if 'prompt_id' not in df_features.columns or 'prompt_id' not in df_validation.columns:
-        raise ValueError("Both feature and validation files must contain 'prompt_id' column.")
-    
-    logger.info(f"Merging datasets on 'prompt_id'. "
-                f"Features shape: {df_features.shape}, Validation shape: {df_validation.shape}")
-    
-    df_merged = pd.merge(
-        df_features, 
-        df_validation, 
-        on='prompt_id', 
-        how='left'  # Keep all features, add flags where available
-    )
-    
-    # Fill NaN in validation columns with False/0 if appropriate, 
-    # though T015 should flag all rows. 
-    # Assuming T015 adds 'has_undefined_imperative_ratio' (bool)
-    # and 'imperative_ratio' (float, might be NaN if undefined)
-    
-    # Ensure final output directory exists
-    output_dir = Path(config['paths']['processed_features']).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    output_path = Path(config['paths']['processed_features'])
-    
-    # Save to CSV
-    logger.info(f"Saving merged dataset to {output_path}")
-    df_merged.to_csv(output_path, index=False)
+    output_path = merge_and_save_features(feature_path, validation_path)
     
     # Verify output
     if not output_path.exists():
-        raise RuntimeError(f"Failed to write output file to {output_path}")
+        raise RuntimeError("Failed to write features.csv output file.")
     
-    logger.info(f"Successfully saved {len(df_merged)} rows to {output_path}")
+    df_check = pd.read_csv(output_path)
+    if df_check.empty:
+        raise RuntimeError("Output features.csv is empty.")
+    
+    logger.info("Feature Save Pipeline completed successfully.")
     return output_path
 
 def main():
-    """
-    Entry point for T016.
-    """
-    logger.info("Starting T016: Saving final feature-rich dataset.")
-    
-    # Check pipeline time limit
-    if not check_pipeline_limit():
-        logger.error("Pipeline time limit exceeded. Aborting T016.")
-        sys.exit(1)
-    
+    """Entry point for T016."""
     try:
-        config = get_config()
-        
-        # Ensure paths are set correctly in config if not already
-        # (Assuming config.py handles defaults, but we can enforce here)
-        if 'paths' not in config:
-            config['paths'] = {}
-        
-        # Define paths based on project structure
-        # Assuming config has defaults, but we map them explicitly for T016
-        base_path = Path(config.get('project_root', '.'))
-        
-        # Default paths if not in config (fallback)
-        paths = config.get('paths', {})
-        paths['raw_features'] = paths.get('raw_features', str(base_path / 'data' / 'interim' / 'features_raw.csv'))
-        paths['validation_flags'] = paths.get('validation_flags', str(base_path / 'data' / 'interim' / 'validation_flags.csv'))
-        paths['processed_features'] = paths.get('processed_features', str(base_path / 'data' / 'processed' / 'features.csv'))
-        
-        config['paths'] = paths
-        
-        output_path = merge_and_save_features(config)
-        
-        logger.info(f"T016 completed successfully. Output: {output_path}")
-        
+        run_feature_save_pipeline()
     except Exception as e:
-        logger.exception(f"T016 failed: {e}")
+        logger.error(f"Feature save pipeline failed: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":

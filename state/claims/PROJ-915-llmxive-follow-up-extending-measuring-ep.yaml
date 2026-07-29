@@ -509,3 +509,365 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T17:24:04Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Recruit at least 50 raters via Prolific or MTurk for authority density
+    rating
+  claim_id: c_24e46946
+  context: "T017a [US1] Real Human Pilot Recruitment: Recruit n\u226550 raters via\
+    \ Prolific/MTurk to rate authority density for the subset."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recruit_at_least_50_raters_via_Prolific_or_MTurk_for_authori
+  kind: magnitude
+  raw_text: "Recruit n\u226550 raters via Prolific/MTurk to rate authority density\
+    \ for the subset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:15:57Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Generate synthetic rater data with at least 50 entries for CI validation
+  claim_id: c_b00c5c7c
+  context: "T009 [P] Implement code/mock_data.py to generate deterministic synthetic\
+    \ rater data for CI validation ONLY (simulating Prolific API responses for n\u2265\
+    50 entries with columns [prompt_id, rater_id, authority_density_score])."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_rater_data_with_at_least_50_entries_for_C
+  kind: magnitude
+  raw_text: "Generate deterministic synthetic rater data for CI validation ONLY (simulating\
+    \ Prolific API responses for n\u226550 entries with columns [prompt_id, rater_id,\
+    \ authority_density_score])."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:16:23Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Static medical facts file must contain at least 500 rows
+  claim_id: c_c60317e0
+  context: 'T020 [US2/Foundational] Dynamic Ground Truth Retrieval: ... Verification:
+    File must exist with >= 500 rows and external_fact column populated.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Static_medical_facts_file_must_contain_at_least_500_rows
+  kind: magnitude
+  raw_text: File must exist with >= 500 rows and external_fact column populated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:16:44Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Remove raters with less than 80% agreement on control items
+  claim_id: c_3a6e4d9f
+  context: 'T017b [US1] Real Pilot Data Collection: ... Logic: Remove raters with
+    <80% agreement on control items.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Remove_raters_with_less_than_80%25_agreement_on_control_items
+  kind: magnitude
+  raw_text: Remove raters with <80% agreement on control items.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:17:30Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if correlation is less than 0.5
+  claim_id: c_32a7fe4b
+  context: 'T017c [US1] Real Validation Gate: ... Constraint: If no real data exists
+    or correlation < 0.5, ABORT the pipeline.'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If no real data exists or correlation < 0.5, ABORT the pipeline.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T03:17:30Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Recruit two expert raters to label at least 50 responses
+  claim_id: c_08121d9e
+  context: "T027 [US2] Real Expert Rater Recruitment: Recruit two expert raters to\
+    \ independently label a subset of responses (n\u226550) for adherence/refusal."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recruit_two_expert_raters_to_label_at_least_50_responses
+  kind: magnitude
+  raw_text: "Recruit two expert raters to independently label a subset of responses\
+    \ (n\u226550) for adherence/refusal."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:18:19Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if Cohen's kappa is less than 0.7
+  claim_id: c_a01e3099
+  context: 'T026 [US2] Real Human Outcome Validation Gate: ... Constraint: If kappa
+    < 0.7, ABORT the pipeline.'
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If kappa < 0.7, ABORT the pipeline.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T03:18:36Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Similarity to false claim must be greater than or equal to 0.6
+  claim_id: c_2c858cd5
+  context: "T023 [US2] Implement code/labeling.py (Label Logic): Apply rules: sim_false\
+    \ > sim_correct + sim_false >= 0.6 \u2192 Adherent (1)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Similarity_to_false_claim_must_be_greater_than_or_equal_to_0
+  kind: magnitude
+  raw_text: sim_false >= 0.6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:18:54Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Similarity to correct fact must be greater than or equal to 0.6
+  claim_id: c_45ac8d52
+  context: "T023 [US2] Implement code/labeling.py (Label Logic): ... sim_correct >=\
+    \ 0.6 \u2192 Resilient-Correct (0)..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Similarity_to_correct_fact_must_be_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: sim_correct >= 0.6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:19:11Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Recruit at least 50 raters via Prolific or MTurk for authority density
+    rating
+  claim_id: c_113a5a05
+  context: "T017a [US1] Real Human Pilot Recruitment: Recruit n\u226550 raters via\
+    \ Prolific/MTurk to rate authority density for the subset. Deliverable: data/raw/human_pilot_raw.csv\
+    \ with columns prompt_id, rater_id, authority_density_score."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recruit_at_least_50_raters_via_Prolific_or_MTurk_for_authori
+  kind: magnitude
+  raw_text: "Recruit n\u226550 raters via Prolific/MTurk to rate authority density\
+    \ for the subset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:21:53Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 2
+  canonical: Human pilot raw data file must contain at least 50 rows
+  claim_id: c_dda71fc4
+  context: 'T017a [US1] Real Human Pilot Recruitment: ... Verification: Verify file
+    exists with >= 50 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_raw_data_file_must_contain_at_least_50_rows
+  kind: magnitude
+  raw_text: Verify file exists with >= 50 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:21:55Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Remove raters with less than 80% agreement on control items
+  claim_id: c_7e7066bb
+  context: 'T017b [US1] Real Pilot Data Collection: Aggregate and clean rater responses.
+    Logic: Remove raters with <80% agreement on control items.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Remove_raters_with_less_than_80%25_agreement_on_control_items
+  kind: magnitude
+  raw_text: Remove raters with <80% agreement on control items.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:21:57Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Store first PubMed abstract as external_fact in static_medical_facts.json
+  claim_id: c_efcdc5fb
+  context: 'T020 [US2/Foundational] Dynamic Ground Truth Retrieval: Implement code/labeling.py
+    (Fact Retrieval) to query Entrez PubMed using keywords from correct_answer for
+    every prompt in the subset. Store the first abstract as external_fact in data/raw/static_medical_facts.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Store_first_PubMed_abstract_as_external_fact_in_static_medic
+  kind: entity_fact
+  raw_text: Store the first abstract as external_fact in data/raw/static_medical_facts.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:22:33Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Static medical facts file must contain at least 500 rows with external_fact
+    column populated
+  claim_id: c_fd065f17
+  context: 'T020 [US2/Foundational] Dynamic Ground Truth Retrieval: ... Verification:
+    File must exist with >= 500 rows and external_fact column populated.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Static_medical_facts_file_must_contain_at_least_500_rows_wit
+  kind: magnitude
+  raw_text: File must exist with >= 500 rows and external_fact column populated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:22:35Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Feature CSV must have at least 500 rows with no nulls in feature columns
+  claim_id: c_1b5d4665
+  context: "Independent Test: Run ingestion and feature scripts; verify data/processed/features.csv\
+    \ has \u2265500 rows with no nulls in feature columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_CSV_must_have_at_least_500_rows_with_no_nulls_in_fea
+  kind: magnitude
+  raw_text: "Verify data/processed/features.csv has \u2265500 rows with no nulls in\
+    \ feature columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:23:19Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Recruit two expert raters to label at least 50 responses for adherence
+    or refusal
+  claim_id: c_087500c6
+  context: "T027 [US2] Real Expert Rater Recruitment: Recruit two expert raters to\
+    \ independently label a subset of responses (n\u226550) for adherence/refusal."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recruit_two_expert_raters_to_label_at_least_50_responses_for
+  kind: magnitude
+  raw_text: "Recruit two expert raters to independently label a subset of responses\
+    \ (n\u226550) for adherence/refusal."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:23:21Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 2
+  canonical: Expert rater labels file must contain at least 50 rows
+  claim_id: c_aaf70417
+  context: 'T027 [US2] Real Expert Rater Recruitment: ... Verification: File must
+    exist with >= 50 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Expert_rater_labels_file_must_contain_at_least_50_rows
+  kind: magnitude
+  raw_text: File must exist with >= 50 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:23:22Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Similarity to false claim threshold is 0.6
+  claim_id: c_cb6b0ad2
+  context: "T023 [US2] Implement code/labeling.py (Label Logic): Apply rules: sim_false\
+    \ > sim_correct + sim_false >= 0.6 \u2192 Adherent (1); sim_correct >= 0.6 \u2192\
+    \ Resilient-Correct (0); Refusal detection \u2192 Resilient-Refusal (2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sim_false >= 0.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:23:23Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Similarity to correct fact threshold is 0.6
+  claim_id: c_63c392ea
+  context: "T023 [US2] Implement code/labeling.py (Label Logic): Apply rules: sim_false\
+    \ > sim_correct + sim_false >= 0.6 \u2192 Adherent (1); sim_correct >= 0.6 \u2192\
+    \ Resilient-Correct (0); Refusal detection \u2192 Resilient-Refusal (2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sim_correct >= 0.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T03:23:23Z'

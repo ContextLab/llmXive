@@ -54,25 +54,14 @@
   verification_status: pending
   verified_against_url: https://app.prolific.com/api
   verified_at: '2026-07-17T02:23:01.480322Z'
-- artifact_hash: 4eb75cf4aa4ed5622b557d3ff0c5b659ca5af7c22e9fb5631c1c51410aa17053
+- artifact_hash: 7cc44a726c2482521820aa8c65c36e4328d31661a073ba25012d055b183ade5d
   artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: esearch.fcgi
-  kind: url
-  value: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`
-  verification_status: pending
-  verified_against_url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi
-  verified_at: '2026-07-28T16:49:14.103547Z'
-- artifact_hash: 4eb75cf4aa4ed5622b557d3ff0c5b659ca5af7c22e9fb5631c1c51410aa17053
-  artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
   fetched_title: null
   kind: url
-  value: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi`
-  verification_status: unreachable
-  verified_against_url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi
-  verified_at: '2026-07-28T16:49:14.103547Z'
+  value: https://huggingface.co/datasets/medmisbench/supplementary`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/medmisbench/supplementary
+  verified_at: '2026-07-29T03:59:18.649010Z'

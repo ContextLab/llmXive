@@ -1,0 +1,17 @@
+status: none
+intent: download MedMisBench dataset HuggingFace repository python package dataset
+required_fields:
+- prompt_id
+- prompt_text
+- label
+- modal_verb_count
+- imperative_verb_count
+- declarative_sentence_count
+- total_sentences
+- citation_count
+- citation_density
+- imperative_declarative_ratio
+- modal_verb_frequency
+cache_key: 20d1d1ce27da218db55208dae969685ae47dc63b3cc7c30c58caf1446df0bdeb
+searched_at: '2026-07-29T03:06:59.867689+00:00'
+retry_count: 1

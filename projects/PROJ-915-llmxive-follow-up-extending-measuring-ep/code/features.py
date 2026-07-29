@@ -1,122 +1,187 @@
 """
-Feature extraction module: Extract linguistic features from prompts.
+Feature Extraction Module (T014, T015).
+Extracts linguistic features (modal verbs, imperative ratio, citation density) 
+from the ingested dataset and flags undefined ratios.
 """
 import os
 import re
 import csv
 import logging
-import nltk
-from typing import List, Dict, Any, Tuple
+import sys
+from pathlib import Path
 import pandas as pd
 
-# Ensure NLTK data is available
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
-try:
-    nltk.data.find('taggers/averaged_perceptron_tagger')
-except LookupError:
-    nltk.download('averaged_perceptron_tagger')
+from config import get_config
 
-from config import config
-
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 logger = logging.getLogger(__name__)
 
-MODAL_VERBS = {'can', 'could', 'may', 'might', 'must', 'shall', 'should', 'will', 'would'}
+# Define modal verbs for frequency counting
+MODAL_VERBS = {
+    'can', 'could', 'may', 'might', 'must', 'shall', 'should', 'will', 'would',
+    'need', 'dare', 'ought', 'used'
+}
 
-def extract_features(text: str) -> Dict[str, float]:
+def extract_features(text: str) -> dict:
     """
-    Extract linguistic features from a text string.
-    Returns: dict with modal_verb_freq, imperative_ratio, citation_density
-    """
-    if not text or not isinstance(text, str):
-        return {
-            "modal_verb_freq": 0.0,
-            "imperative_ratio": 0.0,
-            "citation_density": 0.0,
-            "total_sentences": 0,
-            "imperative_count": 0
-        }
-
-    # Tokenize and tag
-    sentences = nltk.sent_tokenize(text)
-    total_sentences = len(sentences)
+    Extract linguistic features from a single text prompt.
     
-    if total_sentences == 0:
+    Args:
+        text: The prompt text to analyze
+        
+    Returns:
+        Dictionary with modal_verb_freq, imperative_ratio, citation_density
+    """
+    if not isinstance(text, str) or not text.strip():
         return {
-            "modal_verb_freq": 0.0,
-            "imperative_ratio": 0.0,
-            "citation_density": 0.0,
-            "total_sentences": 0,
-            "imperative_count": 0
+            'modal_verb_freq': 0.0,
+            'imperative_ratio': 0.0,
+            'citation_density': 0.0,
+            'sentence_count': 0
         }
-
+    
+    text_lower = text.lower()
+    
+    # 1. Modal Verb Frequency
+    # Count occurrences of modal verbs as whole words
     modal_count = 0
+    for verb in MODAL_VERBS:
+        pattern = r'\b' + re.escape(verb) + r'\b'
+        modal_count += len(re.findall(pattern, text_lower))
+    
+    # Normalize by text length (per 100 words)
+    word_count = len(text.split())
+    modal_freq = (modal_count / word_count * 100) if word_count > 0 else 0.0
+    
+    # 2. Sentence Analysis for Imperative Ratio
+    # Split into sentences (basic heuristic)
+    sentences = re.split(r'[.!?]+', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
+    sentence_count = len(sentences)
+    
     imperative_count = 0
-    citation_count = 0
-
     for sentence in sentences:
-        tokens = nltk.word_tokenize(sentence)
-        pos_tags = nltk.pos_tag(tokens)
-        
-        # Modal verbs
-        for word, tag in pos_tags:
-            if word.lower() in MODAL_VERBS:
-                modal_count += 1
-        
-        # Imperative detection (VB tag at start of sentence, no subject)
-        if pos_tags and pos_tags[0][1] == 'VB':
-            # Simple heuristic: starts with verb and no pronoun subject before
-            imperative_count += 1
-        
-        # Citation density: count patterns like [1], (1), etc.
-        citations = re.findall(r'\[\d+\]|\(\d+\)', sentence)
-        citation_count += len(citations)
-
-    modal_verb_freq = modal_count / total_sentences
-    imperative_ratio = imperative_count / total_sentences if total_sentences > 0 else 0.0
-    citation_density = citation_count / total_sentences
-
+        # Heuristic: Imperative sentences often start with a verb (no subject)
+        # Simplified: Check if first word is a verb-like token (common in medical directives)
+        words = sentence.split()
+        if words:
+            first_word = words[0].lower()
+            # Common imperative starters in medical context
+            imperative_markers = {'take', 'use', 'avoid', 'do', 'stop', 'start', 'consider', 'ensure', 'consult', 'check'}
+            if first_word in imperative_markers:
+                imperative_count += 1
+            # Also check for "should/must" + verb structure as directive
+            elif first_word in ['should', 'must', 'need', 'have']:
+                imperative_count += 1
+    
+    # Calculate ratio
+    # If sentence_count is 0, ratio is undefined (handled in T015)
+    if sentence_count > 0:
+        imperative_ratio = imperative_count / sentence_count
+    else:
+        imperative_ratio = 0.0
+    
+    # 3. Citation Density
+    # Count patterns like [1], (Author, Year), or "according to..."
+    citation_pattern = r'\[\d+\]|\(\w+,\s*\d{4}\)|according\s+to\s+\w+'
+    citation_matches = re.findall(citation_pattern, text, re.IGNORECASE)
+    citation_count = len(citation_matches)
+    
+    citation_density = (citation_count / word_count * 100) if word_count > 0 else 0.0
+    
     return {
-        "modal_verb_freq": modal_verb_freq,
-        "imperative_ratio": imperative_ratio,
-        "citation_density": citation_density,
-        "total_sentences": total_sentences,
-        "imperative_count": imperative_count
+        'modal_verb_freq': round(modal_freq, 4),
+        'imperative_ratio': round(imperative_ratio, 4),
+        'citation_density': round(citation_density, 4),
+        'sentence_count': sentence_count
     }
 
-def run_feature_extraction(input_path: str, output_path: str):
+def flag_undefined_imperative_ratio(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Run feature extraction on a CSV file.
-    Expects 'text' column. Outputs features to new CSV.
-    """
-    logger.info(f"Starting feature extraction on {input_path}")
+    T015: Flag prompts where imperative ratio is undefined (zero sentences).
     
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    Args:
+        df: DataFrame with feature columns
+        
+    Returns:
+        DataFrame with added 'is_ratio_undefined' boolean column
+    """
+    df['is_ratio_undefined'] = df['sentence_count'] == 0
+    logger.info(f"Flagged {df['is_ratio_undefined'].sum()} rows with undefined imperative ratio.")
+    return df
 
+def run_feature_extraction():
+    """
+    Run feature extraction on the ingested dataset.
+    Reads from data/raw/medmis_subset.csv and writes to data/processed/features_raw.csv.
+    """
+    config = get_config()
+    input_path = Path(config['paths']['raw']) / 'medmis_subset.csv'
+    output_path = Path(config['paths']['processed']) / 'features_raw.csv'
+    
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}. Run ingestion (T013) first.")
+    
+    logger.info(f"Reading dataset from {input_path}")
     df = pd.read_csv(input_path)
     
-    if 'text' not in df.columns:
-        raise ValueError("Input CSV must contain a 'text' column.")
-
-    features = []
+    if 'prompt_id' not in df.columns:
+        raise ValueError("Input dataset missing 'prompt_id' column.")
+    
+    if 'text' not in df.columns and 'prompt' not in df.columns:
+        # Try to find a text column
+        text_col = None
+        for col in df.columns:
+            if 'text' in col.lower() or 'prompt' in col.lower():
+                text_col = col
+                break
+        if not text_col:
+            raise ValueError("Input dataset missing text column. Expected 'text' or 'prompt'.")
+    else:
+        text_col = 'text' if 'text' in df.columns else 'prompt'
+    
+    logger.info(f"Extracting features for {len(df)} prompts using column '{text_col}'")
+    
+    features_list = []
     for idx, row in df.iterrows():
-        feats = extract_features(str(row['text']))
-        feats['prompt_id'] = row.get('prompt_id', idx)
-        features.append(feats)
+        text = row[text_col]
+        features = extract_features(text)
+        features['prompt_id'] = row['prompt_id']
+        features_list.append(features)
+        
+        if (idx + 1) % 100 == 0:
+            logger.info(f"Processed {idx + 1}/{len(df)} prompts")
+    
+    df_features = pd.DataFrame(features_list)
+    
+    # Apply T015 flagging
+    df_features = flag_undefined_imperative_ratio(df_features)
+    
+    # Save intermediate results
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df_features.to_csv(output_path, index=False)
+    logger.info(f"Saved intermediate features to {output_path}")
+    
+    return df_features
 
-    features_df = pd.DataFrame(features)
-    features_df.to_csv(output_path, index=False)
-    logger.info(f"Feature extraction complete. Saved to {output_path}")
+def run_feature_extraction_pipeline():
+    """Execute the full feature extraction pipeline (T014, T015)."""
+    logger.info("Starting Feature Extraction Pipeline")
+    df = run_feature_extraction()
+    logger.info(f"Feature extraction completed. Total rows: {len(df)}")
+    return df
+
+def main():
+    """Entry point for feature extraction."""
+    try:
+        run_feature_extraction_pipeline()
+    except Exception as e:
+        logger.error(f"Feature extraction pipeline failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    # Example usage
-    input_file = os.path.join(config.paths["data_raw"], "medmis_subset.csv")
-    output_file = os.path.join(config.paths["data_processed"], "features.csv")
-    if os.path.exists(input_file):
-        run_feature_extraction(input_file, output_file)
-    else:
-        logger.warning(f"Input file {input_file} not found. Skipping extraction.")
+    main()

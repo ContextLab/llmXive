@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-915-llmxive-follow-up-extending-measuring-ep",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 4 declared deliverable(s) absent: data/interim/labeled_responses.csv; data/processed/features.csv; data/raw/medmis_subset.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-29T03:06:01Z"
+}
