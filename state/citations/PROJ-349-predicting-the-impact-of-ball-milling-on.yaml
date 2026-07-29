@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-16T06:35:44.541285Z'
-- artifact_hash: 222d10a7a70117e2ef520526dde42ba67ed30c514153f2da145f8d2112ed59fc
+- artifact_hash: 5d96e9e15d2ccf6bf270a91507bf25613accf987834551a29a079c3dd459034e
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://next-gen.materialsproject.org/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-07-28T12:07:04.153968Z'
+  verified_at: '2026-07-29T10:45:05.026758Z'

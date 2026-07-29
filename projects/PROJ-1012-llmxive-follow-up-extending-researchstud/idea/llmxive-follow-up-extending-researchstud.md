@@ -9,30 +9,42 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can a deterministic, layout-aware rule-based verification module reduce hallucinated citations and figure misattribution in automated research dissemination artifacts compared to a learned LLM-based verification loop, while operating entirely on CPU resources?
+To what extent do structural document cues (e.g., figure labels, citation anchors) provide sufficient semantic grounding to prevent factual drift in automated research summaries, and where does the reliance on purely structural verification fail to capture necessary contextual meaning?
 
 ## Motivation
 
-Current automated dissemination systems like ResearchStudio-Reel rely on Vision-Language Models (VLMs) for semantic verification, which introduces high latency, GPU dependency, and susceptibility to subtle factual drift in dense scientific texts. A lightweight, CPU-tractable alternative that leverages structural document properties (e.g., figure IDs, citation anchors) could enable real-time, scalable deployment in resource-constrained environments like local lab servers or browser-based tools without sacrificing factual consistency.
+Automated research dissemination systems often struggle with factual consistency, particularly when relying on large language models that may hallucinate citations or misattribute figures. While structural document properties (like figure IDs and reference anchors) offer a deterministic path to verification, it remains unclear whether these cues alone are sufficient to ground semantic claims in complex scientific texts. This study addresses the gap between computational efficiency and factual reliability, determining if lightweight, CPU-tractable rule-based checks can replace or augment expensive Vision-Language Model (VLM) loops without sacrificing accuracy.
 
-## Related work
+## Literature gap analysis
 
-- [ResearchStudio-Reel: Automate the Last Mile of Research from Paper to Poster, Video, and Blog](https://arxiv.org/abs/2607.04438) — Establishes the baseline "measured-fill" loop using VLMs for artifact generation and notes the computational cost of semantic verification as a remaining bottleneck.
-- [The Shiny Scary Future of Automated Research Synthesis in HCI](https://arxiv.org/abs/2501.16084) — Discusses the growing role of LLMs in research synthesis and highlights the trade-offs between automation efficiency and the reliability of secondary research outputs.
-- [Enhancing Understandability and Transparency of Research Software: Tracing Research to Code](https://arxiv.org/abs/2604.10793) — Addresses the broader challenge of tracing research artifacts to their source material, providing context for the need for deterministic, transparent verification mechanisms in automated pipelines.
+### What we searched
+We queried Semantic Scholar and arXiv using terms focused on "automated research workflow generation," "scientific document verification," and "hallucination detection in research synthesis." The search specifically targeted recent works (2024–2026) discussing the transition from paper to executable or dissemination artifacts.
+
+### What is known
+- [Scientific Workflow Systems for 21st Century e-Science, New Bottle or New Wine?](https://arxiv.org/abs/0808.3545) — Establishes the foundational need for workflow systems in e-Science to coordinate complex analyses, though it predates the current wave of LLM-driven automation and focuses on process coordination rather than semantic verification.
+- [Automated Generation of Research Workflows from Academic Papers: A Full-text Mining Framework](https://arxiv.org/abs/2509.12955) — Demonstrates frameworks for extracting workflow steps from full-text papers to improve reproducibility, highlighting the difficulty of mapping unstructured text to structured logic, but does not specifically address the verification of generated *summaries* or *media* against source structural anchors.
+
+### What is NOT known
+There is no published work that quantitatively measures the "semantic grounding sufficiency" of purely structural cues (e.g., regex matching figure IDs) versus learned semantic verification in the specific context of generating research dissemination artifacts (posters, blogs). Existing literature focuses on workflow *extraction* or general hallucination detection, but not on the specific trade-off between CPU-tractable rule-based verification and the semantic drift inherent in VLM-based verification for this specific domain.
+
+### Why this gap matters
+As research dissemination becomes increasingly automated, the risk of propagating factual errors (e.g., wrong figure references) in high-volume, low-latency outputs threatens scientific integrity. Understanding whether structural heuristics are sufficient allows developers to build scalable, resource-efficient verification pipelines that can run on standard lab servers or browser-based tools, rather than relying on expensive GPU clusters.
+
+### How this project addresses the gap
+This project directly compares a deterministic, layout-aware rule-based module against a learned VLM baseline using a standardized test set. By isolating the performance of structural cues against a "Gold Truth" dataset, the methodology produces the first empirical evidence on the limits of structural verification for preventing factual drift in automated research summaries.
 
 ## Expected results
 
-The proposed rule-based module will achieve a statistically significant reduction (≥40%) in hallucinated figure references and citation errors compared to the VLM baseline, while reducing average generation latency by at least 50% on CPU-only hardware. The null hypothesis (no improvement in factual precision) would imply that structural heuristics are insufficient for semantic grounding, while the positive result would validate a scalable, deterministic path for factual consistency in automated research dissemination.
+We expect to find that structural cues are highly effective for verifying explicit, low-level entities (e.g., "Figure 3" matching a specific asset ID) but fail to prevent hallucinations in complex, context-dependent claims (e.g., interpreting the *content* of a figure). A positive result would show a statistically significant reduction in specific entity-level errors with a 50% latency reduction, while a null result would indicate that semantic context is indispensable for accurate verification, necessitating hybrid approaches.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the 500-paper test set from the original Paper2Poster benchmark and the associated "Gold Truth" JSON file (containing verified figure IDs, citation strings, and claim-to-evidence spans) from the ResearchStudio-Reel repository or Zenodo mirror.
-- **Baseline Execution**: Run the original ResearchStudio-Reel pipeline (with VLM-based verification) on the test set using a standard CPU-only environment (simulating the lack of GPU) and record generation latency and token costs.
-- **Module Implementation**: Develop the "Layout-Aware Fact-Checker" (LAFC) using Python regex and simple graph traversal on the extracted `Paper2Assets` bundle to cross-reference generated text against structural anchors (e.g., matching "Figure 3" text to the object labeled "Figure 3" in the asset metadata).
+- **Data Acquisition**: Download the 500-paper test set from the Paper2Poster benchmark and the associated "Gold Truth" JSON file (containing verified figure IDs, citation strings, and claim-to-evidence spans) from the ResearchStudio-Reel repository or Zenodo mirror.
+- **Baseline Execution**: Run the original ResearchStudio-Reel pipeline (with VLM-based verification) on the test set in a CPU-only environment (using CPU-based inference for the VLM to ensure fair resource comparison) and record generation latency and token costs.
+- **Module Implementation**: Develop the "Layout-Aware Fact-Checker" (LAFC) using Python regex and graph traversal on the extracted `Paper2Assets` bundle to cross-reference generated text against structural anchors (e.g., matching "Figure 3" text to the object labeled "Figure 3" in metadata) without any semantic inference.
 - **Extension Execution**: Replace the VLM verification step in the measured-fill loop with the LAFC module and re-run the pipeline on the same test set under identical CPU constraints.
-- **Metric Calculation**: Compute "Factual Precision" (percentage of exact matches for figure/citation references against Gold Truth) and "Drift Score" (semantic distance between original claims and generated summaries using a lightweight sentence transformer) for both conditions.
-- **Statistical Testing**: Apply a paired t-test (or Wilcoxon signed-rank test if normality assumptions fail) to compare factual precision and latency between the baseline and LAFC conditions across the 500 papers.
+- **Metric Calculation**: Compute "Entity Precision" (exact match of figure/citation references against Gold Truth) and "Contextual Drift Score" (semantic distance between original claims and generated summaries using a lightweight sentence transformer) for both conditions.
+- **Statistical Testing**: Apply a paired t-test (or Wilcoxon signed-rank test) to compare Entity Precision and Contextual Drift Score between the baseline and LAFC conditions across the 500 papers to determine if the structural-only approach is sufficient.
 - **Resource Profiling**: Monitor CPU utilization and memory footprint during execution to ensure the method stays within the 7GB RAM and 6-hour runtime constraints of standard CI runners.
 
 ## Duplicate-check
@@ -44,39 +56,38 @@ The proposed rule-based module will achieve a statistically significant reductio
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-08T12:49:24Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-29T10:18:42Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "ResearchStudio-Reel: Automate the Last Mile of Research from Paper to " computer science
-**Verified citation count**: 3
+**Verified citation count**: 2
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "ResearchStudio-Reel: Automate the Last Mile of Research from Paper to " computer science | 0 |
-| 1 | research automation tools for paper to code | 4 |
-| 2 | automated research pipeline generation from academic papers | 0 |
-| 3 | converting research papers to executable code automatically | 0 |
-| 4 | end-to-end research workflow automation systems | 0 |
-| 5 | machine learning for research reproducibility and implementation | 0 |
-| 6 | natural language processing for code synthesis from papers | 0 |
-| 7 | automated scientific software development from literature | 0 |
-| 8 | paper-to-reproducibility frameworks in computer science | 0 |
-| 9 | intelligent research assistants for experimental replication | 0 |
-| 10 | automated literature review to code generation | 0 |
-| 11 | semantic extraction of algorithms from research articles | 0 |
-| 12 | research code generation using large language models | 0 |
-| 13 | automating the transition from theoretical papers to software | 0 |
-| 14 | tools for replicating research experiments via automation | 0 |
-| 15 | AI-driven research implementation platforms | 0 |
-| 16 | natural language to executable research code | 0 |
-| 17 | automated extraction of methodology from scientific texts | 0 |
-| 18 | research workflow orchestration for paper-to-code conversion | 0 |
-| 19 | intelligent systems for automating research software creation | 0 |
-| 20 | bridging the gap between academic papers and code repositories | 0 |
+| 1 | research paper automation workflows | 5 |
+| 2 | automated literature review synthesis | 0 |
+| 3 | end-to-end research pipeline automation | 0 |
+| 4 | AI-driven scientific discovery systems | 0 |
+| 5 | natural language processing for research summarization | 0 |
+| 6 | automated hypothesis generation from literature | 0 |
+| 7 | machine learning assisted experimental design | 0 |
+| 8 | semantic search for scientific knowledge extraction | 0 |
+| 9 | automated citation network analysis | 0 |
+| 10 | generative AI for research prototyping | 0 |
+| 11 | intelligent research assistant tools | 0 |
+| 12 | automated code generation from research papers | 0 |
+| 13 | knowledge graph construction for academic texts | 0 |
+| 14 | automated reproducibility of research results | 0 |
+| 15 | large language models for scientific writing | 0 |
+| 16 | research workflow orchestration platforms | 0 |
+| 17 | automated data extraction from scientific documents | 0 |
+| 18 | AI-mediated peer review and validation | 0 |
+| 19 | computational literature mining | 0 |
+| 20 | automated scientific insight discovery | 0 |
 
 ### Verified citations
 
-1. **ResearchStudio-Reel: Automate the Last Mile of Research from Paper to Poster, Video, and Blog** (2026). Lingao Xiao, Yalun Dai, Yangyu Huang, Qihao Zhao, Wenshan Wu, et al.. arXiv. [2607.04438](https://arxiv.org/abs/2607.04438). PDF-sampled: No.
-2. **The Shiny Scary Future of Automated Research Synthesis in HCI** (2025). Katja Rogers. arXiv. [2501.16084](https://arxiv.org/abs/2501.16084). PDF-sampled: No.
-3. **Enhancing Understandability and Transparency of Research Software: Tracing Research to Code** (2026). Adrian Bajraktari, Andreas Vogelsang. arXiv. [2604.10793](https://arxiv.org/abs/2604.10793). PDF-sampled: No.
+1. **Scientific Workflow Systems for 21st Century e-Science, New Bottle or New Wine?** (2008). Yong Zhao, Ioan Raicu, Ian Foster. arXiv. [0808.3545](https://arxiv.org/abs/0808.3545). PDF-sampled: No.
+2. **Automated Generation of Research Workflows from Academic Papers: A Full-text Mining Framework** (2025). Heng Zhang, Chengzhi Zhang. arXiv. [2509.12955](https://arxiv.org/abs/2509.12955). PDF-sampled: No.

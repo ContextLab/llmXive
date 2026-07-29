@@ -30,7 +30,7 @@ This project explores the relationship between solar wind speed (Vsw) and geomag
 
 1. Calculate physics-based propagation lag: L_phys = 6371 / Vsw_mean (minutes)
  - Derived from: L_phys = (60 * 6371) / Vsw_mean / 60
- - Where 60 Re is the tail distance and 6371 km is Earth's radius
+ - Where 60 Re is the tail distance and Earth has a characteristic radius.
 2. Apply lag shift to solar wind data
 3. Compute Pearson and Spearman correlations
 4. Perform circular block permutation test for empirical p-values
@@ -66,7 +66,7 @@ This formula is derived from the full expression:
 L_phys = (60 * 6371) / Vsw_mean / 60
 
 Where:
-- 60 Re is the distance to the magnetotail reconnection region (60 Earth radii)
+- The magnetotail reconnection region is located at a substantial distance down the tail. (60 Earth radii)
 - 6371 km is Earth's radius
 - Vsw_mean is the mean solar wind speed in km/s
 - The division by 60 converts seconds to minutes

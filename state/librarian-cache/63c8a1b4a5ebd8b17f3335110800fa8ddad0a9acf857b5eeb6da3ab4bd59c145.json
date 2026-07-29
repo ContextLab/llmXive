@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-08T12:49:24Z",
+  "fetched_at": "2026-07-29T10:18:42Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Research from Paper to \"",
       "target_n": 5
     },
-    "duration_seconds": 48.059,
-    "ended_at": "2026-07-08T12:49:24Z",
+    "duration_seconds": 39.785,
+    "ended_at": "2026-07-29T10:18:42Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "research automation tools for paper to code"
+          "research paper automation workflows"
         ],
         [
           2,
-          "automated research pipeline generation from academic papers"
+          "automated literature review synthesis"
         ],
         [
           3,
-          "converting research papers to executable code automatically"
+          "end-to-end research pipeline automation"
         ],
         [
           4,
-          "end-to-end research workflow automation systems"
+          "AI-driven scientific discovery systems"
         ],
         [
           5,
-          "machine learning for research reproducibility and implementation"
+          "natural language processing for research summarization"
         ],
         [
           6,
-          "natural language processing for code synthesis from papers"
+          "automated hypothesis generation from literature"
         ],
         [
           7,
-          "automated scientific software development from literature"
+          "machine learning assisted experimental design"
         ],
         [
           8,
-          "paper-to-reproducibility frameworks in computer science"
+          "semantic search for scientific knowledge extraction"
         ],
         [
           9,
-          "intelligent research assistants for experimental replication"
+          "automated citation network analysis"
         ],
         [
           10,
-          "automated literature review to code generation"
+          "generative AI for research prototyping"
         ],
         [
           11,
-          "semantic extraction of algorithms from research articles"
+          "intelligent research assistant tools"
         ],
         [
           12,
-          "research code generation using large language models"
+          "automated code generation from research papers"
         ],
         [
           13,
-          "automating the transition from theoretical papers to software"
+          "knowledge graph construction for academic texts"
         ],
         [
           14,
-          "tools for replicating research experiments via automation"
+          "automated reproducibility of research results"
         ],
         [
           15,
-          "AI-driven research implementation platforms"
+          "large language models for scientific writing"
         ],
         [
           16,
-          "natural language to executable research code"
+          "research workflow orchestration platforms"
         ],
         [
           17,
-          "automated extraction of methodology from scientific texts"
+          "automated data extraction from scientific documents"
         ],
         [
           18,
-          "research workflow orchestration for paper-to-code conversion"
+          "AI-mediated peer review and validation"
         ],
         [
           19,
-          "intelligent systems for automating research software creation"
+          "computational literature mining"
         ],
         [
           20,
-          "bridging the gap between academic papers and code repositories"
+          "automated scientific insight discovery"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Research from Paper to \" computer science": 0,
-        "research automation tools for paper to code": 4
+        "research paper automation workflows": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "paper-to-code synthesis LLM automation",
-      "ResearchStudio-Reel benchmark dataset generation",
-      "software artifact extraction from academic papers",
-      "codebase completion evaluation research pipelines",
-      "scientific workflow automation LLM agents"
+      "paper-to-code synthesis automated pipelines",
+      "ResearchStudio code generation artifact extraction",
+      "LLM code completion research reproduction",
+      "benchmark evaluation scientific code generation",
+      "training data contamination code artifact leakage"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,36 +120,41 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2604.10793"
+        "2509.12955"
       ]
     },
     "per_query_hit_count": {
-      "ResearchStudio-Reel benchmark dataset generation": 3,
-      "codebase completion evaluation research pipelines": 3,
+      "LLM code completion research reproduction": 3,
+      "ResearchStudio code generation artifact extraction": 3,
+      "benchmark evaluation scientific code generation": 2,
       "llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Research from Paper to \" computer science": 3,
-      "paper-to-code synthesis LLM automation": 3,
-      "scientific workflow automation LLM agents": 3,
-      "software artifact extraction from academic papers": 3
+      "paper-to-code synthesis automated pipelines": 3,
+      "training data contamination code artifact leakage": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 2,
+      "rejected_count": 3,
       "rejections": [
         {
-          "primary_pointer": "2011.03117",
-          "rationale": "The paper focuses on automating building permit checks using IFC models in the construction domain, which is an entirely different application area and technical mechanism than the user's question regarding automating the \"last mile\" of computer science research workflows. It fails all inclusion criteria (a-f) as it does not measure the same variables, study the same population, or provide foundational methodology for research automation in computer science.",
-          "title": "IFC models for (semi)automating common planning checks for building permits"
+          "primary_pointer": "cond-mat/0309395",
+          "rationale": "The candidate paper has been withdrawn and contains no abstract or content, meaning it provides no measurable connection to the user's mechanism, domain, variables, or empirical setting required for inclusion in a literature review.",
+          "title": "This paper has been withdrawn"
         },
         {
           "primary_pointer": "2502.09417",
           "rationale": "The paper focuses on general Reinforcement Learning applications in industrial automation (manufacturing, energy, robotics), which is an off-domain topic relative to the user's specific question about automating the \"last mile\" of academic research workflows (paper-to-reel generation). It does not address the specific mechanism, variables, or empirical population of research automation tools, nor does it serve as a foundational reference for that specific niche.",
           "title": "A Survey of Reinforcement Learning for Optimization in Automation"
+        },
+        {
+          "primary_pointer": "2011.03117",
+          "rationale": "The paper focuses on automating building permit checks using IFC models in the construction domain, which is an entirely different application area and technical mechanism than the user's question regarding automating the \"last mile\" of computer science research workflows. It fails all inclusion criteria (a-f) as it does not measure the same variables, study the same population, or provide foundational methodology for research automation in computer science.",
+          "title": "IFC models for (semi)automating common planning checks for building permits"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-08T12:48:36Z",
+    "started_at": "2026-07-29T10:18:02Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"researchstudio-reel: automate the last mile of research from paper to \" computer science",
       "raw": "llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Research from Paper to \" computer science"
@@ -168,7 +173,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-08T12:49:04Z",
+        "failed_at": "2026-07-29T10:18:29Z",
         "reason": "query_irrelevant"
       },
       {
@@ -187,7 +192,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-08T12:49:04Z",
+        "failed_at": "2026-07-29T10:18:29Z",
         "reason": "query_irrelevant"
       },
       {
@@ -205,53 +210,144 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-08T12:49:04Z",
+        "failed_at": "2026-07-29T10:18:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper presents MCP4EDA, the first Model Context Protocol server that enables Large Language Models (LLMs) to control and optimize the complete open-source RTL-to-GDSII design flow through natural language interaction. The system integrates Yosys synthesis, Icarus Verilog simulation, OpenLane place-and-route, GTKWave analysis, and KLayout visualization into a unified LLM-accessible interface, enabling designers to execute complex multi-tool EDA workflows conversationally via AI assistants such as Claude Desktop and Cursor IDE. The principal contribution is a backend-aware synthesis optimization methodology wherein LLMs analyze actual post-layout timing, power, and area metrics from OpenLane results to iteratively refine synthesis TCL scripts, establishing a closed-loop optimization system that bridges the traditional gap between synthesis estimates and physical implementation reality. In contrast to conventional flows that rely on wire-load models, this methodology leverages real backend performance data to guide synthesis parameter tuning, optimization sequence selection, and constraint refinement, with the LLM functioning as an intelligent design space exploration agent. Experimental evaluation on representative digital designs demonstrates 15-30% improvements in timing closure and 10-20% area reduction compared to default synthesis flows, establishing MCP4EDA as the first practical LLM-controlled end-to-end open-source EDA automation system. The code and demo are avaiable at: http://www.agent4eda.com/",
+          "claimed_abstract": "Animatronic faces are a central component of socially interactive robots, enabling rich nonverbal communication through facial articulation. However, state-of-the-art animatronic faces are typically tailored systems: each new facial geometry requires extensive manual mechanical redesign, making large-scale personalization prohibitively slow and costly. In this work, we pursue automated and scalable mechanical face synthesis, aiming to rapidly generate a physically realizable facial mechanism for a wide range of facial geometries. We introduce a parametric, linkage-driven mechanical face template whose topology and actuator layout are explicitly parameterized to support systematic scaling and retargeting across diverse facial morphologies. Building on this template, we propose a hierarchical automatic design algorithm that takes a single 2D portrait as input, reconstructs a target 3D face, and synthesizes a collision-free, manufacturable internal mechanism. The algorithm combines anatomy-guided feasible motion volumes, Action Unit (AU)-derived trajectory-based expressiveness objectives, and a collision-driven outer-loop refinement strategy. Beyond hardware synthesis, we argue that future mechanical faces deployed at scale must engage in bidirectional, multi-turn conversation rather than functioning solely as speaking or listening heads. To this end, we develop a dual-identity conversational facial motion synthesis framework that jointly models speaking and listening behaviors from audio, producing temporally coherent 3D facial motion suitable for physical execution. We validate our system through extensive experiments, including (i) quantitative evaluation of automatic mechanism synthesis across diverse facial geometries, (ii) comparisons against manual mechanical design, (iii) benchmarks on conversational facial motion synthesis and real-time deployment, and (iv) perceptual user studies.",
           "claimed_authors": [
-            "Yiting Wang",
-            "Wanghao Ye",
-            "Yexiao He",
-            "Yiran Chen",
-            "Gang Qu",
-            "Ang Li"
+            "Zongzheng Zhang",
+            "Zi Lin",
+            "Jiawen Yang",
+            "Ziqiao Peng",
+            "Junyan Lao",
+            "Lin Cheng",
+            "Huazhe Xu",
+            "Hang Zhao",
+            "Hao Zhao"
           ],
-          "claimed_title": "MCP4EDA: LLM-Powered Model Context Protocol RTL-to-GDSII Automation with Backend Aware Synthesis Optimization",
+          "claimed_title": "Automated Synthesis of Facial Mechanisms for Conversational Animatronic Robots",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2507.19570"
+          "claimed_year": 2026,
+          "primary_pointer": "2607.11688"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='MCP4EDA: LLM-Powered Model Context Protocol RTL-to-GDSII Automation with Backend Aware Synthesis Optimization')",
-        "failed_at": "2026-07-08T12:49:04Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Automated Synthesis of Facial Mechanisms for Conversational Animatronic Robots')",
+        "failed_at": "2026-07-29T10:18:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Mobile task automation is an attractive technique that aims to enable voice-based hands-free user interaction with smartphones. However, existing approaches suffer from poor scalability due to the limited language understanding ability and the non-trivial manual efforts required from developers or end-users. The recent advance of large language models (LLMs) in language understanding and reasoning inspires us to rethink the problem from a model-centric perspective, where task preparation, comprehension, and execution are handled by a unified language model. In this work, we introduce AutoDroid, a mobile task automation system capable of handling arbitrary tasks on any Android application without manual efforts. The key insight is to combine the commonsense knowledge of LLMs and domain-specific knowledge of apps through automated dynamic analysis. The main components include a functionality-aware UI representation method that bridges the UI with the LLM, exploration-based memory injection techniques that augment the app-specific domain knowledge of LLM, and a multi-granularity query optimization module that reduces the cost of model inference. We integrate AutoDroid with off-the-shelf LLMs including online GPT-4/GPT-3.5 and on-device Vicuna, and evaluate its performance on a new benchmark for memory-augmented Android task automation with 158 common tasks. The results demonstrated that AutoDroid is able to precisely generate actions with an accuracy of 90.9%, and complete tasks with a success rate of 71.3%, outperforming the GPT-4-powered baselines by 36.4% and 39.7%. The demo, benchmark suites, and source code of AutoDroid will be released at url{https://autodroid-sys.github.io/}.",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
           "claimed_authors": [
-            "Hao Wen",
-            "Yuanchun Li",
-            "Guohong Liu",
-            "Shanhui Zhao",
-            "Tao Yu",
-            "Toby Jia-Jun Li",
-            "Shiqi Jiang",
-            "Yunhao Liu",
-            "Yaqin Zhang",
-            "Yunxin Liu"
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
           ],
-          "claimed_title": "AutoDroid: LLM-powered Task Automation in Android",
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-07-29T10:18:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nonlinear inter-modality registration is often challenging due to the lack of objective functions that are good proxies for alignment. Here we propose a synthesis-by-registration method to convert this problem into an easier intra-modality task. We introduce a registration loss for weakly supervised image translation between domains that does not require perfectly aligned training data. This loss capitalises on a registration U-Net with frozen weights, to drive a synthesis CNN towards the desired translation. We complement this loss with a structure preserving constraint based on contrastive learning, which prevents blurring and content shifts due to overfitting. We apply this method to the registration of histological sections to MRI slices, a key step in 3D histology reconstruction. Results on two different public datasets show improvements over registration based on mutual information (13% reduction in landmark error) and synthesis-based algorithms such as CycleGAN (11% reduction), and are comparable to a registration CNN with label supervision. Code and data are publicly available at \\url{https://github.com/acasamitjana/SynthByReg}",
+          "claimed_authors": [
+            "Adrià Casamitjana",
+            "Matteo Mancini",
+            "Juan Eugenio Iglesias"
+          ],
+          "claimed_title": "Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.14449"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images')",
+        "failed_at": "2026-07-29T10:18:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2308.15272"
+          "primary_pointer": "2303.12869"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='AutoDroid: LLM-powered Task Automation in Android')",
-        "failed_at": "2026-07-08T12:49:04Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-07-29T10:18:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently the retrieval-augmented generation (RAG) has been successfully applied in code generation. However, existing pipelines for retrieval-augmented code generation (RACG) employ static knowledge bases with a single source, limiting the adaptation capabilities of Large Language Models (LLMs) to domains they have insufficient knowledge of. In this work, we develop a novel pipeline, EVOR, that employs the synchronous evolution of both queries and diverse knowledge bases. On two realistic settings where the external knowledge is required to solve code generation tasks, we compile four new datasets associated with frequently updated libraries and long-tail programming languages, named EVOR-BENCH. Extensive experiments demonstrate that EVOR achieves two to four times of execution accuracy compared to other methods such as Reflexion (Shinn et al., 2024), DocPrompting (Zhou et al., 2023), etc. We demonstrate that EVOR is flexible and can be easily combined with them to achieve further improvement. Further analysis reveals that EVOR benefits from the synchronous evolution of queries and documents and the diverse information sources in the knowledge base. We hope that our studies will inspire more insights into the design of advanced RACG pipelines in future research. Our model, code, and data are available at https://arks-codegen.github.io.",
+          "claimed_authors": [
+            "Hongjin Su",
+            "Shuyang Jiang",
+            "Yuhang Lai",
+            "Haoyuan Wu",
+            "Boao Shi",
+            "Che Liu",
+            "Qian Liu",
+            "Tao Yu"
+          ],
+          "claimed_title": "EVOR: Evolving Retrieval for Code Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.12317"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='EVOR: Evolving Retrieval for Code Generation')",
+        "failed_at": "2026-07-29T10:18:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Micro-services are a common architectural approach to software development today. An indispensable tool for evolving micro-service systems is A/B testing. In A/B testing, two variants, A and B, are applied in an experimental setting. By measuring the outcome of an evaluation criterion, developers can make evidence-based decisions to guide the evolution of their software. Recent studies highlight the need for enhancing the automation when such experiments are conducted in iterations. To that end, we contribute a novel artifact that aims at enhancing the automation of an experimentation pipeline of a micro-service system relying on the principles of self-adaptation. Concretely, we propose SEAByTE, an experimental framework for testing novel self-adaptation solutions to enhance the automation of continuous A/B testing of a micro-service based system. We illustrate the use of the SEAByTE artifact with a concrete example.",
+          "claimed_authors": [
+            "Federico Quin",
+            "Danny Weyns"
+          ],
+          "claimed_title": "SEAByTE: A Self-adaptive Micro-service System Artifact for Automating A/B Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.01343"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='SEAByTE: A Self-adaptive Micro-service System Artifact for Automating A/B Testing')",
+        "failed_at": "2026-07-29T10:18:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Loudspeaker-based spatial audio reproduction schemes are increasingly used for evaluating hearing aids in complex acoustic conditions. To further establish the feasibility of this approach, this study investigated the interaction between spatial resolution of different reproduction methods and technical and perceptual hearing aid performance measures using computer simulations. Three spatial audio reproduction methods -- discrete speakers, vector base amplitude panning and higher order ambisonics -- were compared in regular circular loudspeaker arrays with 4 to 72 channels. The influence of reproduction method and array size on performance measures of representative multi-microphone hearing aid algorithm classes with spatially distributed microphones and a representative single channel noise-reduction algorithm was analyzed. Algorithm classes differed in their way of analyzing and exploiting spatial properties of the sound field, requiring different accuracy of sound field reproduction. Performance measures included beam pattern analysis, signal-to-noise ratio analysis, perceptual localization prediction, and quality modeling. The results show performance differences and interaction effects between reproduction method and algorithm class that may be used for guidance when selecting the appropriate method and number of speakers for specific tasks in hearing aid research.",
+          "claimed_authors": [
+            "Giso Grimm",
+            "Stephan Ewert",
+            "Volker Hohmann"
+          ],
+          "claimed_title": "Evaluation of spatial audio reproduction schemes for application in hearing aid research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.00586"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Evaluation of spatial audio reproduction schemes for application in hearing aid research')",
+        "failed_at": "2026-07-29T10:18:29Z",
         "reason": "query_irrelevant"
       },
       {
@@ -325,250 +421,23 @@
           "primary_pointer": "2606.05868"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
-        "failed_at": "2026-07-08T12:49:04Z",
+        "failed_at": "2026-07-29T10:18:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_abstract": "Large Language Models (LLMs) have shown promise in automating code generation and software engineering tasks, yet they often struggle with complex, multi-file projects due to context limitations and knowledge gaps. We propose a novel context engineering workflow that combines multiple AI components: an Intent Translator (GPT-5) for clarifying user requirements, an Elicit-powered semantic literature retrieval for injecting domain knowledge, NotebookLM-based document synthesis for contextual understanding, and a Claude Code multi-agent system for code generation and validation. Our integrated approach leverages intent clarification, retrieval-augmented generation, and specialized sub-agents orchestrated via Claude's agent framework. We demonstrate that this method significantly improves the accuracy and reliability of code assistants in real-world repositories, yielding higher single-shot success rates and better adherence to project context than baseline single-agent approaches. Qualitative results on a large Next.js codebase show the multi-agent system effectively plans, edits, and tests complex features with minimal human intervention. We compare our system with recent frameworks like CodePlan, MASAI, and HyperAgent, highlighting how targeted context injection and agent role decomposition lead to state-of-the-art performance. Finally, we discuss the implications for deploying LLM-based coding assistants in production, along with lessons learned on context management and future research directions.",
           "claimed_authors": [
-            "Jeffrey D. Rudie",
-            "Hui-Ming Lin",
-            "Robyn L. Ball",
-            "Sabeena Jalal",
-            "Luciano M. Prevedello",
-            "Savvas Nicolaou",
-            "Brett S. Marinelli",
-            "Adam E. Flanders",
-            "Kirti Magudia",
-            "George Shih",
-            "Melissa A. Davis",
-            "John Mongan",
-            "Peter D. Chang",
-            "Ferco H. Berger",
-            "Sebastiaan Hermans",
-            "Meng Law",
-            "Tyler Richards",
-            "Jan-Peter Grunz",
-            "Andreas Steven Kunz",
-            "Shobhit Mathur",
-            "Sandro Galea-Soler",
-            "Andrew D. Chung",
-            "Saif Afat",
-            "Chin-Chi Kuo",
-            "Layal Aweidah",
-            "Ana Villanueva Campos",
-            "Arjuna Somasundaram",
-            "Felipe Antonio Sanchez Tijmes",
-            "Attaporn Jantarangkoon",
-            "Leonardo Kayat Bittencourt",
-            "Michael Brassil",
-            "Ayoub El Hajjami",
-            "Hakan Dogan",
-            "Muris Becircic",
-            "Agrahara G. Bharatkumar",
-            "Eduardo Moreno Júdice de Mattos Farina",
-            "Dataset Curator Group",
-            "Dataset Contributor Group",
-            "Dataset Annotator Group",
-            "Errol Colak"
+            "Muhammad Haseeb"
           ],
-          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2405.19595"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
-        "failed_at": "2026-07-08T12:49:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
-          "claimed_authors": [
-            "Tyler J. Richards",
-            "Adam E. Flanders",
-            "Errol Colak",
-            "Luciano M. Prevedello",
-            "Robyn L. Ball",
-            "Felipe Kitamura",
-            "John Mongan",
-            "Maryam Vazirabad",
-            "Hui-Ming Lin",
-            "Anne Kendell",
-            "Thanat Kanthawang",
-            "Salita Angkurawaranon",
-            "Emre Altinmakas",
-            "Hakan Dogan",
-            "Paulo Eduardo de Aguiar Kuriki",
-            "Arjuna Somasundaram",
-            "Christopher Ruston",
-            "Deniz Bulja",
-            "Naida Spahovic",
-            "Jennifer Sommer",
-            "Sirui Jiang",
-            "Eduardo Moreno Judice de Mattos Farina",
-            "Eduardo Caminha Nunes",
-            "Michael Brassil",
-            "Megan McNamara",
-            "Johanna Ortiz",
-            "Jacob Peoples",
-            "Vinson L. Uytana",
-            "Anthony Kam",
-            "Venkata N. S. Dola",
-            "Daniel Murphy",
-            "David Vu",
-            "Dataset Contributor Group",
-            "Dataset Annotator Group",
-            "Competition Data Notebook Group",
-            "Jason F. Talbott"
-          ],
-          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2506.09162"
+          "primary_pointer": "2508.08322"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
-        "failed_at": "2026-07-08T12:49:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Context: Systematic reviews (SRs) summarize state-of-the-art evidence in science, including software engineering (SE). Objective: Our objective is to evaluate how SRs report research artifacts and to provide a comprehensive list of these artifacts. Method: We examined 537 secondary studies published between 2013 and 2023 to analyze the availability and reporting of research artifacts. Results: Our findings indicate that only 31.5% of the reviewed studies include research artifacts. Encouragingly, the situation is gradually improving, as our regression analysis shows a significant increase in the availability of research artifacts over time. However, in 2023, just 62.0% of secondary studies provide a research artifact while an even lower percentage, 30.4% use a permanent repository with a digital object identifier (DOI) for storage. Conclusion: To enhance transparency and reproducibility in SE research, we advocate for the mandatory publication of research artifacts in secondary studies.",
-          "claimed_authors": [
-            "Aleksi Huotala",
-            "Miikka Kuutila",
-            "Mika Mäntylä"
-          ],
-          "claimed_title": "Research Artifacts in Secondary Studies: A Systematic Mapping in Software Engineering",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.12646"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Research Artifacts in Secondary Studies: A Systematic Mapping in Software Engineering')",
-        "failed_at": "2026-07-08T12:49:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Frequently asked questions (FAQs) are a popular way to document software development knowledge. As creating such documents is expensive, this paper presents an approach for automatically extracting FAQs from sources of software development discussion, such as mailing lists and Internet forums, by combining techniques of text mining and natural language processing. We apply the approach to popular mailing lists and carry out a survey among software developers to show that it is able to extract high-quality FAQs that may be further improved by experts.",
-          "claimed_authors": [
-            "Stefan Henß",
-            "Martin Monperrus",
-            "Mira Mezini"
-          ],
-          "claimed_title": "Semi-Automatically Extracting FAQs to Improve Accessibility of Software Development Knowledge",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1203.5188"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Semi-Automatically Extracting FAQs to Improve Accessibility of Software Development Knowledge')",
-        "failed_at": "2026-07-08T12:49:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Software plays a central role in modern societies, with its high economic value and potential for advancing societal change. In this paper, we characterise challenges and opportunities for a country progressing towards entering the global software industry, focusing on Papua New Guinea (PNG). By hosting a Software Engineering workshop, we conducted a qualitative study by recording talks (n=3), employing a questionnaire (n=52), and administering an in-depth focus group session with local actors (n=5). Based on a thematic analysis, we identified challenges as barriers and opportunities for the PNG software engineering community. We also discuss the state of practices and how to make it inclusive for practitioners, researchers, and educators from both the local and global software engineering community.",
-          "claimed_authors": [
-            "Raula Gaikovina Kula",
-            "Christoph Treude",
-            "Hideaki Hata",
-            "Sebastian Baltes",
-            "Igor Steinmacher",
-            "Marco Aurelio Gerosa",
-            "Winifred Kula Amini"
-          ],
-          "claimed_title": "Challenges for Inclusion in Software Engineering: The Case of the Emerging Papua New Guinean Society",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1911.04016"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Challenges for Inclusion in Software Engineering: The Case of the Emerging Papua New Guinean Society')",
-        "failed_at": "2026-07-08T12:49:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Peer-evaluation based measures of group research quality such as the UK's Research Assessment Exercise (RAE), which do not employ bibliometric analyses, cannot directly avail of such methods to normalize research impact across disciplines. This is seen as a conspicuous flaw of such exercises and calls have been made to find a remedy. Here a simple, systematic solution is proposed based upon a mathematical model for the relationship between research quality and group quantity. This model manifests both the Matthew effect and a phenomenon akin to the Ringelmann effect and reveals the existence of two critical masses for each academic discipline: a lower value, below which groups are vulnerable, and an upper value beyond which the dependency of quality on quantity reduces and plateaus appear when the critical masses are large. A possible normalization procedure is then to pitch these plateaus at similar levels. We examine the consequences of this procedure at RAE for a multitude of academic disciplines, corresponding to a range of critical masses.",
-          "claimed_authors": [
-            "Ralph Kenna",
-            "Bertrand Berche"
-          ],
-          "claimed_title": "Normalization of peer-evaluation measures of group research quality across academic disciplines",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1006.3863"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Normalization of peer-evaluation measures of group research quality across academic disciplines')",
-        "failed_at": "2026-07-08T12:49:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent evaluations of Large Language Models (LLMs) have centered around testing their zero-shot/few-shot capabilities for basic natural language tasks and their ability to translate instructions into tool APIs. However, the evaluation of LLMs utilizing complex tools to finish multi-turn, multi-modal instructions in a complex multi-modal environment has not been investigated. To address this gap, we introduce the PowerPoint Task Completion (PPTC) benchmark to assess LLMs' ability to create and edit PPT files based on user instructions. It contains 279 multi-turn sessions covering diverse topics and hundreds of instructions involving multi-modal operations. We also propose the PPTX-Match Evaluation System that evaluates if LLMs finish the instruction based on the prediction file rather than the label API sequence, thus it supports various LLM-generated API sequences. We measure 3 closed LLMs and 6 open-source LLMs. The results show that GPT-4 outperforms other LLMs with 75.1\\% accuracy in single-turn dialogue testing but faces challenges in completing entire sessions, achieving just 6\\% session accuracy. We find three main error causes in our benchmark: error accumulation in the multi-turn session, long PPT template processing, and multi-modality perception. These pose great challenges for future LLM and agent systems. We release the data, code, and evaluation system of PPTC at \\url{https://github.com/gydpku/PPTC}.",
-          "claimed_authors": [
-            "Yiduo Guo",
-            "Zekai Zhang",
-            "Yaobo Liang",
-            "Dongyan Zhao",
-            "Nan Duan"
-          ],
-          "claimed_title": "PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.01767"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion')",
-        "failed_at": "2026-07-08T12:49:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In most countries, basic research is supported by research councils that select, after peer review, the individuals or teams that are to receive funding. Unfortunately, the number of grants these research councils can allocate is not infinite and, in most cases, a minority of the researchers receive the majority of the funds. However, evidence as to whether this is an optimal way of distributing available funds is mixed. The purpose of this study is to measure the relation between the amount of funding provided to 12,720 researchers in Quebec over a fifteen year period (1998-2012) and their scientific output and impact from 2000 to 2013. Our results show that both in terms of the quantity of papers produced and of their scientific impact, the concentration of research funding in the hands of a so-called \"elite\" of researchers generally produces diminishing marginal returns. Also, we find that the most funded researchers do not stand out in terms of output and scientific impact.",
-          "claimed_authors": [
-            "Philippe Mongeon",
-            "Christine Brodeur",
-            "Catherine Beaudry",
-            "Vincent Lariviere"
-          ],
-          "claimed_title": "Concentration of research funding leads to decreasing marginal returns",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1602.07396"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Concentration of research funding leads to decreasing marginal returns')",
-        "failed_at": "2026-07-08T12:49:04Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Modern scientific discovery increasingly relies on workflows that process data across the Edge, Cloud, and High Performance Computing (HPC) continuum. Comprehensive and in-depth analyses of these data are critical for hypothesis validation, anomaly detection, reproducibility, and impactful findings. Although workflow provenance techniques support such analyses, at large scale, the provenance data become complex and difficult to analyze. Existing systems depend on custom scripts, structured queries, or static dashboards, limiting data interaction. In this work, we introduce an evaluation methodology, reference architecture, and open-source implementation that leverages interactive Large Language Model (LLM) agents for runtime data analysis. Our approach uses a lightweight, metadata-driven design that translates natural language into structured provenance queries. Evaluations across LLaMA, GPT, Gemini, and Claude, covering diverse query classes and a real-world chemistry workflow, show that modular design, prompt tuning, and Retrieval-Augmented Generation (RAG) enable accurate and insightful LLM agent responses beyond recorded provenance.",
-          "claimed_authors": [
-            "Renan Souza",
-            "Timothy Poteet",
-            "Brian Etz",
-            "Daniel Rosendo",
-            "Amal Gueroudji",
-            "Woong Shin",
-            "Prasanna Balaprakash",
-            "Rafael Ferreira da Silva"
-          ],
-          "claimed_title": "LLM Agents for Interactive Workflow Provenance: Reference Architecture and Evaluation Methodology",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2509.13978"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='LLM Agents for Interactive Workflow Provenance: Reference Architecture and Evaluation Methodology')",
-        "failed_at": "2026-07-08T12:49:04Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code')",
+        "failed_at": "2026-07-29T10:18:29Z",
         "reason": "query_irrelevant"
       },
       {
@@ -584,27 +453,82 @@
           "primary_pointer": "2011.14743"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='IPPOG : Bridging the gap between science education at school and modern scientific research')",
-        "failed_at": "2026-07-08T12:49:04Z",
+        "failed_at": "2026-07-29T10:18:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "LLM recommendation agents increasingly produce structured recommendation reports: sets of items accompanied by natural-language justifications. Yet existing evaluations often reduce this setting to reranking small shortlisted candidate sets or judge reports mainly by semantic plausibility. We introduce Recommendation Atlas (Agentic Tool-Level Assessment for Shopping), or RecoAtlas, a benchmark and toolkit for evaluating shopping agents with behavior-grounded metrics. RecoAtlas complements held-out interaction metrics with learned utility proxies for relevance, complementarity, and diversity derived from interaction data, while separately measuring semantic coherence and explanation quality. Its controlled tool environment exposes agents to either semantic, behavior-aligned, or faulty tools, enabling diagnosis of whether performance gains arise from stronger reasoning, better signals, or more effective tool-use policies. Across controlled experiments, we show that RecoAtlas exhibits key properties of a meaningful benchmark for agentic systems: performance scales with model capacity and test-time compute, improves with stronger and better-aligned tools, degrades under noisy or misaligned signals, and reveals that semantic plausibility does not necessarily capture behavior-grounded utility. RecoAtlas provides a foundation for developing and evaluating shopping assistants that optimize not only for plausible recommendations, but also for coherent, behaviorally grounded recommendation sets.",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
           "claimed_authors": [
-            "Imad Aouali",
-            "Flavian Vasile",
-            "Otmane Sakhi",
-            "Alexandre Gilotte",
-            "Benjamin Heymann"
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
           ],
-          "claimed_title": "RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents",
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.18805"
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='RecoAtlas: From Semantic Plausibility to Set-Level Utility in LLM Recommendation Agents')",
-        "failed_at": "2026-07-08T12:49:04Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-07-29T10:18:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-29T10:18:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-29T10:18:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data contamination poses a significant threat to the reliable evaluation of Large Language Models (LLMs). This issue arises when benchmark samples may inadvertently appear in training sets, compromising the validity of reported performance. While detection methods have been developed for the pre-training and Supervised Fine-Tuning stages, a critical research gap exists for the increasingly significant phase of Reinforcement Learning (RL) post-training. As RL post-training becomes pivotal for advancing LLM reasoning, the absence of specialized contamination detection methods in this paradigm presents a critical vulnerability. To address this, we conduct the first systematic study of data detection within RL post-training scenario and propose Self-Critique. Our method is motivated by a key observation: after RL phase, the output entropy distribution of LLMs tends to collapse into highly specific and sparse modes. Self-Critique probes for the underlying policy collapse, i.e., the model's convergence to a narrow reasoning path, which causes this entropy reduction. To facilitate this research, we also introduce RL-MIA, a benchmark constructed to simulate this specific contamination scenario. Extensive experiments show that Self-Critique significantly outperforms baseline methods across multiple models and contamination tasks, achieving an AUC improvement of up to 30%. Whereas existing methods are close to a random guess for RL-phase contamination, our method makes detection possible.",
+          "claimed_authors": [
+            "Yongding Tao",
+            "Tian Wang",
+            "Yihong Dong",
+            "Huanyu Liu",
+            "Kechi Zhang",
+            "Xiaolong Hu",
+            "Ge Li"
+          ],
+          "claimed_title": "Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.09259"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Reel: Automate the Last Mile of Res', candidate_title='Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models')",
+        "failed_at": "2026-07-29T10:18:29Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -612,96 +536,54 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Lingao Xiao",
-            "Yalun Dai",
-            "Yangyu Huang",
-            "Qihao Zhao",
-            "Wenshan Wu",
-            "Hugo He",
-            "Ruishuo Chen",
-            "Jin Jiang",
-            "Qianli Ma",
-            "Jiahuan Zhang",
-            "Xin Zhang",
-            "Ying Xin",
-            "Yang Ou",
-            "Yan Xia",
-            "Scarlett Li",
-            "Longbo Huang",
-            "Zhipeng Zhang",
-            "Yang He",
-            "Yap Kim Hui",
-            "Yan Lu"
+            "Yong Zhao",
+            "Ioan Raicu",
+            "Ian Foster"
           ],
-          "title": "ResearchStudio-Reel: Automate the Last Mile of Research from Paper to Poster, Video, and Blog",
+          "title": "Scientific Workflow Systems for 21st Century e-Science, New Bottle or New Wine?",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2008
         },
-        "primary_pointer": "2607.04438",
-        "summary": "Research dissemination, turning a paper into a poster, a talk video, and a blog post, is still a manual last mile. Prior automation treats each artifact in isolation that each re-extract the paper from scratch, usually ship one-way renders the author cannot reopen in PowerPoint or Word, and gates quality on soft VLM-preference scores that plateau while load-bearing sections still read as empty. We argue this last mile is best built as a composition of skills: thin agent-readable contracts that share one upstream extractor and wrap deterministic primitives in a measured-fill loop whose exits are hard pass/fail render gates. We instantiate this as ResearchStudio-Reel, five Claude Code and Codex skills organized into one shared extractor (Paper2Assets), three editable generators (Paper2Poster, Paper2Video, Paper2Blog), and one interactive convergence layer (Paper2Reel). Paper2Assets extracts each paper once into a shared bundle that can be reused by every downstream skill; The three generators produce a print-ready poster, a synchronized talk video, and a bilingual blog that stay factually consistent and round-trip through PowerPoint or Word; Paper2Reel then binds all three into a self-contained HTML viewer whose section-level clicks jump the video, slides, captions, and blog to matching content. On the Paper2Poster benchmark, our posters lead every aesthetic and information sub-criterion against both prior automated systems and single-shot frontier LLMs, surpassing the authors' own on aesthetics under two held-out VLM judges and winning overall on 84% to 93% of papers; capability audits further show that, by uniquely pairing narration-aligned on-slide highlights with a bilingual blog gated by layout-aware DOCX repair, ResearchStudio-Reel is the only pipeline to ship all three editable artifacts. Project is available at https://aka.ms/ResearchStudio",
+        "primary_pointer": "0808.3545",
+        "summary": "With the advances in e-Sciences and the growing complexity of scientific analyses, more and more scientists and researchers are relying on workflow systems for process coordination, derivation automation, provenance tracking, and bookkeeping. While workflow systems have been in use for decades, it is unclear whether scientific workflows can or even should build on existing workflow technologies, or they require fundamentally new approaches. In this paper, we analyze the status and challenges of scientific workflows, investigate both existing technologies and emerging languages, platforms and systems, and identify the key challenges that must be addressed by workflow systems for e-science in the 21st century.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2607.04438",
+          "final_url": "https://arxiv.org/abs/0808.3545",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.5455,
+          "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-08T12:49:04Z"
+          "verified_at": "2026-07-29T10:18:35Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Katja Rogers"
+            "Heng Zhang",
+            "Chengzhi Zhang"
           ],
-          "title": "The Shiny Scary Future of Automated Research Synthesis in HCI",
+          "title": "Automated Generation of Research Workflows from Academic Papers: A Full-text Mining Framework",
           "venue": "arXiv",
           "year": 2025
         },
-        "primary_pointer": "2501.16084",
-        "summary": "Automation and semi-automation through computational tools like LLMs are also making their way to deployment in research synthesis and secondary research, such as systematic reviews. In some steps of research synthesis, this has the opportunity to provide substantial benefits by saving time that previously was spent on repetitive tasks. The screening stages in particular may benefit from carefully vetted computational support. However, this position paper argues for additional caution when bringing in such tools to the analysis and synthesis phases, where human judgement and expertise should be paramount throughout the process.",
+        "primary_pointer": "2509.12955",
+        "summary": "The automated generation of research workflows is essential for improving the reproducibility of research and accelerating the paradigm of \"AI for Science\". However, existing methods typically extract merely fragmented procedural components and thus fail to capture complete research workflows. To address this gap, we propose an end-to-end framework that generates comprehensive, structured research workflows by mining full-text academic papers. As a case study in the Natural Language Processing (NLP) domain, our paragraph-centric approach first employs Positive-Unlabeled (PU) Learning with SciBERT to identify workflow-descriptive paragraphs, achieving an F1-score of 0.9772. Subsequently, we utilize Flan-T5 with prompt learning to generate workflow phrases from these paragraphs, yielding ROUGE-1, ROUGE-2, and ROUGE-L scores of 0.4543, 0.2877, and 0.4427, respectively. These phrases are then systematically categorized into data preparation, data processing, and data analysis stages using ChatGPT with few-shot learning, achieving a classification precision of 0.958. By mapping categorized phrases to their document locations in the documents, we finally generate readable visual flowcharts of the entire research workflows. This approach facilitates the analysis of workflows derived from an NLP corpus and reveals key methodological shifts over the past two decades, including the increasing emphasis on data analysis and the transition from feature engineering to ablation studies. Our work offers a validated technical framework for automated workflow generation, along with a novel, process-oriented perspective for the empirical investigation of evolving scientific paradigms. Source code and data are available at: https://github.com/ZH-heng/research_workflow.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2501.16084",
+          "final_url": "https://arxiv.org/abs/2509.12955",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
+          "pdf_sample_score": 0.3624,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-08T12:49:09Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Adrian Bajraktari",
-            "Andreas Vogelsang"
-          ],
-          "title": "Enhancing Understandability and Transparency of Research Software: Tracing Research to Code",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2604.10793",
-        "summary": "Modern research heavily relies on software. A significant challenge researchers face is understanding the complex software used in specific research fields. We target two scenarios in this context, namely long onboarding times for newcomers and conference reviewers evaluating replication packages. We hypothesize that both scenarios can be significantly improved when there is a clear link between the paper's ideas and the code that implements them. As a time- and staff-saving approach, we propose an LLM-based automation tool that takes in a paper and the software implementing the paper, and generates a trace mapping between research ideas and their locations in code. Initial experiments have shown that the tool can generate quite useful mappings.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2604.10793",
-          "http_status": 200,
-          "pdf_sample_score": 0.1653,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-08T12:49:10Z"
+          "verified_at": "2026-07-29T10:18:35Z"
         }
       }
     ]

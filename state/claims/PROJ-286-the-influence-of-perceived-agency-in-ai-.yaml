@@ -445,3 +445,168 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-17T01:11:25Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See (2004) Trust Scale contains 12 items on a 7-point Likert scale
+  claim_id: c_a14feb6f
+  context: 'T016 [US1] Implement Lee & See (2004) Trust Scale items in code/experiment/app.py
+    survey section. Requirement: Must include the full 12-item scale...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must include the full 12-item scale covering dimensions of reliability,
+    competence, and predictability (verbatim from source), not a subset. Use a 7-point
+    Likert scale (1=Strongly Disagree, 7=Strongly Agree).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T10:05:05Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Attention check failures are flagged in the data cleaning pipeline
+  claim_id: c_51980470
+  context: T021 [P] [US2] Implement data cleaning pipeline in code/analysis/data_cleaning.py
+    (handle missing values, flag attention check failures)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Attention_check_failures_are_flagged_in_the_data_cleaning_pi
+  kind: entity_fact
+  raw_text: Implement data cleaning pipeline... flag attention check failures
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T10:08:57Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps attention check pass rate from 0.75 to 0.90
+  claim_id: c_623f6a62
+  context: T030 [P] [US3] Implement sensitivity analysis in code/analysis/sensitivity.py
+    (sweep participant exclusion threshold defined by attention check pass rate from
+    0.75 to 0.90...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity analysis... sweep participant exclusion threshold
+    defined by attention check pass rate from 0.75 to 0.90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T10:09:03Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research.md
+  attempts: 1
+  canonical: Lee and See 2004 establish trust in automation is function of reliability
+    competence and predictability
+  claim_id: c_addbeb42
+  context: 'Lee & See (2004): ''Trust in Automation: Designing for Appropriate Reliance''
+    - Establishes that trust in automation is a function of the system''s reliability,
+    competence, and predictability'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lee_and_See_2004_establish_trust_in_automation_is_function_o
+  kind: entity_fact
+  raw_text: Lee & See (2004) establishes that trust in automation is a function of
+    the system's reliability, competence, and predictability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T10:12:42Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research.md
+  attempts: 1
+  canonical: Langer 1975 demonstrates humans overestimate control over outcomes even
+    when determined by chance
+  claim_id: c_1631d6f0
+  context: 'Langer (1975): ''The Illusion of Control'' - Demonstrates that humans
+    tend to overestimate their control over outcomes, even when outcomes are entirely
+    determined by chance'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer (1975) demonstrates that humans tend to overestimate their control
+    over outcomes, even when outcomes are entirely determined by chance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T10:15:48Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research.md
+  attempts: 1
+  canonical: Langer 1975 shows perceived control influences engagement confidence
+    and decision-making
+  claim_id: c_f32992c5
+  context: 'Langer (1975): ''The Illusion of Control'' - Shows that perceived control
+    significantly influences engagement, confidence, and decision-making'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer (1975) shows that perceived control significantly influences engagement,
+    confidence, and decision-making.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T10:16:32Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research.md
+  attempts: 1
+  canonical: Lee and See 2004 Trust Scale has 12 items
+  claim_id: c_9ce9e40f
+  context: 'Trust is measured using the 12-item Lee & See (2004) Trust Scale, covering
+    dimensions of: Reliability, Competence, Predictability'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale consists of 12 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T10:16:55Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research.md
+  attempts: 1
+  canonical: Lee and See 2004 Trust Scale uses 7-point Likert scale
+  claim_id: c_3a75e32a
+  context: Items are rated on a 7-point Likert scale (1 = Strongly Disagree, 7 = Strongly
+    Agree).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale uses a 7-point Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T10:17:15Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 Trust Scale contains 12 items covering reliability, competence,
+    and predictability
+  claim_id: c_a303e21c
+  context: 'Implement Lee & See (2004) Trust Scale items in code/experiment/app.py
+    survey section. Requirement: Must include the full 12-item scale covering dimensions
+    of reliability, competence, and predictability (verbatim from source), not a subset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lee_&_See_2004_Trust_Scale_contains_12_items_covering_reliab
+  kind: entity_fact
+  raw_text: The Lee & See (2004) Trust Scale is a full 12-item scale covering dimensions
+    of reliability, competence, and predictability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T10:17:42Z'
