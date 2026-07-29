@@ -1,28 +1,29 @@
-"""
-Tool to create the data/scores directory.
-This script ensures the `data/scores` directory exists at the project root.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Determine project root (assuming script is in code/tools/)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent.parent
-
+    """
+    Create the data/scores directory and add a .gitkeep file.
+    This task (T001i) prepares the storage location for scoring results.
+    """
+    project_root = Path(__file__).resolve().parent.parent.parent
     scores_dir = project_root / "data" / "scores"
 
-    try:
+    if not scores_dir.exists():
         scores_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Successfully ensured directory exists: {scores_dir}")
-        return 0
-    except PermissionError:
-        print(f"Error: Permission denied when creating directory: {scores_dir}", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"Error creating directory {scores_dir}: {e}", file=sys.stderr)
-        return 1
+        print(f"Created directory: {scores_dir}")
+    else:
+        print(f"Directory already exists: {scores_dir}")
+
+    gitkeep = scores_dir / ".gitkeep"
+    if not gitkeep.exists():
+        gitkeep.touch()
+        print(f"Created .gitkeep in: {scores_dir}")
+    else:
+        print(f".gitkeep already exists in: {scores_dir}")
+
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

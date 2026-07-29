@@ -1,0 +1,2 @@
+# This directory stores raw downloaded datasets (e.g., Edit-Compass).
+# Do not modify files here; use data/filtered/ for processed subsets.

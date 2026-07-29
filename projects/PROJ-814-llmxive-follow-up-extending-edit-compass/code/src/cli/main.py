@@ -3,88 +3,103 @@ import sys
 import logging
 from pathlib import Path
 
-# Adjust import to match project structure (src/ is the package root in this context)
-# Based on API surface: from src.utils.logging import get_logger, setup_logging
 from src.utils.logging import get_logger, setup_logging
 from src.services.download import main as download_main
 from src.services.filter import main as filter_main
-from src.services.scoring import main as scoring_main
-from src.services.analysis import main as analysis_main
 
 logger = get_logger(__name__)
 
+
 def run_download_filter(args):
-    """Execute the download and filter pipeline stages."""
-    logger.info("Starting download and filter pipeline...")
-    # Run download
-    download_main()
-    # Run filter
-    filter_main()
-    logger.info("Download and filter pipeline completed.")
+    """Execute the download and filter pipeline stages sequentially."""
+    logger.info("Starting download-filter pipeline")
+
+    # Stage 1: Download
+    logger.info("Stage 1: Downloading Edit-Compass dataset")
+    try:
+        download_main()
+    except Exception as e:
+        logger.error(f"Download stage failed: {e}")
+        sys.exit(1)
+
+    # Stage 2: Filter
+    logger.info("Stage 2: Filtering dataset for target categories")
+    try:
+        filter_main()
+    except Exception as e:
+        logger.error(f"Filter stage failed: {e}")
+        sys.exit(1)
+
+    logger.info("Download-filter pipeline completed successfully")
+
 
 def run_score(args):
-    """Execute the scoring pipeline stage.
-    
-    Reads filtered data from data/filtered/, computes Logic and Fidelity scores,
-    and writes results to data/scores/.
-    """
-    logger.info("Starting scoring pipeline...")
-    scoring_main()
-    logger.info("Scoring pipeline completed. Results written to data/scores/.")
+    """Execute the scoring stage."""
+    logger.info("Starting scoring pipeline")
+    # Placeholder for T021 implementation
+    logger.warning("Scoring stage not yet implemented (T021)")
+    sys.exit(1)
+
 
 def run_analyze(args):
-    """Execute the analysis pipeline stage."""
-    logger.info("Starting analysis pipeline...")
-    analysis_main()
-    logger.info("Analysis pipeline completed.")
+    """Execute the analysis stage."""
+    logger.info("Starting analysis pipeline")
+    # Placeholder for T030 implementation
+    logger.warning("Analysis stage not yet implemented (T030)")
+    sys.exit(1)
+
 
 def run_all(args):
-    """Execute the full pipeline: download -> filter -> score -> analyze."""
-    logger.info("Starting full pipeline...")
+    """Execute the full pipeline."""
+    logger.info("Starting full pipeline")
     run_download_filter(args)
     run_score(args)
     run_analyze(args)
-    logger.info("Full pipeline completed.")
+
 
 def main():
-    """Main entry point for the CLI."""
     parser = argparse.ArgumentParser(
-        description="llmXive Automated Science Pipeline CLI",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description="llmXive Automated Science Pipeline CLI"
     )
-    
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-    
-    # Download & Filter
-    p_download = subparsers.add_parser('download-filter', help='Download and filter dataset')
-    p_download.set_defaults(func=run_download_filter)
-    
-    # Scoring
-    p_score = subparsers.add_parser('score', help='Compute Logic and Fidelity scores')
-    p_score.set_defaults(func=run_score)
-    
-    # Analysis
-    p_analyze = subparsers.add_parser('analyze', help='Perform statistical analysis')
-    p_analyze.set_defaults(func=run_analyze)
-    
-    # Full Pipeline
-    p_all = subparsers.add_parser('all', help='Run the entire pipeline')
-    p_all.set_defaults(func=run_all)
-    
+    subparsers = parser.add_subparsers(dest="command", help="Pipeline stages")
+
+    # download-filter stage
+    dl_parser = subparsers.add_parser(
+        "download-filter",
+        help="Download and filter the Edit-Compass dataset"
+    )
+    dl_parser.set_defaults(func=run_download_filter)
+
+    # score stage
+    score_parser = subparsers.add_parser(
+        "score",
+        help="Compute Logic and Fidelity scores"
+    )
+    score_parser.set_defaults(func=run_score)
+
+    # analyze stage
+    analyze_parser = subparsers.add_parser(
+        "analyze",
+        help="Perform statistical correlation analysis"
+    )
+    analyze_parser.set_defaults(func=run_analyze)
+
+    # all stage
+    all_parser = subparsers.add_parser(
+        "all",
+        help="Run the complete pipeline"
+    )
+    all_parser.set_defaults(func=run_all)
+
     args = parser.parse_args()
-    
-    if args.command is None:
+
+    if not args.command:
         parser.print_help()
         sys.exit(1)
-    
-    # Setup logging
-    setup_logging(level=logging.INFO)
-    
-    try:
-        args.func(args)
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
 
-if __name__ == '__main__':
+    setup_logging()
+    args.func(args)
+
+
+if __name__ == "__main__":
     main()

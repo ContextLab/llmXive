@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-llmxive-followup-correlation-study/spec.md`
 
 ## Summary
-The project must () download the Edit‑Compass dataset, (2) filter it to the *World Knowledge Reasoning* and *Visual Reasoning* categories, (3) compute an **Instruction-Description Semantic Similarity Score** using a quantized CPU‑optimized Vision‑Language Model (VLM) and a **Fidelity Score** using SSIM + LPIPS, (4) run a multicollinearity check and a multiple linear regression with Benjamini‑Hochberg correction, and (5) report whether the semantic similarity score predicts human preference more strongly than the fidelity score. All steps are designed to run on a free‑tier GitHub Actions runner (2 CPU, ≤7 GB RAM, ≤6 h).
+The project must download the Edit‑Compass dataset, filter it to the *World Knowledge Reasoning* and *Visual Reasoning* categories, compute an **Instruction-Description Semantic Similarity Score** using a quantized CPU‑optimized Vision‑Language Model (VLM) and a **Fidelity Score** using SSIM + LPIPS, run a multicollinearity check and a multiple linear regression with Benjamini‑Hochberg correction, and report whether the semantic similarity score predicts human preference more strongly than the fidelity score. All steps are designed to run on a free‑tier GitHub Actions runner (2 CPU, ≤7 GB RAM, ≤6 h).
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
@@ -17,8 +17,8 @@ The project must () download the Edit‑Compass dataset, (2) filter it to the *W
 - **Constraints**: CPU‑only inference; no GPU or CUDA; batch size chosen to respect RAM limit (batch=8 for 4-bit VLM).  
 - **Scale/Scope**: Up to 2 388 instances (full Edit‑Compass) but processing may be truncated for CI timing; the plan includes optional sub‑sampling for quick CI checks.  
 - **Model Versions**:  
-  - VLM: `Phi-mini-4k-instruct-GGUF` (4-bit quantized, loaded via `llama-cpp-python`).  
-  - Embedding: `sentence-transformers/all-MiniLM-L-v2`.
+  - VLM: `Phi-minik-instruct-GGUF` (4-bit quantized, loaded via `llama-cpp-python`).  
+  - Embedding: `sentence-transformers/all-MiniLM-L-v`.
 
 ## Constitution Check
 | Principle | Check |
@@ -71,6 +71,6 @@ tests/
 **Structure Decision**: A single‑project layout (`src/`, `tests/`) suffices because the feature is a data‑processing pipeline without a separate service or UI component.
 
 ## Complexity Tracking
-All functional requirements (FR‑001 → FR‑008) are mapped to explicit pipeline stages; no principle violations are identified. Any future extension (e.g., GPU acceleration) would require a new principle amendment.
+All functional requirements are mapped to explicit pipeline stages.; no principle violations are identified. Any future extension (e.g., GPU acceleration) would require a new principle amendment.
 
 ---

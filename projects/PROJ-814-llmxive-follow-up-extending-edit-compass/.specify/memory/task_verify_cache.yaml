@@ -1,30 +1,37 @@
-T001h:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a high\u2011level feature specification and no\
-    \ concrete artifact showing a `data/raw` directory was created (or even listed).\
-    \ There is no evidence on disk of the required folder, so the task\u2019s simple\
-    \ requirement is unmet."
-T001i:
+  r: No evidence of a `src/services` directory or an empty `.gitkeep` file was provided;
+    without these artifacts the claimed task cannot be verified as completed. The
+    required directory and placeholder file must be added to the repository.
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/filtered` directory (or its contents) was presented; without
-    a visible directory or confirmation that it was created, the requirement is not
-    satisfied. The implementer must provide the actual directory (and preferably the
-    filtered files) as proof.
-T001j:
+  r: No evidence of a `src/models` directory or an empty `.gitkeep` file was provided;
+    without these artifacts the requirement cannot be confirmed as satisfied. The
+    implementer must add the directory and the placeholder file to the repository.
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/scores` directory was presented; the artifact list is
-    empty, so we cannot confirm that the required directory was created. The implementer
-    must add the directory (and optionally show its presence) to satisfy the task.
-T001k:
+  r: No artifact showing a `src/utils` directory or an empty `.gitkeep` file was provided;
+    without visible evidence the requirement cannot be confirmed as satisfied.
+T001d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that an `outputs` directory actually exists in the\
-    \ repository, nor any indication that it contains files. The implementer\u2019\
-    s claim cannot be verified without a tangible artifact. The next implementer should\
-    \ create the `outputs` folder and ensure it is present in the project tree."
+  r: No evidence of a `src/data-models` directory or a `.gitkeep` file was provided;
+    without seeing those artifacts, we cannot confirm the required directory and empty
+    placeholder file exist. The implementer must add the directory and an empty `.gitkeep`
+    file inside it.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing a `tests/unit` directory or an empty `.gitkeep` file was
+    provided; without such evidence the requirement cannot be confirmed as fulfilled.
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/contract` directory or an empty `.gitkeep` file was provided;
+    the required artifact is missing.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,13 +40,6 @@ T003:
     presented. Without these artifacts, the claim that linting (ruff) and formatting
     (black) are configured cannot be verified. The implementer must add the actual
     configuration files and, if applicable, CI integration scripts.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory structure (`data/raw/`, `data/filtered/`,
-    `data/scores/`, `outputs/`) is provided; the implementer did not include any artifacts
-    showing these folders exist or contain any files. The task remains undone until
-    the directories are created and verified.
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

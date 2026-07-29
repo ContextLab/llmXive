@@ -9,92 +9,93 @@ class JsonFormatter(logging.Formatter):
     """Custom JSON formatter for structured logging."""
 
     def format(self, record: logging.LogRecord) -> str:
-        log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat(),
+        log_obj: Dict[str, Any] = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
         }
 
         if record.exc_info:
-            log_data["exc_info"] = self.formatException(record.exc_info)
+            log_obj["exception"] = self.formatException(record.exc_info)
 
         if hasattr(record, "extra_data"):
-            log_data.update(record.extra_data)  # type: ignore
+            log_obj.update(record.extra_data)
 
-        return json.dumps(log_data)
+        return json.dumps(log_obj)
+
 
 def setup_logging(
+    log_level: str = "INFO",
     log_file: Optional[Path] = None,
-    level: int = logging.INFO,
-    console: bool = True,
-) -> logging.Logger:
+    enable_json: bool = True,
+) -> None:
     """
-    Configure root logger with JSON formatting for both file and stdout.
+    Configure root logger with stdout and optional file handlers.
 
     Args:
-        log_file: Optional path to write log file.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        console: Whether to log to stdout.
-
-    Returns:
-        The configured root logger.
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+        log_file: Optional path to write logs. If None, no file handler is added.
+        enable_json: If True, use JSON formatting; otherwise use standard text formatting.
     """
     root_logger = logging.getLogger()
-    root_logger.setLevel(level)
+    root_logger.setLevel(getattr(logging, log_level.upper()))
 
-    # Clear existing handlers to avoid duplicates
+    # Clear existing handlers to avoid duplicates in repeated calls
     root_logger.handlers.clear()
 
-    # JSON Formatter
-    json_formatter = JsonFormatter()
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(getattr(logging, log_level.upper()))
 
-    if console:
-        # Console handler (stdout)
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(json_formatter)
-        console_handler.setLevel(level)
-        root_logger.addHandler(console_handler)
+    if enable_json:
+        console_handler.setFormatter(JsonFormatter())
+    else:
+        console_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+        )
+    root_logger.addHandler(console_handler)
 
-    if log_file is not None:
+    # File handler (if specified)
+    if log_file:
         # Ensure directory exists
         log_file.parent.mkdir(parents=True, exist_ok=True)
+
         file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(json_formatter)
-        file_handler.setLevel(level)
+        file_handler.setLevel(getattr(logging, log_level.upper()))
+        # File logs always use JSON for easier parsing
+        file_handler.setFormatter(JsonFormatter())
         root_logger.addHandler(file_handler)
 
-    return root_logger
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Get a logger instance with the given name.
+    Get a named logger configured with the root handlers.
 
     Args:
-        name: Logger name (typically __name__ of the module).
+        name: Logger name (typically __name__).
 
     Returns:
-        A configured logger instance.
+        Configured logger instance.
     """
     return logging.getLogger(name)
 
+
 def init_default_logger() -> logging.Logger:
     """
-    Initialize a default logger for the project root if not already configured.
-    Creates a 'logs' directory in the project root if needed.
+    Initialize and return a default logger with standard setup.
 
     Returns:
-        The default logger instance.
+        Configured logger instance.
     """
-    project_root = Path(__file__).resolve().parents[2]
-    log_dir = project_root / "logs"
-    log_file = log_dir / "pipeline.log"
-
-    # Only setup if root logger has no handlers (prevents re-config on imports)
-    if not logging.getLogger().handlers:
-        setup_logging(log_file=log_file, level=logging.INFO, console=True)
-
-    return get_logger("llmxive")
-
-# Convenience function for immediate use in scripts
-logger = init_default_logger()
+    setup_logging(
+        log_level="INFO",
+        log_file=Path("logs") / f"run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
+        enable_json=True,
+    )
+    return get_logger("llmXive")

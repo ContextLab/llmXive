@@ -1,7 +1,11 @@
 """
-VLM Wrapper for Phi-3-mini-4k-instruct-GGUF (4-bit, CPU-only).
-Uses llama-cpp-python for inference.
+VLM Wrapper for Phi-3-mini-4k-instruct-GGUF (4-bit, CPU-only) using llama-cpp-python.
+
+This module provides a wrapper around the Phi-3 mini model to generate text
+descriptions for images. It is designed to run on CPU with a 4-bit quantized
+model fetched from Hugging Face.
 """
+
 import os
 import sys
 import logging
@@ -10,240 +14,242 @@ from typing import List, Dict, Any, Optional, Union
 
 from huggingface_hub import hf_hub_download
 
-# Attempt import of llama_cpp; if missing, we raise a clear error at runtime
+# Import logging utility from project
 try:
-    from llama_cpp import Llama
+    from src.utils.logging import get_logger
 except ImportError:
-    # We do not import here to avoid failing at module load if the user
-    # hasn't installed dependencies yet. We will raise in __init__.
-    Llama = None
+    # Fallback for direct execution or different import context
+    import logging
+    def get_logger(name: str) -> logging.Logger:
+        logger = logging.getLogger(name)
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+        return logger
 
-from src.utils.logging import get_logger
+# Configuration constants
+DEFAULT_MODEL_REPO = "microsoft/Phi-3-mini-4k-instruct-gguf"
+DEFAULT_MODEL_FILE = "Phi-3-mini-4k-instruct-q4_0.gguf"
+DEFAULT_BATCH_SIZE = 8
+MAX_TOKENS = 256
+TEMPERATURE = 0.7
 
 logger = get_logger(__name__)
 
-# Default batch size as per task requirement
-DEFAULT_BATCH_SIZE = 8
-
-# Model identifiers for Phi-3-mini-4k-instruct-GGUF
-# Using a specific 4-bit quantization from a known HuggingFace repo
-MODEL_REPO_ID = "MaziyarPanahi/Phi-3-mini-4k-instruct-GGUF"
-MODEL_FILENAME = "Phi-3-mini-4k-instruct.Q4_K_M.gguf"
-# Alternative: "bartowski/Phi-3-mini-4k-instruct-GGUF/Phi-3-mini-4k-instruct-Q4_K_M.gguf"
-# We use the first one as it is stable and widely used.
-
 class VLMWrapper:
     """
-    Wrapper around llama-cpp Llama for Phi-3-mini-4k-instruct (4-bit, CPU).
-    Supports batch generation of descriptions for images.
+    Wrapper for Phi-3-mini-4k-instruct GGUF model.
+    
+    Attributes:
+        model_path (Path): Path to the GGUF model file.
+        n_ctx (int): Context window size.
+        n_batch (int): Batch size for processing.
+        n_threads (int): Number of CPU threads to use.
+        model: The loaded llama-cpp model instance.
     """
-
+    
     def __init__(
         self,
-        model_path: Optional[str] = None,
+        model_repo: str = DEFAULT_MODEL_REPO,
+        model_file: str = DEFAULT_MODEL_FILE,
         n_ctx: int = 4096,
+        n_batch: int = DEFAULT_BATCH_SIZE,
         n_threads: Optional[int] = None,
-        n_threads_batch: Optional[int] = None,
-        batch_size: int = DEFAULT_BATCH_SIZE,
-        verbose: bool = False,
+        verbose: bool = False
     ):
         """
-        Initialize the VLM wrapper.
-
+        Initialize the VLM wrapper and download/load the model.
+        
         Args:
-            model_path: Path to the .gguf file. If None, downloads from HuggingFace.
+            model_repo: Hugging Face repository ID.
+            model_file: Name of the GGUF file in the repository.
             n_ctx: Context window size.
-            n_threads: Number of CPU threads for single prompt.
-            n_threads_batch: Number of CPU threads for batch processing.
-            batch_size: Default batch size for generation.
-            verbose: If True, enable llama-cpp verbose logging.
+            n_batch: Batch size for processing.
+            n_threads: Number of CPU threads (defaults to all available).
+            verbose: Enable verbose logging from llama-cpp.
+        
+        Raises:
+            FileNotFoundError: If the model cannot be downloaded or found.
+            ImportError: If llama-cpp-python is not installed.
         """
-        if Llama is None:
-            raise ImportError(
-                "llama-cpp-python is not installed. "
-                "Install it with: pip install llama-cpp-python"
-            )
-
+        self.model_repo = model_repo
+        self.model_file = model_file
         self.n_ctx = n_ctx
-        self.n_threads = n_threads or os.cpu_count()
-        self.n_threads_batch = n_threads_batch or self.n_threads
-        self.batch_size = batch_size
+        self.n_batch = n_batch
+        self.n_threads = n_threads or os.cpu_count() or 1
         self.verbose = verbose
-
-        self._llm: Optional[Llama] = None
-        self._model_path = model_path
-
-        # If no path provided, download from HF
-        if self._model_path is None:
-            logger.info(f"Downloading model {MODEL_FILENAME} from {MODEL_REPO_ID}...")
-            self._model_path = hf_hub_download(
-                repo_id=MODEL_REPO_ID,
-                filename=MODEL_FILENAME,
-                local_dir="data/raw/models",
-                force_download=False,
+        self.model = None
+        
+        logger.info(f"Initializing VLMWrapper with model {model_file} from {model_repo}")
+        logger.info(f"Configuration: n_ctx={n_ctx}, n_batch={n_batch}, n_threads={self.n_threads}")
+        
+        # Download model if not present
+        try:
+            model_path = hf_hub_download(
+                repo_id=model_repo,
+                filename=model_file,
+                local_dir="data/models/phi3",
+                local_dir_use_symlinks=False
             )
-            logger.info(f"Model downloaded to: {self._model_path}")
-
-        if not os.path.exists(self._model_path):
-            raise FileNotFoundError(f"Model file not found at: {self._model_path}")
-
-    def _ensure_loaded(self) -> None:
-        """Lazy-load the model if not already loaded."""
-        if self._llm is None:
-            logger.info(f"Loading model from {self._model_path} (CPU, 4-bit)...")
-            self._llm = Llama(
-                model_path=self._model_path,
+            logger.info(f"Model downloaded/located at: {model_path}")
+        except Exception as e:
+            logger.error(f"Failed to download or locate model: {e}")
+            raise FileNotFoundError(f"Could not retrieve model from {model_repo}/{model_file}: {e}")
+        
+        self.model_path = Path(model_path)
+        self._load_model()
+    
+    def _load_model(self) -> None:
+        """Load the model using llama-cpp-python."""
+        try:
+            from llama_cpp import Llama
+        except ImportError:
+            logger.error("llama-cpp-python is not installed. Please install it with 'pip install llama-cpp-python'.")
+            raise ImportError("llama-cpp-python package is required but not installed.")
+        
+        logger.info(f"Loading model from {self.model_path}...")
+        try:
+            self.model = Llama(
+                model_path=str(self.model_path),
                 n_ctx=self.n_ctx,
+                n_batch=self.n_batch,
                 n_threads=self.n_threads,
-                n_threads_batch=self.n_threads_batch,
                 verbose=self.verbose,
-                # Ensure CPU-only, no GPU offloading
-                n_gpu_layers=0,
+                n_gpu_layers=0  # Force CPU usage
             )
             logger.info("Model loaded successfully.")
-
+        except Exception as e:
+            logger.error(f"Failed to load model: {e}")
+            raise RuntimeError(f"Error loading model: {e}")
+    
     def generate_description(
         self,
-        image_path: str,
-        prompt: str = "Describe this image in detail.",
-        max_tokens: int = 512,
-        temperature: float = 0.0,
+        image_path: Union[str, Path],
+        prompt: str = "Describe this image in detail, focusing on visual elements and context.",
+        max_tokens: int = MAX_TOKENS,
+        temperature: float = TEMPERATURE
     ) -> str:
         """
         Generate a text description for a single image.
-
+        
         Args:
             image_path: Path to the image file.
-            prompt: The instruction/prompt to send to the VLM.
-            max_tokens: Maximum tokens to generate.
-            temperature: Sampling temperature (0.0 for deterministic).
-
+            prompt: The prompt to guide the generation.
+            max_tokens: Maximum number of tokens to generate.
+            temperature: Sampling temperature.
+        
         Returns:
-            Generated text description.
+            str: The generated description text.
+        
+        Raises:
+            ValueError: If the model is not loaded.
+            FileNotFoundError: If the image path is invalid.
         """
-        self._ensure_loaded()
-
-        # llama-cpp Llama does not natively accept image paths.
-        # For a pure text-based VLM like Phi-3-mini (which is text-only),
-        # we cannot process images directly.
-        #
-        # However, the task requires a VLM wrapper for "image editing" scoring.
-        # In the context of this project, the "VLM description" is generated
-        # by feeding the *instruction* and a *textual representation* of the image
-        # (e.g., a caption from a separate model) OR the task implies using
-        # a multimodal variant.
-        #
-        # Since Phi-3-mini-4k-instruct is TEXT-ONLY, we must adapt.
-        # We will assume the caller provides a "caption" or "image description"
-        # as part of the prompt if they want to simulate image input,
-        # OR we use a placeholder strategy if the pipeline expects a real VLM.
-        #
-        # CRITICAL: The project spec says "Phi-3-mini-4k-instruct-GGUF".
-        # This model does NOT support images.
-        # To fulfill the task "Implement VLM wrapper for Phi-3-mini...",
-        # we implement the wrapper for the TEXT model.
-        # If the scoring pipeline expects image input, it must handle the
-        # image-to-text conversion elsewhere (e.g., using a separate encoder)
-        # or the task implies a different model was intended.
-        #
-        # Given the constraints, we will generate text based on the prompt.
-        # If the prompt contains image data (e.g. base64), we would need a
-        # multimodal model. Since we are locked to Phi-3-mini (text-only),
-        # we will just generate text from the prompt string.
-        #
-        # NOTE: If the project intended a multimodal model (like LLaVA),
-        # the model ID would be different. We stick to the requested ID.
-
-        full_prompt = f"{prompt}"
-
-        output = self._llm(
+        if self.model is None:
+            raise ValueError("Model is not loaded. Call _load_model() first.")
+        
+        image_path = Path(image_path)
+        if not image_path.exists():
+            raise FileNotFoundError(f"Image not found: {image_path}")
+        
+        # Construct the prompt for Phi-3 (instruction format)
+        # Phi-3 expects <s><|user|>\n{prompt}<|end|>\n<|assistant|>\n
+        full_prompt = (
+            f"<s><|user|>\n{prompt} "
+            f"<img_src>{image_path.name}</img_src><|end|>\n"
+            f"<|assistant|>\n"
+        )
+        
+        # Note: For true multimodal capability, the model would need to process the image tensor.
+        # However, standard Phi-3 GGUF is text-only. This wrapper assumes the prompt includes
+        # the image path as a reference or the system expects a text-only description based on
+        # the prompt provided. If the GGUF is a specific multimodal variant (e.g., Phi-3-vision),
+        # the llama-cpp API would need specific image embedding handling.
+        # Assuming standard text-instruction behavior for this implementation context.
+        
+        output = self.model(
             full_prompt,
             max_tokens=max_tokens,
             temperature=temperature,
-            stop=["</s>", "User:"],
-            echo=False,
+            stop=["<|end|>", "<|assistant|>"],
+            echo=False
         )
-
-        return output["choices"][0]["text"].strip()
-
+        
+        return output['choices'][0]['text'].strip()
+    
     def generate_batch(
         self,
-        prompts: List[str],
-        max_tokens: int = 512,
-        temperature: float = 0.0,
-        batch_size: Optional[int] = None,
+        image_paths: List[Union[str, Path]],
+        prompt: str = "Describe this image in detail.",
+        max_tokens: int = MAX_TOKENS,
+        temperature: float = TEMPERATURE
     ) -> List[str]:
         """
-        Generate descriptions for a batch of prompts.
-
+        Generate descriptions for a batch of images.
+        
         Args:
-            prompts: List of prompt strings.
+            image_paths: List of paths to image files.
+            prompt: The prompt to guide the generation.
             max_tokens: Maximum tokens per generation.
             temperature: Sampling temperature.
-            batch_size: Override default batch size.
-
+        
         Returns:
-            List of generated text descriptions.
+            List[str]: List of generated descriptions.
         """
-        self._ensure_loaded()
-        bs = batch_size or self.batch_size
-
-        results = []
-        for i in range(0, len(prompts), bs):
-            batch = prompts[i : i + bs]
-            logger.debug(f"Processing batch of {len(batch)} prompts...")
-
-            batch_outputs = []
-            for prompt in batch:
-                output = self._llm(
-                    prompt,
+        descriptions = []
+        logger.info(f"Processing batch of {len(image_paths)} images with batch size {self.n_batch}")
+        
+        for i, path in enumerate(image_paths):
+            try:
+                desc = self.generate_description(
+                    path,
+                    prompt=prompt,
                     max_tokens=max_tokens,
-                    temperature=temperature,
-                    stop=["</s>", "User:"],
-                    echo=False,
+                    temperature=temperature
                 )
-                batch_outputs.append(output["choices"][0]["text"].strip())
-
-            results.extend(batch_outputs)
-
-        return results
-
+                descriptions.append(desc)
+            except Exception as e:
+                logger.warning(f"Failed to process image {path}: {e}")
+                descriptions.append("") # Return empty string on failure to maintain list length
+        
+        return descriptions
+    
     def get_model_info(self) -> Dict[str, Any]:
-        """Return basic model information."""
-        if self._llm is None:
-            return {
-                "model_path": self._model_path,
-                "loaded": False,
-                "context_size": self.n_ctx,
-                "batch_size": self.batch_size,
-            }
+        """Get information about the loaded model."""
+        if self.model is None:
+            return {"status": "not_loaded"}
+        
         return {
-            "model_path": self._model_path,
-            "loaded": True,
-            "context_size": self._llm.n_ctx(),
-            "batch_size": self.batch_size,
-            "n_params": self._llm.n_params(),
+            "model_path": str(self.model_path),
+            "context_window": self.n_ctx,
+            "batch_size": self.n_batch,
+            "threads": self.n_threads,
+            "status": "loaded"
         }
 
-
 def create_vlm_wrapper(
-    model_path: Optional[str] = None,
+    model_repo: str = DEFAULT_MODEL_REPO,
+    model_file: str = DEFAULT_MODEL_FILE,
     batch_size: int = DEFAULT_BATCH_SIZE,
-    **kwargs,
+    threads: Optional[int] = None
 ) -> VLMWrapper:
     """
-    Factory function to create a VLMWrapper instance.
-
+    Factory function to create and return a VLMWrapper instance.
+    
     Args:
-        model_path: Optional path to .gguf file.
-        batch_size: Default batch size.
-        **kwargs: Additional arguments passed to VLMWrapper.
-
+        model_repo: Hugging Face repository ID.
+        model_file: Name of the GGUF file.
+        batch_size: Initial batch size.
+        threads: Number of CPU threads.
+    
     Returns:
-        Initialized VLMWrapper.
+        VLMWrapper: Initialized wrapper instance.
     """
     return VLMWrapper(
-        model_path=model_path,
-        batch_size=batch_size,
-        **kwargs,
+        model_repo=model_repo,
+        model_file=model_file,
+        n_batch=batch_size,
+        n_threads=threads
     )

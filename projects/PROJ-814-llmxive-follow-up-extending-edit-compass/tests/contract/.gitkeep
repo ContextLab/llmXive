@@ -1,0 +1,3 @@
+# Placeholder file to mark the contract test directory.
+# This directory is intended for contract tests validating API schemas
+# and data contracts (e.g., against contracts/*.yaml).
