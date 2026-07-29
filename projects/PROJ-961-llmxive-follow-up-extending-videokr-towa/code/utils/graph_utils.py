@@ -1,153 +1,97 @@
-"""
-Module: graph_utils
-
-Purpose:
-    Provides graph algorithms and utilities, including BFS shortest path,
-    connected components, and hop distance calculations.
-
-Functions:
-    - build_undirected_graph: Builds an undirected graph from edges.
-    - build_directed_graph: Builds a directed graph from edges.
-    - shortest_path_bfs: Finds the shortest path using BFS.
-    - calculate_hop_distance: Calculates distance between nodes.
-    - get_connected_components: Finds connected components.
-    - get_hop_distribution: Calculates hop distribution.
-    - main: Entry point for the script.
-"""
 from collections import deque
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-def build_undirected_graph(edges: List[Tuple[str, str]]) -> Dict[str, List[str]]:
-    """
-    Builds an undirected graph from a list of edges.
-
-    Args:
-        edges (List[Tuple[str, str]]): List of (u, v) edges.
-
-    Returns:
-        Dict[str, List[str]]: Adjacency list.
-    """
-    graph = {}
+def build_undirected_graph(edges: List[Tuple[Any, Any]]) -> Dict[Any, List[Any]]:
+    graph: Dict[Any, List[Any]] = {}
     for u, v in edges:
-        graph.setdefault(u, []).append(v)
-        graph.setdefault(v, []).append(u)
+        if u not in graph:
+            graph[u] = []
+        if v not in graph:
+            graph[v] = []
+        graph[u].append(v)
+        graph[v].append(u)
     return graph
 
-def build_directed_graph(edges: List[Tuple[str, str]]) -> Dict[str, List[str]]:
-    """
-    Builds a directed graph from a list of edges.
-
-    Args:
-        edges (List[Tuple[str, str]]): List of (u, v) edges.
-
-    Returns:
-        Dict[str, List[str]]: Adjacency list.
-    """
-    graph = {}
+def build_directed_graph(edges: List[Tuple[Any, Any]]) -> Dict[Any, List[Any]]:
+    graph: Dict[Any, List[Any]] = {}
     for u, v in edges:
-        graph.setdefault(u, []).append(v)
+        if u not in graph:
+            graph[u] = []
+        graph[u].append(v)
     return graph
 
-def shortest_path_bfs(graph: Dict[str, List[str]], start: str, end: str) -> Optional[List[str]]:
-    """
-    Finds the shortest path between two nodes using BFS.
-
-    Args:
-        graph (Dict[str, List[str]]): Graph adjacency list.
-        start (str): Start node.
-        end (str): End node.
-
-    Returns:
-        Optional[List[str]]: Path as a list of nodes, or None if no path.
-    """
+def shortest_path_bfs(graph: Dict[Any, List[Any]], start: Any, end: Any) -> Optional[List[Any]]:
+    if start not in graph or end not in graph:
+        return None
+    
     if start == end:
         return [start]
+    
     queue = deque([(start, [start])])
     visited = {start}
-
+    
     while queue:
-        node, path = queue.popleft()
-        for neighbor in graph.get(node, []):
+        current, path = queue.popleft()
+        
+        for neighbor in graph.get(current, []):
             if neighbor == end:
                 return path + [neighbor]
+            
             if neighbor not in visited:
                 visited.add(neighbor)
                 queue.append((neighbor, path + [neighbor]))
+    
     return None
 
-def calculate_hop_distance(graph: Dict[str, List[str]], start: str, end: str) -> int:
-    """
-    Calculates the hop distance between two nodes.
-
-    Args:
-        graph (Dict[str, List[str]]): Graph.
-        start (str): Start node.
-        end (str): End node.
-
-    Returns:
-        int: Distance in hops, or -1 if no path.
-    """
+def calculate_hop_distance(graph: Dict[Any, List[Any]], start: Any, end: Any) -> Optional[int]:
     path = shortest_path_bfs(graph, start, end)
     if path is None:
-        return -1
+        return None
     return len(path) - 1
 
-def get_connected_components(graph: Dict[str, List[str]]) -> List[Set[str]]:
-    """
-    Finds all connected components in the graph.
-
-    Args:
-        graph (Dict[str, List[str]]): Graph.
-
-    Returns:
-        List[Set[str]]: List of sets of nodes.
-    """
+def get_connected_components(graph: Dict[Any, List[Any]]) -> List[Set[Any]]:
     visited = set()
     components = []
-
+    
     for node in graph:
         if node not in visited:
             component = set()
             queue = deque([node])
             visited.add(node)
+            
             while queue:
-                curr = queue.popleft()
-                component.add(curr)
-                for neighbor in graph.get(curr, []):
+                current = queue.popleft()
+                component.add(current)
+                
+                for neighbor in graph.get(current, []):
                     if neighbor not in visited:
                         visited.add(neighbor)
                         queue.append(neighbor)
+            
             components.append(component)
+    
     return components
 
-def get_hop_distribution(graph: Dict[str, List[str]], nodes: List[str]) -> Dict[int, int]:
-    """
-    Calculates the distribution of hop distances between a set of nodes.
-
-    Args:
-        graph (Dict[str, List[str]]): Graph.
-        nodes (List[str]): List of nodes.
-
-    Returns:
-        Dict[int, int]: Distribution of hops.
-    """
-    dist_counts = {}
-    for i, n1 in enumerate(nodes):
-        for n2 in nodes[i+1:]:
-            d = calculate_hop_distance(graph, n1, n2)
-            if d > 0:
-                dist_counts[d] = dist_counts.get(d, 0) + 1
-    return dist_counts
+def get_hop_distribution(graph: Dict[Any, List[Any]], nodes: List[Any]) -> Dict[int, int]:
+    distribution: Dict[int, int] = {}
+    
+    for i, start in enumerate(nodes):
+        for end in nodes[i+1:]:
+            dist = calculate_hop_distance(graph, start, end)
+            if dist is not None:
+                distribution[dist] = distribution.get(dist, 0) + 1
+    
+    return distribution
 
 def main():
-    """
-    Main entry point for the graph_utils script.
-    Demonstrates basic functionality.
-    """
-    edges = [("A", "B"), ("B", "C"), ("C", "D")]
+    # Example usage
+    edges = [('A', 'B'), ('B', 'C'), ('C', 'D'), ('A', 'E')]
     graph = build_undirected_graph(edges)
-    path = shortest_path_bfs(graph, "A", "D")
-    print(f"Shortest path A->D: {path}")
+    
+    print(f"Graph: {graph}")
+    print(f"Path A->D: {shortest_path_bfs(graph, 'A', 'D')}")
+    print(f"Distance A->D: {calculate_hop_distance(graph, 'A', 'D')}")
+    print(f"Components: {get_connected_components(graph)}")
 
 if __name__ == "__main__":
     main()

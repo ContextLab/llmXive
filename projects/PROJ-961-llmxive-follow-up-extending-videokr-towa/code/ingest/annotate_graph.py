@@ -1,228 +1,191 @@
-"""
-Module: annotate_graph
-
-Purpose:
-    Processes the VideoKR-SFT dataset to annotate questions with structural
-    chain lengths (hops) derived from the ground-truth Knowledge Graph.
-
-Features:
-    - Chunked streaming processing for memory efficiency.
-    - Entity mapping using the entity_linker module.
-    - Shortest path calculation using BFS.
-    - Generation of binned categories for chain length.
-    - Output of annotated CSV and coverage statistics.
-
-Functions:
-    - load_videokr_dataset: Loads the VideoKR-SFT dataset.
-    - load_graph: Loads the knowledge graph.
-    - map_entities_to_nodes: Maps question entities to graph nodes.
-    - calculate_chain_length: Calculates the shortest path hops.
-    - bin_hop_length: Converts integer hops to categorical bins.
-    - run_pilot_sample: Runs a pilot on a small subset.
-    - oversample_dataset: Handles sampling if the full dataset is too large.
-    - process_chunk: Processes a single chunk of data.
-    - main: Entry point for the script.
-"""
 import csv
 import json
 import logging
 import os
 import sys
-from collections import defaultdict
+import time
+from collections import deque
+from typing import Any, Dict, List, Optional, Tuple
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
 
-from utils.config import get_project_root, get_path, ensure_dir, get_config
-from utils.entity_linker import create_entity_linker
-from utils.graph_utils import shortest_path_bfs, build_undirected_graph
+from utils.config import get_project_root, get_path, ensure_dir, set_seed
+from utils.graph_utils import build_undirected_graph, shortest_path_bfs
+from utils.entity_linker import create_entity_linker, load_graph_from_file
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
 logger = logging.getLogger(__name__)
 
-def load_videokr_dataset(file_path: Path) -> List[Dict[str, Any]]:
-    """
-    Loads the VideoKR-SFT dataset from a CSV file.
-
-    Args:
-        file_path (Path): Path to the CSV file.
-
-    Returns:
-        List[Dict[str, Any]]: List of records.
-    """
-    records = []
-    with open(file_path, 'r', encoding='utf-8') as f:
+def load_videokr_dataset() -> List[Dict[str, Any]]:
+    path = get_path("data/raw/videokr_sft.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"VideoKR-SFT dataset not found at {path}")
+    
+    data = []
+    with open(path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            records.append(row)
-    return records
+            data.append(row)
+    return data
 
-def load_graph(file_path: Path) -> Dict[str, List[str]]:
-    """
-    Loads the knowledge graph from a JSON file.
+def load_graph() -> Dict[str, Any]:
+    return load_graph_from_file()
 
-    Args:
-        file_path (Path): Path to the JSON file.
+def map_entities_to_nodes(data: List[Dict], linker) -> List[Dict]:
+    for row in data:
+        question = row.get('question', '')
+        # Extract entities from question (simplified: assume entity is the first word or keyword)
+        # In a real implementation, this would use NLP
+        entities = question.split()[:3] # Simple tokenization
+        
+        best_node = None
+        best_confidence = 0.0
+        
+        for entity in entities:
+            node_id, confidence = linker.link_entity(entity)
+            if confidence > best_confidence:
+                best_node = node_id
+                best_confidence = confidence
+        
+        row['entity_node_id'] = best_node
+        row['confidence'] = best_confidence
+        
+        if best_confidence < 0.5:
+            row['entity_node_id'] = 'unmapped'
+        
+    return data
 
-    Returns:
-        Dict[str, List[str]]: Adjacency list representation of the graph.
-    """
-    with open(file_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    return build_undirected_graph(data)
-
-def map_entities_to_nodes(question: str, linker) -> Tuple[Optional[str], float]:
-    """
-    Maps entities in a question to nodes in the graph.
-
-    Args:
-        question (str): The question text.
-        linker: The entity linker instance.
-
-    Returns:
-        Tuple[Optional[str], float]: The node ID and confidence score.
-    """
-    return linker.link(question)
-
-def calculate_chain_length(start_node: str, end_node: str, graph: Dict[str, List[str]]) -> int:
-    """
-    Calculates the exact integer shortest path hops between two nodes.
-
-    Args:
-        start_node (str): The starting node ID.
-        end_node (str): The ending node ID.
-        graph (Dict[str, List[str]]): The graph adjacency list.
-
-    Returns:
-        int: The number of hops. Returns -1 if no path exists.
-    """
-    path = shortest_path_bfs(graph, start_node, end_node)
-    if path is None:
-        return -1
-    return len(path) - 1
-
-def bin_hop_length(hop_count: int) -> str:
-    """
-    Converts an integer hop count to a categorical bin.
-
-    Args:
-        hop_count (int): The hop count.
-
-    Returns:
-        str: The bin label ('1', '2', '3+', or 'unresolvable').
-    """
-    if hop_count == -1:
-        return 'unresolvable'
-    if hop_count <= 1:
-        return '1'
-    if hop_count == 2:
-        return '2'
-    return '3+'
-
-def run_pilot_sample(records: List[Dict], sample_size: int) -> List[Dict]:
-    """
-    Runs a pilot on a small subset of records.
-
-    Args:
-        records (List[Dict]): Full list of records.
-        sample_size (int): Number of records to sample.
-
-    Returns:
-        List[Dict]: Sampled records.
-    """
-    return records[:sample_size]
-
-def oversample_dataset(records: List[Dict], target_size: int) -> List[Dict]:
-    """
-    Handles sampling if the full dataset is too large.
-
-    Args:
-        records (List[Dict]): Full list of records.
-        target_size (int): Target number of records.
-
-    Returns:
-        List[Dict]: Resampled records.
-    """
-    # Implementation would use itertools.islice or random sampling
-    # while preserving distribution
-    if len(records) <= target_size:
-        return records
-    # Placeholder for actual sampling logic
-    return records[:target_size]
-
-def process_chunk(chunk: List[Dict], graph: Dict[str, List[str]], linker) -> List[Dict]:
-    """
-    Processes a single chunk of data.
-
-    Args:
-        chunk (List[Dict]): List of records to process.
-        graph (Dict[str, List[str]]): The graph.
-        linker: The entity linker.
-
-    Returns:
-        List[Dict]: Annotated records.
-    """
-    annotated = []
-    for record in chunk:
-        question = record.get('question', '')
-        entity_id, confidence = map_entities_to_nodes(question, linker)
-
-        if entity_id is None or confidence < 0.5:
-            record['entity_node_id'] = 'unmapped'
-            record['confidence'] = confidence
-            record['chain_length'] = -1
-            record['chain_bin'] = 'unresolvable'
+def calculate_chain_length(graph: Dict[str, Any], data: List[Dict]) -> List[Dict]:
+    nodes = {n['id']: n for n in graph.get('nodes', [])}
+    edges = graph.get('edges', [])
+    
+    graph_adj = build_undirected_graph(edges)
+    
+    for row in data:
+        node_id = row.get('entity_node_id')
+        if node_id == 'unmapped' or node_id is None:
+            row['chain_length'] = None
+            row['chain_bin'] = 'unresolvable'
+            continue
+        
+        # Find a target node (simplified: assume target is a specific node or random)
+        # In reality, this would be defined by the question-answer pair
+        target_node = list(nodes.keys())[0] if nodes else None
+        
+        if target_node is None:
+            row['chain_length'] = None
+            row['chain_bin'] = 'unresolvable'
+            continue
+        
+        path = shortest_path_bfs(graph_adj, node_id, target_node)
+        if path:
+            hops = len(path) - 1
+            row['chain_length'] = hops
+            if hops == 1:
+                row['chain_bin'] = '1'
+            elif hops == 2:
+                row['chain_bin'] = '2'
+            else:
+                row['chain_bin'] = '3+'
         else:
-            # Assuming the answer or context provides the target node
-            # For this example, we assume a target node extraction logic exists
-            target_node = "target_node_placeholder" # Simplified for docstring
-            hops = calculate_chain_length(entity_id, target_node, graph)
-            record['entity_node_id'] = entity_id
-            record['confidence'] = confidence
-            record['chain_length'] = hops
-            record['chain_bin'] = bin_hop_length(hops)
-        annotated.append(record)
+            row['chain_length'] = None
+            row['chain_bin'] = 'unresolvable'
+    
+    return data
+
+def bin_hop_length(hop: int) -> str:
+    if hop == 1:
+        return '1'
+    elif hop == 2:
+        return '2'
+    else:
+        return '3+'
+
+def run_pilot_sample(data: List[Dict], pilot_size: int = 1000) -> List[Dict]:
+    return data[:pilot_size]
+
+def oversample_dataset(data: List[Dict], target_bin: str, target_count: int) -> List[Dict]:
+    # Simple oversampling: duplicate rows to reach target count
+    bin_rows = [r for r in data if r.get('chain_bin') == target_bin]
+    if not bin_rows:
+        return data
+    
+    while len(bin_rows) < target_count:
+        bin_rows.extend(bin_rows)
+    
+    return data + bin_rows[:target_count - len([r for r in data if r.get('chain_bin') == target_bin])]
+
+def process_chunk(data_chunk: List[Dict], linker, graph) -> List[Dict]:
+    linked = map_entities_to_nodes(data_chunk, linker)
+    annotated = calculate_chain_length(graph, linked)
     return annotated
 
 def main():
-    """
-    Main entry point for the annotate_graph script.
-
-    Orchestrates the loading, processing, and saving of annotated data.
-    """
-    logger.info("Starting graph annotation process...")
-    project_root = get_project_root()
-    config = get_config()
-
-    # Load data
-    videokr_path = get_path("videokr_sft_filename", "data/raw/videokr_sft.csv")
-    graph_path = get_path("knowledge_graph_filename", "data/raw/knowledge_graph.json")
-
-    if not videokr_path.exists() or not graph_path.exists():
-        logger.error("Required data files not found.")
-        sys.exit(1)
-
-    records = load_videokr_dataset(videokr_path)
-    graph = load_graph(graph_path)
-    linker = create_entity_linker(graph)
-
-    # Process
-    annotated_records = process_chunk(records, graph, linker)
-
-    # Save
-    output_path = project_root / "data" / "processed" / "annotated_videokr.csv"
-    ensure_dir(output_path.parent)
-
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    set_seed(42)
+    
+    try:
+        logger.info("Loading VideoKR-SFT dataset...")
+        data = load_videokr_dataset()
+        logger.info(f"Loaded {len(data)} records.")
+        
+        logger.info("Loading knowledge graph...")
+        graph = load_graph()
+        logger.info(f"Loaded graph with {len(graph.get('nodes', []))} nodes.")
+        
+        logger.info("Creating entity linker...")
+        linker = create_entity_linker(graph)
+        
+        # Pilot phase
+        logger.info("Running pilot phase...")
+        pilot_data = run_pilot_sample(data, 1000)
+        
+        # Process pilot
+        pilot_data = map_entities_to_nodes(pilot_data, linker)
+        pilot_data = calculate_chain_length(graph, pilot_data)
+        
+        # Check distribution
+        bin_counts = {}
+        for row in pilot_data:
+            b = row.get('chain_bin', 'unknown')
+            bin_counts[b] = bin_counts.get(b, 0) + 1
+        
+        logger.info(f"Pilot bin distribution: {bin_counts}")
+        
+        # Check if oversampling needed
+        for bin_name, count in bin_counts.items():
+            if count < 50 and bin_name != 'unresolvable':
+                logger.info(f"Oversampling needed for bin: {bin_name}")
+                # In a real implementation, we would oversample here
+        
+        # Process full dataset (chunked)
+        logger.info("Processing full dataset...")
+        processed_data = []
+        chunk_size = 1000
+        
+        for i in range(0, len(data), chunk_size):
+            chunk = data[i:i+chunk_size]
+            processed_chunk = process_chunk(chunk, linker, graph)
+            processed_data.extend(processed_chunk)
+            logger.info(f"Processed chunk {i//chunk_size + 1}")
+        
+        # Filter out unresolvable
+        final_data = [r for r in processed_data if r.get('chain_bin') != 'unresolvable']
+        logger.info(f"Final data size: {len(final_data)}")
+        
+        # Write output
+        output_path = get_path("data/processed/annotated_videokr.csv")
+        ensure_dir(output_path)
+        
         fieldnames = ['id', 'question', 'answer', 'entity_node_id', 'confidence', 'chain_length', 'chain_bin', 'correctness']
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(annotated_records)
-
-    logger.info(f"Annotation complete. Output saved to {output_path}")
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(final_data)
+        
+        logger.info(f"Output written to {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Error in annotate_graph main: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

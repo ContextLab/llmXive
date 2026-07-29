@@ -1,124 +1,122 @@
-"""
-Module: stratify_accuracy
-
-Purpose:
-    Calculates accuracy rates for different hop-count bins to analyze
-    the relationship between reasoning depth and model performance.
-
-Functions:
-    - load_annotated_data: Loads the annotated dataset.
-    - bin_hop_length: Bins the hop lengths.
-    - calculate_accuracy_by_bin: Calculates accuracy per bin.
-    - write_results: Writes results to a file.
-    - main: Entry point for the script.
-"""
 import csv
 import json
 import logging
 import sys
 from collections import defaultdict
 from pathlib import Path
+from typing import Dict, Any, List, Optional
 
 from utils.config import get_project_root, get_path, ensure_dir
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_annotated_data(file_path: Path) -> list:
+def load_annotated_data() -> List[Dict[str, Any]]:
     """
-    Loads the annotated dataset from a CSV file.
-
-    Args:
-        file_path (Path): Path to the CSV file.
-
-    Returns:
-        list: List of records.
+    Load annotated data from T013 output.
     """
-    records = []
-    with open(file_path, 'r', encoding='utf-8') as f:
+    path = get_path("data/processed/annotated_videokr.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Annotated dataset not found at {path}")
+    
+    data = []
+    with open(path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            records.append(row)
-    return records
+            data.append(row)
+    return data
 
-def bin_hop_length(hop_count: int) -> str:
+def bin_hop_length(hop: int) -> str:
     """
-    Bins the hop length into categories.
-
-    Args:
-        hop_count (int): The hop count.
-
-    Returns:
-        str: The bin label.
+    Bin hop length into categories: '1', '2', '3+'.
     """
-    if hop_count <= 1:
+    if hop == 1:
         return '1'
-    elif hop_count == 2:
+    elif hop == 2:
         return '2'
     else:
         return '3+'
 
-def calculate_accuracy_by_bin(records: list) -> dict:
+def calculate_accuracy_by_bin(data: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     """
-    Calculates accuracy for each bin.
-
-    Args:
-        records (list): List of annotated records.
-
-    Returns:
-        dict: Accuracy per bin.
+    Calculate accuracy for each bin.
+    Returns a dict: {bin_name: {'count': N, 'correct': M, 'accuracy': M/N}}
     """
-    bin_stats = defaultdict(lambda: {'correct': 0, 'total': 0})
+    bins: Dict[str, Dict[str, int]] = defaultdict(lambda: {'count': 0, 'correct': 0})
+    
+    for row in data:
+        try:
+            hop = int(row['chain_length'])
+            correct = 1 if row['correctness'].lower() in ['true', '1', 'yes'] else 0
+            
+            bin_name = bin_hop_length(hop)
+            bins[bin_name]['count'] += 1
+            bins[bin_name]['correct'] += correct
+        except (ValueError, KeyError) as e:
+            logger.warning(f"Skipping row due to error: {e}")
+            continue
+    
+    # Calculate accuracy
+    result = {}
+    for bin_name, stats in bins.items():
+        if stats['count'] > 0:
+            result[bin_name] = {
+                'count': stats['count'],
+                'correct': stats['correct'],
+                'accuracy': stats['correct'] / stats['count']
+            }
+        else:
+            result[bin_name] = {
+                'count': 0,
+                'correct': 0,
+                'accuracy': 0.0
+            }
+    
+    return result
 
-    for record in records:
-        hop = int(record.get('chain_length', -1))
-        bin_label = bin_hop_length(hop)
-        is_correct = record.get('correctness', 'False').lower() == 'true'
-
-        bin_stats[bin_label]['total'] += 1
-        if is_correct:
-            bin_stats[bin_label]['correct'] += 1
-
-    results = {}
-    for bin_label, stats in bin_stats.items():
-        accuracy = stats['correct'] / stats['total'] if stats['total'] > 0 else 0.0
-        results[bin_label] = {
-            'accuracy': accuracy,
-            'count': stats['total']
-        }
-
-    return results
-
-def write_results(results: dict, output_path: Path):
+def write_results(accuracy_by_bin: Dict[str, Dict[str, Any]], output_path: Optional[str] = None) -> None:
     """
-    Writes results to a JSON file.
-
-    Args:
-        results (dict): Results to write.
-        output_path (Path): Output file path.
+    Write results to JSON and prepare bin counts for T020a.
     """
-    ensure_dir(output_path.parent)
+    if output_path is None:
+        output_path = get_path("data/processed/bin_counts.json")
+    
+    # Extract counts for T020a
+    bin_counts = {k: v['count'] for k, v in accuracy_by_bin.items()}
+    
+    ensure_dir(output_path)
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(bin_counts, f, indent=2)
+    
+    logger.info(f"Bin counts saved to {output_path}")
+    
+    # Also save detailed accuracy results
+    detailed_path = get_path("data/processed/accuracy_by_bin.json")
+    ensure_dir(detailed_path)
+    with open(detailed_path, 'w') as f:
+        json.dump(accuracy_by_bin, f, indent=2)
+    logger.info(f"Accuracy results saved to {detailed_path}")
 
 def main():
-    """
-    Main entry point for the stratify_accuracy script.
-    """
-    logger.info("Stratifying accuracy by hop bin...")
-    project_root = get_project_root()
-    input_path = project_root / "data" / "processed" / "annotated_videokr.csv"
-    output_path = project_root / "data" / "processed" / "stratified_accuracy.json"
-
-    if not input_path.exists():
-        logger.error("Input file not found.")
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    try:
+        logger.info("Loading annotated data...")
+        data = load_annotated_data()
+        logger.info(f"Loaded {len(data)} records.")
+        
+        logger.info("Calculating accuracy by bin...")
+        accuracy_by_bin = calculate_accuracy_by_bin(data)
+        
+        logger.info(f"Accuracy by bin: {accuracy_by_bin}")
+        
+        logger.info("Writing results...")
+        write_results(accuracy_by_bin)
+        
+        logger.info("Stratify accuracy complete.")
+        
+    except Exception as e:
+        logger.error(f"Error in stratify_accuracy main: {e}", exc_info=True)
         sys.exit(1)
-
-    records = load_annotated_data(input_path)
-    results = calculate_accuracy_by_bin(records)
-    write_results(results, output_path)
-
-    logger.info(f"Results written to {output_path}")
 
 if __name__ == "__main__":
     main()

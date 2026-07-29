@@ -1,152 +1,150 @@
-"""
-Module: sensitivity
-
-Purpose:
-    Performs a sensitivity analysis of the threshold definition by
-    sweeping across multiple hop counts to verify robustness.
-
-Functions:
-    - run_pilot_sample: Runs a pilot sample.
-    - oversample_dataset: Oversamples the dataset.
-    - merge_bins_if_needed: Merges bins if sample size is low.
-    - calculate_effect_size: Calculates effect size.
-    - perform_threshold_sweep: Sweeps thresholds.
-    - save_results: Saves results.
-    - run_sensitivity_analysis: Main analysis logic.
-    - main: Entry point for the script.
-"""
 import csv
 import json
 import logging
-import math
+import random
 from collections import defaultdict
 from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
 
 from utils.config import get_project_root, get_path, ensure_dir
-from analysis.detect_threshold import detect_threshold, load_raw_annotated_data
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def run_pilot_sample(records: list, size: int) -> list:
+def load_annotated_data() -> List[Dict[str, Any]]:
     """
-    Runs a pilot sample.
-
-    Args:
-        records (list): Full records.
-        size (int): Sample size.
-
-    Returns:
-        list: Sampled records.
+    Load annotated data from T013 output.
     """
-    return records[:size]
+    path = get_path("data/processed/annotated_videokr.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Annotated dataset not found at {path}")
+    
+    data = []
+    with open(path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            data.append(row)
+    return data
 
-def oversample_dataset(records: list, target: int) -> list:
+def calculate_effect_size(data: List[Dict], threshold: int) -> float:
     """
-    Oversamples the dataset.
-
-    Args:
-        records (list): Records.
-        target (int): Target size.
-
-    Returns:
-        list: Resampled records.
+    Calculate effect size (accuracy drop) for a given threshold.
+    Compares accuracy <= threshold vs > threshold.
     """
-    return records
+    left = [d['correctness'] for d in data if d['chain_length'] <= threshold]
+    right = [d['correctness'] for d in data if d['chain_length'] > threshold]
+    
+    if not left or not right:
+        return 0.0
+    
+    acc_left = sum(left) / len(left)
+    acc_right = sum(right) / len(right)
+    
+    return acc_left - acc_right
 
-def merge_bins_if_needed(bins: dict) -> dict:
+def permutation_test(data: List[Dict], threshold: int, n_permutations: int = 1000) -> float:
     """
-    Merges bins if sample size is low.
-
-    Args:
-        bins (dict): Binned data.
-
-    Returns:
-        dict: Merged bins.
+    Perform permutation test for a specific threshold.
     """
-    return bins
+    observed_effect = calculate_effect_size(data, threshold)
+    
+    hops = [d['chain_length'] for d in data]
+    correctness = [d['correctness'] for d in data]
+    
+    permuted_effects = []
+    
+    for _ in range(n_permutations):
+        shuffled_correctness = correctness[:]
+        random.shuffle(shuffled_correctness)
+        
+        perm_data = [{'chain_length': h, 'correctness': c} for h, c in zip(hops, shuffled_correctness)]
+        
+        effect = calculate_effect_size(perm_data, threshold)
+        permuted_effects.append(effect)
+    
+    count = sum(1 for e in permuted_effects if e >= observed_effect)
+    return count / n_permutations
 
-def calculate_effect_size(before: float, after: float) -> float:
+def bonferroni_correction(p_value: float, n_tests: int) -> float:
+    return min(p_value * n_tests, 1.0)
+
+def perform_threshold_sweep(data: List[Dict], thresholds: List[int], n_permutations: int = 1000) -> List[Dict[str, Any]]:
     """
-    Calculates effect size.
-
-    Args:
-        before (float): Before accuracy.
-        after (float): After accuracy.
-
-    Returns:
-        float: Effect size.
-    """
-    return before - after
-
-def perform_threshold_sweep(data: list, thresholds: list) -> list:
-    """
-    Performs a sweep across thresholds.
-
-    Args:
-        data (list): Data.
-        thresholds (list): List of thresholds.
-
-    Returns:
-        list: Results for each threshold.
+    Perform sensitivity analysis by sweeping thresholds.
     """
     results = []
-    for t in thresholds:
-        # Re-bin and run detection logic
-        # Placeholder for actual logic
+    
+    for threshold in thresholds:
+        logger.info(f"Testing threshold: {threshold}")
+        raw_p = permutation_test(data, threshold, n_permutations)
+        corrected_p = bonferroni_correction(raw_p, len(thresholds))
+        effect = calculate_effect_size(data, threshold)
+        
         results.append({
-            "threshold": t,
-            "p_value": 0.04,
-            "effect_size": 0.1
+            'threshold_hop': threshold,
+            'p_value': corrected_p,
+            'effect_size': effect,
+            'is_significant': corrected_p < 0.05
         })
+    
     return results
 
-def save_results(results: list, output_path: Path):
+def save_results(results: List[Dict[str, Any]], output_path: Optional[str] = None) -> None:
     """
-    Saves results to a CSV file.
-
-    Args:
-        results (list): Results.
-        output_path (Path): Output path.
+    Save sensitivity results to JSON and CSV.
     """
-    ensure_dir(output_path.parent)
-    with open(output_path, 'w', newline='') as f:
+    if output_path is None:
+        output_path = get_path("data/processed/sensitivity_results.json")
+    
+    ensure_dir(output_path)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    # Also save as CSV
+    csv_path = get_path("data/processed/sensitivity_thresholds.csv")
+    ensure_dir(csv_path)
+    with open(csv_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=['threshold_hop', 'p_value', 'effect_size', 'is_significant'])
         writer.writeheader()
-        for r in results:
-            writer.writerow(r)
+        writer.writerows(results)
+    
+    logger.info(f"Sensitivity results saved to {output_path} and {csv_path}")
 
-def run_sensitivity_analysis(data: list) -> list:
+def run_sensitivity_analysis(data: List[Dict], thresholds: List[int] = [2, 3, 4], n_permutations: int = 1000) -> List[Dict[str, Any]]:
     """
-    Runs the full sensitivity analysis.
-
-    Args:
-        data (list): Data.
-
-    Returns:
-        list: Analysis results.
+    Main function to run sensitivity analysis.
     """
-    thresholds = [2, 3, 4]
-    return perform_threshold_sweep(data, thresholds)
+    logger.info(f"Running sensitivity analysis with thresholds: {thresholds}")
+    results = perform_threshold_sweep(data, thresholds, n_permutations)
+    save_results(results)
+    return results
 
 def main():
-    """
-    Main entry point for the sensitivity script.
-    """
-    logger.info("Running sensitivity analysis...")
-    project_root = get_project_root()
-    input_path = project_root / "data" / "processed" / "annotated_videokr.csv"
-    output_path = project_root / "data" / "processed" / "sensitivity_thresholds.csv"
-
-    if not input_path.exists():
-        logger.error("Input file not found.")
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    try:
+        logger.info("Loading annotated data...")
+        data = load_annotated_data()
+        logger.info(f"Loaded {len(data)} records.")
+        
+        # Prepare correctness data
+        processed_data = []
+        for row in data:
+            try:
+                hop = int(row['chain_length'])
+                correct = 1 if row['correctness'].lower() in ['true', '1', 'yes'] else 0
+                processed_data.append({'chain_length': hop, 'correctness': correct})
+            except (ValueError, KeyError):
+                continue
+        
+        logger.info("Running sensitivity analysis...")
+        results = run_sensitivity_analysis(processed_data)
+        
+        logger.info(f"Results: {results}")
+        logger.info("Sensitivity analysis complete.")
+        
+    except Exception as e:
+        logger.error(f"Error in sensitivity main: {e}", exc_info=True)
         sys.exit(1)
-
-    data = load_raw_annotated_data(input_path)
-    results = run_sensitivity_analysis(data)
-    save_results(results, output_path)
-
-    logger.info(f"Sensitivity analysis complete. Results saved to {output_path}")
 
 if __name__ == "__main__":
     main()

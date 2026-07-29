@@ -5,6 +5,7 @@ import unittest
 import csv
 import tempfile
 import os
+import json
 from pathlib import Path
 import sys
 
@@ -100,7 +101,6 @@ class TestStratifyAccuracy(unittest.TestCase):
         self.assertTrue(os.path.exists(output_path))
         
         # Verify content
-        import json
         with open(output_path, 'r') as f:
             results = json.load(f)
         

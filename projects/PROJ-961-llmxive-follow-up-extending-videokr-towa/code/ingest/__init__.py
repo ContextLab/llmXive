@@ -1,4 +1,1 @@
-"""
-Ingest module for llmXive pipeline.
-Handles data downloading, verification, and annotation.
-"""
+"""Ingestion module for data download and annotation."""

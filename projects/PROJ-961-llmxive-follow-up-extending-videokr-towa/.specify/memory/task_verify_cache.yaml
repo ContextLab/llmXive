@@ -1,52 +1,10 @@
-T000:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: 'The provided spec excerpt shows `FR-007` listed with **STATUS: REMOVED** and
-    a justification, confirming the functional requirement has been deleted from `spec.md`
-    as required. No placeholder or missing content is evident.'
-T001a:
+T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the `code/`, `tests/`, and `data/` directories\
-    \ actually exist in the repository; the response only contains a specification\
-    \ excerpt and no file\u2011system listing or screenshots showing those folders.\
-    \ The required directories are therefore missing."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented that the required subdirectories `code/ingest/`, `code/analysis/`,
-    and `code/utils/` actually exist in the repository; the artifact list is empty.
-    The implementer must create these three directories (and optionally add placeholder
-    files) to satisfy task T001b.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the `tests/unit/` and `tests/integration/`
-    directories actually exist in the repository; the artifact list is empty. The
-    required subdirectories must be created and verified present.
-T008a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `.gitkeep` file exists in the `data/raw/` directory;
-    the artifact list is empty, so the required file is missing.
-T008b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing a `.gitkeep` file inside the `data/processed/`
-    directory; the artifact is missing or not verified. The implementer must add the
-    `.gitkeep` file to satisfy the task.
-T015:
-  c: false
-  h: 737bd78c7e5bf3ecaff822ec12a598b2ef478b015dd480e3dcd2bf9cd1228ad9
-  r: The required file `data/processed/annotation_coverage.json` is missing, so no
-    JSON with the mandated fields (`total_input_records`, `unresolvable_count`, `annotated_count`,
-    and the computed proportion) is present. The task therefore has not been fulfilled.
-T022b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The response contains only the task description and specifications; there is
-    no summary table or binned bar plot provided, nor any data derived from T019.
-    The required artifacts are missing, so the task is not satisfied.
+  r: The implementer supplied only a textual description of the specification and
+    claimed verification, but no actual artifacts (e.g., `data/processed/annotated_videokr.csv`,
+    accuracy plots, runtime log) were provided for inspection. Consequently, there
+    is no evidence that the output of T013 exists or meets the required criteria.
 T031a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,11 +35,3 @@ T033:
     and passed. Without such evidence, we cannot confirm the task was completed. The
     implementer must supply concrete proof of the validation execution (e.g., command
     output, log file, or a summary indicating reproducibility checks succeeded).
-T036:
-  c: false
-  h: 0c4fc4b4daa815306bddfa444d08d0113fcf194d6f4ea90924e2068ae3b82cb7
-  r: "The repository contains a `code/utils/memory_logger.py` file, but it is truncated\
-    \ and does not show any function that writes the measured peak memory (and the\
-    \ limit\u2011exceeded flag) to `data/processed/memory_log.json`. Moreover, the\
-    \ required `memory_log.json` file is absent, indicating the logging step was never\
-    \ executed. The task\u2019s core output is missing."

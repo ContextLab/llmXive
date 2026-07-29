@@ -1,4 +1,1 @@
-"""
-Utilities module for llmXive pipeline.
-Provides configuration, versioning, graph algorithms, and entity linking.
-"""
+"""Utility module for configuration, versioning, and graph operations."""

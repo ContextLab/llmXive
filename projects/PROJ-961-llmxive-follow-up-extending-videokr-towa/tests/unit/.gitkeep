@@ -1,1 +1,2 @@
-# Placeholder to ensure tests/unit directory exists in version control
+# Unit tests directory
+# This file ensures the directory is tracked by git.

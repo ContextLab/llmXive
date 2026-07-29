@@ -1,3 +1,2 @@
-# This directory stores raw data artifacts downloaded from external sources.
-# Do not commit large data files directly. Use .gitkeep to preserve directory structure.
-# Data should be fetched via code/ingest/download_data.py
+# This directory stores raw downloaded datasets (VideoKR-SFT, Knowledge Graph).
+# Do not modify files here; they are checksum-verified by code/ingest/checksum.py.
