@@ -1,64 +1,69 @@
 # Data Model: llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
 
-## Overview
-
-This document defines the data structures used throughout the pipeline, from raw dataset ingestion to final analysis artifacts. All data is stored in JSONL or Parquet formats for efficient streaming and schema validation.
-
-## Key Entities
+## Entities & Relationships
 
 ### 1. TokenSequence
 Represents a generated response to a prompt.
-- **Fields**:
+- **Attributes**:
   - `sequence_id`: Unique identifier (UUID).
-  - `task_type`: "GSM8K" or "MiniGrid".
-  - `prompt`: The input text.
+  - `task_type`: "gsm8k" or "minigrid".
+  - `prompt_id`: Reference to the input prompt.
   - `tokens`: List of token IDs.
-  - `validity_labels`: List of booleans (True if token matches ground truth).
-  - `ground_truth`: The full ground truth string/sequence.
-  - `sequence_length`: Integer length of the sequence.
+  - `ground_truth`: The reference solution string/sequence.
+  - `validity_labels`: List of booleans (0/1) corresponding to each token.
+- **Relationship**: One `TokenSequence` contains many `EntropyProfile` entries.
 
-### 2. EntropyProfile
-Represents the internal state of a single token.
-- **Fields**:
-  - `sequence_id`: Foreign key to TokenSequence.
+### 2. TokenAlignment
+Represents the mapping between generated tokens and ground truth.
+- **Attributes**:
+  - `alignment_id`: Unique identifier.
+  - `sequence_id`: Foreign key to `TokenSequence`.
   - `token_index`: Position in the sequence.
-  - `layer_entropies`: Dictionary mapping layer index (int) to entropy value (float).
-  - `timestamp`: ISO 8601 timestamp of extraction.
+  - `alignment_status`: "match", "mismatch", "divergence".
+  - `validity_label`: Derived from alignment status (1 for match, 0 for mismatch/divergence).
+- **Relationship**: One `TokenAlignment` belongs to one `TokenSequence`.
 
-### 3. ValidityLabel
-A binary flag derived from the match between generated token and ground truth.
-- **Fields**:
-  - `sequence_id`: Foreign key.
-  - `token_index`: Position.
-  - `is_valid`: Boolean.
-  - `match_type`: "exact" or "partial" (if applicable).
+### 3. EntropyProfile
+Represents the internal state of a single token at a specific layer.
+- **Attributes**:
+  - `profile_id`: Unique identifier.
+  - `sequence_id`: Foreign key to `TokenSequence`.
+  - `token_index`: Position in the sequence (0-indexed).
+  - `layer_id`: Transformer layer index (0 to N).
+  - `entropy_value`: Calculated Shannon entropy (float).
+  - `validity_label`: Inherited from `TokenSequence` (denormalized for analysis).
+- **Relationship**: One `EntropyProfile` belongs to one `TokenSequence`.
 
 ### 4. RegressionModel
-The fitted statistical model.
-- **Fields**:
+Stores the results of the statistical analysis.
+- **Attributes**:
   - `model_id`: Unique identifier.
-  - `method`: "GLMM".
-  - `coefficients`: Dictionary of fixed and random effects.
-  - `metrics`: AUC-ROC, p-values, FDR.
-  - `optimal_threshold`: The entropy value minimizing weighted error.
-
-### 5. MemoryBackOffState
-Represents the state of a memory back-off retry.
-- **Fields**:
-  - `original_batch_size`: Integer.
-  - `retry_batch_size`: Integer (reduced).
-  - `error_type`: "MemoryError".
-  - `success`: Boolean.
+  - `task_type`: "gsm8k", "minigrid", or "pooled".
+  - `coefficients`: JSON object mapping predictors to coefficients.
+  - `intercept`: Float.
+  - `auc_roc`: Float (0.0 to 1.0).
+  - `p_values`: JSON object mapping predictors to p-values.
+  - `fdr_corrected_p_values`: JSON object.
+  - `optimal_threshold`: Float.
+  - `fpr`: Float.
+  - `fnr`: Float.
+  - `random_effect_variance`: Float (variance of random intercept).
 
 ## Data Flow
 
-1.  **Raw Data**: `datasets.load_dataset()` -> `data/raw/gsm8k.parquet`, `data/raw/minari.parquet`.
-2.  **Generated Data**: `generation.py` -> `data/processed/sequences.jsonl`.
-3.  **Entropy Data**: `instrument.py` -> `data/processed/entropy_profiles.jsonl` (streamed, appended).
-4.  **Merged Data**: `preprocessing.py` -> `data/processed/merged_analysis.parquet`.
-5.  **Stratified Data**: `preprocessing.py` -> `data/processed/short_seqs.parquet`, `data/processed/long_seqs.parquet`.
-6.  **Results**: `analysis/models.py` -> `artifacts/reports/model_results.json`.
+1. **Raw Data**: Downloaded Parquet/HDF5 files -> `data/raw/`.
+2. **Processed Data**:
+   - `data/processed/ground_truth_labels.jsonl`: Token-level validity (via Semantic Alignment).
+   - `data/processed/entropy_profiles.jsonl`: Layer-level entropy (via single-sequence streaming).
+   - `data/processed/merged_analysis.jsonl`: Joined data for regression.
+3. **Results**:
+   - `data/results/regression_results.json`: Model coefficients and metrics.
+   - `data/results/sensitivity_analysis.json`: Threshold sweep results.
+   - `data/results/fdr_report.json`: Corrected p-values.
+   - `data/results/decay_analysis.json`: Stratified results by sequence length.
 
-## Schema Validation
+## Storage Strategy
 
-All data files must conform to the schemas defined in `contracts/`. The `validators.py` module enforces these schemas at runtime. Memory back-off logic is handled by `preprocessing.py` and logged to `artifacts/logs/memory_backoff.json`, validated against `contracts/memory_backoff.schema.yaml`.
+- **Format**: JSONL for intermediate data (streaming-friendly), JSON for final results.
+- **Checksums**: All files in `data/raw/` and `data/processed/` are checksummed (SHA-256) and recorded in `state/...yaml`.
+- **Versioning**: Derived files include `derived_from` metadata pointing to the source file hash.

@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModel"
+description: "Schema for statistical model results (GLMM)."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model."
+  task_type:
+    type: "string"
+    enum: ["gsm8k", "minigrid", "pooled"]
+    description: "Task type the model was trained on."
+  coefficients:
+    type: "object"
+    description: "Mapping of predictor names to coefficients."
+    additionalProperties:
+      type: "number"
+  intercept:
+    type: "number"
+    description: "Model intercept."
+  auc_roc:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Area Under the ROC Curve."
+  p_values:
+    type: "object"
+    description: "Mapping of predictor names to p-values."
+    additionalProperties:
+      type: "number"
+  fdr_corrected_p_values:
+    type: "object"
+    description: "Mapping of predictor names to FDR-corrected p-values."
+    additionalProperties:
+      type: "number"
+  optimal_threshold:
+    type: "number"
+    description: "Entropy threshold minimizing weighted error."
+  fpr:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "False Positive Rate at optimal threshold."
+  fnr:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "False Negative Rate at optimal threshold."
+  random_effect_variance:
+    type: "number"
+    minimum: 0.0
+    description: "Variance of the random intercept for sequence_id."
+required:
+  - model_id
+  - task_type
+  - coefficients
+  - intercept
+  - auc_roc
+  - p_values
+  - fdr_corrected_p_values
+  - optimal_threshold
+  - fpr
+  - fnr
+  - random_effect_variance
+additionalProperties: false

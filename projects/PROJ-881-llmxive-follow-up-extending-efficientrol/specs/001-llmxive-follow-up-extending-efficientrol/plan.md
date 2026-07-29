@@ -1,40 +1,39 @@
 # Implementation Plan: llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
 
-**Branch**: `001-entropy-validity-prediction` | **Date**: 2026-07-13 | **Spec**: `spec.md`
+**Branch**: `001-entropy-validity-prediction` | **Date**: 2026-07-13 | **Spec**: `specs/001-entropy-validity-prediction/spec.md`
 **Input**: Feature specification from `/specs/001-entropy-validity-prediction/spec.md`
 
 ## Summary
 
-This feature implements a research pipeline to investigate whether intermediate-layer Shannon entropy in transformer models predicts token validity (ground-truth match) during autoregressive generation. The system downloads GSM and MiniGrid datasets (using `minari/babyai-nav` for MiniGrid), generates ground-truth sequences using a CPU-tractable model (quantized B), extracts entropy profiles from intermediate layers, and fits a Mixed-Effects Logistic Regression (GLMM) to predict validity. The plan addresses the "fatal feasibility" constraints of the GitHub Actions free-tier (Multiple CPU, 7GB RAM) by implementing strict streaming, batching, and memory back-off strategies, while reserving GPU offloading for the specific case of running the base model if the CPU-tractable variant is insufficient.
+This project implements a computational study to determine if intermediate-layer entropy in transformer models predicts token validity in RL rollouts. The approach involves generating ground-truth sequences on GSM8K and MiniGrid tasks using a CPU-tractable model (Qwen1.5-0.5B), extracting entropy profiles from intermediate layers via single-sequence streaming, and fitting Mixed-Effects Logistic Regression (GLMM) models to correlate entropy with validity labels. The study adheres to strict reproducibility, data hygiene, and hardware-agnostic signal validation principles defined in the project constitution.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `transformers` (>=4.40.0), `datasets` (>=2.18.0), `scikit-learn` (>=1.4.0), `statsmodels` (>=0.14.0), `pandas` (>=2.2.0), `numpy` (>=1.26.0), `torch` (CPU-only build for CI, CUDA fallback for Kaggle), `pyyaml`, `minari`
-**Storage**: Local filesystem (`data/` for raw/processed, `artifacts/` for models/reports). Data is streamed and not fully loaded into RAM.
-**Testing**: `pytest` with `pytest-cov`. Contract tests against YAML schemas.
-**Target Platform**: Linux (GitHub Actions free-tier runner), with automatic offload to Kaggle GPU if CUDA is detected.
-**Project Type**: Research pipeline / CLI tool.
-**Performance Goals**: Complete pipeline (500 GSM8K + 500 MiniGrid examples) within 6 hours on CPU; memory usage < 7GB.
-**Constraints**: No local GPU on CI; strict The system operates within a constrained RAM environment, prioritizing memory-efficient algorithm design.
-Research Question: How can we optimize model performance under strict memory constraints?
-Method: We will employ a systematic review of memory-aware optimization techniques and implement a prototype using gradient checkpointing.
-References: [1] Chen et al. (2016) [2] Rajbhandari et al. (2020); must handle "high confidence error" cases (entropy ~) without crashing; must apply multiple-comparison correction (Bonferroni/BH).
-**Scale/Scope**: A substantial set of examples will be used to evaluate the model's performance across diverse scenarios, as outlined in the research question and methodology.; max sequence length sufficient for the target context; B parameter model (CPU) or quantized 7B (GPU offload).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `torch` (CPU-optimized), `transformers`, `datasets` (streaming), `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `pytest`, `statsmodels` (for GLMM)  
+**Storage**: Local file system (JSONL for intermediate states, Parquet for datasets)  
+**Testing**: `pytest` (unit, integration, contract)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM)  
+**Project Type**: Research/Computational Study  
+**Performance Goals**: Process 500 examples with 512-token sequences within 6 hours; memory usage < 7GB via single-sequence streaming.  
+**Constraints**: No local GPU; CPU-first execution; strict adherence to single-sequence processing for entropy extraction to prevent OOM.  
+**Scale/Scope**: A representative set of GSM8K problems and MiniGrid episodes; a substantial volume of token-level observations.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *Gates determined based on constitution file*
 
-1. **Reproducibility**: The plan mandates pinned seeds in `config.py`, programmatic dataset fetching via `datasets.load_dataset`, and checksums for all raw data (SHA-256 of downloaded files).
-2. **Verified Accuracy**: All citations (GSM8K, Minari) are restricted to the "Verified datasets" block. No fabricated URLs.
-3. **Data Hygiene**: Raw data is preserved; derivations (entropy profiles) are written to new files with checksums. No PII (GSM8K/MiniGrid are synthetic/curated).
-4. **Single Source of Truth**: All metrics (AUC, p-values, thresholds) are derived from `data/` artifacts, not hard-coded.
-5. **Versioning**: Content hashes for code and data are computed and recorded in `state/`.
-6. **Hardware-Agnostic Signal Validation**: The plan explicitly separates the *generation* (CPU/GPU) from the *analysis* (CPU regression), ensuring the entropy-validity correlation is not an artifact of hardware acceleration.
-7. **Ground-Truth Dependency Discipline**: Validity labels are derived *only* from full forward pass matches against *external* ground truth (dataset answer or solver path). For MiniGrid, if multiple valid paths exist, the ground truth is defined as the *canonical* path generated by a deterministic solver (A*), and any deviation is labeled "invalid". This resolves the non-deterministic ground truth issue. The model accounts for alternative valid paths via a `path_type` covariate in the GLMM to avoid bias.
+| Principle | Compliance Status | Action Plan |
+|-----------|-------------------|-------------|
+| I. Reproducibility | **PASS** | `requirements.txt` pinned; random seeds fixed in `code/config.py`; datasets fetched via `datasets.load_dataset` with explicit revision. |
+| II. Verified Accuracy | **PASS** | All citations in `research.md` restricted to the "Verified datasets" block; Reference-Validator Agent checks `CITATION_TITLE_OVERLAP_THRESHOLD` (0.7) on every artifact write. |
+| III. Data Hygiene | **PASS** | `data/` directory structure with checksums; raw data preserved; derivations written to new files with `derived_from` metadata. |
+| IV. Single Source of Truth | **PASS** | All statistics in `results/` trace to specific rows in `data/processed/`; no hand-typed numbers in `paper/`. |
+| V. Versioning Discipline | **PASS** | Content hashes recorded in `state/` via `state/...yaml` artifact_hashes map; `updated_at` timestamps updated on artifact changes by the Advancement-Evaluator Agent. |
+| VI. Hardware-Agnostic Signal Validation | **PASS** | Analysis uses CPU-only `torch`; threshold optimization is independent of hardware latency; signal decay analyzed across sequence lengths, not hardware. |
+| VII. Ground-Truth Dependency Discipline | **PASS** | Validity labels derived strictly from full forward pass ground-truth match; no heuristic early exits used for labeling. |
 
 ## Project Structure
 
@@ -42,12 +41,12 @@ References: [1] Chen et al. (2016) [2] Rajbhandari et al. (2020); must handle "h
 
 ```text
 specs/001-entropy-validity-prediction/
-├── plan.md # This file
-├── research.md # Phase 0 output
-├── data-model.md # Phase 1 output
-├── quickstart.md # Phase 1 output
-├── tasks.md # Phase 2 output (generated by Implementer)
-└── contracts/ # Phase 1 output
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -55,110 +54,75 @@ specs/001-entropy-validity-prediction/
 ```text
 projects/PROJ-881-llmxive-follow-up-extending-efficientrol/
 ├── code/
-│ ├── src/
-│ │ ├── config.py # Environment loader, pinned seeds
-│ │ ├── utils/
-│ │ │ ├── entropy_calc.py # Shannon entropy calculation (handles log(0))
-│ │ │ └── validators.py # Pydantic schemas for EntropyProfile
-│ │ ├── data/
-│ │ │ ├── preprocessing.py # Streaming, batching, merging, memory back-off
-│ │ │ └── loaders.py # Dataset fetchers (GSM8K, Minari)
-│ │ ├── generation/
-│ │ │ ├── generation.py # Baseline generation, validity labeling (generate_baseline, label_validity)
-│ │ │ └── instrument.py # Hook for intermediate layer entropy
-│ │ └── analysis/
-│ │ ├── models.py # GLMM fitting (Mixed-Effects)
-│ │ ├── metrics.py # AUC, p-values, threshold optimization
-│ │ └── report.py # Final report generation
-│ ├── tests/
-│ │ ├── unit/
-│ │ │ ├── test_entropy_calc.py (includes test_clamp_prevents_log_zero)
-│ │ │ ├── test_validators.py
-│ │ │ └── test_preprocessing.py (includes test_memory_backoff)
-│ │ ├── integration/
-│ │ │ └── test_pipeline.py
-│ │ └── contract/
-│ │ └── test_schemas.py
-│ ├── requirements.txt # Pinned dependencies
-│ └── pyproject.toml # Project metadata
+│   ├── src/
+│   │   ├── config.py           # Environment loading, seed pinning
+│   │   ├── data/
+│   │   │   ├── download.py     # Dataset fetching (GSM8K, MiniGrid)
+│   │   │   └── preprocessing.py # Streaming, batching (tokens)
+│   │   ├── generation/
+│   │   │   └── generation.py   # Autoregressive generation, ground-truth labeling
+│   │   ├── analysis/
+│   │   │   ├── entropy_calc.py # Shannon entropy calculation, layer extraction
+│   │   │   └── regression.py   # Logistic regression, AUC, FDR correction
+│   │   ├── utils/
+│   │   │   └── validators.py   # Schema validation (EntropyProfile, TokenSequence)
+│   │   └── contracts/          # Schema definitions
+│   │       ├── entropy_profile.schema.yaml
+│   │       ├── token_sequence.schema.yaml
+│   │       └── analysis_result.schema.yaml
+│   ├── tests/
+│   │   ├── unit/
+│   │   │   ├── test_entropy_calc.py
+│   │   │   └── test_validators.py
+│   │   └── integration/
+│   │       └── test_full_pipeline.py
+│   ├── requirements.txt        # Pinned dependencies
+│   └── pyproject.toml          # Project metadata, tooling config
 ├── data/
-│ ├── raw/ # Downloaded datasets (streamed/chunked)
-│ └── processed/ # Entropy profiles, merged datasets
-├── artifacts/
-│ └── reports/ # Final analysis reports
-└── state/
- └── projects/PROJ-881-.../ # State tracking
+│   ├── raw/                    # Downloaded datasets (checksummed)
+│   ├── processed/              # Intermediate states, entropy profiles
+│   └── results/                # Model outputs, reports
+├── scripts/
+│   └── setup.sh                # Directory creation, environment setup
+└── docs/
+    └── constitution.md         # Project constitution
 ```
 
-**Structure Decision**: Single project structure (`code/`) is selected to maintain a unified dependency graph and simplify the streaming pipeline between generation and analysis. The `src/` layout ensures clear separation of concerns (utils, data, generation, analysis).
+**Structure Decision**: Single project structure selected to maintain tight coupling between data generation, extraction, and analysis. `code/src` mirrors the logical flow: `data` -> `generation` -> `analysis`. `tests` are co-located with source logic for unit testing, with integration tests in `tests/integration`.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Streaming/Batching (a small token batch for inference, 500 rows for dataset) | Required to fit within 7GB RAM when processing sequences up to 512 tokens. | Loading full sequences in memory would exceed RAM limits for the target model size. |
-| GPU Offload (Kaggle) | Required if CPU-tractable model (1.5B) is insufficient for the task or if quantized 7B is needed for higher fidelity. | CPU-only emulation of GPU tasks is fabrication; real computation must be scaled down to fit Kaggle's Sufficient VRAM capacity to support the model architecture and batch size required by the research question.. |
-| GLMM (Mixed-Effects) | Required to handle nested data (tokens within sequences) and avoid Type I error inflation. | Standard Logistic Regression was rejected because it treats tokens as independent, violating statistical rigor for sequence data. |
+| N/A | N/A | N/A |
 
-## Implementation Phases & Tasks
+## Implementation Phases
 
-### Phase 0: Setup & Configuration
-- **T-SETUP**: Create `setup-plan.sh` to initialize directory structure and generate `project_structure.log`.
-- **T-CONFIG**: Create `requirements.txt`, `pyproject.toml`, `ruff.toml`, `black.toml`, and `.env.example`.
+### Phase 0: Research & Design
+- **T001**: Define Semantic Alignment logic for GSM8K/MiniGrid.
+- **T002**: Select Qwen1.5-0.5B model for CPU feasibility.
+- **T003**: Design GLMM with random intercepts for sequence_id.
 
-### Phase 1: Data & Utility Core
-- **T-LOAD**: Implement `src/data/loaders.py` to fetch GSM8K and Minari datasets programmatically.
-- **T-ENT-CALC**: Implement `src/utils/entropy_calc.py` with `calculate_entropy(logits)` and unit test `test_clamp_prevents_log_zero`.
-- **T-VAL**: Implement `src/utils/validators.py` with `EntropyProfile` schema and validation functions.
+### Phase 1: Data Acquisition & Ground Truth Labeling (FR-001, FR-002)
+- **T010**: Download GSM8K and MiniGrid datasets using `datasets.load_dataset(..., streaming=True)`.
+- **T011**: Generate sequences using Qwen1.5-0.5B (temperature=0.0).
+- **T012**: Apply Semantic Alignment to label tokens as valid/invalid based on external ground truth.
+- **T013**: Output `data/processed/ground_truth_labels.jsonl`.
 
-### Phase 2: Data Processing & Validation
-- **T-PREPROCESS**: Implement `src/data/preprocessing.py` with `merge_entropy_profiles`, `validate_entropy_profile`, and `stream_batch` (with `MemoryError` retry logic for back-off). This task must write the `MemoryBackOffState` to `artifacts/logs/memory_backoff.json` upon every retry, validated against `contracts/memory_backoff.schema.yaml`.
-- **T-STRAT**: Implement `src/data/preprocessing.py` to split data into "short" (<32 tokens) and "long" (>64 tokens) subsets for SC-004 analysis.
+### Phase 2: Intermediate State Extraction (FR-003, FR-007)
+- **T020**: Re-run generation with hooks to capture logits at every layer.
+- **T021**: Process sequences **one at a time** (single-sequence streaming) to fit 7GB RAM. Calculate Shannon entropy for each token at each layer.
+- **T022**: Merge temporary batch files (if any) into `data/processed/entropy_profiles.jsonl`.
+- **T023**: Validate schema using `contracts/entropy_profile.schema.yaml`.
 
-### Phase 3: Generation & Instrumentation
-- **T-GEN**: Implement `src/generation/generation.py` with `generate_baseline` (streaming a batch of examples) and `label_validity` (exact match for GSM8K, canonical solver path for MiniGrid).
-- **T-ENT-EXT**: Implement `src/generation/instrument.py` to extract entropy profiles in batches of tokens. **Note**: Process sequences in batches of tokens. *within* a sequence, but do not split a single sequence across batches if it breaks the context window. If a sequence is >50 tokens, it is processed in multiple 50-token chunks, but the validity labeling and entropy extraction are performed on the full sequence context, with the batch size only limiting the *memory footprint* of the intermediate state storage. The dataset chunk size for streaming refers to a configurable unit of data., while '50 tokens' refers to the inference batch size for a single sequence's intermediate states.
+### Phase 3: Statistical Analysis (FR-004, FR-005, FR-006)
+- **T030**: Merge `ground_truth_labels.jsonl` and `entropy_profiles.jsonl` into `data/processed/merged_analysis.jsonl`.
+- **T031**: Fit Mixed-Effects Logistic Regression (GLMM) with random intercept for `sequence_id`.
+- **T032**: Apply Benjamini-Hochberg (FDR) correction to p-values across layers/tasks. Output `data/results/fdr_report.json`.
+- **T033**: Perform Decay Analysis: stratify by sequence length (short/long) and task type. Output `data/results/decay_analysis.json`.
+- **T034**: Generate Final Report `data/results/regression_results.json` containing coefficients, AUC, FDR-corrected p-values, and optimal thresholds.
 
-### Phase 4: Analysis & Reporting
-- **T-GLMM**: Implement `src/analysis/models.py` to fit Mixed-Effects Logistic Regression (GLMM) with random intercepts for `sequence_id` and `layer_id` to account for nested structure.
-- **T-CORRECT**: Implement multiple-comparison correction (Benjamini-Hochberg as primary, Bonferroni as sensitivity check). The family of tests is defined as "all layer groups across both tasks".
-- **T-SEQ-STRAT**: Perform comparative analysis of AUC-ROC decay between short and long sequences (SC-004). This task is a dependency for `T-REPORT`.
-- **T-REPORT**: Generate final report with FDR metrics and threshold optimization results.
-
-## Data Flow
-
-1. **Raw Data**: `datasets.load_dataset()` -> `data/raw/gsm8k.parquet`, `data/raw/minari.parquet`.
-2. **Generated Data**: `generation.py` -> `data/processed/sequences.jsonl` (with validity labels).
-3. **Entropy Data**: `instrument.py` -> `data/processed/entropy_profiles.jsonl` (streamed, appended).
-4. **Merged Data**: `preprocessing.py` -> `data/processed/merged_analysis.parquet` (joins sequences + entropy).
-5. **Stratified Data**: `preprocessing.py` -> `data/processed/short_seqs.parquet`, `data/processed/long_seqs.parquet`.
-6. **Results**: `analysis/models.py` -> `artifacts/reports/model_results.json`.
-
-## Compute Feasibility
-
-### CPU-First Strategy
-- **Model**: A medium-scale model (e.g., TinyLlama) is selected for CPU execution.
-- **Optimization**: `torch.backends.cudnn.benchmark = False`, `torch.set_float32_matmul_precision('medium')`.
-- **Memory**: Intermediate states are discarded immediately after entropy calculation. Batching (50 tokens for inference, 500 examples for dataset streaming) ensures RAM usage stays < 7GB.
-
-### GPU Escape Hatch (Kaggle)
-- **Trigger**: If the small-scale model fails to generate valid sequences or if a larger quantized model is required for higher fidelity.
-- **Implementation**: The code detects `CUDA_VISIBLE_DEVICES`. If present, it loads a quantized large language model on the GPU.
-- **Scaling**: The GPU run is scaled to a representative sample of examples per task to fit within the Extended Kaggle kernel limit
-
-The specific value to remove/generalize: 'extended'
-
-Rewritten passage:
-The study investigates the scalability of deep learning models under constrained computational resources. To address this, we will execute experiments within the standard Kaggle kernel environment, which imposes a fixed time limit on execution. This approach aligns with prior work on resource-aware model training [].., ensuring the full pipeline completes.
-
-## Decision/Rationale
-
-| Decision | Rationale |
-|:--- |:--- |
-| **GLMM over Standard Regression** | Required by the nested nature of token data (tokens within sequences). Standard regression violates independence assumptions. |
-| **Streaming/Batching (50 tokens for inference, 500 rows for dataset)** | Essential to fit within 7GB RAM. Loading full sequences for a large number of examples with intermediate states would exceed memory.. |
-| **GSM8K + Minari (babyai-nav)** | Provides diversity in reasoning (math) vs. spatial (navigation) tasks. Minari provides pre-computed action sequences, ensuring valid ground truth. |
-| **BH + Bonferroni** | FR-006 requires handling multiple comparisons. BH is more powerful for exploratory analysis; Bonferroni is conservative. Both are implemented (BH primary, Bonferroni sensitivity). |
-| **Canonical Solver for MiniGrid** | Resolves non-deterministic ground truth. The solver generates a single canonical path; any deviation is "invalid". The model accounts for alternative valid paths via a `path_type` covariate. |
+### Phase 4: Verification & Reporting
+- **T040**: Run `pytest` on unit and integration tests.
+- **T041**: Verify all artifacts against `contracts/` schemas.
+- **T042**: Update `state/...yaml` with content hashes and `updated_at` timestamps.

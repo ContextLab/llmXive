@@ -5,7 +5,7 @@ type: "object"
 properties:
   task_type:
     type: "string"
-    enum: ["gsm8k", "minigrid"]
+    enum: ["gsm8k", "minigrid", "pooled"]
     description: "The dataset source"
   layer_group:
     type: "string"
@@ -49,7 +49,7 @@ properties:
   sequence_length_group:
     type: "string"
     enum: ["short", "long", "all"]
-    description: "Sequence length group for stratified analysis (SC-004)"
+    description: "Sequence length group for stratified analysis (SC-004). Optional for pooled results."
 required:
   - task_type
   - layer_group
@@ -61,4 +61,4 @@ required:
   - fpr_at_threshold
   - fnr_at_threshold
   - random_effect_variance
-  - sequence_length_group
+additionalProperties: false

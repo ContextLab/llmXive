@@ -4,72 +4,62 @@
 
 - Python 3.11+
 - Git
-- (Optional) Kaggle account for GPU offload (if CPU model is insufficient).
+- Access to Hugging Face Hub (free account)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-881-llmxive-follow-up-extending-efficientrol
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-881-llmxive-follow-up-extending-efficientrol
+   ```
 
-2.  **Create and activate virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Set up the environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r code/requirements.txt
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Run the setup script**:
+   ```bash
+   bash scripts/setup.sh
+   ```
+   *Note: `setup.sh` creates all required directories (`code/`, `data/`, `docs/`, `scripts/`, `tests/`, `results/`) and logs them to `project_structure.log`.*
 
-4.  **Configure environment**:
-    ```bash
-    cp .env.example .env
-    # Edit .env to set HF_TOKEN (if needed) and other config
-    ```
+## Execution
 
-## Execution Workflow
-
-The pipeline is executed via the `main.py` entry point.
-
-### Step 1: Data Generation (CPU)
-Generates ground-truth sequences and labels.
+### Step 1: Download Datasets
 ```bash
-python code/src/generation/generation.py --task gsm8k --limit 500 --streaming
-python code/src/generation/generation.py --task minigrid --limit 500 --streaming
+python code/src/data/download.py --task gsm8k --limit 500
+python code/src/data/download.py --task minigrid --limit 500
 ```
 
-### Step 2: Entropy Extraction
-Captures intermediate layer entropy.
+### Step 2: Generate Ground Truth & Labels
 ```bash
-python code/src/generation/instrument.py --input data/processed/sequences.jsonl --batch-size 50
+python code/src/generation/generation.py --model Qwen/Qwen1.5-0.5B --task gsm8k --output data/processed/gsm8k_labels.jsonl
+python code/src/generation/generation.py --model Qwen/Qwen1.5-0.5B --task minigrid --output data/processed/minigrid_labels.jsonl
 ```
 
-### Step 3: Analysis
-Fits GLMM and calculates metrics.
+### Step 3: Extract Entropy Profiles
 ```bash
-python code/src/analysis/models.py --input data/processed/merged_analysis.parquet --correction bh
+# Note: Uses single-sequence streaming to avoid OOM. If --batch-size is provided, it is ignored for entropy extraction.
+python code/src/analysis/entropy_calc.py --input data/processed/gsm8k_labels.jsonl --output data/processed/gsm8k_entropy.jsonl
+python code/src/analysis/entropy_calc.py --input data/processed/minigrid_labels.jsonl --output data/processed/minigrid_entropy.jsonl
 ```
 
-### Step 4: Report Generation
-Generates the final research report.
+### Step 4: Run Analysis
 ```bash
-python code/src/analysis/report.py --input artifacts/reports/model_results.json --output artifacts/reports/final_report.md
+python code/src/analysis/regression.py --input data/processed/gsm8k_entropy.jsonl data/processed/minigrid_entropy.jsonl --output data/results/regression_results.json
 ```
 
-## GPU Offload (Kaggle)
-
-If the CPU run fails or requires a larger model:
-1.  Push the code to a Kaggle notebook.
-2.  Enable GPU in the notebook settings.
-3.  The code automatically detects CUDA and switches to a quantized 7B model.
-4.  Run the same commands with `--gpu` flag.
+### Step 5: Verify Results
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
 
-- **OOM Errors**: Ensure `--batch-size` is set to 50 or lower. Check RAM usage with `htop`.
-- **CUDA Errors**: Verify that the GPU escape hatch is triggered only when `CUDA_VISIBLE_DEVICES` is set.
-- **Data Fetching**: If Hugging Face datasets fail, check network connectivity and `HF_TOKEN`.
+- **Memory Error**: Ensure the model is `Qwen/Qwen1.5-0.5B`. If OOM occurs, the system automatically falls back to single-sequence processing. Do not use 1.5B models with batching.
+- **CUDA Error**: This project is CPU-first. If a CUDA error occurs, verify `torch` is installed with CPU support only (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
+- **Dataset Download Failure**: Verify internet connection and Hugging Face Hub access. Check `data/raw/` for partial downloads.

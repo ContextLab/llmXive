@@ -21,21 +21,20 @@ properties:
     description: "The task category."
   token_index:
     type: "integer"
-    minimum: 1
-    description: "Length of the generated sequence"
-  entropy_profiles:
-    type: "array"
-    items:
-      type: "array"
-      items:
-        type: "number"
-    description: "Layer-wise entropy values for each token (captured in same pass)"
-required:
-  - id
-  - task_type
-  - prompt
-  - ground_truth
-  - generated_tokens
-  - validity_flags
-  - sequence_length
-  - entropy_profiles
+    minimum: 0
+    description: "Position of the token in the sequence."
+  layer_index:
+    type: "integer"
+    minimum: 0
+    description: "Transformer layer index."
+  entropy_value:
+    type: "number"
+    description: "Calculated Shannon entropy value."
+  is_valid:
+    type: "integer"
+    enum: [0, 1]
+    description: "Validity label (1=valid, 0=invalid)."
+  sequence_id:
+    type: "string"
+    description: "Foreign key to the parent TokenSequence."
+additionalProperties: false
