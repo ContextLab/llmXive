@@ -663,23 +663,6 @@
   updated_at: '2026-07-18T14:23:34Z'
 - artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   attempts: 1
-  canonical: Pipeline completes within 6 hours on 2 vCPUs
-  claim_id: c_39f4c232
-  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
-    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
-    profile execution time
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The pipeline must complete within 6 hours on 2 vCPUs.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T14:23:50Z'
-- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
-  attempts: 1
   canonical: Parallelization uses n_jobs 2
   claim_id: c_6fe2106f
   context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
@@ -1322,24 +1305,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-27T04:48:31Z'
-- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
-  attempts: 4
-  canonical: Power calculation matches expected values within 0.01 tolerance
-  claim_id: c_8ccd9e2c
-  context: "Independent Test: Run selection methods on a subset of simulations and\
-    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
-    \ expected values within \xB10.01 tolerance."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Power = (True Positives / Total True Non-Zero Coefficients) matches expected\
-    \ values within \xB10.01 tolerance"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-27T04:49:19Z'
 - artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   attempts: 1
   canonical: 24000 rows of simulation-level data used for Kruskal-Wallis tests
@@ -2035,3 +2000,200 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-27T04:56:30Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 0
+  canonical: DOI 10.21105/joss.01686 cited as reference
+  claim_id: c_a7d545cd
+  context: 'The research question focuses on assessing the generalizability of the
+    proposed method across diverse regression tasks. The method involves selecting
+    representative datasets from the OpenML repository and applying the evaluation
+    protocol. References: DOI:10.21105/joss.01686., extract covariance structures,
+    and simulate synthetic outcome vectors across 4 SNR and Sparsity levels with ground-truth
+    coefficients.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: DOI:10.21105/joss.01686.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T16:18:51Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 10 datasets with at least 100 rows and 3 predictors loaded
+  claim_id: c_36e74739
+  context: "Independent Test: Verify that The Independent Test verifies that 10 datasets\
+    \ with \u2265100 rows and \u22653 predictors are loaded., and that The Independent\
+    \ Test verifies that a large set of synthetic outcome vectors (Multiple simulations\
+    \ across multiple conditions) are generated."
+  evidence:
+    candidates:
+    - - Look for 10 datasets with at least
+      - 100.0
+    - - Donate Create account Log in
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/10_datasets_with_at_least_100_rows_and_3_predictors_loaded
+  kind: magnitude
+  raw_text: "The Independent Test verifies that 10 datasets with \u2265100 rows and\
+    \ \u22653 predictors are loaded."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-29T16:20:20Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: 24000 simulation rows generated from 200 sims, 10 datasets, 4 SNR levels,
+    and 3 sparsity levels
+  claim_id: c_d13e1a7c
+  context: 'Integration test for full download+simulate pipeline in tests/integration/test_pipeline.py:
+    function test_pipeline_generates_expected_rows asserts len(results_df) == 24000
+    (200 sims * 10 datasets * 4 SNR {0.5, 1.0, 2.0, 5.0} * 3 Sparsity {0.1, 0.2, 0.4})
+    **ONLY IF** Pilot Run (T004) passes'
+  evidence:
+    asserted: '24000.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: function test_pipeline_generates_expected_rows asserts len(results_df)
+    == 24000 (200 sims * 10 datasets * 4 SNR {0.5, 1.0, 2.0, 5.0} * 3 Sparsity {0.1,
+    0.2, 0.4})
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T16:20:20Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: SNR levels 0.5, 1.0, 2.0, and 5.0
+  claim_id: c_9063d381
+  context: Implement code/data/simulators.py configuration to support SNR levels **{0.5,
+    1.0, 2.0, 5.0}** and Sparsity levels **{0.1, 0.2, 0.4}**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SNR levels {0.5, 1.0, 2.0, 5.0}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T16:36:12Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Sparsity levels 0.1, 0.2, and 0.4
+  claim_id: c_fc9b9f42
+  context: Implement code/data/simulators.py configuration to support SNR levels **{0.5,
+    1.0, 2.0, 5.0}** and Sparsity levels **{0.1, 0.2, 0.4}**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sparsity levels {0.1, 0.2, 0.4}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T16:36:41Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Pilot run verified to complete in under 30 minutes and 6.5 GB memory
+  claim_id: c_a3559c45
+  context: Implement code/main.py Pilot Run wrapper that executes T013-T019 on a single
+    dataset and 10 simulations to verify total runtime < 30 mins and memory < 6.5
+    GB before triggering the full 24,000 simulation loop
+  evidence:
+    asserted: '30.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: verify total runtime < 30 mins and memory < 6.5 GB before triggering the
+    full 24,000 simulation loop
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T16:36:41Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 5
+  canonical: Power calculation matches expected values within 0.01 tolerance
+  claim_id: c_8ccd9e2c
+  context: "Independent Test: Run selection methods on a subset of simulations and\
+    \ verify that Power = (True Positives / Total True Non-Zero Coefficients) matches\
+    \ expected values within \xB10.01 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power = (True Positives / Total True Non-Zero Coefficients) matches expected\
+    \ values within \xB10.01 tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T16:37:11Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Alpha thresholds 0.01, 0.05, and 0.10 used for sensitivity analysis
+  claim_id: c_fdf93ecc
+  context: Implement logic in code/analysis/comparators.py to explicitly iterate over
+    Alpha thresholds {0.01, 0.05, 0.10} and generate separate power curves for each
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: explicitly iterate over Alpha thresholds {0.01, 0.05, 0.10}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T16:37:32Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 2
+  canonical: Pipeline completes within 6 hours on 2 vCPUs
+  claim_id: c_39f4c232
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours on 2 vCPUs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T16:37:51Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Parallelization using joblib with 2 jobs
+  claim_id: c_2028e153
+  context: Performance optimization to ensure completion within 6 hours on 2 vCPUs
+    (FR-008); parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2 and
+    profile execution time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: parallelize SNR/Sparsity loops using joblib.Parallel with n_jobs=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T16:38:12Z'

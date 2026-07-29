@@ -1,2 +1,2 @@
-# This directory stores processed data derived from raw data.
-# Includes simulation results, feature engineering outputs, etc.
+# This directory stores processed data, simulation results, and analysis outputs.
+# Generated files include simulation_results.csv, mean_power_by_condition.csv, and plots.
