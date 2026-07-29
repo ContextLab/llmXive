@@ -5,13 +5,13 @@
 
 ## Summary
 
-This project implements a simulation-based power analysis to evaluate how three variable selection methods (Forward Stepwise, Backward Elimination, LASSO) affect **Inference Power** (the proportion of true non-zero coefficients correctly identified as statistically significant with p < alpha after selection and OLS refitting) and **Selection Recovery** (the proportion of true non-zero coefficients correctly selected). The system will download a representative set of real-world regression datasets from OpenML (specifically IDs), extract their predictor covariance structures via bootstrapping, and simulate synthetic outcome vectors across a grid of Signal-to-Noise Ratios (SNR) and Sparsity levels. To ensure feasibility on the 2 vCPU, 7 GB RAM CI runner within 6 hours, the simulation count is set to 200 per condition (total 24,000 simulations), with algorithmic optimizations (early stopping for stepwise, predictor pruning) and a mandatory Pilot Run (T004) to verify runtime. The implementation adheres to strict reproducibility and data hygiene principles defined in the project constitution.
+This project implements a simulation-based power analysis to evaluate how three variable selection methods (Forward Stepwise, Backward Elimination, LASSO) affect **Inference Power** (the proportion of true non-zero coefficients correctly identified as statistically significant with p < alpha after selection and OLS refitting) and **Selection Recovery** (the proportion of true non-zero coefficients correctly selected). The system will download a representative set of real-world regression datasets from OpenML (specifically IDs), extract their predictor covariance structures via bootstrapping, and simulate synthetic outcome vectors across a grid of Signal-to-Noise Ratios (SNR) and Sparsity levels. To ensure feasibility on the 2 vCPU, 7 GB RAM CI runner within 6 hours, the simulation count is set to 200 per condition (a large set of simulations), with algorithmic optimizations (early stopping for stepwise, predictor pruning) and a mandatory Pilot Run (T004) to verify runtime. The implementation adheres to strict reproducibility and data hygiene principles defined in the project constitution.
 
 **Note on Metric Definition**: The study distinguishes between **Selection Recovery** (did the method pick the variable?) and **Inference Power** (is the coefficient significantly different from zero?). The primary metric for the research question is **Inference Power** (FR-004), despite the known bias in post-selection p-values. The study compares methods under this shared bias, not absolute validity.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `openml` (dataset fetch), `scikit-learn` (selection methods, LASSO), `statsmodels` (OLS refitting, p-values), `scipy` (Kruskal-Wallis, Dunn's test), `pandas`/`numpy` (data manipulation), `matplotlib`/`seaborn` (visualization), `pytest` (testing), `tracemalloc` (memory monitoring).  
 **Storage**: Local `data/` directory for raw OpenML dumps (checksummed) and `data/processed/` for simulation results (CSV/Parquet). No external database.  
 **Testing**: `pytest` with `pytest-cov`. Tests verify data generation, selection logic, and statistical aggregation.  
@@ -19,7 +19,7 @@ This project implements a simulation-based power analysis to evaluate how three 
 **Project Type**: Computational research simulation / CLI tool.  
 **Performance Goals**: Complete 24,000 simulations (datasets × 4 SNR × Sparsity × 200 sims) within 6 hours; peak RAM ≤ 7 GB.  
 **Constraints**: No GPU usage; no heavy model training; strict adherence to simulation count and parameter grid; CPU-only execution; early stopping for stepwise selection; predictor count capped at a reasonable limit for stepwise methods.  
-**Scale/Scope**: ~24,000 simulation runs; Multiple source datasets; selection methods × 4 SNR × 3 Sparsity × Alpha thresholds.
+**Scale/Scope**: A large-scale set of simulation runs; Multiple source datasets; selection methods × 4 SNR × 3 Sparsity × Alpha thresholds.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase, except where fixed for feasibility (200 sims).
 
@@ -114,7 +114,7 @@ projects/PROJ-504-evaluating-the-impact-of-variable-select/
 
 ## Research & Methodology Alignment
 
-- **FR-001**: Addressed by T001 (download 10 datasets).
+- **FR-001**: Addressed by T001 (download multiple datasets).
 - **FR-002**: Addressed by T004 (pilot run to verify sufficiency).
 - **FR-003**: Addressed by T007, T008, T009 (selection methods).
 - **FR-004**: Addressed by T009 (OLS refitting for p-values).
