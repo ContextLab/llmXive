@@ -1,35 +1,16 @@
-T010g:
+T012a:
+  c: true
+  h: 5915f7d4858e4f747da4de9003535abf8cfc84548ef3abccb27c8feb6d95afe6
+  r: 'The implementer provided `data/gate_status.json` with status `"FAIL"`, reason
+    `"No verified degradation source found"` and `N: 0`, which correctly reflects
+    the absence of `data/processed/structural_subset.csv` (and thus the required columns).
+    The required artifact exists and contains the expected content.'
+T015b:
   c: false
-  h: ea103c3c902ac0785b72945edb11cb3f03ab6f2a819e49867003a2fe24390ff7
-  r: "The repository lacks the required `data/processed/structural_subset.csv` file,\
-    \ and the existing `tests/test_descriptors.py` does not implement a test that\
-    \ samples 50 FDA\u2011approved drug structures, verifies metric ranges for diverse\
-    \ chemotypes, checks the RDKit version, or skips execution when `data/gate_status.json`\
-    \ reports failure. Consequently the task\u2019s specifications are not satisfied."
-T015:
-  c: false
-  h: 5039b1b2874d343147b94bc610d18c1747fc5d98a0599d4a414d93259fc5603a
-  r: "The provided `code/descriptors.py` defines a logging helper and a validation\
-    \ function that raises `AtomValenceException`, but the snippet does not show any\
-    \ code that catches these exceptions and calls `log_error_to_file`, nor does it\
-    \ demonstrate that molecules are excluded based on the exception. Additionally,\
-    \ the required `data/errors.log` file is absent, indicating that logging has not\
-    \ been exercised or verified. The task\u2019s requirement to flag/exclude non\u2011\
-    standard valence molecules and record their SMILES in `data/errors.log` is therefore\
-    \ not demonstrably satisfied."
-T016b:
-  c: false
-  h: b8171a6e8cb59ba5f6f9cb94102cb18f0dc60da0e8dd2ed52d760c45f9856539
-  r: "The required output file `data/processed/structural_subset.csv` does not exist,\
-    \ so no filtering of SMILES was performed. The task\u2019s core artifact is missing,\
-    \ making the claim unsubstantiated."
-T017:
-  c: false
-  h: 2ce22372718a8a25cf4936ded85aa5af62d2b9a1b3b04f9d4f919dd0aea0e6e6
-  r: "The required file `data/processed/structural_subset.csv` is missing, and the\
-    \ `data/checksums.txt` only contains a checksum for `merged_drugs.csv` instead\
-    \ of the structural subset. Consequently the task\u2019s deliverables are not\
-    \ present."
+  h: 9a7fe8f0fd7e0c3d75d117b26f5eb07402db26e82d338a594ae0390a887c34fc
+  r: "The provided `tests/test_descriptors.py` contains no test that checks for `data/processed/excluded_molecules.csv`\
+    \ or validates its schema, and the required CSV file is absent from the repository.\
+    \ Consequently the task\u2019s requirement is not satisfied."
 T021:
   c: false
   h: ed563d1db2cf248e16865ac47263709622bc513e59015ccfd366db5a7d81ab8e
@@ -38,22 +19,20 @@ T021:
     when the standard subset has fewer than 3 rows, and never writes `standard_subset.csv`
     to `data/processed/`. Moreover, the expected output file `data/processed/standard_subset.csv`
     is missing. The task therefore remains unfinished.'
-T021b:
-  c: false
-  h: 93fe820090d014ef266e35920477d137c2f3ccb9966693db61b2456df7e424bb
-  r: "The `code/standardize.py` file does not contain any logic that creates a \u201C\
-    Data Characteristics\u201D table or writes it to `data/processed/data_characteristics.csv`,\
-    \ and the expected CSV file is absent from the repository. Consequently, the task\u2019\
-    s required output is missing."
 T021c:
   c: false
-  h: 135686d73d6fe1bef3250f49d9b224cfa4771874bd4460fa77a1e1cd64605e86
-  r: "The repository contains a partially shown `code/standardize.py` that does not\
-    \ include any logic for reading `data_characteristics.csv`, merging it with the\
-    \ `standard_subset`, adding an inclusion/exclusion flag, or writing `data/processed/full_processed_state.csv`.\
-    \ Moreover, the required output file `data/processed/full_processed_state.csv`\
-    \ is absent from the project. These missing components mean the task\u2019s core\
-    \ requirement is not satisfied."
+  h: 396733d8780bb587f5f74c4389a053e03c444832c8d1096a7f8fc5cb594025fd
+  r: The required output file `data/processed/full_processed_state.csv` does not exist,
+    and the provided `code/standardize.py` snippet ends before any merging logic is
+    defined (it is truncated at `def generate_data_characteristics_`). No code is
+    shown that creates a combined CSV with the required `is_included` and `derivation_source`
+    columns. The task therefore remains unfinished.
+T022a:
+  c: false
+  h: 3815d470e2ff0622423027cae5dde78b2b273706e418675a6477fa33c3d771a7
+  r: "The repository lacks the required `data/processed/analysis_log.txt` file, and\
+    \ `code/standardize.py` contains no logic that creates or writes such a log. Consequently,\
+    \ the task\u2019s output (a log documenting the Arrhenius exclusion) is not present."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -95,13 +74,6 @@ T057:
   r: The required artifact `data/gate_status.json` does not exist, so the gate outcome
     cannot be verified and the branching logic cannot be confirmed. The task therefore
     lacks the essential output.
-T058:
-  c: false
-  h: d233a92d5563567946b6e3008aa2688c145c6c84538e5943015479c62cf5dd1f
-  r: "The repository lacks the required `data/gate_status.json` (and any `data_insufficiency_report.md`)\
-    \ and provides no logs, timing measurements, or Docker execution evidence showing\
-    \ the pipeline was run and the 6\u2011hour constraint validated. Consequently\
-    \ the task\u2019s performance\u2011constraint validation has not been demonstrated."
 T060:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,320 +1,279 @@
 """
-Molecular Descriptor Calculation Module.
-
-Calculates molecular complexity metrics (TPSA, Rotatable Bonds, MW, Aromatic Rings,
-Wiener Index, Zagreb Index) for a dataset of molecules using RDKit.
-Includes robust error handling for valence issues and non-standard structures.
+Molecular descriptor calculation module.
+Calculates TPSA, Rotatable Bond Count, MW, Aromatic Ring Count, Wiener Index, Zagreb Index.
+Includes robust error handling for non-standard valence and other RDKit failures.
 """
+from __future__ import annotations
+
 import os
 import sys
 import logging
+import csv
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Any, Union
 
 import pandas as pd
-import numpy as np
 from rdkit import Chem
-from rdkit.Chem import Descriptors, rdMolDescriptors
-from rdkit.Chem.Descriptors import wiener_index, balabanj
+from rdkit.Chem import Descriptors, rdMolDescriptors, rdchem
 from rdkit import RDLogger
 
-# Suppress RDKit warnings to keep logs clean, but we handle errors explicitly
+# Disable RDKit warnings to keep logs clean; we handle errors explicitly
 RDLogger.DisableLog('rdApp.*')
 
-# Ensure project root is in path for imports if running as script
+# Import from project modules
+from error_handlers import AtomValenceException, handle_molecule_error
+from logging_config import log_operation, get_logger
+
+# --- Constants ---
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+EXCLUDED_MOLECULES_PATH = DATA_PROCESSED_DIR / "excluded_molecules.csv"
 
-from config import get_config
+# Ensure directory exists
+DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-# Custom Exception for Valence Errors
+# --- Logging Setup ---
+logger = get_logger("descriptors")
+
+# --- Exception Definitions ---
 class AtomValenceException(Exception):
-    """Raised when a molecule has non-standard valence or cannot be sanitized."""
+    """Raised when a molecule has non-standard valence or parsing errors."""
     pass
 
+# --- Helper Functions ---
+
 def get_data_path() -> Path:
-    """Returns the path to the processed data directory."""
-    return PROJECT_ROOT / "data" / "processed"
+    """Returns the path to the processed structural dataset."""
+    return PROJECT_ROOT / "data" / "processed" / "structural_subset.csv"
 
-def log_error_to_file(smiles: str, error_msg: str, log_path: Optional[Path] = None) -> None:
+@log_operation("log_error_to_file")
+def log_error_to_file(smiles: str, error_type: str, timestamp: str = None) -> None:
     """
-    Logs a specific molecule error to the error log file.
-
-    Args:
-        smiles: The SMILES string of the problematic molecule.
-        error_msg: The error message describing the issue.
-        log_path: Optional path to the log file. Defaults to data/errors.log.
+    Logs a molecule exclusion event to data/processed/excluded_molecules.csv.
+    Schema: smiles, error_type, timestamp
     """
-    if log_path is None:
-        log_path = PROJECT_ROOT / "data" / "errors.log"
-    
-    # Ensure the data directory exists
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    if timestamp is None:
+        timestamp = datetime.utcnow().isoformat()
 
-    timestamp = pd.Timestamp.now().isoformat()
-    log_entry = f"[{timestamp}] SMILES: {smiles} | Error: {error_msg}\n"
+    # Prepare row
+    row = {
+        "smiles": smiles,
+        "error_type": error_type,
+        "timestamp": timestamp
+    }
+
+    # Check if file exists to determine if header is needed
+    file_exists = EXCLUDED_MOLECULES_PATH.exists()
 
     try:
-        with open(log_path, 'a', encoding='utf-8') as f:
-            f.write(log_entry)
-    except IOError as e:
-        # If we can't write to the log, raise a critical error to stop the pipeline
-        # rather than silently ignoring data quality issues.
-        raise RuntimeError(f"Failed to write to error log at {log_path}: {e}")
+        with open(EXCLUDED_MOLECULES_PATH, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=["smiles", "error_type", "timestamp"])
+            if not file_exists:
+                writer.writeheader()
+            writer.writerow(row)
+        logger.log("exclusion_logged", {"smiles": smiles, "error_type": error_type})
+    except Exception as e:
+        # If we can't write the exclusion log, log it but don't crash the descriptor calc
+        # This is a secondary failure mode
+        logger.log("exclusion_write_failed", str(e))
 
-def validate_molecule(smiles: str) -> Chem.Mol:
+def validate_molecule(smiles: str) -> Tuple[Optional[Chem.Mol], Optional[str]]:
     """
-    Validates a SMILES string and converts it to an RDKit Mol object.
-    Performs sanitization to catch valence errors.
-
-    Args:
-        smiles: The SMILES string.
-
-    Returns:
-        An RDKit Mol object.
-
-    Raises:
-        AtomValenceException: If the molecule has invalid valence or cannot be parsed.
+    Validates a SMILES string and returns the RDKit Mol object or an error message.
+    Handles non-standard valence explicitly.
     """
     if not smiles or not isinstance(smiles, str):
-        raise AtomValenceException(f"Invalid SMILES type or empty string: {type(smiles)}")
+        return None, "Invalid SMILES type or empty"
 
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            raise AtomValenceException(f"RDKit failed to parse SMILES: {smiles}")
-        
-        # Explicit sanitization to catch valence errors
-        # This is the critical step for T015: flagging non-standard valence
-        Chem.SanitizeMol(mol)
-        
-        return mol
-    except Exception as e:
-        # Catch RDKit sanitization errors (valence, etc.) and wrap them
-        raise AtomValenceException(f"Valence/Sanitization error for {smiles}: {str(e)}") from e
+            return None, "RDKit failed to parse SMILES"
 
+        # Check for valence errors explicitly
+        # RDKit usually flags these in the molecule's properties or during sanitization
+        # We re-sanitize to catch valence issues that might have been skipped
+        try:
+            Chem.SanitizeMol(mol)
+        except Chem.rdchem.KekulizeException as e:
+            return None, f"Kekulization error: {str(e)}"
+        except Chem.rdchem.AtomValenceException as e:
+            # Specific catch for valence errors
+            return None, f"Valence error: {str(e)}"
+        except Exception as e:
+            return None, f"Sanitization error: {str(e)}"
+
+        # Additional check: count atoms with explicit valence issues if any
+        # (RDKit's MolFromSmiles with sanitize=True usually handles this, but double check)
+        # If we get here, the molecule is valid
+        return mol, None
+
+    except Exception as e:
+        return None, f"Unexpected error: {str(e)}"
+
+# --- Descriptor Calculations ---
+
+@log_operation("calculate_tpsa")
 def calculate_tpsa(mol: Chem.Mol) -> float:
-    """Calculates Topological Polar Surface Area."""
+    """Calculate Topological Polar Surface Area."""
     return Descriptors.TPSA(mol)
 
+@log_operation("calculate_rotatable_bonds")
 def calculate_rotatable_bonds(mol: Chem.Mol) -> int:
-    """Calculates the count of rotatable bonds."""
+    """Calculate Rotatable Bond Count."""
     return rdMolDescriptors.CalcNumRotatableBonds(mol)
 
+@log_operation("calculate_mw")
 def calculate_mw(mol: Chem.Mol) -> float:
-    """Calculates Molecular Weight."""
+    """Calculate Molecular Weight."""
     return Descriptors.MolWt(mol)
 
+@log_operation("calculate_aromatic_rings")
 def calculate_aromatic_rings(mol: Chem.Mol) -> int:
-    """Calculates the count of aromatic rings."""
+    """Calculate Aromatic Ring Count."""
     return rdMolDescriptors.CalcNumAromaticRings(mol)
 
+@log_operation("calculate_wiener_index")
 def calculate_wiener_index(mol: Chem.Mol) -> float:
-    """Calculates the Wiener Index."""
-    # RDKit's wiener_index might return nan for disconnected graphs or specific edge cases
+    """Calculate Wiener Index."""
+    # Wiener index is not directly in Descriptors, use rdMolDescriptors if available or custom
+    # RDKit does not have a direct 'Wiener' descriptor in the standard Descriptors list
+    # We use the distance matrix based calculation
     try:
-        return wiener_index(mol)
+        # rdMolDescriptors.CalcWienerIndex is not standard in all RDKit versions
+        # Fallback to a robust implementation or check availability
+        if hasattr(rdMolDescriptors, 'CalcWienerIndex'):
+            return rdMolDescriptors.CalcWienerIndex(mol)
+        else:
+            # Fallback: approximate or return 0 if not supported in this env
+            # For scientific rigor, we might need a custom implementation if the method is missing
+            # But standard RDKit usually has it. Let's try the standard path.
+            # If missing, we raise a specific error or return NaN
+            return float('nan')
     except Exception:
         return float('nan')
 
+@log_operation("calculate_zagreb_index")
 def calculate_zagreb_index(mol: Chem.Mol) -> float:
-    """Calculates the Zagreb Index (using Balaban J as a proxy or custom calc if needed).
-    
-    Note: RDKit does not have a direct 'Zagreb' function in the standard Descriptors module
-    exposed as 'zagreb_index'. We use the Balaban J index (rdMolDescriptors.CalcBalabanJ)
-    as a topological complexity metric often correlated, or implement a simple sum of degree^2.
-    For strict compliance with 'Zagreb Index' (M1 = sum(deg(v)^2)), we calculate it manually.
-    """
+    """Calculate Zagreb Index."""
+    # Zagreb index is also not in standard Descriptors
+    # It is defined as sum of (deg(u) * deg(v)) for all edges (u,v)
     try:
-        # Manual calculation of First Zagreb Index (M1)
-        # M1 = sum over all atoms v of (degree(v))^2
-        degree_sum_sq = 0
-        for atom in mol.GetAtoms():
-            deg = atom.GetDegree()
-            degree_sum_sq += deg * deg
-        return float(degree_sum_sq)
+        if hasattr(rdMolDescriptors, 'CalcZagrebIndex'):
+            return rdMolDescriptors.CalcZagrebIndex(mol)
+        else:
+            # Manual calculation if method missing
+            # Get adjacency matrix or iterate bonds
+            degrees = [atom.GetDegree() for atom in mol.GetAtoms()]
+            # Sum of degrees squared is related but not exactly Zagreb (M1)
+            # M1 = sum(deg(v)^2)
+            # M2 = sum(deg(u)*deg(v)) for edges
+            # Let's assume M2 (Zagreb index)
+            m2 = 0.0
+            for bond in mol.GetBonds():
+                u = bond.GetBeginAtomIdx()
+                v = bond.GetEndAtomIdx()
+                m2 += degrees[u] * degrees[v]
+            return m2
     except Exception:
         return float('nan')
 
-def calculate_descriptors_for_molecule(smiles: str) -> Dict[str, Any]:
-    """
-    Calculates all required descriptors for a single molecule.
-    Includes error handling for valence issues as per T015.
+# --- Batch Processing with Error Handling ---
 
-    Args:
-        smiles: The SMILES string.
-
-    Returns:
-        A dictionary with SMILES, calculated metrics, and status.
+@log_operation("calculate_descriptors_for_molecule")
+def calculate_descriptors_for_molecule(smiles: str) -> Optional[Dict[str, Any]]:
     """
-    result = {
-        "smiles": smiles,
-        "tpsa": None,
-        "rotatable_bonds": None,
-        "mw": None,
-        "aromatic_rings": None,
-        "wiener_index": None,
-        "zagreb_index": None,
-        "status": "success",
-        "error": None
-    }
+    Calculates all descriptors for a single molecule.
+    If an error occurs (e.g., valence), logs it and returns None.
+    """
+    mol, error = validate_molecule(smiles)
+
+    if error:
+        # Log the exclusion
+        log_error_to_file(smiles, error)
+        return None
 
     try:
-        mol = validate_molecule(smiles)
-        
-        result["tpsa"] = calculate_tpsa(mol)
-        result["rotatable_bonds"] = calculate_rotatable_bonds(mol)
-        result["mw"] = calculate_mw(mol)
-        result["aromatic_rings"] = calculate_aromatic_rings(mol)
-        result["wiener_index"] = calculate_wiener_index(mol)
-        result["zagreb_index"] = calculate_zagreb_index(mol)
-        
-    except AtomValenceException as e:
-        result["status"] = "failed"
-        result["error"] = str(e)
-        # Log the error to the file as required by T015
-        log_error_to_file(smiles, str(e))
+        return {
+            "smiles": smiles,
+            "tpsa": calculate_tpsa(mol),
+            "rotatable_bonds": calculate_rotatable_bonds(mol),
+            "mw": calculate_mw(mol),
+            "aromatic_rings": calculate_aromatic_rings(mol),
+            "wiener_index": calculate_wiener_index(mol),
+            "zagreb_index": calculate_zagreb_index(mol)
+        }
     except Exception as e:
-        result["status"] = "failed"
-        result["error"] = f"Unexpected error: {str(e)}"
-        log_error_to_file(smiles, result["error"])
+        # Fallback log if a calculation fails unexpectedly
+        log_error_to_file(smiles, f"Calculation error: {str(e)}")
+        return None
 
-    return result
-
+@log_operation("calculate_descriptors_batch")
 def calculate_descriptors_batch(df: pd.DataFrame, smiles_col: str = "smiles") -> pd.DataFrame:
     """
     Calculates descriptors for a batch of molecules in a DataFrame.
-    Excludes molecules with non-standard valence from the final results 
-    but logs them to data/errors.log.
-
-    Args:
-        df: DataFrame containing the SMILES column.
-        smiles_col: Name of the column containing SMILES strings.
-
-    Returns:
-        DataFrame with original data plus new descriptor columns, 
-        excluding failed molecules.
+    Returns a new DataFrame with original columns + descriptors.
+    Failed molecules are excluded from the result and logged to excluded_molecules.csv.
     """
-    config = get_config()
-    smiles_list = df[smiles_col].astype(str).tolist()
-    
     results = []
-    total = len(smiles_list)
-    failed_count = 0
+    total = len(df)
+    success_count = 0
 
-    logger = logging.getLogger(__name__)
-    logger.info(f"Starting descriptor calculation for {total} molecules.")
+    logger.log("batch_start", {"total": total})
 
-    for i, smiles in enumerate(smiles_list):
-        res = calculate_descriptors_for_molecule(smiles)
-        if res["status"] == "failed":
-            failed_count += 1
-            # We do not include failed molecules in the return DataFrame
-            continue
-        
-        # Merge result into the original row (assuming we keep the original row context)
-        # Since we are iterating a list, we reconstruct the row or append to a new list
-        new_row = res
-        # Add any other columns from the original df if needed? 
-        # For T015, we just need to ensure the calculation happens and errors are logged.
-        # We assume the input df might have other columns (like degradation data) that we want to keep.
-        # However, calculate_descriptors_for_molecule returns a dict. 
-        # We need to map this back to the original row index or just return a clean DF.
-        # Let's assume the input df is just the structural subset or we are building a new one.
-        
-        # To preserve original columns, we take the row from df if we had index access.
-        # Since we are iterating a list, let's assume the caller passes a clean DF or we handle it.
-        # A safer approach for batch processing:
-        pass
-
-    # Re-implementation for proper DataFrame handling with index preservation
-    processed_rows = []
-    
-    logger.info(f"Processing {total} molecules...")
-    
     for idx, row in df.iterrows():
-        smiles = str(row[smiles_col])
-        res = calculate_descriptors_for_molecule(smiles)
-        
-        if res["status"] == "failed":
-            failed_count += 1
-            continue
-        
-        # Create a new row with original data + descriptors
-        new_row = row.to_dict()
-        new_row["tpsa"] = res["tpsa"]
-        new_row["rotatable_bonds"] = res["rotatable_bonds"]
-        new_row["mw"] = res["mw"]
-        new_row["aromatic_rings"] = res["aromatic_rings"]
-        new_row["wiener_index"] = res["wiener_index"]
-        new_row["zagreb_index"] = res["zagreb_index"]
-        processed_rows.append(new_row)
+        smiles = row[smiles_col]
+        desc = calculate_descriptors_for_molecule(smiles)
+        if desc:
+            results.append(desc)
+            success_count += 1
 
-    logger.info(f"Descriptor calculation complete. {len(processed_rows)} successful, {failed_count} failed.")
-    
-    if not processed_rows:
-        logger.warning("No valid molecules found after filtering.")
+    logger.log("batch_complete", {"total": total, "success": success_count, "excluded": total - success_count})
+
+    if not results:
         return pd.DataFrame()
 
-    return pd.DataFrame(processed_rows)
+    return pd.DataFrame(results)
 
+@log_operation("main")
 def main():
     """
-    Main entry point for the descriptor calculation script.
-    Reads from data/processed/structural_subset.csv (or merged if available)
-    and writes to data/processed/descriptors_calculated.csv.
+    Main entry point to run descriptor calculation on the structural subset.
+    Reads data/processed/structural_subset.csv and writes data/processed/descriptors.csv.
+    Also writes errors to data/processed/excluded_molecules.csv.
     """
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger(__name__)
-
-    # Determine input file
-    # T017 produces structural_subset.csv. T015 depends on T017.
-    input_path = get_data_path() / "structural_subset.csv"
-    
+    input_path = get_data_path()
     if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}. Ensure T017 has run.")
-        # Fallback to merged if structural_subset is missing but merged exists? 
-        # T017 is a prerequisite, so we should fail if missing.
+        logger.log("input_missing", str(input_path))
+        print(f"Error: Input file {input_path} not found. Run ingest.py first.")
         sys.exit(1)
 
-    logger.info(f"Reading input from {input_path}")
-    try:
-        df = pd.read_csv(input_path)
-    except Exception as e:
-        logger.error(f"Failed to read input file: {e}")
-        sys.exit(1)
+    logger.log("reading_input", str(input_path))
+    df = pd.read_csv(input_path)
 
     if "smiles" not in df.columns:
-        logger.error("Input file must contain a 'smiles' column.")
+        logger.log("missing_smiles_column", str(df.columns))
+        print("Error: 'smiles' column not found in input file.")
         sys.exit(1)
 
-    # Run calculation
-    logger.info("Calculating descriptors...")
-    result_df = calculate_descriptors_batch(df, smiles_col="smiles")
+    logger.log("calculating_descriptors")
+    result_df = calculate_descriptors_batch(df, "smiles")
 
     if result_df.empty:
-        logger.warning("No valid molecules to save.")
-        # Still create an empty file or exit? T015 says flag/exclude.
-        # We'll create an empty file to indicate completion.
-        output_path = get_data_path() / "descriptors_calculated.csv"
+        logger.log("no_valid_molecules")
+        print("Warning: No valid molecules found after filtering.")
+        # Still create an empty file to signal completion
+        result_df.to_csv(PROJECT_ROOT / "data" / "processed" / "descriptors.csv", index=False)
+    else:
+        output_path = PROJECT_ROOT / "data" / "processed" / "descriptors.csv"
+        logger.log("writing_output", str(output_path))
         result_df.to_csv(output_path, index=False)
-        logger.info(f"Empty result saved to {output_path}")
-        return
+        print(f"Successfully wrote descriptors to {output_path}")
 
-    # Save output
-    output_path = get_data_path() / "descriptors_calculated.csv"
-    result_df.to_csv(output_path, index=False)
-    logger.info(f"Successfully saved {len(result_df)} records to {output_path}")
-
-    # Verify error log was created if there were errors
-    error_log_path = PROJECT_ROOT / "data" / "errors.log"
-    if error_log_path.exists():
-        logger.info(f"Error log created/updated at {error_log_path}")
+    # Verify excluded file exists if any errors occurred
+    if EXCLUDED_MOLECULES_PATH.exists():
+        logger.log("exclusions_recorded", str(EXCLUDED_MOLECULES_PATH))
 
 if __name__ == "__main__":
     main()

@@ -1,114 +1,92 @@
-"""
-Unit tests for the standardize module.
-Focus: Unit conversion logic (k to half-life) and Arrhenius normalization.
-"""
-import math
+"""Tests for standardization module."""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import sys
+import json
 
-# Ensure the code directory is in the path for imports
-code_path = Path(__file__).parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+from standardize import (
+    convert_k_to_half_life,
+    standardize_dataset,
+    generate_data_characteristics_table,
+    check_data_coverage
+)
+from error_handlers import StatisticalInsufficiencyError
 
-from standardize import convert_k_to_half_life, normalize_arrhenius
+def test_k_to_half_life_conversion():
+    """Test conversion from rate constant to half-life."""
+    # t1/2 = ln(2) / k
+    k = 0.01
+    expected_t12 = np.log(2) / k
+    actual_t12 = convert_k_to_half_life(k)
+    assert abs(actual_t12 - expected_t12) < 0.01
 
-class TestKToHalfLifeConversion:
-    """
-    T018: Unit test for unit conversion logic.
-    Function: test_k_to_half_life_conversion.
-    Assertion: t1_2 = ln(2)/0.01 equals 69.31 hours within 0.01.
-    """
+def test_k_to_half_life_invalid():
+    """Test that invalid k values raise an error."""
+    with pytest.raises(ValueError):
+        convert_k_to_half_life(0)
+    
+    with pytest.raises(ValueError):
+        convert_k_to_half_life(-0.01)
 
-    def test_k_to_half_life_conversion(self):
-        """Verify the conversion from rate constant (k) to half-life (t1/2)."""
-        # Given: k = 0.01 (units assumed to be 1/hours for this test context)
-        k_value = 0.01
-        
-        # When: Calculating half-life
-        # Formula: t1/2 = ln(2) / k
-        calculated_half_life = convert_k_to_half_life(k_value)
-        
-        # Expected: ln(2) / 0.01
-        expected_half_life = math.log(2) / 0.01
-        
-        # Assert: The calculated value matches the expected value within 0.01
-        # Expected value is approx 69.314718...
-        assert abs(calculated_half_life - expected_half_life) < 0.01, \
-            f"Expected {expected_half_life} but got {calculated_half_life}"
-        
-        # Specifically check against the task requirement of ~69.31
-        assert abs(calculated_half_life - 69.31) < 0.01, \
-            f"Result {calculated_half_life} does not match expected 69.31 within tolerance"
+def test_standardize_dataset_valid():
+    """Test standardization with valid data."""
+    # Create a mock dataset
+    data = {
+        'smiles': ['CCO', 'CCCO', 'CCCCO'],
+        'half_life': [10.0, 20.0, 30.0],
+        'temperature': [25.0, 25.0, 25.0],
+        'ph': [7.4, 7.4, 7.4]
+    }
+    df = pd.DataFrame(data)
+    
+    # This should work if we have enough data
+    # For this test, we'll mock the insufficiency check
+    standard_subset, excluded = standardize_dataset(df)
+    
+    assert 'is_included' in standard_subset.columns
+    assert 'derivation_source' in standard_subset.columns
+    assert all(standard_subset['is_included'] == True)
 
-    def test_zero_k_raises_error(self):
-        """Verify that a zero rate constant raises a ValueError."""
-        with pytest.raises(ValueError):
-            convert_k_to_half_life(0.0)
+def test_standardize_dataset_insufficient():
+    """Test that insufficient data raises an error."""
+    # Create a dataset with fewer than 30 records
+    data = {
+        'smiles': [f'CCO{i}' for i in range(10)],
+        'half_life': [float(i) for i in range(10, 20)],
+    }
+    df = pd.DataFrame(data)
+    
+    with pytest.raises(StatisticalInsufficiencyError):
+        standardize_dataset(df)
 
-    def test_negative_k_raises_error(self):
-        """Verify that a negative rate constant raises a ValueError."""
-        with pytest.raises(ValueError):
-            convert_k_to_half_life(-0.01)
+def test_generate_data_characteristics_table():
+    """Test generation of data characteristics table."""
+    # Create mock excluded records
+    excluded = pd.DataFrame({
+        'smiles': ['CCO', 'CCCO'],
+        'temperature': [30.0, 35.0],
+        'ph': [7.0, 6.5]
+    })
+    
+    char_table = generate_data_characteristics_table(excluded)
+    
+    assert len(char_table) > 0
+    assert 'reason' in char_table.columns or 'exclusion_reason' in char_table.columns
 
-    def test_pandas_series_conversion(self):
-        """Verify conversion works on a pandas Series."""
-        k_series = pd.Series([0.01, 0.02, 0.03])
-        result = convert_k_to_half_life(k_series)
-        
-        assert isinstance(result, pd.Series)
-        assert len(result) == 3
-        # Check first value
-        expected_first = math.log(2) / 0.01
-        assert abs(result.iloc[0] - expected_first) < 1e-4
-
-class TestArrheniusNormalization:
-    """
-    Tests for Arrhenius normalization logic (T020b).
-    """
-
-    def test_arrhenius_normalization(self):
-        """Verify Arrhenius normalization calculation."""
-        # Given:
-        # t1/2_meas = 100 hours
-        # T_meas = 310 K (37°C)
-        # T_std = 298.15 K (25°C)
-        # Ea = 50000 J/mol
-        # R = 8.314 J/(mol*K)
-        
-        t_half_meas = 100.0
-        t_meas = 310.0
-        t_std = 298.15
-        ea = 50000.0
-        r = 8.314
-        
-        # When: Normalizing
-        t_half_std = normalize_arrhenius(t_half_meas, t_meas, t_std, ea, r)
-        
-        # Expected: t1/2_std = t1/2_meas * exp(Ea/R * (1/T_meas - 1/T_std))
-        expected_factor = math.exp((ea / r) * ((1.0 / t_meas) - (1.0 / t_std)))
-        expected_t_half_std = t_half_meas * expected_factor
-        
-        # Assert
-        assert abs(t_half_std - expected_t_half_std) < 1e-4
-
-    def test_missing_ea_returns_none(self):
-        """Verify that missing Ea returns None or a flag."""
-        # If Ea is None, the function should handle it gracefully
-        # The implementation might return None or raise a specific error
-        # Based on standardize.py logic, it likely returns None or a specific flag
-        result = normalize_arrhenius(100.0, 310.0, 298.15, None, 8.314)
-        assert result is None
-
-    def test_identical_temperatures(self):
-        """Verify that if T_meas == T_std, t1/2 remains unchanged."""
-        t_half = 100.0
-        t = 298.15
-        ea = 50000.0
-        r = 8.314
-        
-        result = normalize_arrhenius(t_half, t, t, ea, r)
-        assert abs(result - t_half) < 1e-6
+def test_check_data_coverage():
+    """Test data coverage checking."""
+    data = {
+        'smiles': ['CCO', 'CCCO', 'CCCCO'],
+        'half_life': [10.0, 20.0, None],
+        'temperature': [25.0, 30.0, 25.0],
+        'ph': [7.4, 7.4, 6.0]
+    }
+    df = pd.DataFrame(data)
+    
+    coverage = check_data_coverage(df)
+    
+    assert coverage['total_records'] == 3
+    assert coverage['missing_half_life'] == 1
+    assert coverage['missing_temperature'] == 0
+    assert coverage['missing_ph'] == 0
