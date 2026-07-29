@@ -3,190 +3,257 @@ import subprocess
 import sys
 import tempfile
 import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional
 import signal
+import logging
+import traceback
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
 import time
 
 from models.data_models import ExecutionStatus, GeneratedCode
 from utils.logger import get_logger
 
-# Default timeout in seconds (configurable via env or argument)
-DEFAULT_TIMEOUT_SECONDS = 10
-
-logger = get_logger(__name__)
-
-
+# Custom exception for timeout scenarios
 class ExecutionTimeoutError(Exception):
-    """Raised when code execution exceeds the allowed time limit."""
+    """Raised when code execution exceeds the configured timeout."""
     pass
 
+# Constants
+DEFAULT_TIMEOUT_SECONDS = 10
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-def run_code_with_timeout(
-    code_content: str,
-    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
-) -> tuple[ExecutionStatus, Optional[str], Optional[str]]:
+def run_code_with_timeout(code: str, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> Tuple[bool, Optional[str], Optional[str], Optional[str]]:
     """
-    Executes the provided Python code string in a subprocess with a strict timeout.
+    Executes Python code in a subprocess with a timeout.
     
     Args:
-        code_content: The Python code to execute.
-        timeout_seconds: Maximum time allowed for execution.
+        code: The Python code string to execute.
+        timeout: Maximum execution time in seconds.
         
     Returns:
-        A tuple of (status, stdout, stderr).
-        Status is ExecutionStatus.PASS if execution completes without error and output is clean,
-        ExecutionStatus.TIMEOUT if the process exceeds the time limit,
-        ExecutionStatus.FAIL if the process returns a non-zero exit code or raises an exception.
+        Tuple of (success, stdout, stderr, error_type)
+        - success: True if execution completed without timeout or fatal error.
+        - stdout: Standard output from the process.
+        - stderr: Standard error from the process.
+        - error_type: Type of error if failed (e.g., 'SyntaxError', 'RuntimeError', 'Timeout'), None if success.
     """
-    # Create a temporary file to hold the code
-    with tempfile.NamedTemporaryFile(
-        mode='w', suffix='.py', delete=False, encoding='utf-8'
-    ) as tmp_file:
-        tmp_file.write(code_content)
-        tmp_path = tmp_file.name
+    logger = get_logger("execution.runner")
+    logger.debug(f"Executing code with timeout {timeout}s")
+
+    # Create a temporary file for the code
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write(code)
+        temp_file = f.name
 
     try:
-        # Start the subprocess
+        # Run the code in a subprocess
         start_time = time.time()
         process = subprocess.Popen(
-            [sys.executable, tmp_path],
+            [sys.executable, temp_file],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            cwd=os.getcwd()
+            preexec_fn=os.setsid if os.name != 'nt' else None  # Ensure we can kill the process group
         )
 
         try:
-            # Wait for the process with timeout
-            stdout, stderr = process.communicate(timeout=timeout_seconds)
-            end_time = time.time()
-            duration = end_time - start_time
-
+            stdout, stderr = process.communicate(timeout=timeout)
+            elapsed = time.time() - start_time
+            
             if process.returncode == 0:
-                logger.debug(f"Execution succeeded in {duration:.2f}s")
-                return ExecutionStatus.PASS, stdout, stderr
+                logger.debug(f"Execution succeeded in {elapsed:.2f}s")
+                return True, stdout.strip(), stderr.strip(), None
             else:
-                logger.debug(f"Execution failed with code {process.returncode} in {duration:.2f}s")
-                return ExecutionStatus.FAIL, stdout, stderr
+                # Determine error type from stderr or traceback
+                error_type = _classify_error(stderr)
+                logger.warning(f"Execution failed with return code {process.returncode}. Type: {error_type}")
+                return False, stdout.strip(), stderr.strip(), error_type
 
         except subprocess.TimeoutExpired:
-            # Kill the process tree to ensure it stops
-            process.kill()
-            # Consume any remaining output to prevent zombie processes
-            try:
-                process.communicate(timeout=1)
-            except subprocess.TimeoutExpired:
-                process.wait()
+            # Kill the process group to ensure cleanup
+            if os.name != 'nt':
+                try:
+                    os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+            else:
+                process.kill()
             
-            logger.warning(f"Execution timed out after {timeout_seconds}s")
-            return ExecutionStatus.TIMEOUT, "", f"Execution timed out after {timeout_seconds} seconds"
+            logger.error(f"Execution timed out after {timeout}s")
+            return False, "", f"Execution timed out after {timeout} seconds", "TimeoutError"
 
     except Exception as e:
-        logger.error(f"Unexpected error during execution: {e}")
-        return ExecutionStatus.FAIL, "", str(e)
+        logger.error(f"Unexpected error during execution: {str(e)}")
+        return False, "", str(e), "UnexpectedError"
     finally:
-        # Clean up the temporary file
-        if os.path.exists(tmp_path):
-            try:
-                os.remove(tmp_path)
-            except OSError:
-                pass  # Ignore cleanup errors
+        # Clean up temporary file
+        try:
+            os.unlink(temp_file)
+        except OSError:
+            pass
 
-
-def execute_sample(
-    sample: GeneratedCode,
-    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
-) -> GeneratedCode:
+def _classify_error(stderr: str) -> str:
     """
-    Executes a single generated code sample and updates its status.
+    Classifies the error type based on the stderr content.
+    """
+    if not stderr:
+        return "RuntimeError"
+    
+    # Check for specific syntax errors
+    if "SyntaxError" in stderr or "IndentationError" in stderr:
+        return "SyntaxError"
+    
+    # Check for name errors (often indicates missing imports or typos)
+    if "NameError" in stderr:
+        return "NameError"
+    
+    # Check for type errors
+    if "TypeError" in stderr:
+        return "TypeError"
+    
+    # Check for attribute errors
+    if "AttributeError" in stderr:
+        return "AttributeError"
+    
+    # Check for value errors
+    if "ValueError" in stderr:
+        return "ValueError"
+    
+    # Check for import errors
+    if "ImportError" in stderr or "ModuleNotFoundError" in stderr:
+        return "ImportError"
+    
+    # Check for runtime exceptions (e.g., ZeroDivisionError)
+    if "ZeroDivisionError" in stderr:
+        return "ZeroDivisionError"
+    
+    # Default to RuntimeError for other exceptions
+    return "RuntimeError"
+
+def execute_sample(sample: Dict[str, Any], timeout: int = DEFAULT_TIMEOUT_SECONDS) -> Dict[str, Any]:
+    """
+    Executes a single generated code sample and captures the result.
     
     Args:
-        sample: The GeneratedCode object containing the code to run.
-        timeout_seconds: Maximum execution time.
+        sample: Dictionary containing 'id', 'code', 'complexity_label', etc.
+        timeout: Execution timeout in seconds.
         
     Returns:
-        The updated GeneratedCode object with status and output populated.
+        Dictionary with execution results including status, error type, and logs.
     """
-    status, stdout, stderr = run_code_with_timeout(
-        sample.code_content, 
-        timeout_seconds
-    )
+    logger = get_logger("execution.runner")
     
-    sample.execution_status = status
-    sample.stdout = stdout.strip() if stdout else ""
-    sample.stderr = stderr.strip() if stderr else ""
+    sample_id = sample.get('id', 'unknown')
+    code = sample.get('code', '')
+    complexity_label = sample.get('complexity_label', 'unknown')
     
-    if status == ExecutionStatus.TIMEOUT:
-        logger.info(f"Marking sample {sample.id} as TIMEOUT")
-    elif status == ExecutionStatus.FAIL:
-        logger.info(f"Marking sample {sample.id} as FAIL: {sample.stderr[:100]}...")
-    else:
-        logger.info(f"Marking sample {sample.id} as PASS")
+    logger.info(f"Executing sample {sample_id} (complexity: {complexity_label})")
+    
+    try:
+        success, stdout, stderr, error_type = run_code_with_timeout(code, timeout)
         
-    return sample
+        if success:
+            status = ExecutionStatus.PASS.value
+            logger.info(f"Sample {sample_id} executed successfully.")
+        else:
+            # Mark as failed based on error type
+            status = ExecutionStatus.FAIL.value
+            logger.warning(f"Sample {sample_id} failed: {error_type}")
+            
+        return {
+            'id': sample_id,
+            'complexity_label': complexity_label,
+            'status': status,
+            'error_type': error_type,
+            'stdout': stdout,
+            'stderr': stderr,
+            'execution_time': None, # Could be tracked if needed
+            'timestamp': datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        # Catch-all for any unexpected errors during execution logic
+        logger.exception(f"Critical error executing sample {sample_id}: {str(e)}")
+        return {
+            'id': sample_id,
+            'complexity_label': complexity_label,
+            'status': ExecutionStatus.FAIL.value,
+            'error_type': 'CriticalExecutionError',
+            'stdout': '',
+            'stderr': str(e),
+            'execution_time': None,
+            'timestamp': datetime.now().isoformat()
+        }
 
-
-def run_batch_execution(
-    samples: List[GeneratedCode],
-    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
-) -> List[GeneratedCode]:
+def run_batch_execution(samples: List[Dict[str, Any]], timeout: int = DEFAULT_TIMEOUT_SECONDS) -> List[Dict[str, Any]]:
     """
-    Executes a batch of code samples sequentially.
+    Executes a batch of generated code samples.
     
     Args:
-        samples: List of GeneratedCode objects.
-        timeout_seconds: Timeout for each sample.
+        samples: List of dictionaries containing code samples.
+        timeout: Execution timeout in seconds per sample.
         
     Returns:
-        List of updated GeneratedCode objects.
+        List of execution result dictionaries.
     """
+    logger = get_logger("execution.runner")
+    logger.info(f"Starting batch execution of {len(samples)} samples")
+    
     results = []
     for i, sample in enumerate(samples):
-        logger.info(f"Running sample {i+1}/{len(samples)}: {sample.id}")
-        updated_sample = execute_sample(sample, timeout_seconds)
-        results.append(updated_sample)
+        logger.debug(f"Processing sample {i+1}/{len(samples)}")
+        result = execute_sample(sample, timeout)
+        results.append(result)
+        
+    logger.info(f"Batch execution completed. {len(results)} results generated.")
     return results
-
 
 def main():
     """
-    Main entry point for testing the runner with a sample code snippet.
-    Reads a sample from data/processed if available, or runs a simple demo.
+    Main entry point for testing the runner module.
+    This function demonstrates exception handling by running a sample with a syntax error
+    and a sample that times out.
     """
-    from config import Paths
-    from data.storage import load_variants_from_parquet
+    logger = setup_structured_logger("runner_test")
+    logger.info("Starting runner.py test suite")
     
-    # Try to load real data first
-    data_path = Paths.PROCESSED_DIR / "prompt_variants.parquet"
-    if data_path.exists():
-        logger.info(f"Loading variants from {data_path}")
-        try:
-            variants_df = load_variants_from_parquet()
-            # Convert to GeneratedCode objects (simplified for demo)
-            # In real pipeline, this would be handled by the orchestrator
-            logger.info(f"Loaded {len(variants_df)} variants for execution test")
-            # For a real run, we would iterate and call run_batch_execution
-            # Here we just verify the import and basic structure
-            print(f"Ready to execute {len(variants_df)} samples.")
-        except Exception as e:
-            logger.error(f"Failed to load data: {e}")
-            print("Demo mode: Running a simple timeout test.")
-            demo_code = "import time; time.sleep(2)"
-            status, out, err = run_code_with_timeout(demo_code, timeout_seconds=5)
-            print(f"Demo Result: {status}, Output: {out}, Error: {err}")
-    else:
-        print("No processed data found. Running demo timeout test.")
-        # Demo: Code that finishes quickly
-        demo_code = "print('Hello, World!')"
-        status, out, err = run_code_with_timeout(demo_code, timeout_seconds=5)
-        print(f"Demo (Quick) Result: {status}")
-        
-        # Demo: Code that times out
-        demo_timeout = "import time; time.sleep(10)"
-        status, out, err = run_code_with_timeout(demo_timeout, timeout_seconds=2)
-        print(f"Demo (Timeout) Result: {status}")
-
+    # Test Case 1: Syntax Error
+    syntax_error_sample = {
+        'id': 'test_syntax_error',
+        'code': 'def broken(\n    print("missing parenthesis"', # Intentional syntax error
+        'complexity_label': 'simple'
+    }
+    
+    result1 = execute_sample(syntax_error_sample, timeout=5)
+    logger.info(f"Syntax Error Test Result: {result1['status']}, Error Type: {result1['error_type']}")
+    assert result1['status'] == ExecutionStatus.FAIL.value, "Syntax error should result in FAIL status"
+    assert result1['error_type'] == 'SyntaxError', "Error type should be classified as SyntaxError"
+    
+    # Test Case 2: Timeout
+    timeout_sample = {
+        'id': 'test_timeout',
+        'code': 'import time\nwhile True:\n    time.sleep(1)', # Infinite loop
+        'complexity_label': 'moderate'
+    }
+    
+    result2 = execute_sample(timeout_sample, timeout=2) # Set short timeout
+    logger.info(f"Timeout Test Result: {result2['status']}, Error Type: {result2['error_type']}")
+    assert result2['status'] == ExecutionStatus.FAIL.value, "Timeout should result in FAIL status"
+    assert result2['error_type'] == 'TimeoutError', "Error type should be classified as TimeoutError"
+    
+    # Test Case 3: Successful Execution
+    success_sample = {
+        'id': 'test_success',
+        'code': 'print("Hello, World!")',
+        'complexity_label': 'simple'
+    }
+    
+    result3 = execute_sample(success_sample, timeout=5)
+    logger.info(f"Success Test Result: {result3['status']}")
+    assert result3['status'] == ExecutionStatus.PASS.value, "Successful code should result in PASS status"
+    
+    logger.info("All tests passed.")
 
 if __name__ == "__main__":
     main()

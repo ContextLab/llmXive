@@ -41,3 +41,41 @@ T029:
     credentials, eval usage) is provided; without any code artifact we cannot confirm
     the feature was implemented or that samples are marked for manual review instead
     of causing test failures. The required implementation is missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `stats.py` file or code showing a Bonferroni or Holm\u2011Bonferroni correction\
+    \ was provided; without the actual implementation we cannot confirm that the adjusted\
+    \ significance threshold (\u03B1 \u2264 0.05\u202F/\u202Fnumber\u202Fof\u202F\
+    tests) was added. The required artifact is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or analysis output was provided that implements a\
+    \ linear mixed\u2011effects model with prompt token count as a covariate, nor\
+    \ any evidence (e.g., model specifications, fitted results, or updated evaluation\
+    \ pipeline) showing the original \u201Ccode length\u201D covariate was replaced.\
+    \ The required artifact is missing, so the task is not satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no provided `stats.py` file or any code showing the required sensitivity\u2011\
+    analysis implementation (re\u2011binning with \xB110\u2011token shifted thresholds\
+    \ and variance reporting). Without the actual artifact, the task\u2019s deliverable\
+    \ is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, module, or documentation implementing Cohen's\u202Fd or eta\u2011squared\
+    \ (with the required small/medium/large thresholds) was provided; the only evidence\
+    \ is the task description itself, which does not constitute the required artifact.\
+    \ The implementer must supply the actual implementation (e.g., a function or library\
+    \ file) and demonstrate its usage."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `stats.py` was provided, nor any code showing structural\
+    \ redundancy verification, comparison of structural element counts between \u201C\
+    degenerate\u201D and \u201Cvery complex\u201D prompts, or explicit failure\u2011\
+    flagging logic. Without these artifacts, the task\u2019s requirement cannot be\
+    \ confirmed as met."

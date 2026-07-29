@@ -1,0 +1,29 @@
+T005c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No repository directory, `.git` folder, or `.gitignore` file is present in the
+    provided evidence; thus the required artifact for initializing a Git repository
+    and configuring its ignore rules is missing.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml`, or a pre\u2011commit hook invoking ruff/black) are present\
+    \ in the provided artifact list, so the requirement to configure ruff and black\
+    \ is not satisfied. The implementer must add the appropriate configuration files\
+    \ and ensure they are non\u2011empty."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., configuration files, validation scripts, or documentation)\
+    \ was provided that defines environment variable validation or error\u2011handling\
+    \ infrastructure. Consequently the requirement to set up such infrastructure is\
+    \ not demonstrated."
+T016:
+  c: false
+  h: 5b44add8c1bb59046f2e9d974faf5173ffb72abb798b9f5a36b77221816599f5
+  r: "The repository lacks the required output files (`data/excluded_subjects.csv`\
+    \ and `data/validation_report.json`). Moreover, `src/data/preprocess.py` is truncated\
+    \ (the `write_excluded_subjects_csv` function is incomplete and no code updates\
+    \ the JSON report), so the artifact\u2011rejection and underpowered\u2011subject\
+    \ flagging logic is not fully implemented."

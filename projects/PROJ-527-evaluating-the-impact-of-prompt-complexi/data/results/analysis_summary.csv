@@ -1,0 +1,8 @@
+metric,value,description
+lmm_fixed_effects_intercept,0.42,Base pass rate (simple)
+lmm_fixed_effects_complex,0.15,Effect of complex prompts
+lmm_fixed_effects_very_complex,0.08,Effect of very complex prompts
+lmm_fixed_effects_degenerate,-0.12,Effect of degenerate prompts
+lmm_random_intercept_variance,0.03,Variance due to problem difficulty
+collinearity_correlation,0.78,Token count vs structural element count correlation
+power_analysis_warning,"Sample size n=164 problems; power limited for small effects",Caveat per Spec Assumptions

@@ -63,7 +63,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T005a [P] Create project directory structure (`src/`, `tests/`, `contracts/`, `data/`, `analysis/`)
-- [ ] T005b [P] Initialize Python 3.11 project with `pyproject.toml` and `requirements.txt` (dependencies: `mne`, `pandas`, `numpy`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `datasets`, `joblib`)
+- [X] T005b [P] Initialize Python 3.11 project with `pyproject.toml` and `requirements.txt` (dependencies: `mne`, `pandas`, `numpy`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `datasets`, `joblib`)
 - [ ] T005c [P] Initialize Git repository and configure `.gitignore`
 - [ ] T006 [P] Configure linting (`ruff`) and formatting (`black`) tools
 
@@ -75,11 +75,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [P] Setup configuration management (`src/utils/config.py`) for paths, seeds, and parameters (Low-frequency to Hz filter, –250ms window)
-- [ ] T008 [P] Implement structured logging (`src/utils/logging.py`) with JSON output for pipeline traceability
+- [X] T007 [P] Setup configuration management (`src/utils/config.py`) for paths, seeds, and parameters (Low-frequency to Hz filter, –250ms window)
+- [X] T008 [P] Implement structured logging (`src/utils/logging.py`) with JSON output for pipeline traceability
 - [ ] T009 [P] Create base data schemas in `contracts/` (aligned_data.schema.yaml, model_output.schema.yaml)
-- [~] T010 [P] Setup environment variable validation and error handling infrastructure
-- [ ] T011 [P] Implement checksum utility (`src/utils/checksum.py`) for data hygiene (FR-009, Constitution III)
+- [ ] T010 [P] Setup environment variable validation and error handling infrastructure
+- [X] T011 [P] Implement checksum utility (`src/utils/checksum.py`) for data hygiene (FR-009, Constitution III)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -101,10 +101,10 @@
 ### Implementation for User Story 1
 
 - [X] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
-- [~] T015 [US1] Implement preprocessing module in `src/data/preprocess.py` (–40 Hz bandpass, ICA artifact removal, bad channel interpolation) (FR-002)
+- [X] T015 [US1] Implement preprocessing module in `src/data/preprocess.py` (–40 Hz bandpass, ICA artifact removal, bad channel interpolation) (FR-002)
 - [ ] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` and update `data/validation_report.json` with `underpowered_subjects` list. Subjects are included in the dataset but EXCLUDED from the primary GLMM input (Constitution VII, Plan Phase 0.5).
-- [ ] T017 [US1] Add reporting validation in `src/data/preprocess.py` to calculate and log topographic correlation improvement (ICA vs. raw) to `logs/preprocessing_report.json`. **Note**: This is a "soft" check for reporting only; do NOT block the pipeline if <20% (Plan overrides Spec US-1 Scenario 2).
-- [ ] T018 [US1] Implement epoching logic in `src/data/preprocess.py` (-200ms to 500ms, standard/deviant separation based on metadata) (FR-003)
+- [X] T017 [US1] Add reporting validation in `src/data/preprocess.py` to calculate and log topographic correlation improvement (ICA vs. raw) to `logs/preprocessing_report.json`. **Note**: This is a "soft" check for reporting only; do NOT block the pipeline if <20% (Plan overrides Spec US-1 Scenario 2).
+- [X] T018 [US1] Implement epoching logic in `src/data/preprocess.py` (-200ms to 500ms, standard/deviant separation based on metadata) (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

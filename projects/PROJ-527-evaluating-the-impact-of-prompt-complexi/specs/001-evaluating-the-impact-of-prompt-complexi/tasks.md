@@ -101,8 +101,8 @@
 - [X] T015 [US1] Implement `code/prompts/tokenizer.py` using `tiktoken cl100k_base` to count prompt tokens and validate thresholds (simple ≤50, moderate 51-150, etc.)
 - [X] T017 [US1] Implement `code/llm/orchestrator.py` to query LLM with multiple variants per problem, utilizing the T010 wrapper in `code/llm/client.py`, capturing code, token counts, and structural metadata.
 - [X] T018 [US1] Implement `code/data/storage.py` to write generated code and metadata to `data/processed/prompt_variants.parquet`
-- [ ] T019 [US1] Add logic to flag samples where 'degenerate' prompt token delta < 100 tokens vs 'very complex' for manual review (non-fatal), appending flagged sample IDs to `data/results/manual_review_queue.csv`. **(Note: This CSV is an internal flagging artifact; the spec requires flagging, not a full workflow).**
-- [ ] T020 [US1] Implement correlation check between token count and structural element count to diagnose collinearity (FR-013) and **write the correlation coefficient to `data/results/analysis_summary.csv`**.
+- [X] T019 [US1] Add logic to flag samples where 'degenerate' prompt token delta < 100 tokens vs 'very complex' for manual review (non-fatal), appending flagged sample IDs to `data/results/manual_review_queue.csv`. **(Note: This CSV is an internal flagging artifact; the spec requires flagging, not a full workflow).**
+- [X] T020 [US1] Implement correlation check between token count and structural element count to diagnose collinearity (FR-013) and **write the correlation coefficient to `data/results/analysis_summary.csv`**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -148,12 +148,12 @@
 ### Implementation for User Story 3
 
 - [X] T033 [US3] Implement `code/analysis/stats.py` with **Linear Mixed Model (LMM)** using `statsmodels` to handle nested structure (5 variants per problem) with random intercepts for problem difficulty, as updated in spec.md FR-005 via Task T001 and Plan.md. **(Depends on Phase 3 data; NOT [P])**
-- [~] T034 [US3] Implement multiple-comparison correction in `stats.py` using Bonferroni or Holm-Bonferroni with adjusted significance threshold (α ≤ 0.05 / number of tests).
-- [~] T035 [US3] Implement covariate adjustment in LMM to control for **prompt token count** (as updated in spec.md FR-012 via Task T001 and Plan.md) when evaluating readability metrics, replacing the original 'code length' requirement. **(Depends on Phase 3 data)**
-- [~] T036 [US3] Implement sensitivity analysis in `stats.py` to re-bin data using shifted thresholds (±10 tokens) and report variance in pass rates (FR-010).
+- [ ] T034 [US3] Implement multiple-comparison correction in `stats.py` using Bonferroni or Holm-Bonferroni with adjusted significance threshold (α ≤ 0.05 / number of tests).
+- [ ] T035 [US3] Implement covariate adjustment in LMM to control for **prompt token count** (as updated in spec.md FR-012 via Task T001 and Plan.md) when evaluating readability metrics, replacing the original 'code length' requirement. **(Depends on Phase 3 data)**
+- [ ] T036 [US3] Implement sensitivity analysis in `stats.py` to re-bin data using shifted thresholds (±10 tokens) and report variance in pass rates (FR-010).
 - [X] T037 [US3] Implement `code/analysis/viz.py` to generate complexity vs. performance curves with inflection points identified (peak performance and diminishing returns).
-- [~] T038 [US3] Implement effect size calculation (Cohen's d, eta-squared) with standard interpretation thresholds for small, medium, and large effects.
-- [~] T039 [US3] Implement structural redundancy verification in `stats.py` to confirm 'degenerate' prompts have higher structural element counts than 'very complex' prompts, and explicitly flag failures for manual review per updated spec.md US-1/US-3 criteria.
+- [ ] T038 [US3] Implement effect size calculation (Cohen's d, eta-squared) with standard interpretation thresholds for small, medium, and large effects.
+- [ ] T039 [US3] Implement structural redundancy verification in `stats.py` to confirm 'degenerate' prompts have higher structural element counts than 'very complex' prompts, and explicitly flag failures for manual review per updated spec.md US-1/US-3 criteria.
 - [ ] T040 [US3] Write final statistical results to `data/results/analysis_summary.csv` including test statistics, p-values, effect sizes, corrected thresholds, AND the correlation coefficient from FR-013 (T020).
 - [ ] T041 [US3] **Report Power Limitations**: Implement reporting of sample-size limitations and power analysis caveats in `data/results/analysis_summary.csv` and `research.md` as required by Spec Assumptions.
 

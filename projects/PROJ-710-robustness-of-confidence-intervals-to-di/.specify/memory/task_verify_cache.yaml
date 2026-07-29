@@ -1,42 +1,9 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system evidence were provided showing that the\
-    \ required paths (e.g., `projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/`,\
-    \ `.../data/`, `.../analysis/`, `.../utils/`, `.../tests/`, `.../artifacts/`)\
-    \ actually exist. The implementer\u2019s claim is unsubstantiated, so the required\
-    \ artifact is missing."
 T011:
   c: false
   h: 01a1ba9d8f2c8711ed4b0121f5bffa256055d5e124aabc624944d63a7b6646fc
   r: "The required artifact `code/tests/test_coverage_pipeline.py` does not exist\
     \ in the repository, so no integration test is present to verify end\u2011to\u2011\
     end coverage calculation. The task\u2019s core deliverable is missing."
-T013:
-  c: false
-  h: 5299940bcde84fb0b6e4fddedb1e391973110a2ce566bebaaa9fbe2072fd62fe
-  r: "The repository lacks the required `code/data/ground_truth.json` file, so the\
-    \ script cannot read the ground\u2011truth data as specified. Moreover, the provided\
-    \ excerpt of `code/main.py` does not show the inner 1,000\u2011bootstrap\u2011\
-    resample loop, the per\u2011sample CI construction, deviation calculation, or\
-    \ writing to `artifacts/coverage_intermediate.csv`, and the file is truncated\
-    \ before any such logic. These essential components are missing, so the task is\
-    \ not genuinely completed."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the task description and specification excerpts;\
-    \ no code files, functions, or other artifacts implementing the required edge\u2011\
-    case logic (noise\u2011scale clamping, collinearity detection, bootstrap sample\u2011\
-    size enforcement) are present. Consequently the required reusable functions are\
-    \ missing, so the task is not satisfied."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `artifacts/coverage_intermediate.csv` or `artifacts/coverage_results.csv`
-    were supplied, and there is no code or output showing the `deviation_from_nominal`
-    column being calculated and written. The required aggregation artifact is missing,
-    so the task is not satisfied.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -87,3 +54,10 @@ T029:
     \ or output showing coverage rates for each (dataset, statistic,\u202F\u03B5,\
     \ noise_type) combination. The claim lacks the required artifact, so the task\
     \ is not satisfied."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or documentation artifacts were supplied that demonstrate validation
+    of GLM assumptions for a binary outcome or handling of convergence warnings. The
+    claim lacks any concrete implementation, tests, or output files required by the
+    task.

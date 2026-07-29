@@ -36,7 +36,10 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 .coverage.*
-cover/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
 .hypothesis/
 .pytest_cache/
 
@@ -53,46 +56,39 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS files
-.DS_Store
-.DS_Store?
-_Thumbs.db
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# pyenv
+.python-version
+
 # mypy
 .mypy_cache/
+.dmypy.json
+dmypy.json
 
-# Project specific data (raw and large processed files)
+# Ruff
+.ruff_cache/
+
+# Data files (large datasets)
 data/raw/
 data/interim/
 data/processed/
-data/validation_report.json
-data/excluded_subjects.csv
-data/aligned_data.csv
-data/interim_lagged_mmns.csv
+*.h5
+*.hdf5
+*.fif
 
 # Logs
 logs/
 *.log
 
-# Analysis outputs
-analysis/results/
-figures/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Secrets
-.secret
-secrets.json
+# OS
+.DS_Store
+Thumbs.db

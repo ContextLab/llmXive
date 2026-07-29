@@ -1,19 +1,17 @@
 """
-Project Initialization Script for PROJ-500-neural-correlates-of-predictive-error-si
+Project setup script for initializing directory structure and configuration.
 
-This script creates the required directory structure and initializes
-essential configuration files for the project.
+This script creates the necessary directory structure for the project
+and initializes the configuration file.
 """
+
 import os
 from pathlib import Path
 
 
 def main():
-    """Create the project directory structure and essential files."""
-    # Define the root directory (current working directory)
-    root = Path.cwd()
-    
-    # Define required directories relative to root
+    """Initialize project directory structure."""
+    # Define directories to create
     directories = [
         "src",
         "src/data",
@@ -21,74 +19,48 @@ def main():
         "src/analysis",
         "tests",
         "tests/unit",
-        "tests/contract",
         "tests/integration",
-        "contracts",
-        "data",
+        "tests/contract",
         "data/raw",
-        "data/processed",
         "data/interim",
-        "analysis",
-        "analysis/results",
+        "data/processed",
         "logs",
+        "analysis/results",
         "figures",
+        "cache",
         "docs",
-        "specs",
+        "contracts",
     ]
-    
+
     # Create directories
-    created_dirs = []
     for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-        else:
-            # Ensure it's actually a directory, not a file
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
-    
-    # Create essential __init__.py files for Python packages
-    package_dirs = [
-        "src",
-        "src/data",
-        "src/utils",
-        "src/analysis",
-        "tests",
-        "tests/unit",
-        "tests/contract",
-        "tests/integration",
+        path = Path(dir_path)
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {path}")
+
+    # Create __init__.py files for Python packages
+    init_files = [
+        "src/__init__.py",
+        "src/data/__init__.py",
+        "src/utils/__init__.py",
+        "src/analysis/__init__.py",
+        "tests/__init__.py",
+        "tests/unit/__init__.py",
+        "tests/integration/__init__.py",
+        "tests/contract/__init__.py",
     ]
-    
-    for pkg_dir in package_dirs:
-        init_file = root / pkg_dir / "__init__.py"
-        if not init_file.exists():
-            init_file.write_text(f'"""Package for {pkg_dir}."""\n')
-    
-    # Create .gitkeep files in data directories to ensure they are tracked
-    data_dirs = ["data/raw", "data/processed", "data/interim"]
-    for data_dir in data_dirs:
-        gitkeep = root / data_dir / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.write_text("# Keep this directory in git\n")
-    
-    # Create logs directory gitkeep
-    logs_gitkeep = root / "logs" / ".gitkeep"
-    if not logs_gitkeep.exists():
-        logs_gitkeep.write_text("# Keep this directory in git\n")
-    
-    # Create figures directory gitkeep
-    figures_gitkeep = root / "figures" / ".gitkeep"
-    if not figures_gitkeep.exists():
-        figures_gitkeep.write_text("# Keep this directory in git\n")
-    
-    # Print summary
-    print(f"Project structure initialized at: {root}")
-    print(f"Created {len(created_dirs)} directories")
-    print(f"Created {len(package_dirs)} __init__.py files")
-    print(f"Created {len(data_dirs) + 2} .gitkeep files")
-    
-    return True
+
+    for init_file in init_files:
+        path = Path(init_file)
+        if not path.exists():
+            path.touch()
+            print(f"Created: {init_file}")
+
+    print("\nProject structure initialized successfully!")
+    print("Next steps:")
+    print("  1. Install dependencies: pip install -r requirements.txt")
+    print("  2. Initialize git: git init")
+    print("  3. Run tests: pytest")
 
 
 if __name__ == "__main__":

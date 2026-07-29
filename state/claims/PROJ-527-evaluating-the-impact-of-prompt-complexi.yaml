@@ -93,3 +93,186 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T00:21:49Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 0
+  canonical: HumanEval dataset contains 164 problems
+  claim_id: c_42612450
+  context: The HumanEval dataset (164 problems) provides a moderate sample size. Power
+    analysis suggests that while main effects (complexity vs. pass rate) are detectable,
+    subtle interaction effects may be underpowered.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: manEval (Chen et al., 2021) with 164 tasks,
+      source_id: '2410.12381'
+      url: https://arxiv.org/abs/2410.12381
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The HumanEval dataset contains 164 problems.
+  resolved_value: '164'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T15:51:30Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: McCabe 1976 published A Complexity Measure in IEEE Transactions on Software
+    Engineering 2(4) 308-320
+  claim_id: c_94e2ba79
+  context: "Validation Source: McCabe, T. J. (1976). 'A Complexity Measure'. IEEE\
+    \ Transactions on Software Engineering, 2(4), 308\u2013320."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "McCabe, T. J. (1976) published 'A Complexity Measure' in IEEE Transactions\
+    \ on Software Engineering, 2(4), pages 308\u2013320."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:52:02Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: Pressman 2014 published Software Engineering A Practitioner's Approach
+  claim_id: c_fb53462e
+  context: 'Validation Source: Standard software engineering metric (e.g., Pressman,
+    R. S. (2014). Software Engineering: A Practitioner''s Approach).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pressman, R. S. (2014) published ''Software Engineering: A Practitioner''s
+    Approach''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:52:50Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: OWASP Top 10 2021 includes A01:2021 Broken Access Control and A03:2021
+    Injection
+  claim_id: c_2a0a3c0a
+  context: "Validation Sources: OWASP Top 10 (2021): Specifically A01:2021 \u2013\
+    \ Broken Access Control and A03:2021 \u2013 Injection."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "OWASP Top 10 (2021) includes A01:2021 \u2013 Broken Access Control and\
+    \ A03:2021 \u2013 Injection."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:53:33Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: CWE-95 is Improper Neutralization of Directives in Dynamically Evaluated
+    Code
+  claim_id: c_43c8e6e5
+  context: 'CWE (Common Weakness Enumeration): CWE-95: Improper Neutralization of
+    Directives in Dynamically Evaluated Code (Eval Injection).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CWE-95_is_Improper_Neutralization_of_Directives_in_Dynamical
+  kind: entity_fact
+  raw_text: CWE-95 is defined as Improper Neutralization of Directives in Dynamically
+    Evaluated Code (Eval Injection).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:54:14Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: CWE-798 is Use of Hard-coded Credentials
+  claim_id: c_a9de3d65
+  context: 'CWE (Common Weakness Enumeration): CWE-798: Use of Hard-coded Credentials.'
+  evidence:
+    entailment_evidence: CWE-798 is Use of Hard-coded Credentials
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/CWE-798_is_Use_of_Hard-coded_Credentials
+  kind: entity_fact
+  raw_text: CWE-798 is defined as Use of Hard-coded Credentials.
+  resolved_value: CWE-798 is Use of Hard-coded Credentials
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T15:54:16Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: Pinheiro and Bates 2000 published Mixed-Effects Models in S and S-PLUS
+  claim_id: c_2a94904a
+  context: 'Reference: Pinheiro, J. C., & Bates, D. M. (2000). Mixed-Effects Models
+    in S and S-PLUS.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pinheiro, J. C., & Bates, D. M. (2000) published 'Mixed-Effects Models
+    in S and S-PLUS'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:56:05Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: Holm 1979 published A Simple Sequentially Rejective Multiple Test Procedure
+    in Scandinavian Journal of Statistics
+  claim_id: c_4da72c0d
+  context: 'Reference: Holm, S. (1979). A Simple Sequentially Rejective Multiple Test
+    Procedure. Scandinavian Journal of Statistics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Holm, S. (1979) published 'A Simple Sequentially Rejective Multiple Test
+    Procedure' in Scandinavian Journal of Statistics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:56:23Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: HumanEval Dataset available at openai/human-eval on Hugging Face
+  claim_id: c_629d89c3
+  context: 'Data Sources: HumanEval Dataset: openai/human-eval (Hugging Face).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_Dataset_available_at_openai/human-eval_on_Hugging
+  kind: entity_fact
+  raw_text: The HumanEval Dataset is available at openai/human-eval on Hugging Face.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:56:50Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: ruff is a Rust-based Python linter
+  claim_id: c_1c68c774
+  context: 'Static Analysis Tool: ruff (Rust-based Python linter).'
+  evidence:
+    entailment_evidence: Ruff is a Rust-based Python linter
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Ruff_is_a_Rust-based_Python_linter
+  kind: entity_fact
+  raw_text: ruff is a Rust-based Python linter.
+  resolved_value: ruff is a Rust-based Python linter
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T15:56:51Z'
