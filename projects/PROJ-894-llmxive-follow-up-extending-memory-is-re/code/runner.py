@@ -1,5 +1,6 @@
 """
 Runner module with timeout enforcement and task execution logic.
+Implements chunked processing for large datasets to stay within RAM limits.
 """
 import os
 import time
@@ -8,10 +9,12 @@ import logging
 import csv
 import json
 from pathlib import Path
-from typing import Callable, Any, Dict, Optional, List
+from typing import Callable, Any, Dict, Optional, List, Iterator
 from threading import Timer
 
 logger = logging.getLogger(__name__)
+
+CHUNK_SIZE = 1000
 
 class TimeoutError(Exception):
     """Custom exception for task timeout."""
@@ -115,19 +118,84 @@ def save_results_to_csv(results: List[Dict[str, Any]], output_path: str, columns
             row = {col: res.get(col, "") for col in columns}
             writer.writerow(row)
 
+def process_in_chunks(data_iterator: Iterator[Any], process_func: Callable, chunk_size: int = CHUNK_SIZE, timeout: float = 300):
+    """
+    Process an iterator of data in chunks to manage memory usage.
+    
+    Args:
+        data_iterator: Iterator yielding data items.
+        process_func: Function to process a batch (list) of items. Should return a list of results.
+        chunk_size: Number of items per chunk.
+        timeout: Timeout for each chunk processing.
+        
+    Yields:
+        Individual result dictionaries.
+    """
+    chunk = []
+    total_processed = 0
+    
+    for item in data_iterator:
+        chunk.append(item)
+        if len(chunk) >= chunk_size:
+            logger.info(f"Processing chunk of {len(chunk)} items (total: {total_processed})...")
+            chunk_results = run_batch(
+                [(process_func, (task,), {}) for task in chunk],
+                timeout=timeout
+            )
+            for res in chunk_results:
+                if res['status'] == 'success':
+                    yield res['data']
+                else:
+                    # Log error but continue
+                    logger.error(f"Chunk processing failed: {res.get('error')}")
+                    yield {
+                        "task_id": "unknown",
+                        "status": "error",
+                        "error": res.get('error')
+                    }
+            total_processed += len(chunk)
+            chunk = []
+    
+    # Process remaining items
+    if chunk:
+        logger.info(f"Processing final chunk of {len(chunk)} items...")
+        chunk_results = run_batch(
+            [(process_func, (task,), {}) for task in chunk],
+            timeout=timeout
+        )
+        for res in chunk_results:
+            if res['status'] == 'success':
+                yield res['data']
+            else:
+                logger.error(f"Final chunk processing failed: {res.get('error')}")
+                yield {
+                    "task_id": "unknown",
+                    "status": "error",
+                    "error": res.get('error')
+                }
+        total_processed += len(chunk)
+    
+    logger.info(f"Total items processed: {total_processed}")
+
 def main():
     """Example usage of the runner."""
-    def sample_task():
-        time.sleep(1)
+    def sample_task(task):
+        time.sleep(0.1)
         return {
-            "task_id": "sample_001",
+            "task_id": task.get('id', 'unknown'),
             "accuracy": 0.85,
             "nodes_visited": 10,
             "latency_ms": 1000.0
         }
 
-    result = run_task(sample_task, timeout=5.0)
-    print(json.dumps(result, indent=2))
+    # Simulate an iterator
+    def mock_iterator():
+        for i in range(5):
+            yield {'id': f'task_{i}'}
+
+    results = list(process_in_chunks(mock_iterator(), sample_task, chunk_size=2))
+    save_results_to_csv(results, "data/processed/test_results.csv", ["task_id", "accuracy", "nodes_visited", "latency_ms"])
+    print(f"Saved {len(results)} results.")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

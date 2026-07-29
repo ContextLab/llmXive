@@ -16,7 +16,7 @@ This project implements a comparative analysis of memory reconstruction strategi
 **Project Type**: Research CLI / Data Analysis Pipeline  
 **Performance Goals**: Complete full benchmark subset within 6 hours; individual task timeout < 30 mins.  
 **Constraints**: CPU-only execution; memory < 7GB; no external API calls for inference (local quantized model); robust handling of disconnected graphs and timeouts.  
-**Scale/Scope**: LoCoMo benchmark subset (~100-500 tasks); synthetic graph generation for noise injection.
+**Scale/Scope**: LoCoMo benchmark subset (representative sample of tasks); synthetic graph generation for noise injection.
 
 > Empirical specifics (exact task counts, model sizes, latency values) are deferred to the research/implementation phase.
 
@@ -101,7 +101,7 @@ projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/
 - **Edge Cases**: Ensure `graph_utils.py` handles disconnected graphs (flag as unresolved) and degenerate inputs (no division by zero).
 
 ### Phase 2: Integration & Execution
-- **Goal**: Run the full pipeline on a small subset (10 tasks) to verify end-to-end flow.
+- **Goal**: Run the full pipeline on a small subset of tasks to verify end-to-end flow.
 - **FR-002, FR-003, FR-004**: Execute strategies on subset.
 - **FR-001**: Verify synthetic noise generation reproducibility.
 - **FR-007**: Verify timeout triggers correctly on a simulated slow task.

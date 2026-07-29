@@ -13,3 +13,4 @@ spacy
 statsmodels
 jinja2
 asgiref
+llama_cpp  # auto-added: imported by run-book but missing from venv

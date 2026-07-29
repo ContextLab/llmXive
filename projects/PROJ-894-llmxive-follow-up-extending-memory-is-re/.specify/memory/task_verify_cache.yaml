@@ -1,26 +1,18 @@
-T013b:
+T011:
   c: false
-  h: 8bc7f295da632839a744e08143d82abe7bd9587f3356d2a9550e0e9f0aeb76a8
-  r: The required output file `data/processed/noisy_baseline_results.csv` is absent,
-    and the provided `code/runner.py` does not contain any implementation that runs
-    the noisy baseline on synthetic graphs or logs the required columns (`task_id`,
-    `accuracy`, `nodes_visited`, `latency_ms`). The runner code is truncated and lacks
-    the logic to generate or write the CSV.
-T019:
+  h: 7c8c3747d20cf3a0a8067ee11a1cbbe828dbff768e69576881d0f0f23b02ec6f
+  r: "The provided `code/data_loader.py` contains only part of the dataset\u2011fetching\
+    \ logic and does not include any implementation that builds a graph, injects random\
+    \ edges at a specified density with seed\u202F42, or writes the result to `data/processed/graphs/graph_noise_42.json`\
+    \ (the file is absent). Consequently the required synthetic noisy graph generation\
+    \ and output artifact are missing, so the task is not satisfied."
+T013:
   c: false
-  h: 06a286633cad150a66fd0101900131205b5de87fe555957d0028d2dc4bf5252d
-  r: "The repository contains a generic `code/runner.py` but it does not include any\
-    \ logic specific to Lazy or Greedy strategy execution, nor does it write results\
-    \ to `data/processed/lazy_results.csv` or `data/processed/greedy_results.csv`.\
-    \ Both expected CSV output files are absent from the project. The required strategy\u2011\
-    specific runners and their result logging are therefore missing."
-T019b:
-  c: false
-  h: 6f4938c41a9fb2361ee6d514fb0fc0b0628ca553c1c49a8820ab9ee85a645a8f
-  r: "The required result files `data/processed/noisy_lazy_results.csv` and `data/processed/noisy_greedy_results.csv`\
-    \ are absent, and the provided `code/runner.py` contains only generic task\u2011\
-    running utilities without any implementation of noisy execution for the Lazy or\
-    \ Greedy strategies. The task\u2019s core requirement is therefore not satisfied."
+  h: d610150bd68c0f7f7a2a5e692b88c51d89b41fa5e5bac6f5113aea1f084a0dbf
+  r: The required output file `data/processed/baseline_results.csv` does not exist,
+    and the provided `code/runner.py` snippet shows no implementation that logs `task_id`,
+    `accuracy`, `nodes_visited`, and `latency_ms` to such a CSV. The runner lacks
+    the necessary logic to produce the specified baseline results file.
 T020:
   c: false
   h: 07f7ca7632beab66902cb9d80fd6749dd5dba6c3e30276e1e5b76f3d7a472ec1
@@ -29,11 +21,3 @@ T020:
     \ `evidence_threshold` (default 0.8) and contains no code that performs a sensitivity\u2011\
     analysis sweep over the thresholds (including 0.7 and 0.9) nor writes results\
     \ to the specified CSV. The task\u2019s core requirement is therefore unmet."
-T033:
-  c: false
-  h: 138cc51bc04371904aea6ea7b0146fb389d31f8bf894b4f01463496f2cdc0ea9
-  r: The repository lacks the required `contracts/results.schema.yaml` file, so the
-    script cannot load the schema. Moreover, `validate_results.py` is truncated (e.g.,
-    unfinished `validate_csv_structure` function) and never executes validation over
-    the listed CSVs. Both the essential schema artifact and a complete, runnable validation
-    script are missing.
