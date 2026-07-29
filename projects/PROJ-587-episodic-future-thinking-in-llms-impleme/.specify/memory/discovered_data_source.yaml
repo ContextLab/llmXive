@@ -1,15 +1,15 @@
 status: none
-intent: ALFWorld TextWorld episodic memory planning dataset python package dataset
+intent: download ALFWorld TextWorld planning trajectories python package dataset
 required_fields:
 - episode_id
 - step_id
 - timestamp
-- state_text
-- action_text
-- outcome_text
+- state
+- action
+- outcome
 - state_embedding
 - action_embedding
 - outcome_embedding
-cache_key: 3df1866c8814ba0d6f551b7124dacda54ef262a98f76e3f30e2e6dedccbe72bd
-searched_at: '2026-07-29T17:19:25.060665+00:00'
+cache_key: 461160f64dd0d0a097094e98b4effa2903279979ea10473e4d62d1d80be1dcd3
+searched_at: '2026-07-29T18:09:07.165975+00:00'
 retry_count: 1

@@ -1,20 +1,33 @@
+"""
+Logging utilities for the Episodic Future Thinking project.
+
+Provides specialized loggers for different components (retrieval, fallback, confidence, etc.)
+and ensures no circular imports with other modules.
+"""
 import logging
 import json
 import sys
 import os
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
-# Constants for log formatting
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-JSON_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+# Ensure we use the stdlib logging module
+# This file is named logging.py, so 'import logging' would normally cause a circular import
+# if not handled carefully. However, since this is the definition of the logging module,
+# we must use the built-in logging functionality.
+# To avoid recursion, we use the built-in logging module directly.
+# The standard approach when a module is named 'logging.py' is to not import it,
+# but use the built-in 'logging' module which is already available.
+# However, in this context, we are defining the logging module, so we can use
+# the built-in logging module.
+# The previous error was in stats.py trying to import logging and getting this file.
+# This file itself is fine.
 
-# Module-level logger instance
-_logger = None
-_fallback_logger = None
+_loggers: Dict[str, logging.Logger] = {}
+_handlers: Dict[str, List[logging.Handler]] = {}
 
 class JSONFormatter(logging.Formatter):
-    """Custom JSON formatter for structured logging."""
+    """Custom formatter that outputs logs as JSON."""
 
     def format(self, record: logging.LogRecord) -> str:
         log_data = {
@@ -24,187 +37,161 @@ class JSONFormatter(logging.Formatter):
             "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
-            "line": record.lineno,
+            "line": record.lineno
         }
-
-        # Add extra fields if present
-        if hasattr(record, "extra_data"):
+        if hasattr(record, 'extra_data'):
             log_data["extra"] = record.extra_data
-
         return json.dumps(log_data)
 
-def get_json_logger(
-    name: str,
-    log_file: Optional[str] = None,
-    level: int = logging.INFO
-) -> logging.Logger:
-    """
-    Create and configure a logger with JSON formatting.
+def _get_logger(name: str, level: int = logging.INFO, use_json: bool = False) -> logging.Logger:
+    """Get or create a logger with the specified name."""
+    if name not in _loggers:
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
 
-    Args:
-        name: Logger name (usually __name__)
-        log_file: Optional path to log file. If None, logs to stdout.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG)
+        # Avoid adding handlers multiple times
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            if use_json:
+                handler.setFormatter(JSONFormatter())
+            else:
+                handler.setFormatter(logging.Formatter(
+                    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                ))
+            logger.addHandler(handler)
 
-    Returns:
-        Configured logger instance
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+        _loggers[name] = logger
 
-    # Prevent duplicate handlers if logger already exists
-    if logger.handlers:
-        return logger
+    return _loggers[name]
 
-    # Create formatter
-    formatter = JSONFormatter()
+def get_default_logger() -> logging.Logger:
+    """Get the default logger."""
+    return _get_logger("default", use_json=False)
 
-    # Add console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+def get_retrieval_logger() -> logging.Logger:
+    """Get the retrieval-specific logger."""
+    return _get_logger("episodic_retrieval", use_json=True)
 
-    # Add file handler if specified
-    if log_file:
-        # Ensure directory exists
-        log_dir = os.path.dirname(log_file)
-        if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir)
+def get_fallback_logger() -> logging.Logger:
+    """Get the fallback-specific logger."""
+    return _get_logger("fallback_handler", use_json=True)
 
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+def get_confidence_logger() -> logging.Logger:
+    """Get the confidence-specific logger."""
+    return _get_logger("confidence_calibration", use_json=True)
 
-    return logger
+def get_conflict_logger() -> logging.Logger:
+    """Get the conflict-specific logger."""
+    return _get_logger("conflict_resolution", use_json=True)
 
-def log_fallback_event(
-    logger: logging.Logger,
-    event_type: str,
-    details: Dict[str, Any],
-    confidence_score: Optional[float] = None
-) -> None:
-    """
-    Log a fallback event when the system reverts to baseline behavior.
+def get_stats_logger() -> logging.Logger:
+    """Get the statistics-specific logger."""
+    return _get_logger("statistical_analysis", use_json=True)
 
-    Args:
-        logger: Logger instance
-        event_type: Type of fallback (e.g., "low_retrieval_count", "similarity_threshold")
-        details: Additional context about the fallback
-        confidence_score: Optional confidence score that triggered fallback
-    """
-    extra_data = {
-        "event_type": event_type,
-        "details": details,
-        "confidence_score": confidence_score,
-    }
-
-    logger.warning(
-        f"Fallback event triggered: {event_type}",
-        extra={"extra_data": extra_data}
-    )
-
-def log_retrieval_stats(
-    logger: logging.Logger,
+def log_retrieval_trigger(
     query_id: str,
     retrieved_count: int,
-    avg_similarity: float,
-    latency_ms: float,
-    top_k: int
+    similarity_scores: List[float],
+    latency_ms: float
 ) -> None:
-    """
-    Log retrieval statistics for analysis.
-
-    Args:
-        logger: Logger instance
-        query_id: Unique identifier for the query
-        retrieved_count: Number of items retrieved
-        avg_similarity: Average similarity score
-        latency_ms: Retrieval latency in milliseconds
-        top_k: Requested top-k value
-    """
-    extra_data = {
-        "query_id": query_id,
-        "retrieved_count": retrieved_count,
-        "avg_similarity": avg_similarity,
-        "latency_ms": latency_ms,
-        "top_k": top_k,
-    }
-
+    """Log a retrieval event."""
+    logger = get_retrieval_logger()
     logger.info(
-        f"Retrieval stats for {query_id}: {retrieved_count} items, "
-        f"avg_sim={avg_similarity:.4f}, latency={latency_ms:.2f}ms",
-        extra={"extra_data": extra_data}
+        f"Retrieved {retrieved_count} episodes for query {query_id}",
+        extra={'extra_data': {
+            'query_id': query_id,
+            'retrieved_count': retrieved_count,
+            'similarity_scores': similarity_scores,
+            'latency_ms': latency_ms
+        }}
+    )
+
+def log_fallback_event(
+    query_id: str,
+    reason: str,
+    fallback_method: str
+) -> None:
+    """Log a fallback event."""
+    logger = get_fallback_logger()
+    logger.info(
+        f"Fallback triggered for query {query_id}: {reason}",
+        extra={'extra_data': {
+            'query_id': query_id,
+            'reason': reason,
+            'fallback_method': fallback_method
+        }}
+    )
+
+def log_confidence_score(
+    scenario_id: str,
+    confidence_score: float,
+    counterfactual_details: Optional[Dict[str, Any]] = None
+) -> None:
+    """Log confidence score for a scenario."""
+    logger = get_confidence_logger()
+    log_msg = f"Confidence score {confidence_score:.4f} for scenario {scenario_id}"
+    if counterfactual_details:
+        log_msg += f" (counterfactuals: {len(counterfactual_details)})"
+    
+    logger.info(
+        log_msg,
+        extra={'extra_data': {
+            'scenario_id': scenario_id,
+            'confidence_score': confidence_score,
+            'counterfactual_details': counterfactual_details
+        }}
     )
 
 def log_episodic_store(
-    logger: logging.Logger,
     episode_id: str,
     state_hash: str,
     action_hash: str,
     outcome_hash: str,
     timestamp: datetime
 ) -> None:
-    """
-    Log successful storage of an episodic memory.
-
-    Args:
-        logger: Logger instance
-        episode_id: Unique identifier for the episode
-        state_hash: Hash of the state representation
-        action_hash: Hash of the action taken
-        outcome_hash: Hash of the outcome observed
-        timestamp: When the episode was stored
-    """
-    extra_data = {
-        "episode_id": episode_id,
-        "state_hash": state_hash,
-        "action_hash": action_hash,
-        "outcome_hash": outcome_hash,
-        "timestamp": timestamp.isoformat(),
-    }
-
-    logger.debug(
-        f"Episodic memory stored: {episode_id}",
-        extra={"extra_data": extra_data}
+    """Log an episodic memory storage event."""
+    logger = get_retrieval_logger()
+    logger.info(
+        f"Stored episode {episode_id}",
+        extra={'extra_data': {
+            'episode_id': episode_id,
+            'state_hash': state_hash,
+            'action_hash': action_hash,
+            'outcome_hash': outcome_hash,
+            'timestamp': timestamp.isoformat()
+        }}
     )
 
 def log_conflict_detected(
-    logger: logging.Logger,
     state_hash: str,
-    outcome_hashes: list,
-    resolution_strategy: str
+    episode_ids: List[str],
+    resolution: str
 ) -> None:
-    """
-    Log a detected conflict in episodic memory (same state, different outcomes).
-
-    Args:
-        logger: Logger instance
-        state_hash: Hash of the conflicting state
-        outcome_hashes: List of conflicting outcome hashes
-        resolution_strategy: Strategy used to resolve the conflict
-    """
-    extra_data = {
-        "state_hash": state_hash,
-        "outcome_hashes": outcome_hashes,
-        "resolution_strategy": resolution_strategy,
-    }
-
-    logger.warning(
-        f"Conflict detected for state {state_hash}",
-        extra={"extra_data": extra_data}
+    """Log a conflict detection and resolution event."""
+    logger = get_conflict_logger()
+    logger.info(
+        f"Conflict detected for state {state_hash}, resolved as {resolution}",
+        extra={'extra_data': {
+            'state_hash': state_hash,
+            'episode_ids': episode_ids,
+            'resolution': resolution
+        }}
     )
 
-# Initialize default loggers at module load
-if _logger is None:
-    _logger = get_json_logger("episodic_future_thinking")
-
-if _fallback_logger is None:
-    _fallback_logger = get_json_logger("fallback_events", level=logging.WARNING)
-
-def get_default_logger() -> logging.Logger:
-    """Get the default project logger."""
-    return _logger
-
-def get_fallback_logger() -> logging.Logger:
-    """Get the fallback event logger."""
-    return _fallback_logger
+def log_retrieval_stats(
+    total_queries: int,
+    successful_retrievals: int,
+    fallbacks: int,
+    avg_latency_ms: float
+) -> None:
+    """Log overall retrieval statistics."""
+    logger = get_stats_logger()
+    logger.info(
+        f"Retrieval stats: {successful_retrievals}/{total_queries} successful, {fallbacks} fallbacks, avg latency {avg_latency_ms:.2f}ms",
+        extra={'extra_data': {
+            'total_queries': total_queries,
+            'successful_retrievals': successful_retrievals,
+            'fallbacks': fallbacks,
+            'avg_latency_ms': avg_latency_ms
+        }}
+    )

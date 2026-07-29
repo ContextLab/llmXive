@@ -1,290 +1,288 @@
 """
 Statistical utilities for the Episodic Future Thinking project.
 
-Implements power analysis and statistical testing utilities required for
-experimental validation and pre-registration of study parameters.
+Implements mixed-effects modeling, effect size calculations, and power analysis
+using statsmodels with Bonferroni correction for multiple comparisons (FR-008).
 """
 import json
 import math
+import argparse
+import logging
+import sys
 from pathlib import Path
-from typing import Dict, Any, Optional
-from datetime import datetime
+from typing import Dict, List, Any, Optional, Tuple
 
-# Optional dependency: statsmodels for more advanced tests if needed later
-# Currently using standard math for power analysis calculation
-try:
-    from scipy import stats
-    import numpy as np
-    SCIPY_AVAILABLE = True
-except ImportError:
-    SCIPY_AVAILABLE = False
-    # Fallback math implementations will be used if scipy is missing
-    pass
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+from statsmodels.stats.multitest import multipletests
+from statsmodels.formula.api import mixedlm
 
-def _norm_ppf(p: float) -> float:
+# Resolve circular import by avoiding direct 'import logging' at top level if
+# this file is named logging.py in a different context, but here it is stats.py.
+# However, the error log showed:
+# File ".../code/utils/stats.py", line 4, in <module>
+#   import logging
+#   File ".../code/utils/logging.py", ...
+# This implies the environment might have a shadowing issue or the error log
+# was from a previous broken state where stats.py was named logging.py or
+# the import path was messed up.
+# To be safe and ensure this file works independently:
+# We will use the standard library logging module explicitly.
+# The previous error "partially initialized module 'logging' has no attribute 'Logger'"
+# happened because the file itself was named `logging.py` or there was a circular
+# import where `stats.py` tried to import `logging` but the local `logging.py`
+# was being loaded instead of stdlib.
+# Since the path is `code/utils/stats.py`, importing `logging` should be fine
+# UNLESS the user's PYTHONPATH or a local file named `logging.py` exists in the
+# current working directory or `code/utils`.
+# The error log says:
+# File "/home/.../code/utils/stats.py", line 4, in <module>
+#   import logging
+# File "/home/.../code/utils/logging.py", ...
+# This confirms that `import logging` in `stats.py` was resolving to `code/utils/logging.py`
+# instead of the stdlib `logging`. This is a classic shadowing error.
+# Fix: Use `import logging as stdlib_logging` or ensure we don't shadow.
+# But we cannot rename `code/utils/logging.py` in this task (it's T017).
+# We must fix `stats.py` to NOT shadow the stdlib logging module.
+# The solution is to import the stdlib logging module explicitly by bypassing
+# the local module if possible, or simply not importing it if we can use a
+# different mechanism.
+# However, the standard way to fix "import logging" resolving to a local file
+# is to ensure the stdlib is found first. But Python's import system is
+# path-order based. If `code/utils` is in sys.path, and `logging.py` exists there,
+# it will be imported.
+# We can use `import importlib; stdlib_logging = importlib.import_module('logging')`
+# to force the stdlib version.
+
+import importlib
+stdlib_logging = importlib.import_module('logging')
+
+def calculate_effect_size(
+    group1: np.ndarray,
+    group2: np.ndarray
+) -> float:
     """
-    Approximate inverse of the standard normal CDF (percent point function).
-    Used for power analysis calculations when scipy is not available.
-    Implementation based on Abramowitz and Stegun approximation.
-    """
-    if p <= 0 or p >= 1:
-        raise ValueError("p must be between 0 and 1")
-    if p == 0.5:
-        return 0.0
-    
-    # Constants for approximation
-    a1 = -3.969683028665376e+01
-    a2 = 2.209460984245205e+02
-    a3 = -2.759285104469687e+02
-    a4 = 1.383577518672690e+02
-    a5 = -3.066479806614716e+01
-    a6 = 2.506628277459239e+00
+    Calculate Cohen's d effect size between two groups.
 
-    b1 = -5.447609879822406e+01
-    b2 = 1.615858368580409e+02
-    b3 = -1.556989798598866e+02
-    b4 = 6.680131188771972e+01
-    b5 = -1.328068155288572e+01
-
-    c1 = -7.784894002430293e-03
-    c2 = -3.223964580411365e-01
-    c3 = -2.400758277161838e+00
-    c4 = -2.549732539343734e+00
-    c5 = 4.374664141464968e+00
-    c6 = 2.938163982698783e+00
-
-    d1 = 7.784695709041462e-03
-    d2 = 3.224671290700398e-01
-    d3 = 2.445134137142996e+00
-    d4 = 3.754408661907416e+00
-
-    p_low = 0.02425
-    p_high = 1 - p_low
-
-    if p < p_low:
-        q = math.sqrt(-2 * math.log(p))
-        return (((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6) / ((((d1*q+d2)*q+d3)*q+d4)*q+1)
-    elif p <= p_high:
-        q = p - 0.5
-        r = q * q
-        return (((((a1*r+a2)*r+a3)*r+a4)*r+a5)*r+a6)*q / (((((b1*r+b2)*r+b3)*r+b4)*r+b5)*r+1)
-    else:
-        q = math.sqrt(-2 * math.log(1 - p))
-        return -(((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6) / ((((d1*q+d2)*q+d3)*q+d4)*q+1)
-
-def calculate_power_analysis(
-    n_per_group: int,
-    effect_size: float,
-    alpha: float = 0.05,
-    two_tailed: bool = True
-) -> Dict[str, float]:
-    """
-    Calculate statistical power for a two-sample t-test.
-    
     Args:
-        n_per_group: Number of samples in each group
-        effect_size: Cohen's d effect size
-        alpha: Significance level (default 0.05)
-        two_tailed: Whether to use two-tailed test (default True)
-        
-    Returns:
-        Dictionary containing power, critical values, and test parameters
-    """
-    if n_per_group <= 0:
-        raise ValueError("n_per_group must be positive")
-    if effect_size == 0:
-        return {
-            "power": 0.0 if two_tailed else 0.5,
-            "effect_size": effect_size,
-            "n_per_group": n_per_group,
-            "alpha": alpha,
-            "two_tailed": two_tailed
-        }
-        
-    # Degrees of freedom for two-sample t-test
-    df = 2 * n_per_group - 2
-    
-    # Critical t-value
-    if two_tailed:
-        alpha_adj = alpha / 2
-    else:
-        alpha_adj = alpha
-        
-    if SCIPY_AVAILABLE:
-        critical_t = stats.t.ppf(1 - alpha_adj, df)
-    else:
-        # Approximation using normal distribution for large df
-        critical_t = _norm_ppf(1 - alpha_adj)
-    
-    # Non-centrality parameter
-    ncp = effect_size * math.sqrt(n_per_group / 2)
-    
-    # Power calculation
-    if SCIPY_AVAILABLE:
-        # Power = P(T > critical_t | non-central t distribution)
-        power = 1 - stats.nct.cdf(critical_t, df, ncp)
-        if two_tailed:
-            # Add lower tail probability
-            power += stats.nct.cdf(-critical_t, df, ncp)
-    else:
-        # Approximation using normal distribution
-        # Power ≈ Φ(ncp - z_crit) for one-tailed
-        z_crit = critical_t
-        if two_tailed:
-            # For two-tailed, we consider both tails
-            # Approximate as one-tailed with adjusted alpha
-            z_crit = _norm_ppf(1 - alpha / 2)
-            power = 1 - _norm_ppf(z_crit - ncp) + _norm_ppf(-z_crit - ncp)
-        else:
-            power = 1 - _norm_ppf(z_crit - ncp)
-        
-        # Clamp power to [0, 1]
-        power = max(0.0, min(1.0, power))
-    
-    return {
-        "power": float(power),
-        "effect_size": float(effect_size),
-        "n_per_group": n_per_group,
-        "alpha": float(alpha),
-        "two_tailed": two_tailed,
-        "degrees_of_freedom": df,
-        "critical_t_value": float(critical_t),
-        "non_central_parameter": float(ncp)
-    }
+        group1: Array of values for group 1.
+        group2: Array of values for group 2.
 
-def run_power_analysis(
-    output_path: Optional[str] = None,
-    n_variants: int = 10,
-    target_power: float = 0.80,
-    target_effect_size: float = 0.8,
-    alpha: float = 0.05
+    Returns:
+        Cohen's d value.
+    """
+    n1, n2 = len(group1), len(group2)
+    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
+    pooled_std = math.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    if pooled_std == 0:
+        return 0.0
+    return float(np.mean(group1) - np.mean(group2)) / pooled_std
+
+
+def run_mixed_effects_test(
+    data: pd.DataFrame,
+    dependent_var: str,
+    fixed_effects: List[str],
+    random_effects: str = "1 | subject_id",
+    correction_method: str = "bonferroni"
 ) -> Dict[str, Any]:
     """
-    Generate a pre-registered power analysis report.
-    
-    This function calculates the required sample size and power for the
-    planned experiments, ensuring statistical validity before data collection.
-    
+    Run a linear mixed-effects model with Bonferroni correction for multiple comparisons.
+
     Args:
-        output_path: Path to save the JSON report. If None, returns dict only.
-        n_variants: Number of experimental variants (default 10)
-        target_power: Target statistical power (default 0.80)
-        target_effect_size: Expected effect size (Cohen's d, default 0.8)
-        alpha: Significance level (default 0.05)
-        
+        data: DataFrame containing the experimental data.
+        dependent_var: Name of the dependent variable column.
+        fixed_effects: List of fixed effect variables.
+        random_effects: Random effects formula string (default: intercept by subject).
+        correction_method: Method for multiple testing correction (default: 'bonferroni').
+
     Returns:
-        Dictionary containing the complete power analysis report
+        Dictionary containing model summary, p-values, and corrected p-values.
     """
-    # Calculate required sample size per group for target power
-    # We'll iterate to find the minimum n that achieves target_power
-    min_n = 2
-    max_n = 1000
-    required_n_per_group = max_n
-    
-    for n in range(min_n, max_n + 1):
-        result = calculate_power_analysis(
-            n_per_group=n,
-            effect_size=target_effect_size,
-            alpha=alpha,
-            two_tailed=True
+    # Construct formula
+    formula = f"{dependent_var} ~ {' + '.join(fixed_effects)}"
+
+    # Fit the model
+    model = mixedlm(formula, data, groups=data["subject_id"])
+    result = model.fit()
+
+    # Extract p-values for fixed effects
+    p_values = result.pvalues
+    fixed_effect_names = [name for name in fixed_effects if name in p_values.index]
+
+    # Filter p-values for fixed effects only
+    relevant_p_values = [p_values[name] for name in fixed_effect_names]
+
+    # Apply Bonferroni correction
+    if len(relevant_p_values) > 0:
+        corrected_p_values, _, _, _ = multipletests(
+            relevant_p_values,
+            alpha=0.05,
+            method=correction_method
         )
-        if result["power"] >= target_power:
-            required_n_per_group = n
-            break
-    
-    # Calculate total sample size
-    total_sample_size = required_n_per_group * 2  # Two groups: control vs experimental
-    
-    # Build report
-    report = {
-        "report_metadata": {
-            "generated_at": datetime.utcnow().isoformat() + "Z",
-            "report_type": "power_analysis",
-            "version": "1.0",
-            "constitution_principle": "VII",
-            "description": "Pre-registered power analysis for Episodic Future Thinking experiments"
+    else:
+        corrected_p_values = []
+
+    return {
+        "formula": formula,
+        "random_effects": random_effects,
+        "coefficients": result.params.to_dict(),
+        "p_values": {name: p_values[name] for name in fixed_effect_names},
+        "corrected_p_values": {
+            name: p for name, p in zip(fixed_effect_names, corrected_p_values)
         },
-        "experimental_design": {
-            "n_variants": n_variants,
-            "test_type": "two-sample_t_test",
-            "two_tailed": True,
-            "alpha": alpha,
-            "target_power": target_power,
-            "expected_effect_size": target_effect_size
-        },
-        "sample_size_requirements": {
-            "n_per_group": required_n_per_group,
-            "total_sample_size": total_sample_size,
-            "groups": ["control", "experimental"],
-            "note": "Sample size calculated for the primary comparison. Additional variants will require adjustment."
-        },
-        "power_calculation": calculate_power_analysis(
-            n_per_group=required_n_per_group,
-            effect_size=target_effect_size,
-            alpha=alpha,
-            two_tailed=True
-        ),
-        "power_analysis_by_variant": [],
-        "recommendations": [
-            f"Recruit at least {total_sample_size} total samples across all variants",
-            f"Each variant should have {required_n_per_group} samples per group",
-            "Ensure random assignment to control and experimental conditions",
-            "Pre-register analysis plan before data collection",
-            "Consider Bonferroni correction for multiple comparisons across variants"
-        ]
+        "aicc": result.aicc,
+        "bic": result.bic,
+        "loglike": result.llf
     }
-    
-    # Add variant-specific analysis
-    for i in range(1, n_variants + 1):
-        variant_analysis = {
-            "variant_id": i,
-            "n_per_group": required_n_per_group,
-            "total_for_variant": required_n_per_group * 2,
-            "achieved_power": calculate_power_analysis(
-                n_per_group=required_n_per_group,
-                effect_size=target_effect_size,
-                alpha=alpha,
-                two_tailed=True
-            )["power"]
-        }
-        report["power_analysis_by_variant"].append(variant_analysis)
-    
-    # Save to file if path provided
-    if output_path:
-        output_file = Path(output_path)
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2)
-    
-    return report
+
+
+def calculate_power_analysis(
+    effect_size: float,
+    alpha: float = 0.05,
+    power: float = 0.80
+) -> int:
+    """
+    Calculate required sample size for a given effect size and power.
+
+    Args:
+        effect_size: Cohen's d effect size.
+        alpha: Significance level.
+        power: Desired statistical power.
+
+    Returns:
+        Required sample size per group.
+    """
+    if effect_size == 0:
+        return float('inf')
+
+    # Approximate formula for two-sample t-test
+    from scipy.stats import norm
+    z_alpha = norm.ppf(1 - alpha / 2)
+    z_power = norm.ppf(power)
+
+    n_per_group = 2 * ((z_alpha + z_power) / effect_size) ** 2
+    return int(math.ceil(n_per_group))
+
+
+def run_power_analysis(
+    baseline_scores: np.ndarray,
+    treatment_scores: np.ndarray,
+    alpha: float = 0.05,
+    target_power: float = 0.80
+) -> Dict[str, Any]:
+    """
+    Run power analysis for two groups.
+
+    Args:
+        baseline_scores: Array of baseline scores.
+        treatment_scores: Array of treatment scores.
+        alpha: Significance level.
+        target_power: Target statistical power.
+
+    Returns:
+        Dictionary containing effect size, required sample size, and current power.
+    """
+    effect_size = calculate_effect_size(baseline_scores, treatment_scores)
+    required_n = calculate_power_analysis(effect_size, alpha, target_power)
+
+    # Calculate current power (simplified)
+    n_current = min(len(baseline_scores), len(treatment_scores))
+    # Approximate power calculation
+    from scipy.stats import nct
+    # This is a simplified approximation
+    current_power = 1.0 - nct.cdf(
+        nct.ppf(alpha/2, n_current-1),
+        n_current-1,
+        effect_size * math.sqrt(n_current/2)
+    )
+
+    return {
+        "effect_size": effect_size,
+        "required_sample_size_per_group": required_n,
+        "current_sample_size": n_current,
+        "estimated_current_power": float(current_power)
+    }
+
 
 def main():
-    """Main entry point for running power analysis."""
-    import os
-    
-    # Determine output path
-    project_root = Path(__file__).parent.parent
-    output_path = project_root / "data" / "reports" / "power_analysis_report.json"
-    
-    print(f"Generating power analysis report...")
-    print(f"Output path: {output_path}")
-    
-    # Run analysis
-    report = run_power_analysis(
-        output_path=str(output_path),
-        n_variants=10,
-        target_power=0.80,
-        target_effect_size=0.8,
-        alpha=0.05
-    )
-    
-    print(f"Power analysis complete!")
-    print(f"Required samples per group: {report['sample_size_requirements']['n_per_group']}")
-    print(f"Total required samples: {report['sample_size_requirements']['total_sample_size']}")
-    print(f"Achieved power: {report['power_calculation']['power']:.4f}")
-    print(f"Report saved to: {output_path}")
-    
-    return report
+    """
+    CLI entry point for statistical analysis.
+    Usage: python utils/stats.py --input data/logs/episodic_results.json --variant 10 --fdr
+    """
+    parser = argparse.ArgumentParser(description="Statistical analysis for episodic future thinking")
+    parser.add_argument("--input", type=str, required=True, help="Path to input JSON file")
+    parser.add_argument("--variant", type=int, default=10, help="Number of variants to test")
+    parser.add_argument("--fdr", action="store_true", help="Use FDR correction instead of Bonferroni")
+    parser.add_argument("--output", type=str, default="data/results/statistical_analysis.json", help="Output file path")
+
+    args = parser.parse_args()
+
+    # Set up logging using the stdlib logging module directly
+    logger = stdlib_logging.getLogger(__name__)
+    logger.setLevel(stdlib_logging.INFO)
+    handler = stdlib_logging.StreamHandler(sys.stdout)
+    formatter = stdlib_logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    logger.info(f"Loading data from {args.input}")
+
+    try:
+        input_path = Path(args.input)
+        if not input_path.exists():
+            logger.error(f"Input file not found: {input_path}")
+            sys.exit(1)
+
+        with open(input_path, 'r') as f:
+            data = json.load(f)
+
+        # Convert to DataFrame
+        # Expected format: list of records with 'subject_id', 'variant', 'score'
+        df = pd.DataFrame(data)
+
+        if "subject_id" not in df.columns or "score" not in df.columns:
+            logger.error("Input data must contain 'subject_id' and 'score' columns")
+            sys.exit(1)
+
+        logger.info(f"Loaded {len(df)} records")
+
+        # Prepare for mixed effects model
+        # We want to test if 'variant' affects 'score', controlling for 'subject_id'
+        # If 'variant' is categorical, we need to encode it
+        if df['variant'].dtype == 'int64':
+            df['variant'] = df['variant'].astype('category')
+
+        fixed_effects = ['variant']
+        random_effects = "1 | subject_id"
+
+        correction_method = "fdr_bh" if args.fdr else "bonferroni"
+
+        logger.info(f"Running mixed effects model with {correction_method} correction")
+
+        results = run_mixed_effects_test(
+            data=df,
+            dependent_var="score",
+            fixed_effects=fixed_effects,
+            random_effects=random_effects,
+            correction_method=correction_method
+        )
+
+        # Save results
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+
+        logger.info(f"Results saved to {output_path}")
+        logger.info(f"Corrected p-values: {results['corrected_p_values']}")
+
+    except Exception as e:
+        logger.error(f"Error during analysis: {e}")
+        raise
+
 
 if __name__ == "__main__":
     main()
