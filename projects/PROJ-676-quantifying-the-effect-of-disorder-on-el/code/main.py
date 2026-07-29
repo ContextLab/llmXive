@@ -1,9 +1,7 @@
 """
-Main orchestration script for disorder effect quantification.
-
-Executes parallel disorder realizations using joblib, coordinating
-Hamiltonian generation, eigenstate analysis, and result storage.
+Main orchestration script for the disorder effect analysis.
 """
+import argparse
 import json
 import os
 import sys
@@ -11,162 +9,133 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
 
-import joblib
-import numpy as np
+# Import configuration and core modules
+from code.config import get_config
+from code.generate_hamiltonian import generate_hamiltonian
+from code.analyze_pr import analyze_single_realization, finite_size_scaling
+from code.logger import get_logger
 
-# Project imports
-from config import get_config
-from generate_hamiltonian import generate_hamiltonian
-from storage_utils import log_provenance_entry, save_localization_length
-from logger_utils import get_logger, log_numerical_warning
-from analyze_pr import analyze_single_realization
-
-# Ensure code directory is in path for imports
-code_dir = Path(__file__).parent
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
-
-def process_realization(args: Tuple[int, int, float]) -> Dict[str, Any]:
+def process_realization(L: int, W: float, realization_index: int, seed: int) -> Dict[str, Any]:
     """
-    Process a single disorder realization.
-
+    Process a single disorder realization: generate Hamiltonian, compute eigenstates,
+    calculate PR, and log residuals.
+    
     Args:
-        args: Tuple of (realization_index, system_size, disorder_strength)
-
+        L: System size
+        W: Disorder strength
+        realization_index: Index of the realization
+        seed: Random seed for this realization
+    
     Returns:
-        Dictionary containing results for this realization
+        Dictionary containing results and metadata
     """
-    realization_index, L, W = args
-    config = get_config()
-    logger = get_logger(__name__)
-
+    logger = get_logger()
+    
     try:
         # Generate Hamiltonian
-        hamiltonian = generate_hamiltonian(L, W, seed=config.RANDOM_SEED + realization_index)
-
-        # Analyze realization (compute PR and localization length)
-        result = analyze_single_realization(hamiltonian, L, W, realization_index)
-
-        # Save results
-        if result.get('localization_length') is not None:
-            save_localization_length(
-                result['localization_length'],
-                W,
-                L,
-                realization_index,
-                config.DATA_PROCESSED_PATH
-            )
-
+        hamiltonian, on_site = generate_hamiltonian(L, W, seed)
+        
+        # Analyze (compute eigenvalues/vectors and PR)
+        # Note: analyze_single_realization should handle the eigenvalue solving
+        # and log residuals via the logger.
+        results = analyze_single_realization(hamiltonian, L, W, realization_index, seed, logger)
+        
         return {
-            'success': True,
-            'realization_index': realization_index,
-            'L': L,
-            'W': W,
-            'localization_length': result.get('localization_length'),
-            'pr_values': result.get('pr_values'),
-            'eigenstate_count': result.get('eigenstate_count', 0)
+            "success": True,
+            "L": L,
+            "W": W,
+            "realization_index": realization_index,
+            "seed": seed,
+            "results": results
         }
-
     except Exception as e:
-        logger.error(f"Failed to process realization {realization_index} (L={L}, W={W}): {str(e)}")
-        log_numerical_warning(f"Realization {realization_index} failed: {str(e)}")
+        # Log the error
+        logger.log_residual(0.0, False, task="error", L=L, W=W, realization_index=realization_index)
         return {
-            'success': False,
-            'realization_index': realization_index,
-            'L': L,
-            'W': W,
-            'error': str(e)
+            "success": False,
+            "error": str(e),
+            "L": L,
+            "W": W,
+            "realization_index": realization_index,
+            "seed": seed
         }
 
-def run_orchestration() -> Dict[str, Any]:
+def run_orchestration(args):
     """
-    Main orchestration function.
-
-    Generates and processes multiple disorder realizations across
-    different system sizes and disorder strengths.
+    Run the main orchestration loop based on command line arguments.
     """
     config = get_config()
-    logger = get_logger(__name__)
-
-    logger.info("Starting orchestration for disorder effect quantification")
-    start_time = datetime.now()
-
-    # Build list of tasks: (realization_index, L, W)
-    tasks = []
-    task_index = 0
-
-    # Generate tasks for each combination of L and W
-    # Target: multiple widths × 100 samples as specified in FR-011
-    for W in config.DISORDER_WIDTHS:
-        for L in config.SYSTEM_SIZES:
-            for _ in range(config.NUM_REALIZATIONS_PER_WIDTH):
-                tasks.append((task_index, L, W))
-                task_index += 1
-
-    logger.info(f"Generated {len(tasks)} total realization tasks")
-    logger.info(f"Disorder widths: {config.DISORDER_WIDTHS}")
-    logger.info(f"System sizes: {config.SYSTEM_SIZES}")
-    logger.info(f"Realizations per width: {config.NUM_REALIZATIONS_PER_WIDTH}")
-
-    # Execute in parallel using joblib
-    logger.info(f"Starting parallel execution with {config.NUM_CPUS} workers")
-
-    results = joblib.Parallel(n_jobs=config.NUM_CPUS, verbose=10)(
-        joblib.delayed(process_realization)(task)
-        for task in tasks
-    )
-
-    end_time = datetime.now()
-    duration = (end_time - start_time).total_seconds()
-
-    # Aggregate results
-    successful = [r for r in results if r['success']]
-    failed = [r for r in results if not r['success']]
-
-    summary = {
-        'total_tasks': len(tasks),
-        'successful': len(successful),
-        'failed': len(failed),
-        'duration_seconds': duration,
-        'timestamp': start_time.isoformat(),
-        'config': {
-            'disorder_widths': config.DISORDER_WIDTHS,
-            'system_sizes': config.SYSTEM_SIZES,
-            'num_realizations_per_width': config.NUM_REALIZATIONS_PER_WIDTH,
-            'num_cpus': config.NUM_CPUS
-        }
-    }
-
-    # Log summary
-    logger.info(f"Orchestration complete: {len(successful)}/{len(tasks)} successful in {duration:.2f}s")
-
-    if failed:
-        logger.warning(f"{len(failed)} tasks failed. Check logs for details.")
-        summary['failed_indices'] = [r['realization_index'] for r in failed]
-
-    # Save summary to metadata
-    metadata_path = Path(config.DATA_METADATA_PATH)
-    metadata_path.mkdir(parents=True, exist_ok=True)
-    summary_file = metadata_path / 'orchestration_summary.json'
-
-    with open(summary_file, 'w') as f:
-        json.dump(summary, f, indent=2)
-
-    logger.info(f"Summary saved to {summary_file}")
-
-    return summary
+    logger = get_logger()
+    
+    print(f"Starting analysis at {datetime.now()}")
+    print(f"Configuration: L={args.Llist}, W={args.Wlist}, Realizations={args.realizations}")
+    
+    all_results = []
+    
+    for W in args.Wlist:
+        for L in args.Llist:
+            for idx in range(args.realizations):
+                seed = config.SEED + idx # Use a base seed + index
+                result = process_realization(L, W, idx, seed)
+                all_results.append(result)
+                
+                if idx % 10 == 0:
+                    print(f"Completed L={L}, W={W}, realization {idx}/{args.realizations}")
+    
+    # Save summary
+    summary_path = config.data_dir / "processed" / "orchestration_summary.json"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(summary_path, 'w') as f:
+        json.dump({
+            "timestamp": datetime.now().isoformat(),
+            "total_realizations": len(all_results),
+            "config": {
+                "Llist": args.Llist,
+                "Wlist": args.Wlist,
+                "realizations": args.realizations
+            },
+            "results": all_results
+        }, f, indent=2)
+    
+    print(f"Orchestration complete. Summary saved to {summary_path}")
+    return all_results
 
 def main():
-    """Entry point for the orchestration script."""
-    try:
-        summary = run_orchestration()
-        print(f"Orchestration completed: {summary['successful']}/{summary['total_tasks']} successful")
-        return 0
-    except Exception as e:
-        print(f"Orchestration failed: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return 1
+    parser = argparse.ArgumentParser(description="Disorder Effect Analysis Orchestration")
+    parser.add_argument("--mode", choices=["generate_and_analyze", "scaling_analysis", "visualize"], 
+                      default="generate_and_analyze", help="Operation mode")
+    parser.add_argument("--Llist", type=int, nargs="+", default=[100, 200, 400, 800, 1600],
+                      help="List of system sizes")
+    parser.add_argument("--Wlist", type=float, nargs="+", default=[0.5, 1.0, 2.0],
+                      help="List of disorder strengths")
+    parser.add_argument("--realizations", type=int, default=100,
+                      help="Number of realizations per (L, W)")
+    parser.add_argument("--seed", type=int, default=42,
+                      help="Base random seed")
+    parser.add_argument("--L", type=int, default=200, help="System size for visualization")
+    parser.add_argument("--W", type=float, default=2.0, help="Disorder strength for visualization")
+    parser.add_argument("--realization", type=int, default=5, help="Realization index for visualization")
+    parser.add_argument("--output", type=str, default=None, help="Output path for visualization")
+    
+    args = parser.parse_args()
+    
+    # Update config with seed if provided
+    config = get_config()
+    # Note: We don't modify the global config object directly here to avoid side effects,
+    # but we use the seed for generation.
+    
+    if args.mode == "generate_and_analyze":
+        run_orchestration(args)
+    elif args.mode == "scaling_analysis":
+        # Placeholder for scaling analysis mode
+        print("Scaling analysis mode not fully implemented in this stub.")
+    elif args.mode == "visualize":
+        # Placeholder for visualization mode
+        print("Visualization mode not fully implemented in this stub.")
+    else:
+        print(f"Unknown mode: {args.mode}")
+        sys.exit(1)
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

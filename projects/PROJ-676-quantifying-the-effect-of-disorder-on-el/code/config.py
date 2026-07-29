@@ -1,65 +1,62 @@
 """
-Configuration module for the project.
-
-Defines hyperparameters, random seeds, and path constants.
+Configuration constants for the disorder analysis project.
 """
-
 import os
 from pathlib import Path
 from typing import Dict, Any
 
-# Project root directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Data directories
-DATA_DIR = PROJECT_ROOT / "data"
-DATA_RAW = DATA_DIR / "raw"
-DATA_PROCESSED = DATA_DIR / "processed"
-DATA_METADATA = DATA_DIR / "metadata"
-
-# Output directories
-FIGURES_DIR = PROJECT_ROOT / "figures"
-DOCS_DIR = PROJECT_ROOT / "docs"
-
-# Hyperparameters
-DEFAULT_SEED = 42
-NUM_REALIZATIONS = 100  # Per width
-SYSTEM_SIZES = [100, 200, 400, 800, 1600]
-DISORDER_WIDTHS = [0.5, 1.0, 2.0, 4.0, 8.0]
-
-# Eigenvalue solver settings
-EIGENVALUE_CONVERGENCE_THRESHOLD = 1e-8
-MAX_EIGENVALUES = 100  # For sparse solvers, if used
-
-# Memory limits (in bytes)
-MEMORY_LIMIT_BYTES = 6 * 1024**3  # 6 GB
-
-# Paths
-PROVENANCE_FILE = DATA_METADATA / "provenance.json"
-RESIDUALS_FILE = DATA_METADATA / "residuals.json"
-
-def get_config() -> Dict[str, Any]:
+class Config:
+    """Project configuration."""
+    
+    # Project root
+    PROJECT_ROOT = Path(__file__).parent.parent
+    
+    # Data paths
+    RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw"
+    PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed"
+    METADATA_PATH = PROJECT_ROOT / "data" / "metadata"
+    FIGURES_PATH = PROJECT_ROOT / "figures"
+    
+    # Ensure directories exist
+    RAW_DATA_PATH.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DATA_PATH.mkdir(parents=True, exist_ok=True)
+    METADATA_PATH.mkdir(parents=True, exist_ok=True)
+    FIGURES_PATH.mkdir(parents=True, exist_ok=True)
+    
+    # Residuals log path (for T017)
+    RESIDUALS_PATH = METADATA_PATH / "residuals.json"
+    
+    # Analysis output paths
+    SCALING_FITS_PATH = PROCESSED_DATA_PATH / "scaling_fits.json"
+    LYAPUNOV_EXPONENTS_PATH = PROCESSED_DATA_PATH / "lyapunov_exponents.json"
+    BONFERRONI_RESULTS_PATH = PROCESSED_DATA_PATH / "bonferroni_results.json"
+    METHOD_AGREEMENT_PATH = PROCESSED_DATA_PATH / "method_agreement_report.json"
+    FIT_RESULTS_PATH = PROCESSED_DATA_PATH / "fit_results.json"
+    
+    # Visualization paths
+    VISUALIZATIONS_DIR = PROCESSED_DATA_PATH / "visualizations"
+    VISUALIZATIONS_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Hyperparameters
+    L_LIST = [100, 200, 400, 800, 1600]
+    W_LIST = [0.5, 1.0, 2.0]
+    NUM_REALIZATIONS = 100
+    SEED = 42
+    
+    # Analysis parameters
+    ENERGY_WINDOW = 0.1  # Energy range around E=0 for PR calculation
+    MIN_L_FOR_TM = 400  # Minimum system size for TM validation
+    AGREEMENT_THRESHOLD = 0.10  # 10% agreement threshold for TM vs PR
+    MIN_AGREEMENT_FRACTION = 0.80  # 80% of realizations must agree
+    
+    # Memory limits
+    MAX_RAM_GB = 6.0  # Switch to sparse if exceeded
+    
+def get_config() -> Config:
     """
-    Return a dictionary of configuration values.
-
+    Get the global configuration instance.
+    
     Returns:
-        Dictionary of config values.
+        Config instance.
     """
-    return {
-        'PROJECT_ROOT': str(PROJECT_ROOT),
-        'DATA_DIR': str(DATA_DIR),
-        'DATA_RAW': str(DATA_RAW),
-        'DATA_PROCESSED': str(DATA_PROCESSED),
-        'DATA_METADATA': str(DATA_METADATA),
-        'FIGURES_DIR': str(FIGURES_DIR),
-        'DOCS_DIR': str(DOCS_DIR),
-        'DEFAULT_SEED': DEFAULT_SEED,
-        'NUM_REALIZATIONS': NUM_REALIZATIONS,
-        'SYSTEM_SIZES': SYSTEM_SIZES,
-        'DISORDER_WIDTHS': DISORDER_WIDTHS,
-        'EIGENVALUE_CONVERGENCE_THRESHOLD': EIGENVALUE_CONVERGENCE_THRESHOLD,
-        'MAX_EIGENVALUES': MAX_EIGENVALUES,
-        'MEMORY_LIMIT_BYTES': MEMORY_LIMIT_BYTES,
-        'PROVENANCE_FILE': str(PROVENANCE_FILE),
-        'RESIDUALS_FILE': str(RESIDUALS_FILE),
-    }
+    return Config()

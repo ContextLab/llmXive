@@ -1,0 +1,19 @@
+status: none
+intent: downloadable python package Anderson 1D tight-binding Hamiltonian dataset
+  generator python package dataset
+required_fields:
+- L
+- W
+- realization_index
+- seed
+- on_site_energies
+- hopping_parameter
+- hamiltonian_matrix
+- eigenvalues
+- eigenvectors
+- participation_ratios
+- energy_range
+- localization_lengths
+cache_key: aa69596a1b19d7764bbc291f893eacad8f071e23a3affef149b2bf38aa0ba5b6
+searched_at: '2026-07-29T12:07:04.399386+00:00'
+retry_count: 1

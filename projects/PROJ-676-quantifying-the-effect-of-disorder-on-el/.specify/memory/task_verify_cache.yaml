@@ -13,13 +13,15 @@ T007b:
     Without the actual artifact, we cannot confirm that the file exists or meets the
     specification. The implementer must add the JSON schema file at the indicated
     path with the correct schema definition.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files, logs, or documentation were provided showing an error\u2011handling\
-    \ and logging infrastructure added to the `code/` directory, nor any evidence\
-    \ that numerical residuals and convergence flags are captured for every eigenvalue\
-    \ problem. The required artifact is missing."
+T008a:
+  c: true
+  h: e3300deb02656874f4708cf2c54fc2ef8b840f01eee0e3813691ad3635882d71
+  r: "The repository contains a non\u2011empty `code/logger.py` defining a `NumericalLogger`\
+    \ with the required `log_residual` and `log_convergence` methods that write JSON\u2011\
+    line entries (residuals to the configured path, convergence to a separate file).\
+    \ The implementation meets the specification; the absence of a pre\u2011existing\
+    \ `data/metadata/residuals.json` is acceptable because the logger creates it on\
+    \ first use."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
