@@ -66,17 +66,31 @@ def _jsonable(value: object) -> object:
     Unknown types RAISE rather than being coerced with ``str()``: this payload becomes
     immutable history, and a stringified repr nobody can parse is worse than a refusal.
     ``emit_audit`` turns that refusal into a route-fatal ``RouteAuditError``, which is the
-    correct outcome for a mandatory sink that cannot faithfully record what it was given."""
+    correct outcome for a mandatory sink that cannot faithfully record what it was given.
+
+    Every composite branch RECURSES rather than hand-building its dict. That is not style:
+    a hand-built dict smuggles its field values past this function's own unknown-type
+    guard, so an unprojectable value lands in the payload and only explodes later, at
+    ``json.dumps``, as a ``TypeError`` nothing normalizes. ``SnapshotProvenance.observed_at``
+    is a ``datetime`` and did exactly that."""
     if isinstance(value, ModelRef):
-        return {"backend": value.backend, "serving_endpoint": value.serving_endpoint,
-                "model_id": value.model_id, "model_family": value.model_family,
-                "vendor": value.vendor}
+        return {"backend": _jsonable(value.backend),
+                "serving_endpoint": _jsonable(value.serving_endpoint),
+                "model_id": _jsonable(value.model_id),
+                "model_family": _jsonable(value.model_family),
+                "vendor": _jsonable(value.vendor)}
     if isinstance(value, SnapshotProvenance):
-        return {"source": value.source, "observed_at": value.observed_at, "age_s": value.age_s}
+        return {"source": _jsonable(value.source),
+                "observed_at": _jsonable(value.observed_at),
+                "age_s": _jsonable(value.age_s)}
     if isinstance(value, Mapping):
         return {str(k): _jsonable(v) for k, v in value.items()}
     if isinstance(value, (list, tuple)):
         return [_jsonable(v) for v in value]
+    if isinstance(value, datetime):
+        # ISO-8601, so the recorded instant round-trips through `fromisoformat` instead of
+        # being frozen as an unparseable repr.
+        return value.isoformat()
     if value is None or isinstance(value, (str, bool, int, float)):
         return value
     raise ValueError(

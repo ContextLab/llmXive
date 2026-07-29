@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import subprocess
 import threading
+from datetime import UTC, datetime
 
 import pytest
 
@@ -19,6 +20,7 @@ from llmxive.model_selection.attempt_hooks import (
     DispatchStarted,
     DispatchUnknown,
     RouteAuditError,
+    SelectionFailure,
     emit_audit,
 )
 from llmxive.model_selection.types import ModelRef, SnapshotProvenance
@@ -38,6 +40,8 @@ from llmxive.self_improvement.credit_ledger import (
 from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log, read
 
 TS = "2026-07-24T00:00:00+00:00"
+#: A REAL datetime, as `snapshot.py` builds. See test_record_projects_nested_audit_types.
+OBSERVED = datetime(2026, 7, 24, tzinfo=UTC)
 LATER = "2026-07-24T01:00:00+00:00"
 CANDIDATE = ModelRef(backend="dartmouth", serving_endpoint="chat", model_id="m1",
                      model_family="f", vendor="v")
@@ -81,11 +85,18 @@ def test_record_persists_the_event_to_the_stream(repo):
 
 
 def test_record_projects_nested_audit_types(repo):
+    # `observed_at` is a REAL datetime here, which is what `snapshot.py` actually
+    # constructs. It used to be the string TS, and that is why this test passed while a
+    # real ChainResolved could not be written at all: `SnapshotProvenance`'s projection
+    # hand-built its dict instead of recursing, so the datetime slipped past `_jsonable`'s
+    # unknown-type guard and only exploded downstream at `json.dumps` — a TypeError
+    # nothing normalizes into a RouteAuditError. The dataclass is not runtime-typed, so
+    # feeding it a str made a whole class of failure invisible.
     sink = _sink(repo)
     sink.record(ChainResolved(
         route_id="r-1", requirement_digest="d1", prompt_digest="d2", context_digest="d3",
         snapshot_digest="d4",
-        snapshot_provenance={"catalog": SnapshotProvenance(source="live", observed_at=TS,
+        snapshot_provenance={"catalog": SnapshotProvenance(source="live", observed_at=OBSERVED,
                                                            age_s=0.0)},
         selection_policy_version=1, resolved_at=TS, explanation=("because",),
         candidates=(CANDIDATE,),
@@ -94,9 +105,30 @@ def test_record_projects_nested_audit_types(repo):
     assert payload["candidates"] == [{"backend": "dartmouth", "serving_endpoint": "chat",
                                       "model_id": "m1", "model_family": "f", "vendor": "v"}]
     assert payload["snapshot_provenance"] == {
-        "catalog": {"source": "live", "observed_at": TS, "age_s": 0.0}
+        "catalog": {"source": "live", "observed_at": OBSERVED.isoformat(), "age_s": 0.0}
     }
     assert payload["explanation"] == ["because"]
+    # ISO-8601, so the recorded instant round-trips rather than freezing as a repr.
+    assert datetime.fromisoformat(
+        payload["snapshot_provenance"]["catalog"]["observed_at"]
+    ) == OBSERVED
+
+
+def test_a_selection_failures_real_provenance_is_writable(repo):
+    # The OTHER event carrying snapshot_provenance. `build_invocation_identity` (Task 6)
+    # joins a reroute to this record for FR-002's primary_failure, so if it cannot be
+    # written, the degradation path has no provenance to join to.
+    sink = _sink(repo)
+    sink.record(SelectionFailure(
+        route_id="r-1", exception_type="ModelUnavailable", message="none live",
+        requirement_digest="rq-1",
+        snapshot_provenance={"catalog": SnapshotProvenance(source="last_known_good",
+                                                           observed_at=OBSERVED, age_s=42.5)},
+    ))
+    payload = read(repo, "P1")[0].payload
+    assert payload["snapshot_provenance"]["catalog"] == {
+        "source": "last_known_good", "observed_at": OBSERVED.isoformat(), "age_s": 42.5
+    }
 
 
 def test_record_is_idempotent_on_a_byte_identical_replay(repo):
