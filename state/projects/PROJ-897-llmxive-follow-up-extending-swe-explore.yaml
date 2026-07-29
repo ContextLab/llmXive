@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T20:46:24.388403Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-897-llmxive-follow-up-extending-swe-explore
-last_run_id: 1a9bc64c-6772-4e49-aad8-756263965c15
+last_run_id: 038ae827-a710-462a-9d5e-385f1d0c5bca
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore
 title: 'llmXive follow-up: extending "SWE-Explore: Benchmarking How Coding Agents
   Explore Repositories"'
-updated_at: '2026-07-27T10:15:03.715299Z'
+updated_at: '2026-07-29T18:38:55.405918Z'

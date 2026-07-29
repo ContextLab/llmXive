@@ -39,19 +39,19 @@
  ============================================================================
 -->
 
-## Phase 0: Plan Alignment & Amendment
+## Phase 0: Plan Alignment (Administrative)
 
-**Purpose**: Resolve contradictions between Spec and Plan before implementation begins.
+**Purpose**: Acknowledge Spec vs. Plan contradictions and **update the Plan** to ensure logical consistency before execution.
 
-- [ ] T000 [P] **Plan Amendment: Methodology Alignment**. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
- - **Action**: Edit `plan.md` (Section 'Phase 0: Data Curation') to explicitly adopt `initial_coverage` for "hard" instance selection as per Spec FR-001, removing the "Cyclomatic Complexity" mandate and the prohibition of `initial_coverage`.
- - **Action**: Edit `plan.md` (Section 'Phase 2: Metric Calculation') to remove "Survival Analysis" and replace with "Exact Permutation Test" for censored data, aligning with Spec FR-006.
- - **Action**: Edit `plan.md` (Section 'Compute Feasibility') to explicitly state that 8-bit quantization is the primary strategy to ensure compliance with SC-005 (7GB RAM constraint).
- - **Verification**: After editing, verify that `plan.md` no longer contains "Cyclomatic Complexity" for hard instance selection or "Survival Analysis" for ranking efficiency.
- - **Output**: Updated `plan.md` with commit hash.
- - **Dependency**: Must be completed before T002 and T012.
- - **Traceability**: Resolves Spec vs Plan contradiction (FR-001 vs Plan Phase 0) and Plan vs Spec contradiction (Survival Analysis vs FR-006).
- - **NOTE**: This task is DEPRECATED and removed from execution flow. The Plan Override is now documented inline in T012.
+- [ ] T000-Notice [P] **Spec Supremacy & Plan Correction**.
+ - **Action**: Acknowledge that `plan.md` contains contradictory text regarding "Hard" instance selection (Cyclomatic Complexity vs. initial_coverage) and statistical methods (Survival Analysis vs. Wilcoxon).
+ - **Action**: **Update `plan.md`**: Explicitly edit `plan.md` to remove the "Cyclomatic Complexity" selection logic in Phase 0 and the "Survival Analysis" method in Phase 2, replacing them with the Spec-mandated "initial_coverage" and "Wilcoxon/Permutation" logic respectively.
+ - **Action**: Confirm that all subsequent tasks (T012, T030, etc.) implement the **Spec** logic directly, now that the Plan has been corrected.
+ - **Verification**: Verify that `plan.md` no longer contains the contradictory text and `tasks.md` does not contain any tasks that wait for `plan.md` to be updated.
+ - **Output**: Corrected `plan.md` and this notice.
+ - **Dependency**: None.
+ - **Traceability**: Resolves Spec vs. Plan contradiction by correcting the Plan document to align with the Spec as the sole execution authority.
+ - **Note**: This task is administrative and non-blocking for the *logic*, but the Plan update is a prerequisite for downstream artifact consistency.
 
 ---
 
@@ -67,9 +67,9 @@
  - **Traceability**: Implements Plan Project Structure.
 
 - [ ] T001b [P] **Configure Linting and Formatting**.
- - **Action**: Create `code/pyproject.toml` with ruff/flake8 configuration and black configuration. Create `code/.ruff.toml` and `code/.black.toml` if needed.
+ - **Action**: Create `code/pyproject.toml` with ruff/flake8 configuration and black configuration. **Do NOT create separate .ruff.toml or .black.toml files**.
  - **Verification**: Run `ruff check code/` and `black --check code/` and ensure no errors.
- - **Output**: `code/pyproject.toml`, `code/.ruff.toml`, `code/.black.toml`.
+ - **Output**: `code/pyproject.toml`.
  - **Dependency**: T001a.
  - **Traceability**: Implements Plan Linting Configuration.
 
@@ -81,11 +81,20 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 [P] [P] Implement `code/config.py` to define paths (`data/raw/`, `data/curated/`, `data/results/`), random seeds, model config (CPU-only, 8-bit quantization default), AND critical thresholds: `COMPLEXITY_THRESHOLD` (default 50), `HARD_INSTANCE_PERCENTILE` (default 0.20), `MIN_SYNTHETIC_ISSUES` (default 10), `VALIDATION_SAMPLE_SIZE` (default 5), `COVERAGE_COLUMN_NAME` (default 'initial_coverage'), `TIE_THRESHOLD` (default 0.10), `SWEEP_SAMPLE_SIZE` (default 100), `SWEEP_SEED` (default 42).
-- [X] T003 [P] [P] Implement `code/utils/hash_artifacts.py` for automated SHA256 hashing of `data/` artifacts (Constitution Principle V) <!-- FAILED: unspecified -->
+- [ ] T002 [P] [P] Implement `code/config.py` to define paths (`data/raw/`, `data/curated/`, `data/results/`), random seeds, model config (CPU-only, -bit quantization default), AND critical thresholds: `COMPLEXITY_THRESHOLD` (default 50), `HARD_INSTANCE_PERCENTILE` (default 0.20), `MIN_SYNTHETIC_ISSUES` (default 10), `VALIDATION_SAMPLE_SIZE` (default 5), `COVERAGE_COLUMN_NAME` (default 'initial_coverage'), `SWEEP_SAMPLE_SIZE` (default a representative sample size), `SWEEP_SEED` (The specific value to remove/generalize: a predetermined default setting), `TURN_LIMITS` (default [1, 2, 3, 4]). **Note**: `TIE_THRESHOLD` is REMOVED; statistical routing is now deterministic based on tie presence.
+- [ ] T003 [P] [P] Implement `code/utils/hash_artifacts.py` for automated SHA256 hashing of `data/` artifacts (Constitution Principle V). **Verification**: Run the script against a dummy file and verify SHA256 hash is generated and recorded in `state/`.
 - [ ] T004 [P] [P] Create `contracts/` directory with `dataset_schema.yaml`, `agent_log_schema.yaml`, `result_schema.yaml`
-- [X] T005 [P] [P] Implement `code/utils/validation.py` for JSONL/Parquet schema validation against contracts
+- [ ] T005 [P] [P] Implement `code/utils/validation.py` for JSONL/Parquet schema validation against contracts
 - [ ] T006 [P] [P] Setup `pytest` configuration and `tests/contract/test_schemas.py` skeleton
+- [ ] T043 [P] **CPU-Quantized Model Execution Setup**.
+ - **Requirement**: Create `code/agent/quantized_llm.py` to use `llama-cpp-python` with 8-bit quantization as the **PRIMARY AND ONLY** strategy to ensure compliance with SC-005 (GB RAM constraint) on free-tier runners.
+ - **Logic**:
+ 1. **Mandatory 8-bit**: Always load the model in 8-bit quantization. This is a safety guarantee for the constrained environment.
+ 2. **Explicit CPU**: Use `n_gpu_layers=0` and optimized `n_ctx` for CPU inference.
+ 3. **Memory Check**: Add a runtime check to fail if memory usage exceeds a predefined threshold.
+ - **Constraint**: **No float32 path**. Attempting to load float32 on a 7GB RAM runner risks OOM before fallback. 8-bit is the only safe path.
+ - **Traceability**: Implements FR-014 and SC-005, ensuring executability on the target runner.
+ - **Dependency**: Must be completed before T022 and T023.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -121,8 +130,8 @@
 - [ ] T012 [US1] **Filter Hard Subset (Spec Alignment)**.
  - **Requirement**: Implement filtering based on **initial coverage scores** as per **Spec FR-001** to identify "hard" instances (bottom `HARD_INSTANCE_PERCENTILE` of scores).
  - **Input**: `data/raw/swe_explore_with_gt.jsonl` (T011 output).
- - **Logic**: Select the bottom `HARD_INSTANCE_PERCENTILE` (configurable) of `config.COVERAGE_COLUMN_NAME` scores. **Handle Missing Data**: If the coverage score is missing or null, skip the issue and log a warning. Do not impute.
- - **Plan Override Rationale**: This task implements the methodology defined in Spec FR-001, overriding the Plan's previous "Cyclomatic Complexity" mandate. This override is ratified by the Spec.
+ - **Logic**: Select the bottom `HARD_INSTANCE_PERCENTILE` (from `config.py`, default 0.20) of `config.COVERAGE_COLUMN_NAME` scores. **Handle Missing Data**: If the coverage score is missing or null, skip the issue and log a warning. Do not impute.
+ - **Plan Override Rationale**: This task implements the methodology defined in Spec FR-001, overriding the Plan's previous "Cyclomatic Complexity" mandate. This override is ratified by the Spec. **Do NOT depend on T000-Notice for logic**; the Spec is the source of truth.
  - **Diagnostic**: Calculate Cyclomatic Complexity for each issue and append as `metadata.complexity_score` to `hard_subset.jsonl` (does NOT affect selection).
  - **Deliverable**: Create `code/data/filter_hard.py` to perform this calculation and selection.
  - **Output**: `data/curated/hard_subset.jsonl`.
@@ -130,7 +139,8 @@
  - **Traceability**: Implements Spec FR-001.
 - [ ] T012c [US1] **Generate Non-Hard Subset**.
  - **Requirement**: Compute the complement of the Primary Hard Subset (T012) to provide the input pool for synthetic generation.
- - **Logic**: Select all issues from the full dataset that are NOT in `data/curated/hard_subset.jsonl`.
+ - **Logic**: Select all issues from the **full dataset** (`data/raw/swe_explore_with_gt.jsonl`) that are NOT in `data/curated/hard_subset.jsonl`. **Note**: Issues skipped in T012 due to missing data are included in the Non-Hard set if they are not in the Hard set, ensuring the pool is the true complement of the *selected* Hard set.
+ - **Validation**: **Explicitly validate** that `data/curated/hard_subset.jsonl` exists and is not empty before proceeding. If missing or empty, fail loudly with a clear error message.
  - **Implementation**: Create `code/data/filter_non_hard.py`. Read `data/raw/swe_explore_with_gt.jsonl` and `data/curated/hard_subset.jsonl`. Write to `data/curated/non_hard_subset.jsonl`.
  - **Output**: `data/curated/non_hard_subset.jsonl`.
  - **Dependency**: **Blocking dependency** on T012 completion.
@@ -149,23 +159,24 @@
  - **Oracle**: Derive `ground_truth_lines` from the original unmutated code (FR-008).
  - **Validity**: Ensure mutated code is syntactically valid (AST parseable). Skip invalid mutations and log warnings.
  - **Deliverable**: Create `code/data/mutate.py` to implement this logic.
+ - **Dependency**: T012c.
  - **Traceability**: Aligns with Spec FR-002 and addresses runtime constraint SC-005.
 - [ ] T014 [US1] **Metadata & Versioning**.
  - Save `data/curated/synthetic_issues_meta.json` containing original code hashes, mutation parameters, and the exact count generated.
  - Run `hash_artifacts.py` on `data/curated/` files.
-- [ ] T015 [US1] **Generate Validation Report**.
- - Input: `data/curated/hard_subset.jsonl`.
- - Logic: Select `VALIDATION_SAMPLE_SIZE` (from config.py T002) random issues.
- - Output: Markdown table with columns [IssueID, CoverageScore, ComplexityScore, Notes].
- - **Note**: This report is a **tool for manual inspection**, not an automated validation result.
-- [ ] T016-AutoValidate [US1] **Automated Validation Gate with Manual Review**.
+- [ ] T015 [P] [US1] **Generate Validation Report**.
+ - **Action**: Select `VALIDATION_SAMPLE_SIZE` (from config.py T002) random issues from `data/curated/hard_subset.jsonl`.
+ - **Output**: Markdown table with columns [IssueID, CoverageScore, ComplexityScore, Notes].
+ - **Note**: This report is a **tool for manual inspection**, generated in parallel. It does **NOT** gate the pipeline. T016-AutoValidate will proceed independently.
+ - **Dependency**: T012 completion.
+- [ ] T016-AutoValidate [US1] **Automated Validation Gate**.
  - **Action**: Run `code/data/validate_hard.py` to automatically verify the "hard" subset against the coverage threshold and generate a validation report.
- - **Logic**: The script checks if the selected "hard" issues (by Coverage) exhibit low coverage (as a sanity check) and **includes a "Plan Override Justification" block** documenting the decision to use Coverage over Complexity to align with Spec FR-001 (ratified by T000).
+ - **Logic**: The script checks if the selected "hard" issues (by Coverage) exhibit low coverage (as a sanity check) and **includes a "Plan Override Justification" block** documenting the decision to use Coverage over Complexity to align with Spec FR-001.
+ - **Gate Logic**: The pipeline **MUST PROCEED** after this task. The automated script generates the report and **does NOT wait** for human intervention. The report is saved for human review in the UI, but the CI/CD pipeline continues.
  - **Output**: `data/curated/validation_report.md` and `data/curated/validation_status.json`.
  - **Schema**: `validation_status.json` MUST contain keys: `status` (string: "PASSED" or "WARNING"), `message` (string), `sample_size` (int).
- - **Constraint**: The pipeline proceeds automatically regardless of status; manual review is optional. "WARNING" logs an issue but does not block Phase 4.
- - **Dependency**: Phase 4 agents depend on T016-AutoValidate completion.
- - **Traceability**: Replaces manual gate T016 to ensure reproducibility (Constitution Principle I) and documents Spec Alignment.
+ - **Dependency**: T012 completion. **Does NOT depend on T015**.
+ - **Traceability**: Replaces manual gate T016b to ensure reproducibility (Constitution Principle I) and documents Spec Alignment.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -187,9 +198,9 @@
 - [ ] T019 [P] [US2] Implement `code/agent/static_analysis.py` wrapper for `pylint`/`ast` to detect "missing import", "undefined variable", parse errors
 - [ ] T020 [P] [US2] Implement `code/agent/prompts.py` with templates for query reformulation based on static analysis signals
 - [ ] T021 [US2] **Data Locking & Subset Consistency**.
- - **Action**: Before running agents, copy `data/curated/hard_subset.jsonl` to a locked execution directory (e.g., `data/results/locked_hard_subset.jsonl`).
+ - **Action**: Before running agents, copy `data/curated/hard_subset.jsonl` to a locked execution directory (e.g., `data/results/locked_hard_subset.jsonl`) and acquire a file lock to prevent concurrent writes.
  - **Purpose**: Ensure T022 (Baseline) and T023 (Iterative) consume the **exact same** file instance to enable 1:1 pairing.
- - **Dependency**: Depends on T012 (data generation), T012c (non-hard), and T016-AutoValidate (manual review flag). **Not parallel**: Must wait for T016-AutoValidate.
+ - **Dependency**: Depends on T012 (data generation), T012c (non-hard), and T016-AutoValidate (Automated Validation). **Not parallel**: Must wait for T016-AutoValidate. The copy operation is parallel-safe, but the lock acquisition must precede T022/T023.
  - **Prerequisite**: Phase 4 agents depend on this task.
 - [ ] T022 [P] [US2] **Static Multi-Query Baseline**.
  - **Requirement**: Run **parallel queries** per issue (matching the iterative limit of 3 turns defined in Spec FR-003) to ensure a fair comparison of feedback mechanisms vs. search volume.
@@ -197,17 +208,7 @@
  - **Deliverable**: Create `code/agent/static_baseline.py` to perform this execution.
  - **Output**: `data/results/baseline_logs.jsonl` (Unique path to avoid race conditions).
  - **Logging**: Explicitly log `issue_id`, `query_count`, `retrieved_context_ids`, and `coverage_score`.
- - **Dependency**: Depends on T021 completion.
-- [ ] T043 [US2] **CPU-Quantized Model Execution with RAM Check**.
- - **Requirement**: Create `code/agent/quantized_llm.py` to use `llama-cpp-python` with 8-bit quantization as the **default** to ensure compliance with SC-005 (7GB RAM constraint).
- - **Logic**:
- 1. Check available RAM using `psutil`. If available RAM < 7GB, **force 8-bit quantization**.
- 2. If available RAM >= 7GB and the model size permits (e.g., <1B params), **default to float32**; otherwise, use 8-bit quantization.
- 3. Explicitly use `n_gpu_layers=0` and optimized `n_ctx` for CPU inference.
- 4. Add runtime check to fail if memory > 7GB. [UNRESOLVED-CLAIM: c_598bb141 — status=not_enough_info]
- - **Constraint**: **No float32 path ONLY if RAM is insufficient**. 8-bit quantization is the fallback.
- - **Traceability**: Implements FR-014 and SC-005, aligning with Plan's risk mitigation strategy (updated by T000).
- - **Dependency**: Must be completed before T023.
+ - **Dependency**: Depends on T021 completion and T043 (Quantized Model).
 - [ ] T023 [P] [US2] **Iterative Agent**.
  - **Requirement**: Enforce a configurable turn limit with a defined default.
  - **Turn Logic**: Query -> Retrieve -> Static Analysis -> Reformulate (if error).
@@ -219,7 +220,7 @@
 - [ ] T024b [US2] **Turn-Limit Sweep**.
  - **Logic**:
  1. **Sampling**: Generate a specific sample list file for **N=`config.SWEEP_SAMPLE_SIZE`** issues (random sample with **seed `config.SWEEP_SEED`**, stratified by `complexity_score` quartiles from `data/curated/hard_subset.jsonl`). Output: `data/results/sweep_sample_list.json`.
- 2. **Execution**: Execute the iterative agent loop for each turn limit in the range of low to moderate values. Pass `max_turns` dynamically to the agent execution script. Output: `data/results/sweep_execution_logs.json` (aggregated logs for all turn limits).
+ 2. **Execution**: Execute the iterative agent loop for each turn limit in the range **[1, 2, 3, 4]**. Pass `max_turns` dynamically to the agent execution script. Output: `data/results/sweep_execution_logs.json` (aggregated logs for all turn limits).
  3. **Aggregation**: Aggregate results into `data/results/sweep_results.json` containing columns: `issue_id`, `turns_used`, `coverage`, `stability_flag` for each turn limit.
  - **Dependency**: Depends on T012 (stratification) and T043 (Quantized Model).
  - **Traceability**: Implements SC-006 (threshold sensitivity).
@@ -249,13 +250,13 @@
  - **Requirement**: Analyze `data/results/baseline_logs.jsonl` and `data/results/iterative_logs.jsonl` to determine if "Ranking Efficiency" data contains censored values.
  - **Logic**: Check for `coverage_score == 0.0` or `retrieved_lines == []` to identify censored data.
  - **Tie Definition**: Calculate "ties" as ties in the **absolute difference scores** of the paired data. Include censored pairs (N+1 penalty) in this calculation.
- - **Thresholds**: Define "ties > `config.TIE_THRESHOLD`" (default a small positive value) as `tie_proportion > config.TIE_THRESHOLD`. **Note**: Spec FR-006 requires Permutation Test if "ties exceed a substantial proportion"; `config.TIE_THRESHOLD` is a configurable default reflecting this.
  - **Routing**:
- - If censored data exists (>0%) AND Wilcoxon is invalid (ties > `config.TIE_THRESHOLD`): Route to T030-Permutation.
- - If ties > `config.TIE_THRESHOLD` (even if no censoring): Route to T030-Permutation.
+ - If **any ties are detected (count > 0)** OR censored data exists: Route to T030-Permutation.
  - Otherwise: Route to T030-Primary (Wilcoxon).
  - **Output**: `data/results/statistical_routing.json` (flag: "PERMUTATION" or "WILCOXON").
+ - **Execution Logic**: The runner script must read this file and **execute ONLY the routed task**, skipping the other. This enforces mutual exclusivity.
  - **Dependency**: Depends on T022, T023.
+ - **Traceability**: Implements Spec FR-006 with a deterministic "ties > 0" threshold, removing hidden configuration.
 - [ ] T030-Primary [P] [US3] **Coverage & Ranking Analysis (Wilcoxon - Spec Primary)**.
  - **Requirement**: Implement **Wilcoxon signed-rank test** as per **Spec FR-006** and **SC-003** as the PRIMARY success criterion.
  - **Method**: Apply Wilcoxon signed-rank test to paired coverage data and paired ranking data (with continuity correction for ties).
@@ -263,7 +264,7 @@
  - **Traceability**: Implements Spec FR-006/SC-003 as the primary path.
  - **Dependency**: Depends on T030-Prep routing to "WILCOXON".
 - [ ] T030-Permutation [US3] **Exact Permutation Test for Ties/Censoring**.
- - **Requirement**: Implement **Exact Permutation Test** as per **Spec FR-006** if ties > `config.TIE_THRESHOLD` or censored data is present.
+ - **Requirement**: Implement **Exact Permutation Test** as per **Spec FR-006** if ties >= 0 (i.e., any ties present) or censored data is present.
  - **Method**: Apply exact permutation test to paired data to handle dominant ties and censored entries (using N+1 penalty).
  - **Output**: P-values and effect sizes.
  - **Traceability**: Implements Spec FR-006 (ties/censoring handling).
@@ -281,6 +282,7 @@
 - [ ] T033-Zero [US3] **Create Report Template**.
  - **Action**: Create `code/analysis/report_template.j2` with sections: Abstract, Methods, Results, Discussion.
  - **Logic**: Define sections: Abstract, Methods, Results, Discussion.
+ - **Variables**: The template MUST support the following Jinja2 variables: `p_value`, `effect_size`, `coverage_diff`, `ranking_diff`, `n_issues`, `methodology`, `conclusion`.
  - **Constraint**: Ensure all placeholders are mapped to fields in `data/results/final_metrics.json`.
  - **Output**: `code/analysis/report_template.j2`.
  - **Dependency**: Must exist before T033b.
@@ -367,7 +369,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for data (specifically `hard_subset.jsonl` and `validation_status.json` with manual review flag)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for data (specifically `hard_subset.jsonl` and `validation_status.json` with automated validation)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 for results
 
 ### Within Each User Story
@@ -423,7 +425,7 @@ Task: "Implement code/agent/quantized_llm.py" (T043)
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (and pass automated gate T016-AutoValidate with manual review)
+4. **STOP and VALIDATE**: Test User Story 1 independently (and pass automated gate T016-AutoValidate)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -456,15 +458,15 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Feasibility**: Ensure all model tasks use CPU-only, <1B param or 8-bit quantized models on -core/7GB RAM. [UNRESOLVED-CLAIM: c_8fa1bc04 — status=not_enough_info] No CUDA/GPU.
+- **CPU Feasibility**: Ensure all model tasks use 8-bit quantization on constrained runners to guarantee execution. **No CUDA/GPU**.
 - **Constraint Preservation**: All tasks must strictly implement the metrics and counts defined in FR-001, FR-002, SC-004, and FR-007.
  - **Hard Instance Selection**: Must use **initial coverage scores** (Spec FR-001) as the primary path (T012) to align with the benchmark definition. Complexity is diagnostic (T012-Complexity).
  - **Synthetic Issues**: Must generate all valid mutations with a hard fail if 0, proceed with warning if < 10 (T013).
- - **Statistics**: Coverage and Ranking use Wilcoxon as primary (T030-Primary), Permutation Test (T030-Permutation) if ties > `config.TIE_THRESHOLD` or censored data is present. **Survival Analysis is removed**.
+ - **Statistics**: Coverage and Ranking use Wilcoxon as primary (T030-Primary), Permutation Test (T030-Permutation) if **any ties are present** or censored data is present. **Survival Analysis is removed**.
  - **Correction**: Bonferroni applied to Coverage, Ranking tests.
 - **Data Integrity**: All analysis tasks must consume REAL data from `data/curated/`. No synthetic/fake input data generation tasks are permitted.
 - **Execution Order**: Tasks producing results (T023) MUST follow tasks generating those results (T021, T022). Tasks verifying results (T030) MUST follow result generation.
 - **Automated Validation**: Phase 4 cannot start until T016-AutoValidate completes successfully.
 - **New Functional Requirements (FR-011 to FR-016)**: Removed. All valid requirements (streaming, quantization, robustness) are now integrated into primary tasks (T010, T011, T043) referencing existing FR-001/002/014.
 - **Revision Concerns**: Phase N+1 added to address specific reviewer concerns regarding loop detection, mutation fallback, permutation test sensitivity, and static analysis robustness.
-- **Plan Alignment**: T000-PlanAmend must be completed first to resolve Spec/Plan contradictions regarding `initial_coverage` and statistical methods. (Note: T000 is now deprecated; override is documented in T012).
+- **Plan Alignment**: T000-Notice is a standalone administrative task for human alignment. It **updates the Plan** to remove contradictions, ensuring the Plan is no longer flawed during execution. T012 implements the Spec logic directly.
