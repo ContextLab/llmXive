@@ -41,6 +41,7 @@
 - [ ] T006 [P] Setup environment configuration management for random seeds and model paths in `src/utils/config.py`
 - [ ] T007 Create base model loader utility in `src/utils/model_loader.py` supporting Low-bit quantization (GGUF or `bitsandbytes` CPU backend) to fit Limited RAM constraint.
 - [ ] T008 Implement prediction error proxy calculator in `src/utils/metrics.py` using log-probability normalized by sequence length (per Assumptions)
+- [ ] T009 [P] Implement "Formal Question Language" parser in `src/utils/question_grammar.py` to enforce Ada Lovelace's constraint: define a deterministic set of admissible question templates and a mapping from model state to these templates, ensuring no "spontaneous origination" of inquiry (Review: ada-lovelace-simulated__2026-05-17, ada-lovelace-simulated__2026-05-18).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,10 +55,11 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010 [P] [US1] Contract test for dialogue tuple schema in `tests/contract/test_schemas.py`: implement `test_validate_dialogue_schema` to assert JSONL records contain `question`, `initial_answer`, `critique` (with `confidence_score`, `reasoning_snippet`), and `revised_answer`.
 - [X] T011 [P] [US1] Integration test for degenerate dialogue truncation in `tests/integration/test_generation.py`: implement `test_degenerate_dialogue_truncation` to assert that n-gram overlap > 0.9 triggers `DEGENERATE_DIALOGUE_TRUNCATED` log and truncates the dialogue.
+- [ ] T011b [P] [US1] Contract test for "Formal Question Language" compliance in `tests/contract/test_grammar.py`: implement `test_question_grammar_enforcement` to assert that all generated questions in the dialogue strictly adhere to the deterministic templates defined in T009 (Review: ada-lovelace-simulated__2026-05-19, ada-lovelace-simulated__2026-05-30).
 
 ### Implementation for User Story 1
 
@@ -68,7 +70,9 @@
  2. Generates a critique prompt dynamically to identify logical contradictions or unsupported assumptions (per FR-002).
  3. Outputs a structured JSON with `confidence_score` and `reasoning_snippet`.
  4. Detects n-gram overlap > 0.9 and logs `DEGENERATE_DIALOGUE_TRUNCATED` (Edge Case).
+ 5. **Crucial**: Integrates the "Formal Question Language" (T009) to ensure the critique questions are derived from ordered operations on the model's state, not spontaneous origination (Review: ada-lovelace-simulated__2026-05-31).
 - [ ] T015 [US1] Implement ablation data generator in `src/data/ablation.py` replacing critique text with neutral placeholder text of equivalent token length (FR-007). **Note**: This task depends on T014 output.
+- [ ] T016 [US1] Implement "Knowledge Gap" verification step in `src/data/verify_gap.py` to satisfy Alan Turing's requirement: validate that generated questions expose a genuine boundary in logic or a high-probability error, rather than trivial retrieval (Review: alan-turing-simulated__2026-05-17, alan-turing-simulated__2026-05-18).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -83,7 +87,6 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Contract test for training completion and OOM handling in `tests/contract/test_training.py`: implement `test_training_completion` to assert training finishes within 6 hours and logs accuracy; `test_oom_fallback` to assert fallback to a smaller-scale model on OOM
-
 Research question: How can computational resource constraints be managed during model inference?
 Method: Implement an adaptive fallback mechanism that switches to a lower-capacity model when out-of-memory errors occur.
 References: [Citation placeholder].
@@ -94,6 +97,8 @@ References: [Citation placeholder].
 - [ ] T020 [P] [US2] Implement LoRA configuration in `src/train/lora_config.py` with `batch_size ≤ 2`, `gradient_accumulation_steps = 4`, and 4-bit quantization (FR-003).
 - [ ] T021 [US2] Implement CPU-safe training loop in `src/train/train_loop.py` with hard timeout (FR-008) and fallback to smaller model (B Phi-1.5) if OOM occurs.
 - [ ] T022 [US2] Implement evaluation script in `src/eval/benchmark.py` running GSM8K test split and MMLU STEM subset, logging accuracy.
+- [ ] T023 [US2] Implement "Instruction Table Modification" logic in `src/train/training_signal.py` to satisfy Alan Turing's objection: ensure the model's internal state (instruction table) is only modified when a prediction error exceeds a specific threshold, distinguishing learning from mere recall (Review: alan-turing-simulated__2026-05-19).
+- [ ] T024 [US2] Implement "System 2 Checkpoint" logic in `src/eval/benchmark.py` to satisfy Daniel Kahneman's requirement: after each Socratic exchange, force the model to generate a confidence rating and compare it to an objective baseline (Monte-Carlo estimate) to detect over-confidence bias (Review: daniel-kahneman-simulated__2026-05-17, daniel-kahneman-simulated__2026-05-19).
 
 **Checkpoint**: At this point, At this point, User Stories 1 AND 2 should both work independently
 
@@ -116,6 +121,8 @@ References: [Citation placeholder].
 - [ ] T028 [US3] Implement Bonferroni/FDR correction in `src/analyze/stats.py` for multiple benchmarks (FR-006).
 - [ ] T029 [US3] Implement sensitivity analysis sweep over prediction error threshold values {0.01, 0.05, 0.1} as defined in SC-004 (log-prob proxy) to validate robustness.
 - [ ] T031 [US3] Implement ablation comparison logic in `src/analyze/stats.py` contrasting Dialogue vs. Ablation vs. Static conditions to isolate the critique signal. **Note**: This task depends on T015 and T014 output.
+- [ ] T032 [US3] Implement "Productive Ignorance" metric calculation in `src/analyze/metrics.py` to satisfy Dan Rockmore's requirement: measure the "gap" where the model explicitly flags the limits of its context, ensuring the system is humble in its inquiries (Review: dan-rockmore-simulated__2026-05-31).
+- [ ] T033 [US3] Implement "Attention Shift" analysis in `src/analyze/attention.py` to satisfy Alan Turing's request: analyze attention weights across questioning rounds to provide empirical evidence of state change, not just accuracy improvement (Review: alan-turing-simulated__2026-05-30).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -125,11 +132,14 @@ References: [Citation placeholder].
 
 **Purpose**: Improvements that affect multiple user stories and address philosophical/operational clarity from reviews.
 
-- [ ] T032 [P] Update `research.md` to explicitly distinguish between (a) engine executing a pre-ordained self-improvement procedure and (b) genuine origination, addressing **Ada Lovelace's** repeated concerns about "origination" vs. "operations".
-- [ ] T033 [P] Refine problem statement in `spec.md` to frame the adversarial component as "evolutionary pressure" or "negative selection on belief" rather than "self-teaching", addressing **David Krakauer's review**.
-- [ ] T034 Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
-- [X] T035 Run `bash projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/quickstart.sh` (or equivalent command) and verify exit code 0 to confirm all quickstart steps execute without error.
-- [X] T044 [P] [Review] Document the operational distinction between "generative capability" (required by FR-001) and "deterministic operation" (Ada Lovelace's constraint) in `docs/philosophy.md`, clarifying that the system generates via ordered operations on internal states rather than spontaneous origination (Review: ada-lovelace-simulated__2026-05-17, alan-turing-simulated__2026-05-17).
+- [ ] T034 [P] Update `research.md` to explicitly distinguish between (a) engine executing a pre-ordained self-improvement procedure and (b) genuine origination, addressing **Ada Lovelace's** repeated concerns about "origination" vs. "operations".
+- [ ] T035 [P] Refine problem statement in `spec.md` to frame the adversarial component as "evolutionary pressure" or "negative selection on belief" rather than "self-teaching", addressing **David Krakauer's review** (Review: david-krakauer-simulated__2026-06-29).
+- [ ] T036 [P] Refine `spec.md` to clarify the "Socratic" method as a fitness function for reasoning paths rather than instruction, distinguishing between optimization of loss and evolution of reasoning capacity (Review: david-krakauer-simulated__2026-06-29).
+- [ ] T037 [P] Add a "Worked Dialogue Example" section to `research.md` showing a step-by-step trace of internal state changes after Socratic exchange, as requested by Alan Turing (Review: alan-turing-simulated__2026-05-30).
+- [ ] T038 [P] Refine `spec.md` to explicitly discuss how self-generated questions could inherit heuristics (e.g., availability bias) and describe the mitigation strategy (randomized framing, System 2 checkpoint) (Review: daniel-kahneman-simulated__2026-05-19).
+- [ ] T039 [P] Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
+- [X] T040 [P] [Review] Document the operational distinction between "generative capability" (required by FR-001) and "deterministic operation" (Ada Lovelace's constraint) in `docs/philosophy.md`, clarifying that the system generates via ordered operations on internal states rather than spontaneous origination (Review: ada-lovelace-simulated__2026-05-17, alan-turing-simulated__2026-05-17).
+- [X] T041 Run `bash projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/quickstart.sh` (or equivalent command) and verify exit code 0 to confirm all quickstart steps execute without error.
 
 ---
 
@@ -148,11 +158,15 @@ References: [Citation placeholder].
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
  - **Internal Dependency**: T013 depends on T012 completion.
- - **Internal Dependency**: T014 depends on T012 completion.
+ - **Internal Dependency**: T014 depends on T012 and T009 completion.
  - **Internal Dependency**: T015 depends on T014 completion.
+ - **Internal Dependency**: T016 depends on T014 completion.
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+ - **Internal Dependency**: T023 depends on T021 completion.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
  - **Internal Dependency**: T031 depends on T014 and T015 completion.
+ - **Internal Dependency**: T032 depends on T022 completion.
+ - **Internal Dependency**: T033 depends on T022 completion.
 
 ### Within Each User Story
 
@@ -179,13 +193,15 @@ References: [Citation placeholder].
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Contract test for dialogue tuple schema in tests/contract/test_schemas.py"
 Task: "Integration test for degenerate dialogue truncation in tests/integration/test_generation.py"
+Task: "Contract test for Formal Question Language compliance in tests/contract/test_grammar.py"
 
 # Launch independent models for User Story 1 together:
 Task: "Implement dataset downloader in src/data/download.py" (T012)
 Task: "Implement static QA extractor in src/data/static_extractor.py" (T013)
-Task: "Implement self-critique generator in src/data/generate_dialogue.py" (T014)
+Task: "Implement Formal Question Language parser in src/utils/question_grammar.py" (T009)
 
-# Note: T015 (ablation generator) MUST run AFTER T014 completes.
+# Note: T014 (critique generator) MUST run AFTER T009 and T012 complete.
+# Note: T015 (ablation) MUST run AFTER T014 completes.
 ```
 
 ---
@@ -196,7 +212,7 @@ Task: "Implement self-critique generator in src/data/generate_dialogue.py" (T014
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (T012 -> T013 -> T014 -> T015)
+3. Complete Phase 3: User Story 1 (T009 -> T012 -> T013 -> T014 -> T015 -> T016)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -214,9 +230,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (Data Generation: T012, T013, T014, T015)
- - Developer B: User Story 2 (Training & Evaluation: T020, T021, T022)
- - Developer C: User Story 3 (Stats & Ablation: T027, T028, T029, T031)
+ - Developer A: User Story 1 (Data Generation: T009, T012, T013, T014, T015, T016)
+ - Developer B: User Story 2 (Training & Evaluation: T020, T021, T022, T023, T024)
+ - Developer C: User Story 3 (Stats & Ablation: T027, T028, T029, T031, T032, T033)
 3. Stories complete and integrate independently
 
 ---
@@ -230,10 +246,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - **Critical Review Alignment**:
- - **Alan Turing**: Tasks T008 (prediction error proxy), T029 (sensitivity sweep), T038 (Verification Step - removed), T039 (Threshold Gate), and T040 (Attention Analysis - removed) address the need for operational definitions, learning signals, and empirical evidence. T044 documents the operational distinction.
- - **Ada Lovelace**: Tasks T032 (Origination vs. Operations) and T044 (Operational Distinction) address the philosophical constraint that the engine cannot originate, only execute ordered operations. T036/T037 (Formal Question Language) were removed as contradictory to FR-001.
- - **Daniel Kahneman**: Tasks T008 (Calibration), T029 (Sensitivity), and T042 (System 2 Checkpoint - removed) address over-confidence, availability heuristics, and bias detection.
- - **Dan Rockmore**: Task T041 (Productive Ignorance Metric) addresses the measurement of the "gap" and the limits of context.
- - **David Krakauer**: Tasks T033 (Reframing as negative selection) and T043 (Clarifying Instruction vs. Selection - removed) address the distinction between instruction and evolutionary pressure.
+ - **Alan Turing**: Tasks T008 (prediction error proxy), T016 (Knowledge Gap verification), T023 (Instruction Table Modification), T024 (System 2 Checkpoint), T029 (Sensitivity), T033 (Attention Shift), T037 (Worked Example) address the need for operational definitions, learning signals, empirical evidence, and distinction between learning and recall.
+ - **Ada Lovelace**: Tasks T009 (Formal Question Language), T014 (Integration of T009), T034 (Origination vs. Operations), T040 (Operational Distinction) address the philosophical constraint that the engine cannot originate, only execute ordered operations.
+ - **Daniel Kahneman**: Tasks T008 (Calibration), T024 (System 2 Checkpoint), T029 (Sensitivity), T038 (Heuristic Mitigation) address over-confidence, availability heuristics, and bias detection.
+ - **Dan Rockmore**: Task T032 (Productive Ignorance Metric) addresses the measurement of the "gap" and the limits of context.
+ - **David Krakauer**: Tasks T035 (Reframing as negative selection), T036 (Fitness Function vs. Instruction) address the distinction between instruction and evolutionary pressure.
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Compute Constraint**: All training tasks (T021) must strictly adhere to 4-bit quantization and 1.5B model fallback to ensure execution on 7GB RAM free-tier runners. No GPU tasks allowed.
