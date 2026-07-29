@@ -1,119 +1,73 @@
-# Measured Metrics: Definitions and Methodology
+# Metrics and Statistical Analysis Documentation
 
-This document defines the metrics computed by the Consciousness Bootstrapping pipeline.
-These metrics are used to evaluate the self-awareness, calibration, and error detection
-capabilities of the recursive self-modeling architecture.
+This document provides detailed definitions and implementation notes for the metrics used in the Consciousness Bootstrapping project.
 
-## 1. Self-Consistency
+## 1. Self-Consistency Proxy
 
-**Definition**: Self-consistency measures the model's ability to produce the same answer
-across multiple independent reasoning paths generated under stochastic sampling.
-It is a proxy for the stability of the model's internal reasoning process.
+The core innovation of this project is the use of an **internal self-consistency proxy** to train the model to be aware of its own correctness.
 
-**Computation**:
-For a given question $Q$, generate $N=10$ reasoning paths $\{P_1, P_2,..., P_N\}$
-using temperature $T=0.7$ and top-p $p=0.9$. Extract the final answer $A_i$ from each path.
-The self-consistency score is the proportion of paths that agree on the most frequent answer:
+### Implementation Details
+* **Location**: `code/evaluation/loss_functions.py` (function `compute_self_consistency_proxy`)
+* **Mechanism**:
+ 1. For a given training item, the model generates N=5 reasoning paths.
+ 2. The final answer is extracted from each path.
+ 3. A majority vote determines the "proxy correctness" signal.
+ 4. **Tie-Breaking**: If no strict majority exists, the proxy defaults to 0 (incorrect).
 
-$$ SC(Q) = \frac{\max_{a} |\{i: A_i = a\}|}{N} $$
+### Loss Function
+The joint loss function combines standard cross-entropy with a confidence-prediction loss:
+$$L_{joint} = L_{CE} + \lambda \cdot L_{confidence}$$
 
-**Interpretation**:
-- **High SC (near 1.0)**: The model converges on a single answer regardless of sampling noise,
- suggesting a robust internal logic.
-- **Low SC**: The model's output is highly sensitive to sampling noise, indicating instability
- or lack of a definitive internal state.
+Where $L_{confidence}$ is the binary cross-entropy between the model's predicted confidence and the proxy correctness signal.
 
-**Implementation**: See `code/evaluation/metrics.py` -> `calculate_self_consistency`.
+## 2. Calibration Metrics
 
-## 2. Brier Score
+Calibration measures the alignment between a model's confidence and its accuracy.
 
-**Definition**: The Brier score measures the accuracy of probabilistic predictions.
-In this context, it evaluates how well the model's predicted confidence matches the
-actual correctness of its answers.
+### Expected Calibration Error (ECE)
+* **Location**: `code/evaluation/metrics.py` (function `calculate_ece`)
+* **Bins**: Equal-width bins spanning [0.0, 1.0].
+* **Edge Case**: If a bin has zero samples, observed accuracy is 0.0.
 
-**Computation**:
-Given a set of $M$ predictions where each prediction $i$ has a predicted confidence $c_i \in [0, 1]$
-and a binary correctness label $y_i \in \{0, 1\}$ (1 if correct, 0 otherwise):
+### Brier Score
+* **Location**: `code/evaluation/metrics.py` (function `calculate_brier_score`)
+* **Interpretation**: Lower is better. 0.0 is perfect.
 
-$$ BS = \frac{1}{M} \sum_{i=1}^{M} (c_i - y_i)^2 $$
+### Calibration Curve
+* **Location**: `code/evaluation/metrics.py` (function `calculate_calibration_curve`)
+* **Output**: JSON object with `bin_edges`, `bin_counts`, `observed_accuracies`.
+* **Usage**: Used for visualization and sensitivity analysis.
 
-**Interpretation**:
-- **Lower is better**. A score of 0.0 indicates perfect calibration (confidence always equals correctness).
-- A score of 0.25 corresponds to random guessing with 50% confidence on binary outcomes.
+## 3. Statistical Tests
 
-**Implementation**: See `code/evaluation/metrics.py` -> `calculate_brier_score`.
+The project uses paired t-tests to determine if the recursive model's performance is statistically significantly better than the baseline.
 
-## 3. Expected Calibration Error (ECE)
+### Paired t-test
+* **Location**: `code/analysis/stats.py` (function `run_paired_ttest`)
+* **Input**: Lists of metrics (e.g., self-consistency scores) for each seed.
+* **Correction**: Bonferroni correction is applied for multiple comparisons.
 
-**Definition**: ECE quantifies the gap between a model's average confidence and its average accuracy
-across bins of predicted confidence. It measures the degree to which the model is over-confident
-or under-confident.
+### Cohen's d
+* **Location**: `code/analysis/stats.py` (function `calculate_cohen_d`)
+* **Purpose**: Measures the effect size (magnitude of difference).
 
-**Computation**:
-1. Bin the $M$ predictions into $B$ bins (default $B=10$) based on predicted confidence $c_i$.
-2. For each bin $b$, compute the average confidence $\bar{c}_b$ and the accuracy $\bar{y}_b$ (fraction of correct answers).
-3. Compute the weighted average of the absolute difference between accuracy and confidence:
+### Percentage Difference
+* **Location**: `code/analysis/stats.py` (function `calculate_percentage_difference`)
+* **Formula**: $\frac{Mean_{recursive} - Mean_{baseline}}{Mean_{baseline}} \times 100$
 
-$$ ECE = \sum_{b=1}^{B} \frac{|B_b|}{M} |\bar{y}_b - \bar{c}_b| $$
+## 4. Sensitivity Analysis
 
-Where $|B_b|$ is the number of samples in bin $b$.
+This analysis tests the robustness of the model's error detection capabilities across different confidence thresholds.
 
-**Interpretation**:
-- **Lower is better**. ECE = 0 implies perfect calibration.
-- High ECE indicates a systematic mismatch between the model's self-assessment and reality.
+* **Location**: `code/analysis/stats.py` (function `run_sensitivity_analysis`)
+* **Thresholds**: {0.4, 0.5, 0.6}
+* **Metrics**: False Positive Rate (FPR), False Negative Rate (FNR), and their deltas between recursive and baseline models.
+* **Output**: `artifacts/results/sensitivity_analysis.csv`
 
-**Implementation**: See `code/evaluation/metrics.py` -> `calculate_ece`.
-*Note*: Raw binning data is computed internally but not persisted as a separate artifact to reduce storage overhead,
-per FR-004. Only the final scalar ECE is reported.
+## 5. Data Hygiene
 
-## 4. ROC-AUC (Receiver Operating Characteristic - Area Under Curve)
+Per Constitution Principle III, all data sources are checksummed and recorded in `data/manifest.json`.
 
-**Definition**: ROC-AUC evaluates the model's ability to distinguish between correct and incorrect predictions
-based on its confidence scores. It measures the trade-off between true positive rate and false positive rate
-across all possible confidence thresholds.
-
-**Computation**:
-1. Treat the predicted confidence $c_i$ as the score for the positive class (correctness).
-2. Compute the True Positive Rate (TPR) and False Positive Rate (FPR) at various thresholds.
-3. Calculate the area under the ROC curve.
-
-**Interpretation**:
-- **Higher is better**.
-- 0.5: No discrimination ability (random guessing).
-- 1.0: Perfect discrimination (high confidence always correct, low confidence always incorrect).
-
-**Implementation**: See `code/evaluation/metrics.py` -> `calculate_roc_auc`.
-
-## 5. Percentage Difference in Self-Consistency (SC-Diff)
-
-**Definition**: A comparative metric used in the statistical analysis phase to quantify the improvement
-of the recursive model over the baseline model.
-
-**Computation**:
-Let $SC_{recursive}$ be the mean self-consistency score of the recursive model and
-$SC_{baseline}$ be the mean self-consistency score of the baseline model.
-
-$$ SC\text{-}Diff = \frac{SC_{recursive} - SC_{baseline}}{SC_{baseline}} \times 100\% $$
-
-**Interpretation**:
-- **Positive value**: The recursive model exhibits higher self-consistency than the baseline.
-- **Negative value**: The baseline model is more consistent.
-- This metric is reported in `artifacts/results/statistical_report.json`.
-
-**Implementation**: See `code/analysis/stats.py` -> `calculate_percentage_difference`.
-
-## 6. Sensitivity Analysis Metrics
-
-**Definition**: Metrics that evaluate how the model's error detection rates change as a function of
-the confidence threshold used to flag potential errors.
-
-**Computed Columns**:
-- **Threshold**: The confidence cutoff value.
-- **False Positive Rate (FPR)**: Fraction of correct answers incorrectly flagged as errors (confidence < threshold).
-- **False Negative Rate (FNR)**: Fraction of incorrect answers missed (confidence >= threshold).
-- **FPR Delta / FNR Delta**: Change in rates relative to a baseline threshold (e.g., 0.5).
-
-**Implementation**: See `code/analysis/stats.py` -> `run_sensitivity_analysis`.
-
----
-*Generated by the Consciousness Bootstrapping Pipeline (PROJ-558).*
+* **Training Data**: Pile (arXiv subset), truncated to 100k tokens.
+* **Evaluation Data**: GSM8K, MMLU.
+* **Verification**: Checksums are computed using SHA-256.

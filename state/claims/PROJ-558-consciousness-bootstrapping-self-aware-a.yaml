@@ -1,0 +1,208 @@
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: plan.md contains contradiction between Teacher-Student Distillation and
+    Internal Self-Consistency Proxy training objectives
+  claim_id: c_deee5919
+  context: Critical Prerequisites section noting a blocking conflict in the plan.md
+    file regarding the training objective.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan.md_contains_contradiction_between_Teacher-Student_Disti
+  kind: entity_fact
+  raw_text: The plan.md artifact currently contains a contradiction regarding the
+    training objective (referencing 'Teacher-Student Distillation' while the spec
+    requires 'Internal Self-Consistency Proxy').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:06:30Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: HuggingFace datasets Pile GSM8K MMLU must be accessible without expiring
+    tokens in 6-hour CI window
+  claim_id: c_e6e0dfd9
+  context: Critical Prerequisites section regarding data availability and CI constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HuggingFace datasets (Pile, GSM8K, MMLU) must be accessible via public
+    API without authentication tokens that expire during the 6-hour CI window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:06:39Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Pile dataset truncated to 100k-token subset per Constitution Principle
+    VII
+  claim_id: c_b426393f
+  context: Task T004 description regarding data loading and truncation requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pile dataset subset is truncated to a representative initial segment
+    defined by Constitution Principle VII's '100k-token subset' requirement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:06:48Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training token_limit set to 100000
+  claim_id: c_c90af34b
+  context: Task T005 description listing hyperparameters managed by config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training configuration enforces a token_limit of 100000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:06:59Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: base_llama.py wrapper for transformer with less than 300M parameters
+  claim_id: c_7441ab6b
+  context: Task T007 description specifying the model size constraints.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Base_llama.py_wrapper_for_transformer_with_less_than_300M_pa
+  kind: magnitude
+  raw_text: The base_llama.py wrapper is for a small transformer with fewer than 300M
+    parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:07:09Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline must complete within 120 minutes on GitHub Actions
+    CPU runner
+  claim_id: c_60d07eb7
+  context: Independent Test section for User Story 1 defining execution constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline must complete within 120 minutes without OOM on
+    a GitHub Actions CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:07:18Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Confidence-prediction loss uses proxy from 5 reasoning paths per item
+  claim_id: c_08b8abf0
+  context: Task T012 implementation details describing the majority vote logic for
+    the proxy signal.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence-prediction loss uses a proxy derived from internal generation
+    of N=5 reasoning paths per training item.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:07:29Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Proxy signal defaults to 0 if no strict majority in 5 paths
+  claim_id: c_5a7ca12a
+  context: Task T012 implementation details describing the tie-breaking rule for the
+    majority vote.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If no strict majority exists in the 5 generated paths (e.g., 2-2-1 split),
+    the proxy signal defaults to 0 (incorrect).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:07:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: First generated path determines proxy in even split scenario
+  claim_id: c_7c64d34f
+  context: Task T012 implementation details describing the tie-breaking rule for even
+    splits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For an even split (e.g., 5-5) in the generated paths, the first generated
+    path determines the proxy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:07:53Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Evaluation metrics include self-consistency ROC-AUC Brier score and ECE
+  claim_id: c_6b79535a
+  context: Task T018 description listing the metrics implemented in metrics.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_metrics_include_self-consistency_ROC-AUC_Brier_sc
+  kind: entity_fact
+  raw_text: The evaluation metrics include self-consistency, ROC-AUC, Brier score,
+    and ECE.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:08:05Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps confidence thresholds 0.4 0.5 0.6
+  claim_id: c_cbc986b9
+  context: Task T025 description specifying the discrete values for the sensitivity
+    analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep runs for confidence thresholds across the
+    discrete set of values {0.4, 0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:08:17Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training script fails if peak RSS exceeds 7GB
+  claim_id: c_19359338
+  context: Task T039 description regarding memory profiling and failure constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_script_fails_if_peak_RSS_exceeds_7GB
+  kind: entity_fact
+  raw_text: The training script must fail if peak RSS exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T19:08:34Z'

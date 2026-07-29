@@ -1,201 +1,264 @@
 """
 Configuration management for the Consciousness Bootstrapping project.
 
-This module manages hyperparameters and enforces CPU-only execution constraints
-as required by the project's infrastructure limitations.
+This module manages hyperparameters, enforces CPU-only execution constraints,
+and provides a centralized configuration interface for the entire pipeline.
 """
-
 import os
 import torch
 from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
 from utils.logging import get_logger, ConfigurationError
 
+from utils.logging import get_logger, ConfigurationError as LoggingConfigError
+
 logger = get_logger(__name__)
 
 
-@dataclass
+class ConfigurationError(Exception):
+    """Custom exception for configuration-related errors."""
+    pass
+
+
 class Config:
     """
-    Central configuration for the Consciousness Bootstrapping pipeline.
+    Central configuration class for the Consciousness Bootstrapping project.
 
     Attributes:
         seed (int): Random seed for reproducibility.
-        batch_size (int): Batch size for training and evaluation.
-        recursion_depth (int): Maximum depth for recursive self-attention (default: 2).
-        learning_rate (float): Learning rate for the optimizer.
-        token_limit (int): Maximum number of tokens to process (default: 100000).
-        device (str): Device to run on ('cpu' enforced).
-        model_name (str): Name of the base model (e.g., 'TinyLlama/TinyLlama-1.1B-Chat-v1.0').
-        max_steps (int): Maximum number of training steps.
-        warmup_steps (int): Number of warmup steps for learning rate scheduler.
-        output_dir (str): Directory to save checkpoints and results.
-        data_dir (str): Directory for raw and processed data.
-        log_level (str): Logging level (DEBUG, INFO, WARNING, ERROR).
+        batch_size (int): Training batch size.
+        recursion_depth (int): Maximum recursion depth for self-attention (default: 2).
+        learning_rate (float): Learning rate for optimizer.
+        token_limit (int): Maximum number of tokens for dataset truncation.
+        cpu_only (bool): Enforce CPU-only execution.
+        model_name (str): Name of the base model to use.
+        max_epochs (int): Maximum number of training epochs.
+        output_dir (str): Directory for saving checkpoints and results.
     """
-    seed: int = 42
-    batch_size: int = 4
-    recursion_depth: int = 2
-    learning_rate: float = 2e-4
-    token_limit: int = 100000
-    device: str = "cpu"
-    model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-    max_steps: int = 1000
-    warmup_steps: int = 100
-    output_dir: str = "artifacts/results"
-    data_dir: str = "data"
-    log_level: str = "INFO"
-    # Additional constraints
-    max_memory_gb: float = 7.0  # Hard limit for CI runner
-    enable_mixed_precision: bool = False  # Disabled for CPU stability
 
-    def __post_init__(self):
-        """Validate configuration after initialization."""
-        self._validate_cpu_only()
-        self._validate_recursion_depth()
-        self._validate_hyperparameters()
+    def __init__(
+        self,
+        seed: int = 42,
+        batch_size: int = 4,
+        recursion_depth: int = 2,
+        learning_rate: float = 1e-4,
+        token_limit: int = 100000,
+        cpu_only: bool = True,
+        model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v0.3",
+        max_epochs: int = 3,
+        output_dir: str = "artifacts/checkpoints",
+        data_dir: str = "data/raw",
+        results_dir: str = "artifacts/results",
+        log_level: str = "INFO",
+    ):
+        self.seed = seed
+        self.batch_size = batch_size
+        self.recursion_depth = recursion_depth
+        self.learning_rate = learning_rate
+        self.token_limit = token_limit
+        self.cpu_only = cpu_only
+        self.model_name = model_name
+        self.max_epochs = max_epochs
+        self.output_dir = output_dir
+        self.data_dir = data_dir
+        self.results_dir = results_dir
+        self.log_level = log_level
 
-    def _validate_cpu_only(self):
-        """Enforce CPU-only execution constraint."""
-        if torch.cuda.is_available():
-            logger.warning(
-                "CUDA is available, but CPU-only execution is enforced by project constraints. "
-                "Forcing device to 'cpu'."
-            )
-        self.device = "cpu"
-        if not torch.backends.mps.is_available():
-            # Ensure MPS (Apple Silicon) is also disabled if strictly CPU-only is required
-            # Note: MPS is often considered a 'CPU-like' backend in this context, but if strict CPU is needed:
-            pass
+        # Enforce constraints immediately upon initialization
+        self._enforce_constraints()
+
+    def _enforce_constraints(self) -> None:
+        """
+        Enforce project-specific constraints, particularly CPU-only execution.
+
+        Raises:
+            ConfigurationError: If constraints cannot be satisfied.
+        """
+        if self.cpu_only:
+            if torch.cuda.is_available():
+                logger.warning(
+                    "CUDA is available, but CPU-only mode is enforced. "
+                    "Disabling GPU usage."
+                )
+            # Explicitly set device to CPU
+            os.environ["CUDA_VISIBLE_DEVICES"] = ""
+            logger.info("CPU-only execution enforced. GPU access disabled.")
         
-        # Explicitly set torch default device
-        torch.set_default_device("cpu")
-
-    def _validate_recursion_depth(self):
-        """Validate recursion depth constraints."""
-        if self.recursion_depth < 1:
-            raise ConfigurationError(
-                f"Recursion depth must be >= 1, got {self.recursion_depth}"
-            )
+        # Validate recursion depth constraint
         if self.recursion_depth > 2:
             raise ConfigurationError(
-                f"Recursion depth > 2 is prohibited by project constraints (OOM risk). "
-                f"Got {self.recursion_depth}"
+                f"Recursion depth {self.recursion_depth} exceeds maximum allowed value of 2. "
+                "This is a hard constraint per project specifications."
+            )
+        
+        # Validate token limit
+        if self.token_limit <= 0:
+            raise ConfigurationError(
+                f"Token limit must be positive, got {self.token_limit}."
             )
 
-    def _validate_hyperparameters(self):
-        """Validate hyperparameter ranges."""
-        if self.batch_size < 1:
-            raise ConfigurationError(f"Batch size must be >= 1, got {self.batch_size}")
-        if self.learning_rate <= 0:
-            raise ConfigurationError(f"Learning rate must be > 0, got {self.learning_rate}")
-        if self.token_limit < 100:
-            raise ConfigurationError(f"Token limit too low ({self.token_limit}), minimum 100.")
+        # Validate batch size
+        if self.batch_size <= 0:
+            raise ConfigurationError(
+                f"Batch size must be positive, got {self.batch_size}."
+            )
+
+        logger.info(f"Configuration validated: seed={self.seed}, batch_size={self.batch_size}, "
+                   f"recursion_depth={self.recursion_depth}, token_limit={self.token_limit}")
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert configuration to dictionary."""
+        """Convert configuration to a dictionary."""
         return {
             "seed": self.seed,
             "batch_size": self.batch_size,
             "recursion_depth": self.recursion_depth,
             "learning_rate": self.learning_rate,
             "token_limit": self.token_limit,
-            "device": self.device,
+            "cpu_only": self.cpu_only,
             "model_name": self.model_name,
-            "max_steps": self.max_steps,
-            "warmup_steps": self.warmup_steps,
+            "max_epochs": self.max_epochs,
             "output_dir": self.output_dir,
             "data_dir": self.data_dir,
+            "results_dir": self.results_dir,
             "log_level": self.log_level,
-            "max_memory_gb": self.max_memory_gb,
-            "enable_mixed_precision": self.enable_mixed_precision,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Config":
-        """Create configuration from dictionary."""
-        return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
-
-    @classmethod
-    def from_env(cls, prefix: str = "CONSCIOUSNESS_") -> "Config":
-        """Create configuration from environment variables."""
-        data = {}
-        for field_name in cls.__dataclass_fields__:
-            env_key = f"{prefix}{field_name.upper()}"
-            if env_key in os.environ:
-                value = os.environ[env_key]
-                # Type conversion
-                field_type = cls.__dataclass_fields__[field_name].type
-                if field_type == int:
-                    data[field_name] = int(value)
-                elif field_type == float:
-                    data[field_name] = float(value)
-                elif field_type == bool:
-                    data[field_name] = value.lower() in ("true", "1", "yes")
-                else:
-                    data[field_name] = value
-        return cls(**data)
+    def from_dict(cls, config_dict: Dict[str, Any]) -> "Config":
+        """Create a Config instance from a dictionary."""
+        return cls(
+            seed=config_dict.get("seed", 42),
+            batch_size=config_dict.get("batch_size", 4),
+            recursion_depth=config_dict.get("recursion_depth", 2),
+            learning_rate=config_dict.get("learning_rate", 1e-4),
+            token_limit=config_dict.get("token_limit", 100000),
+            cpu_only=config_dict.get("cpu_only", True),
+            model_name=config_dict.get("model_name", "TinyLlama/TinyLlama-1.1B-Chat-v0.3"),
+            max_epochs=config_dict.get("max_epochs", 3),
+            output_dir=config_dict.get("output_dir", "artifacts/checkpoints"),
+            data_dir=config_dict.get("data_dir", "data/raw"),
+            results_dir=config_dict.get("results_dir", "artifacts/results"),
+            log_level=config_dict.get("log_level", "INFO"),
+        )
 
 
 # Global configuration instance
-_config: Optional[Config] = None
+_global_config: Optional[Config] = None
 
 
 def get_config() -> Config:
-    """Get the global configuration instance."""
-    global _config
-    if _config is None:
-        # Try to load from env, else default
-        _config = Config.from_env()
-        logger.info(f"Loaded configuration: {_config.to_dict()}")
-    return _config
+    """
+    Get the global configuration instance.
+
+    Returns:
+        Config: The global configuration object.
+    
+    Raises:
+        ConfigurationError: If configuration has not been initialized.
+    """
+    global _global_config
+    if _global_config is None:
+        raise ConfigurationError(
+            "Configuration not initialized. Call set_config() or main() first."
+        )
+    return _global_config
 
 
-def set_config(config: Config) -> None:
-    """Set the global configuration instance."""
-    global _config
-    _config = config
-    logger.info(f"Set configuration: {_config.to_dict()}")
+def set_config(config: Optional[Config] = None, **kwargs) -> Config:
+    """
+    Set or update the global configuration.
+
+    Args:
+        config: A Config instance to set as global.
+        **kwargs: Parameters to update in the existing config or create a new one.
+    
+    Returns:
+        Config: The updated global configuration.
+    """
+    global _global_config
+    
+    if config is not None:
+        _global_config = config
+    elif kwargs:
+        if _global_config is None:
+            _global_config = Config(**kwargs)
+        else:
+            # Update existing config with new values
+            for key, value in kwargs.items():
+                if hasattr(_global_config, key):
+                    setattr(_global_config, key, value)
+                else:
+                    raise ConfigurationError(f"Unknown configuration parameter: {key}")
+    else:
+        # Initialize with defaults if no config provided
+        _global_config = Config()
+    
+    logger.info("Global configuration set.")
+    return _global_config
 
 
 def validate_config(config: Optional[Config] = None) -> bool:
     """
-    Validate a configuration object.
-    
+    Validate a configuration instance.
+
     Args:
         config: Configuration to validate. If None, uses global config.
-        
+    
     Returns:
-        True if valid, raises ConfigurationError otherwise.
+        bool: True if valid.
+    
+    Raises:
+        ConfigurationError: If validation fails.
     """
     if config is None:
         config = get_config()
     
-    # The dataclass __post_init__ already runs validation,
-    # but we call it explicitly here for clarity if needed.
-    # Re-triggering validation logic manually if __post_init__ side effects are needed
-    try:
-        config._validate_cpu_only()
-        config._validate_recursion_depth()
-        config._validate_hyperparameters()
-    except ConfigurationError:
-        raise
-    except Exception as e:
-        raise ConfigurationError(f"Configuration validation failed: {e}")
-        
+    # Re-run constraint enforcement
+    config._enforce_constraints()
     return True
 
 
 def main():
-    """Main entry point for config testing."""
-    print("Running config validation...")
+    """
+    Main entry point for testing configuration.
+    """
+    logger.info("Testing configuration module...")
+    
+    # Test default configuration
+    config = Config()
+    logger.info(f"Default config: {config.to_dict()}")
+    
+    # Test custom configuration
+    custom_config = Config(
+        seed=123,
+        batch_size=8,
+        recursion_depth=2,
+        learning_rate=5e-5,
+        token_limit=50000,
+        cpu_only=True,
+    )
+    logger.info(f"Custom config: {custom_config.to_dict()}")
+    
+    # Test global config setting
+    set_config(custom_config)
+    global_config = get_config()
+    logger.info(f"Global config: {global_config.to_dict()}")
+    
+    # Test validation
     try:
-        cfg = get_config()
-        validate_config(cfg)
-        print(f"Configuration valid: {cfg.to_dict()}")
+        validate_config()
+        logger.info("Configuration validation passed.")
     except ConfigurationError as e:
-        print(f"Configuration error: {e}")
-        exit(1)
+        logger.error(f"Configuration validation failed: {e}")
+    
+    # Test recursion depth constraint violation
+    try:
+        bad_config = Config(recursion_depth=3)
+        logger.error("Should have raised ConfigurationError for recursion_depth > 2")
+    except ConfigurationError as e:
+        logger.info(f"Correctly caught constraint violation: {e}")
+    
+    logger.info("Configuration module test complete.")
 
 
 if __name__ == "__main__":

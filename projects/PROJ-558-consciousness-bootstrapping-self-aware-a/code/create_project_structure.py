@@ -1,54 +1,69 @@
+"""
+Project Structure Creator for PROJ-558-consciousness-bootstrapping-self-aware-a.
+
+This script creates the required directory hierarchy for the project,
+ensuring all necessary subdirectories exist for data, code, tests, and artifacts.
+"""
 import os
 from pathlib import Path
 
+
 def create_structure():
     """
-    Creates the directory structure for project PROJ-558-consciousness-bootstrapping-self-aware-a.
+    Creates the full directory structure for the consciousness bootstrapping project.
     
-    Creates the following hierarchy:
-    projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
-        ├── data/
-        │   ├── raw/
-        │   └── processed/
-        ├── code/
-        ├── tests/
-        ├── artifacts/
-        │   ├── checkpoints/
-        │   └── results/
-        └── docs/ (optional, for future documentation)
+    Creates:
+    - projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
+      - data/raw
+      - data/processed
+      - code
+      - tests
+      - artifacts
+      - artifacts/checkpoints
+      - artifacts/results
     """
-    base_dir = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
+    # Define the project root relative to the current working directory
+    project_root = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
     
-    # Define the directory structure relative to base_dir
-    directories = [
+    # Define all required subdirectories
+    subdirs = [
         "data/raw",
         "data/processed",
         "code",
         "tests",
         "artifacts/checkpoints",
         "artifacts/results",
-        "docs"
+        # Additional standard directories for completeness based on API surface
+        "code/models",
+        "code/training",
+        "code/evaluation",
+        "code/analysis",
+        "code/utils",
+        "code/validation",
+        "specs",
+        "idea",
     ]
     
-    created_dirs = []
+    created_count = 0
+    existing_count = 0
     
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        try:
+    for subdir in subdirs:
+        full_path = project_root / subdir
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-            print(f"Created directory: {full_path}")
-        except PermissionError:
-            print(f"Permission denied creating directory: {full_path}")
-        except Exception as e:
-            print(f"Error creating directory {full_path}: {e}")
+            created_count += 1
+            print(f"Created: {full_path}")
+        else:
+            existing_count += 1
+            print(f"Already exists: {full_path}")
     
-    if not created_dirs:
-        print("No directories were created. They may already exist or errors occurred.")
-    else:
-        print(f"Successfully created {len(created_dirs)} directories.")
+    print(f"\nProject structure setup complete.")
+    print(f"  Created: {created_count} directories")
+    print(f"  Already existed: {existing_count} directories")
+    print(f"  Project root: {project_root.resolve()}")
     
-    return created_dirs
+    return project_root
+
 
 if __name__ == "__main__":
     create_structure()
