@@ -182,6 +182,18 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
     Regenerate with `python -m llmxive.model_selection.inventory` in the SAME commit. Run
     the full `tests/unit` sweep after any task that adds a test file, not a `-k` filter.
 
+19. **Only the DISPATCH was ever meant to be bespoke** (T5). The plan's reason for not
+    reusing `run_with_self_consistency` is the CALL COUNT (three per `revise()` breaks the
+    ceiling's `+2`) — nothing more. It nonetheless reinvented the wire contract, the parse,
+    the change-log assembly, and the token budget, and each reinvention reintroduced a
+    defect `convergence/revisers/` had already fixed: a `ValidationError` that bypasses the
+    engine's retry, a discarded-revision-on-one-unanswered-concern, JSON-escaping a whole
+    markdown document, and spec-023 defect #20's CoT truncation at 32K. The reviser stack
+    is `RESPONSE_FORMAT_BLOCK` → `parse_reviser_response` + `pick_expected_artifact` →
+    `build_concern_responses`, and a new reviser should reuse all of it.
+    **Reviewer = `REASONING_MAX_TOKENS` (32K); reviser = `GENERATION_MAX_TOKENS` (131K).**
+    They are different calls — do not "harmonize" them.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute

@@ -1314,13 +1314,21 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T4): LLMReviewer l
 - Consumes: `LaneRouteContext` (Task 2); `chat_with_model_fallback` (Task 3); `Concern`, `ConcernResponse` (`convergence.types`).
 - Produces:
   - `class LaneProposalReviser` — structurally conforms to `convergence.types.Reviser`: `revise(self, artifacts: dict[str, str], concerns: list[Concern]) -> tuple[dict[str, str], list[ConcernResponse]]`.
-  - Constructor: `LaneProposalReviser(*, backend, route_context: LaneRouteContext, artifact_key: str = "proposal.md", profile: str = "deep_code", max_tokens: int = 32_768, temperature: float = 0.0)`.
+  - Constructor: `LaneProposalReviser(*, backend, route_context: LaneRouteContext, artifact_key: str = "proposal.md", profile: str = "deep_code", max_tokens: int = GENERATION_MAX_TOKENS, temperature: float = 0.0)`.
+    **`max_tokens` corrected during implementation (round-13).** The round-12 plan said `32_768`, which is `REASONING_MAX_TOKENS` — the budget for a short structured reasoning call. A revision turn REGENERATES the whole proposal plus a change-log, and spec-023 defect #20 is exactly what 32K produces: a reasoning model's hidden chain-of-thought consumes the budget before the artifact block closes, the reply truncates mid-document, and it parses as malformed (`revisers/_self_consistency.py:154-160`). Every other reviser's revision turn passes `GENERATION_MAX_TOKENS` (131_072) via `invoke_reviser_backend`; this one must too. Pinned by an assertion in the single-call test.
   - **Exactly ONE `chat_with_model_fallback` call per `revise()`** (the ceiling's `+2`-per-round term is the ENGINE's malformed-reply retry, `engine.py:521-533` — not an internal self-consistency loop). It does NOT use `invoke_reviser_backend`/`run_with_self_consistency`, which would make up to three calls per `revise()`.
   - It carries the lane context on every call: `route_audit`, `reservation_authority`, and a `route_id` from `ctx.claim_route(operation_id=..., leg="primary")`. The reviser's operation id is `f"reviser:{round_digest}"` where `round_digest` digests `(artifacts, concerns)` — distinct per round (each round's concern set differs) and stable across a retry, exactly like the reviewer's. It passes **no** `independence_against` (the producer has no independence constraint) and no `fallback_profile` (no reroute — hence the ceiling's `+2` is not doubled).
-  - Response contract: the model returns ONE fenced ```json block: `{"proposal": "<full revised proposal markdown>", "responses": [{"concern_id": "...", "response": "...", "what_changed": "..."}]}`.
+  - **Response contract: the package's SHARED two-part one — corrected during implementation (round-13).** The round-12 plan invented a fourth wire format (`{"proposal": "<full revised proposal markdown>", ...}` in one fenced ```json block) that nothing else in the repo speaks. Only the DISPATCH needed to be bespoke (the call count); the wire format did not. Use the shared stack every other reviser uses:
+    - **prompt**: append `RESPONSE_FORMAT_BLOCK` (`revisers/_reviser_response.py:53`) to the user turn — a small fenced ```json change-log, then each full artifact VERBATIM between `===BEGIN_ARTIFACT <path>===` / `===END_ARTIFACT===` markers. The system turn is persona only; restating the format is how the reviser and the parser drift apart.
+    - **parse**: `parse_reviser_response(text, expected_artifacts=[artifact_key])` → `pick_expected_artifact` (which tolerates a hallucinated dir slug, spec-023 defect #20c).
+    - **change-log**: `build_concern_responses(responses_raw, concerns, default_artifacts=[artifact_key])`.
+
+    This is not merely tidier. A proposal is a DOCUMENT containing quotes, backslashes, `$` and fenced code; embedding it in a JSON string re-introduces exactly the escaping failures the delimited markers exist to eliminate (`_reviser_response.py:85-86` — "the body is taken literally; quotes, $, backslashes and blank lines are fine and need NO escaping"). A round-trip test with all four pins it.
   - **Malformed replies raise `RuntimeError` with one of the engine's two RECOGNIZED message signatures (round-4 review F3):**
     - unparseable / missing block → `RuntimeError("lane reviser backend did not return parseable JSON ...")`
-    - parsed but no usable proposal, or a concern left unanswered → `RuntimeError("lane reviser response JSON has no usable ...")`
+    - parsed but no usable proposal body → `RuntimeError("lane reviser response JSON has no usable ...")`
+  - **An unanswered concern is NOT a malformed reply — MAINTAINER-DECIDED 2026-07-28 (round-13).** The round-12 plan raised `no usable` when the answered ids did not exactly match the raised ids, which would discard a revision that addressed every OTHER concern (and would also fire on a harmless superset). `build_concern_responses` instead pads `response="<missing>"`, and `engine.py:627-628` then forces that concern OPEN at R3 deterministically — no lenient re-reviewer can mark it resolved. Identical honesty guarantee, strictly more work preserved.
+    Related bug the same change fixes: `ConcernResponse.response`/`what_changed` are `Field(min_length=1)` (`convergence/types.py:184-185`), so the round-12 code's `r.get("response", "")` raises a pydantic **`ValidationError`** whenever the model omits a field — not a `RuntimeError`, so it would skip the engine's retry AND escape the run with no provenance, the very failure class F3 exists to prevent. The shared helper substitutes `"<empty>"`, as every other reviser does.
 
     The round-3 plan said `ValueError`, which is **wrong twice over**: `engine.py:527` catches `RuntimeError`, so a `ValueError` skips the one-retry path entirely; and `_abort_provenance` (`engine.py:442`) catches only `BackendUnavailable`/`TransientBackendError`, so it would escape the whole run with no provenance. Worse, after the retry the engine calls `is_malformed_reply_error` (`revisers/_reviser_response.py:473-496`), which returns `True` only when the message contains `"parseable"` or `"no usable"` — anything else is re-raised as a genuine engine defect and files a spurious engine-failure issue. The two strings above are therefore CONTRACT, not prose: `is_malformed_reply_error` is the SSoT classifier shared by every reviser, and this one must satisfy it.
 
@@ -1329,7 +1337,21 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T4): LLMReviewer l
 - [ ] **Step 1: Write the failing test**
 
 ```python
-# tests/integration/test_lane_reviser.py
+"""The lane's proposal reviser: ONE routed call per revise() (spec 025 slice 1B, Task 5).
+
+Integration, because the call ledger is durable — these need a real git repo. The router
+boundary is injected so a specific reply can be scripted; the real routing path is covered
+by the Task 3 suite.
+
+The reviser speaks the SAME wire contract as every other reviser in the package
+(``RESPONSE_FORMAT_BLOCK`` → ``parse_reviser_response`` → ``build_concern_responses``);
+only the DISPATCH is bespoke, because the shared ``run_with_self_consistency`` path makes up
+to three LLM calls per ``revise()`` and the proposal ceiling's ``+2``-per-round term pays for
+exactly two.
+"""
+
+from __future__ import annotations
+
 import json
 import subprocess
 
@@ -1339,6 +1361,9 @@ from llmxive.convergence.types import Concern
 from llmxive.self_improvement.call_ledger import LaneCallLedger
 from llmxive.self_improvement.lane_log import LaneLogConfig, bootstrap_lane_log
 from llmxive.self_improvement.route_context import LaneRouteContext
+
+_BUDGET = 50.0  # ONE AttemptConfigured record binds this with the ceiling.
+
 
 class _Sink:
     def __init__(self):
@@ -1351,6 +1376,7 @@ class _Sink:
         self.events.append(event)
         return True
 
+
 class _Budget:
     def reserve(self, credits, *, reservation_id, call_id) -> bool:
         return True
@@ -1361,6 +1387,7 @@ class _Budget:
     def mark_retained(self, reservation_id) -> None:
         pass
 
+
 @pytest.fixture
 def repo(tmp_path):
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
@@ -1369,9 +1396,6 @@ def repo(tmp_path):
     bootstrap_lane_log(tmp_path, config=LaneLogConfig())
     return tmp_path
 
-_BUDGET = 50.0   # the Attempt credit budget; ONE AttemptConfigured record binds it
-                 # together with the call ceiling (Slice 1A Task 13), so every
-                 # ledger for this Attempt must present the SAME pair.
 
 def _ctx(repo, ceiling=10):
     ledger = LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1", call_ceiling=ceiling,
@@ -1383,29 +1407,59 @@ def _ctx(repo, ceiling=10):
         reservation_authority=_Budget(), call_ledger=ledger,
     )
 
+
 def _concern(cid="c1"):
     return Concern(id=cid, reviewer="worthwhile-improvement", severity="requirement",
                    artifact="proposal.md", text="Blast radius is unbounded.")
 
-def _body(proposal="# Revised\n\nScoped to one module.", cid="c1"):
-    payload = {"proposal": proposal,
-               "responses": [{"concern_id": cid, "response": "Scoped it.",
-                              "what_changed": "Added a blast-radius section."}]}
-    return "```json\n" + json.dumps(payload) + "\n```"
+
+def _body(proposal="# Revised\n\nScoped to one module.", *, responses=None, cid="c1"):
+    """A reply in the package's SHARED two-part contract: a small fenced ```json change-log,
+    then the full artifact VERBATIM between ===BEGIN_ARTIFACT=== markers."""
+    if responses is None:
+        responses = [{"concern_id": cid, "response": "Scoped it.",
+                      "what_changed": "Added a blast-radius section.",
+                      "artifacts_changed": ["proposal.md"]}]
+    return (
+        "```json\n" + json.dumps({"responses": responses}) + "\n```\n\n"
+        "===BEGIN_ARTIFACT proposal.md===\n" + proposal + "\n===END_ARTIFACT===\n"
+    )
+
+
+def _reviser(repo, monkeypatch, fake):
+    monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", fake)
+    from llmxive.convergence.lane_reviser import LaneProposalReviser
+
+    ctx = _ctx(repo)
+    return LaneProposalReviser(backend=object(), route_context=ctx), ctx
+
+
+def _replying(text):
+    def _fake(backend, messages, **kw):
+        class R:
+            pass
+
+        R.text = text
+        return R()
+
+    return _fake
+
+
+# ---- the single-call contract ----
+
 
 def test_revise_makes_exactly_one_routed_call_with_the_lane_hooks(repo, monkeypatch):
     calls = []
 
     def _fake(backend, messages, **kw):
         calls.append(kw)
-        class R: text = _body()
+
+        class R:
+            text = _body()
+
         return R()
 
-    monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", _fake)
-    from llmxive.convergence.lane_reviser import LaneProposalReviser
-    ctx = _ctx(repo)
-    rev = LaneProposalReviser(backend=object(), route_context=ctx)
-
+    rev, ctx = _reviser(repo, monkeypatch, _fake)
     updated, responses = rev.revise({"proposal.md": "# Original"}, [_concern()])
 
     # ONE call — NOT the 3-call self-consistency path (that would break the ceiling's +2).
@@ -1414,12 +1468,47 @@ def test_revise_makes_exactly_one_routed_call_with_the_lane_hooks(repo, monkeypa
     assert calls[0]["reservation_authority"] is ctx.reservation_authority
     assert calls[0]["route_id"]
     assert calls[0].get("independence_against") is None  # the producer has no constraint
+    # A revision turn REGENERATES the whole proposal: it needs the GENERATION budget, not
+    # the reasoning one. At 32K a reasoning model's hidden CoT eats the budget before the
+    # artifact block closes and the reply truncates into a malformed parse — spec-023
+    # defect #20 (revisers/_self_consistency.py:154-160).
+    from llmxive.backends.router import GENERATION_MAX_TOKENS, REASONING_MAX_TOKENS
+
+    assert calls[0]["max_tokens"] == GENERATION_MAX_TOKENS != REASONING_MAX_TOKENS
     assert updated["proposal.md"].startswith("# Revised")
     assert [r.concern_id for r in responses] == ["c1"]
 
+
+def test_the_engines_second_attempt_is_a_new_logical_call(repo, monkeypatch):
+    # engine.py:519-533 re-invokes revise() with BYTE-IDENTICAL arguments after a malformed
+    # reply. That is a new logical call (the first already dispatched), so it must get its own
+    # route_id and its own ceiling charge — which is exactly what the ceiling's +2 pays for.
+    # Without next_operation_id it would replay the first claim and be refused at the gate.
+    calls = []
+
+    def _fake(backend, messages, **kw):
+        calls.append(kw)
+
+        class R:
+            text = _body()
+
+        return R()
+
+    rev, ctx = _reviser(repo, monkeypatch, _fake)
+    args = ({"proposal.md": "# Original"}, [_concern()])
+    rev.revise(*args)
+    rev.revise(*args)
+
+    assert calls[0]["route_id"] != calls[1]["route_id"]
+    assert ctx.calls_used() == 2
+
+
+# ---- the malformed-reply contract the ENGINE recognizes ----
+
+
 @pytest.mark.parametrize("text, marker", [
-    ("no json block here", "parseable"),                    # nothing to parse
-    ('```json\n{"responses": []}\n```', "no usable"),       # parsed, but no proposal body
+    ("no json block and no artifact markers here", "parseable"),   # nothing to parse
+    ('```json\n{"responses": []}\n```', "no usable"),              # parsed, but no artifact
 ])
 def test_malformed_replies_raise_the_ENGINE_RECOGNIZED_error(repo, monkeypatch, text, marker):
     # F3: the engine catches RuntimeError (engine.py:527) and then classifies with
@@ -1428,36 +1517,77 @@ def test_malformed_replies_raise_the_ENGINE_RECOGNIZED_error(repo, monkeypatch, 
     # engine-failure issue.
     from llmxive.convergence.revisers._reviser_response import is_malformed_reply_error
 
-    def _fake(backend, messages, **kw):
-        class R: pass
-        R.text = text
-        return R()
-
-    monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", _fake)
-    from llmxive.convergence.lane_reviser import LaneProposalReviser
-    rev = LaneProposalReviser(backend=object(), route_context=_ctx(repo))
+    rev, _ = _reviser(repo, monkeypatch, _replying(text))
     with pytest.raises(RuntimeError) as excinfo:
         rev.revise({"proposal.md": "# Original"}, [_concern()])
     assert marker in str(excinfo.value)
     assert is_malformed_reply_error(excinfo.value)   # the SSoT classifier accepts it
 
-def test_an_unanswered_concern_is_a_malformed_reply(repo, monkeypatch):
-    from llmxive.convergence.revisers._reviser_response import is_malformed_reply_error
 
-    def _fake(backend, messages, **kw):
-        class R: text = _body(cid="WRONG-ID")  # answers a concern that was not raised
-        return R()
+def test_an_unanswered_concern_pads_missing_and_keeps_the_revision(repo, monkeypatch):
+    # MAINTAINER-DECIDED 2026-07-28: the SSoT governs. Discarding a revision because ONE
+    # concern of many went unanswered would throw away every fix it DID make. Instead
+    # build_concern_responses pads "<missing>", and engine.py:627 then forces that concern
+    # open at R3 deterministically — no re-reviewer leniency can mark it resolved, so the
+    # honesty guarantee is identical while the useful work survives.
+    rev, _ = _reviser(repo, monkeypatch, _replying(_body(cid="WRONG-ID")))
+    updated, responses = rev.revise(
+        {"proposal.md": "# Original"}, [_concern("c1"), _concern("c2")]
+    )
 
-    monkeypatch.setattr("llmxive.convergence.lane_reviser.chat_with_model_fallback", _fake)
-    from llmxive.convergence.lane_reviser import LaneProposalReviser
-    rev = LaneProposalReviser(backend=object(), route_context=_ctx(repo))
-    with pytest.raises(RuntimeError) as excinfo:
-        rev.revise({"proposal.md": "# Original"}, [_concern()])
-    assert is_malformed_reply_error(excinfo.value)
+    assert updated["proposal.md"].startswith("# Revised"), "the revision must be KEPT"
+    by_id = {r.concern_id: r for r in responses}
+    assert set(by_id) == {"c1", "c2"}, "exactly one response per raised concern"
+    # "<missing>" is not decoration: engine.py:627-628 keys on this exact string.
+    assert by_id["c1"].response == "<missing>"
+    assert by_id["c2"].response == "<missing>"
+
+
+def test_empty_response_fields_become_the_shared_placeholder(repo, monkeypatch):
+    # ConcernResponse.response/what_changed are min_length=1 (types.py:184-185), so passing
+    # the model's omitted field through as "" raises a pydantic ValidationError — which is
+    # NOT a RuntimeError, so it would skip the engine's retry AND escape the run with no
+    # provenance. build_concern_responses substitutes "<empty>", the same as every other
+    # reviser.
+    reply = _body(responses=[{"concern_id": "c1", "response": "", "what_changed": "   "}])
+    rev, _ = _reviser(repo, monkeypatch, _replying(reply))
+    _, responses = rev.revise({"proposal.md": "# Original"}, [_concern()])
+
+    assert [r.response for r in responses] == ["<empty>"]
+    assert [r.what_changed for r in responses] == ["<empty>"]
+
+
+def test_a_verbatim_markdown_proposal_survives_the_round_trip(repo, monkeypatch):
+    # WHY the delimited contract rather than {"proposal": "<markdown>"}: a proposal is a
+    # document containing quotes, backslashes, $ and fenced code. Embedding it in a JSON
+    # string re-introduces the escaping failures the ===BEGIN_ARTIFACT=== markers exist to
+    # eliminate (_reviser_response.py:85-86 — the body is taken literally).
+    tricky = (
+        "# Revised\n\n"
+        'He said "no \\ escape" and $PATH stayed intact.\n\n'
+        "```python\n"
+        'print({"nested": "json-ish", "backslash": "\\\\"})\n'
+        "```\n\n"
+        "Trailing prose."
+    )
+    rev, _ = _reviser(repo, monkeypatch, _replying(_body(tricky)))
+    updated, _ = rev.revise({"proposal.md": "# Original"}, [_concern()])
+
+    assert updated["proposal.md"] == tricky
+
+
+def test_other_artifacts_are_carried_through_untouched(repo, monkeypatch):
+    rev, _ = _reviser(repo, monkeypatch, _replying(_body()))
+    updated, _ = rev.revise(
+        {"proposal.md": "# Original", "notes.md": "keep me"}, [_concern()]
+    )
+    assert updated["notes.md"] == "keep me"
+
 
 def test_conforms_to_the_reviser_protocol(repo):
     from llmxive.convergence.lane_reviser import LaneProposalReviser
     from llmxive.convergence.types import Reviser
+
     assert isinstance(LaneProposalReviser(backend=object(), route_context=_ctx(repo)), Reviser)
 ```
 
@@ -1517,66 +1647,88 @@ Expected: FAIL — `ModuleNotFoundError: No module named 'llmxive.convergence.la
 - [ ] **Step 3: Write minimal implementation**
 
 ```python
-# src/llmxive/convergence/lane_reviser.py
 """The self-improvement lane's proposal reviser (spec 025 FR-019): the proposer
 addressing the panel's concerns inside the shared ``run_convergence`` loop.
 
-Deliberately NOT built on ``invoke_reviser_backend``/``run_with_self_consistency``
-(``revisers/_self_consistency.py``): that path makes up to THREE LLM calls per
-``revise()``, which would break the documented proposal ceiling ``4N + R*(2N + 2)``
-whose ``+2`` models the ENGINE's at-most-two reviser attempts per round
-(``engine.py:521-533``). This reviser makes EXACTLY ONE routed call per ``revise()``
-and raises on a malformed reply so the engine's own retry provides the second attempt.
+**Only the DISPATCH is bespoke.** The wire contract, the parse, and the change-log
+assembly are the package's shared ones (``RESPONSE_FORMAT_BLOCK`` →
+``parse_reviser_response`` → ``build_concern_responses``), so the lane speaks the format
+every other reviser speaks and inherits their accumulated defect fixes rather than
+re-earning them. What this reviser does NOT reuse is
+``invoke_reviser_backend``/``run_with_self_consistency`` (``revisers/_self_consistency.py``):
+that path makes up to THREE LLM calls per ``revise()``, which would break the documented
+proposal ceiling ``4N + R*(2N + 2)`` whose ``+2`` models the ENGINE's at-most-two reviser
+attempts per round (``engine.py:519-533``). This reviser makes EXACTLY ONE routed call per
+``revise()`` and raises on a malformed reply so the engine's own retry provides the second.
 
 **Malformed-reply contract (round-4 review F3).** The engine's retry loop catches
 ``RuntimeError`` (``engine.py:527``) after re-raising ``BackendError`` first, and then
 classifies with ``is_malformed_reply_error`` (``revisers/_reviser_response.py:473-496``),
 which keys on the substrings ``"parseable"`` and ``"no usable"``. So every malformed-reply
 raise below is a ``RuntimeError`` carrying one of those two signatures — NOT a
-``ValueError``, which would skip the retry entirely and escape the run (``_abort_provenance``
-catches only ``BackendUnavailable``/``TransientBackendError``), and not some other
-``RuntimeError`` message, which would be re-raised as a genuine engine defect and file a
-spurious engine-failure issue. Those strings are contract; ``is_malformed_reply_error`` is
-the shared classifier every reviser must satisfy.
+``ValueError``, which would skip the retry entirely and escape the run
+(``_abort_provenance`` catches only ``BackendUnavailable``/``TransientBackendError``), and
+not some other ``RuntimeError`` message, which would be re-raised as a genuine engine defect
+and file a spurious engine-failure issue.
 
-Every call carries the lane's mandatory audit sink + Attempt credit authority (F2/F3):
-the reviser is a lane LLM call like any other, and its spend counts against the Attempt."""
+An UNANSWERED concern is deliberately NOT one of those failures (maintainer-decided
+2026-07-28). ``build_concern_responses`` pads it as ``response="<missing>"`` and
+``engine.py:627-628`` then forces that concern open at R3 deterministically — no lenient
+re-reviewer can mark it resolved. Raising instead would discard a revision that may have
+addressed every OTHER concern, which is strictly worse for convergence at identical honesty.
+
+Every call carries the lane's mandatory audit sink + Attempt credit authority (F2/F3): the
+reviser is a lane LLM call like any other, and its spend counts against the Attempt.
+"""
 
 from __future__ import annotations
 
 import hashlib
 import json
-import re
 
 from llmxive.backends.base import ChatMessage
-from llmxive.backends.router import chat_with_model_fallback
+from llmxive.backends.router import GENERATION_MAX_TOKENS, chat_with_model_fallback
+from llmxive.convergence.revisers._reviser_response import (
+    RESPONSE_FORMAT_BLOCK,
+    build_concern_responses,
+    parse_reviser_response,
+    pick_expected_artifact,
+)
 from llmxive.convergence.types import Concern, ConcernResponse
 from llmxive.self_improvement.route_context import LaneRouteContext
-
-_JSON_BLOCK = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
 
 #: The two message signatures ``is_malformed_reply_error`` recognizes. Keep in sync with
 #: ``revisers/_reviser_response.py:473-496`` — Task 5 Step 0 re-verifies them.
 _UNPARSEABLE = "lane reviser backend did not return parseable JSON"
 _NO_USABLE = "lane reviser response JSON has no usable"
 
+#: Persona only. The RESPONSE FORMAT is appended to the user turn from the shared
+#: ``RESPONSE_FORMAT_BLOCK``, exactly as every other reviser does it — the format is not
+#: restated here, because a second copy is how the reviser and the parser drift apart.
 _SYSTEM = (
-    "You are the author of a self-improvement proposal for an autonomous research "
-    "platform. A review panel raised concerns. Revise the proposal so every concern is "
-    "addressed, and report what you changed.\n\n"
-    "Reply with EXACTLY ONE fenced ```json block and nothing else:\n"
-    '{"proposal": "<the FULL revised proposal markdown>", '
-    '"responses": [{"concern_id": "<id>", "response": "<how you addressed it>", '
-    '"what_changed": "<the concrete edit>"}]}\n\n'
-    "Answer EVERY concern id exactly once. Do not invent concern ids."
+    "You are the author of a self-improvement proposal for llmXive, an autonomous "
+    "research platform. A review panel raised concerns about your proposal. Revise it so "
+    "that every concern is addressed, and report exactly what you changed.\n\n"
+    "Keep the proposal concrete and tightly scoped: an automated implementer will build "
+    "it, and a pre-merge panel will review the resulting patch before anything lands. A "
+    "concern you cannot address without changing the proposal's premise should be answered "
+    "honestly in `response` rather than papered over."
 )
 
+
 class LaneProposalReviser:
-    """Conforms structurally to :class:`llmxive.convergence.types.Reviser`."""
+    """Conforms structurally to :class:`llmxive.convergence.types.Reviser`.
+
+    ``max_tokens`` defaults to :data:`GENERATION_MAX_TOKENS`, not the reasoning budget: a
+    revision turn REGENERATES the whole proposal plus a change-log, and spec-023 defect #20
+    is precisely what happens at 32K — a reasoning model's hidden chain-of-thought consumes
+    the budget before the artifact block closes, so the reply truncates mid-document and
+    parses as malformed (``revisers/_self_consistency.py:154-160``).
+    """
 
     def __init__(self, *, backend: object, route_context: LaneRouteContext,
                  artifact_key: str = "proposal.md", profile: str = "deep_code",
-                 max_tokens: int = 32_768, temperature: float = 0.0) -> None:
+                 max_tokens: int = GENERATION_MAX_TOKENS, temperature: float = 0.0) -> None:
         self._backend = backend
         self._route_context = route_context
         self._artifact_key = artifact_key
@@ -1616,43 +1768,56 @@ class LaneProposalReviser:
 
     def _compose(self, artifacts: dict[str, str], concerns: list[Concern]) -> str:
         body = artifacts.get(self._artifact_key, "")
-        listed = "\n".join(
-            f"- [{c.id}] ({c.severity}) {c.artifact}: {c.text}" for c in concerns
+        concern_list = "\n".join(
+            f"- [concern {c.id}] severity={c.severity.value} reviewer={c.reviewer} "
+            f"location={c.location or '(unstated)'}\n  {c.text}"
+            for c in concerns
+        ) or "(no panel concerns this round)"
+        return (
+            f"# Current proposal (`{self._artifact_key}`)\n\n"
+            f"{body or '(the proposal is empty)'}\n\n"
+            "# Panel concerns to address (R1 output)\n\n"
+            f"{concern_list}\n\n"
+            "# Task\n\n"
+            f"Revise the proposal to address every panel concern. The ONLY editable "
+            f"artifact is:\n- {self._artifact_key}\n\n"
+            + RESPONSE_FORMAT_BLOCK
         )
-        return f"## Current proposal\n\n{body}\n\n## Concerns to address\n\n{listed}\n"
 
     def _parse(self, text: str, artifacts: dict[str, str], concerns: list[Concern],
                ) -> tuple[dict[str, str], list[ConcernResponse]]:
-        # EVERY raise below is a RuntimeError carrying one of the two signatures
+        # BOTH raises below are RuntimeErrors carrying one of the two signatures
         # is_malformed_reply_error recognizes (F3). A ValueError here would skip the
         # engine's one retry entirely and escape the run without provenance.
-        match = _JSON_BLOCK.search(text)
-        if match is None:
-            raise RuntimeError(f"{_UNPARSEABLE} — no fenced ```json block in the reply")
         try:
-            payload = json.loads(match.group(1))
-        except json.JSONDecodeError as exc:
-            raise RuntimeError(f"{_UNPARSEABLE}: {exc}") from exc
-        proposal = payload.get("proposal")
-        if not isinstance(proposal, str) or not proposal.strip():
-            raise RuntimeError(f"{_NO_USABLE} 'proposal' body")
-        answered = {r.get("concern_id") for r in payload.get("responses", [])}
-        expected = {c.id for c in concerns}
-        if answered != expected:
+            artifacts_by_path, responses_raw = parse_reviser_response(
+                text, expected_artifacts=[self._artifact_key]
+            )
+        except RuntimeError as exc:
             raise RuntimeError(
-                f"{_NO_USABLE} concern responses: answered {sorted(answered)!r}, "
-                f"expected exactly {sorted(expected)!r}"
+                f"{_UNPARSEABLE}: {exc}; first 200 chars of the reply: {text[:200]!r}"
+            ) from exc
+
+        # `pick_expected_artifact` tolerates a hallucinated directory slug on the BEGIN
+        # line (spec 023 defect #20c) and re-keys the body to the canonical path.
+        body = pick_expected_artifact(artifacts_by_path, self._artifact_key)
+        if not isinstance(body, str) or not body.strip():
+            raise RuntimeError(
+                f"{_NO_USABLE} {self._artifact_key!r} body — the reply parsed but carried "
+                f"no revised proposal (artifacts present: {sorted(artifacts_by_path)!r})"
             )
-        responses = [
-            ConcernResponse(
-                concern_id=r["concern_id"], response=r.get("response", ""),
-                what_changed=r.get("what_changed", ""), artifacts_changed=[self._artifact_key],
-            )
-            for r in payload["responses"]
-        ]
-        updated = dict(artifacts)
-        updated[self._artifact_key] = proposal
-        return updated, responses
+
+        # SSoT padding: one response per concern, "<missing>" for an unanswered one (which
+        # engine.py:627 then forces open at R3), "<empty>" for an omitted field. Passing the
+        # model's raw "" straight through would raise a pydantic ValidationError — not a
+        # RuntimeError, so it would bypass the engine's retry entirely.
+        responses = build_concern_responses(
+            responses_raw, concerns, default_artifacts=[self._artifact_key]
+        )
+        return {**artifacts, self._artifact_key: body}, responses
+
+
+__all__ = ["LaneProposalReviser"]
 ```
 
 (Confirm `ConcernResponse`'s exact field set against `convergence/types.py:169-197` while implementing; supply any additional required field with its documented default.)
@@ -1660,7 +1825,7 @@ class LaneProposalReviser:
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/integration/test_lane_reviser.py -q`
-Expected: PASS (6 passed: 1 single-call + 2 parametrized malformed + 1 unanswered-concern + 1 protocol).
+Expected: PASS (9 passed: 1 single-call + 1 second-attempt-identity + 2 parametrized malformed + 1 unanswered-concern-pads + 1 empty-field-placeholder + 1 verbatim-round-trip + 1 other-artifacts + 1 protocol).
 
 - [ ] **Step 4b: Run the ENGINE-driven contract tests** (they live in Task 9's file and only pass once Task 9's helper exists — run them at the end of Task 9, and record here that they are part of THIS task's acceptance):
 
@@ -2965,3 +3130,17 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T10): concurrent p
 | 1 | Round-11 finding 2 was applied INCOMPLETELY — three lane call sites still built panels with `IndependenceBaseline()`, which Task 4 now refuses at construction. Those tests would have died while building the panel, before reaching the behavior they name | **T8** gained a shared `_PROPOSER_BASELINE` constant (used by `_run` and the producer-forwarding test) so one edit cannot leave a call site empty again; **T10**'s paid concurrency test takes a real family. The intentionally-empty one in `test_context_is_mandatory` stays: it fails at the signature, before any baseline check |
 | 2 | T4's patch fail-closed test injected the router, raised raw `ModelUnavailable` itself, and expected raw `ModelUnavailable` — bypassing the wrapper it claimed to test. `_route_review` passes `reraise_model_unavailable=(fallback is not None)`, so with no fallback the real wrapper CONVERTS to `BackendUnavailable` and the `except ModelUnavailable` branch is unreachable. The test pinned a contract production cannot produce | **T4 test rewritten to drive the REAL wrapper**: no injected router, `independence_against` excludes every family in the offline snapshot, so real selection raises a real `ModelUnavailable` (`select.py:197`) and the wrapper converts it. Asserts `BackendUnavailable` (a disjoint type, so asking for raw fails loudly), no reroute record, and exactly one charged call. Verified load-bearing — forcing `reraise_model_unavailable=True` fails it |
 | 3 | **Low** — the reroute constants were documented as public but missing from `events.__all__` | Added all four to `__all__`. They are genuinely public surface: three separate modules (the validator, `record_reroute`, and T4's configuration check) share them as the single source of truth |
+
+## Round-13 (Task 5 implementation — three corrections found against the reviser package)
+
+All three are the same shape: the round-12 plan reinvented something `convergence/revisers/`
+had already solved, and each reinvention silently reintroduced a defect that package had
+already fixed. Only the DISPATCH (one routed call per `revise()`) ever needed to be bespoke.
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | **Correctness** — `ConcernResponse(response=r.get("response", ""))` raises a pydantic `ValidationError` when the model omits a field (both fields are `Field(min_length=1)`, `types.py:184-185`). `ValidationError` is not a `RuntimeError`, so it skips the engine's retry AND escapes the run with no provenance — exactly the failure class F3 exists to prevent | `build_concern_responses` (the SSoT every reviser uses) substitutes `"<empty>"`. Regression test asserts it; verified load-bearing (bypassing the helper reproduces the `ValidationError`) |
+| 2 | **Correctness** — an unanswered concern raised `no usable`, discarding a revision that may have addressed every OTHER concern, and also firing on a harmless superset of ids. MAINTAINER-DECIDED 2026-07-28 | The same helper pads `response="<missing>"`; `engine.py:627-628` then forces that concern open at R3 deterministically. Identical honesty, more work preserved |
+| 3 | **Correctness** — the plan invented a fourth wire format (`{"proposal": "<markdown>"}` in one json fence) that nothing else in the repo speaks, embedding a whole document inside a JSON string. That re-introduces the escaping failures the `===BEGIN_ARTIFACT===` markers exist to eliminate — a proposal contains quotes, backslashes, `$` and fenced code | Adopted the shared stack: `RESPONSE_FORMAT_BLOCK` (prompt) → `parse_reviser_response` + `pick_expected_artifact` (parse) → `build_concern_responses` (change-log). A round-trip test feeds all four hazards through verbatim. Bonus: `parse_reviser_response`'s own failure message already contains `"parseable"`, so `is_malformed_reply_error` accepts it |
+| 4 | **Correctness** — `max_tokens=32_768` is `REASONING_MAX_TOKENS`. Spec-023 defect #20 is precisely what that value does to a revision turn: the reasoning model's hidden CoT consumes the budget before the artifact block closes, so the reply truncates mid-document and parses as malformed (`_self_consistency.py:154-160`) | Defaults to `GENERATION_MAX_TOKENS` (131_072), as every other reviser's revision turn does. Pinned by an assertion in the single-call test |
+| — | Step 0 re-verified against the live engine | (a) `engine.py:525` re-raises `BackendError` first, `:527` gives one retry for any `RuntimeError`; (b) `is_malformed_reply_error` keys on `"no usable"` / `"parseable"` and excludes `BackendError`. Both unchanged — the plan's contract holds |
