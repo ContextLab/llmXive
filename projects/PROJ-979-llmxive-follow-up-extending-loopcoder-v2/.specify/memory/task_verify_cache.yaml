@@ -44,25 +44,21 @@ T008b:
     baseline hypothesis are not documented.
 T012a:
   c: false
-  h: 914a5827326cd3ce68222eb9d6cd556a5bf0f1020efcceac8429c926651a17ca
-  r: "The repository lacks the required `data/processed/filtered_splits.json` file,\
-    \ and `entropy.py` does not load the model from the `CODELLAMA_CPU_PATH` or `CODELLAMA_GPU_PATH`\
-    \ environment variables nor does it read the JSON input and produce the list\u2011\
-    of\u2011strings output. These essential parts of the task are missing."
-T012d:
+  h: 00db0c616610fa74c00b8bec455317ee35f1d2fda9d4fb3628ec333980379450
+  r: The required input `data/processed/filtered_splits.json` and the output `data/processed/entropy_results.csv`
+    (as well as the exclusion log) are missing, so the pipeline cannot be executed
+    and the artifact is not produced. Additionally, the provided `entropy.py` snippet
+    is incomplete and does not show the clustering, entropy calculation, or saving
+    steps.
+T013a:
   c: false
-  h: 12b8d1812f7daffbdcfe2a3224768e90d973df2de716e7971f2cc6797d9c7e6f
-  r: "The repository lacks the required `data/processed/exclusion_log.json` file,\
-    \ and the shown portion of `code/src/entropy.py` does not contain any logic that\
-    \ writes exclusion counts or rates to that JSON path. Consequently, the exclusion\u2011\
-    logging feature is not implemented."
-T013d:
-  c: false
-  h: 76c04f25261e36b175475a534fc262d3ae0d41d6a4d9dda6fbaa7610e84331af
-  r: "The `inference.py` file does not contain any code that writes convergence trajectories\
-    \ to `data/processed/convergence_results.csv` with the required columns, and the\
-    \ CSV file itself is absent from the repository. The task\u2019s core output is\
-    \ therefore missing."
+  h: 8b6d397ad7ce65dddb90d39d44d1934c67c0aa98e4fb6d0c9ff5b1a2f7a9e2ab
+  r: "The repository lacks the required `data/processed/filtered_splits.json` input\
+    \ and the `data/processed/convergence_results.csv` output file. Moreover, the\
+    \ provided `code/src/inference.py` is truncated and does not contain the logic\
+    \ to iterate over k\u202F=\u202F1,2,3, run the model, execute code in Docker,\
+    \ and write the results to the CSV as specified. These essential artifacts and\
+    \ functionality are missing."
 T013e:
   c: false
   h: 7fa52188febbf8d67d0588de9fefb4ad8469691100b10940c3d1d10230bf565f
@@ -73,16 +69,17 @@ T013e:
     \ CSV. These essential artifacts are absent, so the task is not completed."
 T019:
   c: false
-  h: cec17e7b99f9d4caf19a8136e847fa8deb938714ecceb947b4e5dc20fd31315f
-  r: "The repository lacks the required output files `data/processed/router_model.pkl`\
-    \ and `data/processed/router_metrics.json`, and the provided `analysis.py` does\
-    \ not contain a `train_router(entropy_df, conv_df)` implementation (the file is\
-    \ truncated before any such function). Consequently the logistic\u2011regression\
-    \ router training task is not fulfilled."
+  h: 7b6e8fdb9692fb4390679d300497b3681f45e8898c6f9484bdc50ca367b39671
+  r: "The repository lacks the required input data files (`entropy_results.csv`, `convergence_results.csv`),\
+    \ and the expected output artifacts (`router_model.pkl`, `router_metrics.json`)\
+    \ are not present. Moreover, the provided `analysis.py` does not contain any logistic\u2011\
+    regression training, model saving, or metric computation logic required by the\
+    \ task. The implementation is therefore incomplete."
 T022:
   c: false
-  h: 0755da764c817d665f80c63ce8eedbd2260039df6dbd70874ea83069c37d34d0
-  r: "The required `data/processed/router_results.csv` file does not exist, and the\
-    \ provided `code/src/analysis.py` does not contain any logic that loads or incorporates\
-    \ router simulation results nor generates a report based on them. The implementation\
-    \ therefore fails to meet the task\u2019s stated requirements."
+  h: a98f771f2aa09c168fc4469405fc287b13eed65d8645413df361c3358e6c18e6
+  r: "The required `data/processed/router_results.csv` file is absent, and the provided\
+    \ `code/src/analysis.py` does not contain any logic for loading or reporting the\
+    \ router simulation results (it only handles entropy and convergence data). Consequently,\
+    \ the task\u2019s core deliverable\u2014integrating the router results and updating\
+    \ the report generation\u2014is not satisfied."

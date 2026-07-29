@@ -432,3 +432,198 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-27T17:34:47Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'Model substitution: LoopCoder replaced with CodeLlama-1.3b/3b/7b'
+  claim_id: c_fc71b760
+  context: 'Model Substitution Note: The spec''s Assumptions and FR-001/FR-002 mandate
+    LoopCoder-v2-2B. However, the LoopCoder-v2 checkpoint is not verified/available.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project substitutes a variant of LoopCoder with CodeLlama-1.3b-Instruct
+    (CPU validation) and CodeLlama-3b/7b-Instruct (GPU full analysis).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:49:30Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'Null hypothesis re-framed for CodeLlama: No correlation between entropy
+    and convergence'
+  claim_id: c_822e512e
+  context: All success criteria (SC-001, SC-002, SC-003) are RE-BASELINED for the
+    CodeLlama architecture. The null hypothesis is re-framed as No correlation between
+    entropy and convergence for CodeLlama rather than LoopCoder-v2.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_re-framed_for_CodeLlama:_No_correlation_betw
+  kind: entity_fact
+  raw_text: The null hypothesis is re-framed as No correlation between entropy and
+    convergence for CodeLlama.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:49:48Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'Pipeline verification time limit: 6 hours'
+  claim_id: c_bea9c99c
+  context: 'T029 [P] Run full validation suite on CPU (N=50) to verify pipeline within
+    6-hour limit (Assumption: Compute feasibility).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to verify execution within a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:50:06Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'Strata threshold for underpowered flag: 50 samples'
+  claim_id: c_48eca17d
+  context: 'T004c [P] Implement code/src/data_loader.py function stratify_data():
+    Apply stratified sampling by difficulty... Flag strata with <50 samples as ''underpowered''
+    in data/processed/strata_log.json. Use threshold=50 (read from code/config.yaml
+    key strata_threshold).'
+  evidence:
+    entailment_evidence: 'Strata threshold for underpowered flag: 50 samples'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Strata_threshold_for_underpowered_flag:_50_samples
+  kind: magnitude
+  raw_text: Strata with fewer than 50 samples are flagged as underpowered.
+  resolved_value: 'Strata threshold for underpowered flag: 50 samples'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T04:50:08Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'Entropy extraction sample count: 10 per input'
+  claim_id: c_38217a3f
+  context: T012a [US1] Implement Entire Entropy Extraction Pipeline... Generate N=10
+    samples per input from data/processed/filtered_splits.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Entropy extraction generates 10 samples per input.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:50:25Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'Convergence inference loop range: k in {1, 2, 3}'
+  claim_id: c_e11cd43f
+  context: "T013a [US1] Implement Convergence Inference & Logging... Run model for\
+    \ k \u2208 {1, 2, 3} on each input from data/processed/filtered_splits.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Convergence inference runs for k values of 1, 2, and 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:52:10Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis convergence threshold sweep: k in {2, 3, 4}'
+  claim_id: c_0b9fd257
+  context: "T026 [US3] Implement sensitivity analysis loop... sweep convergence threshold\
+    \ k \u2208 {2, 3, 4} to compute variation in \u03C1 (SC-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps convergence thresholds for k values of 2,
+    3, and 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:53:57Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'Statistical significance threshold for non-inferiority: p < 0.05'
+  claim_id: c_9146200d
+  context: T020 [US2] ... Perform a paired t-test or bootstrap test to confirm statistical
+    significance (p < 0.05) (FR-006).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_significance_threshold_for_non-inferiority:_p_%3C_
+  kind: magnitude
+  raw_text: Statistical significance for non-inferiority testing requires a p-value
+    less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:55:00Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'FLOPs calculation formula: parameters * sequence_length * k'
+  claim_id: c_698b7ccd
+  context: 'T005d [P] Define FLOPs utility function in code/src/utils.py: Implement
+    formula FLOPs = parameters * sequence_length * k for baseline calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FLOPs_calculation_formula:_parameters_*_sequence_length_*_k
+  kind: entity_fact
+  raw_text: The FLOPs utility function uses the formula FLOPs = parameters * sequence_length
+    * k.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:55:24Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'CPU validation sample size: 50'
+  claim_id: c_7f143a8d
+  context: 'Independent Test: Run code/src/entropy.py and code/src/inference.py on
+    a stratified sample (N=50 for CPU validation)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation suite runs on a sample size of N=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:55:59Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: 'Logistic regression configuration: multi_class=''multinomial'', solver=''lbfgs'''
+  claim_id: c_fd773068
+  context: T019 [US2] Implement logistic regression router training... using sklearn.linear_model.LogisticRegression
+    (multi_class='multinomial', solver='lbfgs').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logistic_regression_configuration:_multi_class='multinomial'
+  kind: entity_fact
+  raw_text: The logistic regression router uses multi_class='multinomial' and solver='lbfgs'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T04:56:28Z'
