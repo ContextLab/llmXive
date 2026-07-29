@@ -1,1 +1,3 @@
-# llmXive Project Code Package
+"""
+llmXive project code package.
+"""

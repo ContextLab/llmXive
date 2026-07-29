@@ -1,9 +1,8 @@
 #!/bin/bash
-# Format code with Black and Ruff
+# Format code with Black and sort imports with Ruff
 set -e
-cd "$(dirname "$0")/.."
-echo "Running Black..."
+echo "Formatting code with Black..."
 black code/
-echo "Running Ruff fix..."
+echo "Linting and fixing with Ruff..."
 ruff check --fix code/
 echo "Formatting complete."

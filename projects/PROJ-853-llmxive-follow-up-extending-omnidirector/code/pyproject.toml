@@ -5,43 +5,35 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-omnidirector"
 version = "0.1.0"
-description = "OmniDirector: General Multi-Shot Camera Cloning"
+description = "OmniDirector dataset analysis pipeline"
 requires-python = ">=3.11"
 dependencies = [
-    "opencv-python",
-    "numpy",
-    "pandas",
-    "scipy",
-    "pytest",
-    "pyyaml",
+    "opencv-python>=4.8.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.11.0",
+    "pytest>=7.4.0",
+    "pyyaml>=6.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
+extend-exclude = '''
+/(\.git|\.hg|\.mypy_cache|\.tox|\.venv|venv|_build|buck-out|build|dist)/
 '''
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-
-[tool.ruff.lint]
-select = ["E", "F", "W", "I"]
-ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
-pythonpath = ["code"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+
+[tool.ruff]
+# Inherits from .ruff.toml but can override here if needed
+line-length = 100
+target-version = "py311"

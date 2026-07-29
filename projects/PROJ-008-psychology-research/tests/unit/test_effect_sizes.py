@@ -1,173 +1,191 @@
 """
-Unit tests for Hedges' g calculation accuracy in code/analysis/effect_sizes.py.
+Unit tests for Hedges' g calculation accuracy.
 
-This test suite verifies:
-1. Correctness of Hedges' g calculation against manual computation.
-2. Correctness against statsmodels implementation where available.
-3. Proper handling of small-sample correction factor J.
+Tests verify that the calculation matches manual computations
+within a tolerance of 0.001 as specified in T022.
 """
-import math
 import pytest
-from typing import Tuple
+import math
+from code.analysis.effect_sizes import calculate_hedges_g, calculate_effect_sizes_from_studies
+from code.data.models import Study, InterventionGroup, ControlGroup
 
-# Import the implementation to be tested
-# Note: We assume effect_sizes.py exists in code/analysis/ as per task T024 dependency
-# If T024 is not yet implemented, this test will fail with ImportError, which is expected behavior.
-try:
-    from code.analysis.effect_sizes import calculate_hedges_g
-except ImportError:
-    pytest.skip("code.analysis.effect_sizes not yet implemented", allow_module_level=True)
 
-def manual_hedges_g(
-    mean_treatment: float,
-    mean_control: float,
-    sd_treatment: float,
-    sd_control: float,
-    n_treatment: int,
-    n_control: int
-) -> float:
-    """
-    Manually calculate Hedges' g with small-sample correction.
-    
-    Formula:
-    1. Pooled SD = sqrt(((n1-1)*sd1^2 + (n2-1)*sd2^2) / (n1+n2-2))
-    2. Cohen's d = (mean1 - mean2) / Pooled SD
-    3. J = 1 - (3 / (4*(n1+n2-2) - 1))  [Correction factor]
-    4. Hedges' g = d * J
-    """
-    # Calculate pooled standard deviation
-    df = (n_treatment - 1) + (n_control - 1)
-    pooled_variance = ((n_treatment - 1) * (sd_treatment ** 2) + 
-                     (n_control - 1) * (sd_control ** 2)) / df
-    pooled_sd = math.sqrt(pooled_variance)
-    
-    if pooled_sd == 0:
-        return 0.0
-    
-    # Calculate Cohen's d
-    cohens_d = (mean_treatment - mean_control) / pooled_sd
-    
-    # Calculate small-sample correction factor J
-    J = 1 - (3 / (4 * df - 1))
-    
-    # Hedges' g
-    hedges_g = cohens_d * J
-    
-    return hedges_g
+class TestHedgesGCalculation:
+    """Test suite for Hedges' g calculation accuracy."""
 
-@pytest.mark.parametrize(
-    "mean_t, mean_c, sd_t, sd_c, n_t, n_c, expected",
-    [
-        # Case 1: Equal sample sizes, moderate effect
-        # mean_t=10, mean_c=8, sd_t=2, sd_c=2, n_t=30, n_c=30
-        # Pooled SD = 2, d = 1.0, df=58, J ≈ 0.9872, g ≈ 0.9872
-        (10.0, 8.0, 2.0, 2.0, 30, 30, 0.9872),
-        
-        # Case 2: Unequal sample sizes
-        # mean_t=15, mean_c=12, sd_t=3, sd_c=4, n_t=20, n_c=40
-        # Pooled SD = sqrt((19*9 + 39*16)/58) = sqrt(783/58) ≈ 3.675
-        # d = 3/3.675 ≈ 0.816, df=58, J ≈ 0.9872, g ≈ 0.806
-        (15.0, 12.0, 3.0, 4.0, 20, 40, 0.806),
-        
-        # Case 3: Small sample (tests correction factor significance)
-        # mean_t=5, mean_c=3, sd_t=1, sd_c=1, n_t=10, n_c=10
-        # Pooled SD = 1, d = 2.0, df=18, J = 1 - 3/(72-1) = 1 - 3/71 ≈ 0.9577
-        # g = 2.0 * 0.9577 ≈ 1.915
-        (5.0, 3.0, 1.0, 1.0, 10, 10, 1.915),
-        
-        # Case 4: Negative effect (control > treatment)
-        # mean_t=8, mean_c=10, sd_t=2, sd_c=2, n_t=25, n_c=25
-        # Pooled SD = 2, d = -1.0, df=48, J ≈ 0.9846, g ≈ -0.9846
-        (8.0, 10.0, 2.0, 2.0, 25, 25, -0.9846),
-        
-        # Case 5: Very small effect
-        # mean_t=10.1, mean_c=10.0, sd_t=2, sd_c=2, n_t=50, n_c=50
-        # Pooled SD = 2, d = 0.05, df=98, J ≈ 0.9924, g ≈ 0.0496
-        (10.1, 10.0, 2.0, 2.0, 50, 50, 0.0496),
-    ],
-    ids=[
-        "equal_samples_moderate_effect",
-        "unequal_samples",
-        "small_sample_correction",
-        "negative_effect",
-        "very_small_effect"
-    ]
-)
-def test_hedges_g_manual_calculation(
-    mean_t: float,
-    mean_c: float,
-    sd_t: float,
-    sd_c: float,
-    n_t: int,
-    n_c: int,
-    expected: float
-):
-    """Test Hedges' g calculation against manual computation."""
-    result = calculate_hedges_g(
-        mean_treatment=mean_t,
-        mean_control=mean_c,
-        sd_treatment=sd_t,
-        sd_control=sd_c,
-        n_treatment=n_t,
-        n_control=n_c
-    )
-    
-    # Allow tolerance of 0.001 for floating point comparisons
-    assert math.isclose(result, expected, abs_tol=0.001), \
-        f"Calculated {result:.4f}, expected {expected:.4f}"
+    def test_simple_manual_calculation(self):
+        """
+        Test against a simple manual calculation.
 
-def test_hedges_g_zero_pooled_sd():
-    """Test handling of zero pooled standard deviation."""
-    result = calculate_hedges_g(
-        mean_treatment=5.0,
-        mean_control=5.0,
-        sd_treatment=0.0,
-        sd_control=0.0,
-        n_treatment=10,
-        n_control=10
-    )
-    assert result == 0.0, "Should return 0.0 when pooled SD is zero"
+        Example:
+            Group 1: n=10, mean=50, sd=10
+            Group 2: n=12, mean=45, sd=10
 
-def test_hedges_g_vs_statsmodels():
-    """
-    Compare our implementation against statsmodels if available.
-    This provides an additional validation layer.
-    """
-    try:
-        from statsmodels.stats.meta_analysis import effectsize
-    except ImportError:
-        pytest.skip("statsmodels not available for comparison")
-    
-    # Test case: mean_t=10, mean_c=8, sd_t=2, sd_c=2, n_t=30, n_c=30
-    mean_t, mean_c = 10.0, 8.0
-    sd_t, sd_c = 2.0, 2.0
-    n_t, n_c = 30, 30
-    
-    # Our implementation
-    our_result = calculate_hedges_g(mean_t, mean_c, sd_t, sd_c, n_t, n_c)
-    
-    # statsmodels uses Cohen's d by default, we need to apply correction
-    # Note: statsmodels doesn't have a direct Hedges' g function in older versions
-    # We'll verify our manual calculation logic is sound
-    
-    # Verify our manual calculation matches the formula
-    expected = manual_hedges_g(mean_t, mean_c, sd_t, sd_c, n_t, n_c)
-    assert math.isclose(our_result, expected, abs_tol=0.001), \
-        f"Our implementation ({our_result:.4f}) differs from manual ({expected:.4f})"
+        Manual calculation:
+            Pooled SD = sqrt(((9*100) + (11*100)) / 20) = sqrt(100) = 10
+            Cohen's d = (50-45)/10 = 0.5
+            J = 1 - (3/(4*20-1)) = 1 - (3/79) = 0.962
+            Hedges' g = 0.5 * 0.962 = 0.481
+        """
+        n1, n2 = 10, 12
+        mean1, mean2 = 50.0, 45.0
+        sd1, sd2 = 10.0, 10.0
 
-def test_edge_case_very_small_samples():
-    """Test with minimum valid sample sizes (n=2 per group)."""
-    result = calculate_hedges_g(
-        mean_treatment=5.0,
-        mean_control=3.0,
-        sd_treatment=1.0,
-        sd_control=1.0,
-        n_treatment=2,
-        n_control=2
-    )
-    
-    # With n=2, df=2, J = 1 - 3/(8-1) = 1 - 3/7 ≈ 0.5714
-    # d = 2.0, g = 2.0 * 0.5714 ≈ 1.1428
-    expected = manual_hedges_g(5.0, 3.0, 1.0, 1.0, 2, 2)
-    assert math.isclose(result, expected, abs_tol=0.001), \
-        f"Small sample case failed: {result:.4f} vs {expected:.4f}"
+        g, variance, se, ci_low, ci_high, j = calculate_hedges_g(n1, n2, mean1, mean2, sd1, sd2)
+
+        # Expected values
+        expected_g = 0.4810126582278481
+        expected_variance = 0.18174603174603175
+        expected_se = 0.4263168208774193
+
+        # Tolerance: 0.001 as per task specification
+        tolerance = 0.001
+
+        assert abs(g - expected_g) < tolerance, f"g={g}, expected={expected_g}"
+        assert abs(variance - expected_variance) < tolerance, f"variance={variance}, expected={expected_variance}"
+        assert abs(se - expected_se) < tolerance, f"se={se}, expected={expected_se}"
+
+    def test_equal_sample_sizes(self):
+        """Test with equal sample sizes."""
+        n1, n2 = 20, 20
+        mean1, mean2 = 100.0, 90.0
+        sd1, sd2 = 15.0, 15.0
+
+        g, variance, se, ci_low, ci_high, j = calculate_hedges_g(n1, n2, mean1, mean2, sd1, sd2)
+
+        # Pooled SD = 15
+        # Cohen's d = 10/15 = 0.6667
+        # J = 1 - 3/(4*38-1) = 1 - 3/151 = 0.9801
+        # Hedges' g = 0.6667 * 0.9801 = 0.6534
+
+        expected_g = 0.6534013605442177
+        tolerance = 0.001
+
+        assert abs(g - expected_g) < tolerance
+
+    def test_small_sample_correction(self):
+        """Verify that small-sample correction is applied correctly."""
+        # Very small samples
+        n1, n2 = 5, 5
+        mean1, mean2 = 10.0, 8.0
+        sd1, sd2 = 2.0, 2.0
+
+        g, variance, se, ci_low, ci_high, j = calculate_hedges_g(n1, n2, mean1, mean2, sd1, sd2)
+
+        # Without correction, Cohen's d = 1.0
+        # With correction, Hedges' g should be slightly less than 1.0
+        assert g < 1.0, "Small-sample correction should reduce the effect size"
+        assert g > 0.9, "Correction should be minimal for this sample size"
+
+    def test_invalid_input_positive_sd(self):
+        """Test that non-positive SD raises ValueError."""
+        with pytest.raises(ValueError):
+            calculate_hedges_g(10, 10, 50.0, 45.0, 0.0, 10.0)
+
+    def test_invalid_input_positive_n(self):
+        """Test that non-positive sample size raises ValueError."""
+        with pytest.raises(ValueError):
+            calculate_hedges_g(0, 10, 50.0, 45.0, 10.0, 10.0)
+
+    def test_confidence_interval_bounds(self):
+        """Test that CI bounds are correctly calculated."""
+        g, variance, se, ci_low, ci_high, j = calculate_hedges_g(20, 20, 100.0, 90.0, 15.0, 15.0)
+
+        # CI should be symmetric around g
+        assert ci_low < g < ci_high
+        assert abs((g - ci_low) - (ci_high - g)) < 0.0001
+
+    def test_large_effect_size(self):
+        """Test with a large effect size."""
+        g, variance, se, ci_low, ci_high, j = calculate_hedges_g(30, 30, 100.0, 70.0, 10.0, 10.0)
+
+        # Cohen's d = 3.0, Hedges' g should be close to 3.0
+        assert g > 2.5
+        assert g < 3.1
+
+    def test_zero_effect_size(self):
+        """Test when means are equal."""
+        g, variance, se, ci_low, ci_high, j = calculate_hedges_g(20, 20, 50.0, 50.0, 10.0, 10.0)
+
+        assert abs(g) < 0.001
+        assert ci_low < 0 < ci_high
+
+class TestEffectSizeFromStudy:
+    """Test effect size calculation from Study objects."""
+
+    def test_process_valid_study(self):
+        """Test processing a valid Study object."""
+        study = Study(
+            study_id="TEST-001",
+            intervention_group=InterventionGroup(n=20, mean=100.0, sd=15.0),
+            control_group=ControlGroup(n=20, mean=90.0, sd=15.0),
+            population="ASD",
+            age_range_min=8,
+            age_range_max=12,
+            outcome_measure="Social Skills Rating",
+            study_type="RCT",
+            delivery_format="Group",
+            mindfulness_component="Mindfulness-Based Stress Reduction"
+        )
+
+        results = calculate_effect_sizes_from_studies([study])
+
+        assert len(results) == 1
+        assert results[0].study_id == "TEST-001"
+        assert abs(results[0].hedges_g - 0.6534) < 0.001
+
+    def test_skip_study_with_missing_data(self):
+        """Test that studies with missing data are skipped."""
+        study = Study(
+            study_id="TEST-002",
+            intervention_group=InterventionGroup(n=20, mean=100.0, sd=15.0),
+            control_group=ControlGroup(n=0, mean=90.0, sd=15.0),  # n=0
+            population="ASD",
+            age_range_min=8,
+            age_range_max=12,
+            outcome_measure="Social Skills Rating",
+            study_type="RCT",
+            delivery_format="Group",
+            mindfulness_component="Mindfulness-Based Stress Reduction"
+        )
+
+        results = calculate_effect_sizes_from_studies([study])
+
+        assert len(results) == 0
+
+    def test_multiple_studies(self):
+        """Test processing multiple studies."""
+        study1 = Study(
+            study_id="TEST-001",
+            intervention_group=InterventionGroup(n=20, mean=100.0, sd=15.0),
+            control_group=ControlGroup(n=20, mean=90.0, sd=15.0),
+            population="ASD",
+            age_range_min=8,
+            age_range_max=12,
+            outcome_measure="Social Skills Rating",
+            study_type="RCT",
+            delivery_format="Group",
+            mindfulness_component="Mindfulness-Based Stress Reduction"
+        )
+
+        study2 = Study(
+            study_id="TEST-002",
+            intervention_group=InterventionGroup(n=25, mean=80.0, sd=10.0),
+            control_group=ControlGroup(n=25, mean=75.0, sd=10.0),
+            population="ASD",
+            age_range_min=8,
+            age_range_max=12,
+            outcome_measure="Social Skills Rating",
+            study_type="RCT",
+            delivery_format="Individual",
+            mindfulness_component="Mindfulness-Based Cognitive Therapy"
+        )
+
+        results = calculate_effect_sizes_from_studies([study1, study2])
+
+        assert len(results) == 2
+        assert results[0].study_id == "TEST-001"
+        assert results[1].study_id == "TEST-002"
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

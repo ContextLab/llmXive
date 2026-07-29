@@ -108,10 +108,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `code/eval/statistical.py`: **Primary** Paired t-test with Holm-Bonferroni correction (per Constitution Principle VII and Plan); **Secondary** Wilcoxon signed-rank test for robustness check (per FR-005 fallback).
-- [ ] T028 [P] [US3] Implement `code/eval/statistical.py`: Sensitivity sweep logic across thresholds {0.01, 0.05, 0.1}
-- [ ] T029 [US3] Implement `code/eval/statistical.py`: Sensitivity sweep logic across thresholds {0.01, 0.05, 0.1} mapping to: 'normalized attention score' for Recency, 'gradient magnitude threshold' for Gradient Magnitude, and 'entropy probability cutoff' for Block Entropy.
-- [ ] T030 [US3] Integrate statistical tests into `code/main.py` to compare best heuristic vs Dense Attention baseline (from T022c), prioritizing Paired t-test p-values in the report.
+- [X] T027 [P] [US3] Implement `code/eval/statistical.py`: **Primary** Paired t-test with Holm-Bonferroni correction (per Constitution Principle VII and Plan); **Secondary** Wilcoxon signed-rank test for robustness check (per FR-005 fallback).
+- [X] T028 [P] [US3] Implement `code/eval/statistical.py`: Sensitivity sweep logic across thresholds {0.01, 0.05, 0.1}
+- [X] T029 [US3] Implement `code/eval/statistical.py`: Sensitivity sweep logic across thresholds {0.01, 0.05, 0.1} mapping to: 'normalized attention score' for Recency, 'gradient magnitude threshold' for Gradient Magnitude, and 'entropy probability cutoff' for Block Entropy.
+- [X] T030 [US3] Integrate statistical tests into `code/main.py` to compare best heuristic vs Dense Attention baseline (from T022c), prioritizing Paired t-test p-values in the report.
 - [ ] T031 [US3] Generate final `results/benchmark_report.json` updates including p-values (Paired t-test primary), significance statements, and sensitivity tables.
 - [ ] T032a [US3] Implement logic to calculate false-positive rates during sensitivity analysis (selection without target vs Dense Attention selection from T022c).
 - [ ] T032b [US3] Ensure `false_positive_rate` is explicitly calculated and written to `results/benchmark_report.json` for each threshold in the sensitivity sweep, verifying SC-004.
@@ -134,7 +134,7 @@
 
 **Purpose**: Address reviewer concerns regarding strict adherence to 7GB RAM and 6-hour time limits (Review Concern: "Compute feasibility")
 
-- [ ] T040 [P] [US1] Implement `code/utils/resource_monitor.py`: A background thread that logs RAM usage at regular intervals and triggers an early exit with a failure code if usage exceeds 6.5 GB (documented safety buffer below GB limit) to prevent OOM crashes. (Supersedes T019).
+- [X] T040 [P] [US1] Implement `code/utils/resource_monitor.py`: A background thread that logs RAM usage at regular intervals and triggers an early exit with a failure code if usage exceeds 6.5 GB (documented safety buffer below GB limit) to prevent OOM crashes. (Supersedes T019).
 - [ ] T041 [US1] Add a "Timeout Guard" to `code/main.py`: Use `signal` or a subprocess wrapper to forcibly terminate the process if the RULER subset run exceeds a predefined time threshold, ensuring the -hour CI limit is respected.
 - [ ] T042 [P] [US3] Implement a "Batch Size Auto-Reducer" in `code/data/preprocess.py`: If a single batch causes memory pressure, automatically split the batch into smaller chunks (size 1) and re-aggregate results, logging the auto-reduction event.
 

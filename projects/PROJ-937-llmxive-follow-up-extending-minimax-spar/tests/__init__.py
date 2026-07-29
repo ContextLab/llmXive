@@ -1,1 +1,3 @@
-# Tests Package
+"""
+llmXive tests package.
+"""

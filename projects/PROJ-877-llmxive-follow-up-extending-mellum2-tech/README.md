@@ -1,108 +1,120 @@
-# llmXive Follow-up: Extending Mellum2 Technical Report
+# llmXive: Extending Mellum2 Technical Report
 
-## Project Overview
+**Project ID**: PROJ-877-llmxive-follow-up-extending-mellum2-tech
 
-This project implements an automated science pipeline to investigate the relationship between code complexity and prediction loss in Large Language Models (LLMs). It extends the findings of the "Mellum2 Technical Report" by performing rigorous correlation analysis, non-linear threshold detection, and statistical significance validation on a large corpus of real-world code.
+## Overview
 
-## Core Objectives
+This project implements an automated research pipeline to investigate the relationship between static code complexity metrics and the prediction loss of Large Language Models (LLMs). It extends the findings of the "Mellum2 Technical Report" by introducing rigorous statistical validation, non-linear threshold detection, and cross-language consistency checks.
 
-1. **Correlation Analysis**: Quantify the relationship between static complexity metrics (cyclomatic complexity, nesting depth) and LLM prediction loss.
-2. **Threshold Detection**: Identify structural thresholds where the complexity/loss relationship shifts using piecewise regression and change-point detection.
-3. **Statistical Validation**: Perform permutation tests, power analysis, and cross-language validation to ensure robust findings.
+The pipeline is designed to be fully reproducible, running on real data from the `codeparrot/github-code` dataset, and adhering to strict compute constraints (CPU-only, streaming).
+
+## Key Objectives
+
+1. **Correlation Analysis**: Compute Pearson and Spearman correlations between static complexity metrics (cyclomatic complexity, nesting depth) and LLM prediction loss (normalized by n-gram baseline).
+2. **Threshold Detection**: Identify structural thresholds where the complexity-loss relationship shifts using piecewise regression and change-point detection.
+3. **Statistical Validation**: Perform permutation tests, power analysis, and multiple-comparison corrections to ensure statistical significance.
+4. **Cross-Language Consistency**: Validate findings across Python and Java codebases to ensure generalizability.
 
 ## Project Structure
 
-```
+```text
 .
 ├── code/ # Source code
-│ ├── analysis/ # Analysis logic (feasibility, correlation, stats, threshold)
-│ ├── contracts/ # Data schemas and contracts
-│ ├── data/ # Data processing (download, preprocess, checksum)
+│ ├── analysis/ # Statistical analysis modules
+│ ├── contracts/ # Data schemas
+│ ├── data/ # Data loading and preprocessing
 │ ├── inference/ # LLM inference engine
-│ ├── utils/ # Utilities (logging, timeout, env)
-│ ├── config.py # Configuration management
-│ └── setup_directories.py# Directory setup
+│ ├── utils/ # Logging, timeouts, helpers
+│ ├── config.py # Global configuration
+│ └── main.py # Pipeline orchestration
 ├── data/ # Data storage
-│ ├── raw/ # Raw downloaded datasets
-│ ├── processed/ # Processed and annotated data
-│ └── results/ # Analysis outputs (stats, plots)
+│ ├── raw/ # Raw downloaded data (immutable)
+│ ├── processed/ # Annotated and processed data
+│ └── results/ # Analysis outputs (JSON, PNG)
 ├── tests/ # Unit and integration tests
+├── specs/ # Design documents and requirements
+├── requirements.txt # Python dependencies
 ├──.gitignore # Git ignore rules
-├──.env # Environment variables (HF_TOKEN)
-├── pyproject.toml # Project dependencies and tool config (ruff, black)
 └── README.md # This file
 ```
 
 ## Prerequisites
 
 - Python 3.9+
-- Hugging Face account with access to `codeparrot/github-code`
-- Sufficient disk space for dataset caching (~50GB+)
+- Hugging Face Hub account (for dataset access)
+- Sufficient disk space (for dataset streaming and caching)
+- CPU-only environment (as per project constraints)
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd PROJ-877-llmxive-follow-up-extending-mellum2-tech
- ```
-
-2. **Create a virtual environment**:
+1. Clone the repository.
+2. Create a virtual environment:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
- pip install -e.
+ pip install -r requirements.txt
  ```
-
-4. **Configure environment**:
- Create a `.env` file in the root directory:
- ```
- HF_TOKEN=your_huggingface_token_here
+4. Configure environment variables (e.g., Hugging Face token):
+ ```bash
+ cp.env.example.env
+ # Edit.env and add your HF_TOKEN
  ```
 
 ## Usage
 
-### Run the Pipeline
+### Running the Pipeline
 
-The main orchestration script handles the full pipeline execution:
+The entire pipeline is orchestrated via `code/main.py`. Ensure all prerequisites (Feasibility Check) are met before running.
 
 ```bash
 python code/main.py
 ```
 
-This will execute the following stages in order:
-1. Feasibility Check (T011)
-2. Data Download (T015)
-3. Preprocessing (T016)
-4. Variance Check (T011b)
-5. N-Gram Model Building (T018)
-6. Inference (T017)
-7. Correlation Analysis (T019)
-8. Threshold Detection (T024-T027)
-9. Statistical Validation (T029-T031)
+### Running Specific Tasks
 
-### Run Tests
+Individual modules can be run directly for debugging or specific analysis steps:
+
+```bash
+# Feasibility Check
+python code/analysis/feasibility.py
+
+# Download Data
+python code/data/download.py
+
+# Correlation Analysis
+python code/analysis/correlation.py
+```
+
+### Running Tests
 
 ```bash
 pytest tests/ -v
 ```
 
-### Code Quality
+## Workflow
 
-Format code:
-```bash
-black code/ tests/
-```
+1. **Phase 0: Setup & Feasibility**: Initialize directories, fetch pilot metadata, and determine feasible sample size.
+2. **Phase 1: Correlation Analysis**: Download data, preprocess with static analysis, run LLM inference, and compute correlations.
+3. **Phase 2: Threshold Detection**: Apply piecewise regression to identify non-linear shifts in the data.
+4. **Phase 3: Statistical Validation**: Perform permutation tests and power analysis to validate results.
 
-Lint code:
-```bash
-ruff check code/ tests/
-```
+## Results
+
+All generated artifacts (JSON reports, plots, logs) are stored in `data/results/`. Key outputs include:
+
+- `feasibility_report.json`: Sample size determination.
+- `us1_correlation_stats.json`: Correlation coefficients and p-values.
+- `us1_correlation_plot.png`: Scatter plots of complexity vs. loss.
+- `us2_threshold_report.md`: Threshold detection analysis.
+- `us3_power_analysis.json`: Statistical power validation.
+
+## Contributing
+
+This project follows a strict "Real Data Only" policy. Do not use synthetic data or placeholders. All implementations must run against the real `codeparrot/github-code` dataset.
 
 ## License
 
-This project is part of the llmXive research initiative. See LICENSE for details.
+[Insert License Here]

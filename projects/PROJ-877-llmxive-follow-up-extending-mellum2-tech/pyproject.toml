@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-mellum2-tech"
+version = "0.1.0"
+description = "Automated science pipeline for llmXive: Complexity Loss Analysis"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets",
+    "transformers",
+    "tree-sitter",
+    "scikit-learn",
+    "statsmodels",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "seaborn",
+    "kenlm",
+    "pwlf",
+    "ruptures",
+    "torch",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+)/
+'''
+
+[tool.ruff]
+# Inherits from code/.ruff.toml for specific rules, but defines project root
+extend = "code/.ruff.toml"
+line-length = 88
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

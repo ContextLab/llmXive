@@ -1,154 +1,150 @@
-"""
-Pydantic models for the Mindfulness ASD Social Skills Meta-Analysis.
-
-Defines the core data structures for Study, EffectSize, and MetaAnalysisResult
-to ensure type safety and validation throughout the pipeline.
-"""
-
 from datetime import date
 from enum import Enum
-from typing import List, Optional
-
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, field_validator, ConfigDict
+import math
 
-
-class DeliveryFormat(str, Enum):
-    """Delivery format of the intervention."""
-    INDIVIDUAL = "individual"
-    GROUP = "group"
+class DeliveryFormat(Enum):
+    """Delivery formats for mindfulness interventions."""
+    IN_PERSON_GROUP = "in_person_group"
+    IN_PERSON_INDIVIDUAL = "in_person_individual"
+    ONLINE_GROUP = "online_group"
+    ONLINE_INDIVIDUAL = "online_individual"
     HYBRID = "hybrid"
-    ONLINE = "online"
 
-
-class MindfulnessComponent(str, Enum):
-    """Specific mindfulness components extracted from the study."""
+class MindfulnessComponent(Enum):
+    """Core mindfulness intervention components."""
     BREATHING = "breathing"
     BODY_AWARENESS = "body_awareness"
-    MINDFUL_MOVEMENT = "mindful_movement"
-    LOVING_KINDNESS = "loving_kindness"
-    OPEN_MONITORING = "open_monitoring"
-    FOCUSED_ATTENTION = "focused_attention"
+    MEDITATION = "meditation"
+    YOGA = "yoga"
+    ACCEPTANCE = "acceptance"
+    PRESENCE = "presence"
+    OTHER = "other"
 
-
-class SocialSkillDomain(str, Enum):
+class SocialSkillDomain(Enum):
     """Domains of social skills measured."""
     COMMUNICATION = "communication"
     INTERACTION = "interaction"
     EMOTION_RECOGNITION = "emotion_recognition"
-    PEER_RELATIONS = "peer_relations"
-    BEHAVIOR_REGULATION = "behavior_regulation"
-
+    THEORY_OF_MIND = "theory_of_mind"
+    PERSPECTIVE_TAKING = "perspective_taking"
+    CONFLICT_RESOLUTION = "conflict_resolution"
+    OTHER = "other"
 
 class Study(BaseModel):
     """
-    Represents a single clinical study included in the meta-analysis.
-    Captures metadata, participant demographics, and intervention details.
+    Represents a single study record from the meta-analysis.
+    Contains metadata, intervention details, and outcome data.
     """
-    model_config = ConfigDict(frozen=False, populate_by_name=True)
+    model_config = ConfigDict(use_enum_values=True, str_strip_whitespace=True)
 
-    study_id: str = Field(..., description="Unique identifier for the study (e.g., NCT number or OSF ID)")
-    title: str = Field(..., description="Full title of the study")
-    authors: List[str] = Field(..., description="List of author names")
-    publication_year: int = Field(..., ge=1900, le=2100, description="Year of publication")
-    source: str = Field(..., description="Source registry: 'ClinicalTrials.gov' or 'OSF'")
-    source_url: str = Field(..., description="Direct URL to the study record")
-    publication_date: Optional[date] = Field(None, description="Exact publication date if available")
+    study_id: str = Field(..., description="Unique identifier for the study")
+    source: str = Field(..., description="Source registry (ClinicalTrials.gov or OSF)")
+    registry_id: str = Field(..., description="Original registry identifier")
+    title: str = Field(..., description="Study title")
+    publication_year: int = Field(..., ge=1900, le=2099, description="Year of publication")
+    first_author: str = Field(..., description="First author's last name")
 
-    # Inclusion Criteria Validation
-    age_min: int = Field(..., ge=6, le=12, description="Minimum age of participants")
-    age_max: int = Field(..., ge=6, le=12, description="Maximum age of participants")
-    asd_diagnosis_required: bool = Field(True, description="Whether ASD diagnosis was required for inclusion")
-    diagnosis_tool: Optional[str] = Field(None, description="Tool used for ASD diagnosis (e.g., ADOS-2)")
+    # Population
+    age_min: float = Field(..., ge=0, description="Minimum age of participants")
+    age_max: float = Field(..., ge=0, description="Maximum age of participants")
+    sample_size: int = Field(..., gt=0, description="Total sample size")
+    asd_diagnosis_required: bool = Field(..., description="Whether ASD diagnosis was required")
 
-    # Intervention Details
+    # Intervention
     intervention_name: str = Field(..., description="Name of the mindfulness intervention")
-    delivery_format: DeliveryFormat = Field(..., description="Format of delivery")
-    mindfulness_components: List[MindfulnessComponent] = Field(..., description="Components included")
-    duration_weeks: float = Field(..., gt=0, description="Duration of intervention in weeks")
-    session_count: int = Field(..., gt=0, description="Total number of sessions")
-    session_duration_minutes: Optional[int] = Field(None, description="Duration per session in minutes")
-
-    # Control Condition
-    control_type: str = Field(..., description="Type of control condition (e.g., Waitlist, Treatment as Usual)")
+    delivery_format: List[DeliveryFormat] = Field(default_factory=list, description="Delivery formats used")
+    mindfulness_components: List[MindfulnessComponent] = Field(default_factory=list, description="Mindfulness components included")
+    session_duration_minutes: Optional[int] = Field(None, ge=1, description="Duration of each session in minutes")
+    total_sessions: Optional[int] = Field(None, ge=1, description="Total number of sessions")
+    follow_up_months: Optional[int] = Field(None, ge=0, description="Follow-up duration in months")
 
     # Outcomes
-    primary_outcome_domain: SocialSkillDomain = Field(..., description="Primary social skill domain measured")
-    outcome_measure_name: str = Field(..., description="Name of the specific outcome measure used")
+    primary_outcome_domain: List[SocialSkillDomain] = Field(default_factory=list, description="Primary social skill domains measured")
+    outcome_measure_name: str = Field(..., description="Name of the primary outcome measure")
+
+    # Effect size data (intervention vs control)
+    # Intervention group
+    n_intervention: int = Field(..., gt=0, description="Sample size of intervention group")
+    mean_intervention: float = Field(..., description="Mean outcome for intervention group")
+    sd_intervention: float = Field(..., gt=0, description="Standard deviation for intervention group")
+
+    # Control group
+    n_control: int = Field(..., gt=0, description="Sample size of control group")
+    mean_control: float = Field(..., description="Mean outcome for control group")
+    sd_control: float = Field(..., gt=0, description="Standard deviation for control group")
 
     # Metadata
-    included_in_meta_analysis: bool = Field(True, description="Whether this study passed inclusion criteria")
+    inclusion_criteria_met: bool = Field(..., description="Whether study met all inclusion criteria")
     exclusion_reason: Optional[str] = Field(None, description="Reason for exclusion if not included")
+    extracted_at: Optional[date] = Field(None, description="Date of data extraction")
 
-    @field_validator('mindfulness_components')
+    @field_validator('sd_intervention', 'sd_control')
     @classmethod
-    def validate_components(cls, v):
-        if not v:
-            raise ValueError("At least one mindfulness component must be specified")
+    def check_positive_sd(cls, v):
+        if v <= 0:
+            raise ValueError('Standard deviation must be positive')
         return v
 
+    @field_validator('mean_intervention', 'mean_control', 'sd_intervention', 'sd_control')
+    @classmethod
+    def check_not_nan(cls, v):
+        if math.isnan(v):
+            raise ValueError('Value cannot be NaN')
+        return v
 
 class EffectSize(BaseModel):
     """
-    Represents a calculated effect size (Hedges' g) for a specific arm comparison.
+    Represents a calculated effect size (Hedges' g) for a study.
+    Includes the effect size, standard error, and confidence intervals.
     """
-    study_id: str = Field(..., description="Reference to the parent Study")
-    arm_treatment: str = Field(..., description="Name/ID of the treatment arm")
-    arm_control: str = Field(..., description="Name/ID of the control arm")
+    model_config = ConfigDict(use_enum_values=True)
 
-    # Raw Data
-    n_treatment: int = Field(..., gt=0, description="Sample size of treatment arm")
-    n_control: int = Field(..., gt=0, description="Sample size of control arm")
-    mean_treatment: float = Field(..., description="Mean outcome for treatment arm")
-    mean_control: float = Field(..., description="Mean outcome for control arm")
-    sd_treatment: float = Field(..., gt=0, description="Standard deviation for treatment arm")
-    sd_control: float = Field(..., gt=0, description="Standard deviation for control arm")
-
-    # Calculated Metrics
-    hedges_g: float = Field(..., description="Hedges' g effect size (with small-sample correction)")
-    se_hedges_g: float = Field(..., description="Standard error of Hedges' g")
-    ci_lower: float = Field(..., description="Lower bound of 95% CI")
-    ci_upper: float = Field(..., description="Upper bound of 95% CI")
-
-    # Context
-    follow_up_months: Optional[float] = Field(None, description="Follow-up duration in months if applicable")
-    outcome_domain: SocialSkillDomain = Field(..., description="Domain this effect size pertains to")
-
-    @field_validator('hedges_g', 'se_hedges_g', 'ci_lower', 'ci_upper')
-    @classmethod
-    def validate_finite(cls, v):
-        if not isinstance(v, float) or (v != v):  # NaN check
-            raise ValueError("Effect size metrics must be finite numbers")
-        return v
-
+    study_id: str = Field(..., description="Reference to the Study")
+    effect_size: float = Field(..., description="Hedges' g effect size")
+    standard_error: float = Field(..., gt=0, description="Standard error of the effect size")
+    variance: float = Field(..., gt=0, description="Variance of the effect size")
+    ci_lower_95: float = Field(..., description="Lower bound of 95% confidence interval")
+    ci_upper_95: float = Field(..., description="Upper bound of 95% confidence interval")
+    sample_size: int = Field(..., gt=0, description="Total sample size for this comparison")
+    small_sample_correction_applied: bool = Field(default=True, description="Whether small-sample correction was applied")
 
 class MetaAnalysisResult(BaseModel):
     """
-    Aggregated results from the meta-analysis for a specific subgroup or overall pool.
+    Represents the results of a meta-analysis.
+    Includes pooled effect size, heterogeneity statistics, and subgroup analyses.
     """
-    analysis_type: str = Field(..., description="Type of analysis (e.g., 'Overall', 'Group Delivery', 'Breathing Component')")
-    subgroup_label: Optional[str] = Field(None, description="Specific label if this is a subgroup")
+    model_config = ConfigDict(use_enum_values=True)
 
-    # Pooled Effect
-    pooled_hedges_g: float = Field(..., description="Pooled Hedges' g")
-    pooled_se: float = Field(..., description="Pooled standard error")
-    pooled_ci_lower: float = Field(..., description="Pooled 95% CI lower")
-    pooled_ci_upper: float = Field(..., description="Pooled 95% CI upper")
-    p_value: float = Field(..., description="P-value for the pooled effect")
+    analysis_id: str = Field(..., description="Unique identifier for this analysis")
+    model_type: str = Field(..., description="Type of meta-analysis model (e.g., 'random_effects', 'fixed_effects')")
+    
+    # Pooled results
+    pooled_effect_size: float = Field(..., description="Pooled effect size (Hedges' g)")
+    pooled_se: float = Field(..., gt=0, description="Standard error of pooled effect")
+    pooled_ci_lower_95: float = Field(..., description="Lower bound of 95% CI for pooled effect")
+    pooled_ci_upper_95: float = Field(..., description="Upper bound of 95% CI for pooled effect")
+    z_statistic: float = Field(..., description="Z-statistic for pooled effect")
+    p_value: float = Field(..., ge=0, le=1, description="P-value for pooled effect")
 
     # Heterogeneity
-    n_studies: int = Field(..., ge=1, description="Number of studies included")
-    i_squared: float = Field(..., description="I-squared heterogeneity statistic (0-100)")
-    tau_squared: float = Field(..., description="Tau-squared (between-study variance)")
-    q_statistic: float = Field(..., description="Cochran's Q statistic")
-    q_p_value: float = Field(..., description="P-value for heterogeneity")
+    i_squared: Optional[float] = Field(None, ge=0, le=100, description="I² statistic (percentage)")
+    tau_squared: Optional[float] = Field(None, ge=0, description="Tau² (between-study variance)")
+    q_statistic: Optional[float] = Field(None, description="Cochran's Q statistic")
+    q_p_value: Optional[float] = Field(None, ge=0, le=1, description="P-value for Q statistic")
+    k_studies: int = Field(..., gt=0, description="Number of studies included")
 
-    # Model Selection
-    model_used: str = Field(..., description="'Random-Effects' or 'Fixed-Effect'")
-    reason_for_model: str = Field(..., description="Justification for model selection based on I²")
-
-    # Publication Bias (if applicable)
-    eggers_test_p: Optional[float] = Field(None, description="P-value from Egger's test")
-    publication_bias_assessment: Optional[str] = Field(None, description="Qualitative assessment of bias")
+    # Subgroup analyses (optional)
+    subgroup_results: Optional[List[Dict[str, Any]]] = Field(
+        None, 
+        description="Results for subgroup analyses (e.g., by delivery format or component)"
+    )
+    
+    # Publication bias (optional)
+    eggers_test_p_value: Optional[float] = Field(None, ge=0, le=1, description="P-value from Egger's test")
+    funnel_plot_generated: bool = Field(default=False, description="Whether funnel plot was generated")
 
     # Metadata
-    analysis_date: date = Field(default_factory=date.today, description="Date analysis was run")
+    analysis_date: Optional[date] = Field(None, description="Date of analysis")
+    notes: Optional[str] = Field(None, description="Additional notes about the analysis")

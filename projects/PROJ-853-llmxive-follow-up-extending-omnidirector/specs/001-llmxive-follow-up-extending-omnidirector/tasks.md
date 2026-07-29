@@ -37,9 +37,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Setup basic logging infrastructure in `code/__init__.py`.
-- [ ] T005 [P] Implement configuration loader in `code/config.py` to manage paths and constants.
-- [ ] T006 [P] Create base data models for `GridFrame`, `CameraPose`, and `ReconstructedBox` in `code/data/models.py`.
-- [ ] T006b [P] Design memory-efficient processing strategy: Define chunked data loading and streaming logic in `code/config.py` to ensure <6GB memory footprint before implementation begins.
+- [X] T005 [P] Implement configuration loader in `code/config.py` to manage paths and constants.
+- [X] T006 [P] Create base data models for `GridFrame`, `CameraPose`, and `ReconstructedBox` in `code/data/models.py`.
+- [X] T006b [P] Design memory-efficient processing strategy: Define chunked data loading and streaming logic in `code/config.py` to ensure <6GB memory footprint before implementation begins.
 - [ ] T007 Attempt to fetch the real OmniDirector dataset from the canonical source (e.g., HuggingFace or GitHub release). If fetch fails, generate a deterministic synthetic dataset locally that mimics the real schema. **Output Schema**: `data/processed/filtered_sequences.csv` must contain columns: `sequence_id`, `frame_id`, `radial_motion_deg`, `z_velocity`, `grid_points_2d` (list of pixel coords), `R_matrix`, `t_vector`, `randomized_depth` (boolean). For synthetic data, set `randomized_depth=True` for [deferred] of sequences. Output to `data/raw/omnidirector.zip` (real) or `data/raw/synthetic_omnidirector.zip` (fallback).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -54,7 +54,7 @@
 
 ### Implementation for User Story 1
 
-- [~] T008 Implement dataset loader in `code/data/ingestion.py` to load the dataset from `data/raw/omnidirector.zip` (real) or `data/raw/synthetic_omnidirector.zip` (fallback) and extract grid-video pairs. **Input Schema**: Matches T007 output.
+- [ ] T008 Implement dataset loader in `code/data/ingestion.py` to load the dataset from `data/raw/omnidirector.zip` (real) or `data/raw/synthetic_omnidirector.zip` (fallback) and extract grid-video pairs. **Input Schema**: Matches T007 output.
 - [X] T009 [US1] Implement geometric filtering logic in `code/data/ingestion.py` to classify sequences as 'retained' or 'excluded' based on FR-001 heuristics: **radial motion > 15° OR Z-axis velocity > 0.1 units/frame**. **Input**: `radial_motion_deg`, `z_velocity` columns from T008.
 - [X] T010 [US1] Implement grid frame extraction and ground-truth pairing in `code/data/preprocessing.py`. **Output**: Ensure `grid_points_2d` are extracted for each frame.
 - [ ] T011 [US1] Write filtered dataset to `data/processed/filtered_sequences.csv` with checksums. **Schema**: `sequence_id`, `frame_id`, `radial_motion_deg`, `z_velocity`, `grid_points_2d`, `R_matrix`, `t_vector`, `randomized_depth`.
@@ -81,7 +81,7 @@
 
 - [X] T015 [P] [US2] Define `WorldGridModel` (canonical unit grid at Z=0) in `code/geometry/utils.py`.
 - [X] T016 [US2] Implement orthogonal grid line detection and intersection logic in `code/geometry/utils.py`.
-- [~] T017 Implement CPU-based `solvePnP` solver in `code/geometry/solver.py` to estimate relative motion vectors, consuming `data/processed/filtered_sequences.csv` from T011. **Input**: `grid_points_2d` (2D image points) and `R_matrix`, `t_vector` (3D object points derived from WorldGridModel).
+- [ ] T017 Implement CPU-based `solvePnP` solver in `code/geometry/solver.py` to estimate relative motion vectors, consuming `data/processed/filtered_sequences.csv` from T011. **Input**: `grid_points_2d` (2D image points) and `R_matrix`, `t_vector` (3D object points derived from WorldGridModel).
 - [X] T018 [US2] Implement bounding box dimension reconstruction (height, width, depth) from motion vectors in `code/geometry/reconstruction.py`.
 - [ ] T019 [US2] Write pose estimates and reconstructed boxes to `data/processed/poses_estimated.json`.
 - [X] T020 [US2] Implement logic to handle missing data (interpolation/skipping) and flag high-complexity sequences in `code/geometry/solver.py`.
@@ -92,7 +92,7 @@
 
 - [X] T023 [P] [US2] Unit test for line intersection detection in `code/tests/unit/test_solver.py`.
 - [X] T024 [P] [US2] Unit test for solvePnP scale ambiguity handling in `code/tests/unit/test_solver.py`.
-- [~] T025 [P] [US2] Integration test for full sequence reconstruction in `code/tests/integration/test_geometry_pipeline.py`.
+- [ ] T025 [P] [US2] Integration test for full sequence reconstruction in `code/tests/integration/test_geometry_pipeline.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -108,13 +108,13 @@
 
 - [~] T026 Implement reconstruction error calculation (absolute difference) in `code/analysis/metrics.py`, consuming `data/processed/poses_estimated.json` from T019.
 - [X] T027 [US3] Implement camera motion complexity metric calculation in `code/analysis/metrics.py`.
-- [ ] T028 [US3] Implement Pearson's r correlation analysis between complexity and accuracy in `code/analysis/metrics.py`.
-- [ ] T029 [US3] Implement aspect ratio validation (±5% tolerance) against known synthetic volumes in `code/analysis/validation.py`.
-- [ ] T030 Implement Synthetic Control Validation: Read `data/processed/filtered_sequences.csv` from T011. Identify rows where `randomized_depth` is `True`. Attempt to recover metric depth for these rows. Flag error >50% in `code/analysis/validation.py`.
-- [ ] T031 [US3] Calculate Dataset Filtering Success Rate (retained/total) and record in `data/processed/reconstruction_results.csv` (SC-004).
-- [ ] T032 [US3] Instrument pipeline for timing (start/stop) and record total execution time in `data/processed/reconstruction_results.csv` (SC-005).
+- [X] T028 [US3] Implement Pearson's r correlation analysis between complexity and accuracy in `code/analysis/metrics.py`.
+- [X] T029 [US3] Implement aspect ratio validation (±5% tolerance) against known synthetic volumes in `code/analysis/validation.py`.
+- [~] T030 Implement Synthetic Control Validation: Read `data/processed/filtered_sequences.csv` from T011. Identify rows where `randomized_depth` is `True`. Attempt to recover metric depth for these rows. Flag error >50% in `code/analysis/validation.py`.
+- [~] T031 [US3] Calculate Dataset Filtering Success Rate (retained/total) and record in `data/processed/reconstruction_results.csv` (SC-004).
+- [~] T032 [US3] Instrument pipeline for timing (start/stop) and record total execution time in `data/processed/reconstruction_results.csv` (SC-005).
 - [ ] T033 [US3] Generate final `data/processed/reconstruction_results.csv` (Single Source of Truth).
-- [ ] T034 [US3] Generate final statistical report `report.md` with specific sections: SC-001 (Error), SC-002 (Correlation), SC-003 (Aspect Ratio), SC-004 (Filter Rate), SC-005 (Time), and visualizations.
+- [~] T034 [US3] Generate final statistical report `report.md` with specific sections: SC-001 (Error), SC-002 (Correlation), SC-003 (Aspect Ratio), SC-004 (Filter Rate), SC-005 (Time), and visualizations.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 

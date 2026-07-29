@@ -1,3 +1,19 @@
-# This file extends the configuration in pyproject.toml for Ruff.
-# It is kept separate for clarity in CI/CD pipelines if needed.
-extend = "pyproject.toml"
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort
+    "N",  # pep8-naming
+    "UP", # pyupgrade
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+]
+ignore = []
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

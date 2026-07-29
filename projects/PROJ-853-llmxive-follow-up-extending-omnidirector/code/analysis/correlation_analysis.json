@@ -1,0 +1,14 @@
+{
+  "analysis_type": "Pearson Correlation: Complexity vs Accuracy",
+  "sequence_count": 0,
+  "pearson_r": 0.0,
+  "p_value": 1.0,
+  "interpretation": "No correlation",
+  "details": {
+    "mean_complexity": 0.0,
+    "mean_error": 0.0,
+    "std_complexity": 0.0,
+    "std_error": 0.0
+  },
+  "note": "Placeholder file created by T028. Actual values will be populated when run against real data."
+}

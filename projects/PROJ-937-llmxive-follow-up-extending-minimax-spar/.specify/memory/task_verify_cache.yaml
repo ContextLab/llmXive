@@ -27,3 +27,30 @@ T025:
     \ counts when RULER samples are corrupted or lack the \u201Cneedle\u201D string.\
     \ The required artifact (e.g., modified inference script, logging statements,\
     \ or example log file) is missing, so the task\u2019s requirement is not satisfied."
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, data file, or documented output implementing the false\u2011\
+    positive\u2011rate calculation for the sensitivity analysis (selection without\
+    \ target vs Dense Attention) was provided. The required artifact is missing, so\
+    \ the task\u2019s core requirement is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide a `quickstart.md` file or any documentation\
+    \ showing CPU\u2011only execution instructions; only a feature specification and\
+    \ test scenarios are present, which do not satisfy the documentation update requirement.\
+    \ The required markdown artifact is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test run logs, result files, or any indication that a full `pytest` suite\
+    \ was executed on a CPU\u2011only runner and that all tests passed are present.\
+    \ The implementer provided no artifacts to verify the required pytest execution."
+T036:
+  c: false
+  h: 251b1b510c111e8cf846cd0bfb2bc11c241da8142432cfc11869b06c3cb32222
+  r: The required artifact `results/benchmark_report.json` does not exist, so there
+    is no content to check for the specified keys. Without the file, the verification
+    cannot be performed. The implementer must create the JSON file with the listed
+    metrics.

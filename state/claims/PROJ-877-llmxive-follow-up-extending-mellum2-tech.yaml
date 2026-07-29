@@ -578,23 +578,6 @@
   updated_at: '2026-07-26T01:12:58Z'
 - artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
   attempts: 1
-  canonical: 'Retry logic: 3 attempts with backoff factor 2'
-  claim_id: c_3435af05
-  context: 'Retry Logic: On TimeoutError, ConnectionError, or OSError (non-OOM), retry
-    up to 3 times with backoff_factor=2.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Retry up to 3 times with backoff_factor=2 on TimeoutError, ConnectionError,
-    or OSError
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T01:12:58Z'
-- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
-  attempts: 1
   canonical: Bootstrap 1000 samples for sensitivity analysis
   claim_id: c_9035e6cf
   context: 'Step B: Dataset Perturbation (SC-002): Bootstrap 1000 samples of the dataset
@@ -826,23 +809,6 @@
   updated_at: '2026-07-28T11:42:16Z'
 - artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
   attempts: 1
-  canonical: Retry up to 3 times with backoff factor 2
-  claim_id: c_b6eae1f3
-  context: 'Retry Logic: On TimeoutError, ConnectionError, or OSError (non-OOM), retry
-    up to 3 times with backoff_factor=2.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Retry up to 3 times with backoff_factor=2 on TimeoutError, ConnectionError,
-    or OSError.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T11:42:25Z'
-- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
-  attempts: 1
   canonical: LLM inference on CPU only
   claim_id: c_aed85e73
   context: 'Constraint: MUST load model with device=''cpu'' and torch.set_num_threads()
@@ -859,23 +825,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T11:42:43Z'
-- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
-  attempts: 1
-  canonical: Fetch metadata for 50 code chunks
-  claim_id: c_e217dd61
-  context: 'Input: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
-    (Python/Java) using datasets.load_dataset(..., streaming=True).take(50) to estimate
-    complexity variance WITHOUT downloading full files.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Fetch metadata only (N=50) of code chunks from codeparrot/github-code.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T11:42:53Z'
 - artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
   attempts: 1
   canonical: Statistical power analysis alpha 0.05
@@ -913,42 +862,6 @@
   status: not_enough_info
   updated_at: '2026-07-28T11:43:40Z'
 - artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
-  attempts: 1
-  canonical: Max cyclomatic complexity less than 10
-  claim_id: c_cb22008e
-  context: 'Refactor code/analysis/correlation.py: Extract complex correlation logic
-    into a dedicated function compute_correlation_matrix(...) to ensure max cyclomatic
-    complexity < 10.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Max_cyclomatic_complexity_less_than_10
-  kind: magnitude
-  raw_text: Ensure max cyclomatic complexity < 10 for correlation and threshold functions.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T11:44:05Z'
-- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
-  attempts: 1
-  canonical: Bootstrap 1000 samples for dataset perturbation
-  claim_id: c_c4dee8c7
-  context: 'Step B: Dataset Perturbation (SC-002): Bootstrap 1000 (2309.06305, https://arxiv.org/abs/2309.06305)
-    samples of the dataset (resampling chunks with replacement).'
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-  kind: numeric
-  raw_text: Bootstrap 1000 samples of the dataset (2309.06305, https://arxiv.org/abs/2309.06305)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T11:47:09Z'
-- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
   attempts: 2
   canonical: Bootstrap 1000 samples of the dataset
   claim_id: c_d067982b
@@ -964,22 +877,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T11:47:40Z'
-- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
-  attempts: 1
-  canonical: 1000 bootstrap samples for dataset perturbation
-  claim_id: c_a230512e
-  context: 'Step B: Dataset Perturbation (SC-002): Bootstrap 1000 (2309.06305, https://arxiv.org/abs/2309.06305)
-    samples of the dataset (resampling chunks with replacement).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Bootstrap 1000 samples of the dataset
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T11:48:46Z'
 - artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
   attempts: 1
   canonical: 0.05 unit fixed perturbation for sensitivity analysis
@@ -1121,3 +1018,485 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T11:49:26Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Fixed perturbation magnitude of 0.05 units
+  claim_id: c_be7503dd
+  context: "Apply a FIXED perturbation magnitude of 0.05 units to the complexity metric\
+    \ (e.g., shift threshold by \xB10.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a fixed perturbation magnitude of 0.05 units to the complexity metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:33:16Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis with alpha=0.05
+  claim_id: c_cee84ce3
+  context: 'Calculate post-hoc statistical power based on observed effect size, sample
+    size, and significance level (alpha=0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate post-hoc statistical power based on observed effect size, sample
+    size, and significance level (alpha=0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:33:42Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: KenLM n-gram model with order 5
+  claim_id: c_4bfa8dee
+  context: Build n-gram model from ONLY data/processed/train_python/ (Training Set)
+    using KenLM. n-gram order=5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Build KenLM n-gram model with n-gram order=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:34:13Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Retry up to 3 times with backoff_factor=2
+  claim_id: c_2f61aa6b
+  context: On TimeoutError, ConnectionError, or OSError (non-OOM), retry up to 3 times
+    with backoff_factor=2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times with backoff_factor=2 on TimeoutError, ConnectionError,
+    or OSError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:34:22Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 2
+  canonical: Fetch metadata for 50 code chunks
+  claim_id: c_e217dd61
+  context: 'Input: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
+    (Python/Java) using datasets.load_dataset(..., streaming=True).take(50) to estimate
+    complexity variance WITHOUT downloading full files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch metadata only (N=50) of code chunks from codeparrot/github-code.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:34:33Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Estimate sample size for 0.8 statistical power
+  claim_id: c_09cc23d3
+  context: Estimate effect size and variance from metadata. Compute required sample
+    size N to achieve 0.8 statistical power within the -hour total pipeline limit
+    (Plan Phase 0 summary).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate required sample size N to achieve 0.8 statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:35:15Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 2
+  canonical: Max cyclomatic complexity less than 10
+  claim_id: c_cb22008e
+  context: 'Refactor code/analysis/correlation.py: Extract complex correlation logic
+    into a dedicated function compute_correlation_matrix(...) to ensure max cyclomatic
+    complexity < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Max_cyclomatic_complexity_less_than_10
+  kind: magnitude
+  raw_text: Ensure max cyclomatic complexity < 10 for correlation and threshold functions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:35:47Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Use alpha 0.05 for significance level
+  claim_id: c_0ab7f89b
+  context: 'Logic: Calculate post-hoc statistical power based on observed effect size,
+    sample size, and significance level (alpha=0.05 (Wikipedia: Power (statistics),
+    https://en.wikipedia.org/wiki/Power_(statistics))).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Use alpha=0.05 for significance level in power analysis.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T18:39:45Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 3
+  canonical: Bootstrap 1000 samples for dataset perturbation
+  claim_id: c_c4dee8c7
+  context: 'Step B: Dataset Perturbation (SC-002): Bootstrap 1000 (2309.06305, https://arxiv.org/abs/2309.06305)
+    samples of the dataset (resampling chunks with replacement).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Bootstrap 1000 samples of the dataset (2309.06305, https://arxiv.org/abs/2309.06305)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:39:46Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 2
+  canonical: Apply fixed perturbation magnitude of 0.05 units
+  claim_id: c_519332f9
+  context: "Step A: Fixed Perturbation Sweep (SC-002): Apply a FIXED perturbation\
+    \ magnitude of 0.05 units to the complexity metric (e.g., shift threshold by \xB1\
+    0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a FIXED perturbation magnitude of 0.05 units to the complexity metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:39:46Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Build KenLM n-gram model with order 5
+  claim_id: c_193a2625
+  context: 'Logic: Build n-gram model from ONLY data/processed/train_python/ (Training
+    Set) using KenLM. n-gram order=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Build n-gram model with n-gram order=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:40:21Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Compute sample size N for 0.8 statistical power
+  claim_id: c_0abe5e5c
+  context: 'Action: Estimate effect size and variance from metadata. Compute required
+    sample size N to achieve 0.8 statistical power within the -hour total pipeline
+    limit (Plan Phase 0 summary).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate effect size and variance from metadata to compute required sample
+    size N to achieve 0.8 statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:40:35Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Fetch metadata for 50 code chunks from codeparrot/github-code
+  claim_id: c_83863a7b
+  context: 'Input: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
+    (Python/Java) using datasets.load_dataset(..., streaming=True).take(50) to estimate
+    complexity variance WITHOUT downloading full files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
+    (Python/Java).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:40:35Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 2
+  canonical: Retry up to 3 times with backoff factor 2
+  claim_id: c_b6eae1f3
+  context: 'Retry Logic: On TimeoutError, ConnectionError, or OSError (non-OOM), retry
+    up to 3 times with backoff_factor=2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times with backoff_factor=2 on TimeoutError, ConnectionError,
+    or OSError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:40:36Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Ensure max cyclomatic complexity less than 10
+  claim_id: c_97ec1f98
+  context: 'Refactor code/analysis/correlation.py: Extract complex correlation logic
+    into a dedicated function compute_correlation_matrix(...) to ensure max cyclomatic
+    complexity < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_max_cyclomatic_complexity_less_than_10
+  kind: magnitude
+  raw_text: Ensure max cyclomatic complexity < 10 for correlation logic.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:40:41Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Ensure max cyclomatic complexity less than 10
+  claim_id: c_e5c6af64
+  context: 'Refactor code/analysis/threshold.py: Simplify threshold detection logic
+    by extracting the AIC/BIC comparison into a separate function compare_models(...)
+    to ensure max cyclomatic complexity < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_max_cyclomatic_complexity_less_than_10
+  kind: magnitude
+  raw_text: Ensure max cyclomatic complexity < 10 for threshold detection logic.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:40:46Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Report model preference if AIC/BIC difference greater than 2
+  claim_id: c_313f3bd2
+  context: 'Independent Test: The system can be tested by running the change-point
+    detection on the P1 output and verifying that either a threshold value is identified
+    OR a linear model is preferred (AIC/BIC difference > 2), and a sensitivity analysis
+    is performed.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_model_preference_if_AIC/BIC_difference_greater_than_2
+  kind: magnitude
+  raw_text: Compare linear vs. non-linear models using AIC/BIC and report preference
+    if AIC/BIC difference > 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:40:57Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 3
+  canonical: 1000 bootstrap samples for dataset perturbation
+  claim_id: c_a230512e
+  context: 'Step B: Dataset Perturbation (SC-002): Bootstrap 1000 (2309.06305, https://arxiv.org/abs/2309.06305)
+    samples of the dataset (resampling chunks with replacement).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap 1000 samples of the dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:03Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Fixed perturbation magnitude of 0.05 units for sensitivity analysis
+  claim_id: c_2edf539d
+  context: "Step A: Fixed Perturbation Sweep (SC-002): Apply a FIXED perturbation\
+    \ magnitude of 0.05 units to the complexity metric (e.g., shift threshold by \xB1\
+    0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a FIXED perturbation magnitude of 0.05 units to the complexity metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:03Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis with alpha 0.05 significance level
+  claim_id: c_83dd95d8
+  context: 'Logic: Calculate post-hoc statistical power based on observed effect size,
+    sample size, and significance level (alpha=0.05 (Wikipedia: Power (statistics),
+    https://en.wikipedia.org/wiki/Power_(statistics))).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate post-hoc statistical power based on observed effect size, sample
+    size, and significance level (alpha=0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:03Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Sample size computation for 0.8 statistical power
+  claim_id: c_74399d0c
+  context: 'Action: Estimate effect size and variance from metadata. Compute required
+    sample size N to achieve 0.8 statistical power within the -hour total pipeline
+    limit (Plan Phase 0 summary).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate effect size and variance from metadata to compute required sample
+    size N to achieve 0.8 statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:04Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: KenLM n-gram model with order 5
+  claim_id: c_a2019f3f
+  context: 'Logic: Build n-gram model from ONLY data/processed/train_python/ (Training
+    Set) using KenLM. n-gram order=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Build n-gram model with n-gram order=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:04Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Fetch 50 code chunks metadata from codeparrot/github-code
+  claim_id: c_cbc5a7d3
+  context: 'Input: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
+    (Python/Java) using datasets.load_dataset(..., streaming=True).take(50) to estimate
+    complexity variance WITHOUT downloading full files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch metadata only (N=50) of code chunks from codeparrot/github-code.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:04Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 2
+  canonical: 'Retry logic: 3 attempts with backoff factor 2'
+  claim_id: c_3435af05
+  context: 'Retry Logic: On TimeoutError, ConnectionError, or OSError (non-OOM), retry
+    up to 3 times with backoff_factor=2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times with backoff_factor=2 on TimeoutError, ConnectionError,
+    or OSError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:04Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Model preference reported if AIC/BIC difference exceeds 2
+  claim_id: c_197493f8
+  context: 'Independent Test: The system can be tested by running the change-point
+    detection on the P1 output and verifying that either a threshold value is identified
+    OR a linear model is preferred (AIC/BIC difference > 2), and a sensitivity analysis
+    is performed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare linear vs. non-linear models using AIC/BIC and report preference
+    if difference > 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:04Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Max cyclomatic complexity less than 10 for correlation logic
+  claim_id: c_3b317c48
+  context: 'Refactor code/analysis/correlation.py: Extract complex correlation logic
+    into a dedicated function compute_correlation_matrix(...) to ensure max cyclomatic
+    complexity < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Max_cyclomatic_complexity_less_than_10_for_correlation_logic
+  kind: magnitude
+  raw_text: Enforce max cyclomatic complexity < 10 for correlation logic extraction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:24Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Max cyclomatic complexity less than 10 for threshold logic
+  claim_id: c_24b664f7
+  context: 'Refactor code/analysis/threshold.py: Simplify threshold detection logic
+    by extracting the AIC/BIC comparison into a separate function compare_models(...)
+    to ensure max cyclomatic complexity < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Max_cyclomatic_complexity_less_than_10_for_threshold_logic
+  kind: magnitude
+  raw_text: Enforce max cyclomatic complexity < 10 for threshold detection logic extraction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T18:42:43Z'

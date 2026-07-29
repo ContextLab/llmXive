@@ -1,0 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (`code/`, `code/data/`, `code/geometry/`,
+    `code/analysis/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`,
+    `data/raw/`, `data/processed/`) is provided; the implementer has not supplied
+    any artifact confirming that these folders were created. The task remains undone.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings, or related scripts) were provided or referenced,
+    so we cannot verify that ruff/flake8 and Black have been set up in the `code/`
+    directory. The required artifacts are missing.
+T007:
+  c: false
+  h: 518d8a786fccf92d45dfdb6e192d9b9aad399cdc3caf6228bda69d7f15b66066
+  r: "The synthetic archive `data/raw/synthetic_omnidirector.zip` is present, but\
+    \ the required output file `data/processed/filtered_sequences.csv` is missing,\
+    \ so the pipeline\u2019s final curated dataset is not provided as specified. The\
+    \ implementer must create this CSV (with the listed columns) from the synthetic\
+    \ data (or real data if fetched) to satisfy the task."
+T008:
+  c: false
+  h: 5ef59e78124d8b661cd234c9acd0d1bd504915b2284559a99e7cae96c8ce3398
+  r: "The `ingestion.py` file does not contain logic to choose the real zip or fall\
+    \ back to `synthetic_omnidirector.zip`, it only loads a CSV from a zip (while\
+    \ the synthetic zip holds JSON files). Moreover, the real dataset zip is absent,\
+    \ and the code never extracts the required grid\u2011video pairs. These gaps mean\
+    \ the task\u2019s specification is not satisfied."
+T017:
+  c: false
+  h: d90fcf975e1a2831d06e4495789a34ed63d9410aa57e63509a5ea33bc6652209
+  r: "The repository lacks the required `data/processed/filtered_sequences.csv` file,\
+    \ so the solver cannot consume the intended dataset. Moreover, `code/geometry/solver.py`\
+    \ contains only parsing utilities and placeholder constants; there is no implementation\
+    \ of a CPU\u2011based `solvePnP` call or generation of relative motion vectors.\
+    \ Both the input data and the core solver functionality are missing."
+T025:
+  c: false
+  h: 697d8b7d27bc1910d197db28aea68b573a2691b966c1bc30c2e4aef2b05febd2
+  r: The required integration test file `code/tests/integration/test_geometry_pipeline.py`
+    does not exist in the repository, so the claimed implementation is missing entirely.
+    No test code is present to verify full sequence reconstruction.

@@ -103,13 +103,13 @@
  - **Constraint**: MUST fail loudly on fetch error. If fetch fails, log "ERROR: Failed to fetch dataset: <reason>" and execute `sys.exit(1)`. No synthetic fallback.
  - **Artifact**: `data/processed/train_python/`, `data/processed/val_java/`.
 
-- [ ] T016 [US1] Implement `code/data/preprocess.py` to run CodeQL and tree-sitter.
+- [X] T016 [US1] Implement `code/data/preprocess.py` to run CodeQL and tree-sitter.
  - **Dependency**: **T015** (Download/Split).
  - **Logic**: Create `queries/complexity.ql` for cyclomatic complexity, nesting depth, and repetition ratio. Process files in `data/processed/train_python/` and `data/processed/val_java/`.
  - **Edge Case**: MUST skip unparseable files and log errors (Edge Case 1).
  - **Artifact**: `data/processed/annotated_python.jsonl`, `data/processed/annotated_java.jsonl`.
 
-- [ ] T011b [US1] Implement `code/analysis/variance_check.py` (Variance Detection & Graceful Degradation):
+- [X] T011b [US1] Implement `code/analysis/variance_check.py` (Variance Detection & Graceful Degradation):
  - **Dependency**: **T015** (Download) and **T016** (Preprocess).
  - **Action**: Load `data/processed/annotated_python.jsonl` and `data/processed/annotated_java.jsonl`. Compute variance of `cyclomatic_complexity` and `nesting_depth`.
  - **Logic**: If variance == 0 for any metric, write `data/results/variance_null_report.json` with `status: "null_variance"`, `metric: <name>`, and `message: "No variance detected; skipping correlation analysis"`. **Log warning but DO NOT exit** (allows T020 to handle the final result).

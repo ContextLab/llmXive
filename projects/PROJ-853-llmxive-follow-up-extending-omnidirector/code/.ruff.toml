@@ -1,22 +1,21 @@
+# Ruff configuration for llmXive project
+line-length = 100
+target-version = "py311"
+
 [lint]
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # Pyflakes
-  "I",  # isort
-  "C",  # flake8-comprehensions
-  "B",  # flake8-bugbear
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
 ]
 ignore = [
-  "E501",  # line too long (handled by black)
-  "B008",  # do not perform function calls in argument defaults
-  "C901",  # too complex
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
 ]
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
-
-[format]
-line-length = 88
-indent-style = "space"
-quote-style = "double"
+"code/tests/*" = ["S101"] # Allow assert in tests

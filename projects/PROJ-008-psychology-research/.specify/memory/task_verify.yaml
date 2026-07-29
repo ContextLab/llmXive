@@ -1,7 +1,6 @@
-T001 Create project structure per implementation plan (`projects/PROJ-008-psychology-research/`): 2
-? 'T002 Initialize Python 3.11 project with `pyproject.toml` (dependencies: `pandas`,
-  `scikit-learn`, `statsmodels`, `matplotlib`, `requests`, `pyyaml`, `pytest`, `bayesmeta`,
-  `pdfplumber`, `pytesseract`)'
-: 2
-T003 [P] Configure linting (ruff) and formatting (black) tools: 2
-T004 Create base Pydantic models for `Study`, `EffectSize`, and `MetaAnalysisResult` in `code/data/models.py`: 2
+T001: 1
+T003: 1
+T007: 1
+T011: 1
+T019: 1
+T029: 1

@@ -1,104 +1,108 @@
-"""
-Project Directory Initialization Module.
-Creates the standard project structure for llmXive research artifacts.
-"""
 import os
 import logging
 from pathlib import Path
 from typing import List, Tuple
 
-# Import local logger configuration to ensure consistent logging
-try:
-    from utils.logging import get_logger
-    logger = get_logger("setup_directories")
-except ImportError:
-    # Fallback if utils.logging isn't fully initialized yet
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger("setup_directories")
+logger = logging.getLogger(__name__)
 
-# Project Root Definition
-# The task specifies the root is projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/
-# This script assumes it is run from within that root directory.
-PROJECT_ROOT = Path.cwd()
+def ensure_data_directories(base_path: Path) -> None:
+    """
+    Create the required directory structure for the project.
+    
+    Creates:
+    - projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/
+      - code/
+      - data/
+        - raw/
+        - processed/
+        - results/
+      - tests/
+      - specs/
+    
+    Args:
+        base_path: The root directory where the project structure will be created.
+    """
+    project_root = base_path / "projects" / "PROJ-877-llmxive-follow-up-extending-mellum2-tech"
+    
+    directories = [
+        project_root,
+        project_root / "code",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "results",
+        project_root / "tests",
+        project_root / "specs",
+        project_root / "figures",
+    ]
+    
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {directory}")
 
-# Standard directories to ensure exist
-STANDARD_DIRS = [
-    "code",
-    "data",
-    "tests",
-    "specs",
-    "figures",
-    "logs",
-    "data/raw",
-    "data/processed",
-    "data/results",
-    "tests/unit",
-    "tests/integration",
-    "code/utils",
-    "code/data",
-    "code/analysis",
-    "code/inference",
-    "code/contracts",
-]
-
-def ensure_data_directories() -> List[str]:
+def generate_init_files(base_path: Path) -> None:
     """
-    Creates the standard directory structure if it does not exist.
-    Returns a list of created directory paths.
+    Create __init__.py files in all Python package directories.
+    
+    Args:
+        base_path: The root directory of the project.
     """
-    created_dirs = []
+    project_root = base_path / "projects" / "PROJ-877-llmxive-follow-up-extending-mellum2-tech"
+    python_dirs = [
+        project_root / "code",
+        project_root / "code" / "analysis",
+        project_root / "code" / "data",
+        project_root / "code" / "inference",
+        project_root / "code" / "utils",
+        project_root / "code" / "contracts",
+        project_root / "tests",
+        project_root / "tests" / "unit",
+    ]
     
-    for dir_name in STANDARD_DIRS:
-        target_path = PROJECT_ROOT / dir_name
-        if not target_path.exists():
-            target_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(target_path))
-            logger.info(f"Created directory: {target_path}")
-        else:
-            logger.debug(f"Directory already exists: {target_path}")
-    
-    return created_dirs
-
-def generate_init_files() -> List[str]:
-    """
-    Creates __init__.py files in all Python package directories to make them importable.
-    """
-    init_files = []
-    python_dirs = ["code", "code/utils", "code/data", "code/analysis", 
-                   "code/inference", "code/contracts", "tests", "tests/unit", "tests/integration"]
-    
-    for dir_name in python_dirs:
-        target_path = PROJECT_ROOT / dir_name / "__init__.py"
-        if not target_path.exists():
-            # Create an empty init file or a simple header
-            target_path.write_text(f'"""Auto-generated init for {dir_name}."""\n')
-            init_files.append(str(target_path))
-            logger.info(f"Created init file: {target_path}")
-    
-    return init_files
+    for directory in python_dirs:
+        init_file = directory / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            logger.info(f"Created __init__.py: {init_file}")
 
 def main():
     """
-    Entry point for directory initialization.
-    Creates structure and prints a summary log.
+    Main entry point for directory setup.
+    Creates the full project structure and initializes Python packages.
     """
-    logger.info(f"Initializing project structure at: {PROJECT_ROOT}")
+    # Use current working directory as base
+    base_path = Path.cwd()
     
-    created_dirs = ensure_data_directories()
-    init_files = generate_init_files()
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(base_path / "project_init.log"),
+            logging.StreamHandler()
+        ]
+    )
     
-    total_created = len(created_dirs) + len(init_files)
-    logger.info(f"Initialization complete. Created {total_created} items.")
+    logger.info("Starting project directory initialization...")
     
-    if not created_dirs and not init_files:
-        logger.info("No new items created; structure already exists.")
-    else:
-        logger.info("Created directories:")
-        for d in created_dirs:
-            logger.info(f"  - {d}")
-        logger.info("Created init files:")
-        for f in init_files:
-            logger.info(f"  - {f}")
+    ensure_data_directories(base_path)
+    generate_init_files(base_path)
+    
+    # Generate directory listing for verification
+    project_root = base_path / "projects" / "PROJ-877-llmxive-follow-up-extending-mellum2-tech"
+    log_path = base_path / "project_init.log"
+    
+    with open(log_path, 'a') as f:
+        f.write("\n=== Directory Structure Verification ===\n")
+        f.write(f"Project Root: {project_root}\n\n")
+        for root, dirs, files in os.walk(project_root):
+            level = root.replace(str(project_root), '').count(os.sep)
+            indent = ' ' * 2 * level
+            f.write(f'{indent}{os.path.basename(root)}/\n')
+            subindent = ' ' * 2 * (level + 1)
+            for file in files:
+                f.write(f'{subindent}{file}\n')
+        f.write("\n=== Initialization Complete ===\n")
+    
+    logger.info(f"Project structure created successfully. Log written to: {log_path}")
 
 if __name__ == "__main__":
     main()

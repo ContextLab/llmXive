@@ -1,1 +1,3 @@
-# Integration Tests
+"""
+llmXive integration tests package.
+"""

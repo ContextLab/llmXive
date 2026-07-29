@@ -3,105 +3,94 @@ import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
 import numpy as np
+
+from config import get_path
 
 logger = logging.getLogger(__name__)
 
 
-def serialize_ndarray(arr: Optional[np.ndarray]) -> Any:
+def serialize_ndarray(obj: np.ndarray) -> List[List[float]]:
     """
-    Serializes a numpy array to a JSON-compatible list.
-    Handles None and empty arrays gracefully.
+    Serializes a numpy array to a list of lists of floats for JSON compatibility.
+    Handles 1D, 2D, and 3D arrays.
     """
-    if arr is None:
-        return None
-    if isinstance(arr, np.ndarray):
-        return arr.tolist()
-    # Fallback for scalar or list
-    return arr
+    return obj.tolist()
 
 
 def write_poses_and_boxes(
-    poses: List[Dict[str, Any]],
-    boxes: List[Dict[str, Any]],
-    output_path: str,
-) -> None:
+    poses_data: List[Dict[str, Any]],
+    output_path: Optional[str] = None
+) -> str:
     """
-    Writes pose estimates and reconstructed boxes to a single JSON file.
+    Writes pose estimates and reconstructed box dimensions to a JSON file.
 
     Args:
-        poses: List of dictionaries containing camera pose data (R, t, sequence_id, frame_id).
-        boxes: List of dictionaries containing reconstructed box data (dimensions, sequence_id).
-        output_path: Path to the output JSON file.
+        poses_data: List of dictionaries containing pose and box data.
+                    Expected keys: 'sequence_id', 'frame_id', 'camera_pose',
+                    'reconstructed_box', 'status', 'error_metrics' (optional).
+        output_path: Optional path to write the JSON file. Defaults to
+                     'data/processed/poses_estimated.json' based on config.
 
-    The output structure is:
-    {
-        "metadata": { "version": "1.0", "count_poses": int, "count_boxes": int },
-        "poses": [ ... ],
-        "boxes": [ ... ]
-    }
+    Returns:
+        The path to the written file.
     """
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+    if output_path is None:
+        output_path = get_path("POSES_ESTIMATED_JSON")
 
-    # Ensure arrays are serialized correctly
-    serialized_poses = []
-    for p in poses:
-        rec = p.copy()
-        if 'R_matrix' in rec:
-            rec['R_matrix'] = serialize_ndarray(rec['R_matrix'])
-        if 't_vector' in rec:
-            rec['t_vector'] = serialize_ndarray(rec['t_vector'])
-        if 'rotation_vec' in rec:
-            rec['rotation_vec'] = serialize_ndarray(rec['rotation_vec'])
-        if 'translation_vec' in rec:
-            rec['translation_vec'] = serialize_ndarray(rec['translation_vec'])
-        serialized_poses.append(rec)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    serialized_boxes = []
-    for b in boxes:
-        rec = b.copy()
-        if 'dimensions' in rec:
-            rec['dimensions'] = serialize_ndarray(rec['dimensions'])
-        serialized_boxes.append(rec)
+    logger.info(f"Writing {len(poses_data)} pose/box records to {output_file}")
 
-    output_data = {
-        "metadata": {
-            "version": "1.0",
-            "count_poses": len(serialized_poses),
-            "count_boxes": len(serialized_boxes)
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(poses_data, f, indent=2)
+
+    logger.info(f"Successfully wrote poses to {output_file}")
+    return str(output_file)
+
+
+def main():
+    """
+    Main entry point for testing the writer module directly.
+    Generates dummy data to demonstrate functionality.
+    """
+    logging.basicConfig(level=logging.INFO)
+
+    # Generate dummy data matching the expected schema from T017/T018
+    dummy_poses = [
+        {
+            "sequence_id": "seq_001",
+            "frame_id": 1,
+            "status": "success",
+            "camera_pose": {
+                "R": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                "t": [0.0, 0.0, 0.0]
+            },
+            "reconstructed_box": {
+                "width": 1.0,
+                "height": 1.0,
+                "depth": 1.0
+            }
         },
-        "poses": serialized_poses,
-        "boxes": serialized_boxes
-    }
+        {
+            "sequence_id": "seq_001",
+            "frame_id": 2,
+            "status": "success",
+            "camera_pose": {
+                "R": [[0.99, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                "t": [0.01, 0.0, 0.0]
+            },
+            "reconstructed_box": {
+                "width": 1.0,
+                "height": 1.0,
+                "depth": 1.0
+            }
+        }
+    ]
 
-    with open(output_path_obj, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, indent=2)
-
-    logger.info(f"Wrote {len(serialized_poses)} poses and {len(serialized_boxes)} boxes to {output_path}")
-
-
-def main() -> None:
-    """
-    Entry point for writing poses and boxes.
-    Expects environment variables or default paths for input data if not passed via args.
-    For T019, this is primarily a utility called by the solver pipeline,
-    but provided here for standalone execution if needed.
-    """
-    # Default paths based on project structure
-    poses = []
-    boxes = []
-    
-    # In a real pipeline, these would be populated by solver.py or reconstruction.py
-    # For this artifact implementation, we define the writer logic.
-    # If run standalone, it writes an empty structure or raises if no data provided.
-    
-    # Example usage logic (commented out to prevent errors if run without data source):
-    # output_path = get_path("processed_poses_json") 
-    # write_poses_and_boxes(poses, boxes, output_path)
-    
-    logger.info("Writer module loaded. Call write_poses_and_boxes with data.")
+    output_file = write_poses_and_boxes(dummy_poses)
+    logger.info(f"Dummy data written to {output_file}")
 
 
 if __name__ == "__main__":

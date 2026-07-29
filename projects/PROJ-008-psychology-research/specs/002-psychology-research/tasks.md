@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-008-psychology-research/`)
-- [ ] T002 Initialize Python 3.11 project with `pyproject.toml` (dependencies: `pandas`, `scikit-learn`, `statsmodels`, `matplotlib`, `requests`, `pyyaml`, `pytest`, `bayesmeta`, `pdfplumber`, `pytesseract`)
+- [X] T002 Initialize Python 3.11 project with `pyproject.toml` (dependencies: `pandas`, `scikit-learn`, `statsmodels`, `matplotlib`, `requests`, `pyyaml`, `pytest`, `bayesmeta`, `pdfplumber`, `pytesseract`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -55,7 +55,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create base Pydantic models for `Study`, `EffectSize`, and `MetaAnalysisResult` in `code/data/models.py`
+- [X] T004 Create base Pydantic models for `Study`, `EffectSize`, and `MetaAnalysisResult` in `code/data/models.py`
 - [X] T005 [P] Implement structured logging infrastructure in `code/utils/logging.py` (FR-007)
 - [X] T006 [P] Setup configuration management and seed pinning in `code/utils/config.py`
 - [ ] T007 Create schema contracts in `contracts/` directory: `cleaned_study.schema.yaml` and `effect_size.schema.yaml`
@@ -79,7 +79,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Contract test for data extraction schema in `tests/contract/test_cleaned_study_schema.py`
+- [ ] T011 [P] [US1] Contract test for data extraction schema in `tests/contract/test_cleaned_study_schema.py`
 - [X] T012 [P] [US1] Integration test for API rate-limiting and backoff in `tests/integration/test_api_collector.py`
 - [X] T013 [P] [US1] Unit test for inclusion criteria filtering logic in `tests/unit/test_cleaner.py`
 
@@ -106,15 +106,15 @@
 
 - [X] T021 [P] [US2] Contract test for effect size schema in `tests/contract/test_effect_size_schema.py`
 - [X] T022 [P] [US2] Unit test for Hedges' *g* calculation accuracy against `statsmodels` or manual calc in `tests/unit/test_effect_sizes.py`
-- [ ] T023 [P] [US2] Unit test for random-effects model selection logic (I² > 50%) in `tests/unit/test_meta_analysis.py`
+- [X] T023 [P] [US2] Unit test for random-effects model selection logic (I² > 50%) in `tests/unit/test_meta_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] depends on T014, T015, T016, T017, T018: Implement Hedges' *g* calculator in `code/analysis/effect_sizes.py` (FR-004, FR-013) with small-sample correction
-- [ ] T025 [US2] depends on T014, T015, T016, T017, T018: Implement random-effects meta-analysis engine in `code/analysis/meta_analysis.py` (FR-005) using `statsmodels` or `metafor` equivalent
-- [ ] T026 [US2] depends on T024, T025: Implement subgroup analysis (Cochran's Q) for mindfulness components and delivery formats in `code/analysis/meta_analysis.py` (FR-005)
-- [ ] T027 [US2] depends on T024, T025: Implement social skill domain extraction and subgroup analysis in `code/analysis/meta_analysis.py` (FR-010, FR-011)
-- [ ] T028 [US2] depends on T024, T025: Implement follow-up duration subgroup analysis (3-month vs others) in `code/analysis/meta_analysis.py` (FR-012)
+- [X] T024 [US2] depends on T014, T015, T016, T017, T018: Implement Hedges' *g* calculator in `code/analysis/effect_sizes.py` (FR-004, FR-013) with small-sample correction
+- [X] T025 [US2] depends on T014, T015, T016, T017, T018: Implement random-effects meta-analysis engine in `code/analysis/meta_analysis.py` (FR-005) using `statsmodels` or `metafor` equivalent
+- [X] T026 [US2] depends on T024, T025: Implement subgroup analysis (Cochran's Q) for mindfulness components and delivery formats in `code/analysis/meta_analysis.py` (FR-005)
+- [X] T027 [US2] depends on T024, T025: Implement social skill domain extraction and subgroup analysis in `code/analysis/meta_analysis.py` (FR-010, FR-011)
+- [X] T028 [US2] depends on T024, T025: Implement follow-up duration subgroup analysis (3-month vs others) in `code/analysis/meta_analysis.py` (FR-012)
 - [ ] T029 [US2] depends on T024, T025: Implement conditional logic to suppress subgroup/meta-regression if N < 10 and switch to descriptive synthesis (FR-014)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -129,7 +129,7 @@
 
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T031 [P] [US3] Unit test for forest plot generation in `tests/unit/test_plots.py`
+- [X] T031 [P] [US3] Unit test for forest plot generation in `tests/unit/test_plots.py`
 - [ ] T032 [P] [US3] Unit test for funnel plot suppression logic when N < 10 in `tests/unit/test_plots.py`
 - [ ] T033 [P] [US3] Integration test for publication bias assessment (Egger's test) in `tests/integration/test_bias.py`
 

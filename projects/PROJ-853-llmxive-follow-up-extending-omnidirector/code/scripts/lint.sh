@@ -1,9 +1,8 @@
 #!/bin/bash
-# Run linting checks
+# Run linters without fixing
 set -e
-cd "$(dirname "$0")/.."
-echo "Running Ruff check..."
+echo "Running Ruff..."
 ruff check code/
-echo "Running Black check (diff)..."
-black --check code/
+echo "Running Flake8..."
+flake8 code/ --max-line-length=100
 echo "Linting complete."
