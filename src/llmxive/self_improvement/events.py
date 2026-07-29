@@ -274,10 +274,15 @@ def _validate_lane_call_claimed(raw: Mapping[str, Any]) -> None:
 
 #: The ONE sanctioned proposal reroute (FR-002). Pinned, not merely documented: a record
 #: naming other profiles would assert a degradation that never happened.
-_REROUTE_PRIMARY_PROFILE = "independent_review"
-_REROUTE_FALLBACK_PROFILE = "deep_review"
-_REROUTE_TRIGGER = "ModelUnavailable"
-_REROUTE_RELAXED = ("family_independence", "snapshot_freshness")
+#:
+#: PUBLIC because they are the single source of truth for three separate consumers — this
+#: validator (write boundary), ``route_context.record_reroute`` (what gets written), and
+#: ``LLMReviewer``'s configuration check (what actually EXECUTES). A second copy is exactly
+#: how a reviewer comes to run one profile pair while durably recording another.
+REROUTE_PRIMARY_PROFILE = "independent_review"
+REROUTE_FALLBACK_PROFILE = "deep_review"
+REROUTE_TRIGGER = "ModelUnavailable"
+REROUTE_RELAXED_CONSTRAINTS = ("family_independence", "snapshot_freshness")
 
 #: The EXACT key set. "Required fields" alone would let extras ride along: harmless today,
 #: but it makes the contract untestable and future schema evolution ambiguous — a reader
@@ -320,23 +325,23 @@ def _validate_review_rerouted(raw: Mapping[str, Any]) -> None:
         raise ValueError("primary_route_id and fallback_route_id must be distinct "
                          "(the two legs are two logical route_chat invocations)")
     primary = _require(payload, "primary_profile", str)
-    if primary != _REROUTE_PRIMARY_PROFILE:
-        raise ValueError(f"primary_profile must be {_REROUTE_PRIMARY_PROFILE!r}, got {primary!r}")
+    if primary != REROUTE_PRIMARY_PROFILE:
+        raise ValueError(f"primary_profile must be {REROUTE_PRIMARY_PROFILE!r}, got {primary!r}")
     fallback = _require(payload, "fallback_profile", str)
-    if fallback != _REROUTE_FALLBACK_PROFILE:
+    if fallback != REROUTE_FALLBACK_PROFILE:
         raise ValueError(
-            f"fallback_profile must be {_REROUTE_FALLBACK_PROFILE!r}, got {fallback!r}"
+            f"fallback_profile must be {REROUTE_FALLBACK_PROFILE!r}, got {fallback!r}"
         )
     failure = _require(payload, "primary_failure", Mapping)
     _exact_keys(failure, _REROUTE_FAILURE_KEYS, "ReviewRerouted primary_failure")
     for key in ("exception_type", "message"):
         _require(failure, key, str)
-    if failure["exception_type"] != _REROUTE_TRIGGER:
-        raise ValueError(f"primary_failure.exception_type must be {_REROUTE_TRIGGER!r} — FR-002 "
+    if failure["exception_type"] != REROUTE_TRIGGER:
+        raise ValueError(f"primary_failure.exception_type must be {REROUTE_TRIGGER!r} — FR-002 "
                          f"reroutes on nothing else; got {failure['exception_type']!r}")
     relaxed = _require(payload, "relaxed_constraints", list)
-    if tuple(relaxed) != _REROUTE_RELAXED:
-        raise ValueError(f"relaxed_constraints must be exactly {list(_REROUTE_RELAXED)} (the "
+    if tuple(relaxed) != REROUTE_RELAXED_CONSTRAINTS:
+        raise ValueError(f"relaxed_constraints must be exactly {list(REROUTE_RELAXED_CONSTRAINTS)} (the "
                          f"fallback always relaxes both, in that order), got {relaxed!r}")
 
 

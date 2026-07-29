@@ -208,7 +208,7 @@ def _content_digest_value(content: str | tuple[TextPart | ImagePart, ...]) -> di
     return {"type": "multipart", "parts": parts}
 
 
-def _messages_digest(messages: list[ChatMessage]) -> str:
+def messages_digest(messages: list[ChatMessage]) -> str:
     """Stable SHA-256 over the routed messages (F2): identifies WHAT prompt/context
     was actually sent, distinct from the requirement/snapshot digests. Deterministic
     + cross-process-stable: a canonical ``(role, content)`` projection (multimodal
@@ -292,7 +292,7 @@ def route_chat(
     caller MAY inject a durable id instead (spec 025 slice 1 — a retried logical
     invocation replays the identical event ids rather than minting new ones).
     ``prompt_digest`` / ``context_digest`` default to a digest of the actual
-    routed ``messages`` (via :func:`_messages_digest`) when not supplied —
+    routed ``messages`` (via :func:`messages_digest`) when not supplied —
     ``ChainResolved`` carries them (with the requirement/snapshot digests + full
     provenance + the winning candidates' ``ModelRef``s) so the lane can
     reconstruct an ``InvocationIdentity`` without re-deriving it (F2). Both digests
@@ -384,12 +384,12 @@ def route_chat(
     # route-fatal, so it is normalized to RouteAuditError and propagates. The
     # prompt/context digests are computed ONLY inside this branch (maintainer
     # review finding #1): the default no-hook path must never touch
-    # ``_messages_digest`` at all, so a multimodal ``content`` never needs to
+    # ``messages_digest`` at all, so a multimodal ``content`` never needs to
     # survive a digest projection it does not need.
     if route_audit is not None:
         winning_refs: tuple[ModelRef, ...] = tuple(c.model_ref for c in chain.candidates)
-        pdig = prompt_digest if prompt_digest is not None else _messages_digest(msg_list)
-        cdig = context_digest if context_digest is not None else _messages_digest(msg_list)
+        pdig = prompt_digest if prompt_digest is not None else messages_digest(msg_list)
+        cdig = context_digest if context_digest is not None else messages_digest(msg_list)
         emit_audit(route_audit, ChainResolved(
             route_id=route_id,
             requirement_digest=_requirement_digest(requirement),

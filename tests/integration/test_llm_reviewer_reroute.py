@@ -22,6 +22,8 @@ from llmxive.self_improvement.route_context import LaneRouteContext
 LENS = "worthwhile-improvement"
 STAGE = "self_improvement_proposal"
 _BUDGET = 50.0  # ONE AttemptConfigured record binds this with the ceiling.
+#: A lane reviewer must name at least one producer family to differ FROM.
+_BASELINE = IndependenceBaseline(families=frozenset({"qwen3.5"}))
 
 
 def _clock():
@@ -129,6 +131,65 @@ def test_no_context_uses_the_unchanged_single_call(repo_root, monkeypatch):
     # the legacy path passes NO lane params at all
     assert calls[0].get("route_audit") is None and calls[0].get("route_id") is None
     assert "reraise_model_unavailable" not in calls[0]
+
+
+# ---- configuration validation: what EXECUTES must match what gets RECORDED ----
+
+
+def test_the_two_sanctioned_lane_configurations_are_accepted(repo_root):
+    base = IndependenceBaseline(families=frozenset({"qwen3.5"}))
+    # proposal: degrade to deep_review on ModelUnavailable
+    _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
+              independence_against=base, route_context=_ctx(repo_root))
+    # patch: no fallback at all — fail closed
+    _reviewer(repo_root, profile="independent_review", fallback_profile=None,
+              independence_against=base, route_context=_ctx(repo_root))
+
+
+def test_an_unsanctioned_fallback_profile_is_refused(repo_root):
+    # record_reroute would assert independent_review -> deep_review while THIS reviewer ran
+    # independent_review -> vision. The event validator cannot see the discrepancy: it only
+    # ever inspects what record_reroute wrote.
+    with pytest.raises(ValueError, match="sanctioned fallback"):
+        _reviewer(repo_root, profile="independent_review", fallback_profile="vision",
+                  independence_against=IndependenceBaseline(families=frozenset({"qwen3.5"})),
+                  route_context=_ctx(repo_root))
+
+
+def test_a_lane_reviewer_with_a_non_independent_primary_is_refused(repo_root):
+    with pytest.raises(ValueError, match="must use profile"):
+        _reviewer(repo_root, profile="deep_review", fallback_profile="deep_review",
+                  independence_against=IndependenceBaseline(families=frozenset({"qwen3.5"})),
+                  route_context=_ctx(repo_root))
+
+
+def test_a_lane_reviewer_without_a_baseline_is_refused(repo_root):
+    with pytest.raises(ValueError, match="at least one producer family"):
+        _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
+                  independence_against=None, route_context=_ctx(repo_root))
+
+
+def test_an_empty_family_baseline_is_refused(repo_root):
+    # independent_review requires a family DIFFERENCE. With no producer family to differ
+    # from, the constraint is satisfied by any model and FR-002's guarantee is void.
+    with pytest.raises(ValueError, match="at least one producer family"):
+        _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
+                  independence_against=IndependenceBaseline(), route_context=_ctx(repo_root))
+
+
+@pytest.mark.parametrize("lane_only", [
+    {"independence_against": IndependenceBaseline(families=frozenset({"qwen3.5"}))},
+    {"fallback_profile": "deep_review"},
+])
+def test_lane_only_arguments_without_a_route_context_are_refused(repo_root, lane_only):
+    # Without a context the lane path never runs, so these would be silently ignored — a
+    # reviewer that looks independence-constrained and is not.
+    with pytest.raises(ValueError, match="requires a route_context"):
+        _reviewer(repo_root, profile="deep_review", **lane_only)
+
+
+def test_an_ordinary_non_lane_reviewer_is_still_accepted(repo_root):
+    _reviewer(repo_root, profile="deep_review")
 
 
 # ---- the FR-002 two-attempt reroute ----
@@ -241,7 +302,7 @@ def test_a_fallback_that_also_finds_nothing_is_an_outage_not_a_second_degrade(
     _patch_router(monkeypatch, _fake)
     ctx = _ctx(repo_root)
     reviewer = _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
-                         route_context=ctx)
+                         independence_against=_BASELINE, route_context=ctx)
     with pytest.raises(BackendUnavailable):
         reviewer._call_backend([])
     assert len(ctx.recorded) == 1  # the degradation that DID happen is still recorded
@@ -263,7 +324,7 @@ def test_distinct_logical_calls_get_distinct_operation_ids(repo_root, monkeypatc
     _patch_router(monkeypatch, _fake)
     ctx = _ctx(repo_root)
     reviewer = _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
-                         route_context=ctx)
+                         independence_against=_BASELINE, route_context=ctx)
     msgs = [ChatMessage(role="user", content="review this")]
     reviewer._call_backend(msgs, kind="identify")
     reviewer._call_backend([*msgs, ChatMessage(role="user", content="no action items")],
@@ -284,7 +345,7 @@ def test_the_kind_alone_separates_two_calls_with_identical_messages(repo_root, m
     _patch_router(monkeypatch, _fake)
     ctx = _ctx(repo_root)
     reviewer = _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
-                         route_context=ctx)
+                         independence_against=_BASELINE, route_context=ctx)
     msgs = [ChatMessage(role="user", content="identical")]
     reviewer._call_backend(msgs, kind="identify")
     reviewer._call_backend(msgs, kind="rereview")
@@ -306,6 +367,7 @@ def test_a_restart_replays_the_same_logical_call_onto_the_same_route_id(repo_roo
     for _ in range(2):  # two processes, two contexts, one claim
         ctx = _ctx(repo_root)
         _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
+                  independence_against=_BASELINE,
                   route_context=ctx)._call_backend(msgs, kind="identify")
     assert len(set(seen)) == 1 and ctx.calls_used() == 1
 
@@ -323,7 +385,7 @@ def test_an_in_process_repeat_is_a_new_logical_call(repo_root, monkeypatch):
     _patch_router(monkeypatch, _fake)
     ctx = _ctx(repo_root)
     reviewer = _reviewer(repo_root, profile="independent_review", fallback_profile="deep_review",
-                         route_context=ctx)
+                         independence_against=_BASELINE, route_context=ctx)
     msgs = [ChatMessage(role="user", content="review this")]
     reviewer._call_backend(msgs, kind="identify")
     reviewer._call_backend(msgs, kind="identify")

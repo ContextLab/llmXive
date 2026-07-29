@@ -20,7 +20,13 @@ from llmxive.model_selection.attempt_hooks import (
     RouteAuditError,
 )
 from llmxive.self_improvement.call_ledger import LaneCallCeilingExceeded, LaneCallLedger
-from llmxive.self_improvement.events import Event, derive_event_id
+from llmxive.self_improvement.events import (
+    REROUTE_FALLBACK_PROFILE,
+    REROUTE_PRIMARY_PROFILE,
+    REROUTE_RELAXED_CONSTRAINTS,
+    Event,
+    derive_event_id,
+)
 from llmxive.self_improvement.lane_log import (
     LaneContention,
     LaneLogConfig,
@@ -31,10 +37,9 @@ from llmxive.self_improvement.lane_log import (
 #: Policy Contract line 312: the implementer regenerates at most once.
 IMPL_REGEN_RETRIES = 1
 
-#: FR-002's one sanctioned reroute, mirrored from the event validator that enforces it.
-_PRIMARY_PROFILE = "independent_review"
-_FALLBACK_PROFILE = "deep_review"
-_RELAXED_CONSTRAINTS = ["family_independence", "snapshot_freshness"]
+# FR-002's one sanctioned reroute comes from `events`, which also ENFORCES it at the write
+# boundary. Redefining the values here is how a reviewer ends up executing one profile pair
+# while durably recording another — the validator only ever sees what this module wrote.
 
 
 def proposal_call_ceiling(panel_size: int, max_rounds: int) -> int:
@@ -156,10 +161,11 @@ class LaneRouteContext:
             event_type="ReviewRerouted", problem_id=self.problem_id, actor=self.actor,
             payload={
                 "operation_id": operation_id, "lens": lens,
-                "primary_profile": _PRIMARY_PROFILE, "fallback_profile": _FALLBACK_PROFILE,
+                "primary_profile": REROUTE_PRIMARY_PROFILE,
+                "fallback_profile": REROUTE_FALLBACK_PROFILE,
                 "primary_route_id": primary_route_id, "fallback_route_id": fallback_route_id,
                 "primary_failure": {"exception_type": exception_type, "message": message},
-                "relaxed_constraints": list(_RELAXED_CONSTRAINTS),
+                "relaxed_constraints": list(REROUTE_RELAXED_CONSTRAINTS),
             },
             timestamp=self.clock(), attempt_id=self.attempt_id,
         )

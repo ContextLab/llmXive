@@ -149,6 +149,105 @@
     },
     {
       "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 26,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 140,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 155,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 162,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 181,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 209,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 241,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 258,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "model_id_literal",
+      "line": 282,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
       "file": "tests/integration/test_model_selection_execute.py",
       "kind": "module_constant",
       "line": 46,
@@ -3276,6 +3375,30 @@
       ],
       "owning_slice": null,
       "symbol": "replies"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_router_lane_plumbing.py",
+      "kind": "module_constant",
+      "line": 19,
+      "models": [
+        "gemma-4",
+        "gpt-oss",
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_ALL_FAMILIES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_router_lane_plumbing.py",
+      "kind": "model_id_literal",
+      "line": 103,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
     },
     {
       "category": "test_double",

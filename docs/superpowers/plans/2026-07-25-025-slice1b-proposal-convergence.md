@@ -897,6 +897,9 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T3): plumb indepen
     3. on `ModelUnavailable` **and** `self._fallback_profile is not None` → `fallback_route_id = ctx.claim_route(operation_id=operation_id, leg="fallback")`; **then `ctx.record_reroute(...)` BEFORE the fallback dispatch** (F4 — a `RouteAuditError` from the record is deliberately NOT caught, so a reroute that cannot be made durable stops the review instead of producing one that claims independence it lacked); attempt 2 = same call with `profile=self._fallback_profile`, **no** `independence_against`, and `reraise_model_unavailable=False` (a fallback that ALSO finds nothing is a genuine outage → `BackendUnavailable` → the engine's clean-abort path, not a second degrade).
     - With `fallback_profile=None` (the future **patch** review's fail-closed binding), `reraise_model_unavailable` is `False`, so a `ModelUnavailable` converts to `BackendUnavailable` and the run aborts — no promotion. The same class serves both bindings.
   - The two legs share ONE `operation_id` and differ by `leg`, so the ledger charges both (the ceiling's `4N` term) while the `ReviewRerouted` `event_id` stays deterministic for an idempotent re-record.
+  - **`_validate_lane_configuration` runs in `__init__` (round-11 F1/F2).** `record_reroute` writes ONE hard-coded provenance and the event validator can only check what was written, never what actually ran — so a reviewer built with `profile="deep_review", fallback_profile="vision"` would execute that pair and durably assert the sanctioned one, undetectably. Exactly three configurations are accepted: **proposal** (`independent_review` + non-empty family baseline + `deep_review` fallback), **patch** (same, `fallback_profile=None`), and **non-lane** (no lane-only arguments at all). The baseline must name ≥1 family because `independent_review` requires a family DIFFERENCE — an empty baseline is satisfied by any model, voiding FR-002. Lane-only arguments without a `route_context` are refused rather than silently ignored. A later stage that reroutes differently must extend `record_reroute` AND the event validator AND this check together.
+  - **The sanctioned profile/trigger/relaxed-constraint values are PUBLIC in `events.py`** (`REROUTE_PRIMARY_PROFILE`, `REROUTE_FALLBACK_PROFILE`, `REROUTE_TRIGGER`, `REROUTE_RELAXED_CONSTRAINTS`) and imported by both `route_context.record_reroute` (what gets written) and this check (what executes). They were previously defined twice — which is precisely the mechanism by which the two could drift apart.
+  - **`_operation_id` digests via `model_selection.route.messages_digest`** (promoted from `_messages_digest`), the same canonical projection used for `prompt_digest`. A local `json.dumps(..., default=str)` works for today's text-only lane prompts but falls back to object repr for multimodal `content` — making a durable route identity depend on a dataclass's string form, or embedding raw bytes in it.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -2266,7 +2269,8 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "feat(025 slice-1B T7): self_improvem
     - `RouteAuditError` → `failed_closed=True, failure_kind="audit_fatal"`. **Why here:** the engine's `_abort_provenance` (`engine.py:433-448`) catches ONLY `BackendUnavailable`/`TransientBackendError`, so these lane errors would otherwise propagate raw with no provenance. Per FR-033a an audit-abort is a failed logical call — NOT a `ModelUnavailable`, so it never triggers the reroute and never advances a candidate.
     - `RouteReplayError` → `failed_closed=True, failure_kind="replay"`. Per FR-033a's route-replay disposition: never rerouted, never chain-advanced, reservation stays `retained`, reconciled from durable dispatch state — and explicitly **never retried** as a transient error.
     - `LaneCallCeilingExceeded` → `failed_closed=True, failure_kind="ceiling"` (Policy Contract line 313).
-    - `BackendUnavailable`/`TransientBackendError` are **not** caught here — the engine already records them via `on_abort` and the run parks to resume, which is the existing clean-abort contract.
+    - `BackendUnavailable`/`TransientBackendError` are **not** caught here — they propagate as the existing clean abort, with the engine recording them via `on_abort`.
+      **They do NOT park this Attempt to resume (corrected — the earlier wording contradicted the Global Constraints).** "Park and resume next tick" is the NON-lane convergence contract; on the lane it is incompatible with the operation-id design. A resumed process re-derives the SAME operation ids, so `claim_route` returns the ORIGINAL `route_id`s and `claim_dispatch` correctly reports them as REPLAYS — the panel would not resume, it would refuse to dispatch. The postcondition is therefore explicit: **the clean abort ends the Attempt.** The outer lifecycle owner fails/terminates it, its reservations reconcile against the 026 ledger, and any later retry is a NEW Attempt with a NEW `attempt_id` and hence a disjoint route-id space (spec 025 line 220: "a crashed Attempt is a failed Attempt"). Task 8 need not catch these; it must document that.
   - The Attempt-lifecycle write (`proposal_verified` / `rejected` / `*_failed`) is deliberately NOT performed here — Slice 1A scoped Attempt-failure semantics out. This function reports the outcome; a later slice consumes it.
 
 - [ ] **Step 1: Write the failing test**
@@ -2344,8 +2348,10 @@ def test_ceiling_fails_closed(repo, monkeypatch):
     assert out.failed_closed and out.failure_kind == "ceiling"
 
 def test_backend_unavailable_is_not_swallowed(repo, monkeypatch):
-    # The engine already records + re-raises this clean abort; the lane must NOT convert
-    # it into a fail-closed outcome (the run parks and resumes next tick).
+    # The engine already records + re-raises this clean abort; the lane must NOT convert it
+    # into a fail-closed outcome. The abort ENDS this Attempt — it does not park it for a
+    # later tick, because a resumed process would re-derive the same operation ids and the
+    # dispatch gate would refuse them as replays. A retry is a NEW attempt_id.
     from llmxive.backends.base import BackendUnavailable
     with pytest.raises(BackendUnavailable):
         _run(repo, monkeypatch, BackendUnavailable("breaker open"))
@@ -2811,21 +2817,31 @@ def test_with_paid_opt_in_OFF_no_paid_candidate_ever_dispatches(repo, monkeypatc
     # A budget large enough that ONLY the opt-in can be what blocks a reservation.
     ctx, authority = _paid_ctx(repo, budget=1000.0)
 
-    outcome = run_proposal_review(
-        backend=_ScriptedPanelBackend(), repo_root=_repo_root_with_prompts(),
-        proposer_baseline=IndependenceBaseline(), route_context=ctx,
-        artifacts={"proposal.md": "# Proposal"},
-    )
+    # CORRECTED (round-11 F4): with a paid-only chain and the opt-in OFF, selection finds
+    # nothing eligible for EVERY lens → ModelUnavailable → BackendUnavailable, which Task 8
+    # propagates as a clean abort. There is no outcome object to inspect; expecting one made
+    # the assertions below unreachable. Assert the exception, THEN the durable state — which
+    # is what actually proves the budget invariant.
+    # Note the baseline is non-empty: Task 4 refuses a lane reviewer whose baseline names no
+    # producer family, since independent_review needs something to differ FROM.
+    from llmxive.backends.base import BackendUnavailable
+
+    with pytest.raises(BackendUnavailable):
+        run_proposal_review(
+            backend=_ScriptedPanelBackend(), repo_root=_repo_root_with_prompts(),
+            proposer_baseline=IndependenceBaseline(families=frozenset({"qwen3.5"})),
+            route_context=ctx, artifacts={"proposal.md": "# Proposal"},
+        )
 
     events = read(repo, "P1", config=LaneLogConfig())
     assert not project_reservations(events, "A1"), "a paid reservation opened with opt-in OFF"
     assert not authority.admitted, "the Attempt authority admitted a reservation with opt-in OFF"
     assert not [e for e in events if e.event_type == "DispatchStarted"]
-    # every lens selected nothing → the engine's clean-abort path, not a silent success
-    assert outcome.result is None or not outcome.result.converged
 ```
 
 **Notes for the implementer:**
+- **A test that starves the panel must expect the EXCEPTION, not an outcome (round-11 F4).** `run_proposal_review` returns an outcome only when the panel actually ran. Anything that makes every lens fail to route — a paid-only chain with the opt-in off, a budget so tight the Attempt authority refuses every reservation, a ceiling exhausted mid-panel — ends in `ModelUnavailable` → `BackendUnavailable` (or `LaneCallCeilingExceeded`), which Task 8 propagates. Write those as `pytest.raises(...)` and then assert on the DURABLE events and reservations; that is what proves the budget invariant anyway, and it does not depend on a return value the API never promised. Assigning `outcome = run_proposal_review(...)` in such a test silently makes every assertion after it unreachable.
+- **Every lane reviewer needs a non-empty producer baseline.** `IndependenceBaseline()` is refused at construction (Task 4): `independent_review` requires a family DIFFERENCE, so an empty baseline would leave FR-002's independence satisfied by any model. Fixtures must pass real families.
 - `_paid_only_snapshot(paid_opt_in=True)` mirrors the paid-candidate fixtures in `tests/integration/test_model_selection_execute.py`. It MUST end with an in-fixture assertion of its own contract — `snap.credit.source == "live"` and `snap.credit.paid_opt_in is paid_opt_in`, and every candidate priced non-free — so a later edit cannot silently turn this into a test that passes by selecting nothing.
 - `_worst_case_envelope(snap, max_tokens)` computes one candidate's reserved envelope from the snapshot's own prices and the call budget, using the SAME helper `execute` uses. Do not hard-code a credit figure.
 - The reviewers whose reservation is refused skip/advance and ultimately surface as a clean abort — assert the invariants above, not a particular per-lens outcome, since the interleaving is genuinely nondeterministic.
@@ -2920,3 +2936,13 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T10): concurrent p
 | 1 | individual reservation AMOUNTS were unvalidated | **Slice 1A T7** `reserve()` rejects non-finite, `bool`, and `<= 0` amounts with `ValueError` (never `False` — that would read as a routine budget skip), and **T2** registers an `AttemptCreditReserved` payload validator so a persisted record carries the same guarantee. Tests: `-1/0/nan/±inf/True` each raise before any append and leave state + budget unchanged, plus a projection test pinning WHY (a negative amount lowers `counting_total` and hands back spent budget) |
 | 2 | `PATCH_LENSES` was not literally the spec's identifier | **Spec 025 amended to rev 16**: `safety/blast-radius` → `safety-blast-radius`, plus a new rule that lens names are path-safe machine identifiers (a lens name is a `ReviewSpec` reviewer name AND a prompt filename segment, so `/` would create a subdirectory). Amended rather than mapped — one identifier, nothing to drift |
 | — | found while verifying finding 1 | This plan's Global Constraints claimed "free candidates reserve 0, so the mechanism is inert". Wrong: `execute.py:403` gates the whole reservation path on `if not candidate.pricing.is_free:`, so the authority is never called at all for a free candidate. Corrected — and it is what makes the strictly-positive contract safe |
+
+## Round-11 review (Slice 1B Tasks 1-4, mid-implementation)
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | **High** — a lane reviewer could EXECUTE one profile pair while durably RECORDING the sanctioned one (`record_reroute` hard-codes the provenance; the event validator only ever sees what was written, so nothing downstream could detect it) | **T4** `_validate_lane_configuration` in `LLMReviewer.__init__` accepts exactly three configurations — proposal / patch / non-lane — and refuses everything else at construction. The sanctioned values became PUBLIC in `events.py` and are now imported by both `record_reroute` (what is written) and the check (what executes); they had been defined twice, which is the mechanism by which they could drift. Lane-only arguments without a `route_context` are refused rather than silently ignored |
+| 2 | **High** — an EMPTY producer-family baseline silently defeats FR-002 (`independent_review` requires a family difference; with nothing to differ from, any model satisfies it) | **T4** same check: a lane reviewer needs a baseline naming ≥1 family. **T7**'s builder inherits this by construction, and T10's fixtures were corrected — one of them passed `IndependenceBaseline()` |
+| 3 | **Medium** — the plan contradicted its own non-resumable-Attempt contract ("the run parks to resume next tick") | **T8 wording corrected.** A clean abort ENDS the Attempt; park-and-resume is the NON-lane contract. On the lane a resumed process re-derives the same operation ids, so `claim_dispatch` reports REPLAYS and the panel refuses to dispatch rather than resuming. The outer lifecycle owner fails the Attempt; a retry is a NEW `attempt_id` with a disjoint route-id space |
+| 4 | **Medium** — T10's paid-opt-out test assigned `outcome = run_proposal_review(...)` for a scenario that raises, making every later assertion unreachable | **T10 rewritten** to `pytest.raises(BackendUnavailable)` then assert the durable events/reservations — which is what proves the budget invariant anyway. A general implementer note now covers every starve-the-panel variant (tight budget, exhausted ceiling) |
+| 5 | **Low** — operation identity used `json.dumps(..., default=str)`, which falls back to object repr for multimodal content | **T4** digests via `model_selection.route.messages_digest`, promoted from `_messages_digest` — the canonical projection already used for `prompt_digest`, which hashes image bytes instead of relying on repr |

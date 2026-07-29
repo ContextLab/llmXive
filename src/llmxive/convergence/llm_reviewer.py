@@ -31,7 +31,6 @@ signal — no silent acceptance of a malformed review.
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
 import re
 import uuid
@@ -151,6 +150,72 @@ _EXTERNAL_FILENAME_OVERRIDES: dict[tuple[str, str], str] = {
     ("paper_review", "code_quality"): "paper_reviewer_code_quality_paper.md",
     ("paper_review", "data_quality"): "paper_reviewer_data_quality_paper.md",
 }
+
+
+def _validate_lane_configuration(
+    *, profile: str, route_context: Any, independence_against: Any, fallback_profile: str | None
+) -> None:
+    """Reject any lane configuration whose EXECUTION would not match what gets RECORDED.
+
+    ``record_reroute`` writes one hard-coded provenance — ``independent_review`` →
+    ``deep_review``, relaxing family independence and snapshot freshness — and the event
+    validator can only check what was written, never what actually ran. So a reviewer built
+    with, say, ``profile="deep_review", fallback_profile="vision"`` would execute that pair
+    and durably assert the sanctioned one. Nothing downstream could detect it. The only
+    defense is refusing the configuration at construction.
+
+    Three configurations are valid:
+
+    - **proposal**: ``independent_review`` + a non-empty family baseline + the
+      ``deep_review`` fallback;
+    - **patch**: ``independent_review`` + a non-empty family baseline + NO fallback (fail
+      closed — the pre-merge gate never degrades);
+    - **non-lane**: no lane-only arguments at all.
+
+    The baseline must name at least one family because ``independent_review`` requires a
+    family DIFFERENCE: with an empty baseline there is nothing to differ from, so the
+    profile's constraint is satisfied by any model and FR-002's independence guarantee is
+    silently void.
+
+    A later stage that reroutes differently must extend ``record_reroute`` AND the event
+    validator AND this check together — never just one of them.
+    """
+    from llmxive.self_improvement.events import (
+        REROUTE_FALLBACK_PROFILE,
+        REROUTE_PRIMARY_PROFILE,
+    )
+
+    if route_context is None:
+        # Silently ignoring these is how a lane reviewer gets built as a non-lane one: the
+        # independence constraint would simply never be applied.
+        offenders = [name for name, value in
+                     (("independence_against", independence_against),
+                      ("fallback_profile", fallback_profile)) if value is not None]
+        if offenders:
+            raise ValueError(
+                f"{', '.join(offenders)} requires a route_context — without one the lane "
+                "path never runs and these arguments are silently ignored"
+            )
+        return
+
+    if profile != REROUTE_PRIMARY_PROFILE:
+        raise ValueError(
+            f"a lane reviewer must use profile={REROUTE_PRIMARY_PROFILE!r}, got {profile!r} — "
+            f"the reroute record hard-codes that primary, so any other profile would execute "
+            f"one pair and durably record another"
+        )
+    if fallback_profile is not None and fallback_profile != REROUTE_FALLBACK_PROFILE:
+        raise ValueError(
+            f"the only sanctioned fallback is {REROUTE_FALLBACK_PROFILE!r}, got "
+            f"{fallback_profile!r} — record_reroute would assert a degradation that never "
+            f"happened"
+        )
+    if independence_against is None or not getattr(independence_against, "families", None):
+        raise ValueError(
+            "a lane reviewer needs an independence baseline naming at least one producer "
+            "family: independent_review requires a family DIFFERENCE, and an empty baseline "
+            "is satisfied by any model — FR-002's independence would be void"
+        )
 
 
 def _prompt_path_for(*, stage: str, lens: str, repo_root: Path) -> Path:
@@ -879,6 +944,10 @@ class LLMReviewer:
         self._route_context = route_context
         self._independence_against = independence_against
         self._fallback_profile = fallback_profile
+        _validate_lane_configuration(
+            profile=profile, route_context=route_context,
+            independence_against=independence_against, fallback_profile=fallback_profile,
+        )
         self._temperature = temperature
         # Spec 015: qwen3.5-122b is a *reasoning* model — its hidden
         # chain-of-thought tokens count against the response budget. The
@@ -1199,11 +1268,18 @@ class LLMReviewer:
         ceiling). The context's ``next_operation_id`` then disambiguates a legitimate
         in-process repeat — without it, a round that produced no artifact change could hand
         this lens a rereview prompt identical to the previous round's, and that second call
-        would be refused at the dispatch gate as a replay."""
-        payload = json.dumps([[m.role, m.content] for m in messages],
-                             sort_keys=True, default=str, ensure_ascii=False)
-        digest = hashlib.sha256(payload.encode()).hexdigest()[:16]
-        return self._route_context.next_operation_id(f"{self._lens}:{kind}:{digest}")
+        would be refused at the dispatch gate as a replay.
+
+        The digest comes from ``model_selection.route.messages_digest``, the canonical
+        projection already used for ``prompt_digest``. A local ``json.dumps(...,
+        default=str)`` works for today's text-only lane prompts but would silently fall back
+        to object repr for multimodal content — making a route identity depend on a
+        dataclass's string form, or embedding raw bytes in it."""
+        from llmxive.model_selection.route import messages_digest
+
+        return self._route_context.next_operation_id(
+            f"{self._lens}:{kind}:{messages_digest(messages)[:16]}"
+        )
 
     def _route_review(self, messages: list[ChatMessage], *, kind: str) -> str:
         """The lane path (spec 025 FR-002).
