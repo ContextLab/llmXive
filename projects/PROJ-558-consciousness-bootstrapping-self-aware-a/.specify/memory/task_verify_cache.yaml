@@ -1,45 +1,23 @@
-T001a:
+T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory tree (`projects/PROJ-558-consciousness-bootstrapping-self-aware-a/`
-    with the specified subfolders) was provided; without a listing or screenshots,
-    we cannot confirm the directories exist or are populated. The implementer must
-    supply proof that the full hierarchy has been created.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `__init__.py` files in `code`, `code/models`, `code/training`,\
-    \ `code/evaluation`, `code/analysis`, or `code/utils` was presented; without file\
-    \ listings or contents we cannot confirm they exist or are non\u2011empty. The\
-    \ implementer must provide the actual files (or a directory listing showing them)\
-    \ to satisfy the task."
+  h: 69bf39a16b0d6de5333d8f9066e4f18437a512ea7e01dae3df2b7047698007c6
+  r: "The required `data/raw/pile_arxiv_truncated.json` file does not exist, and the\
+    \ manifest entry contains a checksum of an empty file (the SHA\u2011256 of an\
+    \ empty string) rather than the real truncated dataset. Consequently the task\u2019\
+    s core output and its recorded checksum are missing."
 T004b:
   c: false
-  h: b2008390676a34e8c0dcdc9c890763e48bac97f2a09ca256c304f2323c17d895
+  h: 0d6ae283c16684c17ac1a4309f3d841cb8fb4d8e09891f9a5d5745b929163979
   r: "The required `data/raw/gsm8k.json` and `data/raw/mmlu.json` files are absent,\
-    \ and `data/manifest.json` contains placeholder checksums and zero sizes, indicating\
-    \ the datasets were never fetched or saved. The implementation does not meet the\
-    \ task\u2019s requirement."
-T005:
+    \ and there is no evidence that `data_loader.py` contains a function that actually\
+    \ downloads the datasets and writes those files (only a manifest entry exists).\
+    \ The task\u2019s core output \u2013 the saved evaluation datasets \u2013 is missing."
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `config.py` file or any code defining the required hyperparameters (seed,\
-    \ batch size, recursion depth\u202F=\u202F2, learning rate, token_limit\u202F\
-    =\u202F100000) and CPU\u2011only enforcement is present in the provided evidence.\
-    \ Consequently the task\u2019s deliverable is missing."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `ModelCheckpoint` dataclass was found in `code/models/` and no `EvaluationResult`
-    dataclass was found in `code/evaluation/`; the required files are missing entirely.
-    The task therefore remains unfinished.
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `loss_functions.py` file or its contents were presented, and there is no\
-    \ evidence that a joint loss (cross\u2011entropy plus the required confidence\u2011\
-    prediction proxy based on internal generation and majority\u2011vote correctness)\
-    \ has been implemented. The required artifact is missing, so the task is not satisfied."
+  r: "No evidence of a modified `train.py` was presented\u2014no code showing recursion\u2011\
+    depth checks, OOM handling, error logging, or a non\u2011zero exit on violation.\
+    \ The required validation and hard\u2011fail behavior are therefore missing."
 T025:
   c: false
   h: 87b85cdfbf4856064acab8650a3417ed879514dde6bac0ab9d5c872c8783a65b
@@ -48,18 +26,15 @@ T025:
     \ but no function that sweeps the thresholds {0.4,\u202F0.5,\u202F0.6}, computes\
     \ false\u2011positive/false\u2011negative rates, or writes the specified CSV columns.\
     \ The task\u2019s core functionality is therefore missing."
-T030:
-  c: false
-  h: 870b5645e1ebd800e22e61b682066fa9428c7a7de6861cf1a08d6d8c83c32098
-  r: "The repository contains a partially shown `metrics.py` with self\u2011consistency,\
-    \ ROC\u2011AUC, Brier score, etc., but no implementation of an `ErrorDetectionCalibration`\
-    \ routine that bins predictions, computes predicted vs. observed error rates,\
-    \ and writes them to `artifacts/results/error_detection_calibration.json`. Moreover,\
-    \ the required JSON file does not exist. The task\u2019s core functionality and\
-    \ output artifact are missing."
-T041:
+T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No validation output, logs, or confirmation that `quickstart.md` was executed
-    and all required artifacts were checked; the provided information contains only
-    the task description and no concrete evidence of the validation being performed.
+  r: No `docs/` files containing the new statistical report format or metric definitions
+    are present in the provided evidence; the required documentation updates are missing.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CI configuration, workflow file, or script output showing that `ruff check`
+    and `black --check` are executed on the `code/` directory, nor evidence that the
+    CI pipeline fails on lint/format errors, is present. The required artifact (CI
+    setup enforcing these checks) is missing.

@@ -1,3 +1,3 @@
 """
-Analysis package for the Consciousness Bootstrapping project.
+Analysis package containing statistical tests and report generation utilities.
 """

@@ -1,7 +1,10 @@
 """
-Linting and formatting check utilities for the project.
-Runs ruff and black checks on the codebase.
+Lint and format checking utilities for the Consciousness Bootstrapping project.
+
+This module provides functions to run ruff and black checks on the codebase.
+It is designed to be used in CI pipelines to ensure code quality.
 """
+
 import subprocess
 import sys
 import os
@@ -11,107 +14,103 @@ from utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def run_command(cmd: list, check: bool = True) -> subprocess.CompletedProcess:
+def run_command(command: list[str], check: bool = True) -> subprocess.CompletedProcess:
     """
     Run a shell command and return the result.
 
     Args:
-        cmd: Command and arguments as a list.
+        command: List of command arguments.
         check: If True, raise CalledProcessError on non-zero exit.
 
     Returns:
         CompletedProcess instance.
     """
-    logger.info(f"Running command: {' '.join(cmd)}")
+    logger.info(f"Running command: {' '.join(command)}")
     try:
         result = subprocess.run(
-            cmd,
-            check=check,
+            command,
             capture_output=True,
             text=True,
-            cwd=os.getcwd()
+            check=check
         )
         return result
     except subprocess.CalledProcessError as e:
         logger.error(f"Command failed with return code {e.returncode}")
-        logger.error(f"stdout: {e.stdout}")
-        logger.error(f"stderr: {e.stderr}")
+        if e.stdout:
+            logger.error(f"STDOUT:\n{e.stdout}")
+        if e.stderr:
+            logger.error(f"STDERR:\n{e.stderr}")
         raise
 
 
-def check_ruff() -> bool:
+def check_ruff(code_dir: Path) -> bool:
     """
-    Run ruff check on the code/ directory.
+    Run ruff check on the specified directory.
+
+    Args:
+        code_dir: Path to the code directory to check.
 
     Returns:
         True if check passes, False otherwise.
     """
-    cmd = ["ruff", "check", "code/"]
+    logger.info(f"Running ruff check on {code_dir}")
     try:
-        result = run_command(cmd)
-        if result.returncode == 0:
-            logger.info("ruff check passed.")
-            return True
-        else:
-            logger.error("ruff check failed.")
-            if result.stdout:
-                logger.error(result.stdout)
-            if result.stderr:
-                logger.error(result.stderr)
-            return False
-    except FileNotFoundError:
-        logger.error("ruff not found. Please install it: pip install ruff")
-        return False
-    except Exception as e:
-        logger.error(f"Error running ruff: {e}")
+        # Run ruff check with exit code 1 on errors
+        run_command(["ruff", "check", str(code_dir)], check=True)
+        logger.info("ruff check passed")
+        return True
+    except subprocess.CalledProcessError:
+        logger.error("ruff check failed")
         return False
 
 
-def check_black() -> bool:
+def check_black(code_dir: Path) -> bool:
     """
-    Run black --check on the code/ directory.
+    Run black --check on the specified directory.
+
+    Args:
+        code_dir: Path to the code directory to check.
 
     Returns:
         True if check passes, False otherwise.
     """
-    cmd = ["black", "--check", "code/"]
+    logger.info(f"Running black --check on {code_dir}")
     try:
-        result = run_command(cmd)
-        if result.returncode == 0:
-            logger.info("black check passed.")
-            return True
-        else:
-            logger.error("black check failed.")
-            if result.stdout:
-                logger.error(result.stdout)
-            if result.stderr:
-                logger.error(result.stderr)
-            return False
-    except FileNotFoundError:
-        logger.error("black not found. Please install it: pip install black")
-        return False
-    except Exception as e:
-        logger.error(f"Error running black: {e}")
+        # Run black --check (does not modify files, exits 1 if formatting needed)
+        run_command(["black", "--check", str(code_dir)], check=True)
+        logger.info("black --check passed")
+        return True
+    except subprocess.CalledProcessError:
+        logger.error("black --check failed")
         return False
 
 
-def main():
+def main() -> int:
     """
-    Main entry point for lint and format checks.
-    Exits with non-zero code if any check fails.
+    Main entry point for lint checking.
+
+    Runs ruff and black checks on the code/ directory.
+    Returns 0 if all checks pass, 1 otherwise.
     """
-    logger.info("Starting lint and format checks...")
+    project_root = Path(__file__).parent.parent
+    code_dir = project_root / "code"
 
-    ruff_ok = check_ruff()
-    black_ok = check_black()
+    if not code_dir.exists():
+        logger.error(f"Code directory not found: {code_dir}")
+        return 1
 
-    if ruff_ok and black_ok:
-        logger.info("All checks passed.")
-        sys.exit(0)
+    logger.info(f"Starting lint checks on {code_dir}")
+
+    ruff_passed = check_ruff(code_dir)
+    black_passed = check_black(code_dir)
+
+    if ruff_passed and black_passed:
+        logger.info("All lint checks passed")
+        return 0
     else:
-        logger.error("Some checks failed. Please fix the issues.")
-        sys.exit(1)
+        logger.error("One or more lint checks failed")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

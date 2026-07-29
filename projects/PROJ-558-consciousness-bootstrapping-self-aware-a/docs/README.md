@@ -1,203 +1,73 @@
-# Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection
+# Documentation: Consciousness Bootstrapping Project
+
+Welcome to the documentation for the `PROJ-558-consciousness-bootstrapping`
+project. This repository contains the implementation of a self-referential
+AI model designed to bootstrap meta-cognitive awareness through recursive
+introspection.
+
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Architecture](#architecture)
+3. [Metrics Reference](#metrics-reference)
+4. [Statistical Report Schema](#statistical-report-schema)
+5. [Running the Pipeline](#running-the-pipeline)
 
 ## Project Overview
 
-This project investigates whether recursive self-modeling in language models can lead to emergent self-awareness. We implement a TinyLlama-based model with temporal recursive self-attention and train it on a sampled Pile subset to produce recursive and baseline checkpoints.
+This project investigates whether recursive self-modeling can lead to emergent
+self-awareness in small language models. By training a model to predict its own
+confidence and correctness via internal consistency checks, we aim to measure
+improvements in calibration and error detection.
 
-The project measures self-consistency, error detection, and uncertainty calibration to evaluate meta-cognitive capabilities.
+## Architecture
 
-## Repository Structure
+The pipeline consists of three main phases:
+1. **Training**: Generates both baseline and recursive checkpoints using the
+ `code/training/train.py` script.
+2. **Evaluation**: Runs benchmarks (GSM8K, MMLU) to generate reasoning paths
+ and compute meta-cognitive metrics (`code/evaluation/run_benchmarks.py`).
+3. **Analysis**: Performs statistical testing and sensitivity analysis to
+ validate significance (`code/analysis/stats.py`).
 
-```
-projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
-├── code/
-│ ├── __init__.py
-│ ├── config.py
-│ ├── data_loader.py
-│ ├── analysis/
-│ │ ├── __init__.py
-│ │ └── stats.py
-│ ├── evaluation/
-│ │ ├── __init__.py
-│ │ ├── loss_functions.py
-│ │ ├── metrics.py
-│ │ ├── results.py
-│ │ └── run_benchmarks.py
-│ ├── models/
-│ │ ├── __init__.py
-│ │ ├── base_llama.py
-│ │ ├── checkpoint.py
-│ │ └── recursive_llama.py
-│ ├── training/
-│ │ ├── __init__.py
-│ │ └── train.py
-│ └── utils/
-│ ├── __init__.py
-│ └── logging.py
-├── data/
-│ ├── raw/
-│ │ ├── pile_arxiv_truncated.json
-│ │ ├── gsm8k.json
-│ │ └── mmlu.json
-│ └── manifest.json
-├── artifacts/
-│ └── results/
-│ ├── evaluation_results_recursive_seed_*.json
-│ ├── evaluation_results_baseline_seed_*.json
-│ ├── statistical_report.json
-│ └── sensitivity_analysis.csv
-├── tests/
-│ ├── unit/
-│ │ ├── models/
-│ │ │ └── test_recursive_attention.py
-│ │ ├── training/
-│ │ │ └── test_loss_functions.py
-│ │ ├── evaluation/
-│ │ │ └── test_metrics.py
-│ │ └── analysis/
-│ │ └── test_stats.py
-│ └── __init__.py
-├── docs/
-│ ├── README.md
-│ └── statistical_report_format.md
-├── requirements.txt
-└── pyproject.toml
-```
+## Metrics Reference
 
-## Quick Start
+Detailed definitions of all computed metrics can be found in:
+- [`metrics_reference.md`](metrics_reference.md): Covers Self-Consistency,
+ Calibration (Brier, ECE, ROC-AUC), and Statistical Significance.
 
-### Prerequisites
+## Statistical Report Schema
 
-- Python 3.11+
-- CPU-only execution (GPU not supported)
+The format and field definitions for the final statistical report are documented in:
+- [`statistical_report_schema.md`](statistical_report_schema.md)
 
-### Installation
+## Running the Pipeline
 
+Ensure all dependencies are installed:
 ```bash
 pip install -r requirements.txt
 ```
 
-### Data Preparation
-
-Run the data loader to fetch required datasets:
-
+### 1. Data Preparation
 ```bash
 python code/data_loader.py
 ```
 
-This will download:
-- Pile ArXiv subset (training data)
-- GSM8K (evaluation data)
-- MMLU (evaluation data)
-
-### Training
-
-Train both recursive and baseline models:
-
+### 2. Training
 ```bash
-python code/training/train.py
+python code/training/train.py --config code/config.py
 ```
 
-This produces checkpoints for both model types across multiple seeds.
-
-### Evaluation
-
-Run benchmarks on trained models:
-
+### 3. Evaluation
 ```bash
-python code/evaluation/run_benchmarks.py
+python code/evaluation/run_benchmarks.py --checkpoint artifacts/checkpoints/recursive.pt
 ```
 
-This generates evaluation results for self-consistency, calibration, and error detection.
-
-### Statistical Analysis
-
-Generate the statistical report:
-
+### 4. Analysis
 ```bash
-python code/analysis/stats.py
+python code/analysis/stats.py --input data/evaluation_results/*.json
 ```
 
-This produces:
-- `artifacts/results/statistical_report.json`
-- `artifacts/results/sensitivity_analysis.csv`
+## License
 
-## Statistical Report Format
-
-See [`docs/statistical_report_format.md`](statistical_report_format.md) for the complete schema and field descriptions of the statistical report.
-
-The report includes:
-- Paired t-tests comparing recursive vs baseline models
-- Cohen's d effect sizes with 95% confidence intervals
-- Bonferroni-corrected p-values
-- Percentage differences in self-consistency scores
-- Sensitivity analysis across confidence thresholds {0.4, 0.5, 0.6}
-
-## User Stories
-
-### US1: Construct and Train Self-Referential Model (P1)
-
-Implement temporal recursive self-attention and train on Pile subset.
-
-**Artifacts**:
-- `code/models/recursive_llama.py`
-- `code/evaluation/loss_functions.py`
-- `code/training/train.py`
-
-### US2: Evaluate Meta-Cognitive Metrics (P2)
-
-Run benchmarks to measure self-consistency, error detection, and uncertainty calibration.
-
-**Artifacts**:
-- `code/evaluation/metrics.py`
-- `code/evaluation/run_benchmarks.py`
-
-### US3: Perform Statistical Analysis and Sensitivity Testing (P3)
-
-Perform paired t-tests and sensitivity analysis.
-
-**Artifacts**:
-- `code/analysis/stats.py`
-- `artifacts/results/statistical_report.json`
-- `artifacts/results/sensitivity_analysis.csv`
-
-## Testing
-
-Run unit tests:
-
-```bash
-pytest tests/
-```
-
-## Linting and Formatting
-
-Check code quality:
-
-```bash
-ruff check code/
-black --check code/
-```
-
-## Dependencies
-
-See `requirements.txt` for the full list of dependencies.
-
-Key packages:
-- `torch` (CPU-only)
-- `transformers`
-- `datasets`
-- `scikit-learn`
-- `scipy`
-
-## Limitations
-
-- CPU-only execution limits model size and training speed.
-- Limited seed count for statistical analysis.
-- Dataset truncation to 100,000 tokens for training.
-- Recursion depth capped at 2 to prevent OOM errors.
-
-## References
-
-- **spec.md**: Project specification with functional requirements and success criteria.
-- **plan.md**: High-level project plan and design decisions.
-- **research.md**: Research notes and philosophical considerations.
+This project is part of the llmXive research initiative.

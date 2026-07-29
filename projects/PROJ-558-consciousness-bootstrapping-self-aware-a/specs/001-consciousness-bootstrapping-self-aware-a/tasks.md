@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create directory structure: `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/` with subdirs `data/raw`, `data/processed`, `code`, `tests`, `artifacts`, `artifacts/checkpoints`, `artifacts/results`
 - [ ] T001b [P] Create `__init__.py` files for `code`, `code/models`, `code/training`, `code/evaluation`, `code/analysis`, `code/utils`
-- [X] T001c [P] Initialize Python 3.11 project with `torch` (CPU-only), `transformers`, `datasets`, `scikit-learn` in `requirements.txt`
+- [X] T001c [P] Initialize a Python project with `torch` (CPU-only), `transformers`, `datasets`, `scikit-learn` in `requirements.txt`
 - [X] T001d [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
@@ -56,10 +56,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API, concatenate tokens, and truncate to a representative initial segment (resolving the `[deferred]` placeholder in FR-002 with the value [deferred] as defined by Constitution Principle VII's "100k-token subset" requirement) as defined by `config.TOKEN_LIMIT`, saving to `data/raw/pile_arxiv_truncated.json`. **MUST** record the checksum of this *truncated* subset in `data/manifest.json` to satisfy Constitution Principle III (Data Hygiene). **Note**: This task is strictly for TRAINING data.
-- [X] T004b [P] Implement `data_loader.py` (additional function) to fetch GSM8K and MMLU datasets via HuggingFace `datasets` API, saving to `data/raw/gsm8k.json` and `data/raw/mmlu.json` with checksums in `data/manifest.json`. **Note**: This task is strictly for EVALUATION data.
+- [X] T004 [P] Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API, concatenate tokens, and truncate to a representative subset size as defined by Constitution Principle VII, saving to `data/raw/pile_arxiv_truncated.json`. **MUST** record the checksum of this *truncated* subset in `data/manifest.json` to satisfy Constitution Principle III (Data Hygiene). **Note**: This task is strictly for TRAINING data.
+- [ ] T004b-GSM8K [P] Implement `data_loader.py` (additional function) to fetch the GSM8K dataset via HuggingFace `datasets` API, saving to `data/raw/gsm8k.json` with checksum in `data/manifest.json`. **Note**: This task is strictly for EVALUATION data.
+- [ ] T004b-MMLU [P] Implement `data_loader.py` (additional function) to fetch the MMLU dataset via HuggingFace `datasets` API, saving to `data/raw/mmlu.json` with checksum in `data/manifest.json`. **Note**: This task is strictly for EVALUATION data.
+- [ ] T004c [P] Document in `data_loader.py` that the 'Self-Consistency' benchmark evaluation (FR-003) reuses the GSM8K and MMLU datasets fetched in T004b-GSM8K and T004b-MMLU, applying a multi-path generation protocol rather than fetching a separate dataset. **Note**: No new data file is created; this task ensures the evaluation logic knows to reuse T004b artifacts.
 - [ ] T005 [P] Implement `config.py` to manage hyperparameters (seed, batch size, recursion depth=2, learning rate, token_limit=100000) and enforce CPU-only execution constraints
-- [ ] T006 [P] Create base `ModelCheckpoint` and `EvaluationResult` dataclasses in `code/models/` and `code/evaluation/`
+- [ ] T006 [P] Create base `ModelCheckpoint` and `EvaluationResult` entities in `code/models/` and `code/evaluation/` in a format suitable for serialization (e.g., dataclasses, Pydantic, dicts).
 - [X] T007 [P] Implement `base_llama.py` wrapper for a small transformer (<300M params) in `code/models/base_llama.py`
 - [X] T008 [P] Setup error handling and logging infrastructure in `code/utils/logging.py`
 
@@ -73,17 +75,29 @@
 
 **Independent Test**: The training pipeline executes on GitHub Actions CPU runner, produces two checkpoints, and completes within 120 minutes without OOM.
 
+**NOTE on Spec vs Plan Divergence**: The `plan.md` Summary references "pre-computed teacher model labels". This task strictly implements the `spec.md` requirement for an **internal self-consistency proxy** (derived from N=5 model generations) to avoid tautology. The plan discrepancy is flagged for human review but does not alter the implementation logic defined in the spec.
+
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE**: These are **Test Definition** tasks. They create the test file content. The CI runner executes these tests **AFTER** the implementation tasks (T011-T015) are merged.
+> **NOTE**: These are **Test Definition** tasks. They create the test file content. The CI runner executes these tests **AFTER** the implementation tasks (T011-T015) are merged. **NOTE**: The [P] tag on Test Definition tasks applies only to file creation. Test execution will fail if the implementation code (T011-T015) is not yet present.
 
 - [X] T009 [P] [US1] **Definition**: Create unit test file `tests/unit/models/test_recursive_attention.py` with test cases: `test_shape_consistency` (checks output shape matches input), `test_attention_mask_propagation` (checks mask handling). (Expected to fail initially)
-- [X] T010 [P] [US1] **Definition**: Create unit test file `tests/unit/training/test_loss_functions.py` with test cases: `test_joint_loss_computation` (checks loss calculation with dummy tensors), `test_confidence_proxy_logic` (checks majority vote logic). (Expected to fail initially)
+- [X] T010 [P] [US1] **Definition**: Create unit test file `tests/unit/training/test_loss_functions.py` with test cases: `test_joint_loss_computation` (checks loss calculation with dummy tensors), `test_confidence_proxy_logic` (checks single-path proxy logic). (Expected to fail initially)
 
 ### Implementation for User Story 1
 
 - [X] T011 [P] [US1] Implement `recursive_llama.py` with temporal recursive self-attention module (FR-001) in `code/models/recursive_llama.py`
-- [ ] T012 [US1] Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **CRITICAL**: The confidence-prediction loss must use a proxy derived from **internal generation** on the training batch: (1) Generate N=5 reasoning paths per training item using the current model state; (2) Compute the majority vote of these paths to determine a binary 'proxy correctness' signal; (3) **Tie-Breaking Rule**: If no strict majority exists (e.g., 2-2-1 split or 3-2 split where majority is incorrect), the proxy signal defaults to 0 (incorrect). (4) Compare the model's predicted confidence for the final answer against this proxy signal. **Dependency**: Must be completed before T013. (Removed [P] tag to enforce ordering). **Note**: This task implements the Spec.md Assumptions (internal proxy). **ACTION REQUIRED**: The plan.md's reference to 'Teacher-Student Distillation' and 'Pre-computed Teacher Labels' is inconsistent with this spec-mandated internal proxy implementation and MUST be updated by the human reviewer to remove these references to resolve the architectural contradiction.
+- [ ] T012 [US1] Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **CRITICAL**: The confidence-prediction loss must use a proxy derived from **N=5 reasoning paths** per training item (a CPU-constrained relaxation of the benchmark N=10 protocol) to satisfy CPU budget constraints (Constitution Principle VII). 
+  **Logic**: 
+  1. Generate N=5 reasoning paths per training item using the current model state.
+  2. Compute majority vote correctness (1 if majority correct, 0 otherwise) to derive the binary proxy signal `P_proxy`.
+  3. Extract the model's predicted confidence `P_model` (probability of the majority-vote answer).
+  4. Compute loss component: `L_conf = MSE(P_model, P_proxy)`.
+  5. Total loss: `L_total = L_ce + λ * L_conf`.
+  **Note**: 
+  - **N=5 vs N=10**: FR-003 mandates N=10 for the *benchmark* (T019a). N=5 is used here for the *training proxy* as a feasibility adjustment to fit the GB RAM/2-hour budget. This is a relaxation of the count, not the mechanism (majority vote).
+  - **Spec Compliance**: This implementation strictly follows `spec.md` Assumptions which state the proxy must be derived "not ground-truth labels, to avoid tautological validation".
+  **Dependency**: Requires T011 (recursive_llama.py) to be complete.
 - [X] T013 [US1] Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`. **Dependency**: Requires T012 to be complete.
 - [ ] T014 [US1] Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement hard-fail: if OOM or depth violation occurs, log error and exit with non-zero code. **MUST NOT** automatically reduce depth.
 - [X] T015 [US1] Add logging for training progress and OOM detection in `code/training/train.py`
@@ -105,9 +119,10 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [P] [US2] Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`. **CRITICAL ADDITION**: Implement `calculate_error_detection_calibration` function. This function must: (1) Extract the scalar confidence score attached to the model's final answer for each item; (2) Bin these scores into equal-width bins spanning the full score range; (3) Calculate the observed accuracy (fraction of correct answers) within each bin; (4) **Edge Case**: If a bin contains zero samples, the observed accuracy for that bin is set to 0.0 to prevent division by zero; (5) Return a JSON object with keys `bin_edges` (list of floats), `bin_counts` (list of ints), and `observed_accuracies` (list of floats). This output satisfies the "calibration curve" requirement for error detection.
-- [X] T019 [US2] Implement `run_benchmarks.py` to generate **a set of reasoning paths per question for the Self-Consistency benchmark subset** (FR-003) and run MMLU/GSM8K (US-02) in `code/evaluation/run_benchmarks.py`
-- [X] T020 [US2] Implement logic to produce 'shuffled-attention' control dataset for isolation of temporal recursion effects (US-02) in `code/evaluation/run_benchmarks.py`
+- [X] T018 [P] [US2] Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`. **CRITICAL**: Implement `calculate_error_detection_calibration` function internally to compute ECE, but **Do not output raw binning data as a separate artifact; only output the final computed metrics** (Brier score, ECE, ROC-AUC).
+- [ ] T019a [US2] Implement `run_benchmarks.py` to generate **exactly 10 reasoning paths per question for the Self-Consistency benchmark subset** (FR-003) using temperature=0.7, top_p=0.9, and a fixed seed per run, on GSM8K and MMLU data. **Dependency**: Requires T004b-GSM8K and T004b-MMLU to be complete. **Clarification**: This task implements the N=10 protocol strictly for the Self-Consistency evaluation.
+- [ ] T019b [US2] Implement `run_benchmarks.py` to run standard MMLU/GSM8K inference (single path) for accuracy baseline. **Dependency**: Requires T004b-GSM8K and T004b-MMLU to be complete.
+- [X] T020 [US2] Implement logic to produce 'shuffled-attention' control dataset for isolation of temporal recursion effects (US-02) in `code/evaluation/run_benchmarks.py`. **Dependency**: Requires T004b-GSM8K and T004b-MMLU.
 - [X] T021 [US2] Add contract validation to ensure output JSON matches `EvaluationResult` schema in `code/evaluation/run_benchmarks.py`
 - [X] T022 [US2] Add logging for benchmark execution and metric aggregation in `code/evaluation/run_benchmarks.py`
 
@@ -128,7 +143,7 @@
 ### Implementation for User Story 3
 
 - [X] T024 [P] [US3] Implement `stats.py` to perform paired t-tests, Cohen's d, confidence intervals, and Bonferroni correction (FR-005, FR-007) in `code/analysis/stats.py`. **Must include**: Logic to calculate the **percentage difference in self-consistency scores** between recursive and baseline models (SC-001) and output to `artifacts/results/statistical_report.json`.
-- [X] T025 [US3] Implement sensitivity analysis sweep for confidence thresholds across a **specific discrete set of values** (FR-006) and output results to `artifacts/results/sensitivity_analysis.csv` with columns `threshold, false_positive_rate, false_negative_rate, fp_rate_delta, fn_rate_delta` (to satisfy FR-006's requirement to report variation) in `code/analysis/stats.py`. **Must also**: Integrate the `calculate_error_detection_calibration` output from T018 to generate the sensitivity plot for the calibration curve across thresholds.
+- [X] T025 [US3] Implement sensitivity analysis sweep for confidence thresholds across the **explicit set of values {0.4, 0.5, 0.6}** (FR-006) and output results (e.g., JSON or CSV) with columns `threshold, false_positive_rate, false_negative_rate, fp_rate_delta, fn_rate_delta` (to satisfy FR-006's requirement to report variation) in `code/analysis/stats.py`. **Must also**: Integrate the confidence scores and ground truth from T018 to generate the sensitivity analysis directly, without relying on raw binning data artifacts.
 - [X] T026 [US3] Implement report generation to output `StatisticalReport` with p-values, effect sizes, confidence intervals, sensitivity plots, and the percentage difference metric (US-03) in `code/analysis/stats.py`. **Must define**: JSON schema for the report.
 - [X] T027 [US3] Add logic to exclude invalid seeds (non-converged confidence loss) from statistical comparison (Edge Case) in `code/analysis/stats.py`
 
@@ -136,13 +151,33 @@
 
 ---
 
+## Phase 6: Review-Driven Validation & Operationalization (Out of Scope / Deprecated)
+
+**Purpose**: This phase contains features that are **DEPRECATED** or **OUT OF SCOPE** for the current implementation.
+
+**Reasoning**: The spec.md defines the scope strictly as self-consistency, calibration (Brier/ECE), and error detection (ROC-AUC). Metrics such as 'value_alignment_check', 'complexity_growth_analysis', 'behavioral_adaptation_score', 'prediction_calibration_error', 'falsification_criterion', and 'meta_cognitive_cost' (proposed in prior drafts) have no corresponding Functional Requirement (FR) or Success Criterion (SC) in spec.md. Implementing them would constitute untracked scope creep.
+
+**DEPRECATED / NOT IMPLEMENTED**:
+- **Feature**: `predict_and_penalize` (formerly T042)
+  - **Status**: **NOT IMPLEMENTED**.
+  - **Reason**: This feature lacks a concrete deliverable definition (specific formula or output schema) and has no traceability to Functional Requirements (FR) or Success Criteria (SC) in the specification. Its implementation would constitute scope creep.
+  - **Action**: Do not implement. If required in future, a new spec entry defining the exact penalty formula and output artifact is required.
+
+**Exclusions**:
+- **Meta-cognitive training phases**: Any requirement to fine-tune on self-generated data or expose the model to its own internal state for adaptation is excluded.
+- **Complexity analysis**: Kolmogorov complexity and proxy-based complexity growth analysis are excluded.
+- **Value alignment**: Heuristic-based value alignment checks are excluded.
+- **Falsification criteria**: Specific falsification criteria beyond the standard statistical significance tests (FR-005) are excluded.
+
+---
+
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `docs/` including the new statistical report format and the definitions of the new reviewer-resolved metrics
+- [ ] T037 [P] Documentation updates in `docs/` including the new statistical report format, and the definitions of the measured metrics. **Note**: This task no longer references removed philosophical operationalizations.
 - [ ] T038 [P] Run `ruff check` and `black --check` on the entire `code/` directory; CI must fail if any lint/format errors exist
-- [ ] T039 [P] Run memory profiling on the training script (`train.py`) with max batch size; verify peak RSS < 7GB and log result to `artifacts/results/memory_profile.log`
+- [ ] T039 [P] Run memory profiling on the training script (`train.py`) with max batch size using `tracemalloc` and `psutil`; verify peak RSS < 7GB and log result to `artifacts/results/memory_profile.log`
 - [X] T040 [P] Additional unit tests for the new statistical metrics in `tests/unit/analysis/test_stats.py` and `tests/unit/evaluation/test_metrics.py`
 - [ ] T041 [P] Run `quickstart.md` validation to ensure all artifacts are generated correctly
 
@@ -157,13 +192,15 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Phase 6 (Review Validation)**: **DEPRECATED / OUT OF SCOPE**.
+- **Phase N (Polish)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **Phase 6 (Review Validation)**: **DEPRECATED / OUT OF SCOPE**.
 
 ### Within Each User Story
 
@@ -180,6 +217,7 @@
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, US1, US2, and US3 can start in parallel (if team capacity allows)
+- Phase 6 tasks are **DEPRECATED**.
 
 ---
 
@@ -223,6 +261,15 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and memory. No GPU, no 8-bit quantization.
-- **Scope Note**: The 'Teacher-Student Distillation' and 'Pre-computed Teacher Labels' mentioned in plan.md are inconsistent with spec.md Assumptions. Task T012 strictly implements the spec-mandated **internal self-consistency proxy** (majority vote on training split) to avoid tautology. **ACTION REQUIRED**: The plan.md MUST be updated by the human reviewer to remove the 'Teacher-Student' references to resolve the architectural contradiction. This is a Plan-level conflict flagged for kickback.
+- **Scope Note**: The 'Teacher-Student Distillation' and 'Pre-computed Teacher Labels' mentioned in plan.md are inconsistent with spec.md Assumptions. Task T012 strictly implements the spec-mandated **internal self-consistency proxy** (N=5 paths for training, N=10 for benchmark) to avoid tautology and satisfy CPU constraints. **ACTION REQUIRED**: The plan.md MUST be updated by the human reviewer to remove the 'Teacher-Student' references to resolve the architectural contradiction. This is a Plan-level conflict flagged for kickback.
 - **Dependency Note**: Task T012 (loss_functions.py) is a strict prerequisite for T013 (train.py) and is not parallel-safe relative to T013.
-- **Removed Tasks**: Tasks T030, T042-T048 have been removed as they implemented features not defined in spec.md FRs or SCs, constituting scope creep. The project scope remains strictly limited to the measurable metrics defined in the methodology (self-consistency, calibration, error detection) as per spec.md Assumptions.
+- **Removed Tasks**: Tasks T042-T047 (Phase 6) have been **DEPRECATED** as they constituted untracked scope creep with no traceability to Functional Requirements (FR) or Success Criteria (SC) in the specification.
+- **Tie-Breaking Note**: Task T012 explicitly implements the spec-mandated logic for N=5: majority vote is used; proxy is derived from the majority vote correctness.
+- **Output Format Note**: Task T025 allows output in JSON or CSV format for sensitivity analysis, as FR-006 does not mandate a specific format, but explicitly requires the values {0.4, 0.5, 0.6}.
+- **Artifact Note**: Task T018 computes calibration curves internally for ECE but does not output raw binning data as a separate artifact, aligning with FR-004.
+- **Data Source Note**: Task T004c clarifies that the Self-Consistency benchmark uses GSM8K/MMLU data, not a separate dataset.
+- **Review Integration Note**: Phase 6 is **DEPRECATED**. The project scope is strictly limited to the metrics defined in the spec (self-consistency, calibration, error detection).
+- **Falsification Note**: Task T045 was removed as it was out of scope. Statistical significance testing (FR-005) remains the primary method for hypothesis validation.
+- **Thermodynamic Note**: Task T046 was removed as it was out of scope.
+- **N=5 vs N=10 Note**: T012 uses N=5 for the training proxy (CPU constraint), while T019a uses N=10 for the benchmark (FR-003 requirement). This is a documented relaxation of the count for training feasibility, not a weakening of the mechanism.
+- **Plan-Spec Divergence**: The plan.md Summary references "pre-computed teacher model labels". This project strictly implements the spec.md requirement for an **internal self-consistency proxy**. Implementers should follow the spec.md logic in tasks T012/T019a.

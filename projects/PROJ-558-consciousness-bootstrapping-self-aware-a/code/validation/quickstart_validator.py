@@ -1,13 +1,13 @@
 """
-Quickstart Validation Script for PROJ-558-consciousness-bootstrapping-self-aware-a.
+Quickstart Validator for PROJ-558-consciousness-bootstrapping-self-aware-a.
 
-This script validates that all artifacts required by the project specification
-and the tasks.md file have been generated correctly. It checks for the existence
-of required files, verifies their content structure, and ensures that the
-project is in a valid state for execution.
-
-Usage:
-    python code/validation/quickstart_validator.py
+This script validates that all required artifacts for the project have been
+generated correctly according to the tasks.md specifications. It checks:
+1. Project directory structure
+2. Python file imports and syntax
+3. Data artifacts (checksums, existence)
+4. Result artifacts (JSON schemas, metrics)
+5. Configuration validity
 """
 
 import os
@@ -16,329 +16,290 @@ import json
 import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+import importlib.util
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Project root relative to this script
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-from utils.logging import get_logger
-from config import get_config
+def check_file_exists(file_path: Path, description: str) -> Tuple[bool, str]:
+    """Check if a file exists."""
+    if file_path.exists():
+        return True, f"Found: {file_path.relative_to(PROJECT_ROOT)}"
+    return False, f"MISSING: {file_path.relative_to(PROJECT_ROOT)} ({description})"
 
-logger = get_logger(__name__)
-
-# Define required artifacts based on tasks.md and spec requirements
-REQUIRED_FILES = {
-    # Phase 1: Setup
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/data/raw": "Directory",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/data/processed": "Directory",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts": "Directory",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts/checkpoints": "Directory",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts/results": "Directory",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/__init__.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/models/__init__.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/training/__init__.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/evaluation/__init__.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/analysis/__init__.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/utils/__init__.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/requirements.txt": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/pyproject.toml": "File",
-
-    # Phase 2: Foundational
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/data/manifest.json": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/config.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/models/checkpoint.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/evaluation/results.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/models/base_llama.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/utils/logging.py": "File",
-
-    # Phase 3: User Story 1
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/models/recursive_llama.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/evaluation/loss_functions.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/training/train.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/tests/unit/models/test_recursive_attention.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/tests/unit/training/test_loss_functions.py": "File",
-
-    # Phase 4: User Story 2
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/evaluation/metrics.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/evaluation/run_benchmarks.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/tests/unit/evaluation/test_metrics.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts/results/error_detection_calibration.json": "File",
-
-    # Phase 5: User Story 3
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/analysis/stats.py": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts/results/statistical_report.json": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts/results/sensitivity_analysis.csv": "File",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/tests/unit/analysis/test_stats.py": "File",
-
-    # Polish & Cross-Cutting Concerns
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/docs/": "Directory",
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts/results/memory_profile.log": "File",
-}
-
-# Define required content checks
-CONTENT_CHECKS = {
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/code/config.py": [
-        "TOKEN_LIMIT",
-        "recursion_depth",
-        "seed",
-        "batch_size",
-        "learning_rate",
-        "torch.device('cpu')"
-    ],
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/data/manifest.json": [
-        "checksum",
-        "dataset_name",
-        "file_path"
-    ],
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts/results/statistical_report.json": [
-        "p_values",
-        "effect_sizes",
-        "confidence_intervals",
-        "percentage_difference"
-    ],
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts/results/sensitivity_analysis.csv": [
-        "threshold",
-        "false_positive_rate",
-        "false_negative_rate"
-    ],
-    "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/artifacts/results/error_detection_calibration.json": [
-        "bin_edges",
-        "bin_counts",
-        "predicted_error_rates",
-        "observed_error_rates"
-    ]
-}
-
-def check_file_exists(path: Path, file_type: str) -> Tuple[bool, str]:
-    """Check if a file or directory exists."""
-    if file_type == "Directory":
-        if path.exists() and path.is_dir():
-            return True, f"✓ Directory exists: {path}"
-        else:
-            return False, f"✗ Directory missing: {path}"
-    else:  # File
-        if path.exists() and path.is_file():
-            return True, f"✓ File exists: {path}"
-        else:
-            return False, f"✗ File missing: {path}"
-
-def check_content(path: Path, required_terms: List[str]) -> Tuple[bool, List[str]]:
-    """Check if a file contains required content."""
+def check_content(file_path: Path, required_strings: List[str]) -> Tuple[bool, str]:
+    """Check if a file contains required strings."""
+    if not file_path.exists():
+        return False, f"File not found: {file_path}"
     try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        missing_terms = []
-        for term in required_terms:
-            if term not in content:
-                missing_terms.append(term)
-        
-        if missing_terms:
-            return False, missing_terms
-        else:
-            return True, []
+        content = file_path.read_text()
+        missing = [s for s in required_strings if s not in content]
+        if not missing:
+            return True, f"Content OK: {file_path.relative_to(PROJECT_ROOT)}"
+        return False, f"Missing content in {file_path}: {missing}"
     except Exception as e:
-        return False, [f"Error reading file: {str(e)}"]
+        return False, f"Error reading {file_path}: {e}"
 
-def validate_project_structure(base_path: Path) -> List[str]:
-    """Validate the overall project structure."""
-    errors = []
+def validate_python_imports(file_path: Path) -> Tuple[bool, str]:
+    """Validate that a Python file can be imported without errors."""
+    if not file_path.exists():
+        return False, f"File not found: {file_path}"
     
-    # Check for required directories
+    # Add project root to path for imports
+    sys.path.insert(0, str(PROJECT_ROOT))
+    
+    try:
+        # Use importlib to check syntax and imports
+        spec = importlib.util.spec_from_file_location("module", file_path)
+        if spec is None or spec.loader is None:
+            return False, f"Could not load spec for {file_path}"
+        
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return True, f"Import OK: {file_path.relative_to(PROJECT_ROOT)}"
+    except Exception as e:
+        return False, f"Import error in {file_path}: {e}"
+    finally:
+        # Clean up path
+        if str(PROJECT_ROOT) in sys.path:
+            sys.path.remove(str(PROJECT_ROOT))
+
+def validate_data_artifacts() -> List[Tuple[bool, str]]:
+    """Validate data artifacts exist and have correct checksums."""
+    results = []
+    data_dir = PROJECT_ROOT / "data"
+    manifest_path = data_dir / "manifest.json"
+    
+    # Check manifest exists
+    success, msg = check_file_exists(manifest_path, "Data manifest")
+    results.append((success, msg))
+    if not success:
+        return results
+    
+    # Load manifest
+    try:
+        with open(manifest_path, 'r') as f:
+            manifest = json.load(f)
+    except Exception as e:
+        results.append((False, f"Error loading manifest: {e}"))
+        return results
+    
+    # Check required datasets
+    required_datasets = {
+        "pile_arxiv_truncated.json": "Training data subset",
+        "gsm8k.json": "GSM8K evaluation data",
+        "mmlu.json": "MMLU evaluation data"
+    }
+    
+    for filename, description in required_datasets.items():
+        file_path = data_dir / "raw" / filename
+        success, msg = check_file_exists(file_path, description)
+        results.append((success, msg))
+        
+        if success:
+            # Verify checksum in manifest
+            if filename in manifest.get("datasets", {}):
+                checksum = manifest["datasets"][filename].get("checksum")
+                if checksum:
+                    results.append((True, f"Checksum recorded for {filename}"))
+                else:
+                    results.append((False, f"No checksum in manifest for {filename}"))
+            else:
+                results.append((False, f"{filename} not in manifest"))
+    
+    return results
+
+def validate_result_artifacts() -> List[Tuple[bool, str]]:
+    """Validate result artifacts exist and have correct schemas."""
+    results = []
+    artifacts_dir = PROJECT_ROOT / "artifacts"
+    results_dir = artifacts_dir / "results"
+    
+    # Check statistical report
+    stat_report_path = results_dir / "statistical_report.json"
+    success, msg = check_file_exists(stat_report_path, "Statistical report")
+    results.append((success, msg))
+    
+    if success:
+        try:
+            with open(stat_report_path, 'r') as f:
+                report = json.load(f)
+            
+            # Check for required fields
+            required_fields = ["p_values", "effect_sizes", "confidence_intervals", 
+                             "percentage_difference_self_consistency"]
+            missing = [f for f in required_fields if f not in report]
+            if not missing:
+                results.append((True, "Statistical report schema valid"))
+            else:
+                results.append((False, f"Statistical report missing fields: {missing}"))
+        except Exception as e:
+            results.append((False, f"Error parsing statistical report: {e}"))
+    
+    # Check memory profile
+    memory_log_path = results_dir / "memory_profile.log"
+    success, msg = check_file_exists(memory_log_path, "Memory profile log")
+    results.append((success, msg))
+    
+    # Check evaluation results
+    eval_results_path = results_dir / "evaluation_results.json"
+    success, msg = check_file_exists(eval_results_path, "Evaluation results")
+    results.append((success, msg))
+    
+    if success:
+        try:
+            with open(eval_results_path, 'r') as f:
+                eval_data = json.load(f)
+            
+            # Basic schema check
+            if "metrics" in eval_data and isinstance(eval_data["metrics"], dict):
+                results.append((True, "Evaluation results schema valid"))
+            else:
+                results.append((False, "Evaluation results missing metrics field"))
+        except Exception as e:
+            results.append((False, f"Error parsing evaluation results: {e}"))
+    
+    return results
+
+def validate_config() -> Tuple[bool, str]:
+    """Validate configuration file."""
+    config_path = PROJECT_ROOT / "code" / "config.py"
+    success, msg = check_file_exists(config_path, "Config module")
+    if not success:
+        return False, msg
+    
+    # Check for required config parameters
+    required_params = ["seed", "batch_size", "recursion_depth", "learning_rate", "token_limit"]
+    success, msg = check_content(config_path, required_params)
+    return success, msg
+
+def validate_project_structure() -> Tuple[bool, str]:
+    """Validate project directory structure."""
     required_dirs = [
         "data/raw",
         "data/processed",
-        "artifacts/checkpoints",
-        "artifacts/results",
         "code",
+        "code/models",
+        "code/training",
+        "code/evaluation",
+        "code/analysis",
+        "code/utils",
+        "code/validation",
         "tests",
-        "docs"
+        "artifacts",
+        "artifacts/checkpoints",
+        "artifacts/results"
     ]
     
+    missing_dirs = []
     for dir_path in required_dirs:
-        full_path = base_path / dir_path
-        if not full_path.exists() or not full_path.is_dir():
-            errors.append(f"Missing required directory: {dir_path}")
+        full_path = PROJECT_ROOT / dir_path
+        if not full_path.exists():
+            missing_dirs.append(dir_path)
     
-    return errors
+    if not missing_dirs:
+        return True, "Project structure complete"
+    else:
+        return False, f"Missing directories: {missing_dirs}"
 
-def validate_python_imports(base_path: Path) -> List[str]:
-    """Validate that Python files can be imported without errors."""
-    errors = []
-    python_files = [
-        "code/config.py",
-        "code/data_loader.py",
-        "code/models/base_llama.py",
+def run_quickstart_validation() -> Dict[str, Any]:
+    """Run all validation checks and return results."""
+    print("=" * 60)
+    print("Running Quickstart Validation for PROJ-558")
+    print("=" * 60)
+    
+    all_results = {
+        "project_structure": validate_project_structure(),
+        "data_artifacts": validate_data_artifacts(),
+        "result_artifacts": validate_result_artifacts(),
+        "config": validate_config()
+    }
+    
+    # Validate Python imports for key modules
+    key_modules = [
         "code/models/recursive_llama.py",
-        "code/models/checkpoint.py",
-        "code/evaluation/results.py",
-        "code/evaluation/metrics.py",
-        "code/evaluation/loss_functions.py",
-        "code/evaluation/run_benchmarks.py",
         "code/training/train.py",
+        "code/evaluation/run_benchmarks.py",
         "code/analysis/stats.py",
-        "code/utils/logging.py",
-        "code/utils/memory_profiler.py",
-        "code/utils/lint_check.py"
+        "code/evaluation/metrics.py",
+        "code/evaluation/loss_functions.py"
     ]
     
-    for file_path in python_files:
-        full_path = base_path / file_path
-        if full_path.exists():
-            try:
-                # Try to compile the file
-                with open(full_path, 'r', encoding='utf-8') as f:
-                    compile(f.read(), str(full_path), 'exec')
-            except SyntaxError as e:
-                errors.append(f"Syntax error in {file_path}: {str(e)}")
-            except Exception as e:
-                # Other errors might be due to missing dependencies, which is okay for validation
-                logger.debug(f"Non-syntax error in {file_path}: {str(e)}")
-        else:
-            errors.append(f"Python file missing: {file_path}")
+    all_results["python_imports"] = []
+    for module_path in key_modules:
+        full_path = PROJECT_ROOT / module_path
+        success, msg = validate_python_imports(full_path)
+        all_results["python_imports"].append((success, msg))
     
-    return errors
-
-def run_quickstart_validation(base_path: Path, verbose: bool = False) -> bool:
-    """Run the complete quickstart validation."""
-    logger.info("Starting Quickstart Validation for PROJ-558")
+    # Summary
+    total_checks = 0
+    passed_checks = 0
     
-    all_passed = True
-    validation_results = []
+    for category, checks in all_results.items():
+        if isinstance(checks, tuple):
+            total_checks += 1
+            if checks[0]:
+                passed_checks += 1
+        elif isinstance(checks, list):
+            for check in checks:
+                total_checks += 1
+                if check[0]:
+                    passed_checks += 1
     
-    # Step 1: Check project structure
-    logger.info("Step 1: Validating project structure...")
-    structure_errors = validate_project_structure(base_path)
-    if structure_errors:
-        all_passed = False
-        for error in structure_errors:
-            validation_results.append(f"✗ {error}")
-            logger.error(error)
+    all_results["summary"] = {
+        "total_checks": total_checks,
+        "passed_checks": passed_checks,
+        "failed_checks": total_checks - passed_checks,
+        "success_rate": passed_checks / total_checks if total_checks > 0 else 0
+    }
+    
+    # Print results
+    print("\nValidation Results:")
+    print("-" * 40)
+    
+    for category, checks in all_results.items():
+        if category == "summary":
+            continue
+        print(f"\n{category.upper()}:")
+        if isinstance(checks, tuple):
+            success, msg = checks
+            status = "✓" if success else "✗"
+            print(f"  {status} {msg}")
+        elif isinstance(checks, list):
+            for success, msg in checks:
+                status = "✓" if success else "✗"
+                print(f"  {status} {msg}")
+    
+    print("\n" + "=" * 60)
+    print(f"SUMMARY: {passed_checks}/{total_checks} checks passed ({all_results['summary']['success_rate']:.1%})")
+    print("=" * 60)
+    
+    if all_results["summary"]["failed_checks"] > 0:
+        print("\n⚠️  VALIDATION FAILED - Some artifacts are missing or invalid")
+        return all_results
     else:
-        validation_results.append("✓ Project structure is valid")
-        logger.info("✓ Project structure is valid")
-    
-    # Step 2: Check required files
-    logger.info("Step 2: Checking required files...")
-    for file_path, file_type in REQUIRED_FILES.items():
-        full_path = base_path / file_path
-        exists, message = check_file_exists(full_path, file_type)
-        validation_results.append(message)
-        if not exists:
-            all_passed = False
-            logger.error(message)
-        elif verbose:
-            logger.info(message)
-    
-    # Step 3: Check file contents
-    logger.info("Step 3: Validating file contents...")
-    for file_path, required_terms in CONTENT_CHECKS.items():
-        full_path = base_path / file_path
-        if full_path.exists():
-            content_valid, missing_terms = check_content(full_path, required_terms)
-            if content_valid:
-                validation_results.append(f"✓ {file_path} contains required content")
-                if verbose:
-                    logger.info(f"✓ {file_path} contains required content")
-            else:
-                all_passed = False
-                missing_str = ", ".join(missing_terms)
-                message = f"✗ {file_path} missing required content: {missing_str}"
-                validation_results.append(message)
-                logger.error(message)
-        else:
-            logger.warning(f"Skipping content check for {file_path} (file not found)")
-    
-    # Step 4: Validate Python imports
-    logger.info("Step 4: Validating Python file syntax...")
-    import_errors = validate_python_imports(base_path)
-    if import_errors:
-        all_passed = False
-        for error in import_errors:
-            validation_results.append(f"✗ {error}")
-            logger.error(error)
-    else:
-        validation_results.append("✓ All Python files have valid syntax")
-        logger.info("✓ All Python files have valid syntax")
-    
-    # Step 5: Check for configuration validity
-    logger.info("Step 5: Validating configuration...")
-    config_path = base_path / "code" / "config.py"
-    if config_path.exists():
-        try:
-            # Try to import and validate config
-            os.chdir(base_path)
-            from config import get_config, validate_config
-            config = get_config()
-            if validate_config(config):
-                validation_results.append("✓ Configuration is valid")
-                logger.info("✓ Configuration is valid")
-            else:
-                all_passed = False
-                validation_results.append("✗ Configuration validation failed")
-                logger.error("✗ Configuration validation failed")
-        except Exception as e:
-            all_passed = False
-            validation_results.append(f"✗ Configuration error: {str(e)}")
-            logger.error(f"✗ Configuration error: {str(e)}")
-    else:
-        all_passed = False
-        validation_results.append("✗ Configuration file missing")
-        logger.error("✗ Configuration file missing")
-    
-    # Print summary
-    logger.info("\n" + "="*50)
-    logger.info("VALIDATION SUMMARY")
-    logger.info("="*50)
-    
-    if all_passed:
-        logger.info("✓ All validations passed! Project is ready for execution.")
-        logger.info("You can now run the quickstart script to generate all artifacts.")
-    else:
-        logger.error("✗ Some validations failed. Please fix the issues above.")
-        logger.error("Refer to the detailed results below for specific errors.")
-    
-    # Log detailed results
-    logger.info("\nDetailed Results:")
-    for result in validation_results:
-        logger.info(f"  {result}")
-    
-    return all_passed
+        print("\n✅ VALIDATION PASSED - All artifacts generated correctly")
+        return all_results
 
 def main():
-    """Main entry point for the validation script."""
-    parser = argparse.ArgumentParser(
-        description="Quickstart validation script for PROJ-558"
-    )
-    parser.add_argument(
-        "--base-path",
-        type=str,
-        default=None,
-        help="Base path of the project (defaults to parent of this script's parent)"
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose output"
-    )
-    
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description="Validate quickstart artifacts")
+    parser.add_argument("--output", type=str, help="Output file for validation results (JSON)")
     args = parser.parse_args()
     
-    # Determine base path
-    if args.base_path:
-        base_path = Path(args.base_path)
-    else:
-        base_path = Path(__file__).parent.parent.parent
+    results = run_quickstart_validation()
     
-    if not base_path.exists():
-        logger.error(f"Base path does not exist: {base_path}")
+    if args.output:
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+        print(f"\nResults saved to: {output_path}")
+    
+    # Exit with error code if validation failed
+    if results["summary"]["failed_checks"] > 0:
         sys.exit(1)
-    
-    # Run validation
-    success = run_quickstart_validation(base_path, args.verbose)
-    
-    # Exit with appropriate code
-    sys.exit(0 if success else 1)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,3 @@
 """
-Evaluation package for the Consciousness Bootstrapping project.
+Evaluation package containing metrics, benchmark runners, and result schemas.
 """

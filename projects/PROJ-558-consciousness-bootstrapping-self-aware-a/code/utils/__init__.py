@@ -1,3 +1,3 @@
 """
-Utilities package for the Consciousness Bootstrapping project.
+Utils package containing logging, memory profiling, and validation utilities.
 """

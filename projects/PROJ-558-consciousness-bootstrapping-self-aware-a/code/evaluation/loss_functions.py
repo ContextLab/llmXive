@@ -1,215 +1,250 @@
-"""
-Loss functions for the Consciousness Bootstrapping project.
-
-Implements joint loss (cross-entropy + confidence-prediction) using an
-internal generation proxy derived from self-consistency (majority vote).
-
-CRITICAL: This implementation supersedes 'Teacher-Student Distillation'
-mentioned in plan.md, adhering strictly to spec.md FR-002 which mandates
-an internal generation proxy.
-"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Tuple, Optional, Dict, Any, List
-
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
-
 
 def compute_self_consistency_proxy(
     model: nn.Module,
     input_ids: torch.Tensor,
     attention_mask: torch.Tensor,
-    num_generations: int = 5,
-    temperature: float = 1.0,
-    max_new_tokens: int = 64
-) -> torch.Tensor:
+    num_paths: int = 5,
+    temperature: float = 0.7,
+    top_p: float = 0.9,
+    max_new_tokens: int = 128
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Computes a binary proxy signal for correctness based on internal self-consistency.
+    Generates N reasoning paths per item and computes a binary proxy correctness signal
+    based on majority vote of the final answers.
     
-    This function generates multiple reasoning paths for the same input, performs
-    a majority vote on the final answers, and returns a binary tensor indicating
-    if the model's primary generation matches the consensus.
+    Implements the Spec-mandated internal proxy:
+    1. Generate N=5 reasoning paths per training item.
+    2. Compute majority vote of final answers.
+    3. Tie-Breaking Rule: If no strict majority exists (e.g., 2-2-1 or 3-2 where majority is not > N/2),
+       the proxy signal defaults to 0 (incorrect).
     
     Args:
-        model: The recursive or baseline model instance.
-        input_ids: Input token IDs of shape (batch_size, seq_len).
-        attention_mask: Attention mask of shape (batch_size, seq_len).
-        num_generations: Number of internal generations to sample (default 5).
-        temperature: Sampling temperature (default 1.0).
-        max_new_tokens: Maximum tokens to generate per path.
-        
+        model: The recursive Llama model instance.
+        input_ids: Tensor of shape (batch_size, seq_len) containing input token IDs.
+        attention_mask: Tensor of shape (batch_size, seq_len) containing attention masks.
+        num_paths: Number of reasoning paths to generate (default 5).
+        temperature: Sampling temperature (default 0.7).
+        top_p: Top-p sampling probability (default 0.9).
+        max_new_tokens: Maximum tokens to generate per path (default 128).
+    
     Returns:
-        A binary tensor of shape (batch_size,) where 1 indicates the model's
-        primary generation matches the majority vote (high confidence/consistent),
-        and 0 indicates a mismatch (low confidence/inconsistent).
-        
-    Note:
-        This is a computationally expensive operation during training as it
-        requires multiple forward passes per batch. It is designed to be used
-        with small batch sizes and limited generation lengths on CPU.
+        Tuple containing:
+            - proxy_correctness: Tensor of shape (batch_size,) with values 0 or 1.
+            - majority_answers: Tensor of shape (batch_size,) containing the majority answer tokens.
     """
     batch_size = input_ids.shape[0]
     device = input_ids.device
     
-    # Store all generated final tokens for voting
-    all_final_tokens: List[List[int]] = [[] for _ in range(batch_size)]
+    # Store all generated answers for voting
+    # We assume the model generates a sequence ending in a specific answer token.
+    # For simplicity in this proxy, we treat the last generated token as the "answer".
+    # In a more robust implementation, we might parse for specific delimiters.
+    all_answers = []
     
-    # Generate multiple paths
-    for i in range(num_generations):
-        logger.debug(f"Generating internal path {i+1}/{num_generations}")
-        
-        with torch.no_grad():
-            # Sample generation
-            outputs = model.generate(
+    with torch.no_grad():
+        model.eval()
+        for i in range(num_paths):
+            # Generate one path per item in the batch
+            # We use a simple greedy or sampling approach here.
+            # To ensure diversity, we rely on temperature and top_p.
+            # Note: For a true "reasoning path" generation, we might need a specific prompt template.
+            # Assuming the model is prompted to generate the answer directly given the input.
+            
+            generated_ids = model.generate(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 max_new_tokens=max_new_tokens,
                 temperature=temperature,
+                top_p=top_p,
                 do_sample=True,
-                pad_token_id=model.config.pad_token_id,
-                eos_token_id=model.config.eos_token_id
+                pad_token_id=model.config.eos_token_id if hasattr(model.config, 'eos_token_id') else 50256
             )
             
-            # Extract the last generated token (or a specific position) for voting
-            # For simplicity in this proxy, we assume the last token represents the 'answer'
-            # In a real scenario, one might parse the text, but for token-level loss
-            # we use the final token ID.
-            generated_sequences = outputs.sequences[:, input_ids.shape[1]:]
-            
-            # Get the last token of each generation
-            final_tokens = generated_sequences[:, -1]
-            
-            for b in range(batch_size):
-                all_final_tokens[b].append(final_tokens[b].item())
-    
-    # Compute majority vote for each batch item
-    proxy_signals = torch.zeros(batch_size, dtype=torch.float32, device=device)
-    
-    for b in range(batch_size):
-        votes = all_final_tokens[b]
-        # Count frequencies
-        unique, counts = torch.unique(
-            torch.tensor(votes, device=device), 
-            return_counts=True
-        )
-        majority_token = unique[torch.argmax(counts)]
+            # Extract the last token as the "answer"
+            # Assuming generated_ids shape: (batch_size, new_seq_len)
+            last_tokens = generated_ids[:, -1]
+            all_answers.append(last_tokens)
         
-        # Check if the first generation (primary) matches the majority
-        # We assume the first generation in the list is the 'primary' one
-        primary_token = votes[0]
+        # Stack answers: shape (num_paths, batch_size)
+        answers_tensor = torch.stack(all_answers, dim=0)
         
-        if primary_token == majority_token:
-            proxy_signals[b] = 1.0
-        else:
-            proxy_signals[b] = 0.0
+        # Compute majority vote
+        # We need to find the most frequent answer for each item in the batch
+        # If no strict majority (count > num_paths / 2), return 0 (incorrect)
+        
+        proxy_correctness = torch.zeros(batch_size, dtype=torch.float32, device=device)
+        majority_answers = torch.zeros(batch_size, dtype=torch.long, device=device)
+        
+        for b in range(batch_size):
+            # Get answers for this batch item across all paths
+            item_answers = answers_tensor[:, b]
             
-    return proxy_signals
+            # Count occurrences of each unique answer
+            unique, counts = torch.unique(item_answers, return_counts=True)
+            
+            # Find the maximum count
+            max_count = counts.max()
+            
+            # Check for strict majority: count > num_paths / 2
+            if max_count > num_paths / 2:
+                # There is a strict majority
+                majority_idx = torch.argmax(counts)
+                majority_ans = unique[majority_idx]
+                majority_answers[b] = majority_ans
+                proxy_correctness[b] = 1.0
+            else:
+                # No strict majority (tie or split), default to 0 (incorrect)
+                majority_answers[b] = 0 # Placeholder for tie
+                proxy_correctness[b] = 0.0
+                
+    return proxy_correctness, majority_answers
 
 
 def compute_joint_loss(
     model: nn.Module,
     input_ids: torch.Tensor,
     attention_mask: torch.Tensor,
-    labels: Optional[torch.Tensor] = None,
-    alpha: float = 0.5,
-    num_self_consistency_samples: int = 3
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    labels: torch.Tensor,
+    confidence_head: nn.Module,
+    loss_weight_ce: float = 1.0,
+    loss_weight_conf: float = 0.5,
+    num_paths: int = 5,
+    temperature: float = 0.7,
+    top_p: float = 0.9,
+    max_new_tokens: int = 128
+) -> Dict[str, torch.Tensor]:
     """
     Computes the joint loss: Cross-Entropy + Confidence-Prediction Loss.
     
-    The confidence-prediction loss uses the internal generation proxy derived
-    from self-consistency (majority vote) as the ground truth signal.
+    The confidence-prediction loss uses a proxy derived from internal generation:
+    1. Generate N=5 reasoning paths per training item.
+    2. Compute majority vote to determine binary 'proxy correctness'.
+    3. Tie-Breaking Rule: If no strict majority, proxy signal = 0.
+    4. Compare model's predicted confidence for the final answer against this proxy.
     
     Args:
-        model: The model instance (must have a confidence head or similar mechanism).
-        input_ids: Input token IDs.
-        attention_mask: Attention mask.
-        labels: Target labels for cross-entropy loss (optional, defaults to input_ids shifted).
-        alpha: Weighting factor for the confidence loss (default 0.5).
-        num_self_consistency_samples: Number of generations for the proxy (default 3).
-        
+        model: The recursive Llama model instance.
+        input_ids: Input token IDs (batch_size, seq_len).
+        attention_mask: Attention masks (batch_size, seq_len).
+        labels: Target token IDs for cross-entropy (batch_size, seq_len).
+        confidence_head: A module that outputs confidence scores.
+        loss_weight_ce: Weight for the cross-entropy loss.
+        loss_weight_conf: Weight for the confidence loss.
+        num_paths: Number of reasoning paths for proxy generation.
+        temperature: Sampling temperature.
+        top_p: Top-p sampling probability.
+        max_new_tokens: Max tokens to generate.
+    
     Returns:
-        Tuple of (total_loss, ce_loss, confidence_loss).
+        Dictionary containing:
+            - total_loss: The combined loss.
+            - ce_loss: Cross-entropy loss component.
+            - conf_loss: Confidence loss component.
+            - proxy_correctness: The computed proxy signal.
+            - predicted_confidence: The model's predicted confidence.
     """
     device = input_ids.device
+    batch_size = input_ids.shape[0]
     
-    # 1. Compute Standard Cross-Entropy Loss
-    # Forward pass for language modeling
+    # 1. Standard Cross-Entropy Loss
+    # Forward pass to get logits
     outputs = model(
         input_ids=input_ids,
         attention_mask=attention_mask,
         labels=labels
     )
+    logits = outputs.logits
     
-    ce_loss = outputs.loss if hasattr(outputs, 'loss') else outputs[0]
+    # Shift for token prediction (next token prediction)
+    shift_logits = logits[..., :-1, :].contiguous()
+    shift_labels = labels[..., 1:].contiguous()
     
-    # 2. Compute Confidence-Prediction Loss via Internal Proxy
-    # This requires generating multiple paths to establish a "consensus"
-    logger.info(f"Computing self-consistency proxy with {num_self_consistency_samples} samples...")
+    # Flatten for loss calculation
+    flat_logits = shift_logits.view(-1, shift_logits.size(-1))
+    flat_labels = shift_labels.view(-1)
     
-    # Compute the proxy signal (1.0 = consistent, 0.0 = inconsistent)
-    # This serves as our "target" for the confidence head
-    target_confidence = compute_self_consistency_proxy(
-        model=model,
-        input_ids=input_ids,
-        attention_mask=attention_mask,
-        num_generations=num_self_consistency_samples,
-        max_new_tokens=32  # Keep short for training efficiency
-    )
+    ce_loss = F.cross_entropy(flat_logits, flat_labels, ignore_index=-100)
     
-    # Get model's predicted confidence
-    # Assuming the model outputs a 'confidence_logits' or similar in its outputs
-    # If the model is a standard Llama, we might need to adapt the wrapper to expose this.
-    # For this implementation, we assume the model wrapper (RecursiveLlamaWrapper)
-    # exposes a `confidence_logits` or we compute it from the hidden states of the last token.
+    # 2. Confidence Prediction Loss with Internal Proxy
+    # Generate reasoning paths to get the proxy correctness signal
+    with torch.no_grad():
+        proxy_correctness, majority_answers = compute_self_consistency_proxy(
+            model=model,
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            num_paths=num_paths,
+            temperature=temperature,
+            top_p=top_p,
+            max_new_tokens=max_new_tokens
+        )
     
-    if hasattr(model, 'get_confidence_logits'):
-        confidence_logits = model.get_confidence_logits(input_ids, attention_mask)
-    else:
-        # Fallback: Use the logit of the EOS token or a specific head if available
-        # This is a placeholder logic if the specific head isn't implemented yet
-        # In a real scenario, the model architecture must define where confidence comes from.
-        # We will assume the model returns a dict with 'confidence_logits' if it's a custom wrapper.
-        if hasattr(outputs, 'confidence_logits'):
-            confidence_logits = outputs.confidence_logits
-        else:
-            # If no confidence head is present, we cannot compute this loss component.
-            # We return 0 for this component to prevent breaking the pipeline, 
-            # but log a warning.
-            logger.warning("Model does not expose confidence logits. Confidence loss set to 0.")
-            confidence_loss = torch.tensor(0.0, device=device)
-            return ce_loss + confidence_loss, ce_loss, confidence_loss
+    # Get predicted confidence from the model
+    # Assuming confidence_head takes the hidden state of the last token or a specific representation
+    # For simplicity, we pass the last hidden state of the input sequence
+    # Note: This assumes the model outputs hidden states. If not, we might need to extract them.
+    # Let's assume the model has a method or we can get hidden states from a forward pass without labels
+    with torch.no_grad():
+        base_outputs = model(
+            input_ids=input_ids,
+            attention_mask=attention_mask
+        )
+        last_hidden_states = base_outputs.last_hidden_state
     
-    # Sigmoid to get probability
-    predicted_confidence = torch.sigmoid(confidence_logits).squeeze(-1)
+    # Extract the hidden state of the last token for each sequence
+    # We need to handle padding. If attention_mask is used, we take the last non-padded token.
+    # For simplicity in this proxy, we assume the last token in the sequence (before padding) is the answer token.
+    # A more robust way: find the index of the last non-padding token for each row.
+    last_token_indices = attention_mask.sum(dim=1) - 1
+    batch_indices = torch.arange(batch_size, device=device)
+    last_token_hidden_states = last_hidden_states[batch_indices, last_token_indices, :]
     
-    # Binary Cross-Entropy with the proxy target
-    # target_confidence is 0.0 or 1.0
-    confidence_loss = F.binary_cross_entropy(predicted_confidence, target_confidence)
+    # Predict confidence
+    predicted_confidence = confidence_head(last_token_hidden_states)
+    # predicted_confidence shape: (batch_size, 1) -> squeeze to (batch_size,)
+    predicted_confidence = predicted_confidence.squeeze(-1)
     
-    # 3. Joint Loss
-    total_loss = ce_loss + (alpha * confidence_loss)
+    # Ensure predicted_confidence is in [0, 1] via sigmoid if not already
+    # Assuming confidence_head outputs logits, apply sigmoid
+    predicted_confidence = torch.sigmoid(predicted_confidence)
     
-    logger.info(f"Joint Loss: {total_loss.item():.4f} | CE: {ce_loss.item():.4f} | Conf: {confidence_loss.item():.4f}")
+    # Compute Binary Cross Entropy between predicted confidence and proxy correctness
+    conf_loss = F.binary_cross_entropy(predicted_confidence, proxy_correctness)
     
-    return total_loss, ce_loss, confidence_loss
+    # Total Joint Loss
+    total_loss = loss_weight_ce * ce_loss + loss_weight_conf * conf_loss
+    
+    return {
+        "total_loss": total_loss,
+        "ce_loss": ce_loss,
+        "conf_loss": conf_loss,
+        "proxy_correctness": proxy_correctness,
+        "predicted_confidence": predicted_confidence
+    }
 
 
 def compute_self_consistency_loss(
     predicted_confidence: torch.Tensor,
-    target_consistency: torch.Tensor
+    proxy_correctness: torch.Tensor,
+    loss_weight: float = 1.0
 ) -> torch.Tensor:
     """
-    Helper function to compute the binary cross-entropy loss for the confidence head.
+    Computes only the confidence prediction loss component.
+    Useful for debugging or if CE loss is handled separately.
     
     Args:
-        predicted_confidence: Model's predicted probability of consistency (0.0 to 1.0).
-        target_consistency: The ground truth consistency signal (0.0 or 1.0) from proxy.
-        
+        predicted_confidence: Tensor of predicted confidence scores (batch_size,).
+        proxy_correctness: Tensor of proxy correctness signals (batch_size,).
+        loss_weight: Weight for the loss.
+    
     Returns:
-        Scalar loss value.
+        The weighted confidence loss.
     """
-    return F.binary_cross_entropy(predicted_confidence, target_consistency)
+    loss = F.binary_cross_entropy(predicted_confidence, proxy_correctness)
+    return loss_weight * loss

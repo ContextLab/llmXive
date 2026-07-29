@@ -1,13 +1,19 @@
-"""
-Validation module for PROJ-558-consciousness-bootstrapping-self-aware-a.
+"""Validation module for PROJ-558."""
 
-This module contains validation scripts and utilities to ensure
-the project meets all requirements and specifications.
-"""
-
-from .quickstart_validator import run_quickstart_validation, main
+from .quickstart_validator import (
+    check_file_exists,
+    check_content,
+    validate_project_structure,
+    validate_python_imports,
+    run_quickstart_validation,
+    main
+)
 
 __all__ = [
+    "check_file_exists",
+    "check_content",
+    "validate_project_structure",
+    "validate_python_imports",
     "run_quickstart_validation",
     "main"
 ]

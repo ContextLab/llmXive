@@ -1,3 +1,3 @@
 """
-Models package for the Consciousness Bootstrapping project.
+Models package containing neural network architectures and checkpoint definitions.
 """

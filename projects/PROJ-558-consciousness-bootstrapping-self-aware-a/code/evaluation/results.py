@@ -1,5 +1,9 @@
 """
-EvaluationResult dataclass for storing benchmark evaluation outcomes.
+EvaluationResult entity for serialization of benchmark outputs.
+
+This module defines the `EvaluationResult` dataclass, which encapsulates
+the results of model evaluation against benchmarks (GSM8K, MMLU, etc.).
+It supports serialization to JSON for downstream statistical analysis.
 """
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
@@ -7,72 +11,66 @@ from datetime import datetime
 import json
 from pathlib import Path
 
+
 @dataclass
 class EvaluationResult:
     """
-    Represents the results of a model evaluation on a benchmark.
+    Represents the result of a model evaluation run.
 
     Attributes:
-        result_id: Unique identifier for this evaluation run.
-        model_checkpoint_id: ID of the checkpoint that was evaluated.
+        model_id: Identifier of the model being evaluated.
         benchmark_name: Name of the benchmark (e.g., 'gsm8k', 'mmlu').
-        timestamp: Time when the evaluation was completed.
-        metrics: Dictionary of calculated metrics (e.g., accuracy, self_consistency).
-        raw_predictions: List of raw prediction strings or objects.
-        raw_ground_truth: List of corresponding ground truth values.
-        metadata: Additional metadata about the evaluation run.
+        timestamp: ISO format timestamp of the evaluation run.
+        metrics: Dictionary of computed metrics (e.g., accuracy, self_consistency).
+        predictions: List of prediction dictionaries (question, answer, confidence).
+        metadata: Additional run metadata (e.g., temperature, seed).
     """
-    result_id: str
-    model_checkpoint_id: str
+    model_id: str
     benchmark_name: str
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
-    metrics: Dict[str, float] = field(default_factory=dict)
-    raw_predictions: List[Any] = field(default_factory=list)
-    raw_ground_truth: List[Any] = field(default_factory=list)
+    timestamp: str
+    metrics: Dict[str, float]
+    predictions: List[Dict[str, Any]]
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the evaluation result to a dictionary for serialization."""
+        """Convert the result to a dictionary for JSON serialization."""
         return {
-            'result_id': self.result_id,
-            'model_checkpoint_id': self.model_checkpoint_id,
-            'benchmark_name': self.benchmark_name,
-            'timestamp': self.timestamp,
-            'metrics': self.metrics,
-            'raw_predictions': self.raw_predictions,
-            'raw_ground_truth': self.raw_ground_truth,
-            'metadata': self.metadata
+            "model_id": self.model_id,
+            "benchmark_name": self.benchmark_name,
+            "timestamp": self.timestamp,
+            "metrics": self.metrics,
+            "predictions": self.predictions,
+            "metadata": self.metadata
         }
 
-    def to_json(self, path: Optional[Path] = None) -> str:
-        """
-        Serialize the evaluation result to a JSON string.
-        Optionally save to a file if path is provided.
-        """
-        data = self.to_dict()
-        json_str = json.dumps(data, indent=2, default=str)
-        if path:
-            with open(path, 'w', encoding='utf-8') as f:
-                f.write(json_str)
-        return json_str
+    def to_json(self, indent: int = 2) -> str:
+        """Serialize the result to a JSON string."""
+        return json.dumps(self.to_dict(), indent=indent)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'EvaluationResult':
-        """Create an EvaluationResult instance from a dictionary."""
+    def from_dict(cls, data: Dict[str, Any]) -> "EvaluationResult":
+        """Deserialize a result from a dictionary."""
         return cls(
-            result_id=data['result_id'],
-            model_checkpoint_id=data['model_checkpoint_id'],
-            benchmark_name=data['benchmark_name'],
-            timestamp=data.get('timestamp', datetime.now().isoformat()),
-            metrics=data.get('metrics', {}),
-            raw_predictions=data.get('raw_predictions', []),
-            raw_ground_truth=data.get('raw_ground_truth', []),
-            metadata=data.get('metadata', {})
+            model_id=data["model_id"],
+            benchmark_name=data["benchmark_name"],
+            timestamp=data["timestamp"],
+            metrics=data["metrics"],
+            predictions=data["predictions"],
+            metadata=data.get("metadata", {})
         )
 
     @classmethod
-    def from_json(cls, path: Path) -> 'EvaluationResult':
-        """Load an EvaluationResult from a JSON file."""
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return cls.from_dict(data)
+    def from_json(cls, json_str: str) -> "EvaluationResult":
+        """Deserialize a result from a JSON string."""
+        return cls.from_dict(json.loads(json_str))
+
+    def save(self, output_path: Path) -> Path:
+        """
+        Save the evaluation result to a JSON file.
+        Creates parent directories if they do not exist.
+        Returns the path to the saved file.
+        """
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(self.to_json())
+        return output_path

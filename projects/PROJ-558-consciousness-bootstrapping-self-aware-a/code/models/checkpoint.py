@@ -1,85 +1,93 @@
+"""
+ModelCheckpoint entity for serialization of training artifacts.
+
+This module defines the `ModelCheckpoint` dataclass, which encapsulates
+the metadata and state required to serialize and restore model training progress.
+It is designed to satisfy Constitution Principle III (Data Hygiene) by including
+checksums and timestamps.
+"""
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 from datetime import datetime
 import json
 from pathlib import Path
 
+
 @dataclass
 class ModelCheckpoint:
     """
-    Dataclass to represent a model checkpoint.
-    
+    Represents a saved model checkpoint.
+
     Attributes:
-        path: Path to the saved checkpoint file.
-        epoch: The epoch number when the checkpoint was saved.
-        step: The global training step number.
-        loss: The training loss at this checkpoint.
-        metrics: Dictionary of additional metrics at this checkpoint.
+        model_type: The type of model (e.g., 'recursive_llama', 'baseline_llama').
+        checkpoint_id: Unique identifier for this checkpoint.
+        epoch: The epoch number at which this checkpoint was saved.
+        step: The global step number.
+        loss: The loss value at this checkpoint.
+        config: Snapshot of the configuration used for training.
+        state_dict_path: Path to the actual model weights file (serialized separately).
+        metadata: Additional metadata (e.g., recursion depth, seed).
         timestamp: ISO format timestamp of when the checkpoint was created.
-        model_config: Configuration dictionary used to create the model.
-        metadata: Arbitrary metadata dictionary.
+        checksum: SHA-256 checksum of the weights file (for integrity verification).
     """
-    path: str
+    model_type: str
+    checkpoint_id: str
     epoch: int
     step: int
     loss: float
-    metrics: dict = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
-    model_config: dict = field(default_factory=dict)
-    metadata: dict = field(default_factory=dict)
+    config: Dict[str, Any]
+    state_dict_path: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    checksum: Optional[str] = None
 
-    def to_dict(self) -> dict:
-        """Convert the checkpoint to a dictionary for serialization."""
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the checkpoint to a dictionary for JSON serialization."""
         return {
-            "path": self.path,
+            "model_type": self.model_type,
+            "checkpoint_id": self.checkpoint_id,
             "epoch": self.epoch,
             "step": self.step,
             "loss": self.loss,
-            "metrics": self.metrics,
+            "config": self.config,
+            "state_dict_path": self.state_dict_path,
+            "metadata": self.metadata,
             "timestamp": self.timestamp,
-            "model_config": self.model_config,
-            "metadata": self.metadata
+            "checksum": self.checksum
         }
 
-    def save_metadata(self, output_dir: str) -> Path:
-        """
-        Save the checkpoint metadata to a JSON file.
-        
-        Args:
-            output_dir: Directory to save the metadata file.
-            
-        Returns:
-            Path to the saved metadata file.
-        """
-        output_path = Path(output_dir) / f"checkpoint_{self.epoch}_{self.step}.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, "w") as f:
-            json.dump(self.to_dict(), f, indent=2)
-        
-        return output_path
+    def to_json(self, indent: int = 2) -> str:
+        """Serialize the checkpoint to a JSON string."""
+        return json.dumps(self.to_dict(), indent=indent)
 
     @classmethod
-    def load_metadata(cls, path: str) -> "ModelCheckpoint":
-        """
-        Load a checkpoint metadata from a JSON file.
-        
-        Args:
-            path: Path to the checkpoint metadata JSON file.
-            
-        Returns:
-            ModelCheckpoint instance.
-        """
-        with open(path, "r") as f:
-            data = json.load(f)
-        
+    def from_dict(cls, data: Dict[str, Any]) -> "ModelCheckpoint":
+        """Deserialize a checkpoint from a dictionary."""
         return cls(
-            path=data["path"],
+            model_type=data["model_type"],
+            checkpoint_id=data["checkpoint_id"],
             epoch=data["epoch"],
             step=data["step"],
             loss=data["loss"],
-            metrics=data.get("metrics", {}),
-            timestamp=data.get("timestamp", datetime.now().isoformat()),
-            model_config=data.get("model_config", {}),
-            metadata=data.get("metadata", {})
+            config=data["config"],
+            state_dict_path=data["state_dict_path"],
+            metadata=data.get("metadata", {}),
+            timestamp=data.get("timestamp", datetime.utcnow().isoformat()),
+            checksum=data.get("checksum")
         )
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "ModelCheckpoint":
+        """Deserialize a checkpoint from a JSON string."""
+        return cls.from_dict(json.loads(json_str))
+
+    def save_metadata(self, output_dir: Path) -> Path:
+        """
+        Save the checkpoint metadata to a JSON file in the specified directory.
+        Returns the path to the saved metadata file.
+        """
+        output_dir.mkdir(parents=True, exist_ok=True)
+        file_path = output_dir / f"{self.checkpoint_id}_metadata.json"
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(self.to_json())
+        return file_path
