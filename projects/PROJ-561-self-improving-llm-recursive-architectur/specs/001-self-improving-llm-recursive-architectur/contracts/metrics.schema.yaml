@@ -18,7 +18,7 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Accuracy or ECE value (0.0 to 1.0)."
+    description: "Accuracy or PPL value (0.0 to 1.0 for accuracy; PPL can be >1)."
   samples_evaluated:
     type: "integer"
     minimum: 1

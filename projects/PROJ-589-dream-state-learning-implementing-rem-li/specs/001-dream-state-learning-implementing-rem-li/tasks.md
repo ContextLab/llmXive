@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` for hyperparameters, paths, seed management, and CPU-only device enforcement
-- [ ] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RSS via `/proc/self/status` and enforce hard abort (FR-005)
+- [X] T004 Implement `code/config.py` for hyperparameters, paths, seed management, and CPU-only device enforcement
+- [X] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RSS via `/proc/self/status` and enforce hard abort (FR-005)
 - [X] T005b [P] Implement `code/utils/exceptions.py` defining the custom exception class `DataIntegrityError` for data checksum failures
-- [ ] T006 [P] Implement `code/data/loader.py` to download GLUE/SuperGLUE subsets via `datasets` library with SHA-256 checksum verification; MUST abort execution and raise `DataIntegrityError` if checksum mismatch occurs
-- [ ] T007 Create `code/models/__init__.py` and initialize DistilBERT/TinyLlama model loader (CPU-optimized, default precision)
+- [X] T006 [P] Implement `code/data/loader.py` to download GLUE/SuperGLUE subsets via `datasets` library with SHA-256 checksum verification; MUST abort execution and raise `DataIntegrityError` if checksum mismatch occurs
+- [X] T007 Create `code/models/__init__.py` and initialize DistilBERT/TinyLlama model loader (CPU-optimized, default precision)
 - [X] T008 Implement `code/utils/logger.py` for structured logging to `data/logs/` and stdout
 - [ ] T009 Setup `tests/contract/` schema validation for `training_config.schema.yaml` and `evaluation_result.schema.yaml`
 
@@ -88,8 +88,8 @@
 - [X] T015 [US1] Implement `code/models/trainer.py` Dream phase: Generate masked inputs, reconstruct original tokens (DAE loss), enforce 4: ratio via a `DreamScheduler` class (step counter modulo check)
 - [X] T016 [US1] Implement `code/models/trainer.py` Warm-up protocol: Skip dream phase for first steps; raise `RuntimeError` if dream phase is triggered before an initial stabilization period.
 - [X] T017 [US1] Implement `code/models/trainer.py` Entropy check: Detect low-entropy outputs (<0.5 bits, calculated as sum(-p*log2(p))), trigger retry up to 3 times with local retry counter increment (not global seed) or discard batch
-- [~] T018 [US1] Integrate `memory_monitor` (T005) into the training loop to abort and save checkpoint on OOM
-- [~] T019 [US1] Add logging for phase transitions (Wake/Dream), entropy metrics, and warm-up status
+- [ ] T018 [US1] Integrate `memory_monitor` (T005) into the training loop to abort and save checkpoint on OOM
+- [ ] T019 [US1] Add logging for phase transitions (Wake/Dream), entropy metrics, and warm-up status
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,9 +108,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/eval/metrics.py` for few-shot accuracy calculation on held-out GLUE subsets
-- [ ] T023 [US2] Implement `code/models/trainer.py` Baseline mode: Continuous SFT with identical total token count (not just steps) and data tokens as the experimental run
-- [ ] T024 [US2] Implement `code/main.py` logic to orchestrate parallel runs (Experimental vs. Baseline) with same seeds (depends on T014-T017 and T023)
+- [X] T022 [US2] Implement `code/eval/metrics.py` for few-shot accuracy calculation on held-out GLUE subsets
+- [X] T023 [US2] Implement `code/models/trainer.py` Baseline mode: Continuous SFT with identical total token count (not just steps) and data tokens as the experimental run
+- [X] T024 [US2] Implement `code/main.py` logic to orchestrate parallel runs (Experimental vs. Baseline) with same seeds (depends on T014-T017 and T023)
 - [ ] T025 [US2] Implement statistical analysis: Compute accuracy difference and Wilcoxon signed-rank test (α=0.05) p-value across 5 seeds (per Plan Constitution Principle VII); input data structure is list of 5 accuracy floats per model; use `scipy.stats.wilcoxon`
 - [ ] T026 [US2] Implement result reporting: Save comparative report to `data/results/comparison_report.json`
 
@@ -126,8 +126,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for memory limit logic in `tests/unit/test_memory_monitor.py`
-- [ ] T030 [P] [US3] Integration test for time limit enforcement in `tests/integration/test_resource_limits.py`
+- [X] T029 [P] [US3] Unit test for memory limit logic in `tests/unit/test_memory_monitor.py`
+- [X] T030 [P] [US3] Integration test for time limit enforcement in `tests/integration/test_resource_limits.py`
 
 ### Implementation for User Story 3
 

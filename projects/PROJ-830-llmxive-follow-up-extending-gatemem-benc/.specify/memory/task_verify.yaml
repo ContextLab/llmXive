@@ -1,44 +1,13 @@
-? 'T001 Create project structure: Execute `mkdir -p projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/code/{gatekeeper,metrics,analysis,data}
-  projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/data/{raw,processed,logs}
-  projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/tests/{unit,integration,contract}
-  projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/paper projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts`'
-: 1
-? 'T002 Initialize Python 3.11 project: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/requirements.txt`
-  containing pinned versions of `transformers`, `torch` (CPU), `scikit-learn`, `pandas`,
-  `pytest`, `sentence-transformers`'
-: 1
-? 'T002a [P] Create dependency verification script: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/verify_deps.py`
-  that parses `requirements.txt` and asserts absence of GPU libraries (bitsandbytes,
-  CUDA) and validates CPU-only flags; output must be a log file `scripts/verify_deps.log`'
-: 1
-? 'T002b [P] Profile DistilBERT model: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/profile_model.py`
-  that explicitly loads the frozen DistilBERT model in default precision on CPU, verifies
-  no GPU allocation, and outputs a profile report to `data/logs/model_profile.json`'
-: 1
-? 'T002c [P] Validate frozen model weights: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/validate_model_weights.py`
-  that loads the specific frozen DistilBERT weights used for intent classification,
-  runs a forward pass on CPU, and confirms no GPU tensors or quantization libraries
-  are required; output must be `data/logs/model_validation.json`'
-: 1
-? 'T002d [P] Validate sentence-transformers compatibility: Create `projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/scripts/validate_sentence_transformers.py`
-  that verifies the specific sentence-transformers model variant selected for leakage
-  detection is CPU-only and does not require quantization libraries; output must be
-  `data/logs/sentence_transformers_validation.json`'
-: 1
-? T006b [US1/US2] [DEPENDS ON T006] Extend `src/utils/data_loader.py` to validate
-  presence of required variables (`outcome`, `predictors`, `covariates`, `leak-target`)
-  against `contracts/dataset.schema.yaml` and raise error if missing
-: 1
-T007 [P] Create `src/utils/profiling.py` for CPU/RAM and wall-clock time instrumentation (using `tracemalloc` or `psutil`): 1
-? T008a [P] Create `src/utils/stats.py` implementing Shapiro-Wilk, LMM (statsmodels)
-  with formula `score ~ method + (1|Domain)`, and paired t-test/Wilcoxon fallback
-  logic
-: 1
-? T008b [US2] [DEPENDS ON T008a] Extend `src/utils/stats.py` to implement 'domain-stratified
-  analysis' (separate tests per domain) and automatic fallback to paired tests if
-  LMM fails (singular matrix) per Constitution Principle VI
-: 1
-? 'T009 [P] Create `src/gatekeeper/pipeline.py` skeleton with entry points: `run_gatekeeper()`,
-  `run_baseline()`, and `main()` for argument parsing'
-: 1
-T010 Create `tests/contract/test_dataset_schema.py` to validate raw data against `dataset.schema.yaml`: 1
+T006b: 1
+T007: 1
+T008a: 1
+T008b: 1
+T009: 1
+T010: 1
+T011: 1
+T012: 1
+T014a: 1
+T015a: 1
+T015b: 1
+T016: 1
+T017: 1

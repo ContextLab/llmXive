@@ -1,0 +1,29 @@
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+
+  ds_dict = load_dataset("openai/gsm8k", "main")
+
+  total_records = sum(len(split) for split in ds_dict.values())
+
+  sample_fields = next(iter(ds_dict.values())).column_names
+
+
+  print(f"RECORDS={total_records}")
+
+  print(f"FIELDS={'',''.join(sample_fields)}")'
+record_count: 8792
+sample_fields:
+- question
+- answer
+field_coverage: 0.5
+required_fields:
+- text
+- question
+- answer
+- choices
+intent: OpenWebText GSM8K ARC-Challenge Wikitext-2 HuggingFace datasets python package
+  dataset
+cache_key: 548a05b401e5cfe2d83b22400c37203cc287b16f0aade29f4b7d2cf7fb486d8c

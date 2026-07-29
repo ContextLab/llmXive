@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:llmxive:contract:dataset:v1",
+  "title": "Dataset Schema",
+  "description": "Schema for the UCI Electricity Load Diagrams dataset as processed by the pipeline.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string", "const": "UCI Electricity Load Diagrams 2011-2014" },
+        "url": { "type": "string", "format": "uri" },
+        "downloaded_at": { "type": "string", "format": "date-time" },
+        "file_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "version": { "type": "string", "const": "1.0.0" }
+      },
+      "required": ["source", "url", "downloaded_at", "file_hash", "version"]
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "load_value": { "type": "number" },
+          "features": {
+            "type": "object",
+            "additionalProperties": { "type": "number" }
+          }
+        },
+        "required": ["timestamp", "load_value", "features"]
+      }
+    },
+    "windows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "window_id": { "type": "integer" },
+          "start_date": { "type": "string", "format": "date" },
+          "end_date": { "type": "string", "format": "date" },
+          "row_count": { "type": "integer", "minimum": 1 },
+          "feature_columns": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "dropped_features": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["window_id", "start_date", "end_date", "row_count", "feature_columns"]
+      }
+    }
+  },
+  "required": ["metadata", "data"]
+}

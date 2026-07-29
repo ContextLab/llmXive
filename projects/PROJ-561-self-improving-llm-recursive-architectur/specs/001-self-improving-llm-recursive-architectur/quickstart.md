@@ -1,60 +1,42 @@
-# Quickstart: Self-improving LLM: recursive architecture refinement and re‑training
+# Quickstart: Self-improving LLM
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   GitHub Actions Runner (or local machine with sufficient RAM and CPU cores)
+*   Python 3.11 installed
+*   Git installed
+*   Hugging Face Hub access token (optional, for faster downloads)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-561-self-improving-llm-recursive-architectur
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins `torch` to a CPU-only build to ensure compatibility with constrained RAM resources.*
+```bash
+git clone https://github.com/your-repo/self-improving-llm.git
+cd self-improving-llm
+pip install -r requirements.txt
+```
 
 ## Running the Pipeline
 
-### Single Cycle (Debug Mode)
+1.  **Download Data**: The script will automatically download necessary datasets from Hugging Face Hub.
+2.  **Execute the Script**:
 
-To test the pipeline with a single cycle:
+    ```bash
+    python run_pipeline.py --cycles 3
+    ```
 
-```bash
-python code/main.py --cycles 1
-```
+    This command runs the entire pipeline for 3 refinement cycles. You can adjust the `--cycles` parameter to control the number of iterations.
 
-### Full Experiment (3 Cycles)
+## Output
 
-To run the full multi-cycle experiment:
+The results will be stored in the following directories:
 
-```bash
-python code/main.py --cycles 3
-```
+*   `results/trajectory.json`: Performance trajectory data across all cycles, including `plateau_cycle_index` and `trade_off_metrics`.
+*   `models/`: Trained model checkpoints after each cycle.
+*   `logs/`: Log files for each cycle, containing detailed information about training and evaluation.
 
-*Note: If real datasets are unavailable, the system will terminate immediately. No synthetic data is permitted.*
+## Configuration
 
-### Output
+You can configure the pipeline by modifying the `config.py` file:
 
-Results are saved to:
--   `results/trajectory.json`: Main performance and resource metrics.
--   `results/logs/`: Detailed logs for each cycle.
--   `data/models/`: Checkpoints for each cycle (if not deleted).
-
-## Troubleshooting
-
--   **RAM Error**: If you encounter `MemoryError`, try reducing the `batch_size` in `code/config.py` (default value) to a smaller integer (e.g., 2 or 1).
--   **Dataset Load Error**: If the pipeline fails to load a dataset, it will terminate immediately. Check `results/trajectory.json` for the `dataset_status` field.
--   **Timeout**: The default timeout is set to a predefined duration. If the job times out, reduce the number of cycles or the size of the dataset in `code/config.py`.
+*   `base_model`: Specifies the initial GPT 124M checkpoint.
+*   `training_samples`: Controls the size of the OpenWebText subset used for training (default: a configurable subset size).
+*   `training_epochs`: Sets the number of epochs to train the model in each cycle (default: a baseline value).

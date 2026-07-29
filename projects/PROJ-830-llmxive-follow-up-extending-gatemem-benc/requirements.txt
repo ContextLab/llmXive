@@ -1,19 +1,11 @@
-# Python 3.11+ dependencies for llmXive GateMem Benchmark
-# Pinned versions for reproducibility
-
-# Core Data & ML
-datasets==2.18.0
-transformers==4.39.3
-scikit-learn==1.4.2
-statsmodels==0.14.2
-pandas==2.2.2
-
-# Configuration & Utilities
-pyyaml==6.0.1
-huggingface_hub==0.22.2
-
-# Testing
-pytest==8.1.1
-
-# Optional: For future profiling (psutil is lightweight, often included)
-# psutil==5.9.8
+datasets>=2.14.0
+transformers>=4.35.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+pandas>=2.0.0
+pyyaml>=6.0
+pytest>=7.4.0
+huggingface_hub>=0.19.0
+torch>=2.0.0
+psutil>=5.9.0
+scipy>=1.11.0

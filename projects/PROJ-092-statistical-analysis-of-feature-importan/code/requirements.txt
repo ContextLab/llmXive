@@ -1,9 +1,11 @@
-# Existing dependencies
+# Core dependencies
 numpy>=1.24.0
 pandas>=2.0.0
 scikit-learn>=1.3.0
 requests>=2.31.0
+
+# Testing
 pytest>=7.4.0
 
-# New dependency for type checking (optional but recommended)
-typing-extensions>=4.8.0
+# Utilities
+tqdm>=4.65.0

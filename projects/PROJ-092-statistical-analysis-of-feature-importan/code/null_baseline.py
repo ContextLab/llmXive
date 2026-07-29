@@ -1,3 +1,10 @@
+"""
+Null Model Baseline Implementation (T020)
+
+Implements FR-007: Shuffle chronological order of time windows, re-calculate
+importance rankings, calculate mean rho of multiple shuffled runs, and generate
+outputs/null_baseline.json.
+"""
 import os
 import sys
 import json
@@ -5,223 +12,266 @@ import logging
 import random
 import csv
 from pathlib import Path
-from typing import List, Dict, Tuple, Any
+from typing import List, Dict, Any, Tuple
 
-import numpy as np
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent))
 
-# Add project root to path if running directly
-if "code" not in sys.path:
-    project_root = Path(__file__).resolve().parent
-    if (project_root / "code").exists():
-        sys.path.insert(0, str(project_root))
-
-from code.utils.logger import get_logger
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def load_importance_profiles(profiles_path: Path) -> List[Dict[str, Any]]:
-    """
-    Load importance profiles from CSV.
-    Expected columns: window_id, feature_name, importance_score, rank
-    Returns a list of dicts per row.
-    """
-    if not profiles_path.exists():
-        raise FileNotFoundError(f"Importance profiles not found at {profiles_path}")
+# Constants
+DEFAULT_NUM_SHUFFLES = 1000
+DEFAULT_RANDOM_SEED = 42
+OUTPUT_DIR = Path("outputs")
+OUTPUT_FILE = OUTPUT_DIR / "null_baseline.json"
+IMPORTANCE_PROFILES_FILE = Path("outputs") / "importance_profiles.csv"
 
+
+def load_importance_profiles(filepath: Path = IMPORTANCE_PROFILES_FILE) -> List[Dict[str, Any]]:
+    """
+    Load importance profiles from CSV file.
+    
+    Args:
+        filepath: Path to the importance_profiles.csv file
+        
+    Returns:
+        List of dictionaries containing window_id, feature, importance_score
+    """
+    if not filepath.exists():
+        raise FileNotFoundError(f"Importance profiles file not found: {filepath}")
+    
     profiles = []
-    with open(profiles_path, "r", newline="", encoding="utf-8") as f:
+    with open(filepath, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Convert numeric fields
-            row["window_id"] = int(row["window_id"])
-            row["importance_score"] = float(row["importance_score"])
-            row["rank"] = int(row["rank"])
-            profiles.append(row)
-
+            profiles.append({
+                'window_id': row['window_id'],
+                'feature': row['feature'],
+                'importance_score': float(row['importance_score'])
+            })
+    
+    logger.info(f"Loaded {len(profiles)} importance records from {filepath}")
     return profiles
 
-def extract_window_rankings(profiles: List[Dict[str, Any]]) -> Dict[int, List[Tuple[str, float]]]:
+
+def extract_window_rankings(profiles: List[Dict[str, Any]]) -> Dict[str, Dict[str, float]]:
     """
-    Group profiles by window_id and return a dict:
-    { window_id: [(feature_name, importance_score), ...] }
-    Sorted by importance_score descending.
+    Extract importance rankings per window.
+    
+    Args:
+        profiles: List of importance profile records
+        
+    Returns:
+        Dictionary mapping window_id to feature->importance_score mapping
     """
-    windows = {}
-    for row in profiles:
-        wid = row["window_id"]
-        if wid not in windows:
-            windows[wid] = []
-        windows[wid].append((row["feature_name"], row["importance_score"]))
+    window_data = {}
+    for record in profiles:
+        window_id = record['window_id']
+        if window_id not in window_data:
+            window_data[window_id] = {}
+        window_data[window_id][record['feature']] = record['importance_score']
+    
+    logger.info(f"Extracted rankings for {len(window_data)} windows")
+    return window_data
 
-    # Sort each window's features by importance descending
-    for wid in windows:
-        windows[wid].sort(key=lambda x: x[1], reverse=True)
 
-    return windows
-
-def calculate_rank_correlation(ranks_a: List[str], ranks_b: List[str]) -> Tuple[float, float]:
+def calculate_rank_correlation(rankings_t: Dict[str, float], rankings_t1: Dict[str, float]) -> Tuple[float, float]:
     """
-    Calculate Spearman rank correlation between two lists of feature names (ordered by importance).
-    Returns (rho, p_value).
-    Uses scipy.stats.spearmanr.
+    Calculate Spearman rank correlation between two importance rankings.
+    
+    Args:
+        rankings_t: Importance scores for time T
+        rankings_t1: Importance scores for time T+1
+        
+    Returns:
+        Tuple of (rho, p_value)
     """
-    try:
-        from scipy.stats import spearmanr
-    except ImportError:
-        raise ImportError("scipy is required for rank correlation. Install with: pip install scipy")
+    common_features = set(rankings_t.keys()) & set(rankings_t1.keys())
+    if len(common_features) < 2:
+        logger.warning("Insufficient common features for correlation calculation")
+        return 0.0, 1.0
+    
+    # Get ranks
+    features = sorted(common_features)
+    ranks_t = {f: i for i, f in enumerate(features)}
+    ranks_t1 = {f: i for i, f in enumerate(features)}
+    
+    # Reorder ranks based on importance scores
+    sorted_t = sorted(features, key=lambda f: rankings_t[f], reverse=True)
+    sorted_t1 = sorted(features, key=lambda f: rankings_t1[f], reverse=True)
+    
+    rank_map_t = {f: i for i, f in enumerate(sorted_t)}
+    rank_map_t1 = {f: i for i, f in enumerate(sorted_t1)}
+    
+    # Calculate Spearman correlation
+    n = len(features)
+    d_squared_sum = sum((rank_map_t[f] - rank_map_t1[f]) ** 2 for f in features)
+    
+    # Spearman's rho formula
+    rho = 1 - (6 * d_squared_sum) / (n * (n ** 2 - 1))
+    
+    # Approximate p-value using t-distribution approximation
+    # t = rho * sqrt((n-2) / (1-rho^2))
+    if abs(rho) >= 1.0:
+        p_value = 0.0
+    else:
+        t_stat = rho * ((n - 2) ** 0.5) / ((1 - rho ** 2) ** 0.5)
+        # Approximate p-value (two-tailed) using simple approximation
+        # For small n, this is rough but sufficient for null baseline
+        p_value = 2 * (1 - min(1.0, 0.5 + 0.5 * (t_stat / (t_stat ** 2 + n - 2)) ** 0.5))
+    
+    return rho, p_value
 
-    # Create rank arrays (1-indexed rank for each feature in the list)
-    # We assume both lists contain the same set of features
-    feature_to_rank_a = {feat: i + 1 for i, feat in enumerate(ranks_a)}
-    feature_to_rank_b = {feat: i + 1 for i, feat in enumerate(ranks_b)}
 
-    all_features = list(ranks_a)  # Assuming same features
-    ranks_a_array = [feature_to_rank_a[f] for f in all_features]
-    ranks_b_array = [feature_to_rank_b[f] for f in all_features]
-
-    rho, p_value = spearmanr(ranks_a_array, ranks_b_array)
-    return float(rho), float(p_value)
-
-def shuffle_windows_and_compute_rho(
-    window_rankings: Dict[int, List[Tuple[str, float]]],
-    rng_seed: int
-) -> float:
+def shuffle_windows_and_compute_rho(window_data: Dict[str, Dict[str, float]], seed: int) -> float:
     """
-    Shuffle the chronological order of windows, re-calculate importance rankings
-    (which remain the same per window, but the sequence of windows is permuted),
-    then compute the Spearman correlation between consecutive shuffled windows.
-    Returns the mean rho of the shuffled sequence.
-
-    Note: Since importance rankings are intrinsic to each window's data,
-    shuffling windows just changes the order of comparison. We calculate
-    rho between window[i] and window[i+1] in the shuffled order.
+    Shuffle window order and compute correlation sequence mean rho.
+    
+    Args:
+        window_data: Dictionary of window_id -> feature->importance mapping
+        seed: Random seed for reproducibility
+        
+    Returns:
+        Mean rho value from the shuffled sequence
     """
-    rng = random.Random(rng_seed)
-
-    # Extract window IDs and sort them chronologically first
-    sorted_window_ids = sorted(window_rankings.keys())
-
-    # Shuffle the window IDs
-    shuffled_ids = sorted_window_ids.copy()
-    rng.shuffle(shuffled_ids)
-
-    # Calculate correlations between consecutive windows in shuffled order
+    random.seed(seed)
+    window_ids = list(window_data.keys())
+    shuffled_ids = window_ids.copy()
+    random.shuffle(shuffled_ids)
+    
+    if len(shuffled_ids) < 2:
+        return 0.0
+    
     rhos = []
     for i in range(len(shuffled_ids) - 1):
-        wid_current = shuffled_ids[i]
-        wid_next = shuffled_ids[i + 1]
-
-        ranks_current = [feat for feat, _ in window_rankings[wid_current]]
-        ranks_next = [feat for feat, _ in window_rankings[wid_next]]
-
-        # Ensure both windows have the same features
-        if set(ranks_current) != set(ranks_next):
-            logger.warning(f"Feature mismatch between window {wid_current} and {wid_next}. Skipping pair.")
-            continue
-
-        rho, _ = calculate_rank_correlation(ranks_current, ranks_next)
+        window_t = shuffled_ids[i]
+        window_t1 = shuffled_ids[i + 1]
+        
+        rho, _ = calculate_rank_correlation(
+            window_data[window_t], 
+            window_data[window_t1]
+        )
         rhos.append(rho)
+    
+    return sum(rhos) / len(rhos) if rhos else 0.0
 
-    if not rhos:
-        return 0.0
-
-    return float(np.mean(rhos))
 
 def run_null_baseline(
-    profiles_path: Path,
-    output_path: Path,
-    n_runs: int = 100,
-    base_seed: int = 42
+    num_shuffles: int = DEFAULT_NUM_SHUFFLES,
+    random_seed: int = DEFAULT_RANDOM_SEED
 ) -> Dict[str, Any]:
     """
-    Run the null model baseline:
-    1. Load importance profiles.
-    2. Extract window rankings.
-    3. Shuffle window order multiple times.
-    4. Calculate mean rho for each run.
-    5. Return the distribution of mean rhos and the overall mean.
-
+    Run the null model baseline analysis.
+    
     Args:
-        profiles_path: Path to importance_profiles.csv
-        output_path: Path to save null_baseline.json
-        n_runs: Number of shuffled runs
-        base_seed: Base random seed
-
+        num_shuffles: Number of shuffled runs to perform
+        random_seed: Base random seed for reproducibility
+        
     Returns:
-        Dict with 'mean_rho', 'std_rho', 'min_rho', 'max_rho', 'n_runs'
+        Dictionary containing null baseline statistics
     """
-    logger.info(f"Loading importance profiles from {profiles_path}")
-    profiles = load_importance_profiles(profiles_path)
-
-    logger.info("Extracting window rankings")
-    window_rankings = extract_window_rankings(profiles)
-
-    if len(window_rankings) < 2:
-        logger.error("Not enough windows to calculate drift. Need at least 2 windows.")
-        raise ValueError("Need at least 2 windows to calculate drift.")
-
-    logger.info(f"Running {n_runs} shuffled null model runs")
-    mean_rhos = []
-
-    for i in range(n_runs):
-        seed = base_seed + i
-        mean_rho = shuffle_windows_and_compute_rho(window_rankings, seed)
-        mean_rhos.append(mean_rho)
-        if (i + 1) % 20 == 0:
-            logger.info(f"  Run {i+1}/{n_runs}: mean_rho = {mean_rho:.4f}")
-
-    mean_rho = float(np.mean(mean_rhos))
-    std_rho = float(np.std(mean_rhos))
-    min_rho = float(np.min(mean_rhos))
-    max_rho = float(np.max(mean_rhos))
-
+    logger.info(f"Starting null baseline calculation with {num_shuffles} shuffles")
+    
+    # Load data
+    profiles = load_importance_profiles()
+    window_data = extract_window_rankings(profiles)
+    
+    if len(window_data) < 2:
+        logger.error("Insufficient windows for null baseline calculation")
+        return {
+            "status": "failed",
+            "reason": "Insufficient windows",
+            "num_windows": len(window_data)
+        }
+    
+    # Calculate original sequence rho (for comparison)
+    window_ids = sorted(window_data.keys())
+    original_rhos = []
+    for i in range(len(window_ids) - 1):
+        rho, _ = calculate_rank_correlation(
+            window_data[window_ids[i]],
+            window_data[window_ids[i + 1]]
+        )
+        original_rhos.append(rho)
+    
+    original_mean_rho = sum(original_rhos) / len(original_rhos) if original_rhos else 0.0
+    
+    # Perform shuffled runs
+    shuffled_rhos = []
+    for i in range(num_shuffles):
+        seed_i = random_seed + i
+        rho = shuffle_windows_and_compute_rho(window_data, seed_i)
+        shuffled_rhos.append(rho)
+    
+    # Calculate statistics
+    mean_rho = sum(shuffled_rhos) / len(shuffled_rhos)
+    variance = sum((r - mean_rho) ** 2 for r in shuffled_rhos) / len(shuffled_rhos)
+    std_dev = variance ** 0.5
+    
+    # Calculate p-value: proportion of shuffled runs with |rho| >= |original_mean_rho|
+    extreme_count = sum(1 for r in shuffled_rhos if abs(r) >= abs(original_mean_rho))
+    p_value = extreme_count / num_shuffles
+    
     result = {
-        "n_runs": n_runs,
-        "mean_rho": mean_rho,
-        "std_rho": std_rho,
-        "min_rho": min_rho,
-        "max_rho": max_rho,
-        "description": "Null model baseline: Mean Spearman rho of shuffled window sequences. "
-                       "Observed drift should be compared against this distribution."
+        "status": "success",
+        "num_windows": len(window_data),
+        "num_shuffles": num_shuffles,
+        "original_mean_rho": original_mean_rho,
+        "null_mean_rho": mean_rho,
+        "null_std_dev": std_dev,
+        "null_variance": variance,
+        "p_value": p_value,
+        "interpretation": "Drift is significant if p_value < 0.05" if p_value < 0.05 else "Drift not statistically significant"
     }
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2)
-
-    logger.info(f"Null baseline saved to {output_path}")
-    logger.info(f"  Mean rho: {mean_rho:.4f} (+/- {std_rho:.4f})")
-
+    
+    logger.info(f"Null baseline complete: mean_rho={mean_rho:.4f}, p_value={p_value:.4f}")
     return result
+
+
+def save_null_baseline(result: Dict[str, Any], filepath: Path = OUTPUT_FILE) -> None:
+    """
+    Save null baseline results to JSON file.
+    
+    Args:
+        result: Dictionary containing null baseline statistics
+        filepath: Output file path
+    """
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(filepath, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Saved null baseline results to {filepath}")
+
 
 def main():
     """Main entry point for null baseline calculation."""
-    # Default paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
-    profiles_path = project_root / "outputs" / "importance_profiles.csv"
-    output_path = project_root / "outputs" / "null_baseline.json"
-
-    # Allow override via environment variables
-    if os.getenv("PROFILES_PATH"):
-        profiles_path = Path(os.getenv("PROFILES_PATH"))
-    if os.getenv("OUTPUT_PATH"):
-        output_path = Path(os.getenv("OUTPUT_PATH"))
-
-    n_runs = int(os.getenv("NULL_BASELINE_RUNS", "100"))
-
-    logger.info(f"Starting Null Model Baseline calculation")
-    logger.info(f"  Profiles: {profiles_path}")
-    logger.info(f"  Output: {output_path}")
-    logger.info(f"  Runs: {n_runs}")
-
     try:
-        result = run_null_baseline(profiles_path, output_path, n_runs=n_runs)
+        # Ensure output directory exists
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Run analysis
+        result = run_null_baseline(
+            num_shuffles=DEFAULT_NUM_SHUFFLES,
+            random_seed=DEFAULT_RANDOM_SEED
+        )
+        
+        # Save results
+        save_null_baseline(result)
+        
+        # Print summary
         print(json.dumps(result, indent=2))
+        
+        return 0
+        
     except Exception as e:
-        logger.error(f"Failed to compute null baseline: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Null baseline calculation failed: {e}")
+        print(f"Error: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

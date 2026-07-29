@@ -1,0 +1,41 @@
+T006b:
+  c: false
+  h: 1e464b8f8b41746ff099d84ea04f5d2a25ae2244c83f8107d43da6656fb85a66
+  r: The required file `src/utils/data_loader.py` does not exist, and the referenced
+    schema file `contracts/dataset.schema.yaml` (or `schema.yaml`) is also missing,
+    so no validation logic was added. The implementer must create/modify the data_loader
+    module and include the schema file to perform the required checks.
+T010:
+  c: false
+  h: 3f26e5be8660c82f24a4eee31c19bb76358840668add7a137482df21ddc51e84
+  r: "The test file `tests/contract/test_dataset_schema.py` exists, but it references\
+    \ a non\u2011existent schema file (`contracts/dataset.schema.yaml`) and the required\
+    \ `dataset.schema.yaml` is missing entirely. Consequently the test cannot actually\
+    \ validate raw data against the real schema as the task demands. The missing schema\
+    \ file (and incorrect path) must be added/fixed for the task to be complete."
+T011:
+  c: false
+  h: 8f880cb10aebdcb0af8ba8c3cc17b552c8c6ba20c6016f165613cd3e03831293
+  r: The `tests/contract/test_results_schema.py` file is present, but the referenced
+    schema file `contracts/results.schema.yaml` does not exist, so the test cannot
+    actually validate any output against the required schema. The missing schema file
+    must be added for the task to be fulfilled.
+T012:
+  c: false
+  h: f3d13f490452c4b5612d374ce4417af72d029a3078df2891689d5ad9991c8420
+  r: The required artifacts `data/processed/access_control_results.json` and `results.schema.yaml`
+    (or `schema.yaml`) are missing from the repository, so no verification can be
+    performed. The task cannot be considered done until both files exist and are validated
+    against each other.
+T015a:
+  c: false
+  h: 66ec931846c0c159e5a95041f7cb8f22403fb9b7b88f49538d956b6454bdd150
+  r: "The required file `src/gatekeeper/rules.py` does not exist in the repository,\
+    \ so the requested regex\u2011based rule engine is missing entirely. The implementer\
+    \ must add this file with the specified functionality."
+T015b:
+  c: false
+  h: 66ec931846c0c159e5a95041f7cb8f22403fb9b7b88f49538d956b6454bdd150
+  r: "The required file `src/gatekeeper/rules.py` does not exist, so no code handling\
+    \ malformed deletion log entries or logging to `logs/deletion_errors.log` is present.\
+    \ The task\u2019s core artifact is missing."

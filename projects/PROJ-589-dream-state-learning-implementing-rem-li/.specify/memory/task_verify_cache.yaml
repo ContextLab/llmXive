@@ -1,0 +1,35 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file list showing the required folders (`code/`, `tests/`,
+    `data/`, `data/raw/`, `data/checkpoints/`, `data/results/`, `data/logs/`, `tests/unit/`,
+    `tests/integration/`, `tests/contract/`) was provided. The evidence needed to
+    confirm the project structure exists is missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or a `ruff` section, or a pre\u2011commit config invoking\
+    \ Black and Ruff) were provided, nor any evidence that these tools have been set\
+    \ up in the repository. The required artifacts are missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation showing that the `memory_monitor` from T005
+    was integrated into the training loop, nor any evidence (e.g., logs, tests) that
+    OOM conditions trigger an abort and checkpoint save. The required artifact is
+    missing.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log output showing added logging for wake/dream phase\
+    \ transitions, entropy metrics, or warm\u2011up status was provided; the claim\
+    \ lacks any concrete artifact to verify the required logging was implemented."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output file was provided that computes the accuracy\
+    \ difference and performs the Wilcoxon signed\u2011rank test using `scipy.stats.wilcoxon`\
+    \ across the five seed accuracies. The required artifact (e.g., a function or\
+    \ report containing the computed difference and p\u2011value) is missing, so the\
+    \ task is not satisfied."

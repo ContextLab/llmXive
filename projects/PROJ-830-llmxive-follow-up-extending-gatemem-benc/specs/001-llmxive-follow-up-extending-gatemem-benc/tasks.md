@@ -43,9 +43,9 @@
 - [ ] T008b [US2] [DEPENDS ON T008a] Extend `src/utils/stats.py` to implement 'domain-stratified analysis' (separate tests per domain) and automatic fallback to paired tests if LMM fails (singular matrix) per Constitution Principle VI
 - [ ] T009 [P] Create `src/gatekeeper/pipeline.py` skeleton with entry points: `run_gatekeeper()`, `run_baseline()`, and `main()` for argument parsing
 - [ ] T010 Create `tests/contract/test_dataset_schema.py` to validate raw data against `dataset.schema.yaml`
-- [~] T011 Create `tests/contract/test_results_schema.py` to validate output against `results.schema.yaml`
-- [~] T015a [P] Create `src/gatekeeper/rules.py` with regex-based rule engine for role validation and deletion log checking
-- [~] T015b [P] Extend `src/gatekeeper/rules.py` to handle malformed deletion log entries by defaulting to 'deny' and logging anomaly to `logs/deletion_errors.log`
+- [ ] T011 Create `tests/contract/test_results_schema.py` to validate output against `results.schema.yaml`
+- [ ] T015a [P] Create `src/gatekeeper/rules.py` with regex-based rule engine for role validation and deletion log checking
+- [ ] T015b [P] Extend `src/gatekeeper/rules.py` to handle malformed deletion log entries by defaulting to 'deny' and logging anomaly to `logs/deletion_errors.log`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,7 +59,7 @@
 
 ### Tests for User Story 1
 
-- [~] T012 [P] [US1] Contract test: Verify `data/processed/access_control_results.json` matches `results.schema.yaml`
+- [ ] T012 [P] [US1] Contract test: Verify `data/processed/access_control_results.json` matches `results.schema.yaml`
 - [~] T013 [P] [US1] Integration test: Run full pipeline on "medical" domain subset and assert Access Control score is calculated <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1

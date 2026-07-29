@@ -1,0 +1,50 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `contracts/` directory or schema definition files (e.g., `dataset.py`, `drift_metric.py`,
+    `importance_profile.py` or equivalent JSON/YAML schemas) were presented or referenced
+    in the provided evidence. Without concrete files showing the required data schema
+    definitions, the task cannot be considered completed.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output file (e.g., `outputs/drift_metrics.csv` or a function\
+    \ implementing the pairwise Spearman correlation between consecutive windows)\
+    \ was provided. Without any artifact to examine, we cannot confirm that the pairwise\
+    \ drift calculation logic (FR\u2011004) was actually implemented. The implementer\
+    \ must supply the relevant implementation and generated CSV (or equivalent) showing\
+    \ rho, p\u2011value, and window IDs."
+T018:
+  c: false
+  h: d2e7adeb0c724dccc3398a5e1d5ffbe70afd4554b0bea652948f33523423cc07
+  r: "The repository lacks the required `outputs/null_baseline.json` file, and the\
+    \ provided `code/drift_analysis.py` is incomplete (truncated and does not contain\
+    \ any logic that reads the null baseline, obtains the block\u2011permutation p\u2011\
+    value, or flags high\u2011drift transitions based on a\u202Fp\u202F<\u202F0.05\
+    \ threshold). Both the necessary data file and the corresponding implementation\
+    \ are missing."
+T019:
+  c: false
+  h: 2bbe985840eb8fb3629f3a4139d5965277a51fc437bff18c48734e8d65ecad00
+  r: The provided `code/drift_analysis.py` does not contain a function that writes
+    (window_t, window_t+1, rho, p_value) to `outputs/drift_metrics.csv`; the `calculate_rank_correlation`
+    function is incomplete (truncated at `p_value =`) and no CSV file is present.
+    Consequently, the required writer implementation and output file are missing.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output file was provided that implements FR\u2011005 (Mann\u2011\
+    Kendall test) and the required logic to report \u201Cmonotonic decrease\u201D\
+    \ when Kendall\u2019s Tau is negative. The evidence consists only of the task\
+    \ description, so the implementer\u2019s claim cannot be verified. A concrete\
+    \ implementation (e.g., a function/module that runs the Mann\u2011Kendall test\
+    \ and writes the trend direction to the report) is required."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was presented that adds the required logic\
+    \ for small\u2011sample (n\u202F<\u202F10) handling or switches to permutation\u2011\
+    based p\u2011values as specified by FR\u2011008. Without any artifact to inspect,\
+    \ we cannot confirm the feature was implemented. The implementer must provide\
+    \ the updated source (e.g., Python module, notebook, or diff) showing the new\
+    \ conditional handling and corresponding tests or output files."

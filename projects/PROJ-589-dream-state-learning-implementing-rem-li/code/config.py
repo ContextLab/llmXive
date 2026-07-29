@@ -84,7 +84,7 @@ class Config:
         self.max_wall_clock_hours: int = 5
         self.memory_limit_gb: int = 7
 
-        # Set seeds
+        # Set seeds immediately upon initialization
         self.set_seed(self._seed)
 
     @property

@@ -1,0 +1,93 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Training Configuration Schema
+description: Schema for validating the training configuration used in Dream-State Learning experiments.
+type: object
+required:
+  - experiment_name
+  - model_name
+  - dataset_name
+  - hyperparameters
+properties:
+  experiment_name:
+    type: string
+    description: Unique identifier for the experiment run.
+  model_name:
+    type: string
+    description: HuggingFace model identifier (e.g., distilbert-base-uncased).
+  dataset_name:
+    type: string
+    description: Name of the GLUE/SuperGLUE subset being used.
+  seed:
+    type: integer
+    description: Random seed for reproducibility.
+    default: 42
+  hyperparameters:
+    type: object
+    required:
+      - learning_rate
+      - batch_size
+      - num_epochs
+      - warmup_steps
+      - mask_rate
+      - entropy_threshold
+    properties:
+      learning_rate:
+        type: number
+        minimum: 0
+        description: Learning rate for the optimizer.
+      batch_size:
+        type: integer
+        minimum: 1
+        description: Number of samples per batch.
+      num_epochs:
+        type: integer
+        minimum: 1
+        description: Total number of training epochs.
+      warmup_steps:
+        type: integer
+        minimum: 0
+        description: Number of steps before dream phase begins.
+      mask_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Probability of masking a token in DAE.
+      entropy_threshold:
+        type: number
+        minimum: 0
+        description: Minimum entropy threshold for batch acceptance.
+      dream_ratio:
+        type: number
+        minimum: 0
+        maximum: 1
+        default: 0.25
+        description: Ratio of dream steps to wake steps (e.g., 0.25 for 4:1 ratio).
+      max_wall_clock_hours:
+        type: number
+        minimum: 0
+        description: Maximum allowed wall-clock time in hours.
+      max_memory_gb:
+        type: number
+        minimum: 0
+        description: Maximum allowed memory in GB.
+  paths:
+    type: object
+    properties:
+      data_dir:
+        type: string
+        description: Root directory for data storage.
+      checkpoint_dir:
+        type: string
+        description: Directory to save model checkpoints.
+      log_dir:
+        type: string
+        description: Directory for log files.
+      results_dir:
+        type: string
+        description: Directory for result files.
+  device:
+    type: string
+    enum:
+      - cpu
+      - cuda
+    description: Device to run training on.

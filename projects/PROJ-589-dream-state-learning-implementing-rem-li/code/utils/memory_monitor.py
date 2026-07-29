@@ -1,217 +1,217 @@
 """
-Memory monitoring utilities for the Dream-State Learning pipeline.
-
-This module provides functionality to track peak RSS (Resident Set Size) memory
-usage via /proc/self/status and enforce hard abort on memory limit violations
-as required by FR-005.
+Memory monitoring utilities for enforcing hard abort on memory limit violations (FR-005).
+Tracks peak RSS via /proc/self/status and provides enforcement mechanisms.
 """
 import os
 import sys
 import time
+import threading
 from typing import Optional, Callable, Any
 from pathlib import Path
 
-# Import custom exception from exceptions module
-from utils.exceptions import DataIntegrityError  # Reusing pattern, though ideally a specific MemoryLimitExceeded would be defined
+from utils.exceptions import DataIntegrityError
 
 
 class MemoryLimitExceeded(RuntimeError):
-    """Exception raised when memory usage exceeds the configured limit."""
+    """Raised when memory usage exceeds the configured hard limit."""
     pass
+
+
+def get_current_rss_kb() -> int:
+    """
+    Get current Resident Set Size (RSS) in kilobytes from /proc/self/status.
+    
+    Returns:
+        Current RSS in KB.
+        
+    Raises:
+        RuntimeError: If /proc/self/status is not accessible or parsing fails.
+    """
+    try:
+        with open('/proc/self/status', 'r') as f:
+            for line in f:
+                if line.startswith('VmRSS:'):
+                    # Format: "VmRSS:    12345 kB"
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        return int(parts[1])
+        # Fallback if VmRSS not found
+        return 0
+    except (IOError, ValueError) as e:
+        raise RuntimeError(f"Failed to read memory status: {e}")
+
+
+def get_peak_rss_kb() -> int:
+    """
+    Get peak RSS (VmPeak) in kilobytes from /proc/self/status.
+    
+    Returns:
+        Peak RSS in KB.
+        
+    Raises:
+        RuntimeError: If /proc/self/status is not accessible or parsing fails.
+    """
+    try:
+        with open('/proc/self/status', 'r') as f:
+            for line in f:
+                if line.startswith('VmPeak:'):
+                    # Format: "VmPeak:    12345 kB"
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        return int(parts[1])
+        # Fallback if VmPeak not found
+        return get_current_rss_kb()
+    except (IOError, ValueError) as e:
+        raise RuntimeError(f"Failed to read peak memory status: {e}")
 
 
 class MemoryMonitor:
     """
-    Monitors peak RSS memory usage via /proc/self/status and enforces hard abort.
-
-    This class tracks the maximum memory usage observed since instantiation and
-    provides methods to check current usage against a configured limit.
+    Monitors memory usage in a background thread and tracks peak RSS.
+    Enforces hard abort if memory limit is exceeded.
     """
-
-    def __init__(self, max_memory_gb: float, logger: Optional[Callable] = None):
+    
+    def __init__(self, limit_mb: float, check_interval_seconds: float = 0.1):
         """
         Initialize the memory monitor.
-
+        
         Args:
-            max_memory_gb: Maximum allowed memory in gigabytes.
-            logger: Optional logger function that accepts (level, message).
+            limit_mb: Hard memory limit in megabytes.
+            check_interval_seconds: How often to check memory usage.
         """
-        self.max_memory_bytes = max_memory_gb * (1024 ** 3)
-        self.peak_rss_bytes = 0
-        self.logger = logger
-        self._check_interval = 0.1  # seconds between checks when active
-        self._is_monitoring = False
-        self._monitor_thread: Optional[Any] = None
-        self._stop_monitoring = False
-
-        if self.logger is None:
-            # Fallback to basic print if no logger provided
-            self.logger = lambda level, msg: print(f"[{level}] {msg}")
-
-    def _read_current_rss(self) -> int:
-        """
-        Read current RSS from /proc/self/status.
-
-        Returns:
-            Current RSS in bytes.
-
-        Raises:
-            RuntimeError: If /proc/self/status is not accessible (non-Linux).
-        """
-        if sys.platform != "linux" and sys.platform != "linux2":
-            raise RuntimeError("MemoryMonitor is Linux-specific and uses /proc/self/status")
-
-        try:
-            with open("/proc/self/status", "r") as f:
-                for line in f:
-                    if line.startswith("VmRSS:"):
-                        # Format: "VmRSS:     12345 kB"
-                        parts = line.split()
-                        if len(parts) >= 2:
-                            rss_kb = int(parts[1])
-                            return rss_kb * 1024
-            # Fallback if VmRSS not found
-            return 0
-        except FileNotFoundError:
-            raise RuntimeError("Could not read /proc/self/status")
-        except ValueError:
-            return 0
-
-    def _monitor_loop(self) -> None:
-        """Background monitoring loop."""
-        while not self._stop_monitoring:
-            current_rss = self._read_current_rss()
-            if current_rss > self.peak_rss_bytes:
-                self.peak_rss_bytes = current_rss
-
-            # Check limit
-            if current_rss > self.max_memory_bytes:
-                self._log("ERROR", f"Memory limit exceeded: {current_rss / (1024**3):.2f}GB > {self.max_memory_bytes / (1024**3):.2f}GB")
-                self._log("ERROR", "Initiating hard abort as per FR-005")
-                self._stop_monitoring = True
-                self._safe_abort()
-
-            time.sleep(self._check_interval)
-
-    def _log(self, level: str, message: str) -> None:
-        """Log a message if logger is available."""
-        if self.logger:
-            self.logger(level, message)
-
-    def _safe_abort(self) -> None:
-        """
-        Perform a hard abort, saving checkpoint if possible.
-
-        This method attempts to save a minimal checkpoint before exiting.
-        """
-        try:
-            checkpoint_dir = Path("data/checkpoints")
-            checkpoint_dir.mkdir(parents=True, exist_ok=True)
-            checkpoint_path = checkpoint_dir / f"oom_abort_{int(time.time())}.json"
+        self.limit_kb = int(limit_mb * 1024)
+        self.check_interval = check_interval_seconds
+        self._stop_event = threading.Event()
+        self._peak_rss_kb = 0
+        self._monitor_thread: Optional[threading.Thread] = None
+        self._last_check_time = 0.0
+    
+    def _monitor_loop(self):
+        """Background loop that checks memory usage and enforces limits."""
+        while not self._stop_event.is_set():
+            try:
+                current_rss = get_current_rss_kb()
+                if current_rss > self._peak_rss_kb:
+                    self._peak_rss_kb = current_rss
+                
+                # Hard abort if limit exceeded
+                if current_rss > self.limit_kb:
+                    self._stop_event.set()
+                    msg = (
+                        f"Memory limit exceeded: {current_rss / 1024:.2f} MB "
+                        f"(limit: {self.limit_kb / 1024:.2f} MB). "
+                        f"Peak RSS: {self._peak_rss_kb / 1024:.2f} MB. "
+                        "Aborting execution as per FR-005."
+                    )
+                    # Log to stderr before aborting
+                    sys.stderr.write(f"ERROR: {msg}\n")
+                    sys.stderr.flush()
+                    raise MemoryLimitExceeded(msg)
+                
+            except Exception as e:
+                # Re-raise if it's our custom exception, otherwise log and continue
+                if isinstance(e, MemoryLimitExceeded):
+                    raise
+                # Log other errors but continue monitoring
+                sys.stderr.write(f"Warning: Memory check failed: {e}\n")
             
-            # Write minimal checkpoint info
-            checkpoint_data = {
-                "abort_reason": "MemoryLimitExceeded",
-                "peak_rss_gb": self.peak_rss_bytes / (1024**3),
-                "limit_gb": self.max_memory_bytes / (1024**3),
-                "timestamp": time.time()
-            }
-            
-            import json
-            with open(checkpoint_path, "w") as f:
-                json.dump(checkpoint_data, f, indent=2)
-            
-            self._log("INFO", f"Checkpoint saved to {checkpoint_path}")
-        except Exception as e:
-            self._log("ERROR", f"Failed to save checkpoint: {e}")
-
-        # Force exit
-        self._log("CRITICAL", "Hard abort triggered by memory limit")
-        os._exit(1)
-
-    def start(self) -> None:
-        """Start the background memory monitoring thread."""
-        import threading
-        self._stop_monitoring = False
-        self._is_monitoring = True
+            self._stop_event.wait(self.check_interval)
+    
+    def start(self):
+        """Start the background monitoring thread."""
+        if self._monitor_thread is not None and self._monitor_thread.is_alive():
+            return  # Already running
+        
+        self._stop_event.clear()
+        self._peak_rss_kb = get_current_rss_kb()
         self._monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self._monitor_thread.start()
-        self._log("INFO", f"Memory monitoring started (limit: {self.max_memory_bytes / (1024**3):.2f}GB)")
-
-    def stop(self) -> None:
-        """Stop the background memory monitoring thread."""
-        if self._is_monitoring:
-            self._stop_monitoring = True
-            if self._monitor_thread:
-                self._monitor_thread.join(timeout=1.0)
-            self._is_monitoring = False
-            self._log("INFO", f"Memory monitoring stopped. Peak RSS: {self.peak_rss_bytes / (1024**3):.2f}GB")
-
-    def get_peak_rss_gb(self) -> float:
-        """Get the peak RSS observed so far in gigabytes."""
-        return self.peak_rss_bytes / (1024**3)
-
-    def get_current_rss_gb(self) -> float:
-        """Get the current RSS in gigabytes."""
-        return self._read_current_rss() / (1024**3)
-
-    def check_limit(self) -> None:
+    
+    def stop(self):
+        """Stop the monitoring thread."""
+        if self._monitor_thread is not None and self._monitor_thread.is_alive():
+            self._stop_event.set()
+            self._monitor_thread.join(timeout=1.0)
+            self._monitor_thread = None
+    
+    def get_peak_rss(self) -> int:
         """
-        Check current memory usage against limit.
-
-        Raises:
-            MemoryLimitExceeded: If current usage exceeds the limit.
+        Get the peak RSS observed since monitoring started.
+        
+        Returns:
+            Peak RSS in KB.
         """
-        current_rss = self._read_current_rss()
-        if current_rss > self.peak_rss_bytes:
-            self.peak_rss_bytes = current_rss
+        # Update peak with current value if not monitoring
+        if self._monitor_thread is None or not self._monitor_thread.is_alive():
+            current = get_current_rss_kb()
+            if current > self._peak_rss_kb:
+                self._peak_rss_kb = current
+        return self._peak_rss_kb
+    
+    def get_peak_rss_mb(self) -> float:
+        """Get peak RSS in megabytes."""
+        return self.get_peak_rss() / 1024.0
 
-        if current_rss > self.max_memory_bytes:
-            self._log("ERROR", f"Memory limit exceeded: {current_rss / (1024**3):.2f}GB > {self.max_memory_bytes / (1024**3):.2f}GB")
-            self._safe_abort()
-            # Should not reach here due to _safe_abort calling os._exit
-            raise MemoryLimitExceeded(f"Memory limit exceeded: {current_rss / (1024**3):.2f}GB > {self.max_memory_bytes / (1024**3):.2f}GB")
 
-
-def get_peak_rss() -> float:
+def enforce_memory_limit(limit_mb: float, action: Optional[Callable[[], None]] = None):
     """
-    Get the current peak RSS memory usage in gigabytes.
-
-    Returns:
-        Current peak RSS in GB.
-
-    Raises:
-        RuntimeError: If not on Linux.
-    """
-    if sys.platform != "linux" and sys.platform != "linux2":
-        raise RuntimeError("get_peak_rss is Linux-specific and uses /proc/self/status")
-
-    try:
-        with open("/proc/self/status", "r") as f:
-            for line in f:
-                if line.startswith("VmRSS:"):
-                    parts = line.split()
-                    if len(parts) >= 2:
-                        rss_kb = int(parts[1])
-                        return rss_kb * 1024 / (1024 ** 3)
-        return 0.0
-    except FileNotFoundError:
-        raise RuntimeError("Could not read /proc/self/status")
-    except ValueError:
-        return 0.0
-
-
-def enforce_memory_limit(max_memory_gb: float, logger: Optional[Callable] = None) -> MemoryMonitor:
-    """
-    Create and start a memory monitor that enforces a hard abort on limit violation.
-
+    Context manager to enforce memory limits during a code block.
+    
     Args:
-        max_memory_gb: Maximum allowed memory in gigabytes.
-        logger: Optional logger function.
-
-    Returns:
-        Started MemoryMonitor instance.
+        limit_mb: Hard memory limit in megabytes.
+        action: Optional cleanup function to call before aborting.
+        
+    Raises:
+        MemoryLimitExceeded: If memory limit is exceeded.
     """
-    monitor = MemoryMonitor(max_memory_gb, logger)
+    monitor = MemoryMonitor(limit_mb=limit_mb)
     monitor.start()
-    return monitor
+    try:
+        yield monitor
+    except MemoryLimitExceeded:
+        if action:
+            try:
+                action()
+            except Exception:
+                pass  # Ignore cleanup errors during abort
+        raise
+    finally:
+        monitor.stop()
+
+
+# Generator version of the context manager since we can't use @contextmanager
+# with a generator function directly in the type hints, we implement it manually
+class MemoryLimitEnforcer:
+    """Context manager for enforcing memory limits."""
+    
+    def __init__(self, limit_mb: float, on_abort: Optional[Callable[[], None]] = None):
+        self.limit_mb = limit_mb
+        self.on_abort = on_abort
+        self.monitor: Optional[MemoryMonitor] = None
+    
+    def __enter__(self):
+        self.monitor = MemoryMonitor(limit_mb=self.limit_mb)
+        self.monitor.start()
+        return self.monitor
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.monitor:
+            self.monitor.stop()
+        # Don't suppress MemoryLimitExceeded
+        if exc_type is MemoryLimitExceeded:
+            if self.on_abort:
+                try:
+                    self.on_abort()
+                except Exception:
+                    pass
+        return False  # Don't suppress exceptions
+
+
+def get_peak_rss() -> int:
+    """
+    Convenience function to get peak RSS in KB.
+    
+    Returns:
+        Peak RSS in KB.
+    """
+    return get_peak_rss_kb()

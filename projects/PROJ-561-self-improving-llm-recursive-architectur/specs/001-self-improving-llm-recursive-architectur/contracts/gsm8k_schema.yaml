@@ -1,0 +1,13 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: GSM8K Dataset Schema
+type: object
+properties:
+  question:
+    type: string
+    description: The math problem question.
+  answer:
+    type: string
+    description: The correct answer to the math problem.
+required:
+  - question
+  - answer

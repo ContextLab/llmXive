@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Trajectory Entry
+type: object
+properties:
+  cycle_number:
+    type: integer
+    description: The iteration number of the refinement cycle.
+  param_count:
+    type: integer
+    description: Total number of parameters in the model.
+  gsm8k_accuracy:
+    type: number
+    format: float
+    description: Accuracy on GSM8K benchmark.
+  arc_challenge_accuracy:
+    type: number
+    format: float
+    description: Accuracy on ARC-Challenge benchmark.
+  ppl:
+    type: number
+    format: float
+    description: "Perplexity (PPL) on Wikitext-2 (replaces ECE)."
+  flops:
+    type: number
+    format: float
+    description: Number of FLOPs during training.
+  training_time:
+    type: number
+    format: float
+    description: Training time in seconds.
+  plateau_cycle_index:
+    type: integer
+    nullable: true
+    description: "Cycle number where performance first plateaued (<=1% improvement) or degraded (>=1% drop). Null if no plateau detected."
+  trade_off_metrics:
+    type: object
+    properties:
+      performance_per_flop:
+        type: number
+        description: "Accuracy (GSM8K) / FLOPs."
+      performance_per_hour:
+        type: number
+        description: "Accuracy (GSM8K) / Training Time (hours)."
+    required:
+      - performance_per_flop
+      - performance_per_hour
+required:
+  - cycle_number
+  - param_count
+  - gsm8k_accuracy
+  - arc_challenge_accuracy
+  - ppl
+  - flops
+  - training_time

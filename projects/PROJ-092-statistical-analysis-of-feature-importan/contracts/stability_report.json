@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:llmxive:contract:stability_report:v1",
+  "title": "Stability Report Schema",
+  "description": "Report detailing model stability metrics across windows.",
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_attempts": { "type": "integer" },
+        "successful_models": { "type": "integer" },
+        "failed_models": { "type": "integer" },
+        "average_r2": { "type": ["number", "null"] }
+      },
+      "required": ["total_attempts", "successful_models", "failed_models"]
+    },
+    "per_window_metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "window_id": { "type": "integer" },
+          "r2_score": { "type": "number" },
+          "status": { "type": "string", "enum": ["success", "failure"] },
+          "message": { "type": ["string", "null"] }
+        },
+        "required": ["window_id", "status"]
+      }
+    },
+    "generated_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["summary", "per_window_metrics", "generated_at"]
+}
