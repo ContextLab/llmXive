@@ -547,6 +547,17 @@
     },
     {
       "category": "test_double",
+      "file": "tests/integration/test_self_improvement_review_spec.py",
+      "kind": "model_id_literal",
+      "line": 36,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
       "file": "tests/phase1/test_idempotency.py",
       "kind": "model_id_literal",
       "line": 160,
