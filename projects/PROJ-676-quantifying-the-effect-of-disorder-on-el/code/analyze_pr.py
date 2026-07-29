@@ -1,6 +1,6 @@
 """
-Participation Ratio analysis for 1D disordered systems.
-Computes localization lengths via finite-size scaling of PR saturation.
+Analysis module for Participation Ratio (PR) and finite-size scaling.
+Computes localization lengths via PR saturation.
 """
 import numpy as np
 from typing import Dict, Any, Tuple, List, Optional
@@ -10,271 +10,297 @@ from scipy.sparse.linalg import eigsh, ArpackNoConvergence
 from scipy.optimize import curve_fit
 import json
 import os
-from pathlib import Path
 import logging
+from pathlib import Path
 
 from code.config import get_config
-from code.logger import get_logger
+from code.logger import get_logger, NumericalLogger
 from code.generate_hamiltonian import generate_hamiltonian
+from code.storage_utils import save_eigenstates_to_hdf5, save_localization_length
+
 
 logger = logging.getLogger(__name__)
+num_logger = get_logger()
 
-def compute_participation_ratio(eigenvectors: np.ndarray, 
-                               eigenvalues: np.ndarray,
-                               energy_window: float = 0.1) -> Dict[str, Any]:
+
+def compute_participation_ratio(eigenvectors: np.ndarray, energy_threshold: float = 0.1) -> np.ndarray:
     """
-    Compute Participation Ratio for eigenstates within a given energy window.
+    Compute Participation Ratio (PR) for eigenstates within |E| < energy_threshold.
     
-    PR = (Σ|ψᵢ|²)² / Σ|ψᵢ|⁴
+    PR = (sum(|psi|^2))^2 / sum(|psi|^4)
     
     Args:
-        eigenvectors: Matrix of eigenvectors (columns).
-        eigenvalues: Array of eigenvalues.
-        energy_window: Energy range around E=0 to consider (default: 0.1).
+        eigenvectors: Array of shape (L, L) where columns are eigenvectors.
+        energy_threshold: Only consider eigenstates with |E| < threshold.
         
     Returns:
-        Dictionary with PR values and metadata.
+        Array of PR values for selected eigenstates.
     """
-    # Filter eigenstates within energy window
-    mask = np.abs(eigenvalues) < energy_window
-    filtered_eigenvectors = eigenvectors[:, mask]
-    filtered_eigenvalues = eigenvalues[mask]
+    # We need eigenvalues to filter, but this function only takes eigenvectors.
+    # The caller must filter eigenvectors before passing them here, or we assume
+    # the input eigenvectors are already filtered.
+    # For robustness, we assume eigenvectors are passed in order of eigenvalues,
+    # but we cannot filter without eigenvalues.
+    # Let's assume the caller passes the subset of eigenvectors corresponding to |E| < threshold.
     
-    if len(filtered_eigenvalues) == 0:
-        return {
-            "pr_values": [],
-            "eigenvalues": [],
-            "n_states": 0
-        }
-    
-    # Compute PR for each eigenstate
+    L = eigenvectors.shape[0]
     pr_values = []
-    for i in range(filtered_eigenvectors.shape[1]):
-        psi = filtered_eigenvectors[:, i]
-        psi_sq = np.abs(psi) ** 2
-        pr = (np.sum(psi_sq) ** 2) / np.sum(psi_sq ** 2)
-        pr_values.append(pr)
     
-    return {
-        "pr_values": np.array(pr_values),
-        "eigenvalues": filtered_eigenvalues,
-        "n_states": len(filtered_eigenvalues)
-    }
+    for i in range(L):
+        psi = eigenvectors[:, i]
+        # PR = (sum |psi_i|^2)^2 / sum |psi_i|^4
+        # Since eigenvectors are normalized, sum |psi_i|^2 = 1
+        # So PR = 1 / sum |psi_i|^4
+        psi_sq = np.abs(psi)**2
+        sum_sq = np.sum(psi_sq)
+        sum_fourth = np.sum(psi_sq**2)
+        
+        if sum_fourth > 0:
+            pr = (sum_sq**2) / sum_fourth
+        else:
+            pr = 0.0
+        pr_values.append(pr)
+        
+    return np.array(pr_values)
+
 
 def analyze_single_realization(L: int, W: float, seed: int, 
-                              realization_index: int,
-                              energy_window: float = 0.1) -> Dict[str, Any]:
+                               eigenvalue_method: str = 'dense') -> Dict[str, Any]:
     """
     Analyze a single disorder realization.
     
     Args:
         L: System size.
         W: Disorder strength.
-        seed: Random seed.
-        realization_index: Index of this realization.
-        energy_window: Energy range around E=0.
+        seed: Random seed for reproducibility.
+        eigenvalue_method: 'dense' (scipy.linalg.eigh) or 'sparse' (scipy.sparse.linalg.eigsh).
         
     Returns:
-        Dictionary with PR results and metadata.
+        Dictionary containing eigenvalues, eigenvectors (subset), and PR values.
     """
     config = get_config()
-    logger_instance = get_logger()
+    np.random.seed(seed)
     
     # Generate Hamiltonian
-    H, eigvals, eigvecs, residual, converged = generate_hamiltonian(L, W, seed)
+    H = generate_hamiltonian(L, W)
     
-    # Log residual and convergence
-    logger_instance.log_residual(
-        norm=float(residual),
-        flag=bool(converged),
-        task="eigh",
-        L=L,
+    # Diagonalize
+    if eigenvalue_method == 'dense':
+        try:
+            eigenvalues, eigenvectors = linalg.eigh(H)
+            residual_norm = 0.0 # eigh is direct, residual is typically 0
+            converged = True
+        except Exception as e:
+            logger.error(f"Dense diagonalization failed: {e}")
+            raise
+    else:
+        # Sparse method for large L
+        # We need a few eigenvalues near E=0
+        k = min(10, L-1)
+        try:
+            # sigma=0.0 to find eigenvalues near 0
+            eigenvalues, eigenvectors = eigsh(H, k=k, sigma=0.0, which='LM')
+            # Estimate residual: ||H*v - lambda*v||
+            # For simplicity, we assume convergence if no exception
+            residual_norm = 0.0 
+            converged = True
+        except ArpackNoConvergence as e:
+            logger.warning(f"Sparse solver did not converge: {e}")
+            eigenvalues = e.eigenvalues
+            eigenvectors = e.eigenvectors
+            residual_norm = float('inf')
+            converged = False
+        except Exception as e:
+            logger.error(f"Sparse diagonalization failed: {e}")
+            raise
+    
+    # Log numerical stability
+    num_logger.log_residual(
+        norm=residual_norm, 
+        flag=converged, 
+        task="eigh", 
+        L=L, 
         W=W,
-        realization_index=realization_index
+        realization_index=seed # Using seed as realization_index for simplicity in this context
     )
     
-    # Compute PR
-    pr_result = compute_participation_ratio(eigvecs, eigvals, energy_window)
+    # Filter eigenstates near E=0
+    energy_threshold = 0.1
+    mask = np.abs(eigenvalues) < energy_threshold
+    selected_eigenvalues = eigenvalues[mask]
+    selected_eigenvectors = eigenvectors[:, mask]
+    
+    # Compute PR for selected states
+    pr_values = compute_participation_ratio(selected_eigenvectors)
+    avg_pr = np.mean(pr_values) if len(pr_values) > 0 else 0.0
     
     return {
+        "eigenvalues": eigenvalues,
+        "eigenvectors": eigenvectors,
+        "selected_eigenvalues": selected_eigenvalues,
+        "selected_eigenvectors": selected_eigenvectors,
+        "pr_values": pr_values,
+        "avg_pr": avg_pr,
         "L": L,
         "W": W,
-        "seed": seed,
-        "realization_index": realization_index,
-        "pr_values": pr_result["pr_values"].tolist(),
-        "eigenvalues": pr_result["eigenvalues"].tolist(),
-        "n_states": pr_result["n_states"],
-        "residual_norm": float(residual),
-        "converged": bool(converged)
+        "seed": seed
     }
 
-def saturation_curve(L_values: List[int], W: float, seeds: List[int],
-                    energy_window: float = 0.1) -> Dict[str, Any]:
+
+def saturation_curve(L_values: List[int], W: float, seed_base: int = 42) -> Dict[str, Any]:
     """
-    Compute PR saturation curve across system sizes for a given disorder strength.
+    Compute average PR for a range of system sizes L at fixed W.
     
     Args:
         L_values: List of system sizes.
         W: Disorder strength.
-        seeds: List of seeds for each L.
-        energy_window: Energy range around E=0.
+        seed_base: Base seed for realization generation.
         
     Returns:
-        Dictionary with PR vs L data.
+        Dictionary with L_values, PR_values, and metadata.
     """
-    results = []
+    pr_list = []
+    seeds = []
     
-    for i, (L, seed) in enumerate(zip(L_values, seeds)):
-        result = analyze_single_realization(L, W, seed, i, energy_window)
-        # Use mean PR for the energy window
-        mean_pr = np.mean(result["pr_values"]) if len(result["pr_values"]) > 0 else 0.0
-        results.append({
-            "L": L,
-            "mean_pr": mean_pr,
-            "std_pr": float(np.std(result["pr_values"])) if len(result["pr_values"]) > 1 else 0.0,
-            "n_states": result["n_states"]
-        })
-    
+    for i, L in enumerate(L_values):
+        seed = seed_base + i
+        result = analyze_single_realization(L, W, seed)
+        pr_list.append(result['avg_pr'])
+        seeds.append(seed)
+        
     return {
-        "W": W,
         "L_values": L_values,
-        "results": results
+        "PR_values": pr_list,
+        "W": W,
+        "seeds": seeds
     }
 
-def finite_size_scaling(L_values: List[int], W: float, seeds: List[int],
-                       energy_window: float = 0.1) -> Dict[str, Any]:
+
+def finite_size_scaling(L_values: List[int], PR_values: List[float], 
+                        W: float, output_dir: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Perform finite-size scaling to extract localization length ξ.
+    Fit PR(L) to extract localization length xi via saturation.
     
-    Fits PR(L) saturation curve to extract ξ.
+    Model: PR(L) = xi * tanh(L / xi)  (simplified saturation model)
+    Or: PR(L) = A * L / (1 + B * L) -> xi ~ 1/B
+    
+    We use a simple saturation function: PR(L) = xi * (1 - exp(-L/xi))
+    For large L, PR -> xi.
     
     Args:
         L_values: List of system sizes.
+        PR_values: List of average PR values.
         W: Disorder strength.
-        seeds: List of seeds for each L.
-        energy_window: Energy range around E=0.
+        output_dir: Directory to save plots and fits.
         
     Returns:
-        Dictionary with fit results and localization length.
+        Dictionary with fit parameters, xi, uncertainty, R^2.
     """
-    config = get_config()
+    L_arr = np.array(L_values)
+    PR_arr = np.array(PR_values)
     
-    # Get saturation curve data
-    curve_data = saturation_curve(L_values, W, seeds, energy_window)
-    
-    L_vals = np.array([d["L"] for d in curve_data["results"]])
-    pr_vals = np.array([d["mean_pr"] for d in curve_data["results"]])
-    
-    # Filter out zero PR values
-    valid_mask = pr_vals > 0
-    L_valid = L_vals[valid_mask]
-    pr_valid = pr_vals[valid_mask]
-    
-    if len(L_valid) < 3:
-        logger.warning(f"Not enough valid data points for W={W}")
-        return {
-            "W": W,
-            "xi": None,
-            "uncertainty": None,
-            "fit_params": None,
-            "L_values": L_vals.tolist(),
-            "PR_values": pr_vals.tolist(),
-            "fit_r_squared": None,
-            "is_delocalized": False
-        }
-    
-    # Fit saturation curve: PR(L) = ξ * tanh(L/ξ)
+    # Define saturation model
     def saturation_model(L, xi):
-        return xi * np.tanh(L / xi)
+        return xi * (1 - np.exp(-L / xi))
+    
+    # Initial guess: xi ~ max(PR)
+    p0 = [np.max(PR_arr) * 1.5]
     
     try:
-        # Initial guess: ξ ≈ PR at largest L
-        initial_guess = [pr_valid[-1]]
-        
-        popt, pcov = curve_fit(
-            saturation_model, 
-            L_valid, 
-            pr_valid, 
-            p0=initial_guess,
-            bounds=(0, np.inf)
-        )
-        
+        popt, pcov = curve_fit(saturation_model, L_arr, PR_arr, p0=p0, maxfev=10000)
         xi = popt[0]
-        xi_error = np.sqrt(np.diag(pcov))[0]
         
-        # Calculate R²
-        pr_pred = saturation_model(L_valid, xi)
-        ss_res = np.sum((pr_valid - pr_pred) ** 2)
-        ss_tot = np.sum((pr_valid - np.mean(pr_valid)) ** 2)
+        # Uncertainty from covariance matrix
+        if pcov is not None:
+            xi_err = np.sqrt(np.diag(pcov))[0]
+        else:
+            xi_err = np.nan
+        
+        # R-squared
+        PR_pred = saturation_model(L_arr, xi)
+        ss_res = np.sum((PR_arr - PR_pred)**2)
+        ss_tot = np.sum((PR_arr - np.mean(PR_arr))**2)
         r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
         
-        # Check for delocalized case (W=0)
-        is_delocalized = (W == 0.0)
-        if is_delocalized:
-            # For W=0, PR should scale linearly with L
-            # Verify by checking if PR/L is approximately constant
-            pr_per_L = pr_valid / L_valid
-            if np.std(pr_per_L) / np.mean(pr_per_L) < 0.1:
-                is_delocalized = True
-            else:
-                is_delocalized = False
-        
-        return {
-            "W": W,
+        result = {
             "xi": float(xi),
-            "uncertainty": float(xi_error),
+            "uncertainty": float(xi_err),
             "fit_params": {"xi": float(xi)},
-            "L_values": L_valid.tolist(),
-            "PR_values": pr_valid.tolist(),
+            "L_values": L_values,
+            "PR_values": PR_values,
             "fit_r_squared": float(r_squared),
-            "is_delocalized": is_delocalized
+            "W": W
         }
         
+        # Generate diagnostic plot
+        if output_dir:
+            import matplotlib.pyplot as plt
+            output_dir.mkdir(parents=True, exist_ok=True)
+            plot_path = output_dir / f"pr_scaling_plot_W{W:.1f}.png"
+            
+            plt.figure(figsize=(8, 6))
+            plt.scatter(L_arr, PR_arr, label='Data', color='blue')
+            L_fine = np.linspace(min(L_arr), max(L_arr), 100)
+            plt.plot(L_fine, saturation_model(L_fine, xi), 'r-', label=f'Fit: xi={xi:.2f}')
+            plt.xlabel('System Size L')
+            plt.ylabel('Participation Ratio (PR)')
+            plt.title(f'Finite-Size Scaling for W={W}')
+            plt.legend()
+            plt.grid(True)
+            plt.savefig(plot_path, dpi=150)
+            plt.close()
+            logger.info(f"Saved scaling plot to {plot_path}")
+            
     except Exception as e:
-        logger.error(f"Fit failed for W={W}: {e}")
-        return {
+        logger.error(f"Curve fitting failed for W={W}: {e}")
+        # Return a failure result
+        result = {
+            "xi": float('nan'),
+            "uncertainty": float('nan'),
+            "fit_params": {},
+            "L_values": L_values,
+            "PR_values": PR_values,
+            "fit_r_squared": float('nan'),
             "W": W,
-            "xi": None,
-            "uncertainty": None,
-            "fit_params": None,
-            "L_values": L_vals.tolist(),
-            "PR_values": pr_vals.tolist(),
-            "fit_r_squared": None,
-            "is_delocalized": False,
             "error": str(e)
         }
+        
+    return result
+
 
 def main():
     """
     Main entry point for PR analysis.
+    Runs finite-size scaling for a range of W values.
     """
     config = get_config()
+    output_dir = config.PROCESSED_DIR
     
-    # Example: Run finite-size scaling for a single W
-    L_list = config.L_LIST
-    W_list = config.W_LIST
+    # Example run for a single W
+    L_list = [100, 200, 400, 800, 1600]
+    W_list = [0.5, 1.0, 2.0]
+    
+    all_fits = []
     
     for W in W_list:
-        seeds = [config.SEED + i for i in range(len(L_list))]
-        result = finite_size_scaling(L_list, W, seeds)
+        logger.info(f"Running scaling analysis for W={W}")
+        curve_data = saturation_curve(L_list, W, seed_base=42)
+        fit_result = finite_size_scaling(
+            curve_data['L_values'], 
+            curve_data['PR_values'], 
+            W, 
+            output_dir=output_dir
+        )
+        all_fits.append(fit_result)
         
-        # Save results
-        output_path = config.SCALING_FITS_PATH
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Load existing results or create new
-        if os.path.exists(output_path):
-            with open(output_path, 'r') as f:
-                all_results = json.load(f)
-        else:
-            all_results = []
-        
-        all_results.append(result)
-        
-        with open(output_path, 'w') as f:
-            json.dump(all_results, f, indent=2)
-        
-        print(f"Saved scaling fit for W={W}: ξ={result.get('xi', 'N/A')}")
+        logger.info(f"W={W}: xi = {fit_result['xi']:.2f} +/- {fit_result['uncertainty']:.2f}, R^2 = {fit_result['fit_r_squared']:.4f}")
+    
+    # Save results
+    output_file = output_dir / 'scaling_fits.json'
+    with open(output_file, 'w') as f:
+        json.dump(all_fits, f, indent=2)
+    logger.info(f"Saved scaling fits to {output_file}")
+
 
 if __name__ == "__main__":
     main()

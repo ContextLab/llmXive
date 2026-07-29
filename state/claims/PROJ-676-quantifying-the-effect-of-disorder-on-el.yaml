@@ -394,3 +394,382 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-27T02:04:08Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: PR decreases with increasing W for L=400, W=1.0 realization within |E|<0.1
+  claim_id: c_edebe49e
+  context: 'Independent Test: Run on a single realization (L=400, W=1.0), compute
+    eigenstates, extract PR for $|E|<0.1$, and verify PR decreases with increasing
+    W.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: <0.1
+    relation: E
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/PR_decreases_with_increasing_W_for_L%3D400,_W%3D1.0_realization
+    source_value: https://en.wikipedia.org/wiki/PR_decreases_with_increasing_W_for_L=400,_W=1.0_realization_
+    subject: PR decreases with increasing W for L=400, W=1.0 realization within
+  kind: relational
+  raw_text: Run on a single realization (L=400, W=1.0), compute eigenstates, extract
+    PR for |E|<0.1, and verify PR decreases with increasing W.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:33:50Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Lyapunov exponent localization length agrees with Participation Ratio
+    localization length within 10% for L >= 400
+  claim_id: c_a4321dd3
+  context: "Independent Test: Run TM on same realizations as PR, compute Lyapunov\
+    \ exponents, and verify \u03BE_TM \u2248 \u03BE_PR within 10% for L \u2265 400."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify \u03BE_TM \u2248 \u03BE_PR within 10% for L \u2265 400"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:33:50Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: TM and PR localization lengths agree within 10% for L >= 400 in at least
+    80% of realizations
+  claim_id: c_ef534c3f
+  context: "Implement code/compare_methods.py to verify \u03BE_TM vs \u03BE_PR agreement\
+    \ within 10% for L \u2265 400 and \u2265 80% of config.NUM_REALIZATIONS realizations\
+    \ (calculated as int(0.8 * config.NUM_REALIZATIONS))."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TM_and_PR_localization_lengths_agree_within_10%25_for_L_%3E=_400
+  kind: magnitude
+  raw_text: "verify that \u03BE_TM vs \u03BE_PR agreement within 10% for L \u2265\
+    \ 400 and \u2265 80% of config.NUM_REALIZATIONS realizations"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:36:47Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: 100 realizations provide 80% power to detect slope deviation from -2
+    at alpha 0.05
+  claim_id: c_58124eff
+  context: "Perform a priori power analysis to verify 100 realizations provide \u2265\
+    80% power to detect slope deviation from -2 at \u03B1=0.05 (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify 100 realizations provide \u226580% power to detect slope deviation\
+    \ from -2 at \u03B1=0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:38:16Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: 1000 realizations complete within 6 hours on CPU cores
+  claim_id: c_8e3ea6c2
+  context: Tune joblib parallelization to ensure 1000 realizations complete within
+    6 hours on CPU cores. Generate data/metadata/performance_benchmark.json with wall-clock
+    time and peak RAM metrics (FR-007, SC-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure 1000 realizations complete within 6 hours on CPU cores
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:39:08Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: W=0 PR scales extensively with system size
+  claim_id: c_f22fdb53
+  context: T033a [US1] Implement boundary case handling in code/analyze_pr.py for
+    W=0 (delocalized states). The code must detect W=0 and verify that PR scales extensively
+    with system size (PR ~ L) rather than saturating.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The code must detect W=0 and verify that PR scales extensively with system
+    size (PR ~ L) rather than saturating.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:42:21Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: TM and PR localization lengths agree within 10% for L >= 400
+  claim_id: c_dcd1010f
+  context: "Independent Test: Run TM on same realizations as PR, compute Lyapunov\
+    \ exponents, and verify \u03BE_TM \u2248 \u03BE_PR within 10% for L \u2265 400."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run TM on same realizations as PR, compute Lyapunov exponents, and verify\
+    \ \u03BE_TM \u2248 \u03BE_PR within 10% for L \u2265 400."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:42:21Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: TM and PR localization lengths agree within 10% for 80% of realizations
+    with L >= 400
+  claim_id: c_e3e931be
+  context: "T023 [US1+US2] Implement code/compare_methods.py to verify \u03BE_TM vs\
+    \ \u03BE_PR agreement within 10% for L \u2265 400 and \u2265 80% of config.NUM_REALIZATIONS\
+    \ realizations (calculated as int(0.8 * config.NUM_REALIZATIONS))."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u03BE_TM vs \u03BE_PR agreement within 10% for L \u2265 400 and\
+    \ \u2265 80% of config.NUM_REALIZATIONS realizations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:42:21Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: 100 realizations provide 80% power to detect slope deviation from -2
+    at alpha 0.05
+  claim_id: c_2a40a64b
+  context: "T015b [US1] Perform a priori power analysis to verify 100 realizations\
+    \ provide \u226580% power to detect slope deviation from -2 at \u03B1=0.05 (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform a priori power analysis to verify 100 realizations provide \u2265\
+    80% power to detect slope deviation from -2 at \u03B1=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:43:08Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: 1000 realizations complete within 6 hours
+  claim_id: c_9bd70dd6
+  context: 'T032 Performance optimization: Tune joblib parallelization to ensure 1000
+    realizations complete within 6 hours on CPU cores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tune joblib parallelization to ensure 1000 realizations complete within
+    6 hours on CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:43:34Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for FWER at alpha 0.05 across 10 widths
+  claim_id: c_a301261d
+  context: "T015 [US1] Apply Bonferroni Correction for Full Family of Widths: Read\
+    \ all p-values from data/processed/scaling_fits.json (T013 output) for all disorder\
+    \ widths. Apply Bonferroni correction to control FWER at \u03B1=0.05 across the\
+    \ full family of widths (SC-005). Correction Factor: Divide alpha by a factor\
+    \ of ten. (10 widths)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction to control FWER at \u03B1=0.05 across the\
+    \ full family of widths (10 widths)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:44:01Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Transfer Matrix Method stops if relative change in gamma < 1e-5 or 10000
+    iterations reached
+  claim_id: c_1be83e84
+  context: "T020b [US2] Implement code/analyze_tm.py with QR-based orthogonalization\
+    \ at every step to compute Lyapunov exponent \u03B3. Stopping Criterion: Iterate\
+    \ until relative change in \u03B3 < 1e-5 for A sequential multi-step process.\
+    \ OR a maximum of 10,000 iterations."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Transfer_Matrix_Method_stops_if_relative_change_in_gamma_%3C_1
+  kind: entity_fact
+  raw_text: "The stopping criterion for the Transfer Matrix Method is a relative change\
+    \ in \u03B3 < 1e-5 or a maximum of 10,000 iterations."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:44:56Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Fallback to sparse eigsh if RAM exceeds 6GB for L=1600
+  claim_id: c_2a361194
+  context: T016 [US1] Add fallback mechanism in code/analyze_pr.py to use scipy.sparse.linalg.eigsh
+    if scipy.linalg.eigh exceeds 6GB RAM for L=1600 (FR-008)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback mechanism uses scipy.sparse.linalg.eigsh if scipy.linalg.eigh
+    exceeds 6GB RAM for L=1600.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:45:28Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Participation Ratio formula definition
+  claim_id: c_714f2d75
+  context: "T012 [P] [US1] Implement code/analyze_pr.py to compute Participation Ratio\
+    \ PR = (\u2211|\u03C8_i|^2)^2 / \u2211|\u03C8_i|^4 for eigenstates within |E|<0.1\
+    \ (FR-002)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Participation_Ratio_formula_definition
+  kind: entity_fact
+  raw_text: "The Participation Ratio is defined as PR = (\u2211|\u03C8_i|^2)^2 / \u2211\
+    |\u03C8_i|^4."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:46:45Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Eigenstates extracted for energies |E| < 0.1
+  claim_id: c_3ee44c22
+  context: "T012 [P] [US1] Implement code/analyze_pr.py to compute Participation Ratio\
+    \ PR = (\u2211|\u03C8_i|^2)^2 / \u2211|\u03C8_i|^4 for eigenstates within |E|<0.1\
+    \ (FR-002)"
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: < 0.1
+    relation: E
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Eigenstates_extracted_for_energies_E_%3C_0.1
+    source_value: https://en.wikipedia.org/wiki/Eigenstates_extracted_for_energies_E_<_0.1
+    subject: Eigenstates extracted for energies
+  kind: relational
+  raw_text: The eigenstates are extracted for energies within |E|<0.1.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:47:34Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: User Story 1 test runs on L=400 W=1.0
+  claim_id: c_95c4e76f
+  context: 'Independent Test: Run on a single realization (L=400, W=1.0), compute
+    eigenstates, extract PR for |E|<0.1, and verify PR decreases with increasing W.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 1 runs on a single realization with
+    L=400 and W=1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:48:17Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: User Story 3 test generates L=200 W=2.0 E=0 visualization
+  claim_id: c_fed47992
+  context: "Independent Test: Generate a single eigenstate visualization (L=200, W=2.0,\
+    \ E \u2248 0), confirm exponential decay, and verify decay length matches computed\
+    \ \u03BE."
+  evidence:
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: "The independent test for User Story 3 generates a single eigenstate visualization\
+    \ with L=200, W=2.0, and E \u2248 0."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T22:48:17Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Convergence monitoring tracks size doublings from L=100 to 800
+  claim_id: c_44628ea9
+  context: "T022 [US2] Add convergence monitoring logic to track relative change in\
+    \ \u03B3 between consecutive size doublings (L=100 \u2192 800)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The convergence monitoring logic tracks relative change in \u03B3 between\
+    \ consecutive size doublings from L=100 to 800."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:48:53Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Parallel execution test parameters n_jobs=2 backend=loky
+  claim_id: c_6bfe8dda
+  context: 'T032 Performance optimization: Tune joblib parallelization to ensure 1000
+    realizations complete within 6 hours on CPU cores. ... Test parameters: n_jobs=2,
+    backend=''loky''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The parallel execution test parameters are n_jobs=2 and backend='loky'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:49:17Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction factor divides alpha by 10
+  claim_id: c_7edf55ee
+  context: 'T015 [US1] ... Correction Factor: Divide alpha by a factor of ten. (10
+    widths).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction factor divides alpha by 10 for 10 widths.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T22:49:47Z'

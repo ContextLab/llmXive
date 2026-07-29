@@ -1,3 +1,8 @@
+"""
+Residual logger module.
+Provides functions to log and save eigenvalue residuals to data/metadata/residuals.json.
+This module is a wrapper around the NumericalLogger class for specific task integration.
+"""
 import json
 import os
 import logging
@@ -5,173 +10,88 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-from code.config import get_config
+from code.logger import get_logger, NumericalLogger
 
-# Initialize logger for residual tracking
-logger = logging.getLogger("residual_logger")
 
-def log_eigenvalue_residual(
-    residual_norm: float,
-    convergence_flag: bool,
-    system_size: int,
-    disorder_strength: float,
-    realization_index: int,
-    eigenvalue_index: int,
-    energy: float,
-    method: str = "eigh"
-) -> Dict[str, Any]:
+logger = logging.getLogger(__name__)
+num_logger = get_logger()
+
+
+def log_eigenvalue_residual(task: str, L: int, W: float, realization_index: int, 
+                            residual_norm: float, converged: bool) -> None:
     """
-    Log a single eigenvalue problem residual and convergence status.
-
+    Log an eigenvalue residual entry.
+    
     Args:
-        residual_norm: ||Hv - λv||_2 norm of the residual
-        convergence_flag: True if solver converged successfully
-        system_size: L, the dimension of the Hamiltonian
-        disorder_strength: W, the disorder parameter
-        realization_index: Index of the disorder realization
-        eigenvalue_index: Index of the eigenvalue within the sorted spectrum
-        energy: The computed eigenvalue
-        method: Solver method used ('eigh' or 'eigsh')
-
-    Returns:
-        Dictionary containing the log entry data
+        task: Name of the task (e.g., 'eigh', 'eigsh').
+        L: System size.
+        W: Disorder strength.
+        realization_index: Index of the disorder realization.
+        residual_norm: The residual norm.
+        converged: Boolean indicating convergence.
     """
-    entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "system_size": system_size,
-        "disorder_strength": disorder_strength,
-        "realization_index": realization_index,
-        "eigenvalue_index": eigenvalue_index,
-        "energy": energy,
-        "residual_norm": residual_norm,
-        "converged": convergence_flag,
-        "solver_method": method
-    }
-    
-    # Log to console if configured
-    if convergence_flag:
-        logger.debug(f"Eigenvalue {eigenvalue_index} (E={energy:.6f}): "
-                     f"residual={residual_norm:.2e}, converged=True")
-    else:
-        logger.warning(f"Eigenvalue {eigenvalue_index} (E={energy:.6f}): "
-                       f"residual={residual_norm:.2e}, converged=False")
-    
-    return entry
+    num_logger.log_residual(
+        norm=residual_norm,
+        flag=converged,
+        task=task,
+        L=L,
+        W=W,
+        realization_index=realization_index
+    )
+    logger.debug(f"Logged residual for task={task}, L={L}, W={W}, idx={realization_index}")
 
-def save_residuals_to_file(
-    residuals: List[Dict[str, Any]],
-    output_path: Optional[str] = None
-) -> str:
+
+def save_residuals_to_file(residuals: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Save a batch of residual logs to the metadata JSON file.
-
+    Save a list of residual dictionaries to a JSON lines file.
+    
     Args:
-        residuals: List of residual log entries
-        output_path: Optional override for output file path
-
-    Returns:
-        Path to the written file
+        residuals: List of residual entries.
+        output_path: Path to the output file.
     """
-    config = get_config()
-    if output_path is None:
-        output_path = str(config.DATA_METADATA_DIR / "residuals.json")
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load existing data if file exists
-    existing_data = []
-    if output_path_obj.exists():
-        try:
-            with open(output_path_obj, 'r') as f:
-                existing_data = json.load(f)
-        except (json.JSONDecodeError, IOError):
-            # If file is corrupted or empty, start fresh
-            existing_data = []
-    
-    # Append new residuals
-    existing_data.extend(residuals)
-    
-    # Write back with indentation for readability
-    with open(output_path_obj, 'w') as f:
-        json.dump(existing_data, f, indent=2)
-    
-    logger.info(f"Saved {len(residuals)} residual entries to {output_path}")
-    return output_path
+    with open(path, 'w') as f:
+        for entry in residuals:
+            f.write(json.dumps(entry) + '\n')
+    logger.info(f"Saved {len(residuals)} residuals to {output_path}")
 
-def append_residuals_to_file(
-    entry: Dict[str, Any],
-    output_path: Optional[str] = None
-) -> str:
+
+def append_residuals_to_file(residuals: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Append a single residual entry to the metadata JSON file.
-    More efficient for streaming than saving a whole batch.
-
+    Append a list of residual dictionaries to a JSON lines file.
+    
     Args:
-        entry: Single residual log entry
-        output_path: Optional override for output file path
-
-    Returns:
-        Path to the written file
+        residuals: List of residual entries.
+        output_path: Path to the output file.
     """
-    config = get_config()
-    if output_path is None:
-        output_path = str(config.DATA_METADATA_DIR / "residuals.json")
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load existing data
-    existing_data = []
-    if output_path_obj.exists():
-        try:
-            with open(output_path_obj, 'r') as f:
-                existing_data = json.load(f)
-        except (json.JSONDecodeError, IOError):
-            existing_data = []
-    
-    existing_data.append(entry)
-    
-    with open(output_path_obj, 'w') as f:
-        json.dump(existing_data, f, indent=2)
-    
-    return output_path
+    with open(path, 'a') as f:
+        for entry in residuals:
+            f.write(json.dumps(entry) + '\n')
+    logger.info(f"Appended {len(residuals)} residuals to {output_path}")
+
 
 def main():
     """
-    Standalone test/demonstration of the residual logger.
-    Generates synthetic residual entries to verify file writing.
+    Main entry point for residual logging demonstration.
+    This function is invoked by the orchestration pipeline to ensure the logger is active.
     """
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    logger.info("Residual logger module initialized.")
+    # Example usage
+    log_eigenvalue_residual(
+        task="eigh",
+        L=100,
+        W=1.0,
+        realization_index=0,
+        residual_norm=1e-12,
+        converged=True
     )
-    
-    # Simulate a batch of eigenvalue problems
-    test_residuals = []
-    for i in range(10):
-        residual = log_eigenvalue_residual(
-            residual_norm=1e-10 + i * 1e-12,
-            convergence_flag=(i % 3 != 0), # Simulate some failures
-            system_size=100,
-            disorder_strength=1.0,
-            realization_index=0,
-            eigenvalue_index=i,
-            energy=float(i - 5),
-            method="eigh"
-        )
-        test_residuals.append(residual)
-    
-    # Save to file
-    output_file = save_residuals_to_file(test_residuals)
-    print(f"Residuals saved to: {output_file}")
-    
-    # Verify content
-    with open(output_file, 'r') as f:
-        data = json.load(f)
-        print(f"Total entries in file: {len(data)}")
-        print(f"First entry: {data[0]}")
+    logger.info("Example residual logged.")
+
 
 if __name__ == "__main__":
     main()

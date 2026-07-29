@@ -30,3 +30,19 @@ T013:
     \ text, with no code, data, or output showing a finite\u2011size scaling fit.\
     \ The implementer must supply the actual dictionary result (or code that generates\
     \ it) for the task to be considered complete."
+T023:
+  c: false
+  h: 03f8709ee28c97c91d94bd6f98582314b07cca90ef57ec219e676ce34882b99e
+  r: The required input files `data/processed/scaling_fits.json` and `data/processed/lyapunov_exponents.json`
+    are absent, and the expected output `data/processed/method_agreement_report.json`
+    was not generated. Consequently the script cannot perform the validation nor produce
+    the required report.
+T029:
+  c: false
+  h: d6f06b969823f56b8680fc4e48389a1ec4e28eb08e7d79eb0e825a4356f17539
+  r: "The required output file `docs/physical_interpretation.md` does not exist, so\
+    \ the quantitative summary cannot be verified. Additionally, the provided snippet\
+    \ of `code/visualize.py` does not show any logic that writes a summary under the\
+    \ header \u201CWorked Example:\u202FW=2.0\u201D, nor does it enforce the R\xB2\
+    \u202F\u2265\u202F0.95 condition. The missing markdown file and lack of evident\
+    \ write\u2011out functionality mean the task is not fulfilled."

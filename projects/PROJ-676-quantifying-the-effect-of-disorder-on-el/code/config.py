@@ -1,62 +1,65 @@
 """
-Configuration constants for the disorder analysis project.
+Configuration module for the project.
+Defines hyperparameters, random seeds, and path constants.
 """
 import os
 from pathlib import Path
 from typing import Dict, Any
 
+
 class Config:
-    """Project configuration."""
-    
-    # Project root
-    PROJECT_ROOT = Path(__file__).parent.parent
-    
-    # Data paths
-    RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw"
-    PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed"
-    METADATA_PATH = PROJECT_ROOT / "data" / "metadata"
-    FIGURES_PATH = PROJECT_ROOT / "figures"
-    
-    # Ensure directories exist
-    RAW_DATA_PATH.mkdir(parents=True, exist_ok=True)
-    PROCESSED_DATA_PATH.mkdir(parents=True, exist_ok=True)
-    METADATA_PATH.mkdir(parents=True, exist_ok=True)
-    FIGURES_PATH.mkdir(parents=True, exist_ok=True)
-    
-    # Residuals log path (for T017)
-    RESIDUALS_PATH = METADATA_PATH / "residuals.json"
-    
-    # Analysis output paths
-    SCALING_FITS_PATH = PROCESSED_DATA_PATH / "scaling_fits.json"
-    LYAPUNOV_EXPONENTS_PATH = PROCESSED_DATA_PATH / "lyapunov_exponents.json"
-    BONFERRONI_RESULTS_PATH = PROCESSED_DATA_PATH / "bonferroni_results.json"
-    METHOD_AGREEMENT_PATH = PROCESSED_DATA_PATH / "method_agreement_report.json"
-    FIT_RESULTS_PATH = PROCESSED_DATA_PATH / "fit_results.json"
-    
-    # Visualization paths
-    VISUALIZATIONS_DIR = PROCESSED_DATA_PATH / "visualizations"
-    VISUALIZATIONS_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Hyperparameters
-    L_LIST = [100, 200, 400, 800, 1600]
-    W_LIST = [0.5, 1.0, 2.0]
-    NUM_REALIZATIONS = 100
-    SEED = 42
-    
-    # Analysis parameters
-    ENERGY_WINDOW = 0.1  # Energy range around E=0 for PR calculation
-    MIN_L_FOR_TM = 400  # Minimum system size for TM validation
-    AGREEMENT_THRESHOLD = 0.10  # 10% agreement threshold for TM vs PR
-    MIN_AGREEMENT_FRACTION = 0.80  # 80% of realizations must agree
-    
-    # Memory limits
-    MAX_RAM_GB = 6.0  # Switch to sparse if exceeded
-    
+    """
+    Central configuration class for the project.
+    """
+    def __init__(self):
+        # Project root
+        self.PROJECT_ROOT = Path(__file__).parent.parent
+        
+        # Directories
+        self.CODE_DIR = self.PROJECT_ROOT / 'code'
+        self.DATA_DIR = self.PROJECT_ROOT / 'data'
+        self.RAW_DIR = self.DATA_DIR / 'raw'
+        self.PROCESSED_DIR = self.DATA_DIR / 'processed'
+        self.METADATA_DIR = self.DATA_DIR / 'metadata'
+        self.FIGURES_DIR = self.PROJECT_ROOT / 'figures'
+        self.DOCS_DIR = self.PROJECT_ROOT / 'docs'
+        self.SPECS_DIR = self.PROJECT_ROOT / 'specs'
+        
+        # Ensure directories exist
+        for d in [self.RAW_DIR, self.PROCESSED_DIR, self.METADATA_DIR, self.FIGURES_DIR, self.DOCS_DIR]:
+            d.mkdir(parents=True, exist_ok=True)
+        
+        # Hyperparameters
+        self.DEFAULT_SEED = 42
+        self.NUM_REALIZATIONS = 100
+        self.LIST_DEFAULT = [100, 200, 400, 800, 1600]
+        self.W_LIST_DEFAULT = [0.5, 1.0, 2.0]
+        
+        # Numerical tolerances
+        self.EIGENVALUE_TOL = 1e-6
+        self.CONVERGENCE_TOL = 1e-5
+        
+        # Memory limits (in GB)
+        self.RAM_LIMIT_GB = 6.0
+        
+        # Output paths
+        self.RESIDUALS_FILE = self.METADATA_DIR / 'residuals.json'
+        self.SCALING_FITS_FILE = self.PROCESSED_DIR / 'scaling_fits.json'
+        self.LYAPUNOV_FILE = self.PROCESSED_DIR / 'lyapunov_exponents.json'
+        self.PROVENANCE_FILE = self.METADATA_DIR / 'provenance.json'
+
+
+_config_instance = None
+
+
 def get_config() -> Config:
     """
-    Get the global configuration instance.
+    Singleton factory for Config.
     
     Returns:
-        Config instance.
+        Config: The global configuration instance.
     """
-    return Config()
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = Config()
+    return _config_instance

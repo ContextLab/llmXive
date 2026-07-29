@@ -1,23 +1,67 @@
 """
-Statistical analysis for localization length vs disorder strength.
+Statistical analysis for localization length scaling.
 
-Implements linear regression of log(xi) vs log(W) to extract scaling exponents,
-R-squared values, and confidence intervals as required by FR-005.
+Implements linear regression for log(xi) vs log(W) to extract the critical exponent
+and verify the scaling hypothesis.
 """
 import json
 import logging
 import os
+import math
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
 import numpy as np
 from scipy import stats as scipy_stats
 
-from config import get_config
-from logger_utils import get_logger, log_numerical_warning
+from code.config import get_config
 
 # Configure logging
-logger = get_logger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+def aggregate_localization_lengths(input_path: str) -> Dict[str, List[float]]:
+    """
+    Aggregate localization lengths (xi) from the scaling fits output.
+
+    Args:
+        input_path: Path to scaling_fits.json containing results from T013.
+
+    Returns:
+        Dictionary mapping disorder width (W) to list of localization lengths (xi).
+    """
+    config = get_config()
+    input_file = Path(input_path)
+
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    with open(input_file, 'r') as f:
+        data = json.load(f)
+
+    # Aggregate xi by W
+    # Expected structure: list of dicts with 'W', 'xi', 'uncertainty', etc.
+    xi_by_width: Dict[str, List[float]] = {}
+
+    for entry in data:
+        w = entry.get('W')
+        xi = entry.get('xi')
+
+        if w is None or xi is None:
+            logger.warning(f"Skipping entry with missing W or xi: {entry}")
+            continue
+
+        w_key = f"{w:.2f}"
+        if w_key not in xi_by_width:
+            xi_by_width[w_key] = []
+        xi_by_width[w_key].append(xi)
+
+    logger.info(f"Aggregated {sum(len(v) for v in xi_by_width.values())} localization lengths across {len(xi_by_width)} widths.")
+    return xi_by_width
 
 
 def perform_linear_regression(
@@ -26,302 +70,214 @@ def perform_linear_regression(
     y_err: Optional[np.ndarray] = None
 ) -> Dict[str, Any]:
     """
-    Perform weighted or unweighted linear regression on log-transformed data.
-    
+    Perform weighted linear regression of y vs x.
+
     Args:
-        x: Independent variable (log(W))
-        y: Dependent variable (log(xi))
-        y_err: Optional array of standard errors for y (for weighted regression)
-    
+        x: Independent variable (e.g., log(W)).
+        y: Dependent variable (e.g., log(xi)).
+        y_err: Optional uncertainties in y for weighted regression.
+
     Returns:
-        Dictionary containing:
-            - slope: Regression coefficient
-            - intercept: Regression intercept
-            - slope_stderr: Standard error of the slope
-            - r_squared: Coefficient of determination
-            - p_value: P-value for the slope (null hypothesis: slope = 0)
-            - confidence_interval_95: 95% confidence interval for the slope
-            - fit_params: Dictionary with 'slope' and 'intercept' for plotting
-            - n_samples: Number of data points used
+        Dictionary with slope, intercept, R-squared, and confidence intervals.
     """
+    if len(x) == 0 or len(y) == 0:
+        raise ValueError("Input arrays cannot be empty.")
+
     if len(x) != len(y):
-        raise ValueError(f"x and y must have same length: {len(x)} vs {len(y)}")
-    
-    if len(x) < 2:
-        raise ValueError(f"Need at least 2 data points for regression, got {len(x)}")
-    
+        raise ValueError("x and y must have the same length.")
+
+    # Filter out infinite or NaN values
+    mask = np.isfinite(x) & np.isfinite(y)
     if y_err is not None:
-        # Weighted least squares
-        weights = 1.0 / (y_err ** 2)
-        # Normalize weights
-        weights = weights / np.sum(weights) * len(weights)
-        
-        # Use scipy.stats.linregress is not weighted, so we use polyfit with weights
-        # For linear regression: y = slope * x + intercept
-        # Weights in polyfit are 1/sigma^2
-        try:
-            coeffs, cov = np.polyfit(x, y, 1, w=np.sqrt(weights), cov=True)
-            slope, intercept = coeffs
-            slope_stderr = np.sqrt(cov[0, 0])
-        except np.linalg.LinAlgError:
-            logger.warning("Weighted regression failed, falling back to unweighted")
-            slope, intercept, r_value, p_value, std_err = scipy_stats.linregress(x, y)
-            slope_stderr = std_err
+        mask &= np.isfinite(y_err)
+    x_clean = x[mask]
+    y_clean = y[mask]
+    y_err_clean = y_err[mask] if y_err is not None else None
+
+    if len(x_clean) < 2:
+        raise ValueError("Not enough valid data points for regression (need >= 2).")
+
+    # Perform regression
+    if y_err_clean is not None and np.any(y_err_clean > 0):
+        # Weighted regression
+        weights = 1.0 / (y_err_clean ** 2)
+        # Use scipy.stats for weighted fit if possible, otherwise fall back to unweighted
+        # scipy.stats.linregress doesn't support weights directly, so we use curve_fit logic or manual
+        # For simplicity and robustness, we use numpy.polyfit with weights
+        coeffs = np.polyfit(x_clean, y_clean, 1, w=np.sqrt(weights))
+        slope, intercept = coeffs
+        # Estimate uncertainty via covariance matrix from polyfit
+        # np.polyfit returns covariance matrix if full=True (in newer numpy versions)
+        # To be safe, we use the standard error from the residuals for confidence intervals
+        y_pred = slope * x_clean + intercept
+        residuals = y_clean - y_pred
+        # Standard error of estimate
+        s_err = np.sqrt(np.sum(residuals**2) / (len(x_clean) - 2))
+        # Standard errors of slope and intercept
+        # From polyfit documentation, cov is scaled by s_err^2 if full=True
+        # We'll approximate confidence intervals using standard formulas
+        x_mean = np.mean(x_clean)
+        ss_xx = np.sum((x_clean - x_mean)**2)
+        se_slope = s_err / np.sqrt(ss_xx)
+        se_intercept = s_err * np.sqrt(1/len(x_clean) + x_mean**2 / ss_xx)
     else:
-        # Standard unweighted linear regression
-        slope, intercept, r_value, p_value, std_err = scipy_stats.linregress(x, y)
-        slope_stderr = std_err
-    
-    r_squared = r_value ** 2
-    
-    # 95% confidence interval for slope (using t-distribution)
-    n = len(x)
-    if n > 2:
-        t_crit = scipy_stats.t.ppf(0.975, df=n-2)
-        ci_95 = (slope - t_crit * slope_stderr, slope + t_crit * slope_stderr)
+        # Unweighted regression
+        slope, intercept, r_value, p_value, std_err = scipy_stats.linregress(x_clean, y_clean)
+        se_slope = std_err
+        # For intercept, we calculate similarly
+        x_mean = np.mean(x_clean)
+        ss_xx = np.sum((x_clean - x_mean)**2)
+        s_err = np.sqrt(np.sum((y_clean - (slope*x_clean + intercept))**2) / (len(x_clean) - 2))
+        se_intercept = s_err * np.sqrt(1/len(x_clean) + x_mean**2 / ss_xx)
+        r_squared = r_value ** 2
+
+    # Confidence intervals (95%)
+    # Using t-distribution for small samples, but for large n, normal approx is fine
+    # t-value for 95% CI with n-2 degrees of freedom
+    n = len(x_clean)
+    if n > 30:
+        t_val = 1.96
     else:
-        ci_95 = (float('-inf'), float('inf'))
-        log_numerical_warning("Only 2 data points; confidence interval is infinite")
-    
+        from scipy import stats
+        t_val = stats.t.ppf(0.975, df=n-2)
+
+    slope_ci = (slope - t_val * se_slope, slope + t_val * se_slope)
+    intercept_ci = (intercept - t_val * se_intercept, intercept + t_val * se_intercept)
+
+    # Calculate R-squared if not already done (for weighted case)
+    if y_err_clean is None or np.all(y_err_clean == 0):
+        # Re-calculate R-squared for unweighted
+        y_pred = slope * x_clean + intercept
+        ss_res = np.sum((y_clean - y_pred)**2)
+        ss_tot = np.sum((y_clean - np.mean(y_clean))**2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+    else:
+        # For weighted, R-squared is less standard, but we can compute a pseudo-R2
+        y_pred = slope * x_clean + intercept
+        ss_res = np.sum(((y_clean - y_pred) * weights)**2)
+        ss_tot = np.sum(((y_clean - np.mean(y_clean)) * weights)**2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+
     return {
         'slope': float(slope),
         'intercept': float(intercept),
-        'slope_stderr': float(slope_stderr),
         'r_squared': float(r_squared),
-        'p_value': float(p_value),
-        'confidence_interval_95': [float(ci_95[0]), float(ci_95[1])],
-        'fit_params': {'slope': float(slope), 'intercept': float(intercept)},
-        'n_samples': int(n)
+        'slope_se': float(se_slope),
+        'intercept_se': float(se_intercept),
+        'slope_95_ci': [float(slope_ci[0]), float(slope_ci[1])],
+        'intercept_95_ci': [float(intercept_ci[0]), float(intercept_ci[1])],
+        'n_points': int(n),
+        'p_value': float(scipy_stats.linregress(x_clean, y_clean).pvalue)
     }
-
-
-def aggregate_localization_lengths(
-    input_file: str
-) -> Tuple[Dict[str, np.ndarray], Dict[str, Dict[str, Any]]]:
-    """
-    Aggregate localization length results from T013 output.
-    
-    Reads the JSON file containing localization lengths for all disorder widths
-    and system sizes, and groups them by disorder width W.
-    
-    Args:
-        input_file: Path to the JSON file containing localization lengths
-                   (typically data/processed/localization_lengths.json)
-    
-    Returns:
-        Tuple of:
-            - data_by_width: Dict mapping W -> {'xi': np.ndarray, 'xi_err': np.ndarray}
-            - metadata: Dict containing summary statistics
-    """
-    if not os.path.exists(input_file):
-        raise FileNotFoundError(f"Input file not found: {input_file}")
-    
-    with open(input_file, 'r') as f:
-        data = json.load(f)
-    
-    # Expected structure: { "W_values": [...], "results": { "W1": [...], "W2": [...] } }
-    # Each result list contains dicts with 'xi', 'uncertainty', 'fit_params', etc.
-    
-    w_values = data.get('W_values', [])
-    results = data.get('results', {})
-    
-    data_by_width = {}
-    
-    for w_str, xi_list in results.items():
-        w = float(w_str)
-        xi_vals = []
-        xi_errs = []
-        
-        for entry in xi_list:
-            xi = entry.get('xi')
-            uncertainty = entry.get('uncertainty', 0.0)
-            
-            if xi is not None and not np.isnan(xi) and not np.isinf(xi):
-                xi_vals.append(xi)
-                xi_errs.append(uncertainty)
-        
-        if len(xi_vals) > 0:
-            data_by_width[w] = {
-                'xi': np.array(xi_vals),
-                'xi_err': np.array(xi_errs) if len(xi_errs) > 0 else None
-            }
-        else:
-            logger.warning(f"No valid localization lengths found for W={w}")
-    
-    # Compute summary statistics
-    n_widths = len(data_by_width)
-    total_samples = sum(len(d['xi']) for d in data_by_width.values())
-    
-    metadata = {
-        'n_disorder_widths': n_widths,
-        'total_samples': total_samples,
-        'widths_analyzed': sorted(data_by_width.keys())
-    }
-    
-    return data_by_width, metadata
 
 
 def compute_scaling_analysis(
-    data_by_width: Dict[str, Dict[str, np.ndarray]],
-    log_transform: bool = True
+    xi_by_width: Dict[str, List[float]]
 ) -> Dict[str, Any]:
     """
     Compute the scaling analysis: log(xi) vs log(W).
-    
+
     Args:
-        data_by_width: Dict mapping W -> {'xi': np.ndarray, 'xi_err': np.ndarray}
-        log_transform: If True, perform log-log regression (standard for scaling)
-    
+        xi_by_width: Dictionary mapping W (string) to list of xi values.
+
     Returns:
-        Dictionary containing:
-            - regression_results: Full regression output from perform_linear_regression
-            - x_values: The independent variable values (log(W) or W)
-            - y_values: The dependent variable values (log(xi) or xi)
-            - y_err_values: Standard errors for y (if available)
-            - summary: Human-readable summary of the analysis
+        Dictionary with regression results, aggregated data, and metadata.
     """
-    if not data_by_width:
-        raise ValueError("No data available for scaling analysis")
-    
-    # Sort by disorder width W
-    sorted_widths = sorted(data_by_width.keys())
-    
-    # Compute mean xi and standard error for each width
-    x_vals = []
-    y_vals = []
-    y_errs = []
-    
-    for w in sorted_widths:
-        xi_data = data_by_width[w]
-        xi_mean = np.mean(xi_data['xi'])
-        xi_std = np.std(xi_data['xi'])
-        n = len(xi_data['xi'])
-        xi_se = xi_std / np.sqrt(n) if n > 1 else 0.0
-        
-        if log_transform:
-            # Only include positive values for log
-            if xi_mean > 0:
-                x_vals.append(np.log(w))
-                y_vals.append(np.log(xi_mean))
-                # Propagate error for log transformation: d(log(x)) = dx/x
-                if xi_se > 0:
-                    y_errs.append(xi_se / xi_mean)
-                else:
-                    y_errs.append(0.0)
-            else:
-                log_numerical_warning(f"Skipping W={w} because xi_mean={xi_mean} <= 0 for log transform")
-        else:
-            x_vals.append(w)
-            y_vals.append(xi_mean)
-            y_errs.append(xi_se)
-    
-    if len(x_vals) < 2:
-        raise ValueError("Insufficient data points after filtering (need at least 2)")
-    
-    x_arr = np.array(x_vals)
-    y_arr = np.array(y_vals)
-    y_err_arr = np.array(y_errs) if any(e > 0 for e in y_errs) else None
-    
+    if not xi_by_width:
+        raise ValueError("No data to analyze.")
+
+    # Convert to numpy arrays
+    # We use the mean xi for each width
+    w_values = []
+    xi_means = []
+    xi_stds = []
+    n_samples = []
+
+    for w_str, xi_list in xi_by_width.items():
+        w_val = float(w_str)
+        xi_arr = np.array(xi_list)
+
+        w_values.append(w_val)
+        xi_means.append(np.mean(xi_arr))
+        xi_stds.append(np.std(xi_arr))
+        n_samples.append(len(xi_arr))
+
+    w_values = np.array(w_values)
+    xi_means = np.array(xi_means)
+    xi_stds = np.array(xi_stds)
+
+    # Filter out non-positive values for log
+    valid_mask = (w_values > 0) & (xi_means > 0)
+    if not np.any(valid_mask):
+        raise ValueError("No valid data points (W>0 and xi>0) for log-log regression.")
+
+    log_w = np.log(w_values[valid_mask])
+    log_xi = np.log(xi_means[valid_mask])
+    log_xi_err = xi_stds[valid_mask] / xi_means[valid_mask]  # Relative error approx for log
+
     # Perform regression
-    regression_results = perform_linear_regression(x_arr, y_arr, y_err_arr)
-    
-    # Generate summary
-    if log_transform:
-        summary = (
-            f"Scaling analysis (log-log):\n"
-            f"  Slope: {regression_results['slope']:.4f} "
-            f"(95% CI: [{regression_results['confidence_interval_95'][0]:.4f}, "
-            f"{regression_results['confidence_interval_95'][1]:.4f}])\n"
-            f"  R²: {regression_results['r_squared']:.4f}\n"
-            f"  P-value: {regression_results['p_value']:.2e}\n"
-            f"  Samples: {regression_results['n_samples']} disorder widths"
-        )
-    else:
-        summary = (
-            f"Scaling analysis (linear):\n"
-            f"  Slope: {regression_results['slope']:.4f}\n"
-            f"  R²: {regression_results['r_squared']:.4f}\n"
-            f"  Samples: {regression_results['n_samples']} disorder widths"
-        )
-    
-    return {
-        'regression_results': regression_results,
-        'x_values': x_arr.tolist(),
-        'y_values': y_arr.tolist(),
-        'y_err_values': y_err_arr.tolist() if y_err_arr is not None else None,
-        'summary': summary,
-        'log_transform': log_transform
+    regression_results = perform_linear_regression(log_w, log_xi, log_xi_err)
+
+    # Prepare output
+    analysis_results = {
+        'regression': regression_results,
+        'data_summary': {
+            'w_values': w_values[valid_mask].tolist(),
+            'xi_means': xi_means[valid_mask].tolist(),
+            'xi_stds': xi_stds[valid_mask].tolist(),
+            'n_samples': [n_samples[i] for i, v in enumerate(w_values) if valid_mask[v]]
+        },
+        'metadata': {
+            'description': 'Linear regression of log(xi) vs log(W) for 1D Anderson localization',
+            'expected_slope': -2.0,  # Theoretical expectation for 1D
+            'units': 'log-log scale'
+        }
     }
 
+    return analysis_results
 
-def save_scaling_results(
-    analysis_results: Dict[str, Any],
-    output_file: str
-) -> None:
+
+def save_scaling_results(results: Dict[str, Any], output_path: str) -> None:
     """
-    Save the scaling analysis results to a JSON file.
-    
+    Save scaling analysis results to JSON.
+
     Args:
-        analysis_results: Dictionary containing regression results and metadata
-        output_file: Path to the output JSON file
+        results: Dictionary containing analysis results.
+        output_path: Path to output file.
     """
-    # Ensure output directory exists
-    output_path = Path(output_file)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
     with open(output_file, 'w') as f:
-        json.dump(analysis_results, f, indent=2)
-    
-    logger.info(f"Scaling results saved to {output_file}")
+        json.dump(results, f, indent=2)
+
+    logger.info(f"Saved scaling results to {output_path}")
 
 
-def main() -> None:
+def main():
     """
-    Main entry point for T014: Statistical analysis of localization length vs disorder.
-    
-    Reads aggregated localization lengths from T013, performs log-log linear regression,
-    and saves results to data/processed/scaling_analysis.json.
+    Main entry point for the stats analysis.
+    Reads scaling_fits.json, performs regression, and saves results.
     """
     config = get_config()
-    
-    # Input file from T013
-    input_file = config.DATA_PROCESSED_DIR / "localization_lengths.json"
-    output_file = config.DATA_PROCESSED_DIR / "scaling_analysis.json"
-    
-    logger.info(f"Starting T014: Statistical analysis for log(xi) vs log(W)")
-    logger.info(f"Input: {input_file}")
-    
+    input_path = config.DATA_PROCESSED / "scaling_fits.json"
+    output_path = config.DATA_PROCESSED / "scaling_regression.json"
+
+    logger.info(f"Starting scaling analysis. Input: {input_path}, Output: {output_path}")
+
     try:
         # Aggregate data
-        logger.info("Aggregating localization lengths...")
-        data_by_width, metadata = aggregate_localization_lengths(str(input_file))
-        logger.info(f"Found {metadata['n_disorder_widths']} disorder widths, "
-                    f"{metadata['total_samples']} total samples")
-        
-        if not data_by_width:
-            raise ValueError("No valid data found for scaling analysis")
-        
-        # Perform scaling analysis
-        logger.info("Computing log-log scaling analysis...")
-        analysis_results = compute_scaling_analysis(data_by_width, log_transform=True)
-        
-        # Add metadata to results
-        analysis_results['metadata'] = metadata
-        
+        xi_by_width = aggregate_localization_lengths(str(input_path))
+
+        # Compute analysis
+        results = compute_scaling_analysis(xi_by_width)
+
         # Save results
-        save_scaling_results(analysis_results, str(output_file))
-        
-        # Print summary
-        logger.info("Analysis complete!")
-        print("\n" + "="*60)
-        print(analysis_results['summary'])
-        print("="*60)
-        
-        # Log to metadata if needed
-        provenance_file = config.DATA_METADATA_DIR / "provenance.json"
-        if provenance_file.exists():
-            logger.info("Results logged to provenance (via storage_utils if needed)")
-        
+        save_scaling_results(results, str(output_path))
+
+        logger.info("Scaling analysis completed successfully.")
+        print(json.dumps(results['regression'], indent=2))
+
     except FileNotFoundError as e:
         logger.error(f"Input file not found: {e}")
         raise
@@ -329,7 +285,7 @@ def main() -> None:
         logger.error(f"Data processing error: {e}")
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during analysis: {e}")
+        logger.error(f"Unexpected error: {e}")
         raise
 
 
