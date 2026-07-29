@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-07-28T23:26:47.021799+00:00",
+  "generated_at": "2026-07-28T23:26:12.338862+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -121678,7 +121678,7 @@
       },
       "authors": [
         {
-          "contributions": 3204,
+          "contributions": 3214,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -121738,83 +121738,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.558696,
-          "ended_at": "2026-07-28T22:26:03.723010Z",
+          "duration_s": 0.975078,
+          "ended_at": "2026-07-28T23:25:52.642641Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:26:03.164314Z"
+          "started_at": "2026-07-28T23:25:51.667563Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.593433,
-          "ended_at": "2026-07-28T22:26:03.093458Z",
+          "duration_s": 0.756847,
+          "ended_at": "2026-07-28T23:25:51.597864Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:26:02.500025Z"
+          "started_at": "2026-07-28T23:25:50.841017Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.724663,
-          "ended_at": "2026-07-28T22:26:02.430260Z",
+          "duration_s": 0.904744,
+          "ended_at": "2026-07-28T23:25:50.771860Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:26:01.705597Z"
+          "started_at": "2026-07-28T23:25:49.867116Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.5161,
-          "ended_at": "2026-07-28T22:26:01.635422Z",
+          "duration_s": 0.761144,
+          "ended_at": "2026-07-28T23:25:49.797003Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:26:01.119322Z"
+          "started_at": "2026-07-28T23:25:49.035859Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.618489,
-          "ended_at": "2026-07-28T22:26:01.048674Z",
+          "duration_s": 0.78734,
+          "ended_at": "2026-07-28T23:25:48.965257Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:26:00.430185Z"
+          "started_at": "2026-07-28T23:25:48.177917Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.609934,
-          "ended_at": "2026-07-28T22:26:00.354849Z",
+          "duration_s": 0.753947,
+          "ended_at": "2026-07-28T23:25:48.095533Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:25:59.744915Z"
+          "started_at": "2026-07-28T23:25:47.341586Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.548965,
-          "ended_at": "2026-07-28T22:25:59.607036Z",
+          "duration_s": 0.793501,
+          "ended_at": "2026-07-28T23:25:47.193196Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:25:59.058071Z"
+          "started_at": "2026-07-28T23:25:46.399695Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.038876,
-          "ended_at": "2026-07-28T22:25:58.987786Z",
+          "duration_s": 0.760196,
+          "ended_at": "2026-07-28T23:25:46.329735Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:25:57.948910Z"
+          "started_at": "2026-07-28T23:25:45.569539Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.616779,
-          "ended_at": "2026-07-28T22:25:57.878665Z",
+          "duration_s": 0.94617,
+          "ended_at": "2026-07-28T23:25:45.499296Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:25:57.261886Z"
+          "started_at": "2026-07-28T23:25:44.553126Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 2.845747,
-          "ended_at": "2026-07-28T22:25:57.184083Z",
+          "duration_s": 4.057908,
+          "ended_at": "2026-07-28T23:25:44.475341Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-28T22:25:54.338336Z"
+          "started_at": "2026-07-28T23:25:40.417433Z"
         }
       ],
       "paper_status": null,
@@ -155276,6 +155276,438 @@
     },
     {
       "agent": "implementer",
+      "duration_s": 0.975078,
+      "ended_at": "2026-07-28T23:25:52.642641Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:51.667563Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.756847,
+      "ended_at": "2026-07-28T23:25:51.597864Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:50.841017Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.904744,
+      "ended_at": "2026-07-28T23:25:50.771860Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:49.867116Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.761144,
+      "ended_at": "2026-07-28T23:25:49.797003Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:49.035859Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.78734,
+      "ended_at": "2026-07-28T23:25:48.965257Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:48.177917Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.753947,
+      "ended_at": "2026-07-28T23:25:48.095533Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:47.341586Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.793501,
+      "ended_at": "2026-07-28T23:25:47.193196Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:46.399695Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.760196,
+      "ended_at": "2026-07-28T23:25:46.329735Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:45.569539Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.94617,
+      "ended_at": "2026-07-28T23:25:45.499296Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:44.553126Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.057908,
+      "ended_at": "2026-07-28T23:25:44.475341Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:25:40.417433Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 834.869114,
+      "ended_at": "2026-07-28T23:17:42.806236Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:03:47.937122Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 519.298374,
+      "ended_at": "2026-07-28T23:13:16.255114Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-420-predicting-the-effect-of-alloying-on-the",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:04:36.956740Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 808.45621,
+      "ended_at": "2026-07-28T23:04:36.869212Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-420-predicting-the-effect-of-alloying-on-the",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:51:08.413002Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 53.572589,
+      "ended_at": "2026-07-28T23:03:43.203941Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:02:49.631352Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 31.737264,
+      "ended_at": "2026-07-28T23:02:49.628813Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:02:17.891549Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 85.557226,
+      "ended_at": "2026-07-28T23:02:17.889062Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:00:52.331836Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 41.957364,
+      "ended_at": "2026-07-28T23:00:52.329269Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T23:00:10.371905Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 60.562705,
+      "ended_at": "2026-07-28T23:00:10.369364Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:59:09.806659Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 77.428866,
+      "ended_at": "2026-07-28T22:59:09.804169Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:57:52.375303Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 40.464666,
+      "ended_at": "2026-07-28T22:57:52.372671Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:57:11.908005Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.477652,
+      "ended_at": "2026-07-28T22:57:11.905516Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:57:08.427864Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 58.532249,
+      "ended_at": "2026-07-28T22:57:08.425197Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:56:09.892948Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 62.926266,
+      "ended_at": "2026-07-28T22:56:09.890482Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:55:06.964216Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 46.696898,
+      "ended_at": "2026-07-28T22:55:06.961643Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:54:20.264745Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 22.947325,
+      "ended_at": "2026-07-28T22:54:20.262201Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:53:57.314876Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 21.242252,
+      "ended_at": "2026-07-28T22:53:57.312289Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:53:36.070037Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 63.962691,
+      "ended_at": "2026-07-28T22:53:30.740402Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:52:26.777711Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 46.517823,
+      "ended_at": "2026-07-28T22:52:26.775179Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:51:40.257356Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 61.080455,
+      "ended_at": "2026-07-28T22:51:40.254734Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:50:39.174279Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 1462.166977,
+      "ended_at": "2026-07-28T22:51:08.352546Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-420-predicting-the-effect-of-alloying-on-the",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:26:46.185569Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 102.558501,
+      "ended_at": "2026-07-28T22:50:39.171690Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:48:56.613189Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 330.828449,
+      "ended_at": "2026-07-28T22:48:56.610653Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:43:25.782204Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 16.166611,
+      "ended_at": "2026-07-28T22:43:25.779678Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:43:09.613067Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 41.551695,
+      "ended_at": "2026-07-28T22:43:09.610378Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:42:28.058683Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 387.619373,
+      "ended_at": "2026-07-28T22:42:27.951105Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:36:00.331732Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 573.052635,
+      "ended_at": "2026-07-28T22:36:00.287293Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-28T22:26:27.234658Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 0.952504,
       "ended_at": "2026-07-28T22:27:28.205110Z",
       "failure_reason": "",
@@ -160841,126 +161273,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-28T17:17:52.798320Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 55.058675,
-      "ended_at": "2026-07-28T17:17:52.736255Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-094-evaluating-the-effectiveness-of-retrieva",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:16:57.677580Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 59.846884,
-      "ended_at": "2026-07-28T17:17:18.784487Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-915-llmxive-follow-up-extending-measuring-ep",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:16:18.937603Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 18.268134,
-      "ended_at": "2026-07-28T17:16:57.674521Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-094-evaluating-the-effectiveness-of-retrieva",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:16:39.406387Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 109.397183,
-      "ended_at": "2026-07-28T17:16:39.403377Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-094-evaluating-the-effectiveness-of-retrieva",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:14:50.006194Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 27.986774,
-      "ended_at": "2026-07-28T17:16:18.935255Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-915-llmxive-follow-up-extending-measuring-ep",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:15:50.948481Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.853241,
-      "ended_at": "2026-07-28T17:15:50.946025Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-915-llmxive-follow-up-extending-measuring-ep",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:15:29.092784Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 10.371506,
-      "ended_at": "2026-07-28T17:15:29.090161Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-915-llmxive-follow-up-extending-measuring-ep",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:15:18.718655Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 700.163029,
-      "ended_at": "2026-07-28T17:15:08.708170Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-915-llmxive-follow-up-extending-measuring-ep",
-      "project_stage": "analyzed",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:03:28.545141Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 440.530959,
-      "ended_at": "2026-07-28T17:14:50.003063Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-094-evaluating-the-effectiveness-of-retrieva",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:07:29.472104Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 45.4872,
-      "ended_at": "2026-07-28T17:07:26.018756Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-094-evaluating-the-effectiveness-of-retrieva",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-28T17:06:40.531556Z"
     }
   ],
   "reviewed_preprints": [
