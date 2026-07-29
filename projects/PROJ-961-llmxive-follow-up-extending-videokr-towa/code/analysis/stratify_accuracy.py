@@ -1,122 +1,122 @@
+"""
+Stratify accuracy calculations by hop count bins.
+"""
 import csv
 import json
 import logging
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 
-from utils.config import get_project_root, get_path, ensure_dir
 
-logger = logging.getLogger(__name__)
-
-def load_annotated_data() -> List[Dict[str, Any]]:
+def load_annotated_data(
+    file_path: Union[str, Path]
+) -> List[Dict[str, Any]]:
     """
-    Load annotated data from T013 output.
-    """
-    path = get_path("data/processed/annotated_videokr.csv")
-    if not path.exists():
-        raise FileNotFoundError(f"Annotated dataset not found at {path}")
+    Load annotated data from a CSV file.
     
+    Args:
+        file_path (Union[str, Path]): Path to the CSV file.
+        
+    Returns:
+        List[Dict[str, Any]]: List of row dictionaries.
+    """
+    path_obj = Path(file_path) if isinstance(file_path, str) else file_path
     data = []
-    with open(path, 'r') as f:
+    
+    with open(path_obj, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             data.append(row)
+    
     return data
 
-def bin_hop_length(hop: int) -> str:
+
+def bin_hop_length(hop_length: int) -> str:
     """
-    Bin hop length into categories: '1', '2', '3+'.
+    Bin hop length into categories.
+    
+    Args:
+        hop_length (int): Hop length value.
+        
+    Returns:
+        str: Binned category.
     """
-    if hop == 1:
+    if hop_length == 1:
         return '1'
-    elif hop == 2:
+    elif hop_length == 2:
         return '2'
     else:
         return '3+'
 
-def calculate_accuracy_by_bin(data: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+
+def calculate_accuracy_by_bin(
+    data: List[Dict[str, Any]],
+    hop_column: str = 'chain_length',
+    correctness_column: str = 'correctness'
+) -> Dict[str, Dict[str, int]]:
     """
-    Calculate accuracy for each bin.
-    Returns a dict: {bin_name: {'count': N, 'correct': M, 'accuracy': M/N}}
+    Calculate accuracy by hop bin.
+    
+    Args:
+        data (List[Dict[str, Any]]): Annotated data rows.
+        hop_column (str): Column name for hop length.
+        correctness_column (str): Column name for correctness.
+        
+    Returns:
+        Dict[str, Dict[str, int]]: Dictionary mapping bins to counts.
     """
-    bins: Dict[str, Dict[str, int]] = defaultdict(lambda: {'count': 0, 'correct': 0})
+    bin_stats: Dict[str, Dict[str, int]] = defaultdict(lambda: {'correct': 0, 'total': 0})
     
     for row in data:
         try:
-            hop = int(row['chain_length'])
-            correct = 1 if row['correctness'].lower() in ['true', '1', 'yes'] else 0
+            hop_length = int(row[hop_column])
+            bin_label = bin_hop_length(hop_length)
+            correctness = row.get(correctness_column, '0')
             
-            bin_name = bin_hop_length(hop)
-            bins[bin_name]['count'] += 1
-            bins[bin_name]['correct'] += correct
+            bin_stats[bin_label]['total'] += 1
+            if correctness.lower() in ['1', 'true', 'yes']:
+                bin_stats[bin_label]['correct'] += 1
         except (ValueError, KeyError) as e:
-            logger.warning(f"Skipping row due to error: {e}")
-            continue
+            logging.warning(f"Skipping invalid row: {row}, error: {e}")
     
-    # Calculate accuracy
-    result = {}
-    for bin_name, stats in bins.items():
-        if stats['count'] > 0:
-            result[bin_name] = {
-                'count': stats['count'],
-                'correct': stats['correct'],
-                'accuracy': stats['correct'] / stats['count']
-            }
-        else:
-            result[bin_name] = {
-                'count': 0,
-                'correct': 0,
-                'accuracy': 0.0
-            }
-    
-    return result
+    return dict(bin_stats)
 
-def write_results(accuracy_by_bin: Dict[str, Dict[str, Any]], output_path: Optional[str] = None) -> None:
-    """
-    Write results to JSON and prepare bin counts for T020a.
-    """
-    if output_path is None:
-        output_path = get_path("data/processed/bin_counts.json")
-    
-    # Extract counts for T020a
-    bin_counts = {k: v['count'] for k, v in accuracy_by_bin.items()}
-    
-    ensure_dir(output_path)
-    with open(output_path, 'w') as f:
-        json.dump(bin_counts, f, indent=2)
-    
-    logger.info(f"Bin counts saved to {output_path}")
-    
-    # Also save detailed accuracy results
-    detailed_path = get_path("data/processed/accuracy_by_bin.json")
-    ensure_dir(detailed_path)
-    with open(detailed_path, 'w') as f:
-        json.dump(accuracy_by_bin, f, indent=2)
-    logger.info(f"Accuracy results saved to {detailed_path}")
 
-def main():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def write_results(
+    bin_stats: Dict[str, Dict[str, int]],
+    output_path: Union[str, Path]
+) -> None:
+    """
+    Write accuracy results to a JSON file.
     
-    try:
-        logger.info("Loading annotated data...")
-        data = load_annotated_data()
-        logger.info(f"Loaded {len(data)} records.")
+    Args:
+        bin_stats (Dict[str, Dict[str, int]]): Accuracy statistics by bin.
+        output_path (Union[str, Path]): Path for the output file.
+    """
+    output_obj = Path(output_path) if isinstance(output_path, str) else output_path
+    
+    results = {}
+    for bin_label, stats in bin_stats.items():
+        total = stats['total']
+        correct = stats['correct']
+        accuracy = correct / total if total > 0 else 0.0
         
-        logger.info("Calculating accuracy by bin...")
-        accuracy_by_bin = calculate_accuracy_by_bin(data)
-        
-        logger.info(f"Accuracy by bin: {accuracy_by_bin}")
-        
-        logger.info("Writing results...")
-        write_results(accuracy_by_bin)
-        
-        logger.info("Stratify accuracy complete.")
-        
-    except Exception as e:
-        logger.error(f"Error in stratify_accuracy main: {e}", exc_info=True)
-        sys.exit(1)
+        results[bin_label] = {
+            'total': total,
+            'correct': correct,
+            'accuracy': accuracy
+        }
+    
+    with open(output_obj, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+
+
+def main() -> None:
+    """Main entry point for stratify accuracy module."""
+    pass
+
 
 if __name__ == "__main__":
     main()

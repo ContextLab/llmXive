@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-961-llmxive-follow-up-extending-videokr-towa
-last_run_id: 823d0081-36cc-467b-9a69-f681645ba355
+last_run_id: 146d363c-49eb-4a06-8826-ff4611970739
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa
 title: 'llmXive follow-up: extending "VideoKR: Towards Knowledge- and Reasoning-Intensive
   Video Understandin"'
-updated_at: '2026-07-29T12:30:28.409704Z'
+updated_at: '2026-07-29T22:09:28.195077Z'

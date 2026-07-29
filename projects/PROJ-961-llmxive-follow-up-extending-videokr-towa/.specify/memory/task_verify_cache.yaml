@@ -1,3 +1,34 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/`, `tests/`, or `data/` directories are present, nor is there a script
+    that checks their existence with `os.path.exists` and raises an error on failure.
+    The required artifacts are missing, so the task is not satisfied.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/ingest/`, `code/analysis/`, or `code/utils/` directories are present,
+    nor is there a script that checks their existence with `os.path.exists`. The required
+    artifacts are missing, so the task is not satisfied.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit/` and `tests/integration/` directories
+    is provided, nor is there a script that checks their existence with `os.path.exists`.
+    The implementer must add the two subdirectories and supply a verification script
+    that uses `os.path.exists` to confirm they exist.
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented that a `.gitkeep` file exists in the `data/raw/` directory;
+    the implementer did not supply the required file or any proof of its creation.
+    The task remains undone.
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `.gitkeep` file in the `data/processed/` directory is provided;
+    the artifact list is empty, so the required file cannot be confirmed as existing.
+    The implementer must add the `.gitkeep` file to that directory.
 T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,28 +36,19 @@ T013b:
     claimed verification, but no actual artifacts (e.g., `data/processed/annotated_videokr.csv`,
     accuracy plots, runtime log) were provided for inspection. Consequently, there
     is no evidence that the output of T013 exists or meets the required criteria.
-T031a:
+T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files from the `code/` directory or a diff/report showing that unused imports
-    were removed are present. Without the actual script contents or a verification
-    log, we cannot confirm that the imports have been cleaned. The implementer must
-    provide the updated scripts or a tool-generated report confirming removal of all
-    unused imports.
-T031b:
+  r: No documentation files or updates in a `docs/` directory were provided; the evidence
+    contains only the specification excerpt and no actual `docs/` artifacts, so the
+    required documentation updates are missing.
+T031c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files from the `code/` directory were provided, and there is no evidence\
-    \ (e.g., diff, annotated source files, or a report) showing that type hints were\
-    \ added to all public functions. The required artifact\u2014a set of `code/` files\
-    \ with complete type annotations\u2014is missing."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `tests/unit/` directory or any unit test files were provided; the claim of\
-    \ \u201Cadditional unit tests\u201D cannot be verified because the required artifacts\
-    \ are missing. The implementer must add the actual test files in the specified\
-    \ location."
+  r: "No scripts from the `code/` directory are presented, and there is no evidence\
+    \ that any files contain docstrings. To satisfy T031c, the implementer must supply\
+    \ the actual script files and demonstrate that each one includes a proper module\u2011\
+    level docstring."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

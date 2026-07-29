@@ -1,79 +1,166 @@
+"""
+Entity linking module for mapping question entities to graph nodes.
+"""
 import re
 import json
 import logging
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from pathlib import Path
-
 from utils.config import get_project_root, get_path, ensure_dir, get_config
 
-logger = logging.getLogger(__name__)
 
-def load_graph_from_file(graph_path: Optional[str] = None) -> Dict[str, Any]:
-    if graph_path is None:
-        graph_path = get_path("data/raw/knowledge_graph.json")
+def load_graph_from_file(graph_path: Union[str, Path]) -> Dict[Any, Set[Any]]:
+    """
+    Load a graph from a JSON file.
     
-    if not Path(graph_path).exists():
-        raise FileNotFoundError(f"Graph file not found at {graph_path}")
+    Args:
+        graph_path (Union[str, Path]): Path to the graph file.
+        
+    Returns:
+        Dict[Any, Set[Any]]: Adjacency list representation of the graph.
+    """
+    path_obj = Path(graph_path) if isinstance(graph_path, str) else graph_path
     
-    with open(graph_path, 'r') as f:
-        return json.load(f)
+    with open(path_obj, 'r') as f:
+        data = json.load(f)
+    
+    graph: Dict[Any, Set[Any]] = {}
+    for node, neighbors in data.items():
+        graph[node] = set(neighbors)
+    
+    return graph
+
 
 class EntityLinker:
-    def __init__(self, graph: Dict[str, Any]):
+    """
+    Entity linker for mapping question entities to graph nodes.
+    """
+    
+    def __init__(self, graph: Dict[Any, Set[Any]], threshold: float = 0.5):
+        """
+        Initialize the entity linker.
+        
+        Args:
+            graph (Dict[Any, Set[Any]]): Graph adjacency list.
+            threshold (float): Confidence threshold for linking.
+        """
         self.graph = graph
-        self.node_map: Dict[str, Set[str]] = {}
-        self._build_index()
+        self.threshold = threshold
+        self.node_names = set(graph.keys())
     
-    def _build_index(self):
-        nodes = self.graph.get('nodes', [])
-        for node in nodes:
-            node_id = node.get('id')
-            entity_name = node.get('name', '').lower()
-            if entity_name and node_id:
-                if entity_name not in self.node_map:
-                    self.node_map[entity_name] = set()
-                self.node_map[entity_name].add(node_id)
+    def extract_entities(self, text: str) -> List[str]:
+        """
+        Extract potential entities from text.
+        
+        Args:
+            text (str): Input text.
+            
+        Returns:
+            List[str]: List of extracted entities.
+        """
+        # Simple entity extraction: capitalized words and proper nouns
+        entities = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', text)
+        return list(set(entities))
     
-    def link_entity(self, entity_text: str, threshold: float = 0.8) -> Tuple[Optional[str], float]:
-        entity_lower = entity_text.lower().strip()
+    def calculate_similarity(self, entity: str, node_name: str) -> float:
+        """
+        Calculate similarity between an entity and a node name.
         
-        # Check for exact match
-        if entity_lower in self.node_map:
-            return list(self.node_map[entity_lower])[0], 1.0
+        Args:
+            entity (str): Extracted entity.
+            node_name (str): Graph node name.
+            
+        Returns:
+            float: Similarity score (0.0 to 1.0).
+        """
+        entity_lower = entity.lower()
+        node_lower = node_name.lower()
         
-        # Fuzzy matching (simple substring check for now)
+        # Exact match
+        if entity_lower == node_lower:
+            return 1.0
+        
+        # Substring match
+        if entity_lower in node_lower or node_lower in entity_lower:
+            return 0.8
+        
+        # Word overlap
+        entity_words = set(entity_lower.split())
+        node_words = set(node_lower.split())
+        
+        if not entity_words or not node_words:
+            return 0.0
+        
+        overlap = len(entity_words & node_words)
+        return overlap / max(len(entity_words), len(node_words))
+    
+    def link_entity(self, entity: str) -> Optional[Tuple[str, float]]:
+        """
+        Link an entity to the best matching graph node.
+        
+        Args:
+            entity (str): Entity to link.
+            
+        Returns:
+            Optional[Tuple[str, float]]: Tuple of (node_id, confidence) or None.
+        """
         best_match = None
         best_score = 0.0
         
-        for name, node_ids in self.node_map.items():
-            if entity_lower in name or name in entity_lower:
-                score = len(entity_lower) / max(len(name), len(entity_lower))
-                if score > best_score:
-                    best_score = score
-                    best_match = list(node_ids)[0]
+        for node_name in self.node_names:
+            score = self.calculate_similarity(entity, node_name)
+            if score > best_score:
+                best_score = score
+                best_match = node_name
         
-        if best_score >= threshold:
-            return best_match, best_score
+        if best_score >= self.threshold:
+            return (best_match, best_score)
         
-        return None, 0.0
+        return None
+    
+    def link_entities(self, text: str) -> List[Tuple[str, float]]:
+        """
+        Link all entities in text to graph nodes.
+        
+        Args:
+            text (str): Input text.
+            
+        Returns:
+            List[Tuple[str, float]]: List of (node_id, confidence) tuples.
+        """
+        entities = self.extract_entities(text)
+        links = []
+        
+        for entity in entities:
+            link = self.link_entity(entity)
+            if link:
+                links.append(link)
+        
+        return links
 
-def create_entity_linker(graph: Optional[Dict[str, Any]] = None) -> EntityLinker:
-    if graph is None:
-        graph = load_graph_from_file()
-    return EntityLinker(graph)
 
-def main():
-    logging.basicConfig(level=logging.INFO)
-    try:
-        graph = load_graph_from_file()
-        linker = create_entity_linker(graph)
+def create_entity_linker(
+    graph_path: Union[str, Path],
+    threshold: float = 0.5
+) -> EntityLinker:
+    """
+    Create an entity linker from a graph file.
+    
+    Args:
+        graph_path (Union[str, Path]): Path to the graph file.
+        threshold (float): Confidence threshold.
         
-        test_entities = ["video", "action", "scene"]
-        for entity in test_entities:
-            node_id, confidence = linker.link_entity(entity)
-            print(f"Entity: {entity} -> Node: {node_id}, Confidence: {confidence}")
-    except Exception as e:
-        logger.error(f"Error: {e}", exc_info=True)
+    Returns:
+        EntityLinker: Configured entity linker.
+    """
+    graph = load_graph_from_file(graph_path)
+    return EntityLinker(graph, threshold)
+
+
+def main() -> None:
+    """Main entry point for entity linker module."""
+    pass
+
 
 if __name__ == "__main__":
     main()

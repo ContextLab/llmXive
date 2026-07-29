@@ -1,94 +1,118 @@
+"""
+Checksum utility for verifying data integrity.
+"""
 import hashlib
 import json
 import os
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Any, Optional, List, Union
 
-from utils.config import get_project_root, get_path, ensure_dir
 
-logger = logging.getLogger(__name__)
-
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: Union[str, Path]) -> str:
+    """
+    Compute SHA-256 hash of a file.
+    
+    Args:
+        file_path (Union[str, Path]): Path to the file.
+        
+    Returns:
+        str: SHA-256 hash as hexadecimal string.
+    """
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    path_obj = Path(file_path) if isinstance(file_path, str) else file_path
+    
+    with open(path_obj, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
+    
     return sha256_hash.hexdigest()
 
-def verify_raw_data_integrity(file_path: Path, expected_hash: Optional[str] = None) -> bool:
-    if not file_path.exists():
-        logger.error(f"File not found: {file_path}")
-        return False
+
+def verify_raw_data_integrity(
+    file_path: Union[str, Path],
+    expected_hash: str
+) -> bool:
+    """
+    Verify a file's integrity against an expected hash.
     
+    Args:
+        file_path (Union[str, Path]): Path to the file.
+        expected_hash (str): Expected SHA-256 hash.
+        
+    Returns:
+        bool: True if hash matches, False otherwise.
+    """
     actual_hash = compute_sha256(file_path)
+    return actual_hash == expected_hash
+
+
+def generate_checksum_file(
+    file_path: Union[str, Path],
+    output_path: Union[str, Path]
+) -> Dict[str, str]:
+    """
+    Generate a checksum file for a given file.
     
-    if expected_hash:
-        if actual_hash == expected_hash:
-            logger.info(f"Checksum verified for {file_path}")
-            return True
+    Args:
+        file_path (Union[str, Path]): Path to the file.
+        output_path (Union[str, Path]): Path for the checksum file.
+        
+    Returns:
+        Dict[str, str]: Dictionary with file path and hash.
+    """
+    file_hash = compute_sha256(file_path)
+    checksum_data = {
+        "file": str(file_path),
+        "hash": file_hash
+    }
+    
+    output_obj = Path(output_path) if isinstance(output_path, str) else output_path
+    with open(output_obj, 'w') as f:
+        json.dump(checksum_data, f, indent=2)
+    
+    return checksum_data
+
+
+def verify_all_raw_data(
+    checksum_file_path: Union[str, Path],
+    base_dir: Optional[Union[str, Path]] = None
+) -> Dict[str, bool]:
+    """
+    Verify all files listed in a checksum file.
+    
+    Args:
+        checksum_file_path (Union[str, Path]): Path to the checksum file.
+        base_dir (Optional[Union[str, Path]]): Base directory for relative paths.
+        
+    Returns:
+        Dict[str, bool]: Dictionary mapping file paths to verification results.
+    """
+    checksum_obj = Path(checksum_file_path) if isinstance(checksum_file_path, str) else checksum_file_path
+    
+    with open(checksum_obj, 'r') as f:
+        checksum_data = json.load(f)
+    
+    results: Dict[str, bool] = {}
+    base_path = Path(base_dir) if base_dir else Path.cwd()
+    
+    for item in checksum_data:
+        file_path = base_path / item["file"] if not Path(item["file"]).is_absolute() else Path(item["file"])
+        expected_hash = item["hash"]
+        
+        if file_path.exists():
+            results[str(file_path)] = verify_raw_data_integrity(file_path, expected_hash)
         else:
-            logger.error(f"Checksum mismatch for {file_path}. Expected: {expected_hash}, Actual: {actual_hash}")
-            return False
-    else:
-        # If no expected hash, just log the actual hash
-        logger.info(f"Checksum for {file_path}: {actual_hash}")
-        return True
+            results[str(file_path)] = False
+    
+    return results
 
-def generate_checksum_file(file_paths: list, output_path: Optional[str] = None) -> None:
-    if output_path is None:
-        output_path = get_path("data/raw/checksums.json")
-    
-    ensure_dir(output_path)
-    
-    checksums = {}
-    for file_path in file_paths:
-        path = Path(file_path)
-        if path.exists():
-          checksums[str(path)] = compute_sha256(path)
-    
-    with open(output_path, 'w') as f:
-        json.dump(checksums, f, indent=2)
-    
-    logger.info(f"Checksums saved to {output_path}")
 
-def verify_all_raw_data() -> bool:
-    raw_dir = get_path("data/raw")
-    if not raw_dir.exists():
-        logger.error("Raw data directory not found.")
-        return False
-    
-    all_valid = True
-    checksums_file = get_path("data/raw/checksums.json")
-    
-    if not checksums_file.exists():
-        logger.warning("Checksums file not found. Generating...")
-        files = list(raw_dir.glob("*"))
-        generate_checksum_file(files)
-    
-    with open(checksums_file, 'r') as f:
-        checksums = json.load(f)
-    
-    for file_path_str, expected_hash in checksums.items():
-        if not verify_raw_data_integrity(Path(file_path_str), expected_hash):
-            all_valid = False
-    
-    return all_valid
+def main() -> None:
+    """Main entry point for checksum module."""
+    pass
 
-def main():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    try:
-        logger.info("Verifying raw data integrity...")
-        if verify_all_raw_data():
-            logger.info("All checksums verified.")
-        else:
-            logger.error("Checksum verification failed.")
-            sys.exit(1)
-    except Exception as e:
-        logger.error(f"Error in checksum main: {e}", exc_info=True)
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()

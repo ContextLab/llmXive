@@ -1,191 +1,177 @@
+"""
+Graph annotation module for VideoKR-SFT dataset.
+"""
 import csv
 import json
 import logging
 import os
 import sys
 import time
-from collections import deque
-from typing import Any, Dict, List, Optional, Tuple
+import itertools
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-from utils.config import get_project_root, get_path, ensure_dir, set_seed
-from utils.graph_utils import build_undirected_graph, shortest_path_bfs
-from utils.entity_linker import create_entity_linker, load_graph_from_file
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from utils.config import get_project_root, get_path, ensure_dir, get_seed
+from utils.graph_utils import shortest_path_bfs, build_undirected_graph
+from utils.entity_linker import create_entity_linker
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_videokr_dataset() -> List[Dict[str, Any]]:
-    path = get_path("data/raw/videokr_sft.csv")
-    if not path.exists():
-        raise FileNotFoundError(f"VideoKR-SFT dataset not found at {path}")
-    
-    data = []
-    with open(path, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            data.append(row)
+def load_videokr_dataset(data_path: Path) -> List[Dict[str, Any]]:
+    """Load VideoKR-SFT dataset from JSON file."""
+    with open(data_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
     return data
 
-def load_graph() -> Dict[str, Any]:
-    return load_graph_from_file()
+def load_graph(graph_path: Path) -> Dict[Any, List[Any]]:
+    """Load knowledge graph from JSON file."""
+    with open(graph_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
 
-def map_entities_to_nodes(data: List[Dict], linker) -> List[Dict]:
-    for row in data:
-        question = row.get('question', '')
-        # Extract entities from question (simplified: assume entity is the first word or keyword)
-        # In a real implementation, this would use NLP
-        entities = question.split()[:3] # Simple tokenization
-        
-        best_node = None
-        best_confidence = 0.0
-        
-        for entity in entities:
-            node_id, confidence = linker.link_entity(entity)
-            if confidence > best_confidence:
-                best_node = node_id
-                best_confidence = confidence
-        
-        row['entity_node_id'] = best_node
-        row['confidence'] = best_confidence
-        
-        if best_confidence < 0.5:
-            row['entity_node_id'] = 'unmapped'
-        
-    return data
+    edges = [(edge["source"], edge["target"]) for edge in data.get("edges", [])]
+    return build_undirected_graph(edges)
 
-def calculate_chain_length(graph: Dict[str, Any], data: List[Dict]) -> List[Dict]:
-    nodes = {n['id']: n for n in graph.get('nodes', [])}
-    edges = graph.get('edges', [])
-    
-    graph_adj = build_undirected_graph(edges)
-    
-    for row in data:
-        node_id = row.get('entity_node_id')
-        if node_id == 'unmapped' or node_id is None:
-            row['chain_length'] = None
-            row['chain_bin'] = 'unresolvable'
-            continue
-        
-        # Find a target node (simplified: assume target is a specific node or random)
-        # In reality, this would be defined by the question-answer pair
-        target_node = list(nodes.keys())[0] if nodes else None
-        
-        if target_node is None:
-            row['chain_length'] = None
-            row['chain_bin'] = 'unresolvable'
-            continue
-        
-        path = shortest_path_bfs(graph_adj, node_id, target_node)
-        if path:
-            hops = len(path) - 1
-            row['chain_length'] = hops
-            if hops == 1:
-                row['chain_bin'] = '1'
-            elif hops == 2:
-                row['chain_bin'] = '2'
-            else:
-                row['chain_bin'] = '3+'
-        else:
-            row['chain_length'] = None
-            row['chain_bin'] = 'unresolvable'
-    
-    return data
+def map_entities_to_nodes(text: str, linker, graph: Dict[Any, List[Any]]) -> Tuple[Optional[str], float]:
+    """Map entities in text to graph nodes."""
+    # Check if text already has node_id or entity_id
+    if "node_id" in text or "entity_id" in text:
+        # Use existing IDs
+        return text.get("node_id") or text.get("entity_id"), 1.0
 
-def bin_hop_length(hop: int) -> str:
-    if hop == 1:
-        return '1'
-    elif hop == 2:
-        return '2'
-    else:
-        return '3+'
+    results = linker.link_entities(text)
+    if not results:
+        return None, 0.0
 
-def run_pilot_sample(data: List[Dict], pilot_size: int = 1000) -> List[Dict]:
-    return data[:pilot_size]
+    # Use the highest confidence match
+    best_entity, best_node, best_confidence = max(results, key=lambda x: x[2])
+    return best_node, best_confidence
 
-def oversample_dataset(data: List[Dict], target_bin: str, target_count: int) -> List[Dict]:
-    # Simple oversampling: duplicate rows to reach target count
-    bin_rows = [r for r in data if r.get('chain_bin') == target_bin]
-    if not bin_rows:
-        return data
-    
-    while len(bin_rows) < target_count:
-        bin_rows.extend(bin_rows)
-    
-    return data + bin_rows[:target_count - len([r for r in data if r.get('chain_bin') == target_bin])]
+def calculate_chain_length(graph: Dict[Any, List[Any]], start: Optional[str], end: Optional[str]) -> Optional[int]:
+    """Calculate shortest path hops between two nodes."""
+    if start is None or end is None:
+        return None
 
-def process_chunk(data_chunk: List[Dict], linker, graph) -> List[Dict]:
-    linked = map_entities_to_nodes(data_chunk, linker)
-    annotated = calculate_chain_length(graph, linked)
+    hops = shortest_path_bfs(graph, start, end)
+    if hops is None:
+        return None
+    return len(hops) - 1
+
+def bin_hop_length(hops: Optional[int]) -> str:
+    """Bin hop length into categories."""
+    if hops is None:
+        return "unresolvable"
+    if hops <= 2:
+        return str(hops)
+    return "3+"
+
+def run_pilot_sample(dataset: List[Dict[str, Any]], pilot_size: int = 1000) -> List[Dict[str, Any]]:
+    """Run pilot sampling to estimate distribution."""
+    return dataset[:min(pilot_size, len(dataset))]
+
+def oversample_dataset(pilot_data: List[Dict[str, Any]], target_bin: str, target_count: int = 50) -> List[Dict[str, Any]]:
+    """Oversample rare bins to reach minimum count."""
+    bin_counts = {}
+    for record in pilot_data:
+        bin_val = record.get("chain_bin", "unknown")
+        bin_counts[bin_val] = bin_counts.get(bin_val, 0) + 1
+
+    if bin_counts.get(target_bin, 0) >= target_count:
+        return pilot_data
+
+    # Resample from pilot to reach target
+    target_records = [r for r in pilot_data if r.get("chain_bin") == target_bin]
+    if not target_records:
+        return pilot_data
+
+    oversampled = target_records * (target_count // len(target_records) + 1)
+    return pilot_data + oversampled[:target_count - len(target_records)]
+
+def process_chunk(chunk: List[Dict[str, Any]], graph: Dict[Any, List[Any]], linker) -> List[Dict[str, Any]]:
+    """Process a chunk of data and annotate with graph information."""
+    annotated = []
+    for record in chunk:
+        question = record.get("question", "")
+        answer = record.get("answer", "")
+        correctness = record.get("correctness", False)
+
+        entity_node_id, confidence = map_entities_to_nodes(question, linker, graph)
+        chain_length = calculate_chain_length(graph, entity_node_id, entity_node_id)
+        chain_bin = bin_hop_length(chain_length)
+
+        annotated_record = {
+            "id": record.get("id", ""),
+            "question": question,
+            "answer": answer,
+            "chain_length": chain_length,
+            "chain_bin": chain_bin,
+            "correctness": correctness,
+            "entity_node_id": entity_node_id,
+            "confidence": confidence
+        }
+        annotated.append(annotated_record)
+
     return annotated
 
 def main():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    set_seed(42)
-    
-    try:
-        logger.info("Loading VideoKR-SFT dataset...")
-        data = load_videokr_dataset()
-        logger.info(f"Loaded {len(data)} records.")
-        
-        logger.info("Loading knowledge graph...")
-        graph = load_graph()
-        logger.info(f"Loaded graph with {len(graph.get('nodes', []))} nodes.")
-        
-        logger.info("Creating entity linker...")
-        linker = create_entity_linker(graph)
-        
-        # Pilot phase
-        logger.info("Running pilot phase...")
-        pilot_data = run_pilot_sample(data, 1000)
-        
-        # Process pilot
-        pilot_data = map_entities_to_nodes(pilot_data, linker)
-        pilot_data = calculate_chain_length(graph, pilot_data)
-        
-        # Check distribution
-        bin_counts = {}
-        for row in pilot_data:
-            b = row.get('chain_bin', 'unknown')
-            bin_counts[b] = bin_counts.get(b, 0) + 1
-        
-        logger.info(f"Pilot bin distribution: {bin_counts}")
-        
-        # Check if oversampling needed
-        for bin_name, count in bin_counts.items():
-            if count < 50 and bin_name != 'unresolvable':
-                logger.info(f"Oversampling needed for bin: {bin_name}")
-                # In a real implementation, we would oversample here
-        
-        # Process full dataset (chunked)
-        logger.info("Processing full dataset...")
-        processed_data = []
-        chunk_size = 1000
-        
-        for i in range(0, len(data), chunk_size):
-            chunk = data[i:i+chunk_size]
-            processed_chunk = process_chunk(chunk, linker, graph)
-            processed_data.extend(processed_chunk)
-            logger.info(f"Processed chunk {i//chunk_size + 1}")
-        
-        # Filter out unresolvable
-        final_data = [r for r in processed_data if r.get('chain_bin') != 'unresolvable']
-        logger.info(f"Final data size: {len(final_data)}")
-        
-        # Write output
-        output_path = get_path("data/processed/annotated_videokr.csv")
-        ensure_dir(output_path)
-        
-        fieldnames = ['id', 'question', 'answer', 'entity_node_id', 'confidence', 'chain_length', 'chain_bin', 'correctness']
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
-            writer.writeheader()
-            writer.writerows(final_data)
-        
-        logger.info(f"Output written to {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Error in annotate_graph main: {e}", exc_info=True)
+    """Main entry point for graph annotation."""
+    project_root = get_project_root()
+    raw_dir = get_path(project_root, "raw_data")
+    processed_dir = get_path(project_root, "processed_data")
+
+    sft_path = raw_dir / "videokr_sft.json"
+    graph_path = raw_dir / "knowledge_graph.json"
+    output_path = processed_dir / "annotated_videokr.csv"
+
+    if not sft_path.exists() or not graph_path.exists():
+        logger.error("Data files not found. Run download_data.py first.")
         sys.exit(1)
+
+    ensure_dir(processed_dir)
+
+    # Load data
+    logger.info("Loading dataset and graph...")
+    dataset = load_videokr_dataset(sft_path)
+    graph = load_graph(graph_path)
+
+    # Create entity linker
+    linker = create_entity_linker(graph_path)
+
+    # Pilot sampling
+    logger.info("Running pilot sampling...")
+    pilot_data = run_pilot_sample(dataset, pilot_size=1000)
+
+    # Process pilot data
+    logger.info("Processing pilot data...")
+    annotated_pilot = process_chunk(pilot_data, graph, linker)
+
+    # Check for rare bins and oversample if needed
+    bin_counts = {}
+    for record in annotated_pilot:
+        bin_val = record.get("chain_bin", "unknown")
+        bin_counts[bin_val] = bin_counts.get(bin_val, 0) + 1
+
+    for bin_name, count in bin_counts.items():
+        if count < 50 and bin_name != "unresolvable":
+            logger.info(f"Oversampling bin {bin_name} (current: {count}, target: 50)")
+            annotated_pilot = oversample_dataset(annotated_pilot, bin_name, target_count=50)
+
+    # Process full dataset (or stream if too large)
+    logger.info("Processing full dataset...")
+    annotated_data = process_chunk(dataset, graph, linker)
+
+    # Write output
+    logger.info(f"Writing output to {output_path}")
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        if annotated_data:
+            writer = csv.DictWriter(f, fieldnames=annotated_data[0].keys())
+            writer.writeheader()
+            writer.writerows(annotated_data)
+
+    logger.info(f"Annotation complete. Output: {output_path}")
 
 if __name__ == "__main__":
     main()
