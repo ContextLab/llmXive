@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PermutationResultsSchema"
-description: "Schema for the output of the permutation test and statistical analysis using spherical noise."
+description: "Schema for the output of the permutation test and statistical analysis using label permutation."
 type: object
 required:
   - iterations
@@ -10,14 +10,14 @@ required:
 properties:
   iterations:
     type: integer
-    description: "Number of spherical noise iterations executed."
+    description: "Number of label permutation iterations executed."
     minimum: 1
   observed_statistic:
     type: number
     description: "The observed difference between native and cross-lingual similarity."
   null_distribution:
     type: array
-    description: "List of statistics generated from isotropic noise vectors projected onto spectra."
+    description: "List of statistics generated from label-permuted frequency vectors."
     items:
       type: number
   p_value:
@@ -51,6 +51,5 @@ properties:
     type: string
     description: "Method used for null distribution generation."
     enum:
-      - "spherical_noise"
-      - "frequency_shuffle"
-    default: "spherical_noise"
+      - "label_permutation"
+    default: "label_permutation"

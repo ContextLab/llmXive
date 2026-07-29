@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Token Attribution Schema"
+description: "Schema for token ranking and mean embedding attribution results."
+type: "object"
+required:
+  - "languages"
+  - "metadata"
+properties:
+  languages:
+    type: "object"
+    description: "Keys are language codes (e.g., 'en', 'fr', 'zh')."
+    additionalProperties:
+      type: "object"
+      required:
+        - "top_tokens"
+        - "mean_embedding_norm"
+      properties:
+        top_tokens:
+          type: "array"
+          description: "List of top-10 tokens with their weights in the edge spectrum."
+          items:
+            type: "object"
+            required:
+              - "token_id"
+              - "token_str"
+              - "weight"
+            properties:
+              token_id:
+                type: "integer"
+              token_str:
+                type: "string"
+              weight:
+                type: "number"
+        mean_embedding_norm:
+          type: "number"
+          description: "L2 norm of the mean embedding vector."
+        shift_vector:
+          type: "array"
+          description: "Difference vector between this language and the English baseline (if applicable)."
+          items:
+            type: "number"
+        baseline_comparison:
+          type: "object"
+          description: "Comparison against permuted frequency baseline."
+          properties:
+            overlap_ratio:
+              type: "number"
+              description: "Overlap with top-10 of permuted baseline."
+  metadata:
+    type: "object"
+    required:
+      - "k"
+      - "dataset_source"
+    properties:
+      k:
+        type: "integer"
+      dataset_source:
+        type: "string"
+        description: "Source of the frequency data (e.g., 'RedPajama-EN', 'OSCAR-FR')."

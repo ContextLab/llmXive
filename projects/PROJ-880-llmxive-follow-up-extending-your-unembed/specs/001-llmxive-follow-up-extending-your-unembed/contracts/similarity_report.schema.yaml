@@ -1,54 +1,54 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Similarity Report
-description: "Report of cosine similarity between edge spectrum subspaces of different models."
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Similarity Report Schema"
+description: "Schema for the geometric similarity report between model subspaces."
+type: "object"
 required:
-  - models
-  - pairwise_similarities
-  - metadata
+  - "model_pairs"
+  - "metadata"
 properties:
-  models:
-    type: array
-    description: "List of model names included in the study."
+  model_pairs:
+    type: "array"
+    description: "List of similarity metrics between model pairs."
     items:
-      type: string
-    example: ["Llama-3", "Mistral", "BLOOM"]
-  pairwise_similarities:
-    type: array
-    description: "Pairwise cosine similarity scores between model subspaces."
-    items:
-      type: object
+      type: "object"
       required:
-        - model_a
-        - model_b
-        - similarity_score
-        - language_pair
+        - "model_a"
+        - "model_b"
+        - "cosine_similarity"
       properties:
         model_a:
-          type: string
+          type: "string"
+          description: "Identifier of the first model (e.g., 'Llama-3-EN')."
         model_b:
-          type: string
-        similarity_score:
-          type: number
-          description: "Mean cosine similarity of the top-k singular vectors."
+          type: "string"
+          description: "Identifier of the second model (e.g., 'BLOOM-Multilingual')."
+        cosine_similarity:
+          type: "number"
+          description: "Average cosine similarity between the top-k singular vectors after alignment."
           minimum: -1.0
           maximum: 1.0
-        language_pair:
-          type: string
-          description: "Language pair comparison (e.g., 'EN-EN', 'EN-FR')."
+        alignment_method:
+          type: "string"
+          description: "Method used for alignment (e.g., 'procrustes')."
+        confidence_interval:
+          type: "array"
+          description: "95% confidence interval [lower, upper]."
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
   metadata:
-    type: object
+    type: "object"
     required:
-      - k_value
-      - date
-      - seed
+      - "k"
+      - "timestamp"
     properties:
-      k_value:
-        type: integer
+      k:
+        type: "integer"
         description: "Number of singular vectors used (top-k)."
-      date:
-        type: string
-        format: date-time
+      timestamp:
+        type: "string"
+        description: "ISO 8601 timestamp of the run."
       seed:
-        type: integer
+        type: "integer"
         description: "Random seed used for reproducibility."

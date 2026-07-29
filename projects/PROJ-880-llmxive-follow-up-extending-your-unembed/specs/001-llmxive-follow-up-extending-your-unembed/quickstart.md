@@ -2,79 +2,100 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- ~Sufficient disk space (for model weights and datasets)
-- Internet access (for HuggingFace downloads)
+- **Python**: 3.11+
+- **System**: Linux (Ubuntu 22.04 recommended), 8 GB+ RAM, Adequate disk storage capacity.
+- **Dependencies**: `pip install -r code/requirements.txt`
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-880-llmxive-follow-up-extending-your-unembed
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-880-llmxive-follow-up-extending-your-unembed
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: This installs CPU-only versions of `torch` and `transformers`.*
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## Data Acquisition & Validation
-
-The pipeline automatically downloads and validates datasets on first run. To manually verify:
-
-```bash
-python code/data_loader.py --download
-```
-
-This will:
-1.  Fetch RedPajama subsets and OSCAR filters to `data/raw/`.
-2.  **Validate** all URLs against the verified manifest.
-3.  Generate checksums for all downloaded files.
-4.  Generate checksums for all source files in `code/`.
+4. **Download data** (Optional, for local debugging):
+   ```bash
+   python code/data/download.py --dataset oscar --language fr
+   ```
 
 ## Running the Pipeline
 
-Execute the full research pipeline:
+### Full Execution
+
+To run the complete analysis (SVD, Alignment, Similarity, Attribution, Bootstrap, WALS):
 
 ```bash
-python code/main.py
+python code/main.py --config config/default.yaml
 ```
 
-This script performs the following steps in order:
-1.  **Validate & Download**: Fetches datasets and checks checksums. Fails if validation fails.
-2.  **Model Loading**: Loads Llama-3, Mistral, and BLOOM $W_U$ matrices.
-3.  **SVD Extraction**: Computes top-k singular vectors (with a fallback to a smaller k).
-4.  **Token Projection**: Projects token embeddings onto the subspace.
-5.  **Similarity & Attribution**: Computes cosine similarities and token rankings.
-6.  **Bootstrap Test**: Runs multiple iterations using the Within-Language Baseline.
-7.  **WALS Validation**: Computes correlation with external typological features.
-8.  **Artifact Hashing**: Generates hashes for all `data/` and `code/` artifacts.
-9.  **Report Generation**: Saves `similarity_report.json`, `permutation_result.json`, and `wals_validation.json` to `data/reports/`.
+This will:
+1. Download/stream datasets (OSCAR, RedPajama, WALS).
+2. Extract edge spectrum subspaces for Llama, Mistral, BLOOM.
+3. Align subspaces via Procrustes (Phase 0).
+4. Compute similarity matrices.
+5. Perform token attribution.
+6. Run the label permutation bootstrap test.
+7. Validate against WALS.
+8. Record hashes and save results to `data/processed/`.
 
-## Inspecting Results
+### Individual Phases
 
-- **Subspace Similarities**: `data/reports/similarity_report.json`
-- **Token Attribution**: `data/reports/token_attribution.json`
-- **Statistical Test**: `data/reports/permutation_result.json`
-- **WALS Validation**: `data/reports/wals_validation.json`
+- **Extract & Align Subspaces**:
+  ```bash
+  python code/main.py --phase alignment
+  ```
+- **Compute Similarity**:
+  ```bash
+  python code/main.py --phase similarity
+  ```
+- **Token Attribution**:
+  ```bash
+  python code/main.py --phase attribution
+  ```
+- **Statistical Test**:
+  ```bash
+  python code/main.py --phase bootstrap
+  ```
 
-To visualize the results (optional):
-```bash
-python code/visualize.py
+## Output Inspection
+
+After completion, check the results:
+
+- **Similarity Report**: `data/processed/similarity_report.json`
+- **Token Attribution**: `data/processed/token_attribution.json`
+- **Bootstrap Results**: `data/processed/permutation_result.json`
+- **WALS Validation**: `data/processed/wals_validation.json`
+- **SVD Details**: `data/processed/spectrum_output.json`
+
+### Example Output (similarity_report.json)
+```json
+{
+  "model_pairs": [
+    {
+      "model_a": "Llama-3-EN",
+      "model_b": "BLOOM-Multilingual",
+      "cosine_similarity": 0.87,
+      "alignment_method": "procrustes_shared_vocab",
+      "confidence_interval": [0.85, 0.89]
+    }
+  ]
+}
 ```
 
 ## Troubleshooting
 
-- **OOM Error**: If you encounter "Out of Memory", ensure no other GPU/CPU intensive processes are running. The script is designed for moderate RAM usage.; if you have less, reduce `k` in `code/config.py`.
-- **Dataset Missing**: If the OSCAR filter fails, check your internet connection. The script will fall back to available subsets and log a warning.
-- **Numerical Instability**: If SVD fails, the script will log the specific singular values and skip the problematic matrix, proceeding with others.
-- **Validation Failure**: If `validate_sources()` fails, the pipeline will abort. Check the `data_loader.py` manifest for updated URLs.
+- **OOM Error**: Ensure `load_in_8bit=True` is used in `code/analysis/svd_extractor.py`. If still failing, reduce `k` (top-$k$) to 50.
+- **Data Missing**: If `data/raw/` is empty, run the download script or ensure internet access for streaming.
+- **WALS Error**: If WALS data is missing, the pipeline will skip the correlation step and log a warning.

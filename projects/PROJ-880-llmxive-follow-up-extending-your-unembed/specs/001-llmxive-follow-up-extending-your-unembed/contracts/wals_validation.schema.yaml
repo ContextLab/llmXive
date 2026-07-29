@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "WALS Validation Schema"
+description: "Schema for the correlation between subspace rotation angle and WALS features."
+type: "object"
+required:
+  - "language_pairs"
+  - "metadata"
+properties:
+  language_pairs:
+    type: "array"
+    description: "List of language pairs and their correlation results."
+    items:
+      type: "object"
+      required:
+        - "lang_a"
+        - "lang_b"
+        - "correlation_coefficient"
+        - "wals_features_used"
+        - "subspace_rotation_angle"
+      properties:
+        lang_a:
+          type: "string"
+        lang_b:
+          type: "string"
+        correlation_coefficient:
+          type: "number"
+          description: "Pearson correlation coefficient r."
+          minimum: -1.0
+          maximum: 1.0
+        wals_features_used:
+          type: "array"
+          description: "List of WALS feature IDs used in the correlation."
+          items:
+            type: "string"
+        subspace_rotation_angle:
+          type: "number"
+          description: "The Procrustes distance/angle between the subspaces."
+        valid:
+          type: "boolean"
+          description: "True if correlation_coefficient >= 0.5."
+  metadata:
+    type: "object"
+    required:
+      - "source"
+    properties:
+      source:
+        type: "string"
+        description: "Source of WALS data (e.g., 'WALS-GitHub-CSV')."
+      data_unavailable:
+        type: "boolean"
+        description: "True if WALS data was not available for correlation."

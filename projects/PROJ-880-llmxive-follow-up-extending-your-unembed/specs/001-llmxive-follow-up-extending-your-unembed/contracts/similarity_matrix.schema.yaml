@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SimilarityMatrixSchema"
-description: "Schema for pairwise cosine similarities between average token vectors and edge spectra after alignment."
+description: "Schema for pairwise cosine similarities between average token vectors and edge spectra after Procrustes alignment."
 type: object
 required:
   - native_pairs

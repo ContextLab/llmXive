@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Frequency List Schema"
-description: "Schema for raw frequency lists downloaded from Hugging Face."
+description: "Schema for raw frequency lists downloaded from Hugging Face (RedPajama/OSCAR)."
 type: "object"
 properties:
   metadata:
