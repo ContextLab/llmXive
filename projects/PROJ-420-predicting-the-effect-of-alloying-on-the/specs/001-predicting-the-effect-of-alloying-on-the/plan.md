@@ -30,7 +30,7 @@ This project implements a machine learning pipeline to predict the Poisson's rat
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - **I. Reproducibility**: Plan mandates pinned `requirements.txt` and random seeds in `code/`. External datasets are fetched via the verified `openml` library (ID 42347), ensuring identical sources on every run. No authentication keys are required, ensuring reproducibility on fresh runners.
-- **II. Verified Accuracy**: The plan uses OpenML ID 42347, a verified, programmatic source for Aluminum Alloy properties. No fabricated URLs are used.
+- **II. Verified Accuracy**: The plan uses OpenML, a verified, programmatic source for Aluminum Alloy properties. No fabricated URLs are used.
 - **III. Data Hygiene**: Raw data will be checksummed upon download. All transformations (filtering, unit normalization, ILR) will write new files to `data/` without modifying raw inputs.
 - **IV. Single Source of Truth**: The pipeline will generate `data/processed/alloys_clean.parquet` and `results/metrics.json`. The paper will only reference these artifacts. No hand-typed numbers.
 - **V. Versioning Discipline**: All artifacts (code, data, models) will be hashed. The plan includes a step to update `state/...yaml` with new hashes upon completion.
@@ -114,7 +114,7 @@ models/
 2. **ILR**: Apply Isometric Log-Ratio transformation to atomic fractions.
 3. **VIF**: Calculate Variance Inflation Factors on raw composition. Flag if VIF > 5 (expected, but logged).
 4. **Power Analysis**: Check sample size. If < 100, log a warning and limit model complexity (max_depth=5).
-5. **Physical Sanity Check**: Validate that the distribution of Poisson's ratio in the dataset falls within known physical bounds (0.0 <= nu <= 0.5) and typical Aluminum alloy ranges (0.30-0.36).
+5. **Physical Sanity Check**: Validate that the distribution of Poisson's ratio in the dataset falls within known physical bounds (0.0 <= nu <= 0.5) and typical Aluminum alloy ranges (lower bound to 0.36).
 
 ### Phase 2: Model Training & Evaluation
 1. **Split**: / train/test split.

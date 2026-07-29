@@ -7,7 +7,6 @@ seaborn
 matplotlib
 compositional
 statsmodels
+openml
 pydantic
 psutil
-ruff
-black

@@ -1,0 +1,191 @@
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: OpenML dataset 42347 contains required fields Poisson's ratio, Young's
+    modulus, Cu, Mg, Si, Zn, Mn
+  claim_id: c_2576ae4e
+  context: 'Verify data source accessibility: Implement a script... to verify the
+    accessibility of the target OpenML dataset. Check that it contains the required
+    schema fields...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Check that it contains the required schema fields: Poisson''s ratio,
+    Young''s modulus, Cu, Mg, Si, Zn, Mn.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:57:22Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Materials Project API returns zero valid aluminum alloy entries with
+    Poisson's ratio
+  claim_id: c_1d2aa5b8
+  context: Implement data extraction for Materials Project... If the API returns zero
+    aluminum alloy entries with Poisson's ratio, the script MUST halt...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_returns_zero_valid_aluminum_alloy_entr
+  kind: entity_fact
+  raw_text: If the API returns zero aluminum alloy entries with Poisson's ratio, the
+    script MUST halt with error...
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T02:00:59Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: NIST Materials Data Repository API returns zero valid aluminum alloy
+    entries with Poisson's ratio
+  claim_id: c_6f08f402
+  context: Implement data extraction for NIST Materials Data Repository... If the
+    API returns zero aluminum alloy entries with Poisson's ratio, the script MUST
+    halt...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_Materials_Data_Repository_API_returns_zero_valid_alumin
+  kind: entity_fact
+  raw_text: If the API returns zero aluminum alloy entries with Poisson's ratio, the
+    script MUST halt with error...
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T02:01:01Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Entries with measurement method Derived or calculated_from_Youngs_modulus
+    are excluded
+  claim_id: c_52245779
+  context: 'Implement positive verification and exclusion logic... query the measurement_method
+    field for each entry. If the field is PRESENT: EXCLUDE the entry if the method
+    is ''Derived'' or ''calculated_from_Youngs_modulus''...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Entries_with_measurement_method_Derived_or_calculated_from_Y
+  kind: entity_fact
+  raw_text: Exclude the entry if the method is 'Derived' or 'calculated_from_Youngs_modulus'...
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T02:01:12Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Entries with measurement method not ultrasonic or experimental are excluded
+  claim_id: c_c9771668
+  context: EXCLUDE if the method is NOT 'ultrasonic' or 'experimental' (including
+    'DFT', 'missing', 'null', or empty string).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Entries_with_measurement_method_not_ultrasonic_or_experiment
+  kind: entity_fact
+  raw_text: Exclude if the method is NOT 'ultrasonic' or 'experimental'...
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T02:01:32Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if valid entries are fewer than 50
+  claim_id: c_dc8604b1
+  context: 'If valid entries < 50, HALT with error ''CRITICAL: Insufficient data (<
+    50 entries) for 5-fold cross-validation. Pipeline halted per spec Edge Cases.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_valid_entries_are_fewer_than_50
+  kind: magnitude
+  raw_text: If valid entries < 50, HALT with error...
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T02:01:48Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: VIF calculated for Cu, Mg, Si, Zn, Mn only
+  claim_id: c_c512ce2d
+  context: Implement VIF calculation in code/analysis.py for raw predictors. Exclude
+    the Al balance from the calculation to avoid infinite VIF values... Compute VIF
+    for Cu, Mg, Si, Zn, Mn only.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VIF_calculated_for_Cu,_Mg,_Si,_Zn,_Mn_only
+  kind: entity_fact
+  raw_text: Compute VIF for Cu, Mg, Si, Zn, Mn only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T02:01:53Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Log flag generated for predictors with VIF greater than 5
+  claim_id: c_cdd45582
+  context: Generate a log flag for each predictor with VIF > 5 as required by FR-007,
+    but do NOT halt the pipeline...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_flag_generated_for_predictors_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: Generate a log flag for each predictor with VIF > 5...
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T02:03:30Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Data extraction runtime target is less than 30 seconds per source
+  claim_id: c_c7a4e47c
+  context: Run ruff check --fix code/ to remove unused imports... Optimize data extraction
+    runtime in code/data_extraction.py to target < 30s per source
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_extraction_runtime_target_is_less_than_30_seconds_per_s
+  kind: magnitude
+  raw_text: Optimize data extraction runtime in code/data_extraction.py to target
+    < 30s per source
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T02:03:37Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Modeling runtime target is less than 10 minutes for full pipeline
+  claim_id: c_12ee5351
+  context: Optimize modeling runtime in code/modeling.py to target < 10min for full
+    pipeline
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Modeling_runtime_target_is_less_than_10_minutes_for_full_pip
+  kind: magnitude
+  raw_text: Optimize modeling runtime in code/modeling.py to target < 10min for full
+    pipeline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T02:03:46Z'

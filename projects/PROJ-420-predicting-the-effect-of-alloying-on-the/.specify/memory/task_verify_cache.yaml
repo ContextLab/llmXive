@@ -1,3 +1,18 @@
+T018:
+  c: false
+  h: 5128ba0c1e1637964e049ab446494a5692af208c437b41af0bb7422b7c492694
+  r: "The `data/processed/filtered_alloys.csv` file does not exist, and the provided\
+    \ `code/main.py` snippet contains only a report\u2011generation function without\
+    \ any pipeline orchestration or the required validation checks for zero or <\u202F\
+    50 valid entries. The task\u2019s core requirements are therefore unmet."
+T019:
+  c: false
+  h: fbf8640a82bb4173075438adb59f080a21b339a67c11f4a463cbe0e9134d6579
+  r: "The provided `code/data_cleaning.py` does not contain any ILR\u2011transformation\
+    \ logic for Cu, Mg, Si, Zn, Mn (the shown portion ends in `normalize_units` and\
+    \ is truncated). Moreover, the required input file `data/processed/filtered_alloys.csv`\
+    \ is absent, so the transformation cannot even be run. Both the implementation\
+    \ and the necessary data artifact are missing."
 T024:
   c: false
   h: 8b62d11a6bdcb8beb3fde4462cbd7bd5415ac2cbce1f633083f1b944e38c8c30
@@ -8,12 +23,11 @@ T024:
     are absent.
 T030:
   c: false
-  h: b16a45c93da36d2202bad5648c9e7c91d7dee02d6dd0c8c8a7a3d0ddb8b40ec4
-  r: The `generate_final_report` function is present and performs the phrase injection
-    and regex verification, but the required output file `docs/outputs/final_report.md`
-    does not exist on disk, so the report is never actually generated as specified.
-    The missing file must be created by the pipeline for the task to be considered
-    complete.
+  h: 2ad9eb190fbe5e8283de4113e6948881d17794f3a3b2d760edadc2407332d915
+  r: The `generate_final_report` function is implemented and includes the required
+    sections and associational framing, but the required artifact `results/final_report.md`
+    does not exist on disk. The report file must be generated (or a placeholder file
+    committed) to satisfy the task.
 T032a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

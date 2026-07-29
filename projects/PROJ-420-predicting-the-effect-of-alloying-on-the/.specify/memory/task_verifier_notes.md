@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T016** — The required intermediate raw files `data/raw/materials_project_aluminum.json`, `data/raw/nist_aluminum.json`, and `data/raw/openml_aluminum.json` are absent, and the provided `code/main.py` excerpt shows no invocation of the T009a‑c extraction functions that would generate them. The task’s core output is therefore not present.
+- **T017** — The `data/processed/filtered_alloys.csv` file does not exist, so the required output is missing. Moreover, `code/main.py` only defines a report‑generation helper and does not show any code that actually runs the cleaning pipeline (T010 → T012 → T014 → T011 → T013) or writes the filtered CSV. The task’s core requirement is therefore unmet.
+- **T018** — The `data/processed/filtered_alloys.csv` file does not exist, and the provided `code/main.py` snippet contains only a report‑generation function without any pipeline orchestration or the required validation checks for zero or < 50 valid entries. The task’s core requirements are therefore unmet.
+- **T019** — The provided `code/data_cleaning.py` does not contain any ILR‑transformation logic for Cu, Mg, Si, Zn, Mn (the shown portion ends in `normalize_units` and is truncated). Moreover, the required input file `data/processed/filtered_alloys.csv` is absent, so the transformation cannot even be run. Both the implementation and the necessary data artifact are missing.
