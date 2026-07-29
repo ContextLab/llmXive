@@ -1,0 +1,38 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env` file, configuration scripts, or logging setup (e.g., Python `logging`
+    configuration, log directory, or example log output) were provided. The claim
+    lacks any tangible artifact demonstrating environment variable management or logging
+    infrastructure, so the requirement is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/unit/` directory or test files were provided; thus there is no evidence
+    that unit tests for data shapes, normalization correctness, or stratification
+    logic were implemented. The required test artifacts are missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logging code, configuration, or documentation for the data\u2011generation\
+    \ parameters (temperature\u202FT, system size\u202FL, coupling ratios) is present\
+    \ in the provided artifacts. The task required adding such logging, but the evidence\
+    \ contains no files, snippets, or commit references that implement or demonstrate\
+    \ this functionality. The implementer must supply the actual logging implementation\
+    \ (e.g., Python logging statements, log file, or documentation) showing T, L,\
+    \ and coupling ratios being recorded."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or logs were supplied showing that the US1 data loaders were\
+    \ integrated, nor any measurements or benchmarks demonstrating that batch processing\
+    \ stays within a 7\u202FGB RAM limit. The required artifact (a working data\u2011\
+    loading implementation with memory\u2011usage evidence) is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation implementing checkpoint saving, checksum generation,
+    or metadata validation was provided. The response only repeats the task description
+    and project spec without delivering the required artifact. The implementer must
+    supply the actual implementation (e.g., a Python module or function) that writes
+    model checkpoints, computes and stores checksums, and validates metadata on load.

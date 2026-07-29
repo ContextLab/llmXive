@@ -43,7 +43,7 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2410.12381
   verified_at: '2026-07-03T00:21:49.057386Z'
-- artifact_hash: 188d70f3b4980896aa88fc3e30af0ca84ab8159c5682fcfba889dafcef11faca
+- artifact_hash: 893d96b34b33675947ad02e9e2986f1097098ec70f180fa14867c0dfa2cbca6b
   artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -53,4 +53,4 @@
   value: https://huggingface.co/datasets/openai/human-eval`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/openai/human-eval
-  verified_at: '2026-07-03T00:21:49.338808Z'
+  verified_at: '2026-07-29T04:33:16.436655Z'

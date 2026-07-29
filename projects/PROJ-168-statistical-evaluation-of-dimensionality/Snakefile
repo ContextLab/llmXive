@@ -1,90 +1,76 @@
-# Snakefile for Statistical Evaluation of Dimensionality Reduction
-# Rule: preprocess
-# Implements T013: QC (<5% gene filter) and dynamic HVG selection
-
 import os
-import sys
 from pathlib import Path
-
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent / "code"))
-
 from config import Config
-from utils import time_wrapper
 
-# Configuration
-RAW_DIR = Config.RAW_DIR
-PROCESSED_DIR = Config.PROCESSED_DIR
-RESULTS_DIR = Config.RESULTS_DIR
+# Load configuration
+config = Config()
+
+# Define paths
+RAW_DIR = Path(config.DATA_RAW)
+PROCESSED_DIR = Path(config.DATA_PROCESSED)
+RESULTS_DIR = Path(config.RESULTS)
+CODE_DIR = Path("code")
 
 # Ensure directories exist
-os.makedirs(PROCESSED_DIR, exist_ok=True)
-os.makedirs(RESULTS_DIR, exist_ok=True)
+for d in [RAW_DIR, PROCESSED_DIR, RESULTS_DIR]:
+    d.mkdir(parents=True, exist_ok=True)
 
-# Get list of accessions from config or data gap report
-# Assuming data_gap_report.json exists from T044
-import json
-try:
-    with open(Path(RESULTS_DIR) / "data_gap_report.json", 'r') as f:
-        report = json.load(f)
-        accessions = [d['accession'] for d in report.get('datasets', []) if d.get('status') == 'found']
-except FileNotFoundError:
-    # Fallback to config list if report missing (though T044 should have run)
-    accessions = Config.DATASETS
-
+# Global rules
 rule all:
     input:
-        expand(f"{PROCESSED_DIR}/{{accession}}_processed.h5ad", accession=accessions)
+        expand(
+            RESULTS_DIR / "fidelity" / "{accession}_fidelity.json",
+            accession=config.DATASET_ACCESSIONS
+        )
+
+rule download:
+    output:
+        count_matrix=RAW_DIR / "{accession}_counts.h5ad",
+        labels=RAW_DIR / "{accession}_labels.csv"
+    script:
+        CODE_DIR / "download.py"
 
 rule preprocess:
     input:
-        raw = lambda wildcards: f"{RAW_DIR}/{wildcards.accession}_counts.csv", # Assuming CSV format from download
-        # In a real scenario, the extension might vary based on download.py output
-        # We assume download.py standardizes to CSV or we check for .csv/.mtx
-        # For robustness, we can use a wildcard or specific check, but Snakefile needs explicit input
-        # Let's assume download.py produces a file named {accession}_counts.csv as per T012/T013 context
-        # If download.py produces .h5ad or .mtx, we need to adjust.
-        # Given T012 says "fetch raw count matrices", and T013 says "QC", we assume a standard format.
-        # To be safe, we can check for multiple extensions in the rule or use a wildcard.
-        # However, Snakefile input must be explicit. Let's assume the download rule produces {accession}_counts.csv
-        # If the download rule produces something else, this needs adjustment.
-        # Let's assume the download rule produces a file that preprocess.py can handle.
-        # We will assume the file is named {accession}_raw_counts.csv for now.
-        # Actually, let's make the input flexible by checking for the file in the directory.
-        # But Snakefile requires explicit input.
-        # We will assume the download rule produces: {RAW_DIR}/{accession}_counts.csv
-        # If the actual file is different, the download rule must be consistent.
-        # Let's assume the download rule produces: {RAW_DIR}/{accession}_counts.csv
-        raw = lambda wildcards: f"{RAW_DIR}/{wildcards.accession}_counts.csv"
+        count_matrix=RAW_DIR / "{accession}_counts.h5ad",
+        labels=RAW_DIR / "{accession}_labels.csv"
     output:
-        processed = f"{PROCESSED_DIR}/{{accession}}_processed.h5ad",
-        log = f"{RESULTS_DIR}/preprocess_{wildcards.accession}.log"
-    params:
-        gene_threshold = 5.0,
-        max_cells = 10000
-    shell:
-        """
-        python code/preprocess.py \
-            --accession {wildcards.accession} \
-            --input {input.raw} \
-            --output {PROCESSED_DIR} \
-            --gene-threshold {params.gene_threshold} \
-            --max-cells {params.max_cells} \
-            2> {output.log}
-        """
-        # Note: The log redirection in shell might be tricky with Python's logging.
-        # A better approach is to let Python write to the log file directly.
-        # But for Snakefile, we can just run the script.
-        # Let's adjust the command to ensure logs are captured.
-        # Actually, the script writes to stdout/stderr. We can redirect.
-        # However, the script also writes the plot to RESULTS_DIR.
-        # We need to ensure the script runs successfully.
-        
-        # Re-running with proper logging to file
-        python code/preprocess.py \
-            --accession {wildcards.accession} \
-            --input {input.raw} \
-            --output {PROCESSED_DIR} \
-            --gene-threshold {params.gene_threshold} \
-            --max-cells {params.max_cells} \
-            > {output.log} 2>&1
+        processed=PROCESSED_DIR / "{accession}_processed.h5ad"
+    script:
+        CODE_DIR / "preprocess.py"
+
+rule embeddings:
+    input:
+        processed=PROCESSED_DIR / "{accession}_processed.h5ad"
+    output:
+        pca=PROCESSED_DIR / "{accession}_pca.h5ad",
+        tsne=PROCESSED_DIR / "{accession}_tsne.h5ad",
+        umap=PROCESSED_DIR / "{accession}_umap.h5ad"
+    script:
+        CODE_DIR / "embeddings.py"
+
+rule geometry:
+    input:
+        processed=PROCESSED_DIR / "{accession}_processed.h5ad"
+    output:
+        geometry=RESULTS_DIR / "geometry" / "{accession}_geometry.json"
+    script:
+        CODE_DIR / "geometry.py"
+
+rule cluster:
+    input:
+        processed=PROCESSED_DIR / "{accession}_processed.h5ad"
+    output:
+        clustered=PROCESSED_DIR / "{accession}_clustered.h5ad",
+        resolution=RESULTS_DIR / "cluster" / "{accession}_resolution.json"
+    script:
+        CODE_DIR / "clustering.py"
+
+rule fidelity:
+    input:
+        clustered=PROCESSED_DIR / "{accession}_clustered.h5ad",
+        labels=RAW_DIR / "{accession}_labels.csv"
+    output:
+        fidelity=RESULTS_DIR / "fidelity" / "{accession}_fidelity.json"
+    script:
+        CODE_DIR / "clustering.py"

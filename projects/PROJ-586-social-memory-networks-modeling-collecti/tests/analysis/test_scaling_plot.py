@@ -1,92 +1,99 @@
-"""Tests for scaling plot generation (T030)."""
-import pytest
+"""
+Tests for T030: Scaling Plot Generation.
+"""
+import json
 import tempfile
-import os
 from pathlib import Path
-import pandas as pd
-import numpy as np
 
-from analysis.scaling_plot_generator import (
-    generate_scaling_plot_with_notes,
-    load_scaling_data_real,
-    fit_power_law_with_ci,
-    power_law
-)
+import pytest
 
-
-class TestPowerLawFit:
-    def test_power_law_function(self):
-        """Test the power-law function implementation."""
-        x = np.array([1.0, 2.0, 3.0])
-        a, b = 2.0, 0.5
-        y = power_law(x, a, b)
-        expected = a * np.power(x, b)
-        np.testing.assert_array_almost_equal(y, expected)
-
-    def test_fit_with_sufficient_points(self):
-        """Test fitting with more than 3 points."""
-        x = np.array([2.0, 4.0, 8.0, 16.0, 32.0])
-        y = 3.0 * np.power(x, 0.7) + np.random.normal(0, 0.1, len(x))
-        a, b, ci = fit_power_law_with_ci(x, y, "test")
-        assert isinstance(a, float)
-        assert isinstance(b, float)
-        assert abs(b - 0.7) < 0.2  # Should be close to true value
-        assert ci >= 0  # CI half-width should be non-negative
+from analysis.scaling_plot_generator import generate_scaling_plot_with_notes
 
 
 class TestScalingPlotGeneration:
-    def test_generate_plot_creates_file(self):
-        """Test that the plot generation creates the PDF file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            results_dir = Path(tmpdir)
-            output_path = Path(tmpdir) / "test_plot.pdf"
+    """Test suite for the scaling plot generator."""
 
-            # Create dummy CSV files for N=3, 5, 7
-            for n in [3, 5, 7]:
-                df = pd.DataFrame({
-                    'game_id': range(10),
-                    'specialization_index': np.random.uniform(0.1, 0.9, 10),
-                    'retrieval_efficiency': np.random.uniform(0.1, 0.9, 10)
-                })
-                df.to_csv(results_dir / f"results_scaling_N={n}.csv", index=False)
+    @pytest.fixture
+    def sample_data(self):
+        """Sample scaling data for testing."""
+        return [
+            {"agent_count": 3, "specialization_index": 1.1, "retrieval_efficiency": 0.85},
+            {"agent_count": 5, "specialization_index": 1.4, "retrieval_efficiency": 0.78},
+            {"agent_count": 7, "specialization_index": 1.6, "retrieval_efficiency": 0.72}
+        ]
 
-            result = generate_scaling_plot_with_notes(results_dir, output_path)
+    @pytest.fixture
+    def temp_input_file(self, sample_data):
+        """Create a temporary input JSON file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(sample_data, f)
+            return Path(f.name)
 
-            assert output_path.exists()
-            assert output_path.suffix == ".pdf"
-            assert result.n_points == 3
-            assert "3 data points" in result.note
+    @pytest.fixture
+    def temp_output_file(self):
+        """Create a temporary output file path."""
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as f:
+            path = Path(f.name)
+        return path
 
-    def test_load_scaling_data_real(self):
-        """Test loading scaling data from CSVs."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            results_dir = Path(tmpdir)
+    def test_plot_generation_creates_file(self, temp_input_file, temp_output_file):
+        """Test that the plot generation creates the output file."""
+        result = generate_scaling_plot_with_notes(
+            input_data_path=temp_input_file,
+            output_path=temp_output_file,
+            note_text="Test note"
+        )
+        assert temp_output_file.exists(), "Output PDF file was not created."
+        assert result["data_points"] == 3
+        assert "specialization_fit" in result
+        assert "retrieval_fit" in result
 
-            # Create dummy CSVs
-            for n in [3, 5, 7]:
-                df = pd.DataFrame({
-                    'game_id': range(100),
-                    'specialization_index': np.random.uniform(0.1, 0.9, 100),
-                    'retrieval_efficiency': np.random.uniform(0.1, 0.9, 100)
-                })
-                df.to_csv(results_dir / f"results_scaling_N={n}.csv", index=False)
+    def test_plot_generation_with_note(self, temp_input_file, temp_output_file):
+        """Test that the note text is included in the result metadata."""
+        note_text = "3 data points limit power-law reliability"
+        result = generate_scaling_plot_with_notes(
+            input_data_path=temp_input_file,
+            output_path=temp_output_file,
+            note_text=note_text
+        )
+        assert result["note"] == note_text
 
-            loaded_df = load_scaling_data_real(results_dir)
+    def test_plot_generation_with_filtered_agents(self, temp_input_file, temp_output_file):
+        """Test filtering agent counts."""
+        result = generate_scaling_plot_with_notes(
+            input_data_path=temp_input_file,
+            output_path=temp_output_file,
+            agent_counts=[3, 5]
+        )
+        assert result["data_points"] == 2
+        assert 7 not in result["agent_counts"]
 
-            assert len(loaded_df) == 3
-            assert set(loaded_df['agent_count'].values) == {3, 5, 7}
-            assert 'avg_specialization_index' in loaded_df.columns
-            assert 'avg_retrieval_efficiency' in loaded_df.columns
+    def test_plot_generation_insufficient_data(self, temp_output_file):
+        """Test that insufficient data raises an error."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump([{"agent_count": 3, "specialization_index": 1.1, "retrieval_efficiency": 0.85}], f)
+            input_file = Path(f.name)
 
-    def test_missing_file_raises(self):
-        """Test that missing CSV raises FileNotFoundError."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            results_dir = Path(tmpdir)
-            output_path = Path(tmpdir) / "test.pdf"
+        with pytest.raises(ValueError, match="Insufficient data points"):
+            generate_scaling_plot_with_notes(
+                input_data_path=input_file,
+                output_path=temp_output_file
+            )
+        input_file.unlink()
 
-            # Only create N=3, missing N=5 and N=7
-            df = pd.DataFrame({'game_id': [1], 'specialization_index': [0.5]})
-            df.to_csv(results_dir / "results_scaling_N=3.csv", index=False)
+    def test_plot_generation_invalid_input(self, temp_output_file):
+        """Test that missing input file raises an error."""
+        with pytest.raises(FileNotFoundError):
+            generate_scaling_plot_with_notes(
+                input_data_path=Path("non_existent.json"),
+                output_path=temp_output_file
+            )
 
-            with pytest.raises(FileNotFoundError):
-                generate_scaling_plot_with_notes(results_dir, output_path)
+    def test_plot_file_size(self, temp_input_file, temp_output_file):
+        """Test that the generated PDF has a reasonable size."""
+        result = generate_scaling_plot_with_notes(
+            input_data_path=temp_input_file,
+            output_path=temp_output_file,
+            note_text="Test"
+        )
+        assert temp_output_file.stat().st_size > 1000, "Generated PDF is too small."

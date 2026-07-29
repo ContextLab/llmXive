@@ -1,0 +1,37 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the directory tree `projects/001-statistical-evaluation-of-dimensionality/{data/raw,data/processed,results,code,tests}`
+    actually exists on disk; without a listing or screenshot of those folders, we
+    cannot confirm the required project structure was created. The implementer must
+    supply proof (e.g., a directory listing) that the specified folders are present.
+T021:
+  c: false
+  h: 937518f7228f137ef46cbfca5391ecaa4664340884f7f04181009a55175060d1
+  r: "The `code/utils.py` file defines the parser and header creation but the `record_metrics`\
+    \ method is truncated and never writes the actual metric row, and the required\
+    \ `results/monitoring.csv` file does not exist. The implementation therefore does\
+    \ not produce the per\u2011step CSV output the task demands."
+T029:
+  c: false
+  h: 937518f7228f137ef46cbfca5391ecaa4664340884f7f04181009a55175060d1
+  r: "The `ResourceMonitor` class in `code/utils.py` never checks RAM against the\
+    \ 7\u202FGB threshold nor aborts execution, and its `record_metrics` method only\
+    \ writes a CSV header without logging any metric rows. Moreover, the required\
+    \ output file `results/monitoring.csv` does not exist. The task\u2019s core requirements\
+    \ are therefore unmet."
+T051:
+  c: false
+  h: 5ca82c7990facbf269c48798fd34b5840409fe3d4d83adbbc7b922d633fc50ad
+  r: "`code/main.py` does contain logic that detects a single\u2011dataset (case\u2011\
+    study) situation and sets environment variables for a fixed\u2011effects model,\
+    \ but it never writes or modifies `results/summary.json`. The required `results/summary.json`\
+    \ file is missing entirely, so the header update cannot have been performed. The\
+    \ task is therefore not fully satisfied."
+T054:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No Snakefile or rule definition for `verify_data_availability` was provided;
+    there is no evidence of a rule that runs before `download` and halts the workflow
+    when raw count sources are missing. The required artifact is missing, so the task
+    is not satisfied.

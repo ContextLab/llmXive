@@ -5,252 +5,251 @@ import logging
 import csv
 import re
 import time
-import shutil
 from pathlib import Path
-from typing import Optional, Dict, Any, Callable, Tuple
-from config import Config
+from typing import Optional, Dict, Any, List, Tuple
+from contextlib import contextmanager
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Configuration for monitoring
+MONITORING_LOG_FILE = "results/monitoring.csv"
+TIME_LOG_PATTERN = r"Maximum resident set size \(kbytes\): (\d+)"
+ELAPSED_TIME_PATTERN = r"Elapsed \(wall clock\) time \(h:mm:ss or m:ss\): ([0-9:.]+)"
+
 logger = logging.getLogger(__name__)
 
 class ResourceMonitor:
-    """
-    Monitors RAM usage and execution time for a process.
-    Implements FR-008: Abort if RAM > 7GB.
-    """
-    MAX_RAM_GB = 7.0
-    MAX_RAM_KB = MAX_RAM_GB * 1024 * 1024  # Convert GB to KB (1024^2)
-    
-    def __init__(self, log_path: Optional[str] = None):
-        self.log_path = log_path or str(Config.RESULTS_DIR / "monitoring.csv")
-        self._ensure_log_file()
-        self.step_history: list = []
+    """Context manager to wrap execution with /usr/bin/time -v monitoring."""
 
-    def _ensure_log_file(self):
-        """Initialize the monitoring CSV if it doesn't exist."""
-        log_file = Path(self.log_path)
-        if not log_file.exists():
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_file, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(['step', 'timestamp', 'wall_time_seconds', 'peak_ram_kb', 'peak_ram_gb', 'status'])
+    def __init__(self, output_path: Optional[str] = None, accession: Optional[str] = None, step: Optional[str] = None):
+        self.output_path = output_path or MONITORING_LOG_FILE
+        self.accession = accession or "unknown"
+        self.step = step or "unknown"
+        self.start_time: Optional[float] = None
+        self.end_time: Optional[float] = None
+        self.ram_kb: Optional[int] = None
+        self.elapsed_seconds: Optional[float] = None
 
-    def check_ram_usage(self, pid: int) -> Tuple[float, bool]:
-        """
-        Checks the current RAM usage of a process by its PID.
-        Returns (peak_ram_gb, is_exceeded).
-        
-        Uses /usr/bin/time -v logic via psutil-like parsing or direct /proc if available.
-        Since we cannot rely on psutil being installed without adding deps, we use
-        /proc/<pid>/status or `ps` command as a fallback.
-        """
-        try:
-            # Try to read from /proc first (Linux)
-            status_path = f"/proc/{pid}/status"
-            if os.path.exists(status_path):
-                with open(status_path, 'r') as f:
-                    for line in f:
-                        if line.startswith("VmPeak:"):
-                            # Format: "VmPeak:     123456 kB"
-                            parts = line.split()
-                            if len(parts) >= 2:
-                                ram_kb = int(parts[1])
-                                ram_gb = ram_kb / (1024 * 1024)
-                                is_exceeded = ram_kb > self.MAX_RAM_KB
-                                return ram_gb, is_exceeded
-            
-            # Fallback to `ps` command if /proc fails or not on Linux
-            # ps -o rss=,pid= <pid> returns RSS in KB
-            result = subprocess.run(
-                ['ps', '-o', 'rss=', '-p', str(pid)],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                ram_kb = int(result.stdout.strip())
-                ram_gb = ram_kb / (1024 * 1024)
-                is_exceeded = ram_kb > self.MAX_RAM_KB
-                return ram_gb, is_exceeded
-            
-            logger.warning(f"Could not determine RAM usage for PID {pid}.")
-            return 0.0, False
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
 
-        except (ValueError, subprocess.TimeoutExpired, FileNotFoundError, PermissionError) as e:
-            logger.error(f"Error checking RAM for PID {pid}: {e}")
-            return 0.0, False
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end_time = time.time()
+        return False
 
-    def log_metrics(self, step_name: str, wall_time: float, peak_ram_gb: float, status: str):
-        """Logs metrics to the CSV file."""
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        peak_ram_kb = peak_ram_gb * 1024 * 1024
-        
-        with open(self.log_path, 'a', newline='') as f:
+    def parse_time_output(self, time_output: str) -> Tuple[Optional[int], Optional[float]]:
+        """Parse the output of /usr/bin/time -v to extract RAM and elapsed time."""
+        ram_match = re.search(TIME_LOG_PATTERN, time_output)
+        elapsed_match = re.search(ELAPSED_TIME_PATTERN, time_output)
+
+        ram_kb = int(ram_match.group(1)) if ram_match else None
+
+        elapsed_seconds = None
+        if elapsed_match:
+            time_str = elapsed_match.group(1)
+            parts = time_str.split(':')
+            if len(parts) == 3:
+                # h:mm:ss
+                hours = int(parts[0])
+                mins = int(parts[1])
+                secs = float(parts[2])
+                elapsed_seconds = hours * 3600 + mins * 60 + secs
+            elif len(parts) == 2:
+                # m:ss
+                mins = int(parts[0])
+                secs = float(parts[1])
+                elapsed_seconds = mins * 60 + secs
+            else:
+                # Assume seconds if single number (rare)
+                elapsed_seconds = float(parts[0])
+
+        return ram_kb, elapsed_seconds
+
+    def record_metrics(self, time_output: str):
+        """Parse time output and record metrics to CSV."""
+        ram_kb, elapsed_seconds = self.parse_time_output(time_output)
+        self.ram_kb = ram_kb
+        self.elapsed_seconds = elapsed_seconds
+
+        # Ensure directory exists
+        output_path = Path(self.output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        file_exists = output_path.exists()
+
+        with open(output_path, mode='a', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow([step_name, timestamp, f"{wall_time:.2f}", f"{peak_ram_kb:.0f}", f"{peak_ram_gb:.2f}", status])
-        
-        self.step_history.append({
-            'step': step_name,
-            'timestamp': timestamp,
-            'wall_time': wall_time,
-            'peak_ram_gb': peak_ram_gb,
-            'status': status
-        })
-        logger.info(f"Monitored {step_name}: {peak_ram_gb:.2f} GB RAM, {wall_time:.2f}s. Status: {status}")
+            if not file_exists:
+                writer.writerow(['timestamp', 'accession', 'step', 'peak_ram_kb', 'elapsed_seconds'])
 
-def time_wrapper(cmd: str, step_name: str) -> subprocess.CompletedProcess:
-    """
-    Runs a command with resource monitoring.
-    Uses /usr/bin/time -v to capture wall time and max memory.
-    
-    Args:
-        cmd: The command string to execute.
-        step_name: Identifier for logging.
-    
-    Returns:
-        CompletedProcess instance.
-    
-    Raises:
-        RuntimeError: If RAM usage exceeds MAX_RAM_GB.
-    """
-    monitor = ResourceMonitor()
-    
-    # Prepare the command to include /usr/bin/time -v
-    # We need to capture the output of /usr/bin/time to parse it
-    # Format: /usr/bin/time -v <command>
-    full_cmd = ["/usr/bin/time", "-v", "-o", "/dev/stderr", "--append", "-f", "%e|%M", cmd]
-    # Note: %e is elapsed real time, %M is max resident set size (KB)
-    
-    # However, parsing /usr/bin/time output is tricky with subprocess.
-    # Alternative: Run the script, and in the script itself, we can call a wrapper.
-    # But the task asks for a wrapper in utils.py.
-    
-    # Let's use a simpler approach: Run the command, and use `ps` to monitor periodically?
-    # No, the requirement is to abort if > 7GB.
-    # The most reliable way with standard tools is to wrap the execution.
-    
-    # Let's assume the command is a python script or a shell command.
-    # We will run it and monitor.
-    
-    # Since we cannot easily parse /usr/bin/time output in real-time to abort,
-    # we will run the command and then check the exit code and the time output.
-    # BUT the requirement is to ABORT if > 7GB. This implies real-time monitoring.
-    
-    # Re-evaluating: The task says "check RAM usage during execution and abort".
-    # This requires a background thread or a wrapper that monitors the child process.
-    
-    # Let's implement a robust wrapper using a monitoring thread.
-    
-    process = subprocess.Popen(
-        cmd, 
-        shell=True, 
-        stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE,
-        text=True
-    )
-    
-    start_time = time.time()
-    peak_ram_gb = 0.0
-    exceeded = False
-    
-    # Monitor loop
-    while process.poll() is None:
-        current_ram_gb, is_exceeded = monitor.check_ram_usage(process.pid)
-        if current_ram_gb > peak_ram_gb:
-            peak_ram_gb = current_ram_gb
-        
-        if is_exceeded:
-            logger.error(f"RAM limit exceeded ({peak_ram_gb:.2f} GB > {monitor.MAX_RAM_GB} GB) in step '{step_name}'. Aborting.")
-            process.terminate()
-            try:
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                process.kill()
-            
-            monitor.log_metrics(step_name, time.time() - start_time, peak_ram_gb, "ABORTED_RAM_LIMIT")
-            raise RuntimeError(f"Resource limit exceeded: RAM usage {peak_ram_gb:.2f} GB > {monitor.MAX_RAM_GB} GB")
-        
-        time.sleep(1) # Check every second
-    
-    # Process finished
-    wall_time = time.time() - start_time
-    final_ram_gb, _ = monitor.check_ram_usage(process.pid)
-    if final_ram_gb > peak_ram_gb:
-        peak_ram_gb = final_ram_gb
-    
-    status = "COMPLETED" if process.returncode == 0 else "FAILED"
-    monitor.log_metrics(step_name, wall_time, peak_ram_gb, status)
-    
-    # Return a fake CompletedProcess if we need to, but usually we just let the exception propagate
-    # or return the actual process.
-    return process
+            writer.writerow([
+                time.strftime('%Y-%m-%d %H:%M:%S'),
+                self.accession,
+                self.step,
+                self.ram_kb if self.ram_kb is not None else 'N/A',
+                self.elapsed_seconds if self.elapsed_seconds is not None else 'N/A'
+            ])
 
-def run_script_with_monitoring(script_path: str, step_name: str, args: Optional[list] = None) -> int:
+        logger.info(f"Recorded monitoring metrics for {self.step} ({self.accession}): RAM={self.ram_kb}KB, Time={self.elapsed_seconds}s")
+
+@contextmanager
+def time_wrapper(cmd: List[str], accession: str, step: str, output_log: Optional[str] = None):
     """
-    Runs a python script with resource monitoring.
-    If RAM > 7GB, it aborts and logs to results/monitoring.csv.
-    
+    Execute a command wrapped with /usr/bin/time -v to capture resource usage.
+    Parses the output and records metrics to the monitoring CSV.
+
     Args:
-        script_path: Path to the python script.
-        step_name: Name for logging.
-        args: Optional list of arguments.
-    
-    Returns:
-        Exit code of the script (or raises RuntimeError on RAM limit).
+        cmd: Command and arguments to execute.
+        accession: Dataset accession ID for tracking.
+        step: Name of the pipeline step (e.g., 'pca', 'umap').
+        output_log: Optional path to save the raw time output.
     """
-    cmd_parts = [sys.executable, script_path]
-    if args:
-        cmd_parts.extend(args)
-    cmd = " ".join(cmd_parts)
-    
-    # We use the time_wrapper logic but tailored for a script
-    monitor = ResourceMonitor()
-    
-    process = subprocess.Popen(
-        cmd_parts,
+    full_cmd = ['time', '-v'] + cmd
+    logger.info(f"Running command with monitoring: {' '.join(full_cmd)}")
+
+    result = subprocess.run(
+        full_cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
     )
-    
-    start_time = time.time()
-    peak_ram_gb = 0.0
-    
-    # Monitor loop
-    while process.poll() is None:
-        current_ram_gb, is_exceeded = monitor.check_ram_usage(process.pid)
-        if current_ram_gb > peak_ram_gb:
-            peak_ram_gb = current_ram_gb
-        
-        if is_exceeded:
-            logger.error(f"RAM limit exceeded ({peak_ram_gb:.2f} GB > {monitor.MAX_RAM_GB} GB) in step '{step_name}'. Aborting.")
-            process.terminate()
-            try:
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                process.kill()
-            
-            monitor.log_metrics(step_name, time.time() - start_time, peak_ram_gb, "ABORTED_RAM_LIMIT")
-            raise RuntimeError(f"Resource limit exceeded: RAM usage {peak_ram_gb:.2f} GB > {monitor.MAX_RAM_GB} GB")
-        
-        time.sleep(1)
-    
-    wall_time = time.time() - start_time
-    final_ram_gb, _ = monitor.check_ram_usage(process.pid)
-    if final_ram_gb > peak_ram_gb:
-        peak_ram_gb = final_ram_gb
-    
-    status = "COMPLETED" if process.returncode == 0 else "FAILED"
-    monitor.log_metrics(step_name, wall_time, peak_ram_gb, status)
-    
-    return process.returncode
+
+    # /usr/bin/time -v writes to stderr
+    time_output = result.stderr
+
+    if output_log:
+        with open(output_log, 'w') as f:
+            f.write(time_output)
+
+    # Record metrics
+    monitor = ResourceMonitor(accession=accession, step=step)
+    monitor.record_metrics(time_output)
+
+    if result.returncode != 0:
+        raise subprocess.CalledProcessError(result.returncode, cmd, output=result.stdout, stderr=result.stderr)
+
+    yield result
+
+def run_script_with_monitoring(
+    script_path: str,
+    accession: str,
+    step: str,
+    args: Optional[List[str]] = None,
+    python_executable: Optional[str] = None
+) -> Tuple[Optional[int], Optional[int], Optional[float]]:
+    """
+    Run a Python script wrapped with /usr/bin/time -v.
+
+    Args:
+        script_path: Path to the Python script to run.
+        accession: Dataset accession ID.
+        step: Pipeline step name.
+        args: Additional arguments to pass to the script.
+        python_executable: Python executable to use (defaults to sys.executable).
+
+    Returns:
+        Tuple of (return_code, peak_ram_kb, elapsed_seconds)
+    """
+    py_exec = python_executable or sys.executable
+    cmd = [py_exec, script_path]
+    if args:
+        cmd.extend(args)
+
+    monitor = ResourceMonitor(accession=accession, step=step)
+
+    try:
+        with time_wrapper(cmd, accession, step) as result:
+            return result.returncode, monitor.ram_kb, monitor.elapsed_seconds
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Script {script_path} failed with return code {e.returncode}")
+        return e.returncode, monitor.ram_kb, monitor.elapsed_seconds
 
 def get_resource_monitor() -> ResourceMonitor:
     """
-    Factory function to get a singleton-like ResourceMonitor instance.
+    Factory function to get a configured ResourceMonitor instance.
+    Useful for scripts that want to manually monitor specific blocks.
     """
     return ResourceMonitor()
+
+# Parser function specifically for T021 requirement
+def parse_time_logs(log_files: List[str]) -> List[Dict[str, Any]]:
+    """
+    Parse multiple /usr/bin/time -v log files and return a list of metric dictionaries.
+
+    Args:
+        log_files: List of file paths containing time -v output.
+
+    Returns:
+        List of dictionaries with keys: 'file', 'peak_ram_kb', 'elapsed_seconds', 'status'
+    """
+    results = []
+    for log_file in log_files:
+        if not os.path.exists(log_file):
+            logger.warning(f"Log file not found: {log_file}")
+            continue
+
+        try:
+            with open(log_file, 'r') as f:
+                content = f.read()
+
+            ram_kb, elapsed_seconds = parse_time_output_static(content)
+
+            results.append({
+                'file': log_file,
+                'peak_ram_kb': ram_kb,
+                'elapsed_seconds': elapsed_seconds,
+                'status': 'success'
+            })
+        except Exception as e:
+            logger.error(f"Error parsing {log_file}: {e}")
+            results.append({
+                'file': log_file,
+                'peak_ram_kb': None,
+                'elapsed_seconds': None,
+                'status': 'error',
+                'error': str(e)
+            })
+
+    return results
+
+def parse_time_output_static(time_output: str) -> Tuple[Optional[int], Optional[float]]:
+    """Static version of parse_time_output for use outside class instances."""
+    ram_match = re.search(TIME_LOG_PATTERN, time_output)
+    elapsed_match = re.search(ELAPSED_TIME_PATTERN, time_output)
+
+    ram_kb = int(ram_match.group(1)) if ram_match else None
+
+    elapsed_seconds = None
+    if elapsed_match:
+        time_str = elapsed_match.group(1)
+        parts = time_str.split(':')
+        if len(parts) == 3:
+            hours = int(parts[0])
+            mins = int(parts[1])
+            secs = float(parts[2])
+            elapsed_seconds = hours * 3600 + mins * 60 + secs
+        elif len(parts) == 2:
+            mins = int(parts[0])
+            secs = float(parts[1])
+            elapsed_seconds = mins * 60 + secs
+        else:
+            elapsed_seconds = float(parts[0])
+
+    return ram_kb, elapsed_seconds
+
+def main():
+    """CLI entry point for testing the parser and monitor."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Resource monitoring utilities")
+    parser.add_argument('--log', nargs='+', help="Log files to parse")
+    parser.add_argument('--output', default=MONITORING_LOG_FILE, help="Output CSV path")
+    args = parser.parse_args()
+
+    if args.log:
+        results = parse_time_logs(args.log)
+        for r in results:
+            print(f"File: {r['file']}, RAM: {r['peak_ram_kb']}KB, Time: {r['elapsed_seconds']}s, Status: {r['status']}")
+    else:
+        print("Usage: python utils.py --log <file1> [file2 ...]")
+
+if __name__ == "__main__":
+    main()

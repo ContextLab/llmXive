@@ -1,0 +1,43 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec_amendments.patch` file or modified `spec.md` is present in the provided\
+    \ evidence, and the task description lists the required changes as \u201C<!--\
+    \ FAILED: unspecified -->\u201D, indicating that the implementer did not supply\
+    \ the concrete diff or apply it. Consequently, the required artifact is missing."
+T018:
+  c: true
+  h: fdf1b4b37498d25e34e8b2b2311d4f638fc7d115d31fd3456e8248682a9b1984
+  r: "The repository contains a fully\u2011implemented `code/data/storage.py` (6\u202F\
+    KB) with a `save_variants_to_parquet` function that writes a list of `GeneratedCode`\
+    \ objects to the default path `data/processed/prompt_variants.parquet`. The implementation\
+    \ follows the specification (creates parent directories, converts models to dicts,\
+    \ orders columns, writes via `pandas.to_parquet`). The absence of an already\u2011\
+    generated parquet file does not indicate a missing implementation, as the file\
+    \ is produced at runtime by the provided code."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `runner.py` file or diff showing added exception handling was provided, and
+    there is no evidence of samples being marked as failed or error types being logged.
+    The required code changes are missing, so the task is not satisfied.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a modified `runner.py` implementing timeout handling is provided;
+    the artifact is missing, empty, or not shown, so the requirement to mark problems
+    as failed after exceeding a time threshold is not satisfied.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for the required documentation artifacts \u2013 comments in `static_analysis.py`\
+    \ citing McCabe and other literature, and corresponding entries in `research.md`.\
+    \ No such files or content were presented, so the claimed documentation does not\
+    \ exist or cannot be verified. The task remains unfinished."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `static_analysis.py` file or diff showing added vulnerability flagging (hardcoded
+    credentials, eval usage) is provided; without any code artifact we cannot confirm
+    the feature was implemented or that samples are marked for manual review instead
+    of causing test failures. The required implementation is missing.

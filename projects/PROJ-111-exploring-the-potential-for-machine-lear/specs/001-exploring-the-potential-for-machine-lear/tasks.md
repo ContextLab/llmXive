@@ -46,14 +46,14 @@
 - [ ] T006b [P] Create `specs/001-gene-regulation/contracts/dataset.schema.yaml` defining fields, types, and constraints for the processed dataset.
 - [ ] T006c [P] Create `specs/001-gene-regulation/contracts/latent-output.schema.yaml` defining fields, types, and constraints for latent representations.
 - [ ] T006d [P] Create `specs/001-gene-regulation/contracts/model-checkpoint.schema.yaml` defining fields, types, and constraints for model checkpoints.
-- [ ] T007 [P] Implement `code/utils.py` functions for:
+- [X] T007 [P] Implement `code/utils.py` functions for:
  - Calculating integrated autocorrelation time $\tau_{\text{int}}$,
  - Thinning datasets by ≥ 2 $\tau_{\text{int}}$,
  - Computing magnetic susceptibility $\chi$ for each lattice size,
  - Performing finite‑size scaling of $\chi$ to **extrapolate $T^*$ to the thermodynamic limit** (satisfying Constitution Principle VII and FR‑008/FR‑010).
  - *Note: While T007 is parallel-safe within Phase 2, its output is a blocking prerequisite for US3 tasks (T028, T030).*
 - [ ] T008 [P] Setup environment configuration management (`.env` for seeds/paths) and logging infrastructure.
-- [~] T009 [P] Implement unit tests for data shapes, normalization correctness, and stratification logic in `tests/unit/`. <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [ ] T009 [P] Implement unit tests for data shapes, normalization correctness, and stratification logic in `tests/unit/`. <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
@@ -78,7 +78,7 @@
 
 - [X] T014 [US1] Implement memory monitoring in `code/preprocessing.py` to ensure L=24 fits within the 6 GB RAM constraint.
 - [X] T015 [US1] Add an explicit assertion in `code/preprocessing.py` that raises a `ValueError` if the maximum absolute difference in sample count between any two temperature bins exceeds 5.
-- [~] T016 [US1] Add logging for data generation parameters (T, L, coupling ratios).
+- [ ] T016 [US1] Add logging for data generation parameters (T, L, coupling ratios).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,10 +98,10 @@
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement `code/vae_model.py` with 2 convolutional encoder layers and 2 deconvolutional decoder layers, latent dimension 10.
-- [ ] T021 [US2] Implement `code/train.py` with Adam optimizer (lr=1e‑3), MSE loss, KL divergence, and early‑stopping logic.
-- [ ] T022 [US2] Implement time‑budget enforcement in `code/train.py` to report partial results if execution exceeds 6 h (FR‑004).
-- [~] T023 [US2] Integrate data loaders from US1 and ensure batch processing fits within 7 GB RAM.
-- [~] T024 [US2] Implement checkpoint saving with checksums and metadata validation.
+- [X] T021 [US2] Implement `code/train.py` with Adam optimizer (lr=1e‑3), MSE loss, KL divergence, and early‑stopping logic.
+- [X] T022 [US2] Implement time‑budget enforcement in `code/train.py` to report partial results if execution exceeds 6 h (FR‑004).
+- [ ] T023 [US2] Integrate data loaders from US1 and ensure batch processing fits within 7 GB RAM.
+- [ ] T024 [US2] Implement checkpoint saving with checksums and metadata validation.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

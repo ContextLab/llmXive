@@ -74,7 +74,7 @@
   value: https://www.wikidata.org/wiki/Q131143974
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q131143974
-  verified_at: '2026-07-19T16:21:37.677650Z'
+  verified_at: '2026-07-29T04:44:53.922772Z'
 - artifact_hash: 20088e06b0ae7afb56a185dfc552749f7d441cf8ff147e8865d5639c488c980b
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
@@ -86,7 +86,7 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-19T16:21:37.677650Z'
+  verified_at: '2026-07-29T04:44:53.922772Z'
 - artifact_hash: 20088e06b0ae7afb56a185dfc552749f7d441cf8ff147e8865d5639c488c980b
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-003
@@ -97,7 +97,7 @@
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-07-19T16:21:37.677650Z'
+  verified_at: '2026-07-29T04:44:53.922772Z'
 - artifact_hash: 20088e06b0ae7afb56a185dfc552749f7d441cf8ff147e8865d5639c488c980b
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-004
@@ -108,7 +108,7 @@
   value: https://arxiv.org/abs/2202.05773
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2202.05773
-  verified_at: '2026-07-19T16:21:37.677650Z'
+  verified_at: '2026-07-29T04:44:53.922772Z'
 - artifact_hash: 20088e06b0ae7afb56a185dfc552749f7d441cf8ff147e8865d5639c488c980b
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-005
@@ -119,4 +119,4 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-19T16:21:37.677650Z'
+  verified_at: '2026-07-29T04:44:53.922772Z'

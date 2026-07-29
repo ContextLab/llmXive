@@ -46,7 +46,7 @@
 **⚠️ CRITICAL**: This phase MUST complete before Phase 1 or Phase 2 begins.
 
 - [X] T039 [US0] Implement `code/data_gap_resolver.py` to programmatically query GEO via `GEOparse` (or `requests` to verified URLs) for raw count files for GSE, GSE111322, GSE150728.
-- [ ] T040 [US0] Implement logic in `code/data_gap_resolver.py` to verify if downloaded files contain raw count matrices (not just cluster markers) and validate checksums.
+- [X] T040 [US0] Implement logic in `code/data_gap_resolver.py` to verify if downloaded files contain raw count matrices (not just cluster markers) and validate checksums.
 - [X] T041 [US0] Update `code/main.py` to invoke `data_gap_resolver.py` before any downstream tasks; if 0 datasets found, abort with **exit code 1** and log **"No Data"**; if exactly 1 dataset found, switch to **Case-Study mode** (descriptive only, Fixed-Effects ANOVA) and proceed; if >1 found, proceed with Fixed-Effects (if N<=3) or Mixed-Effects (if N>3).
 - [X] T044 [US0] Add a `results/data_gap_report.json` artifact that lists which datasets were found, which were missing, and the final status (Full/Case-Study/Aborted).
 
@@ -68,7 +68,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Create `environment.yml` with pinned Python dependencies (scanpy, umap-learn, leidenalg, statsmodels, snakemake, scikit-misc, requests, pandas, numpy) compatible with the selected major version.
+- [X] T002 [P] Create `environment.yml` with pinned Python dependencies (scanpy, umap-learn, leidenalg, statsmodels, snakemake, scikit-misc, requests, pandas, numpy) compatible with the selected major version.
 - [X] T002b Create `code/scripts/generate_requirements.py` to automatically convert `environment.yml` to `code/requirements.txt` using `pip-tools` (pip-compile) (DEPENDS: T002)
 - [X] T004 [P] Implement `code/config.py` to load configuration, define paths (`data/raw`, `data/processed`, `results`), set global random seeds, and define dataset accessions (GSE131907, GSE111322, GSE150728)
 - [X] T020 [P] Implement `/usr/bin/time -v` wrapper in `code/utils.py` to log wall-clock time and peak RAM for resource monitoring (DEPENDS: T004 for path config)
@@ -80,7 +80,7 @@
 - [X] T007 [P] Implement `code/geometry.py` to compute Global Linearity (Trustworthiness metric, k=15) and Local Continuity (LCA metric, k=15) on the **sampled high-dimensional space** by comparing neighborhood preservation in the high-dimensional space to that in the embedding space (DEPENDS: T008a, T008b)
 - [X] T010 [P] Implement `code/stats.py` skeleton (placeholder for Phase 5 logic) (DEPENDS: T004)
 - [X] T011 Implement `code/main.py` as the Snakemake wrapper entry point to orchestrate the full pipeline
-- [~] T029 Implement resource abort logic wrapper in `code/utils.py` to check RAM usage during execution and abort if > 7GB, logging metrics per step to `results/monitoring.csv` (FR-008) (DEPENDS: T020)
+- [ ] T029 Implement resource abort logic wrapper in `code/utils.py` to check RAM usage during execution and abort if > 7GB, logging metrics per step to `results/monitoring.csv` (FR-008) (DEPENDS: T020)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -93,10 +93,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase completes. If NO datasets are found, pipeline aborts. If SOME are found, pipeline proceeds in "Case Study" mode.
 
 - [X] T050 [US1] Implement Phase 0 verification in `code/download.py`: Attempt to fetch raw counts for GSE131907, GSE111322, GSE150728. If ALL are missing, log "No Data" and exit code 1. If SOME are missing, log warnings, set `CASE_STUDY_MODE=True` in `code/config.py`, and continue with available datasets. (DEPENDS: T005)
-- [~] T051 [US1] Implement `code/main.py` logic to detect `CASE_STUDY_MODE`. If True, switch statistical model to "Single Dataset Mode" (Fixed-Effects ANOVA) and update `results/summary.json` header to "Descriptive Case Study".
+- [ ] T051 [US1] Implement `code/main.py` logic to detect `CASE_STUDY_MODE`. If True, switch statistical model to "Single Dataset Mode" (Fixed-Effects ANOVA) and update `results/summary.json` header to "Descriptive Case Study".
 - [X] T052 [US1] Create `code/validators.py` to enforce the "Real Data Only" constraint: reject any task that attempts to generate synthetic counts or use placeholder data; raise an error if `data/raw` contains simulated values.
 - [X] T053 [US1] Update `code/config.py` to include a dynamic list of "Verified Sources" and a "Fallback Sources" list; prioritize verified GEO URLs but allow fallback to `ucimlrepo` if the primary list fails.
-- [~] T054 [US1] Add a `Snakefile` rule `verify_data_availability` that runs before `download` and halts the workflow if no valid raw count source is found for the required accessions.
+- [ ] T054 [US1] Add a `Snakefile` rule `verify_data_availability` that runs before `download` and halts the workflow if no valid raw count source is found for the required accessions.
 
 ---
 
@@ -112,8 +112,8 @@
 - [X] T013 [P] [US1] Create `Snakefile` rule `preprocess` to apply QC (<5% gene filter) and **dynamic HVG selection** using the variance-stabilizing selection method: calculate variance of log-counts, plot vs rank, and identify the elbow point using the knee detection algorithm via `code/preprocess.py`
 - [X] T014b [US1] Configure sampling threshold (order of magnitude cells) in `code/config.py`
 - [X] T014 [US1] Implement deterministic sampling logic in `code/preprocess.py` (sample down to a reduced subset of cells if needed) using `random_state=hash(accession)` (DEPENDS: T014b)
-- [ ] T015 [US1] Add error handling in `code/download.py` to abort the pipeline if ground-truth labels are missing or malformed for any required dataset (DO NOT skip; Spec Edge Cases require abort for invalid data)
-- [ ] T016 [US1] Add validation in `code/preprocess.py` to flag datasets with insufficient genes after filtering and skip them (only if labels are present but genes are low)
+- [X] T015 [US1] Add error handling in `code/download.py` to abort the pipeline if ground-truth labels are missing or malformed for any required dataset (DO NOT skip; Spec Edge Cases require abort for invalid data)
+- [X] T016 [US1] Add validation in `code/preprocess.py` to flag datasets with insufficient genes after filtering and skip them (only if labels are present but genes are low)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -127,11 +127,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [P] [US2] Create `Snakefile` rule `embeddings` to generate PCA, t-SNE, and UMAP embeddings using `code/embeddings.py` (DEPENDS: T008a, T008b)
-- [ ] T018 [P] [US2] Create `Snakefile` rule `geometry` to compute Global Linearity (Trustworthiness) and Local Continuity (LCA) on the high-dimensional space using `code/geometry.py` (DEPENDS: T007, T008a)
-- [ ] T019 [US2] Ensure `code/embeddings.py` uses `n_jobs=1` and CPU-only parameters to prevent CUDA/GPU errors
+- [X] T017 [P] [US2] Create `Snakefile` rule `embeddings` to generate PCA, t-SNE, and UMAP embeddings using `code/embeddings.py` (DEPENDS: T008a, T008b)
+- [X] T018 [P] [US2] Create `Snakefile` rule `geometry` to compute Global Linearity (Trustworthiness) and Local Continuity (LCA) on the high-dimensional space using `code/geometry.py` (DEPENDS: T007, T008a)
+- [X] T019 [US2] Ensure `code/embeddings.py` uses `n_jobs=1` and CPU-only parameters to prevent CUDA/GPU errors
 - [ ] T021 [US2] Implement parser in `code/utils.py` to read `/usr/bin/time` logs and record metrics into `results/monitoring.csv` per embedding step
-- [ ] T007 [P] [US2] Implement `code/geometry.py` to compute Global Linearity (Trustworthiness metric, k=15) and Local Continuity (LCA metric, k=15) on the **RAW high-dimensional space (pre-log-CPM)**. **Must perform deterministic sampling with seed=hash(accession) if n_cells > 10,000** (DEPENDS: T006; **NOTE**: Computed on RAW space, NOT preprocessed or PC space)
+- [X] T007 [P] [US2] Implement `code/geometry.py` to compute Global Linearity (Trustworthiness metric, k=15) and Local Continuity (LCA metric, k=15) on the **RAW high-dimensional space (pre-log-CPM)**. **Must perform deterministic sampling with seed=hash(accession) if n_cells > 10,000** (DEPENDS: T006; **NOTE**: Computed on RAW space, NOT preprocessed or PC space)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -145,13 +145,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [P] [US3] Create `Snakefile` rule `cluster` to apply Leiden clustering with resolution optimization (maximize Silhouette Score) via `code/clustering.py`
-- [ ] T023 [P] [US3] Create `Snakefile` rule `fidelity` to calculate ARI and NMI against ground-truth labels using `code/clustering.py`
+- [X] T022 [P] [US3] Create `Snakefile` rule `cluster` to apply Leiden clustering with resolution optimization (maximize Silhouette Score) via `code/clustering.py`
+- [X] T023 [P] [US3] Create `Snakefile` rule `fidelity` to calculate ARI and NMI against ground-truth labels using `code/clustering.py`
 - [ ] T023.5 [US3] Implement aggregation script in `code/aggregate.py` to join geometry metrics (from T018) and fidelity metrics (from T023) by cell/dataset ID into a single dataset for modeling (DEPENDS: T023)
-- [ ] T024 [US3] Implement **Fixed-Effects ANOVA** (or Kruskal-Wallis if normality fails) in `code/stats.py` with formula `fidelity ~ method`. **CRITICAL**: If N=1, mark as Case-Study (descriptive only) and use Fixed-Effects; if N=2 or 3, use Fixed-Effects; if N>3, use Mixed-Effects `fidelity ~ method + (1|dataset)`. Abort if VIF >= 5. (DEPENDS: T023.5)
-- [ ] T026 [US3] Implement ANOVA F-tests in `code/stats.py` to evaluate interaction terms with α=0.05 and apply Benjamini-Hochberg correction to all p-values
+- [X] T024 [US3] Implement **Fixed-Effects ANOVA** (or Kruskal-Wallis if normality fails) in `code/stats.py` with formula `fidelity ~ method`. **CRITICAL**: If N=1, mark as Case-Study (descriptive only) and use Fixed-Effects; if N=2 or 3, use Fixed-Effects; if N>3, use Mixed-Effects `fidelity ~ method + (1|dataset)`. Abort if VIF >= 5. (DEPENDS: T023.5)
+- [X] T026 [US3] Implement ANOVA F-tests in `code/stats.py` to evaluate interaction terms with α=0.05 and apply Benjamini-Hochberg correction to all p-values
 - [ ] T027.5 [US3] Implement sensitivity analysis script in `code/stats.py` to sweep **Leiden resolutions across {0.1, 0.2,..., 1.0}** and report variance in ARI/NMI (Note: This supersedes FR-007's Silhouette threshold sweep per Plan.md execution strategy) (DEPENDS: T023)
-- [ ] T028 [US3] Add error handling in `code/stats.py` to catch convergence errors, attempt simplified models, and record failures in the report (ABORT if VIF >= 5)
+- [X] T028 [US3] Add error handling in `code/stats.py` to catch convergence errors, attempt simplified models, and record failures in the report (ABORT if VIF >= 5)
 
 **Checkpoint**: All user stories should now be independently functional
 
