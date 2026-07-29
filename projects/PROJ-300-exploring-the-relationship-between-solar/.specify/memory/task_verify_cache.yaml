@@ -7,13 +7,6 @@ T016:
     \ in proper JSON format, satisfying FR\u2011009. The required output file is not\
     \ expected to exist until the pipeline runs, so its absence does not indicate\
     \ incompleteness."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (e.g., lag\u2011sweep report files, correlation tables, plots,\
-    \ or code outputs) were provided; the claim lacks any concrete evidence that the\
-    \ lag\u2011sweep reports `L*` and corresponding correlation values were generated\
-    \ or verified. The required deliverables are missing, so the task is not satisfied."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,24 +25,23 @@ T026:
 T041a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test artifacts (e.g., pytest logs, coverage reports, CI run summaries) were\
-    \ supplied, and the claim provides no concrete evidence that unit or integration\
-    \ tests were actually executed for the solar\u2011wind\u2011reconnection pipeline.\
-    \ The required proof of testing is missing."
+  r: "No test artifacts (e.g., unit\u2011test logs, integration\u2011test reports,\
+    \ coverage summaries) were provided, nor any indication that the analysis pipeline\
+    \ was exercised against the specified user stories. Without concrete evidence\
+    \ that the required unit and integration tests were executed and passed, the claim\
+    \ does not satisfy the task."
 T041b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied no files or directories from `projects/PROJ-300-exploring-the-relationship-between-solar/results/`;\
-    \ there are no correlation output files, lag\u2011optimization reports, PNG visualisations,\
-    \ or sensitivity tables present. Consequently the required artifacts listed in\
-    \ the user stories (numeric correlation coefficients, p\u2011values, optimal lag\
-    \ value, scatter and time\u2011series plots, and threshold\u2011sensitivity table)\
-    \ are missing. The next implementer must generate and place these concrete results\
-    \ in the specified results directory."
-T041c:
+  r: "No artifacts from the `projects/PROJ-300-exploring-the-relationship-between-solar/results/`\
+    \ directory were supplied\u2014no correlation output files, plots, or sensitivity\
+    \ tables are present. Consequently the required evidence for US\u20111, US\u2011\
+    2, and US\u20113 is missing."
+T099:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, figures, or updated documentation artifacts were provided; therefore\
-    \ none of the required outputs (correlation results, lag\u2011optimization, visualisations,\
-    \ checksum updates, or corrected `plan.md` formula) can be verified. The task\
-    \ remains unfinished."
+  r: "No actual artifacts (data files, correlation results, lag\u2011search output,\
+    \ PNG figures, or sensitivity tables) were provided for inspection; therefore\
+    \ we cannot confirm that the pipeline was executed or that the required numeric\
+    \ and visual results exist. The implementer must supply the generated correlation\
+    \ coefficients, p\u2011values, optimal lag report, and the three required plots/tables."

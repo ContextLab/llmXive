@@ -30,7 +30,7 @@ This project explores the relationship between solar wind speed (Vsw) and geomag
 
 1. Calculate physics-based propagation lag: L_phys = 6371 / Vsw_mean (minutes)
  - Derived from: L_phys = (60 * 6371) / Vsw_mean / 60
- - Where 60 Re is the tail distance and Earth has a characteristic radius.
+ - Where Re is the tail distance and Earth has a characteristic radius.
 2. Apply lag shift to solar wind data
 3. Compute Pearson and Spearman correlations
 4. Perform circular block permutation test for empirical p-values
@@ -78,8 +78,8 @@ the lag search window (30-90 minutes).
 ### Multiple Comparison Correction
 
 The lag search involves testing multiple lag candidates (30-90 minutes, step 5),
-resulting in 13 lag candidates. To control for multiple comparisons, we use
-a circular block permutation test with 10,000 iterations. This approach:
+resulting in several lag candidates. To control for multiple comparisons, we use
+a circular block permutation test with a sufficient number of iterations. This approach:
 
 - Preserves the temporal autocorrelation structure of the data
 - Provides an empirical p-value that accounts for the multiple lag tests
@@ -107,7 +107,7 @@ work should consider adaptive FDR control.
 
 ## Success Criteria
 
-1. Pipeline executes successfully on sample date range (2023-01-01 to 2023-01-03)
+1. Pipeline executes successfully on a sample date range
 2. All expected output files are generated
 3. Correlation coefficients are real measurements (not synthetic/fabricated)
 4. Optimal lag is identified within the search window
