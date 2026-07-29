@@ -1,17 +1,3 @@
-T000a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No text block was provided for insertion into `specs/001-llmxive-follow-up-extending-colleague-sk/spec.md`;
-    the required artifact is missing, so the amendment cannot be verified as completed.
-T000b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `specs/001-llmxive-follow-up-extending-colleague-sk/spec.md` file
-    was provided, nor any excerpt showing the amendments (GLMM specification, reduced
-    scale, etc.). Without the revised spec document, we cannot confirm that the required
-    changes from T000a have been incorporated. The implementer must supply the modified
-    spec file containing the new statistical method, scale adjustments, and any other
-    amendments.
 T004b:
   c: false
   h: ac762e133b9abb4e453d26d03e2615d61463f42427b640dfdc7baa0207ca242f

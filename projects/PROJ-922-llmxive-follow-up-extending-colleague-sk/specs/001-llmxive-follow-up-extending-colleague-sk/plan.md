@@ -23,7 +23,7 @@ The plan strictly adheres to CPU-only constraints (≤7GB RAM, ≤6h runtime). I
 **Project Type**: Research CLI / Data Pipeline.  
 **Performance Goals**: Inference < 300s per task; Total runtime < 6h; RAM < 7GB.  
 **Constraints**: CPU-only inference; No GPU dependencies in default path; Deterministic evaluation (no LLM judges).  
-**Scale/Scope**: Target a large-scale set of runs (profiles × a substantial number of tasks × 3 conditions), but feasible execution is a balanced subset (Multiple profiles × 50 tasks × 3 conditions) to ensure LMM convergence.
+**Scale/Scope**: Target a large-scale set of runs (profiles × a substantial number of tasks × multiple conditions), but feasible execution is a balanced subset (Multiple profiles × a substantial number of tasks × multiple conditions) to ensure LMM convergence.
 
 > Note: The full matrix is the theoretical target, but the **feasible run** is defined as a statistically powered balanced subset (A set of profiles and 50 tasks) to ensure sufficient data per random-effect level for LMM convergence.
 
@@ -94,7 +94,7 @@ projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Balanced Subset ([deferred] runs)** | Full k is infeasible for LMM convergence; a substantial number of runs (10 profiles × 50 tasks) ensures sufficient data per random-effect level. | A smaller sample would be too sparse for LMM; a full run exceeds 6h. |
+| **Balanced Subset ([deferred] runs)** | Full k is infeasible for LMM convergence; a substantial number of runs (multiple profiles × 50 tasks) ensures sufficient data per random-effect level. | A smaller sample would be too sparse for LMM; a full run exceeds 6h. |
 | **CPU-Only Constraint** | Spec requires CPU-only for "deployable on standard hardware". | GPU offload introduces a confound (capacity vs. prompt architecture) and invalidates the hypothesis. |
 
 ## Implementation Phases
@@ -103,7 +103,7 @@ projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/
 *   **Goal**: Verify dataset availability and model feasibility.
 *   **Actions**:
     *   Confirm availability of "expert profiles" (simulated if gallery unavailable).
-    *   Verify that a quantized medium-scale language model loads on a CPU with 7GB RAM.
+    *   Verify that a quantized medium-scale language model loads on a CPU with limited RAM..
     *   Define ground-truth logic for Hallucination/Adherence (rule-bound logic chains).
 *   **Deliverable**: `research.md`
 
@@ -119,7 +119,7 @@ projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/
 *   **Actions**:
     *   **T006 (Generate Profiles)**: Create valid profiles. *Handle malformed data by logging and skipping.*
     *   **T007 (Generate Tasks)**: Create a set of tasks. *Enforce stratified sampling across multiple domains (coding, math, logic, creative, factual) with proportional distribution. Handle ambiguous contexts by setting `exclusion_flag=True` in `TaskScenario`.*
-    *   **T014a (Inference)**: Run multiple conditions on the balanced subset (10 profiles × 50 tasks). *Enforce a fixed timeout per task. If timeout occurs, log `status: 'timeout'` in `InferenceOutput`. If OOM, log `status: 'oom'`. Use Python `logging` module to record start, progress, completion, and failures.*
+    *   **T014a (Inference)**: Run multiple conditions on the balanced subset (multiple profiles × 50 tasks). *Enforce a fixed timeout per task. If timeout occurs, log `status: 'timeout'` in `InferenceOutput`. If OOM, log `status: 'oom'`. Use Python `logging` module to record start, progress, completion, and failures.*
     *   **T019 (Evaluation)**: Apply deterministic rules. *Calculate Heuristic Adherence by evaluating output against held-out validation rules derived from capability_track. Calculate Hallucination Rate using multi-hop logic checks (boolean chain verification) and rule-based entity extraction.*
     *   **T025 (Analysis)**: Run LMM with Bonferroni or Holm-Bonferroni correction.
     *   **T026 (Sensitivity Analysis)**: Sweep Style Consistency thresholds (low, medium, high) and record variance.

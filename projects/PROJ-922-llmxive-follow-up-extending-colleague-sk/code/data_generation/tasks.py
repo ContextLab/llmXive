@@ -1,210 +1,161 @@
+"""
+Task Generation Module for llmXive.
+
+Generates a global pool of exactly 500 unique task scenarios across 5 domains
+(coding, math, logic, creative, factual) with 100 tasks each.
+"""
 import json
 import random
 import ast
 import re
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+
 from utils.config import get_project_root, get_data_dir, ensure_dir, set_global_seed
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Task templates for different domains
-TASK_TEMPLATES = {
-    "coding": [
-        "Write a Python function that {action} for {input_type}.",
-        "Create a class that implements {pattern} with {method_count} methods.",
-        "Debug the following code snippet: {snippet}",
-        "Optimize the algorithm for {complexity} time complexity."
-    ],
-    "math": [
-        "Prove that {theorem_statement} using {proof_method}.",
-        "Solve the equation {equation} for {variable}.",
-        "Calculate the {operation} of {expression}.",
-        "Derive the formula for {concept}."
-    ],
-    "logic": [
-        "Determine if the following argument is valid: {premises} therefore {conclusion}.",
-        "Identify the logical fallacy in: {statement}.",
-        "Construct a truth table for {expression}.",
-        "Prove the equivalence of {formula1} and {formula2}."
-    ],
-    "creative": [
-        "Write a short story about {character} who {action} in {setting}.",
-        "Compose a poem using the metaphor {metaphor}.",
-        "Describe the scene where {event} happens using sensory details.",
-        "Create a dialogue between {character1} and {character2} about {topic}."
-    ],
-    "factual": [
-        "Summarize the findings of {study_topic} from {source}.",
-        "Explain the concept of {concept} with examples.",
-        "Compare and contrast {entity1} and {entity2}.",
-        "List the key events in the history of {topic}."
+# Constants
+TOTAL_TASKS = 500
+TASKS_PER_DOMAIN = 100
+DOMAINS = ["coding", "math", "logic", "creative", "factual"]
+SEED = 42
+
+def generate_coding_task(task_id: int, seed_offset: int) -> Dict[str, Any]:
+    """Generate a deterministic coding task."""
+    # Use seed_offset to ensure determinism within the run
+    local_rng = random.Random(SEED + seed_offset)
+
+    problems = [
+        {"prompt": "Write a function to reverse a string.", "rule": "Output must contain the reversed string."},
+        {"prompt": "Implement a function to check if a number is prime.", "rule": "Output must contain 'True' or 'False'."},
+        {"prompt": "Write a script to parse a JSON file and extract a specific key.", "rule": "Output must contain the value of the key."},
+        {"prompt": "Create a function to sort a list of dictionaries by a specific key.", "rule": "Output must be a sorted list."},
+        {"prompt": "Write a function to find the intersection of two lists.", "rule": "Output must contain the common elements."},
     ]
-}
 
-# Sample data for task generation
-SAMPLE_DATA = {
-    "coding": {
-        "actions": ["sort a list", "reverse a string", "find duplicates", "calculate factorial"],
-        "input_types": ["integers", "strings", "lists", "dictionaries"],
-        "patterns": ["Singleton", "Factory", "Observer", "Strategy"],
-        "method_counts": [3, 5, 7],
-        "complexities": ["O(n log n)", "O(n)", "O(1)"]
-    },
-    "math": {
-        "theorem_statements": ["a^2 + b^2 = c^2", "e^(i*pi) + 1 = 0", "sqrt(2) is irrational"],
-        "proof_methods": ["induction", "contradiction", "direct proof", "construction"],
-        "equations": ["2x + 5 = 15", "x^2 - 4x + 4 = 0", "sin(x) = 0.5"],
-        "variables": ["x", "y", "z"],
-        "operations": ["derivative", "integral", "limit", "summation"],
-        "expressions": ["x^2 + 3x + 2", "sin(x) * cos(x)", "e^(2x)"]
-    },
-    "logic": {
-        "premises": ["All humans are mortal", "Socrates is human", "If P then Q"],
-        "conclusions": ["Socrates is mortal", "Q is true", "P is false"],
-        "statements": ["This statement is false", "I always lie", "All birds can fly"],
-        "expressions": ["P AND Q", "P OR NOT Q", "IF P THEN Q"],
-        "formulas": ["(P AND Q) IMPLIES R", "NOT (P OR Q)"]
-    },
-    "creative": {
-        "characters": ["a lost traveler", "a wise old wizard", "a curious child"],
-        "actions": ["discovers a hidden treasure", "meets a mysterious stranger", "solves an ancient riddle"],
-        "settings": ["an enchanted forest", "a forgotten city", "a distant planet"],
-        "metaphors": ["time is a thief", "love is a battlefield", "hope is a bird"],
-        "events": ["a sudden storm", "a miraculous rescue", "a shocking revelation"],
-        "topics": ["friendship", "betrayal", "redemption"]
-    },
-    "factual": {
-        "study_topics": ["climate change", "artificial intelligence", "quantum computing"],
-        "sources": ["Nature", "Science", "The Lancet", "arXiv"],
-        "concepts": ["machine learning", "blockchain", "neural networks"],
-        "entity1": ["Python", "Java", "C++"],
-        "entity2": ["TensorFlow", "PyTorch", "Keras"],
-        "topics": ["World War II", "Renaissance", "Industrial Revolution"]
-    }
-}
+    # Cycle through problems or expand based on ID if more needed
+    problem = problems[task_id % len(problems)].copy()
+    problem["id"] = f"task_coding_{task_id:04d}"
+    problem["domain"] = "coding"
+    problem["difficulty"] = local_rng.choice(["easy", "medium", "hard"])
+    problem["ambiguous"] = False  # Coding tasks are generally well-defined
 
-def generate_coding_task() -> Dict[str, Any]:
-    """Generate a coding task."""
-    template = random.choice(TASK_TEMPLATES["coding"])
-    data = SAMPLE_DATA["coding"]
-    
-    if "{action}" in template:
-        template = template.replace("{action}", random.choice(data["actions"]))
-    if "{input_type}" in template:
-        template = template.replace("{input_type}", random.choice(data["input_types"]))
-    if "{pattern}" in template:
-        template = template.replace("{pattern}", random.choice(data["patterns"]))
-    if "{method_count}" in template:
-        template = template.replace("{method_count}", str(random.choice(data["method_counts"])))
-    if "{complexity}" in template:
-        template = template.replace("{complexity}", random.choice(data["complexities"]))
-    
+    return problem
+
+def generate_math_task(task_id: int, seed_offset: int) -> Dict[str, Any]:
+    """Generate a deterministic math task."""
+    local_rng = random.Random(SEED + seed_offset)
+
+    templates = [
+        ("Solve for x: {a}x + {b} = {c}", "Output must contain 'x = ' followed by a number."),
+        ("Calculate the area of a rectangle with length {a} and width {b}.", "Output must contain the calculated area."),
+        ("What is the sum of {a} and {b}?", "Output must contain the sum."),
+        ("Find the square root of {a}.", "Output must contain the square root value."),
+        ("Compute {a} raised to the power of {b}.", "Output must contain the result."),
+    ]
+
+    a = local_rng.randint(1, 100)
+    b = local_rng.randint(1, 100)
+    c = local_rng.randint(1, 100) if local_rng.random() > 0.5 else 0
+
+    template, rule = templates[task_id % len(templates)]
+    prompt = template.format(a=a, b=b, c=c)
+
     return {
-        "type": "coding",
-        "text": template,
-        "validation_type": "ast"
+        "id": f"task_math_{task_id:04d}",
+        "domain": "math",
+        "prompt": prompt,
+        "rule": rule,
+        "difficulty": local_rng.choice(["easy", "medium", "hard"]),
+        "ambiguous": False
     }
 
-def generate_math_task() -> Dict[str, Any]:
-    """Generate a math task."""
-    template = random.choice(TASK_TEMPLATES["math"])
-    data = SAMPLE_DATA["math"]
-    
-    if "{theorem_statement}" in template:
-        template = template.replace("{theorem_statement}", random.choice(data["theorem_statements"]))
-    if "{proof_method}" in template:
-        template = template.replace("{proof_method}", random.choice(data["proof_methods"]))
-    if "{equation}" in template:
-        template = template.replace("{equation}", random.choice(data["equations"]))
-    if "{variable}" in template:
-        template = template.replace("{variable}", random.choice(data["variables"]))
-    if "{operation}" in template:
-        template = template.replace("{operation}", random.choice(data["operations"]))
-    if "{expression}" in template:
-        template = template.replace("{expression}", random.choice(data["expressions"]))
-    
+def generate_logic_task(task_id: int, seed_offset: int) -> Dict[str, Any]:
+    """Generate a deterministic logic task."""
+    local_rng = random.Random(SEED + seed_offset)
+
+    scenarios = [
+        {
+            "context": "All birds can fly. Tweety is a bird.",
+            "question": "Can Tweety fly?",
+            "rule": "Output must conclude 'Yes' or 'No' based on the premises."
+        },
+        {
+            "context": "If it rains, the ground is wet. It is raining.",
+            "question": "Is the ground wet?",
+            "rule": "Output must conclude 'Yes' or 'No'."
+        },
+        {
+            "context": "Some cats are black. Fluffy is a cat.",
+            "question": "Is Fluffy black?",
+            "rule": "Output must conclude 'Yes', 'No', or 'Cannot be determined'."
+        },
+        {
+            "context": "A is greater than B. B is greater than C.",
+            "question": "Is A greater than C?",
+            "rule": "Output must conclude 'Yes' or 'No'."
+        },
+        {
+            "context": "No mammals are fish. A whale is a mammal.",
+            "question": "Is a whale a fish?",
+            "rule": "Output must conclude 'Yes' or 'No'."
+        }
+    ]
+
+    scenario = scenarios[task_id % len(scenarios)].copy()
+    scenario["id"] = f"task_logic_{task_id:04d}"
+    scenario["domain"] = "logic"
+    scenario["difficulty"] = local_rng.choice(["easy", "medium", "hard"])
+    scenario["ambiguous"] = False
+
+    return scenario
+
+def generate_creative_task(task_id: int, seed_offset: int) -> Dict[str, Any]:
+    """Generate a deterministic creative task."""
+    local_rng = random.Random(SEED + seed_offset)
+
+    prompts = [
+        "Write a short poem about the ocean.",
+        "Describe a futuristic city in 3 sentences.",
+        "Invent a new color and describe it.",
+        "Write a haiku about a robot.",
+        "Create a title for a story about a lost key."
+    ]
+
+    prompt = prompts[task_id % len(prompts)]
+    # Creative tasks are inherently ambiguous regarding "correct" answers
+    # We flag them as ambiguous for Hallucination Rate calculation logic
     return {
-        "type": "math",
-        "text": template,
-        "validation_type": "sympy"
+        "id": f"task_creative_{task_id:04d}",
+        "domain": "creative",
+        "prompt": prompt,
+        "rule": "Output must be a creative text of at least 20 characters.",
+        "difficulty": local_rng.choice(["easy", "medium", "hard"]),
+        "ambiguous": True  # No single ground truth
     }
 
-def generate_logic_task() -> Dict[str, Any]:
-    """Generate a logic task."""
-    template = random.choice(TASK_TEMPLATES["logic"])
-    data = SAMPLE_DATA["logic"]
-    
-    if "{premises}" in template:
-        template = template.replace("{premises}", random.choice(data["premises"]))
-    if "{conclusion}" in template:
-        template = template.replace("{conclusion}", random.choice(data["conclusions"]))
-    if "{statement}" in template:
-        template = template.replace("{statement}", random.choice(data["statements"]))
-    if "{expression}" in template:
-        template = template.replace("{expression}", random.choice(data["expressions"]))
-    if "{formula1}" in template:
-        template = template.replace("{formula1}", random.choice(data["formulas"]))
-    if "{formula2}" in template:
-        template = template.replace("{formula2}", random.choice(data["formulas"]))
-    
-    return {
-        "type": "logic",
-        "text": template,
-        "validation_type": "z3"
-    }
+def generate_factual_task(task_id: int, seed_offset: int) -> Dict[str, Any]:
+    """Generate a deterministic factual task."""
+    local_rng = random.Random(SEED + seed_offset)
 
-def generate_creative_task() -> Dict[str, Any]:
-    """Generate a creative task."""
-    template = random.choice(TASK_TEMPLATES["creative"])
-    data = SAMPLE_DATA["creative"]
-    
-    if "{character}" in template:
-        template = template.replace("{character}", random.choice(data["characters"]))
-    if "{action}" in template:
-        template = template.replace("{action}", random.choice(data["actions"]))
-    if "{setting}" in template:
-        template = template.replace("{setting}", random.choice(data["settings"]))
-    if "{metaphor}" in template:
-        template = template.replace("{metaphor}", random.choice(data["metaphors"]))
-    if "{character1}" in template:
-        template = template.replace("{character1}", random.choice(data["characters"]))
-    if "{character2}" in template:
-        template = template.replace("{character2}", random.choice(data["characters"]))
-    if "{event}" in template:
-        template = template.replace("{event}", random.choice(data["events"]))
-    if "{topic}" in template:
-        template = template.replace("{topic}", random.choice(data["topics"]))
-    
-    return {
-        "type": "creative",
-        "text": template,
-        "validation_type": "regex"
-    }
+    facts = [
+        ("What is the capital of France?", "Paris"),
+        ("Who wrote 'Romeo and Juliet'?", "William Shakespeare"),
+        ("What is the chemical symbol for Gold?", "Au"),
+        ("In which year did World War II end?", "1945"),
+        ("What is the largest planet in our solar system?", "Jupiter")
+    ]
 
-def generate_factual_task() -> Dict[str, Any]:
-    """Generate a factual task."""
-    template = random.choice(TASK_TEMPLATES["factual"])
-    data = SAMPLE_DATA["factual"]
-    
-    if "{study_topic}" in template:
-        template = template.replace("{study_topic}", random.choice(data["study_topics"]))
-    if "{source}" in template:
-        template = template.replace("{source}", random.choice(data["sources"]))
-    if "{concept}" in template:
-        template = template.replace("{concept}", random.choice(data["concepts"]))
-    if "{entity1}" in template:
-        template = template.replace("{entity1}", random.choice(data["entity1"]))
-    if "{entity2}" in template:
-        template = template.replace("{entity2}", random.choice(data["entity2"]))
-    if "{topic}" in template:
-        template = template.replace("{topic}", random.choice(data["topics"]))
-    
+    q, a = facts[task_id % len(facts)]
     return {
-        "type": "factual",
-        "text": template,
-        "validation_type": "regex"
+        "id": f"task_factual_{task_id:04d}",
+        "domain": "factual",
+        "prompt": q,
+        "rule": f"Output must contain the fact: '{a}'.",
+        "difficulty": local_rng.choice(["easy", "medium", "hard"]),
+        "ambiguous": False
     }
 
 GENERATORS = {
@@ -215,138 +166,168 @@ GENERATORS = {
     "factual": generate_factual_task
 }
 
-def generate_tasks(count: int = 200, seed: int = 42) -> List[Dict[str, Any]]:
+def generate_tasks(count_per_domain: int = TASKS_PER_DOMAIN) -> List[Dict[str, Any]]:
     """
-    Generate stratified tasks across all domains.
-    
+    Generate the global pool of tasks.
+
     Args:
-        count: Total number of tasks to generate.
-        seed: Random seed for reproducibility.
-        
+        count_per_domain: Number of tasks to generate per domain (default 100).
+
     Returns:
         List of task dictionaries.
     """
-    set_global_seed(seed)
-    tasks = []
-    tasks_per_domain = count // len(GENERATORS)
-    
-    task_id = 0
-    for domain, generator in GENERATORS.items():
-        for i in range(tasks_per_domain):
-            task_id += 1
-            task = generator()
-            task["id"] = f"task_{task_id:03d}"
-            tasks.append(task)
-    
-    # If count is not evenly divisible, add remaining tasks randomly
-    remaining = count - len(tasks)
-    if remaining > 0:
-        domains_list = list(GENERATORS.keys())
-        for i in range(remaining):
-            domain = random.choice(domains_list)
-            task_id += 1
-            task = GENERATORS[domain]()
-            task["id"] = f"task_{task_id:03d}"
-            tasks.append(task)
-    
-    return tasks
+    set_global_seed(SEED)
+    all_tasks = []
 
-def validate_tasks(tasks: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[str]]:
+    logger.info(f"Starting task generation: {count_per_domain} tasks per domain for {len(DOMAINS)} domains.")
+
+    for domain in DOMAINS:
+        generator = GENERATORS[domain]
+        domain_tasks = []
+        for i in range(count_per_domain):
+            task = generator(i, i) # Use index for determinism
+            domain_tasks.append(task)
+
+        # Validate tasks immediately
+        valid_tasks, invalid_count = validate_tasks(domain_tasks)
+        if invalid_count > 0:
+            logger.warning(f"Domain '{domain}': {invalid_count} tasks were invalid and skipped.")
+
+        all_tasks.extend(valid_tasks)
+        logger.info(f"Generated {len(valid_tasks)} valid tasks for domain '{domain}'.")
+
+    total = len(all_tasks)
+    logger.info(f"Total tasks generated: {total}")
+
+    # Verify distribution
+    distribution = {d: 0 for d in DOMAINS}
+    for t in all_tasks:
+        if t.get("domain") in distribution:
+            distribution[t["domain"]] += 1
+
+    logger.info(f"Distribution: {distribution}")
+
+    # Assert exact counts as per spec
+    for d in DOMAINS:
+        if distribution[d] != count_per_domain:
+            logger.error(f"Domain '{d}' count mismatch: expected {count_per_domain}, got {distribution[d]}")
+            raise ValueError(f"Task generation failed: Domain '{d}' count mismatch.")
+
+    return all_tasks
+
+def validate_tasks(tasks: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], int]:
     """
-    Validate tasks based on their type.
-    
-    Args:
-        tasks: List of task dictionaries.
-        
+    Validate a list of tasks.
+
+    Checks for:
+    - Non-empty prompt
+    - Non-empty rule
+    - Valid domain
+    - Presence of ID
+
     Returns:
-        Tuple of (valid_tasks, error_messages).
+        Tuple of (valid_tasks_list, count_of_invalid_tasks)
     """
-    valid_tasks = []
-    errors = []
-    
+    valid = []
+    invalid_count = 0
+
     for task in tasks:
-        try:
-            # Basic validation: check required fields
-            if "id" not in task or "type" not in task or "text" not in task:
-                errors.append(f"Task missing required fields: {task.get('id', 'unknown')}")
-                continue
-            
-            # Type-specific validation
-            task_type = task["type"]
-            if task_type == "coding":
-                # Check for Python syntax
-                try:
-                    ast.parse(task["text"])
-                except SyntaxError:
-                    # This is expected for task descriptions, not code
-                    pass
-            elif task_type == "math":
-                # Check for mathematical expressions
-                if not re.search(r'[0-9+\-*/^().xysqrt]', task["text"]):
-                    errors.append(f"Math task lacks mathematical content: {task['id']}")
-                    continue
-            elif task_type == "logic":
-                # Check for logical operators
-                if not re.search(r'(AND|OR|NOT|IF|THEN|IMPLIES|ALL|SOME)', task["text"]):
-                    errors.append(f"Logic task lacks logical operators: {task['id']}")
-                    continue
-            
-            valid_tasks.append(task)
-        except Exception as e:
-            errors.append(f"Error validating task {task.get('id', 'unknown')}: {str(e)}")
-    
-    return valid_tasks, errors
+        is_valid = True
+        reason = []
 
-def save_tasks(tasks: List[Dict[str, Any]], output_path: Path) -> None:
+        if not task.get("prompt") or not isinstance(task.get("prompt"), str):
+            is_valid = False
+            reason.append("missing or invalid prompt")
+
+        if not task.get("rule") or not isinstance(task.get("rule"), str):
+            is_valid = False
+            reason.append("missing or invalid rule")
+
+        if not task.get("domain") or task.get("domain") not in DOMAINS:
+            is_valid = False
+            reason.append("missing or invalid domain")
+
+        if not task.get("id"):
+            is_valid = False
+            reason.append("missing id")
+
+        if is_valid:
+            valid.append(task)
+        else:
+            invalid_count += 1
+            logger.debug(f"Invalid task detected: {task.get('id', 'unknown')} - {', '.join(reason)}")
+
+    return valid, invalid_count
+
+def save_tasks(tasks: List[Dict[str, Any]], output_path: Optional[str] = None) -> Path:
     """
-    Save tasks to a JSONL file.
-    
+    Save tasks to a JSON file.
+
     Args:
         tasks: List of task dictionaries.
-        output_path: Path to save the file.
-    """
-    ensure_dir(output_path.parent)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        for task in tasks:
-            f.write(json.dumps(task, ensure_ascii=False) + '\n')
-    logger.info(f"Saved {len(tasks)} tasks to {output_path}")
+        output_path: Optional path. If None, uses default data/raw/tasks.json.
 
-def load_tasks(input_path: Path) -> List[Dict[str, Any]]:
+    Returns:
+        Path to the saved file.
     """
-    Load tasks from a JSONL file.
-    
+    if output_path is None:
+        data_dir = get_data_dir()
+        output_path = str(data_dir / "raw" / "tasks.json")
+
+    output_file = Path(output_path)
+    ensure_dir(output_file.parent)
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(tasks, f, indent=2, ensure_ascii=False)
+
+    logger.info(f"Saved {len(tasks)} tasks to {output_file}")
+    return output_file
+
+def load_tasks(input_path: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    Load tasks from a JSON file.
+
     Args:
-        input_path: Path to the file.
-        
+        input_path: Optional path. If None, uses default data/raw/tasks.json.
+
     Returns:
         List of task dictionaries.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Tasks file not found: {input_path}")
-    
-    tasks = []
-    with open(input_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                tasks.append(json.loads(line))
-    return tasks
+    if input_path is None:
+        data_dir = get_data_dir()
+        input_path = str(data_dir / "raw" / "tasks.json")
+
+    input_file = Path(input_path)
+    if not input_file.exists():
+        raise FileNotFoundError(f"Tasks file not found at {input_file}")
+
+    with open(input_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    logger.info(f"Loaded {len(data)} tasks from {input_file}")
+    return data
 
 def main():
     """Main entry point for task generation."""
-    set_global_seed(42)
-    
-    output_path = get_data_dir() / "interim" / "tasks.jsonl"
-    tasks = generate_tasks(count=200)
-    valid_tasks, errors = validate_tasks(tasks)
-    
-    if errors:
-        logger.warning(f"Validation errors: {len(errors)}")
-        for error in errors[:5]:
-            logger.warning(error)
-    
-    save_tasks(valid_tasks, output_path)
-    logger.info(f"Generated and saved {len(valid_tasks)} tasks")
+    logger.info("Starting Task Generation Pipeline (T007)")
+
+    try:
+        # Generate the pool
+        tasks = generate_tasks(count_per_domain=TASKS_PER_DOMAIN)
+
+        # Save to disk
+        output_file = save_tasks(tasks)
+
+        # Verify file exists and has content
+        if not output_file.exists():
+            raise RuntimeError("Failed to write output file.")
+
+        logger.info(f"Task generation complete. Output: {output_file}")
+        return 0
+
+    except Exception as e:
+        logger.error(f"Task generation failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T03:14:22.479227Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-922-llmxive-follow-up-extending-colleague-sk
-last_run_id: 1fefed24-f2e1-4710-a0f2-6414b1923356
+last_run_id: 0817e755-4b1a-42a2-8b81-a30f0dfde953
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk
 title: 'llmXive follow-up: extending "COLLEAGUE.SKILL: Automated AI Skill Generation
   via Expert Knowledge Di"'
-updated_at: '2026-07-26T12:44:41.712620Z'
+updated_at: '2026-07-29T01:07:14.792575Z'

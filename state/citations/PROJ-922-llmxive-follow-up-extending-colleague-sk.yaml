@@ -20,14 +20,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/microsoft/Phi-3-mini-4k-instruct
   verified_at: '2026-07-17T19:22:21.567235Z'
-- artifact_hash: 4f05c8bbd3266b22066317aea505da16671cc62ba66d2dae09f06ecd3432ce4a
-  artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Pi - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Pi
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-07-26T12:44:41.649567Z'
