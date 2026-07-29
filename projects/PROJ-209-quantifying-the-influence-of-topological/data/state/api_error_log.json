@@ -1,0 +1,6 @@
+{
+  "error_type": "APIRetryError",
+  "message": "API access unavailable and no cache present. Please check MP_API_KEY and network.",
+  "timestamp": "2023-10-27 10:00:00",
+  "retries_attempted": 5
+}

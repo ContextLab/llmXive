@@ -1,0 +1,5 @@
+{
+  "valid": false,
+  "reason": "Real data source not found or inaccessible. No '2022 Supplementary Defect Dataset' available in expected locations.",
+  "exclusions": 0
+}

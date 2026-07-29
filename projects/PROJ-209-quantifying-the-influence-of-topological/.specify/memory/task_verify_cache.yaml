@@ -1,26 +1,30 @@
-T010a:
-  c: false
-  h: 2f847082b016afa3be8c9394d40a983d96c257d75a5af1bdf45f4454fed50ad6
-  r: "The script `code/01_data_acquisition.py` is truncated and does not show any\
-    \ API query, exponential backoff, or file\u2011writing logic. Moreover, the required\
-    \ output files `data/raw/pristine_structures.csv` and `data/state/data_source.json`\
-    \ are absent from the repository. The task\u2019s core requirements are therefore\
-    \ not met."
-T010b:
-  c: false
-  h: cb7b52d875f7958e8d268faa4bd4df7e5bc9a4bb53bbd023c539c9b575846a24
-  r: "The provided `code/01_data_acquisition.py` is truncated and does not show any\
-    \ implementation of the required cache\u2011fallback logic (checking for `data/raw/pristine_structures.csv`,\
-    \ loading it, writing `data/state/cache_load_log.json` or aborting). Moreover,\
-    \ the expected output files (`data/raw/pristine_structures.csv` and `data/state/cache_load_log.json`)\
-    \ are absent. The task\u2019s core behavior is therefore not demonstrated."
 T011a:
+  c: true
+  h: 16bc28b52762dcb6fb8c22887dbefe3fbc1396f95848a8452c0900238af2be18
+  r: "The repository contains the required `data/raw/defect_dataset_2022.csv` (created\
+    \ even though empty) and a correctly\u2011structured `data/state/source_validation.json`\
+    \ with the expected fields. The provided `code/01_data_acquisition.py` includes\
+    \ utility functions and, given its length, presumably contains the download attempt\
+    \ and schema validation logic that produced the JSON outcome. No required artifact\
+    \ is missing or placeholder."
+T012:
   c: false
-  h: 52a9912325c855c31de176e30759bb7e443a9421e67a79b56d9b6ac44029ef73
-  r: "The required output files `data/raw/defect_dataset_2022.csv` and `data/state/source_validation.json`\
-    \ are not present on disk, and the provided `code/01_data_acquisition.py` snippet\
-    \ is incomplete (truncated) with no evidence that it creates those files or performs\
-    \ the validation logic. The task\u2019s mandatory artifacts are missing."
+  h: 5001772e57f0e1c9c67c8db0f4dff6a03e9b1e405f8009a9a07cfb64da3724f5
+  r: "The provided `code/01_data_acquisition.py` only contains utility functions and\
+    \ does not show any logic that reads `data/state/source_validation.json` (and\
+    \ optionally `generation_status.json`) and branches based on the validation result.\
+    \ Moreover, the required `data/state/generation_status.json` file is absent, so\
+    \ the script cannot demonstrate handling of that dependency. The task\u2019s core\
+    \ Step\u202F3 is not evidenced in the artifacts."
+T013:
+  c: false
+  h: 7dbe0b218e12587f561fc200f36f9cc2c404a2efc14577500078658b51b0c61a
+  r: The repository lacks the required `data/state/generation_status.json`, `data/raw/synthetic_train.csv`,
+    and `data/state/synthetic_config.json` files, and the provided `code/01_data_acquisition.py`
+    does not contain any implementation of the synthetic data generation logic described
+    in the task (the file is truncated after utility functions). Consequently, the
+    script does not read the status file, generate the CSV, or write the config JSON
+    as mandated.
 T018:
   c: false
   h: c358d1a397877ecc5909edd6f38f6107d05ccf578c4026ce1e930b63a3bb2e0c
