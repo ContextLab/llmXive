@@ -54,7 +54,7 @@
   verification_status: pending
   verified_against_url: https://app.prolific.com/api
   verified_at: '2026-07-17T02:23:01.480322Z'
-- artifact_hash: 291b1c99a929ececa301511480ac20993eee4222eafb5ed2e460e425caf0b491
+- artifact_hash: a025dc466e10b6c03ef5f1dd33423a5a95aaa578f7be6a3b4338ae275b1d6c00
   artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,4 +64,15 @@
   value: https://huggingface.co/datasets/medmisbench/supplementary`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/medmisbench/supplementary
-  verified_at: '2026-07-29T07:47:33.660855Z'
+  verified_at: '2026-07-29T15:43:42.091467Z'
+- artifact_hash: a025dc466e10b6c03ef5f1dd33423a5a95aaa578f7be6a3b4338ae275b1d6c00
+  artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: apply - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q107338558
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q107338558
+  verified_at: '2026-07-29T15:43:42.091467Z'

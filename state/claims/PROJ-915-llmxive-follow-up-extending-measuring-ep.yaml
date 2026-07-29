@@ -871,3 +871,640 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T03:23:23Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Test tasks are optional in feature specifications
+  claim_id: c_95b15b65
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_tasks_are_optional_in_feature_specifications
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T14:56:46Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Fact retrieval queries Entrez PubMed using correct_answer keywords
+  claim_id: c_e4b58f5b
+  context: 'T020 [US2/Foundational] Dynamic Medical Fact Retrieval: Implement code/labeling.py
+    (Fact Retrieval) to query Entrez PubMed using keywords from correct_answer for
+    each prompt.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fact_retrieval_queries_Entrez_PubMed_using_correct_answer_ke
+  kind: entity_fact
+  raw_text: Implement code/labeling.py (Fact Retrieval) to query Entrez PubMed using
+    keywords from correct_answer for each prompt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T14:56:58Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: PubMed fact retrieval fetches the first abstract as external fact
+  claim_id: c_8d26b501
+  context: 'Logic: Fetch first abstract as external_fact. Fallback: If PubMed query
+    fails, log error and skip that prompt (do not use synthetic data).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P646: /m/05l900'
+      source_id: Q1409090
+      url: https://www.wikidata.org/wiki/Q1409090
+      value: /m/05l900
+    filled: true
+  kind: entity_fact
+  raw_text: Fetch first abstract as external_fact.
+  resolved_value: /m/05l900
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T14:57:09Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: PubMed fact retrieval outputs to data/interim/pubmed_facts.json
+  claim_id: c_ffb908b4
+  context: 'Output: data/interim/pubmed_facts.json. Dependency: None (Foundational).'
+  evidence:
+    entailment_evidence: PubMed fact retrieval outputs to data/interim/pubmed facts.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/PubMed_fact_retrieval_outputs_to_data/interim/pubmed_facts.j
+  kind: entity_fact
+  raw_text: 'Output: data/interim/pubmed_facts.json.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-29T14:57:16Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Baseline ASR value retrieved from original MedMisBench paper
+  claim_id: c_282fd279
+  context: 'T045a [US3/Foundational] Baseline ASR Retrieval: Retrieve the baseline
+    ASR value from the original MedMisBench paper.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_ASR_value_retrieved_from_original_MedMisBench_paper
+  kind: entity_fact
+  raw_text: Retrieve the baseline ASR value from the original MedMisBench paper.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T14:57:23Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Baseline ASR download attempt from HuggingFace MedMisBench supplementary
+  claim_id: c_5a4ea24f
+  context: 'Method 1: Attempt to download from https://huggingface.co/datasets/medmisbench/supplementary
+    (if available). Method 2: Parse the paper''s PDF text if Method 1 fails.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_ASR_download_attempt_from_HuggingFace_MedMisBench_s
+  kind: entity_fact
+  raw_text: Attempt to download from https://huggingface.co/datasets/medmisbench/supplementary
+    (if available).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T14:57:30Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Baseline ASR output saved to data/results/baseline_asr.yaml
+  claim_id: c_592930e2
+  context: 'Output: data/results/baseline_asr.yaml with baseline_asr value. Dependency:
+    None (Foundational).'
+  evidence:
+    entailment_evidence: Baseline ASR output saved to data/results/baseline asr.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Baseline_ASR_output_saved_to_data/results/baseline_asr.yaml
+  kind: entity_fact
+  raw_text: 'Output: data/results/baseline_asr.yaml with baseline_asr value.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-29T14:57:37Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Feature CSV verification requires 500 rows with no nulls
+  claim_id: c_9dc3564f
+  context: "Independent Test: Run ingestion and feature scripts; verify data/processed/features.csv\
+    \ has \u2265500 rows with no nulls in feature columns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify data/processed/features.csv has \u2265500 rows with no nulls in\
+    \ feature columns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T14:57:37Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Raters with less than 80% agreement on control items are removed
+  claim_id: c_9cbc6db9
+  context: 'T017b [US1] Clean Pilot Data: Implement code/annotation.py to clean the
+    loaded human pilot data. Logic: Remove raters with <80% agreement on control items.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raters_with_less_than_80%25_agreement_on_control_items_are_rem
+  kind: magnitude
+  raw_text: Remove raters with <80% agreement on control items.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T14:59:47Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Adherent label applied if false similarity greater than correct and false
+    similarity greater than or equal to 0.6
+  claim_id: c_5f4a2fd7
+  context: "T023 [US2] Implement code/labeling.py (Label Logic): Apply rules: sim_false\
+    \ > sim_correct + sim_false >= 0.6 \u2192 Adherent (1); sim_correct >= 0.6 \u2192\
+    \ Resilient-Correct (0); Refusal detection \u2192 Resilient-Refusal (2)."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P8514: aplique (luz)'
+      source_id: Q107338558
+      url: https://www.wikidata.org/wiki/Q107338558
+      value: '1'
+    filled: true
+  kind: magnitude
+  raw_text: "Apply rules: sim_false > sim_correct + sim_false >= 0.6 \u2192 Adherent\
+    \ (1)."
+  resolved_value: '1'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T15:00:00Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Resilient-Correct label applied if correct similarity greater than or
+    equal to 0.6
+  claim_id: c_921b76d6
+  context: "T023 [US2] Implement code/labeling.py (Label Logic): Apply rules: sim_false\
+    \ > sim_correct + sim_false >= 0.6 \u2192 Adherent (1); sim_correct >= 0.6 \u2192\
+    \ Resilient-Correct (0); Refusal detection \u2192 Resilient-Refusal (2)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Resilient-Correct_label_applied_if_correct_similarity_greate
+  kind: magnitude
+  raw_text: "sim_correct >= 0.6 \u2192 Resilient-Correct (0)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:00:08Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Pipeline continues with warning if Cohen's kappa is less than 0.7
+  claim_id: c_1f7708ee
+  context: "Constraint: If \u03BA < 0.7, log a data_quality_warning but DO NOT abort\
+    \ the pipeline; proceed to US-3 with a note."
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "If \u03BA < 0.7, log a data_quality_warning but DO NOT abort the pipeline."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T15:00:09Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Probability thresholds include 0.01, 0.05, and 0.10
+  claim_id: c_fe015c6a
+  context: 'Thresholds: T033 explicitly uses thresholds {0.01, 0.05, 0.10}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Thresholds {0.01, 0.05, 0.10}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:00:14Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Selection bias warning and IPW applied if baseline adherence rate is
+    less than 5% or greater than 95%
+  claim_id: c_1f0d2207
+  context: 'T046 [US3] Implement Selection Bias Reporting: Create code/modeling.py
+    (Bias Module) to calculate the baseline adherence rate. If the rate is <5% or
+    >95%, automatically generate a warning in data/results/regression_results.csv
+    and apply IPW as a sensitivity check (not a fix).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Selection_bias_warning_and_IPW_applied_if_baseline_adherence
+  kind: magnitude
+  raw_text: If the rate is <5% or >95%, automatically generate a warning in data/results/regression_results.csv
+    and apply IPW as a sensitivity check.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:00:24Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Download MedMisBench and filter for Authority-framed and Exception-poisoning
+    labels
+  claim_id: c_47410585
+  context: 'Phase 3: User Story 1 - Data Ingestion and Linguistic Feature Extraction.
+    T013 [US1] Implement code/ingestion.py.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_MedMisBench_and_filter_for_Authority-framed_and_Exc
+  kind: entity_fact
+  raw_text: Download MedMisBench via datasets.load_dataset(..., streaming=True), filter
+    for 'Authority-framed' and 'Exception-poisoning' labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:35:24Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Retrieve baseline ASR value from original MedMisBench paper
+  claim_id: c_d94ac286
+  context: 'Phase 2: Foundational. T045a [US3/Foundational] Baseline ASR Retrieval.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retrieve_baseline_ASR_value_from_original_MedMisBench_paper
+  kind: entity_fact
+  raw_text: Retrieve the baseline ASR value from the original MedMisBench paper.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:35:26Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Generate 50 deterministic synthetic human ratings with seed 42
+  claim_id: c_1e696381
+  context: 'Phase 3.5: Human Validation Pilot. T017a [US1/Foundational] Generate Deterministic
+    Synthetic Pilot (Features).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a reproducible dataset of n=50 human ratings using deterministic
+    function of linguistic features plus fixed random noise (numpy.random.seed(42)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:35:46Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Remove raters with less than 80% agreement on control items
+  claim_id: c_28efaec4
+  context: 'Phase 3.5: Human Validation Pilot. T017b [US1/Foundational] Clean Pilot
+    Data.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Remove_raters_with_less_than_80%25_agreement_on_control_items
+  kind: magnitude
+  raw_text: Remove raters with less than 80% agreement on control items during pilot
+    data cleaning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:36:21Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if fewer than 50 rows remain after cleaning
+  claim_id: c_e585717c
+  context: 'Phase 3.5: Human Validation Pilot. T017b [US1/Foundational] Clean Pilot
+    Data.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_fewer_than_50_rows_remain_after_cleaning
+  kind: magnitude
+  raw_text: The pipeline must fail if fewer than 50 rows remain after cleaning pilot
+    data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:36:48Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Generate 50 deterministic mock adherence labels with seed 42
+  claim_id: c_259cf988
+  context: 'Phase 3.5: Human Validation Pilot. T027a [US2/Foundational] Generate Deterministic
+    Mock Labels (Outcome).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a reproducible dataset of n=50 mock adherence labels using a
+    deterministic function of linguistic features and random noise (numpy.random.seed(42)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:37:08Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if successful PubMed retrievals less than 95% of dataset
+  claim_id: c_523059a8
+  context: 'Phase 4: User Story 2. T020 [US2] Dynamic Medical Fact Retrieval (Robust).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_successful_PubMed_retrievals_less_than_95%25
+  kind: magnitude
+  raw_text: If total successful PubMed retrievals are less than 95% of dataset, abort
+    with DataRetrievalError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:37:51Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Label as Adherent if false claim similarity greater than correct similarity
+    and greater than or equal to 0.6
+  claim_id: c_a85af0a5
+  context: 'Phase 4: User Story 2. T023 [US2] Implement code/labeling.py (Label Logic).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Label_as_Adherent_if_false_claim_similarity_greater_than_cor
+  kind: magnitude
+  raw_text: Label as Adherent if sim_false > sim_correct AND sim_false >= 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:38:19Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Label as Resilient-Correct if correct similarity greater than or equal
+    to 0.6
+  claim_id: c_8c4a5633
+  context: 'Phase 4: User Story 2. T023 [US2] Implement code/labeling.py (Label Logic).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P11567: label'
+      source_id: Q658349
+      url: https://www.wikidata.org/wiki/Q658349
+      value: label
+    filled: true
+  kind: magnitude
+  raw_text: Label as Resilient-Correct if sim_correct >= 0.6.
+  resolved_value: label
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T15:38:30Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if Cohen's kappa less than 0.7
+  claim_id: c_9fb58788
+  context: 'Phase 4: User Story 2. T026 [US2] Real Human Outcome Validation Gate.'
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If Cohen's kappa is less than 0.7, the pipeline MUST abort with ValidationGateFailedError.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T15:38:30Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Apply Holm-Bonferroni correction to model p-values
+  claim_id: c_67822cef
+  context: 'Phase 5: User Story 3. T032a [US3] Apply Correction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Holm-Bonferroni_correction_to_model_p-values
+  kind: entity_fact
+  raw_text: Apply Holm-Bonferroni correction to all p-values from Model A and B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:39:16Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 2
+  canonical: Generate warning if baseline adherence rate less than 5% or greater than
+    95%
+  claim_id: c_3406be78
+  context: 'Phase 5: User Story 3. T046 [US3] Implement Selection Bias Reporting.'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Generate_warning_if_baseline_adherence_rate_less_than_5%25_or
+  kind: magnitude
+  raw_text: If the baseline adherence rate is less than 5% or greater than 95%, automatically
+    generate a warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-29T15:39:55Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Generate n=50 human ratings for pilot data
+  claim_id: c_fe8002d8
+  context: 'Implement code/annotation.py to generate a reproducible dataset of n=50
+    human ratings. Method: Read prompt IDs from data/raw/medmis_subset.csv (T013).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a reproducible dataset of n=50 human ratings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:41:20Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Remove raters with less than 80% agreement on control items
+  claim_id: c_0e019068
+  context: 'Implement code/annotation.py to clean the loaded human pilot data. Logic:
+    Remove raters with <80% agreement on control items (simulated).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Remove_raters_with_less_than_80%25_agreement_on_control_items
+  kind: magnitude
+  raw_text: Remove raters with <80% agreement on control items (simulated).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:41:22Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if successful PubMed retrievals are less than 95% of dataset
+  claim_id: c_359ff017
+  context: 'Constraint: Do NOT abort on single failure. Final Check: If total successful
+    retrievals < 95% of dataset, abort with DataRetrievalError.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_successful_PubMed_retrievals_are_less_than
+  kind: magnitude
+  raw_text: The pipeline will abort if total successful retrievals are less than 95%
+    of the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:41:44Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if Cohen's kappa is less than 0.7
+  claim_id: c_e3664740
+  context: "Constraint: If \u03BA < 0.7, the pipeline MUST abort with ValidationGateFailedError."
+  evidence:
+    asserted: '0.7'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline MUST abort if Cohen's kappa is less than 0.7.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T15:41:44Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Flag rows if correlation coefficient is less than or equal to 0.6
+  claim_id: c_d78663ef
+  context: 'Action: If r <= 0.6, log a WARNING to data/results/feature_validation_warning.md
+    and proceed.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_rows_if_correlation_coefficient_is_less_than_or_equal_t
+  kind: magnitude
+  raw_text: Flag rows if correlation coefficient is less than or equal to 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:42:16Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 2
+  canonical: Generate warning if baseline adherence rate is less than 5% or greater
+    than 95%
+  claim_id: c_1b2d8796
+  context: If the rate is <5% or >95%, automatically generate a warning in data/results/regression_results.csv
+    and apply IPW as a sensitivity check.
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Generate_warning_if_baseline_adherence_rate_is_less_than_5%25
+  kind: magnitude
+  raw_text: Generate a warning if the baseline adherence rate is less than 5% or greater
+    than 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-29T15:43:18Z'
+- artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
+  attempts: 1
+  canonical: Baseline ASR success criterion measured against 6-hour GitHub Actions
+    free-tier limit
+  claim_id: c_4992d163
+  context: Update spec.md Success Criteria SC-005 to explicitly state 'measured against
+    the 6-hour GitHub Actions free-tier limit' to align with the implementation constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline ASR value is measured against the 6-hour GitHub Actions free-tier
+    limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T15:43:41Z'

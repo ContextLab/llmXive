@@ -7,9 +7,4 @@ pandas
 numpy
 tqdm
 biopython
-python-dotenv
 pyyaml
-requests
-pytest
-ruff
-black

@@ -1,17 +1,18 @@
 status: none
-intent: download MedMisBench dataset HuggingFace repository python package dataset
+intent: download MedMisBench dataset for authority-framed and exception-poisoning
+  prompts python package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - label
 - modal_verb_count
-- imperative_verb_count
-- declarative_sentence_count
-- total_sentences
+- modal_verb_frequency
+- imperative_count
+- declarative_count
+- imperative_declarative_ratio
 - citation_count
 - citation_density
-- imperative_declarative_ratio
-- modal_verb_frequency
-cache_key: 20d1d1ce27da218db55208dae969685ae47dc63b3cc7c30c58caf1446df0bdeb
-searched_at: '2026-07-29T03:06:59.867689+00:00'
+- total_sentences
+cache_key: 029755d043ca65aa9b5a5ba301afeafd17b2e983003e835b29d78401231fd947
+searched_at: '2026-07-29T15:31:58.558535+00:00'
 retry_count: 1

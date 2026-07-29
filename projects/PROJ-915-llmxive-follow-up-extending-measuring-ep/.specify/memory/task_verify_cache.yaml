@@ -26,6 +26,30 @@ T008:
     \ (e.g., retry logic for dataset download or timeout handling for inference) were\
     \ provided. Without any artifact to inspect, we cannot confirm that the required\
     \ setup was implemented."
+T013:
+  c: false
+  h: b0ab48cd8573481a2e382b77a3a3d121cda63450c25eea816ea086cbc2ad524e
+  r: "The repository lacks the required `data/raw/medmis_subset.csv` file, and `state/artifact_hashes.yaml`\
+    \ contains only a placeholder hash instead of a real SHA\u2011256 checksum. Moreover,\
+    \ the provided `code/ingestion.py` is truncated (ends mid\u2011function) and shows\
+    \ no logic for writing the CSV or recording the checksum, so the implementation\
+    \ does not fulfill the specified requirements."
+T015:
+  c: false
+  h: dc1cff3a31d371dd63cf80897ef9c6abd59c279d6248233299156da19a4b69ea
+  r: "The provided `code/features.py` is truncated and does not contain logic to flag\
+    \ undefined imperative ratios, add an `is_ratio_undefined` column, or write the\
+    \ processed data to `data/processed/features.csv`. Moreover, the required output\
+    \ file `data/processed/features.csv` is absent. The task\u2019s core requirement\
+    \ is therefore unmet."
+T017a:
+  c: false
+  h: 84a6fb565ca53aed6026b51816eaaef17372738d93334175763e51154b9b8cf1
+  r: "The repository lacks the required `data/raw/medmis_subset.csv` input file and\
+    \ the expected output `data/raw/human_pilot_cached.csv`. Moreover, the provided\
+    \ `code/annotation.py` is truncated and does not show any logic that computes\
+    \ a deterministic `authority_density_score` or writes the required columns, so\
+    \ the task\u2019s core functionality is not demonstrated."
 T017b:
   c: false
   h: cb76370acc2af84b4ea84e8bcadad416a2cacad8b47cc21ae45011b99323312d
@@ -40,14 +64,6 @@ T017c:
     \ of raw rater responses (it only loads existing data and computes correlations,\
     \ expecting only `prompt_id` and `authority_density_score`). The script also lacks\
     \ handling of a `rater_id` column, so the task\u2019s specification is not met."
-T021:
-  c: false
-  h: 62a9796f8d7c64c23caa73d6df1c548796dc6b1897df1c4fee7a9a464a2e2cc4
-  r: "The repository contains `code/labeling.py` and a non\u2011empty `data/raw/static_medical_facts.json`,\
-    \ but the script only loads the JSON and builds a map keyed by `prompt_id`. It\
-    \ never creates a mapping from each `correct_answer` to an `external_fact` (the\
-    \ JSON has no `external_fact` field, and no function implements such a map). The\
-    \ required fact\u2011retrieval behavior is therefore missing."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -62,3 +78,12 @@ T027:
     \ so there is no evidence that two expert raters were recruited or that any labels\
     \ were produced. The task\u2019s deliverable is missing, making the requirement\
     \ unmet."
+T027a:
+  c: false
+  h: 6ff28eb918b8988577c2e6ea0d42596891822d95d50f269a8d0c8bdb75c0ce01
+  r: "The required `data/raw/medmis_subset.csv` is absent, so the script cannot read\
+    \ prompt IDs, and the expected output `data/interim/human_pilot_labels_mock.csv`\
+    \ was not created. Moreover, `code/annotation.py` is truncated (e.g., the `save_pilot_cache`\
+    \ function ends abruptly) and contains no visible logic that generates the 50\
+    \ deterministic mock labels and writes them to the specified CSV. The task\u2019\
+    s core requirements are therefore unmet."
