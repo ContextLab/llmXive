@@ -1,0 +1,26 @@
+# Project Structure Manifest
+# Generated for: PROJ-349-predicting-the-impact-of-ball-milling-on
+# Date: Automated Generation
+
+# Core Directories
+src/
+tests/
+
+# Data Directories
+data/raw/
+data/processed/
+data/splits/
+
+# Results and Contracts
+results/
+contracts/
+
+# CI/CD
+.github/workflows/
+
+# Configuration and Documentation
+config.yaml
+requirements.txt
+README.md
+docs/
+scripts/
