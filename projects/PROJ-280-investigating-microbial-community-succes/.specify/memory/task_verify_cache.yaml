@@ -66,13 +66,6 @@ T037:
   r: No updated README or quickstart.md files were provided in the `docs/` directory,
     nor any evidence that documentation was modified. The required documentation artifacts
     are missing, so the task is not satisfied.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files, diff logs, or documentation showing that scripts in the `code/`
-    directory have been cleaned up or refactored were provided. The only evidence
-    present relates to project specifications and user stories, not to any actual
-    code changes, so the required artifact is missing.
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

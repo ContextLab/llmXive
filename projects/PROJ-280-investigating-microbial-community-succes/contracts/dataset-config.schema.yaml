@@ -12,9 +12,5 @@ properties:
           enum: ["NCBI_SRA", "Zenodo"]
         url:
           type: string
-      required:
-        - id
-        - source
-        - url
-required:
-  - datasets
+      required: ["id", "source", "url"]
+required: ["datasets"]

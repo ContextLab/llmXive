@@ -22,3 +22,5 @@ multiprocess==0.70.15
 
 # Testing
 pytest==7.4.2
+community  # auto-added: imported by run-book but missing from venv
+skbio  # auto-added: imported by run-book but missing from venv

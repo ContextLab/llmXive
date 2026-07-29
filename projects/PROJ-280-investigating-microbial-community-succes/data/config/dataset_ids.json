@@ -1,9 +1,9 @@
 {
   "datasets": [
     {
-      "id": "cw_microbiome_001",
-      "source": "Zenodo",
-      "url": "https://zenodo.org/api/records/12345"
+      "id": "SRR12345678",
+      "source": "NCBI_SRA",
+      "url": "https://www.ncbi.nlm.nih.gov/sra/SRR12345678"
     }
   ]
 }
