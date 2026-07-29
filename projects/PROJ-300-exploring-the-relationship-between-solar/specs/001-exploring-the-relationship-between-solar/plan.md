@@ -1,94 +1,141 @@
 # Implementation Plan: Solar Wind Speed and Geomagnetic Tail Reconnection Rates
 
-**Branch**: `PROJ-300-01-solar-wind-reconnection` | **Date**: 2026-06-25 | **Spec**: `specs/PROJ-300-01-solar-wind-reconnection/spec.md`
-**Input**: Feature specification from `specs/PROJ-300-01-solar-wind-reconnection/spec.md`
+## Overview
 
-## Summary
+This project explores the relationship between solar wind speed (Vsw) and geomagnetic tail reconnection rates (proxied by the dawn-dusk electric field Ey). The analysis focuses on quantifying the lag-adjusted correlation between these variables, identifying the optimal propagation lag, and visualizing the relationship.
 
-This project implements a computational pipeline to quantify the correlation between solar wind speed (Vsw) measured at L1 and the cross-tail electric field (Ey) as a proxy for magnetic reconnection rates in Earth's magnetotail. The core technical approach involves ingesting high-resolution data from NASA OMNIWeb (solar wind) and NASA CDAWeb (THEMIS), resampling to a common fixed temporal cadence, and performing a rigorous statistical analysis. This includes a lag-sweep (variable duration) to find the optimal propagation delay, **Circular Block Permutation** for significance testing (preserving autocorrelation in the null distribution), and **Moving Block Bootstrap** for confidence intervals (preserving temporal dependence). The pipeline adheres to strict data hygiene and reproducibility standards defined in the project constitution, ensuring all results are traceable to specific data versions and code artifacts.
+## Objectives
 
-## Technical Context
+1. Quantify the correlation between solar wind speed and tail reconnection rates after accounting for propagation lag
+2. Identify the optimal propagation lag (L*) that maximizes correlation
+3. Compare the optimal lag with the physics-based prediction (L_phys)
+4. Visualize the relationship through scatter plots and time-series overlays
+5. Perform sensitivity analysis on high-speed solar wind thresholds
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `matplotlib`, `requests`, `tqdm`, `pyyaml`, `cdaweb`  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`) with checksums recorded in project state.  
-**Testing**: `pytest` (unit tests for data cleaning, lag logic, and statistical functions).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: Multiple CPU cores, sufficient RAM for the analysis.).  
-**Project Type**: Computational research pipeline / CLI.  
-**Performance Goals**: Complete end-to-end analysis of Multiple days of data within 6 hours; memory usage < 4 GB.  
-**Constraints**: CPU-only execution; no GPU libraries; strict adherence to verified dataset URLs; handling of missing data gaps as per spec.  
-**Scale/Scope**: Single-event analysis (day intervals); A substantial number of data points per series after resampling
+## Data Sources
 
-The research question, method, and references remain unchanged as required, with the specific empirical value generalized to a qualitative descriptor..
+- **Solar Wind Data (Vsw, Bz)**: NASA OMNIWeb API (1-minute cadence)
+- **Tail Reconnection Proxy (Ey)**: NASA CDAWeb THEMIS mission data (1-minute cadence)
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+## Methodology
+
+### Data Ingestion and Cleaning
+
+1. Fetch solar wind data (Vsw, Bz) from OMNIWeb API
+2. Fetch THEMIS data (Ey) from CDAWeb
+3. Clean and resample both datasets to a common 5-minute cadence
+4. Handle data gaps and quality issues
+
+### Lag-Adjusted Correlation Analysis
+
+1. Calculate physics-based propagation lag: L_phys = 6371 / Vsw_mean (minutes)
+ - Derived from: L_phys = (60 * 6371) / Vsw_mean / 60
+ - Where 60 Re is the tail distance and 6371 km is Earth's radius
+2. Apply lag shift to solar wind data
+3. Compute Pearson and Spearman correlations
+4. Perform circular block permutation test for empirical p-values
+5. Calculate moving block bootstrap confidence intervals
+
+### Optimal Lag Search
+
+1. Sweep lag window: 30-90 minutes (step: 5 minutes)
+2. Identify optimal lag (L*) that maximizes absolute correlation
+3. Apply multiple comparison correction via permutation test
+4. Report |L* - L_phys| as a measure of agreement with physics
+
+### Sensitivity Analysis
+
+1. Filter data by solar wind speed thresholds: T ∈ {400, 500, 600} km/s
+2. Recompute correlations for each threshold
+3. Report correlation magnitude and significance for each subset
+
+### Visualization
+
+1. Generate scatter plot of lag-adjusted Vsw vs. Ey with regression line
+2. Create dual-axis time-series overlay of Vsw and Ey
+3. Annotate plots with optimal lag and correlation statistics
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+### Principle VII: Traceability to Physical Constants
 
-- **Principle I (Reproducibility)**: The plan mandates pinned dependencies (`requirements.txt`), fixed random seeds for permutation/bootstrap tests, and explicit recording of data source versions. All code will be runnable end-to-end in a fresh environment.
-- **Principle II (Verified Accuracy)**: Citations for the physics-based lag formula (Kivelson & Russell,) and solar wind thresholds (Coronal Holes,) will be validated against primary sources. The plan explicitly avoids inventing dataset URLs, relying only on the "Verified datasets" block or programmatic loaders for canonical sources (OMNIWeb, CDAWeb).
-- **Principle III (Data Hygiene)**: The pipeline will download raw data to `data/raw/`, compute checksums, and store them in the project state. No in-place modifications; all transformations (resampling, lagging) write to `data/processed/`.
-- **Principle IV (Single Source of Truth)**: All output statistics (correlation coefficients, p-values) and figures will be generated directly from the `data/processed/` artifacts by the analysis scripts, ensuring the final report reflects the exact code execution.
-- **Principle V (Versioning)**: The plan mandates that every artifact under this project carries a content hash. The Advancement-Evaluator Agent updates the `state/projects/PROJ-300-exploring-the-relationship-between-solar.yaml` file by populating the `artifact_hashes` map and updating the `updated_at` timestamp whenever a data or code artifact changes.
-- **Principle VI (Canonical Space-Weather Data Sources)**: The plan explicitly defines the ingestion mechanism: **NASA OMNIWeb API v** is used via the `requests` library to fetch solar wind data, and **NASA CDAWeb** (specifically the THEMIS EFI instrument) is accessed via the `cdaweb` Python library or direct HDF5 download links. The implementation will not use the metadata links in the prompt as data sources, but will fetch the actual scientific variables from these canonical NASA endpoints.
-- **Principle VII (Propagation-Lag Estimation Consistency)**: The plan implements the specific formula `L_phys = (R_Earth) / Vsw_mean (km/s) / s/min, where R_Earth represents the characteristic planetary radius.` as the reference lag, explicitly documenting the assumption of a characteristic planetary distance and the heuristic nature of this value. The formula ensures dimensional consistency with the physical distance of Earth Radii.
+The physics-based propagation lag is calculated as:
+**L_phys = 6371 / Vsw_mean** (in minutes)
 
-## Project Structure
+This formula is derived from the full expression:
+L_phys = (60 * 6371) / Vsw_mean / 60
 
-### Documentation (this feature)
+Where:
+- 60 Re is the distance to the magnetotail reconnection region (60 Earth radii)
+- 6371 km is Earth's radius
+- Vsw_mean is the mean solar wind speed in km/s
+- The division by 60 converts seconds to minutes
 
-```text
-specs/PROJ-300-01-solar-wind-reconnection/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+The simplified form L_phys = 6371 / Vsw_mean maintains dimensional consistency
+and provides the propagation lag in minutes, which is the appropriate unit for
+the lag search window (30-90 minutes).
+
+### Multiple Comparison Correction
+
+The lag search involves testing multiple lag candidates (30-90 minutes, step 5),
+resulting in 13 lag candidates. To control for multiple comparisons, we use
+a circular block permutation test with 10,000 iterations. This approach:
+
+- Preserves the temporal autocorrelation structure of the data
+- Provides an empirical p-value that accounts for the multiple lag tests
+- Is less conservative than Bonferroni correction for autocorrelated data
+
+Note: Bonferroni correction is conservative for autocorrelated lag searches and
+that the permutation test is the primary method for significance testing; future
+work should consider adaptive FDR control.
+
+## Expected Deliverables
+
+1. **Cleaned Data**: `data/processed/cleaned_data.csv`
+2. **Quality Log**: `data/processed/quality_log.json`
+3. **Analysis Results**: `results/us1_correlation.json` containing:
+ - Pearson and Spearman correlation coefficients
+ - Empirical p-value from permutation test
+ - Optimal lag (L*) and corresponding correlation
+ - Physics-based lag (L_phys)
+ - Lag difference |L* - L_phys|
+ - Sensitivity table for thresholds
+4. **Visualizations**:
+ - `results/plot_scatter.png`
+ - `results/plot_timeseries.png`
+5. **State File**: `state/projects/PROJ-300-exploring-the-relationship-between-solar.yaml`
+
+## Success Criteria
+
+1. Pipeline executes successfully on sample date range (2023-01-01 to 2023-01-03)
+2. All expected output files are generated
+3. Correlation coefficients are real measurements (not synthetic/fabricated)
+4. Optimal lag is identified within the search window
+5. Permutation test p-value is computed correctly
+6. Visualizations are properly labeled and annotated
+7. Sensitivity analysis shows correlation trends across thresholds
+8. All unit and integration tests pass
+
+## Execution Commands
+
+```bash
+# Run full pipeline
+python code/main.py --start 2023-01-01 --end 2023-01-03
+
+# Generate checksums and state file
+python code/checksums.py generate --base-dir projects/PROJ-300-exploring-the-relationship-between-solar
+
+# Verify checksums
+python code/checksums.py verify --base-dir projects/PROJ-300-exploring-the-relationship-between-solar
+
+# Run tests
+pytest tests/ -v
 ```
 
-### Source Code (repository root)
+## Notes
 
-```text
-projects/PROJ-300-exploring-the-relationship-between-solar/
-├── code/
-│   ├── __init__.py
-│   ├── config.py                # Paths, constants (60 Re, lag window min)
-│   ├── data/
-│   │   ├── ingest.py            # OMNIWeb & CDAWeb fetchers
-│   │   ├── clean.py             # NaN removal, resampling
-│   │   └── lag.py               # Lag shifting, L_phys calculation
-│   ├── analysis/
-│   │   ├── correlation.py       # Pearson/Spearman, Circular Block Permutation, Moving Block Bootstrap
-│   │   ├── lag_search.py        # Optimal lag sweep
-│   │   └── sensitivity.py       # Threshold analysis (A range of moderate to high values will be explored. to evaluate the research question using the specified method (References: [Insert Citation]).)
-│   ├── viz/
-│   │   └── plots.py             # Scatter, time-series, sensitivity tables
-│   └── main.py                  # Orchestration script
-├── data/
-│   ├── raw/                     # Downloaded raw files (checksummed)
-│   └── processed/               # Cleaned, resampled, lagged data
-├── tests/
-│   ├── unit/
-│   │   ├── test_clean.py
-│   │   ├── test_lag.py
-│   │   └── test_correlation.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── README.md
-```
-
-**Structure Decision**: A modular Python package structure is selected to separate data ingestion, cleaning, analysis, and visualization. This supports unit testing of individual components (e.g., verifying the lag shift logic) and ensures the main pipeline is a simple orchestration of these tested blocks, aligning with the reproducibility and testing requirements. `config.py` defines the default lag window parameters (min) and the Re constant, which are referenced in `data-model.md` and implemented in `lag.py`.
-
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Circular Block Permutation (with a sufficient number of iterations) | Required by FR-005 to handle autocorrelation and multiple comparisons in the lag search. | Standard permutation destroys the temporal autocorrelation structure, leading to invalid null distributions and inflated Type I error rates. |
-| Moving Block Bootstrap (multiple iterations) | Required by FR-006 to account for autocorrelation in confidence intervals. | Standard (i.i.d.) bootstrap assumes independence, which is violated by solar wind data, leading to underestimated confidence intervals. |
-| Lag Sweep (extended temporal window)
-
-The research question remains: How does the temporal lag between exposure and outcome influence the observed association? The method involves conducting a lag sweep analysis across a range of extended temporal windows to identify the optimal lag structure. References: [Citation preserved as in original]. | Required by FR-010 to find the optimal physical coupling without biasing toward L_phys. | Using a fixed lag (e.g., L_phys) would ignore the dynamic nature of the reconnection site and the user's requirement to find the *optimal* lag empirically. |
+- All data ingestion must use verified URLs (OMNIWeb, CDAWeb)
+- No GPU libraries are used; permutation tests are optimized for CPU execution
+- The analysis scope is strictly limited to the requirements in spec.md
+- Synthetic/fake data is not authorized; only real measurements are acceptable
+- The project follows the Constitution Principle VII for physical constant traceability
