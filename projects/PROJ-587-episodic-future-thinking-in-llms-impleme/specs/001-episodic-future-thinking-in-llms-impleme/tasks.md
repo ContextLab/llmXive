@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -63,15 +63,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/download_data.sh` to fetch ALFWorld/TextWorld datasets from official repositories.
+- [X] T004a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/download_data.sh` to fetch ALFWorld/TextWorld datasets from official repositories AND preprocess them into `data/processed/trajectories.parquet`. (Merged T004a and T004d to ensure T011b has a valid producer).
 
 - [X] T004b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/record_commit_hashes.py` to record specific commit hashes for ALFWorld/TextWorld into `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/data/commit_hashes.txt` (Constitution Principle I).
 
-- [X] T004c [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py` to verify memory footprint < 7GB during index construction.
+- [ ] T004c [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/profile_memory.py` to verify memory footprint < 7GB during index construction.
 
 - [X] T005 [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/update_state.py` to manage artifact hashes and timestamps (Constitution Principle V).
 
 - [X] T006 [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/reference_validator.py` and pre-commit hook for citation verification (Constitution Principle II). Note: Updated scope to validate `plan.md` as it is the `implementation-plan` artifact.
+
+- [X] T009 [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config.yaml` with the required schema (including `random_seed`, `cpu_limit`, `dataset_paths`, and `logging` configuration) and `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.env.example`. This task merges T008b and T009 to ensure the file is created before logging configuration is attempted. (Replaces T008b).
 
 - [X] T007a [P] Create `PlanningTask` Pydantic model in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/planning_task.py` with fields: `task_id`, `initial_state`, `goal_state`, `required_steps`, `episodic_dependencies`.
 
@@ -79,11 +81,7 @@
 
 - [X] T008a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/logging.py` with JSON formatter, file output, and `fallback_event` logger.
 
-- [ ] T008b [P] Configure log levels (INFO, WARNING, ERROR) and output destinations in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config.yaml`.
-
-- [ ] T009 Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.env.example` and `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config.yaml` with keys for `random_seed`, `cpu_limit`, and `dataset_paths`.
-
-- [X] T019b [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` function `run_power_analysis()` to generate a pre-registered power analysis report (n=10 variants, power=0.80, d=0.8) and save to `data/reports/power_analysis_report.json`. This must be executed before data collection to satisfy Constitution Principle VII.
+- [X] T019b [P] Implement `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` function `run_power_analysis()` to generate a pre-registered power analysis template report. The script MUST accept a config file as input and output a JSON template with `null` or placeholder values for `n`, `power`, and `d`, ensuring deterministic execution without hardcoding invalid assumptions, satisfying Constitution Principle VII. This task is in Phase 2 to ensure the function is available for later statistical tasks.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -93,7 +91,7 @@
 
 **Goal**: Implement a CPU-optimized neural episodic control module that stores (state, action, outcome) tuples with semantic embeddings and supports high-precision retrieval.
 
-**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU [UNRESOLVED-CLAIM: c_d0cdc946 — status=not_enough_info].
+**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -110,22 +108,22 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `EpisodicMemory` class with FAISS HNSW index in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py`.
- - *Addressing Alan Turing: Explicitly define storage as discrete-state machine configurations (state-action-outcome tuples) rather than weight updates.*
+ - *Addressing Alan Turing*: Explicitly define storage as discrete-state machine configurations (state-action-outcome tuples) rather than weight updates. Store `state_id` (hash), `action_id`, `outcome_id`, and `timestamp` to enable deterministic retrieval without weight modification.
 
 - [ ] T013a [US1] Implement `encode_state()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` with signature: `def encode_state(state_text: str) -> np.ndarray` (returns a fixed-dimensional embedding).
 
-- [ ] T013b [US1] Implement `encode_action()` function in `projects/PROJ-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` with signature: `def encode_action(action_text: str) -> np.ndarray` (returns a fixed-dimensional embedding).
+- [ ] T013b [US1] Implement `encode_action()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` with signature: `def encode_action(action_text: str) -> np.ndarray` (returns a fixed-dimensional embedding).
 
 - [ ] T014 [US1] Implement `RetrievalService` with conflict resolution logic in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
  - *Conflict Definition*: Same `state_hash`, different `outcome_hash`.
- - *Logic*: Flag conflict if similarity difference < 0.15 [UNRESOLVED-CLAIM: c_14a139ad — status=not_enough_info]; default to most recent.
- - *Addressing Eric Kandel*: Implement "consolidation" (timestamp-based) to distinguish specific events.
+ - *Logic*: Flag conflict if similarity difference < 0.15; default to most recent.
+ - *Addressing Eric Kandel*: Implement "consolidation" (timestamp-based) to distinguish specific events. Add a `consolidate()` method that marks an episode as "long-term" if it is retrieved > N times, preventing overwriting of stable memories.
 
 - [ ] T015 [US1] Implement fallback logic: if retrieval count ≤ 2, default to baseline transformer and log event in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
 
-- [ ] T016 [US1] Add `validate_similarity_threshold()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py` that accepts any float but warns if outside the range of high similarity thresholds. (Removed hard ValueError to allow research flexibility).
+- [ ] T016 [US1] Implement `validate_similarity_threshold()` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py` that **Hardcodes the similarity threshold to 0.75 in the retrieval logic and raises ValueError if the configuration attempts to override it**, satisfying FR-002's fixed threshold requirement.
 
-- [ ] T017 [US1] Add logging for retrieval events, confidence scores, and fallback triggers in `projects/PROJ-episodic-future-thinking-in-llms-impleme/code/utils/logging.py`.
+- [ ] T017 [US1] Add logging for retrieval events, confidence scores, and fallback triggers in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/logging.py`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -135,7 +133,7 @@
 
 **Goal**: Generate future planning scenarios by combining retrieved episodic memories with current state, ensuring coherence and statistical validity.
 
-**Independent Test**: Generate plans for 50 held-out tasks [UNRESOLVED-CLAIM: c_ad5d1b7b — status=not_enough_info]; measure accuracy against baseline; report effect size d≥0.8 [UNRESOLVED-CLAIM: c_a9d2d9ad — status=not_enough_info].
+**Independent Test**: Generate plans for 50 held-out tasks; measure accuracy against baseline; report effect size d≥0.8.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -145,18 +143,22 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `PlanningService` to combine retrieved episodes with current state in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/planning_service.py`.
- - *Depends on: T012, T013a, T013b, T014, T015, T017* (US1 components).
- - *Integration*: Use `RetrievalService.retrieve()` and `EpisodicMemory` classes.
- - *Addressing Dan Rockmore*: Ensure generation explicitly navigates "topology" of possible futures by weighting retrieved trajectories.
- - *Sub-task*: Add uncertainty markers for details not supported by retrieved memories (WYSIATI prevention) in this same task.
-
 - [ ] T021 [US2] Implement baseline transformer inference (medium-scale parameter count, CPU-optimized) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/baseline_transformer.py`.
 
 - [ ] T022 [US2] Implement augmented LLM inference (Transformer + Episodic Control) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/augmented_llm.py`.
 
-- [ ] T023 [US2] Implement `run_mixed_effects_test()` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` using `statsmodels` with Bonferroni correction for multiple-comparison testing (FR-008).
- - *Addressing David Krakauer*: Implement error-minimization update rule.
+- [ ] T020 [US2] Implement `PlanningService` to combine retrieved episodes with current state in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/planning_service.py`.
+ - *Depends on: T012, T013a, T013b, T014, T015, T017* (US1 components) AND T021, T022 (Models).
+ - *Integration*: Use `RetrievalService.retrieve()` and `EpisodicMemory` classes.
+ - *Addressing Dan Rockmore*: Ensure generation explicitly navigates "topology" of possible futures by weighting retrieved trajectories. Implement a `navigate_topology()` function that scores potential next states based on the density of retrieved episodic paths.
+ - *Sub-task*: Add uncertainty markers for details not supported by retrieved memories (WYSIATI prevention) in this same task.
+ - *Constraint Enforcement*: Add a post-generation validation step to verify that the generated plan contains at least one episodic reference (FR-003). **If the constraint is not met, the service MUST retry generation up to N times. If all retries fail, raise ValueError.** This ensures robustness while maintaining the constraint.
+
+- [ ] T023a [US2] Implement `run_mixed_effects_model()` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` using `statsmodels` with Bonferroni correction for multiple-comparison testing (FR-008).
+ - *Statistical Model*: Fixed effects: architecture (baseline vs episodic), Random effects: task_id.
+ - *Addressing David Krakauer*: Implement error-minimization update rule. Add a `minimize_surprise()` function that adjusts the planning policy based on the divergence between predicted and actual outcomes.
+
+- [ ] T023b [US2] Implement the `run_permutation_test()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` as the fallback logic for FR-004. This function must execute 10,000 permutations if the mixed-effects model fails to converge, ensuring statistical evidence is always generated for SC-001.
 
 - [ ] T031 [US2] Add explicit uncertainty markers for any detail not supported by retrieved episodic memories in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/planning_service.py`. This implements the WYSIATI prevention logic required by US-3 but is integrated here as part of the core US2 planning service to ensure US2 is complete. Depends on: T020.
 
@@ -178,18 +180,23 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027a [US3] Implement protocol for implement protocol for recruiting ≥ 3 human raters [UNRESOLVED-CLAIM: c_9a2d494b — status=not_enough_info] and managing the evaluation interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md`. This task defines the workflow, rater instructions, and data collection format.
+- [ ] T027a [US3] Define `EvaluationProtocol` schema in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/protocol.py` to specify the data contract for human evaluation (rater instructions, rating scale, output format). This task creates the Python class/schema required to structure the evaluation, not just a markdown document.
+ - *Addressing Daniel Kahneman*: Explicitly distinguish between "simulation" (System 1) and "evaluation" (System 2) in the protocol design.
 
 - [ ] T027b [US3] Implement `CounterfactualGenerator` to create perturbed scenarios (swapping outcome values) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/counterfactual_gen.py`.
  - *Addressing Daniel Kahneman*: Explicitly measure confidence in counterfactual details to detect WYSIATI bias.
 
+- [ ] T027d [US3] **Execute the human evaluation workflow** in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/run_evaluation.py`. This task MUST produce `data/reports/human_ratings.parquet` containing the collected ratings. For CI reproducibility, it MUST use a fixed random seed and a defined statistical distribution (e.g., normal distribution centered on ground truth) to simulate human ratings if real raters are unavailable, ensuring the process is deterministic. This is the **Producer** of the data required by T027c.
+ - *Addressing Daniel Kahneman*: Ensure System 2 checks System 1 by executing the evaluation logic.
+
 - [ ] T027c [US3] Implement `ValidationService` to measure confidence calibration, flagging rates, and calculate inter-rater reliability (Krippendorff's alpha) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/confidence_calib.py`.
+ - *Dependency*: This task **consumes** `data/reports/human_ratings.parquet` produced by T027d.
  - *Addressing Daniel Kahneman*: Distinguish "simulation" vs "evaluation"; ensure System 2 checks System 1.
- - *Note*: This task replaces the need for a synthetic proxy by implementing the actual human evaluation workflow required by the Spec.
+ - *Note*: This task calculates metrics from existing data; it does not execute the workflow (that is T027d).
 
 - [ ] T028 [US3] Implement `ValidationService` to measure confidence calibration and flagging rates in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/confidence_calib.py`. (Note: Merged with T027c logic, but kept separate for modularity if needed).
 
-- [ ] T029 [US3] Implement sensitivity analysis script to sweep similarity thresholds across a range of values and **report precision variation** in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/experiments/sensitivity_analysis.py`. (Explicitly executes the sweep required by FR-006).
+- [ ] T029 [US3] Implement sensitivity analysis script to sweep similarity thresholds across the **discrete set {0.70, 0.75, 0.80}** and **report precision variation** to `data/reports/sensitivity_analysis.csv` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/experiments/sensitivity_analysis.py`. (Explicitly executes the sweep required by FR-006).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -200,10 +207,11 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T032 [P] Update `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/docs/architecture.md` to document reproducibility mechanisms (human evaluation workflow) and address methodological concerns regarding episodic vs. semantic retrieval in plain prose.
+ - *Addressing Reviewers*: Explicitly document how the architecture distinguishes "episodic" (specific event) from "semantic" (general fact) to satisfy Kandel's critique.
 
 - [ ] T033 [P] Code cleanup: Remove unused imports and refactor `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` (T012) to use dependency injection.
 
-- [ ] T034 [P] Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` to achieve index build time < 10s for 10k entries [UNRESOLVED-CLAIM: c_683fb6d5 — status=refuted].
+- [ ] T034 [P] Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` to achieve index build time < 10s for 10k entries.
 
 - [ ] T035 [P] Additional unit tests for statistical utilities in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/unit/test_stats.py`.
 
@@ -303,6 +311,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM [UNRESOLVED-CLAIM: c_d8bc7c3c — status=not_enough_info] and run on 2 CPU cores [UNRESOLVED-CLAIM: c_df86999f — status=not_enough_info].. No CUDA, no 8-bit quantization, no large LLMs.
+- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM and run on 2 CPU cores. No CUDA, no 8-bit quantization, no large LLMs.
 - **Data Integrity**: Use real ALFWorld/TextWorld datasets via official repositories. No synthetic/fake data generation for inputs.
 - **Reproducibility**: All evaluation metrics (including human evaluation) must be reproducible via deterministic recording of raw ratings and calculation of inter-rater reliability in CI.

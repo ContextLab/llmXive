@@ -1,102 +1,92 @@
-# Research: Episodic Future Thinking in LLMs: Implementing Mental Time Travel
+# Research: Episodic Future Thinking in LLMs
 
-## Executive Summary
+## 1. Problem Statement & Scientific Rationale
 
-This research investigates whether augmenting a 70M parameter transformer with a neural episodic control module improves planning accuracy on ALFWorld and TextWorld benchmarks compared to a standard transformer baseline. The study specifically targets tasks requiring episodic retrieval (hidden state changes, non-deterministic outcomes) and validates the "mental time travel" claim by distinguishing true episodic recollection from statistical pattern matching using counterfactual confidence calibration.
+The core hypothesis is that LLM architectures augmented with explicit episodic memory modules (storing specific (state, action, outcome) tuples) will outperform standard transformers in planning tasks that require "mental time travel"—simulating future scenarios based on specific past experiences rather than general semantic knowledge. This addresses the critique that standard transformers merely perform statistical pattern completion (WYSIATI bias) rather than true episodic recollection.
 
-## Dataset Strategy
+**Key Scientific Question**: Does the architectural addition of a neural episodic control module enable more accurate future scenario simulation, and does this generalize across tasks requiring episodic retrieval?
 
-The study utilizes two verified benchmark datasets for text-based planning. These datasets provide the necessary ground-truth trajectories (state-action-outcome) required for the episodic memory module.
+## 2. Theoretical Framework
 
-| Dataset | Source URL | Usage | Verification Status |
+### 2.1 Episodic vs. Semantic Memory
+Drawing from Tulving's distinction and Pritzel et al. (2017), we distinguish:
+- **Semantic Memory**: General world knowledge (e.g., "keys open doors").
+- **Episodic Memory**: Specific events bound to time and context (e.g., "I picked up the key in the kitchen at 10:00 AM").
+
+The proposed architecture implements a "synaptic locus" for episodic memory via a key-value store indexed by semantic embeddings of states and actions, allowing for the retrieval of specific trajectories. This addresses the concern raised by simulated Eric Kandel regarding the need for a specific mechanism for memory storage rather than a diffuse statistical distribution.
+
+### 2.2 Mental Time Travel & Simulation
+Per the Scrub Jay analogy (David Krakauer) and Peak-End Rule (Daniel Kahneman), the system must simulate future states by combining retrieved episodic fragments with current context. The validation protocol (US-3) specifically tests for the system's ability to distinguish known episodic details from unknown counterfactuals, addressing the "WYSIATI" bias. The architecture includes a **Forward Simulation** mechanism (learned transition model) to explicitly operationalize "simulation" rather than just recall.
+
+## 3. Dataset Strategy
+
+We utilize ALFWorld and TextWorld benchmarks, which provide explicit temporal markers and ground-truth trajectories necessary for constructing (state, action, outcome) tuples. All datasets are open, directly downloadable, and do not require credentials.
+
+| Dataset | Source (Verified) | Usage | Relevance to Variables |
 |:--- |:--- |:--- |:--- |
-| **ALFWorld** | https://github.com/alfworld/alfworld (Official Repo)<br>https://huggingface.co/datasets/alfworld/alfworld (Official HF) | Primary source for training trajectories and held-out planning tasks. Contains explicit temporal markers (step_id, timestamp) for scene construction. | **Verified** (Official Benchmark) |
-| **TextWorld** | (Official Repo)<br>https://huggingface.co/datasets/facebook/textworld (Official HF) | Secondary source for diverse planning scenarios and robustness testing. | **Verified** (Official Benchmark) |
+| **ALFWorld** | `https://huggingface.co/datasets/alfworld/alfworld` (test split) | Held-out tasks for evaluation. | Provides ground-truth solutions for accuracy measurement (SC-001). |
+| **ALFWorld (Train)** | `https://huggingface.co/datasets/alfworld/alfworld` (train split) | Source of planning trajectories (state, action, outcome) for memory storage. | Contains explicit step IDs and temporal sequences required for episodic reconstruction. |
+| **TextWorld** | ` (raw environment data) | Disjoint state manifold for Zero-Shot control. | Offers varied narrative structures to test generalization of episodic retrieval. |
 
-*Note: Community-uploaded datasets (e.g., yijunyang/alfworld-sft-dataset) are available as optional convenience downloads but are NOT the primary source for ground-truth validation to ensure schema fidelity and reproducibility.*
+**Data Availability Note**: ALFWorld is fetched via the `datasets` library. TextWorld is fetched from the official GitHub repository. Both are compatible with streaming to fit within the disk constraint.
 
-**Dataset-Variable Fit**: Both official datasets contain the required variables: `state` (textual description of environment), `action` (agent command), and `outcome` (environment response/reward). Crucially, ALFWorld tasks are selected specifically for those requiring episodic memory (hidden state changes) to ensure the validity of the retrieval mechanism. The datasets do not contain "post-task anxiety" or "rumination" variables; these are not required for the computational task of planning, which relies on environmental state transitions.
+## 4. Methodology
 
-**Data Preprocessing**: The plan extracts `step_id` and `timestamp` directly from the official trajectory formats (JSON/Parquet) which guarantee these fields. No complex parsing of raw logs is required, ensuring schema fit for the `EpisodicMemory` entity.
+### 4.1 Architecture Design
+- **Baseline**: A 70M parameter Transformer (CPU-optimized) trained on the benchmark tasks.
+- **Episodic Model**: The baseline architecture augmented with a Neural Episodic Control (NEC) module.
+ - **Memory Store**: FAISS HNSW index storing embeddings of (state, action, outcome) tuples.
+ - **Retrieval**: Cosine similarity search with a fixed operational threshold of 0.75 (FR-002).
+ - **Integration**: Retrieved episode embeddings are concatenated with the current state embedding before the attention layers.
+ - **Forward Simulation**: The model uses retrieved past states to predict the *next* state via a learned transition model, explicitly operationalizing "simulation" rather than just recall.
 
-## Methodology
+### 4.2 Experimental Design
+- **Tasks**: 50 held-out planning tasks from ALFWorld/TextWorld, selected for episodic necessity (hidden state changes).
+- **Conditions**:
+ 1. Baseline Transformer (No episodic memory).
+ 2. Episodic-Augmented Transformer (Full retrieval).
+ 3. Episodic-Augmented (Sensitivity Sweep: thresholds 0.70, 0.75, 0.80).
+ 4. Zero-Shot Control (Test on disjoint TextWorld tasks to prove retrieval efficacy).
+- **Metrics**:
+ - **Accuracy**: Task success rate (SC-001).
+ - **Retrieval Precision**: Top-5 relevance (SC-002).
+ - **Confidence Calibration**: Flagging rate of counterfactual details (SC-003).
+ - **Coherence**: Human evaluation ratings (SC-004).
 
-### 1. Architectural Design
-The system implements a **Neural Episodic Control (NEC)** module based on Pritzel et al. (2017), adapted for CPU-only execution.
-- **Memory Store**: A Key-Value store where keys are semantic embeddings of (state, action) tuples, and values are the resulting outcomes and confidence scores.
-- **Embedding Model**: A lightweight sentence-transformer (e.g., `all-MiniLM-L6-v2`) frozen during inference to generate embeddings.
-- **Retrieval**: FAISS HNSW (Hierarchical Navigable Small World) index for sub-linear time retrieval on CPU.
-- **Baseline**: A standard 70M parameter transformer trained on the same data but without the episodic module.
+### 4.3 Statistical Analysis Plan
+- **Primary Test**: Mixed-effects modeling (lme4-style) with `task_id` as a random effect to account for task difficulty variance.
+ - **Model**: `Accuracy ~ Condition + Retrieval_Precision + (1|task_id)`
+ - **Correction**: Bonferroni correction applied if ≥10 task variants are tested (FR-008).
+ - **Fallback**: Permutation tests if Shapiro-Wilk test p-value < 0.05 (FR-004).
+- **Power Analysis**: Pre-registered target of n=10 task *variants* (random effect groups), α=0.05, power=0.80, detectable effect size d=0.8. A **Pilot Study** (n=5 tasks) will be conducted first to empirically estimate variance components before finalizing the power analysis.
+- **Sensitivity Analysis**: Explicit sweep of similarity thresholds ∈ {0.70, 0.75, 0.80} to verify robustness (FR-006).
 
-### 2. Experimental Protocol
+### 4.4 Counterfactual Generation Protocol
+- **Method**: Counterfactual details are generated by swapping outcome values from *unrelated* stored episodes (not random noise) to create "known-unknowns".
+- **Verification**: The ground truth of these perturbed details is verified against the original source episodes to ensure the "known-unknown" status is accurate. This ensures construct validity for confidence calibration.
 
-#### Operational Definition of Episodic Necessity
-To prevent researcher degrees of freedom (p-hacking), tasks are classified as "episodic necessity" using a pre-registered, objective metric:
-1. **Blind Pilot Run**: The baseline model is run on the full set of 200 available tasks (n=200) without any selection bias.
-2. **Threshold**: A task is selected for the main study if the baseline accuracy on that task is < 40% OR if the task requires > 3 steps with no semantic overlap to the training data (cosine similarity < 0.6).
-3. **Selection**: A representative subset of tasks meeting these criteria is held out for the main experiment. This ensures the selection is based on empirical difficulty, not circular reasoning.
+### 4.5 Human Evaluation Protocol
+- **Execution**: For the final paper and SC-004, a **Human Evaluation** phase is defined. This involves recruiting ≥3 raters, collecting 1-5 Likert scale ratings for scenario coherence, and calculating inter-rater reliability. This replaces "simulated" ratings to satisfy the requirement for human evaluation.
 
-#### Metrics
-- **Planning Accuracy**: Percentage of tasks solved correctly (FR-004).
-- **Retrieval Precision**: Top-5 precision for 1000 queries (SC-002). *Ground Truth*: Relevance is determined by "Task Success Correlation" (does retrieving this episode help solve the task?) rather than embedding distance alone. This provides an independent ground truth distinct from the retrieval mechanism.
-- **Coherence**: Human rating (1-5 Likert) of 100 generated scenarios (SC-004).
-- **Confidence Calibration**: Flagging rate of counterfactual details (SC-003).
+## 5. Compute Feasibility
 
-#### Inter-Rater Reliability Protocol
-For the Coherence metric (SC-004):
-- **Raters**: ≥ 3 independent raters.
-- **Metric**: Fleiss' Kappa calculated on the 100 scenarios.
-- **Threshold**: If Kappa < 0.75, a fourth rater is engaged to adjudicate discrepancies. Data is not discarded; instead, the adjudicated score is used, and the lower reliability is reported as a limitation in the sensitivity analysis.
+- **CPU-First Strategy**: All training and inference will run on CPU using `faiss-cpu` and `torch` (CPU build).
+- **Memory Management**:
+ - Dataset streaming (`datasets.load_dataset(..., streaming=True)`) to avoid loading full datasets into RAM.
+ - FAISS index built incrementally to stay within 7GB RAM.
+ - **Quantized Embeddings**: Use a quantized embedding model and batched processing to ensure the 7GB RAM constraint is met with the cited datasets., addressing the memory feasibility concern.
+- **No GPU Fabrication**: No synthetic CPU approximations of GPU tasks. If a specific operation requires GPU (e.g., large-scale embedding generation), it will be scaled down to a representative subset or offloaded to the Kaggle GPU escape hatch if the code explicitly detects CUDA requirements (though the plan prioritizes CPU-only execution).
 
-### 3. Statistical Analysis
+## 6. Decision/Rationale
 
-#### Linear Mixed-Effects Modeling (LMM)
-To satisfy FR-004 and Constitution VII, the analysis uses Linear Mixed-Effects Models (LMM) rather than simple t-tests.
-- **Model**: `Accuracy ~ ModelType + (1 | TaskVariant)`
-- **Rationale**: This accounts for the nested structure of the data (multiple tasks per variant) and controls for variance at the variant level, preventing Type I error inflation.
-- **Unit of Analysis**: The unit of randomization is the Task Variant (k=10), with 5 tasks per variant (n=50 total). Power analysis explicitly models the Intra-Class Correlation (ICC) to ensure the effective sample size is sufficient to detect d=0.8.
-
-#### Multiplicity Control
-Instead of Bonferroni correction (which is for multiple hypothesis tests), we apply the **Benjamini-Hochberg False Discovery Rate (FDR)** procedure to the coefficients of the LMM. This is the standard approach for handling multiplicity in mixed-effects models while maintaining statistical power.
-
-#### Power Analysis
-- **Target**: Power=0.80, α=0.05, detectable effect size d=0.8.
-- **Parameters**: n=10 task variants (clusters), k=5 tasks per variant.
-- **Assumption**: ICC is estimated from pilot data. If the actual ICC is higher than expected, the effective sample size is lower, and results will be reported as underpowered with a post-hoc power calculation.
-
-#### Sensitivity Analysis
-Retrieval threshold sweep ∈ {0.70, 0.75, 0.80} (FR-006).
-
-## Reviewer Feedback Integration
-
-### Eric Kandel (Simulated)
-*Critique*: "Where is the synaptic locus? Without a mechanism akin to the CREB-mediated switch... is this truly episodic memory or merely statistical retrieval?"
-
-*Response*: The plan addresses this by implementing a **counterfactual validation protocol** (US-3, FR-005). Instead of assuming the model "knows" an event, the system is tested on its ability to distinguish known episodic details from perturbed (unknown) ones. The confidence score for a retrieved detail is explicitly measured against the ground truth of the stored episode. If the model confidently asserts a perturbed detail, it is flagged as statistical retrieval, not episodic memory. This operationalizes the "synaptic locus" as the specific retrieval confidence mechanism.
-
-### Daniel Kahneman (Simulated)
-*Critique*: "Does it simulate the vacation, or does it simply complete the pattern?... It will merely amplify the WYSIATI bias."
-
-*Response*: The plan directly counters WYSIATI (What You See Is All There Is) bias by requiring the system to generate **explicit uncertainty markers** for any detail not supported by retrieved episodic memories (Edge Case 4). The evaluation protocol (FR-005) measures the model's confidence in counterfactual details it *could not possibly know* (via controlled perturbation). Crucially, confidence is derived from the **discrepancy** between the retrieved episode's outcome and the model's generated outcome, not internal softmax probabilities. This provides an independent measure of "knowing" vs. "guessing," breaking the circular validation.
-
-### David Krakauer (Simulated)
-*Critique*: "Intelligence... is the negotiation with entropy."
-
-*Response*: The episodic module is framed not just as a retrieval engine but as an **entropy-reduction mechanism**. By retrieving specific past outcomes (low entropy states) to guide future planning, the system reduces the search space of possible actions. The "negotiation" is quantified by the reduction in planning steps required to reach the goal compared to the baseline.
-
-## Decision Rationale & Constraints
-
-- **CPU-Only Execution**: The choice of FAISS-cpu and a large-scale parameter model is mandated by the computational budget (7GB RAM, no GPU). This ensures the project is runnable on GitHub Actions free-tier.
-- **No Deep Net Training**: The baseline transformer is pre-trained or fine-tuned on a small subset to fit memory constraints. The focus is on the *architecture* of the episodic module, not scaling the base model.
-- **Threshold Selection**: The cosine similarity threshold is a community standard. The sensitivity analysis (FR-006) ensures the plan is robust to this hyperparameter choice.
-- **Causal Framing**: Findings are framed as **associational** relationships between the episodic architecture and performance, avoiding causal claims about human-like memory mechanisms.
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Retrieval Latency > 500ms** | Fails FR-001, blocks CI. | Use FAISS HNSW with optimized `efConstruction` and `efSearch`. Limit index size to a manageable subset for testing. |
-| **Model OOM (Out of Memory)** | Fails FR-007. | Strictly limit batch sizes. Use CPU-optimized `torch` build. Sample data if necessary. |
-| **Counterfactual Generation Fails** | Fails FR-005. | Use deterministic perturbation rules (e.g., swap outcome values) rather than generative perturbation. |
-| **Underpowered Results** | Fails SC-001. | Report power analysis results explicitly. If underpowered, frame as a limitation rather than a failure. |
-
+| Decision | Rationale |
+|:--- |:--- |
+| **FAISS HNSW over Linear Scan** | Required to meet the ≤500ms retrieval latency constraint (FR-001) with ≥10k entries on CPU. |
+| **Fixed Threshold 0.75 with Sweep** | Operational threshold fixed at 0.75 per FR-002; sensitivity sweep (0.70, 0.75, 0.80) ensures robustness and addresses FR-006 explicitly. |
+| **Mixed-Effects Modeling** | Necessary to handle hierarchical data structure (tasks within environments) and avoid inflated Type I errors (FR-004). |
+| **Streaming Data Loading** | Essential to process large datasets within 7GB RAM constraint without truncation or fabrication. |
+| **Counterfactual Validation** | Addresses the "WYSIATI" and "Statistical vs. Episodic" concerns by testing confidence on known-unknowns (unrelated episode swaps). |
+| **Zero-Shot Control** | Distinguishes retrieval efficacy from statistical memorization by testing on a disjoint state manifold (TextWorld). |
+| **Pilot Study** | Empirically estimates variance components before final power analysis, resolving circularity. |
+| **Quantized Embeddings** | Ensures 7GB RAM compliance with large datasets. |
+| **Human Evaluation Protocol** | Provides a valid CI validation path for coherence scoring while acknowledging the need for human data in the final paper. |

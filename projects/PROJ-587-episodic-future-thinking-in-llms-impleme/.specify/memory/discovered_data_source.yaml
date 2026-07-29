@@ -1,0 +1,15 @@
+status: none
+intent: ALFWorld TextWorld episodic memory planning dataset python package dataset
+required_fields:
+- episode_id
+- step_id
+- timestamp
+- state_text
+- action_text
+- outcome_text
+- state_embedding
+- action_embedding
+- outcome_embedding
+cache_key: 3df1866c8814ba0d6f551b7124dacda54ef262a98f76e3f30e2e6dedccbe72bd
+searched_at: '2026-07-29T17:19:25.060665+00:00'
+retry_count: 1

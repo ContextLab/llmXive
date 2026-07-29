@@ -13,7 +13,7 @@ The system MUST support storage and retrieval of episodic memories as (state, ac
 
 **Why this priority**: This is the foundational capability without which no future simulation is possible. It represents the core architectural difference from standard transformers and must be validated before any downstream planning claims.
 
-**Independent Test**: Can be fully tested by recording 100 planning trajectories from ALFWorld/TextWorld environments, storing them in the episodic memory module, and verifying top-5 retrieval precision for a sample of stored episodes using semantic similarity search with cosine similarity ≥ 0.75.
+**Independent Test**: Can be fully tested by recording a representative set of planning trajectories from ALFWorld/TextWorld environments, storing them in the episodic memory module, and verifying top-5 retrieval precision for a sample of stored episodes using semantic similarity search with cosine similarity ≥ 0.75.
 
 **Acceptance Scenarios**:
 
@@ -29,7 +29,7 @@ The system MUST generate future planning scenarios by combining retrieved episod
 
 **Why this priority**: This represents the actual "mental time travel" capability—using past episodes to construct novel future scenarios. It depends on US-1 working correctly but adds the generative simulation layer.
 
-**Independent Test**: Can be fully tested by presenting the model with 50 held-out planning tasks requiring episodic retrieval (specifically tasks with hidden state changes or non-deterministic outcomes where semantic pattern matching fails), measuring plan accuracy against ground-truth solutions, and reporting the effect size d; power analysis targets d≥0.8 for sample size determination.
+**Independent Test**: Can be fully tested by presenting the model with a set of held-out planning tasks requiring episodic retrieval (specifically tasks with hidden state changes or non-deterministic outcomes where semantic pattern matching fails), measuring plan accuracy against ground-truth solutions, and reporting the effect size d; power analysis targets d≥0.8 for sample size determination.
 
 **Acceptance Scenarios**:
 
@@ -87,10 +87,10 @@ The system MUST include an evaluation protocol that distinguishes true episodic 
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Planning accuracy improvement is measured against baseline transformer performance on 50 held-out ALFWorld/TextWorld tasks (See US-2)
-- **SC-002**: Episodic retrieval precision is measured against ground-truth episode relevance labels for 1000 retrieval queries (See US-1)
-- **SC-003**: Counterfactual detail confidence calibration is measured against verifiable episodic truth across 500 generated scenario details (See US-3)
-- **SC-004**: Scene construction coherence is measured against human evaluation ratings on 1-5 Likert scale for 100 generated scenarios (See US-3)
+- **SC-001**: Planning accuracy improvement is measured against baseline transformer performance on a set of held-out ALFWorld/TextWorld tasks (See US-2)
+- **SC-002**: Episodic retrieval precision is measured against ground-truth episode relevance labels for a representative set of retrieval queries. (See US-1)
+- **SC-003**: Counterfactual detail confidence calibration is measured against verifiable episodic truth across a comprehensive set of generated scenario details. (See US-3)
+- **SC-004**: Scene construction coherence is measured against human evaluation ratings on a Likert scale for generated scenarios. (See US-3)
 - **SC-005**: Retrieval threshold sensitivity is measured by sweeping similarity threshold ∈ {0.70, 0.75, 0.80} and reporting precision variation (See US-3)
 
 ## Assumptions
