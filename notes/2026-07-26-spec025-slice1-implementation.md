@@ -243,6 +243,30 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
     the Attempt authority and proves nothing. Raise the daily cap far above the Attempt
     budget, or it is ambiguous which ledger refused.
 
+28. **A green test on THIS machine can be a red test everywhere else** (round-17 F3). The
+    paid panel test passed locally only because this machine holds Dartmouth credentials,
+    so `execute`'s two pre-authority balance reads succeeded — by making LIVE NETWORK
+    CALLS. Anywhere else they fail closed, every paid candidate is skipped before the
+    Attempt authority, and the suite passes while proving nothing. When a test depends on
+    an external credential, inject through the documented seam AND assert the seam was
+    used, or it silently reports the environment instead of the code.
+
+29. **Two arguments describing one fact will eventually disagree** (round-17 F2).
+    `proposer_baseline` and `proposer_route_id` both described the proposal's author.
+    Nothing forced agreement, so a caller could exclude the wrong family and a reviewer
+    of the author's OWN family would satisfy selection — with every individual record
+    still true. DERIVE from the durable source and refuse a contradicting argument.
+
+30. **`True == 1` in Python, so a bool passes an integer index check.** Any validated
+    index needs `isinstance(x, int) and not isinstance(x, bool)`.
+
+31. **Prefer a policy FIELD to a hard-coded name set** (round-17 F1). The strict
+    convergence bar lived as `_REVIEW_STAGES` in `engine.py`; a new judgment stage
+    inherited the lenient authoring default just by not being listed there — which is how
+    the proposal gate came to treat unresolved concerns as acceptance. Migrated to
+    `ReviewSpec.strict_acceptance` and DELETED the set, so there is one mechanism, and
+    guarded the partition in both directions.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute

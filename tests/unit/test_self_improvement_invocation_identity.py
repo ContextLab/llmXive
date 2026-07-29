@@ -254,3 +254,44 @@ def test_two_selection_failures_for_the_primary_leg_is_corruption():
 def test_an_event_from_another_attempt_fails_closed():
     with pytest.raises(InvocationIdentityError, match="attempt"):
         _build([_chain("R"), _done("R", eid="d2", attempt="A2")])
+
+
+# ---- F4: the completed candidate must come from the RESOLVED chain ----
+
+
+def _done_at(route_id, *, index, model=None, eid="d"):
+    return _ev("DispatchCompleted", _audit_payload(DispatchCompleted(
+        route_id=route_id, candidate_index=index, candidate=model or _MODEL,
+        reservation_id=None,
+    )), eid)
+
+
+def test_an_out_of_range_candidate_index_is_corruption():
+    with pytest.raises(InvocationIdentityError, match="not a valid position"):
+        _build([_chain("R"), _done_at("R", index=7)])
+
+
+def test_a_candidate_the_chain_never_held_is_corruption():
+    # The security-relevant case: `family` from this record becomes the independence
+    # provenance FR-002 is judged on, and `_baseline_for` derives a whole review's family
+    # exclusion from it. Attributing execution to a model selection never chose would let
+    # a same-family reviewer pass as independent.
+    other = ModelRef(backend="dartmouth", serving_endpoint="chat", model_id="gpt-oss-120b",
+                     model_family="gpt-oss", vendor="openai")
+    with pytest.raises(InvocationIdentityError, match="the chain it resolved holds"):
+        _build([_chain("R"), _done_at("R", index=0, model=other)])
+
+
+def test_a_matching_candidate_at_a_valid_index_is_accepted():
+    ii = _build([_chain("R"), _done_at("R", index=0)])
+    assert ii is not None and ii.family == "gemma"
+
+
+def test_a_boolean_index_is_not_treated_as_an_integer_position():
+    # `True == 1` in Python, so a bool would silently index the chain. It is not a
+    # candidate position and must be refused like any other malformed value.
+    ev = _ev("DispatchCompleted", {**_audit_payload(DispatchCompleted(
+        route_id="R", candidate_index=0, candidate=_MODEL, reservation_id=None,
+    )), "candidate_index": True}, "d")
+    with pytest.raises(InvocationIdentityError, match="not a valid position"):
+        _build([_chain("R"), ev])

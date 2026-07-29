@@ -12,7 +12,7 @@ before the panel reaches the engine (spec line 283).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from llmxive.convergence.engine import run_convergence
@@ -125,7 +125,47 @@ def build_proposal_review_spec(
         overflow_goal=PROPOSAL_OVERFLOW_GOAL,
         advance_stage=None,                     # the lifecycle transition is a later slice
         max_rounds=PROPOSAL_MAX_ROUNDS,
+        # A JUDGMENT gate: spec 025 requires UNANIMOUS panel acceptance within the round
+        # cap, and `_kickback_routing` routes EVERY unresolved severity — writing
+        # included — to `rejected`. Without this the engine's doc-authoring allowance
+        # would advance a proposal carrying unresolved writing concerns, i.e. report
+        # acceptance for a panel that did not accept.
+        strict_acceptance=True,
     )
+
+
+class ProposerBaselineMismatch(ValueError):
+    """The caller's ``proposer_baseline`` does not cover the DURABLE proposer's family.
+
+    Fail closed rather than pick a winner. Silently deferring to the durable identity
+    would hide a caller bug; silently deferring to the argument would defeat FR-002 —
+    a reviewer of the proposer's own family would satisfy selection while every recorded
+    artifact still looked valid."""
+
+
+def _baseline_for(
+    identity: InvocationIdentity, supplied: IndependenceBaseline
+) -> IndependenceBaseline:
+    """The independence baseline implied by the DURABLE proposer identity.
+
+    The author's family is the one fact FR-002's family constraint has to exclude, and the
+    lane log is the only authority on it. Any additional families the caller supplied are
+    kept — a caller may legitimately want to exclude more than the author's own family —
+    but the author's family is not optional, and a baseline that OMITS it is refused."""
+    family = identity.family
+    if not family:
+        raise ProposerBaselineMismatch(
+            f"proposer route {identity.actor_instance_id!r} resolved to an identity with no "
+            "model family — FR-002's independence constraint has nothing to exclude"
+        )
+    if supplied.families and family not in supplied.families:
+        raise ProposerBaselineMismatch(
+            f"proposer route {identity.actor_instance_id!r} was authored by family "
+            f"{family!r}, but the supplied baseline excludes {sorted(supplied.families)!r} "
+            "— a reviewer from the author's own family would satisfy selection while "
+            "appearing independent"
+        )
+    return replace(supplied, families=frozenset(supplied.families) | {family})
 
 
 @dataclass(frozen=True)
@@ -177,12 +217,39 @@ def run_proposal_review(
     author cannot be identified must not be reviewed as though it could. It is resolved
     BEFORE the panel is built, so that refusal costs nothing.
 
+    **When it resolves, the DURABLE identity — not the caller's argument — decides the
+    independence baseline.** Two arguments described the same fact, and nothing forced
+    them to agree: a caller could resolve a gemma proposer while passing a qwen baseline,
+    whereupon a gemma reviewer satisfies selection while being the SAME family as the
+    actual author. FR-002 would be defeated and every recorded artifact would still look
+    valid, because each record is individually true. So the baseline is DERIVED here, and
+    a ``proposer_baseline`` that disagrees with the durable author is refused rather than
+    silently overridden — a caller that believes something different about who wrote the
+    proposal has a bug worth surfacing. Without a ``proposer_route_id`` the caller's
+    baseline stands as the only available authority.
+
     ``BackendUnavailable``/``TransientBackendError`` are deliberately NOT caught: they are
-    the engine's existing clean abort, already recorded via ``on_abort``. On the lane that
-    abort ENDS the Attempt rather than parking it — a resumed process re-derives the same
-    operation ids, so ``claim_route`` hands back the ORIGINAL route ids and the dispatch
-    gate correctly refuses them as replays. Any retry is a NEW Attempt with a new
-    ``attempt_id`` and a disjoint route-id space (spec 025 line 220).
+    the engine's existing clean abort. On the lane that abort ENDS the Attempt rather than
+    parking it — a resumed process re-derives the same operation ids, so ``claim_route``
+    hands back the ORIGINAL route ids and the dispatch gate correctly refuses them as
+    replays. Any retry is a NEW Attempt with a new ``attempt_id`` and a disjoint route-id
+    space (spec 025 line 220).
+
+    **What a clean abort leaves behind, precisely.** An earlier version of this docstring
+    said the abort is "already recorded via ``on_abort``". That was wrong: this function
+    passes no ``on_abort`` callback, so there is NO convergence-level abort record. The
+    call is not evidence-free — the route audit has already durably written the per-route
+    ``ChainResolved`` / ``SelectionFailure`` / ``CandidateOutcome`` trail, and
+    ``LaneCallClaimed`` records the ceiling charge — so an operator can see exactly which
+    routes ran and how each candidate resolved. What is missing is an ATTEMPT-level "this
+    Attempt aborted, here, for this reason" record.
+
+    That gap is deliberate and assigned, not overlooked: Slice 1A scoped Attempt-failure
+    semantics out, and this function reports an outcome rather than writing lifecycle
+    state (see :class:`ProposalReviewOutcome`). **The slice that owns the Attempt
+    lifecycle owns the abort record**, and it has the two things needed to write one that
+    this layer does not: the Attempt's terminal-state vocabulary, and the authority to
+    move it. Until then, per-route audit is the whole story.
     """
     producer_identity = None
     if proposer_route_id is not None:
@@ -195,6 +262,7 @@ def run_proposal_review(
                 f"proposer route {proposer_route_id!r} has no completed dispatch in the lane "
                 "log — refusing to review a proposal with no durable author provenance"
             )
+        proposer_baseline = _baseline_for(producer_identity, proposer_baseline)
     spec = build_proposal_review_spec(
         backend=backend, repo_root=repo_root, proposer_baseline=proposer_baseline,
         route_context=route_context, artifact_key=artifact_key,
@@ -223,6 +291,7 @@ __all__ = [
     "PROPOSAL_OVERFLOW_GOAL",
     "PROPOSAL_STAGE",
     "ProposalReviewOutcome",
+    "ProposerBaselineMismatch",
     "build_proposal_review_spec",
     "run_proposal_review",
 ]

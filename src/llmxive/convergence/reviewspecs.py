@@ -278,6 +278,8 @@ def _spec_research_unit() -> ReviewSpec:
         overflow_goal="preserve all numeric results + the code/data tree names",
         advance_stage="research_accepted",
         constitution_input=True,
+        # JUDGMENT stage: zero open concerns to advance, no writing-residue allowance.
+        strict_acceptance=True,
     )
 
 
@@ -386,6 +388,8 @@ def _spec_paper_implement() -> ReviewSpec:
                        "ref/label, and figure caption verbatim"),
         advance_stage="paper_accepted",
         constitution_input=True,
+        # JUDGMENT stage: zero open concerns to advance, no writing-residue allowance.
+        strict_acceptance=True,
     )
 
 

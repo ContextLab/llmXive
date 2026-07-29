@@ -744,10 +744,12 @@ def run_convergence(
     # escalation on pure prose polish. Accept-with-known-issues and ADVANCE
     # (the next stage's panel + the implementer still catch anything
     # substantive); kickback stays reserved for REQUIREMENT/METHODOLOGY/
-    # SCIENCE/FATAL. Gated to doc-AUTHORING stages — the review stages
-    # (research_review / paper_review) keep the strict full-acceptance bar.
-    _REVIEW_STAGES = {"research_review", "paper_review"}
-    if not converged and spec.stage not in _REVIEW_STAGES:
+    # SCIENCE/FATAL. Gated to doc-AUTHORING stages — a JUDGMENT stage
+    # (`spec.strict_acceptance`: research_review / paper_review / the
+    # self-improvement proposal gate) keeps the strict full-acceptance bar,
+    # because its whole output IS the accept/reject decision and "advanced
+    # with known issues" is not an answer it is allowed to give.
+    if not converged and not spec.strict_acceptance:
         worst_rank = max(
             (severity_rank(c.severity) for c in open_concerns), default=0
         )

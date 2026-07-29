@@ -148,6 +148,40 @@ def _reviewer_max_tokens() -> int:
     return reviewer._max_tokens
 
 
+def _controlled_balance(monkeypatch) -> dict:
+    """Inject a fresh, SUCCESSFUL credit observation through the production seam.
+
+    `execute`'s paid path makes TWO live balance reads before it ever consults
+    `reservation_authority` (execute.py:179 `observer()`, then :192 `paid_call_allowed`),
+    and BOTH fail closed on error. Left to the real fetch, this test passes only on a
+    machine that happens to hold Dartmouth credentials — and then only by making live
+    network calls. Anywhere else every candidate is skipped before the Attempt authority
+    is reached, and the whole suite passes while proving nothing. (That is exactly how it
+    passed locally and failed in review.)
+
+    `balance_fetch` is `execute`'s documented injection point and both call sites resolve
+    it from `credits.fetch_credit_balance`, so patching that one module attribute is the
+    supported seam. Everything else stays REAL: the daily ledger, the Attempt ledger, the
+    reservations, the CAS. The DAILY headroom is set far above the Attempt budget so the
+    binding constraint is unambiguously the Attempt cap.
+    """
+    import llmxive.backends.credits as credits_mod
+
+    calls: dict = {"n": 0}
+
+    def _fetch():
+        calls["n"] += 1
+        return credits_mod.CreditBalance(
+            account="test", spend=0.0, max_budget=1_000_000.0,
+            budget_duration="1d", budget_reset_at="2026-07-26T03:45:00-04:00",
+        )
+
+    credits_mod.reset_balance_cache()
+    monkeypatch.setattr(credits_mod, "fetch_credit_balance", _fetch)
+    monkeypatch.setattr(credits_mod, "paid_opt_in_enabled", lambda: True)
+    return calls
+
+
 def _local_production_ledger(monkeypatch, repo):
     """Point the 026 PRODUCTION credit ledger at the temp repo, local-only.
 
@@ -203,6 +237,7 @@ def _paid_ctx(repo, *, budget: float):
 def test_concurrent_panel_reviewers_never_exceed_the_attempt_budget(repo, monkeypatch):
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
     _local_production_ledger(monkeypatch, repo)
+    balance_calls = _controlled_balance(monkeypatch)
     snap = _paid_only_snapshot()             # asserts its own contract
     monkeypatch.setattr("llmxive.model_selection.route._acquire_snapshot", lambda: snap)
 
@@ -230,6 +265,12 @@ def test_concurrent_panel_reviewers_never_exceed_the_attempt_budget(repo, monkey
     # 1. THE invariant (US1 scenario 5): reserved envelopes never exceed the cap, no matter
     #    how the 5 concurrent reviewers interleaved.
     assert counting_total(reservations) <= budget
+
+    # 0. The balance seam was actually in effect. Without this the suite could silently
+    #    revert to live fetching (passing only where credentials exist) or to failing
+    #    closed before the authority (passing vacuously) — the two ways this test has
+    #    already been wrong.
+    assert balance_calls["n"] > 0, "the paid path never read a balance — it failed closed earlier"
 
     # 2. The authority was genuinely exercised, CONCURRENTLY (F9: without this, "no
     #    dispatch happened at all" would pass assertion 1 vacuously).
@@ -268,6 +309,11 @@ def test_with_paid_opt_in_OFF_no_paid_candidate_ever_dispatches(repo, monkeypatc
     open no reservation — never a paid dispatch, never a charge."""
     monkeypatch.delenv("LLMXIVE_PAID_OPT_IN", raising=False)
     _local_production_ledger(monkeypatch, repo)
+    # A balance read here would mean the opt-in gate did NOT stop it — the refusal must
+    # come from SELECTION (allow_paid_eff=False filters every paid candidate), upstream of
+    # the credit read entirely. Counting the reads is how this test proves it refused for
+    # the right reason rather than passing because some later gate failed closed.
+    balance_calls = _controlled_balance(monkeypatch)
     snap = _paid_only_snapshot(paid_opt_in=False)
     monkeypatch.setattr("llmxive.model_selection.route._acquire_snapshot", lambda: snap)
     # A budget large enough that ONLY the opt-in can be what blocks a reservation.
@@ -290,3 +336,7 @@ def test_with_paid_opt_in_OFF_no_paid_candidate_ever_dispatches(repo, monkeypatc
     assert not project_reservations(events, "A1"), "a paid reservation opened with opt-in OFF"
     assert not authority.admitted, "the Attempt authority admitted a reservation with opt-in OFF"
     assert not [e for e in events if e.event_type == "DispatchStarted"]
+    assert balance_calls["n"] == 0, (
+        "a credit balance was read with the opt-in OFF — selection should have filtered "
+        "every paid candidate before the paid path was reached"
+    )

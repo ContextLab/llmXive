@@ -582,7 +582,7 @@
       "category": "test_double",
       "file": "tests/integration/test_run_proposal_review.py",
       "kind": "model_id_literal",
-      "line": 204,
+      "line": 205,
       "models": [
         "qwen3.5-122b"
       ],
@@ -593,12 +593,78 @@
       "category": "test_double",
       "file": "tests/integration/test_run_proposal_review.py",
       "kind": "model_id_literal",
-      "line": 205,
+      "line": 206,
       "models": [
         "qwen3.5"
       ],
       "owning_slice": null,
       "symbol": "test_a_resolvable_proposer_route_id_is_carried_on_the_outcome"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 267,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 299,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_the_durable_author_family_is_added_to_the_panels_baseline"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 312,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 312,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 313,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "test_extra_caller_families_are_preserved_alongside_the_author"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 313,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_extra_caller_families_are_preserved_alongside_the_author"
     },
     {
       "category": "test_double",
@@ -3544,6 +3610,28 @@
       ],
       "owning_slice": null,
       "symbol": "test_success_identity_carries_full_selection_provenance"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_self_improvement_invocation_identity.py",
+      "kind": "model_id_literal",
+      "line": 279,
+      "models": [
+        "gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_self_improvement_invocation_identity.py",
+      "kind": "model_id_literal",
+      "line": 280,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "model_family"
     },
     {
       "category": "test_double",

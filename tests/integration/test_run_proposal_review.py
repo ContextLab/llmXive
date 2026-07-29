@@ -109,7 +109,7 @@ def _write_proposer_route(repo, *, route_id, attempt="A1"):
 
 
 
-def _run(repo, monkeypatch, boom, **kw):
+def _run(repo, monkeypatch, boom, *, _baseline=None, **kw):
     from llmxive.convergence import self_improvement_specs as mod
 
     def _fake_run_convergence(spec, artifacts, **kwargs):
@@ -119,7 +119,8 @@ def _run(repo, monkeypatch, boom, **kw):
 
     monkeypatch.setattr(mod, "run_convergence", _fake_run_convergence)
     return mod.run_proposal_review(
-        backend=object(), repo_root=_REPO_ROOT, proposer_baseline=_PROPOSER_BASELINE,
+        backend=object(), repo_root=_REPO_ROOT,
+        proposer_baseline=_baseline or _PROPOSER_BASELINE,
         route_context=_ctx(repo), artifacts={"proposal.md": "# P"}, **kw,
     )
 
@@ -248,3 +249,82 @@ def test_the_outcome_is_frozen():
     out = ProposalReviewOutcome(None, True, "ceiling", "detail")
     with pytest.raises(FrozenInstanceError):
         out.failure_kind = "replay"
+
+
+# ---- F2: the baseline is bound to the DURABLE proposer identity ----
+
+
+def test_a_baseline_that_omits_the_real_author_family_fails_closed(repo, monkeypatch):
+    # The defect this closes: two arguments describe the same fact and nothing forced
+    # them to agree. Resolve a qwen3.5 author, pass a baseline naming only gemma, and a
+    # qwen3.5 reviewer satisfies selection while being the author's OWN family — FR-002
+    # defeated, with every individual record still true.
+    from llmxive.convergence.self_improvement_specs import ProposerBaselineMismatch
+
+    _write_proposer_route(repo, route_id="PR-1")        # authored by family qwen3.5
+    with pytest.raises(ProposerBaselineMismatch, match=r"qwen3\.5"):
+        _run(repo, monkeypatch, None, proposer_route_id="PR-1",
+             _baseline=IndependenceBaseline(families=frozenset({"gemma-4"})))
+
+
+def test_the_durable_author_family_is_added_to_the_panels_baseline(repo, monkeypatch):
+    """The panel is constructed against the DURABLE author's family.
+
+    An EMPTY supplied baseline is the case that proves derivation does real work: the
+    caller names no family at all, and the panel still ends up excluding the author's.
+    (A baseline that already names the author's family would pass with or without the
+    derivation, so it proves nothing.) Note this is also why an empty baseline is
+    acceptable HERE while Task 4 refuses one at reviewer construction — by the time the
+    panel is built, this has filled it in.
+    """
+    from llmxive.convergence import self_improvement_specs as mod
+
+    _write_proposer_route(repo, route_id="PR-1")        # authored by family qwen3.5
+    seen = {}
+
+    def _capture(**kw):
+        seen.update(kw)
+        return _real_build(**kw)
+
+    _real_build = mod.build_proposal_review_spec
+    monkeypatch.setattr(mod, "build_proposal_review_spec", _capture)
+    monkeypatch.setattr(mod, "run_convergence",
+                        lambda spec, artifacts, **kw: _SENTINEL_RESULT)
+    mod.run_proposal_review(
+        backend=object(), repo_root=_REPO_ROOT,
+        proposer_baseline=IndependenceBaseline(),      # names NOTHING
+        route_context=_ctx(repo), artifacts={"proposal.md": "# P"},
+        proposer_route_id="PR-1",
+    )
+    assert seen["proposer_baseline"].families == frozenset({"qwen3.5"})
+
+
+def test_extra_caller_families_are_preserved_alongside_the_author(repo, monkeypatch):
+    # Excluding MORE than the author's family is legitimate; deriving must not discard it.
+    from llmxive.convergence.self_improvement_specs import _baseline_for
+    from llmxive.self_improvement.invocation_identity import build_invocation_identity
+    from llmxive.self_improvement.lane_log import LaneLogConfig, read
+
+    _write_proposer_route(repo, route_id="PR-1")
+    identity = build_invocation_identity(read(repo, "P1", config=LaneLogConfig()),
+                                         route_id="PR-1", attempt_id="A1")
+    derived = _baseline_for(identity,
+                            IndependenceBaseline(families=frozenset({"qwen3.5", "gpt-oss"})))
+    assert derived.families == frozenset({"qwen3.5", "gpt-oss"})
+
+
+def test_without_a_proposer_route_id_the_supplied_baseline_stands(repo, monkeypatch):
+    # No durable author to defer to, so the caller's argument is the only authority.
+    from llmxive.convergence import self_improvement_specs as mod
+
+    seen = {}
+    _real_build = mod.build_proposal_review_spec
+    monkeypatch.setattr(mod, "build_proposal_review_spec",
+                        lambda **kw: (seen.update(kw), _real_build(**kw))[1])
+    monkeypatch.setattr(mod, "run_convergence",
+                        lambda spec, artifacts, **kw: _SENTINEL_RESULT)
+    mod.run_proposal_review(
+        backend=object(), repo_root=_REPO_ROOT, proposer_baseline=_PROPOSER_BASELINE,
+        route_context=_ctx(repo), artifacts={"proposal.md": "# P"},
+    )
+    assert seen["proposer_baseline"] is _PROPOSER_BASELINE

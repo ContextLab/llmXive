@@ -168,6 +168,44 @@ def _degradation(events: list[Event], route_id: str,
     )
 
 
+def _completed_candidate_from_chain(
+    completed: Event, resolved: Mapping[str, object], route_id: str
+) -> Mapping[str, object]:
+    """The completed candidate, VERIFIED against the chain selection actually resolved.
+
+    The two events are read independently, so nothing otherwise stops a malformed or
+    tampered stream from attributing execution to a model the selected chain never
+    contained. That is not a cosmetic mismatch: ``family`` from this record becomes the
+    independence provenance FR-002 is judged on, and ``_baseline_for`` derives a review's
+    entire family exclusion from it. A forged or corrupted candidate here would let a
+    same-family reviewer pass as independent.
+
+    So the index must be in range AND the ModelRef must match the chain's entry at that
+    index, field for field."""
+    index = completed.payload.get("candidate_index")
+    candidates = resolved.get("candidates")
+    if not isinstance(candidates, list) or not candidates:
+        raise InvocationIdentityError(
+            f"route {route_id!r} resolved a chain with no candidates, yet a dispatch "
+            "completed against it"
+        )
+    if not isinstance(index, int) or isinstance(index, bool) or not (
+        0 <= index < len(candidates)
+    ):
+        raise InvocationIdentityError(
+            f"route {route_id!r} completed candidate_index {index!r}, which is not a valid "
+            f"position in the {len(candidates)}-candidate chain it resolved"
+        )
+    chain_ref, done_ref = candidates[index], completed.payload.get("candidate")
+    if done_ref != chain_ref:
+        raise InvocationIdentityError(
+            f"route {route_id!r} completed {done_ref!r} at index {index}, but the chain it "
+            f"resolved holds {chain_ref!r} there — refusing to attribute execution to a "
+            "model the selection never chose"
+        )
+    return chain_ref
+
+
 def build_invocation_identity(events: list[Event], *, route_id: str,
                               attempt_id: str) -> InvocationIdentity | None:
     """The identity of the call that ran on ``route_id``, or ``None`` when none did.
@@ -187,7 +225,8 @@ def build_invocation_identity(events: list[Event], *, route_id: str,
         return None  # nothing actually ran → a failed logical call, no identity
 
     degradation = _degradation(events, route_id, attempt_id)
-    ref, resolved = completed.payload["candidate"], chain.payload
+    resolved = chain.payload
+    ref = _completed_candidate_from_chain(completed, resolved, route_id)
     return InvocationIdentity(
         actor_instance_id=route_id,
         model=ref["model_id"],

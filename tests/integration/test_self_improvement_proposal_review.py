@@ -370,26 +370,33 @@ def test_two_malformed_reviser_replies_degrade_to_no_change(lane, monkeypatch):
     assert result.concern_history                # and they are on the record
 
 
-def test_writing_only_residue_still_advances_the_proposal(lane, monkeypatch):
-    """The OTHER side of the two-tier bar, pinned explicitly so it is a decision rather
-    than an accident.
+def test_writing_only_residue_does_NOT_converge_and_routes_to_rejected(lane, monkeypatch):
+    """The proposal gate is a JUDGMENT stage: unanimous acceptance or nothing.
 
-    `self_improvement_proposal` is not in the engine's `_REVIEW_STAGES`, so after the cap a
-    residue of ONLY writing-level concerns advances (spec-023 defect #24: kicking back on
-    prose polish burned the PROJ-552 doc panels to their cap). The Task-7 lens prompts
-    route anything substantive to `requirement` or worse, so in practice this allowance
-    covers genuinely cosmetic residue — which is the intent.
-
-    **Open for maintainer review**: if the lane's proposal gate should instead hold the
-    strict `research_review`/`paper_review` bar, that is a one-line change to the engine's
-    `_REVIEW_STAGES` (or a `ReviewSpec` flag) — NOT something this suite should decide by
-    picking a fixture severity.
+    The engine lets a doc-AUTHORING stage advance carrying writing-level polish
+    (spec-023 defect #24). Applying that to this gate would report acceptance for a panel
+    that did not accept — and `_kickback_routing` sends EVERY unresolved severity,
+    writing included, to `rejected`. `strict_acceptance=True` is what keeps the two
+    consistent.
     """
     replies = ["garbage, no json"] * 8
     result, _ = _run_panel_with_one_open_concern(lane, monkeypatch, reviser_replies=replies,
                                                   concern_severity="writing")
-    assert result.converged, "writing-only residue should advance a doc-authoring stage"
-    assert result.concern_history, "…but the concerns are still on the record"
+    assert not result.converged, "a proposal advanced with unresolved writing concerns"
+    assert result.concern_history
+    assert result.kickback is not None, "no kickback record for a non-converged proposal"
+    assert result.kickback.to_stage == "rejected"
+
+
+def test_the_proposal_spec_declares_the_strict_bar(lane, monkeypatch):
+    # The policy lives on the spec, so assert it there too — a future builder edit that
+    # drops it would otherwise only surface as the subtle behavior above.
+    _repo, ctx = lane
+    spec = build_proposal_review_spec(
+        backend=object(), repo_root=_REPO_ROOT, proposer_baseline=_BASELINE,
+        route_context=ctx,
+    )
+    assert spec.strict_acceptance is True
 
 
 def test_a_backend_outage_is_a_CLEAN_ABORT_not_a_malformed_reply(lane, monkeypatch):
@@ -400,3 +407,36 @@ def test_a_backend_outage_is_a_CLEAN_ABORT_not_a_malformed_reply(lane, monkeypat
     with pytest.raises(BackendUnavailable):
         _run_panel_with_one_open_concern(lane, monkeypatch,
                                           reviser_raises=BackendUnavailable("breaker open"))
+
+
+def test_a_clean_abort_leaves_per_route_audit_but_no_attempt_level_record(lane, monkeypatch):
+    """F5: pin exactly what a clean abort DOES and does NOT persist.
+
+    `run_proposal_review` passes no `on_abort`, so there is no convergence-level abort
+    record — an earlier docstring claimed otherwise. The call is still not evidence-free:
+    the route audit has durably written the per-route trail and the ceiling charge. This
+    test is what keeps the corrected claim honest, and it will start failing (informatively)
+    when the lifecycle-owning slice adds the Attempt-level record.
+    """
+    from llmxive.backends.base import BackendUnavailable
+
+    repo, ctx = lane
+    _use_aged_snapshot(monkeypatch)
+
+    def _boom(*a, **kw):
+        raise BackendUnavailable("breaker open")
+
+    monkeypatch.setattr("llmxive.convergence.llm_reviewer.chat_with_model_fallback", _boom)
+    with pytest.raises(BackendUnavailable):
+        run_proposal_review(
+            backend=_ScriptedPanelBackend(), repo_root=_REPO_ROOT,
+            proposer_baseline=_BASELINE, route_context=ctx,
+            artifacts={"proposal.md": _PROPOSAL},
+        )
+
+    kinds = {e.event_type for e in read(repo, "P1")}
+    # WHAT IS recorded: the ceiling charge for the route that was admitted before the
+    # backend refused. An aborted Attempt is not a silent zero-trail run.
+    assert "LaneCallClaimed" in kinds, "the aborted call left no durable route evidence"
+    # WHAT IS NOT: any Attempt-level abort/terminal record. Owned by the lifecycle slice.
+    assert not {k for k in kinds if "Abort" in k or "AttemptFailed" in k}
