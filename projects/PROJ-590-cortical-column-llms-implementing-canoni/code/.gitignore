@@ -1,4 +1,7 @@
-# Python bytecode and cache
+# Data and logs (large, generated)
+data/
+
+# Python cache and bytecode
 __pycache__/
 *.pyc
 *.pyo
@@ -20,40 +23,21 @@ wheels/
 .installed.cfg
 *.egg
 
-# Data directory - exclude from version control (large files)
-data/
-
 # Virtual environments
 venv/
 ENV/
 env/
-.venv/
 
-# IDE and editor files
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+
+# OS files
 .DS_Store
-
-# Logs (handled by data/logs exclusion)
-*.log
-
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# State directory MUST be tracked (Constitution Principle V)
-# Explicitly ensuring state/*.yaml is NOT excluded
-# The line below is a comment for clarity; the pattern 'data/' above handles the rest.
-# We do NOT list state/ here to ensure it is tracked.
-
-# Temporary files
-*.tmp
-.tmp/
-
-# OS specific
 Thumbs.db
-.DS_Store
+
+# State files are CRITICAL and MUST BE TRACKED (Constitution Principle V)
+# DO NOT add state/ or state/*.yaml here. They must be committed.

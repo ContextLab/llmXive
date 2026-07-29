@@ -1,5 +1,1 @@
-"""
-Utils Package.
-
-Contains statistics, report generation, and helper functions.
-"""
+"""Utility functions for statistics, reporting, and analysis."""

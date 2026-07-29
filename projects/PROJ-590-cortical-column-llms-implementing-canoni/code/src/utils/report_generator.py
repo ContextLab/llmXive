@@ -1,214 +1,234 @@
 """
 Report generation utilities for the Cortical Column LLM project.
-Specifically generates the 'cost of biological plausibility' curve.
+
+This module provides functions to generate analysis reports, including
+the "cost of biological plausibility" curve derived from ablation studies.
 """
+
 import json
 import os
 import logging
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless environments
-import matplotlib.pyplot as plt
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants for file paths relative to project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ABULATION_RESULTS_PATH = os.path.join(PROJECT_ROOT, 'data', 'results', 'ablation_results.json')
-ABULATION_STATS_PATH = os.path.join(PROJECT_ROOT, 'data', 'results', 'ablation_stats.json')
-COST_CURVE_JSON_PATH = os.path.join(PROJECT_ROOT, 'data', 'results', 'cost_curve.json')
-COST_CURVE_PNG_PATH = os.path.join(PROJECT_ROOT, 'data', 'results', 'cost_curve.png')
+# Define the mapping of ablation flags to constraint names
+# These keys correspond to the boolean flags in the ablation configs
+CONSTRAINT_MAPPING = {
+    'no_recurrence': 'recurrence',
+    'no_inhibition': 'inhibition',
+    'no_homeostasis': 'homeostasis'
+}
 
-
-def load_ablation_results() -> Dict[str, Any]:
+def load_ablation_results(filepath: str = "data/results/ablation_results.json") -> List[Dict[str, Any]]:
     """
-    Load the ablation study results from JSON.
-    Expects schema: { "variants": [ { "name": str, "mae": float, "active_constraints": int }, ... ] }
-    """
-    if not os.path.exists(ABULATION_RESULTS_PATH):
-        raise FileNotFoundError(
-            f"Ablation results not found at {ABULATION_RESULTS_PATH}. "
-            "Please ensure T026b (run_ablation_study) has been executed."
-        )
+    Load ablation results from a JSON file.
 
-    with open(ABULATION_RESULTS_PATH, 'r') as f:
+    Args:
+        filepath: Path to the ablation results JSON file.
+
+    Returns:
+        List of result dictionaries.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Ablation results file not found: {filepath}")
+
+    with open(filepath, 'r') as f:
         data = json.load(f)
 
-    if 'variants' not in data:
-        raise ValueError(f"Invalid ablation results format: missing 'variants' key in {ABULATION_RESULTS_PATH}")
+    # Handle schema variations: {"results": [...]} or direct list
+    if isinstance(data, dict) and 'results' in data:
+        return data['results']
+    elif isinstance(data, list):
+        return data
+    else:
+        raise ValueError(f"Unexpected ablation results schema: {type(data)}")
 
-    return data
-
-
-def load_ablation_stats() -> Dict[str, Any]:
+def load_ablation_stats(filepath: str = "data/results/ablation_stats.json") -> Optional[Dict[str, Any]]:
     """
-    Load the ablation statistics (t-test results) from JSON.
-    Expects schema: { "full_mae": float, "ablated_mae": float, ... }
-    """
-    if not os.path.exists(ABULATION_STATS_PATH):
-        raise FileNotFoundError(
-            f"Ablation stats not found at {ABULATION_STATS_PATH}. "
-            "Please ensure T031 (compare_ablation_results) has been executed."
-        )
+    Load ablation statistics from a JSON file.
 
-    with open(ABULATION_STATS_PATH, 'r') as f:
+    Args:
+        filepath: Path to the ablation stats JSON file.
+
+    Returns:
+        Dictionary of statistics or None if file missing.
+    """
+    if not os.path.exists(filepath):
+        logger.warning(f"Ablation stats file not found: {filepath}")
+        return None
+
+    with open(filepath, 'r') as f:
         return json.load(f)
 
-
-def count_active_constraints(variant_name: str) -> int:
+def count_active_constraints(flags: Dict[str, bool]) -> int:
     """
-    Map variant names to the number of active biological constraints.
-    Based on T026a definitions:
-    - 'full': 3 constraints (Recurrence, Inhibition, Homeostasis)
-    - 'no_recurrence': 2 constraints
-    - 'no_inhibition': 2 constraints
-    - 'no_homeostasis': 2 constraints
-    - 'no_recurrence_no_inhibition': 1 constraint
-    - 'no_constraints' (or similar): 0 constraints
-    """
-    name = variant_name.lower()
-    if 'full' in name:
-        return 3
-    if 'no_recurrence' in name and 'no_inhibition' in name and 'no_homeostasis' in name:
-        return 0
-    if 'no_recurrence' in name and 'no_inhibition' in name:
-        return 1
-    if 'no_recurrence' in name or 'no_inhibition' in name or 'no_homeostasis' in name:
-        return 2
-    # Fallback for any other naming convention, assume 3 if not stripped
-    return 3
+    Count the number of active biological constraints based on ablation flags.
 
+    A constraint is considered 'active' if its corresponding 'no_' flag is False.
+    For example, if 'no_recurrence' is False, then 'recurrence' is active.
 
-def generate_cost_curve() -> Tuple[Dict[str, Any], str]:
-    """
-    Generates the 'cost of biological plausibility' curve.
-    
-    This function:
-    1. Loads ablation results.
-    2. Maps each variant to (active_constraints, MAE).
-    3. Aggregates MAE by constraint count (averaging if multiple variants exist).
-    4. Generates a JSON report and a PNG plot.
-    
+    Args:
+        flags: Dictionary of boolean flags from ablation config.
+
     Returns:
-        Tuple of (json_data_dict, png_path)
+        Integer count of active constraints.
     """
-    logger.info(f"Loading ablation results from {ABULATION_RESULTS_PATH}")
-    results_data = load_ablation_results()
-    
-    variants = results_data.get('variants', [])
-    if not variants:
-        raise ValueError("No variants found in ablation results.")
+    count = 0
+    for flag_key, constraint_name in CONSTRAINT_MAPPING.items():
+        # If the flag exists and is False, the constraint is active
+        if flag_key in flags and not flags[flag_key]:
+            count += 1
+        # If the flag is missing, we assume the constraint is active by default (full model)
+        elif flag_key not in flags:
+            count += 1
+    return count
 
-    # Aggregate data points: Map constraint_count -> list of MAEs
-    constraint_mae_map: Dict[int, List[float]] = {}
+def generate_cost_curve(ablation_results_path: str = "data/results/ablation_results.json",
+                        output_path: str = "data/results/cost_curve.json") -> Dict[str, Any]:
+    """
+    Generate the "cost of biological plausibility" curve data.
 
-    for variant in variants:
-        name = variant.get('name', 'unknown')
-        mae = variant.get('mae')
-        
-        if mae is None:
-            logger.warning(f"Skipping variant '{name}' due to missing MAE.")
+    This function processes ablation study results to create a mapping of
+    (number of active constraints) -> (MAE, Time).
+
+    The output JSON schema is:
+    {
+        "points": [
+            {
+                "constraints": ["recurrence", "inhibition", "homeostasis"],
+                "constraint_count": 3,
+                "mae": 0.0123,
+                "time": 123.45
+            },
+            ...
+        ],
+        "summary": {
+            "full_model_mae": float,
+            "ablated_min_mae": float,
+            "max_cost": float
+        }
+    }
+
+    Args:
+        ablation_results_path: Path to the ablation results JSON.
+        output_path: Path where the cost curve JSON will be written.
+
+    Returns:
+        The generated cost curve dictionary.
+
+    Raises:
+        FileNotFoundError: If ablation results are missing.
+        ValueError: If data is inconsistent.
+    """
+    logger.info(f"Loading ablation results from {ablation_results_path}")
+    results = load_ablation_results(ablation_results_path)
+
+    if not results:
+        raise ValueError("Ablation results list is empty. Cannot generate cost curve.")
+
+    cost_curve_points = []
+
+    # Process each result
+    for result in results:
+        variant_name = result.get('variant', 'unknown')
+        mae = result.get('mae')
+        time_taken = result.get('time')
+
+        if mae is None or time_taken is None:
+            logger.warning(f"Skipping result '{variant_name}' due to missing metrics.")
             continue
 
-        constraints = count_active_constraints(name)
-        if constraints not in constraint_mae_map:
-            constraint_mae_map[constraints] = []
-        constraint_mae_map[constraints].append(mae)
+        # Determine active constraints
+        # The result usually comes with the flags used, or we infer from variant name
+        # Assuming the result dict contains the flags used for this variant
+        flags = result.get('flags', {})
 
-    # Calculate averages and prepare data for plotting
-    points = []
-    for count in sorted(constraint_mae_map.keys()):
-        maes = constraint_mae_map[count]
-        avg_mae = float(np.mean(maes))
-        points.append({
-            "active_constraints": count,
-            "mean_mae": avg_mae,
-            "std_mae": float(np.std(maes)) if len(maes) > 1 else 0.0,
-            "n_samples": len(maes)
-        })
+        # If flags are not present in result, try to infer from variant name (fallback)
+        if not flags:
+            # Heuristic: if variant is 'full', all active. If 'no_recurrence', etc.
+            flags = {}
+            if 'full' in variant_name.lower():
+                flags = {k: False for k in CONSTRAINT_MAPPING.keys()} # All False = all active
+            else:
+                # Infer from name: 'no_recurrence' -> no_recurrence=True
+                for key in CONSTRAINT_MAPPING.keys():
+                    if key in variant_name.lower():
+                        flags[key] = True
+                    else:
+                        flags[key] = False
 
-    if not points:
-        raise ValueError("No valid data points generated for cost curve.")
+        active_count = count_active_constraints(flags)
+        active_constraints_list = [
+            CONSTRAINT_MAPPING[k] for k, v in flags.items()
+            if not v and k in CONSTRAINT_MAPPING
+        ]
+        # Add any default constraints if flags were missing (handled in count_active_constraints logic implicitly, but explicit here for list)
+        # If flags were missing in result, we assumed full in the fallback, so list should be all
+        if not active_constraints_list and flags:
+             # This case happens if flags exist but don't match mapping keys exactly
+             active_constraints_list = list(CONSTRAINT_MAPPING.values()) # Fallback to all if ambiguous
 
-    # Prepare JSON output
-    json_output = {
-        "description": "Cost of biological plausibility: MAE vs Active Constraints",
-        "data_points": points,
-        "generated_at": "auto-generated"
+        point = {
+            "constraints": active_constraints_list,
+            "constraint_count": active_count,
+            "mae": float(mae),
+            "time": float(time_taken)
+        }
+        cost_curve_points.append(point)
+
+    # Sort by constraint count for logical ordering
+    cost_curve_points.sort(key=lambda x: x['constraint_count'])
+
+    # Calculate summary stats
+    full_model = next((p for p in cost_curve_points if p['constraint_count'] == len(CONSTRAINT_MAPPING)), None)
+    ablated_models = [p for p in cost_curve_points if p['constraint_count'] < len(CONSTRAINT_MAPPING)]
+
+    summary = {
+        "full_model_mae": full_model['mae'] if full_model else None,
+        "ablated_min_mae": min(p['mae'] for p in ablated_models) if ablated_models else None,
+        "max_cost": None
+    }
+
+    if summary['full_model_mae'] and summary['ablated_min_mae']:
+        # Cost is the increase in error (MAE) when adding constraints
+        summary['max_cost'] = summary['full_model_mae'] - summary['ablated_min_mae']
+
+    output_data = {
+        "points": cost_curve_points,
+        "summary": summary
     }
 
     # Ensure output directory exists
-    os.makedirs(os.path.dirname(COST_CURVE_JSON_PATH), exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-    # Write JSON
-    with open(COST_CURVE_JSON_PATH, 'w') as f:
-        json.dump(json_output, f, indent=2)
-    logger.info(f"Saved cost curve JSON to {COST_CURVE_JSON_PATH}")
+    logger.info(f"Writing cost curve to {output_path}")
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
 
-    # Generate Plot
-    x_vals = [p['active_constraints'] for p in points]
-    y_vals = [p['mean_mae'] for p in points]
-    y_errs = [p['std_mae'] for p in points]
-
-    plt.figure(figsize=(10, 6))
-    plt.errorbar(
-        x_vals, y_vals, yerr=y_errs, 
-        fmt='o-', capsize=5, 
-        color='#2c3e50', ecolor='#e74c3c', 
-        markersize=8, linewidth=2,
-        label='Mean MAE'
-    )
-    
-    plt.title("Cost of Biological Plausibility", fontsize=16, fontweight='bold')
-    plt.xlabel("Number of Active Biological Constraints", fontsize=12)
-    plt.ylabel("Mean Absolute Error (MAE)", fontsize=12)
-    plt.xticks(x_vals)  # Ensure integer ticks
-    plt.grid(True, linestyle='--', alpha=0.6)
-    
-    # Add annotations for specific points
-    for i, p in enumerate(points):
-        plt.annotate(
-            f"{p['mean_mae']:.4f}",
-            (x_vals[i], y_vals[i]),
-            textcoords="offset points",
-            xytext=(0, 10),
-            ha='center',
-            fontsize=9
-        )
-
-    plt.tight_layout()
-    plt.savefig(COST_CURVE_PNG_PATH, dpi=150, bbox_inches='tight')
-    plt.close()
-    
-    logger.info(f"Saved cost curve plot to {COST_CURVE_PNG_PATH}")
-
-    return json_output, COST_CURVE_PNG_PATH
-
+    return output_data
 
 def main():
     """
-    CLI entry point for generating the cost curve.
+    Main entry point for generating the cost curve report.
     """
     logger.info("Starting cost curve generation...")
     try:
-        data, path = generate_cost_curve()
-        print(f"Success. Output written to:\n  JSON: {COST_CURVE_JSON_PATH}\n  PNG: {path}")
-        return 0
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        print(f"Error: {e}")
-        return 1
+        result = generate_cost_curve()
+        logger.info(f"Cost curve generation successful. Summary: {result['summary']}")
+        print(json.dumps(result, indent=2))
     except Exception as e:
-        logger.exception("An unexpected error occurred")
-        print(f"Error: {e}")
-        return 1
-
+        logger.error(f"Cost curve generation failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

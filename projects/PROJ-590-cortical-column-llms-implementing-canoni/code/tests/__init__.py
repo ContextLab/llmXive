@@ -1,5 +1,1 @@
-"""
-Tests Package.
-
-Root package for all test suites.
-"""
+"""Test suite for Cortical Column LLMs project."""

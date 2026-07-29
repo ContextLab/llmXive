@@ -1,0 +1,50 @@
+# Ruff configuration for llmXive Cortical Column LLMs project
+# Strict linting rules as per project standards
+
+[lint]
+# Enable all recommended rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "RET", # flake8-return
+    "N",   # pep8-naming
+    "PT",  # flake8-pytest-style
+    "RUF", # Ruff-specific rules
+]
+
+# Ignore specific rules that are too restrictive for this project
+ignore = [
+    "E501",  # Line too long (handled by formatter)
+    "B008",  # Do not perform function call in argument defaults (common in PyTorch)
+    "ARG001", # Unused function arguments (common in PyTorch nn.Module forward methods)
+    "ARG002", # Unused method arguments (common in PyTorch nn.Module forward methods)
+]
+
+# Allow specific patterns
+extend-per-file-ignores = { "tests/*" = ["ARG", "PT006"] }
+
+[lint.isort]
+# Use black-compatible isort settings
+known-first-party = ["src", "scripts", "tests"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[lint.flake8-pytest-style]
+fixture-prefix = "test_"
+mark-parentheses = false
+
+[format]
+# Use black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[lint.pydocstyle]
+convention = "google"

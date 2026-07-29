@@ -1,5 +1,1 @@
-"""
-Integration Tests Package.
-
-Contains tests for end-to-end workflows and component interactions.
-"""
+"""Integration tests for full pipelines and workflows."""

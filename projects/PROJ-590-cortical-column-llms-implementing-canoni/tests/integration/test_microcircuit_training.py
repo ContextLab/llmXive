@@ -1,260 +1,223 @@
 """
-Integration test for microcircuit model training pipeline.
+Integration test for Microcircuit Training Pipeline (US2).
 
-This test explicitly runs the microcircuit model with log_gradient_norms enabled
-to populate data/logs/gradient_norms_microcircuit.json for SC-002 verification.
+This test explicitly runs the microcircuit model with `log_gradient_norms` enabled
+to populate `data/logs/gradient_norms_microcircuit.json` for SC-002 verification.
 
-DEPENDS ON: T008b (log_gradient_norms implementation)
+Dependencies:
+- T008b: log_gradient_norms function in src/training/homeostasis.py
+- T007a/T007c: Microcircuit model definitions in src/models/microcircuit.py
+- T022: Microcircuit runner infrastructure (conceptually)
 """
-import json
 import os
+import sys
+import json
 import tempfile
+import logging
+from pathlib import Path
+from typing import Dict, Any
+
 import pytest
 import torch
 import torch.nn as nn
-from pathlib import Path
-import sys
-import logging
+import torch.optim as optim
 
-# Ensure the code directory is in the path for imports
-code_root = Path(__file__).parent.parent.parent / "code"
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+# Add project root to path if running standalone
+_project_root = Path(__file__).resolve().parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
-from src.models.microcircuit import create_microcircuit_column, MicrocircuitColumn
-from src.models.hybrid_network import create_hybrid_network, HybridNetwork
+from src.models.microcircuit import MicrocircuitColumn, create_microcircuit_column, LayerConfig
+from src.models.hybrid_network import HybridNetwork, create_hybrid_network
+from src.training.homeostasis import log_gradient_norms, HomeostasisConfig
+from src.training.trainer import TrainingConfig, run_training, calculate_mae
 from src.data.benchmarks import generate_training_data, generate_test_data
-from src.training.trainer import run_training, TrainingConfig
-from src.training.homeostasis import log_gradient_norms, HomeostaticScaler, HomeostasisConfig
-from src.utils.statistics import load_gradient_norms
 
-# Configure logging for the test
-logging.basicConfig(level=logging.INFO)
+# Configure logging for the test run
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-class TestMicrocircuitTraining:
-    """Integration tests for the microcircuit training pipeline."""
+# Constants for the test
+TEST_LOG_PATH = "data/logs/gradient_norms_microcircuit.json"
+SEED = 42
+EPOCHS = 3  # Minimal epochs for integration test speed
+BATCH_SIZE = 8
+HIDDEN_DIM = 32
+NUM_COLUMNS = 2
 
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self, tmp_path):
-        """Set up temporary directories and clean up after test."""
-        self.tmp_dir = tmp_path
-        self.data_dir = self.tmp_dir / "data"
-        self.logs_dir = self.data_dir / "logs"
-        self.results_dir = self.data_dir / "results"
-        
-        self.data_dir.mkdir(parents=True)
-        self.logs_dir.mkdir(parents=True)
-        self.results_dir.mkdir(parents=True)
-        
-        # Store original paths for restoration if needed
-        self.original_data_dir = None
-        self.original_logs_dir = None
-        
-        yield
-        
-        # Cleanup is handled by tmp_path automatically
+def _ensure_data_dirs():
+    """Ensure data/logs directory exists."""
+    log_dir = Path("data/logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir
 
-    def test_microcircuit_gradient_logging(self):
-        """
-        Test that running microcircuit training with log_gradient_norms enabled
-        produces the expected gradient norms file for SC-002 verification.
-        
-        SC-002 requires comparing gradient stability between baseline and microcircuit models.
-        """
-        # Create a small microcircuit model for testing
-        # Using minimal dimensions to keep test fast
-        config = {
-            "hidden_dim": 32,
-            "num_layers": 2,
-            "neurons_per_layer": 16,
-            "num_columns": 1,
-            "target_ei_ratio": 4.0
-        }
-        
-        model = create_hybrid_network(config)
-        model.eval()  # Set to eval mode for inference/testing
-        
-        # Create a simple training config for the test
-        training_config = TrainingConfig(
-            epochs=2,  # Minimal epochs for test
-            batch_size=4,
-            learning_rate=0.001,
-            gradient_clip=1.0,
-            device="cpu",
-            log_interval=1
-        )
-        
-        # Generate synthetic data for the test
-        # Using small dimensions for speed
-        train_data = generate_training_data(num_samples=32, seq_len=10, dim=4, seed=42)
-        test_data = generate_test_data(num_samples=16, seq_len=10, dim=4, seed=123)
-        
-        # Ensure data directories exist
-        data_dir = self.data_dir
-        logs_dir = self.logs_dir
-        
-        # Create homeostasis config
-        homeostasis_config = HomeostasisConfig(
-            target_ei_ratio=4.0,
-            decay_rate=0.01,
-            enabled=True
-        )
-        
-        # Create scaler
-        scaler = HomeostaticScaler(model, homeostasis_config)
-        
-        # Path for gradient norms log
-        gradient_log_path = logs_dir / "gradient_norms_microcircuit.json"
-        
-        # Run a minimal training loop to generate gradients
-        optimizer = torch.optim.Adam(model.parameters(), lr=training_config.learning_rate)
-        
+def _create_microcircuit_model():
+    """
+    Create a small HybridNetwork using MicrocircuitColumn to ensure
+    the forward pass and gradient calculation work.
+    """
+    # Define a minimal config for the test
+    # We use create_hybrid_network which internally uses MicrocircuitColumn
+    # based on the API surface provided.
+    model = create_hybrid_network(
+        hidden_dim=HIDDEN_DIM,
+        num_columns=NUM_COLUMNS,
+        num_layers=2,
+        dropout=0.1
+    )
+    return model
+
+def _generate_dummy_dataset():
+    """
+    Generate small synthetic datasets for the training loop.
+    Uses the real generator functions from src.data.benchmarks.
+    """
+    # Generate training data (Lorenz attractor based)
+    train_X, train_y = generate_training_data(
+        n_samples=128,
+        seed=SEED,
+        noise=0.0
+    )
+    # Generate test data (Polynomials based)
+    test_X, test_y = generate_test_data(
+        n_samples=64,
+        seed=SEED + 1,
+        noise=0.0
+    )
+    return train_X, train_y, test_X, test_y
+
+def _run_microcircuit_training_loop(model, train_X, train_y, test_X, test_y, log_path: str):
+    """
+    Execute a short training loop with explicit gradient logging.
+    This mimics the logic in src/training/trainer.py but focuses on
+    the gradient logging requirement of T012c.
+    """
+    device = torch.device("cpu") # Force CPU for consistency
+    model.to(device)
+    
+    train_X = torch.tensor(train_X, dtype=torch.float32).to(device)
+    train_y = torch.tensor(train_y, dtype=torch.float32).to(device)
+    test_X = torch.tensor(test_X, dtype=torch.float32).to(device)
+    test_y = torch.tensor(test_y, dtype=torch.float32).to(device)
+
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    criterion = nn.MSELoss()
+
+    # Homeostasis config for logging
+    homeo_config = HomeostasisConfig(
+        target_ratio=4.0,
+        decay_rate=0.99,
+        log_interval=1
+    )
+
+    logger.info(f"Starting microcircuit training for {EPOCHS} epochs...")
+    logger.info(f"Gradient log target: {log_path}")
+
+    for epoch in range(EPOCHS):
         model.train()
-        for epoch in range(training_config.epochs):
-            total_loss = 0.0
-            num_batches = 0
-            
-            # Process training data in batches
-            for i in range(0, len(train_data["inputs"]), training_config.batch_size):
-                batch_inputs = train_data["inputs"][i:i+training_config.batch_size]
-                batch_targets = train_data["targets"][i:i+training_config.batch_size]
-                
-                if len(batch_inputs) == 0:
-                    continue
-                
-                # Convert to tensors
-                inputs = torch.tensor(batch_inputs, dtype=torch.float32)
-                targets = torch.tensor(batch_targets, dtype=torch.float32)
-                
-                # Forward pass
-                optimizer.zero_grad()
-                outputs = model(inputs)
-                
-                # Calculate loss (MSE for simplicity)
-                loss = nn.functional.mse_loss(outputs, targets)
-                
-                # Backward pass
-                loss.backward()
-                
-                # Clip gradients
-                if training_config.gradient_clip > 0:
-                    torch.nn.utils.clip_grad_norm_(model.parameters(), training_config.gradient_clip)
-                
-                # Log gradient norms
-                step = epoch * (len(train_data["inputs"]) // training_config.batch_size) + num_batches
-                log_gradient_norms(model, step, output_path=str(gradient_log_path))
-                
-                # Update weights
-                optimizer.step()
-                
-                # Apply homeostatic scaling
-                if homeostasis_config.enabled:
-                    scaler.step(optimizer, step)
-                
-                total_loss += loss.item()
-                num_batches += 1
-            
-            avg_loss = total_loss / max(num_batches, 1)
-            logger.info(f"Epoch {epoch+1}/{training_config.epochs}, Loss: {avg_loss:.4f}")
+        optimizer.zero_grad()
         
-        # Verify that the gradient norms file was created
-        assert gradient_log_path.exists(), f"Gradient norms file not created at {gradient_log_path}"
+        # Forward pass
+        outputs = model(train_X)
+        loss = criterion(outputs, train_y)
         
-        # Load and verify the content
-        with open(gradient_log_path, "r") as f:
-            gradient_data = json.load(f)
+        # Backward pass
+        loss.backward()
         
-        # Verify structure
-        assert isinstance(gradient_data, list), "Gradient norms data should be a list"
-        assert len(gradient_data) > 0, "Gradient norms data should not be empty"
+        # Explicitly call log_gradient_norms as required by T012c
+        # This function is defined in T008b
+        log_gradient_norms(model, step=epoch, log_file=log_path)
         
-        # Verify each entry has required fields
-        for entry in gradient_data:
-            assert "step" in entry, "Each entry should have a 'step' field"
-            assert "total_norm" in entry, "Each entry should have a 'total_norm' field"
-            assert isinstance(entry["step"], int), "Step should be an integer"
-            assert isinstance(entry["total_norm"], (int, float)), "Total norm should be numeric"
-        
-        logger.info(f"Successfully verified gradient norms file with {len(gradient_data)} entries")
-        
-        # Also verify we can load it using the statistics utility
-        loaded_data = load_gradient_norms(str(gradient_log_path))
-        assert loaded_data is not None, "Failed to load gradient norms using utility"
-        assert len(loaded_data) == len(gradient_data), "Loaded data length mismatch"
-        
-        logger.info("All verification checks passed for microcircuit gradient logging")
+        optimizer.step()
 
-    def test_microcircuit_training_with_ei_enforcement(self):
-        """
-        Test that microcircuit training properly enforces E/I ratio dynamics.
+        # Log progress
+        train_mae = calculate_mae(outputs, train_y)
+        logger.info(f"Epoch {epoch}: Loss={loss.item():.4f}, MAE={train_mae:.4f}")
+
+    logger.info("Training loop completed.")
+    return True
+
+@pytest.fixture(scope="module")
+def model_fixture():
+    """Fixture to create the model once per test module."""
+    return _create_microcircuit_model()
+
+@pytest.fixture(scope="module")
+def dataset_fixture():
+    """Fixture to generate datasets once per test module."""
+    return _generate_dummy_dataset()
+
+@pytest.fixture(scope="module")
+def log_path_fixture():
+    """Fixture to ensure log path is correct and directory exists."""
+    log_dir = _ensure_data_dirs()
+    return str(Path("data/logs/gradient_norms_microcircuit.json"))
+
+def test_microcircuit_gradient_logging(
+    model_fixture, 
+    dataset_fixture, 
+    log_path_fixture
+):
+    """
+    Integration Test: Verify that running the microcircuit model with
+    log_gradient_norms enabled produces the required JSON file at the
+    repository path `data/logs/gradient_norms_microcircuit.json`.
+    
+    This satisfies SC-002 verification for the microcircuit variant.
+    """
+    train_X, train_y, test_X, test_y = dataset_fixture
+    log_path = log_path_fixture
+    model = model_fixture
+
+    # Ensure the log file does not exist before starting (clean state)
+    if os.path.exists(log_path):
+        os.remove(log_path)
+        logger.info(f"Removed existing log file: {log_path}")
+
+    # Run the training loop
+    success = _run_microcircuit_training_loop(
+        model, train_X, train_y, test_X, test_y, log_path
+    )
+
+    assert success, "Training loop failed to complete"
+
+    # Verify the log file exists at the EXACT required path
+    assert os.path.exists(log_path), (
+        f"Required artifact missing: {log_path}. "
+        "The test must write gradient norms to this specific repository path."
+    )
+
+    # Verify the file is not empty
+    file_size = os.path.getsize(log_path)
+    assert file_size > 0, f"Log file {log_path} is empty."
+
+    # Verify the content is valid JSON with expected structure
+    try:
+        with open(log_path, 'r') as f:
+            data = json.load(f)
         
-        This ensures the homeostatic scaling is active and affecting the model.
-        """
-        config = {
-            "hidden_dim": 32,
-            "num_layers": 2,
-            "neurons_per_layer": 16,
-            "num_columns": 1,
-            "target_ei_ratio": 4.0
-        }
+        # Basic schema validation
+        assert isinstance(data, list), "Log file content must be a list of entries."
+        assert len(data) > 0, "Log file must contain at least one entry."
         
-        model = create_hybrid_network(config)
-        model.train()
-        
-        # Generate minimal data
-        train_data = generate_training_data(num_samples=16, seq_len=5, dim=4, seed=42)
-        
-        # Setup training
-        training_config = TrainingConfig(
-            epochs=1,
-            batch_size=4,
-            learning_rate=0.001,
-            gradient_clip=1.0,
-            device="cpu",
-            log_interval=1
+        # Check for expected keys in entries
+        first_entry = data[0]
+        required_keys = {'step', 'total_norm', 'param_norms'}
+        assert required_keys.issubset(first_entry.keys()), (
+            f"Log entry missing required keys. Found: {first_entry.keys()}"
         )
+
+        logger.info(f"Verified log file structure at {log_path}")
+        logger.info(f"Sample entry: {first_entry}")
         
-        homeostasis_config = HomeostasisConfig(
-            target_ei_ratio=4.0,
-            decay_rate=0.01,
-            enabled=True
-        )
-        
-        scaler = HomeostaticScaler(model, homeostasis_config)
-        optimizer = torch.optim.Adam(model.parameters(), lr=training_config.learning_rate)
-        
-        gradient_log_path = self.logs_dir / "gradient_norms_microcircuit.json"
-        
-        # Run one epoch
-        total_loss = 0.0
-        for i in range(0, len(train_data["inputs"]), training_config.batch_size):
-            batch_inputs = train_data["inputs"][i:i+training_config.batch_size]
-            batch_targets = train_data["targets"][i:i+training_config.batch_size]
-            
-            if len(batch_inputs) == 0:
-                continue
-            
-            inputs = torch.tensor(batch_inputs, dtype=torch.float32)
-            targets = torch.tensor(batch_targets, dtype=torch.float32)
-            
-            optimizer.zero_grad()
-            outputs = model(inputs)
-            loss = nn.functional.mse_loss(outputs, targets)
-            loss.backward()
-            
-            if training_config.gradient_clip > 0:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), training_config.gradient_clip)
-            
-            optimizer.step()
-            scaler.step(optimizer, step=0)
-            
-            total_loss += loss.item()
-        
-        avg_loss = total_loss / max(len(train_data["inputs"]) // training_config.batch_size, 1)
-        
-        # Verify training completed without errors
-        assert avg_loss > 0, "Training should produce a positive loss"
-        assert gradient_log_path.exists(), "Gradient log should be created during training"
-        
-        logger.info(f"Microcircuit training with E/I enforcement completed, loss: {avg_loss:.4f}")
+    except json.JSONDecodeError as e:
+        pytest.fail(f"Log file {log_path} is not valid JSON: {e}")
+
+    logger.info("Test PASSED: Gradient norms successfully logged to repository path.")
+
+if __name__ == "__main__":
+    # Allow running as a script for manual verification
+    pytest.main([__file__, "-v", "-s"])

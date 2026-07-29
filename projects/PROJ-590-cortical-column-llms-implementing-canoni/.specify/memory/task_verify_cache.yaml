@@ -1,3 +1,11 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files were found in the `src/` and `tests/` directories, and
+    a `.gitignore` file is absent (or its contents were not provided). Consequently
+    the required files and the specific ignore rules (excluding `data/`, `__pycache__`,
+    `*.pyc` while ensuring `state/*.yaml` is **not** ignored) are missing. The implementer
+    must add the `__init__.py` files and create a correctly configured `.gitignore`.
 T003b:
   c: true
   h: b655d812671d14781dc01bb9538bbbab1fa73277d3cf8d6387aae128b8f6d6ab
@@ -6,13 +14,6 @@ T003b:
     \ the requirement to provide a Black configuration via either `pyproject.toml`\
     \ or `black.toml`. The missing `black.toml` is irrelevant because the alternative\
     \ file is present and correctly configured."
-T012b:
-  c: false
-  h: 0b80f0e94d34615eb5f57922debccacc96139d1fda66d7b00363e26592d2a903
-  r: The integration test file exists, but it writes logs to a temporary directory
-    and only asserts the temporary `gradient_norms.json` was created. The required
-    repository file `data/logs/gradient_norms.json` is missing, so the task of populating
-    that path is not satisfied.
 T012c:
   c: false
   h: 214d5539a52ea93f5ad75108abc336df6f8aba8e3ac14c4360cc35d12d280271
@@ -23,13 +24,10 @@ T012c:
     \ `data/logs/gradient_norms_microcircuit.json` is missing. The integration test\
     \ does not demonstrably produce the gradient\u2011norms JSON needed for SC\u2011\
     002 verification."
-T016:
+T026b:
   c: false
-  h: 7e744a3f3a820fa29972c23b2b043331aab79a1408c286be723ad05ee54018a6
-  r: "The provided `tests/integration/test_baseline_validation.py` is truncated and\
-    \ does not show the required assertions (e.g., checking that `baseline_metrics.json`\
-    \ exists, contains the keys `train_mae`, `test_mae`, `degradation_pct`, and that\
-    \ degradation is computed correctly with zero\u2011division handling). Moreover,\
-    \ the expected `data/results/baseline_metrics.json` file is absent. The implementer\
-    \ must supply the full test implementation with the specified checks and ensure\
-    \ the test creates/validates the JSON file."
+  h: aa8f320cd449d4310e32a3bbe76177da62c3a10797d5771bc9b622265fcef83a
+  r: The provided `src/experiments/ablation.py` is truncated and does not contain
+    a `run_ablation_study` function that loops through configs, trains models, computes
+    MAE, and writes results. Moreover, the required output file `data/results/ablation_results.json`
+    is absent. These missing pieces prevent the task from being fulfilled.

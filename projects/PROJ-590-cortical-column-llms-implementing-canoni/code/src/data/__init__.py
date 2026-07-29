@@ -1,5 +1,1 @@
-"""
-Data Package.
-
-Contains benchmarks and data loading utilities.
-"""
+"""Data generation and benchmark utilities."""

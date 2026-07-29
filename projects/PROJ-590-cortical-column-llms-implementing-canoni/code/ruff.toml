@@ -1,91 +1,69 @@
-[ruff]
-# Target Python 3.11 as per project setup (T002)
-target-version = "py311"
-
-# Exclude generated or third-party directories
-exclude = [
-    ".git",
-    "__pycache__",
-    "data/",
-    "state/",
-    "venv",
-    ".venv",
-    "build",
-    "dist",
-    "*.egg-info",
+[lint]
+select = [
+  "E",      # pycodestyle errors
+  "W",      # pycodestyle warnings
+  "F",      # Pyflakes
+  "I",      # isort
+  "B",      # flake8-bugbear
+  "C4",     # flake8-comprehensions
+  "UP",     # pyupgrade
+  "ARG",    # flake8-unused-arguments
+  "SIM",    # flake8-simplify
+  "TCH",    # flake8-type-checking
+  "RUF",    # Ruff-specific rules
+]
+ignore = [
+  "E501",   # Line too long (handled by formatter)
+  "B904",   # Within an except clause, raise exceptions with raise ... from ... (sometimes verbose for simple re-raises)
 ]
 
-# Line length consistent with project standards
-line-length = 100
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
 
-# Allow unused variables for specific test cases or unused imports in __init__.py
-# but enforce strict rules elsewhere.
+# Exclude a few files/directories
+extend-exclude = [
+  "__pycache__",
+  "*.pyc",
+  ".venv",
+  "venv",
+  ".git",
+  "data",
+  "state",
+]
+
+# Per-file ignores
+per-file-ignores = {}
+
+# Dummy variable names (e.g., for unused arguments)
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[ruff.lint]
-# Enable strict rule sets
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-    "RUF", # Ruff-specific rules
-    "NPY", # NumPy specific rules
-    "PERF",# Performance antipatterns
-    "SIM", # Simplification
-]
+# Target Python version
+target-version = "py311"
 
-# Ignore specific rules that might be too strict for research code
-# e.g., E501 (line too long) is handled by line-length setting, 
-# but we might want to ignore specific false positives if needed.
-ignore = [
-    "E501", # Line too long (handled by line-length config)
-    "B904", # Within an `except` clause, raise exceptions with `raise ... from err`
-    "UP007", # Use `X | Y` for type annotations (compatibility with older Pydantic/typing if needed)
-]
+# Rule specific configurations
+[lint.pyupgrade]
+keep-runtime-typing = true
 
-# Specific configuration for flake8-bugbear
-[ruff.lint.flake8-bugbear]
-extend-immutable-calls = [
-    "fastapi.Depends",
-    "fastapi.Query",
-    "fastapi.Header",
-]
-
-# Configuration for isort
-[ruff.lint.isort]
-known-first-party = ["src", "tests", "scripts", "setup_environment", "setup_project"]
-known-third-party = [
-    "torch",
-    "numpy",
-    "scipy",
-    "pytest",
-    "psutil",
-    "yaml",
-    "matplotlib",
-    "pandas",
-]
-force-single-line = true
+[lint.isort]
+known-first-party = ["src", "scripts", "tests"]
+known-third-party = ["torch", "numpy", "scipy", "pytest", "psutil", "matplotlib", "yaml"]
+force-sort-within-sections = true
 lines-after-imports = 2
+combine-as-imports = true
 
-# Configuration for Pyflakes
-[ruff.lint.pyflakes]
-extend-generics = []
+[lint.flake8-unused-arguments]
+ignore-variadic-names = true
 
-# Per-file ignores (e.g., for __init__.py or specific test files)
-[ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101"] # Allow assert in tests
-"src/**/*.py" = ["E402"]   # Allow imports after docstrings if necessary
-"scripts/**/*.py" = ["T201"] # Allow print in scripts
+[lint.flake8-bugbear]
+extend-immutable-calls = ["torch.jit.script", "torch.jit.trace"]
 
-[ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.mccabe]
+max-complexity = 15
 
-[ruff.lint.mccabe]
-max-complexity = 15 # Slightly relaxed for complex research logic, but still enforced
+[lint.pep8-naming]
+classmethod-decorators = ["classmethod", "torch.no_grad"]
+
+[lint]
+# Preview mode for stricter rules
+preview = true
