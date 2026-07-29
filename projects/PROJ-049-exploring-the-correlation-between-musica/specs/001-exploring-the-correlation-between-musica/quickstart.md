@@ -1,57 +1,68 @@
 # Quickstart: Exploring the Correlation Between Musical Preference and Personality Traits
 
-These steps assume a fresh GitHub Actions runner or a local Linux/macOS environment with Python 3.11.
+This guide shows how to run the full analysis on a fresh GitHub Actions runner (or locally) using the provided scripts.
 
-## 1. Clone the repository
+## Prerequisites
+- Python 3.11
+- Internet access (to download the OpenML Personality‑Music dataset)
+- GitHub Actions free‑tier runner (2 CPU cores, ≤ 6 GB RAM)
+
+## Setup
+
 ```bash
-git clone
-cd PROJ-049-music-personality
+# 1. Clone the repository
+git clone https://github.com/your-org/PROJ-049-exploring-the-correlation-between-musica.git
+cd PROJ-049-exploring-the-correlation-between-musica
+
+# 2. Create a virtual environment and install dependencies
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt   # pins exact versions
 ```
 
-## 2. Set up the environment
+## Run the Full Pipeline
+
 ```bash
-python -m venv.venv
-source.venv/bin/activate
-pip install -r requirements.txt
+# Step 0: Ingest raw data (download + checksum verification)
+python -m code.ingest
+
+# Step 1: Preprocess (genre mapping, proportion, log transform, imputation)
+python -m code.preprocess
+
+# Step 2: Power analysis (reports required sample size)
+python -m code.analysis --power
+
+# Step 3: Statistical analysis (correlation, regression, diagnostics, corrections)
+python -m code.analysis
+
+# Step 4: Visualizations (heatmaps, coefficient plots, diagnostics)
+python -m code.visualize
+
+# Step 5: Generate final report CSV
+python -m code.report
 ```
 
-## 3. Generate (or download) the data
-```bash
-# Attempt to download the official OpenML BFI‑2 and Last.fm archives.
-# If the download fails (as on the CI runner), the script falls back
-# to synthetic generation and writes the result to
-# data/processed/synthetic_data.csv.
-python code/download_data.py --output data/processed/merged_dataset.csv --seed 42
-```
-*If an open dataset that satisfies the required columns becomes available, replace the above command with `python code/download_data.py` pointing to that source.*
+All intermediate and final artifacts will appear under `data/processed/` and `results/`.
 
-## 4. Run the full analysis pipeline
-```bash
-python code/run_pipeline.py \
- --input data/processed/merged_dataset.csv \
- --out-dir results/
-```
-This script sequentially calls:
-- `preprocess.py`
-- `genre_lookup.py`
-- `analysis.py`
-- `postprocess.py`
-- `visualize.py`
-- `report.py`
+## Verify Outputs (Contract Tests)
 
-## 5. Inspect the outputs
 ```bash
-# Correlation heatmap
-display results/correlation_heatmap.png
-
-# Full results table
-head -n 20 results/results_report.csv
+pytest -q tests/contract
 ```
 
-## 6. Run the test suite (optional)
-```bash
-pytest -vv
-```
+Successful tests confirm that:
+- `data/processed/merged_clean.csv` matches `contracts/processed_dataset.schema.yaml`.
+- `data/processed/analysis_results.csv` matches `contracts/analysis_output.schema.yaml`.
+- `data/processed/coefficient_deltas.csv` matches `contracts/results.schema.yaml`.
+- `results/results_report.csv` matches `contracts/report.schema.yaml`.
+- Required figures (`*.png`) exist.
 
-All random seeds are fixed (`seed=42`) to guarantee reproducibility.
+## Reproducibility
+- Random seeds are fixed in `code/utils.py`.
+- External downloads are deterministic (same OpenML ID, same dataset version).
+- Checksums are stored in `data/checksums.txt`; the ingest script aborts if mismatched.
+
+---
+
+
 

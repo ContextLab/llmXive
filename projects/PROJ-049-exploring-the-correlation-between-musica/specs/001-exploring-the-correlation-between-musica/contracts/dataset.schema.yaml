@@ -1,6 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed Merged Dataset Schema"
+title: "Raw Combined Dataset Schema"
+description: "Schema for the original OpenML dataset that already contains both personality scores and aggregated listening minutes per genre."
 type: "object"
+properties:
+  user_id:
+    type: "string"
+    description: "Original participant identifier (will be hashed during preprocessing)."
+  openness:
+    type: "number"
+    description: "BFI‑2 Openness score (0‑5)."
+  conscientiousness:
+    type: "number"
+    description: "BFI‑2 Conscientiousness score (0‑5)."
+  extraversion:
+    type: "number"
+    description: "BFI‑2 Extraversion score (0‑5)."
+  agreeableness:
+    type: "number"
+    description: "BFI‑2 Agreeableness score (0‑5)."
+  neuroticism:
+    type: "number"
+    description: "BFI‑2 Neuroticism score (0‑5)."
+  age:
+    type: "integer"
+    description: "Age in years."
+  gender:
+    type: "string"
+    enum: ["Male", "Female", "Other"]
+    description: "Self‑reported gender."
+  country:
+    type: "string"
+    description: "Country of residence."
+  genre:
+    type: "string"
+    enum: ["Rock", "Pop", "Hip-Hop", "Classical", "Electronic", "Jazz", "Folk", "Country", "Metal", "Other"]
+    description: "Standardized music genre."
+  listening_minutes:
+    type: "number"
+    description: "Aggregated listening minutes for this user in the given genre."
 required:
   - user_id
   - openness
@@ -11,114 +48,6 @@ required:
   - age
   - gender
   - country
-  - genre_prop_Rock
-  - genre_prop_Pop
-  - genre_prop_HipHop
-  - genre_prop_Classical
-  - genre_prop_Electronic
-  - genre_prop_Jazz
-  - genre_prop_Folk
-  - genre_prop_Country
-  - genre_prop_Metal
-  - genre_prop_Other
-  - genre_log_Rock
-  - genre_log_Pop
-  - genre_log_HipHop
-  - genre_log_Classical
-  - genre_log_Electronic
-  - genre_log_Jazz
-  - genre_log_Folk
-  - genre_log_Country
-  - genre_log_Metal
-  - genre_log_Other
-properties:
-  user_id:
-    type: integer
-    description: "Unique identifier for each participant"
-  openness:
-    type: number
-    description: "BFI‑2 Openness score (0‑100)"
-  conscientiousness:
-    type: number
-    description: "BFI‑2 Conscientiousness score (0‑100)"
-  extraversion:
-    type: number
-    description: "BFI‑2 Extraversion score (0‑100)"
-  agreeableness:
-    type: number
-    description: "BFI‑2 Agreeableness score (0‑100)"
-  neuroticism:
-    type: number
-    description: "BFI‑2 Neuroticism score (0‑100)"
-  age:
-    type: integer
-    minimum: 0
-    description: "Age in years"
-  gender:
-    type: string
-    enum: ["Male", "Female", "Other"]
-    description: "Self‑reported gender"
-  country:
-    type: string
-    description: "Country of residence (rare values grouped as 'Other')"
-  genre_prop_Rock:
-    type: number
-    description: "Proportion of total listening minutes for Rock"
-  genre_prop_Pop:
-    type: number
-    description: "Proportion of total listening minutes for Pop"
-  genre_prop_HipHop:
-    type: number
-    description: "Proportion of total listening minutes for Hip‑Hop"
-  genre_prop_Classical:
-    type: number
-    description: "Proportion of total listening minutes for Classical"
-  genre_prop_Electronic:
-    type: number
-    description: "Proportion of total listening minutes for Electronic"
-  genre_prop_Jazz:
-    type: number
-    description: "Proportion of total listening minutes for Jazz"
-  genre_prop_Folk:
-    type: number
-    description: "Proportion of total listening minutes for Folk"
-  genre_prop_Country:
-    type: number
-    description: "Proportion of total listening minutes for Country"
-  genre_prop_Metal:
-    type: number
-    description: "Proportion of total listening minutes for Metal"
-  genre_prop_Other:
-    type: number
-    description: "Proportion of total listening minutes for uncategorized genres"
-  genre_log_Rock:
-    type: number
-    description: "Log‑transformed listening minutes for Rock"
-  genre_log_Pop:
-    type: number
-    description: "Log‑transformed listening minutes for Pop"
-  genre_log_HipHop:
-    type: number
-    description: "Log‑transformed listening minutes for Hip‑Hop"
-  genre_log_Classical:
-    type: number
-    description: "Log‑transformed listening minutes for Classical"
-  genre_log_Electronic:
-    type: number
-    description: "Log‑transformed listening minutes for Electronic"
-  genre_log_Jazz:
-    type: number
-    description: "Log‑transformed listening minutes for Jazz"
-  genre_log_Folk:
-    type: number
-    description: "Log‑transformed listening minutes for Folk"
-  genre_log_Country:
-    type: number
-    description: "Log‑transformed listening minutes for Country"
-  genre_log_Metal:
-    type: number
-    description: "Log‑transformed listening minutes for Metal"
-  genre_log_Other:
-    type: number
-    description: "Log‑transformed listening minutes for uncategorized genres"
+  - genre
+  - listening_minutes
 additionalProperties: false

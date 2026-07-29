@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Output Schema"
-description: "Schema for the statistical analysis results including correlations and regression metrics."
+description: "Schema for the statistical analysis results including correlations and regression metrics (Pearson r)."
 type: "object"
 properties:
   trait:
@@ -9,42 +9,30 @@ properties:
   genre:
     type: "string"
     description: "The standardized genre name."
-  correlation_rho:
+  correlation_r:
     type: "number"
-    description: "Spearman rank correlation coefficient."
+    description: "Pearson correlation coefficient between trait and genre proportion."
   p_value:
     type: "number"
-    description: "Raw p-value from the correlation test."
+    description: "Two‑tailed p‑value for the Pearson correlation."
   adjusted_p_value:
     type: "number"
-    description: "Bonferroni corrected p-value."
+    description: "Bonferroni corrected p‑value."
   is_significant:
     type: "boolean"
     description: "True if adjusted_p_value < 0.001."
-  effect_size_rho:
+  cohens_d:
     type: "number"
-    description: "Spearman's rho (primary effect size)."
-  ci_lower_rho:
+    description: "Cohen's d effect size derived from Pearson r."
+  ci_lower:
     type: "number"
-    description: "Lower bound of 95% CI for rho (bootstrapped)."
-  ci_upper_rho:
+    description: "Lower bound of 95 % confidence interval for Pearson r (Fisher z)."
+  ci_upper:
     type: "number"
-    description: "Upper bound of 95% CI for rho (bootstrapped)."
-  effect_size_r_log:
-    type: "number"
-    description: "Pearson's r on log-transformed data (secondary)."
-  fisher_z_log:
-    type: "number"
-    description: "Fisher's z transformation for log-data (secondary)."
-  ci_lower_r_log:
-    type: "number"
-    description: "Lower bound of 95% CI for log-data (secondary)."
-  ci_upper_r_log:
-    type: "number"
-    description: "Upper bound of 95% CI for log-data (secondary)."
-  effect_size_threshold_met:
+    description: "Upper bound of 95 % confidence interval for Pearson r (Fisher z)."
+  high_correlation_flag:
     type: "boolean"
-    description: "True if |effect_size_rho| > 0.3, as per SC‑001."
+    description: "True if |correlation_r| > 0.3."
   beta_baseline:
     type: "number"
     description: "Beta coefficient from baseline model (Trait only)."
@@ -54,9 +42,6 @@ properties:
   delta:
     type: "number"
     description: "Change in beta (beta_full - beta_baseline)."
-  cohens_d:
-    type: "number"
-    description: "Cohen's d for the coefficient delta."
   vif:
     type: "number"
     description: "Variance Inflation Factor for collinearity check."
@@ -64,21 +49,16 @@ properties:
 required:
   - trait
   - genre
-  - correlation_rho
+  - correlation_r
   - p_value
   - adjusted_p_value
   - is_significant
-  - effect_size_rho
-  - ci_lower_rho
-  - ci_upper_rho
-  - effect_size_r_log
-  - fisher_z_log
-  - ci_lower_r_log
-  - ci_upper_r_log
-  - effect_size_threshold_met
+  - cohens_d
+  - ci_lower
+  - ci_upper
+  - high_correlation_flag
   - beta_baseline
   - beta_full
   - delta
-  - cohens_d
   - vif
 additionalProperties: false

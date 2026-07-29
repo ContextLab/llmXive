@@ -1,17 +1,16 @@
 status: none
-intent: OpenML BFI-2 dataset Last.fm listening archive HuggingFace FDR python package
-  dataset
+intent: download OpenML BFI-2 personality dataset and Last.fm listening data python
+  package dataset
 required_fields:
 - user_id
-- openness_score
-- conscientiousness_score
-- extraversion_score
-- agreeableness_score
-- neuroticism_score
+- openness
+- conscientiousness
+- extraversion
+- agreeableness
+- neuroticism
 - age
 - gender
 - standardized_genre
-- track_count
-cache_key: 81f997616c2a3423a95b30c0a1cad7c95478e7bb20d8ea56d88aa3c95a18d471
-searched_at: '2026-07-26T13:31:52.713661+00:00'
+cache_key: 86018a503895ae6270bc1e37bbbd60d8dcf2059d2e06809101ff4363aa19370d
+searched_at: '2026-07-29T02:05:00.353716+00:00'
 retry_count: 1

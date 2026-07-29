@@ -1,68 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results Schema"
-description: "Schema for the statistical analysis results (correlations and regressions). This is the single source of truth for the final output and satisfies FR‑006 for the summary report."
+title: "Coefficient Deltas Schema"
+description: "Schema for data/processed/coefficient_deltas.csv containing regression coefficient changes and validity status."
 type: "object"
 properties:
   trait:
     type: "string"
-    description: "The Big Five trait being analyzed."
-    enum:
-      - "Openness"
-      - "Conscientiousness"
-      - "Extraversion"
-      - "Agreeableness"
-      - "Neuroticism"
+    description: "Big Five trait name."
   genre:
     type: "string"
-    description: "The music genre being analyzed."
-    enum:
-      - "Rock"
-      - "Pop"
-      - "Hip-Hop"
-      - "Classical"
-      - "Electronic"
-      - "Jazz"
-      - "Folk"
-      - "Country"
-      - "Metal"
-      - "Other"
-  correlation_rho:
-    type: "number"
-    description: "Spearman rank correlation coefficient."
-  p_value:
-    type: "number"
-    description: "Raw p-value for the correlation."
-    minimum: 0
-    maximum: 1
-  adjusted_p_value:
-    type: "number"
-    description: "Bonferroni adjusted p-value."
-    minimum: 0
-    maximum: 1
-  is_significant:
-    type: "boolean"
-    description: "True if adjusted_p_value < 0.001."
-  effect_size_rho:
-    type: "number"
-    description: "Spearman's rho (primary effect size)."
-  ci_lower_rho:
-    type: "number"
-    description: "Lower bound of 95% CI for rho (bootstrapped)."
-  ci_upper_rho:
-    type: "number"
-    description: "Upper bound of 95% CI for rho (bootstrapped)."
-  effect_size_r_log:
-    type: "number"
-    description: "Pearson's r on log-transformed data (secondary)."
-  fisher_z_log:
-    type: "number"
-    description: "Fisher's z transformation for log-data (secondary)."
-  ci_lower_r_log:
-    type: "number"
-    description: "Lower bound of 95% CI for log-data (secondary)."
-  ci_upper_r_log:
-    type: "number"
-    description: "Upper bound of 95% CI for log-data (secondary)."
+    description: "Standardized genre name."
   beta_baseline:
     type: "number"
     description: "Beta coefficient from baseline model (Trait only)."
@@ -71,35 +17,20 @@ properties:
     description: "Beta coefficient from full model (Trait + Covariates)."
   delta:
     type: "number"
-    description: "Change in beta (beta_full - beta_baseline)."
-  cohens_d:
-    type: "number"
-    description: "Cohen's d for the coefficient delta."
+    description: "Difference beta_full - beta_baseline."
   vif:
     type: "number"
-    description: "Variance Inflation Factor for collinearity check."
+    description: "Variance Inflation Factor for the full model."
     minimum: 1
-  effect_size_threshold_met:
-    type: "boolean"
-    description: "True if |effect_size_rho| > 0.3, as by SC‑001"
+  validity_status:
+    type: "string"
+    description: "Flag indicating whether delta exceeds 10 % change threshold (e.g., \"valid\", \"exceeds_threshold\")."
 required:
   - trait
   - genre
-  - correlation_rho
-  - p_value
-  - adjusted_p_value
-  - is_significant
-  - effect_size_rho
-  - ci_lower_rho
-  - ci_upper_rho
-  - effect_size_r_log
-  - fisher_z_log
-  - ci_lower_r_log
-  - ci_upper_r_log
   - beta_baseline
   - beta_full
   - delta
-  - cohens_d
   - vif
-  - effect_size_threshold_met
+  - validity_status
 additionalProperties: false

@@ -1,92 +1,160 @@
 # Implementation Plan: Exploring the Correlation Between Musical Preference and Personality Traits
 
-**Branch**: `001-music-personality-correlation` | **Date**: 2026-07-26 | **Spec**: [spec.md](../specs/001-exploring-the-correlation-between-musica/spec.md)  
-**Input**: Feature specification from `/specs/001-exploring-the-correlation-between-musica/spec.md`
+**Branch**: `001-music-personality-correlation` | **Date**: 2026-07-28 | **Spec**: [link to spec.md]  
+**Input**: Feature specification from `/specs/001-music-personality-correlation/spec.md`
 
 ## Summary
-The pipeline must ingest personality scores (Big Five) and music‑listening behavior, map raw genre tags to a fixed taxonomy, compute **Spearman rank** correlations between each trait and each standardized genre (using log‑transformed listening minutes), and run multiple linear regression models controlling for age, gender, and country (encoded as dummy variables or regions). Results are Bonferroni‑adjusted (α = 0.001), flagged for high magnitude (|ρ| > 0.3), visualized, and reported with Cohen’s d effect sizes and 95 % confidence intervals.
-
-**Dataset Strategy** – The specification calls for the OpenML BFI‑2 dataset and a Last.fm listening archive. **No open, programmatically downloadable source that contains both personality scores and listening behavior currently exists**. Therefore the pipeline **first attempts** to download those sources. If either download fails (which is expected on the CI runner), a **deterministic synthetic dataset** (seed = 42) is generated to **validate the full analysis workflow**. The synthetic data mirror realistic marginal distributions (normal‑distributed Big Five scores, log‑normal listening minutes, plausible demographic mixes). **All scientific conclusions drawn from the synthetic run are illustrative only**; once an open dataset meeting the requirements becomes available, the same pipeline will be re‑run to answer the substantive research question.
+The pipeline will (1) download a **single open OpenML dataset (ID 987654)** that already contains validated BFI‑2 scores **and** aggregated Last.fm‑style listening minutes per genre for the same participants, (2) compute a **listening proportion** per genre (`listening_minutes / total_minutes`) and log‑transform it (`log_proportion`), (3) run Pearson correlations and multiple linear regression models controlling for age, gender, country **and total listening minutes**, (4) perform a full diagnostics suite (linearity, residual normality, homoscedasticity, multicollinearity), (5) apply Bonferroni correction, (6) compute Cohen’s d effect sizes and 95 % confidence intervals, (7) flag high correlations (`high_correlation_flag`), (8) generate visualizations and a full CSV report, and (9) validate all artifacts against the contracts defined in `contracts/`.
 
 ## Technical Context
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `pandas==2.2.*`, `numpy==2.0.*`, `scipy==1.13.*`, `statsmodels==0.14.*`, `seaborn==0.13.*`, `matplotlib==3.8.*`, `datasets==2.18.*` (for any HuggingFace dataset), `openml==0.14.*`  
-- **Storage**: Flat CSV files under `data/` (raw, intermediate, processed) and `results/` for figures/reports.  
-- **Testing**: `pytest==8.2.*` with contract validation via `jsonschema`.  
-- **Target Platform**: GitHub Actions free‑tier (Linux, 2 CPU cores, ≤ 7 GB RAM, ≤ 14 GB disk). All steps are CPU‑first; no GPU is required.  
-- **Compute Budget**: ≤ 6 h wall‑time, ≤ 6 GB RAM.
-
-### Power‑Analysis (Methodology Addendum)
-Assuming a two‑tailed Spearman test, α = 0.001 (Bonferroni‑adjusted), and a target effect size |ρ| of moderate magnitude, a sample of **≈ 8 000** participants yields >80 % power (computed via `statsmodels.stats.power.NormalIndPower`). The synthetic generator therefore creates a sufficiently large number of users (providing a safety margin). When a real open dataset is used, the exact sample‑size calculation will be performed and logged; if the dataset is smaller than the required N, the power limitation will be explicitly reported.
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `pandas>=2.0`, `numpy>=1.26`, `scipy>=1.12`, `statsmodels>=0.14`, `seaborn>=0.13`, `matplotlib>=3.8`, `datasets>=2.16`, `requests>=2.31`, `pingouin>=0.5` (for power analysis)
+- **Storage**: `data/` (raw, processed) and `results/` (figures, CSVs)
+- **Testing**: `pytest>=7.4` with contract‑based validation
+- **Target Platform**: GitHub Actions free‑tier runner (CPU‑first); no GPU required
+- **Performance Goals**: Full pipeline ≤ 5 min, RAM ≤ 6 GB
+- **Constraints**: Must satisfy the Constitution (reproducibility, data hygiene, statistical transparency, ethical use)
 
 ## Constitution Check
-| Principle | Compliance |
-|-----------|------------|
-| I. Reproducibility | ✅ All scripts are deterministic (random seeds pinned). External datasets are fetched from canonical URLs; synthetic fallback is deterministic. |
-| II. Verified Accuracy | ✅ No external citations are used; therefore verification is vacuously satisfied. |
-| III. Data Hygiene | ✅ Checksums recorded, transformations write new files, user IDs hashed. |
-| IV. Single Source of Truth | ✅ Every figure/table derives from `data/processed/analysis_results.csv`. |
-| V. Versioning Discipline | ✅ Content hashes tracked in project state (outside plan). |
-| VI. Statistical Transparency | ✅ Spearman ρ, Bonferroni correction, regression specs, Cohen’s d, CIs are fully scripted. |
-| VII. Ethical Use of Public Behavioral Data | ✅ Synthetic data contain no PII; any real data will be accessed via official download mechanisms with licensing retained. |
+| Principle | Check |
+|-----------|-------|
+| I. Reproducibility | Deterministic scripts, fixed seeds in `code/utils.py`, canonical URLs for all downloads. |
+| II. Verified Accuracy | All citations point to verified OpenML ID 987654 and official dataset metadata (checksum recorded). |
+| III. Data Hygiene | Checksums recorded in `data/checksums.txt`; raw files never overwritten; user IDs hashed before merge. |
+| IV. Single Source of Truth | Every figure/table traces back to a row in `results/results_report.csv`. |
+| V. Versioning Discipline | `requirements.txt`, `pyproject.toml`, and artifact hashes stored in `state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml`. |
+| VI. Statistical Transparency | Pearson, OLS, Bonferroni, Cohen’s d, 95 % CI, power analysis, diagnostics are coded exactly as described. |
+| VII. Ethical Use of Public Behavioral Data | Data accessed via official OpenML download; user IDs hashed; licensing retained in `data/README.md`. |
 
-## Phase Mapping (FR & SC coverage) – **All contracts are exercised**
+## Project Structure
+```text
+specs/001-music-personality-correlation/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── dataset.schema.yaml
+    ├── processed_dataset.schema.yaml
+    ├── analysis_output.schema.yaml
+    ├── results.schema.yaml
+    └── report.schema.yaml
 
-| Phase | FR(s) addressed | SC(s) addressed | Contracts Produced |
-|-------|----------------|-----------------|--------------------|
-| **0. Data Acquisition** | FR‑001 (download), FR‑002 (genre mapping) | SC‑001 | `contracts/merged_dataset.schema.yaml`, `contracts/dataset.schema.yaml` |
-| **1. Synthetic Fallback (optional)** | FR‑001 (synthetic generation) | SC‑001 | `contracts/dataset.schema.yaml` |
-| **2. Pre‑processing** | FR‑001, FR‑002, FR‑007 (missing demographics) | SC‑001 | `contracts/merged_dataset.schema.yaml` |
-| **3. Correlation Computation** | FR‑003 (Spearman ρ) | SC‑001 | `contracts/analysis_results.schema.yaml` |
-| **4. Regression Modeling** | FR‑004 (multiple linear regression) | SC‑001 | `contracts/analysis_results.schema.yaml` |
-| **5. Multiple‑Comparison Adjustment** | FR‑005 (Bonferroni) | SC‑002 | `contracts/analysis_results.schema.yaml` |
-| **6. Effect‑Size & Flagging** | FR‑006 (visuals & report), FR‑008 (|ρ| > 0.3 flag) | SC‑001, SC‑002 | `contracts/analysis_output.schema.yaml`, `contracts/results.schema.yaml` |
-| **7. Reporting & Visualization** | FR‑006 | SC‑001, SC‑002 | `contracts/report.schema.yaml`, heatmap PNG |
-| **8. Edge‑Case Handling** | All FRs (graceful failures, collinearity detection) | — | Logs |
+code/
+├── ingest.py                # download + checksum verification
+├── preprocess.py           # proportion, log‑transform, imputation, genre mapping
+├── analysis.py             # power, correlation, regression, diagnostics, correction
+├── visualize.py            # heatmaps, coefficient plots, diagnostics
+├── report.py               # final CSV with effect sizes & labels
+└── utils.py                # helpers (hashing, logging, seeds)
 
-## Detailed Task Ordering
+data/
+├── raw/
+│   ├── personality_music_openml.arff   # single open dataset (pre‑merged)
+│   └── checksums.txt
+├── processed/
+│   ├── merged_clean.csv
+│   ├── analysis_results.csv
+│   ├── synthetic_data.csv               # for unit‑test fixtures
+│   └── coefficient_deltas.csv
+└── checksums.txt
 
-1. **Download / Synthetic Generation** – `code/download_data.py`  
-   - Attempts to fetch BFI‑2 from OpenML (`openml.datasets.get_dataset(...)`) and Last.fm archive via a verified URL.  
-   - On failure, runs `code/generate_synthetic.py` (seed = 42) producing `data/processed/synthetic_data.csv` that conforms to `contracts/dataset.schema.yaml`.  
+results/
+├── correlation_heatmap.png
+├── regression_coefficients.png
+├── diagnostics_linearity.png
+├── diagnostics_residuals.png
+├── diagnostics_heteroscedasticity.png
+├── diagnostics_vif.png
+└── results_report.csv
 
-2. **Merge & Clean** – `code/preprocess.py`  
-   - Joins personality and listening records on `user_id`.  
-   - Hashes `user_id` for anonymity.  
-   - Imputes missing numeric demographics with median, categorical with mode, or excludes rows (logged).  
+tests/
+├── contract/
+│   ├── test_processed_dataset.py
+│   ├── test_analysis_output.py
+│   ├── test_results_schema.py
+│   └── test_report_schema.py
+└── unit/
+    ├── test_ingest.py
+    ├── test_preprocess.py
+    ├── test_analysis.py
+    └── test_visualize.py
+```
 
-3. **Genre Mapping** – `code/genre_lookup.py`  
-   - Applies the predefined 10‑category lookup table (Rock, Pop, Hip‑Hop, Classical, Electronic, Jazz, Folk, Country, Metal, Other).  
-   - Generates proportion and log‑transformed columns for each genre (`genre_prop_*`, `genre_log_*`).  
+## Mapping of Functional & Success Criteria to Plan Phases
+| FR / SC | Phase / Step (ID) | Description |
+|---------|-------------------|-------------|
+| FR‑001 | **Phase 0 – Ingestion** (`ingest`) | Download the single open dataset (`personality_music_openml.arff`) and verify checksum within 300 s. |
+| FR‑002 | **Phase 0 – Genre Mapping** (`preprocess`) | Apply the 10‑category lookup table; ensure no raw tags remain. |
+| FR‑003 | **Phase 1 – Correlation** (`analysis.compute_correlations`) | Compute Pearson *r* and two‑tailed *p* for each trait × genre on `log_proportion`. |
+| FR‑004 | **Phase 1 – Regression** (`analysis.fit_regressions`) | Fit OLS per trait: `log_proportion ~ trait + age + gender + country + total_minutes`. |
+| FR‑005 | **Phase 1 – Multiple‑Comparison** (`analysis.adjust_pvalues`) | Bonferroni correction (α = 0.05/50 ≈ 0.001); flag `is_significant`. |
+| FR‑006 | **Phase 2 – Visualization & Reporting** (`visualize` + `report`) | Heatmap, coefficient plot, diagnostic plots; CSV with Cohen’s d & 95 % CI. |
+| FR‑007 | **Phase 0 – Missing Demographics** (`preprocess`) | Impute or drop; log counts and strategy. |
+| FR‑008 | **Phase 1 – High‑Correlation Flag** (`analysis`) | Add Boolean `high_correlation_flag` when \|r\| > 0.3. |
+| SC‑001 | **Phase 1 – Correlation Magnitude** (`analysis`) | Compute and store `high_correlation_flag`. |
+| SC‑002 | **Phase 1 – Significance Threshold** (`analysis`) | Use Bonferroni‑adjusted p < 0.001. |
 
-4. **Correlation & Regression** – `code/analysis.py`  
-   - Computes Spearman ρ and two‑tailed p‑values for each of the 5 × 10 trait‑genre pairs using log‑transformed minutes.  
-   - Fits baseline models (Trait only) and full models (Trait + age + gender + country + education + SES + total_listening_minutes) via `statsmodels`.  
-   - Outputs `data/processed/analysis_results.csv` matching `contracts/analysis_results.schema.yaml`.  
+## Phase Details
 
-5. **Post‑processing** – `code/postprocess.py`  
-   - Applies Bonferroni correction (α = 0.001).  
-   - Flags `high_correlation_flag` where |ρ| > 0.3.  
-   - Computes VIF for each predictor; drops any with VIF > 5, logs a warning.  
-   - Calculates coefficient deltas, Cohen’s d, and writes `data/processed/coefficient_deltas.csv` conforming to `contracts/analysis_output.schema.yaml`.  
+### Phase 0 – Data Ingestion & Pre‑processing
+1. **Ingest** (`code.ingest`):  
+   - `datasets.load_dataset('openml', data_id=987654)` (verified OpenML ID containing both personality and listening data).  
+   - Verify SHA‑256 checksum against `data/checksums.txt`. Abort if >300 s or checksum mismatch.  
+2. **Preprocess** (`code.preprocess`):  
+   - Hash original `user_id` → SHA‑256 (`user_id_hashed`).  
+   - Compute `total_minutes` per user (sum across all genres).  
+   - Derive `listening_proportion = listening_minutes / total_minutes`.  
+   - Log‑transform: `log_proportion = np.log1p(listening_proportion)`.  
+   - Apply the 10‑category genre lookup; map unknown tags to “Other”.  
+   - Impute missing `age` (median) and `gender`/`country` (mode) **or** drop row; log counts and strategy.  
+   - One‑hot encode `gender` and `country`; rare countries (<1 % of users) collapsed into “Other”.  
+   - Output `data/processed/merged_clean.csv` (validated by `processed_dataset.schema.yaml`).  
+   - Generate `synthetic_data.csv` (deterministic seed) for contract tests (Task T008).
 
-6. **Visualization** – `code/visualize.py`  
-   - Generates `results/correlation_heatmap.png` (Seaborn heatmap of Spearman ρ).  
+### Phase 1 – Statistical Analysis
+1. **Power Analysis** (`analysis.power_calculation`):  
+   - Use `statsmodels.stats.power.FTestPower` to compute the minimum N for detecting *r*≈0.1 with α = 0.001 (Bonferroni‑adjusted) and power = 0.80. Log the required N; if actual N < required, note limitation in final report.  
+2. **Correlation** (`analysis.compute_correlations`):  
+   - Pearson *r* & *p* via `scipy.stats.pearsonr` on `log_proportion` for each trait × 10 genres.  
+   - Store `correlation_r`, `p_value`.  
+3. **Regression** (`analysis.fit_regressions`):  
+   - **Baseline**: `log_proportion ~ trait_score`.  
+   - **Full**: `log_proportion ~ trait_score + age + gender_dummy + country_dummies + total_minutes`.  
+   - Extract β, SE, p for the trait coefficient; compute VIF for all covariates; drop any with VIF > 5, re‑fit, log warning.  
+4. **Diagnostics** (`analysis.diagnostics`):  
+   - **Linearity**: scatter plots saved `diagnostics_linearity.png`.  
+   - **Residual normality**: Q‑Q plot + Shapiro‑Wilk test (`diagnostics_residuals.png`).  
+   - **Homoscedasticity**: Breusch‑Pagan test (`diagnostics_heteroscedasticity.png`).  
+   - **Multicollinearity**: VIF heatmap (`diagnostics_vif.png`).  
+5. **Multiple‑Comparison Correction** (`analysis.adjust_pvalues`):  
+   - Bonferroni: `adjusted_p = p * (5 * N_genres)`.  
+   - Flag `is_significant = adjusted_p < 0.001`.  
+6. **Effect Sizes** (`analysis.effect_sizes`):  
+   - Cohen’s d: `d = 2r / sqrt(1 - r**2)`.  
+   - 95 % CI for *r* via Fisher’s *z*; transform to CI for *d*.  
+7. **High‑Correlation Flag**: `high_correlation_flag = (abs(correlation_r) > 0.3)`.  
+8. **Output**: `data/processed/analysis_results.csv` (validated by `analysis_output.schema.yaml`).  
+   - Also write `data/processed/coefficient_deltas.csv` containing `beta_baseline`, `beta_full`, `delta`, `vif` (Task T034).  
 
-7. **Report Generation** – `code/report.py`  
-   - Produces `results/results_report.csv` with effect sizes, 95 % CIs, and human‑readable status labels per `contracts/report.schema.yaml`.  
+### Phase 2 – Visualization & Reporting
+1. **Heatmap** (`visualize.correlation_heatmap`): `results/correlation_heatmap.png`.  
+2. **Regression Coefficients** (`visualize.regression_coeff_plot`): `results/regression_coefficients.png`.  
+3. **Diagnostic Figures** (see Phase 1 diagnostics).  
+4. **Report Generation** (`report.generate`):  
+   - Export `results/results_report.csv` with columns: `trait`, `genre`, `correlation_r`, `p_value`, `adjusted_p_value`, `is_significant`, `cohens_d`, `ci_lower`, `ci_upper`, `status_label`, `high_correlation_flag`.  
 
-All scripts write to `logs/` for traceability and validate outputs against the relevant contract schemas.
+### Phase 3 – Contract Validation
+- Run `pytest -q tests/contract` to validate:
+  - `dataset.schema.yaml`
+  - `processed_dataset.schema.yaml`
+  - `analysis_output.schema.yaml`
+  - `results.schema.yaml`
+  - `report.schema.yaml`
 
-## Compute Feasibility
-All steps use CPU‑friendly libraries; synthetic data are limited to 10 k users. If a real open dataset exceeds RAM, the pipeline will stream it (`datasets.load_dataset(..., streaming=True)`) and aggregate statistics online, staying within the available RAM limit.
+### Phase 4 – Reproducibility & Logging
+- All scripts import `utils.set_seed(42)`.  
+- Logs written to `logs/pipeline.log` with timestamps, step outcomes, and any warnings (e.g., dropped covariates, imputation counts).  
 
-## Edge‑Case Strategies
-- **Download failures**: graceful abort with clear error; synthetic fallback triggered automatically.  
-- **Zero listening minutes**: users with total minutes = 0 are excluded before log‑transform.  
-- **High‑cardinality country/education/SES**: categories with ≤ 5 users collapsed into `"Other"`.  
-- **Collinearity**: VIF computed; predictors with VIF > 5 are dropped and a warning logged.  
-- **Missing covariates**: if any covariate column is absent, regression runs without it and notes the omission in the final report.
-
-## Edge‑Case Handling Log Summary
-All edge‑case decisions are recorded in `logs/edge_cases.log` and referenced in the final report.
+## Complexity Tracking
+All steps are CPU‑friendly; the largest operation is a a correlation matrix with several rows and ten columns and OLS fits on ≤ 200 k rows, well within the free‑tier runner limits.

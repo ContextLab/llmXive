@@ -1,0 +1,66 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Processed Merged Dataset Schema"
+description: "Schema for data/processed/merged_clean.csv after ingestion and preprocessing."
+type: "object"
+properties:
+  user_id_hashed:
+    type: "string"
+    description: "Hashed identifier for the participant."
+  openness:
+    type: "number"
+    description: "Openness score from BFI‑2."
+  conscientiousness:
+    type: "number"
+    description: "Conscientiousness score from BFI‑2."
+  extraversion:
+    type: "number"
+    description: "Extraversion score from BFI‑2."
+  agreeableness:
+    type: "number"
+    description: "Agreeableness score from BFI‑2."
+  neuroticism:
+    type: "number"
+    description: "Neuroticism score from BFI‑2."
+  age:
+    type: "integer"
+    description: "Age"
+    minimum: 0
+  gender:
+    type: "string"
+    enum: ["Male", "Female", "Other"]
+    description: "Gender."
+  country:
+    type: "string"
+    description: "Country ISO‑code (rare < 1 % → \"Other\")."
+  genre:
+    type: "string"
+    enum: ["Rock", "Pop", "Hip-Hop", "Classical", "Electronic", "Jazz", "Folk", "Country", "Metal", "Other"]
+    description: "Standardized genre."
+  listening_minutes:
+    type: "number"
+    description: "Aggregated listening minutes for this user‑genre pair."
+  total_minutes:
+    type: "number"
+    description: "Total listening minutes across all genres for this user."
+  listening_proportion:
+    type: "number"
+    description: "Proportion of total minutes: listening_minutes / total_minutes."
+  log_proportion:
+    type: "number"
+    description: "Log‑transformed proportion (log1p)."
+required:
+  - user_id_hashed
+  - openness
+  - conscientiousness
+  - extraversion
+  - agreeableness
+  - neuroticism
+  - age
+  - gender
+  - country
+  - genre
+  - listening_minutes
+  - total_minutes
+  - listening_proportion
+  - log_proportion
+additionalProperties: false
