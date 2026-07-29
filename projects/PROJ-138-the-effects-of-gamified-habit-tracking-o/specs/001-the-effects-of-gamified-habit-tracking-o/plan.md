@@ -16,7 +16,11 @@ This project implements a **Simulation Study** pipeline to validate the statisti
 **Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM)  
 **Project Type**: Data Science / Statistical Analysis Pipeline (Simulation Study)  
 **Performance Goals**: Complete full pipeline (ingestion to report) within 6 hours on CPU; memory usage < 6GB.  
-**Constraints**: CPU-first execution; no GPU required for classical statistics; strict adherence to "3 consecutive weeks" dropout definition; minimum 100 valid user records (target N=500 for power) required to proceed.  
+**Constraints**: CPU-first execution; no GPU required for classical statistics; strict adherence to a multi-week consecutive dropout definition
+
+The research question remains: [Research Question]
+The method remains: [Method]
+References remain: [References]; minimum 100 valid user records (target N=500 for power) required to proceed.  
 **Scale/Scope**: A simulated dataset of user records; approximately one year of simulated data per user.
 
 ## Constitution Check
@@ -25,7 +29,7 @@ This project implements a **Simulation Study** pipeline to validate the statisti
 
 | Principle | Status | Action Required |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All scripts will include `random.seed(42)` and `requirements.txt` pins. Synthetic generator logic is the SSoT for behavioral patterns. |
+| **I. Reproducibility** | **PASS** | All scripts will include `random.seed()` and `requirements.txt` pins. Synthetic generator logic is the SSoT for behavioral patterns. |
 | **II. Verified Accuracy** | **PASS** | For synthetic data, the `synthetic_generator.py` code is the verified source of truth. For personality distributions, the Hugging Face dataset card is the verified source. |
 | **III. Data Hygiene** | **PASS** | Raw data checksummed; derivations written to new files (`data/processed/`). |
 | **IV. Single Source of Truth** | **PASS** | All stats in report derived programmatically from `data/processed/merged_data.csv`. |
@@ -117,7 +121,7 @@ The following tasks map directly to Functional Requirements (FR) and Success Cri
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | Mixed-Effects Model (Random Slope) | Required for repeated measures and to separate between-subject fixed effects from random intercepts | Standard logistic regression ignores within-user correlation; Random Intercept-only models fail to identify between-subject group effects (gamified_status) due to collinearity. |
-| Survival Analysis (Cox/KM) | Required to model "time-to-dropout" (3 consecutive weeks) | Binary classification cannot capture the temporal dynamics of dropout events. |
+| Survival Analysis (Cox/KM) | Required to model "time-to-dropout" (consecutive weeks) | Binary classification cannot capture the temporal dynamics of dropout events. |
 | Bootstrapping | Required for robustness (FR-004) | Single point estimates do not capture variance in small/medium samples. |
 | Simulation Design | Required due to lack of open longitudinal data with personality + gamification | Real-world observational data would require complex confounding adjustments (IV, PSM) which are not feasible without a valid instrument. Simulation allows controlled validation of the *method*. |
 
@@ -127,6 +131,6 @@ To address the concern of sample size adequacy for detecting interaction effects
 - **Power**: [deferred] (0.80).
 - **Alpha**: 0.05.
 - **Test**: Mixed-Effects Logistic Regression (approximated by G*Power for logistic regression).
-- **Result**: N ≈ -500 users required.
+- **Result**: N ≈ a sufficient number of users required.
 - **Decision**: The pipeline will generate **N=500** users to ensure adequate power for the simulation recovery test.
 

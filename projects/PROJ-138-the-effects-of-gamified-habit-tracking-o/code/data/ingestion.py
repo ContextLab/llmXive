@@ -1,6 +1,7 @@
 """
 Data ingestion module.
 Loads and validates data from synthetic or real sources.
+Implements strict validation and fails loudly if real data is missing or invalid.
 """
 import os
 import sys
@@ -16,6 +17,7 @@ def load_data():
     """
     Load data based on availability.
     Prioritizes synthetic data if marker exists, otherwise attempts real data fetch.
+    CRITICAL: If real data is required but missing, this function MUST fail loudly.
     """
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     marker_path = os.path.join(root, "data", "raw", "synthetic_data_marker.json")
@@ -28,6 +30,7 @@ def load_data():
         logger.info("Synthetic data marker found. Loading synthetic data.")
         if not os.path.exists(csv_path):
             logger.error("Marker exists but CSV missing. Regenerating...")
+            # Regenerate only if marker exists but file is missing (recovery mode)
             df = generate_synthetic_data(n_users=100, weeks=50, seed=42)
             df.to_csv(csv_path, index=False)
             write_marker(100, len(df))

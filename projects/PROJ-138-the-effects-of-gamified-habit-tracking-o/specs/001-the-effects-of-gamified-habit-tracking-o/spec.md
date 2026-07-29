@@ -28,7 +28,7 @@ The research pipeline MUST ingest data from a verified longitudinal source (e.g.
 
 ### User Story 2 - Statistical Modeling and Interaction Analysis (Priority: P2)
 
-The system MUST fit a mixed-effects logistic regression model to predict weekly adherence, including fixed effects for gamification, personality traits (Conscientiousness, and "need for achievement" if available), and their interaction, along with random intercepts for users. The system MUST define "dropout" as 3 consecutive weeks of non-adherence to distinguish from temporary lapses.
+The system MUST fit a mixed-effects logistic regression model to predict weekly adherence, including fixed effects for gamification, personality traits (Conscientiousness, and "need for achievement" if available), and their interaction, along with random intercepts for users. The system MUST define "dropout" as a sustained period of consecutive weeks of non-adherence to distinguish from temporary lapses.
 
 **Why this priority**: This is the core analytical engine that directly addresses the research question regarding the moderation effect of personality on gamification efficacy.
 

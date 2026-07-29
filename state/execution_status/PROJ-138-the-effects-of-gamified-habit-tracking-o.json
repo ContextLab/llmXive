@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-138-the-effects-of-gamified-habit-tracking-o",
   "ok": false,
-  "reason": "22 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/fdr_correction.py: self-declared fabricated metric \u2014 \u201c\u2026# If not, we construct a mock results set based on the task requir\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026real data or generating synthetic data if real data is missing.\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026data from real source or generate synthetic data.          Returns:\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 1 command(s) failed: python code/data/synthetic_generator.py --seed [RANDOM_SEED] --n_users --weeks 50 (rc=1); 4 declared deliverable(s) absent: data/processed/merged_data.csv; data/processed/psychometrics.json; data/raw/habitica_data.csv",
+  "reason": "22 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/fdr_correction.py: self-declared fabricated metric \u2014 \u201c\u2026# If not, we construct a mock results set based on the task requir\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ability.     Prioritizes synthetic data if marker exists, otherw\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026h):         logger.info(\"Synthetic data marker found. Loading sy\u2026\u201d; 2 command(s) failed: python code/data/synthetic_generator.py --seed [RANDOM_SEED] --n_users --weeks 50 (rc=2); python code/main.py (rc=1); 4 declared deliverable(s) absent: data/processed/merged_data.csv; data/processed/psychometrics.json; data/raw/synthetic_data.csv",
   "artifacts": [],
   "failures": [
-    "python code/data/synthetic_generator.py --seed [RANDOM_SEED] --n_users --weeks 50 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/code/data/synthetic_generator.py\", line 7, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/code/main.py': [Errno 2] No such file or directory"
+    "python code/data/synthetic_generator.py --seed [RANDOM_SEED] --n_users --weeks 50 -> rc=2\n    usage: synthetic_generator.py [-h] [--seed SEED] [--n_users N_USERS]\n                              [--weeks WEEKS]\nsynthetic_generator.py: error: argument --seed: invalid int value: '[RANDOM_SEED]'",
+    "python code/main.py -> rc=1\n    mified-habit-tracking-o/code/data/synthetic_generator.py\", line 119, in main\n    df.to_csv(output_path, index=False)\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/pandas/core/generic.py\", line 3976, in to_csv\n    return DataFrameRenderer(formatter).to_csv(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/pandas/io/formats/format.py\", line 1025, in to_csv\n    csv_formatter.save()\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/pa"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-26T11:27:40Z"
+  "updated_at": "2026-07-28T23:50:03Z"
 }

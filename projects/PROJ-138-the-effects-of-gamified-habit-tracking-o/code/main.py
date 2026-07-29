@@ -59,12 +59,21 @@ def main():
     # The ingestion step will detect the marker and use this data.
     log_pipeline_stage(logger, "STEP 1", "Generating Synthetic Data")
     try:
-        # We call the main logic directly rather than re-parsing args
-        # The synthetic_generator expects command line args, so we simulate them or refactor.
-        # Given the API surface, we assume the module's main() handles args.
-        # To be safe and consistent with the "real run" requirement, we ensure the marker exists
-        # by calling the generator.
-        os.system(f"python code/data/synthetic_generator.py --seed {args.seed} --n_users {args.n_users} --weeks {args.weeks}")
+        # Ensure directories exist before running generator to prevent OSError
+        data_raw_path = os.path.join(project_root, "data", "raw")
+        os.makedirs(data_raw_path, exist_ok=True)
+        
+        # Call the generator directly to ensure it runs with the correct arguments
+        # and writes to the correct location without subprocess argument parsing issues.
+        # We import the internal logic to avoid CLI parsing mismatch.
+        from code.data.synthetic_generator import generate_synthetic_data, write_marker
+        
+        df = generate_synthetic_data(seed=args.seed, n_users=args.n_users, weeks=args.weeks)
+        write_marker(df, seed=args.seed)
+        
+        if df is None or len(df) == 0:
+            raise RuntimeError("Synthetic data generation returned empty or None.")
+            
     except Exception as e:
         logger.error(f"Synthetic data generation failed: {e}")
         sys.exit(1)

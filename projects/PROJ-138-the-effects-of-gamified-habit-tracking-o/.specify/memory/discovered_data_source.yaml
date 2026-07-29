@@ -1,12 +1,11 @@
 status: none
-intent: download Habitica API user activity dataset python package dataset
+intent: Habitica API user activity longitudinal dataset download python package dataset
 required_fields:
 - user_id
 - gamified_status
 - week_number
 - weekly_adherence_count
-- activity_binary
-- personality_score
-cache_key: a7c7c9dfb6b0c05319647a56f3b8e622a16daf61289ac82225bbf7b8a0752956
-searched_at: '2026-07-26T11:28:14.355146+00:00'
+- weekly_adherence_binary
+cache_key: 2c9f5d41a47882cbcc900b2e14838119e16ab22797cb2a0a62e963ac14bdf65d
+searched_at: '2026-07-28T23:50:36.645328+00:00'
 retry_count: 1

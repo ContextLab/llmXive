@@ -6,6 +6,14 @@ T012a:
     \ data lacks consent, and creates a `synthetic_consent_record.json` with explicit\
     \ synthetic\u2011data metadata when `USE_SYNTHETIC_DATA=true`. No placeholder\
     \ or stub remains."
+T032:
+  c: false
+  h: ecd6ced8cbf970e712065ce4994e84cbbd62cf7f3837398187ec3ab025dd8ed6
+  r: "The required output file `data/reports/final_analysis.html` does not exist in\
+    \ the repository, so the report was never generated. The presence of `code/reports/generate_report.py`\
+    \ alone does not satisfy the task; the artifact must be created and non\u2011\
+    empty. The missing HTML report must be produced by running the script (or fixing\
+    \ the script) to meet the requirement."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,3 +21,11 @@ T034:
     that either document was updated to include a project overview or execution instructions
     with synthetic data generation and consent verification steps. The required documentation
     artifacts are missing.
+T038:
+  c: false
+  h: 0a35ad2b764485e5a2608e59fd51ed747deddd75c24eaac0c43ed078bd07f36d
+  r: "The provided evidence shows that `data/processed/merged_data.csv` is missing,\
+    \ and there is no proof that `bash quickstart.sh` was executed, that it exited\
+    \ with code\u202F0, or that the required dependency files (T009, T013a, T014)\
+    \ were present. These core artifacts and checks are absent, so the task is not\
+    \ satisfied."

@@ -1,5 +1,5 @@
 """
-Contract tests for data ingestion pipeline (TDD Red).
+Contract tests for data ingestion pipeline (T010).
 
 This module implements T010: Contract test for schema validation and consent checks.
 It asserts that the ingestion script raises ValueError under specific failure conditions
