@@ -161,8 +161,21 @@
     {
       "category": "test_double",
       "file": "tests/integration/test_llm_reviewer_reroute.py",
+      "kind": "module_constant",
+      "line": 30,
+      "models": [
+        "gemma-4",
+        "gpt-oss",
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "_ALL_FAMILIES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_llm_reviewer_reroute.py",
       "kind": "model_id_literal",
-      "line": 140,
+      "line": 145,
       "models": [
         "qwen3.5"
       ],
@@ -173,7 +186,7 @@
       "category": "test_double",
       "file": "tests/integration/test_llm_reviewer_reroute.py",
       "kind": "model_id_literal",
-      "line": 155,
+      "line": 160,
       "models": [
         "qwen3.5"
       ],
@@ -184,7 +197,7 @@
       "category": "test_double",
       "file": "tests/integration/test_llm_reviewer_reroute.py",
       "kind": "model_id_literal",
-      "line": 162,
+      "line": 167,
       "models": [
         "qwen3.5"
       ],
@@ -195,7 +208,7 @@
       "category": "test_double",
       "file": "tests/integration/test_llm_reviewer_reroute.py",
       "kind": "model_id_literal",
-      "line": 181,
+      "line": 186,
       "models": [
         "qwen3.5"
       ],
@@ -206,7 +219,7 @@
       "category": "test_double",
       "file": "tests/integration/test_llm_reviewer_reroute.py",
       "kind": "model_id_literal",
-      "line": 209,
+      "line": 214,
       "models": [
         "qwen3.5"
       ],
@@ -217,7 +230,7 @@
       "category": "test_double",
       "file": "tests/integration/test_llm_reviewer_reroute.py",
       "kind": "model_id_literal",
-      "line": 241,
+      "line": 246,
       "models": [
         "qwen3.5"
       ],
@@ -228,18 +241,7 @@
       "category": "test_double",
       "file": "tests/integration/test_llm_reviewer_reroute.py",
       "kind": "model_id_literal",
-      "line": 258,
-      "models": [
-        "qwen3.5"
-      ],
-      "owning_slice": null,
-      "symbol": "families"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/integration/test_llm_reviewer_reroute.py",
-      "kind": "model_id_literal",
-      "line": 282,
+      "line": 292,
       "models": [
         "qwen3.5"
       ],

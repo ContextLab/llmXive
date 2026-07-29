@@ -167,6 +167,21 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
     transitioned them", not "these are now reconciled". Two concurrent identical reconciles
     no longer both claim the same work.
 
+17. **A test that injects the boundary it claims to test proves nothing** (round-12).
+    The patch fail-closed test faked `chat_with_model_fallback`, raised raw
+    `ModelUnavailable` itself, and asserted raw `ModelUnavailable` — but `_route_review`
+    passes `reraise_model_unavailable=(fallback is not None)`, so with no fallback the REAL
+    wrapper converts to `BackendUnavailable` and `except ModelUnavailable` is unreachable.
+    The fix is the general one: excluding every family in the offline snapshot makes real
+    selection raise a real `ModelUnavailable` (`select.py:197`), so the wrapper's own
+    conversion runs. Prefer starving the real path over injecting the exception.
+
+18. **Adding a model-id/family literal to ANY file — tests included — restales the 026
+    migration manifest.** `test_committed_manifest_is_current_with_the_live_scan` is the
+    only thing that catches it, and it lives in `tests/unit`, not in any focused selection.
+    Regenerate with `python -m llmxive.model_selection.inventory` in the SAME commit. Run
+    the full `tests/unit` sweep after any task that adds a test file, not a `-k` filter.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute

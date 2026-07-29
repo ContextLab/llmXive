@@ -2310,6 +2310,14 @@ _BUDGET = 50.0   # the Attempt credit budget; ONE AttemptConfigured record binds
                  # together with the call ceiling (Slice 1A Task 13), so every
                  # ledger for this Attempt must present the SAME pair.
 
+#: The producer baseline every call site in this file shares. It MUST name at least one
+#: family: Task 4 refuses `IndependenceBaseline()` at construction, because
+#: `independent_review` asks for a family DIFFERENCE and with nothing to differ from, any
+#: model satisfies it. Shared as a constant so a later edit cannot leave one call site
+#: quietly empty — an empty baseline here would not test fail-closed routing at all, it
+#: would raise while building the panel, before the code under test ever ran.
+_PROPOSER_BASELINE = IndependenceBaseline(families=frozenset({"qwen3.5"}))
+
 def _ctx(repo):
     ledger = LaneCallLedger(repo=repo, problem_id="P1", attempt_id="A1",
                             call_ceiling=LANE_ATTEMPT_CEILING,
@@ -2331,7 +2339,7 @@ def _run(repo, monkeypatch, boom, **kw):
 
     monkeypatch.setattr(mod, "run_convergence", _fake_run_convergence)
     return mod.run_proposal_review(
-        backend=object(), repo_root=Path("."), proposer_baseline=IndependenceBaseline(),
+        backend=object(), repo_root=Path("."), proposer_baseline=_PROPOSER_BASELINE,
         route_context=_ctx(repo), artifacts={"proposal.md": "# P"}, **kw,
     )
 
@@ -2368,7 +2376,7 @@ def test_producer_is_forwarded_to_the_engine(repo, monkeypatch):
 
     monkeypatch.setattr(mod, "run_convergence", _fake_run_convergence)
     mod.run_proposal_review(
-        backend=object(), repo_root=Path("."), proposer_baseline=IndependenceBaseline(),
+        backend=object(), repo_root=Path("."), proposer_baseline=_PROPOSER_BASELINE,
         route_context=_ctx(repo), artifacts={"proposal.md": "# P"}, producer="proposer",
     )
     assert seen["producer"] == "proposer"
@@ -2767,8 +2775,11 @@ def test_concurrent_panel_reviewers_never_exceed_the_attempt_budget(repo, monkey
 
     run_proposal_review(
         backend=_ScriptedPanelBackend(), repo_root=_repo_root_with_prompts(),
-        proposer_baseline=IndependenceBaseline(), route_context=ctx,
-        artifacts={"proposal.md": "# Proposal"},
+        # Non-empty, like every other lane fixture: Task 4 refuses an empty baseline at
+        # construction, so an empty one here would raise while building the panel and prove
+        # nothing about reservations competing under the cap.
+        proposer_baseline=IndependenceBaseline(families=frozenset({"qwen3.5"})),
+        route_context=ctx, artifacts={"proposal.md": "# Proposal"},
     )
 
     events = read(repo, "P1", config=LaneLogConfig())
@@ -2946,3 +2957,11 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m "test(025 slice-1B T10): concurrent p
 | 3 | **Medium** — the plan contradicted its own non-resumable-Attempt contract ("the run parks to resume next tick") | **T8 wording corrected.** A clean abort ENDS the Attempt; park-and-resume is the NON-lane contract. On the lane a resumed process re-derives the same operation ids, so `claim_dispatch` reports REPLAYS and the panel refuses to dispatch rather than resuming. The outer lifecycle owner fails the Attempt; a retry is a NEW `attempt_id` with a disjoint route-id space |
 | 4 | **Medium** — T10's paid-opt-out test assigned `outcome = run_proposal_review(...)` for a scenario that raises, making every later assertion unreachable | **T10 rewritten** to `pytest.raises(BackendUnavailable)` then assert the durable events/reservations — which is what proves the budget invariant anyway. A general implementer note now covers every starve-the-panel variant (tight budget, exhausted ceiling) |
 | 5 | **Low** — operation identity used `json.dumps(..., default=str)`, which falls back to object repr for multimodal content | **T4** digests via `model_selection.route.messages_digest`, promoted from `_messages_digest` — the canonical projection already used for `prompt_digest`, which hashes image bytes instead of relying on repr |
+
+## Round-12 review (Slice 1B Tasks 1-4 + plan, post-fix)
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | Round-11 finding 2 was applied INCOMPLETELY — three lane call sites still built panels with `IndependenceBaseline()`, which Task 4 now refuses at construction. Those tests would have died while building the panel, before reaching the behavior they name | **T8** gained a shared `_PROPOSER_BASELINE` constant (used by `_run` and the producer-forwarding test) so one edit cannot leave a call site empty again; **T10**'s paid concurrency test takes a real family. The intentionally-empty one in `test_context_is_mandatory` stays: it fails at the signature, before any baseline check |
+| 2 | T4's patch fail-closed test injected the router, raised raw `ModelUnavailable` itself, and expected raw `ModelUnavailable` — bypassing the wrapper it claimed to test. `_route_review` passes `reraise_model_unavailable=(fallback is not None)`, so with no fallback the real wrapper CONVERTS to `BackendUnavailable` and the `except ModelUnavailable` branch is unreachable. The test pinned a contract production cannot produce | **T4 test rewritten to drive the REAL wrapper**: no injected router, `independence_against` excludes every family in the offline snapshot, so real selection raises a real `ModelUnavailable` (`select.py:197`) and the wrapper converts it. Asserts `BackendUnavailable` (a disjoint type, so asking for raw fails loudly), no reroute record, and exactly one charged call. Verified load-bearing — forcing `reraise_model_unavailable=True` fails it |
+| 3 | **Low** — the reroute constants were documented as public but missing from `events.__all__` | Added all four to `__all__`. They are genuinely public surface: three separate modules (the validator, `record_reroute`, and T4's configuration check) share them as the single source of truth |

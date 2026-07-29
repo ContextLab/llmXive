@@ -24,6 +24,11 @@ STAGE = "self_improvement_proposal"
 _BUDGET = 50.0  # ONE AttemptConfigured record binds this with the ceiling.
 #: A lane reviewer must name at least one producer family to differ FROM.
 _BASELINE = IndependenceBaseline(families=frozenset({"qwen3.5"}))
+#: Every family in the offline snapshot's free Dartmouth chain (tests/conftest.py's autouse
+#: stub). Excluding all of them leaves selection nothing eligible, which is how a test drives
+#: a REAL ModelUnavailable out of the real path instead of raising one by hand.
+_ALL_FAMILIES = frozenset({"qwen3.5", "gemma-4", "gpt-oss"})
+_MSGS = [ChatMessage(role="user", content="review this")]
 
 
 def _clock():
@@ -245,22 +250,27 @@ def test_successful_primary_never_reroutes_or_records(repo_root, monkeypatch):
     assert ctx.recorded == [] and ctx.calls_used() == 1
 
 
-def test_without_a_fallback_profile_model_unavailable_is_not_rerouted(repo_root, monkeypatch):
+def test_without_a_fallback_profile_model_unavailable_is_not_rerouted(repo_root):
     # The future PATCH binding: required independence, NO fallback -> fail closed.
-    def _fake(backend, messages, **kw):
-        assert kw["reraise_model_unavailable"] is False  # converts to BackendUnavailable
-        raise ModelUnavailable("no independent family live")
+    #
+    # NO injected router here, deliberately. `_route_review` passes
+    # `reraise_model_unavailable=self._fallback_profile is not None`, so with no fallback the
+    # real wrapper CONVERTS ModelUnavailable to BackendUnavailable and the `except
+    # ModelUnavailable` branch never sees it. A fake that raised the raw exception itself
+    # would drive that unreachable branch and pin a contract production can't produce.
+    # Excluding every family in the offline snapshot leaves nothing eligible, which is a real
+    # ModelUnavailable out of real selection logic — the exact patch-review failure mode.
+    from llmxive.backends.base import BackendUnavailable
 
-    _patch_router(monkeypatch, _fake)
     ctx = _ctx(repo_root)
     reviewer = _reviewer(
         repo_root, profile="independent_review", fallback_profile=None,
-        independence_against=IndependenceBaseline(families=frozenset({"qwen3.5"})),
-        route_context=ctx,
+        independence_against=IndependenceBaseline(families=_ALL_FAMILIES), route_context=ctx,
     )
-    with pytest.raises(ModelUnavailable):
-        reviewer._call_backend([])
-    assert ctx.recorded == []
+    with pytest.raises(BackendUnavailable):   # NOT ModelUnavailable: disjoint types, so this
+        reviewer._call_backend(_MSGS)         # fails loudly if the reviewer ever asks for raw
+    assert ctx.recorded == [], "a lens with no fallback must never record a degradation"
+    assert ctx.calls_used() == 1, "the failed primary is one charged call, and only one"
 
 
 def test_a_failed_reroute_record_aborts_before_the_fallback_dispatches(repo_root, monkeypatch):

@@ -34,7 +34,7 @@ Checked artifact: regenerate with `python -m llmxive.model_selection.inventory` 
 |tests/integration/test_credit_ledger_transport.py|1|Qwen/Qwen2.5|
 |tests/integration/test_credit_reservations.py|1|anthropic.claude-haiku-4-5|
 |tests/integration/test_free_backend_only.py|2|qwen.qwen3.5-122b|
-|tests/integration/test_llm_reviewer_reroute.py|9|qwen3.5|
+|tests/integration/test_llm_reviewer_reroute.py|9|gemma-4, gpt-oss, qwen3.5|
 |tests/integration/test_model_selection_execute.py|15|Qwen/Qwen2.5-3B-Instruct, anthropic.claude-haiku-4-5-20251001, claude-haiku-4-5, gemma-4, google.gemma-4-31B-it, gpt-oss, openai.gpt-oss-120b, qwen.qwen3-vl:32b, qwen.qwen3.5-122b, qwen2.5, qwen3.5|
 |tests/integration/test_paper_review_flow.py|1|qwen.qwen3.5-122b|
 |tests/integration/test_paper_stage_freeze.py|1|qwen.qwen3.5-122b|
