@@ -4,105 +4,113 @@ import csv
 import re
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Any
-from datetime import datetime
-
 from src.models.code_snippet import CodeSnippet, create_snippet
 from src.utils.logger import get_logger, log_stage_start, log_stage_complete, log_stage_failure
 
 logger = get_logger(__name__)
 
-# Constants for raw data directories (matching T011 download paths)
-RAW_DATA_DIR = Path("data/raw")
-PROCESSED_DATA_DIR = Path("data/processed")
-
-# Mapping for VulDeePecker JSONL structure
-VULDEEPCKER_FIELDS = {
-    "id": "id",
-    "code": "code",
-    "label": "label",
-    "language": "language",
-    "category": "category",
-    "context": "context"
+# Mapping for language detection based on file extension
+EXTENSION_TO_LANGUAGE = {
+    '.py': 'Python',
+    '.c': 'C',
+    '.cpp': 'C++',
+    '.cc': 'C++',
+    '.cxx': 'C++',
+    '.java': 'Java',
+    '.js': 'JavaScript',
+    '.ts': 'TypeScript',
+    '.go': 'Go',
+    '.rb': 'Ruby',
+    '.php': 'PHP',
+    '.cs': 'C#',
+    '.swift': 'Swift',
+    '.kt': 'Kotlin',
+    '.rs': 'Rust',
 }
 
-def detect_language_from_extension(file_path: str) -> str:
-    """Detect programming language based on file extension."""
-    ext_map = {
-        ".py": "python",
-        ".c": "c",
-        ".cpp": "cpp",
-        ".java": "java",
-        ".js": "javascript",
-        ".ts": "typescript",
-        ".go": "go",
-        ".rs": "rust",
-        ".rb": "ruby",
-        ".php": "php",
-    }
+# Mapping for label normalization
+LABEL_NORMALIZATION_MAP = {
+    'vulnerable': 'vulnerable',
+    'vuln': 'vulnerable',
+    'unsafe': 'vulnerable',
+    'bad': 'vulnerable',
+    'insecure': 'vulnerable',
+    'secure': 'safe',
+    'safe': 'safe',
+    'benign': 'safe',
+    'clean': 'safe',
+    'ok': 'safe',
+    'normal': 'safe',
+    '1': 'vulnerable',
+    '0': 'safe',
+    'true': 'vulnerable',
+    'false': 'safe',
+    'yes': 'vulnerable',
+    'no': 'safe',
+}
+
+# Vulnerability category patterns
+VULNERABILITY_CATEGORIES = {
+    'sql_injection': [r'sql\s*injection', r'sqli', r'database\s*injection'],
+    'buffer_overflow': [r'buffer\s*overflow', r'overflow', r'heap\s*overflow', r'stack\s*overflow'],
+    'code_injection': [r'code\s*injection', r'command\s*injection', r'os\s*command'],
+    'xss': [r'cross\s*sit.*script', r'xss', r'script\s*injection'],
+    'path_injection': [r'path\s*traversal', r'directory\s*traversal', r'path\s*injection'],
+    'command_injection': [r'command\s*injection', r'os\s*command\s*injection'],
+    'authentication': [r'auth\s*bypass', r'authentication\s*bypass', r'login\s*bypass'],
+    'authorization': [r'privilege\s*escalation', r'authorization\s*bypass', r'access\s*control'],
+    'information_disclosure': [r'information\s*disclosure', r'data\s*leak', r'sensitive\s*data'],
+    'crypto': [r'weak\s*crypto', r'broken\s*crypto', r'crypto\s*failure'],
+    'dos': [r'denial\s*of\s*service', r'dos', r'distributed\s*denial'],
+    'memory_corruption': [r'memory\s*corruption', r'use\s*after\s*free', r'double\s*free'],
+    'race_condition': [r'race\s*condition', r'time\s*of\s*check\s*time\s*of\s*use', r'toctou'],
+    'other': [r'vulnerability', r'security\s*issue', r'security\s*bug'],
+}
+
+def detect_language_from_extension(file_path: str) -> Optional[str]:
+    """Detect programming language from file extension."""
     ext = Path(file_path).suffix.lower()
-    return ext_map.get(ext, "unknown")
+    return EXTENSION_TO_LANGUAGE.get(ext)
 
-def normalize_label(label: Any) -> str:
-    """Normalize vulnerability labels to standard format."""
+def normalize_label(label: Any) -> Optional[str]:
+    """Normalize vulnerability label to 'vulnerable' or 'safe'."""
     if label is None:
-        return "unknown"
+        return None
     
-    label_str = str(label).lower().strip()
+    label_str = str(label).strip().lower()
+    if not label_str:
+        return None
     
-    # Map common variations
-    if label_str in ["vulnerable", "vuln", "1", "true", "yes", "positive"]:
-        return "vulnerable"
-    elif label_str in ["safe", "non-vulnerable", "0", "false", "no", "negative", "benign"]:
-        return "safe"
-    elif label_str in ["unknown", "unlabeled", "null", ""]:
-        return "unknown"
-    else:
+    # Check direct mapping
+    if label_str in LABEL_NORMALIZATION_MAP:
+        return LABEL_NORMALIZATION_MAP[label_str]
+    
+    # Check if it's already a valid label
+    if label_str in ['vulnerable', 'safe']:
         return label_str
+    
+    return None
 
-def extract_category_from_context(context: Optional[str]) -> str:
-    """Extract vulnerability category from context or code comments."""
-    if not context:
-        return "unknown"
+def extract_category_from_context(code: str, context: Optional[str] = None) -> Optional[str]:
+    """Extract vulnerability category from code or context."""
+    text_to_search = f"{code} {context or ''}".lower()
     
-    context_lower = context.lower()
+    for category, patterns in VULNERABILITY_CATEGORIES.items():
+        for pattern in patterns:
+            if re.search(pattern, text_to_search):
+                return category
     
-    # Common vulnerability categories
-    categories = [
-        ("sql", "sql_injection"),
-        ("command", "command_injection"),
-        ("xss", "xss"),
-        ("buffer overflow", "buffer_overflow"),
-        ("overflow", "overflow"),
-        ("path traversal", "path_traversal"),
-        ("directory traversal", "path_traversal"),
-        ("ldap", "ldap_injection"),
-        ("xpath", "xpath_injection"),
-        ("xxe", "xxe"),
-        ("csrf", "csrf"),
-        ("ssrf", "ssrf"),
-        ("race", "race_condition"),
-        ("memory", "memory_corruption"),
-        ("integer", "integer_overflow"),
-        ("format", "format_string"),
-        ("unvalidated", "input_validation"),
-        ("input", "input_validation"),
-    ]
-    
-    for keyword, category in categories:
-        if keyword in context_lower:
-            return category
-    
-    return "unknown"
+    return None
 
 def parse_vuldeepecker_jsonl(jsonl_path: Path) -> List[Dict[str, Any]]:
-    """Parse VulDeePecker JSONL dataset file."""
+    """Parse VulDeePecker JSONL dataset."""
     snippets = []
     
     if not jsonl_path.exists():
-        logger.warning(f"VulDeePecker file not found: {jsonl_path}")
+        logger.error(f"VulDeePecker file not found: {jsonl_path}")
         return snippets
     
-    with open(jsonl_path, 'r', encoding='utf-8') as f:
+    with open(jsonl_path, 'r', encoding='utf-8', errors='ignore') as f:
         for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
@@ -111,256 +119,375 @@ def parse_vuldeepecker_jsonl(jsonl_path: Path) -> List[Dict[str, Any]]:
             try:
                 record = json.loads(line)
                 
-                # Extract fields with fallbacks
-                snippet_id = record.get("id", f"vuldeepecker_{line_num}")
-                code = record.get("code", "")
-                label = record.get("label", "unknown")
-                language = record.get("language", detect_language_from_extension(snippet_id))
-                category = record.get("category", extract_category_from_context(record.get("context", "")))
-                context = record.get("context", "")
-                
-                # Skip if essential fields are missing
-                if not code or not code.strip():
-                    logger.debug(f"Skipping line {line_num}: empty code")
+                # Extract code snippet
+                code = record.get('code', '')
+                if not code:
                     continue
                 
+                # Extract label
+                label = record.get('label')
+                normalized_label = normalize_label(label)
+                
+                # Extract language (VulDeePecker is primarily Python)
+                language = record.get('language', 'Python')
+                if language not in ['Python', 'C', 'Java', 'JavaScript']:
+                    language = detect_language_from_extension(record.get('file', '')) or 'Python'
+                
+                # Extract context/metadata
+                context = record.get('context', '')
+                file_path = record.get('file', '')
+                
                 snippets.append({
-                    "id": snippet_id,
-                    "code": code,
-                    "label": label,
-                    "language": language,
-                    "category": category,
-                    "source": "vuldeepecker",
-                    "context": context
+                    'code': code,
+                    'label': normalized_label,
+                    'language': language,
+                    'context': context,
+                    'file_path': file_path,
+                    'source': 'VulDeePecker',
+                    'line_number': line_num,
                 })
                 
             except json.JSONDecodeError as e:
-                logger.warning(f"Skipping malformed JSON at line {line_num}: {e}")
+                logger.warning(f"Failed to parse JSON at line {line_num}: {e}")
                 continue
             except Exception as e:
-                logger.warning(f"Error parsing line {line_num}: {e}")
+                logger.warning(f"Error processing line {line_num}: {e}")
                 continue
     
-    logger.info(f"Parsed {len(snippets)} snippets from {jsonl_path}")
     return snippets
 
-def parse_juliet_c_test_cases(juliet_dir: Path) -> List[Dict[str, Any]]:
-    """Parse Juliet C test case directory structure."""
+def parse_juliet_c_test_cases(directory: Path) -> List[Dict[str, Any]]:
+    """Parse Juliet C test cases."""
     snippets = []
     
-    if not juliet_dir.exists():
-        logger.warning(f"Juliet C directory not found: {juliet_dir}")
+    if not directory.exists():
+        logger.error(f"Juliet C directory not found: {directory}")
         return snippets
     
-    # Juliet structure: c/{test_case}/{variant}/...
-    for test_case_dir in juliet_dir.iterdir():
-        if not test_case_dir.is_dir():
-            continue
-        
-        test_case_name = test_case_dir.name
-        
-        for variant_dir in test_case_dir.iterdir():
-            if not variant_dir.is_dir():
+    # Walk through directory structure
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if not file.endswith('.c'):
                 continue
             
-            variant_name = variant_dir.name
-            
-            # Check for 'good' or 'bad' in variant name
-            is_vulnerable = "bad" in variant_name.lower()
-            label = "vulnerable" if is_vulnerable else "safe"
-            
-            # Find source files
-            for src_file in variant_dir.rglob("*.c"):
-                try:
-                    with open(src_file, 'r', encoding='utf-8', errors='ignore') as f:
-                        code = f.read()
-                    
-                    if not code.strip():
-                        continue
-                    
-                    snippet_id = f"juliet_c_{test_case_name}_{variant_name}_{src_file.stem}"
-                    category = extract_category_from_context(test_case_name)
-                    
-                    snippets.append({
-                        "id": snippet_id,
-                        "code": code,
-                        "label": label,
-                        "language": "c",
-                        "category": category,
-                        "source": "juliet_c",
-                        "context": test_case_name
-                    })
-                except Exception as e:
-                    logger.warning(f"Error reading {src_file}: {e}")
-                    continue
+            file_path = Path(root) / file
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                
+                # Determine vulnerability status from filename
+                # Juliet uses naming convention: 123456_01.c (vulnerable) vs 123456_01_bad.c
+                # Actually, Juliet uses: *_good.c (safe) and *_bad.c (vulnerable)
+                is_vulnerable = '_bad.c' in str(file_path)
+                is_safe = '_good.c' in str(file_path)
+                
+                if is_vulnerable:
+                    label = 'vulnerable'
+                elif is_safe:
+                    label = 'safe'
+                else:
+                    # Try to infer from content
+                    label = None
+                
+                # Extract category from filename
+                # Format: CWE_ID_testcase.c
+                match = re.search(r'CWE(\d+)', str(file_path))
+                if match:
+                    cwe_id = match.group(1)
+                    # Map CWE to category (simplified)
+                    category = extract_category_from_context("", f"CWE-{cwe_id}")
+                else:
+                    category = None
+                
+                snippets.append({
+                    'code': content,
+                    'label': label,
+                    'language': 'C',
+                    'context': str(file_path),
+                    'file_path': str(file_path),
+                    'source': 'Juliet_C',
+                    'cwe_id': match.group(1) if match else None,
+                })
+                
+            except Exception as e:
+                logger.warning(f"Error processing {file_path}: {e}")
+                continue
     
-    logger.info(f"Parsed {len(snippets)} C snippets from {juliet_dir}")
     return snippets
 
-def parse_juliet_java_test_cases(juliet_dir: Path) -> List[Dict[str, Any]]:
-    """Parse Juliet Java test case directory structure."""
+def parse_juliet_java_test_cases(directory: Path) -> List[Dict[str, Any]]:
+    """Parse Juliet Java test cases."""
     snippets = []
     
-    if not juliet_dir.exists():
-        logger.warning(f"Juliet Java directory not found: {juliet_dir}")
+    if not directory.exists():
+        logger.error(f"Juliet Java directory not found: {directory}")
         return snippets
     
-    # Juliet structure: java/{test_case}/{variant}/...
-    for test_case_dir in juliet_dir.iterdir():
-        if not test_case_dir.is_dir():
-            continue
-        
-        test_case_name = test_case_dir.name
-        
-        for variant_dir in test_case_dir.iterdir():
-            if not variant_dir.is_dir():
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if not file.endswith('.java'):
                 continue
             
-            variant_name = variant_dir.name
-            
-            # Check for 'good' or 'bad' in variant name
-            is_vulnerable = "bad" in variant_name.lower()
-            label = "vulnerable" if is_vulnerable else "safe"
-            
-            # Find source files
-            for src_file in variant_dir.rglob("*.java"):
-                try:
-                    with open(src_file, 'r', encoding='utf-8', errors='ignore') as f:
-                        code = f.read()
-                    
-                    if not code.strip():
-                        continue
-                    
-                    snippet_id = f"juliet_java_{test_case_name}_{variant_name}_{src_file.stem}"
-                    category = extract_category_from_context(test_case_name)
-                    
-                    snippets.append({
-                        "id": snippet_id,
-                        "code": code,
-                        "label": label,
-                        "language": "java",
-                        "category": category,
-                        "source": "juliet_java",
-                        "context": test_case_name
-                    })
-                except Exception as e:
-                    logger.warning(f"Error reading {src_file}: {e}")
-                    continue
+            file_path = Path(root) / file
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                
+                # Determine vulnerability status
+                is_vulnerable = '_bad' in str(file_path)
+                is_safe = '_good' in str(file_path)
+                
+                if is_vulnerable:
+                    label = 'vulnerable'
+                elif is_safe:
+                    label = 'safe'
+                else:
+                    label = None
+                
+                # Extract category from filename
+                match = re.search(r'CWE(\d+)', str(file_path))
+                if match:
+                    cwe_id = match.group(1)
+                    category = extract_category_from_context("", f"CWE-{cwe_id}")
+                else:
+                    category = None
+                
+                snippets.append({
+                    'code': content,
+                    'label': label,
+                    'language': 'Java',
+                    'context': str(file_path),
+                    'file_path': str(file_path),
+                    'source': 'Juliet_Java',
+                    'cwe_id': match.group(1) if match else None,
+                })
+                
+            except Exception as e:
+                logger.warning(f"Error processing {file_path}: {e}")
+                continue
     
-    logger.info(f"Parsed {len(snippets)} Java snippets from {juliet_dir}")
     return snippets
 
-def parse_raw_directory(raw_dir: Path) -> List[Dict[str, Any]]:
-    """Parse all raw dataset files in the data/raw directory."""
-    all_snippets = []
+def parse_raw_directory(directory: Path, language: str) -> List[Dict[str, Any]]:
+    """Parse raw code directory for a specific language."""
+    snippets = []
+    language_extensions = {ext for ext, lang in EXTENSION_TO_LANGUAGE.items() if lang == language}
     
-    if not raw_dir.exists():
-        logger.error(f"Raw data directory not found: {raw_dir}")
-        return all_snippets
+    if not directory.exists():
+        logger.error(f"Raw directory not found: {directory}")
+        return snippets
     
-    # Parse VulDeePecker JSONL files
-    for jsonl_file in raw_dir.glob("*.jsonl"):
-        if "vuldeepecker" in jsonl_file.name.lower():
-            all_snippets.extend(parse_vuldeepecker_jsonl(jsonl_file))
+    for root, _, files in os.walk(directory):
+        for file in files:
+            ext = Path(file).suffix.lower()
+            if ext not in language_extensions:
+                continue
+            
+            file_path = Path(root) / file
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    code = f.read()
+                
+                # For raw directories, we don't have ground truth labels
+                # Mark as None (will be excluded from accuracy calculations)
+                snippets.append({
+                    'code': code,
+                    'label': None,
+                    'language': language,
+                    'context': str(file_path),
+                    'file_path': str(file_path),
+                    'source': 'raw',
+                })
+                
+            except Exception as e:
+                logger.warning(f"Error processing {file_path}: {e}")
+                continue
     
-    # Parse Juliet C test cases
-    juliet_c_dir = raw_dir / "juliet" / "c"
-    if juliet_c_dir.exists():
-        all_snippets.extend(parse_juliet_c_test_cases(juliet_c_dir))
-    
-    # Parse Juliet Java test cases
-    juliet_java_dir = raw_dir / "juliet" / "java"
-    if juliet_java_dir.exists():
-        all_snippets.extend(parse_juliet_java_test_cases(juliet_java_dir))
-    
-    logger.info(f"Total snippets parsed: {len(all_snippets)}")
-    return all_snippets
+    return snippets
 
-def create_code_snippets(raw_snippets: List[Dict[str, Any]]) -> List[CodeSnippet]:
-    """Convert raw parsed snippets to CodeSnippet entities."""
-    code_snippets = []
-    excluded_count = 0
+def create_code_snippets(parsed_data: List[Dict[str, Any]]) -> List[CodeSnippet]:
+    """Convert parsed data to CodeSnippet entities."""
+    snippets = []
     
-    for raw in raw_snippets:
-        # Normalize label
-        normalized_label = normalize_label(raw.get("label"))
-        
-        # Skip samples with missing or unknown labels
-        if normalized_label == "unknown":
-            excluded_count += 1
-            logger.debug(f"Excluded snippet {raw.get('id')}: unknown label")
+    for idx, data in enumerate(parsed_data):
+        try:
+            snippet = create_snippet(
+                code=data.get('code', ''),
+                language=data.get('language', 'Unknown'),
+                label=data.get('label'),
+                source=data.get('source', 'unknown'),
+                file_path=data.get('file_path', ''),
+                context=data.get('context', ''),
+                metadata={
+                    'line_number': data.get('line_number'),
+                    'cwe_id': data.get('cwe_id'),
+                }
+            )
+            snippets.append(snippet)
+        except Exception as e:
+            logger.warning(f"Failed to create snippet from data: {e}")
             continue
-        
-        # Create CodeSnippet entity
-        snippet = create_snippet(
-            snippet_id=raw.get("id", ""),
-            language=raw.get("language", "unknown"),
-            source_code=raw.get("code", ""),
-            ground_truth_label=normalized_label,
-            ground_truth_category=raw.get("category", "unknown")
-        )
-        
-        code_snippets.append(snippet)
     
-    logger.info(f"Created {len(code_snippets)} CodeSnippet entities, excluded {excluded_count} with missing labels")
-    return code_snippets
+    return snippets
 
 def save_snippets_to_csv(snippets: List[CodeSnippet], output_path: Path) -> None:
-    """Save CodeSnippet entities to a CSV file."""
-    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    """Save CodeSnippets to CSV file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         # Write header
         writer.writerow([
-            "id",
-            "language",
-            "source_code",
-            "ground_truth_label",
-            "ground_truth_category",
-            "created_at"
+            'snippet_id', 'code', 'language', 'label', 'source', 
+            'file_path', 'context', 'metadata'
         ])
         
         # Write data
         for snippet in snippets:
             writer.writerow([
-                snippet.id,
+                snippet.snippet_id,
+                snippet.code.replace('\n', '\\n').replace('\r', '\\r'),
                 snippet.language,
-                snippet.source_code.replace('\n', '\\n'),  # Escape newlines for CSV
-                snippet.ground_truth_label,
-                snippet.ground_truth_category,
-                datetime.now().isoformat()
+                snippet.label,
+                snippet.source,
+                snippet.file_path,
+                snippet.context.replace('\n', '\\n').replace('\r', '\\r'),
+                json.dumps(snippet.metadata)
             ])
     
     logger.info(f"Saved {len(snippets)} snippets to {output_path}")
 
+def log_edge_cases(snippets: List[CodeSnippet], log_path: Path) -> None:
+    """Log edge cases (samples with missing labels) to features.log."""
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(log_path, 'a', encoding='utf-8') as f:
+        f.write(f"\n--- Edge Case Log: {len(snippets)} samples processed ---\n")
+        
+        missing_label_count = 0
+        for snippet in snippets:
+            if snippet.label is None:
+                missing_label_count += 1
+                f.write(f"Snippet ID: {snippet.snippet_id}\n")
+                f.write(f"  Language: {snippet.language}\n")
+                f.write(f"  Source: {snippet.source}\n")
+                f.write(f"  File: {snippet.file_path}\n")
+                f.write(f"  Label: NULL (excluded from accuracy calculations)\n")
+                f.write(f"  Features: null/invalid (edge case handling)\n")
+                f.write("-" * 50 + "\n")
+        
+        f.write(f"Total samples with missing labels: {missing_label_count}\n")
+        f.write(f"Total samples with valid labels: {len(snippets) - missing_label_count}\n")
+        f.write("--- End Edge Case Log ---\n")
+    
+    logger.info(f"Logged {missing_label_count} edge cases to {log_path}")
+
 def main():
-    """Main entry point for preprocessing pipeline."""
-    log_stage_start("preprocess", "Parsing raw datasets and creating CodeSnippet entities")
+    """Main entry point for preprocessing."""
+    log_stage_start("preprocess", "Parsing raw datasets and extracting code snippets")
     
     try:
-        # Parse all raw datasets
-        raw_snippets = parse_raw_directory(RAW_DATA_DIR)
+        # Define paths
+        data_dir = Path("data/raw")
+        processed_dir = Path("data/processed")
+        log_path = processed_dir / "features.log"
+        output_path = processed_dir / "snippets.csv"
         
-        if not raw_snippets:
-            log_stage_failure("preprocess", "No snippets found in raw data directory")
-            return
+        # Ensure directories exist
+        data_dir.mkdir(parents=True, exist_ok=True)
+        processed_dir.mkdir(parents=True, exist_ok=True)
         
-        # Create CodeSnippet entities (excludes unknown labels)
-        code_snippets = create_code_snippets(raw_snippets)
+        all_snippets = []
         
-        if not code_snippets:
-            log_stage_failure("preprocess", "No valid snippets after filtering unknown labels")
-            return
+        # Parse VulDeePecker (Python)
+        vuldeepecker_path = data_dir / "vuldeepecker.jsonl"
+        if vuldeepecker_path.exists():
+            logger.info("Parsing VulDeePecker dataset...")
+            vuldeepecker_data = parse_vuldeepecker_jsonl(vuldeepecker_path)
+            all_snippets.extend(vuldeepecker_data)
+            logger.info(f"Extracted {len(vuldeepecker_data)} snippets from VulDeePecker")
+        
+        # Parse BigVul (C and JavaScript)
+        # Assuming BigVul is stored in JSON format with code and label fields
+        bigvul_c_path = data_dir / "bigvul_c.json"
+        if bigvul_c_path.exists():
+            logger.info("Parsing BigVul C dataset...")
+            with open(bigvul_c_path, 'r', encoding='utf-8', errors='ignore') as f:
+                bigvul_c_data = json.load(f)
+            
+            # Convert to standard format
+            for record in bigvul_c_data:
+                all_snippets.append({
+                    'code': record.get('code', ''),
+                    'label': normalize_label(record.get('label')),
+                    'language': 'C',
+                    'context': record.get('context', ''),
+                    'file_path': record.get('file', ''),
+                    'source': 'BigVul_C',
+                })
+            logger.info(f"Extracted {len(bigvul_c_data)} snippets from BigVul C")
+        
+        bigvul_js_path = data_dir / "bigvul_js.json"
+        if bigvul_js_path.exists():
+            logger.info("Parsing BigVul JavaScript dataset...")
+            with open(bigvul_js_path, 'r', encoding='utf-8', errors='ignore') as f:
+                bigvul_js_data = json.load(f)
+            
+            for record in bigvul_js_data:
+                all_snippets.append({
+                    'code': record.get('code', ''),
+                    'label': normalize_label(record.get('label')),
+                    'language': 'JavaScript',
+                    'context': record.get('context', ''),
+                    'file_path': record.get('file', ''),
+                    'source': 'BigVul_JS',
+                })
+            logger.info(f"Extracted {len(bigvul_js_data)} snippets from BigVul JavaScript")
+        
+        # Parse Juliet C test cases
+        juliet_c_path = data_dir / "juliet_c"
+        if juliet_c_path.exists():
+            logger.info("Parsing Juliet C test cases...")
+            juliet_c_data = parse_juliet_c_test_cases(juliet_c_path)
+            all_snippets.extend(juliet_c_data)
+            logger.info(f"Extracted {len(juliet_c_data)} snippets from Juliet C")
+        
+        # Parse Juliet Java test cases
+        juliet_java_path = data_dir / "juliet_java"
+        if juliet_java_path.exists():
+            logger.info("Parsing Juliet Java test cases...")
+            juliet_java_data = parse_juliet_java_test_cases(juliet_java_path)
+            all_snippets.extend(juliet_java_data)
+            logger.info(f"Extracted {len(juliet_java_data)} snippets from Juliet Java")
+        
+        # Create CodeSnippet entities
+        logger.info("Creating CodeSnippet entities...")
+        code_snippets = create_code_snippets(all_snippets)
+        logger.info(f"Created {len(code_snippets)} CodeSnippet entities")
         
         # Save to CSV
-        output_path = PROCESSED_DATA_DIR / "snippets.csv"
+        logger.info("Saving snippets to CSV...")
         save_snippets_to_csv(code_snippets, output_path)
         
-        log_stage_complete("preprocess", f"Successfully processed {len(code_snippets)} snippets")
+        # Log edge cases (samples with missing labels)
+        logger.info("Logging edge cases...")
+        log_edge_cases(code_snippets, log_path)
+        
+        # Summary statistics
+        valid_labels = sum(1 for s in code_snippets if s.label is not None)
+        missing_labels = sum(1 for s in code_snippets if s.label is None)
+        languages = set(s.language for s in code_snippets)
+        
+        logger.info(f"Preprocessing complete:")
+        logger.info(f"  Total snippets: {len(code_snippets)}")
+        logger.info(f"  Valid labels: {valid_labels}")
+        logger.info(f"  Missing labels (edge cases): {missing_labels}")
+        logger.info(f"  Languages: {', '.join(languages)}")
+        
+        log_stage_complete("preprocess", f"Processed {len(code_snippets)} snippets")
         
     except Exception as e:
-        log_stage_failure("preprocess", f"Preprocessing failed: {str(e)}")
+        log_stage_failure("preprocess", str(e))
         raise
 
 if __name__ == "__main__":

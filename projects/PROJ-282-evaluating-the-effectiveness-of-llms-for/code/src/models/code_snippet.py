@@ -1,76 +1,133 @@
+"""
+CodeSnippet model generated from contracts/dataset.schema.yaml.
+
+This module defines the CodeSnippet dataclass and factory function.
+Fields are derived strictly from the schema contract to prevent drift.
+"""
 from dataclasses import dataclass, field
 from typing import Optional
 import uuid
+import json
+from pathlib import Path
 
 
 @dataclass
 class CodeSnippet:
     """
-    Represents a single code snippet extracted from a security vulnerability dataset.
+    Represents a single code snippet extracted from a dataset.
     
-    Attributes:
-        id: Unique identifier for the snippet (UUID v4).
-        language: Programming language of the snippet (e.g., 'c', 'java', 'python').
-        source_code: The actual source code content.
-        ground_truth_label: Binary label indicating vulnerability status (1=vulnerable, 0=safe).
-        ground_truth_category: Specific category of vulnerability (e.g., 'SQL Injection', 'Buffer Overflow').
+    Generated from contracts/dataset.schema.yaml.
+    Fields:
+      - snippet_id: Unique identifier (UUID)
+      - source_dataset: Name of the source dataset (e.g., 'VulDeePecker', 'BigVul')
+      - raw_id: Original ID from the source dataset
+      - language: Programming language (e.g., 'python', 'c', 'java')
+      - code: The actual code content
+      - label: Ground truth label (e.g., 'vulnerable', 'safe')
+      - category: Vulnerability category (e.g., 'SQLi', 'Buffer Overflow')
+      - file_path: Path to the source file (if available)
+      - line_start: Starting line number
+      - line_end: Ending line number
+      - context: Surrounding code context (optional)
+      - metadata: Additional metadata as a dictionary
     """
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    language: str = ""
-    source_code: str = ""
-    ground_truth_label: int = 0
-    ground_truth_category: Optional[str] = None
-
-    def __post_init__(self):
-        """Validate required fields after initialization."""
-        if not self.language:
-            raise ValueError("language cannot be empty")
-        if not self.source_code:
-            raise ValueError("source_code cannot be empty")
-        if self.ground_truth_label not in (0, 1):
-            raise ValueError("ground_truth_label must be 0 (safe) or 1 (vulnerable)")
+    snippet_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    source_dataset: Optional[str] = None
+    raw_id: Optional[str] = None
+    language: Optional[str] = None
+    code: Optional[str] = None
+    label: Optional[str] = None
+    category: Optional[str] = None
+    file_path: Optional[str] = None
+    line_start: Optional[int] = None
+    line_end: Optional[int] = None
+    context: Optional[str] = None
+    metadata: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
-        """Convert the dataclass to a dictionary for serialization."""
+        """Convert the dataclass to a dictionary."""
         return {
-            "id": self.id,
+            "snippet_id": self.snippet_id,
+            "source_dataset": self.source_dataset,
+            "raw_id": self.raw_id,
             "language": self.language,
-            "source_code": self.source_code,
-            "ground_truth_label": self.ground_truth_label,
-            "ground_truth_category": self.ground_truth_category
+            "code": self.code,
+            "label": self.label,
+            "category": self.category,
+            "file_path": self.file_path,
+            "line_start": self.line_start,
+            "line_end": self.line_end,
+            "context": self.context,
+            "metadata": self.metadata
         }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "CodeSnippet":
+        """Create a CodeSnippet instance from a dictionary."""
+        # Ensure metadata is a dict if not provided
+        if "metadata" in data and not isinstance(data["metadata"], dict):
+            data["metadata"] = {}
+        return cls(**data)
+
+    def to_json(self) -> str:
+        """Serialize to JSON string."""
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "CodeSnippet":
+        """Deserialize from JSON string."""
+        return cls.from_dict(json.loads(json_str))
 
 
 def create_snippet(
-    language: str,
-    source_code: str,
-    ground_truth_label: int,
-    ground_truth_category: Optional[str] = None,
+    source_dataset: Optional[str] = None,
+    raw_id: Optional[str] = None,
+    language: Optional[str] = None,
+    code: Optional[str] = None,
+    label: Optional[str] = None,
+    category: Optional[str] = None,
+    file_path: Optional[str] = None,
+    line_start: Optional[int] = None,
+    line_end: Optional[int] = None,
+    context: Optional[str] = None,
+    metadata: Optional[dict] = None,
     snippet_id: Optional[str] = None
 ) -> CodeSnippet:
     """
-    Factory function to create a CodeSnippet instance with validation.
+    Factory function to create a CodeSnippet instance.
     
     Args:
-        language: Programming language code.
-        source_code: The code content.
-        ground_truth_label: 1 for vulnerable, 0 for safe.
-        ground_truth_category: Optional vulnerability category string.
-        snippet_id: Optional custom ID; if None, a UUID is generated.
+        source_dataset: Name of the source dataset
+        raw_id: Original ID from the source dataset
+        language: Programming language
+        code: The actual code content
+        label: Ground truth label
+        category: Vulnerability category
+        file_path: Path to the source file
+        line_start: Starting line number
+        line_end: Ending line number
+        context: Surrounding code context
+        metadata: Additional metadata
+        snippet_id: Optional custom ID (otherwise auto-generated)
         
     Returns:
-        A validated CodeSnippet instance.
-        
-    Raises:
-        ValueError: If validation constraints are violated.
+        CodeSnippet: A new CodeSnippet instance
     """
-    if snippet_id is None:
-        snippet_id = str(uuid.uuid4())
+    kwargs = {
+        "source_dataset": source_dataset,
+        "raw_id": raw_id,
+        "language": language,
+        "code": code,
+        "label": label,
+        "category": category,
+        "file_path": file_path,
+        "line_start": line_start,
+        "line_end": line_end,
+        "context": context,
+        "metadata": metadata if metadata is not None else {}
+    }
+    
+    if snippet_id is not None:
+        kwargs["snippet_id"] = snippet_id
         
-    return CodeSnippet(
-        id=snippet_id,
-        language=language,
-        source_code=source_code,
-        ground_truth_label=ground_truth_label,
-        ground_truth_category=ground_truth_category
-    )
+    return CodeSnippet(**kwargs)

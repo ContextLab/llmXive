@@ -1,1 +1,2 @@
-# Placeholder to ensure code directory exists in version control
+# This file ensures the code directory exists in version control.
+# The actual project structure (src/, tests/, data/, state/) is created by the setup script below.

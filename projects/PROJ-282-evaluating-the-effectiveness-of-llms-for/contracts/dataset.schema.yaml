@@ -1,0 +1,71 @@
+# Contract for CodeSnippet entity
+# Generated from research requirements and data model specifications
+# DO NOT EDIT MANUALLY - regenerate from source of truth if schema changes
+$schema: "http://json-schema.org/draft-07/schema#"
+title: CodeSnippet
+description: Represents a single code snippet with metadata for vulnerability analysis
+type: object
+properties:
+  snippet_id:
+    type: string
+    description: Unique identifier for the snippet (UUID)
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  source_dataset:
+    type: string
+    description: Name of the source dataset (e.g., VulDeePecker, BigVul)
+    enum:
+      - VulDeePecker
+      - BigVul
+      - Juliet_C
+      - Juliet_Java
+  file_path:
+    type: string
+    description: Original file path in the dataset
+  language:
+    type: string
+    description: Programming language of the code snippet
+    enum:
+      - Python
+      - C
+      - JavaScript
+      - Java
+  code:
+    type: string
+    description: The actual code content
+  line_start:
+    type: integer
+    description: Starting line number in original file
+    minimum: 1
+  line_end:
+    type: integer
+    description: Ending line number in original file
+    minimum: 1
+  label:
+    type: string
+    description: Ground truth vulnerability label
+    enum:
+      - vulnerable
+      - safe
+      - unknown
+  category:
+    type: string
+    description: Vulnerability category (CWE-based or custom)
+    nullable: true
+  context:
+    type: string
+    description: Surrounding code context for better analysis
+    nullable: true
+  raw_metadata:
+    type: object
+    description: Additional metadata from source dataset
+    nullable: true
+required:
+  - snippet_id
+  - source_dataset
+  - file_path
+  - language
+  - code
+  - line_start
+  - line_end
+  - label
+additionalProperties: false

@@ -11,243 +11,281 @@ from src.data.preprocess import (
     extract_category_from_context,
     parse_vuldeepecker_jsonl,
     parse_juliet_c_test_cases,
+    parse_juliet_java_test_cases,
     create_code_snippets,
-    save_snippets_to_csv
+    save_snippets_to_csv,
+    log_edge_cases,
 )
-from src.models.code_snippet import CodeSnippet, create_snippet
+from src.models.code_snippet import CodeSnippet
 
 class TestNormalizeLabel:
-    def test_vulnerable_variants(self):
-        """Test various vulnerable label variants normalize correctly."""
-        variants = ["vulnerable", "VULNERABLE", "vuln", "1", "true", "yes", "positive"]
-        for variant in variants:
-            assert normalize_label(variant) == "vulnerable"
+    def test_normalize_vulnerable_labels(self):
+        """Test normalization of vulnerable labels."""
+        assert normalize_label('vulnerable') == 'vulnerable'
+        assert normalize_label('vuln') == 'vulnerable'
+        assert normalize_label('unsafe') == 'vulnerable'
+        assert normalize_label('1') == 'vulnerable'
+        assert normalize_label('true') == 'vulnerable'
+        assert normalize_label('yes') == 'vulnerable'
+        assert normalize_label('bad') == 'vulnerable'
 
-    def test_safe_variants(self):
-        """Test various safe label variants normalize correctly."""
-        variants = ["safe", "SAFE", "non-vulnerable", "0", "false", "no", "negative", "benign"]
-        for variant in variants:
-            assert normalize_label(variant) == "safe"
+    def test_normalize_safe_labels(self):
+        """Test normalization of safe labels."""
+        assert normalize_label('safe') == 'safe'
+        assert normalize_label('secure') == 'safe'
+        assert normalize_label('benign') == 'safe'
+        assert normalize_label('0') == 'safe'
+        assert normalize_label('false') == 'safe'
+        assert normalize_label('no') == 'safe'
+        assert normalize_label('clean') == 'safe'
 
-    def test_unknown_variants(self):
-        """Test unknown label variants."""
-        variants = ["unknown", "UNKN", "null", "", None]
-        for variant in variants:
-            assert normalize_label(variant) == "unknown"
+    def test_normalize_case_insensitive(self):
+        """Test that normalization is case-insensitive."""
+        assert normalize_label('VULNERABLE') == 'vulnerable'
+        assert normalize_label('Safe') == 'safe'
+        assert normalize_label('Vuln') == 'vulnerable'
+
+    def test_normalize_none_input(self):
+        """Test that None input returns None."""
+        assert normalize_label(None) is None
+        assert normalize_label('') is None
+        assert normalize_label('   ') is None
+
+    def test_normalize_unknown_label(self):
+        """Test that unknown labels return None."""
+        assert normalize_label('unknown') is None
+        assert normalize_label('maybe') is None
 
 class TestDetectLanguage:
-    def test_common_extensions(self):
-        """Test detection of common programming language extensions."""
-        assert detect_language_from_extension("test.py") == "python"
-        assert detect_language_from_extension("test.c") == "c"
-        assert detect_language_from_extension("test.cpp") == "cpp"
-        assert detect_language_from_extension("test.java") == "java"
-        assert detect_language_from_extension("test.js") == "javascript"
-        assert detect_language_from_extension("test.go") == "go"
+    def test_detect_python(self):
+        """Test Python language detection."""
+        assert detect_language_from_extension('file.py') == 'Python'
+        assert detect_language_from_extension('/path/to/file.py') == 'Python'
 
-    def test_unknown_extension(self):
-        """Test detection of unknown extension."""
-        assert detect_language_from_extension("test.xyz") == "unknown"
+    def test_detect_c(self):
+        """Test C language detection."""
+        assert detect_language_from_extension('file.c') == 'C'
+        assert detect_language_from_extension('file.cpp') == 'C++'
+        assert detect_language_from_extension('file.cc') == 'C++'
+
+    def test_detect_java(self):
+        """Test Java language detection."""
+        assert detect_language_from_extension('file.java') == 'Java'
+
+    def test_detect_javascript(self):
+        """Test JavaScript language detection."""
+        assert detect_language_from_extension('file.js') == 'JavaScript'
+
+    def test_detect_unknown_extension(self):
+        """Test unknown extension returns None."""
+        assert detect_language_from_extension('file.xyz') is None
+        assert detect_language_from_extension('file') is None
 
 class TestExtractCategory:
-    def test_sql_injection(self):
+    def test_extract_sql_injection(self):
         """Test SQL injection category extraction."""
-        assert extract_category_from_context("SQL injection vulnerability") == "sql_injection"
-        assert extract_category_from_context("SQLi vulnerability") == "sql_injection"
+        assert extract_category_from_context("SELECT * FROM users WHERE id = " + "1") == 'sql_injection'
+        assert extract_category_from_context("", "CWE-89") == 'sql_injection'
 
-    def test_buffer_overflow(self):
+    def test_extract_buffer_overflow(self):
         """Test buffer overflow category extraction."""
-        assert extract_category_from_context("buffer overflow issue") == "buffer_overflow"
-        assert extract_category_from_context("memory overflow") == "overflow"
+        assert extract_category_from_context("strcpy(dest, src)") == 'buffer_overflow'
+        assert extract_category_from_context("", "CWE-120") == 'buffer_overflow'
 
-    def test_unknown_category(self):
-        """Test unknown category returns 'unknown'."""
-        assert extract_category_from_context("some random text") == "unknown"
-        assert extract_category_from_context(None) == "unknown"
+    def test_extract_xss(self):
+        """Test XSS category extraction."""
+        assert extract_category_from_context("<script>alert('xss')</script>") == 'xss'
+
+    def test_no_category_found(self):
+        """Test when no category is found."""
+        assert extract_category_from_context("normal code") is None
 
 class TestParseVulDeePecker:
     def test_parse_valid_jsonl(self):
-        """Test parsing a valid JSONL file."""
+        """Test parsing valid JSONL file."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
-            f.write(json.dumps({
-                "id": "test_001",
-                "code": "int x = 0;",
-                "label": "vulnerable",
-                "language": "c",
-                "category": "overflow",
-                "context": "integer overflow"
-            }) + "\n")
-            f.write(json.dumps({
-                "id": "test_002",
-                "code": "safe code here",
-                "label": "safe",
-                "language": "c"
-            }) + "\n")
+            json.dump({'code': 'print("hello")', 'label': 'vulnerable', 'language': 'Python'}, f)
+            f.write('\n')
+            json.dump({'code': 'print("world")', 'label': 'safe', 'language': 'Python'}, f)
+            f.write('\n')
             temp_path = Path(f.name)
 
         try:
             snippets = parse_vuldeepecker_jsonl(temp_path)
             assert len(snippets) == 2
-            assert snippets[0]["id"] == "test_001"
-            assert snippets[0]["label"] == "vulnerable"
-            assert snippets[1]["label"] == "safe"
+            assert snippets[0]['label'] == 'vulnerable'
+            assert snippets[1]['label'] == 'safe'
+            assert snippets[0]['language'] == 'Python'
         finally:
             os.unlink(temp_path)
 
-    def test_parse_empty_lines(self):
-        """Test that empty lines are skipped."""
+    def test_parse_empty_file(self):
+        """Test parsing empty file."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
-            f.write("\n")
-            f.write(json.dumps({"id": "test", "code": "x=1", "label": "safe"}) + "\n")
-            f.write("\n")
             temp_path = Path(f.name)
 
         try:
             snippets = parse_vuldeepecker_jsonl(temp_path)
-            assert len(snippets) == 1
+            assert len(snippets) == 0
         finally:
             os.unlink(temp_path)
 
-    def test_parse_malformed_json(self):
-        """Test that malformed JSON lines are skipped."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
-            f.write("not valid json\n")
-            f.write(json.dumps({"id": "test", "code": "x=1", "label": "safe"}) + "\n")
-            temp_path = Path(f.name)
-
-        try:
-            snippets = parse_vuldeepecker_jsonl(temp_path)
-            assert len(snippets) == 1
-        finally:
-            os.unlink(temp_path)
-
-    def test_missing_file(self):
-        """Test handling of missing file."""
-        snippets = parse_vuldeepecker_jsonl(Path("/nonexistent/file.jsonl"))
+    def test_parse_nonexistent_file(self):
+        """Test parsing nonexistent file."""
+        snippets = parse_vuldeepecker_jsonl(Path('/nonexistent/file.jsonl'))
         assert len(snippets) == 0
 
-class TestParseJuliet:
-    def test_parse_c_test_cases(self):
-        """Test parsing Juliet C test case structure."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create Juliet structure
-            test_case_dir = Path(tmpdir) / "CWE126_Buffer_Overflow"
-            test_case_dir.mkdir()
-            bad_dir = test_case_dir / "CWE126_Buffer_Overflow_bad"
-            bad_dir.mkdir()
-            good_dir = test_case_dir / "CWE126_Buffer_Overflow_good"
-            good_dir.mkdir()
-
-            # Create test files
-            bad_file = bad_dir / "test.c"
-            bad_file.write_text("void vulnerable() { /* bad code */ }")
-            good_file = good_dir / "test.c"
-            good_file.write_text("void safe() { /* good code */ }")
-
-            snippets = parse_juliet_c_test_cases(Path(tmpdir))
-
-            assert len(snippets) == 2
-            vulnerable_snippets = [s for s in snippets if s["label"] == "vulnerable"]
-            safe_snippets = [s for s in snippets if s["label"] == "safe"]
-            assert len(vulnerable_snippets) == 1
-            assert len(safe_snippets) == 1
-
-    def test_parse_java_test_cases(self):
-        """Test parsing Juliet Java test case structure."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            test_case_dir = Path(tmpdir) / "CWE89_SQL_Injection"
-            test_case_dir.mkdir()
-            bad_dir = test_case_dir / "CWE89_SQL_Injection_bad"
-            bad_dir.mkdir()
-            good_dir = test_case_dir / "CWE89_SQL_Injection_good"
-            good_dir.mkdir()
-
-            bad_file = bad_dir / "Test.java"
-            bad_file.write_text("public class Test { /* bad */ }")
-            good_file = good_dir / "Test.java"
-            good_file.write_text("public class Safe { /* good */ }")
-
-            from src.data.preprocess import parse_juliet_java_test_cases
-            snippets = parse_juliet_java_test_cases(Path(tmpdir))
-
-            assert len(snippets) == 2
-
-class TestCreateCodeSnippets:
-    def test_create_from_valid_snippets(self):
-        """Test creating CodeSnippet entities from valid raw snippets."""
-        raw_snippets = [
-            {
-                "id": "test_001",
-                "code": "int x = 0;",
-                "label": "vulnerable",
-                "language": "c",
-                "category": "overflow"
-            },
-            {
-                "id": "test_002",
-                "code": "safe code",
-                "label": "safe",
-                "language": "c"
-            }
-        ]
-
-        snippets = create_code_snippets(raw_snippets)
-
-        assert len(snippets) == 2
-        assert all(isinstance(s, CodeSnippet) for s in snippets)
-        assert snippets[0].ground_truth_label == "vulnerable"
-        assert snippets[1].ground_truth_label == "safe"
-
-    def test_excludes_unknown_labels(self):
-        """Test that snippets with unknown labels are excluded."""
-        raw_snippets = [
-            {"id": "test_001", "code": "x=1", "label": "vulnerable", "language": "c"},
-            {"id": "test_002", "code": "y=2", "label": "unknown", "language": "c"},
-            {"id": "test_003", "code": "z=3", "label": None, "language": "c"},
-            {"id": "test_004", "code": "w=4", "label": "", "language": "c"}
-        ]
-
-        snippets = create_code_snippets(raw_snippets)
-
-        assert len(snippets) == 1
-        assert snippets[0].id == "test_001"
-
-    def test_normalizes_labels(self):
-        """Test that labels are properly normalized."""
-        raw_snippets = [
-            {"id": "test_001", "code": "x=1", "label": "VULNERABLE", "language": "c"},
-            {"id": "test_002", "code": "y=2", "label": "SAFE", "language": "c"},
-            {"id": "test_003", "code": "z=3", "label": "1", "language": "c"},
-            {"id": "test_004", "code": "w=4", "label": "0", "language": "c"}
-        ]
-
-        snippets = create_code_snippets(raw_snippets)
-
-        assert snippets[0].ground_truth_label == "vulnerable"
-        assert snippets[1].ground_truth_label == "safe"
-        assert snippets[2].ground_truth_label == "vulnerable"
-        assert snippets[3].ground_truth_label == "safe"
-
-class TestSaveSnippetsToCSV:
-    def test_save_and_load(self):
-        """Test saving snippets to CSV and verifying content."""
-        snippets = [
-            create_snippet("test_001", "python", "x=1", "vulnerable", "input_validation"),
-            create_snippet("test_002", "python", "y=2", "safe", "input_validation")
-        ]
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+    def test_parse_invalid_json(self):
+        """Test parsing file with invalid JSON."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+            f.write('not valid json\n')
+            f.write('{"code": "valid", "label": "safe"}\n')
             temp_path = Path(f.name)
 
         try:
-            save_snippets_to_csv(snippets, temp_path)
-
-            assert temp_path.exists()
-            with open(temp_path, 'r') as csv_file:
-                content = csv_file.read()
-                assert "test_001" in content
-                assert "test_002" in content
-                assert "vulnerable" in content
-                assert "safe" in content
+            snippets = parse_vuldeepecker_jsonl(temp_path)
+            # Should skip invalid line and process valid one
+            assert len(snippets) == 1
         finally:
             os.unlink(temp_path)
+
+class TestParseJuliet:
+    def test_parse_juliet_c(self):
+        """Test parsing Juliet C test cases."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a bad file
+            bad_file = Path(tmpdir) / "test_bad.c"
+            bad_file.write_text("int main() { return 0; }")
+            
+            # Create a good file
+            good_file = Path(tmpdir) / "test_good.c"
+            good_file.write_text("int main() { return 0; }")
+            
+            snippets = parse_juliet_c_test_cases(Path(tmpdir))
+            
+            assert len(snippets) == 2
+            vulnerable = [s for s in snippets if s['label'] == 'vulnerable']
+            safe = [s for s in snippets if s['label'] == 'safe']
+            assert len(vulnerable) == 1
+            assert len(safe) == 1
+
+    def test_parse_juliet_java(self):
+        """Test parsing Juliet Java test cases."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a bad file
+            bad_file = Path(tmpdir) / "TestBad.java"
+            bad_file.write_text("public class Test { }")
+            
+            # Create a good file
+            good_file = Path(tmpdir) / "TestGood.java"
+            good_file.write_text("public class Test { }")
+            
+            snippets = parse_juliet_java_test_cases(Path(tmpdir))
+            
+            assert len(snippets) == 2
+            vulnerable = [s for s in snippets if s['label'] == 'vulnerable']
+            safe = [s for s in snippets if s['label'] == 'safe']
+            assert len(vulnerable) == 1
+            assert len(safe) == 1
+
+class TestCreateCodeSnippets:
+    def test_create_snippets_from_parsed_data(self):
+        """Test creating CodeSnippet entities from parsed data."""
+        parsed_data = [
+            {'code': 'print("hello")', 'label': 'vulnerable', 'language': 'Python', 'source': 'test'},
+            {'code': 'print("world")', 'label': 'safe', 'language': 'Python', 'source': 'test'},
+        ]
+        
+        snippets = create_code_snippets(parsed_data)
+        
+        assert len(snippets) == 2
+        assert all(isinstance(s, CodeSnippet) for s in snippets)
+        assert snippets[0].label == 'vulnerable'
+        assert snippets[1].label == 'safe'
+
+    def test_create_snippets_with_missing_labels(self):
+        """Test creating snippets with missing labels."""
+        parsed_data = [
+            {'code': 'print("hello")', 'label': None, 'language': 'Python', 'source': 'test'},
+        ]
+        
+        snippets = create_code_snippets(parsed_data)
+        
+        assert len(snippets) == 1
+        assert snippets[0].label is None
+
+class TestSaveSnippetsToCSV:
+    def test_save_snippets_to_csv(self):
+        """Test saving snippets to CSV."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "snippets.csv"
+            
+            snippets = [
+                CodeSnippet(
+                    snippet_id="test-1",
+                    code="print('hello')",
+                    language="Python",
+                    label="vulnerable",
+                    source="test",
+                    file_path="test.py",
+                    context="",
+                    metadata={}
+                ),
+                CodeSnippet(
+                    snippet_id="test-2",
+                    code="print('world')",
+                    language="Python",
+                    label="safe",
+                    source="test",
+                    file_path="test.py",
+                    context="",
+                    metadata={}
+                ),
+            ]
+            
+            save_snippets_to_csv(snippets, output_path)
+            
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                reader = csv.reader(f)
+                rows = list(reader)
+                assert len(rows) == 3  # header + 2 snippets
+                assert rows[0] == ['snippet_id', 'code', 'language', 'label', 'source', 'file_path', 'context', 'metadata']
+
+class TestLogEdgeCases:
+    def test_log_edge_cases(self):
+        """Test logging edge cases."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "features.log"
+            
+            snippets = [
+                CodeSnippet(
+                    snippet_id="test-1",
+                    code="print('hello')",
+                    language="Python",
+                    label="vulnerable",
+                    source="test",
+                    file_path="test.py",
+                    context="",
+                    metadata={}
+                ),
+                CodeSnippet(
+                    snippet_id="test-2",
+                    code="print('world')",
+                    language="Python",
+                    label=None,  # Missing label
+                    source="test",
+                    file_path="test.py",
+                    context="",
+                    metadata={}
+                ),
+            ]
+            
+            log_edge_cases(snippets, log_path)
+            
+            assert log_path.exists()
+            with open(log_path, 'r') as f:
+                content = f.read()
+                assert "test-2" in content
+                assert "NULL" in content
+                assert "missing labels: 1" in content.lower()

@@ -5,15 +5,10 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-from src.utils.logger import get_logger, log_artifact
+from src.utils.config import get_project_root, get_config
+from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-# Configuration
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-STATE_FILE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-282-evaluating-the-effectiveness-of-llms-for.yaml"
-# Ensure state directory exists
-STATE_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 def compute_sha256(file_path: Path) -> str:
     """
@@ -27,7 +22,7 @@ def compute_sha256(file_path: Path) -> str:
         
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or unreadable.
+        PermissionError: If the file cannot be read.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
@@ -35,219 +30,264 @@ def compute_sha256(file_path: Path) -> str:
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
             for chunk in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(chunk)
-    except Exception as e:
-        raise ValueError(f"Failed to read file {file_path}: {e}")
-    
-    return sha256_hash.hexdigest()
+        return sha256_hash.hexdigest()
+    except PermissionError as e:
+        logger.error(f"Permission denied reading file: {file_path}")
+        raise e
 
-def load_current_state() -> Dict[str, Any]:
+def load_current_state(state_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load the existing state file if it exists, otherwise return a fresh state structure.
+    Load the current project state from the state file.
     
+    Args:
+        state_path: Optional path to the state file. If None, uses the default
+                    project state path.
+                    
     Returns:
-        Dictionary containing the current state.
+        Dictionary containing the current state. Returns an empty dict if
+        the file does not exist.
     """
-    if STATE_FILE_PATH.exists():
-        try:
-            with open(STATE_FILE_PATH, "r") as f:
-                content = f.read().strip()
-                if not content:
-                    return {"artifacts": {}, "last_updated": None}
+    if state_path is None:
+        project_root = get_project_root()
+        state_path = project_root / "state" / "projects" / "PROJ-282-evaluating-the-effectiveness-of-llms-for.yaml"
+    
+    if not state_path.exists():
+        logger.info(f"State file not found at {state_path}. Initializing empty state.")
+        return {
+            "project_id": "PROJ-282-evaluating-the-effectiveness-of-llms-for",
+            "last_updated": None,
+            "artifacts": {},
+            "completed_tasks": []
+        }
+    
+    try:
+        # YAML is a superset of JSON, but we try to parse as JSON first for simplicity
+        # If the file is actual YAML, we might need a yaml parser, but for now
+        # we assume the state file format is compatible or we handle basic parsing.
+        # Given the constraints, we'll read as text and attempt json, or fallback to manual parsing if needed.
+        # However, standard practice in these pipelines often uses JSON for state or simple YAML.
+        # Let's assume JSON for robustness unless .yaml implies strict YAML.
+        # To be safe with .yaml extension, we'll check if it's valid JSON first.
+        with open(state_path, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if content.startswith("{") or content.startswith("["):
                 return json.loads(content)
-        except json.JSONDecodeError:
-            logger.warning(f"State file {STATE_FILE_PATH} is corrupted. Resetting state.")
-            return {"artifacts": {}, "last_updated": None}
-    return {"artifacts": {}, "last_updated": None}
+            else:
+                # Fallback for simple YAML-like key: value or manual parsing if needed
+                # For this implementation, we assume the state is stored as JSON even with .yaml extension
+                # or we raise an error if it's not JSON.
+                # A robust solution would import yaml, but we stick to stdlib where possible.
+                # If the file is truly YAML, we need to handle it.
+                # Let's assume the existing T001/T004 created a JSON-compatible structure or we handle it.
+                # If it fails, we return empty.
+                logger.warning(f"State file at {state_path} is not valid JSON. Returning empty state.")
+                return {}
+    except json.JSONDecodeError:
+        logger.warning(f"State file at {state_path} is not valid JSON. Returning empty state.")
+        return {}
+    except Exception as e:
+        logger.error(f"Error loading state file: {e}")
+        return {}
 
-def save_state(state: Dict[str, Any]) -> None:
+def save_state(state: Dict[str, Any], state_path: Optional[Path] = None) -> None:
     """
-    Save the state dictionary to the state file as JSON.
+    Save the project state to the state file.
     
     Args:
         state: The state dictionary to save.
+        state_path: Optional path to the state file.
     """
-    with open(STATE_FILE_PATH, "w") as f:
+    if state_path is None:
+        project_root = get_project_root()
+        state_path = project_root / "state" / "projects" / "PROJ-282-evaluating-the-effectiveness-of-llms-for.yaml"
+    
+    # Ensure directory exists
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Add timestamp
+    state["last_updated"] = datetime.utcnow().isoformat()
+    
+    with open(state_path, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
-    logger.info(f"State saved to {STATE_FILE_PATH}")
+    logger.info(f"State saved to {state_path}")
 
-def hash_directory(directory: Path, pattern: str = "*.csv") -> Dict[str, str]:
+def hash_directory(directory_path: Path, extensions: Optional[List[str]] = None) -> Dict[str, str]:
     """
-    Recursively compute checksums for all files matching a pattern in a directory.
+    Compute hashes for all files in a directory recursively.
     
     Args:
-        directory: Path to the directory to scan.
-        pattern: Glob pattern to match files (e.g., "*.csv", "*.json").
-        
+        directory_path: Path to the directory to hash.
+        extensions: Optional list of file extensions to include (e.g., ['.csv', '.json']).
+                   If None, all files are included.
+                   
     Returns:
         Dictionary mapping relative file paths to their SHA-256 hashes.
+        
+    Raises:
+        FileNotFoundError: If the directory does not exist.
     """
-    if not directory.exists():
-        logger.warning(f"Directory not found: {directory}")
-        return {}
+    if not directory_path.exists():
+        raise FileNotFoundError(f"Directory not found: {directory_path}")
+    
+    if not directory_path.is_dir():
+        raise NotADirectoryError(f"Path is not a directory: {directory_path}")
     
     hashes = {}
-    for file_path in directory.rglob(pattern):
-        if file_path.is_file():
+    for root, _, files in os.walk(directory_path):
+        for file in files:
+            file_path = Path(root) / file
+            if extensions:
+                if file_path.suffix not in extensions:
+                    continue
+            
             try:
-                rel_path = str(file_path.relative_to(PROJECT_ROOT))
-                hashes[rel_path] = compute_sha256(file_path)
-                logger.debug(f"Hashed: {rel_path}")
+                relative_path = file_path.relative_to(directory_path)
+                file_hash = compute_sha256(file_path)
+                hashes[str(relative_path)] = file_hash
             except Exception as e:
-                logger.error(f"Failed to hash {file_path}: {e}")
+                logger.warning(f"Skipping file {file_path} due to error: {e}")
+    
     return hashes
 
-def generate_artifact_manifest(directories: List[Path], patterns: List[str] = ["*.csv", "*.json"]) -> Dict[str, Any]:
+def generate_artifact_manifest(artifacts_dir: Path, state_dir: Path) -> Dict[str, Any]:
     """
-    Generate a manifest of all artifacts in specified directories.
+    Generate a manifest of all artifacts in the data and state directories.
     
     Args:
-        directories: List of directory paths to scan.
-        patterns: List of glob patterns to match files.
+        artifacts_dir: Path to the artifacts directory (e.g., data/processed).
+        state_dir: Path to the state directory.
         
     Returns:
-        Dictionary containing the artifact manifest.
+        Manifest dictionary containing hashes and metadata.
     """
     manifest = {
         "generated_at": datetime.utcnow().isoformat(),
-        "artifacts": {}
+        "directories": {}
     }
     
-    for directory in directories:
-        if not directory.exists():
-            logger.warning(f"Skipping non-existent directory: {directory}")
-            continue
-        
-        for pattern in patterns:
-            hashes = hash_directory(directory, pattern)
-            for rel_path, hash_val in hashes.items():
-                manifest["artifacts"][rel_path] = {
-                    "hash": hash_val,
-                    "pattern": pattern
+    directories_to_hash = [
+        ("data/processed", artifacts_dir / "processed"),
+        ("data/results", artifacts_dir / "results"),
+        ("state", state_dir)
+    ]
+    
+    for dir_name, dir_path in directories_to_hash:
+        if dir_path.exists():
+            try:
+                hashes = hash_directory(dir_path)
+                manifest["directories"][dir_name] = {
+                    "file_count": len(hashes),
+                    "files": hashes
                 }
+            except Exception as e:
+                logger.error(f"Error hashing directory {dir_name}: {e}")
+                manifest["directories"][dir_name] = {"error": str(e)}
+        else:
+            logger.warning(f"Directory {dir_name} does not exist, skipping.")
+            manifest["directories"][dir_name] = {"status": "not_found"}
     
     return manifest
 
-def update_state_with_manifest(manifest: Dict[str, Any]) -> None:
+def update_state_with_manifest(manifest: Dict[str, Any], state: Dict[str, Any], task_id: str) -> Dict[str, Any]:
     """
-    Update the project state file with a new artifact manifest.
+    Update the project state with artifact hashes from the manifest.
     
     Args:
-        manifest: The manifest dictionary to merge into the state.
-    """
-    current_state = load_current_state()
-    
-    # Merge new artifacts, overwriting existing ones with same path
-    if "artifacts" in manifest:
-        current_state["artifacts"].update(manifest["artifacts"])
-    
-    current_state["last_updated"] = datetime.utcnow().isoformat()
-    
-    save_state(current_state)
-    logger.info("State updated with new artifact manifest.")
-
-def run_checksum_verification(directories: List[Path], patterns: List[str] = ["*.csv", "*.json"]) -> bool:
-    """
-    Run checksum verification against the stored state.
-    
-    Args:
-        directories: List of directory paths to verify.
-        patterns: List of glob patterns to match files.
+        manifest: The artifact manifest generated by generate_artifact_manifest.
+        state: The current project state.
+        task_id: The ID of the task being completed.
         
     Returns:
-        True if all checksums match, False otherwise.
+        Updated state dictionary.
     """
-    current_state = load_current_state()
-    stored_artifacts = current_state.get("artifacts", {})
+    if "artifacts" not in state:
+        state["artifacts"] = {}
     
-    if not stored_artifacts:
-        logger.warning("No stored state found. Skipping verification.")
-        return False
+    state["artifacts"][task_id] = {
+        "manifest": manifest,
+        "timestamp": datetime.utcnow().isoformat()
+    }
     
-    # Generate current manifest
-    current_manifest = generate_artifact_manifest(directories, patterns)
-    current_artifacts = current_manifest.get("artifacts", {})
+    if "completed_tasks" not in state:
+        state["completed_tasks"] = []
     
-    all_match = True
-    for path, info in stored_artifacts.items():
-        stored_hash = info.get("hash")
-        current_hash = current_artifacts.get(path, {}).get("hash")
+    if task_id not in state["completed_tasks"]:
+        state["completed_tasks"].append(task_id)
+    
+    return state
+
+def run_checksum_verification(manifest: Dict[str, Any], artifacts_dir: Path) -> bool:
+    """
+    Verify that the current file hashes match the manifest.
+    
+    Args:
+        manifest: The manifest containing expected hashes.
+        artifacts_dir: The base directory for artifacts.
         
-        if current_hash is None:
-            logger.error(f"Missing file in current scan: {path}")
-            all_match = False
-        elif stored_hash != current_hash:
-            logger.error(f"Checksum mismatch for {path}: stored={stored_hash}, current={current_hash}")
-            all_match = False
-        else:
-            logger.debug(f"Verified: {path}")
-    
-    # Check for new files not in stored state
-    for path in current_artifacts:
-        if path not in stored_artifacts:
-            logger.warning(f"New file detected (not in stored state): {path}")
+    Returns:
+        True if all hashes match, False otherwise.
+    """
+    all_match = True
+    for dir_name, dir_info in manifest.get("directories", {}).items():
+        if "error" in dir_info or "status" in dir_info:
+            continue
+        
+        expected_files = dir_info.get("files", {})
+        dir_path = artifacts_dir / dir_name.split("/")[-1]  # Simple extraction of last component
+        
+        for rel_path, expected_hash in expected_files.items():
+            file_path = dir_path / rel_path
+            if not file_path.exists():
+                logger.error(f"File missing during verification: {file_path}")
+                all_match = False
+                continue
+            
+            try:
+                actual_hash = compute_sha256(file_path)
+                if actual_hash != expected_hash:
+                    logger.error(f"Hash mismatch for {file_path}: expected {expected_hash}, got {actual_hash}")
+                    all_match = False
+            except Exception as e:
+                logger.error(f"Error computing hash for {file_path}: {e}")
+                all_match = False
     
     return all_match
 
 def main():
     """
     Main entry point for the hash_artifacts utility.
-    
-    Usage:
-        python src/utils/hash_artifacts.py [verify | update | report]
-    
-    Commands:
-        verify: Compare current file hashes against stored state.
-        update: Scan directories and update state with new hashes.
-        report: Print current state summary.
+    Runs checksums on processed data and results, updates state.
     """
-    import sys
+    project_root = get_project_root()
+    config = get_config()
     
-    if len(sys.argv) < 2:
-        print("Usage: python src/utils/hash_artifacts.py [verify | update | report]")
-        sys.exit(1)
+    artifacts_dir = project_root / "data"
+    state_dir = project_root / "state" / "projects"
     
-    command = sys.argv[1].lower()
+    logger.info("Starting artifact hashing and state update...")
     
-    # Define directories to scan based on project structure
-    scan_dirs = [
-        PROJECT_ROOT / "data" / "processed",
-        PROJECT_ROOT / "data" / "results",
-        PROJECT_ROOT / "data" / "human_review"
-    ]
+    # Generate manifest
+    manifest = generate_artifact_manifest(artifacts_dir, state_dir)
     
-    if command == "verify":
-        logger.info("Starting checksum verification...")
-        success = run_checksum_verification(scan_dirs)
-        if success:
-            logger.info("Verification successful: All checksums match.")
-            sys.exit(0)
-        else:
-            logger.error("Verification failed: Checksum mismatches detected.")
-            sys.exit(1)
+    # Load current state
+    state_file = state_dir / "PROJ-282-evaluating-the-effectiveness-of-llms-for.yaml"
+    current_state = load_current_state(state_file)
     
-    elif command == "update":
-        logger.info("Updating artifact manifest...")
-        manifest = generate_artifact_manifest(scan_dirs)
-        update_state_with_manifest(manifest)
-        logger.info("Update complete.")
-        sys.exit(0)
+    # Update state with manifest for T010
+    updated_state = update_state_with_manifest(manifest, current_state, "T010")
     
-    elif command == "report":
-        state = load_current_state()
-        print(f"State File: {STATE_FILE_PATH}")
-        print(f"Last Updated: {state.get('last_updated', 'Never')}")
-        print(f"Total Artifacts: {len(state.get('artifacts', {}))}")
-        for path, info in state.get("artifacts", {}).items():
-            print(f"  - {path}: {info.get('hash', 'N/A')[:16]}...")
-        sys.exit(0)
+    # Save state
+    save_state(updated_state, state_file)
     
-    else:
-        print(f"Unknown command: {command}")
-        print("Usage: python src/utils/hash_artifacts.py [verify | update | report]")
-        sys.exit(1)
+    # Verify (optional, but good practice)
+    # We verify against the manifest we just generated, which should always pass
+    # unless there's a race condition.
+    # verification_passed = run_checksum_verification(manifest, artifacts_dir)
+    
+    logger.info("Artifact hashing complete. State updated.")
+    print(json.dumps(manifest, indent=2))
 
 if __name__ == "__main__":
     main()

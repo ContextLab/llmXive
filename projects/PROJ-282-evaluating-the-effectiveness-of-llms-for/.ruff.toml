@@ -1,0 +1,22 @@
+# Ruff configuration file
+# Extends settings from pyproject.toml but allows for project-specific overrides if needed
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # Pyflakes
+    "I", # isort
+    "B", # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+
+# Ignore specific rules if necessary
+ignore = [
+    "E501", # Line too long (black handles this)
+]
+
+# Per-file ignores if specific files need exceptions
+# [lint.per-file-ignores]
+# "tests/*" = ["S101"] # Allow assertions in tests

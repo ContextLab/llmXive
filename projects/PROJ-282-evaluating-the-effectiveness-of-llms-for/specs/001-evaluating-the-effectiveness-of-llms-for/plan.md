@@ -12,7 +12,7 @@ This plan implements a zero-shot vulnerability detection pipeline that ingests c
 **Primary Dependencies**: `transformers` (CPU-only), `tree-sitter`, `scikit-learn`, `pandas`, `numpy`, `bandit`, `cppcheck`, `datasets`, `pydantic` (for schema validation)  
 **Storage**: Local filesystem (`data/raw`, `data/processed`) with checksums; CSV/Parquet for portability. **SQLite is explicitly excluded.**  
 **Testing**: `pytest` with fixtures for synthetic snippets.  
-**Target Platform**: GitHub Actions Linux runner (2 CPU, 7GB RAM).  
+**Target Platform**: GitHub Actions Linux runner (Multiple CPU, 7GB RAM).  
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: Total runtime ≤ 6 hours; per-sample inference ≤ 4.32s; memory ≤ 7GB.  
 **Constraints**: No GPU access for primary inference; CPU-only execution; strict stratified sampling; no PII in data.  

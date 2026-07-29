@@ -1,10 +1,49 @@
-T014:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `llm_inference.py` file or diff showing the required truncation\u2011event\
-    \ logging and ambiguous\u2011response regex mapping was provided; without the\
-    \ actual code changes we cannot confirm the logic was added. The implementer must\
-    \ supply the updated `llm_inference.py` (or a patch) demonstrating both features."
+  r: No evidence of the required directory hierarchy (`src/`, `tests/`, `data/`, `data/raw/`,
+    `data/processed/`, `data/results/`, `state/`) is provided; the claim lacks any
+    tangible artifact showing these folders exist or contain files. The task is therefore
+    not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml`, or scripts invoking ruff/black) are present in the
+    provided evidence, nor any documentation showing they have been set up. The claim
+    does not include any concrete artifact demonstrating that ruff and black have
+    been configured for the project.
+T007:
+  c: false
+  h: e9f2ac74a4a49e0934698499f96e59dbac52bbd0647b89e196d4b7f4b0f65746
+  r: "The `src/models/code_snippet.py` file exists but is a hand\u2011written dataclass\
+    \ (not a Pydantic model) and there is no `contracts/dataset.schema.yaml` file\
+    \ to prove it was generated from a contract. Without the schema file and evidence\
+    \ of an automated generation step, the requirement of generating the class from\
+    \ the contract is not satisfied."
+T008:
+  c: false
+  h: 06dd04370acbddc4774128481fa094efc4298700c11cb13bb32b8a8facafcd5d
+  r: "The `src/models/feature_vector.py` file exists but is a manually\u2011written\
+    \ dataclass (not a Pydantic model) and the file is truncated, indicating it may\
+    \ be incomplete. Crucially, the required source contract `contracts/feature.schema.yaml`\
+    \ is missing, so there is no evidence that the class was generated from the schema\
+    \ as mandated. The task therefore remains unfinished."
+T009:
+  c: false
+  h: 595223cca4cf6242e6b29b7484fedd33e6d55680e9e4240ca6dde6c2971e3765
+  r: "The `src/models/prediction_result.py` file is a manually\u2011written dataclass\
+    \ (not a Pydantic model) and is truncated (e.g., `result.infe`), and the required\
+    \ source contract `contracts/prediction.schema.yaml` is missing, so the code could\
+    \ not have been generated from it. The task\u2019s core requirement\u2014auto\u2011\
+    generating the model from the schema to prevent drift\u2014is not satisfied."
+T012:
+  c: false
+  h: 537ba6ba4e46527a6b6a50ed1837cd214836b7b2d957108b6de82d581d80c689
+  r: "The required file `src/data/preprocess.py` does not exist, and the `features.log`\
+    \ only contains a static placeholder message with no actual edge\u2011case entries\
+    \ or feature data. Consequently the preprocessing implementation and the mandated\
+    \ logging of samples with missing labels are absent."
 T015:
   c: false
   h: 375bbdbf39b53d68c2d79474d3a4e8cad9b9fb1fc263803b738396008e6774e7

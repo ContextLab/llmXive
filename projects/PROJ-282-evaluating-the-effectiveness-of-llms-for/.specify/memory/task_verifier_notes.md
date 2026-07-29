@@ -2,16 +2,12 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No evidence of the required `src/`, `tests/`, or `data/` directories is provided; the implementer’s claim is unsupported by any visible artifacts. The task cannot be considered fulfilled until those directories are created and contain appropriate project files.
-- **T003** — No linting/formatting configuration files (e.g., `pyproject.toml` with `[tool.black]` and `[tool.ruff]`, `.ruff.toml`, or a `.pre-commit-config.yaml` invoking ruff and black) were provided or referenced, so we cannot verify that the tools are actually set up. The required artifacts are missing.
+- **T001** — No evidence of the required directory hierarchy (`src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `state/`) is provided; the claim lacks any tangible artifact showing these folders exist or contain files. The task is therefore not satisfied.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`, or scripts invoking ruff/black) are present in the provided evidence, nor any documentation showing they have been set up. The claim does not include any concrete artifact demonstrating that ruff and black have been configured for the project.
 - **T004** — declared artifact(s) missing/empty/invalid: src/utils/config.py
-- **T006** — declared artifact(s) missing/empty/invalid: src/utils/logger.py
-- **T007** — declared artifact(s) missing/empty/invalid: src/models/code_snippet.py
-- **T008** — declared artifact(s) missing/empty/invalid: src/models/feature_vector.py
-- **T009** — declared artifact(s) missing/empty/invalid: src/models/prediction_result.py
+- **T007** — The `src/models/code_snippet.py` file exists but is a hand‑written dataclass (not a Pydantic model) and there is no `contracts/dataset.schema.yaml` file to prove it was generated from a contract. Without the schema file and evidence of an automated generation step, the requirement of generating the class from the contract is not satisfied.
+- **T008** — The `src/models/feature_vector.py` file exists but is a manually‑written dataclass (not a Pydantic model) and the file is truncated, indicating it may be incomplete. Crucially, the required source contract `contracts/feature.schema.yaml` is missing, so there is no evidence that the class was generated from the schema as mandated. The task therefore remains unfinished.
+- **T009** — The `src/models/prediction_result.py` file is a manually‑written dataclass (not a Pydantic model) and is truncated (e.g., `result.infe`), and the required source contract `contracts/prediction.schema.yaml` is missing, so the code could not have been generated from it. The task’s core requirement—auto‑generating the model from the schema to prevent drift—is not satisfied.
 - **T010** — declared artifact(s) missing/empty/invalid: src/utils/hash_artifacts.py
-- **T011** — declared artifact(s) missing/empty/invalid: src/data/download.py
-- **T012** — declared artifact(s) missing/empty/invalid: src/data/preprocess.py
-- **T013** — declared artifact(s) missing/empty/invalid: src/models/llm_inference.py
+- **T012** — The required file `src/data/preprocess.py` does not exist, and the `features.log` only contains a static placeholder message with no actual edge‑case entries or feature data. Consequently the preprocessing implementation and the mandated logging of samples with missing labels are absent.
 - **T014** — No `llm_inference.py` file or diff showing the required truncation‑event logging and ambiguous‑response regex mapping was provided; without the actual code changes we cannot confirm the logic was added. The implementer must supply the updated `llm_inference.py` (or a patch) demonstrating both features.
-- **T015** — The repository contains `src/data/ingest_pipeline.py`, but the file is truncated and shows no implementation of dynamic batch‑size adjustment or writing of `data/processed/predictions.csv`. Moreover, the required output file `data/processed/predictions.csv` is absent, so the pipeline’s validation step cannot be verified. The task therefore remains unfinished.
