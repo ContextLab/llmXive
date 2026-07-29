@@ -31,6 +31,7 @@ signal — no silent acceptance of a malformed review.
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import re
 import uuid
@@ -50,7 +51,8 @@ if TYPE_CHECKING:
     # Type-checking only (avoid a runtime import cycle through the
     # ``model_selection`` package ``__init__`` → ``execute`` → ``router``).
     # ``from __future__ import annotations`` keeps the annotation a lazy string.
-    from llmxive.model_selection.types import RequirementOverrides
+    from llmxive.model_selection.types import IndependenceBaseline, RequirementOverrides
+    from llmxive.self_improvement.route_context import LaneRouteContext
 
 logger = logging.getLogger(__name__)
 
@@ -118,6 +120,10 @@ _STAGE_PREFIX: dict[str, str] = {
     "paper_clarified": "paper_spec",
     "paper_planned": "paper_plan",
     "paper_tasked": "paper_tasks",
+    # Spec 025 slice 1B: the self-improvement lane's proposal review. Its per-lens
+    # prompts live at agents/prompts/panels/panel_si_proposal_<lens>.md. Without this
+    # entry `_prompt_path_for` raises and a lane reviewer cannot be constructed at all.
+    "self_improvement_proposal": "si_proposal",
 }
 
 # Some stages reuse PRE-EXISTING per-lens prompt files that live at the
@@ -853,6 +859,15 @@ class LLMReviewer:
         # Immutable (frozen), so it is safe to share read-only across the panel
         # ThreadPoolExecutor. ``None`` = no override.
         overrides: RequirementOverrides | None = None,
+        # Spec 025 slice 1B: the lane's mandatory routing context (audit sink + Attempt
+        # credit authority + durable route admission). ``None`` = a NON-lane reviewer
+        # (research / paper panels), whose call path stays byte-for-byte unchanged.
+        route_context: LaneRouteContext | None = None,
+        # FR-002: the producer baseline this lens must differ from, and the profile to
+        # degrade to when no independent family is selectable. ``fallback_profile=None``
+        # means FAIL CLOSED — the binding the pre-merge patch review will use.
+        independence_against: IndependenceBaseline | None = None,
+        fallback_profile: str | None = None,
     ) -> None:
         self.name = lens
         self._lens = lens
@@ -861,6 +876,9 @@ class LLMReviewer:
         self._repo_root = Path(repo_root)
         self._profile = profile
         self._overrides = overrides
+        self._route_context = route_context
+        self._independence_against = independence_against
+        self._fallback_profile = fallback_profile
         self._temperature = temperature
         # Spec 015: qwen3.5-122b is a *reasoning* model — its hidden
         # chain-of-thought tokens count against the response budget. The
@@ -959,7 +977,7 @@ class LLMReviewer:
             ChatMessage(role="system", content=self._system_prompt),
             ChatMessage(role="user", content=user),
         ]
-        response_text = self._call_backend(messages)
+        response_text = self._call_backend(messages, kind="identify")
         default_artifact = self._pick_default_artifact(artifacts)
         verdict, concerns = _parse_response(
             response_text,
@@ -988,7 +1006,7 @@ class LLMReviewer:
                     "Output ONLY the review document."
                 )),
             ]
-            response_text = self._call_backend(resubmit)
+            response_text = self._call_backend(resubmit, kind="identify_resubmit")
             _, concerns = _parse_response(
                 response_text,
                 lens=self._lens,
@@ -1018,7 +1036,7 @@ class LLMReviewer:
             ChatMessage(role="system", content=self._system_prompt),
             ChatMessage(role="user", content=user),
         ]
-        response_text = self._call_backend(messages)
+        response_text = self._call_backend(messages, kind="rereview")
         default_artifact = self._pick_default_artifact(artifacts)
         _, new_concerns = _parse_response(
             response_text,
@@ -1145,7 +1163,13 @@ class LLMReviewer:
                 return key
         return "(unknown)"
 
-    def _call_backend(self, messages: list[ChatMessage]) -> str:
+    def _call_backend(self, messages: list[ChatMessage], *, kind: str = "identify") -> str:
+        """``kind`` names WHICH logical review call this is. It is unused on the legacy
+        path — so every existing caller is unaffected — and forms part of the lane's
+        durable operation id: the reviewer makes THREE distinct logical calls (identify,
+        the action-items resubmit, rereview) and they must not collapse into one claim."""
+        if self._route_context is not None:
+            return self._route_review(messages, kind=kind)
         # Route through model SELECTION (:func:`chat_with_model_fallback` →
         # ``route_chat``): a transient outage/hang on the selected primary
         # (e.g. a qwen3.5-122b vLLM stall) walks the selected chain to a peer
@@ -1164,6 +1188,70 @@ class LLMReviewer:
             overrides=self._overrides,
             profile=self._profile,
         )
+        return getattr(response, "text", "") or ""
+
+    def _operation_id(self, kind: str, messages: list[ChatMessage]) -> str:
+        """The DETERMINISTIC identity of one logical review call.
+
+        Digesting the messages makes it DISTINCT per call (each round's rereview prompt
+        differs) and STABLE across a restart (identical inputs → identical id → the call
+        ledger replays the same claim and the same route_id instead of re-charging the
+        ceiling). The context's ``next_operation_id`` then disambiguates a legitimate
+        in-process repeat — without it, a round that produced no artifact change could hand
+        this lens a rereview prompt identical to the previous round's, and that second call
+        would be refused at the dispatch gate as a replay."""
+        payload = json.dumps([[m.role, m.content] for m in messages],
+                             sort_keys=True, default=str, ensure_ascii=False)
+        digest = hashlib.sha256(payload.encode()).hexdigest()[:16]
+        return self._route_context.next_operation_id(f"{self._lens}:{kind}:{digest}")
+
+    def _route_review(self, messages: list[ChatMessage], *, kind: str) -> str:
+        """The lane path (spec 025 FR-002).
+
+        Every call carries the mandatory audit sink and Attempt credit authority, and a
+        proposal lens performs the TWO-ATTEMPT reroute: ``independent_review`` (required
+        family) first, then, on a raw ``ModelUnavailable``, ``deep_review`` with an EXPLICIT
+        ``ReviewRerouted`` record. No new profile is introduced — both are delivered 026
+        profiles."""
+        from llmxive.model_selection.types import ModelUnavailable
+
+        ctx = self._route_context
+        assert ctx is not None  # guarded by _call_backend
+        operation_id = self._operation_id(kind, messages)
+        primary_route_id = ctx.claim_route(operation_id=operation_id, leg="primary")
+        try:
+            response = chat_with_model_fallback(
+                self._backend, messages, model=None, max_tokens=self._max_tokens,
+                temperature=self._temperature, overrides=self._overrides,
+                profile=self._profile,
+                independence_against=self._independence_against,
+                route_audit=ctx.route_audit, reservation_authority=ctx.reservation_authority,
+                route_id=primary_route_id,
+                # Only a lens WITH a fallback needs the raw exception; a fail-closed lens
+                # keeps the standard BackendUnavailable conversion.
+                reraise_model_unavailable=self._fallback_profile is not None,
+            )
+        except ModelUnavailable as exc:
+            if self._fallback_profile is None:
+                raise
+            fallback_route_id = ctx.claim_route(operation_id=operation_id, leg="fallback")
+            # RECORD FIRST. record_reroute raises RouteAuditError if the degradation cannot
+            # be made durable, and that is deliberately NOT caught: a fallback that ran with
+            # no durable record would be a review claiming an independence it never had.
+            ctx.record_reroute(
+                operation_id=operation_id, lens=self._lens,
+                primary_route_id=primary_route_id, fallback_route_id=fallback_route_id,
+                exception_type=type(exc).__name__, message=str(exc),
+            )
+            response = chat_with_model_fallback(
+                self._backend, messages, model=None, max_tokens=self._max_tokens,
+                temperature=self._temperature, overrides=self._overrides,
+                profile=self._fallback_profile,  # no independence constraint on the fallback
+                route_audit=ctx.route_audit, reservation_authority=ctx.reservation_authority,
+                route_id=fallback_route_id,
+                # A fallback that ALSO finds nothing is a genuine outage, not a second
+                # degrade → let it convert to BackendUnavailable (engine clean-abort).
+            )
         return getattr(response, "text", "") or ""
 
 
