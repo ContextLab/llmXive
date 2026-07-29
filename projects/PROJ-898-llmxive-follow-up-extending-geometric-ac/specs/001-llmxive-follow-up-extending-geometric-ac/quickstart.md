@@ -3,96 +3,71 @@
 ## Prerequisites
 
 - Python 3.11+
-- pip / virtualenv
-- Git (for cloning the repository)
-- Access to GitHub Actions (for CI execution) or a local CPU-only environment.
+- pip
+- Git
 
 ## Installation
 
 1. **Clone the repository**:
- ```bash
- git clone
- cd llmxive-follow-up
- ```
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-898-llmxive-follow-up-extending-geometric-ac
+   ```
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2. **Create and activate virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
 3. **Install dependencies**:
- ```bash
- pip install -r projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/requirements.txt
- ```
- *Note: This installs `torch` (CPU), `pybullet`, `cvxpy`, `scipy`, and other required packages.*
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Note: `requirements.txt` includes `pybullet`, `torch`, `scipy`, `numpy`, `pandas`, `scipy`, `statsmodels`.*
 
-## Data Generation (Phase 1)
+4. **Verify PyBullet installation**:
+   ```bash
+   python -c "import pybullet; print(pybullet.__version__)"
+   ```
 
-Generate the synthetic topology-shift test set:
+## Running the Pipeline
 
+### Step 1: Generate Synthetic Test Set
 ```bash
-python projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/data_generation.py \
- --output data/generated/topology_shift_test_set_v1.jsonl \
- --num-topologies 50 \
- --seed 42
+python code/generate_topology.py --seed 42 --output data/generated/topology_set_v1 --count 60
 ```
+*Output*: `data/generated/topology_set_v1/metadata.json`, `data/generated/topology_set_v1/states_*.npy`
+*Note*: If <50 unique topologies are generated, the script will log a CRITICAL error and exit.
 
-- This script uses PyBullet to create 50 unique topologies (novel kinematic chains and soft materials).
-- It verifies zero overlap with the original GAM training distribution.
-- **Output**: `data/generated/topology_shift_test_set_v1.jsonl`.
-
-## Inference Pipeline (Phase 2)
-
-Run the symbolic planner and baseline GAM on the generated test set:
-
+### Step 2: Compute Reference Statistics (One-time)
 ```bash
-python projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/inference_pipeline.py \
- --test-set data/generated/topology_shift_test_set_v1.jsonl \
- --gfm-weights data/raw/gfm_weights.pt \
- --output data/results/trial_results.csv \
- --timeout 300 \
- --seed 42
+python code/utils/drift_detector.py --compute-stats --input data/raw/gfm_weights.pt --output data/raw/gam_reference_stats.json
 ```
+*Output*: `data/raw/gam_reference_stats.json` (Mean/Covariance from GFM prior or standard normal if weights missing).
+*Note*: If `data/raw/gfm_weights.pt` is missing, the script falls back to standard normal distribution and logs a warning.
 
-- **Symbolic Mode**: Runs the symbolic solver (FR-003).
-- **Baseline Mode**: Runs the original GAM neural predictor.
-- **Timeout**: 300 seconds per step (prevents CI timeout).
-- **Output**: `data/results/trial_results.csv` (success/failure, latency).
-
-## Statistical Analysis (Phase 3)
-
-Generate the comparative report:
-
+### Step 3: Run Inference (Symbolic & Baseline)
 ```bash
-python projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/analysis.py \
- --input data/results/trial_results.csv \
- --output data/results/statistical_report.json
+python code/inference_loop.py --config code/config.yaml --mode all
 ```
+*Output*: `data/results/trial_log.csv`, `data/results/gradient_flow_log.json`
 
-- Performs Fisher's Exact Test (success rates), **Wilcoxon Signed-Rank Test** (latency for non-censored data), and **Kaplan-Meier Survival Analysis** (for censored timeout data).
-- **Output**: `data/results/statistical_report.json` (p-values, effect sizes).
+### Step 4: Statistical Analysis
+```bash
+python code/analysis.py --input data/results/trial_log.csv --output data/results/statistical_report.json
+```
+*Output*: `data/results/statistical_report.json` (contains p-values, CIs, effect sizes, survival analysis)
 
 ## Verification
 
-1. **Check Data Integrity**:
- ```bash
- sha256sum data/generated/topology_shift_test_set_v1.jsonl
- ```
- Compare against the hash in `state/...artifact_hashes`.
-
-2. **Run Unit Tests**:
- ```bash
- pytest tests/unit/
- ```
-
-3. **Run Integration Tests**:
- ```bash
- pytest tests/integration/test_full_pipeline.py
- ```
+- **Check Uniqueness**: Ensure `metadata.json` contains 50+ unique topologies.
+- **Check Gradients**: Verify `gradient_flow_log.json` has `valid_path: true`.
+- **Check Statistics**: Ensure `statistical_report.json` reports p-values and 95% CIs.
 
 ## Troubleshooting
 
-- **CUDA Error**: Ensure `torch` is installed as the CPU version (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-- **Solver Timeout**: If trials fail due to timeout, check `data/results/trial_results.csv` for `failure_reason: timeout`. Increase solver complexity limits or reduce topology complexity.
-- **Memory Error**: Reduce `--num-topologies` or run trials sequentially.
+- **PyBullet Errors**: Ensure `pybullet` is installed and compatible with your OS.
+- **Memory Issues**: Reduce `--count` in Step 1 or `--trials` in Step 3.
+- **Timeouts**: Increase solver timeout in `code/config.yaml` (not recommended for CI).
+- **Missing Weights**: If `data/raw/gfm_weights.pt` is missing, the pipeline will fall back to standard normal distribution for drift detection but log a warning.

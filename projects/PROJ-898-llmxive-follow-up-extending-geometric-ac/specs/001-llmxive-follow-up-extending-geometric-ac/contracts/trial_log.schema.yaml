@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  trial_id:
+    type: string
+    description: "Unique trial identifier"
+  condition:
+    type: string
+    enum: ["symbolic", "baseline"]
+    description: "Experimental condition"
+  topology_id:
+    type: string
+    description: "Reference to topology in metadata"
+  success:
+    type: integer
+    enum: [0, 1]
+    description: "Binary success (1) or failure (0)"
+  latency_ms:
+    type: number
+    description: "Inference latency in milliseconds"
+  timeout:
+    type: integer
+    enum: [0, 1]
+    description: "Flag for timeout failure"
+  drift_flag:
+    type: integer
+    enum: [0, 1]
+    description: "Flag for latent drift (Mahalanobis distance > threshold)"
+  failure_reason:
+    type: string
+    enum: ["none", "timeout", "infeasible", "collision", "drift"]
+    description: "Reason for failure if success is 0"
+  error_message:
+    type: string
+    description: "Optional error message if failed"
+required: ["trial_id", "condition", "topology_id", "success", "latency_ms", "timeout", "drift_flag", "failure_reason"]

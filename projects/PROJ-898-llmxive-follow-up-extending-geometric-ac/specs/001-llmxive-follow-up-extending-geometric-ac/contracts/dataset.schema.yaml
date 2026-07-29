@@ -19,7 +19,8 @@ properties:
     properties:
       link_count:
         type: integer
-        minimum: 3
+        minimum: 5
+        maximum: 10
         description: "Number of links in the kinematic chain (for kinematic_chain type)."
       joint_type:
         type: string
@@ -33,13 +34,14 @@ properties:
         description: "Number of vertices in the deformable mesh (for soft types)."
       stiffness:
         type: number
-        minimum: 0.0
+        minimum: 0.1
+        maximum: 0.5
         description: "Stiffness coefficient for soft materials."
     required: []
   training_overlap:
     type: boolean
     const: false
-    description: "Must be false, verified against training set hash."
+    description: "Must be false, verified against training set hash (relative to generation bounds)."
   checksum:
     type: string
     pattern: "^[a-f0-9]{64}$"

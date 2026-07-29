@@ -8,6 +8,7 @@ properties:
     enum:
       - "success_rate"
       - "latency"
+      - "time_to_failure"
     description: "The metric being analyzed."
   method_symbolic:
     type: number
@@ -38,8 +39,12 @@ properties:
     enum:
       - "fisher_exact"
       - "wilcoxon"
-      - "kaplan_meier"
+      - "log_rank"
+      - "paired_t"
     description: "The specific statistical test used."
+  aggregation_method:
+    type: string
+    description: "How data was aggregated (e.g., 'mean_per_trial')."
 required:
   - metric
   - method_symbolic
@@ -49,4 +54,5 @@ required:
   - effect_size
   - significance
   - test_type
+  - aggregation_method
 additionalProperties: false

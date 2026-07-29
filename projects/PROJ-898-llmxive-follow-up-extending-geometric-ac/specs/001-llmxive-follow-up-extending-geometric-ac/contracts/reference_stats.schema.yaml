@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  mean:
+    type: array
+    items:
+      type: number
+    description: "Mean of latent vectors from training set (or prior)"
+  covariance:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: "Covariance matrix of latent vectors"
+  sample_size:
+    type: integer
+    description: "Number of samples used to compute stats"
+required: ["mean", "covariance", "sample_size"]

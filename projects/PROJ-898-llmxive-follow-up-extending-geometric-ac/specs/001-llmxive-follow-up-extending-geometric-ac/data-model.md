@@ -2,74 +2,177 @@
 
 ## Overview
 
-This document defines the data structures used for the synthetic topology-shift test set, the inference logs, and the statistical analysis results. All data is stored in `data/` and processed by scripts in `code/`.
+This document defines the data structures, schemas, and flows for the project. All data is stored in `data/` with checksums tracked in `state/`.
 
-## Entities
+## Directory Structure
 
-### 1. Topology Definition (Metadata)
+```text
+data/
+├── raw/
+│   ├── gfm_weights.pt          # Frozen GFM encoder/decoder weights
+│   ├── baseline_gam.pt         # Baseline GAM weights
+│   └── gam_reference_stats.json # Mean/covariance for drift detection (T010b)
+├── generated/
+│   ├── topology_set_v1/
+│   │   ├── metadata.json       # Topology definitions, seeds
+│   │   ├── states_001.npy      # Simulation states for task 1
+│   │   └── ...
+│   └── topology_set_v2/        # New versions if regeneration needed
+└── results/
+    ├── trial_log.csv           # Primary results: success, latency, topology_id
+    ├── gradient_flow_log.json  # Verification of differentiability (T014a)
+    ├── drift_detection_log.json # Mahalanobis distance logs
+    └── statistical_report.json # Final analysis results
+```
 
-Describes the kinematic or deformable structure of an object in the test set.
+## Schema Definitions
 
-- **`topology_id`**: `str` (UUID) - Unique identifier for the topology.
-- **`type`**: `str` - Enum: `"kinematic_chain"`, `"soft_rope"`, `"cloth"`.
-- **`parameters`**: `dict` - Configuration specific to the type.
-  - *Kinematic*: `{"link_count": int, "joint_type": "hinge"|"slider"}`.
-  - *Soft*: `{"mesh_density": int, "stiffness": float}`.
-- **`training_overlap`**: `bool` - Always `False` (verified against training set hash).
-- **`checksum`**: `str` - SHA-256 of the topology definition.
+### 1. Topology Metadata (`data/generated/*/metadata.json`)
 
-### 2. Simulation State (Raw Data)
+```yaml
+# contracts/topology_metadata.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  version:
+    type: string
+    description: "Version of the topology generation script"
+  seed:
+    type: integer
+    description: "Random seed used for generation"
+  topologies:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Unique topology identifier"
+        type:
+          type: string
+          enum: ["kinematic_chain", "deformable_rope", "deformable_cloth"]
+        parameters:
+          type: object
+          properties:
+            hinge_count:
+              type: integer
+              description: "Number of hinges for kinematic chains"
+            stiffness:
+              type: number
+              description: "Stiffness coefficient for deformable materials"
+            length:
+              type: number
+              description: "Length of the object"
+          required: ["hinge_count", "stiffness", "length"]
+        hash:
+          type: string
+          description: "SHA-256 hash of the topology definition"
+      required: ["id", "type", "parameters", "hash"]
+required: ["version", "seed", "topologies"]
+```
 
-Recorded at each timestep during the simulation for a single trial.
+### 2. Trial Log (`data/results/trial_log.csv`)
 
-- **`trial_id`**: `str` - Unique identifier for the trial (e.g., `sym_001`, `base_001`).
-- **`timestep`**: `int` - Current step index.
-- **`topology_id`**: `str` - Reference to the topology.
-- **`observation_latent`**: `list[float]` - Latent vector $z_t$ from GFM encoder.
-- **`action_physical`**: `list[float]` - 3D action vector executed in PyBullet.
-- **`state_physical`**: `dict` - Positions/velocities of all bodies.
-  - `positions`: `list[list[float]]` (N vertices/bodies x 3).
-  - `velocities`: `list[list[float]]`.
-- **`constraint_satisfaction`**: `bool` - Whether rigid/soft constraints were met at this step.
-- **`solver_time_ms`**: `float` - Time taken by symbolic solver (0 if baseline).
-- **`drift_score`**: `float` - Mahalanobis distance from training distribution (if applicable).
+```yaml
+# contracts/trial_log.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  type: "object"
+  required: ["trial_id", "condition", "topology_id", "success", "latency_ms", "timeout", "drift_flag", "failure_reason"]
+  properties:
+    trial_id:
+      type: string
+      description: "Unique trial identifier"
+    condition:
+      type: string
+      enum: ["symbolic", "baseline"]
+      description: "Experimental condition"
+    topology_id:
+      type: string
+      description: "Reference to topology in metadata"
+    success:
+      type: integer
+      enum: [0, 1]
+      description: "Binary success (1) or failure (0)"
+    latency_ms:
+      type: number
+      description: "Inference latency in milliseconds"
+    timeout:
+      type: integer
+      enum: [0, 1]
+      description: "Flag for timeout failure"
+    drift_flag:
+      type: integer
+      enum: [0, 1]
+      description: "Flag for latent drift (Mahalanobis distance > threshold)"
+    failure_reason:
+      type: string
+      enum: ["none", "timeout", "infeasible", "collision", "drift"]
+      description: "Reason for failure if success is 0"
+    error_message:
+      type: string
+      description: "Optional error message if failed"
+```
 
-### 3. Trial Result (Aggregated)
+### 3. Gradient Flow Log (`data/results/gradient_flow_log.json`)
 
-Summary of a single 50-trial run (one topology, one method).
+```yaml
+# contracts/gradient_flow_log.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  type: "object"
+  required: ["solver_params", "decoder_gradients", "constraint_loss", "valid_path"]
+  properties:
+    solver_params:
+      type: array
+      items:
+        type: number
+      description: "Values of solver parameters"
+    decoder_gradients:
+      type: array
+      items:
+        type: number
+      description: "Gradients flowing through the decoder"
+    constraint_loss:
+      type: number
+      description: "Value of constraint violation loss"
+    valid_path:
+      type: boolean
+      description: "True if gradients successfully flowed through decoder"
+```
 
-- **`trial_id`**: `str`.
-- **`method`**: `str` - `"symbolic"` or `"baseline"`.
-- **`topology_id`**: `str`.
-- **`success`**: `bool` - `True` if target reached (within 5cm for 1.0s).
-- **`failure_reason`**: `str` - Enum: `"timeout"`, `"infeasible"`, `"collision"`, `"drift"`, `null`.
-- **`total_latency_ms`**: `float` - Sum of inference times for all steps (or `null` if timeout).
-- **`steps_executed`**: `int` - Number of timesteps before success/failure.
-- **`is_censored`**: `bool` - `True` if the trial was a timeout (for survival analysis).
+### 4. Reference Stats (`data/raw/gam_reference_stats.json`)
 
-### 4. Statistical Summary
+```yaml
+# contracts/reference_stats.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  type: "object"
+  required: ["mean", "covariance", "sample_size"]
+  properties:
+    mean:
+      type: array
+      items:
+        type: number
+      description: "Mean of latent vectors from training set"
+    covariance:
+      type: array
+      items:
+        type: array
+        items:
+          type: number
+      description: "Covariance matrix of latent vectors"
+    sample_size:
+      type: integer
+      description: "Number of samples used to compute stats"
+```
 
-Output of the analysis script.
+## Data Flow
 
-- **`metric`**: `str` - `"success_rate"` or `"latency"`.
-- **`method_symbolic`**: `float` - Mean/Rate for symbolic.
-- **`method_baseline`**: `float` - Mean/Rate for baseline.
-- **`p_value`**: `float` - Result of statistical test.
-- **`confidence_interval`**: `list[float]` - 95% CI [lower, upper].
-- **`effect_size`**: `float` - Cliff's Delta (for latency) or Odds Ratio (for success).
-- **`significance`**: `bool` - `True` if p < 0.05.
-- **`test_type`**: `str` - `"wilcoxon"` or `"fisher_exact"` or `"kaplan_meier"`.
-
-## File Formats
-
-- **`data/generated/topology_shift_test_set_v1.jsonl`**: JSON Lines format. Each line is a `Topology Definition` + initial state.
-- **`data/results/trial_logs.jsonl`**: JSON Lines. Each line is a `Simulation State`.
-- **`data/results/trial_results.csv`**: CSV. Each row is a `Trial Result`.
-- **`data/results/statistical_report.json`**: JSON. Contains `Statistical Summary`.
-
-## Data Hygiene Rules
-
-1. **Immutability**: Raw generated data in `data/generated/` is never modified. Derivations (e.g., `trial_results.csv`) are written to `data/results/`.
-2. **Checksums**: Every file in `data/` must have a corresponding entry in `state/...artifact_hashes` with a SHA-256 hash.
-3. **No PII**: No user data or external PII is included. All data is synthetic.
-4. **Versioning**: Filenames include version suffix (e.g., `_v1`) to track changes in generation logic.
+1. **Generation**: `generate_topology.py` creates `data/generated/topology_set_v1/`.
+2. **Stats**: `utils/drift_detector.py` computes `data/raw/gam_reference_stats.json` (once) from standard normal samples.
+3. **Execution**: `inference_loop.py` runs trials, writing to `data/results/trial_log.csv` and `gradient_flow_log.json`.
+4. **Analysis**: `analysis.py` reads `trial_log.csv`, computes statistics, writes `statistical_report.json`.

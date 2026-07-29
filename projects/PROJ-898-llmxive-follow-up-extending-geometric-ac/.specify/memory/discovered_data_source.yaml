@@ -1,0 +1,14 @@
+status: none
+intent: Geometric Foundation Model training dataset TensorFlow Datasets download python
+  package dataset
+required_fields:
+- object_topology_definitions
+- latent_distribution_mean
+- latent_distribution_covariance
+- simulation_state_sequences
+- action_labels
+- object_mesh_vertices
+- timestamp
+cache_key: 2b16e074b1a8645f169be551126701d093211e55dcdfab4cb3a13beb1f13a2f5
+searched_at: '2026-07-29T01:51:05.857919+00:00'
+retry_count: 1

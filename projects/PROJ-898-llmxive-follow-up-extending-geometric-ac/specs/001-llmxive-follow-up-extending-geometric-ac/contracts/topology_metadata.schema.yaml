@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  version:
+    type: string
+    description: "Version of the topology generation script"
+  seed:
+    type: integer
+    description: "Random seed used for generation"
+  topologies:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Unique topology identifier"
+        type:
+          type: string
+          enum: ["kinematic_chain", "deformable_rope", "deformable_cloth"]
+        parameters:
+          type: object
+          properties:
+            hinge_count:
+              type: integer
+              description: "Number of hinges for kinematic chains"
+            stiffness:
+              type: number
+              description: "Stiffness coefficient for deformable materials"
+            length:
+              type: number
+              description: "Length of the object"
+          required: ["hinge_count", "stiffness", "length"]
+        hash:
+          type: string
+          description: "SHA-256 hash of the topology definition"
+      required: ["id", "type", "parameters", "hash"]
+required: ["version", "seed", "topologies"]
