@@ -1,3 +1,7 @@
+"""
+Configuration management module.
+Loads paths, seeds, and other settings.
+"""
 import os
 import json
 from pathlib import Path
@@ -7,44 +11,38 @@ from logging_config import get_logger
 logger = get_logger(__name__)
 
 class Config:
-    """
-    Global configuration management.
-    Loads paths and settings from environment or defaults.
-    """
-    def __init__(self):
-        self.root_dir = Path(__file__).parent.parent
-        self.code_dir = self.root_dir / "code"
-        self.data_dir = self.root_dir / "data"
-        self.models_dir = self.root_dir / "models"
-        self.docs_dir = self.root_dir / "docs"
-        self.figures_dir = self.root_dir / "figures"
+    """Configuration container."""
+    def __init__(self, data_dir: str = "data", models_dir: str = "models", results_dir: str = "results", random_seed: int = 42):
+        self.data_dir = Path(data_dir)
+        self.models_dir = Path(models_dir)
+        self.results_dir = Path(results_dir)
+        self.random_seed = random_seed
         
         # Ensure directories exist
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.models_dir.mkdir(parents=True, exist_ok=True)
-        self.docs_dir.mkdir(parents=True, exist_ok=True)
-        self.figures_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Random seed
-        self.random_seed = int(os.getenv("RANDOM_SEED", "42"))
-        
-        # API Keys (loaded from env)
-        self.mp_api_key = os.getenv("MP_API_KEY")
-        
-        logger.info(f"Config initialized. Root: {self.root_dir}")
+        self.results_dir.mkdir(parents=True, exist_ok=True)
+        (self.data_dir / "raw").mkdir(parents=True, exist_ok=True)
+        (self.data_dir / "processed").mkdir(parents=True, exist_ok=True)
+        (self.data_dir / "logs").mkdir(parents=True, exist_ok=True)
 
-_config_instance: Optional[Config] = None
+_config: Optional[Config] = None
 
 def get_config() -> Config:
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = Config()
-    return _config_instance
+    """
+    Gets the global configuration instance.
+    """
+    global _config
+    if _config is None:
+        _config = Config()
+    return _config
 
 def main():
+    """CLI entry point for testing config."""
     cfg = get_config()
-    print(f"Data Dir: {cfg.data_dir}")
-    print(f"Models Dir: {cfg.models_dir}")
+    logger.info(f"Data dir: {cfg.data_dir}")
+    logger.info(f"Models dir: {cfg.models_dir}")
+    logger.info(f"Results dir: {cfg.results_dir}")
 
 if __name__ == "__main__":
     main()

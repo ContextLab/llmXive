@@ -127,7 +127,7 @@ models/
    - Compute Basis Sensitivity Flag (check if ranking changes with alternative ILR basis).
 
 ### Phase 3: Reporting & Validation
-1. **Memory Check**: Log peak memory usage during training (T033c).
+1. **Memory Check**: Log peak memory usage during training (Tc).
    - **Artifact**: Generate `results/memory_profile.log` with peak usage < 4 GB.
 2. **Quickstart Validation**: Run `quickstart.md` commands in a clean env and log output (T045).
    - **Artifact**: Generate `results/quickstart_validation.log` confirming successful execution.

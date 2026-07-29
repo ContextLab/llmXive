@@ -189,3 +189,128 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T02:03:46Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: OpenML dataset ID 42347
+  claim_id: c_9d0e19a3
+  context: 'Verify data source accessibility: Implement a script in code/data_extraction.py
+    (or standalone) to verify the accessibility of the target OpenML dataset (ID:
+    42347)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The OpenML dataset ID is 42347.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T12:46:37Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: 80/20 train/test split
+  claim_id: c_67e6614d
+  context: 'Requirement: Explicitly set test_size=0.2 to ensure 80/20 ratio as per
+    FR-005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test set size is 0.2 to ensure an 80/20 ratio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T12:46:58Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Exclude entries where major element sum < 0.95
+  claim_id: c_d78836c8
+  context: Implement exclusion logic in code/data_cleaning.py for entries where major
+    element sum < 0.95 (log warning, drop row)...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_entries_where_major_element_sum_%3C_0.95
+  kind: magnitude
+  raw_text: Entries with a major element sum less than 0.95 are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T12:47:57Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Log warning if valid entries < 50
+  claim_id: c_f9a02108
+  context: 'If valid entries < 50, LOG A WARNING Sample size < 50: Limiting model
+    complexity per plan.md Assumptions and set max_depth=5.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_valid_entries_%3C_50
+  kind: magnitude
+  raw_text: A warning is logged if valid entries are less than 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T12:48:46Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Flag predictors with VIF > 5
+  claim_id: c_98881c84
+  context: Generate a log flag for each predictor with VIF > 5 as required by FR-007,
+    but do NOT halt the pipeline...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_VIF_%3E_5
+  kind: magnitude
+  raw_text: VIF flags are generated for predictors with a VIF greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T12:49:34Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Target data extraction runtime < 30s per source
+  claim_id: c_d0be8098
+  context: Optimize data extraction runtime in code/data_extraction.py to target <
+    30s per source
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_data_extraction_runtime_%3C_30s_per_source
+  kind: magnitude
+  raw_text: The target optimization runtime for data extraction is less than 30 seconds
+    per source.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T12:50:14Z'
+- artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Target modeling runtime < 10min for full pipeline
+  claim_id: c_e31cd78b
+  context: Optimize modeling runtime in code/modeling.py to target < 10min for full
+    pipeline
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_modeling_runtime_%3C_10min_for_full_pipeline
+  kind: magnitude
+  raw_text: The target optimization runtime for modeling is less than 10 minutes for
+    the full pipeline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T12:50:38Z'

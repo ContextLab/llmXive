@@ -1,18 +1,18 @@
 {
   "project_id": "PROJ-420-predicting-the-effect-of-alloying-on-the",
   "ok": false,
-  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/data/download.py; python code/data/clean.py --check-only; 1 command(s) failed: python code/main.py (rc=1); 1 declared deliverable(s) absent: data/processed/filtered_alloys.csv",
+  "reason": "3 command(s) failed: python code/data/download.py (rc=1); python code/data/clean.py --check-only (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/filtered_alloys.csv; data/raw/openml_aluminum.json",
   "artifacts": [],
   "failures": [
-    "python code/data/download.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/data/download.py': [Errno 2] No such file or directory",
-    "python code/data/clean.py --check-only -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/data/clean.py': [Errno 2] No such file or directory",
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py\", line 12, in <module>\n    from data_cleaning import run_cleaning_pipeline\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/data_cleaning.py\", line 8, in <module>\n    from compositional import compositions\nImportError: cannot import name 'compositions' from 'compositional' (/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-o"
+    "python code/data/download.py -> rc=1\n    2026-07-29 13:20:33,012 - __main__ - INFO - Starting data extraction pipeline (T016)\n2026-07-29 13:20:33,012 - __main__ - ERROR - Data extraction failed: 'Config' object has no attribute 'data_raw_dir'",
+    "python code/data/clean.py --check-only -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/data/clean.py\", line 5, in <module>\n    from data_cleaning import run_cleaning_pipeline\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/data_cleaning.py\", line 8, in <module>\n    from compositional import compositions\nImportError: cannot import name 'compositions' from 'compositional' (/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py\", line 8, in <module>\n    from data_cleaning import run_cleaning_pipeline\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/data_cleaning.py\", line 8, in <module>\n    from compositional import compositions\nImportError: cannot import name 'compositions' from 'compositional' (/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-29T01:38:43Z"
+  "updated_at": "2026-07-29T13:20:37Z"
 }

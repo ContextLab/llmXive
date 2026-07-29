@@ -1,18 +1,15 @@
 status: none
-intent: Aluminum alloy composition and elastic properties OpenML 42347 NIST Materials
-  Project python package dataset
+intent: OpenML Aluminum_Alloy_Properties Materials Project NIST Materials Data Repository
+  aluminum alloy elastic data python package dataset
 required_fields:
-- material_id
-- formula
-- atomic_fraction_Al
-- atomic_fraction_Cu
-- atomic_fraction_Mg
-- atomic_fraction_Si
-- atomic_fraction_Zn
-- atomic_fraction_Mn
-- poissons_ratio
-- youngs_modulus_gpa
-- measurement_method
-cache_key: e0f211fe66f9135f89f09f54b45b318c195b068fbcdf51aac4232aadd8f8693d
-searched_at: '2026-07-29T01:39:34.879300+00:00'
+- Al
+- Cu
+- Mg
+- Si
+- Zn
+- Mn
+- Poisson's ratio
+- Young's modulus
+cache_key: a4f28615d26c1dfeb4416d9532a5ec5c6104443c6863b3a398f6854d9ccf5878
+searched_at: '2026-07-29T13:21:48.437210+00:00'
 retry_count: 1

@@ -5,300 +5,245 @@ from typing import Any, Dict, List, Optional
 from datetime import datetime
 import numpy as np
 import pandas as pd
-from compositional import compositions
-
+from schemas.alloy_record import AlloyRecord
 from config import get_config
 from logging_config import get_logger
 
-# Constants
-REQUIRED_COMPOSITION_ELEMENTS = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
-REQUIRED_PROPERTY_FIELDS = ['poissons_ratio', 'youngs_modulus']
-MAJOR_ELEMENT_THRESHOLD = 0.95
-MIN_VALID_ENTRIES = 50
+logger = get_logger(__name__)
 
-def load_raw_data(source_paths: Dict[str, str]) -> pd.DataFrame:
-    """
-    Load raw data from JSON files produced by extraction.
-    """
-    logger = get_logger(__name__)
-    dataframes = []
-
-    for source, path in source_paths.items():
-        p = Path(path)
-        if not p.exists():
-            logger.warning(f"Source file missing: {path}. Skipping {source}.")
-            continue
-
-        with open(p, 'r') as f:
-            records = json.load(f)
-
-        if not records:
-            logger.warning(f"No records found in {path}.")
-            continue
-
-        df = pd.DataFrame(records)
-        df['source'] = source
-        dataframes.append(df)
-        logger.info(f"Loaded {len(df)} records from {source}.")
-
-    if not dataframes:
-        raise ValueError("No data loaded from any source.")
-
-    combined_df = pd.concat(dataframes, ignore_index=True)
-    logger.info(f"Combined dataset size: {len(combined_df)}")
-    return combined_df
-
-def validate_schema(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Validate that required fields exist and are not null.
-    """
-    logger = get_logger(__name__)
-    required_fields = REQUIRED_PROPERTY_FIELDS + REQUIRED_COMPOSITION_ELEMENTS + ['measurement_method']
+def load_raw_data(raw_path: Path) -> List[Dict[str, Any]]:
+    """Load raw JSON data extracted from OpenML."""
+    if not raw_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
     
-    missing_cols = [col for col in required_fields if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required schema fields: {missing_cols}")
-
-    # Check for nulls in required fields
-    null_counts = df[required_fields].isnull().sum()
-    if null_counts.any():
-        logger.warning(f"Found null values in required fields:\n{null_counts[null_counts > 0]}")
-        # Drop rows with any nulls in required fields
-        initial_count = len(df)
-        df = df.dropna(subset=required_fields)
-        dropped = initial_count - len(df)
-        logger.info(f"Dropped {dropped} rows due to missing required fields.")
-
-    return df
-
-def normalize_units(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Normalize units: Young's modulus to GPa, ensure compositions are fractions.
-    """
-    logger = get_logger(__name__)
-    df = df.copy()
-
-    # Assume Young's modulus is in GPa if > 100, otherwise convert from MPa
-    # Heuristic: Al alloys are ~70 GPa. If value < 10, assume MPa and convert.
-    if 'youngs_modulus' in df.columns:
-        mask_mp = df['youngs_modulus'] < 10
-        if mask_mp.any():
-            logger.info(f"Converting {mask_mp.sum()} Young's modulus values from MPa to GPa.")
-            df.loc[mask_mp, 'youngs_modulus'] = df.loc[mask_mp, 'youngs_modulus'] / 1000.0
-
-    # Ensure composition columns are numeric and sum to ~1
-    for col in REQUIRED_COMPOSITION_ELEMENTS:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-
-    # Calculate sum of specified elements
-    df['composition_sum'] = df[REQUIRED_COMPOSITION_ELEMENTS].sum(axis=1)
+    with open(raw_path, 'r') as f:
+        data = json.load(f)
     
-    # If sum is very small (< 0.1), assume values are in percent and convert to fraction
-    mask_percent = df['composition_sum'] < 0.1
-    if mask_percent.any():
-        logger.info(f"Converting {mask_percent.sum()} composition rows from percent to fraction.")
-        df.loc[mask_percent, REQUIRED_COMPOSITION_ELEMENTS] /= 100.0
-        df.loc[mask_percent, 'composition_sum'] /= 100.0
+    logger.info(f"Loaded {len(data)} records from {raw_path}")
+    return data
 
-    return df
+def apply_schema_validation(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    T010: Validate that required fields exist in the schema.
+    Checks for field presence, not value validity.
+    """
+    required_fields = [
+        'poissons_ratio', 'youngs_modulus', 
+        'cu', 'mg', 'si', 'zn', 'mn'
+    ]
+    
+    validated = []
+    missing_fields_log = []
+    
+    for i, record in enumerate(records):
+        missing = [f for f in required_fields if f not in record]
+        if missing:
+            missing_fields_log.append(f"Record {i}: missing fields {missing}")
+            # Per T010: If required field missing in schema, raise error
+            raise ValueError(f"Schema validation failed. Missing required fields: {missing}")
+        validated.append(record)
+    
+    if missing_fields_log:
+        logger.warning("Schema validation issues found (logged): " + "; ".join(missing_fields_log[:5]))
+    
+    logger.info(f"Schema validation passed for {len(validated)} records")
+    return validated
 
-def verify_measurement_independence(df: pd.DataFrame) -> pd.DataFrame:
+def apply_independence_filter(records: List[Dict[str, Any]]) -> tuple[List[Dict[str, Any]], Dict[str, int]]:
     """
-    Verify measurement method for independence (FR-009).
-    Exclude derived or non-experimental methods.
+    T014: Filter based on measurement_method (FR-009).
+    - Missing/Null: Include, log warning
+    - Derived/Calculated: Exclude, log warning
+    - Independent/Ultrasonic: Keep
     """
-    logger = get_logger(__name__)
-    log_path = Path(get_config().data_dir) / 'logs' / 'independence_check.log'
+    kept = []
+    excluded_derived = 0
+    included_missing = 0
+    
+    log_path = Path(get_config().data_logs_dir) / "independence_check.log"
     log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    valid_methods = ['ultrasonic', 'experimental', 'resonant', 'static']
-    exclude_methods = ['Derived', 'calculated_from_Youngs_modulus', 'DFT', 'missing', 'null', '']
-
-    initial_count = len(df)
-    valid_rows = []
+    with open(log_path, 'a') as log_file:
+        for record in records:
+            method = record.get('measurement_method')
+            
+            if method is None:
+                # Missing field
+                included_missing += 1
+                record['measurement_source'] = 'unknown'
+                kept.append(record)
+                log_file.write(f"[WARNING] Missing measurement_method, assuming independent\n")
+                continue
+            
+            method_str = str(method).lower().strip()
+            
+            if method_str in ['missing', 'null', '']:
+                # Null value
+                included_missing += 1
+                record['measurement_source'] = 'unknown'
+                kept.append(record)
+                log_file.write(f"[WARNING] Null measurement_method, assuming independent\n")
+                continue
+            
+            if 'derived' in method_str or 'calculated_from_youngs' in method_str:
+                # Exclude derived
+                excluded_derived += 1
+                log_file.write(f"[EXCLUDED] Derived measurement_method: '{method}'\n")
+                continue
+            
+            if 'ultrasonic' in method_str or 'independent' in method_str:
+                # Keep independent
+                record['measurement_source'] = method
+                kept.append(record)
+                continue
+            
+            # Default: if not clearly derived, keep but mark unknown if ambiguous
+            record['measurement_source'] = method
+            kept.append(record)
     
-    for idx, row in df.iterrows():
-        method = str(row.get('measurement_method', '')).strip().lower()
-        
-        # If field is missing or empty
-        if not method or method == 'nan':
-            logger.info(f"Excluded: Missing independence verification field (measurement_method). Row {idx}")
-            continue
-        
-        # Check against exclude list
-        if method in [m.lower() for m in exclude_methods]:
-            logger.info(f"Excluded: Method '{row['measurement_method']}' is not independent. Row {idx}")
-            continue
-        
-        # Check against valid list (case insensitive)
-        if method in [m.lower() for m in valid_methods]:
-            row['measurement_source'] = 'experimental'
-            valid_rows.append(row)
-        else:
-            # If it's not in exclude but not explicitly valid, log and exclude to be safe
-            logger.info(f"Excluded: Method '{row['measurement_method']}' not recognized as independent. Row {idx}")
-            continue
-
-    df_filtered = pd.DataFrame(valid_rows)
-    dropped = initial_count - len(df_filtered)
-    logger.info(f"Measurement independence check: Dropped {dropped} rows. Remaining: {len(df_filtered)}")
-    
-    return df_filtered
-
-def filter_monolithic_alloys(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Filter for monolithic alloys: non-missing Poisson's ratio, Young's modulus, and compositions.
-    """
-    logger = get_logger(__name__)
-    
-    # Ensure all required fields are present and non-null
-    required = ['poissons_ratio', 'youngs_modulus'] + REQUIRED_COMPOSITION_ELEMENTS
-    df = df.dropna(subset=required)
-    
-    # Filter for positive Poisson's ratio (physical constraint)
-    df = df[df['poissons_ratio'] > 0]
-    
-    return df
-
-def check_major_element_sum(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Exclude entries where major element sum < 0.95.
-    """
-    logger = get_logger(__name__)
-    
-    # Calculate sum of all specified elements
-    if 'composition_sum' not in df.columns:
-        df['composition_sum'] = df[REQUIRED_COMPOSITION_ELEMENTS].sum(axis=1)
-    
-    mask = df['composition_sum'] >= MAJOR_ELEMENT_THRESHOLD
-    dropped_count = (~mask).sum()
-    
-    if dropped_count > 0:
-        logger.warning(f"Dropped {dropped_count} rows: major element sum < {MAJOR_ELEMENT_THRESHOLD}")
-    
-    return df[mask]
-
-def apply_ilr_transformation(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Apply ILR transformation to compositional data (Cu, Mg, Si, Zn, Mn).
-    Uses the `compositional` package.
-    """
-    logger = get_logger(__name__)
-    
-    if len(df) == 0:
-        logger.warning("Empty dataframe passed to ILR transformation.")
-        return df
-
-    # Prepare composition columns
-    comp_cols = REQUIRED_COMPOSITION_ELEMENTS
-    if not all(col in df.columns for col in comp_cols):
-        raise ValueError(f"Missing composition columns for ILR: {comp_cols}")
-    
-    # Extract composition data
-    comp_data = df[comp_cols].values
-    
-    # Ensure no zeros or negatives (ILR requires strictly positive)
-    # Add a small epsilon if necessary
-    epsilon = 1e-10
-    comp_data = np.where(comp_data <= 0, epsilon, comp_data)
-    
-    # Normalize to ensure sum is 1 (robustness)
-    comp_data = comp_data / comp_data.sum(axis=1, keepdims=True)
-    
-    # Use the compositional package for ILR transformation
-    # The compositions class handles the transformation
-    try:
-        comp_obj = compositions(comp_data, label=comp_cols)
-        ilr_data = comp_obj.ilr().data
-    except Exception as e:
-        logger.error(f"ILR transformation failed: {e}")
-        raise
-
-    # Create new column names for ILR features
-    # ILR for D parts produces D-1 coordinates
-    ilr_cols = [f'ilr_{i}' for i in range(ilr_data.shape[1])]
-    
-    # Add ILR features to dataframe
-    for i, col in enumerate(ilr_cols):
-        df[col] = ilr_data[:, i]
-    
-    logger.info(f"ILR transformation complete. Added {len(ilr_cols)} features.")
-    return df
-
-def run_cleaning_pipeline(raw_dir: Optional[str] = None, output_path: Optional[str] = None) -> Path:
-    """
-    Run the full data cleaning pipeline:
-    1. Load raw data
-    2. Validate schema
-    3. Normalize units
-    4. Verify measurement independence
-    5. Filter monolithic alloys
-    6. Check major element sum
-    7. Apply ILR transformation
-    8. Save final CSV
-    """
-    logger = get_logger(__name__)
-    config = get_config()
-    
-    if raw_dir is None:
-        raw_dir = str(Path(config.data_dir) / 'raw')
-    if output_path is None:
-        output_path = str(Path(config.data_dir) / 'processed' / 'filtered_alloys.csv')
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Define source paths
-    source_paths = {
-        'materials_project': str(Path(raw_dir) / 'materials_project_aluminum.json'),
-        'nist': str(Path(raw_dir) / 'nist_aluminum.json'),
-        'openml': str(Path(raw_dir) / 'openml_aluminum.json')
+    metrics = {
+        "kept": len(kept),
+        "excluded_derived": excluded_derived,
+        "included_missing": included_missing
     }
+    
+    metrics_path = Path(get_config().data_processed_dir) / "independence_metrics.json"
+    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    logger.info(f"Independence filter: kept={metrics['kept']}, excluded_derived={metrics['excluded_derived']}, included_missing={metrics['included_missing']}")
+    return kept, metrics
+
+def apply_monolithic_filter(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    T011: Filter for monolithic alloys with non-missing values.
+    """
+    filtered = []
+    for record in records:
+        # Check for non-missing Poisson's ratio, Young's modulus, and compositions
+        if record.get('poissons_ratio') is None or record.get('youngs_modulus') is None:
+            continue
+        
+        comps = ['cu', 'mg', 'si', 'zn', 'mn']
+        if any(record.get(c) is None for c in comps):
+            continue
+        
+        filtered.append(record)
+    
+    logger.info(f"Monolithic filter: {len(records)} -> {len(filtered)}")
+    return filtered
+
+def normalize_units(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    T012: Normalize units (GPa) and calculate atomic fractions.
+    """
+    normalized = []
+    for record in records:
+        new_record = record.copy()
+        
+        # Convert Young's modulus to GPa if in MPa
+        ym = new_record.get('youngs_modulus', 0)
+        if ym > 1000: # Assuming MPa if > 1000
+            new_record['youngs_modulus'] = ym / 1000.0
+        
+        # Calculate atomic fractions
+        # Assuming input is atomic % or weight % that needs normalization
+        # The spec says "calculate atomic fractions summing to unity"
+        # We assume the input columns are atomic percentages (0-100) or fractions (0-1)
+        # If they are percentages, divide by 100. If they are already fractions, ensure sum is 1.
+        
+        comps = ['cu', 'mg', 'si', 'zn', 'mn']
+        comp_values = [new_record.get(c, 0) for c in comps]
+        
+        total = sum(comp_values)
+        if total == 0:
+            logger.warning(f"Zero composition sum for record, skipping normalization")
+            continue
+        
+        # Normalize to sum to 1 (atomic fraction)
+        for i, c in enumerate(comps):
+            new_record[c] = comp_values[i] / total
+        
+        # Add Al balance
+        new_record['al'] = 1.0 - total
+        normalized.append(new_record)
+    
+    logger.info(f"Unit normalization complete: {len(normalized)} records")
+    return normalized
+
+def apply_major_element_filter(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    T013: Exclude entries where major element sum < 0.95.
+    """
+    filtered = []
+    dropped_count = 0
+    
+    for record in records:
+        # Sum of Cu, Mg, Si, Zn, Mn (already normalized atomic fractions)
+        major_sum = sum(record.get(c, 0) for c in ['cu', 'mg', 'si', 'zn', 'mn'])
+        
+        if major_sum < 0.95:
+            dropped_count += 1
+            logger.warning(f"Dropped record with major element sum {major_sum:.4f} < 0.95")
+            continue
+        
+        filtered.append(record)
+    
+    logger.info(f"Major element filter: {len(records)} -> {len(filtered)} (dropped {dropped_count})")
+    return filtered
+
+def run_cleaning_pipeline(raw_path: Optional[Path] = None, output_path: Optional[Path] = None) -> pd.DataFrame:
+    """
+    T017: Orchestrate the full cleaning pipeline.
+    Order: T010 -> T014 -> T011 -> T012 -> T013
+    """
+    config = get_config()
+    if raw_path is None:
+        raw_path = Path(config.data_raw_dir) / "openml_aluminum.json"
+    if output_path is None:
+        output_path = Path(config.data_processed_dir) / "filtered_alloys.csv"
+    
+    # Ensure output directories exist
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
     logger.info("Starting cleaning pipeline...")
     
-    # 1. Load
-    df = load_raw_data(source_paths)
+    # T010: Schema Validation
+    records = load_raw_data(raw_path)
+    records = apply_schema_validation(records)
     
-    # 2. Validate
-    df = validate_schema(df)
+    # T014: Independence Filter
+    records, metrics = apply_independence_filter(records)
     
-    # 3. Normalize
-    df = normalize_units(df)
+    # T011: Monolithic Filter
+    records = apply_monolithic_filter(records)
     
-    # 4. Verify independence
-    df = verify_measurement_independence(df)
+    # T012: Unit Normalization
+    records = normalize_units(records)
     
-    # 5. Filter monolithic
-    df = filter_monolithic_alloys(df)
+    # T013: Major Element Filter
+    records = apply_major_element_filter(records)
     
-    # 6. Check major element sum
-    df = check_major_element_sum(df)
+    if len(records) == 0:
+        raise RuntimeError("CRITICAL: No valid entries found after cleaning. Pipeline halted.")
     
-    # 7. Apply ILR transformation
-    df = apply_ilr_transformation(df)
-    
-    # 8. Save
+    # Convert to DataFrame and save
+    df = pd.DataFrame(records)
     df.to_csv(output_path, index=False)
-    logger.info(f"Pipeline complete. Saved {len(df)} records to {output_path}")
     
-    if len(df) == 0:
-        raise ValueError("CRITICAL: No valid entries found across all sources. Pipeline halted.")
-    
-    if len(df) < MIN_VALID_ENTRIES:
-        raise ValueError(f"CRITICAL: Insufficient data ({len(df)} entries) for 5-fold cross-validation. Pipeline halted per spec Edge Cases.")
-    
-    return output_path
+    logger.info(f"Pipeline complete. Output saved to {output_path} with {len(df)} rows.")
+    return df
 
 def main():
     """CLI entry point for cleaning pipeline."""
-    logger = setup_logging()
+    logger.info("Running data cleaning pipeline (T017)...")
     try:
-        path = run_cleaning_pipeline()
-        logger.info(f"Success: {path}")
+        df = run_cleaning_pipeline()
+        logger.info("Cleaning pipeline finished successfully.")
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

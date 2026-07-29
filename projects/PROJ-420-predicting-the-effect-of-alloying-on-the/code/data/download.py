@@ -1,27 +1,30 @@
 import sys
 import logging
 from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from data_extraction import run_extraction as extraction_main
 from logging_config import setup_logging, get_logger
 from config import get_config
 
 def main():
-    """CLI entry point for data extraction."""
-    logger = setup_logging()
-    config = get_config()
+    """CLI wrapper for data extraction (T016)."""
+    setup_logging()
+    logger = get_logger(__name__)
     
     try:
-        logger.info("Starting data extraction...")
-        # Run extraction and save raw files
+        logger.info("Starting data extraction pipeline (T016)")
+        config = get_config()
+        
+        # Ensure directories exist
+        Path(config.data_raw_dir).mkdir(parents=True, exist_ok=True)
+        
+        # Run extraction
         extraction_main()
-        logger.info("Data extraction completed successfully.")
+        
+        logger.info("Data extraction pipeline finished successfully.")
+        
     except Exception as e:
-        logger.error(f"Extraction failed: {e}")
+        logger.error(f"Data extraction failed: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

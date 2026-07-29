@@ -8,5 +8,8 @@ matplotlib
 compositional
 statsmodels
 openml
+materialsproject
 pydantic
 psutil
+ruff
+black
