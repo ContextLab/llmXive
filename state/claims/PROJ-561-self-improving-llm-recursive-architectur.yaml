@@ -1,0 +1,237 @@
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM watchdog terminates process if RAM exceeds 7.0GB
+  claim_id: c_3ac3ee99
+  context: 'Implement utils/memory.py with gradient checkpointing, batch size auto-scaling
+    and hard RAM watchdog: create utils/memory.py with function check_and_terminate_if_exceeds(limit_gb:
+    float=7.0) that kills process if RAM exceeds 7.0GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'create utils/memory.py with function check_and_terminate_if_exceeds(limit_gb:
+    float=7.0) that kills process if RAM exceeds 7.0GB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:33:17Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Unit test mocks RAM > 6.5GB to trigger sys.exit
+  claim_id: c_3d912de0
+  context: 'Verification: Add a unit test in tests/unit/test_memory.py that mocks
+    psutil.virtual_memory using unittest.mock.patch to return a value > 6.5GB (read
+    from config.py) and asserts sys.exit is called.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a unit test in tests/unit/test_memory.py that mocks psutil.virtual_memory
+    using unittest.mock.patch to return a value > 6.5GB (read from config.py) and
+    asserts sys.exit is called
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:33:17Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff wrapper uses 30s initial delay and 5 max retries
+  claim_id: c_44e9b887
+  context: Implement exponential backoff wrapper in pipeline/loader.py with initial
+    delay=30s, max retries=5 for HuggingFace API calls.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff wrapper in pipeline/loader.py with initial
+    delay=30s, max retries=5 for HuggingFace API calls
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:33:46Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Initial delay verified as 30 seconds
+  claim_id: c_e247a9aa
+  context: 'Verification: Add unit test in tests/unit/test_loader.py that mocks time.sleep
+    and asserts retry count increments correctly on simulated failures, explicitly
+    verifying the initial delay is 30 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: explicitly verifying the initial delay is 30 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:34:05Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Dataset loaders implemented for OpenWebText, GSM8K, ARC-Challenge, Wikitext-2
+  claim_id: c_e7bd108f
+  context: 'Implement dataset loaders in pipeline/loader.py for OpenWebText, GSM8K,
+    ARC-Challenge, Wikitext-2 with Fail-Fast logic: Logic: For transient network errors,
+    use T005b (backoff); for missing data files, raise FileNotFoundError immediately
+    (no synthetic fallback).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement dataset loaders in pipeline/loader.py for OpenWebText, GSM8K,
+    ARC-Challenge, Wikitext-2 with Fail-Fast logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:34:46Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Config includes learning rate 5e-5, batch size 4, and 30% parameter increase
+    constraint
+  claim_id: c_596ec944
+  context: "Create config.py with hyperparameters (lr=5e-5, bs=4, seed), constraints\
+    \ (\u226430% param increase), and path definitions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create config.py with hyperparameters (lr=5e-5, bs=4, seed), constraints\
+    \ (\u226430% param increase), and path definitions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:35:07Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Timeout wrapper logs Timeout and records partial metrics to trajectory.json
+  claim_id: c_32b2ba4a
+  context: 'Implement per-cycle timeout enforcement in pipeline/trainer.py: add timeout
+    wrapper that terminates cycle if exceeded, logs "Timeout" to results/logs/cycle_N.log,
+    and records partial metrics to results/trajectory.json (spec Edge Cases).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timeout_wrapper_logs_Timeout_and_records_partial_metrics_to
+  kind: entity_fact
+  raw_text: add timeout wrapper that terminates cycle if exceeded, logs "Timeout"
+    to results/logs/cycle_N.log, and records partial metrics to results/trajectory.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:35:24Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Batch size halved if RAM exceeds 6.5GB
+  claim_id: c_00eda73c
+  context: 'Implement pipeline/memory.py dynamic batch size reduction: If RAM > 6.5GB
+    during training, halve batch size and restart epoch. If batch size < 1, terminate
+    and log "OOM". Explicitly verify 7GB limit is respected; if not, terminate (SC-005
+    enforcement).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If RAM > 6.5GB during training, halve batch size and restart epoch
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:35:24Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM limit of 7GB enforced
+  claim_id: c_97d44dbb
+  context: If batch size < 1, terminate and log "OOM". Explicitly verify 7GB limit
+    is respected; if not, terminate (SC-005 enforcement).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_limit_of_7GB_enforced
+  kind: entity_fact
+  raw_text: verify 7GB limit is respected; if not, terminate
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:08Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates if degradation is 5% or more from baseline
+  claim_id: c_b4230d6d
+  context: "Implement early-stop logic in main.py: if degradation \u22655% from baseline,\
+    \ record degradation cycle, log \"Early Stop\", increment cycle counter, and terminate\
+    \ gracefully."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if degradation \u22655% from baseline, record degradation cycle, log\
+    \ \"Early Stop\", increment cycle counter, and terminate gracefully"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:08Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Single cycle CPU-only execution completes within 2 hours
+  claim_id: c_d023fed2
+  context: 'Independent Test: Execute pipeline once, verify metrics recorded in results/trajectory.json
+    and data/ artifacts, and confirm CPU-only execution completes within 2 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute pipeline once, verify metrics recorded in results/trajectory.json
+    and data/ artifacts, and confirm CPU-only execution completes within 2 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:27Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates if performance degradation is 5% or more
+  claim_id: c_d3178d2a
+  context: "Implement \"Early Termination on Degradation\" in main.py: If a cycle\
+    \ results in performance degradation \u22655% from baseline, record the degradation\
+    \ cycle, log \"Early Stop\", increment cycle counter, and terminate the pipeline\
+    \ (spec Edge Cases)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_terminates_if_performance_degradation_is_5%25_or_more
+  kind: causal
+  raw_text: "If a cycle results in performance degradation \u22655% from baseline,\
+    \ record the degradation cycle, log \"Early Stop\", increment cycle counter, and\
+    \ terminate the pipeline"
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:29Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Total runtime must be 6 hours or less and RAM 7GB or less
+  claim_id: c_3f72a8f7
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u22646 hours, RAM \u22647GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify total runtime \u22646 hours, RAM \u22647GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:29Z'

@@ -122,11 +122,6 @@ class TestDistinctnessValidation(unittest.TestCase):
             ModificationProposal("layer_add", 20.0, "Old2", 100),
             ModificationProposal("head_count_change", 5.0, "Old3", 100)
         ]
-        # Should be distinct because type is different from one of them?
-        # No, logic is: distinct if different from ALL in type OR magnitude.
-        # My implementation: iterates, if ANY is same type and similar mag -> return False.
-        # If loop completes -> True.
-        
         # Case 1: New is same type as first, similar mag -> False
         proposal_fail = ModificationProposal("layer_add", 10.5, "New", 100)
         self.assertFalse(validate_modification_distinctness(proposal_fail, history))

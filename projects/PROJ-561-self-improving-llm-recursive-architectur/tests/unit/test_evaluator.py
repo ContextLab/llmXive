@@ -1,80 +1,188 @@
 import unittest
+from unittest.mock import patch, MagicMock, PropertyMock
 import torch
 import torch.nn as nn
-from unittest.mock import patch, MagicMock, PropertyMock
-import sys
-import os
-
-# Add project root to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
 from pipeline.evaluator import (
-    compute_gsm8k_accuracy, 
-    compute_arc_challenge_accuracy, 
+    VerificationGate,
+    compute_gsm8k_accuracy,
+    compute_arc_challenge_accuracy,
     compute_wikitext2_ece,
-    VerificationGate
+    run_all_benchmarks
 )
-from pipeline.model import load_gpt_124m
+from datasets import Dataset
+import numpy as np
 
-class TestEvaluator(unittest.TestCase):
+class MockModel(nn.Module):
+    """Mock model for testing"""
+    def __init__(self):
+        super().__init__()
+        self.linear = nn.Linear(10, 10)
+    
+    def forward(self, x):
+        return self.linear(x)
+    
+    def generate(self, *args, **kwargs):
+        # Mock generate to return a fixed tensor
+        return torch.tensor([[1, 2, 3, 4, 5]])
 
-    def setUp(self):
-        # Load a small model for testing if possible, or mock
-        # Since we cannot run full training in unit tests, we mock the dataset loading
-        # and model generation to verify logic flow.
-        self.mock_model = MagicMock(spec=nn.Module)
-        self.mock_model.eval = MagicMock()
-        self.mock_model.generate = MagicMock()
-        self.mock_model.return_value.logits = MagicMock()
-        
-        # Mock tokenizer
-        self.mock_tokenizer = MagicMock()
-        self.mock_tokenizer.return_value = {"input_ids": torch.tensor([[1, 2, 3]])}
-        self.mock_tokenizer.decode = MagicMock(return_value="Test output")
-        self.mock_model.tokenizer = self.mock_tokenizer
+class MockTokenizer:
+    """Mock tokenizer for testing"""
+    def __init__(self):
+        self.eos_token_id = 50256
+    
+    def __call__(self, text, return_tensors=None):
+        return {"input_ids": torch.tensor([[1, 2, 3]])}
+    
+    def encode(self, text, add_special_tokens=False):
+        return [1, 2, 3]
+    
+    def decode(self, tokens, skip_special_tokens=False):
+        return "The answer is 42"
 
-    @patch('pipeline.evaluator.load_gsm8k')
-    @patch('pipeline.evaluator.tokenizer')
-    def test_compute_gsm8k_accuracy_logic(self, mock_tokenizer, mock_load_dataset):
-        # Setup mock dataset
-        mock_dataset = [
-            {'question': 'What is 1+1?', 'answer': '#### 2'},
-            {'question': 'What is 2+2?', 'answer': '#### 4'}
+class TestVerificationGate(unittest.TestCase):
+    def test_valid_dataset(self):
+        gate = VerificationGate()
+        self.assertTrue(gate.validate_dataset("gsm8k"))
+        self.assertTrue(gate.validate_dataset("arc_challenge"))
+        self.assertTrue(gate.validate_dataset("wikitext"))
+    
+    def test_invalid_dataset(self):
+        gate = VerificationGate()
+        with self.assertRaises(ValueError):
+            gate.validate_dataset("invalid_dataset")
+
+class TestGSM8KAccuracy(unittest.TestCase):
+    @patch('pipeline.evaluator.load_dataset')
+    def test_compute_gsm8k_accuracy(self, mock_load_dataset):
+        # Create mock dataset
+        mock_data = [
+            {"question": "What is 2+2?", "answer": "The answer is 4"},
+            {"question": "What is 3+3?", "answer": "The answer is 6"}
         ]
+        mock_dataset = Dataset.from_list(mock_data)
         mock_load_dataset.return_value = mock_dataset
         
-        # Setup mock tokenizer
-        mock_tokenizer.return_value = {"input_ids": torch.tensor([[1, 2, 3]])}
-        mock_tokenizer.decode.return_value = "A: #### 2" # Correct answer
+        model = MockModel()
+        tokenizer = MockTokenizer()
         
-        # Mock model generation to return correct text
-        self.mock_model.generate.return_value = torch.tensor([[1, 2, 3, 4, 5]]) # Dummy
+        accuracy = compute_gsm8k_accuracy(model, tokenizer, max_samples=2)
         
-        # We cannot easily test the full regex logic without a real model and tokenizer
-        # but we can test the structure.
-        # This test primarily ensures the function signature and flow work.
-        try:
-            # We expect this to fail with real logic if mocks aren't perfect, 
-            # but the goal is to verify the code exists and imports.
-            pass 
-        except Exception:
-            pass
+        # With our mock, both should be correct (42 matches 4 and 6 in string comparison fallback)
+        # Actually, our mock returns "The answer is 42", which won't match "4" or "6"
+        # So accuracy should be 0.0
+        self.assertEqual(accuracy, 0.0)
+    
+    @patch('pipeline.evaluator.load_dataset')
+    def test_compute_gsm8k_accuracy_with_numeric_match(self, mock_load_dataset):
+        # Create mock dataset
+        mock_data = [
+            {"question": "What is 2+2?", "answer": "The answer is 4"},
+            {"question": "What is 3+3?", "answer": "The answer is 6"}
+        ]
+        mock_dataset = Dataset.from_list(mock_data)
+        mock_load_dataset.return_value = mock_dataset
+        
+        model = MockModel()
+        
+        # Create a tokenizer that returns "42" for the first, "4" for the second
+        class MockTokenizerWithCorrect:
+            def __init__(self):
+                self.eos_token_id = 50256
+            
+            def __call__(self, text, return_tensors=None):
+                return {"input_ids": torch.tensor([[1, 2, 3]])}
+            
+            def encode(self, text, add_special_tokens=False):
+                return [1, 2, 3]
+            
+            def decode(self, tokens, skip_special_tokens=False):
+                # Return correct answer for second question
+                if "3+3" in text:
+                    return "The answer is 6"
+                return "The answer is 4"
+        
+        tokenizer = MockTokenizerWithCorrect()
+        
+        accuracy = compute_gsm8k_accuracy(model, tokenizer, max_samples=2)
+        
+        # First is wrong (42 vs 4), second is correct (6 vs 6)
+        self.assertEqual(accuracy, 0.5)
 
-    def test_verification_gate(self):
-        gate = VerificationGate()
-        gate.record('gsm8k', 0.8)
-        gate.record('arc', 0.7)
+class TestARCChallengeAccuracy(unittest.TestCase):
+    @patch('pipeline.evaluator.load_dataset')
+    def test_compute_arc_challenge_accuracy(self, mock_load_dataset):
+        # Create mock dataset
+        mock_data = [
+            {
+                "question": "What is the capital of France?",
+                "choices": {"text": ["London", "Paris"], "label": ["A", "B"]},
+                "answerKey": "B"
+            }
+        ]
+        mock_dataset = Dataset.from_list(mock_data)
+        mock_load_dataset.return_value = mock_dataset
         
-        results = gate.get_results()
-        self.assertEqual(results['gsm8k'], 0.8)
-        self.assertEqual(results['arc'], 0.7)
+        model = MockModel()
+        tokenizer = MockTokenizer()
         
-        gate.set_baseline({'gsm8k': 0.7})
-        improvement = gate.get_improvement('gsm8k')
-        self.assertEqual(improvement, 0.1)
+        accuracy = compute_arc_challenge_accuracy(model, tokenizer, max_samples=1)
         
-        improvement_none = gate.get_improvement('arc')
-        self.assertIsNone(improvement_none)
+        # Our mock always picks the last choice, which is "B"
+        # So it should be correct
+        self.assertEqual(accuracy, 1.0)
 
-if __name__ == '__main__':
+class TestWikitext2ECE(unittest.TestCase):
+    @patch('pipeline.evaluator.load_dataset')
+    def test_compute_wikitext2_ece(self, mock_load_dataset):
+        # Create mock dataset
+        mock_data = [
+            {"text": "The quick brown fox jumps over the lazy dog."},
+            {"text": "Hello world"}
+        ]
+        mock_dataset = Dataset.from_list(mock_data)
+        mock_load_dataset.return_value = mock_dataset
+        
+        model = MockModel()
+        tokenizer = MockTokenizer()
+        
+        ece = compute_wikitext2_ece(model, tokenizer, max_samples=2)
+        
+        # ECE should be a float between 0 and 1
+        self.assertIsInstance(ece, float)
+        self.assertGreaterEqual(ece, 0.0)
+        self.assertLessEqual(ece, 1.0)
+
+class TestRunAllBenchmarks(unittest.TestCase):
+    @patch('pipeline.evaluator.load_dataset')
+    def test_run_all_benchmarks(self, mock_load_dataset):
+        # Mock all datasets
+        def mock_load(name, *args, **kwargs):
+            if "gsm8k" in name:
+                return Dataset.from_list([{"question": "Q", "answer": "A: 4"}])
+            elif "arc" in name:
+                return Dataset.from_list([{
+                    "question": "Q",
+                    "choices": {"text": ["A", "B"], "label": ["A", "B"]},
+                    "answerKey": "B"
+                }])
+            else:
+                return Dataset.from_list([{"text": "Sample text"}])
+        
+        mock_load_dataset.side_effect = mock_load
+        
+        model = MockModel()
+        tokenizer = MockTokenizer()
+        
+        results = run_all_benchmarks(model, tokenizer, max_samples=1)
+        
+        self.assertIn("GSM8K", results)
+        self.assertIn("ARC", results)
+        self.assertIn("ECE", results)
+        
+        # All results should be floats
+        self.assertIsInstance(results["GSM8K"], float)
+        self.assertIsInstance(results["ARC"], float)
+        self.assertIsInstance(results["ECE"], float)
+
+if __name__ == "__main__":
     unittest.main()
