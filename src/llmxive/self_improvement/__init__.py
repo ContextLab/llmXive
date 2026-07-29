@@ -1,4 +1,5 @@
-"""The autonomous self-improvement lane (spec 025). Slice 1A: durable substrate.
+"""The autonomous self-improvement lane (spec 025). Slice 1A: durable substrate;
+slice 1B: the routed proposal review.
 
 Everything the lane does that must survive a crash — ownership of the singleton
 coordinator, the per-Attempt credit budget, the per-Attempt call ceiling, and the route
@@ -44,6 +45,12 @@ from llmxive.self_improvement.events import (
     derive_route_id,
     validate_lane_event,
 )
+from llmxive.self_improvement.invocation_identity import (
+    IndependenceDegraded,
+    InvocationIdentity,
+    InvocationIdentityError,
+    build_invocation_identity,
+)
 from llmxive.self_improvement.lane_log import (
     LANE_REF,
     LaneContention,
@@ -53,10 +60,18 @@ from llmxive.self_improvement.lane_log import (
     bootstrap_lane_log,
     read,
 )
+from llmxive.self_improvement.route_context import (
+    IMPL_REGEN_RETRIES,
+    LaneRouteContext,
+    attempt_call_ceiling,
+    patch_call_ceiling,
+    proposal_call_ceiling,
+)
 
 __all__ = [
     "COORDINATOR_STREAM",
     "EMPTY_COORDINATOR",
+    "IMPL_REGEN_RETRIES",
     "LANE_REF",
     "AttemptConfig",
     "AttemptConfigMismatch",
@@ -65,15 +80,21 @@ __all__ = [
     "CallClaim",
     "Event",
     "EventStoreRouteAudit",
+    "IndependenceDegraded",
+    "InvocationIdentity",
+    "InvocationIdentityError",
     "LaneCallCeilingExceeded",
     "LaneCallLedger",
     "LaneContention",
     "LaneCoordinator",
     "LaneLogConfig",
     "LaneRevisionConflict",
+    "LaneRouteContext",
     "append",
+    "attempt_call_ceiling",
     "bind_attempt_config",
     "bootstrap_lane_log",
+    "build_invocation_identity",
     "cas_claim",
     "cas_release",
     "counting_total",
@@ -81,9 +102,11 @@ __all__ = [
     "derive_event_id",
     "derive_route_id",
     "load_attempt_config",
+    "patch_call_ceiling",
     "project_call_claims",
     "project_coordinator",
     "project_reservations",
+    "proposal_call_ceiling",
     "read",
     "reconcile_unknown",
     "require_attempt_config",

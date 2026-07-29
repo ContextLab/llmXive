@@ -319,3 +319,50 @@ def test_barrier_seam_race_exactly_one_wins(tmp_path, bare_remote):
     # both built from the SAME parent (barrier) then raced the ACTUAL update-ref/FF-push:
     # exactly one wins, the loser hits non-fast-forward → recompute → predicate fails.
     assert len(oks) == 1 and len(conflicts) == 1, f"outcomes: {outcomes}"
+
+
+# ---- concurrent writers on ONE stream (found by the real convergence panel) ----
+
+
+def test_many_concurrent_writers_get_contiguous_seqs_and_none_starve(local_repo):
+    """N threads appending to ONE stream: every append lands, exactly once, with a
+    contiguous seq line and no writer exhausting its retry budget.
+
+    Both halves were REAL defects, surfaced by the 5-reviewer convergence panel:
+
+    1. `seq` and the CAS parent were read SEPARATELY (`read_log`'s own `_rev`, then
+       another in the append loop). A writer landing between the two left `seq` stale
+       while `parent` was fresh, so `update-ref`'s compare-and-swap SUCCEEDED and two
+       events durably shared a seq — which the reader then rejected as a corrupt
+       sequence, after the damage was committed.
+    2. The retry budget was 8, EQUAL to the panel's concurrency cap. Losing every race
+       to every peer is a legal interleaving, not an anomaly, so a healthy panel raised
+       `GitLogContention`.
+    """
+    writers, per_writer = 8, 4
+    errors: list[BaseException] = []
+    lock = threading.Lock()
+
+    def _worker(w: int) -> None:
+        for i in range(per_writer):
+            try:
+                append(local_repo, _ev(f"w{w}-e{i}", 0), expected_revision=None,
+                       config=LaneLogConfig())
+            except BaseException as exc:
+                with lock:
+                    errors.append(exc)
+                return
+
+    threads = [threading.Thread(target=_worker, args=(w,)) for w in range(writers)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=300)
+
+    assert not errors, f"{len(errors)} writer(s) failed: {errors[:3]}"
+    events = read(local_repo, "prob-1", config=LaneLogConfig())
+    assert len(events) == writers * per_writer
+    # `read` already fails closed on a gap/dup, but assert it explicitly: a duplicate seq
+    # is the exact corruption defect 1 produced.
+    assert [e.seq for e in events] == list(range(writers * per_writer))
+    assert len({e.event_id for e in events}) == writers * per_writer

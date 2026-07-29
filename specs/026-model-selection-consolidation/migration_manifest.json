@@ -547,6 +547,83 @@
     },
     {
       "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 52,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 98,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "model_id"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 99,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "model_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 204,
+      "models": [
+        "qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_resolvable_proposer_route_id_is_carried_on_the_outcome"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_run_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 205,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_resolvable_proposer_route_id_is_carried_on_the_outcome"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_self_improvement_proposal_credits.py",
+      "kind": "model_id_literal",
+      "line": 41,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/integration/test_self_improvement_proposal_review.py",
+      "kind": "model_id_literal",
+      "line": 44,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "families"
+    },
+    {
+      "category": "test_double",
       "file": "tests/integration/test_self_improvement_review_spec.py",
       "kind": "model_id_literal",
       "line": 36,

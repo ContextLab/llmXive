@@ -213,6 +213,36 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
     must construct such input through an explicit `_corrupt()` helper and assert the writer
     refuses it too — otherwise it silently implies the reader is the only guard.
 
+22. **Derive `seq` and the CAS parent from ONE observation of the ref** (T9, fixing a 1A
+    blocker). `append_to_log` read events via `read_log` (its own `_rev`) and the parent
+    via a SECOND `_rev`. A writer landing between them leaves `seq` stale while `parent`
+    is fresh — so `update-ref`'s compare-and-swap PASSES and two events durably share a
+    seq. A CAS is only as correct as the snapshot its precondition was computed from.
+
+23. **A retry budget must EXCEED the writer count, and needs jitter** (T9, 1A blocker).
+    `max_retries=8` equalled `engine._PANEL_MAX_CONCURRENCY=8`. Losing every race to every
+    peer is a legal interleaving, not an anomaly. Without jitter the losers re-read and
+    re-commit in lockstep and collide again.
+
+24. **`read_log` was O(n) subprocesses, so appends were O(n²)** (T9). One `git cat-file`
+    per event × a full read per append: 245 ms/append at 30 events, 1206 ms at 120. One
+    `git cat-file --batch` makes it flat (115→152 ms). Use binary I/O — `--batch` sizes
+    are BYTE counts.
+
+25. **The integration test is what found all three.** None were reachable by a unit test:
+    they need real concurrency, a real git ref, and a real panel. When a slice's substrate
+    is "already signed off", the end-to-end test is still the first thing that has ever
+    actually exercised it.
+
+26. **Check what the engine RETURNS before asserting on it** (T9). `ConvergenceResult` has
+    no `artifacts` field — the revised artifacts never leave `run_convergence`. Observable
+    output is `response_history` / `concern_history` / `verdict_history`.
+
+27. **Two ledgers gate a paid dispatch.** 026's DAILY ledger runs first and fails closed
+    when unconfigured, so a lane paid-path test that does not stand one up never reaches
+    the Attempt authority and proves nothing. Raise the daily cap far above the Attempt
+    budget, or it is ambiguous which ledger refused.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute

@@ -12,13 +12,26 @@ before the panel reaches the engine (spec line 283).
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
+from llmxive.convergence.engine import run_convergence
 from llmxive.convergence.lane_reviser import LaneProposalReviser
 from llmxive.convergence.llm_reviewer import LLMReviewer
-from llmxive.convergence.types import ReviewSpec, Severity
+from llmxive.convergence.types import ConvergenceResult, ReviewSpec, Severity
+from llmxive.model_selection.attempt_hooks import RouteAuditError, RouteReplayError
 from llmxive.model_selection.types import IndependenceBaseline
-from llmxive.self_improvement.route_context import LaneRouteContext, attempt_call_ceiling
+from llmxive.self_improvement.invocation_identity import (
+    InvocationIdentity,
+    InvocationIdentityError,
+    build_invocation_identity,
+)
+from llmxive.self_improvement.lane_log import read
+from llmxive.self_improvement.route_context import (
+    LaneCallCeilingExceeded,
+    LaneRouteContext,
+    attempt_call_ceiling,
+)
 
 PROPOSAL_STAGE = "self_improvement_proposal"
 #: The proposal lens set (Self-improvement ReviewSpec table, spec line 278).
@@ -115,6 +128,92 @@ def build_proposal_review_spec(
     )
 
 
+@dataclass(frozen=True)
+class ProposalReviewOutcome:
+    """What the lane learned from one proposal review.
+
+    ``failed_closed`` distinguishes "the panel reached a verdict" from "the lane refused to
+    produce one". Both are honest outcomes; only the first carries a ``result``.
+
+    The Attempt-lifecycle write (``proposal_verified`` / ``rejected`` / ``*_failed``) is
+    deliberately NOT performed here — Slice 1A scoped Attempt-failure semantics out. This
+    reports the outcome; a later slice consumes it.
+    """
+
+    result: ConvergenceResult | None
+    failed_closed: bool
+    failure_kind: str      # "" | "audit_fatal" | "replay" | "ceiling"
+    failure_detail: str
+    producer_identity: InvocationIdentity | None = None
+
+
+def run_proposal_review(
+    *,
+    backend: object,
+    repo_root: Path,
+    proposer_baseline: IndependenceBaseline,
+    route_context: LaneRouteContext,
+    artifacts: dict[str, str],
+    artifact_key: str = "proposal.md",
+    producer: str | None = None,
+    proposer_route_id: str | None = None,
+    constitution: str | None = None,
+    advisory: list[str] | None = None,
+) -> ProposalReviewOutcome:
+    """Run the proposal panel through the SHARED, UNMODIFIED ``run_convergence`` and own
+    the lane's fail-closed classification. The engine's ``_abort_provenance``
+    (``engine.py:433-448``) catches only ``BackendUnavailable``/``TransientBackendError``,
+    so the three lane-fatal conditions are classified here instead of propagating raw.
+
+    ``producer`` is forwarded to the engine's self-review exclusion. Spec 025 line 150 is
+    explicit that this is NECESSARY-NOT-SUFFICIENT: ``engine.py:421`` drops reviewers whose
+    LENS NAME equals the string, so it excludes nothing unless a lens is literally named
+    that. Real independence comes from the family constraint on each reviewer (Task 4) —
+    never treat this argument as the safeguard.
+
+    ``proposer_route_id`` resolves the proposer's full ``InvocationIdentity`` from the same
+    lane log (F7): an ``IndependenceBaseline`` records which families to avoid, not who
+    actually authored the proposal. An id that does not resolve raises — a proposal whose
+    author cannot be identified must not be reviewed as though it could. It is resolved
+    BEFORE the panel is built, so that refusal costs nothing.
+
+    ``BackendUnavailable``/``TransientBackendError`` are deliberately NOT caught: they are
+    the engine's existing clean abort, already recorded via ``on_abort``. On the lane that
+    abort ENDS the Attempt rather than parking it — a resumed process re-derives the same
+    operation ids, so ``claim_route`` hands back the ORIGINAL route ids and the dispatch
+    gate correctly refuses them as replays. Any retry is a NEW Attempt with a new
+    ``attempt_id`` and a disjoint route-id space (spec 025 line 220).
+    """
+    producer_identity = None
+    if proposer_route_id is not None:
+        producer_identity = build_invocation_identity(
+            read(route_context.repo, route_context.problem_id, config=route_context.config),
+            route_id=proposer_route_id, attempt_id=route_context.attempt_id,
+        )
+        if producer_identity is None:
+            raise InvocationIdentityError(
+                f"proposer route {proposer_route_id!r} has no completed dispatch in the lane "
+                "log — refusing to review a proposal with no durable author provenance"
+            )
+    spec = build_proposal_review_spec(
+        backend=backend, repo_root=repo_root, proposer_baseline=proposer_baseline,
+        route_context=route_context, artifact_key=artifact_key,
+    )
+    try:
+        result = run_convergence(spec, artifacts, producer=producer,
+                                 constitution=constitution, advisory=advisory)
+    except RouteAuditError as exc:
+        # FR-033a: route-fatal. NOT a ModelUnavailable → never reroutes, never advances.
+        return ProposalReviewOutcome(None, True, "audit_fatal", str(exc), producer_identity)
+    except RouteReplayError as exc:
+        # FR-033a route-replay disposition: a failed logical call — reservation stays
+        # retained, reconcile from durable dispatch state, NEVER retry as transient.
+        return ProposalReviewOutcome(None, True, "replay", str(exc), producer_identity)
+    except LaneCallCeilingExceeded as exc:
+        return ProposalReviewOutcome(None, True, "ceiling", str(exc), producer_identity)
+    return ProposalReviewOutcome(result, False, "", "", producer_identity)
+
+
 __all__ = [
     "LANE_ATTEMPT_CEILING",
     "PATCH_LENSES",
@@ -123,5 +222,7 @@ __all__ = [
     "PROPOSAL_MAX_ROUNDS",
     "PROPOSAL_OVERFLOW_GOAL",
     "PROPOSAL_STAGE",
+    "ProposalReviewOutcome",
     "build_proposal_review_spec",
+    "run_proposal_review",
 ]

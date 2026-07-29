@@ -29,7 +29,10 @@ from llmxive.backends.base import (
 from llmxive.tools.summarize import estimate_tokens, summarize
 
 from .kickback import route_kickback
-from .revisers._reviser_response import is_malformed_reply_error
+from .revisers._reviser_response import (
+    build_concern_responses,
+    is_malformed_reply_error,
+)
 from .types import (
     Concern,
     ConcernResponse,
@@ -321,15 +324,15 @@ def _fabrication_concerns(
 
 
 # A requirement id (FR-007 / SC-012), tolerant of the non-breaking hyphen the
-# LLM emits (FR‑007), an optional leading zero-pad, AND a sub-letter suffix
+# LLM emits (FR‑007), an optional leading zero-pad, AND a sub-letter suffix  # noqa: RUF003
 # (FR-004a / SC-010b) — the reviser creates these when it splits a requirement
 # to add a sibling (e.g. FR-004a for FR-004's sensitivity analysis). Without the
 # ``[a-z]?`` the id never matches (the ``a`` blocks the ``\b``), so the anchored
 # set silently omits it and a PROVABLY-anchored FR-004a is kept as a false
 # orphan — the live PROJ-492 spec residual.
-_REQ_ID_RE = re.compile(r"\b((?:FR|SC)[-‑]?\d{1,3}[a-z]?)\b", re.IGNORECASE)
+_REQ_ID_RE = re.compile(r"\b((?:FR|SC)[-‑]?\d{1,3}[a-z]?)\b", re.IGNORECASE)  # noqa: RUF001
 # A line that ESTABLISHES a story anchor for the id(s) on it.
-_ANCHOR_HINT_RE = re.compile(r"see\s+us|\bus[-‑\s]?\d|\banchored\s+requirement", re.IGNORECASE)
+_ANCHOR_HINT_RE = re.compile(r"see\s+us|\bus[-‑\s]?\d|\banchored\s+requirement", re.IGNORECASE)  # noqa: RUF001
 # A concern that CLAIMS an FR/SC has no user-story anchor (traceability).
 _ORPHAN_CLAIM_RE = re.compile(
     r"orphan|not\s+(?:anchored|linked|tied|cited|referenced|connected)\b|"
@@ -339,7 +342,7 @@ _ORPHAN_CLAIM_RE = re.compile(
 
 
 def _norm_req_id(raw: str) -> str:
-    raw = raw.replace("‑", "-").upper().replace("FR", "FR-").replace("SC", "SC-")
+    raw = raw.replace("‑", "-").upper().replace("FR", "FR-").replace("SC", "SC-")  # noqa: RUF001
     raw = raw.replace("FR--", "FR-").replace("SC--", "SC-")
     pre, _, num = raw.partition("-")
     # Zero-pad the numeric part; preserve any sub-letter suffix (004A) so
@@ -549,7 +552,16 @@ def run_convergence(
                         "(issue #355)",
                         str(exc)[:160],
                     )
-                    new_arts, responses = {}, []
+                    # PAD, do not blank. The FR-018 guard below forces open every
+                    # concern whose response is ``"<missing>"`` — that is what stops a
+                    # lenient re-reviewer from passing a concern nobody addressed. An
+                    # EMPTY list gives it nothing to key on, so a total reviser failure
+                    # (the very case that comment names) sailed through as resolved
+                    # whenever R3 said pass. Padding via the shared builder makes the
+                    # existing deterministic guard cover the failure it always claimed
+                    # to cover.
+                    new_arts = {}
+                    responses = build_concern_responses([], list(open_concerns))
                     break
         artifacts = {**artifacts, **new_arts}
         response_history.extend(responses)

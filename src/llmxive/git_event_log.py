@@ -32,9 +32,11 @@ from __future__ import annotations
 
 import json
 import os
+import random
 import re
 import subprocess
 import tempfile
+import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -260,7 +262,83 @@ def read_log(repo: Path, *, log: LogRef, validate: Callable[[dict], None]) -> li
     ``validate`` runs on READ as well as write, so a manually corrupted or older
     malformed event cannot slip past write-time validation.
     """
-    tip = _rev(repo, log.ref, identity=log.git_identity)
+    return _read_log_at(repo, log=log, tip=_rev(repo, log.ref, identity=log.git_identity),
+                        validate=validate)
+
+
+#: CAS attempts before an append gives up. It MUST exceed the number of writers that can
+#: contend on one ref, because losing every race to every peer is a legal interleaving,
+#: not an anomaly: the convergence panel dispatches its lenses through a ThreadPoolExecutor
+#: (``engine._PANEL_MAX_CONCURRENCY``, 8), and each reviewer emits several audit events, so
+#: a writer can genuinely lose 8 races in a row. The old bound of 8 EQUALLED the
+#: concurrency cap with zero margin and blew up as `GitLogContention` on a healthy
+#: 5-reviewer panel. Sized at 4x the cap.
+_DEFAULT_MAX_RETRIES = 32
+#: Upper bound of the randomized backoff between CAS attempts. Without jitter, the losers
+#: of a race re-read and re-commit in lockstep and simply collide again; a few ms of
+#: spread lets them serialize instead of livelocking.
+_RETRY_BACKOFF_S = 0.02
+
+
+def _cat_file_batch(
+    repo: Path, *, log: LogRef, tip: str, paths: list[str]
+) -> dict[str, str]:
+    """Read every event blob in ONE ``git cat-file --batch`` instead of one process each.
+
+    Reading is not a rare operation here: ``append_to_log`` does a FULL read on every
+    attempt to derive the next ``seq``, so a per-blob subprocess makes an append cost
+    O(n) processes and a whole Attempt O(n²). Measured on this substrate before the
+    change: 245 ms/append at 30 events, 1206 ms at 120 — and a real Attempt's ~90 calls
+    emit several hundred events, which is minutes of pure git overhead before a single
+    model is called.
+
+    Binary I/O throughout: ``--batch`` sizes are BYTE counts, so decoding before slicing
+    would corrupt any non-ASCII payload.
+    """
+    if not paths:
+        return {}
+    env = {**os.environ, **log.git_identity, "GIT_TERMINAL_PROMPT": "0"}
+    stdin = "".join(f"{tip}:{p}\n" for p in paths).encode()
+    proc = subprocess.run(
+        ["git", "cat-file", "--batch"], cwd=str(repo), env=env,
+        input=stdin, capture_output=True, check=False,
+    )
+    if proc.returncode != 0:
+        raise GitLogError(
+            f"git cat-file --batch failed ({proc.returncode}): "
+            f"{proc.stderr.decode(errors='replace').strip()}"
+        )
+    out, pos, blobs = proc.stdout, 0, {}
+    for path in paths:
+        nl = out.find(b"\n", pos)
+        if nl < 0:
+            raise GitLogError(f"cat-file --batch ended before {path!r}")
+        header = out[pos:nl].decode()
+        parts = header.split()
+        # "<oid> missing" — a listed path whose object cannot be read is corruption, not
+        # an empty event: the same fail-closed stance `_rev` takes on an unreadable ref.
+        if len(parts) != 3:
+            raise GitLogError(f"cat-file --batch could not read {path!r}: {header}")
+        size = int(parts[2])
+        start = nl + 1
+        blobs[path] = out[start:start + size].decode()
+        pos = start + size + 1          # skip the trailing newline --batch appends
+    return blobs
+
+
+def _read_log_at(
+    repo: Path, *, log: LogRef, tip: str | None, validate: Callable[[dict], None]
+) -> list[dict]:
+    """:func:`read_log`'s body against an EXPLICIT tip.
+
+    Split out because ``append_to_log`` must derive the next ``seq`` and the CAS parent
+    from the SAME observation of the ref. Reading them independently is a live race: if
+    another writer lands between the two reads, ``seq`` is stale while ``parent`` is
+    fresh, so ``update-ref``'s compare-and-swap SUCCEEDS and two events share one ``seq``
+    — which the reader then rejects as a corrupt sequence, after the damage is durable.
+    Observed under the real convergence panel's ThreadPoolExecutor with five concurrent
+    reviewers on one stream.
+    """
     if tip is None:
         return []
     # CHECKED (not check=False): a failed listing has empty stdout, and projecting that
@@ -271,9 +349,11 @@ def read_log(repo: Path, *, log: LogRef, validate: Callable[[dict], None]) -> li
         ["ls-tree", "-r", "--name-only", tip, "--", f"{log.event_dir}/"],
         cwd=repo, identity=log.git_identity,
     ).stdout
+    paths = [p for p in (line.strip() for line in listing.splitlines()) if p]
+    blobs = _cat_file_batch(repo, log=log, tip=tip, paths=paths)
     events: list[dict] = []
-    for path in filter(None, (line.strip() for line in listing.splitlines())):
-        blob = _git(["cat-file", "blob", f"{tip}:{path}"], cwd=repo, identity=log.git_identity).stdout
+    for path in paths:
+        blob = blobs[path]
         try:
             event = json.loads(blob)
         except json.JSONDecodeError as exc:
@@ -507,7 +587,7 @@ def append_to_log(
     finalize: Callable[[dict, int], dict] | None = None,
     identity_exclude: frozenset[str] = frozenset(),
     _after_parent: Callable[[], None] | None = None,
-    max_retries: int = 8,
+    max_retries: int = _DEFAULT_MAX_RETRIES,
 ) -> AppendResult:
     """Append ONE event to the authoritative log under strict CAS.
 
@@ -551,9 +631,17 @@ def append_to_log(
         return _canonical({k: v for k, v in doc.items() if k not in identity_exclude})
 
     for _attempt in range(max_retries):
+        if _attempt:
+            # Jittered backoff. The losers of a race would otherwise re-read and re-commit
+            # in lockstep and collide again on the very next attempt.
+            time.sleep(random.uniform(0, _RETRY_BACKOFF_S))
         sync_and_verify(repo, log=log)  # remote existence + anchor identity; fails closed
-        events = read_log(repo, log=log, validate=validate)
+        # ONE observation of the ref feeds BOTH the CAS parent and the next seq. Reading
+        # them separately (read_log's own _rev, then another here) is a live race: a
+        # writer landing between the two leaves `seq` stale while `parent` is fresh, so
+        # the compare-and-swap passes and two events durably share a seq.
         parent = _rev(repo, log.ref, identity=log.git_identity)
+        events = _read_log_at(repo, log=log, tip=parent, validate=validate)
         seq = len(events)
         if prepare is not None:
             built = prepare(events)  # fresh per attempt; may raise GitLogDenied
