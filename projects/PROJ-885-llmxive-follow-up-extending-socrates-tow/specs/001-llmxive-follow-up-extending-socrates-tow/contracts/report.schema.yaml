@@ -18,6 +18,7 @@ properties:
       - "is_significant"
       - "effect_size"
       - "test_type"
+      - "normality_p_value"
     properties:
       mean_diff:
         type: "number"
@@ -37,6 +38,9 @@ properties:
           - "t-test"
           - "wilcoxon"
         description: "Type of statistical test used."
+      normality_p_value:
+        type: "number"
+        description: "Shapiro-Wilk p-value for normality check of difference scores."
   correction_applied:
     type: "boolean"
     description: "Whether multiple-comparison correction (Holm-Bonferroni) was applied."

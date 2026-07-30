@@ -1,1 +1,11 @@
-[]
+- artifact_hash: d27491ae8312516070bef784abef4e3be83fa89a14e4400055fc09aa4d681131
+  artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/SoCRATES/socrates-eval`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/SoCRATES/socrates-eval
+  verified_at: '2026-07-30T01:51:40.989438Z'

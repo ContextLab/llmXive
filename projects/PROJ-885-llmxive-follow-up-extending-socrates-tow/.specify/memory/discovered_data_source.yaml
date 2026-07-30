@@ -1,0 +1,11 @@
+status: none
+intent: conflict dialogue dataset speaker turns emotional tags resolution python package
+  dataset
+required_fields:
+- ground_truth_score (float 0.0-10.0)
+- categorical_tags (list of strings)
+- speaker_turns (ordered list of utterance texts)
+- "resolution_text (ground\u2011truth resolution description)"
+cache_key: 50655338908eeb5aad46a655c9f652293d30a58e32ef953cee8bc589e33e40ac
+searched_at: '2026-07-30T01:38:57.465366+00:00'
+retry_count: 1
