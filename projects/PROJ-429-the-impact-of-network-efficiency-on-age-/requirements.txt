@@ -1,21 +1,18 @@
-# Existing dependencies
-mne
-networkx
-scipy
-pandas
-statsmodels
-pywavelets
-numpy
-matplotlib
-seaborn
-scikit-learn
-pyyaml
-ruff
-black
-pytest
-pytest-cov
-jupyter
-jupyterlab
+# Core Data & Signal Processing
+mne>=1.6.0
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
 
-# New dependencies (if any)
-# None required for T028
+# Network Analysis
+networkx>=3.1.0
+
+# Statistics
+statsmodels>=0.14.0
+
+# Visualization
+matplotlib>=3.7.0
+
+# Development & Tooling (Added for T003)
+ruff>=0.1.0
+black>=23.0.0

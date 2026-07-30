@@ -1,81 +1,45 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Correlation Result Schema
-description: Schema for validating the output of the correlation analysis (T023_run) and subsequent validation (T029).
+description: Schema for data/results/correlation_results.csv containing Spearman correlation results between network metrics and age/cognitive outcomes.
 type: object
 required:
-  - participant_id
-  - age
-  - cognitive_score
-  - cognitive_instrument
-  - global_efficiency
-  - local_efficiency
-  - characteristic_path_length
-  - clustering_coefficient
-  - modularity
-  - age_correlation_rho
-  - age_correlation_pvalue
-  - age_correlation_pvalue_adj
-  - cognition_correlation_rho
-  - cognition_correlation_pvalue
-  - cognition_correlation_pvalue_adj
-  - signal_quality_flag
+  - metric_name
+  - outcome
+  - spearman_r
+  - p_value
+  - p_adjusted
+  - n
   - trace_id
 properties:
-  participant_id:
+  metric_name:
     type: string
-    description: Unique identifier for the participant.
-  age:
+    description: Name of the network metric being correlated (e.g., 'global_efficiency', 'local_efficiency').
+    minLength: 1
+  outcome:
+    type: string
+    description: The outcome variable used in the correlation (e.g., 'age', 'cognitive_score').
+    minLength: 1
+  spearman_r:
+    type: number
+    description: Spearman rank correlation coefficient.
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    type: number
+    description: Raw p-value from the Spearman correlation test.
+    minimum: 0.0
+    maximum: 1.0
+  p_adjusted:
+    type: number
+    description: P-value after multiple-comparison correction (Bonferroni or FDR).
+    minimum: 0.0
+    maximum: 1.0
+  n:
     type: integer
-    minimum: 18
-    description: Age of the participant in years.
-  cognitive_score:
-    type: number
-    nullable: true
-    description: Cognitive assessment score (e.g., MMSE or MoCA).
-  cognitive_instrument:
-    type: string
-    description: The instrument used for cognitive assessment (e.g., MMSE, MoCA).
-  global_efficiency:
-    type: number
-    description: Global network efficiency metric.
-  local_efficiency:
-    type: number
-    description: Local network efficiency metric.
-  characteristic_path_length:
-    type: number
-    description: Average shortest path length in the network.
-  clustering_coefficient:
-    type: number
-    description: Clustering coefficient of the network.
-  modularity:
-    type: number
-    description: Modularity of the network community structure.
-  age_correlation_rho:
-    type: number
-    description: Spearman correlation coefficient between metric and age.
-  age_correlation_pvalue:
-    type: number
-    description: Raw p-value for the age correlation.
-  age_correlation_pvalue_adj:
-    type: number
-    description: Adjusted p-value (Bonferroni/FDR) for the age correlation.
-  cognition_correlation_rho:
-    type: number
-    description: Spearman correlation coefficient between metric and cognitive score.
-  cognition_correlation_pvalue:
-    type: number
-    description: Raw p-value for the cognition correlation.
-  cognition_correlation_pvalue_adj:
-    type: number
-    description: Adjusted p-value (Bonferroni/FDR) for the cognition correlation.
-  signal_quality_flag:
-    type: string
-    enum:
-      - Good
-      - Low Signal Quality
-    description: Flag indicating the quality of the EEG signal.
+    description: Number of observations used in the correlation.
+    minimum: 2
   trace_id:
     type: string
+    description: SHA-256 hex string tracing the source data and code version.
     pattern: '^[a-f0-9]{64}$'
-    description: SHA-256 hash of the source code and data used to generate this result.
 additionalProperties: false

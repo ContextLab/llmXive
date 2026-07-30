@@ -41,13 +41,15 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-.pytest_cache
+.hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
 *.pot
 
 # Environments
+.env
 .venv
 env/
 venv/
@@ -62,15 +64,10 @@ venv.bak/
 *.swo
 *~
 
-# Data and State (generated)
-data/
+# Project specific
+data/raw/
+data/processed/
+data/results/
 state/
-figures/
-docs/_build/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Config
-.env
+logs/
+*.log

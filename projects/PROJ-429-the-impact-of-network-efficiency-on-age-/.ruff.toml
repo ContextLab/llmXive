@@ -1,22 +1,27 @@
+# Ruff configuration for llmXive project
+# Enforces PEP 8 compliance and common best practices
+
 [lint]
+# Enable pycodestyle (E), pyflakes (F), and isort (I) rules
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
     "F",   # pyflakes
     "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+    "C90", # mccabe (complexity)
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
 ]
+
+# Ignore specific rules if necessary (e.g., line length handled by black)
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "E501", # Line too long (handled by black)
 ]
 
 [lint.per-file-ignores]
-"tests/*" = ["S101"] # assert allowed in tests
+# Allow longer lines in config files or specific test files if needed
+"tests/*" = ["N999"]
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.isort]
+known-first-party = ["config", "data", "network", "stats", "viz", "state"]
+force-sort-within-sections = true
