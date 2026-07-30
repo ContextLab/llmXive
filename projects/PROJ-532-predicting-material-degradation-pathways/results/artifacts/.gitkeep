@@ -1,1 +1,1 @@
-# This file ensures the artifacts directory is tracked by git.
+# Trained model artifacts and other serialized objects will be stored here.

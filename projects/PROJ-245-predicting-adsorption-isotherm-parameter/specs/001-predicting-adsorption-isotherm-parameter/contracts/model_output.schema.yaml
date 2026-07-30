@@ -33,6 +33,9 @@ properties:
           - mae
           - cv_r2_mean
           - cv_r2_std
+      reduced_model_r2:
+        type: number
+        description: "R-squared of the model trained ONLY on the top 3 features (SC-003)"
       material_only_baseline_rmse:
         type: number
         description: "RMSE of the material-only baseline (predicting mean per material)"
@@ -42,6 +45,7 @@ properties:
     required:
       - best_model
       - metrics
+      - reduced_model_r2
       - material_only_baseline_rmse
       - improvement_over_material_only
   feature_importance:
@@ -89,7 +93,7 @@ properties:
             description: "Features from top 3 that match the consensus list"
           match_count:
             type: integer
-            description: "Number of matches (target >= 2)"
+            description: "Number of matches"
           is_valid_negative:
             type: boolean
             description: "True if mismatch occurred (valid negative result)"
@@ -104,48 +108,3 @@ properties:
 required:
   - model_performance
   - feature_importance
-examples:
-  - model_performance:
-      best_model: "RandomForest"
-      metrics:
-        r2: 0.75
-        rmse: 0.12
-        mae: 0.09
-        cv_r2_mean: 0.73
-        cv_r2_std: 0.02
-      material_only_baseline_rmse: 0.15
-      improvement_over_material_only: 0.20
-    feature_importance:
-      top_5_features:
-        - feature_name: "polarizability"
-          mean_abs_shap: 0.45
-          p_value: 0.001
-          adjusted_p_value: 0.005
-          is_significant: true
-        - feature_name: "kinetic_diameter"
-          mean_abs_shap: 0.30
-          p_value: 0.01
-          adjusted_p_value: 0.02
-          is_significant: true
-      literature_match:
-        consensus_list:
-          - "polarizability"
-          - "kinetic_diameter"
-          - "Lennard-Jones energy parameter"
-          - "quadrupole moment"
-          - "molecular volume"
-        top_3_matches:
-          - "polarizability"
-          - "kinetic_diameter"
-        match_count: 2
-        is_valid_negative: false
-  - model_performance:
-      status: "data_missing"
-      error: "No verified source found"
-    feature_importance:
-      top_5_features: []
-      literature_match:
-        consensus_list: []
-        top_3_matches: []
-        match_count: 0
-        is_valid_negative: true

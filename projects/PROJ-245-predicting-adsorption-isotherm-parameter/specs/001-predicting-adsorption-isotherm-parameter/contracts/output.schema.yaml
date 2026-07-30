@@ -54,7 +54,7 @@ properties:
         - is_significant
   runtime_log_path:
     type: "string"
-    description: "Path to the runtime log JSON file."
+    description: "Path to the runtime log JSON file (data/benchmarks/runtime_log.json)."
 required:
   - model_type
   - metrics

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.22904",
+  "judged_at": "2026-07-30T10:46:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"in-context world modeling for robotic control\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same mechanism (in-context world modeling for robotic control) and domain (language-conditioned policy generalization) as the user's question, specifically extending the \"In-Context World Modeling\" concept to improve generalization without planning or expert demonstrations.",
+  "relevant": true
+}

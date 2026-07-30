@@ -56,11 +56,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/utils.py` with checksumming helpers (SHA-256) and deterministic logging
-- [ ] T005 [P] Create `data/` directory structure (`raw/`, `processed/`) and `data/README.md` for provenance
+- [X] T005 [P] Create `data/` directory structure (`raw/`, `processed/`) and `data/README.md` for provenance
 - [ ] T006 [P] Create `results/` directory structure (`metrics/`, `plots/`, `artifacts/`)
-- [ ] T007 Implement `code/__init__.py` and set `PYTHONPATH` configuration for `code/` module
-- [ ] T008 Configure environment variable handling for dataset URLs and random seeds in `code/utils.py`
-- [~] T009 [P] [US3] **Construct Reference Importance Vector**: Implement `code/literature_review.py` to load the fixed set of 5 review papers listed in Spec Assumptions (or their most recent equivalents), perform a systematic review to extract ranked feature importance lists for degradation pathways, normalize rankings to 0-1, aggregate via citation-weighted average, and save the result to `data/contracts/literature_vector.json` for use in SC-003 validation. This task is independent of data ingestion (T013) and must complete before US3 begins. **Note: This task is moved to Phase 2 to ensure the artifact exists before T038 (Validation) runs.**
+- [X] T007 Implement `code/__init__.py` and set `PYTHONPATH` configuration for `code/` module
+- [X] T008 Configure environment variable handling for dataset URLs and random seeds in `code/utils.py`
+- [ ] T009 [P] [US3] **Construct Reference Importance Vector**: Implement `code/literature_review.py` to load the fixed set of 5 review papers listed in Spec Assumptions (or their most recent equivalents), perform a systematic review to extract ranked feature importance lists for degradation pathways, normalize rankings to 0-1, aggregate via citation-weighted average, and save the result to `data/contracts/literature_vector.json` for use in SC-003 validation. This task is independent of data ingestion (T013) and must complete before US3 begins. **Note: This task is moved to Phase 2 to ensure the artifact exists before T038 (Validation) runs.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,8 +87,8 @@
 - [X] T015 [US1] Implement `code/ingestion.py` logic to calculate missing value percentages and apply imputation (median) or exclusion rules
 - [X] T016 [P] [US1] Implement `code/preprocessing.py` to map elemental weight percentages to feature vectors
 - [X] T017 [P] [US1] Implement `code/preprocessing.py` to calculate derived atomic properties (electronegativity, radius) for post-hoc analysis (exclude from training vector)
-- [~] T018 [US1] Implement `code/ingestion.py` to generate `data/processed/cleaned_alloys.csv`, calculate retention percentage and record count, and explicitly log these stats to `data/processed/retention_audit.json` (Target: ≥70% retention, ≥200 records) to verify SC-005.
-- [~] T019 [US1] Implement `code/preprocessing.py` to perform **Out-of-Distribution (OOD) test set split based on alloy class**: Identify distinct alloy families (e.g., High-Entropy Alloys, Stainless Steels, Carbon Steels) in the dataset. **If <2 classes exist, fallback to a stratified random split and explicitly flag this condition in the output report**; otherwise, hold out one full family as the test set to generate `data/processed/train_set.parquet` and `data/processed/test_ood_set.parquet`, as mandated by FR-007 and SC-006.
+- [ ] T018 [US1] Implement `code/ingestion.py` to generate `data/processed/cleaned_alloys.csv`, calculate retention percentage and record count, and explicitly log these stats to `data/processed/retention_audit.json` (Target: ≥70% retention, ≥200 records) to verify SC-005.
+- [ ] T019 [US1] Implement `code/preprocessing.py` to perform **Out-of-Distribution (OOD) test set split based on alloy class**: Identify distinct alloy families (e.g., High-Entropy Alloys, Stainless Steels, Carbon Steels) in the dataset. **If <2 classes exist, fallback to a stratified random split and explicitly flag this condition in the output report**; otherwise, hold out one full family as the test set to generate `data/processed/train_set.parquet` and `data/processed/test_ood_set.parquet`, as mandated by FR-007 and SC-006.
 - [X] T020 [US1] Add "Data Insufficiency Report" generation logic in `code/ingestion.py` if record count < 200 after filtering
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -104,14 +104,14 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T021 [P] [US2] Unit test for stratified split logic in `tests/unit/test_training.py`
-- [ ] T022 [P] [US2] Unit test for permutation test implementation in `tests/unit/test_evaluation.py` (verify n=1000 iterations)
+- [X] T022 [P] [US2] Unit test for permutation test implementation in `tests/unit/test_evaluation.py` (verify n=1000 iterations)
 - [ ] T023 [P] [US2] Integration test for training and evaluation pipeline in `tests/integration/test_model_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement `code/training.py` to train a Random Forest multi-label classifier (CPU-only, default precision) using the pre-split `train_set.parquet` generated in T019.
-- [ ] T025 [US2] Implement `code/evaluation.py` to generate a stratified random baseline preserving class distribution **and explicitly preserving the multi-label correlation structure during shuffling by shuffling the joint label vector**, as required by SC-001 for the permutation test.
-- [ ] T026 [US2] Implement `code/evaluation.py` to perform permutation test (n=1,000, shuffle the joint label vector per sample) to validate p < 0.05
+- [X] T024 [US2] Implement `code/training.py` to train a Random Forest multi-label classifier (CPU-only, default precision) using the pre-split `train_set.parquet` generated in T019.
+- [X] T025 [US2] Implement `code/evaluation.py` to generate a stratified random baseline preserving class distribution **and explicitly preserving the multi-label correlation structure during shuffling by shuffling the joint label vector**, as required by SC-001 for the permutation test.
+- [X] T026 [US2] Implement `code/evaluation.py` to perform permutation test (n=1,000, shuffle the joint label vector per sample) to validate p < 0.05
 - [ ] T027 [US2] Implement `code/evaluation.py` to calculate macro-F1 score and compare against baseline (Target: margin ≥ 0.05)
 - [ ] T028 [US2] Implement `code/evaluation.py` to generate confusion matrix identifying error modes (e.g., pitting vs. SCC)
 - [ ] T029 [US2] Save trained `ModelArtifact` (model + metrics) to `results/artifacts/model.pkl` and `results/metrics/training_report.json`

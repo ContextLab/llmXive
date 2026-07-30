@@ -31,14 +31,47 @@
   verification_status: verified
   verified_against_url: https://www.python.org/downloads/release/python-3110/
   verified_at: '2026-07-14T15:50:34.146572Z'
-- artifact_hash: 6f7add1dd4e3c3dc88ad2d928bb287e53dcc368116e0f793d1a20d5c80036640
+- artifact_hash: dff38d4f1f6a866c5e8b4e49afb57a46b7078d0b2928c189dfd97ea7f6e26e1e
+  artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-repo/specs/tree/main/001-predict-adsorption-isotherm-parameter
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-repo/specs/tree/main/001-predict-adsorption-isotherm-parameter
+  verified_at: '2026-07-30T10:30:40.099763Z'
+- artifact_hash: e46cd4b68f545571d8d20fd74fc0b1bdec67dfa546f423fe2e8276f80a8e9683
   artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/ethanolivertroy/mof-177-benchmark`
+  value: https://huggingface.co/datasets/nist-adsorption-isotherms`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/nist-adsorption-isotherms/datasets
+  verified_at: '2026-07-30T10:33:37.165303Z'
+- artifact_hash: e46cd4b68f545571d8d20fd74fc0b1bdec67dfa546f423fe2e8276f80a8e9683
+  artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/nist-adsorption-isotherms/blob/main/mof_metadata.json`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/ethanolivertroy/mof-177-benchmark
-  verified_at: '2026-07-25T12:02:39.005847Z'
+  verified_against_url: https://huggingface.co/datasets/nist-adsorption-isotherms/blob/main/mof_metadata.json
+  verified_at: '2026-07-30T10:33:37.165303Z'
+- artifact_hash: 8ccf3b467166780eb4566b5a4a8d87d8b31f8a692590701d02b6ca1100a48749
+  artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-07-30T10:33:58.745148Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.05658",
+  "judged_at": "2026-07-30T10:45:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"in-context world modeling for robotic control\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the application of Large Language Models for robotic control and world modeling (specifically inferring user preferences and planning physical actions), which directly aligns with the user's focus on \"In-Context World Modeling for Robotic Control\" using LLMs. It provides empirical evidence on the mechanism of using LLMs for robot adaptation and planning, serving as a canonical prior work for this specific research direction.",
+  "relevant": true
+}

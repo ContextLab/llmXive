@@ -94,8 +94,8 @@
 - [X] T021 [US2] Implement `code/03_correlation.py` to compute Spearman rank correlations between taxa and cognitive scores (FR-003)
 - [X] T022 [US2] Implement `code/03_correlation.py` logic to apply Benjamini-Hochberg FDR correction and flag significant taxa (q < 0.05) (FR-004)
 - [ ] T023 [US2] Implement `code/04_regression.py` to fit LASSO/Elastic Net models with CLR-transformed taxa, age, sex, BMI (FR-005). **MUST check for `data/processed/merged_dataset.parquet`; if missing, skip execution and log "N/A - Data Gap" to prevent runtime errors.**
-- [~] T025 [US2] Ensure all outputs include explicit "associational" framing labels (FR-005, SC-005)
-- [~] T026 [US2] Save correlation matrix and regression results to `data/processed/` with metadata
+- [ ] T025 [US2] Ensure all outputs include explicit "associational" framing labels (FR-005, SC-005)
+- [ ] T026 [US2] Save correlation matrix and regression results to `data/processed/` with metadata
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (or correctly report N/A due to data gap)
 
@@ -116,8 +116,8 @@
 
 ### Implementation for User Story 3
 
-- [~] T029 [US3] Implement `code/05_sensitivity.py` to stratify correlations by age groups (<40, ≥40-<60, ≥60) (FR-006); Check for `data/processed/merged_dataset.parquet`; skip if missing
-- [~] T030 [US3] Implement `code/05_sensitivity.py` to compare significant taxa counts across normalization methods (DESeq2 vs rarefaction); Check for `data/processed/merged_dataset.parquet`; skip if missing
+- [ ] T029 [US3] Implement `code/05_sensitivity.py` to stratify correlations by age groups (<40, ≥40-<60, ≥60) (FR-006); Check for `data/processed/merged_dataset.parquet`; skip if missing
+- [ ] T030 [US3] Implement `code/05_sensitivity.py` to compare significant taxa counts across normalization methods (DESeq2 vs rarefaction); Check for `data/processed/merged_dataset.parquet`; skip if missing
 - [~] T031 [US3] Implement `code/06_visualize.py` to generate heatmap of taxa-cognition correlation matrix (FR-007); Check for `data/processed/merged_dataset.parquet`; skip if missing
 - [~] T032 [US3] Implement `code/06_visualize.py` to generate forest plot of regression coefficients with confidence intervals (FR-007); Check for `data/processed/merged_dataset.parquet`; skip if missing
 - [~] T033 [US3] Ensure all visualizations include clear labels for age groups and confidence intervals

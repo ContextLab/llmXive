@@ -62,3 +62,35 @@ def set_deterministic_seed(seed: int) -> None:
 def get_dataset_url(key: str) -> Optional[str]:
     """Get dataset URL from environment variable."""
     return get_env_var(key)
+
+def configure_seed_from_env(var_name: str = "RANDOM_SEED", default: int = 42) -> int:
+    """
+    Configure the random seed from an environment variable.
+    
+    Reads the integer value from the specified environment variable.
+    If the variable is not set or invalid, falls back to the provided default.
+    Sets the seed for both Python's random module and numpy (if available).
+    
+    Args:
+        var_name: The name of the environment variable to read (default: "RANDOM_SEED")
+        default: The default seed value to use if the env var is missing/invalid (default: 42)
+    
+    Returns:
+        The integer seed value that was set.
+    """
+    seed_str = os.environ.get(var_name)
+    if seed_str is not None:
+        try:
+            seed = int(seed_str)
+        except ValueError:
+            logger = setup_logging()
+            logger.warning(
+                f"Invalid seed value '{seed_str}' for env var '{var_name}'. "
+                f"Using default seed: {default}"
+            )
+            seed = default
+    else:
+        seed = default
+    
+    set_deterministic_seed(seed)
+    return seed

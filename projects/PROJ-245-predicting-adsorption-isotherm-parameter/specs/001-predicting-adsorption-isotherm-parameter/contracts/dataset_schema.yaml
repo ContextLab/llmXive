@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Adsorption Dataset Schema
+description: Validation schema for the processed adsorption dataset.
+type: array
+items:
+  type: object
+  properties:
+    adsorbate_name:
+      type: string
+      description: "Name of the adsorbate gas."
+    adsorbent_material:
+      type: string
+      description: "Identifier for the adsorbent material."
+    temperature:
+      type: number
+      format: float
+      description: "Temperature in Kelvin (K)."
+    pressure:
+      type: number
+      format: float
+      description: "Pressure in kilopascals (kPa)."
+    amount_adsorbed:
+      type: number
+      format: float
+      description: "Amount adsorbed in mmol/g."
+    polarizability:
+      type: number
+      format: float
+      unit: "Å³"
+      description: "Polarizability of the adsorbate molecule (Angstrom cubed)."
+    molecular_weight:
+      type: number
+      format: float
+      unit: "g/mol"
+      description: "Molecular weight of the adsorbate gas (grams per mole)."
+    surface_area:
+      type: number
+      format: float
+      unit: "m²/g"
+      description: "Surface area of the adsorbent material (square meters per gram)."
+    pore_volume:
+      type: number
+      format: float
+      unit: "cm³/g"
+      description: "Pore volume of the adsorbent material (cubic centimeters per gram)."
+    langmuir_capacity:
+      type: number
+      format: float
+      unit: "mmol/g"
+      description: "Langmuir capacity parameter (Q_max) FITTED from raw isotherm data."
+    henry_constant:
+      type: number
+      format: float
+      unit: "kPa⁻¹"
+      description: "Henry constant (K_H) FITTED from raw isotherm data."
+
+  required:
+    - adsorbate_name
+    - adsorbent_material
+    - temperature
+    - pressure
+    - amount_adsorbed
+    - polarizability
+    - molecular_weight
+    - surface_area
+    - langmuir_capacity
+    - henry_constant
+additionalProperties: false

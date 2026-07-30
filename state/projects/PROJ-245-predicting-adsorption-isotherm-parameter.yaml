@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T09:00:08.394027Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-245-predicting-adsorption-isotherm-parameter
-last_run_id: 359632bc-c57f-4b59-b949-04c63fc56d4a
+last_run_id: c5c2b141-300c-4ee3-8faa-0b3d53570a65
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter
 title: Predicting Adsorption Isotherm Parameters from Molecular Features
-updated_at: '2026-07-25T12:27:37.655315Z'
+updated_at: '2026-07-30T10:34:12.726047Z'

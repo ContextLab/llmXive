@@ -1,54 +1,58 @@
-# Quickstart: Predicting Adsorption Isotherm Parameters
+# Quickstart: Predicting Adsorption Isotherm Parameters from Molecular Features
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` or `conda`
-- Access to GitHub Actions (for CI) or local environment
+*   Python 3.11+
+*   GitHub repository cloned locally
+*   Virtual environment created and activated (`python -m venv .venv; source .venv/bin/activate`)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # Linux/Mac
-    # or venv\Scripts\activate  # Windows
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-### 1. Data Preparation (Synthetic Mode)
-Since verified adsorption data is currently unavailable, run the synthetic generator:
 ```bash
-cd projects/PROJ-245-predicting-adsorption-isotherm-parameter/code/
-python data/generate_synthetic_data.py --output data/processed/synthetic_adsorption.csv
+pip install -r requirements.txt
 ```
 
-### 2. Training & Evaluation
+## Data Download & Preparation
+
+The pipeline automatically downloads and preprocesses the NIST dataset:
+
 ```bash
-python models/train.py --input data/processed/synthetic_adsorption.csv --target langmuir_capacity
+python src/main.py --data-dir data/raw --task curate_data
 ```
-*Output*: `data/models/best_model.pkl`, `data/benchmarks/metrics.json`.
 
-### 3. SHAP Analysis
+This command will download the dataset, filter for Type I isotherms, calculate molecular descriptors using RDKit, fit Langmuir/Henry parameters, and output a cleaned CSV file to `data/processed`.
+
+## Model Training & Evaluation
+
+Train and evaluate machine learning models:
+
 ```bash
-python analysis/shap_analysis.py --model data/models/best_model.pkl --data data/processed/synthetic_adsorption.csv
+python src/main.py --data-dir data/processed --task train_model --target langmuir_capacity
 ```
-*Output*: `data/figures/shap_summary.png`, `data/reports/feature_importance.json`.
 
-### 4. Generate Final Report
+Replace `langmuir_capacity` with the desired target parameter (e.g., `henry_constant`). This command will perform 5-fold cross-validation, train a reduced model with top 3 features, and report performance metrics on a held-out test set.
+
+## SHAP Analysis & Interpretation
+
+Generate SHAP plots to identify key drivers of adsorption behavior:
+
 ```bash
-python analysis/report_gen.py
+python src/main.py --data-dir data/processed --model trained_models/best_model.pkl --task shap_analysis
 ```
-*Output*: `data/reports/final_report.md`.
 
-## Verification
+Replace `trained_models/best_model.pkl` with the path to your trained model file. This command will generate SHAP summary plots, partial dependence plots, and perform cluster-aware permutation testing.
 
-- Check `data/benchmarks/runtime_log.json` for execution status.
-- Verify `data/reports/final_report.md` contains FDR-corrected p-values and SHAP plots.
-- Ensure `R²` improvement over null model is reported.
+## Output Files
+
+*   `data/processed/cleaned_dataset.csv`: Cleaned and preprocessed dataset
+*   `trained_models/best_model.pkl`: Trained machine learning model
+*   `data/benchmarks/runtime_log.json`: Runtime benchmark log (FR-009)
+*   `shap_plots/summary_plot.png`: SHAP summary plot
+*   `shap_plots/partial_dependence_plot.png`: Partial dependence plot
+*   `reports/feature_importance_report.json`: **Contains adjusted p-values (q-values)** for top features (SC-005)
+
+## Troubleshooting
+
+*   **Missing dependencies**: Ensure all required packages are installed using `pip install -r requirements.txt`.
+*   **Data download errors**: Check your internet connection and verify the dataset URLs in the configuration file.
+*   **Memory issues**: The pipeline will automatically sample the data if memory limits are exceeded. No external GPU services are used.

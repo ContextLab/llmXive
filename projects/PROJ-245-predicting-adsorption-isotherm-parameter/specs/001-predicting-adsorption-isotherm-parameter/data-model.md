@@ -1,54 +1,88 @@
-# Data Model: Predicting Adsorption Isotherm Parameters
+# Data Model: Predicting Adsorption Isotherm Parameters from Molecular Features
 
-## Entities & Relationships
+## Dataset Schema (NIST)
 
-### Adsorbate
-*Represents the gas molecule being adsorbed.*
-- `molecule_id` (PK): Unique identifier.
-- `smiles`: Canonical SMILES string.
-- `molecular_weight` (float): g/mol.
-- `polarizability` (float): Å³.
-- `van_der_waals_volume` (float): Å³.
-- `polar_surface_area` (float): Å².
-- `h_bond_donors` (int).
-- `h_bond_acceptors` (int).
+This schema describes the structure of the NIST adsorption dataset **after** preprocessing and fitting.
 
-### Adsorbent
-*Represents the porous material.*
-- `material_id` (PK): Unique identifier (e.g., MOF-1000 ID).
-- `surface_area` (float): m²/g.
-- `pore_volume` (float): cm³/g.
-- `crystal_structure`: String.
+**Important Note on Target Variables**: The fields `langmuir_capacity` and `henry_constant` are **not** direct observations. They are **fitted parameters** derived from non-linear regression of the raw isotherm data (Pressure vs. Amount Adsorbed) using the Langmuir model. The fitting process includes a quality check (R² > 0.9); entries failing this check are excluded.
 
-### IsothermRecord
-*Links adsorbate and adsorbent; contains target parameters.*
-- `record_id` (PK).
-- `molecule_id` (FK).
-- `material_id` (FK).
-- `isotherm_type`: String (e.g., "Type I").
-- `langmuir_capacity` (float): mmol/g (Target).
-- `henry_constant` (float): mmol/g/bar (Target).
-- `freundlich_exponent` (float).
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: NIST Adsorption Dataset (Processed)
+description: Cleaned and preprocessed data from the NIST Adsorption Database. Target variables are fitted parameters.
+type: object
+properties:
+  adsorbate_name:
+    type: string
+    description: Name of the adsorbate gas.
+  adsorbent_material:
+    type: string
+    description: Identifier for the adsorbent material.
+  temperature:
+    type: number
+    format: float
+    unit: "K"
+    description: Temperature at which adsorption was measured.
+  pressure:
+    type: number
+    format: float
+    unit: "kPa"
+    description: Pressure at which adsorption was measured.
+  amount_adsorbed:
+    type: number
+    format: float
+    unit: "mmol/g"
+    description: Amount of adsorbate adsorbed per gram of adsorbent.
+  polarizability:
+    type: number
+    format: float
+    unit: "Å³"
+    description: Polarizability of the adsorbate molecule (calculated via RDKit).
+  molecular_weight:
+    type: number
+    format: float
+    unit: "g/mol"
+    description: Molecular weight of the adsorbate (calculated via RDKit).
+  surface_area:
+    type: number
+    format: float
+    unit: "m²/g"
+    description: Surface area of the adsorbent material (from metadata).
+  pore_volume:
+    type: number
+    format: float
+    unit: "cm³/g"
+    description: Pore volume of the adsorbent material (from metadata).
+  langmuir_capacity:
+    type: number
+    format: float
+    unit: "mmol/g"
+    description: Langmuir capacity parameter (Q_max) FITTED from raw isotherm data.
+  henry_constant:
+    type: number
+    format: float
+    unit: "kPa⁻¹"
+    description: Henry constant (K_H) FITTED from raw isotherm data.
 
-## Data Flow
+required:
+  - adsorbate_name
+  - adsorbent_material
+  - temperature
+  - pressure
+  - amount_adsorbed
+  - polarizability
+  - molecular_weight
+  - surface_area
+  - langmuir_capacity
+  - henry_constant
+```
 
-1.  **Raw Input**: CSV/Parquet with `smiles`, `material_id`, `K_H`, `Q_max`.
-2.  **Filter**: `isotherm_type == "Type I"` AND `K_H` NOT NULL AND `Q_max` NOT NULL.
-3.  **Enrich**: Join with `molecule_id` to compute RDKit descriptors.
-4.  **Normalize**: Convert units (e.g., cm²/g -> m²/g).
-5.  **Split**: Group by `material_id` -> Train ([deferred]), Test ([deferred]).
-6.  **Model Input (Full)**: Feature matrix (X) = [Descriptors, Adsorbent Properties]. Target (y) = `langmuir_capacity`.
-7.  **Model Input (Reduced)**: Feature matrix (X') = [Top 3 Descriptors from SHAP]. Target (y) = `langmuir_capacity`.
-8.  **Output**: Predictions, SHAP values, P-values, Reduced Model Metrics.
+## Data Relationships
 
-## Schema Definitions
+The dataset is structured as a collection of adsorption measurements, where each row represents an observation for a specific adsorbate/adsorbent pair at a given temperature and pressure. The primary key is a composite key consisting of `adsorbate_name`, `adsorbent_material`, `temperature`, and `pressure`.
 
-See `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml` for machine-readable schemas.
+## Assumptions
 
-## Key Artifacts
-
-- `data/processed/cleaned_adsorption.csv`: The primary dataset after filtering and descriptor calculation.
-- `data/models/best_full_model.pkl`: The best-performing model on the full feature set.
-- `data/models/best_reduced_model.pkl`: The best-performing model on the Top 3 features (SC-003).
-- `data/reports/feature_importance.json`: SHAP values and p-values.
-- `data/benchmarks/runtime_log.json`: Execution timing and status.
+*   All descriptors are calculated using consistent units (as specified in the schema).
+*   Missing values have been handled during data preprocessing (e.g., exclusion, not imputation).
+*   Target variables (`langmuir_capacity`, `henry_constant`) are derived quantities with associated fitting uncertainty (not included in this schema but tracked in logs).

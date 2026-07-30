@@ -1,19 +1,19 @@
 status: none
-intent: download NIST Adsorption Database MOF-1000 Zenodo isotherm data python package
-  dataset
+intent: download NIST adsorption database MOF-1000 Zenodo MOF-177 benchmark dataset
+  python package dataset
 required_fields:
-- adsorbate_id
+- adsorbent_id
+- adsorbent_surface_area_m2_per_g
+- pore_volume
+- isotherm_type
+- henry_constant_KH
+- langmuir_capacity_Qmax
 - adsorbate_smiles
 - molecular_weight
 - polar_surface_area
 - polarizability
-- h_bond_donors
-- h_bond_acceptors
 - van_der_waals_volume
-- adsorbent_id
-- pore_volume
-- surface_area
-- isotherm_type
-cache_key: 778de2cb34c898c13aeb5c85ec701b5937feb04767448f9ad985a652e82aed1d
-searched_at: '2026-07-25T11:47:19.265877+00:00'
+- h_bond_donors
+cache_key: 4e8f04c8b6adaeeebb868a773887e8cd87707200902aa59473eb713127a0288d
+searched_at: '2026-07-30T10:01:45.627017+00:00'
 retry_count: 1
