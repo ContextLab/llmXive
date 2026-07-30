@@ -1,293 +1,181 @@
 """
-Unit tests for metadata verification functionality.
+Unit tests for metadata verification module.
 """
 import pytest
 import json
-import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import time
+import sys
+import os
+
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
 from src.data.verify_metadata import (
     fetch_sra_metadata,
     extract_required_metadata,
     verify_metadata_requirements,
-    verify_fastq_metadata,
-    main
+    verify_fastq_metadata
 )
-from src.utils.schemas import RNASeqStudy
 
 
 class TestExtractRequiredMetadata:
-    """Tests for extract_required_metadata function."""
-    
-    def test_extract_with_complete_metadata(self):
-        """Test extraction when all required fields are present."""
-        sra_metadata = {
-            "accession": "SRX123456",
-            "organism": "Arabidopsis thaliana",
-            "platform": {
-                "organism": "Arabidopsis thaliana",
-                "attributes": [
-                    {"tag": "Tissue", "value": "leaf"},
-                    {"tag": "Treatment", "value": "caterpillar"},
-                    {"tag": "Replicate", "value": "3"}
-                ]
-            }
+    def test_extract_all_fields(self):
+        """Test extraction when all fields are present."""
+        metadata = {
+            "tissue": "leaf",
+            "treatment": "herbivore",
+            "replicates": 3,
+            "species": "Arabidopsis thaliana"
         }
         
-        result = extract_required_metadata(sra_metadata)
+        result = extract_required_metadata(metadata)
         
-        assert result["species"] == "Arabidopsis thaliana"
         assert result["tissue"] == "leaf"
-        assert result["herbivore_type"] == "caterpillar"
+        assert result["treatment"] == "herbivore"
         assert result["replicates"] == 3
-        assert result["accession_id"] == "SRX123456"
-    
-    def test_extract_with_missing_fields(self):
+        assert result["species"] == "Arabidopsis thaliana"
+
+    def test_extract_missing_fields(self):
         """Test extraction when some fields are missing."""
-        sra_metadata = {
-            "accession": "SRX789012",
-            "platform": {
-                "attributes": [
-                    {"tag": "Tissue", "value": "root"}
-                ]
-            }
+        metadata = {
+            "tissue": "leaf",
+            "species": "Arabidopsis thaliana"
         }
         
-        result = extract_required_metadata(sra_metadata)
+        result = extract_required_metadata(metadata)
         
-        assert result["species"] == "unknown"
-        assert result["tissue"] == "root"
-        assert result["herbivore_type"] == "unknown"
-        assert result["replicates"] == 0
-    
-    def test_extract_with_alternative_organism(self):
-        """Test extraction using alternative organism field."""
-        sra_metadata = {
-            "accession": "SRX345678",
-            "organism": "Zea mays",
-            "platform": {}
-        }
-        
-        result = extract_required_metadata(sra_metadata)
-        
-        assert result["species"] == "Zea mays"
-    
-    def test_extract_with_sample_attributes(self):
-        """Test extraction from sample attributes."""
-        sra_metadata = {
-            "accession": "SRX901234",
-            "sample": {
-                "attributes": [
-                    {"tag": "tissue_type", "value": "stem"}
-                ]
-            }
-        }
-        
-        result = extract_required_metadata(sra_metadata)
-        
-        assert result["tissue"] == "stem"
+        assert result["tissue"] == "leaf"
+        assert result["treatment"] is None
+        assert result["replicates"] is None
+        assert result["species"] == "Arabidopsis thaliana"
 
 
 class TestVerifyMetadataRequirements:
-    """Tests for verify_metadata_requirements function."""
-    
-    def test_valid_metadata(self):
-        """Test validation with complete metadata."""
+    def test_all_requirements_met(self):
+        """Test when all requirements are met."""
         metadata = {
             "tissue": "leaf",
-            "herbivore_type": "caterpillar",
+            "treatment": "herbivore",
             "replicates": 3,
             "species": "Arabidopsis thaliana"
         }
         
-        is_valid, reasons = verify_metadata_requirements(metadata)
+        is_valid, reasons = verify_metadata_requirements(metadata, "SRR123456")
         
         assert is_valid is True
         assert len(reasons) == 0
-    
+
     def test_missing_tissue(self):
-        """Test validation with missing tissue."""
+        """Test when tissue is missing."""
         metadata = {
-            "tissue": "unknown",
-            "herbivore_type": "caterpillar",
+            "treatment": "herbivore",
             "replicates": 3,
             "species": "Arabidopsis thaliana"
         }
         
-        is_valid, reasons = verify_metadata_requirements(metadata)
+        is_valid, reasons = verify_metadata_requirements(metadata, "SRR123456")
         
         assert is_valid is False
-        assert "Missing or unknown tissue type" in reasons
-    
-    def test_missing_herbivore_type(self):
-        """Test validation with missing herbivore type."""
-        metadata = {
-            "tissue": "leaf",
-            "herbivore_type": "unknown",
-            "replicates": 3,
-            "species": "Arabidopsis thaliana"
-        }
-        
-        is_valid, reasons = verify_metadata_requirements(metadata)
-        
-        assert is_valid is False
-        assert "Missing or unknown herbivore type" in reasons
-    
+        assert any("tissue" in reason for reason in reasons)
+
     def test_insufficient_replicates(self):
-        """Test validation with insufficient replicates."""
+        """Test when replicates are insufficient."""
         metadata = {
             "tissue": "leaf",
-            "herbivore_type": "caterpillar",
+            "treatment": "herbivore",
             "replicates": 1,
             "species": "Arabidopsis thaliana"
         }
         
-        is_valid, reasons = verify_metadata_requirements(metadata)
+        is_valid, reasons = verify_metadata_requirements(metadata, "SRR123456")
         
         assert is_valid is False
-        assert "Insufficient biological replicates" in reasons[0]
-    
-    def test_multiple_failures(self):
-        """Test validation with multiple failures."""
-        metadata = {
-            "tissue": "unknown",
-            "herbivore_type": "unknown",
-            "replicates": 1,
-            "species": "unknown"
-        }
+        assert any("replicates" in reason for reason in reasons)
+
+    def test_missing_all_fields(self):
+        """Test when all required fields are missing."""
+        metadata = {}
         
-        is_valid, reasons = verify_metadata_requirements(metadata)
+        is_valid, reasons = verify_metadata_requirements(metadata, "SRR123456")
         
         assert is_valid is False
-        assert len(reasons) == 4  # All four checks fail
+        assert len(reasons) == 4  # tissue, treatment, replicates, species
 
 
 class TestVerifyFastqMetadata:
-    """Tests for verify_fastq_metadata function."""
-    
-    def test_verify_synthetic_mode(self):
-        """Test verification in synthetic mode."""
+    @patch('src.data.verify_metadata.fetch_sra_metadata')
+    def test_verify_with_mocked_fetch(self, mock_fetch):
+        """Test verification with mocked metadata fetch."""
+        # Setup mock
+        mock_fetch.return_value = {
+            "accession_id": "SRR123456",
+            "tissue": "leaf",
+            "treatment": "herbivore",
+            "replicates": 3,
+            "species": "Arabidopsis thaliana"
+        }
+        
+        # Create temporary directory structure
         with tempfile.TemporaryDirectory() as tmpdir:
-            fastq_path = Path(tmpdir) / "SYNTH_001.fastq.gz"
-            fastq_path.touch()
+            raw_path = Path(tmpdir) / "raw"
+            raw_path.mkdir()
             
-            result = verify_fastq_metadata(fastq_path, mode="synthetic")
-            
-            assert "accession_id" in result
-            assert "metadata" in result
-            assert "exclusion_reasons" in result
-            assert "verified_at" in result
-            # Synthetic data should be valid by default
-            assert result["is_valid"] is True
-    
-    def test_verify_real_mode_fetch_failure(self):
-        """Test verification in real mode when fetch fails."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            fastq_path = Path(tmpdir) / "SRX123456.fastq.gz"
-            fastq_path.touch()
-            
-            with patch('src.data.verify_metadata.fetch_sra_metadata', return_value=None):
-                result = verify_fastq_metadata(fastq_path, mode="real")
-            
-            assert result["is_valid"] is False
-            assert "Failed to fetch metadata from NCBI" in result["exclusion_reasons"]
-    
-    def test_verify_real_mode_success(self):
-        """Test verification in real mode with successful fetch."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            fastq_path = Path(tmpdir) / "SRX123456.fastq.gz"
-            fastq_path.touch()
-            
-            mock_metadata = {
-                "accession": "SRX123456",
-                "organism": "Arabidopsis thaliana",
-                "platform": {
-                    "organism": "Arabidopsis thaliana",
-                    "attributes": [
-                        {"tag": "Tissue", "value": "leaf"},
-                        {"tag": "Treatment", "value": "caterpillar"},
-                        {"tag": "Replicate", "value": "3"}
-                    ]
-                }
-            }
-            
-            with patch('src.data.verify_metadata.fetch_sra_metadata', return_value=mock_metadata):
-                result = verify_fastq_metadata(fastq_path, mode="real")
-            
-            assert result["is_valid"] is True
-            assert result["metadata"]["species"] == "Arabidopsis thaliana"
-            assert result["metadata"]["tissue"] == "leaf"
-            assert result["metadata"]["herbivore_type"] == "caterpillar"
-
-
-class TestMain:
-    """Tests for main function."""
-    
-    def test_main_synthetic_mode(self):
-        """Test main function in synthetic mode."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_file = Path(tmpdir) / "report.json"
-            input_dir = Path(tmpdir) / "synthetic"
-            input_dir.mkdir()
-            
-            # Create a synthetic FASTQ file
-            fastq_file = input_dir / "SYNTH_001.fastq.gz"
+            # Create a fake FASTQ file
+            fastq_file = raw_path / "SRR123456.fastq.gz"
             fastq_file.touch()
             
-            with patch('sys.argv', ['verify_metadata', '--mode', 'synthetic', 
-                                    '--input-dir', str(input_dir),
-                                    '--output-file', str(output_file)]):
-                result = main()
+            # Run verification
+            report = verify_fastq_metadata([fastq_file])
             
-            assert output_file.exists()
-            assert result["mode"] == "synthetic"
-            assert result["total_files"] == 1
-            assert result["valid_files"] == 1
-            
-            # Verify report structure
-            with open(output_file) as f:
-                report = json.load(f)
-                assert "verification_results" in report
-                assert "generated_at" in report
-    
-    def test_main_real_mode_with_invalid_files(self):
-        """Test main function exits when invalid files found in real mode."""
+            assert report["total_studies"] == 1
+            assert len(report["passed"]) == 1
+            assert len(report["failed"]) == 0
+            assert len(report["excluded"]) == 0
+
+    @patch('src.data.verify_metadata.fetch_sra_metadata')
+    def test_verify_with_failed_fetch(self, mock_fetch):
+        """Test verification when metadata fetch fails."""
+        mock_fetch.return_value = None
+        
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_file = Path(tmpdir) / "report.json"
-            input_dir = Path(tmpdir) / "raw"
-            input_dir.mkdir()
+            raw_path = Path(tmpdir) / "raw"
+            raw_path.mkdir()
             
-            # Create a FASTQ file
-            fastq_file = input_dir / "SRX123456.fastq.gz"
+            fastq_file = raw_path / "SRR123456.fastq.gz"
             fastq_file.touch()
             
-            # Mock fetch to return invalid metadata
-            mock_metadata = {
-                "accession": "SRX123456",
-                "platform": {
-                    "attributes": [
-                        {"tag": "Tissue", "value": "unknown"},
-                        {"tag": "Treatment", "value": "unknown"},
-                        {"tag": "Replicate", "value": "1"}
-                    ]
-                }
-            }
+            report = verify_fastq_metadata([fastq_file])
             
-            with patch('sys.argv', ['verify_metadata', '--mode', 'real',
-                                    '--input-dir', str(input_dir),
-                                    '--output-file', str(output_file)]):
-                with patch('src.data.verify_metadata.fetch_sra_metadata', return_value=mock_metadata):
-                    with pytest.raises(SystemExit) as exc_info:
-                        main()
-                    
-                    assert exc_info.value.code == 1
+            assert report["total_studies"] == 1
+            assert len(report["passed"]) == 0
+            assert len(report["failed"]) == 1
+            assert len(report["excluded"]) == 0
+
+    @patch('src.data.verify_metadata.fetch_sra_metadata')
+    def test_verify_with_insufficient_replicates(self, mock_fetch):
+        """Test verification when replicates are insufficient."""
+        mock_fetch.return_value = {
+            "accession_id": "SRR123456",
+            "tissue": "leaf",
+            "treatment": "herbivore",
+            "replicates": 1,  # Insufficient
+            "species": "Arabidopsis thaliana"
+        }
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            raw_path = Path(tmpdir) / "raw"
+            raw_path.mkdir()
             
-            # Report should still be written
-            assert output_file.exists()
+            fastq_file = raw_path / "SRR123456.fastq.gz"
+            fastq_file.touch()
             
-            with open(output_file) as f:
-                report = json.load(f)
-                assert report["invalid_files"] > 0
+            report = verify_fastq_metadata([fastq_file])
+            
+            assert report["total_studies"] == 1
+            assert len(report["passed"]) == 0
+            assert len(report["failed"]) == 0
+            assert len(report["excluded"]) == 1
+            assert "replicates" in report["excluded"][0]["exclusion_reasons"][0]

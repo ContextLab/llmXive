@@ -7,201 +7,238 @@ import json
 import logging
 from datetime import datetime
 
-from src.utils.logger import get_logger
-from src.utils.config import get_data_path
+# Import config to get paths if needed, though we rely on relative paths here
+# Import logger for consistent logging
+try:
+    from src.utils.logger import get_logger
+except ImportError:
+    # Fallback if logger not fully initialized in some contexts
+    logging.basicConfig(level=logging.INFO)
+    def get_logger(name): return logging.getLogger(name)
 
 logger = get_logger(__name__)
 
-def check_replicates(df: pd.DataFrame, min_replicates: int = 2) -> pd.DataFrame:
+def check_replicates(study_metadata: Dict, min_replicates: int = 2) -> Tuple[bool, str]:
     """
-    Filter studies/samples to ensure at least `min_replicates` biological replicates.
-    
-    Args:
-        df: DataFrame with columns including 'species', 'treatment', 'replicates' (or similar)
-        min_replicates: Minimum number of replicates required (default 2)
-        
-    Returns:
-        DataFrame filtered to valid studies, with an 'included' column indicating status.
-    """
-    if 'replicates' not in df.columns:
-        # If replicate count is not pre-calculated, we assume each row is a sample
-        # and group by study identifiers to count them.
-        # Assuming 'accession_id' or similar unique study ID exists.
-        study_id_col = 'accession_id' if 'accession_id' in df.columns else df.columns[0]
-        counts = df.groupby(study_id_col).size().reset_index(name='sample_count')
-        valid_studies = counts[counts['sample_count'] >= min_replicates][study_id_col].tolist()
-        df['included'] = df[study_id_col].isin(valid_studies)
-    else:
-        # If 'replicates' column exists (e.g., from metadata verification)
-        df['included'] = df['replicates'] >= min_replicates
-    
-    return df[df['included']]
+    Check if a study meets the minimum biological replicate requirement.
 
-def check_metadata_completeness(df: pd.DataFrame, required_fields: List[str] = None) -> pd.DataFrame:
-    """
-    Filter studies where required metadata fields (e.g., 'tissue') are present and non-null.
-    
     Args:
-        df: DataFrame with metadata columns
-        required_fields: List of column names that must be non-null (default: ['tissue'])
-        
+        study_metadata: Dictionary containing study information including 'replicates'
+        min_replicates: Minimum number of biological replicates required (default 2)
+
     Returns:
-        DataFrame filtered to complete metadata.
+        Tuple of (is_valid, exclusion_reason)
+    """
+    replicates = study_metadata.get('replicates')
+    if replicates is None:
+        return False, "Missing replicates count in metadata"
+    
+    if replicates < min_replicates:
+        return False, f"Insufficient biological replicates: {replicates} < {min_replicates}"
+    
+    return True, ""
+
+def check_metadata_completeness(study_metadata: Dict, required_fields: List[str] = None) -> Tuple[bool, str]:
+    """
+    Check if all required metadata fields are present.
+
+    Args:
+        study_metadata: Dictionary containing study information
+        required_fields: List of required field names (default: ['tissue'])
+
+    Returns:
+        Tuple of (is_valid, exclusion_reason)
     """
     if required_fields is None:
         required_fields = ['tissue']
     
-    valid_mask = pd.Series([True] * len(df), index=df.index)
-    
+    missing_fields = []
     for field in required_fields:
-        if field in df.columns:
-            valid_mask &= df[field].notna() & (df[field] != '')
-        else:
-            logger.warning(f"Required field '{field}' not found in DataFrame. Skipping check.")
+        value = study_metadata.get(field)
+        if value is None or (isinstance(value, str) and value.strip() == ""):
+            missing_fields.append(field)
     
-    return df[valid_mask]
+    if missing_fields:
+        return False, f"Missing required metadata fields: {', '.join(missing_fields)}"
+    
+    return True, ""
 
-def run_qc_pipeline(
-    input_path: Optional[Path] = None,
-    output_path: Optional[Path] = None,
-    min_replicates: int = 2,
-    required_metadata: List[str] = None
-) -> Dict:
+def run_qc_pipeline(input_manifest_path: Path, output_path: Path, min_replicates: int = 2) -> Dict:
     """
-    Run the full QC pipeline: check replicates and metadata completeness.
-    Excludes studies failing criteria and logs reasons.
-    
+    Run the full QC pipeline on studies listed in the input manifest.
+
+    This function:
+    1. Loads the input manifest (real or synthetic data)
+    2. Checks each study for:
+       - Minimum biological replicates (default >= 2)
+       - Presence of required metadata (e.g., tissue)
+    3. Excludes studies that fail any check
+    4. Generates a post-QC species list
+    5. Logs all exclusion reasons
+
     Args:
-        input_path: Path to the input TPM matrix or metadata JSON/CSV.
-                    If None, attempts to load from data/processed/metadata_verification_report.json
-        output_path: Path to write the post-QC species list JSON.
-        min_replicates: Minimum replicates required.
-        required_metadata: List of metadata fields that must be present.
-        
+        input_manifest_path: Path to the input manifest file (JSON)
+        output_path: Path where the post-QC species list will be written
+        min_replicates: Minimum required biological replicates
+
     Returns:
-        Dictionary containing the results summary and the list of excluded items.
+        Dictionary containing QC results summary
     """
-    if input_path is None:
-        data_dir = get_data_path()
-        input_path = Path(data_dir) / "processed" / "metadata_verification_report.json"
+    logger.info(f"Starting QC pipeline with input manifest: {input_manifest_path}")
     
-    if not Path(input_path).exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}. "
-                                "Run T011a (verify_metadata) first.")
+    # Load input manifest
+    if not input_manifest_path.exists():
+        logger.error(f"Input manifest not found: {input_manifest_path}")
+        raise FileNotFoundError(f"Input manifest not found: {input_manifest_path}")
     
-    logger.info(f"Loading metadata from {input_path}")
+    with open(input_manifest_path, 'r') as f:
+        manifest_data = json.load(f)
     
-    # Load data - handle both JSON and CSV if necessary
-    try:
-        with open(input_path, 'r') as f:
-            data = json.load(f)
-        # Expecting a list of study records or a dict with a 'studies' key
-        if isinstance(data, dict) and 'studies' in data:
-            records = data['studies']
-        elif isinstance(data, list):
-            records = data
+    # Handle both single entry and list formats
+    studies = manifest_data.get('studies', [manifest_data] if 'accession_id' in manifest_data else [])
+    
+    if not studies:
+        logger.warning("No studies found in manifest")
+        studies = []
+    
+    qc_results = []
+    excluded_studies = []
+    passed_studies = []
+    
+    for study in studies:
+        accession_id = study.get('accession_id', 'unknown')
+        species = study.get('species', 'unknown')
+        tissue = study.get('tissue', None)
+        replicates = study.get('replicates', None)
+        
+        logger.info(f"Processing study: {accession_id} ({species})")
+        
+        # Check replicates
+        replicates_valid, replicates_reason = check_replicates(study, min_replicates)
+        
+        # Check metadata completeness (tissue is required)
+        metadata_valid, metadata_reason = check_metadata_completeness(study, required_fields=['tissue'])
+        
+        # Determine overall validity
+        if not replicates_valid or not metadata_valid:
+            exclusion_reasons = []
+            if not replicates_valid:
+                exclusion_reasons.append(replicates_reason)
+            if not metadata_valid:
+                exclusion_reasons.append(metadata_reason)
+            
+            exclusion_reason = "; ".join(exclusion_reasons)
+            
+            excluded_studies.append({
+                "species": species,
+                "accession_id": accession_id,
+                "exclusion_reason": exclusion_reason
+            })
+            
+            logger.warning(f"Excluding study {accession_id}: {exclusion_reason}")
         else:
-            # Fallback: assume single record wrapped
-            records = [data]
+            passed_studies.append({
+                "species": species,
+                "accession_id": accession_id,
+                "tissue": tissue,
+                "replicates": replicates
+            })
+            
+            logger.info(f"Study {accession_id} passed QC")
         
-        df = pd.DataFrame(records)
-    except json.JSONDecodeError:
-        # Try CSV fallback
-        df = pd.read_csv(input_path)
-    
-    # 1. Check Replicates
-    df_valid_rep = check_replicates(df, min_replicates=min_replicates)
-    excluded_rep = df[~df.index.isin(df_valid_rep.index)]
-    
-    # 2. Check Metadata Completeness
-    df_valid_meta = check_metadata_completeness(df_valid_rep, required_metadata=required_metadata)
-    excluded_meta = df_valid_rep[~df_valid_rep.index.isin(df_valid_meta.index)]
-    
-    # Combine exclusions
-    all_excluded = pd.concat([excluded_rep, excluded_meta])
-    
-    # Prepare output list
-    exclusion_list = []
-    for _, row in all_excluded.iterrows():
-        reason = []
-        # Determine reason based on which check failed
-        if row.name in excluded_rep.index:
-            if 'replicates' in row:
-                reason.append(f"Insufficient replicates: {row['replicates']} < {min_replicates}")
-            else:
-                reason.append(f"Insufficient replicates (count < {min_replicates})")
-        
-        if row.name in excluded_meta.index:
-            for field in (required_metadata or ['tissue']):
-                if field in row and (pd.isna(row[field]) or row[field] == ''):
-                    reason.append(f"Missing metadata: {field}")
-        
-        exclusion_list.append({
-            "species": row.get('species', 'Unknown'),
-            "accession_id": row.get('accession_id', 'Unknown'),
-            "exclusion_reason": "; ".join(reason)
+        # Record detailed result for this study
+        qc_results.append({
+            "accession_id": accession_id,
+            "species": species,
+            "tissue": tissue,
+            "replicates": replicates,
+            "replicates_valid": replicates_valid,
+            "metadata_valid": metadata_valid,
+            "excluded": not (replicates_valid and metadata_valid),
+            "exclusion_reason": exclusion_reason if not (replicates_valid and metadata_valid) else None
         })
     
-    # Prepare species list (unique species from valid studies)
-    valid_studies = df_valid_meta.copy()
-    # Ensure 'species' column exists
-    if 'species' not in valid_studies.columns:
-        valid_studies['species'] = valid_studies.get('accession_id', 'Unknown')
+    # Generate post-QC species list (unique species that passed QC)
+    passed_species = list(set([s["species"] for s in passed_studies if s["species"] != "unknown"]))
     
-    unique_species = valid_studies['species'].unique().tolist()
+    # Prepare output in the required schema: { "species": <string>, "exclusion_reason": <string> }
+    # Note: The schema in the task description seems to imply listing EXCLUDED species with reasons.
+    # However, the task title says "post-QC species list", which usually means the INCLUDED ones.
+    # Given the schema explicitly asks for "exclusion_reason", we will output the EXCLUDED studies
+    # with their reasons, as that matches the schema structure provided in the task.
+    # If the intent was to list included species, the schema would likely not have "exclusion_reason".
+    # We will output the excluded list to match the schema exactly.
     
-    result = {
-        "timestamp": datetime.now().isoformat(),
-        "total_studies_input": len(df),
-        "studies_excluded": len(exclusion_list),
-        "studies_remaining": len(valid_studies),
-        "exclusions": exclusion_list,
-        "species_list": unique_species
-    }
+    post_qc_species_list = []
+    for excluded in excluded_studies:
+        post_qc_species_list.append({
+            "species": excluded["species"],
+            "exclusion_reason": excluded["exclusion_reason"]
+        })
     
-    # Write output
-    if output_path is None:
-        data_dir = get_data_path()
-        output_path = Path(data_dir) / "processed" / "post_qc_species_list.json"
-    
-    output_path = Path(output_path)
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
+    # Write the post-QC species list (excluded studies with reasons)
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
+        json.dump(post_qc_species_list, f, indent=2)
     
-    logger.info(f"QC Pipeline Complete. Excluded {len(exclusion_list)} studies. "
-                f"Output written to {output_path}")
-    logger.info(f"Species list: {unique_species}")
+    logger.info(f"Post-QC species list (excluded studies) written to: {output_path}")
+    logger.info(f"Total studies processed: {len(studies)}")
+    logger.info(f"Studies passed QC: {len(passed_studies)}")
+    logger.info(f"Studies excluded: {len(excluded_studies)}")
     
-    return result
+    return {
+        "total_studies": len(studies),
+        "passed_count": len(passed_studies),
+        "excluded_count": len(excluded_studies),
+        "passed_species": passed_species,
+        "excluded_species_list": post_qc_species_list
+    }
 
 def main():
-    """CLI entry point for QC pipeline."""
+    """
+    CLI entry point for the QC pipeline.
+    
+    Usage:
+        python -m src.data.qc --input data/manifests/real_data_manifest.json --output data/processed/post_qc_species_list.json
+    """
     import argparse
     
-    parser = argparse.ArgumentParser(description="Run QC on metadata and generate species list.")
-    parser.add_argument("--input", type=str, help="Input metadata JSON/CSV path")
-    parser.add_argument("--output", type=str, help="Output JSON path for species list")
-    parser.add_argument("--min-replicates", type=int, default=2, help="Minimum replicates required")
-    parser.add_argument("--metadata-fields", type=str, nargs="+", default=["tissue"], 
-                        help="Required metadata fields")
+    parser = argparse.ArgumentParser(description="Run QC pipeline on RNA-seq studies")
+    parser.add_argument(
+        "--input", 
+        type=Path, 
+        default=Path("data/manifests/real_data_manifest.json"),
+        help="Path to input manifest file"
+    )
+    parser.add_argument(
+        "--output", 
+        type=Path, 
+        default=Path("data/processed/post_qc_species_list.json"),
+        help="Path to output post-QC species list"
+    )
+    parser.add_argument(
+        "--min-replicates", 
+        type=int, 
+        default=2,
+        help="Minimum required biological replicates"
+    )
     
     args = parser.parse_args()
     
-    input_path = Path(args.input) if args.input else None
-    output_path = Path(args.output) if args.output else None
-    
     try:
-        run_qc_pipeline(
-            input_path=input_path,
-            output_path=output_path,
-            min_replicates=args.min_replicates,
-            required_metadata=args.metadata_fields
+        results = run_qc_pipeline(
+            input_manifest_path=args.input,
+            output_path=args.output,
+            min_replicates=args.min_replicates
         )
-        print("QC Pipeline completed successfully.")
+        
+        print(json.dumps(results, indent=2))
+        logger.info("QC pipeline completed successfully")
+        
     except Exception as e:
-        logger.error(f"QC Pipeline failed: {e}")
+        logger.error(f"QC pipeline failed: {str(e)}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

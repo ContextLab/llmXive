@@ -1,11 +1,22 @@
-- artifact_hash: 78d2816166607f9fa67b1ab38687e40f1fdfc465c98f4db6b0afb1b74a12e258
+- artifact_hash: 6e3df210162b4b968fb1ada302c19b44067f991bf386b2fbe8302f3aa38fdd95
   artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: SHA256 - Wikidata
   kind: url
-  value: https://raw.githubusercontent.com/plant-herbivory/response-genes/master/herbivory_gene_list.txt`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/plant-herbivory/response-genes/master/herbivory_gene_list.txt
-  verified_at: '2026-07-30T07:59:12.516525Z'
+  value: https://www.wikidata.org/wiki/Q130595694
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q130595694
+  verified_at: '2026-07-30T16:36:16.890514Z'
+- artifact_hash: 6e3df210162b4b968fb1ada302c19b44067f991bf386b2fbe8302f3aa38fdd95
+  artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: GEO Accession viewer
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE123456`
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE123456
+  verified_at: '2026-07-30T16:36:16.890514Z'

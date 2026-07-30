@@ -1,5 +1,5 @@
 """
-Unit tests for Defense Allocation Index calculation (T039).
+Unit tests for the Defense Allocation Index calculation.
 """
 import pytest
 import pandas as pd
@@ -8,7 +8,7 @@ import json
 import tempfile
 from pathlib import Path
 import sys
-from unittest.mock import patch, MagicMock
+import os
 
 # Add project root to path
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -16,198 +16,198 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 from src.analysis.defense_index import (
-    classify_trait,
+    extract_trait_values,
     standardize_traits,
     calculate_dai,
-    load_trait_data
+    compile_defense_allocation_index
 )
 
-class TestClassifyTrait:
-    """Tests for trait classification logic."""
+class TestExtractTraitValues:
+    """Tests for extract_trait_values function."""
+    
+    def test_extract_chemical_and_physical_traits(self):
+        """Test extraction of chemical and physical traits."""
+        species_data = {
+            "primary_source_results": {
+                "alkaloids": 10.5,
+                "thorns": 5.2,
+                "terpenoids": 8.3,
+                "spines": 3.1
+            }
+        }
+        
+        chemical, physical = extract_trait_values(species_data)
+        
+        assert "alkaloids" in chemical
+        assert "terpenoids" in chemical
+        assert "thorns" in physical
+        assert "spines" in physical
+        assert len(chemical) == 2
+        assert len(physical) == 2
 
-    def test_chemical_trait_recognition(self):
-        """Test that chemical traits are correctly identified."""
-        chemical_traits = [
-            'alkaloid content',
-            'terpenoid levels',
-            'phenolic compounds',
-            'glucosinolate concentration',
-            'tannin content'
-        ]
-        for trait in chemical_traits:
-            assert classify_trait(trait) == 'chemical', f"Failed to classify {trait} as chemical"
+    def test_extract_from_fallback(self):
+        """Test extraction from fallback results."""
+        species_data = {
+            "primary_source_results": {},
+            "fallback_results": {
+                "glucosinolates": 7.5,
+                "trichomes": 4.2
+            }
+        }
+        
+        chemical, physical = extract_trait_values(species_data)
+        
+        assert "glucosinolates" in chemical
+        assert "trichomes" in physical
 
-    def test_physical_trait_recognition(self):
-        """Test that physical traits are correctly identified."""
-        physical_traits = [
-            'thorn density',
-            'leaf thickness',
-            'trichome count',
-            'leaf toughness',
-            'spine length'
-        ]
-        for trait in physical_traits:
-            assert classify_trait(trait) == 'physical', f"Failed to classify {trait} as physical"
-
-    def test_ambiguous_trait_classification(self):
-        """Test that ambiguous traits return None."""
-        ambiguous_traits = [
-            'growth rate',
-            'leaf area',
-            'plant height'
-        ]
-        for trait in ambiguous_traits:
-            assert classify_trait(trait) is None, f"Ambiguous trait {trait} was classified"
+    def test_extract_with_none_values(self):
+        """Test extraction with None values."""
+        species_data = {
+            "primary_source_results": {
+                "alkaloids": None,
+                "thorns": 5.2
+            }
+        }
+        
+        chemical, physical = extract_trait_values(species_data)
+        
+        assert "alkaloids" not in chemical or np.isnan(chemical["alkaloids"])
+        assert "thorns" in physical
 
 class TestStandardizeTraits:
-    """Tests for trait standardization."""
-
-    def test_z_score_calculation(self):
-        """Test that z-scores are calculated correctly."""
-        data = {
-            'species_name': ['A', 'A', 'A', 'B', 'B', 'B'],
-            'trait_type': ['chemical', 'chemical', 'chemical', 'chemical', 'chemical', 'chemical'],
-            'trait_value': [10, 20, 30, 100, 200, 300]
-        }
-        df = pd.DataFrame(data)
+    """Tests for standardize_traits function."""
+    
+    def test_standardize_normal_distribution(self):
+        """Test standardization with normal distribution."""
+        traits = {"a": 10.0, "b": 20.0, "c": 30.0}
         
-        standardized = standardize_traits(df)
+        standardized = standardize_traits(traits)
         
-        # For species A: mean=20, std=10, z-scores should be [-1, 0, 1]
-        # For species B: mean=200, std=100, z-scores should be [-1, 0, 1]
+        assert len(standardized) == 3
+        assert np.isclose(np.mean(standardized), 0.0, atol=1e-6)
+        assert np.isclose(np.std(standardized), 1.0, atol=1e-6)
+    
+    def test_standardize_single_value(self):
+        """Test standardization with single value."""
+        traits = {"a": 10.0}
         
-        species_a = standardized[standardized['species_name'] == 'A']
-        species_a_z = sorted(species_a['z_score'].tolist())
+        standardized = standardize_traits(traits)
         
-        # Check that z-scores are approximately [-1, 0, 1]
-        assert np.isclose(species_a_z[0], -1, atol=0.01), "Z-score calculation incorrect for species A"
-        assert np.isclose(species_a_z[1], 0, atol=0.01), "Z-score calculation incorrect for species A"
-        assert np.isclose(species_a_z[2], 1, atol=0.01), "Z-score calculation incorrect for species A"
-
-    def test_single_trait_handling(self):
-        """Test that single traits get z-score of 0."""
-        data = {
-            'species_name': ['A', 'B'],
-            'trait_type': ['chemical', 'chemical'],
-            'trait_value': [10, 20]
-        }
-        df = pd.DataFrame(data)
+        assert len(standardized) == 1
+        assert standardized[0] == 0.0
+    
+    def test_standardize_constant_values(self):
+        """Test standardization with constant values."""
+        traits = {"a": 10.0, "b": 10.0, "c": 10.0}
         
-        standardized = standardize_traits(df)
+        standardized = standardize_traits(traits)
         
-        # When only one trait per species, z-score should be 0
-        assert all(standardized['z_score'] == 0), "Single trait should have z-score of 0"
+        assert len(standardized) == 3
+        assert all(s == 0.0 for s in standardized)
 
 class TestCalculateDAI:
-    """Tests for DAI calculation."""
+    """Tests for calculate_dai function."""
+    
+    def test_calculate_dai_normal(self):
+        """Test DAI calculation with normal values."""
+        chemical = {"alkaloids": 10.0, "terpenoids": 20.0}
+        physical = {"thorns": 5.0, "spines": 15.0}
+        
+        dai = calculate_dai(chemical, physical)
+        
+        assert dai is not None
+        assert isinstance(dai, float)
+    
+    def test_calculate_dai_zero_physical_mean(self):
+        """Test DAI calculation when physical mean is zero."""
+        # This is a tricky case - if all standardized physical traits are 0
+        chemical = {"alkaloids": 10.0}
+        physical = {"thorns": 10.0, "spines": 10.0}  # Will standardize to [0, 0]
+        
+        dai = calculate_dai(chemical, physical)
+        
+        # Should return None due to division by zero
+        assert dai is None
+    
+    def test_calculate_dai_empty_chemical(self):
+        """Test DAI calculation with empty chemical traits."""
+        chemical = {}
+        physical = {"thorns": 5.0}
+        
+        dai = calculate_dai(chemical, physical)
+        
+        assert dai is None
+    
+    def test_calculate_dai_empty_physical(self):
+        """Test DAI calculation with empty physical traits."""
+        chemical = {"alkaloids": 5.0}
+        physical = {}
+        
+        dai = calculate_dai(chemical, physical)
+        
+        assert dai is None
 
-    def test_dai_calculation_basic(self):
-        """Test basic DAI calculation."""
-        trait_data = {
-            'primary_source_results': {
-                'Species_A': {
-                    'traits': [
-                        {'trait_name': 'alkaloid content', 'trait_value': 100},
-                        {'trait_name': 'thorn density', 'trait_value': 50}
-                    ]
+class TestCompileDefenseAllocationIndex:
+    """Tests for compile_defense_allocation_index function."""
+    
+    def test_compile_with_valid_data(self):
+        """Test compilation with valid trait data."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            
+            # Create mock trait summary
+            trait_summary = {
+                "primary_source_results": {
+                    "Species_A": {
+                        "alkaloids": 10.0,
+                        "terpenoids": 20.0,
+                        "thorns": 5.0
+                    },
+                    "Species_B": {
+                        "glucosinolates": 15.0,
+                        "spines": 8.0,
+                        "trichomes": 3.0
+                    }
                 }
             }
-        }
-        
-        dai_df = calculate_dai(trait_data)
-        
-        assert len(dai_df) == 1, "Should have one species"
-        assert 'dai' in dai_df.columns, "DAI column should exist"
-        assert 'species_name' in dai_df.columns, "Species name column should exist"
+            
+            input_path = tmpdir_path / "trait_fallback_summary.json"
+            output_path = tmpdir_path / "defense_allocation_index.csv"
+            
+            with open(input_path, 'w') as f:
+                json.dump(trait_summary, f)
+            
+            results = compile_defense_allocation_index(input_path, output_path)
+            
+            assert len(results) == 2
+            assert output_path.exists()
+            
+            # Check CSV content
+            df = pd.read_csv(output_path)
+            assert "species" in df.columns
+            assert "dai" in df.columns
+            assert len(df) == 2
 
-    def test_dai_with_multiple_traits(self):
-        """Test DAI calculation with multiple chemical and physical traits."""
-        trait_data = {
-            'primary_source_results': {
-                'Species_A': {
-                    'traits': [
-                        {'trait_name': 'alkaloid content', 'trait_value': 100},
-                        {'trait_name': 'terpenoid levels', 'trait_value': 200},
-                        {'trait_name': 'thorn density', 'trait_value': 50},
-                        {'trait_name': 'leaf thickness', 'trait_value': 10}
-                    ]
-                }
+    def test_compile_with_empty_data(self):
+        """Test compilation with no valid data."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            
+            trait_summary = {
+                "primary_source_results": {}
             }
-        }
-        
-        dai_df = calculate_dai(trait_data)
-        
-        assert len(dai_df) == 1
-        assert not np.isnan(dai_df['dai'].iloc[0]), "DAI should not be NaN"
-
-    def test_dai_with_fallback_data(self):
-        """Test DAI calculation including fallback data."""
-        trait_data = {
-            'primary_source_results': {
-                'Species_A': {
-                    'traits': [
-                        {'trait_name': 'alkaloid content', 'trait_value': 100}
-                    ]
-                }
-            },
-            'fallback_results': {
-                'Species_A': {
-                    'traits': [
-                        {'trait_name': 'thorn density', 'trait_value': 50}
-                    ]
-                }
-            }
-        }
-        
-        dai_df = calculate_dai(trait_data)
-        
-        assert len(dai_df) == 1
-        assert not dai_df.empty
-
-    def test_empty_trait_data(self):
-        """Test handling of empty trait data."""
-        trait_data = {
-            'primary_source_results': {},
-            'fallback_results': {}
-        }
-        
-        dai_df = calculate_dai(trait_data)
-        
-        assert dai_df.empty, "Should return empty DataFrame for empty input"
-
-class TestIntegration:
-    """Integration tests for the full pipeline."""
-
-    def test_full_pipeline_with_mock_data(self, tmp_path):
-        """Test the full DAI calculation pipeline with mock data."""
-        # Create mock trait data
-        trait_data = {
-            'primary_source_results': {
-                'Arabidopsis_thaliana': {
-                    'traits': [
-                        {'trait_name': 'glucosinolate content', 'trait_value': 150},
-                        {'trait_name': 'trichome density', 'trait_value': 20}
-                    ]
-                },
-                'Zea_mays': {
-                    'traits': [
-                        {'trait_name': 'tannin content', 'trait_value': 80},
-                        {'trait_name': 'leaf toughness', 'trait_value': 30}
-                    ]
-                }
-            }
-        }
-        
-        # Write to temp file
-        trait_file = tmp_path / 'trait_fallback_summary.json'
-        with open(trait_file, 'w') as f:
-            json.dump(trait_data, f)
-        
-        # Load and process
-        loaded_data = load_trait_data(trait_file)
-        dai_df = calculate_dai(loaded_data)
-        
-        assert len(dai_df) == 2
-        assert 'Arabidopsis_thaliana' in dai_df['species_name'].values
-        assert 'Zea_mays' in dai_df['species_name'].values
-        assert all(dai_df['dai'].notna())
+            
+            input_path = tmpdir_path / "trait_fallback_summary.json"
+            output_path = tmpdir_path / "defense_allocation_index.csv"
+            
+            with open(input_path, 'w') as f:
+                json.dump(trait_summary, f)
+            
+            results = compile_defense_allocation_index(input_path, output_path)
+            
+            assert len(results) == 0
+            assert output_path.exists()
+            
+            # Check CSV has headers
+            df = pd.read_csv(output_path)
+            assert len(df) == 0

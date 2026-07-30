@@ -1,6 +1,6 @@
-'|fdr':
-  quote: "1. Set m = 1000,\u03C00\u2208{ 0.5, 0.6, 0.7, 0.8, 0.95},m0 =m\u03C00, and\
-    \ nominal FDR level to be 0.05."
-  source_id: '1410.4274'
-  url: https://arxiv.org/abs/1410.4274
-  value: '0.05'
+'|aggregation feature fewer level pathway reduce score':
+  quote: provide a curated collection of 50 refined biological signatures designed
+    to reduce redundancy and
+  source_id: '2607.17405'
+  url: https://arxiv.org/abs/2607.17405
+  value: '50'
