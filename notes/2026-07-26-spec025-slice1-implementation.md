@@ -304,6 +304,49 @@ substantive negative answer; `*_aborted` (`promotion_aborted`, now `review_abort
 lane could not reach an answer. `rejected` is substantive — recording it for an
 infrastructure abort would assert a verdict no panel gave.
 
+### Rev 18 — the rev-17 review found the fix was half-right
+
+Six findings, all confirmed. Two mattered structurally:
+
+**`ModelUnavailable` was missing from an "exhaustive" list.** rev 17 enumerated
+`ChainExhausted` and forgot 026's *central* fail-closed signal. The classification has to be
+STAGE-AWARE, which is why it was easy to miss: the same exception is non-terminal on the
+proposal PRIMARY leg (it triggers the FR-002 reroute) and terminal everywhere else — the
+proposal FALLBACK leg, the patch review, and any reviser call. The patch case is the one
+#1242 explicitly requires (fail closed when no independent family is live), so the single
+most important safety path in the spec still had no legal Attempt outcome after rev 17.
+Lesson: **"exhaustive" is a claim to verify against the dependency's error taxonomy**, not a
+word to write.
+
+**You cannot durably record "the log is broken" in the broken log.** rev 17 listed lane
+event-log integrity failure as a `review_aborted` cause. Unimplementable: writing the
+terminal, reconstructing unresolved dispatches, and even testing whether a claim is held all
+require the log just declared untrustworthy. Any implementation would have had to write into
+a store it called corrupt, trust a projection it called unrebuildable, or claim a terminal it
+never recorded. New FR-035 splits three things rev 17 had as one: ordinary CAS contention
+(retry — already FR-008), operational failure over a HEALTHY log (`ReviewAborted`), and ref
+integrity/availability failure (run-level QUARANTINE — fail closed, no terminal, no
+coordinator mutation, escalate; the Attempt stays honestly unresolved). The general form:
+**an error class whose blast radius is the whole store cannot be recorded as one record's
+outcome.**
+
+FR-035 also forced out a **pre-existing** wedge, unrelated to rev 17: a crash anywhere
+between `ClaimGranted` and a terminal leaves `active_problem_id` set forever, because the
+claim CAS requires it be `None`, `project_lease` is documented as in-host contention only
+(NOT cross-runner correctness), and no reaper exists. "The Attempt remains unresolved until
+repair" is only safe if something can later resolve it — hence `claimed_at` + an explicit
+`ClaimExpired` event (2 h, chosen to exceed the largest Attempt wall-clock budget with
+margin). Found only because F2's fix depended on it.
+
+Also: wall-clock expiry added to the classification and the two review budgets finally
+defined in the Policy Contract (wall-clock is called the PRIMARY bound, yet only
+implementation and evaluation had budgets); `ReviewAborted` restricted to `proposed`/
+`implementing` (rev 17 allowed `claimed`, where no review runs); `rejected` re-described as a
+substantive negative determination — **panel OR deterministic pre-gate** — since rev 17's
+"asserts a panel judgment" contradicted its own next paragraph; and the cooldown key
+`(problem_id,"cooldown")` corrected to `(problem_id,"cooldown",cause,epoch)`, which had
+allowed exactly ONE cooldown per Problem for all time and conflated both causes.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute
