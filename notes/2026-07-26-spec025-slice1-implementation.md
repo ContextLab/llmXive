@@ -267,6 +267,15 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
     `ReviewSpec.strict_acceptance` and DELETED the set, so there is one mechanism, and
     guarded the partition in both directions.
 
+32. **Inject the failure at the layer your claim is about** (round-18). The clean-abort
+    test patched `chat_with_model_fallback`, ABOVE the router, so selection and the
+    dispatch lifecycle never ran — it could only ever prove the `LaneCallClaimed` ceiling
+    charge while its name promised the route-audit trail. Failing at the BACKEND instead
+    runs the real path and produces the whole trail (`ChainResolved`, `SelectionFailure`,
+    `ReviewRerouted`, `DispatchStarted`, `CandidateOutcome`). The general form: a test
+    that stubs above the thing it names proves the stub, and the honest fix is usually to
+    lower the injection point rather than to lower the claim.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute

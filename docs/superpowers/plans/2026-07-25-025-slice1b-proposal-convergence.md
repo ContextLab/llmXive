@@ -4147,3 +4147,20 @@ substrate that was already signed off.
 | 3 | **High — Task 10's paid concurrency proof did not actually reach the Attempt authority.** Reproduced exactly: `authority.threads == set()`. The paid path makes TWO live balance reads (`execute.py:179`, `:192`) BEFORE consulting `reservation_authority`, and both fail closed. The test passed locally ONLY because that machine holds Dartmouth credentials — so it was making live network calls — and failed everywhere else while appearing green | A controlled balance injected through `balance_fetch`'s documented seam (`credits.fetch_credit_balance`), with the daily headroom far above the Attempt budget so the Attempt cap is unambiguously the binding constraint. Everything else stays REAL. Verified with the live fetch forcibly broken. Now genuinely: 5 distinct threads, 2 paid dispatches completed, 9 reservations refused by the cap, counting_total 1052.3 ≤ budget 1056.2. A new assertion fails the test if the balance seam is ever bypassed |
 | 4 | **Medium — `InvocationIdentity` trusted the completed candidate without checking it came from the resolved chain.** A malformed stream could attribute execution to a model selection never chose — and that `family` is the security-relevant independence provenance FR-002 is judged on, which finding 2 now derives a whole review's exclusion from | `_completed_candidate_from_chain` requires the index in range AND a field-for-field ModelRef match against `ChainResolved.candidates[index]`. Corruption tests for out-of-range, wrong-candidate-at-valid-index, and a bool index (`True == 1` would otherwise index the chain) |
 | 5 | **Medium — clean-abort provenance was claimed but not wired.** The docstring said aborts are "already recorded via `on_abort`"; no `on_abort` is passed | Claim CORRECTED and the gap explicitly assigned. States precisely what IS durable (per-route `ChainResolved`/`SelectionFailure`/`CandidateOutcome` + the `LaneCallClaimed` ceiling charge) and what is NOT (an Attempt-level abort record), and assigns the latter to the lifecycle-owning slice, which alone has the terminal-state vocabulary and the authority to move it. A test pins both halves so the corrected claim cannot rot |
+
+## Round-18 (Slice 1B SIGNED OFF) — one precision fix
+
+Maintainer verdict 2026-07-29: **no remaining correctness findings; Slice 1B is ready for
+the next slice.** All five round-17 issues confirmed substantively resolved. Validation:
+65 passed (Slice 1B focused), 245 passed (Slice 1A + event-log + credit + routing + spec
+26), ruff clean, whitespace clean.
+
+| # | Finding | Resolved by |
+|-|-|-|
+| 1 | **Documentation-test mismatch, not a product defect.** `test_a_clean_abort_leaves_per_route_audit...` patched `chat_with_model_fallback` — ABOVE the router — so selection and the dispatch lifecycle never ran. It proved only the durable `LaneCallClaimed`, while its name promised the full route-audit trail named in `run_proposal_review`'s docstring | Rather than renaming the test down to what it proved, the failure was LOWERED to the backend (`_FailingBackend`), so the real path runs and the test now proves the whole claim: `ChainResolved` + `SelectionFailure` + `ReviewRerouted` + `DispatchStarted` + `CandidateOutcome`, plus the ceiling charge, and still no Attempt-level record. Verified load-bearing — restoring the above-router patch fails it on the missing `DispatchStarted`/`CandidateOutcome` |
+
+**Slice 1B is complete.** The lane's proposal review runs end to end on the shared
+`run_convergence` mechanism, with FR-002 independence bound to durable proposer identity,
+every call audited and charged against an immutable per-Attempt ceiling and credit budget,
+and a strict judgment-gate bar. The next slice owns the Attempt lifecycle — including the
+Attempt-level abort record this slice explicitly deferred (round-17 F5).

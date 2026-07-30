@@ -409,34 +409,49 @@ def test_a_backend_outage_is_a_CLEAN_ABORT_not_a_malformed_reply(lane, monkeypat
                                           reviser_raises=BackendUnavailable("breaker open"))
 
 
-def test_a_clean_abort_leaves_per_route_audit_but_no_attempt_level_record(lane, monkeypatch):
+class _FailingBackend(_ScriptedPanelBackend):
+    """Refuses at the BACKEND, below the router — so selection, the reroute, and the
+    dispatch lifecycle all really run before the abort."""
+
+    def chat(self, messages, **kw):
+        from llmxive.backends.base import BackendUnavailable
+
+        raise BackendUnavailable("breaker open")
+
+
+def test_a_clean_abort_leaves_the_route_audit_trail_but_no_attempt_level_record(
+    lane, monkeypatch
+):
     """F5: pin exactly what a clean abort DOES and does NOT persist.
 
+    The failure is injected at the BACKEND, not at `chat_with_model_fallback`. Patching
+    above the router would skip selection and the dispatch lifecycle entirely, so the test
+    could only ever prove the ceiling claim while its name promised the route-audit trail
+    — which is the whole thing this test exists to pin.
+
     `run_proposal_review` passes no `on_abort`, so there is no convergence-level abort
-    record — an earlier docstring claimed otherwise. The call is still not evidence-free:
-    the route audit has durably written the per-route trail and the ceiling charge. This
-    test is what keeps the corrected claim honest, and it will start failing (informatively)
-    when the lifecycle-owning slice adds the Attempt-level record.
+    record; an earlier docstring claimed otherwise. The call is emphatically not
+    evidence-free, and that is what the assertions below establish.
     """
     from llmxive.backends.base import BackendUnavailable
 
     repo, ctx = lane
     _use_aged_snapshot(monkeypatch)
 
-    def _boom(*a, **kw):
-        raise BackendUnavailable("breaker open")
-
-    monkeypatch.setattr("llmxive.convergence.llm_reviewer.chat_with_model_fallback", _boom)
     with pytest.raises(BackendUnavailable):
         run_proposal_review(
-            backend=_ScriptedPanelBackend(), repo_root=_REPO_ROOT,
+            backend=_FailingBackend(), repo_root=_REPO_ROOT,
             proposer_baseline=_BASELINE, route_context=ctx,
             artifacts={"proposal.md": _PROPOSAL},
         )
 
     kinds = {e.event_type for e in read(repo, "P1")}
-    # WHAT IS recorded: the ceiling charge for the route that was admitted before the
-    # backend refused. An aborted Attempt is not a silent zero-trail run.
-    assert "LaneCallClaimed" in kinds, "the aborted call left no durable route evidence"
+    # WHAT IS recorded: the full per-route trail named in `run_proposal_review`'s
+    # docstring, plus the ceiling charge. An aborted Attempt is not a zero-trail run — an
+    # operator can see which routes ran and how each candidate resolved.
+    assert {"ChainResolved", "DispatchStarted", "CandidateOutcome"} <= kinds
+    assert "LaneCallClaimed" in kinds, "the aborted call left no durable ceiling charge"
+    # the degradation that DID happen before the backend refused is still explicit
+    assert {"SelectionFailure", "ReviewRerouted"} <= kinds
     # WHAT IS NOT: any Attempt-level abort/terminal record. Owned by the lifecycle slice.
     assert not {k for k in kinds if "Abort" in k or "AttemptFailed" in k}
