@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-07-30T22:28:06.032370+00:00",
+  "generated_at": "2026-07-30T22:28:33.988922+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -155131,126 +155131,6 @@
   "recent_activity": [
     {
       "agent": "implementer",
-      "duration_s": 0.531525,
-      "ended_at": "2026-07-30T22:27:48.722389Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:48.190864Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.632355,
-      "ended_at": "2026-07-30T22:27:48.130016Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:47.497661Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.480888,
-      "ended_at": "2026-07-30T22:27:47.437023Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:46.956135Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.670341,
-      "ended_at": "2026-07-30T22:27:46.895283Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:46.224942Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.558016,
-      "ended_at": "2026-07-30T22:27:46.164856Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:45.606840Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.558888,
-      "ended_at": "2026-07-30T22:27:45.545937Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:44.987049Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.595651,
-      "ended_at": "2026-07-30T22:27:44.854971Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:44.259320Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.545784,
-      "ended_at": "2026-07-30T22:27:44.198804Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:43.653020Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.518661,
-      "ended_at": "2026-07-30T22:27:43.506642Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:42.987981Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.653967,
-      "ended_at": "2026-07-30T22:27:42.921873Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T22:27:40.267906Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 250.978846,
       "ended_at": "2026-07-30T22:05:55.041968Z",
       "failure_reason": "",
@@ -161128,6 +161008,126 @@
       "project_stage": "analyzed",
       "severity": "ok",
       "started_at": "2026-07-30T15:42:56.627772Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 72.005668,
+      "ended_at": "2026-07-30T15:52:17.032435Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:51:05.026767Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 68.056478,
+      "ended_at": "2026-07-30T15:52:01.928413Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-263-assessing-the-validity-of-frequentist-co",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:50:53.871935Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 127.74638,
+      "ended_at": "2026-07-30T15:51:05.022953Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:48:57.276573Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 97.846684,
+      "ended_at": "2026-07-30T15:50:53.868575Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-263-assessing-the-validity-of-frequentist-co",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:49:16.021891Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 119.500523,
+      "ended_at": "2026-07-30T15:49:16.018293Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-263-assessing-the-validity-of-frequentist-co",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:47:16.517770Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 84.232156,
+      "ended_at": "2026-07-30T15:48:57.273507Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:47:33.041351Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 68.380426,
+      "ended_at": "2026-07-30T15:47:33.037535Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:46:24.657109Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.862262,
+      "ended_at": "2026-07-30T15:46:32.782964Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:46:31.920702Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.823962,
+      "ended_at": "2026-07-30T15:46:31.850410Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:46:31.026448Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.839367,
+      "ended_at": "2026-07-30T15:46:30.956741Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-30T15:46:30.117374Z"
     }
   ],
   "reviewed_preprints": [
