@@ -1,72 +1,67 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AlloyExperimentDataset"
-description: "Schema for raw and processed experimental data on aluminum alloy recrystallization."
-type: "object"
+title: "EngineeredFeatureSet"
+description: "Schema for the engineered dataset containing interaction terms for recrystallization kinetics."
+type: object
 properties:
-  metadata:
-    type: "object"
-    properties:
-      source:
-        type: "string"
-        description: "Source of the data (e.g., 'NIST', 'Simulated', 'User Provided')."
-      generated_at:
-        type: "string"
-        format: "date-time"
-        description: "ISO timestamp of generation."
-      checksum:
-        type: "string"
-        description: "SHA256 checksum of the raw data file."
-    required:
-      - source
-      - generated_at
-  columns:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of column names in the dataset."
-  data_sample:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        cold_work_pct:
-          type: "number"
-          minimum: 0
-          maximum: 100
-          description: "Percentage of cold work deformation."
-        mg_wt:
-          type: "number"
-          minimum: 0
-          description: "Magnesium weight percentage."
-        si_wt:
-          type: "number"
-          minimum: 0
-          description: "Silicon weight percentage."
-        cu_wt:
-          type: "number"
-          minimum: 0
-          description: "Copper weight percentage."
-        mn_wt:
-          type: "number"
-          minimum: 0
-          description: "Manganese weight percentage."
-        annealing_temp_k:
-          type: "number"
-          minimum: 273.15
-          description: "Annealing temperature in Kelvin."
-        time_to_peak:
-          type: "number"
-          minimum: 0
-          description: "Time to peak softening in minutes."
-        id:
-          type: "string"
-          description: "Unique row identifier."
-      required:
-        - cold_work_pct
-        - annealing_temp_k
-        - time_to_peak
-        - id
+  row_id:
+    type: string
+    description: "Unique identifier for the experiment record."
+  cold_work_pct:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Percentage of cold work deformation."
+  mg_wt:
+    type: number
+    minimum: 0
+    description: "Magnesium weight percentage."
+  si_wt:
+    type: number
+    minimum: 0
+    description: "Silicon weight percentage."
+  cu_wt:
+    type: number
+    minimum: 0
+    description: "Copper weight percentage."
+  mn_wt:
+    type: number
+    minimum: 0
+    description: "Manganese weight percentage."
+  annealing_temp_k:
+    type: number
+    minimum: 300
+    description: "Annealing temperature in Kelvin."
+  time_to_peak_min:
+    type: number
+    minimum: 0
+    description: "Time to peak softening in minutes (clipped at 99th percentile)."
+  interaction_cw_mg:
+    type: number
+    description: "Interaction term: cold_work_pct * mg_wt."
+  interaction_cw_si:
+    type: number
+    description: "Interaction term: cold_work_pct * si_wt."
+  interaction_cw_cu:
+    type: number
+    description: "Interaction term: cold_work_pct * cu_wt."
+  interaction_cw_mn:
+    type: number
+    description: "Interaction term: cold_work_pct * mn_wt."
+  is_outlier_clipped:
+    type: boolean
+    description: "True if the original time_to_peak was > 99th percentile."
 required:
-  - metadata
-  - columns
-  - data_sample
+  - row_id
+  - cold_work_pct
+  - mg_wt
+  - si_wt
+  - cu_wt
+  - mn_wt
+  - annealing_temp_k
+  - time_to_peak_min
+  - interaction_cw_mg
+  - interaction_cw_si
+  - interaction_cw_cu
+  - interaction_cw_mn
+  - is_outlier_clipped
+additionalProperties: false
