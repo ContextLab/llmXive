@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: http://api.pushshift.io/reddit/search/submission
   verified_at: '2026-07-28T00:22:27.842906Z'
-- artifact_hash: b3d3ba2553ea2bedc7c98af861b5be26ee14eac47f4b18a00cdb69b241f6f80e
+- artifact_hash: a8acdc5ef7afaac6b5c4a3ccbc21aa03d633de31de2f2595963d667d4aa93592
   artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://www.wikidata.org/wiki/Q47604
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q47604
-  verified_at: '2026-07-28T08:50:22.339438Z'
+  verified_at: '2026-07-30T15:35:34.403494Z'
