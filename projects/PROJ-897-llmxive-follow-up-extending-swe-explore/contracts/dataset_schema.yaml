@@ -1,69 +1,74 @@
+%YAML 1.2
+---
+# SWE-Explore Dataset Schema
+# Defines the structure for raw and curated dataset artifacts
 $schema: http://json-schema.org/draft-07/schema#
-title: SWE-Explore Dataset Schema
-description: Schema for the raw and curated SWE-Explore benchmark dataset artifacts.
+title: SWEExploreDataset
+description: Schema for SWE-Explore benchmark dataset artifacts
 type: object
 required:
   - issue_id
-  - repo_name
-  - base_commit
+  - repo
   - instance_id
   - problem_statement
-  - test_patch
+  - base_commit
   - patch
-  - repo_link
-  - created_at
-  - version
+  - environment_setup_commit
+  - metadata
 properties:
   issue_id:
     type: string
-    description: Unique identifier for the issue instance.
-  repo_name:
+    description: Unique identifier for the issue (e.g., "sphinx-doc/sphinx#12345")
+  repo:
     type: string
-    description: Name of the repository (e.g., 'sphinx-doc/sphinx').
-  base_commit:
-    type: string
-    description: SHA of the base commit.
+    description: Repository identifier (e.g., "sphinx-doc/sphinx")
   instance_id:
     type: string
-    description: Alternative or specific instance identifier.
+    description: Unique instance identifier for this run
   problem_statement:
     type: string
-    description: The text of the issue or problem to solve.
-  test_patch:
+    description: The original issue/problem text
+  base_commit:
     type: string
-    description: The patch containing the test cases added for this issue.
+    description: Git commit hash for the base state
   patch:
     type: string
-    description: The ground truth solution patch.
-  repo_link:
+    description: The ground truth patch (solution)
+  environment_setup_commit:
     type: string
-    description: URL to the repository.
-  created_at:
-    type: string
-    format: date-time
-    description: Timestamp of issue creation.
-  version:
-    type: string
-    description: Dataset version string.
-  # Derived/Computed fields (optional in raw, present in curated)
-  ground_truth_lines:
-    type: array
-    items:
-      type: integer
-    description: Line numbers of the ground truth solution (derived).
-  initial_coverage:
-    type: number
-    format: float
-    minimum: 0.0
-    maximum: 1.0
-    description: Initial retrieval coverage score (used for hard instance selection).
-  complexity_score:
-    type: number
-    format: float
-    description: Cyclomatic complexity score (diagnostic only).
-  is_hard:
-    type: boolean
-    description: Flag indicating if the instance is in the hard subset.
+    description: Commit hash for environment setup
   metadata:
     type: object
-    description: Additional metadata fields.
+    description: Additional metadata fields
+    properties:
+      initial_coverage:
+        type: number
+        format: float
+        description: Initial retrieval coverage score (0.0 to 1.0)
+      complexity_score:
+        type: number
+        format: float
+        description: Cyclomatic complexity score (diagnostic only)
+      ground_truth_lines:
+        type: array
+        items:
+          type: integer
+        description: List of line numbers changed in the solution
+      retrieved_lines:
+        type: array
+        items:
+          type: integer
+        description: List of retrieved relevant line numbers
+      is_hard:
+        type: boolean
+        description: Whether this instance is in the hard subset
+      synthetic_source:
+        type: string
+        nullable: true
+        description: Original issue_id if this is a synthetic mutation
+      mutation_type:
+        type: string
+        nullable: true
+        description: Type of mutation applied (e.g., "variable_rename", "comment_removal")
+    additionalProperties: true
+additionalProperties: true

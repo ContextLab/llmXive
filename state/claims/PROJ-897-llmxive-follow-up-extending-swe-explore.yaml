@@ -2843,3 +2843,397 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-27T10:15:03Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Plan contains contradictions on Hard instance selection and statistical
+    methods
+  claim_id: c_bfd9fd9f
+  context: 'Action: Acknowledge that `plan.md` contains contradictory text regarding
+    ''Hard'' instance selection (Cyclomatic Complexity vs. initial_coverage) and statistical
+    methods (Survival Analysis vs. Wilcoxon).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_contains_contradictions_on_Hard_instance_selection_and
+  kind: entity_fact
+  raw_text: The plan contains contradictory text regarding 'Hard' instance selection
+    (Cyclomatic Complexity vs. initial_coverage) and statistical methods (Survival
+    Analysis vs. Wilcoxon).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:02:46Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Primary model strategy is 8-bit quantization for 7GB RAM constraint
+  claim_id: c_1236d435
+  context: 'Requirement: Create `code/agent/quantized_llm.py` to use `llama-cpp-python`
+    with 8-bit quantization as the **PRIMARY AND ONLY** strategy to ensure compliance
+    with SC-005 (GB RAM constraint) on free-tier runners.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary and only strategy for model execution is 8-bit quantization
+    using `llama-cpp-python` to ensure compliance with a 7GB RAM constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:03:39Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default MIN_SYNTHETIC_ISSUES is 10
+  claim_id: c_5a493888
+  context: 'Implement `code/config.py` to define paths... AND critical thresholds:
+    ... `MIN_SYNTHETIC_ISSUES` (default 10)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for MIN_SYNTHETIC_ISSUES is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:05:31Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default HARD_INSTANCE_PERCENTILE is 0.20
+  claim_id: c_1b7a1165
+  context: 'Implement `code/config.py` to define paths... AND critical thresholds:
+    ... `HARD_INSTANCE_PERCENTILE` (default 0.20)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for HARD_INSTANCE_PERCENTILE is 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:06:53Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default VALIDATION_SAMPLE_SIZE is 5
+  claim_id: c_eca12e2b
+  context: 'Implement `code/config.py` to define paths... AND critical thresholds:
+    ... `VALIDATION_SAMPLE_SIZE` (default 5)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for VALIDATION_SAMPLE_SIZE is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:08:35Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default COMPLEXITY_THRESHOLD is 50
+  claim_id: c_fc9c8317
+  context: 'Implement `code/config.py` to define paths... AND critical thresholds:
+    `COMPLEXITY_THRESHOLD` (default 50)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for COMPLEXITY_THRESHOLD is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:09:45Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default TURN_LIMITS are 1, 2, 3, 4
+  claim_id: c_ae881902
+  context: 'Implement `code/config.py` to define paths... AND critical thresholds:
+    ... `TURN_LIMITS` (default [1, 2, 3, 4]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default TURN_LIMITS are [1, 2, 3, 4].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:10:21Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if memory exceeds threshold in 8-bit mode
+  claim_id: c_a8828d91
+  context: 'Memory Check: Add a runtime check to fail if memory usage exceeds a predefined
+    threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline uses an automated 8-bit quantization check to fail if memory
+    usage exceeds a predefined threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:11:47Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Static baseline runs 3 parallel queries per issue
+  claim_id: c_bc78b2bf
+  context: 'Requirement: Run **parallel queries** per issue (matching the iterative
+    limit of 3 turns defined in Spec FR-003) to ensure a fair comparison of feedback
+    mechanisms vs. search volume.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The static multi-query baseline runs parallel queries per issue matching
+    the iterative limit of 3 turns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:12:47Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test is primary success criterion
+  claim_id: c_5a62abef
+  context: 'Goal: Compute line-level coverage and ranking efficiency, apply **Wilcoxon
+    signed-rank test** as the primary success criterion (Spec SC-003)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_is_primary_success_criterion
+  kind: entity_fact
+  raw_text: The statistical analysis uses the Wilcoxon signed-rank test as the primary
+    success criterion.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:14:25Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Exact Permutation Test is fallback for ties/censored data
+  claim_id: c_8cbd4825
+  context: '...with **Exact Permutation Test** as the fallback for ties/censored data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exact_Permutation_Test_is_fallback_for_ties/censored_data
+  kind: entity_fact
+  raw_text: The statistical analysis uses an Exact Permutation Test as the fallback
+    for ties or censored data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:15:30Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Routing to Permutation Test if ties > 0 or censored data exists
+  claim_id: c_66abd748
+  context: 'Routing: If **any ties are detected (count > 0)** OR censored data exists:
+    Route to T030-Permutation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The routing logic for statistical tests routes to the Permutation Test
+    if any ties are detected (count > 0) or censored data exists.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:15:30Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Censored data handled with N+1 penalty
+  claim_id: c_338176a8
+  context: 'Method: Apply exact permutation test to paired data to handle dominant
+    ties and censored entries (using N+1 penalty).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Censored data in ranking efficiency is handled by assigning an N+1 penalty.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:16:49Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to Coverage and Ranking tests
+  claim_id: c_8d62102c
+  context: 'Correction: Apply **Bonferroni correction** to the family of tests: **Coverage**,
+    **Ranking (Wilcoxon/Permutation)**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_Coverage_and_Ranking_tests
+  kind: entity_fact
+  raw_text: The Bonferroni correction is applied to the family of tests including
+    Coverage and Ranking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:17:53Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: System aborts if elapsed time exceeds 5.5 hours
+  claim_id: c_fb856998
+  context: 'Logic: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical
+    sweeps or reduce sample size to ensure completion within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system aborts remaining non-critical sweeps or reduces sample size
+    if elapsed time exceeds 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:19:03Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Survival Analysis removed from statistical methods
+  claim_id: c_f91a73d1
+  context: Survival Analysis is removed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Survival_Analysis_removed_from_statistical_methods
+  kind: entity_fact
+  raw_text: Survival Analysis has been removed from the statistical methods.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:20:31Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline requires at least 7GB RAM
+  claim_id: c_45194770
+  context: 'Memory errors: The pipeline uses streaming for large datasets; ensure
+    at least 7GB RAM available.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_requires_at_least_7GB_RAM
+  kind: magnitude
+  raw_text: ensure at least 7GB RAM available
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:24:11Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: plan.md updated to replace cyclomatic complexity selection with initial
+    coverage and survival analysis with wilcoxon permutation
+  claim_id: c_44d33fd8
+  context: 'Phase 0: Plan Alignment (Administrative) - Action: Update plan.md: Explicitly
+    edit plan.md to remove the ''Cyclomatic Complexity'' selection logic in Phase
+    0 and the ''Survival Analysis'' method in Phase 2, replacing them with the Spec-mandated
+    ''initial_coverage'' and ''Wilcoxon/Permutation'' logic respectively.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task updates plan.md to remove the 'Cyclomatic Complexity' selection
+    logic in Phase 0 and the 'Survival Analysis' method in Phase 2, replacing them
+    with the Spec-mandated 'initial_coverage' and 'Wilcoxon/Permutation' logic respectively.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:25:53Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: turn limit sweep executes agent loop for limits 1 2 3 and 4
+  claim_id: c_f7182ca5
+  context: 'Phase 4: User Story 2 - T024b Turn-Limit Sweep. Logic: ...Execute the
+    iterative agent loop for each turn limit in the range [1, 2, 3, 4].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T024b executes the iterative agent loop for each turn limit in the range
+    [1, 2, 3, 4].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:26:20Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: turn limit sweep sample size is stratified by complexity score quartiles
+  claim_id: c_95360aee
+  context: 'Phase 4: User Story 2 - T024b Turn-Limit Sweep. Logic: 1. Sampling: Generate
+    a specific sample list file for N=config.SWEEP_SAMPLE_SIZE issues (random sample
+    with seed config.SWEEP_SEED, stratified by complexity_score quartiles...).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Turn_limit_sweep_sample_size_is_stratified_by_complexity_sco
+  kind: entity_fact
+  raw_text: T024b generates a sample list for N=config.SWEEP_SAMPLE_SIZE issues stratified
+    by complexity_score quartiles.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:26:36Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: bonferroni correction is applied to coverage and ranking tests
+  claim_id: c_407dffd9
+  context: 'Phase 5: User Story 3 - T030c Multiplicity Correction & Framing. Correction:
+    Apply Bonferroni correction to the family of tests: Coverage, Ranking (Wilcoxon/Permutation).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_is_applied_to_coverage_and_ranking_tes
+  kind: entity_fact
+  raw_text: 'T030c applies Bonferroni correction to the family of tests: Coverage
+    and Ranking (Wilcoxon/Permutation).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:27:17Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: report validation fails if causal language like proves causes guarantees
+    or demonstrates causality is found
+  claim_id: c_945aa976
+  context: 'Phase 5: User Story 3 - T033d Validate Report Language (Regex). Logic:
+    Run a regex scan r''\b(proves|causes|guarantees|demonstrates causality)\b'' against
+    the draft. Fail the build if any match is found.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Report_validation_fails_if_causal_language_like_proves_cause
+  kind: causal
+  raw_text: T033d runs a regex scan r'\b(proves|causes|guarantees|demonstrates causality)\b'
+    against the report draft to fail the build if any match is found.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T08:27:21Z'

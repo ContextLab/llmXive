@@ -1,39 +1,40 @@
 import os
-import sys
-from pathlib import Path
 import tempfile
-import pytest
+from pathlib import Path
+import sys
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+# Add parent directory to path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from setup_project_structure import create_directories
 
-def test_create_directories_creates_expected_structure():
-    """Test that create_directories creates all required directories."""
+def test_create_directories():
+    """Test that create_directories creates all expected folders."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        root = Path(tmpdir)
+        base_path = Path(tmpdir)
         
-        # Mock the __file__ behavior by temporarily changing the module's context
-        # or simply test the logic directly by passing a root
-        # Since the function uses __file__, we will test the side effects
+        create_directories(base_path)
         
-        # We'll recreate the logic here to test against a temp dir
-        directories = [
-            root / "code",
-            root / "data" / "raw",
-            root / "data" / "curated",
-            root / "data" / "results",
-            root / "tests" / "unit",
-            root / "tests" / "contract",
-            root / "contracts",
-            root / "docs",
-            root / "paper",
+        expected_dirs = [
+            "code",
+            "code/agent",
+            "code/analysis",
+            "code/data",
+            "code/metrics",
+            "code/utils",
+            "data/raw",
+            "data/curated",
+            "data/results",
+            "tests/unit",
+            "tests/contract",
+            "contracts",
+            "docs",
+            "paper",
+            "state",
+            "figures",
         ]
         
-        for directory in directories:
-            directory.mkdir(parents=True, exist_ok=True)
-        
-        for directory in directories:
-            assert directory.exists(), f"Directory {directory} was not created"
-            assert directory.is_dir(), f"{directory} is not a directory"
+        for dir_name in expected_dirs:
+            full_path = base_path / dir_name
+            assert full_path.exists(), f"Directory {full_path} was not created"
+            assert full_path.is_dir(), f"{full_path} is not a directory"

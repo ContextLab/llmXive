@@ -1,6 +1,4 @@
-# Quickstart Guide: llmXive Pipeline
-
-This guide provides step-by-step instructions to run the llmXive automated science pipeline.
+# Quickstart Guide: llmXive Follow-up (SWE-Explore Extension)
 
 ## Prerequisites
 
@@ -10,131 +8,82 @@ This guide provides step-by-step instructions to run the llmXive automated scien
 
 ## Setup
 
-1. Clone the repository and navigate to the project directory.
-2. Install dependencies:
+1. **Clone the repository** (if not already done):
+ ```bash
+ git clone <repo-url>
+ cd PROJ-897-llmxive-follow-up-extending-swe-explore
+ ```
+
+2. **Create Virtual Environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. **Install Dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+4. **Initialize Project Structure**:
+ ```bash
+ python code/setup_project_structure.py
+ ```
+
+## Execution Pipeline
+
+The full pipeline runs the following steps in order. Ensure you have internet access for the data download step.
 
 ```bash
-pip install -r requirements.txt
-```
-
-3. Ensure the project structure is created:
-
-```bash
-python code/setup_project_structure.py
-```
-
-## Data Curation (Phase 3)
-
-### Step 1: Download Dataset
-
-```bash
+# 1. Download Raw Data (SWE-Explore)
 python code/data/download.py
-```
 
-This downloads the SWE-bench dataset from HuggingFace and saves it to `data/raw/swe_explore_raw.jsonl`.
-
-### Step 2: Derive Ground Truth
-
-```bash
+# 2. Derive Ground Truth
 python code/data/derive_gt.py
-```
 
-This parses solution patches and derives ground truth lines, saving to `data/raw/swe_explore_with_gt.jsonl`.
-
-### Step 3: Filter Hard Subset
-
-```bash
+# 3. Filter Hard & Non-Hard Subsets
 python code/data/filter_hard.py
-```
-
-This filters instances based on `initial_coverage` scores (Spec FR-001) and saves to `data/curated/hard_subset.jsonl`.
-
-### Step 4: Filter Non-Hard Subset
-
-```bash
 python code/data/filter_non_hard.py
-```
 
-This creates the complement of the hard subset, saving to `data/curated/non_hard_subset.jsonl`.
-
-### Step 5: Generate Synthetic Issues
-
-```bash
+# 4. Generate Synthetic Issues
 python code/data/mutate.py
-```
 
-This generates synthetic ambiguous issues and saves to `data/curated/synthetic_issues.jsonl` and `data/curated/synthetic_issues_meta.json`.
-
-### Step 6: Validate Hard Subset
-
-```bash
+# 5. Validate Hard Subset
 python code/data/validate_hard.py
-```
 
-This validates the hard subset and generates `data/curated/validation_report.md` and `data/curated/validation_status.json`.
-
-## Agent Execution (Phase 4)
-
-### Step 7: Run Baseline
-
-```bash
+# 6. Run Agent Baseline (Static Multi-Query)
 python code/agent/static_baseline.py
-```
 
-This runs parallel queries per issue and saves to `data/results/baseline_logs.jsonl`.
-
-### Step 8: Run Iterative Agent
-
-```bash
+# 7. Run Iterative Agent
 python code/agent/iterative.py
-```
 
-This runs the iterative agent loop and saves to `data/results/iterative_logs.jsonl`.
+# 8. Run Turn-Limit Sweep (Optional/Configurable)
+python code/agent/sweep_turns.py
 
-## Analysis (Phase 5)
-
-### Step 9: Run Statistical Analysis
-
-```bash
+# 9. Calculate Metrics & Statistics
 python code/analysis/stats.py
-```
+python code/analysis/generate_final_metrics.py
 
-This runs Wilcoxon and Permutation tests and saves to `data/results/stats_summary.json`.
-
-### Step 10: Generate Plots
-
-```bash
+# 10. Generate Plots
 python code/analysis/plots.py
-```
 
-This generates visualizations in `figures/`.
-
-### Step 11: Generate Report
-
-```bash
+# 11. Generate Report
 python code/analysis/report_generator.py
-```
-
-This generates the draft report in `paper/draft.md`.
-
-## Full Pipeline
-
-To run the entire pipeline:
-
-```bash
-python code/main.py --max-hours 6
 ```
 
 ## Validation
 
-To validate the quickstart:
+To verify the setup and run a quick check:
 
 ```bash
 python code/validate_quickstart.py
 ```
 
-## Troubleshooting
+## Output Artifacts
 
-- **ModuleNotFoundError**: Ensure all dependencies are installed (`pip install -r requirements.txt`).
-- **File not found**: Ensure previous steps have completed successfully.
-- **OOM errors**: The pipeline uses streaming to prevent OOM; if issues persist, check system resources.
+- `data/raw/swe_explore_raw.jsonl`: Raw dataset
+- `data/curated/hard_subset.jsonl`: Hard instances based on coverage
+- `data/curated/synthetic_issues.jsonl`: Generated ambiguous issues
+- `data/results/final_metrics.json`: Statistical analysis results
+- `paper/draft.md`: Final report draft
+- `figures/`: Generated plots

@@ -1,1 +1,1 @@
-"""Metrics calculation package."""
+# Metrics package
