@@ -4,26 +4,14 @@ import json
 import random
 import argparse
 import numpy as np
+
 import torch
-from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime
-from pathlib import Path
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from datasets import load_dataset
 
-# Project imports
-from config import get_config, validate_config
 from utils.logging import get_logger, EvaluationError
-from models.base_llama import BaseLlamaWrapper
-from models.recursive_llama import RecursiveLlamaWrapper
 from evaluation.results import EvaluationResult
-from evaluation.metrics import calculate_self_consistency, calculate_brier_score, calculate_ece, calculate_roc_auc
-
-# Configure paths relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
-RESULTS_DIR = ARTIFACTS_DIR / "results"
+from config import get_config
 
 logger = get_logger(__name__)
 
@@ -35,422 +23,298 @@ def set_seed(seed: int) -> None:
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-def load_model_and_tokenizer(
-    model_path: str,
-    is_recursive: bool = False,
-    device: str = "cpu"
-) -> Tuple[Any, Any]:
-    """Load a trained model and its tokenizer."""
-    from transformers import AutoTokenizer
-    
-    logger.info(f"Loading model from {model_path} (recursive={is_recursive})")
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
-    
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+def load_model_and_tokenizer(model_path: str, device: str = "cpu") -> tuple:
+    """Load model and tokenizer from path."""
+    logger.info(f"Loading model from {model_path} on {device}")
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            torch_dtype=torch.float32,
+            device_map={"": device} if device != "cpu" else None,
+            low_cpu_mem_usage=True
+        )
+        if device == "cpu":
+            model = model.to("cpu")
+        model.eval()
+        return model, tokenizer
+    except Exception as e:
+        raise EvaluationError(f"Failed to load model: {e}")
 
-    if is_recursive:
-        model = RecursiveLlamaWrapper.from_pretrained(model_path)
-    else:
-        model = BaseLlamaWrapper.from_pretrained(model_path)
-    
-    model.to(device)
-    model.eval()
-    logger.info("Model loaded successfully")
-    return model, tokenizer
+def prepare_gsm8k_prompt(question: str) -> str:
+    """Prepare GSM8K question with prompt template."""
+    return f"Question: {question}\nAnswer: "
 
-def prepare_gsm8k_prompt(example: Dict[str, Any]) -> str:
-    """Format a GSM8K example into a prompt."""
-    question = example['question']
-    # Standard GSM8K prompt format
-    prompt = f"Question: {question}\nAnswer:"
-    return prompt
-
-def prepare_mmlu_prompt(example: Dict[str, Any], subject: str) -> str:
-    """Format an MMLU example into a prompt."""
-    question = example['question']
-    choices = example['choices']
-    # Format choices as A, B, C, D
-    choices_str = "\n".join([f"{chr(65+i)}. {choice}" for i, choice in enumerate(choices)])
-    prompt = f"Question: {question}\n{choices_str}\nAnswer:"
-    return prompt
+def prepare_mmlu_prompt(question: str, choices: list, subject: str) -> str:
+    """Prepare MMLU question with prompt template."""
+    choices_text = "\n".join([f"{chr(65+i)}. {choice}" for i, choice in enumerate(choices)])
+    return f"Subject: {subject}\nQuestion: {question}\nChoices:\n{choices_text}\nAnswer:"
 
 def generate_reasoning_path(
-    model: Any,
-    tokenizer: Any,
-    prompt: str,
-    max_new_tokens: int = 256,
-    num_paths: int = 5
-) -> List[str]:
-    """Generate multiple reasoning paths for a given prompt."""
-    input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
-    reasoning_paths = []
-
-    for _ in range(num_paths):
-        with torch.no_grad():
-            outputs = model.generate(
-                input_ids,
-                max_new_tokens=max_new_tokens,
-                num_return_sequences=1,
-                do_sample=True,
-                temperature=0.7,
-                pad_token_id=tokenizer.pad_token_id
-            )
-            generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-            # Extract the generated part after the prompt
-            generated_part = generated_text[len(prompt):].strip()
-            reasoning_paths.append(generated_part)
-
-    return reasoning_paths
+    model, 
+    tokenizer, 
+    prompt: str, 
+    max_new_tokens: int = 256, 
+    temperature: float = 0.7,
+    top_p: float = 0.9,
+    do_sample: bool = True
+) -> str:
+    """Generate a single reasoning path."""
+    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature if do_sample else 1.0,
+            top_p=top_p if do_sample else 1.0,
+            do_sample=do_sample,
+            pad_token_id=tokenizer.pad_token_id,
+            eos_token_id=tokenizer.eos_token_id
+        )
+    
+    full_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Extract the generated part
+    generated_text = full_response[len(prompt):].strip()
+    return generated_text
 
 def run_gsm8k_benchmark(
-    model: Any,
-    tokenizer: Any,
-    data_path: str,
-    num_samples: int = 100,
-    num_paths: int = 5
-) -> Dict[str, Any]:
-    """Run the GSM8K benchmark and return metrics."""
-    from datasets import load_dataset
-    
-    logger.info(f"Loading GSM8K dataset from {data_path}")
-    dataset = load_dataset("gsm8k", "main", split="test")
-    
-    # Sample if necessary
-    if len(dataset) > num_samples:
-        dataset = dataset.shuffle(seed=42).select(range(num_samples))
-
+    model, 
+    tokenizer, 
+    dataset, 
+    max_samples: int = None,
+    seed: int = 42
+) -> list:
+    """Run GSM8K benchmark with single-path inference."""
+    set_seed(seed)
     results = []
-    correct_count = 0
-    confidence_scores = []
-
-    for i, example in enumerate(dataset):
-        prompt = prepare_gsm8k_prompt(example)
-        reasoning_paths = generate_reasoning_path(model, tokenizer, prompt, num_paths=num_paths)
+    
+    logger.info(f"Starting GSM8K benchmark on {len(dataset)} samples")
+    
+    for i, item in enumerate(dataset):
+        if max_samples and i >= max_samples:
+            break
         
-        # Extract answers from reasoning paths
-        answers = []
-        for path in reasoning_paths:
-            # Simple heuristic: look for the last number in the text
-            import re
-            numbers = re.findall(r'\d+', path)
-            if numbers:
-                answers.append(numbers[-1])
-            else:
-                answers.append(None)
-
-        # Majority vote
-        from collections import Counter
-        valid_answers = [a for a in answers if a is not None]
-        if valid_answers:
-            majority_answer = Counter(valid_answers).most_common(1)[0][0]
-        else:
-            majority_answer = None
-
-        # Ground truth
-        ground_truth = example['answer'].split('####')[-1].strip()
+        question = item['question']
+        answer = item['answer']
         
-        is_correct = (majority_answer == ground_truth)
-        if is_correct:
-            correct_count += 1
-
-        # Estimate confidence (simplified: proportion of paths agreeing with majority)
-        if valid_answers:
-            confidence = valid_answers.count(majority_answer) / len(valid_answers)
-        else:
-            confidence = 0.0
+        prompt = prepare_gsm8k_prompt(question)
+        generation = generate_reasoning_path(
+            model, tokenizer, prompt, 
+            max_new_tokens=512, 
+            temperature=0.0,  # Greedy for baseline accuracy
+            do_sample=False
+        )
         
-        confidence_scores.append(confidence)
-        results.append({
-            "question": example['question'],
-            "ground_truth": ground_truth,
-            "prediction": majority_answer,
-            "reasoning_paths": reasoning_paths,
-            "correct": is_correct,
-            "confidence": confidence
-        })
-
-        if (i + 1) % 20 == 0:
+        # Simple extraction: look for the last number in the generation
+        import re
+        numbers = re.findall(r'\d+\.?\d*', generation)
+        predicted = numbers[-1] if numbers else "0"
+        
+        # Extract correct answer (format: "The answer is 123")
+        correct_match = re.search(r'The answer is (\d+\.?\d*)', answer)
+        correct = correct_match.group(1) if correct_match else "0"
+        
+        is_correct = predicted == correct
+        
+        result = {
+            "id": i,
+            "question": question,
+            "prediction": generation,
+            "predicted_value": predicted,
+            "correct_value": correct,
+            "is_correct": is_correct
+        }
+        results.append(result)
+        
+        if (i + 1) % 10 == 0:
             logger.info(f"Processed {i + 1}/{len(dataset)} GSM8K samples")
-
-    accuracy = correct_count / len(dataset) if len(dataset) > 0 else 0.0
     
-    # Calculate calibration metrics
-    brier_score = calculate_brier_score(results, "correct", "confidence")
-    ece = calculate_ece(results, "correct", "confidence", num_bins=10)
-    
-    return {
-        "dataset": "gsm8k",
-        "num_samples": len(dataset),
-        "accuracy": accuracy,
-        "brier_score": brier_score,
-        "ece": ece,
-        "raw_results": results
-    }
+    return results
 
 def run_mmlu_benchmark(
-    model: Any,
-    tokenizer: Any,
-    data_path: str,
-    num_samples: int = 100,
-    num_paths: int = 5
-) -> Dict[str, Any]:
-    """Run the MMLU benchmark and return metrics."""
-    from datasets import load_dataset
-    
-    logger.info(f"Loading MMLU dataset from {data_path}")
-    # Load a subset of MMLU (e.g., 'high_school_mathematics')
-    dataset = load_dataset("cais/mmlu", "high_school_mathematics", split="test")
-    
-    if len(dataset) > num_samples:
-        dataset = dataset.shuffle(seed=42).select(range(num_samples))
-
+    model, 
+    tokenizer, 
+    dataset, 
+    subject: str,
+    max_samples: int = None,
+    seed: int = 42
+) -> list:
+    """Run MMLU benchmark with single-path inference."""
+    set_seed(seed)
     results = []
-    correct_count = 0
-    confidence_scores = []
-
-    for i, example in enumerate(dataset):
-        prompt = prepare_mmlu_prompt(example, "high_school_mathematics")
-        reasoning_paths = generate_reasoning_path(model, tokenizer, prompt, num_paths=num_paths)
+    
+    logger.info(f"Starting MMLU benchmark on {subject} ({len(dataset)} samples)")
+    
+    for i, item in enumerate(dataset):
+        if max_samples and i >= max_samples:
+            break
         
-        # Extract answers (expecting A, B, C, or D)
-        answers = []
-        for path in reasoning_paths:
-            # Look for the last letter in the path that is A, B, C, or D
-            import re
-            matches = re.findall(r'[ABCD]', path)
-            if matches:
-                answers.append(matches[-1])
-            else:
-                answers.append(None)
-
-        # Majority vote
-        from collections import Counter
-        valid_answers = [a for a in answers if a is not None]
-        if valid_answers:
-            majority_answer = Counter(valid_answers).most_common(1)[0][0]
+        question = item['question']
+        choices = item['choices']
+        correct_label = item['answer']  # 0, 1, 2, or 3
+        
+        prompt = prepare_mmlu_prompt(question, choices, subject)
+        generation = generate_reasoning_path(
+            model, tokenizer, prompt,
+            max_new_tokens=256,
+            temperature=0.0,
+            do_sample=False
+        )
+        
+        # Extract predicted letter (A, B, C, D)
+        import re
+        letter_match = re.search(r'[A-D]', generation)
+        predicted_letter = letter_match.group(0) if letter_match else None
+        
+        if predicted_letter:
+            predicted_idx = ord(predicted_letter) - ord('A')
         else:
-            majority_answer = None
-
-        # Ground truth (MMLU labels are 0, 1, 2, 3 -> A, B, C, D)
-        label_map = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
-        ground_truth = label_map.get(example['answer'], None)
+            predicted_idx = -1
         
-        is_correct = (majority_answer == ground_truth)
-        if is_correct:
-            correct_count += 1
-
-        # Estimate confidence
-        if valid_answers:
-            confidence = valid_answers.count(majority_answer) / len(valid_answers)
-        else:
-            confidence = 0.0
+        is_correct = (predicted_idx == correct_label)
         
-        confidence_scores.append(confidence)
-        results.append({
-            "question": example['question'],
-            "ground_truth": ground_truth,
-            "prediction": majority_answer,
-            "reasoning_paths": reasoning_paths,
-            "correct": is_correct,
-            "confidence": confidence
-        })
-
-        if (i + 1) % 20 == 0:
+        result = {
+            "id": i,
+            "subject": subject,
+            "question": question,
+            "choices": choices,
+            "prediction": generation,
+            "predicted_label": predicted_letter,
+            "correct_label": chr(65 + correct_label),
+            "is_correct": is_correct
+        }
+        results.append(result)
+        
+        if (i + 1) % 10 == 0:
             logger.info(f"Processed {i + 1}/{len(dataset)} MMLU samples")
+    
+    return results
 
-    accuracy = correct_count / len(dataset) if len(dataset) > 0 else 0.0
+def validate_evaluation_result_schema(results: list, dataset_name: str) -> bool:
+    """Validate that results match expected schema."""
+    if not results:
+        raise EvaluationError(f"No results generated for {dataset_name}")
     
-    # Calculate calibration metrics
-    brier_score = calculate_brier_score(results, "correct", "confidence")
-    ece = calculate_ece(results, "correct", "confidence", num_bins=10)
+    required_fields = ["id", "question", "prediction", "is_correct"]
+    sample = results[0]
     
-    return {
-        "dataset": "mmlu_high_school_mathematics",
-        "num_samples": len(dataset),
-        "accuracy": accuracy,
-        "brier_score": brier_score,
-        "ece": ece,
-        "raw_results": results
-    }
-
-def create_shuffled_attention_control_dataset(
-    model: Any,
-    tokenizer: Any,
-    data_path: str,
-    output_path: str,
-    num_samples: int = 50
-) -> None:
-    """Create a control dataset with shuffled attention to isolate temporal recursion effects."""
-    from datasets import load_dataset
-    
-    logger.info(f"Creating shuffled attention control dataset for {num_samples} samples")
-    dataset = load_dataset("gsm8k", "main", split="test")
-    
-    if len(dataset) > num_samples:
-        dataset = dataset.shuffle(seed=42).select(range(num_samples))
-
-    control_results = []
-    
-    for i, example in enumerate(dataset):
-        prompt = prepare_gsm8k_prompt(example)
-        
-        # Generate with standard attention
-        standard_paths = generate_reasoning_path(model, tokenizer, prompt, num_paths=3)
-        
-        # Simulate shuffled attention by shuffling the tokens in the prompt before generation
-        # This is a simplified proxy for the actual mechanism
-        import random
-        tokens = tokenizer.encode(prompt, return_tensors="pt").squeeze().tolist()
-        # Shuffle tokens (excluding special tokens at start/end if any)
-        if len(tokens) > 10:
-            middle = tokens[5:-5]
-            random.shuffle(middle)
-            shuffled_tokens = tokens[:5] + middle + tokens[-5:]
-            shuffled_prompt = tokenizer.decode(shuffled_tokens)
-        else:
-            shuffled_prompt = prompt # Fallback if too short
-        
-        shuffled_paths = generate_reasoning_path(model, tokenizer, shuffled_prompt, num_paths=3)
-        
-        control_results.append({
-            "question": example['question'],
-            "standard_reasoning": standard_paths,
-            "shuffled_reasoning": shuffled_paths
-        })
-
-    # Save to disk
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(control_results, f, indent=2)
-    
-    logger.info(f"Shuffled attention control dataset saved to {output_path}")
-
-def validate_evaluation_result_schema(result: Dict[str, Any]) -> bool:
-    """
-    Validate that the benchmark result dictionary matches the EvaluationResult schema.
-    This implements T021: Contract validation.
-    """
-    # Expected schema based on EvaluationResult dataclass
-    required_fields = [
-        "model_id",
-        "timestamp",
-        "dataset_results",
-        "control_results",
-        "metadata"
-    ]
-    
-    if not isinstance(result, dict):
-        logger.error("Validation failed: Result is not a dictionary")
-        return False
-
     for field in required_fields:
-        if field not in result:
-            logger.error(f"Validation failed: Missing required field '{field}'")
-            return False
-
-    # Validate dataset_results structure
-    if not isinstance(result["dataset_results"], dict):
-        logger.error("Validation failed: 'dataset_results' is not a dictionary")
-        return False
+        if field not in sample:
+            raise EvaluationError(f"Missing field '{field}' in {dataset_name} results")
     
-    for dataset_name, metrics in result["dataset_results"].items():
-        if not isinstance(metrics, dict):
-            logger.error(f"Validation failed: Metrics for '{dataset_name}' is not a dictionary")
-            return False
-        
-        # Check for expected metric keys
-        expected_metric_keys = ["accuracy", "brier_score", "ece"]
-        for key in expected_metric_keys:
-            if key not in metrics:
-                logger.warning(f"Warning: Expected metric '{key}' missing for dataset '{dataset_name}'")
-                # We allow missing metrics but log it; strict schema might require them
-
-    # Validate control_results
-    if result["control_results"] is not None and not isinstance(result["control_results"], list):
-        logger.error("Validation failed: 'control_results' is not a list")
-        return False
-
-    # Validate metadata
-    if not isinstance(result["metadata"], dict):
-        logger.error("Validation failed: 'metadata' is not a dictionary")
-        return False
-
-    logger.info("Validation passed: Result matches EvaluationResult schema")
     return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Run benchmarks and evaluate meta-cognitive metrics.")
-    parser.add_argument("--model_path", type=str, required=True, help="Path to the trained model")
-    parser.add_argument("--is_recursive", action="store_true", help="Flag indicating if the model is recursive")
+    parser = argparse.ArgumentParser(description="Run standard MMLU/GSM8K inference for accuracy baseline")
+    parser.add_argument("--model_path", type=str, required=True, help="Path to model checkpoint")
+    parser.add_argument("--output_dir", type=str, default="artifacts/results", help="Output directory")
+    parser.add_argument("--max_samples", type=int, default=None, help="Maximum number of samples to process")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--gsm8k_samples", type=int, default=100, help="Number of GSM8K samples to evaluate")
-    parser.add_argument("--mmlu_samples", type=int, default=100, help="Number of MMLU samples to evaluate")
-    parser.add_argument("--num_paths", type=int, default=5, help="Number of reasoning paths per question")
-    parser.add_argument("--output_dir", type=str, default=str(RESULTS_DIR), help="Directory to save results")
-    
+    parser.add_argument("--device", type=str, default="cpu", help="Device to run on")
     args = parser.parse_args()
-    
-    # Set seed
+
+    config = get_config()
     set_seed(args.seed)
-    
-    # Ensure output directory exists
+
     os.makedirs(args.output_dir, exist_ok=True)
+
+    try:
+        model, tokenizer = load_model_and_tokenizer(args.model_path, args.device)
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        sys.exit(1)
+
+    # Load datasets
+    logger.info("Loading GSM8K dataset...")
+    try:
+        gsm8k_dataset = load_dataset("gsm8k", "main", split="test")
+    except Exception as e:
+        raise EvaluationError(f"Failed to load GSM8K dataset: {e}")
+
+    logger.info("Loading MMLU dataset...")
+    try:
+        mmlu_dataset = load_dataset("cais/mmlu", split="test")
+    except Exception as e:
+        raise EvaluationError(f"Failed to load MMLU dataset: {e}")
+
+    # Run GSM8K benchmark
+    logger.info("Running GSM8K benchmark...")
+    gsm8k_results = run_gsm8k_benchmark(
+        model, tokenizer, gsm8k_dataset, 
+        max_samples=args.max_samples, 
+        seed=args.seed
+    )
     
-    # Load model
-    device = "cpu" # Enforcing CPU-only per constraints
-    model, tokenizer = load_model_and_tokenizer(args.model_path, args.is_recursive, device)
+    gsm8k_correct = sum(1 for r in gsm8k_results if r["is_correct"])
+    gsm8k_accuracy = gsm8k_correct / len(gsm8k_results) if gsm8k_results else 0.0
+    logger.info(f"GSM8K Accuracy: {gsm8k_accuracy:.4f} ({gsm8k_correct}/{len(gsm8k_results)})")
+
+    # Run MMLU benchmark (subset of subjects for speed, or all)
+    # For baseline, we run on a representative subset or all if feasible
+    subjects = ["abstract_algebra", "anatomy", "astronomy", "business_ethics", "clinical_knowledge"]
+    mmlu_all_results = []
     
-    # Run benchmarks
-    logger.info("Starting GSM8K benchmark...")
-    gsm8k_results = run_gsm8k_benchmark(model, tokenizer, str(RAW_DATA_DIR / "gsm8k.json"), args.gsm8k_samples, args.num_paths)
-    
-    logger.info("Starting MMLU benchmark...")
-    mmlu_results = run_mmlu_benchmark(model, tokenizer, str(RAW_DATA_DIR / "mmlu.json"), args.mmlu_samples, args.num_paths)
-    
-    # Create shuffled attention control dataset
-    control_output_path = os.path.join(args.output_dir, "shuffled_attention_control.json")
-    create_shuffled_attention_control_dataset(model, tokenizer, str(RAW_DATA_DIR / "gsm8k.json"), control_output_path, num_samples=50)
-    
-    # Aggregate results into EvaluationResult schema
-    evaluation_result = {
-        "model_id": os.path.basename(args.model_path),
-        "timestamp": datetime.now().isoformat(),
-        "dataset_results": {
-            "gsm8k": {
-                "accuracy": gsm8k_results["accuracy"],
-                "brier_score": gsm8k_results["brier_score"],
-                "ece": gsm8k_results["ece"]
-            },
-            "mmlu_high_school_mathematics": {
-                "accuracy": mmlu_results["accuracy"],
-                "brier_score": mmlu_results["brier_score"],
-                "ece": mmlu_results["ece"]
-            }
+    for subject in subjects:
+        logger.info(f"Processing MMLU subject: {subject}")
+        subject_data = mmlu_dataset.filter(lambda x: x["subject"] == subject)
+        if len(subject_data) == 0:
+            logger.warning(f"No data found for subject {subject}")
+            continue
+        
+        subject_results = run_mmlu_benchmark(
+            model, tokenizer, subject_data, 
+            subject=subject,
+            max_samples=args.max_samples, 
+            seed=args.seed
+        )
+        mmlu_all_results.extend(subject_results)
+
+    mmlu_correct = sum(1 for r in mmlu_all_results if r["is_correct"])
+    mmlu_accuracy = mmlu_correct / len(mmlu_all_results) if mmlu_all_results else 0.0
+    logger.info(f"MMLU Accuracy (subset): {mmlu_accuracy:.4f} ({mmlu_correct}/{len(mmlu_all_results)})")
+
+    # Aggregate results
+    final_results = {
+        "gsm8k": {
+            "accuracy": gsm8k_accuracy,
+            "total_samples": len(gsm8k_results),
+            "correct": gsm8k_correct,
+            "details": gsm8k_results
         },
-        "control_results": control_output_path,
-        "metadata": {
-            "seed": args.seed,
-            "num_paths": args.num_paths,
-            "gsm8k_samples": args.gsm8k_samples,
-            "mmlu_samples": args.mmlu_samples,
-            "is_recursive": args.is_recursive,
-            "device": device
-        }
+        "mmlu": {
+            "accuracy": mmlu_accuracy,
+            "total_samples": len(mmlu_all_results),
+            "correct": mmlu_correct,
+            "details": mmlu_all_results,
+            "subjects": subjects
+        },
+        "overall_accuracy": (gsm8k_correct + mmlu_correct) / (len(gsm8k_results) + len(mmlu_all_results)) if (len(gsm8k_results) + len(mmlu_all_results)) > 0 else 0.0
     }
+
+    output_path = os.path.join(args.output_dir, "baseline_accuracy_results.json")
+    with open(output_path, "w") as f:
+        json.dump(final_results, f, indent=2)
+
+    logger.info(f"Baseline results saved to {output_path}")
     
-    # T021: Contract Validation
-    if not validate_evaluation_result_schema(evaluation_result):
-        raise EvaluationError("Output JSON failed schema validation against EvaluationResult contract.")
+    # Create EvaluationResult artifact for contract validation
+    eval_result = EvaluationResult(
+        model_path=args.model_path,
+        metrics={
+            "gsm8k_accuracy": gsm8k_accuracy,
+            "mmlu_accuracy": mmlu_accuracy,
+            "overall_accuracy": final_results["overall_accuracy"]
+        },
+        raw_data_path=output_path
+    )
     
-    # Save results
-    output_file = os.path.join(args.output_dir, "evaluation_results.json")
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(evaluation_result, f, indent=2)
-    
-    logger.info(f"Evaluation results saved to {output_file}")
-    logger.info(f"GSM8K Accuracy: {gsm8k_results['accuracy']:.4f}")
-    logger.info(f"MMLU Accuracy: {mmlu_results['accuracy']:.4f}")
+    eval_result_path = os.path.join(args.output_dir, "baseline_evaluation_result.json")
+    eval_result.save(eval_result_path)
+    logger.info(f"Evaluation result contract saved to {eval_result_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,5 @@
 """
-Model checkpoint definitions for the Consciousness Bootstrapping project.
-Provides the ModelCheckpoint dataclass to serialize training state and metadata.
+ModelCheckpoint entity for serialization of training state.
 """
 from dataclasses import dataclass, field
 from typing import Any, Optional, Dict, List
@@ -13,74 +12,64 @@ import os
 @dataclass
 class ModelCheckpoint:
     """
-    Dataclass representing a saved model checkpoint.
-    
-    Attributes:
-        model_type: Type of model (e.g., 'recursive', 'baseline')
-        recursion_depth: Depth of recursion used during training
-        seed: Random seed used for reproducibility
-        epoch: Epoch number when checkpoint was saved
-        step: Global training step count
-        loss: Final training loss value
-        config: Dictionary of hyperparameters used
-        state_dict_path: Path to the actual PyTorch state dict file
-        created_at: Timestamp of checkpoint creation
-        metadata: Additional arbitrary metadata
+    Represents a saved model checkpoint with metadata for reproducibility.
     """
-    model_type: str
-    recursion_depth: int
-    seed: int
+    checkpoint_id: str
+    model_type: str  # e.g., 'recursive', 'baseline'
     epoch: int
     step: int
     loss: float
-    config: Dict[str, Any]
-    state_dict_path: str
-    created_at: datetime = field(default_factory=datetime.now)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metrics: Dict[str, float]
+    config_snapshot: Dict[str, Any]
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    path: Optional[str] = None  # Relative path to the .pt or .safetensors file
     
-    def to_json(self) -> str:
-        """Convert checkpoint to JSON string."""
-        data = {
-            'model_type': self.model_type,
-            'recursion_depth': self.recursion_depth,
-            'seed': self.seed,
-            'epoch': self.epoch,
-            'step': self.step,
-            'loss': self.loss,
-            'config': self.config,
-            'state_dict_path': self.state_dict_path,
-            'created_at': self.created_at.isoformat(),
-            'metadata': self.metadata
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "checkpoint_id": self.checkpoint_id,
+            "model_type": self.model_type,
+            "epoch": self.epoch,
+            "step": self.step,
+            "loss": self.loss,
+            "metrics": self.metrics,
+            "config_snapshot": self.config_snapshot,
+            "created_at": self.created_at,
+            "path": self.path
         }
-        return json.dumps(data, indent=2)
-    
-    def save_metadata(self, output_path: str) -> None:
-        """Save checkpoint metadata to a JSON file."""
-        path = Path(output_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, 'w') as f:
-            f.write(self.to_json())
-    
+
+    def to_json(self, indent: int = 2) -> str:
+        """Serialize to JSON string."""
+        return json.dumps(self.to_dict(), indent=indent)
+
     @classmethod
-    def load_metadata(cls, input_path: str) -> 'ModelCheckpoint':
-        """Load checkpoint metadata from a JSON file."""
-        path = Path(input_path)
-        if not path.exists():
-            raise FileNotFoundError(f"Checkpoint metadata not found: {input_path}")
-        
-        with open(path, 'r') as f:
-            data = json.load(f)
-        
-        # Reconstruct datetime
-        data['created_at'] = datetime.fromisoformat(data['created_at'])
-        return cls(**data)
-    
-    def validate(self) -> bool:
-        """Validate that required fields are present and state_dict exists."""
-        if not self.model_type:
-            return False
-        if not self.state_dict_path or not Path(self.state_dict_path).exists():
-            return False
-        if self.recursion_depth < 0:
-            return False
-        return True
+    def from_dict(cls, data: Dict[str, Any]) -> 'ModelCheckpoint':
+        """Deserialize from dictionary."""
+        return cls(
+            checkpoint_id=data["checkpoint_id"],
+            model_type=data["model_type"],
+            epoch=data["epoch"],
+            step=data["step"],
+            loss=data["loss"],
+            metrics=data["metrics"],
+            config_snapshot=data["config_snapshot"],
+            created_at=data.get("created_at", datetime.now().isoformat()),
+            path=data.get("path")
+        )
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'ModelCheckpoint':
+        """Deserialize from JSON string."""
+        data = json.loads(json_str)
+        return cls.from_dict(data)
+
+    def save_metadata(self, output_dir: str) -> str:
+        """
+        Save the checkpoint metadata to a JSON file in the specified directory.
+        Returns the path to the saved file.
+        """
+        path = Path(output_dir) / f"{self.checkpoint_id}_metadata.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(self.to_json())
+        return str(path)

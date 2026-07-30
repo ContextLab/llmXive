@@ -8,9 +8,8 @@
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 **Critical Prerequisites**:
-- **Plan Consistency**: The `plan.md` artifact MUST be corrected upstream to remove all references to "Teacher-Student Distillation" and "Pre-computed Teacher Labels" and replace them with "Internal Self-Consistency Proxy" (majority vote on training split) as required by `spec.md` Assumptions. **This task cannot be executed until `plan.md` is consistent with `spec.md`.**
-- **Spec Consistency**: The `spec.md` artifact MUST be corrected upstream to replace the placeholder `[deferred]` in FR-002 with the explicit value `100000`. **This task cannot be executed until `spec.md` is consistent.**
-- **Data Availability**: Ensure the HuggingFace datasets (Pile, GSM8K, MMLU) are accessible via public API without authentication tokens that expire during the 6-hour CI window.
+- **Spec Consistency**: The `spec.md` artifact contains `[deferred]` for the token limit in FR-002. The implementation tasks will use the value from `config.py`. If `config.py` contains `deferred` or is missing a value, the execution scripts will fail with a clear error.
+- **Plan Consistency**: The `plan.md` artifact references "Teacher-Student Distillation". This is inconsistent with `spec.md` Assumptions which mandate an "internal self-consistency proxy". Implementation tasks will strictly follow `spec.md`.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -59,20 +58,21 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Note**: This phase assumes upstream correction of `spec.md` (FR-002 placeholder) and `plan.md` (Teacher-Student contradiction).
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
 ### Prerequisite Validation (Must be confirmed before proceeding)
 
-- [X] T002-VAL [P] **BLOCKED UNTIL FIXED**: Verify `spec.md` FR-002 contains `100000` (not `[deferred]`). If not, halt and request upstream fix.
-- [X] T003-VAL [P] **BLOCKED UNTIL FIXED**: Verify `plan.md` Summary and Complexity Tracking sections do NOT contain "Teacher-Student Distillation" or "Pre-computed Teacher Labels". If present, halt and request upstream fix.
+- [X] T002-CHK [P] **Validation Script**: Create `scripts/validate_config.py` to check `code/utils/config.py`. **Logic**: Verify `token_limit` is an integer. If `token_limit` is missing, `None`, or the string "deferred", log a CRITICAL error and exit with code 1. If valid, log SUCCESS. **Dependency**: None. **Note**: This task replaces the blocking T002-VAL. It allows the pipeline to proceed only if a valid token limit is configured.
+- [X] T003-CHK [P] **Validation Script**: Create `scripts/validate_plan_consistency.py` to check `plan.md` for "Teacher-Student Distillation". **Logic**: If found, log a WARNING that the Plan contradicts the Spec, but do NOT block execution. **Dependency**: None. **Note**: This task logs the Plan inconsistency but allows the Spec-compliant implementation to proceed.
 
 ### Data Loading & Configuration
 
-- [ ] T004-IMPL [US1] **BLOCKED**: Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API, concatenate tokens, and truncate to a fixed context length of **100000 tokens** (as per corrected FR-002), saving to `data/raw/pile_arxiv_truncated.json`. **MUST** record the checksum of this *truncated* subset in `data/manifest.json` to satisfy Constitution Principle III (Data Hygiene). **Note**: This task is strictly for TRAINING data. **Dependency**: Requires T002-VAL and T003-VAL to be confirmed. **Note**: This task is NOT parallel-safe relative to T004b due to shared file writes.
-- [ ] T004b [US2] **BLOCKED**: Implement `data_loader.py` (additional function) to fetch GSM8K and MMLU datasets via HuggingFace `datasets` API, saving to `data/raw/gsm8k.json` and `data/raw/mmlu.json` with checksums in `data/manifest.json`. **Note**: This task is strictly for EVALUATION data. **Dependency**: Must run AFTER T004-IMPL to ensure sequential writes to `data_loader.py`.
-- [ ] T005 [P] Implement `config.py` to manage hyperparameters (seed, batch size, recursion depth=2, learning rate, token_limit=100000) and enforce CPU-only execution constraints
+- [ ] T004-IMPL [US1] **Implementation**: Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API. **Logic**: Read `token_limit` from `code/utils/config.py`. **Constraint**: If `config.py` does not contain a valid integer for `token_limit`, the script MUST fail immediately with a clear error message. **Action**: Concatenate tokens and truncate to the configured `token_limit`. Save to `data/raw/pile_arxiv_truncated.json`. **Note**: This task strictly implements the Spec's requirement for a token limit, relying on the config value validated by T002-CHK. **Dependency**: Requires T002-CHK to pass.
+- [ ] T004b-GSM8K [US2] **Implementation**: Implement `data_loader.py` (additional function) to fetch GSM8K dataset via HuggingFace `datasets` API. **Action**: Save to `data/raw/gsm8k.json` with checksum in `data/manifest.json`. **Dependency**: **MUST run AFTER T004-IMPL** to ensure sequential writes to `data_loader.py` and `data/manifest.json`. **Note**: This task is NOT parallel-safe relative to T004-IMPL.
+- [ ] T004b-MMLU [US2] **Implementation**: Implement `data_loader.py` (additional function) to fetch MMLU dataset via HuggingFace `datasets` API. **Action**: Save to `data/raw/mmlu.json` with checksum in `data/manifest.json`. **Dependency**: **MUST run AFTER T004-IMPL** to ensure sequential writes. **Note**: This task is NOT parallel-safe relative to T004-IMPL.
+- [ ] T005 [P] Implement `config.py` to manage hyperparameters (seed, batch size, recursion depth=2, learning rate, token_limit). **Constraint**: `token_limit` MUST be a valid integer. Do NOT use a default fallback if the value is missing.
 - [ ] T006 [P] Create base `ModelCheckpoint` and `EvaluationResult` entities in `code/models/` and `code/evaluation/` in a format suitable for serialization (e.g., dataclasses, Pydantic, dicts).
-- [X] T007 [P] Implement `base_llama.py` wrapper for a small transformer (<300M params) in `code/models/base_llama.py`
+- [X] T007 [P] Implement `base_llama.py` wrapper for a small transformer (<300M params) in `code/models/base_llama.py`. **Note**: Use TinyLlama as per Spec US-01.
 - [X] T008 [P] Setup error handling and logging infrastructure in `code/utils/logging.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -97,7 +97,7 @@
 ### Implementation for User Story 1
 
 - [X] T011 [P] [US1] Implement `recursive_llama.py` with temporal recursive self-attention module (FR-001) in `code/models/recursive_llama.py`
-- [ ] T012-IMPL [US1] **BLOCKED**: Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **Implementation**: The confidence-prediction loss must use a proxy derived from **internal generation** on the training batch: (1) Generate N=5 reasoning paths per training item using the current model state; (2) Compute the majority vote of these paths to determine a binary 'proxy correctness' signal; (3) **Tie-Breaking Rule**: Implement a deterministic rule consistent with `spec.md` Edge Cases (prefer the first generated path) to handle ties or no-majority scenarios. The specific logic must be defined in code and documented. (4) Compare the model's predicted confidence for the final answer against this proxy signal. **Dependency**: Requires T011 (base_llama.py) and upstream confirmation that `plan.md` is corrected to remove "Teacher-Student" references. **Note**: This task is NOT parallel-safe relative to T013 (train.py) as it is a strict prerequisite.
+- [ ] T012-IMPL [US1] **Implementation**: Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **Implementation Logic**: The confidence-prediction loss must use a proxy derived from **internal generation** on the training batch: (1) Generate N=5 reasoning paths per training item using the current model state; (2) Compute the majority vote of these paths to determine a binary 'proxy correctness' signal; (3) **Tie-Breaking Rule**: Implement a deterministic rule consistent with `spec.md` Edge Cases (prefer the first generated path) to handle ties or no-majority scenarios. (4) Compare the model's predicted confidence for the final answer against this proxy signal. **Note**: This is a self-referential training signal as per Spec Assumptions. The 'correctness' is defined by the model's own majority vote. **Dependency**: Requires T011 (base_llama.py). **Note**: This task is NOT parallel-safe relative to T013 (train.py) as it is a strict prerequisite.
 - [X] T013 [US1] Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`. **Dependency**: Requires T012-IMPL to be complete.
 - [ ] T014 [US1] Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement hard-fail: if OOM or depth violation occurs, log error and exit with non-zero code. **MUST NOT** automatically reduce depth.
 - [X] T015 [US1] Add logging for training progress and OOM detection in `code/training/train.py`
@@ -151,26 +151,6 @@
 
 ---
 
-## Phase 6: Review-Driven Validation & Operationalization (Out of Scope / Deprecated)
-
-**Purpose**: This phase contains features that are **DEPRECATED** or **OUT OF SCOPE** for the current implementation.
-
-**Reasoning**: The spec.md defines the scope strictly as self-consistency, calibration (Brier/ECE), and error detection (ROC-AUC). Metrics such as 'value_alignment_check', 'complexity_growth_analysis', 'behavioral_adaptation_score', 'prediction_calibration_error', 'falsification_criterion', and 'meta_cognitive_cost' (proposed in prior drafts) have no corresponding Functional Requirement (FR) or Success Criterion (SC) in spec.md. Implementing them would constitute untracked scope creep.
-
-**DEPRECATED / NOT IMPLEMENTED**:
-- **Feature**: `predict_and_penalize` (formerly T042)
-  - **Status**: **NOT IMPLEMENTED**.
-  - **Reason**: This feature lacks a concrete deliverable definition (specific formula or output schema) and has no traceability to Functional Requirements (FR) or Success Criteria (SC) in the specification. Its implementation would constitute scope creep.
-  - **Action**: Do not implement. If required in future, a new spec entry defining the exact penalty formula and output artifact is required.
-
-**Exclusions**:
-- **Meta-cognitive training phases**: Any requirement to fine-tune on self-generated data or expose the model to its own internal state for adaptation is excluded.
-- **Complexity analysis**: Kolmogorov complexity and proxy-based complexity growth analysis are excluded.
-- **Value alignment**: Heuristic-based value alignment checks are excluded.
-- **Falsification criteria**: Specific falsification criteria beyond the standard statistical significance tests (FR-005) are excluded.
-
----
-
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
@@ -188,11 +168,10 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **Note**: Requires upstream fix of spec/plan before T004-IMPL can run.
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **Note**: T002-CHK and T003-CHK must pass (valid config, plan warning logged) before T004-IMPL.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Phase 6 (Review Validation)**: **DEPRECATED / OUT OF SCOPE**.
 - **Phase N (Polish)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -200,8 +179,8 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-- **Note**: T012-IMPL (US1) is blocked by upstream plan correction. T004-IMPL (US1) is blocked by upstream spec correction.
-- **Reviewer Phases**: **REMOVED**. The project scope is strictly limited to FR-001 through FR-007 and SC-001 through SC-005 as defined in `spec.md`. No tasks for "Reviewer Resolution" metrics (Truthfulness Penalty, Behavioral Adaptation, Irreducibility) are included.
+- **Note**: T004-IMPL is blocked by T002-CHK. T004b-GSM8K and T004b-MMLU are blocked by T004-IMPL. T012-IMPL is blocked by T011.
+- **Note**: Phase 7 (Review-Driven Validation) has been removed as it contained out-of-scope tasks.
 
 ### Within Each User Story
 
@@ -219,7 +198,7 @@
 - All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT** T004-IMPL and T004b which are sequenced.
 - Once Foundational phase completes, US1, US2, and US3 can start in parallel (if team capacity allows)
 - **Note**: T012-IMPL is NOT parallel-safe relative to T013. T004-IMPL is NOT parallel-safe relative to T004b.
-- **Note**: All "Reviewer Resolution" tasks (T042-T048) have been removed as they were out of scope.
+- **Note**: All "Reviewer Resolution" tasks (T028-T033) have been removed as they were out of scope.
 
 ---
 
@@ -228,7 +207,7 @@
 ### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories) - **Note**: T002-VAL and T003-VAL must pass (upstream fixes confirmed) before T004-IMPL.
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories) - **Note**: T002-CHK and T003-CHK must pass (valid config, plan warning logged) before T004-IMPL.
 3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
@@ -265,7 +244,6 @@ With multiple developers:
 - **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and memory. No GPU, no 8-bit quantization.
 - **Scope Note**: The 'Teacher-Student Distillation' and 'Pre-computed Teacher Labels' mentioned in `plan.md` are inconsistent with `spec.md` Assumptions. **This task file assumes `plan.md` has been corrected upstream**. If not, execution must halt.
 - **Dependency Note**: Task T012-IMPL (loss_functions.py) is a strict prerequisite for T013 (train.py) and is not parallel-safe relative to T013.
-- **Falsification Note**: The project does NOT implement a binary "Falsified" status. It reports p-values and effect sizes as required by SC-004 and FR-005.
-- **Irreducibility Note**: The project does NOT implement a "Computational Irreducibility Test" involving a separate predictor model.
-- **Reviewer Resolution Note**: Phases 6, 7, and 8 (Reviewer Resolution) have been removed. The project scope is strictly limited to the metrics defined in `spec.md` (FR-001..FR-007, SC-001..SC-005).
 - **Tie-Breaking Note**: Task T012-IMPL implements a deterministic tie-breaking rule (prefer first generated path) as permitted by `spec.md` Edge Cases, which allows the system to "define a deterministic tie-breaking rule".
+- **Token Limit Note**: Task T004-IMPL reads the token limit from `config.py`. If the value is missing or 'deferred', the task fails.
+- **Phase 7 Removed**: Tasks T028-T033 were removed as they implemented metrics not present in the Spec (FR-001..FR-007, SC-001..SC-005).

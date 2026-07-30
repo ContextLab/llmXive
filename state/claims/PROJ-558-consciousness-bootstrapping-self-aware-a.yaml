@@ -206,3 +206,600 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T19:08:34Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: HuggingFace datasets accessible without expiring tokens during 6-hour
+    CI window
+  claim_id: c_21a84745
+  context: Ensure the HuggingFace datasets (Pile, GSM8K, MMLU) are accessible via
+    public API without authentication tokens that expire during the 6-hour CI window.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pile, GSM8K, and MMLU datasets are accessible via public API without
+    authentication tokens that expire during the 6-hour CI window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:19:28Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline completes within 120 minutes on GitHub Actions CPU
+    runner without OOM
+  claim_id: c_2f9d7811
+  context: The training pipeline executes on GitHub Actions CPU runner, produces two
+    checkpoints, and completes within 120 minutes without OOM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline executes on GitHub Actions CPU runner and completes
+    within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:19:55Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Confidence-prediction loss uses proxy from 5 model generations
+  claim_id: c_eaac1dad
+  context: 'The confidence-prediction loss must use a proxy derived from internal
+    generation on the training batch: (1) Generate N=5 reasoning paths per training
+    item using the current model state...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence-prediction loss uses a proxy derived from N=5 model generations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:20:58Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Self-Consistency benchmark uses 10 reasoning paths per question
+  claim_id: c_39534612
+  context: Implement run_benchmarks.py to generate exactly 10 reasoning paths per
+    question for the Self-Consistency benchmark subset (FR-003)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Self-Consistency benchmark subset generates exactly 10 reasoning paths
+    per question.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:21:25Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps confidence thresholds at 0.4, 0.5, and 0.6
+  claim_id: c_246596d4
+  context: Implement sensitivity analysis sweep for confidence thresholds across a
+    specific discrete set of values {0.4, 0.5, 0.6} (FR-006)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep for confidence thresholds uses the discrete
+    set of values {0.4, 0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:22:02Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Peak RSS less than 7GB during training memory profiling
+  claim_id: c_8bc4f076
+  context: Run memory profiling on the training script (train.py) with max batch size;
+    verify peak RSS < 7GB and log result to artifacts/results/memory_profile.log.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_less_than_7GB_during_training_memory_profiling
+  kind: magnitude
+  raw_text: Peak RSS must be less than 7GB during memory profiling on the training
+    script.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:22:52Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Internal self-consistency proxy derived from N=5 model generations
+  claim_id: c_7ee9c908
+  context: The plan.md Summary references pre-computed teacher model labels. This
+    task strictly implements the spec.md requirement for an internal self-consistency
+    proxy (derived from N=5 model generations) to avoid tautology.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project implements an internal self-consistency proxy derived from
+    N=5 model generations to avoid tautology.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:28:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Self-consistency benchmark generates 10 reasoning paths per question
+    with temperature 0.7 and top_p 0.9
+  claim_id: c_889dc4e5
+  context: Implement run_benchmarks.py to generate exactly 10 reasoning paths per
+    question for the Self-Consistency benchmark subset (FR-003) using temperature=0.7,
+    top_p=0.9, and a fixed seed per run, on GSM8K and MMLU data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The self-consistency benchmark subset generates exactly 10 reasoning paths
+    per question using temperature=0.7 and top_p=0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:29:07Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps confidence thresholds across values 0.4,
+    0.5, and 0.6
+  claim_id: c_7ac8223f
+  context: Implement sensitivity analysis sweep for confidence thresholds across a
+    specific discrete set of values {0.4, 0.5, 0.6} (FR-006) and output results to
+    artifacts/results/sensitivity_analysis.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps confidence thresholds across the discrete
+    set of values {0.4, 0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:29:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline completes within 120 minutes on GitHub Actions CPU
+    runner
+  claim_id: c_11cd5867
+  context: The training pipeline executes on GitHub Actions CPU runner, produces two
+    checkpoints, and completes within 120 minutes without OOM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline is required to complete within 120 minutes without
+    OOM on a GitHub Actions CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:30:32Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Model uses small transformer with fewer than 300 million parameters
+  claim_id: c_e4185f06
+  context: Implement base_llama.py wrapper for a small transformer (<300M params)
+    in code/models/base_llama.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_uses_small_transformer_with_fewer_than_300_million_par
+  kind: magnitude
+  raw_text: The model is constrained to use a small transformer with fewer than 300
+    million parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:31:49Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training data truncated to 100000 tokens
+  claim_id: c_ebe3868f
+  context: Implement data_loader.py to fetch the 'arXiv' subset of the Pile dataset
+    via HuggingFace datasets API, concatenate tokens, and truncate to a fixed context
+    length of 100000 tokens (as per corrected FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training data is truncated to a fixed context length of 100000 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:32:31Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: CI run fails if peak RSS exceeds 7GB
+  claim_id: c_bc4d9f82
+  context: Run memory profiling on the training script (train.py) with max batch size;
+    verify peak RSS < 7GB and log result to artifacts/results/memory_profile.log.
+    If peak RSS > 7GB, the run MUST fail as per Edge Cases.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_run_fails_if_peak_RSS_exceeds_7GB
+  kind: entity_fact
+  raw_text: The CI run must fail if the peak RSS exceeds 7GB during memory profiling.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:33:19Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Recursion depth enforced to be no greater than 2
+  claim_id: c_95e434ad
+  context: 'Add validation to train.py to prevent recursion depth > 2. MUST implement
+    hard-fail: if OOM or depth violation occurs, log error and exit with non-zero
+    code.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recursion_depth_enforced_to_be_no_greater_than_2
+  kind: magnitude
+  raw_text: The recursion depth is enforced to be no greater than 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:34:32Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Metrics value_alignment_check, complexity_growth_analysis, and behavioral_adaptation_score
+    excluded
+  claim_id: c_18538b94
+  context: Metrics such as 'value_alignment_check', 'complexity_growth_analysis',
+    'behavioral_adaptation_score', 'prediction_calibration_error', 'falsification_criterion',
+    and 'meta_cognitive_cost' (proposed in prior drafts) have no corresponding Functional
+    Requirement (FR) or Success Criterion (SC) in spec.md.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metrics_value_alignment_check,_complexity_growth_analysis,_a
+  kind: entity_fact
+  raw_text: Metrics such as value_alignment_check, complexity_growth_analysis, and
+    behavioral_adaptation_score are excluded from the implementation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:35:15Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Pile arXiv subset truncated to 100000 tokens
+  claim_id: c_221d4326
+  context: 'T004-IMPL [US1] BLOCKED: Implement data_loader.py to fetch the ''arXiv''
+    subset of the Pile dataset via HuggingFace datasets API, concatenate tokens, and
+    truncate to a fixed context length of 100000 tokens (as per corrected FR-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement data_loader.py to fetch the 'arXiv' subset of the Pile dataset
+    via HuggingFace datasets API, concatenate tokens, and truncate to a fixed context
+    length of 100000 tokens
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:37:07Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Base Llama wrapper for transformer under 300M parameters
+  claim_id: c_889958d9
+  context: T007 [P] Implement base_llama.py wrapper for a small transformer (<300M
+    params) in code/models/base_llama.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Base_Llama_wrapper_for_transformer_under_300M_parameters
+  kind: magnitude
+  raw_text: Implement base_llama.py wrapper for a small transformer with fewer than
+    300M parameters
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:38:17Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline completes within 120 minutes on CPU without OOM
+  claim_id: c_3ebd7ede
+  context: 'Independent Test: The training pipeline executes on GitHub Actions CPU
+    runner, produces two checkpoints, and completes within 120 minutes without OOM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline executes on GitHub Actions CPU runner, produces
+    two checkpoints, and completes within 120 minutes without OOM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:38:55Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Generate 5 reasoning paths for majority vote proxy
+  claim_id: c_35862275
+  context: 'T012-IMPL [US1] BLOCKED: The confidence-prediction loss must use a proxy
+    derived from internal generation on the training batch: (1) Generate N=5 reasoning
+    paths per training item using the current model state'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=5 reasoning paths per training item to compute majority vote
+    for proxy correctness signal
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:39:25Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Self-consistency benchmark uses 10 reasoning paths
+  claim_id: c_a25f1b2c
+  context: T019a [US2] Implement run_benchmarks.py to generate exactly 10 reasoning
+    paths per question for the Self-Consistency benchmark subset (FR-003) using temperature=0.7,
+    top_p=0.9, and a fixed seed per run
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run exactly 10 reasoning paths per question for the Self-Consistency benchmark
+    subset using temperature=0.7 and top_p=0.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:39:52Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.4 0.5 0.6
+  claim_id: c_9d20c5cd
+  context: 'T025 [US3] BLOCKED: Implement sensitivity analysis sweep for confidence
+    thresholds across a specific discrete set of values {0.4, 0.5, 0.6} (FR-006)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity analysis sweep for confidence thresholds across a
+    specific discrete set of values 0.4, 0.5, and 0.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:40:28Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Peak RSS under 7GB during training
+  claim_id: c_6d1d3232
+  context: T039 [P] Run memory profiling on the training script (train.py) with max
+    batch size; verify peak RSS < 7GB and log result to artifacts/results/memory_profile.log
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_under_7GB_during_training
+  kind: magnitude
+  raw_text: Verify peak RSS is less than 7GB during memory profiling of the training
+    script
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:41:22Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Recursion depth 2 and token limit 100000
+  claim_id: c_282c2328
+  context: T005 [P] Implement config.py to manage hyperparameters (seed, batch size,
+    recursion depth=2, learning rate, token_limit=100000) and enforce CPU-only execution
+    constraints
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure recursion depth to 2 and token limit to 100000 in config.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:41:48Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Truncate Pile arXiv subset to 100000 tokens
+  claim_id: c_bbc0572b
+  context: Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset
+    via HuggingFace `datasets` API, concatenate tokens, and truncate to a fixed context
+    length of **100000 tokens** (as per corrected FR-002), saving to `data/raw/pile_arxiv_truncated.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset
+    via HuggingFace `datasets` API, concatenate tokens, and truncate to a fixed context
+    length of 100000 tokens
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:43:11Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Generate 5 reasoning paths per training item for confidence proxy
+  claim_id: c_52cc1852
+  context: 'The confidence-prediction loss must use a proxy derived from **internal
+    generation** on the training batch: (1) Generate N=5 reasoning paths per training
+    item using the current model state'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction)
+    using a proxy derived from internal generation on the training batch: Generate
+    N=5 reasoning paths per training item'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:43:35Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Generate 10 reasoning paths per question for Self-Consistency benchmark
+  claim_id: c_ff9200dd
+  context: Implement `run_benchmarks.py` to generate **exactly 10 reasoning paths
+    per question for the Self-Consistency benchmark subset** (FR-003) using temperature=0.7,
+    top_p=0.9, and a fixed seed per run, on GSM8K and MMLU data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_benchmarks.py` to generate exactly 10 reasoning paths per
+    question for the Self-Consistency benchmark subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:44:06Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Sweep confidence thresholds at 0.4, 0.5, and 0.6
+  claim_id: c_80b61d86
+  context: Implement sensitivity analysis sweep for confidence thresholds across a
+    **specific discrete set of values** {0.4, 0.5, 0.6} (FR-006) and output results
+    to `artifacts/results/sensitivity_analysis.csv`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity analysis sweep for confidence thresholds across
+    a specific discrete set of values {0.4, 0.5, 0.6}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:44:40Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Verify training peak RSS less than 7GB
+  claim_id: c_bffda800
+  context: Run memory profiling on the training script (`train.py`) with max batch
+    size; verify peak RSS < 7GB and log result to `artifacts/results/memory_profile.log`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_training_peak_RSS_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak RSS < 7GB when running memory profiling on the training script
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:45:48Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Use small transformer model under 300M parameters
+  claim_id: c_67622119
+  context: Implement `base_llama.py` wrapper for a small transformer (<300M params)
+    in `code/models/base_llama.py`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_small_transformer_model_under_300M_parameters
+  kind: magnitude
+  raw_text: Train the model on a small transformer with fewer than 300M parameters
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:46:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Set recursion depth to 2
+  claim_id: c_6ea93460
+  context: Implement `config.py` to manage hyperparameters (seed, batch size, recursion
+    depth=2, learning rate, token_limit=100000) and enforce CPU-only execution constraints
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure recursion depth to 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:47:30Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline completes in 120 minutes on CPU
+  claim_id: c_e117589a
+  context: The training pipeline executes on GitHub Actions CPU runner, produces two
+    checkpoints, and completes within 120 minutes without OOM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training pipeline completes within 120 minutes without OOM on GitHub Actions
+    CPU runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:47:53Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Set generation temperature to 0.7
+  claim_id: c_5385de30
+  context: Implement `run_benchmarks.py` to generate **exactly 10 reasoning paths
+    per question for the Self-Consistency benchmark subset** (FR-003) using temperature=0.7,
+    top_p=0.9, and a fixed seed per run
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use temperature 0.7 for Self-Consistency benchmark generation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:48:27Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Set generation top_p to 0.9
+  claim_id: c_086e00bd
+  context: Implement `run_benchmarks.py` to generate **exactly 10 reasoning paths
+    per question for the Self-Consistency benchmark subset** (FR-003) using temperature=0.7,
+    top_p=0.9, and a fixed seed per run
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use top_p 0.9 for Self-Consistency benchmark generation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T09:49:06Z'

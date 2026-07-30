@@ -4,9 +4,16 @@ import os
 import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from datasets import load_dataset
 
-def compute_checksum(file_path: str) -> str:
+from datasets import load_dataset
+from utils.logging import get_logger, DataLoadError
+
+logger = get_logger(__name__)
+
+DATA_DIR = Path("data/raw")
+MANIFEST_PATH = Path("data/manifest.json")
+
+def compute_checksum(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -14,140 +21,98 @@ def compute_checksum(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_manifest(manifest_path: str = "data/manifest.json") -> Dict[str, Any]:
-    """Load the data manifest if it exists, otherwise return empty dict."""
-    if os.path.exists(manifest_path):
-        with open(manifest_path, "r") as f:
-            return json.load(f)
-    return {}
+def load_manifest() -> Dict[str, Any]:
+    """Load the manifest file if it exists."""
+    if not MANIFEST_PATH.exists():
+        return {}
+    with open(MANIFEST_PATH, "r") as f:
+        return json.load(f)
 
-def save_manifest(manifest: Dict[str, Any], manifest_path: str = "data/manifest.json") -> None:
-    """Save the data manifest."""
-    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
-    with open(manifest_path, "w") as f:
+def save_manifest(manifest: Dict[str, Any]) -> None:
+    """Save the manifest file."""
+    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(MANIFEST_PATH, "w") as f:
         json.dump(manifest, f, indent=2)
 
-def fetch_arxiv_pile_truncated(output_path: str = "data/raw/pile_arxiv_truncated.json") -> str:
+def fetch_gsm8k() -> Dict[str, Any]:
     """
-    Fetch the 'arXiv' subset of the Pile dataset, truncate to a representative size,
-    and save to JSON. Returns the path to the saved file.
+    Fetch the GSM8K dataset from HuggingFace and return it as a dictionary.
+    This dataset is strictly for EVALUATION.
     """
-    print(f"Fetching Pile (arXiv) subset...")
-    # Load the arXiv subset of The Pile
-    dataset = load_dataset("bigscience/pile", "arxiv", split="train", streaming=False)
-    
-    # Truncate to a representative subset size (e.g., 1000 samples for training)
-    # This satisfies Constitution Principle VII (Data Hygiene) for training data
-    max_samples = 1000
-    truncated_data = []
-    for i, item in enumerate(dataset):
-        if i >= max_samples:
-            break
-        truncated_data.append(item)
-    
-    # Save to JSON
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(truncated_data, f, indent=2)
-    
-    print(f"Saved truncated Pile (arXiv) dataset to {output_path}")
-    return output_path
-
-def fetch_gsm8k(output_path: str = "data/raw/gsm8k.json") -> str:
-    """
-    Fetch the GSM8K dataset via HuggingFace datasets API and save to JSON.
-    This is strictly for EVALUATION data.
-    """
-    print(f"Fetching GSM8K dataset...")
-    # Load the main (train) split of GSM8K
-    # GSM8K is a grade school math dataset
-    dataset = load_dataset("openai/gsm8k", "main", split="train", streaming=False)
-    
-    # Convert to list of dicts for JSON serialization
-    data_list = []
-    for item in dataset:
-        data_list.append({
-            "question": item["question"],
-            "answer": item["answer"]
-        })
-    
-    # Save to JSON
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(data_list, f, indent=2)
-    
-    print(f"Saved GSM8K dataset to {output_path}")
-    return output_path
-
-def fetch_mmlu(output_path: str = "data/raw/mmlu.json") -> str:
-    """
-    Fetch the MMLU dataset via HuggingFace datasets API and save to JSON.
-    This is strictly for EVALUATION data.
-    """
-    print(f"Fetching MMLU dataset...")
-    # Load a subset of MMLU (e.g., 'college_physics') for evaluation
-    # MMLU has many subjects; we'll use one representative subject for this task
-    # In a full implementation, we might load all subjects or a specific subset
+    logger.info("Fetching GSM8K dataset from HuggingFace...")
     try:
-        dataset = load_dataset("cais/mmlu", "college_physics", split="test", streaming=False)
+        # GSM8K is a small dataset, loading into memory is fine
+        dataset = load_dataset("gsm8k", "main", split="train")
+        # Convert to list of dicts for JSON serialization
+        data = dataset.to_list()
+        logger.info(f"Successfully fetched GSM8K: {len(data)} examples")
+        return data
     except Exception as e:
-        raise RuntimeError(f"Failed to load MMLU dataset: {e}")
-    
-    # Convert to list of dicts for JSON serialization
-    data_list = []
-    for item in dataset:
-        data_list.append({
-            "question": item["question"],
-            "choices": item["choices"],
-            "answer": item["answer"]  # 0-indexed answer
-        })
-    
-    # Save to JSON
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(data_list, f, indent=2)
-    
-    print(f"Saved MMLU dataset to {output_path}")
-    return output_path
+        logger.error(f"Failed to fetch GSM8K: {e}")
+        raise DataLoadError(f"Failed to fetch GSM8K dataset: {e}")
+
+def fetch_mmlu() -> Dict[str, Any]:
+    """
+    Fetch the MMLU dataset from HuggingFace and return it as a dictionary.
+    This dataset is strictly for EVALUATION.
+    """
+    logger.info("Fetching MMLU dataset from HuggingFace...")
+    try:
+        # MMLU is large, but we load the 'coarse' split or a subset if memory constrained.
+        # The task asks for the dataset. We will load the 'test' split of the main dataset.
+        # MMLU on HF is often 'cais/mmlu'.
+        dataset = load_dataset("cais/mmlu", "all", split="test")
+        data = dataset.to_list()
+        logger.info(f"Successfully fetched MMLU: {len(data)} examples")
+        return data
+    except Exception as e:
+        logger.error(f"Failed to fetch MMLU: {e}")
+        raise DataLoadError(f"Failed to fetch MMLU dataset: {e}")
 
 def save_dataset_and_manifest(
-    dataset_path: str,
-    dataset_type: str,
-    manifest_path: str = "data/manifest.json"
+    dataset_name: str,
+    data: List[Dict[str, Any]],
+    dataset_type: str = "evaluation"
 ) -> None:
     """
-    Save dataset checksum and metadata to manifest.
+    Save the dataset to JSON and update the manifest with the checksum.
     """
-    manifest = load_manifest(manifest_path)
-    
-    file_name = os.path.basename(dataset_path)
-    checksum = compute_checksum(dataset_path)
-    size_bytes = os.path.getsize(dataset_path)
-    created_at = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
-    
-    manifest[file_name] = {
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    output_path = DATA_DIR / f"{dataset_name}.json"
+
+    logger.info(f"Saving {dataset_name} to {output_path}...")
+    with open(output_path, "w") as f:
+        json.dump(data, f)
+
+    checksum = compute_checksum(output_path)
+    size_bytes = output_path.stat().st_size
+    timestamp = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
+    manifest = load_manifest()
+    manifest[dataset_name] = {
         "type": dataset_type,
         "checksum": checksum,
         "size_bytes": size_bytes,
-        "created_at": created_at
+        "created_at": timestamp
     }
-    
-    save_manifest(manifest, manifest_path)
-    print(f"Updated manifest with {file_name}")
+    save_manifest(manifest)
+    logger.info(f"Saved {dataset_name} with checksum {checksum}")
 
 def main():
     """
-    Main function to fetch evaluation datasets (GSM8K and MMLU) and update manifest.
+    Main entry point to fetch GSM8K and MMLU evaluation datasets.
     """
-    # Fetch GSM8K
-    gsm8k_path = fetch_gsm8k("data/raw/gsm8k.json")
-    save_dataset_and_manifest(gsm8k_path, "evaluation")
-    
-    # Fetch MMLU
-    mmlu_path = fetch_mmlu("data/raw/mmlu.json")
-    save_dataset_and_manifest(mmlu_path, "evaluation")
-    
-    print("Evaluation datasets fetched and manifest updated successfully.")
+    logger.info("Starting data loading for evaluation datasets (T004b)...")
+
+    # Fetch and save GSM8K
+    gsm8k_data = fetch_gsm8k()
+    save_dataset_and_manifest("gsm8k", gsm8k_data)
+
+    # Fetch and save MMLU
+    mmlu_data = fetch_mmlu()
+    save_dataset_and_manifest("mmlu", mmlu_data)
+
+    logger.info("Evaluation datasets loaded and saved successfully.")
 
 if __name__ == "__main__":
     main()
