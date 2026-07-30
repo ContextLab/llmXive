@@ -1,9 +1,3 @@
-"""
-results.py - Generate regression summary report.
-
-Reads the validated synthetic cohort and regression results to produce
-a human-readable Markdown summary report.
-"""
 import os
 import logging
 from pathlib import Path
@@ -11,190 +5,208 @@ from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
 import numpy as np
 
+from logger import get_logger
+
 # Configure logging
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-# Constants
+# Paths relative to project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RESULTS_DIR = DATA_DIR / "results"
-COHORT_FILE = RESULTS_DIR / "synthetic_cohort.csv"
-REGRESSION_RESULTS_FILE = RESULTS_DIR / "regression_results.csv"
-SUMMARY_OUTPUT_FILE = RESULTS_DIR / "regression_summary.md"
+COHORT_PATH = PROJECT_ROOT / "data" / "results" / "analysis_cohort.csv"
+REGRESSION_RESULTS_PATH = PROJECT_ROOT / "data" / "results" / "regression_results.csv"
+SUMMARY_REPORT_PATH = PROJECT_ROOT / "data" / "results" / "regression_summary.md"
 
-def load_synthetic_cohort() -> Optional[pd.DataFrame]:
-    """Load the synthetic cohort from disk."""
-    if not COHORT_FILE.exists():
-        logger.error(f"Cohort file not found: {COHORT_FILE}")
-        return None
-    try:
-        df = pd.read_csv(COHORT_FILE)
-        logger.info(f"Loaded synthetic cohort with {len(df)} rows and {len(df.columns)} columns.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load synthetic cohort: {e}")
-        return None
+def load_analysis_cohort() -> pd.DataFrame:
+    """Load the validated analysis cohort from disk."""
+    if not COHORT_PATH.exists():
+        raise FileNotFoundError(f"Analysis cohort not found at {COHORT_PATH}. "
+                                "Ensure T016 has been executed successfully.")
+    logger.info(f"Loading analysis cohort from {COHORT_PATH}")
+    return pd.read_csv(COHORT_PATH)
 
-def load_regression_results() -> Optional[pd.DataFrame]:
-    """Load the regression results from disk."""
-    if not REGRESSION_RESULTS_FILE.exists():
-        logger.error(f"Regression results file not found: {REGRESSION_RESULTS_FILE}")
-        return None
-    try:
-        df = pd.read_csv(REGRESSION_RESULTS_FILE)
-        logger.info(f"Loaded regression results with {len(df)} rows.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load regression results: {e}")
-        return None
+def load_regression_results() -> pd.DataFrame:
+    """Load the regression results (coefficients, p-values, CIs) from disk."""
+    if not REGRESSION_RESULTS_PATH.exists():
+        raise FileNotFoundError(f"Regression results not found at {REGRESSION_RESULTS_PATH}. "
+                                "Ensure T024 has been executed successfully.")
+    logger.info(f"Loading regression results from {REGRESSION_RESULTS_PATH}")
+    return pd.read_csv(REGRESSION_RESULTS_PATH)
 
-def generate_summary_stats(cohort: pd.DataFrame) -> Dict[str, Any]:
-    """Generate basic summary statistics for the cohort."""
-    numeric_cols = cohort.select_dtypes(include=[np.number]).columns
-    stats = {}
-    for col in numeric_cols:
-        stats[col] = {
-            "mean": float(cohort[col].mean()),
-            "std": float(cohort[col].std()),
-            "min": float(cohort[col].min()),
-            "max": float(cohort[col].max()),
-            "count": int(cohort[col].count())
-        }
+def generate_summary_stats(cohort: pd.DataFrame, results: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Generate summary statistics for the report:
+    - Cohort size and demographics
+    - Model fit summary
+    - Key interaction findings
+    """
+    stats = {
+        "cohort_size": len(cohort),
+        "demographics": {},
+        "models_fitted": len(results),
+        "significant_interactions": 0,
+        "interaction_details": []
+    }
+
+    # Demographics
+    if 'age' in cohort.columns:
+        stats["demographics"]["mean_age"] = cohort['age'].mean()
+        stats["demographics"]["std_age"] = cohort['age'].std()
+    if 'gender' in cohort.columns:
+        stats["demographics"]["gender_distribution"] = cohort['gender'].value_counts().to_dict()
+    if 'education' in cohort.columns:
+        stats["demographics"]["education_distribution"] = cohort['education'].value_counts().to_dict()
+
+    # Model findings
+    for _, row in results.iterrows():
+        outcome = row.get('outcome', 'Unknown')
+        interaction_p = row.get('interaction_p_value', 1.0)
+        interaction_coef = row.get('interaction_coef', 0.0)
+        interaction_ci_low = row.get('interaction_ci_low', 0.0)
+        interaction_ci_high = row.get('interaction_ci_high', 0.0)
+        fdr_adj_p = row.get('fdr_adj_p_value', 1.0)
+
+        is_significant = fdr_adj_p < 0.05
+        if is_significant:
+            stats["significant_interactions"] += 1
+
+        stats["interaction_details"].append({
+            "outcome": outcome,
+            "coefficient": interaction_coef,
+            "std_error": row.get('interaction_se', 0.0),
+            "p_value": row.get('interaction_p_value', 0.0),
+            "fdr_adj_p": fdr_adj_p,
+            "ci_low": interaction_ci_low,
+            "ci_high": interaction_ci_high,
+            "significant": is_significant
+        })
+
     return stats
 
-def format_coefficient(row: pd.Series) -> str:
-    """Format a single regression coefficient row for Markdown."""
-    outcome = row.get('outcome', 'Unknown')
-    predictor = row.get('predictor', 'Unknown')
-    coef = row.get('coef', 0.0)
-    std_err = row.get('std_err', 0.0)
-    p_val = row.get('p_value', 1.0)
-    p_adj = row.get('p_adj', 1.0)
-    ci_lower = row.get('ci_lower', 0.0)
-    ci_upper = row.get('ci_upper', 0.0)
-    
-    sig_marker = ""
-    if p_adj < 0.001:
-        sig_marker = "***"
-    elif p_adj < 0.01:
-        sig_marker = "**"
-    elif p_adj < 0.05:
-        sig_marker = "*"
-    
-    return (
-        f"| {outcome} | {predictor} | {coef:.4f} {sig_marker} | "
-        f"{std_err:.4f} | {p_val:.4f} | {p_adj:.4f} | "
-        f"[{ci_lower:.4f}, {ci_upper:.4f}] |"
-    )
+def format_coefficient(val: float) -> str:
+    """Format a float coefficient for display."""
+    if pd.isna(val):
+        return "N/A"
+    return f"{val:.3f}"
 
-def generate_markdown_report(cohort: pd.DataFrame, results: pd.DataFrame) -> str:
-    """Generate the full Markdown summary report."""
-    summary_stats = generate_summary_stats(cohort)
-    
-    md_lines = [
-        "# Regression Analysis Summary: Social Support & Resilience",
-        "",
-        "## 1. Dataset Overview",
-        "",
-        f"- **Total Observations**: {len(cohort)}",
-        f"- **Variables Analyzed**: {len(cohort.columns)}",
-        "",
-        "### Descriptive Statistics (Numeric Variables)",
-        "",
-        "| Variable | Mean | Std Dev | Min | Max | Count |",
-        "| :--- | :--- | :--- | :--- | :--- | :--- |"
-    ]
-    
-    for var, stats in summary_stats.items():
-        md_lines.append(
-            f"| {var} | {stats['mean']:.2f} | {stats['std']:.2f} | "
-            f"{stats['min']:.2f} | {stats['max']:.2f} | {stats['count']} |"
-        )
-    
-    md_lines.extend([
-        "",
-        "## 2. Model Results",
-        "",
-        "This table presents the OLS regression coefficients for the interaction between "
-        "Perceived Social Support and Harassment Exposure on mental health outcomes "
-        "(Depression, Anxiety, PTSD).",
-        "",
-        "### Coefficients with Bias-Corrected Bootstrap CIs and FDR-Adjusted P-values",
-        "",
-        "| Outcome | Predictor | Coefficient | Std Error | P-value | P-adj (FDR) | 95% CI (BCa) |",
-        "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |"
-    ])
-    
-    if results is not None and not results.empty:
-        for _, row in results.iterrows():
-            md_lines.append(format_coefficient(row))
+def generate_markdown_report(stats: Dict[str, Any]) -> str:
+    """Generate the Markdown content for the summary report."""
+    lines = []
+    lines.append("# Regression Analysis Summary Report")
+    lines.append("")
+    lines.append("## 1. Executive Summary")
+    lines.append("")
+    lines.append(f"This report summarizes the results of the OLS regression analysis examining the")
+    lines.append(f"interaction between perceived social support and harassment exposure on mental health outcomes.")
+    lines.append(f"Analysis was performed on a single-dataset cohort (Cyberbullying Survey 2021).")
+    lines.append("")
+    lines.append(f"- **Total Sample Size**: {stats['cohort_size']:,}")
+    lines.append(f"- **Models Fitted**: {stats['models_fitted']}")
+    lines.append(f"- **Significant Interaction Effects (FDR < 0.05)**: {stats['significant_interactions']}")
+    lines.append("")
+
+    # Demographics
+    lines.append("## 2. Cohort Characteristics")
+    lines.append("")
+    if stats["demographics"]:
+        lines.append("| Metric | Value |")
+        lines.append("| :--- | :--- |")
+        if "mean_age" in stats["demographics"]:
+            lines.append(f"| Mean Age | {stats['demographics']['mean_age']:.2f} (SD: {stats['demographics']['std_age']:.2f}) |")
+        if "gender_distribution" in stats["demographics"]:
+            gender_str = ", ".join([f"{k}: {v}" for k, v in stats["demographics"]["gender_distribution"].items()])
+            lines.append(f"| Gender Distribution | {gender_str} |")
+        if "education_distribution" in stats["demographics"]:
+            edu_str = ", ".join([f"{k}: {v}" for k, v in stats["demographics"]["education_distribution"].items()])
+            lines.append(f"| Education Distribution | {edu_str} |")
     else:
-        md_lines.append("| *No results available* | *No results available* | ... |")
-    
-    md_lines.extend([
-        "",
-        "### Interpretation Notes",
-        "",
-        "- **Significance Levels**: * p < 0.05, ** p < 0.01, *** p < 0.001 (FDR-adjusted)",
-        "- **Interaction Term**: The coefficient for `SocialSupport:HarassmentExposure` indicates "
-          "whether the effect of harassment on the outcome varies by level of social support.",
-        "- **Confidence Intervals**: 95% Bias-Corrected and Accelerated (BCa) Bootstrap CIs based on 1,000 resamples.",
-        "",
-        "## 3. Methodological Context",
-        "",
-        "- **Data Source**: Synthetic cohort constructed via propensity score matching/weighting.",
-        "- **Model**: OLS with Heteroskedasticity-Consistent (HC3) standard errors.",
-        "- **Missing Data**: Handled via MICE imputation (m=5) prior to analysis.",
-        "- **Multiple Testing**: Benjamini-Hochberg FDR correction applied across outcomes.",
-        "",
-        "---",
-        f"*Report generated on {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}*"
-    ])
-    
-    return "\n".join(md_lines)
+        lines.append("*Demographic data not available in cohort.*")
+    lines.append("")
 
-def save_report(content: str, output_path: Path) -> bool:
-    """Save the Markdown report to disk."""
+    # Key Findings
+    lines.append("## 3. Key Findings: Interaction Effects")
+    lines.append("")
+    lines.append("The table below presents the interaction coefficients (Social Support × Harassment Exposure) for each outcome.")
+    lines.append("Statistical significance is determined after Benjamini-Hochberg FDR correction (α = 0.05).")
+    lines.append("")
+    lines.append("| Outcome | Coefficient | SE | 95% CI (BCa) | Raw p-value | FDR Adj. p-value | Significant? |")
+    lines.append("| :--- | :--- | :--- | :--- | :--- | :--- | :--- |")
+
+    for detail in stats["interaction_details"]:
+        sig_str = "Yes" if detail["significant"] else "No"
+        ci_str = f"[{format_coefficient(detail['ci_low'])}, {format_coefficient(detail['ci_high'])}]"
+        lines.append(
+            f"| {detail['outcome']} | {format_coefficient(detail['coefficient'])} | "
+            f"{format_coefficient(detail['std_error'])} | {ci_str} | "
+            f"{detail['p_value']:.4f} | {detail['fdr_adj_p']:.4f} | {sig_str} |"
+        )
+    lines.append("")
+
+    # Interpretation
+    lines.append("## 4. Interpretation")
+    lines.append("")
+    if stats["significant_interactions"] > 0:
+        lines.append(f"**Evidence of Buffering Effect Found:**")
+        lines.append("")
+        lines.append(f"The analysis identified {stats['significant_interactions']} outcome(s) where the interaction between")
+        lines.append("social support and harassment exposure was statistically significant after correction.")
+        lines.append("A negative interaction coefficient suggests that higher social support attenuates the negative impact")
+        lines.append("of harassment on mental health (buffering effect).")
+    else:
+        lines.append("**No Significant Buffering Effect Detected:**")
+        lines.append("")
+        lines.append("No interaction effects remained statistically significant after FDR correction.")
+        lines.append("This suggests that, in this specific dataset, perceived social support did not significantly")
+        lines.append("moderate the relationship between harassment exposure and the measured mental health outcomes,")
+        lines.append("or the study was underpowered to detect small interaction effects.")
+    lines.append("")
+    lines.append("## 5. Methodological Notes")
+    lines.append("")
+    lines.append("- **Data Source**: Cyberbullying Survey 2021 (Single-dataset approach).")
+    lines.append("- **Imputation**: Multiple Imputation by Chained Equations (MICE) used for missing data.")
+    lines.append("- **Inference**: Bias-Corrected Accelerated (BCa) Bootstrap CIs (1,000 resamples) and HC3 standard errors.")
+    lines.append("- **Multiple Testing**: Benjamini-Hochberg FDR correction applied across outcomes.")
+    lines.append("")
+    lines.append("---")
+    lines.append(f"*Report generated automatically by the llmXive pipeline.*")
+    lines.append(f"*Timestamp: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}*")
+
+    return "\n".join(lines)
+
+def save_report(content: str, path: Path) -> None:
+    """Save the generated markdown report to disk."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    logger.info(f"Regression summary report saved to {path}")
+
+def main() -> None:
+    """
+    Main entry point for T025.
+    Reads analysis_cohort.csv and regression_results.csv,
+    generates a summary report, and saves it to data/results/regression_summary.md.
+    """
     try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-        logger.info(f"Report saved successfully to {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to save report: {e}")
-        return False
+        # 1. Load Data
+        cohort = load_analysis_cohort()
+        results = load_regression_results()
 
-def main():
-    """Main entry point for generating the regression summary report."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    logger.info("Starting regression summary report generation.")
-    
-    # Load data
-    cohort = load_synthetic_cohort()
-    if cohort is None:
-        logger.error("Cannot proceed: Synthetic cohort not found.")
-        return 1
-        
-    results = load_regression_results()
-    if results is None:
-        logger.error("Cannot proceed: Regression results not found.")
-        return 1
-    
-    # Generate report
-    report_content = generate_markdown_report(cohort, results)
-    
-    # Save report
-    if not save_report(report_content, SUMMARY_OUTPUT_FILE):
-        logger.error("Failed to save the report.")
-        return 1
-        
-    logger.info("Report generation completed successfully.")
-    return 0
+        # 2. Generate Statistics
+        stats = generate_summary_stats(cohort, results)
+
+        # 3. Generate Report
+        report_content = generate_markdown_report(stats)
+
+        # 4. Save Report
+        save_report(report_content, SUMMARY_REPORT_PATH)
+
+        logger.info("Task T025 completed successfully.")
+
+    except FileNotFoundError as e:
+        logger.error(f"Data dependency missing: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Failed to generate summary report: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

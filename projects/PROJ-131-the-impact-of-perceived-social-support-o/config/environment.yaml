@@ -1,0 +1,52 @@
+# Environment Configuration for Data Paths
+# These paths are relative to the project root (PROJ-131-the-impact-of-perceived-social-support-o)
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  results: data/results
+  figures: figures
+  logs: logs
+  config: config
+
+# Data Source Configuration
+data_sources:
+  cyberbullying_2021:
+    enabled: true
+    # Source: UCI Machine Learning Repository or HuggingFace datasets
+    # Expected file: data/raw/cyberbullying_survey_2021.csv
+    required_columns:
+      - age
+      - gender
+      - education
+      - income
+      - harassment_severity
+      - social_support
+      - depression_items
+      - anxiety_items
+      - pcl5_items
+    optional_columns:
+      - platform
+      - pcl5_items # If missing, PTSD outcome is skipped with warning
+
+  gss_2022:
+    enabled: false
+    # Note: GSS 2022 is explicitly disabled per the Plan's 'Revised Approach'
+    # (Single-Dataset Analysis). Any presence of this file in data/raw is ignored.
+    reason: "Methodological invalidity of synthetic cohort matching. See Plan section 'Critical Methodological Pivot'."
+
+# Logging Configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/pipeline.log
+  console: true
+
+# Validation Thresholds
+thresholds:
+  missingness_limit: 0.05
+  variance_min_sd: 0.5
+  variance_min_n: 30
+  vif_max: 5.0
+  bootstrap_resamples: 1000
+  mice_max_iter: 10
+  mice_fallback_iter: 50

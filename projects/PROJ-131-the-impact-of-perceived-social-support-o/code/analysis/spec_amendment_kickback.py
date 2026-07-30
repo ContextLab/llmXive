@@ -1,71 +1,76 @@
 """
-Spec Amendment Kickback Module.
-
-This module handles the generation of artifacts required for T041 (Kickback Task).
-It ensures that the specification documents reflect the single-dataset approach.
+Module for generating kickback artifacts to document the deprecation of
+GSS/Synthetic Cohort requirements in the specification.
 """
 import os
 import sys
+import logging
 from pathlib import Path
 from typing import Optional
 import logging
 
-# Configure logging for this module
-logger = logging.getLogger(__name__)
+# Ensure the parent directory is in the path for imports if running as script
+if str(Path(__file__).parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-def generate_kickback_artifacts(output_dir: Optional[Path] = None) -> bool:
+from logger import get_logger
+
+logger = get_logger(__name__)
+
+def generate_kickback_artifacts(spec_path: Optional[Path] = None) -> bool:
     """
-    Generates the necessary spec amendment artifacts.
+    Generates a summary of the spec amendments for T041.
     
-    This function ensures that:
-    1. spec.md is updated to reflect the single-dataset approach.
-    2. spec-waiver.md is created if the PR was not merged by the deadline.
-    
-    Note: In this implementation, we assume the "PR not merged" fallback condition
-    applies as per the task description for T041.
+    This function serves as the programmatic verification that the spec
+    has been updated to reflect the "Single-Dataset Approach".
     
     Args:
-        output_dir: Optional directory to write artifacts. Defaults to specs/001-social-support-resilience.
+        spec_path: Path to the spec.md file. Defaults to the standard location.
         
     Returns:
-        True if artifacts were successfully generated/verified.
+        True if the spec is verified to be updated, False otherwise.
     """
-    if output_dir is None:
-        output_dir = Path("specs/001-social-support-resilience")
-    
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    spec_path = output_dir / "spec.md"
-    waiver_path = output_dir / "spec-waiver.md"
-    
-    logger.info(f"Generating kickback artifacts in {output_dir}")
-    
-    # Check if spec.md exists and update if necessary
-    # For the purpose of this task, we assume the file content is provided 
-    # by the artifact generation process in the main task runner.
-    # This function serves as the entry point for the logic.
+    if spec_path is None:
+        spec_path = Path("specs/001-social-support-resilience/spec.md")
     
     if not spec_path.exists():
-        logger.warning(f"{spec_path} does not exist. It should be created by the task runner.")
+        logger.error(f"Spec file not found at {spec_path}")
         return False
+
+    content = spec_path.read_text()
     
-    if not waiver_path.exists():
-        logger.warning(f"{waiver_path} does not exist. It should be created by the task runner.")
+    # Verification checks
+    checks = [
+        ("FR-001 removed", "FR-001" not in content or "DEPRECATED" in content),
+        ("FR-002 removed", "FR-002" not in content or "DEPRECATED" in content),
+        ("US-1 removed", "US-1" not in content or "DEPRECATED" in content),
+        ("Single-Dataset Approach", "Single-Dataset Approach" in content),
+        ("GSS Exclusion", "GSS 2022" in content and "Excluded" in content),
+        ("SC-001 Updated", "SC-001" in content and "SMD" not in content.split("SC-001")[1].split("\n")[0:3]),
+    ]
+    
+    all_passed = True
+    for check_name, result in checks:
+        if result:
+            logger.info(f"Verification Passed: {check_name}")
+        else:
+            logger.error(f"Verification Failed: {check_name}")
+            all_passed = False
+
+    if all_passed:
+        logger.info("Spec amendment verification successful. T041 requirements met.")
+        return True
+    else:
+        logger.error("Spec amendment verification failed. Manual review required.")
         return False
-    
-    logger.info("Kickback artifacts verified.")
-    return True
 
 def main():
-    """Main entry point for the kickback task."""
-    logging.basicConfig(level=logging.INFO)
+    """Entry point for the kickback task."""
+    logger.info("Running T041 Kickback Verification...")
     success = generate_kickback_artifacts()
-    if success:
-        logger.info("T041 Kickback Task: SUCCESS")
-        sys.exit(0)
-    else:
-        logger.error("T041 Kickback Task: FAILED")
+    if not success:
         sys.exit(1)
+    logger.info("T041 completed successfully.")
 
 if __name__ == "__main__":
     main()

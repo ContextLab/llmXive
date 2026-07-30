@@ -1,10 +1,3 @@
-T012b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that `research.md` and `data-model.md` exist or contain\
-    \ any text documenting the exclusion of the GSS 2022 dataset, which is the sole\
-    \ requirement of task T012b. The implementer must supply the two markdown files\
-    \ with explicit statements about why GSS\u202F2022 is excluded."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,11 +18,43 @@ T022:
     \ a fallback mechanism to refit a standard OLS model when the robust model fails\
     \ to converge, nor evidence that the status `E\u2011NONCONV\u2011001` is logged.\
     \ The required artifact is missing."
+T025:
+  c: false
+  h: a849ccfee693f593fa88417603d98bac534b78e606bd303e5ff0a68f64bf872e
+  r: 'The `code/analysis/results.py` file is truncated and contains a syntax error
+    (`"std_error": ro`), and it never writes a markdown file to `data/results/regression_summary.md`.
+    Moreover, the required `regression_summary.md` file does not exist. The implementation
+    therefore does not fulfill the task of generating the summary report.'
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., CSV, spreadsheet, or markdown table) showing the interaction\
+    \ coefficients from the baseline run (T020) and from each sensitivity analysis,\
+    \ nor a computed table of their shifts, was provided. The implementer\u2019s response\
+    \ contains only the task description and project spec, without the required output."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main_pipeline.py` (or any code) was presented showing the required chaining
+    of the six phases, nor evidence that it runs after all phase tasks are complete.
+    The artifact needed to satisfy T031 is missing.
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of an updated `specs/001-social-support-resilience/spec.md` or a\
-    \ newly created `specs/001-social-support-resilience/spec-waiver.md` is provided;\
-    \ the required files are missing from the artifact list. The task cannot be considered\
-    \ complete until those specification documents are present and contain the described\
-    \ single\u2011dataset changes."
+  r: "No updated `specs/001-social-support-resilience/spec.md` file or pull\u2011\
+    request diff is provided; the claim that the spec has been amended to deprecate\
+    \ the synthetic cohort requirements is unsupported by any tangible artifact. The\
+    \ required amendment is missing."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pull request or amended `specs/001-social-support-resilience/spec.md` file
+    was presented; the required artifact (the updated spec with revised success criteria)
+    is missing.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pull request or modified `specs/001-social-support-resilience/spec.md` file
+    is provided; the evidence lacks the required artifact showing the functional requirements
+    have been updated. The implementer must supply the PR (or at least the updated
+    spec file) that reflects the changes described.

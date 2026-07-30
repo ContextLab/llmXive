@@ -85,108 +85,264 @@
   updated_at: '2026-07-14T07:13:43Z'
 - artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
   attempts: 1
-  canonical: Cyberbullying Survey 2021 variable list includes age, gender, education,
-    income, social support, harassment severity, depression, anxiety, and PTSD items
-  claim_id: c_ac281172
-  context: 'Validation: Verify file integrity (checksum if available) and validate
-    that required columns exist (age, gender, education, income, social_support_items,
-    harassment_severity_items, depression_items, anxiety_items, ptsd_items, platform).'
+  canonical: pipeline ingests only Cyberbullying Survey 2021
+  claim_id: c_a923ff07
+  context: The implementation strictly follows the Plan's 'Revised Approach' (Single-Dataset
+    Analysis). The Spec's requirement for a 'Synthetic Cohort' (dual-dataset matching)
+    is methodologically invalid per the Plan and is excluded from implementation.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The Cyberbullying Survey 2021 dataset contains variables for age, gender,
-    education, income, social support items, harassment severity items, depression
-    items, anxiety items, and PTSD items.
+  raw_text: The pipeline ingests ONLY the Cyberbullying Survey 2021 to ensure the
+    interaction term estimates a genuine psychological buffering effect without confounding
+    by dataset source.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-30T01:04:46Z'
+  updated_at: '2026-07-30T00:52:48Z'
 - artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
   attempts: 1
-  canonical: CES-D scale has 20 items and a total score range of 0 to 60
-  claim_id: c_648158f7
-  context: "Content outline (example values): CES-D: items: [depressed1...depressed20],\
+  canonical: GSS 2022 dataset excluded from analysis
+  claim_id: c_74e9eb6f
+  context: 'Goal: Ingest the Cyberbullying Survey 2021, harmonize variables, handle
+    missingness, and prepare a clean analysis cohort. Note: The GSS 2022 dataset is
+    excluded per the Plan''s ''Revised Approach''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GSS 2022 dataset is excluded per the Plan's 'Revised Approach'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:53:13Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: CES-D 20 items total score 0-60
+  claim_id: c_d8ecf8c6
+  context: "Content outline (example values): CES-D: items: [depressed1...depressed20]\
+    \ reverse_items: [depressed5, depressed9, depressed12, depressed16, depressed18]\
     \ scoring: -3 per item, total 0\u201160"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The CES-D scale consists of 20 items with a total scoring range of 0 to
-    60.
+  raw_text: The CES-D scale has 20 items with a total score range of 0-60.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-30T01:10:22Z'
+  updated_at: '2026-07-30T00:53:50Z'
 - artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
   attempts: 1
-  canonical: GAD-7 scale has 7 items and a total score range of 0 to 21
-  claim_id: c_abef16e0
-  context: "Content outline (example values): GAD-7: items: [gad1...gad7], scoring:\
-    \ \u20113 per item, total 0\u201121"
-  evidence:
-    fill:
-      channel: wikipedia
-      conflicts: []
-      quote: The GAD-7 is a seven-item anxiety screening instrument developed in 2006
-        with a similar format to that of the PHQ-9. Total scores range from 0 to 21
-        with scores of 5, 10, and 15 indicating mild, moderate, and severe anxiety,
-        respectively. Unlike the PHQ-9, clinicians use the GAD-7 to assess the severity
-        of anxiety only. Unlike the PHQ-9, the GAD-7 does not generate provisional
-        diagnoses. A clinical interview must be given to arrive at a clinical diagnosis.
-        The GAD-2 is a 2-question shortened version of the GAD-7; it uses the first
-        two items on the GAD-7. A total score that is greater than 3 indicates that
-        a clinician should administer the full GAD-7 and conduct a clinical interview
-        to assess the presence and type of anxiety disorder.
-      source_id: PHQ-9
-      url: https://en.wikipedia.org/wiki/PHQ-9
-      value: 0 to 21
-    filled: true
-  kind: numeric
-  raw_text: The GAD-7 scale consists of 7 items with a total scoring range of 0 to
-    21.
-  resolved_value: 0 to 21
-  resolver: fill:wikipedia
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-30T01:10:33Z'
-- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
-  attempts: 1
-  canonical: PCL-5 scale has 25 items and a total score range of 0 to 100
-  claim_id: c_b6a3f122
-  context: "Content outline (example values): PCL-5: items: [pcl1...pcl25], scoring:\
-    \ \u20114 per item, total 0\u2011100"
+  canonical: PCL-5 25 items total score 0-100
+  claim_id: c_b0de1480
+  context: "PCL-5: items: [pcl1...pcl25] reverse_items: [] scoring: \u20114 per item,\
+    \ total 0\u2011100"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The PCL-5 scale consists of 25 items with a total scoring range of 0 to
-    100.
+  raw_text: The PCL-5 scale has 25 items with a total score range of 0-100.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-30T01:10:53Z'
+  updated_at: '2026-07-30T00:54:28Z'
 - artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
   attempts: 1
-  canonical: GSS 2022 excluded from Cyberbullying Survey 2021 analysis due to methodological
-    invalidity and missing PCL-5 items
-  claim_id: c_daae0729
-  context: 'The GSS 2022 dataset is excluded per plan.md and spec.md. Content: Explicitly
-    state that GSS 2022 was excluded due to methodological invalidity for interaction
-    analysis (confounding with dataset source) and lack of verified PCL-5 items.'
+  canonical: MICE configured with m=5 and max_iter=10
+  claim_id: c_d3d9186a
+  context: 'Apply Multiple Imputation by Chained Equations (MICE) to remaining missing
+    values in the predictor matrix: [''age'',''gender'',''education'',''income'',''social_support'',''harassment_severity'',''depression'',''anxiety'',''ptsd''].
+    Configure with m=5, max_iter=10, random_state=42.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The Cyberbullying Survey 2021 dataset excludes the GSS 2022 dataset due
-    to methodological invalidity for interaction analysis and lack of verified PCL-5
-    items.
+  raw_text: Multiple Imputation by Chained Equations (MICE) is configured with m=5
+    imputations and max_iter=10.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-30T01:11:12Z'
+  updated_at: '2026-07-30T00:55:06Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: MICE max_iter increased to 50 on convergence failure
+  claim_id: c_37d37796
+  context: Verify MICE convergence by checking the trace of imputed values. If convergence
+    fails (trace does not stabilize), increase max_iter to 50 and re-run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MICE convergence check increases max_iter to 50 if the trace does
+    not stabilize.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:55:35Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Listwise deletion for variables with >5% missingness
+  claim_id: c_96f559a9
+  context: '1. Listwise Deletion: Drop rows where variables with >5% missingness are
+    present.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Listwise_deletion_for_variables_with_%3E5%25_missingness
+  kind: magnitude
+  raw_text: Rows with variables having more than 5% missingness are dropped via listwise
+    deletion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:56:20Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Harassment severity SD > 0.5 and N > 30 required
+  claim_id: c_3f0aff3c
+  context: Ensure harassment_severity has sufficient variance (SD > 0.5, N > 30).
+    If not, log E-LOW-VAR-001 and halt.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Harassment_severity_SD_%3E_0.5_and_N_%3E_30_required
+  kind: magnitude
+  raw_text: The analysis cohort requires harassment_severity to have a standard deviation
+    greater than 0.5 and N greater than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:57:26Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: VIF threshold less than 5
+  claim_id: c_266b1a50
+  context: Compute VIF for the model matrix (social_support, harassment_exposure,
+    interaction, plus covariates) and ensure VIF < 5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_less_than_5
+  kind: magnitude
+  raw_text: The Variance Inflation Factor (VIF) for the model matrix must be less
+    than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:58:09Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Bootstrap CIs with 1000 resamples
+  claim_id: c_43b6eb54
+  context: "Performance optimization: Verify that bootstrapping (1,000 resamples for\
+    \ up to three models) completes within 6 hours on a 2\u2011core CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap confidence intervals are computed with 1,000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:58:45Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Bootstrap warning if estimated time > 5 hours
+  claim_id: c_57cf65ae
+  context: If 1000 * estimated_time > 5 hours, log a warning W-SLOW-BOOT-001 and suggest
+    reducing resamples or using a faster approximator.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap feasibility check suggests a warning if 1,000 resamples
+    are estimated to take longer than 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:59:21Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Stratification excluded for N < 30
+  claim_id: c_a9ee13fa
+  context: If a platform group has fewer than 2 distinct categories or N < 30, log
+    E-SMALL-N-001 and exclude that group from stratification.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratification_excluded_for_N_%3C_30
+  kind: magnitude
+  raw_text: Stratified models are excluded if a platform group has fewer than 30 observations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:00:47Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Pipeline target 6 hours on 2-core CPU
+  claim_id: c_bc3373f3
+  context: "Verify that bootstrapping (1,000 resamples for up to three models) completes\
+    \ within 6 hours on a 2\u2011core CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline targets completion within 6 hours on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:03:45Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Pipeline fails on non-deterministic hash with same seed
+  claim_id: c_9509baec
+  context: Compare the hash against the seed defined in config/seeds.yaml. If the
+    hash changes between runs with the same seed, the pipeline must fail with E-NON-DET-001.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_on_non-deterministic_hash_with_same_seed
+  kind: entity_fact
+  raw_text: The pipeline must fail if the final output hashes change between runs
+    with the same seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:04:01Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/spec.md
+  attempts: 1
+  canonical: Cyberbullying Survey 2021 sample size is approximately 2500
+  claim_id: c_b4f91326
+  context: "Analysis Strategy: Primary Dataset: Cyberbullying Survey 2021 (N \u2248\
+    \ 2,500). Excluded Dataset: GSS 2022 (General Social Survey)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Primary Dataset: Cyberbullying Survey 2021 (N \u2248 2,500)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:10:06Z'
