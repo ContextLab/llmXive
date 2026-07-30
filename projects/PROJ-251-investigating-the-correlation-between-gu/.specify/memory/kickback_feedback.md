@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory listings or file system evidence were provided showing that the required folders (`code/`, `data/raw`, `data/processed`, `data/results`, `specs/001-investigating-the-correlation-between-gu/contracts/`) actually exist; thus we cannot confirm the task was completed. The implementer must supply a directory tree or screenshots confirming these paths are present and non‑empty.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, `black` settings) or CI integration scripts are present in the provided evidence, so the requirement to configure ruff/flake8 and black has not been satisfied. The implementer must add the appropriate configuration files and ensure they are active in the project.
+- `T011d` (rejected 1x): No merge script, function, or resulting merged dataset was presented; there is no file or code that demonstrates merging the OTU table with serology metadata on `subject_id`. Consequently, the required artifact is missing, so the task is not satisfied.
+- `T020c` (rejected 1x): The repository lacks the required `data/processed/cleared_with_diversity.csv` file, so the script cannot read the input data. Moreover, the provided `code/02_preprocess.py` (even in the visible portion) contains only loading, zero‑variance exclusion, and normalization logic; there is no implementation that computes the Shannon diversity index or adds it to the output. Both the necessary data artifact and the core functionality are absent.
 
 ## Required change
 

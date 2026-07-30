@@ -1,0 +1,10 @@
+{
+  "summary": {
+    "total_taxa_tested": 0,
+    "significant_taxa_count": 0,
+    "alpha_threshold": 0.05,
+    "n_permutations": 0
+  },
+  "significant_taxa": [],
+  "all_results": {}
+}

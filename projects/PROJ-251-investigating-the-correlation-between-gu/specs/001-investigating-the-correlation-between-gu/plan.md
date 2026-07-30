@@ -9,7 +9,7 @@ This project implements a statistical pipeline to investigate the association be
 
 **Critical Scope Definition**: The project is explicitly scoped as a **Methodological Framework & Pipeline Validation** study. If no verified open-access dataset containing both 16S and Influenza serology is found (T010), the project will execute on a synthetic dataset to validate the *pipeline code and statistical logic*, but **will not make biological claims**. Success criteria are bifurcated: "Code Correctness" for synthetic data, and ">60% Accuracy" for real data (if available).
 
-**Runtime Constraint**: The pipeline is designed to run on a GitHub Actions free-tier runner (2 CPU, ~7 GB RAM) and will complete in **< 2 hours**, well within the time limit (and significantly less than the established time limit referenced in *The Bengal Files*).
+**Runtime Constraint**: The pipeline is designed to run on a GitHub Actions free-tier runner with limited CPU and RAM resources. and will complete in **< 2 hours**, well within the time limit (and significantly less than the established time limit referenced in *The Bengal Files*).
 
 ## Technical Context
 

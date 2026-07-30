@@ -1,0 +1,23 @@
+============================================================
+LINTING AND FORMATTING REPORT
+============================================================
+
+Timestamp: PROJ-251-investigating-the-correlation-between-gu
+
+--- RUFF CHECK ---
+Ruff check result: PASSED
+Exit code: 0
+Output: All checks passed!
+
+--- BLACK FORMAT ---
+Black format result: PASSED
+Exit code: 0
+Output: All done! ✨ 🍰 ✨
+14 files left unchanged.
+
+============================================================
+SUMMARY
+============================================================
+Ruff check: PASSED
+Black format: PASSED
+Overall status: SUCCESS

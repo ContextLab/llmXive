@@ -8,76 +8,68 @@ from code.setup_directories import create_directories
 class TestSetupDirectories(unittest.TestCase):
     
     def setUp(self):
-        """Create a temporary directory to simulate project root."""
+        """Create a temporary directory to simulate the project root."""
         self.test_dir = tempfile.mkdtemp()
-        # Change to test dir to simulate running from project root
+        # Change to test directory
         self.original_cwd = os.getcwd()
         os.chdir(self.test_dir)
         
-        # Create a fake code/ directory to simulate existing structure if needed
-        # but we want to test creation, so we ensure they don't exist initially
-        # by using the temp dir which is empty
-        
+        # Create a dummy code directory to simulate existing structure
+        Path("code").mkdir(exist_ok=True)
+
     def tearDown(self):
-        """Clean up temporary directory."""
+        """Clean up the temporary directory."""
         os.chdir(self.original_cwd)
         shutil.rmtree(self.test_dir)
 
-    def test_create_directories_creates_all_paths(self):
-        """Test that create_directories creates all required paths."""
+    def test_create_directories_structure(self):
+        """Test that all required directories are created."""
         # Run the function
-        result = create_directories()
+        created_paths = create_directories()
         
-        self.assertTrue(result)
-        
-        # Verify directories exist
-        base_path = Path(self.test_dir)
-        
+        # Verify all expected directories exist
         expected_dirs = [
-            base_path / "code",
-            base_path / "data" / "raw",
-            base_path / "data" / "processed",
-            base_path / "data" / "results",
-            base_path / "specs" / "001-investigating-the-correlation-between-gu" / "contracts"
+            "code",
+            "data/raw",
+            "data/processed",
+            "data/results",
+            "specs/001-investigating-the-correlation-between-gu/contracts"
         ]
         
-        for dir_path in expected_dirs:
-            self.assertTrue(dir_path.exists(), f"Directory {dir_path} was not created")
-            self.assertTrue(dir_path.is_dir(), f"{dir_path} is not a directory")
+        for dir_name in expected_dirs:
+            full_path = Path(dir_name)
+            self.assertTrue(full_path.exists(), f"Directory {dir_name} was not created")
+            self.assertTrue(full_path.is_dir(), f"{dir_name} is not a directory")
 
-    def test_create_directories_idempotent(self):
-        """Test that running create_directories twice doesn't cause errors."""
-        # Run twice
-        result1 = create_directories()
-        result2 = create_directories()
+    def test_create_directories_returns_paths(self):
+        """Test that the function returns a list of paths."""
+        created_paths = create_directories()
+        self.assertIsInstance(created_paths, list)
+        self.assertGreater(len(created_paths), 0)
         
-        self.assertTrue(result1)
-        self.assertTrue(result2)
+        for path in created_paths:
+            self.assertIsInstance(path, str)
+            self.assertTrue(os.path.exists(path))
+
+    def test_idempotency(self):
+        """Test that running the function twice does not cause errors."""
+        # First run
+        paths1 = create_directories()
         
-        # Verify all directories still exist
-        base_path = Path(self.test_dir)
-        expected_dirs = [
-            base_path / "code",
-            base_path / "data" / "raw",
-            base_path / "data" / "processed",
-            base_path / "data" / "results",
-            base_path / "specs" / "001-investigating-the-correlation-between-gu" / "contracts"
-        ]
+        # Second run
+        paths2 = create_directories()
         
-        for dir_path in expected_dirs:
-            self.assertTrue(dir_path.exists())
-            
-    def test_contract_directory_exists(self):
-        """Specific test for the contracts directory requirement."""
+        # Should be the same directories
+        self.assertEqual(len(paths1), len(paths2))
+        self.assertEqual(set(paths1), set(paths2))
+
+    def test_nested_directory_creation(self):
+        """Test that nested directories (specs/.../contracts) are created correctly."""
         create_directories()
         
-        base_path = Path(self.test_dir)
-        contracts_path = base_path / "specs" / "001-investigating-the-correlation-between-gu" / "contracts"
-        
+        contracts_path = Path("specs/001-investigating-the-correlation-between-gu/contracts")
         self.assertTrue(contracts_path.exists())
         self.assertTrue(contracts_path.is_dir())
-        # Verify it's a directory (not empty check, just existence)
-        self.assertTrue(contracts_path.is_dir())
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

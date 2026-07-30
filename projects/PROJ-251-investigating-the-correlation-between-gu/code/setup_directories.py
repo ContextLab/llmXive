@@ -4,14 +4,15 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the required project directory structure for PROJ-251.
-    
-    Directories created:
+    Create the required project directory structure:
     - code/
     - data/raw
     - data/processed
     - data/results
     - specs/001-investigating-the-correlation-between-gu/contracts/
+    
+    Returns:
+        bool: True if all directories were created or already exist, False otherwise.
     """
     base_path = Path(__file__).resolve().parent.parent
     
@@ -23,17 +24,22 @@ def create_directories():
         base_path / "specs" / "001-investigating-the-correlation-between-gu" / "contracts"
     ]
     
-    created_count = 0
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
+    success = True
+    for directory in directories:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created/Verified directory: {directory}")
+        except OSError as e:
+            print(f"Error creating directory {directory}: {e}")
+            success = False
     
-    print(f"Directory setup complete. {created_count} new directories created.")
-    return True
+    return success
 
 if __name__ == "__main__":
-    create_directories()
+    success = create_directories()
+    if success:
+        print("All directories created successfully.")
+        sys.exit(0)
+    else:
+        print("Failed to create some directories.")
+        sys.exit(1)
