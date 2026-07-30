@@ -53,7 +53,7 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-28T09:13:33.937283Z'
-- artifact_hash: 200ec68f28c4ec77517102425f5999716fe9fe7ea6cb1d87f0e4277042a4bd67
+- artifact_hash: ce70f27f0c90e691bea4cc820fc5f043c1b74ac57444a287d7cd8f0a847a3951
   artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-28T09:48:02.376565Z'
+  verified_at: '2026-07-30T16:25:28.867174Z'

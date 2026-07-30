@@ -105,7 +105,7 @@ projects/PROJ-412-predicting-molecular-surface-area-from-g/code/
 ### Phase 3: Baseline & Evaluation
 - [ ] **T024**: **Geometry Oracle Evaluation**: Compute SASA for test set using RDKit directly (Ground Truth). This serves as the baseline performance limit.
 - [ ] **T029**: **Primary Metric Calculation**: Calculate MAE, RMSE, R² for GCN and Oracle.
-- [ ] **T030**: **Sensitivity Sweep**: Evaluate success rates at absolute thresholds {, 0.05, 0.1} Å². (Depends on T029, T040).
+- [ ] **T030**: **Sensitivity Sweep**: Evaluate success rates at varying absolute thresholds. (Depends on T029, T040).
 - [ ] **T031**: **Multiple Comparison Correction**: Apply Bonferroni correction to sensitivity analysis p-values.
 - [ ] **T033**: **Statistical Assumption Check**: Perform Shapiro-Wilk test on error differences.
 - [ ] **T034**: **Significance Testing**: If normality holds, run paired t-test; else, run Wilcoxon signed-rank test. Compare GCN error vs. Oracle error (zero).
