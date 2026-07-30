@@ -1,50 +1,68 @@
 """
-Script to run simulation and serialize results for T029.
-
-This script is invoked by the run-book to ensure that simulation results
-are properly serialized to data/analysis/simulation_results.json.
+Script to run simulation serialization and ensure output files are created.
+This script is invoked by the quickstart run-book to produce
+data/analysis/simulation_results.json and update data/run_log.json.
 """
 import argparse
 import logging
 import sys
 from pathlib import Path
 
-# Add code/src to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+from code.src.analysis.serialize_simulation import main as serialization_main, setup_logging
 
-from code.src.analysis.serialize_simulation import main as serialization_main
-
-def setup_logging():
-    """Initialize logging for this script."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+def main() -> int:
+    """
+    Entry point for the simulation serialization script.
+    Ensures that simulation results are loaded and serialized to the
+    designated output file.
+    """
+    parser = argparse.ArgumentParser(
+        description="Run simulation serialization and produce output artifacts"
     )
-
-def main():
-    parser = argparse.ArgumentParser(description="Run simulation and serialize results.")
     parser.add_argument(
         "--config",
         type=str,
         default="code/config.yaml",
-        help="Path to the configuration file."
+        help="Path to configuration file"
     )
     parser.add_argument(
         "--output",
         type=str,
         default=None,
-        help="Override the default output file path."
+        help="Custom output path for results (default: data/analysis/simulation_results.json)"
     )
-    
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging level"
+    )
+
     args = parser.parse_args()
-    
-    setup_logging()
-    
+
     try:
-        serialization_main(args.config, args.output)
+        # Set up logging
+        setup_logging(args.log_level)
+        logger = logging.getLogger(__name__)
+
+        logger.info("Starting simulation serialization process...")
+        logger.info(f"Config file: {args.config}")
+        logger.info(f"Output path: {args.output or 'data/analysis/simulation_results.json'}")
+
+        # Run the serialization main function
+        result = serialization_main()
+
+        if result == 0:
+            logger.info("Simulation serialization completed successfully.")
+            return 0
+        else:
+            logger.error("Simulation serialization failed.")
+            return 1
+
     except Exception as e:
-        logging.error(f"Failed to run simulation serialization: {e}")
-        sys.exit(1)
+        logging.error(f"Unexpected error during serialization: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

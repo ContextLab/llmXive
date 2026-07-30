@@ -1,34 +1,3 @@
-T005:
-  c: false
-  h: acf3a0eca3be63e8911fd51689004bcd150bda2da05dc74d1128d05a81d663c6
-  r: "The `logging.py` file exists and defines a `log_metric` function with the required\
-    \ fields, but the required `data/run_log.json` file is missing (it was never created\
-    \ as an empty `[]`). Consequently the task\u2019s requirement to create that file\
-    \ is not satisfied."
-T018:
-  c: false
-  h: 595b58e153d4a47afed3d341b7f656bee3af28e44d7c1c0f1539ae1bdd4169c4
-  r: "The repository contains a `batch_runner.py` file, but it does not include a\
-    \ visible `main()` function that loads `config.yaml` and iterates over topology\
-    \ classes, and the required `config.yaml` file is absent from the project. Both\
-    \ the essential entry\u2011point logic and the configuration file are missing,\
-    \ so the task is not satisfied."
-T026a:
-  c: false
-  h: 814b99c3532b235f33593761d51b53b4ec5e497e251c9ed591d2f9c19a59108b
-  r: The `stability.py` file contains an `enforce_runtime_limit` function that reads
-    `simulation_timeout_seconds` from a config, but the required `config.yaml` file
-    is missing, so the timeout cannot be sourced as specified. A proper `config.yaml`
-    with the `simulation_timeout_seconds` key must be added (and correctly loaded)
-    for the task to be fulfilled.
-T026b:
-  c: false
-  h: a1d6e5177b76056566fbad236d631618f1e8bd0b6f06142b5c32a3fe72759e8a
-  r: The provided `stability.py` defines timeout handlers but does not read the timeout
-    value from a `config.yaml` (the file is missing) nor does it automatically enforce
-    the configured limit. It also never logs a `runtime_duration_seconds` metric as
-    required by the schema. Consequently, the hard abort mechanism and required logging
-    are not fully implemented.
 T027:
   c: false
   h: f623ffc6a29cbc4d42f2034c12a3790683fc387cb10c0d71508999840687bb6f
@@ -37,12 +6,6 @@ T027:
     \ Moreover, the required tolerance\u2011based monotonicity check and JSON output\
     \ are missing, and the expected verification file is absent. The task therefore\
     \ remains unfinished."
-T029a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No JSON schema file for `simulation_results.json` was provided; the claim lacks
-    any artifact defining the required fields (`runtime_duration_seconds`, `generation_algorithm`,
-    `diffusion_rate`). The task is therefore not satisfied.
 T035b:
   c: false
   h: 3c89ac18c43308cbe69162d92f2d127a68757dd154c89cea2d154a2f47e9fd33
@@ -52,21 +15,6 @@ T035b:
     code that iterates over thresholds, invokes the simulation for each, and writes
     the results to the specified JSON file. These essential components are missing,
     so the task is not genuinely completed.
-T037d:
-  c: false
-  h: 2489a67e1e375936652412ed2753ecf23934600bd888fe66366119af289cd19d
-  r: "The `serialize_final.py` script is present, but the provided code never writes\
-    \ the required `data/analysis/final_results.json` (the file is missing) and the\
-    \ assembled dictionary includes an extra `timestamp` field not specified in the\
-    \ required schema. The task\u2019s output file and exact schema are therefore\
-    \ not satisfied."
-T043:
-  c: true
-  h: 2cc29ca26622578245308608c230be2f3d7fc904c18ba06f3a2a419579cee16c
-  r: "The `code/README.md` file exists (8\u202FKB) and its **Configuration** section\
-    \ now contains a detailed explanation of `config.yaml`, including its structure\
-    \ and key settings. This matches the task\u2019s requirement to update the README\
-    \ with a `config.yaml` explanation."
 T044:
   c: false
   h: ece1c6d515a60790dd8b0dcf01459ff503bc4d85b815ac58f6c8a94861f77e13
@@ -74,59 +22,6 @@ T044:
     \ include code that writes the required `data/analysis/power_analysis_report.json`.\
     \ Moreover, the JSON report file is missing entirely, so the task\u2019s output\
     \ artifact and schema are not satisfied."
-T045a:
-  c: false
-  h: f25c78cf5ec0a575f692a46f365ac6aca47bccbd3480e3fb9ef8ece319f28d46
-  r: "The `validate_batch.py` file is truncated and never extracts `generation_algorithm`\
-    \ or `parameter_values` from `data/analysis/simulation_results.json`. Moreover,\
-    \ the required data files `data/analysis/simulation_results.json` and `data/analysis/sensitivity_sweep.json`\
-    \ are absent, so the validation logic cannot be exercised. The task\u2019s core\
-    \ requirements are therefore unmet."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer supplied only a feature specification for synthetic network generation
-    and simulation, with no code, configuration, or generated coverage report related
-    to adding a `pytest` coverage report. There is no evidence of pytest integration,
-    a coverage configuration file, or an actual coverage output, so the task requirement
-    is not met.
-T047:
-  c: false
-  h: 972599fb4c5febe875a4f7f304d39c2ed064c3a99386988dfe1bccfaaef9ab98
-  r: The required artifact `config.yaml` does not exist on disk, so the documentation
-    cannot be verified and reproducibility of random seeds cannot be assessed. The
-    missing file must be added and populated appropriately.
-T048:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that the quickstart.md file was parsed, checked, or validated
-    is present; there are no logs, reports, or test results indicating the validation
-    was performed. Consequently the required evidence for task T048 is missing.
-T056:
-  c: false
-  h: 595b58e153d4a47afed3d341b7f656bee3af28e44d7c1c0f1539ae1bdd4169c4
-  r: "The repository lacks the required `config.yaml` file, so the adjustment cannot\
-    \ be driven by configuration as specified. Moreover, the provided `batch_runner.py`\
-    \ only defines constants and a `generate_batch` function; there is no visible\
-    \ logic that computes the rejection rate after a batch and modifies `batch_size`\
-    \ for the next iteration. The task\u2019s core requirement\u2014dynamic batch\u2011\
-    size adjustment based on the rejection rate from `config.yaml`\u2014is therefore\
-    \ not satisfied."
-T059:
-  c: false
-  h: b52dd161c7e8f9375ab3a6174f25aa0b9b4e962b0f0a96efc780fb0db8d1148a
-  r: "The repository contains a modified `aggregate_results.py` with loader functions\
-    \ for ridge and partial\u2011correlation results, but the file is truncated before\
-    \ any aggregation or write\u2011out logic, and the required output `data/analysis/aggregated_results.json`\
-    \ does not exist. Consequently the advanced statistical outputs are not actually\
-    \ merged into the final JSON as the task demands. The missing aggregation implementation\
-    \ and the absent output file must be added."
-T062d:
-  c: false
-  h: e75a777165390a199b0598913f1ea775a4951b4dfcf1802e4078a421b2e58a32
-  r: The required artifact `data/raw/global_batch_manifest.json` does not exist, so
-    the schema update cannot be verified. The missing file must be created and contain
-    the updated schema with the `stratification_summary` field.
 T070:
   c: false
   h: 568a684327dfc445be270f47468cf5b8bda737933a64e2ad0d343f361874b973

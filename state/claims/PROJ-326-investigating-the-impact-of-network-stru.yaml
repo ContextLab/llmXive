@@ -1642,3 +1642,141 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-27T23:37:21Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: networkx version 3.2 or higher required for random_state parameter support
+  claim_id: c_476393d0
+  context: 'Initialize Python project with pinned dependencies in code/requirements.txt
+    (networkx>=3.2, ...). Note: networkx>=3.2 is pinned to ensure consistent random_state
+    parameter support.'
+  evidence:
+    asserted: '3.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: networkx>=3.2 is pinned to ensure consistent random_state parameter support.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-30T20:12:22Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: batch success rate for valid connected graphs greater than or equal to
+    95 percent
+  claim_id: c_16e2be68
+  context: "Integration test in code/tests/test_integration.py implementing test_batch_success_rate\
+    \ to verify \u226595% success rate for valid connected graphs and test_manifest_generation\
+    \ to verify global_batch_manifest.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_success_rate_for_valid_connected_graphs_greater_than_o
+  kind: magnitude
+  raw_text: "verify \u226595% success rate for valid connected graphs"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T20:12:39Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: enforce 95 percent valid connected graphs within 10 attempts edge case
+    logic
+  claim_id: c_595d2f3d
+  context: "This task MUST: (1) Track failed_attempts per graph and success_rate globally;\
+    \ (2) Enforce the '\u226595% valid connected graphs within 10 attempts' edge case\
+    \ logic; (3) Explicitly fail the batch..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "enforce the '\u226595% valid connected graphs within 10 attempts' edge\
+    \ case logic"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T20:12:39Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: stratification bins list containing 0.1, 0.2, 0.3, 0.4, and 0.5
+  claim_id: c_585acaf7
+  context: 'Define stratification configuration in code/config.yaml under stratification_params:
+    keys bins (list of floats: 0.1, 0.2, 0.3, 0.4, 0.5), target_counts (dict mapping
+    bin to count), and tolerance (float).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'bins (list of floats: 0.1, 0.2, 0.3, 0.4, 0.5)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T20:13:08Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: 100 simulation steps completed in less than 60 minutes
+  claim_id: c_b1a3d8ce
+  context: This task MUST measure per-step execution time and explicitly validate
+    FR-010 (100 steps < 60 mins) in the full pipeline context, using the timeout enforcement
+    logic from T080.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/100_simulation_steps_completed_in_less_than_60_minutes
+  kind: magnitude
+  raw_text: 100 steps < 60 mins
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T20:13:30Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: statistical power analysis target power greater than or equal to 0.8
+  claim_id: c_6e08fdad
+  context: "Implement statistical power analysis in code/src/analysis/power.py. Verification:\
+    \ Include a verification step to ensure the resulting power_analysis_report.json\
+    \ meets the target power (\u22650.8) or explicitly documents the batch size adjustment\
+    \ if the 6-hour limit is reached."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_analysis_target_power_greater_than_or_equa
+  kind: magnitude
+  raw_text: "resulting power_analysis_report.json meets the target power (\u22650.8)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T20:13:54Z'
+- artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: visualization figures generated with at least 300 DPI resolution
+  claim_id: c_e7791e95
+  context: "This task MUST generate the required + PNG figures (scatter plots, heat\
+    \ maps) with \u2265300 DPI resolution. It MUST read from aggregated_results.json\
+    \ and sensitivity_sweep.json to ensure figures reflect the final corrected data."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Visualization_figures_generated_with_at_least_300_DPI_resolu
+  kind: magnitude
+  raw_text: "generate the required + PNG figures (scatter plots, heat maps) with \u2265\
+    300 DPI resolution"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T20:14:18Z'

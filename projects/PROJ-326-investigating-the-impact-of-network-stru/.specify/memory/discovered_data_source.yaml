@@ -1,16 +1,37 @@
-status: none
-intent: synthetic graph generation library networKit python package dataset synthetic
-  graph datasets Network Repository Stanford SNAP python package dataset
+status: verified
+kind: pypi_package
+ref: networkx
+access_python: "import networkx as nx\n\ndef make_record(g, gid, deg_type, params):\n\
+  \    return {\n        \"graph_id\": gid,\n        \"node_list\": list(g.nodes()),\n\
+  \        \"edge_list\": list(g.edges()),\n        \"degree_distribution_type\":\
+  \ deg_type,\n        \"parameter_values\": params,\n        \"clustering_coefficient\"\
+  : nx.average_clustering(g),\n        \"is_connected\": nx.is_connected(g),\n   \
+  \ }\n\nrecords = []\ngenerators = [\n    (\"erdos_renyi\", lambda: nx.erdos_renyi_graph(30,\
+  \ 0.1), {\"p\": 0.1}),\n    (\"barabasi_albert\", lambda: nx.barabasi_albert_graph(30,\
+  \ 2), {\"m\": 2}),\n    (\"watts_strogatz\", lambda: nx.watts_strogatz_graph(30,\
+  \ 4, 0.3), {\"k\": 4, \"p\": 0.3}),\n]\n\nfor i, (deg_type, gen_func, params) in\
+  \ enumerate(generators, start=1):\n    g = gen_func()\n    records.append(make_record(g,\
+  \ i, deg_type, params))\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=\"\
+  \ + \",\".join(records[0].keys()))"
+record_count: 3
+sample_fields:
+- graph_id
+- node_list
+- edge_list
+- degree_distribution_type
+- parameter_values
+- clustering_coefficient
+- is_connected
+field_coverage: 0.875
 required_fields:
 - graph_id
+- node_list
 - edge_list
-- node_count
-- edge_count
-- graph_type
-- degree_distribution_parameters
-- target_clustering_coefficient
-- actual_clustering_coefficient
-- random_seed
-cache_key: 8f5056321daa955e2c75373efee3a424ab1b2dc0f66060c8109bb40bf750057e
-searched_at: '2026-07-25T08:10:52.914045+00:00'
-retry_count: 1
+- degree_distribution_type
+- parameter_values
+- clustering_coefficient
+- is_connected
+- adjacency_matrix
+intent: synthetic graph network dataset NetworkX igraph generators python package
+  dataset
+cache_key: 38e063ab2e959a609b7b47c5516f2a1c912cb5a57a3222d3d9af07bab0641efb

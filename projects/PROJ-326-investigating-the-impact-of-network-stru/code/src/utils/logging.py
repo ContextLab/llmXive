@@ -1,126 +1,95 @@
-"""
-Logging infrastructure for the simulation pipeline.
-"""
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import fcntl
+
+# Configuration
+LOG_FILE_PATH = Path("data/run_log.json")
 
 # Ensure data directory exists
-DATA_DIR = Path("data")
-DATA_DIR.mkdir(exist_ok=True)
+LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-RUN_LOG_PATH = DATA_DIR / "run_log.json"
+def init_logging() -> None:
+    """Initialize the logging infrastructure.
+    
+    Creates an empty run_log.json if it does not exist.
+    Sets up standard logging to console.
+    """
+    if not LOG_FILE_PATH.exists():
+        with open(LOG_FILE_PATH, 'w') as f:
+            json.dump([], f)
+    
+    # Configure standard logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-# Configure basic logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("data/simulation.log")
-    ]
-)
-
-logger = logging.getLogger(__name__)
-
-
-def get_run_log() -> List[Dict[str, Any]]:
-    """Load the existing run log or return an empty list if it doesn't exist."""
-    if not RUN_LOG_PATH.exists():
+def _load_log() -> List[Dict[str, Any]]:
+    """Load the current run log from disk."""
+    if not LOG_FILE_PATH.exists():
         return []
     try:
-        with open(RUN_LOG_PATH, "r") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError):
-        logger.warning(f"Could not read {RUN_LOG_PATH}; initializing empty log.")
+        with open(LOG_FILE_PATH, 'r') as f:
+            content = f.read().strip()
+            if not content:
+                return []
+            return json.loads(content)
+    except json.JSONDecodeError:
+        logging.error(f"Failed to decode {LOG_FILE_PATH}. Returning empty log.")
         return []
 
+def _save_log(log_data: List[Dict[str, Any]]) -> None:
+    """Save the run log to disk with file locking for safety."""
+    with open(LOG_FILE_PATH, 'w') as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        try:
+            json.dump(log_data, f, indent=2)
+        finally:
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
 
-def save_run_log(log_data: List[Dict[str, Any]]):
-    """Save the run log to disk."""
-    with open(RUN_LOG_PATH, "w") as f:
-        json.dump(log_data, f, indent=2)
-
-
-def log_run(
-    event_type: str,
-    run_id: str,
-    seed: int,
-    status: str,
-    duration_seconds: float,
-    metadata: Optional[Dict[str, Any]] = None
-):
-    """
-    Log a run event to the run log file.
+def log_metric(event: Dict[str, Any]) -> None:
+    """Append a validated entry to the run log.
     
     Args:
-        event_type: Type of event (e.g., 'graph_generated', 'simulation_start').
-        run_id: Unique identifier for the run.
-        seed: Random seed used.
-        status: Status of the run (e.g., 'success', 'failed').
-        duration_seconds: Duration of the run.
-        metadata: Optional additional metadata.
-    """
-    log_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "event_type": event_type,
-        "run_id": run_id,
-        "seed": seed,
-        "status": status,
-        "duration_seconds": duration_seconds
-    }
-    if metadata:
-        log_entry["metadata"] = metadata
+        event: Dictionary containing log entry data.
+               Required keys: timestamp, event_type, run_id, seed, status, duration_seconds.
     
-    log_data = get_run_log()
-    log_data.append(log_entry)
-    save_run_log(log_data)
-    logger.info(f"Logged event: {event_type} for run {run_id}")
-
-
-def log_metric(
-    event_type: str,
-    run_id: str,
-    seed: int,
-    status: str,
-    duration_seconds: float,
-    extra_fields: Optional[Dict[str, Any]] = None
-):
+    Raises:
+        ValueError: If required keys are missing or types are invalid.
     """
-    Log a metric event to the run log file.
+    required_keys = {'timestamp', 'event_type', 'run_id', 'seed', 'status', 'duration_seconds'}
+    if not required_keys.issubset(event.keys()):
+        missing = required_keys - set(event.keys())
+        raise ValueError(f"Log entry missing required keys: {missing}")
     
-    Args:
-        event_type: Type of event (e.g., 'simulation_end', 'divergence_detected').
-        run_id: Unique identifier for the run.
-        seed: Random seed used.
-        status: Status of the run.
-        duration_seconds: Duration of the run.
-        extra_fields: Optional additional fields to log.
-    """
-    log_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "event_type": event_type,
-        "run_id": run_id,
-        "seed": seed,
-        "status": status,
-        "duration_seconds": duration_seconds
-    }
-    if extra_fields:
-        log_entry.update(extra_fields)
+    # Validate event_type enum
+    valid_event_types = {'graph_generated', 'simulation_start', 'simulation_end', 'divergence_detected', 'timeout_reached'}
+    if event['event_type'] not in valid_event_types:
+        raise ValueError(f"Invalid event_type: {event['event_type']}. Must be one of {valid_event_types}")
     
-    log_data = get_run_log()
-    log_data.append(log_entry)
-    save_run_log(log_data)
-    logger.info(f"Logged metric: {event_type} for run {run_id}")
+    # Validate types
+    if not isinstance(event['timestamp'], str):
+        raise ValueError("timestamp must be a string (ISO 8601)")
+    if not isinstance(event['run_id'], str):
+        raise ValueError("run_id must be a string")
+    if not isinstance(event['seed'], int):
+        raise ValueError("seed must be an integer")
+    if not isinstance(event['status'], str):
+        raise ValueError("status must be a string")
+    if not isinstance(event['duration_seconds'], (int, float)):
+        raise ValueError("duration_seconds must be a number")
 
+    # Load existing log, append, and save
+    log_data = _load_log()
+    log_data.append(event)
+    _save_log(log_data)
 
-def initialize_logging():
-    """Initialize logging infrastructure and ensure run_log.json exists."""
-    if not RUN_LOG_PATH.exists():
-        save_run_log([])
-        logger.info(f"Initialized empty run log at {RUN_LOG_PATH}")
-    else:
-        logger.info(f"Run log already exists at {RUN_LOG_PATH}")
+    logging.info(f"Logged event: {event['event_type']} for run {event['run_id']}")
+
+def get_run_log() -> List[Dict[str, Any]]:
+    """Retrieve the full run log."""
+    return _load_log()

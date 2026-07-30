@@ -11,3 +11,6 @@ statsmodels>=0.14.0
 scikit-learn>=1.2.0
 pillow>=9.0.0
 fonttools>=4.0.0
+jsonschema  # auto-added: imported by run-book but missing from venv
+pytest_cov  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
