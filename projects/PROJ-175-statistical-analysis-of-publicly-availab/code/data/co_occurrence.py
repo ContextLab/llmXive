@@ -4,157 +4,163 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Ensure the project root is in the path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-def load_epsilon_config(config_path: str) -> float:
-    """Load epsilon value from T049 config."""
-    try:
-        with open(config_path, 'r') as f:
-            config = json.load(f)
-        return float(config.get('epsilon', 1e-10))
-    except FileNotFoundError:
-        logger.warning(f"Epsilon config not found at {config_path}. Using default 1e-10.")
-        return 1e-10
-
-def load_ingredient_pairs(input_path: str) -> pd.DataFrame:
+def load_epsilon_config():
     """
-    Load the ingredient pair counts from T013 output.
-    Expected schema: ingredient_id_1, ingredient_id_2, count (or similar).
+    Loads the epsilon value from the configuration file generated in T049.
+    Falls back to 1e-6 if not found, but logs a warning.
     """
-    if not os.path.exists(input_path):
+    config_path = Path("data/epsilon_config.json")
+    default_epsilon = 1e-6
+    
+    if config_path.exists():
+        try:
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+                return config.get('epsilon', default_epsilon)
+        except (json.JSONDecodeError, KeyError):
+            print(f"Warning: Could not parse epsilon from {config_path}, using default.")
+            return default_epsilon
+    else:
+        print(f"Warning: {config_path} not found, using default epsilon.")
+        return default_epsilon
+
+def load_ingredient_pairs(input_path):
+    """
+    Loads the pairwise co-occurrence counts from the parquet file generated in T013c.
+    Expected columns: ingredient_id_1, ingredient_id_2, count
+    """
+    path = Path(input_path)
+    if not path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    df = pd.read_parquet(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    df = pd.read_parquet(path)
+    required_cols = {'ingredient_id_1', 'ingredient_id_2', 'count'}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        raise ValueError(f"Input file missing required columns: {missing}")
     
-    # Normalize column names if necessary (handle potential variations)
-    cols = df.columns.str.lower()
-    if 'count' not in cols and 'frequency' not in cols:
-        # Assume the last column is the count if not named explicitly
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) > 0:
-            count_col = numeric_cols[-1]
-            df.rename(columns={count_col: 'count'}, inplace=True)
-        else:
-            raise ValueError("Could not identify count column in input parquet.")
-    elif 'frequency' in cols and 'count' not in cols:
-        df.rename(columns={'frequency': 'count'}, inplace=True)
-        
     return df
 
-def build_cooccurrence_matrix(df: pd.DataFrame, epsilon: float) -> tuple:
+def build_cooccurrence_matrix(df, epsilon):
     """
-    Build the global co-occurrence matrix C.
-    C[i, j] = log(count[i, j] + epsilon)
+    Builds the global co-occurrence matrix C from the pairwise counts.
+    Applies a log-transform: log(count + epsilon).
     
     Returns:
-      matrix_df: DataFrame with index and columns as ingredient IDs, values as log counts.
-      stats: Dict of matrix statistics.
+        pd.DataFrame: The log-transformed co-occurrence matrix.
+        dict: Statistics about the matrix (dimensions, sparsity, etc.)
     """
-    if df.empty:
-        raise ValueError("Input DataFrame is empty. Cannot build matrix.")
-
-    # Pivot to create matrix
-    # Ensure we have the right columns
-    if 'ingredient_id_1' not in df.columns or 'ingredient_id_2' not in df.columns or 'count' not in df.columns:
-        # Try to infer or raise
-        raise ValueError(f"Expected columns ['ingredient_id_1', 'ingredient_id_2', 'count']. Found: {df.columns.tolist()}")
-
-    # Pivot
-    matrix = df.pivot_table(
-        index='ingredient_id_1',
-        columns='ingredient_id_2',
-        values='count',
-        aggfunc='sum',
-        fill_value=0
-    )
-
-    # Apply log transform with epsilon
-    # Avoid log(0) by adding epsilon
-    matrix_log = np.log(matrix + epsilon)
-
-    # Calculate stats
-    total_cells = matrix_log.size
-    non_zero_cells = (matrix_log > 0).sum().sum()
-    sparsity = 1.0 - (non_zero_cells / total_cells) if total_cells > 0 else 1.0
-    mean_val = matrix_log.mean().mean()
-    max_val = matrix_log.max().max()
-    min_val = matrix_log.min().min()
-
-    stats = {
-        "dimensions": list(matrix_log.shape),
-        "total_cells": int(total_cells),
-        "non_zero_cells": int(non_zero_cells),
-        "sparsity": float(sparsity),
-        "mean_log_count": float(mean_val),
-        "max_log_count": float(max_val),
-        "min_log_count": float(min_val),
-        "epsilon_used": float(epsilon)
-    }
-
-    # Convert to DataFrame for saving
-    matrix_df = matrix_log.reset_index()
-    matrix_df.columns = ['ingredient_id_1'] + [f'ingredient_id_{i}' for i in range(1, len(matrix_df.columns) + 1)]
+    # Pivot the dataframe to create the matrix
+    # We assume the data is symmetric or we treat (A,B) and (B,A) as the same edge.
+    # For the matrix, we want a square matrix where index/cols are unique ingredients.
     
-    # Actually, standard parquet save for matrix usually keeps index as column or separate.
-    # Let's keep it as a wide table where index is ingredient_id_1 and columns are ingredient_id_2
-    matrix_df = matrix_log.reset_index()
+    # Ensure unique ingredients list
+    ingredients = sorted(set(df['ingredient_id_1']).union(set(df['ingredient_id_2'])))
+    n = len(ingredients)
+    
+    # Create a mapping from ingredient to index
+    idx_map = {ing: i for i, ing in enumerate(ingredients)}
+    
+    # Initialize matrix with zeros
+    matrix = np.zeros((n, n), dtype=np.float32)
+    
+    # Fill the matrix
+    # We iterate through the dataframe rows. If the data is not symmetric, 
+    # we might need to aggregate or just fill both (i,j) and (j,i).
+    # Assuming the input T013c output contains unique pairs (i,j) with i <= j or similar.
+    # To be safe, we fill both symmetric positions if we want a symmetric matrix,
+    # or just fill the specific entries provided.
+    # Standard co-occurrence matrices in this context are usually symmetric.
+    
+    for _, row in df.iterrows():
+        i = idx_map[row['ingredient_id_1']]
+        j = idx_map[row['ingredient_id_2']]
+        val = row['count']
+        
+        # Apply log transform
+        log_val = np.log(val + epsilon)
+        
+        matrix[i, j] = log_val
+        matrix[j, i] = log_val # Ensure symmetry if input is directed or partial
+
+    # Convert to DataFrame for easier handling and saving
+    matrix_df = pd.DataFrame(matrix, index=ingredients, columns=ingredients)
+    
+    # Calculate statistics
+    total_cells = n * n
+    non_zero = np.count_nonzero(matrix)
+    sparsity = 1.0 - (non_zero / total_cells)
+    
+    stats = {
+        "dimensions": [n, n],
+        "total_cells": int(total_cells),
+        "non_zero_entries": int(non_zero),
+        "sparsity": float(sparsity),
+        "min_value": float(np.min(matrix)),
+        "max_value": float(np.max(matrix)),
+        "mean_value": float(np.mean(matrix[matrix > 0])) if non_zero > 0 else 0.0,
+        "epsilon_used": float(epsilon),
+        "ingredient_count": n
+    }
     
     return matrix_df, stats
 
-def save_output(matrix_df: pd.DataFrame, stats: dict, output_matrix_path: str, output_stats_path: str):
-    """Save the matrix and stats to disk."""
+def save_output(matrix_df, stats, output_matrix_path, output_stats_path):
+    """
+    Saves the matrix to parquet and the stats to JSON.
+    """
     # Ensure output directories exist
     Path(output_matrix_path).parent.mkdir(parents=True, exist_ok=True)
     Path(output_stats_path).parent.mkdir(parents=True, exist_ok=True)
-
+    
     # Save matrix
-    matrix_df.to_parquet(output_matrix_path, index=False)
-    logger.info(f"Saved co-occurrence matrix to {output_matrix_path}")
-
+    matrix_df.to_parquet(output_matrix_path, index=True)
+    
     # Save stats
     with open(output_stats_path, 'w') as f:
         json.dump(stats, f, indent=2)
-    logger.info(f"Saved matrix stats to {output_stats_path}")
 
 def main():
-    """Main entry point for T015."""
-    # Paths based on task description
-    input_path = "data/raw/recipe1m_counts.parquet"
-    epsilon_config_path = "data/zero_handling_log.json" # T049 output
+    """
+    Main entry point for T015: Co-occurrence Matrix generation.
+    """
+    print("Starting T015: Co-occurrence Matrix Generation")
+    
+    # Paths
+    input_path = "data/raw/co_occurrence_counts.parquet"
     output_matrix_path = "data/processed/co_occurrence_matrix.parquet"
     output_stats_path = "data/matrix_stats.json"
-
-    logger.info(f"Starting T015: Co-occurrence Matrix Construction")
-    logger.info(f"Input: {input_path}")
     
-    # 1. Load Epsilon
-    epsilon = load_epsilon_config(epsilon_config_path)
-    logger.info(f"Using epsilon: {epsilon}")
-
-    # 2. Load Counts
+    # Load Config
+    epsilon = load_epsilon_config()
+    print(f"Using epsilon: {epsilon}")
+    
+    # Load Data
     try:
         df = load_ingredient_pairs(input_path)
+        print(f"Loaded {len(df)} pairwise co-occurrence records.")
     except FileNotFoundError as e:
-        logger.error(f"Failed to load input data: {e}")
+        print(f"Error: {e}")
         sys.exit(1)
-
-    # 3. Build Matrix
-    try:
-        matrix_df, stats = build_cooccurrence_matrix(df, epsilon)
-    except ValueError as e:
-        logger.error(f"Failed to build matrix: {e}")
-        sys.exit(1)
-
-    # 4. Save Output
+    
+    # Build Matrix
+    print("Building co-occurrence matrix...")
+    matrix_df, stats = build_cooccurrence_matrix(df, epsilon)
+    
+    # Save Output
     save_output(matrix_df, stats, output_matrix_path, output_stats_path)
-
-    logger.info("T015 completed successfully.")
-    print(json.dumps(stats))
+    
+    print(f"Matrix saved to {output_matrix_path}")
+    print(f"Stats saved to {output_stats_path}")
+    print(f"Matrix Stats: {stats['dimensions']} with sparsity {stats['sparsity']:.4f}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

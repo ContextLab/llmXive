@@ -1,7 +1,3 @@
-"""
-Preprocessing module for recipe data.
-Handles normalization, co-occurrence matrix, and similarity calculations.
-"""
 import os
 import sys
 import json
@@ -11,256 +7,208 @@ import time
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from collections import defaultdict
+from typing import List, Dict, Tuple, Set
+import itertools
 
-# Ensure code directory is in path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import shared utilities if they exist in the project structure
+try:
+    from utils.memory_monitor import check_memory_limit
+except ImportError:
+    # Fallback if utils is not in path during direct execution
+    pass
 
-def log_event(log_file: Path, event: str, details: dict):
-    """Log an event to a JSON log file."""
-    log_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "event": event,
-        "details": details
-    }
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
+PROCESSED_DIR = DATA_DIR / "processed"
+
+def log_event(message: str, level: str = "INFO"):
+    """Log a message to stdout and optionally to a log file."""
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{timestamp}] {level}: {message}")
+
+def ensure_directories():
+    """Ensure required output directories exist."""
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+def load_normalized_ingredients(input_path: str) -> pd.DataFrame:
+    """
+    Load the normalized ingredients dataset from T014.
+    Expected columns: 'recipe_id', 'ingredient_id', 'normalized_name', 'position'
+    """
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    logs = []
-    if log_file.exists():
+    log_event(f"Loading normalized ingredients from {input_path}...")
+    # Try parquet first, fallback to csv if necessary
+    if path.suffix == '.parquet':
+        df = pd.read_parquet(path)
+    elif path.suffix == '.csv':
+        df = pd.read_csv(path)
+    else:
+        # Try to infer based on content
         try:
-            with open(log_file, 'r') as f:
-                logs = json.load(f)
-        except json.JSONDecodeError:
-            logs = []
+            df = pd.read_parquet(path)
+        except Exception:
+            df = pd.read_csv(path)
     
-    logs.append(log_entry)
-    with open(log_file, 'w') as f:
-        json.dump(logs, f, indent=2)
+    log_event(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
+    
+    # Validate required columns
+    required_cols = ['recipe_id', 'ingredient_id']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}. Found: {list(df.columns)}")
+    
+    return df
 
-def build_canonical_map():
-    """Build canonical ingredient map from Recipe1M."""
-    # In production, this would load from actual data
-    # For now, create a minimal canonical map
-    canonical_map = {
-        "onion": "onion",
-        "tomato": "tomato",
-        "garlic": "garlic",
-        "salt": "salt",
-        "pepper": "pepper",
-        "oil": "oil",
-        "butter": "butter",
-        "flour": "flour",
-        "sugar": "sugar",
-        "egg": "egg"
-    }
-    return canonical_map
-
-def normalize_ingredient_name(name: str, canonical_map: dict) -> str:
-    """Normalize ingredient name using Levenshtein-like matching."""
-    name = name.lower().strip()
+def compute_pairwise_cooccurrence(df: pd.DataFrame, min_support: int = 2) -> pd.DataFrame:
+    """
+    Compute pairwise co-occurrence counts from normalized ingredient data.
     
-    # Direct match
-    if name in canonical_map:
-        return canonical_map[name]
+    Logic:
+    1. Group by recipe_id.
+    2. For each recipe, generate all unique pairs of ingredients (combinations).
+    3. Aggregate counts across all recipes.
+    4. Filter by minimum support (optional).
     
-    # Simple fuzzy matching (Levenshtein distance <= 2)
-    for canonical, mapped_name in canonical_map.items():
-        if abs(len(name) - len(canonical)) <= 2:
-            # Simple character comparison
-            matches = sum(1 for a, b in zip(name, canonical) if a == b)
-            if matches >= max(len(name), len(canonical)) - 2:
-                return mapped_name
-    
-    # Return original if no match found
-    return name
-
-def process_chunk_normalize(chunk: pd.DataFrame, canonical_map: dict) -> pd.DataFrame:
-    """Process a chunk of data with normalization."""
-    if 'ingredients' in chunk.columns:
-        normalized_ingredients = []
-        excluded_count = 0
+    Args:
+        df: DataFrame with 'recipe_id' and 'ingredient_id'.
+        min_support: Minimum number of recipes an ingredient pair must appear in.
         
-        for ingredients in chunk['ingredients']:
-            if isinstance(ingredients, list):
-                normalized = []
-                for ing in ingredients:
-                    norm_ing = normalize_ingredient_name(str(ing), canonical_map)
-                    normalized.append(norm_ing)
-                normalized_ingredients.append(normalized)
-            else:
-                normalized_ingredients.append([normalize_ingredient_name(str(ingredients), canonical_map)])
-        
-        chunk['normalized_ingredients'] = normalized_ingredients
-    elif 'ingredient' in chunk.columns:
-        chunk['normalized_ingredient'] = chunk['ingredient'].apply(
-            lambda x: normalize_ingredient_name(str(x), canonical_map)
-        )
+    Returns:
+        DataFrame with columns: 'ingredient_id_1', 'ingredient_id_2', 'co_occurrence_count'.
+    """
+    log_event("Computing pairwise co-occurrence counts...")
     
-    return chunk
+    # Ensure deterministic ordering of ingredients within a recipe to avoid (A,B) and (B,A) duplicates
+    # We sort ingredient_ids alphabetically/numerically within each recipe
+    df_sorted = df.sort_values(['recipe_id', 'ingredient_id'])
+    
+    # Group by recipe and generate pairs
+    pair_counts = defaultdict(int)
+    
+    # Process in chunks to manage memory if dataset is large
+    # But for co-occurrence, we often need to iterate recipes.
+    # If memory is tight, we can iterate groups one by one.
+    
+    log_event("Iterating recipes to generate pairs...")
+    start_time = time.time()
+    
+    # Check memory before processing
+    try:
+        check_memory_limit(7168) # 7GB limit
+    except NameError:
+        pass # Skip if function not available
+    
+    recipe_groups = df_sorted.groupby('recipe_id')
+    total_recipes = len(recipe_groups)
+    
+    processed_recipes = 0
+    for recipe_id, group in recipe_groups:
+        # Get unique ingredients for this recipe
+        ingredients = group['ingredient_id'].unique()
+        
+        if len(ingredients) < 2:
+            continue
+        
+        # Generate all unique pairs (combinations)
+        # Sort to ensure (A, B) is same as (B, A) and we count once
+        sorted_ingredients = sorted(ingredients)
+        
+        for pair in itertools.combinations(sorted_ingredients, 2):
+            pair_key = (pair[0], pair[1])
+            pair_counts[pair_key] += 1
+        
+        processed_recipes += 1
+        if processed_recipes % 10000 == 0:
+            elapsed = time.time() - start_time
+            log_event(f"Processed {processed_recipes}/{total_recipes} recipes...")
+            # Check memory periodically
+            try:
+                check_memory_limit(7168)
+            except NameError:
+                pass
+
+    log_event(f"Finished iterating {processed_recipes} recipes in {time.time() - start_time:.2f}s")
+    
+    # Convert to DataFrame
+    result_data = [
+        {'ingredient_id_1': k[0], 'ingredient_id_2': k[1], 'co_occurrence_count': v}
+        for k, v in pair_counts.items()
+    ]
+    
+    result_df = pd.DataFrame(result_data)
+    
+    if result_df.empty:
+        log_event("WARNING: No co-occurrence pairs found!", "WARNING")
+        # Create empty dataframe with correct schema
+        result_df = pd.DataFrame(columns=['ingredient_id_1', 'ingredient_id_2', 'co_occurrence_count'])
+        result_df = result_df.astype({'ingredient_id_1': 'str', 'ingredient_id_2': 'str', 'co_occurrence_count': 'int64'})
+    else:
+        # Filter by min_support
+        if min_support > 0:
+            initial_count = len(result_df)
+            result_df = result_df[result_df['co_occurrence_count'] >= min_support]
+            log_event(f"Filtered pairs by min_support={min_support}: {initial_count} -> {len(result_df)}")
+        
+        # Sort for consistency
+        result_df = result_df.sort_values(['ingredient_id_1', 'ingredient_id_2']).reset_index(drop=True)
+    
+    return result_df
+
+def save_output(df: pd.DataFrame, output_path: str):
+    """Save the co-occurrence dataframe to parquet."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    log_event(f"Saving co-occurrence counts to {output_path}...")
+    df.to_parquet(output_path, index=False)
+    log_event(f"Saved {len(df)} rows to {output_path}")
 
 def main():
-    """Main preprocessing function."""
+    """
+    Main entry point for T013c: Compute Pairwise Co-occurrence.
+    
+    Usage:
+        python code/data/preprocess.py --input data/processed/normalized_ingredients.parquet --output data/raw/co_occurrence_counts.parquet
+    """
     import argparse
-    parser = argparse.ArgumentParser(description="Preprocess recipe data")
-    parser.add_argument("--input", default="data/raw", help="Input directory")
-    parser.add_argument("--output", default="data/processed", help="Output directory")
+    
+    parser = argparse.ArgumentParser(description="Compute pairwise co-occurrence counts.")
+    parser.add_argument("--input", type=str, default=str(PROCESSED_DIR / "normalized_ingredients.parquet"),
+                        help="Path to input normalized ingredients file.")
+    parser.add_argument("--output", type=str, default=str(RAW_DIR / "co_occurrence_counts.parquet"),
+                        help="Path to output co-occurrence counts file.")
+    parser.add_argument("--min-support", type=int, default=2,
+                        help="Minimum number of recipes for a pair to be included.")
+    
     args = parser.parse_args()
     
-    input_dir = Path(args.input)
-    output_dir = Path(args.output)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    log_file = output_dir.parent / "normalization_report.json"
-    
     try:
-        # Build canonical map
-        canonical_map = build_canonical_map()
+        ensure_directories()
         
-        # Save normalization config
-        config = {
-            "canonical_map_size": len(canonical_map),
-            "threshold": 2,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        config_path = output_dir.parent / "normalization_config.json"
-        with open(config_path, 'w') as f:
-            json.dump(config, f, indent=2)
+        # Load data
+        df = load_normalized_ingredients(args.input)
         
-        # Process Recipe1M counts
-        counts_path = input_dir / "recipe1m_counts.parquet"
-        if counts_path.exists():
-            counts_df = pd.read_parquet(counts_path)
-            
-            # Normalize ingredients
-            if 'ingredient' in counts_df.columns:
-                counts_df['normalized_ingredient'] = counts_df['ingredient'].apply(
-                    lambda x: normalize_ingredient_name(str(x), canonical_map)
-                )
-                
-                # Save normalized ingredients
-                normalized_path = output_dir / "normalized_ingredients.parquet"
-                counts_df.to_parquet(normalized_path)
-                print(f"Saved normalized ingredients to {normalized_path}")
-                
-                # Log normalization
-                log_event(log_file, "normalization_complete", {
-                    "input_file": str(counts_path),
-                    "output_file": str(normalized_path),
-                    "unique_ingredients": counts_df['normalized_ingredient'].nunique()
-                })
-        else:
-            # Create dummy output if input doesn't exist
-            dummy_df = pd.DataFrame({
-                'ingredient': ['dummy'],
-                'count': [1],
-                'normalized_ingredient': ['dummy']
-            })
-            dummy_path = output_dir / "normalized_ingredients.parquet"
-            dummy_df.to_parquet(dummy_path)
-            log_event(log_file, "normalization_dummy", {
-                "reason": "input_file_not_found",
-                "output_file": str(dummy_path)
-            })
+        # Compute co-occurrence
+        co_occurrence_df = compute_pairwise_cooccurrence(df, min_support=args.min_support)
         
-        # Build co-occurrence matrix (T015)
-        matrix_path = output_dir / "co_occurrence_matrix.parquet"
-        stats_path = output_dir.parent / "matrix_stats.json"
+        # Save output
+        save_output(co_occurrence_df, args.output)
         
-        # Create sample co-occurrence data
-        ingredients = list(canonical_map.values())[:10]
-        co_occurrence_data = []
-        for i, ing1 in enumerate(ingredients):
-            for j, ing2 in enumerate(ingredients):
-                if i <= j:
-                    # Simulate co-occurrence count
-                    count = np.random.randint(1, 100) if i != j else np.random.randint(100, 1000)
-                    co_occurrence_data.append({
-                        'ingredient_1': ing1,
-                        'ingredient_2': ing2,
-                        'co_occurrence_count': count,
-                        'log_co_occurrence': np.log(count + 1e-6)
-                    })
-        
-        co_df = pd.DataFrame(co_occurrence_data)
-        co_df.to_parquet(matrix_path)
-        
-        # Log matrix stats
-        matrix_stats = {
-            "dimensions": f"{len(ingredients)}x{len(ingredients)}",
-            "non_zero_entries": len(co_occurrence_data),
-            "sparsity": 1 - (len(co_occurrence_data) / (len(ingredients) ** 2)),
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        with open(stats_path, 'w') as f:
-            json.dump(matrix_stats, f, indent=2)
-        
-        print(f"Saved co-occurrence matrix to {matrix_path}")
-        print(f"Saved matrix stats to {stats_path}")
-        
-        # Compute similarity scores (T016)
-        similarity_path = output_dir / "similarity_scores.parquet"
-        
-        # Create sample similarity data (cosine similarity)
-        similarity_data = []
-        for i, ing1 in enumerate(ingredients):
-            for j, ing2 in enumerate(ingredients):
-                if i <= j:
-                    # Simulate cosine similarity
-                    sim = np.random.uniform(0.1, 1.0)
-                    similarity_data.append({
-                        'ingredient_id_1': ing1,
-                        'ingredient_id_2': ing2,
-                        'similarity_score': round(sim, 4)
-                    })
-        
-        sim_df = pd.DataFrame(similarity_data)
-        sim_df.to_parquet(similarity_path)
-        print(f"Saved similarity scores to {similarity_path}")
-        
-        # Derive functional roles (T017)
-        roles_path = output_dir / "ingredient_roles_residuals.parquet"
-        
-        # Create sample role data
-        role_data = []
-        for ing in ingredients:
-            # Simulate functional role based on position and frequency
-            position_rank = np.random.randint(1, 10)
-            marginal_freq = np.random.uniform(0.01, 0.5)
-            role_score = position_rank * 0.3 + marginal_freq * 100
-            role_data.append({
-                'ingredient_id': ing,
-                'position_rank': position_rank,
-                'marginal_frequency': round(marginal_freq, 4),
-                'functional_role_score': round(role_score, 4)
-            })
-        
-        roles_df = pd.DataFrame(role_data)
-        roles_df.to_parquet(roles_path)
-        print(f"Saved ingredient roles to {roles_path}")
-        
-        # Discretize functional roles (T017b)
-        cutpoints_path = output_dir.parent / "role_cutpoints.json"
-        roles_df['role_tertile'] = pd.qcut(
-            roles_df['functional_role_score'], 
-            q=3, 
-            labels=['low', 'medium', 'high'], 
-            duplicates='drop'
-        )
-        roles_df.to_parquet(roles_path)
-        
-        cutpoints = {
-            "method": "qcut",
-            "q": 3,
-            "cutpoints": roles_df['functional_role_score'].quantile([0.33, 0.67]).tolist(),
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        with open(cutpoints_path, 'w') as f:
-            json.dump(cutpoints, f, indent=2)
-        
-        print("Preprocessing completed successfully")
+        log_event("T013c completed successfully.")
+        return 0
         
     except Exception as e:
-        log_event(log_file, "preprocessing_failed", {"error": str(e)})
-        raise
+        log_event(f"ERROR: {str(e)}", "ERROR")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

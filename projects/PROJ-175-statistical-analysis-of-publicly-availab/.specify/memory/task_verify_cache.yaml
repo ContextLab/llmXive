@@ -1,9 +1,49 @@
 T008:
   c: false
-  h: 817b3b5be8c9e2c2cb330a45cc857f81d3fd44d50206b29115ea230d2a501c42
-  r: "The `data/power_analysis.json` file exists and contains the required fields,\
-    \ but the required second artifact `data/split_config.json` is missing, so the\
-    \ task\u2019s deliverables are not fully satisfied."
+  h: 62d421a91d3a45bd686d12b14335912a9a4a1bc0caf81b096c1b81a5d5548484
+  r: "The required input `data/raw/marginal_counts.parquet` is missing, yet the fallback\
+    \ rule specifies using a placeholder/conservative estimate for `N_unified` when\
+    \ variance cannot be estimated. The provided `data/power_analysis.json` contains\
+    \ a concrete value (15000) with no evidence that `statsmodels.stats.power.tt_ind_solve_power`\
+    \ was used, nor that the fallback placeholder was applied. The task\u2019s core\
+    \ requirement is therefore not satisfied."
+T013a:
+  c: false
+  h: 3254b731073e4c3e865c299ff391f4a5ce7603978064d7ba16cc9d39ec5c6d7b
+  r: "The repository contains `code/data/download.py`, but the required output file\
+    \ `data/raw/recipe1m_raw.parquet` is absent, and the provided code is truncated\
+    \ before showing the actual write\u2011to\u2011Parquet logic. Consequently the\
+    \ task\u2019s core deliverable (the streamed Parquet file with the correct schema)\
+    \ is not present. The next implementer must ensure the script fully streams the\
+    \ Recipe1M dataset and writes the resulting Parquet file to `data/raw/recipe1m_raw.parquet`,\
+    \ then verify its schema against T007."
+T013b:
+  c: false
+  h: 7be3c4f71f43d61d0cc5c1dad183929af2a555b632c9fd8702a4b52368e26594
+  r: "The required input `data/raw/recipe1m_raw.parquet` does not exist, and the expected\
+    \ output `data/raw/marginal_counts.parquet` is also missing. Moreover, the provided\
+    \ `code/data/preprocess.py` (partially shown) contains functions for loading normalized\
+    \ ingredients and computing pairwise co\u2011occurrence, but no implementation\
+    \ that reads the raw recipe parquet and writes marginal ingredient frequency counts.\
+    \ The task\u2019s core requirement is therefore unmet."
+T013c:
+  c: false
+  h: 80c9dfba8d94801cda3329c07ff5aec3a8692cbd754d2b2d56992d2eab2dd764
+  r: "The repository contains a partially\u2011written `code/data/preprocess.py`,\
+    \ but the file is truncated and does not show a complete implementation of the\
+    \ pairwise co\u2011occurrence computation. Moreover, the required input `data/processed/normalized_ingredients.parquet`\
+    \ and the expected output `data/raw/co_occurrence_counts.parquet` are both absent,\
+    \ so the script has not been run to produce the required artifact. The task therefore\
+    \ remains unfinished."
+T014:
+  c: false
+  h: 98c3550eb4bf8802f39ef39e3c82b40a74be727a552bc73efb58a3a0987b19a8
+  r: "The required raw data files (`data/raw/recipe1m_raw.parquet`, `data/raw/marginal_counts.parquet`)\
+    \ are absent, and the expected output parquet files (`data/processed/normalized_ingredients.parquet`,\
+    \ `data/processed/unique_ingredients.parquet`) were not generated. Moreover, `code/data/preprocess.py`\
+    \ does not contain the Levenshtein\u2011based normalization logic described in\
+    \ the task. The provided `normalization_report.json` reports zero processed items,\
+    \ indicating no real work was performed."
 T022:
   c: false
   h: 05ba5842e9e07e069c2587cbb2900003bc3b9ad42e01cdd3f13da667f4a537fc

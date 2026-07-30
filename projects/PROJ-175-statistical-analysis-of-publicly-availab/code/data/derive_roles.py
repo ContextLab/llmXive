@@ -1,9 +1,9 @@
 """
-T017: Functional Role Derivation
+T017: Functional Role Derivation.
+
 Derives functional role using 'positional rank' and 'marginal frequency' only.
 Explicitly excludes 'co-occurrence frequency' from derivation logic (FR-005).
-Output: data/processed/ingredient_roles_residuals.parquet
-Verification: Logs correlation between derived role and co-occurrence frequency (< 0.1).
+Checks for circularity correlation between derived role and co-occurrence frequency.
 """
 import os
 import sys
@@ -13,254 +13,232 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-# Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("data/role_derivation.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
-def load_marginal_frequencies(input_path: str) -> pd.DataFrame:
-    """
-    Loads marginal frequencies (frequency of single ingredient).
-    Expected source: data/raw/recipe1m_counts.parquet (aggregated by ingredient).
-    """
-    logger.info(f"Loading marginal frequencies from {input_path}")
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    df = pd.read_parquet(input_path)
-    
-    # Ensure we have ingredient_id and a frequency column
-    # If the file contains pair counts, we need to aggregate to marginal.
-    # Assuming recipe1m_counts.parquet has 'ingredient_id' and 'count' or similar.
-    if 'ingredient_id' not in df.columns:
-        # Try to infer or raise
-        cols = df.columns.tolist()
-        logger.warning(f"Expected 'ingredient_id' column. Found: {cols}")
-        # Fallback: assume first column is ingredient, second is count if names are generic
-        if len(cols) >= 2:
-            df = df.rename(columns={cols[0]: 'ingredient_id', cols[1]: 'marginal_frequency'})
-        else:
-            raise ValueError("Cannot determine ingredient ID or frequency column.")
-    
-    if 'marginal_frequency' not in df.columns:
-        # Check for common aliases
-        if 'count' in df.columns:
-            df['marginal_frequency'] = df['count']
-        elif 'frequency' in df.columns:
-            df['marginal_frequency'] = df['frequency']
-        else:
-            raise ValueError("Could not find marginal frequency column.")
-    
-    # Keep only necessary columns
-    result = df[['ingredient_id', 'marginal_frequency']].drop_duplicates()
-    logger.info(f"Loaded {len(result)} unique ingredients with marginal frequencies.")
-    return result
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+RAW_DIR = DATA_DIR / "raw"
 
-def load_positional_ranks(input_path: str) -> pd.DataFrame:
+def load_marginal_frequencies():
     """
-    Loads positional ranks.
-    Expected source: Pre-computed positional ranks per ingredient.
-    If not pre-computed, we might need to derive from raw recipe data,
-    but for this task, we assume a prepared file or derive from the count file if it implies position.
-    For T017, we assume 'positional_rank' is available or derivable.
-    If the input is just counts, we might need to simulate or fetch.
-    However, per task description, we assume these exist in processed data or can be derived.
-    Let's assume the input is a file with 'ingredient_id' and 'positional_rank'.
-    If the file is the same counts file, we might need to generate ranks based on frequency as a proxy
-    IF the "positional rank" refers to frequency rank. 
-    Clarification from Plan: "positional rank derived". Usually this means rank in the recipe (1st, 2nd, etc).
-    If we don't have recipe-level data here, we might use the rank of the ingredient by frequency as a proxy
-    OR we assume T014/T015 produced a file with positional ranks.
-    Given the constraints, I will load a file that is expected to exist: data/processed/positional_ranks.parquet
-    If not found, I will attempt to derive it from marginal frequencies (rank by frequency) as a fallback
-    ONLY IF the data is real, not synthetic.
+    Load marginal counts from T013b.
+    Input: data/raw/marginal_counts.parquet
     """
-    # Try specific file first
-    specific_path = Path(input_path).parent / "positional_ranks.parquet"
-    if os.path.exists(specific_path):
-        logger.info(f"Loading positional ranks from {specific_path}")
-        df = pd.read_parquet(specific_path)
-        if 'positional_rank' not in df.columns:
-            # Try to infer
-            cols = df.columns
-            if len(cols) >= 2:
-                df = df.rename(columns={cols[1]: 'positional_rank'})
-    else:
-        # Fallback: Derive rank from marginal frequency (Frequency Rank)
-        # This is a valid interpretation if "positional" refers to importance/frequency rank
-        logger.warning(f"Specific positional rank file not found. Deriving from marginal frequencies.")
-        df = load_marginal_frequencies(input_path)
-        # Sort by frequency descending and assign rank
-        df = df.sort_values('marginal_frequency', ascending=False).reset_index(drop=True)
-        df['positional_rank'] = df.index + 1
-        logger.info(f"Derived positional ranks for {len(df)} ingredients.")
-
-    if 'ingredient_id' not in df.columns:
-        raise ValueError("Positional ranks file must contain 'ingredient_id'.")
+    path = RAW_DIR / "marginal_counts.parquet"
+    if not path.exists():
+        raise FileNotFoundError(f"Required input file not found: {path}")
     
-    return df[['ingredient_id', 'positional_rank']]
-
-def load_co_occurrence_matrix(input_path: str) -> pd.DataFrame:
-    """
-    Loads co-occurrence matrix for verification purposes ONLY.
-    This is NOT used in the derivation logic (FR-005 constraint).
-    """
-    logger.info(f"Loading co-occurrence matrix for verification from {input_path}")
-    if not os.path.exists(input_path):
-        # If not found, we can't verify the correlation constraint, but we can still derive roles.
-        logger.warning(f"Co-occurrence matrix not found at {input_path}. Skipping verification step.")
-        return None
-    
-    df = pd.read_parquet(input_path)
-    # Ensure it has ingredient_id_1, ingredient_id_2, count (or similar)
+    df = pd.read_parquet(path)
+    logger.info(f"Loaded marginal counts: {len(df)} ingredients")
     return df
 
-def calculate_functional_role(marginal_df: pd.DataFrame, positional_df: pd.DataFrame) -> pd.DataFrame:
+def load_positional_ranks():
     """
-    Calculates functional role based on positional rank and marginal frequency.
-    Formula: Functional Role = f(positional_rank, marginal_frequency)
-    A simple weighted combination or rank-based aggregation.
-    Let's use a normalized score:
-    1. Normalize marginal_frequency (log transform to handle skew)
-    2. Normalize positional_rank (inverse, since lower rank = higher position)
-    3. Combine.
+    Load normalized ingredients which contain positional rank info from T014.
+    Input: data/processed/normalized_ingredients.parquet
+    Note: The normalized ingredients file should contain 'ingredient_id' and
+          potentially 'positional_rank' or 'recipe_length' if computed in T014.
+          If not, we compute it here assuming the file contains recipe-level
+          sequence data or we derive it from the marginal counts context.
+    
+    Based on T014 description, it outputs normalized_ingredients.parquet.
+    We assume it contains 'ingredient_id', 'positional_rank' (1-based index / recipe length).
+    If 'positional_rank' is missing, we compute a proxy or raise error if data structure unknown.
     """
-    logger.info("Calculating functional role...")
+    path = PROCESSED_DIR / "normalized_ingredients.parquet"
+    if not path.exists():
+        raise FileNotFoundError(f"Required input file not found: {path}")
     
-    # Merge
-    merged = pd.merge(marginal_df, positional_df, on='ingredient_id', how='inner')
+    df = pd.read_parquet(path)
+    logger.info(f"Loaded normalized ingredients: {len(df)} rows")
     
-    if merged.empty:
-        raise ValueError("No common ingredients between marginal frequencies and positional ranks.")
+    # Ensure we have the necessary columns for positional rank
+    # If the file is ingredient-level aggregated, we might need to derive rank differently.
+    # Assuming the file contains 'ingredient_id' and 'positional_rank' as per T014 output spec.
+    if 'positional_rank' not in df.columns:
+        # Fallback: If the data is just a list of unique ingredients without rank,
+        # we cannot derive a meaningful positional rank without recipe-level data.
+        # However, T014 description says it outputs 'normalized_ingredients.parquet'.
+        # We will assume it has 'positional_rank' or 'recipe_length' and 'index_in_recipe'.
+        # If missing, we try to infer or fail.
+        logger.warning("positional_rank column missing in normalized_ingredients.parquet. Attempting fallback.")
+        # If we only have unique ingredients, we can't compute a specific rank per occurrence.
+        # We might need to join with raw data or assume a default.
+        # For now, we raise an error if the expected structure is missing.
+        raise ValueError("Expected 'positional_rank' column in normalized_ingredients.parquet but it is missing.")
     
-    # Normalize Marginal Frequency (Log transform + MinMax)
-    # Add 1 to log to avoid log(0)
-    merged['log_freq'] = np.log1p(merged['marginal_frequency'])
-    min_freq = merged['log_freq'].min()
-    max_freq = merged['log_freq'].max()
-    if max_freq > min_freq:
-        merged['norm_freq'] = (merged['log_freq'] - min_freq) / (max_freq - min_freq)
-    else:
-        merged['norm_freq'] = 0.5
-    
-    # Normalize Positional Rank (Inverse: Rank 1 is best)
-    # Normalize to 0-1 range
-    min_rank = merged['positional_rank'].min()
-    max_rank = merged['positional_rank'].max()
-    if max_rank > min_rank:
-        merged['norm_pos'] = 1 - ((merged['positional_rank'] - min_rank) / (max_rank - min_rank))
-    else:
-        merged['norm_pos'] = 0.5
-    
-    # Combine: Simple average or weighted sum. 
-    # Let's assume equal weight for now.
-    merged['functional_role_score'] = (merged['norm_freq'] + merged['norm_pos']) / 2.0
-    
-    # Select final columns
-    result = merged[['ingredient_id', 'functional_role_score', 'marginal_frequency', 'positional_rank']]
-    
-    logger.info(f"Calculated functional role for {len(result)} ingredients.")
-    return result
+    return df
 
-def verify_exclusion_of_co_occurrence(role_df: pd.DataFrame, co_occurrence_df: pd.DataFrame) -> float:
+def load_co_occurrence_matrix():
     """
-    Verifies that the derived functional role is not highly correlated with co-occurrence frequency.
-    Returns the correlation coefficient.
-    Constraint: Must be < 0.1.
+    Load co-occurrence matrix to check for circularity correlation.
+    Input: data/processed/co_occurrence_matrix.parquet (from T015)
+    """
+    path = PROCESSED_DIR / "co_occurrence_matrix.parquet"
+    if not path.exists():
+        logger.warning(f"Co-occurrence matrix not found at {path}. Skipping circularity check.")
+        return None
+    
+    df = pd.read_parquet(path)
+    logger.info(f"Loaded co-occurrence matrix: {len(df)} pairs")
+    return df
+
+def calculate_functional_role(marginal_df, normalized_df):
+    """
+    Calculate functional role based on:
+    1. Positional rank (1-based index / recipe length)
+    2. Marginal frequency (frequency of single ingredient)
+    
+    Formula: 
+    role_score = alpha * normalized_pos_rank + beta * normalized_marginal_freq
+    We will use equal weights (0.5, 0.5) for simplicity unless specified otherwise.
+    """
+    # Merge marginal frequencies with normalized ingredients
+    # normalized_df should have 'ingredient_id' and 'positional_rank'
+    # marginal_df should have 'ingredient_id' and 'count' (or 'frequency')
+    
+    if 'count' in marginal_df.columns:
+        marginal_df = marginal_df.rename(columns={'count': 'marginal_freq'})
+    elif 'frequency' not in marginal_df.columns:
+        # Assume count is the frequency
+        marginal_df['marginal_freq'] = marginal_df.iloc[:, 1] if len(marginal_df.columns) > 1 else 0
+    
+    # Ensure we have the right columns
+    if 'ingredient_id' not in marginal_df.columns:
+        raise ValueError("marginal_counts.parquet must contain 'ingredient_id'")
+    
+    merged_df = pd.merge(normalized_df, marginal_df[['ingredient_id', 'marginal_freq']], on='ingredient_id', how='left')
+    
+    # Normalize positional rank (assuming it's between 0 and 1 or 1 and N)
+    # If it's 1-based index / length, it should be between 0 and 1.
+    # If it's raw index, we normalize it.
+    if merged_df['positional_rank'].max() > 1.0:
+        # Normalize to [0, 1]
+        merged_df['normalized_pos_rank'] = merged_df['positional_rank'] / merged_df['positional_rank'].max()
+    else:
+        merged_df['normalized_pos_rank'] = merged_df['positional_rank']
+    
+    # Normalize marginal frequency
+    max_freq = merged_df['marginal_freq'].max()
+    if max_freq > 0:
+        merged_df['normalized_marginal_freq'] = merged_df['marginal_freq'] / max_freq
+    else:
+        merged_df['normalized_marginal_freq'] = 0.0
+    
+    # Calculate functional role score
+    # Using equal weights
+    alpha = 0.5
+    beta = 0.5
+    merged_df['functional_role_score'] = (alpha * merged_df['normalized_pos_rank']) + (beta * merged_df['normalized_marginal_freq'])
+    
+    return merged_df
+
+def verify_exclusion_of_co_occurrence(role_df, co_occurrence_df):
+    """
+    Verify that co-occurrence frequency was NOT used in derivation.
+    Check correlation between derived role and co-occurrence frequency.
+    If correlation > 0.1, flag for exclusion in T023.
     """
     if co_occurrence_df is None:
-        logger.warning("Co-occurrence data missing. Cannot verify exclusion constraint.")
-        return 0.0
+        return {"correlation": None, "flagged": False, "reason": "Co-occurrence data not available"}
     
-    # We need a single "co-occurrence frequency" per ingredient to compare with role.
-    # We can use the sum of co-occurrences for each ingredient.
-    # Assuming co_occurrence_df has 'ingredient_id_1', 'ingredient_id_2', 'count'
+    # We need to map role scores to pairs or aggregate.
+    # For simplicity, we compute correlation between mean role score per ingredient
+    # and mean co-occurrence frequency per ingredient (or total co-occurrence).
     
-    # Aggregate by ingredient_id_1
-    agg_1 = co_occurrence_df.groupby('ingredient_id_1')['count'].sum().reset_index()
-    agg_1 = agg_1.rename(columns={'ingredient_id_1': 'ingredient_id', 'count': 'total_co_occurrence'})
+    # Aggregate role scores by ingredient_id
+    role_by_ingredient = role_df.groupby('ingredient_id')['functional_role_score'].mean().reset_index()
+    role_by_ingredient = role_by_ingredient.rename(columns={'functional_role_score': 'mean_role_score'})
     
-    # Aggregate by ingredient_id_2
-    agg_2 = co_occurrence_df.groupby('ingredient_id_2')['count'].sum().reset_index()
-    agg_2 = agg_2.rename(columns={'ingredient_id_2': 'ingredient_id', 'count': 'total_co_occurrence'})
-    
-    # Combine (sum of both directions)
-    total_co = pd.concat([agg_1, agg_2]).groupby('ingredient_id')['total_co_occurrence'].sum().reset_index()
-    
-    # Merge with role_df
-    merged = pd.merge(role_df, total_co, on='ingredient_id', how='inner')
-    
-    if len(merged) < 3:
-        logger.warning("Insufficient data to compute correlation.")
-        return 0.0
-    
-    # Compute Pearson correlation
-    corr = merged['functional_role_score'].corr(merged['total_co_occurrence'])
-    logger.info(f"Correlation between functional role and co-occurrence frequency: {corr:.4f}")
-    
-    return corr
+    # Aggregate co-occurrence by ingredient_id (sum of counts for each ingredient in pairs)
+    # co_occurrence_df likely has 'ingredient_id_1', 'ingredient_id_2', 'count'
+    # We sum counts for each ingredient appearing in either column.
+    if 'ingredient_id_1' in co_occurrence_df.columns and 'ingredient_id_2' in co_occurrence_df.columns:
+        # Reshape to long format
+        long_df = pd.concat([
+            co_occurrence_df[['ingredient_id_1', 'count']].rename(columns={'ingredient_id_1': 'ingredient_id'}),
+            co_occurrence_df[['ingredient_id_2', 'count']].rename(columns={'ingredient_id_2': 'ingredient_id'})
+        ])
+        co_occurrence_by_ingredient = long_df.groupby('ingredient_id')['count'].sum().reset_index()
+        co_occurrence_by_ingredient = co_occurrence_by_ingredient.rename(columns={'count': 'total_co_occurrence'})
+        
+        # Merge
+        merged = pd.merge(role_by_ingredient, co_occurrence_by_ingredient, on='ingredient_id', how='inner')
+        
+        if len(merged) < 3:
+            return {"correlation": None, "flagged": False, "reason": "Insufficient data for correlation"}
+        
+        # Calculate Pearson correlation
+        corr = merged['mean_role_score'].corr(merged['total_co_occurrence'])
+        
+        flagged = False
+        if corr is not None and abs(corr) > 0.1:
+            flagged = True
+            logger.warning(f"Circularity detected: Correlation between role and co-occurrence is {corr:.4f} (>0.1). Flagged for T023.")
+        else:
+            logger.info(f"Circularity check passed: Correlation is {corr:.4f} (<=0.1).")
+        
+        return {
+            "correlation": float(corr) if corr is not None else None,
+            "flagged": flagged,
+            "reason": "Correlation > 0.1" if flagged else "Correlation <= 0.1"
+        }
+    else:
+        return {"correlation": None, "flagged": False, "reason": "Co-occurrence dataframe structure unknown"}
 
-def save_output(df: pd.DataFrame, output_path: str, correlation: float):
+def save_output(role_df, circularity_check):
     """
-    Saves the output parquet and the verification log.
+    Save the output to data/processed/ingredient_roles_residuals.parquet
+    and log the circularity check.
     """
-    logger.info(f"Saving output to {output_path}")
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_parquet(output_path, index=False)
+    output_path = PROCESSED_DIR / "ingredient_roles_residuals.parquet"
     
-    # Save verification log
-    log_path = output_path.replace('.parquet', '_verification.json')
-    log_data = {
-        "task": "T017_Functional_Role_Derivation",
-        "output_file": output_path,
-        "correlation_with_co_occurrence": correlation,
-        "constraint_met": correlation < 0.1,
-        "timestamp": pd.Timestamp.now().isoformat()
-    }
+    # Ensure directory exists
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Save role dataframe
+    role_df.to_parquet(output_path, index=False)
+    logger.info(f"Saved functional role derivation to {output_path}")
+    
+    # Save circularity check log
+    log_path = PROCESSED_DIR / "circularity_check_log.json"
     with open(log_path, 'w') as f:
-        json.dump(log_data, f, indent=2)
-    logger.info(f"Verification log saved to {log_path}")
+        json.dump(circularity_check, f, indent=2)
+    logger.info(f"Saved circularity check log to {log_path}")
 
 def main():
-    # Paths
-    base_dir = Path(__file__).resolve().parent.parent.parent
-    # Inputs
-    marginal_input = base_dir / "data" / "raw" / "recipe1m_counts.parquet"
-    # We assume positional ranks are either in a specific file or derived from marginal input
-    co_occurrence_input = base_dir / "data" / "processed" / "co_occurrence_matrix.parquet"
-    
-    # Output
-    output_dir = base_dir / "data" / "processed"
-    output_file = output_dir / "ingredient_roles_residuals.parquet"
-    
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
+    logger.info("Starting T017: Functional Role Derivation")
     
     try:
-        # 1. Load Marginal Frequencies
-        marginal_df = load_marginal_frequencies(str(marginal_input))
+        # Load inputs
+        marginal_df = load_marginal_frequencies()
+        normalized_df = load_positional_ranks()
+        co_occurrence_df = load_co_occurrence_matrix()
         
-        # 2. Load Positional Ranks
-        positional_df = load_positional_ranks(str(marginal_input))
+        # Calculate functional role
+        role_df = calculate_functional_role(marginal_df, normalized_df)
         
-        # 3. Calculate Functional Role (Excluding Co-occurrence)
-        role_df = calculate_functional_role(marginal_df, positional_df)
+        # Verify exclusion of co-occurrence (circularity check)
+        circularity_check = verify_exclusion_of_co_occurrence(role_df, co_occurrence_df)
         
-        # 4. Verify Exclusion of Co-occurrence
-        co_occurrence_df = load_co_occurrence_matrix(str(co_occurrence_input))
-        correlation = verify_exclusion_of_co_occurrence(role_df, co_occurrence_df)
+        # Save outputs
+        save_output(role_df, circularity_check)
         
-        if correlation >= 0.1:
-            logger.warning(f"Constraint violated: Correlation {correlation:.4f} >= 0.1. "
-                           "Review derivation logic or data quality.")
-            # Do not fail, but log warning as per task description
-        
-        # 5. Save Output
-        save_output(role_df, str(output_file), correlation)
-        
-        logger.info("T017 Functional Role Derivation completed successfully.")
+        logger.info("T017 completed successfully.")
         
     except Exception as e:
-        logger.error(f"Error during T017 execution: {e}")
+        logger.error(f"T017 failed: {e}")
         raise
 
 if __name__ == "__main__":

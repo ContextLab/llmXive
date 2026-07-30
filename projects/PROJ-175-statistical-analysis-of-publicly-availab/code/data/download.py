@@ -1,192 +1,218 @@
-"""
-Data download module for Recipe1M and ratings datasets.
-Implements streaming download with memory constraints.
-"""
 import os
 import sys
 import json
 import requests
 import pandas as pd
 from pathlib import Path
+import gc
 import time
-from datetime import datetime
-from utils.memory_monitor import check_memory_limit
+from datasets import load_dataset
+from utils.memory_monitor import check_memory_limit, track_memory
 
-# Ensure code directory is in path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Project root relative to code/data
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
+PROCESSED_DIR = DATA_DIR / "processed"
+FINAL_DIR = DATA_DIR / "final"
 
-def save_memory_profile(peak_mb: float, limit_mb: int = 7168):
-    """Save memory profile to JSON."""
+def save_memory_profile(peak_mb, downsampled=False, ratio=1.0):
     profile = {
         "peak_ram_mb": peak_mb,
-        "timestamp": datetime.utcnow().isoformat(),
-        "limit_mb": limit_mb
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "limit_mb": 7168,
+        "downsampled": downsampled,
+        "downsample_ratio": ratio
     }
-    output_path = Path("data/memory_profile.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    with open(RAW_DIR / "memory_profile.json", "w") as f:
         json.dump(profile, f, indent=2)
+    return profile
 
 def check_memory_limit_wrapper(func):
-    """Decorator to check memory limit before running function."""
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        try:
-            check_memory_limit(limit_mb=7168)
-            return func(*args, **kwargs)
-        except MemoryError as e:
-            save_memory_profile(peak_mb=7168)
-            raise e
+        start_mem = track_memory()
+        result = func(*args, **kwargs)
+        end_mem = track_memory()
+        # Simple check, real logic would be more robust
+        if end_mem > 7168:
+            raise MemoryError(f"Memory limit exceeded: {end_mem:.2f} GB")
+        return result
     return wrapper
 
-def download_file_streaming(url: str, output_path: Path, chunk_size: int = 8192):
-    """Download a file with streaming and memory checks."""
+def download_file_streaming(url, output_path, chunk_size=8192):
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+    with open(output_path, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=chunk_size):
+            if chunk:
+                f.write(chunk)
+    return str(output_path)
+
+def process_recipe1m_streaming(output_path, limit_rows=None):
+    """
+    Streams Recipe1M dataset using HuggingFace datasets library.
+    Writes to Parquet in chunks to manage memory.
+    """
+    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
+    # Use streaming to avoid loading full dataset into memory
+    # The Plan's Critical Reframe mandates Recipe1M embeddings/ratings.
+    # We use the 'recipe1m' dataset from HuggingFace.
+    # Note: The exact dataset ID might vary, but 'recipe1m' is the standard proxy.
+    # If a specific verified ID is provided in env, use that.
+    dataset_id = os.getenv("VERIFIED_REAL_DATA_SOURCE", "yupengli/recipe1m")
+    
+    print(f"Loading dataset {dataset_id} in streaming mode...")
     try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        
-        with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=chunk_size):
-                check_memory_limit(limit_mb=7168)
-                if chunk:
-                    f.write(chunk)
-        
-        return True
-    except requests.RequestException as e:
-        # Log error without synthetic fallback
-        error_log = Path("data/download_errors.log")
-        with open(error_log, 'a') as f:
-            f.write(f"{datetime.utcnow().isoformat()} - URL: {url} - Error: {str(e)}\n")
-        raise FileNotFoundError(f"Failed to download from {url}: {str(e)}")
+        ds = load_dataset(dataset_id, split="train", streaming=True)
+    except Exception as e:
+        # If the primary source fails, try the verified mirror if available
+        # or raise a loud error as per constraints.
+        raise RuntimeError(f"Failed to load dataset {dataset_id}: {e}")
 
-def process_recipe1m_streaming(dataset_name: str = "recipe1m-full", split: str = "train"):
-    """
-    Process Recipe1M dataset with streaming.
-    Uses HuggingFace datasets library for streaming.
-    """
-    try:
-        from datasets import load_dataset
-    except ImportError:
-        raise ImportError("Please install datasets: pip install datasets")
-    
-    # Use streaming mode to avoid loading entire dataset into memory
-    dataset = load_dataset(dataset_name, split=split, streaming=True)
-    
-    # Process in chunks
-    chunk_size = 10000
-    chunks = []
-    current_chunk = []
+    # Prepare to write in chunks to Parquet
+    batch_size = 1000
+    current_batch = []
     row_count = 0
+    start_time = time.time()
     
-    for row in dataset:
-        current_chunk.append(row)
-        row_count += 1
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # We will write a single parquet file by accumulating and writing in chunks
+    # However, pandas to_parquet usually writes the whole dataframe.
+    # To stream effectively to a single file, we might need to use pyarrow directly
+    # or accumulate a manageable number of rows and append.
+    # Given the constraint of writing to a single .parquet file and memory limits,
+    # we will accumulate batches and write them sequentially if possible,
+    # or write the whole thing if it fits. 
+    # For robustness with streaming, we'll collect a list of DataFrames and concat later
+    # OR write chunk by chunk if the file format supports append (Parquet does not natively append easily).
+    # Strategy: Collect chunks into a list, write periodically or at end.
+    # To prevent OOM, we will write to a temporary list of files and concat, 
+    # OR use pyarrow's streaming writer.
+    
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    
+    # Define schema based on expected Recipe1M structure (ingredients, instructions, etc.)
+    # We will infer schema from the first batch.
+    
+    writer = None
+    
+    for batch_idx, batch in enumerate(ds):
+        # Convert batch dict to DataFrame
+        df_batch = pd.DataFrame(batch)
         
-        if len(current_chunk) >= chunk_size:
-            chunks.append(pd.DataFrame(current_chunk))
-            current_chunk = []
-            check_memory_limit(limit_mb=7168)
+        if writer is None:
+            # Initialize writer with schema from first batch
+            table = pa.Table.from_pandas(df_batch)
+            writer = pq.ParquetWriter(output_path, table.schema)
+            writer.write_table(table)
+            print(f"Wrote first chunk: {len(df_batch)} rows")
+        else:
+            # Append subsequent batches
+            table = pa.Table.from_pandas(df_batch)
+            writer.write_table(table)
+            print(f"Wrote chunk {batch_idx}: {len(df_batch)} rows")
+        
+        row_count += len(df_batch)
+        
+        if limit_rows and row_count >= limit_rows:
+            print(f"Reached limit of {limit_rows} rows.")
+            break
+        
+        # Garbage collection to free memory
+        if batch_idx % 10 == 0:
+            gc.collect()
+            # Check memory
+            try:
+                check_memory_limit(7168)
+            except MemoryError:
+                raise
     
-    if current_chunk:
-        chunks.append(pd.DataFrame(current_chunk))
+    if writer:
+        writer.close()
     
-    if not chunks:
-        raise ValueError("No data loaded from Recipe1M dataset")
-    
-    # Combine chunks
-    df = pd.concat(chunks, ignore_index=True)
-    return df
+    elapsed = time.time() - start_time
+    print(f"Downloaded and wrote {row_count} rows in {elapsed:.2f} seconds.")
+    return row_count
 
-def download_flavordb_chunked(output_dir: Path):
-    """Download FlavorDB data in chunks if needed."""
-    # FlavorDB is not available as a direct download, skip for now
-    # This is handled by the verification step
-    pass
+def download_flavordb_chunked(output_path):
+    # Placeholder for FlavorDB if needed, but Plan says we use Recipe1M
+    raise NotImplementedError("FlavorDB not used per Plan Critical Reframe")
 
 def download_datasets():
-    """Main function to download all required datasets."""
-    # Check for verification report first
-    verification_report = Path("data/verification_report.json")
-    if not verification_report.exists():
-        raise FileNotFoundError("Verification report not found. Run T012 first.")
+    """
+    Main entry point for downloading datasets.
+    Verifies verification report first.
+    """
+    verification_report_path = DATA_DIR / "verification_report.json"
+    if not verification_report_path.exists():
+        # Check if we are in a state where verification is skipped or handled differently
+        # But T051 mandates this check.
+        raise FileNotFoundError("Verification report not found. Run T012/T051 first.")
     
-    # Load verification report
-    with open(verification_report, 'r') as f:
+    with open(verification_report_path, 'r') as f:
         verification_data = json.load(f)
     
-    # Check if Recipe1M is available
-    if not verification_data.get("recipe1m", {}).get("status") == "PASS":
-        raise FileNotFoundError("Recipe1M dataset verification failed")
+    if verification_data.get("status") != "PASS":
+        raise RuntimeError("Verification failed. Cannot proceed with download.")
     
-    # Create output directories
-    raw_dir = Path("data/raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure directories exist
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    FINAL_DIR.mkdir(parents=True, exist_ok=True)
     
-    # Download Recipe1M (using streaming)
-    print("Downloading Recipe1M dataset...")
-    try:
-        # For demonstration, we'll create a sample structure
-        # In production, this would use the actual streaming download
-        recipe1m_df = process_recipe1m_streaming()
+    # Download Recipe1M
+    output_path = RAW_DIR / "recipe1m_raw.parquet"
+    if output_path.exists():
+        print(f"File {output_path} already exists. Skipping download.")
+    else:
+        # We might want to limit rows for initial testing if the full set is too large
+        # But the task asks for raw data streaming.
+        # We will stream the whole thing or until memory pressure.
+        # For the purpose of this task, we assume the runner has enough RAM for a reasonable sample
+        # or we rely on the streaming logic to handle it.
+        # To be safe and ensure the script runs in the CI environment (often limited RAM),
+        # we might limit to a specific number of rows if the full dataset is massive.
+        # However, the task says "stream Recipe1M raw data".
+        # We will attempt to stream. If it fails due to size, the error is real.
         
-        # Save counts for co-occurrence calculation
-        counts_path = raw_dir / "recipe1m_counts.parquet"
-        # Group by ingredients to get counts
-        if 'ingredients' in recipe1m_df.columns:
-            # Flatten ingredients for counting
-            all_ingredients = []
-            for ingredients in recipe1m_df['ingredients']:
-                if isinstance(ingredients, list):
-                    all_ingredients.extend(ingredients)
-            
-            ingredient_counts = pd.Series(all_ingredients).value_counts().reset_index()
-            ingredient_counts.columns = ['ingredient', 'count']
-            ingredient_counts.to_parquet(counts_path)
-            print(f"Saved ingredient counts to {counts_path}")
-        else:
-            # Create dummy structure if columns don't match
-            dummy_data = pd.DataFrame({'ingredient': ['dummy'], 'count': [1]})
-            dummy_data.to_parquet(counts_path)
-            print(f"Created dummy counts at {counts_path}")
-            
-    except Exception as e:
-        # Fail loudly - no synthetic fallback
-        raise RuntimeError(f"Failed to process Recipe1M data: {str(e)}")
+        # Check for a limit environment variable for CI safety
+        limit = os.getenv("DATA_LIMIT_ROWS", None)
+        limit_rows = int(limit) if limit else None
+        
+        process_recipe1m_streaming(output_path, limit_rows=limit_rows)
     
-    # Download ratings dataset
-    print("Downloading ratings dataset...")
-    ratings_path = raw_dir / "ratings.parquet"
+    # Verify output
+    if not output_path.exists():
+        raise FileNotFoundError(f"Failed to create {output_path}")
     
-    try:
-        # Try to load ratings from HuggingFace
-        from datasets import load_dataset
-        ratings_dataset = load_dataset("recipe1m", "ratings", split="train", streaming=True)
-        ratings_df = pd.DataFrame(list(ratings_dataset))
-        ratings_df.to_parquet(ratings_path)
-        print(f"Saved ratings to {ratings_path}")
-    except Exception as e:
-        # Create minimal structure if ratings not available
-        dummy_ratings = pd.DataFrame({
-            'recipe_id': [1],
-            'ingredient_id': ['dummy'],
-            'rating': [3.0]
-        })
-        dummy_ratings.to_parquet(ratings_path)
-        print(f"Created dummy ratings at {ratings_path}")
+    print("Dataset download complete.")
 
 def main():
-    """Entry point for download script."""
+    """
+    CLI entry point.
+    Usage: python code/data/download.py --dataset recipe1m --output data/raw/
+    """
     import argparse
     parser = argparse.ArgumentParser(description="Download datasets")
-    parser.add_argument("--dataset", default="recipe1m", help="Dataset to download")
-    parser.add_argument("--output", default="data/raw", help="Output directory")
+    parser.add_argument("--dataset", type=str, required=True, help="Dataset name")
+    parser.add_argument("--output", type=str, required=True, help="Output directory")
     args = parser.parse_args()
     
+    # The function download_datasets handles the logic based on the verification report
+    # and the specific dataset configuration.
     try:
         download_datasets()
     except Exception as e:
-        print(f"Download failed: {str(e)}", file=sys.stderr)
+        print(f"Error during download: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
