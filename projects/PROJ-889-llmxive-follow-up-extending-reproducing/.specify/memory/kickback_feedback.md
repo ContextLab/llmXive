@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T013` (rejected 1x): No `download_cherrl_logs.py` script is present, and there is no evidence that the required validation of the arXiv paper or real dataset fetching (e.g., `datasets.load_dataset('cherrl', split='train')`) was implemented. Consequently the task’s core requirement is unmet.
+- `T003a` (rejected 1x): declared artifact(s) missing/empty/invalid: ruff.toml
 
 ## Required change
 

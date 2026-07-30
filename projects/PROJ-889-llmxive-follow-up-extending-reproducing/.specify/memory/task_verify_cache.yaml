@@ -1,9 +1,3 @@
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/` directory with `raw` and `processed` subfolders was\
-    \ presented, nor any `.gitignore` file containing rules to exclude large data\
-    \ files. The implementer\u2019s claim lacks the required artifacts."
 T010:
   c: false
   h: 3c082aceffdfe435ec9d471f03758f28789e98535fc99e7b01eb96e9e143f60a
@@ -11,3 +5,31 @@ T010:
     \ no unit test for the $G(t)$ calculation logic is present. The task cannot be\
     \ considered completed until a non\u2011empty test file is added at the specified\
     \ location."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `download_cherrl_logs.py` script or fetched log files in `data/raw/cherrl_logs/`
+    are present; the claim lacks any concrete artifact demonstrating real data download,
+    error handling, or saved output. The required code and data are missing.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation was provided showing that NaN values are now\
+    \ caught and handled during standard deviation calculations. The claim lacks any\
+    \ concrete artifact (e.g., modified source file, unit tests, or example output)\
+    \ to verify the required error\u2011handling behavior."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `baseline_mask` boolean series was supplied; the response contains only a
+    textual description of the intended logic and does not include the required artifact
+    (e.g., a Pandas Series, NumPy array, CSV, or similar file) that marks contaminated
+    indices. The task therefore remains unfinished.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or output showing a sweep of the ground\u2011truth drop threshold\
+    \ over {0.05,\u202F0.1,\u202F0.15} and the resulting F1\u2011score variations\
+    \ is present. The implementer provided only the task description without any artifact\
+    \ (script, notebook, table, or figure) that performs the analysis or reports the\
+    \ results."

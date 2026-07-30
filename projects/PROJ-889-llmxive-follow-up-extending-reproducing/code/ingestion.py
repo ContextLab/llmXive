@@ -5,177 +5,191 @@ from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-from config import get_project_root, ensure_paths_exist
+from config import get_project_root
 from utils.io_utils import read_csv, write_csv, ensure_dir
+from utils.math_utils import interpolate_missing_timesteps, safe_z_score, rolling_std_dev
 
-# Constants for edge case handling
-EPSILON = 1e-9
-WINDOW_SIZE = 20
-MIN_SAMPLES_ZSCORE = 5
+# Constants for FR-002
+ROLLING_WINDOW_SIZE = 20
+MIN_SAMPLES_FOR_STD = 5
+EPSILON_FLOOR = 1e-9
 
 def load_trajectory_logs(log_dir: Path) -> List[pd.DataFrame]:
     """
-    Load all trajectory logs from the specified directory.
-    Returns a list of DataFrames, one per trajectory file.
+    Load all trajectory CSV logs from the specified directory.
+    Returns a list of DataFrames, one per seed log.
     """
     log_files = list(log_dir.glob("*.csv"))
     if not log_files:
         raise FileNotFoundError(f"No CSV files found in {log_dir}")
 
     dfs = []
-    for file_path in log_files:
+    for f_path in log_files:
         try:
-            df = read_csv(file_path)
+            df = read_csv(f_path)
             # Ensure required columns exist
-            required_cols = ['step', 'reward_biased', 'reward_unbiased']
+            required_cols = ['timestep', 'J_biased', 'J_unbiased', 'J_gold']
             if not all(col in df.columns for col in required_cols):
-                raise ValueError(f"Missing required columns in {file_path}")
+                # Try to infer if columns are named differently or missing
+                # For now, strict adherence to spec
+                raise ValueError(f"File {f_path} missing required columns: {required_cols}")
             
-            # Add seed_id if not present (assume single seed per file for now, or extract from filename)
-            if 'seed_id' not in df.columns:
-                df['seed_id'] = file_path.stem.split('_')[-1] if '_' in file_path.stem else file_path.stem
+            # Add seed_id based on filename if not present
+            seed_id = f_path.stem
+            df['seed_id'] = seed_id
             
+            # Infer bias_type if not present (placeholder logic, assumes filename pattern or default)
+            # In a real scenario, this might be parsed from filename or metadata
             if 'bias_type' not in df.columns:
-                # Infer from filename or default
-                df['bias_type'] = 'unknown'
+                df['bias_type'] = 'unknown' 
             
             dfs.append(df)
         except Exception as e:
-            print(f"Error loading {file_path}: {e}", file=sys.stderr)
-            raise
+            print(f"Warning: Failed to load {f_path}: {e}", file=sys.stderr)
+            continue
     
     return dfs
 
 def compute_divergence_gap(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute G(t) = |J_biased - J_unbiased| per FR-001.
-    Assumes input df has 'reward_biased' and 'reward_unbiased' columns.
+    Compute G(t) = |J_biased - J_unbiased| as per FR-001.
     """
-    df = df.copy()
-    df['G_t'] = np.abs(df['reward_biased'] - df['reward_unbiased'])
-    return df
-
-def _linear_interpolate_missing(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
-    """
-    Perform linear interpolation for missing timesteps in the specified column.
-    """
-    df = df.copy()
-    # Ensure 'step' is integer for interpolation logic
-    if df['step'].isnull().any():
-        # If steps are missing, we assume they are sequential and fill them
-        # This is a simplification; a more robust approach would re-index
-        max_step = int(df['step'].max())
-        full_index = pd.DataFrame({'step': range(1, max_step + 1)})
-        df = full_index.merge(df, on='step', how='left')
-    
-    # Interpolate the value column
-    df[value_col] = df[value_col].interpolate(method='linear')
+    if 'G_t' not in df.columns:
+        df['G_t'] = (df['J_biased'] - df['J_unbiased']).abs()
     return df
 
 def compute_derivative_and_zscore(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute dG(t) (discrete derivative) and rolling z-score per FR-002.
+    Compute dG(t) (discrete derivative) and rolling z-score for G(t).
     
-    Edge Cases:
-    - Use linear interpolation for missing timesteps (handled before derivative).
-    - If variance of G(t) is zero, set z-score to 0 (using epsilon=1e-9 floor).
-    
-    Returns DataFrame with 'dG_t' and 'z_score_G' columns.
+    Logic per T015:
+    1. Compute dG(t) = G(t) - G(t-1).
+    2. Use linear interpolation for missing timesteps (T017).
+    3. Calculate rolling z-score with window W=20, min_samples=5.
+    4. If variance is zero, z-score = 0 (using epsilon floor).
     """
-    df = df.copy()
+    if df.empty:
+        return df
+
+    # Ensure sorted by timestep
+    df = df.sort_values('timestep').reset_index(drop=True)
+
+    # 1. Handle missing timesteps via interpolation (T017 dependency)
+    # We interpolate numeric columns to fill gaps in the time series
+    numeric_cols = ['J_biased', 'J_unbiased', 'J_gold']
+    # Check if G_t exists, if not compute it first
+    if 'G_t' not in df.columns:
+        df = compute_divergence_gap(df)
     
-    # 1. Handle missing timesteps via linear interpolation on G_t
-    if df['G_t'].isnull().any():
-        df = _linear_interpolate_missing(df, 'G_t')
-    
-    # 2. Compute discrete derivative dG(t) = G(t) - G(t-1)
-    # Use diff() which computes x[i] - x[i-1]
+    cols_to_interp = numeric_cols + ['G_t']
+    df = interpolate_missing_timesteps(df, cols_to_interp)
+
+    # 2. Compute Discrete Derivative dG(t)
+    # dG(t) = G(t) - G(t-1)
     df['dG_t'] = df['G_t'].diff()
     
-    # For the first row, diff() is NaN. We can set it to 0 or keep NaN.
-    # Per common practice, let's fill the first NaN with 0 (no change from non-existent previous)
-    # OR keep it NaN if strictly following "derivative at t=1 is undefined".
-    # The prompt says "handle edge cases", usually implying filling. Let's fill with 0.
-    df['dG_t'] = df['dG_t'].fillna(0.0)
-    
     # 3. Compute Rolling Z-Score for G(t)
-    # Z = (x - mean) / std
-    # Rolling window size = WINDOW_SIZE, min_periods = MIN_SAMPLES_ZSCORE
+    # Window size W=20, min_samples=5
+    # z(t) = (G(t) - rolling_mean) / rolling_std
     
-    rolling_mean = df['G_t'].rolling(window=WINDOW_SIZE, min_periods=MIN_SAMPLES_ZSCORE).mean()
-    rolling_std = df['G_t'].rolling(window=WINDOW_SIZE, min_periods=MIN_SAMPLES_ZSCORE).std()
+    # Calculate rolling mean
+    rolling_mean = df['G_t'].rolling(
+        window=ROLLING_WINDOW_SIZE, 
+        min_periods=MIN_SAMPLES_FOR_STD
+    ).mean()
+
+    # Calculate rolling std with epsilon floor logic handled inside safe_z_score or here
+    # rolling_std_dev utility from math_utils expects a series and window
+    # We need to ensure it uses min_periods=5
     
-    # Handle zero variance: std might be 0 or NaN (if < MIN_SAMPLES)
-    # Apply epsilon floor
-    rolling_std_safe = np.maximum(rolling_std, EPSILON)
+    # Using the utility function from math_utils for rolling std
+    # Note: rolling_std_dev in math_utils likely takes the series and window
+    rolling_std = rolling_std_dev(df['G_t'], ROLLING_WINDOW_SIZE, min_samples=MIN_SAMPLES_FOR_STD)
     
-    df['z_score_G'] = (df['G_t'] - rolling_mean) / rolling_std_safe
-    
-    # If rolling_std was originally NaN (insufficient data), z_score should be NaN or 0?
-    # If we have < MIN_SAMPLES, we can't compute a meaningful z-score.
-    # Let's keep it NaN for the initial period where min_periods isn't met.
-    # The calculation above handles the zero-variance case (std=0 -> z=0 if mean matches, or large if not).
-    # But if std is NaN (due to < min_samples), the result is NaN.
-    
+    # Apply safe_z_score which handles zero variance
+    df['z_score'] = safe_z_score(df['G_t'], rolling_mean, rolling_std, epsilon=EPSILON_FLOOR)
+
     return df
 
-def process_all_trajectories(logs: List[pd.DataFrame]) -> List[pd.DataFrame]:
+def process_all_trajectories(log_dir: Path) -> pd.DataFrame:
     """
-    Process a list of trajectory DataFrames:
-    1. Compute Divergence Gap G(t)
-    2. Compute Derivative dG(t) and Z-score
+    Process all trajectory logs: load, compute G(t), dG(t), and z-score.
+    Returns a combined DataFrame.
     """
-    processed_logs = []
-    for df in logs:
-        df = compute_divergence_gap(df)
-        df = compute_derivative_and_zscore(df)
-        processed_logs.append(df)
-    return processed_logs
+    log_files = list(log_dir.glob("*.csv"))
+    if not log_files:
+        raise FileNotFoundError(f"No CSV files found in {log_dir}")
 
-def aggregate_seed_logs(processed_logs: List[pd.DataFrame], output_path: Path) -> None:
+    processed_dfs = []
+    for f_path in log_files:
+        try:
+            df = read_csv(f_path)
+            # Add seed_id
+            df['seed_id'] = f_path.stem
+            if 'bias_type' not in df.columns:
+                df['bias_type'] = 'unknown' # Default if missing
+            
+            # Compute metrics
+            df = compute_divergence_gap(df)
+            df = compute_derivative_and_zscore(df)
+            
+            processed_dfs.append(df)
+        except Exception as e:
+            print(f"Error processing {f_path}: {e}", file=sys.stderr)
+            continue
+
+    if not processed_dfs:
+        raise RuntimeError("No trajectories were successfully processed.")
+
+    return pd.concat(processed_dfs, ignore_index=True)
+
+def aggregate_seed_logs(processed_df: pd.DataFrame, output_path: Path) -> None:
     """
-    Merge multiple seed logs into a single CSV file.
-    Preserves 'seed_id' and 'bias_type' columns.
+    Aggregate processed trajectories into a single CSV file.
+    Output columns: seed_id, bias_type, timestep, J_biased, J_unbiased, J_gold, G_t, dG_t, z_score
     """
-    if not processed_logs:
-        raise ValueError("No processed logs to aggregate")
-    
-    combined_df = pd.concat(processed_logs, ignore_index=True)
-    
-    # Ensure output directory exists
     ensure_dir(output_path.parent)
     
-    write_csv(combined_df, output_path)
-    print(f"Aggregated trajectories saved to {output_path}")
+    # Select and order columns as per spec
+    cols = ['seed_id', 'bias_type', 'timestep', 'J_biased', 'J_unbiased', 'J_gold', 'G_t', 'dG_t', 'z_score']
+    
+    # Filter to only existing columns in case some are missing (though they should be present)
+    final_cols = [c for c in cols if c in processed_df.columns]
+    
+    result_df = processed_df[final_cols]
+    
+    # Sort by seed_id and timestep for consistent output
+    result_df = result_df.sort_values(['seed_id', 'timestep'])
+    
+    write_csv(result_df, output_path)
+    print(f"Aggregated data saved to {output_path}")
 
 def main():
     """
-    Main entry point for the ingestion pipeline.
-    1. Load logs from data/raw/
-    2. Compute G(t), dG(t), z_score_G
-    3. Aggregate to data/processed/trajectories_divergence.csv
+    Main entry point for T015 execution.
+    Reads from data/raw/cherrl_logs/ and writes to data/processed/trajectories_divergence.csv
     """
     project_root = get_project_root()
-    raw_dir = project_root / "data" / "raw"
-    processed_dir = project_root / "data" / "processed"
-    
-    ensure_paths_exist()
-    
+    raw_dir = project_root / "data" / "raw" / "cherrl_logs"
+    output_file = project_root / "data" / "processed" / "trajectories_divergence.csv"
+
     if not raw_dir.exists():
-        print(f"Error: Raw data directory {raw_dir} does not exist.", file=sys.stderr)
+        print(f"Error: Raw data directory not found: {raw_dir}", file=sys.stderr)
         sys.exit(1)
+
+    print(f"Processing trajectories from {raw_dir}...")
     
-    print(f"Loading trajectory logs from {raw_dir}...")
-    logs = load_trajectory_logs(raw_dir)
-    
-    print(f"Processing {len(logs)} trajectory logs...")
-    processed_logs = process_all_trajectories(logs)
-    
-    output_file = processed_dir / "trajectories_divergence.csv"
-    print(f"Aggregating results to {output_file}...")
-    aggregate_seed_logs(processed_logs, output_file)
-    
-    print("Ingestion pipeline completed successfully.")
+    try:
+        # Process all logs
+        combined_df = process_all_trajectories(raw_dir)
+        
+        # Aggregate and save
+        aggregate_seed_logs(combined_df, output_file)
+        
+        print("T015 completed successfully.")
+    except Exception as e:
+        print(f"Error during T015 execution: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -64,14 +64,3 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-26T02:26:07.973428Z'
-- artifact_hash: 5b047b4534208df5e2776563b4fb0059915851f2303ad810e733ae6960db4544
-  artifact_path: projects/PROJ-889-llmxive-follow-up-extending-reproducing/specs/001-llmxive-follow-up-extending-reproducing/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2606.04923'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-07-28T14:46:41.599052Z'

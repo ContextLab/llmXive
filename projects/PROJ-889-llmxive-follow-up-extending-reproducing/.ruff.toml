@@ -1,51 +1,42 @@
+# Ruff configuration for llmXive project
+# Enforces PEP8 and Google style guidelines
 [lint]
-# Enable specific rule sets: E (pycodestyle errors), F (Pyflakes), W (pycodestyle warnings),
-# I (isort imports), N (pep8-naming).
-select = ["E", "F", "W", "I", "N"]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort (import sorting)
+    "N",  # pep8-naming
+]
 
-# Allow unused variables starting with underscore (common in Python for ignored args).
-# Allow unused variables in list comprehensions starting with underscore.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+# Ignore specific rules if necessary (add as project evolves)
+ignore = []
 
-# Ignore specific rules that conflict with Google style or are too noisy for this project.
-# E501: Line too long (handled by black formatter)
-# N806: Variable in function should be lowercase (Google style allows mixed case in some contexts, but we stick to lowercase mostly)
-ignore = ["E501"]
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
 
-# Target Python version
-target-version = "py311"
+# Exclude specific files or directories
+extend-exclude = [
+    "data/",
+    "__pycache__",
+    ".git",
+    "*.ipynb",
+]
 
-# Line length for formatting (matches black default)
+# Line length for PEP8 compliance
 line-length = 88
 
+[lint.per-file-ignores]
+# Allow specific overrides for test files if needed
+"tests/*" = ["N802"]  # Allow test functions to not be CamelCase if desired
+
 [lint.isort]
-# Configure isort to match Google style import ordering
-known-first-party = ["code"]
+# Configuration for import sorting (I rules)
+known-first-party = ["code", "utils"]
 force-single-line = false
 lines-after-imports = 2
-order-by-type = true
-force-sort-within-sections = false
 
-[lint.per-file-ignores]
-# Ignore specific rules in test files if necessary (optional, can be added later)
-"tests/*" = ["N802"] # Allow uppercase function names in tests if needed
-
-[format]
-# Format settings (though black is primary, ruff format can be a fallback)
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-
-[lint.flake8-quotes]
-# Enforce double quotes as per Google style
-inline-quotes = "double"
-multiline-quotes = "double"
-docstring-quotes = "double"
-avoid-escape = true
-
-[lint.pep8-naming]
-# Enforce Google/Naming conventions
-ignore-names = ["setUp", "tearDown", "setUpClass", "tearDownClass"]
-classmethod-decorators = ["classmethod"]
-staticmethod-decorators = ["staticmethod"]
+[lint.pydocstyle]
+# Enforce Google style docstrings
+convention = "google"
