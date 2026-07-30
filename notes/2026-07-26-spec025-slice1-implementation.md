@@ -379,6 +379,54 @@ LLM-call ceiling row already used; I should have applied it when I introduced th
 Also repaired the revision-history header, which had accumulated unclosed `Prior revision N (`
 parens (unbalanced by 2 before rev 19); the block is now balanced.
 
+### Rev 20 — three defects in my own rev-19 fix
+
+**"Re-confirm immediately before" is check-then-act.** I wrote it as if narrowing a race
+closed it. `ClaimExpired` can land after the confirmation and before the GitHub call, so a
+superseded worker still mutates the external system; no value of "immediately" fixes a
+check-then-act. The correct shape is **fencing**: a monotonic `claim_generation` on every
+grant/reclaim, every lane-log append generation-stamped and CAS-REJECTED if superseded, and
+generation-stamped side-effect intents where **reclaim blocks until an outstanding intent is
+observed and closed**. That last rule is what actually prevents two concurrent actors —
+the reclaimer never starts a competing mutation.
+
+Also worth stating plainly because I nearly overclaimed again: **you cannot fence a system
+that does not participate.** GitHub will not check our token, so an already-issued call
+cannot be rejected. The spec now says exactly what IS guaranteed (two actors never issue
+concurrently; anything landed is discovered; a superseded worker can never record lane
+state) instead of the false "a stale worker cannot mutate GitHub".
+
+**Off-by-one in the cadence derivation.** K observations at cadence c span **(K−1)·c**, not
+K·c. K=5 at 6 h is 24 h elapsed, not the 30 h I claimed. K=5 survives (re-derived from
+`(K−1)c ≥ 24h`) but the justification was wrong. Fixed properly by not relying on tick
+arithmetic at all: the rule is now `count ≥ K` AND a MEASURED `now − streak_started_at ≥
+24 h`. Tick arithmetic assumes an even cadence that skipped/retried/manually-dispatched runs
+violate — a burst of 5 aborts in 2 h would have tripped a count-only rule.
+
+**A "derived" number that didn't cover what it claimed.** `claim_expiry` summed
+implementation + patch review + evaluation and omitted publish and candidate testing — and
+publish had NO wall-clock cap at all, so no honest total was even computable. Deriving a
+value is not the same as deriving it from the RIGHT set; I checked the formula was a formula
+and not that its terms were complete. Now: publish capped (10 min), one authoritative
+`max_claim_hold_time` over every post-claim phase + overhead (3 h 15 m), and liveness moved
+to a **renewable heartbeat** (5 min beat, 15 min expiry) with the hold time as a separate
+cap — which also dissolves the original tension, since crash recovery (~15 min) no longer
+trades off against never reclaiming a live-but-slow run.
+
+### PROJ-317 contributing.md — reported as a regression, actually a case collision
+
+Flagged as an uncommitted rewrite deleting the operational sections. It was not. BOTH
+`docs/contributing.md` and `docs/CONTRIBUTING.md` were tracked in HEAD as distinct blobs
+(`6f3aee2456` detailed, `67f63263e6` boilerplate), and the reported diff was exactly
+`6f3aee2456..67f63263e6` — one tracked path being overwritten on disk by the other. With
+`core.ignorecase=true` only one physical file can exist, so the tree is PERMANENTLY dirty and
+see-saws: restoring one instantly dirties the other. Nothing was ever deleted.
+
+All 6 projects with this doc use lowercase, so the uppercase file was the anomaly and it held
+the boilerplate. Dropped the uppercase path; kept the detailed guide. **Diagnose a dirty file
+before restoring it** — `git checkout` here would have looked like it worked and fixed
+nothing.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute
