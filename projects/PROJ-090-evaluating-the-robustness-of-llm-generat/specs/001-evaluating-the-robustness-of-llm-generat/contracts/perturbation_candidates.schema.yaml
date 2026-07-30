@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Perturbation Candidates Schema"
+description: "Schema for the raw and filtered perturbation candidates."
+type: "object"
+required:
+  - "task_id"
+  - "perturbation_type"
+  - "perturbed_prompt"
+  - "similarity_score"
+  - "is_valid"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the HumanEval task."
+  perturbation_type:
+    type: "string"
+    enum:
+      - "synonym"
+      - "typo"
+      - "rephrase"
+    description: "Type of perturbation applied."
+  perturbed_prompt:
+    type: "string"
+    description: "The modified prompt text."
+  similarity_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Cosine similarity score between original and perturbed prompt."
+  is_valid:
+    type: "boolean"
+    description: "True if similarity_score > 0.95."
+  seed:
+    type: "integer"
+    description: "Random seed used for generation."
+  original_prompt:
+    type: "string"
+    description: "The original prompt text (for reference)."

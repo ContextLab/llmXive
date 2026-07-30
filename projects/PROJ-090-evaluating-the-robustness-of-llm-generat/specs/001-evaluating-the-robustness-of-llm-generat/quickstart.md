@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   7 GB+ RAM available
-*   Git
-*   Access to HuggingFace Hub (no token required for public datasets)
+- Python 3.11+
+- GB RAM available (for CPU inference)
+- Sufficient disk space
+- Access to HuggingFace Hub (for dataset and model download)
 
 ## Installation
 
@@ -19,63 +19,57 @@
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins `bitsandbytes` to a CPU-compatible version and `transformers`.*
+    *Note: `bitsandbytes` is required for 4-bit quantization. If using CPU, ensure the CPU-only version is installed or the library is configured for CPU.*
+
+## Data Download
+
+Run the data download script to fetch HumanEval:
+```bash
+python code/data/download.py
+```
+This will save the dataset to `data/raw/humaneval.parquet`.
 
 ## Running the Pipeline
 
-The pipeline is executed via `code/main.py`.
+The pipeline is executed in stages. You can run the full pipeline or individual stages.
 
-### 1. Download Data
+### 1. Generate Perturbations
 ```bash
-python code/data/download_humaneval.py
+python code/data/perturbation.py --output data/processed/perturbation_candidates_raw.json
 ```
-This downloads the HumanEval dataset to `data/raw/humaneval.parquet`.
+This generates candidates and scores them.
 
-### 2. Generate Perturbations
+### 2. Filter Perturbations
 ```bash
-python code/data/generate_perturbations.py
+python code/data/filter.py --input data/processed/perturbation_candidates_raw.json --threshold 0.95 --output data/processed/perturbation_candidates.json
 ```
-Generates perturbed prompts, calculates similarity scores, and saves:
-*   `data/processed/prompt_variants.jsonl` (all candidates)
-*   `data/processed/primary_variants.jsonl` (filtered > 0.95, with fallback logic)
 
-### 3. Run Inference & Execution
+### 3. Run Inference
 ```bash
-python code/model/inference.py
+python code/model/inference.py --input data/processed/perturbation_candidates.json --output data/processed/inference_logs.json
 ```
-*   Loads StarCoder2-3B (4-bit quantized).
-*   Runs generation with 30s timeout, fixed seed (42), and temperature=0.
-*   Executes code in sandbox with 10s timeout.
-*   Outputs: `data/results/execution_log.jsonl`.
+*Note: This step may take several hours. If it fails due to OOM, the system will attempt to offload to a GPU (if configured).*
 
-### 4. Statistical Analysis
+### 4. Analyze Results
 ```bash
-python code/analysis/statistics.py
+python code/analysis/stats.py --input data/processed/inference_logs.json --output data/processed/results.csv
 ```
-*   Computes pass@1 rates.
-*   Runs McNemar's test with Bonferroni correction (with power contingency).
-*   Runs Mixed-Effects Logistic Regression.
-*   Performs sensitivity analysis.
-*   Outputs: `data/results/analysis_report.csv` and `data/results/figures/`.
-
-### 5. Error Classification
-```bash
-python code/analysis/error_classifier.py
-```
-*   Samples failures.
-*   Classifies into syntax/logic/hallucination.
-*   Outputs: `data/results/error_classification.csv`.
 
 ## Verification
 
-To verify the setup without running the full heavy inference:
-```bash
-pytest tests/unit/
-```
-This tests the perturbation logic, sandbox timeout handling, and **contract schema validation**.
+To verify the pipeline:
+1.  Check that `data/processed/inference_logs.json` exists and contains entries for `original` and `perturbed` prompts.
+2.  Run the unit tests:
+    ```bash
+    pytest tests/unit/
+    ```
+3.  Run the integration test:
+    ```bash
+    pytest tests/integration/
+    ```
 
 ## Troubleshooting
 
-*   **OOM Errors**: If you encounter OOM, ensure no other heavy processes are running. The model is 4-bit quantized; if issues persist, reduce the batch size in `code/model/inference.py`.
-*   **Timeouts**: If the 30s generation limit is too strict for your hardware, increase `GEN_TIMEOUT` in `config.py`, but be aware of the 6-hour CI limit.
-*   **Network**: Ensure HuggingFace Hub is accessible.
+- **OOM Error**: If you encounter Out-Of-Memory errors, ensure you are using the 4-bit quantized model. If the issue persists, the system is designed to offload to a GPU.
+- **Timeout Errors**: The sandbox has a timeout. If code execution is slow, it will be logged as a timeout error.
+- **Semantic Similarity**: If no perturbations pass a high-confidence threshold, the raw log will be empty. Check the `similarity_score` distribution in `perturbation_candidates_raw.json`.

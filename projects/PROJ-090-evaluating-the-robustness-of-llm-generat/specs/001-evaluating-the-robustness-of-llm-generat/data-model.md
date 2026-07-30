@@ -1,56 +1,58 @@
 # Data Model: Evaluating the Robustness of LLM-Generated Code to Input Perturbations
 
-## 1. Entity Relationship Overview
+## Overview
 
-The data model consists of three primary entities: `Task`, `PromptVariant`, and `ExecutionResult`.
+This document defines the data schema and flow for the robustness evaluation pipeline. All data is stored in JSON/Parquet formats to ensure reproducibility and machine readability.
 
-*   **Task**: Represents a unique programming problem from HumanEval.
-*   **PromptVariant**: Represents a specific version of a prompt (Original or Perturbed) associated with a Task.
-*   **ExecutionResult**: Represents the outcome of running the model on a PromptVariant.
+## Entities
 
-## 2. Schema Definitions
+### 1. Task
+A single programming problem from HumanEval.
+- `task_id`: Unique identifier (e.g., "HumanEval/0").
+- `prompt`: Original prompt string.
+- `canonical_solution`: Reference solution (unused for inference, used for validation).
+- `test`: Test suite string.
+- `entry_point`: Function name to call.
 
-### 2.1 Task
-Unique identifier for a programming problem.
-*   `task_id` (string): Unique ID (e.g., "HumanEval/0").
-*   `canonical_prompt` (string): The original prompt text.
-*   `canonical_solution` (string): The reference solution code.
-*   `test_code` (string): The unit tests to validate the solution.
+### 2. PerturbationCandidate
+A generated variant of a task prompt.
+- `task_id`: Foreign key to Task.
+- `perturbation_type`: One of `synonym`, `typo`, `rephrase`.
+- `perturbed_prompt`: The modified text.
+- `similarity_score`: Float (0.0–1.0) from semantic validator.
+- `is_valid`: Boolean (True if score > 0.95).
+- `seed`: Random seed used for generation (for reproducibility).
 
-### 2.2 PromptVariant
-A specific text input sent to the model.
-*   `variant_id` (string): Unique ID.
-*   `task_id` (string): Foreign key to `Task`.
-*   `variant_type` (string): Enum: "original", "synonym", "typo", "rephrase".
-*   `prompt_text` (string): The actual text content.
-*   `similarity_score` (float): Cosine similarity to `canonical_prompt` (for non-originals).
-*   `is_primary` (boolean): True if `similarity_score` > 0.95 (or > 0.90 if fallback) and included in primary analysis.
-*   `raw_similarity_score` (float): The raw score before filtering (for sensitivity analysis).
-*   `selected_rank` (integer): Rank of this candidate among generated candidates (1 = best).
+### 3. InferenceResult
+The outcome of running the model on a prompt.
+- `task_id`: Foreign key.
+- `prompt_type`: `original` or `perturbed`.
+- `perturbation_type`: Null for original, otherwise the type.
+- `generated_code`: The code string output by the model.
+- `generation_time`: Seconds.
+- `pass`: Boolean (True if tests pass).
+- `error_type`: One of `syntax`, `logic`, `timeout`, `oom`, `none`.
+- `confidence_score`: Float (model's internal confidence, if available).
+- `execution_environment`: String (`CPU` or `GPU`). **New**: Added to track hardware confound.
 
-### 2.3 ExecutionResult
-The outcome of the inference and execution pipeline.
-*   `result_id` (string): Unique ID.
-*   `variant_id` (string): Foreign key to `PromptVariant`.
-*   `generated_code` (string): The code produced by the model.
-*   `execution_status` (string): Enum: "pass", "fail", "timeout", "oom", "error".
-*   `error_type` (string): Enum: "syntax", "logic", "hallucination", "timeout", "none" (null if pass).
-*   `generation_time_ms` (integer): Time taken to generate code.
-*   `execution_time_ms` (integer): Time taken to run tests.
-*   `seed` (integer): Random seed used for generation (fixed at 42).
-*   `temperature` (float): Temperature used for generation (fixed at 0.0).
+### 4. AnalysisResult
+Aggregated metrics for the final report.
+- `metric_name`: e.g., "pass@1_original", "pass@1_synonym".
+- `value`: Float.
+- `n_samples`: Integer.
+- `statistic`: e.g., "p_value", "odds_ratio", "variance_component".
 
-## 3. Data Flow
+## Data Flow
 
-1.  **Ingestion**: `Task` records created from `HumanEval` parquet.
-2.  **Perturbation**: `PromptVariant` records created. `similarity_score` calculated. `is_primary` flagged. `selected_rank` recorded.
-3.  **Inference**: `ExecutionResult` records created. `generated_code` stored. `temperature` recorded.
-4.  **Execution**: `execution_status` and `error_type` updated in `ExecutionResult`.
-5.  **Analysis**: Aggregations performed on `ExecutionResult` joined with `PromptVariant` and `Task`.
+1.  **Raw Data**: `data/raw/humaneval.parquet` (Downloaded from HF).
+2.  **Perturbation Raw**: `data/processed/perturbation_candidates_raw.json` (All generated candidates with scores).
+3.  **Perturbation Filtered**: `data/processed/perturbation_candidates.json` (Candidates with score > 0.95).
+4.  **Inference Logs**: `data/processed/inference_logs.json` (Model outputs and execution results).
+5.  **Mixed Effects Results**: `data/processed/mixed_effects_results.json` (Variance components and coefficients).
+6.  **Final Results**: `data/processed/results.csv` (Aggregated statistics for analysis).
 
-## 4. File Formats
+## Constraints
 
-*   **Raw Inputs**: Parquet (HumanEval).
-*   **Intermediate**: JSONL (PromptVariants with raw scores).
-*   **Final Output**: CSV (ExecutionResults for analysis).
-*   **Logs**: JSON (Error logs, OOM events, timeouts).
+- **Immutability**: Raw data files are never modified. Derivations create new files.
+- **Checksums**: All files in `data/raw/` must have a corresponding SHA-256 hash recorded in `state/`.
+- **PII**: No Personally Identifiable Information is present in HumanEval or generated code.

@@ -54,6 +54,12 @@ properties:
   temperature:
     type: "number"
     description: "Temperature used for generation (fixed at 0.0)."
+  execution_environment:
+    type: "string"
+    enum:
+      - "CPU"
+      - "GPU"
+    description: "Hardware environment used for inference."
 required:
   - generation_id
   - prompt_id
@@ -63,4 +69,5 @@ required:
   - pass
   - error_type
   - temperature
+  - execution_environment
 additionalProperties: false
