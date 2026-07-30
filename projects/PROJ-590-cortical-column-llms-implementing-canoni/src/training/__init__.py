@@ -1,2 +1,3 @@
-# src.training package
-# Contains training loops, optimizers, and homeostasis mechanisms.
+"""
+Training package for model training utilities.
+"""

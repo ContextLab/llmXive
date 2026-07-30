@@ -1,2 +1,3 @@
-# tests.unit package
-# Unit tests for individual components.
+"""
+Unit tests package.
+"""

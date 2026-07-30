@@ -1,1 +1,1 @@
-"""Cortical Column LLMs: Implementing Canonical Microcircuits."""
+"""Cortical Column LLMs - Main Source Package."""

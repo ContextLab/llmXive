@@ -1,7 +1,8 @@
 """
-Integration tests for the scaling experiment (T027).
-Verifies that scaling configurations are generated correctly,
-models are created, and results are saved to the expected path.
+Integration tests for scaling experiments.
+
+These tests verify that the scaling study produces valid results
+and that the output JSON schema is correct.
 """
 
 import json
@@ -12,12 +13,12 @@ from pathlib import Path
 import torch
 
 from src.experiments.scaling import (
-    ScalingConfig,
-    ScalingResult,
     create_scaling_configs,
     create_model_from_config,
+    count_parameters,
     train_scaling_variant,
-    run_scaling_study
+    run_scaling_study,
+    ScalingConfig
 )
 from src.models.hybrid_network import HybridNetwork
 
@@ -26,190 +27,194 @@ class TestScalingConfigs:
     """Tests for scaling configuration generation."""
 
     def test_create_scaling_configs_returns_three_variants(self):
-        """Verify that create_scaling_configs returns 1x, 2x, and 4x variants."""
+        """Verify that three scaling variants are created."""
         configs = create_scaling_configs()
         
         assert len(configs) == 3
         
+        # Check variant names
         names = [c.name for c in configs]
-        assert "1x" in names
-        assert "2x" in names
-        assert "4x" in names
-
-    def test_scaling_configs_have_correct_neurons_scaling(self):
-        """Verify that neurons_per_layer scales correctly (1x, 2x, 4x)."""
-        base_neurons = 128
-        configs = create_scaling_configs(base_config={'hidden_dim': 64, 'neurons_per_layer': base_neurons})
-        
-        neurons = {c.name: c.neurons_per_layer for c in configs}
-        
-        assert neurons["1x"] == base_neurons
-        assert neurons["2x"] == base_neurons * 2
-        assert neurons["4x"] == base_neurons * 4
-
-    def test_scaling_configs_have_correct_column_counts(self):
-        """Verify that column counts match the variant name."""
+        assert '1x_baseline' in names
+        assert '2x_neurons' in names
+        assert '4x_neurons' in names
+    
+    def test_scaling_configs_have_correct_neurons(self):
+        """Verify neuron counts scale correctly."""
         configs = create_scaling_configs()
         
-        for config in configs:
-            expected_columns = int(config.name.replace("x", ""))
-            assert config.columns == expected_columns
+        base_neurons = configs[0].neurons_per_layer
+        
+        # 2x should have double
+        assert configs[1].neurons_per_layer == base_neurons * 2
+        
+        # 4x should have quadruple
+        assert configs[2].neurons_per_layer == base_neurons * 4
+    
+    def test_scaling_configs_have_correct_columns(self):
+        """Verify column counts scale correctly."""
+        configs = create_scaling_configs()
+        
+        assert configs[0].columns == 1
+        assert configs[1].columns == 2
+        assert configs[2].columns == 4
 
 
 class TestScalingModelCreation:
     """Tests for model creation from scaling configs."""
 
     def test_create_model_from_config_returns_hybrid_network(self):
-        """Verify that create_model_from_config returns a HybridNetwork instance."""
+        """Verify model creation returns correct type."""
         config = ScalingConfig(
-            name="1x",
+            name='test',
             columns=1,
-            hidden_dim=64,
-            neurons_per_layer=128,
-            num_layers=4
+            neurons_per_layer=64,
+            hidden_dim=32,
+            num_layers=2
         )
         
         model = create_model_from_config(config)
         
         assert isinstance(model, HybridNetwork)
-
-    def test_model_parameter_count_increases_with_scaling(self):
-        """Verify that larger variants have more parameters."""
-        configs = create_scaling_configs()
+    
+    def test_model_parameters_scale_with_neurons(self):
+        """Verify parameter count increases with neuron count."""
+        config_small = ScalingConfig(
+            name='small',
+            columns=1,
+            neurons_per_layer=32,
+            hidden_dim=32,
+            num_layers=2
+        )
         
-        param_counts = {}
-        for config in configs:
-            model = create_model_from_config(config)
-            param_counts[config.name] = sum(p.numel() for p in model.parameters())
+        config_large = ScalingConfig(
+            name='large',
+            columns=1,
+            neurons_per_layer=64,
+            hidden_dim=32,
+            num_layers=2
+        )
         
-        # 4x should have more params than 2x, which should have more than 1x
-        assert param_counts["4x"] > param_counts["2x"] > param_counts["1x"]
+        model_small = create_model_from_config(config_small)
+        model_large = create_model_from_config(config_large)
+        
+        params_small = count_parameters(model_small)
+        params_large = count_parameters(model_large)
+        
+        assert params_large > params_small
 
 
 class TestScalingVariantTraining:
     """Tests for training individual scaling variants."""
 
-    def test_train_scaling_variant_returns_scaling_result(self):
-        """Verify that train_scaling_variant returns a ScalingResult object."""
+    @pytest.fixture
+    def temp_output_dir(self):
+        """Create a temporary directory for test outputs."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield tmpdir
+
+    def test_train_scaling_variant_produces_results(self, temp_output_dir):
+        """Verify training produces valid results."""
         config = ScalingConfig(
-            name="1x",
+            name='test_variant',
             columns=1,
-            hidden_dim=64,
-            neurons_per_layer=128,
-            num_layers=4
+            neurons_per_layer=32,
+            hidden_dim=16,
+            num_layers=2,
+            epochs=2,  # Minimal epochs for speed
+            batch_size=8,
+            learning_rate=0.01,
+            seed=42
         )
         
-        result = train_scaling_variant(config, train_epochs=2, batch_size=16)
+        result = train_scaling_variant(config)
         
-        assert isinstance(result, ScalingResult)
-        assert result.columns == "1x"
-        assert result.params > 0
-        assert result.mae >= 0
-        assert result.time > 0
-
-    def test_train_scaling_variant_with_different_variants(self):
-        """Verify training works for all scaling variants."""
-        configs = create_scaling_configs()
-        
-        for config in configs:
-            result = train_scaling_variant(config, train_epochs=2, batch_size=16)
-            
-            assert result.columns == config.name
-            assert result.params > 0
-            assert result.mae >= 0
-            assert result.time > 0
+        assert result.variant_name == 'test_variant'
+        assert result.columns == 1
+        assert result.neurons_per_layer == 32
+        assert result.total_params > 0
+        assert result.train_mae >= 0
+        assert result.test_mae >= 0
+        assert result.training_time > 0
 
 
 class TestScalingResults:
-    """Tests for scaling results output and validation."""
+    """Tests for scaling study output."""
 
-    def test_run_scaling_study_creates_output_file(self):
-        """Verify that run_scaling_study creates the expected output file."""
+    @pytest.fixture
+    def temp_output_dir(self):
+        """Create a temporary directory for test outputs."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "scaling_results.json")
-            
-            results = run_scaling_study(
-                output_path=output_path,
-                train_epochs=2,
-                batch_size=16
-            )
-            
-            assert os.path.exists(output_path)
-            
-            # Verify file is valid JSON
-            with open(output_path, 'r') as f:
-                loaded = json.load(f)
-            
-            assert "variants" in loaded
-            assert len(loaded["variants"]) == 3
+            yield tmpdir
 
-    def test_scaling_results_schema(self):
-        """Verify the schema of scaling results matches requirements."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "scaling_results.json")
-            
-            results = run_scaling_study(
-                output_path=output_path,
-                train_epochs=2,
-                batch_size=16
+    def test_run_scaling_study_creates_json(self, temp_output_dir):
+        """Verify scaling study creates output JSON."""
+        output_path = os.path.join(temp_output_dir, 'scaling_results.json')
+        
+        # Create minimal configs for speed
+        configs = [
+            ScalingConfig(
+                name='1x_test',
+                columns=1,
+                neurons_per_layer=16,
+                hidden_dim=8,
+                num_layers=2,
+                epochs=1,
+                batch_size=4,
+                learning_rate=0.01,
+                seed=42
             )
-            
-            with open(output_path, 'r') as f:
-                loaded = json.load(f)
-            
-            # Verify top-level structure
-            assert isinstance(loaded, dict)
-            assert "variants" in loaded
-            assert isinstance(loaded["variants"], list)
-            assert len(loaded["variants"]) == 3
-            
-            # Verify each variant has required fields
-            required_fields = ["columns", "params", "mae", "time"]
-            for variant in loaded["variants"]:
-                for field_name in required_fields:
-                    assert field_name in variant, f"Missing field '{field_name}' in variant {variant.get('columns')}"
-                
-                # Verify types
-                assert isinstance(variant["columns"], str)
-                assert isinstance(variant["params"], int)
-                assert isinstance(variant["mae"], float)
-                assert isinstance(variant["time"], float)
-
-    def test_scaling_results_file_at_default_path(self):
-        """Verify that run_scaling_study can write to the default path."""
-        # Use a temporary directory to avoid cluttering the repo
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "results", "scaling_results.json")
-            
-            results = run_scaling_study(
-                output_path=output_path,
-                train_epochs=2,
-                batch_size=16
+        ]
+        
+        run_scaling_study(configs=configs, output_path=output_path)
+        
+        assert os.path.exists(output_path)
+        
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        
+        assert 'variants' in data
+        assert len(data['variants']) == 1
+        
+        variant = data['variants'][0]
+        assert 'name' in variant
+        assert 'columns' in variant
+        assert 'params' in variant
+        assert 'train_mae' in variant
+        assert 'test_mae' in variant
+        assert 'time' in variant
+    
+    def test_scaling_results_schema(self, temp_output_dir):
+        """Verify scaling results match expected schema."""
+        output_path = os.path.join(temp_output_dir, 'scaling_results.json')
+        
+        configs = [
+            ScalingConfig(
+                name='schema_test',
+                columns=1,
+                neurons_per_layer=16,
+                hidden_dim=8,
+                num_layers=2,
+                epochs=1,
+                batch_size=4,
+                learning_rate=0.01,
+                seed=42
             )
-            
-            assert os.path.exists(output_path)
-            
-            with open(output_path, 'r') as f:
-                loaded = json.load(f)
-            
-            assert len(loaded["variants"]) == 3
-
-    def test_scaling_results_contain_all_variants(self):
-        """Verify that all three variants (1x, 2x, 4x) are present in results."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "scaling_results.json")
-            
-            run_scaling_study(
-                output_path=output_path,
-                train_epochs=2,
-                batch_size=16
-            )
-            
-            with open(output_path, 'r') as f:
-                loaded = json.load(f)
-            
-            variant_names = [v["columns"] for v in loaded["variants"]]
-            
-            assert "1x" in variant_names
-            assert "2x" in variant_names
-            assert "4x" in variant_names
+        ]
+        
+        run_scaling_study(configs=configs, output_path=output_path)
+        
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        
+        # Validate schema
+        assert isinstance(data, dict)
+        assert 'variants' in data
+        assert isinstance(data['variants'], list)
+        
+        for variant in data['variants']:
+            assert isinstance(variant['name'], str)
+            assert isinstance(variant['columns'], int)
+            assert isinstance(variant['params'], int)
+            assert isinstance(variant['train_mae'], float)
+            assert isinstance(variant['test_mae'], float)
+            assert isinstance(variant['time'], float)

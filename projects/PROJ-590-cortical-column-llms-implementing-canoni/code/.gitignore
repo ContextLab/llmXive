@@ -1,11 +1,8 @@
-# Data and logs (large, generated)
-data/
-
-# Python cache and bytecode
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
 build/
 develop-eggs/
@@ -23,21 +20,45 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environments
 venv/
 ENV/
 env/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# State files are CRITICAL and MUST BE TRACKED (Constitution Principle V)
-# DO NOT add state/ or state/*.yaml here. They must be committed.
+# Project Specific: Data (Exclude all data to prevent git bloat)
+data/
+
+# Logs
+*.log
+
+# State (CRITICAL: Do NOT ignore state/*.yaml as per Constitution Principle V)
+# The state directory contains checksums and artifact versions that MUST be tracked.
+# We explicitly DO NOT list state/ or state/*.yaml here to ensure they are versioned.
+# If you need to ignore temporary state files, name them .tmp or .bak.
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+coverage.xml
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json

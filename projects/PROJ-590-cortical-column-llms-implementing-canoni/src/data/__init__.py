@@ -1,2 +1,3 @@
-# src.data package
-# Contains data generation, loading, and benchmark utilities.
+"""
+Data package for data loading and preprocessing.
+"""

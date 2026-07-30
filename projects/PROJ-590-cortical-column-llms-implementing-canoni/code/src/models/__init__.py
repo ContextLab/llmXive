@@ -1,1 +1,1 @@
-"""Model definitions including baseline, microcircuit, and hybrid networks."""
+"""Model definitions including microcircuits and hybrid networks."""

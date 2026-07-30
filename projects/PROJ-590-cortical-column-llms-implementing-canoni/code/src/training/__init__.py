@@ -1,1 +1,1 @@
-"""Training loops, homeostasis, and optimization utilities."""
+"""Training loops and homeostasis utilities."""

@@ -1,11 +1,23 @@
-T001b:
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `__init__.py` files were found in the `src/` and `tests/` directories, and
-    a `.gitignore` file is absent (or its contents were not provided). Consequently
-    the required files and the specific ignore rules (excluding `data/`, `__pycache__`,
-    `*.pyc` while ensuring `state/*.yaml` is **not** ignored) are missing. The implementer
-    must add the `__init__.py` files and create a correctly configured `.gitignore`.
+  r: "No evidence of the required directories (`tests/unit/models`, `tests/unit/data`,\
+    \ `tests/integration`) is present in the provided artifacts; the implementer did\
+    \ not supply any file\u2011system listing or code creating these paths. The task\
+    \ cannot be confirmed as completed."
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No __init__.py files are shown in any `src/` or `tests/` directories, and the
+    contents of `.gitignore` (specifically whether `state/*.yaml` is excluded) are
+    not provided. Without these artifacts, the task requirements cannot be verified
+    as met.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file content or presence was provided; without the file we cannot
+    confirm it excludes `data/`, `__pycache__`, `*.pyc`, and `*.log` as required.
+    The implementer must supply the actual `.gitignore` file with the specified patterns.
 T003b:
   c: true
   h: b655d812671d14781dc01bb9538bbbab1fa73277d3cf8d6387aae128b8f6d6ab
@@ -14,20 +26,41 @@ T003b:
     \ the requirement to provide a Black configuration via either `pyproject.toml`\
     \ or `black.toml`. The missing `black.toml` is irrelevant because the alternative\
     \ file is present and correctly configured."
+T012b:
+  c: false
+  h: 94294b68e32f7a447dc883abd180bf57f7b35d17e0b773fc884fe4037ed3545c
+  r: The repository contains a `tests/integration/test_baseline_training.py` file,
+    but its content is truncated and does not show a complete implementation that
+    runs the baseline model and verifies creation of `data/logs/gradient_norms.json`.
+    Moreover, the required `data/logs/gradient_norms.json` file is absent, indicating
+    the test does not actually populate the log as specified. The task therefore remains
+    unfinished.
 T012c:
   c: false
-  h: 214d5539a52ea93f5ad75108abc336df6f8aba8e3ac14c4360cc35d12d280271
-  r: "The repository contains a `tests/integration/test_microcircuit_training.py`\
-    \ file, but its contents are truncated (e.g., the training configuration ends\
-    \ abruptly at `log_interv`) and there is no evidence that it actually runs the\
-    \ model with `log_gradient_norms` enabled. Moreover, the required output file\
-    \ `data/logs/gradient_norms_microcircuit.json` is missing. The integration test\
-    \ does not demonstrably produce the gradient\u2011norms JSON needed for SC\u2011\
-    002 verification."
-T026b:
+  h: 01c5aed4fce9d5f71e03d8e31e5e55fe37c3232086e585c64b701965e15df634
+  r: "The repository contains the integration test file, but it writes the JSON log\
+    \ to a temporary directory rather than the required `data/logs/gradient_norms_microcircuit.json`,\
+    \ and that file is absent from the project. Consequently the task\u2019s core\
+    \ output is not present."
+T016:
   c: false
-  h: aa8f320cd449d4310e32a3bbe76177da62c3a10797d5771bc9b622265fcef83a
-  r: The provided `src/experiments/ablation.py` is truncated and does not contain
-    a `run_ablation_study` function that loops through configs, trains models, computes
-    MAE, and writes results. Moreover, the required output file `data/results/ablation_results.json`
-    is absent. These missing pieces prevent the task from being fulfilled.
+  h: 280b4054ce2c9ef2cc64ccf9f5e96500b4ba1349869786e4d4319a959693c5fd
+  r: "The repository lacks the required `data/results/baseline_metrics.json` file,\
+    \ and the provided `src/experiments/baseline_runner.py` does not contain an implementation\
+    \ of the `run_and_record_metrics` method (the file is truncated before any such\
+    \ function). Consequently the task\u2019s core functionality and output artifact\
+    \ are missing."
+T026a:
+  c: false
+  h: 11e24d9cd6b1a4d6655a6f92dc049f098a4797a79065a8ef80906cbf28af139d
+  r: "The `generate_ablation_configs` function creates configs, but uses flag keys\
+    \ `enable_*` instead of the required `remove_*`, and no code automatically writes\
+    \ the JSON file\u2014`data/configs/ablation_configs.json` is missing. The task\u2019\
+    s output schema and file generation are therefore not satisfied."
+T032:
+  c: false
+  h: 87137cf8d3546ffbd9796f0f2ffe422ca4068265301a9f37e6c38ebac79b09e3
+  r: "The repository contains the integration test file, but the required input `data/logs/gradient_norms.json`\
+    \ is absent, causing the test to skip or fail, and the expected output `data/results/gradient_stability_baseline.json`\
+    \ is also missing. Without these files the statistical analysis cannot be performed,\
+    \ so the task\u2019s deliverables are not satisfied."

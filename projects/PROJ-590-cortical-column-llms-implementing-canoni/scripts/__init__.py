@@ -1,2 +1,3 @@
-# scripts package
-# Utility scripts for running experiments and analysis.
+"""
+Scripts package for utility scripts.
+"""

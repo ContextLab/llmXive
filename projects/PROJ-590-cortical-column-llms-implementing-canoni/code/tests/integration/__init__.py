@@ -1,1 +1,1 @@
-"""Integration tests for full pipelines and workflows."""
+"""Integration tests package."""

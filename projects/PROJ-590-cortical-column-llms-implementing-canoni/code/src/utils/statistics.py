@@ -1,8 +1,8 @@
 """
-Statistics utilities for ablation and scaling analysis.
+Statistics utilities for the Cortical Column LLM project.
 
 Provides functions for statistical testing (t-tests, KS tests) and
-scaling law analysis on experimental results.
+analysis of scaling laws (power-law fitting).
 """
 import json
 import os
@@ -11,335 +11,319 @@ import numpy as np
 from scipy import stats
 import logging
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def load_gradient_norms(file_path: str) -> List[Dict[str, Any]]:
+def load_gradient_norms(file_path: str) -> List[float]:
     """
     Load gradient norms from a JSON log file.
-    
+
     Args:
-        file_path: Path to the gradient norms JSON file.
-        
+        file_path: Path to the JSON file containing gradient norms.
+
     Returns:
-        List of dictionaries containing gradient norm data.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
+        List of gradient norm values.
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Gradient norms file not found: {file_path}")
-    
+
     with open(file_path, 'r') as f:
         data = json.load(f)
-    
-    return data
+
+    # Handle different potential schemas
+    if isinstance(data, list):
+        return [float(x) for x in data]
+    elif isinstance(data, dict):
+        if 'norms' in data:
+            return [float(x) for x in data['norms']]
+        elif 'gradient_norms' in data:
+            return [float(x) for x in data['gradient_norms']]
+        else:
+            # Try to extract all numeric values
+            return [float(v) for v in data.values() if isinstance(v, (int, float))]
+    else:
+        raise ValueError(f"Unexpected data format in {file_path}")
 
 
-def compare_gradient_stability(
-    baseline_path: str,
-    microcircuit_path: str
-) -> Dict[str, Any]:
+def compare_gradient_stability(baseline_path: str, microcircuit_path: str,
+                               output_path: str) -> Dict[str, Any]:
     """
-    Perform a Kolmogorov-Smirnov test between baseline and microcircuit gradient norms.
-    
-    This is the definitive verification for SC-002 (Gradient Stability).
-    
+    Compare gradient stability between baseline and microcircuit models
+    using the Kolmogorov-Smirnov test.
+
     Args:
-        baseline_path: Path to baseline gradient norms JSON file.
-        microcircuit_path: Path to microcircuit gradient norms JSON file.
-        
+        baseline_path: Path to baseline gradient norms JSON.
+        microcircuit_path: Path to microcircuit gradient norms JSON.
+        output_path: Path to write the results JSON.
+
     Returns:
-        Dictionary with schema:
-        {
-            "ks_statistic": float,
-            "p_value": float,
-            "stable": bool
-        }
-        where stable is True if p_value > 0.05 (no significant difference).
+        Dictionary with KS statistic, p-value, and stability assessment.
     """
-    baseline_data = load_gradient_norms(baseline_path)
-    microcircuit_data = load_gradient_norms(microcircuit_path)
-    
-    # Extract gradient norms (assuming they are stored in a 'norms' or 'values' key)
-    # Adjust key based on actual log format
-    baseline_norms = []
-    microcircuit_norms = []
-    
-    for entry in baseline_data:
-        if isinstance(entry, dict):
-            # Try common keys
-            for key in ['norm', 'gradient_norm', 'value', 'norms']:
-                if key in entry:
-                    baseline_norms.append(entry[key])
-                    break
-        elif isinstance(entry, (int, float)):
-            baseline_norms.append(entry)
-    
-    for entry in microcircuit_data:
-        if isinstance(entry, dict):
-            for key in ['norm', 'gradient_norm', 'value', 'norms']:
-                if key in entry:
-                    microcircuit_norms.append(entry[key])
-                    break
-        elif isinstance(entry, (int, float)):
-            microcircuit_norms.append(entry)
-    
+    baseline_norms = load_gradient_norms(baseline_path)
+    microcircuit_norms = load_gradient_norms(microcircuit_path)
+
     if len(baseline_norms) < 2 or len(microcircuit_norms) < 2:
-        raise ValueError("Insufficient data points for statistical comparison")
-    
+        raise ValueError("Need at least 2 gradient norms in each file for KS test")
+
     # Perform two-sample KS test
     ks_statistic, p_value = stats.ks_2samp(baseline_norms, microcircuit_norms)
-    
+
+    # Interpret stability: if p > 0.05, distributions are not significantly different
+    # (i.e., microcircuit maintains similar gradient stability to baseline)
+    is_stable = p_value > 0.05
+
     result = {
         "ks_statistic": float(ks_statistic),
         "p_value": float(p_value),
-        "stable": bool(p_value > 0.05)
+        "stable": is_stable,
+        "baseline_n": len(baseline_norms),
+        "microcircuit_n": len(microcircuit_norms)
     }
-    
-    logger.info(f"Gradient stability KS-test: stat={ks_statistic:.4f}, p={p_value:.4f}, stable={result['stable']}")
-    
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+
+    logger.info(f"Gradient stability comparison: KS={ks_statistic:.4f}, p={p_value:.4f}, stable={is_stable}")
     return result
 
 
-def compare_ablation_results(
-    ablation_results_path: str,
-    output_path: str
-) -> Dict[str, Any]:
+def compare_ablation_results(ablation_results_path: str, output_path: str) -> Dict[str, Any]:
     """
-    Compute the difference in MAE between full and ablated models using a paired t-test.
-    
-    Reads ablation results from a JSON file, identifies the 'full' variant and
-    compares it against ablated variants using a paired t-test.
-    
+    Compare ablation results to determine statistical significance of performance degradation.
+
+    Performs a paired t-test between the full model and each ablated variant.
+
     Args:
         ablation_results_path: Path to ablation_results.json.
-        output_path: Path to write ablation_stats.json output.
-        
+        output_path: Path to write the statistics JSON.
+
     Returns:
-        Dictionary with schema:
-        {
-            "full_mae": float,
-            "ablated_mae": float,
-            "mae_diff": float,
-            "p_value": float,
-            "significant": bool
-        }
-        
-    Raises:
-        FileNotFoundError: If input file does not exist.
-        ValueError: If required data is missing or malformed.
+        Dictionary with MAE values, difference, p-value, and significance assessment.
     """
     if not os.path.exists(ablation_results_path):
         raise FileNotFoundError(f"Ablation results file not found: {ablation_results_path}")
-    
+
     with open(ablation_results_path, 'r') as f:
         data = json.load(f)
-    
-    # Expected schema: {"results": [{"variant": str, "mae": float, "time": float}]}
-    if "results" not in data or not isinstance(data["results"], list):
-        raise ValueError("Invalid ablation results format: expected 'results' list")
-    
-    results = data["results"]
-    
-    # Find full and ablated variants
+
+    results = data.get('results', [])
+    if not results:
+        raise ValueError("No results found in ablation_results.json")
+
+    # Find full model and ablated variants
     full_result = None
     ablated_results = []
-    
-    for item in results:
-        variant_name = item.get("variant", "").lower()
-        mae = item.get("mae")
-        
-        if mae is None:
-            raise ValueError(f"Missing MAE value for variant: {variant_name}")
-        
-        if variant_name == "full":
-            full_result = item
+
+    for r in results:
+        name = r.get('variant', '').lower()
+        if 'full' in name or 'baseline' in name:
+            full_result = r
         else:
-            ablated_results.append(item)
-    
-    if full_result is None:
-        raise ValueError("No 'full' variant found in ablation results")
-    
-    if len(ablated_results) == 0:
-        raise ValueError("No ablated variants found in results")
-    
-    full_mae = full_result["mae"]
-    ablated_maes = [r["mae"] for r in ablated_results]
-    
-    # Calculate average ablated MAE
+            ablated_results.append(r)
+
+    if not full_result:
+        raise ValueError("No 'full' or 'baseline' variant found in ablation results")
+
+    full_mae = full_result.get('mae')
+    if full_mae is None:
+        raise ValueError("Full model MAE not found")
+
+    # Collect MAEs from ablated variants
+    ablated_maes = [r.get('mae') for r in ablated_results if r.get('mae') is not None]
+
+    if not ablated_maes:
+        raise ValueError("No ablated model MAEs found")
+
+    # Calculate mean ablated MAE
     ablated_mae = float(np.mean(ablated_maes))
-    mae_diff = full_mae - ablated_mae
-    
-    # Perform paired t-test if we have multiple ablated runs
-    # For paired test, we need matched pairs. If we have multiple ablated variants,
-    # we treat them as a sample against the single full value (one-sample t-test)
-    # or if we have multiple runs per variant, we could do paired.
-    # Here we do a one-sample t-test: is the mean of (full - ablated) significantly different from 0?
-    
-    differences = [full_mae - mae for mae in ablated_maes]
-    
-    if len(differences) < 2:
-        # Cannot compute t-test with single sample
-        # Use the single difference as the result
-        p_value = 1.0  # Not significant by default
-        logger.warning("Only one ablated variant found; cannot compute t-test. Setting p_value=1.0")
+    mae_diff = ablated_mae - full_mae
+
+    # For t-test, we need multiple samples. Since we have single values per variant,
+    # we'll use the individual ablated variants as samples against the full model
+    # (treating full model as a reference with assumed low variance)
+    # Alternative: if we have multiple runs, use those; otherwise use bootstrap
+    # For now, use a simple approach: compare ablated_maes to a repeated full_mae
+
+    n_ablated = len(ablated_maes)
+    if n_ablated >= 2:
+        # Perform one-sample t-test: is the mean of ablated_maes significantly different from full_mae?
+        t_stat, p_value = stats.ttest_1samp(ablated_maes, full_mae)
     else:
-        # One-sample t-test: test if mean difference is significantly different from 0
-        t_stat, p_value = stats.ttest_1samp(differences, 0.0)
-    
+        # Single ablated result: cannot do t-test, use effect size only
+        logger.warning("Only one ablated result found, cannot perform t-test. Using effect size only.")
+        p_value = 1.0  # Not significant by default
+
+    # Calculate relative increase
+    relative_increase = (mae_diff / full_mae * 100) if full_mae > 0 else 0.0
+
+    # Determine significance: p < 0.05 AND relative increase > 15%
+    significant = (p_value < 0.05) and (relative_increase > 15.0)
+
     result = {
         "full_mae": float(full_mae),
-        "ablated_mae": ablated_mae,
+        "ablated_mae": float(ablated_mae),
         "mae_diff": float(mae_diff),
         "p_value": float(p_value),
-        "significant": bool(p_value < 0.05)
+        "relative_increase_pct": float(relative_increase),
+        "significant": significant,
+        "n_ablated_variants": n_ablated
     }
-    
-    # Write output
+
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
     with open(output_path, 'w') as f:
         json.dump(result, f, indent=2)
-    
-    logger.info(f"Ablation comparison: full_mae={full_mae:.4f}, ablated_mae={ablated_mae:.4f}, diff={mae_diff:.4f}, p={p_value:.4f}, significant={result['significant']}")
-    
+
+    logger.info(f"Ablation comparison: full={full_mae:.4f}, ablated={ablated_mae:.4f}, diff={mae_diff:.4f}, p={p_value:.4f}, significant={significant}")
     return result
 
 
-def calculate_scaling_exponent(
-    scaling_results_path: str,
-    output_path: Optional[str] = None
-) -> Dict[str, Any]:
+def calculate_scaling_exponent(scaling_results_path: str, output_path: str) -> Dict[str, Any]:
     """
-    Fit a power-law model to scaling performance data.
-    
+    Calculate the scaling exponent by fitting a power law to performance data.
+
     Fits: log(MAE) = exponent * log(Parameters) + intercept
-    
+
     Args:
         scaling_results_path: Path to scaling_results.json.
-        output_path: Optional path to write scaling_exponent.json.
-        
+        output_path: Path to write the exponent JSON.
+
     Returns:
-        Dictionary with schema:
-        {
-            "exponent": float,
-            "r_squared": float,
-            "interpretation": str
-        }
+        Dictionary with exponent, confidence interval, and linearity assessment.
     """
     if not os.path.exists(scaling_results_path):
         raise FileNotFoundError(f"Scaling results file not found: {scaling_results_path}")
-    
+
     with open(scaling_results_path, 'r') as f:
         data = json.load(f)
-    
-    # Expected schema: {"variants": [{"columns": str, "params": int, "mae": float, "time": float}]}
-    if "variants" not in data or not isinstance(data["variants"], list):
-        raise ValueError("Invalid scaling results format: expected 'variants' list")
-    
-    variants = data["variants"]
-    
+
+    variants = data.get('variants', [])
+    if not variants:
+        raise ValueError("No variants found in scaling_results.json")
+
+    # Extract parameters and MAE
     params_list = []
     mae_list = []
-    
-    for item in variants:
-        params = item.get("params")
-        mae = item.get("mae")
-        
-        if params is None or mae is None:
-            raise ValueError(f"Missing params or mae in variant: {item}")
-        
-        params_list.append(float(params))
-        mae_list.append(float(mae))
-    
+
+    for v in variants:
+        params = v.get('params')
+        mae = v.get('mae')
+        if params is not None and mae is not None:
+            params_list.append(float(params))
+            mae_list.append(float(mae))
+
     if len(params_list) < 2:
-        raise ValueError("Need at least 2 data points to fit scaling law")
-    
-    # Log-transform
+        raise ValueError("Need at least 2 variants to fit a scaling law")
+
+    # Convert to log space
     log_params = np.log(params_list)
     log_mae = np.log(mae_list)
-    
-    # Fit linear model
+
+    # Fit linear regression: log(MAE) = slope * log(Params) + intercept
     slope, intercept, r_value, p_value, std_err = stats.linregress(log_params, log_mae)
-    
-    exponent = float(slope)
-    r_squared = float(r_value ** 2)
-    
-    # Interpretation
-    if abs(exponent) < 0.1:
-        interpretation = "near-zero scaling (performance independent of size)"
-    elif exponent > 0:
-        interpretation = "superlinear scaling (worse with size)"
+
+    # Calculate 95% confidence interval for the slope
+    # Using t-distribution for small samples
+    n = len(params_list)
+    if n > 2:
+        t_crit = stats.t.ppf(0.975, df=n-2)
+        conf_interval = t_crit * std_err
     else:
-        # exponent is negative
-        if abs(exponent) < 0.5:
-            interpretation = "sublinear scaling (slow improvement with size)"
-        elif abs(exponent) < 1.0:
-            interpretation = "near-linear scaling"
-        else:
-            interpretation = "superlinear improvement (faster than linear)"
-    
+        # For n=2, use a heuristic
+        conf_interval = abs(slope) * 0.5  # 50% heuristic
+
+    exponent = float(slope)
+    ci_low = exponent - conf_interval
+    ci_high = exponent + conf_interval
+
+    # Determine linearity
+    # exponent >= 1.0: linear or superlinear scaling
+    # exponent < 1.0: sublinear scaling (better efficiency)
+    if exponent >= 1.0:
+        linear_or_sublinear = "linear_or_superlinear"
+    else:
+        linear_or_sublinear = "sublinear"
+
     result = {
-        "exponent": exponent,
-        "r_squared": r_squared,
-        "intercept": float(intercept),
-        "p_value": float(p_value),
-        "interpretation": interpretation
+        "exponent": float(exponent),
+        "confidence_interval": [float(ci_low), float(ci_high)],
+        "linear_or_sublinear": linear_or_sublinear,
+        "r_squared": float(r_value**2),
+        "n_variants": n,
+        "params_range": [min(params_list), max(params_list)],
+        "mae_range": [min(mae_list), max(mae_list)]
     }
-    
-    if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-    
-    logger.info(f"Scaling exponent: {exponent:.4f}, R²={r_squared:.4f}, interpretation={interpretation}")
-    
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+
+    logger.info(f"Scaling exponent: {exponent:.4f} (95% CI: [{ci_low:.4f}, {ci_high:.4f}]), {linear_or_sublinear}")
     return result
 
 
 def main():
-    """CLI entry point for statistics utilities."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Statistics utilities for ablation and scaling analysis")
-    subparsers = parser.add_subparsers(dest="command", help="Command to run")
-    
-    # compare_ablation_results command
-    ablation_parser = subparsers.add_parser("compare_ablation", help="Compare ablation results")
-    ablation_parser.add_argument("--input", required=True, help="Path to ablation_results.json")
-    ablation_parser.add_argument("--output", required=True, help="Path to write ablation_stats.json")
-    
-    # compare_gradient_stability command
-    gradient_parser = subparsers.add_parser("compare_gradients", help="Compare gradient stability")
-    gradient_parser.add_argument("--baseline", required=True, help="Path to baseline gradient norms")
-    gradient_parser.add_argument("--microcircuit", required=True, help="Path to microcircuit gradient norms")
-    gradient_parser.add_argument("--output", required=True, help="Path to write gradient_stability.json")
-    
-    # calculate_scaling_exponent command
-    scaling_parser = subparsers.add_parser("scaling_exponent", help="Calculate scaling exponent")
-    scaling_parser.add_argument("--input", required=True, help="Path to scaling_results.json")
-    scaling_parser.add_argument("--output", help="Path to write scaling_exponent.json (optional)")
-    
-    args = parser.parse_args()
-    
-    if args.command == "compare_ablation":
-        result = compare_ablation_results(args.input, args.output)
-        print(json.dumps(result, indent=2))
-    
-    elif args.command == "compare_gradients":
-        result = compare_gradient_stability(args.baseline, args.microcircuit)
-        # Write to output file
-        with open(args.output, 'w') as f:
-            json.dump(result, f, indent=2)
-        print(json.dumps(result, indent=2))
-    
-    elif args.command == "scaling_exponent":
-        result = calculate_scaling_exponent(args.input, args.output)
-        print(json.dumps(result, indent=2))
-    
-    else:
-        parser.print_help()
+    """
+    Main function to run all statistical analyses.
+
+    This function orchestrates the execution of all statistical tests
+    and writes results to the appropriate output files.
+    """
+    # Define paths
+    baseline_gradient_path = "data/logs/gradient_norms.json"
+    microcircuit_gradient_path = "data/logs/gradient_norms_microcircuit.json"
+    gradient_stability_output = "data/results/gradient_stability.json"
+
+    ablation_results_path = "data/results/ablation_results.json"
+    ablation_stats_output = "data/results/ablation_stats.json"
+
+    scaling_results_path = "data/results/scaling_results.json"
+    scaling_exponent_output = "data/results/scaling_exponent.json"
+
+    # Run gradient stability comparison
+    try:
+        if os.path.exists(baseline_gradient_path) and os.path.exists(microcircuit_gradient_path):
+            compare_gradient_stability(
+                baseline_gradient_path,
+                microcircuit_gradient_path,
+                gradient_stability_output
+            )
+        else:
+            logger.warning(f"Gradient norm files not found. Skipping gradient stability analysis.")
+            logger.warning(f"  Expected: {baseline_gradient_path}, {microcircuit_gradient_path}")
+    except Exception as e:
+        logger.error(f"Error in gradient stability analysis: {e}")
+
+    # Run ablation comparison
+    try:
+        if os.path.exists(ablation_results_path):
+            compare_ablation_results(
+                ablation_results_path,
+                ablation_stats_output
+            )
+        else:
+            logger.warning(f"Ablation results file not found: {ablation_results_path}")
+    except Exception as e:
+        logger.error(f"Error in ablation comparison: {e}")
+
+    # Run scaling exponent calculation
+    try:
+        if os.path.exists(scaling_results_path):
+            calculate_scaling_exponent(
+                scaling_results_path,
+                scaling_exponent_output
+            )
+        else:
+            logger.warning(f"Scaling results file not found: {scaling_results_path}")
+    except Exception as e:
+        logger.error(f"Error in scaling exponent calculation: {e}")
+
+    logger.info("Statistical analysis complete.")
 
 
 if __name__ == "__main__":

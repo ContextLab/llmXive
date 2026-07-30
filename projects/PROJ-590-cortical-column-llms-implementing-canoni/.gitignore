@@ -1,8 +1,11 @@
-# Python
+# Data directories (raw, processed, interim, results, logs, configs)
+data/
+
+# Python cache and bytecode
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
 .Python
 build/
 develop-eggs/
@@ -20,50 +23,32 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
-venv/
-ENV/
-env/
+# Logs
+*.log
+logs/
 
-# IDEs
-.vscode/
+# IDE and editor files
 .idea/
+.vscode/
 *.swp
 *.swo
 *~
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
-
-# Project Data (Exclude all data directories)
-data/
-data/results/
-data/logs/
-data/configs/
-
-# Logs and State (Exclude logs, but KEEP state for versioning)
-# NOTE: state/*.yaml is explicitly NOT excluded per Constitution Principle V
-# to ensure versioning discipline. Only logs are excluded.
-data/logs/*
-!state/
-!state/*.yaml
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
-coverage.xml
-*.cover
-.hypothesis/
 
-# Jupyter
-.ipynb_checkpoints
+# Virtual environments (optional, usually tracked in .gitignore)
+venv/
+ENV/
+env/
 
-# Ruff
-.ruff_cache/
-
-# MyPy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# Note: state/*.yaml MUST NOT be ignored per Constitution Principle V
+# They are tracked for artifact versioning and checksumming.
+# state/
+# state/*.yaml

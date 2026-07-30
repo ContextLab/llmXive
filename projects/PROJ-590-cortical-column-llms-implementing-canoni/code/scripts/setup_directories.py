@@ -4,20 +4,24 @@ from pathlib import Path
 import yaml
 import datetime
 
-def ensure_directory_structure(root_dir: str) -> None:
+def ensure_directory_structure(root: Path) -> None:
     """
-    Create the explicit directory tree required by plan.md and Constitution Principle V.
-    Creates:
-      src/models, src/data, src/training, src/experiments, src/utils
-      tests/unit, tests/integration
-      scripts
-      data/results, data/logs, data/configs
-      state
-    """
-    root = Path(root_dir)
+    Create the required directory tree for data hygiene and project structure.
     
-    # Core source directories
-    dirs = [
+    Creates:
+    - data/raw: For raw, unprocessed data downloads
+    - data/processed: For cleaned, transformed data ready for modeling
+    - data/interim: For intermediate data states during processing
+    - src/ subdirectories (models, data, training, experiments, utils)
+    - tests/ subdirectories (unit, integration)
+    - scripts/
+    - data/results, data/logs, data/configs
+    - state/
+    """
+    directories = [
+        "data/raw",
+        "data/processed",
+        "data/interim",
         "src/models",
         "src/data",
         "src/training",
@@ -29,57 +33,49 @@ def ensure_directory_structure(root_dir: str) -> None:
         "data/results",
         "data/logs",
         "data/configs",
-        "state"
+        "state",
     ]
     
-    created = []
-    for d in dirs:
-        path = root / d
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            created.append(str(path))
-        elif not path.is_dir():
-            raise RuntimeError(f"Path exists but is not a directory: {path}")
-    
-    if created:
-        print(f"Created {len(created)} directories:")
-        for c in created:
-            print(f"  {c}")
-    else:
-        print("All required directories already exist.")
+    for dir_path in directories:
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
 
-def create_state_template(root_dir: str) -> None:
+def create_state_template(root: Path) -> None:
     """
-    Create state/template.yaml with keys: hashes, artifacts, updated_at
-    as required by Constitution Principle V.
+    Create the initial state/template.yaml file if it doesn't exist.
+    
+    Schema: {"hashes": {}, "artifacts": {}, "updated_at": "YYYY-MM-DDTHH:MM:SSZ"}
     """
-    root = Path(root_dir)
     template_path = root / "state" / "template.yaml"
     
     if template_path.exists():
-        print(f"Template already exists at {template_path}, skipping creation.")
+        print(f"State template already exists at {template_path}")
         return
-
-    template_data = {
+    
+    template_content = {
         "hashes": {},
-        "artifacts": [],
-        "updated_at": datetime.datetime.utcnow().isoformat() + "Z"
+        "artifacts": {},
+        "updated_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     }
     
-    with open(template_path, "w", encoding="utf-8") as f:
-        yaml.dump(template_data, f, default_flow_style=False, sort_keys=False)
+    with open(template_path, 'w') as f:
+        yaml.dump(template_content, f, default_flow_style=False)
     
     print(f"Created state template at {template_path}")
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python scripts/setup_directories.py <project_root>")
-        sys.exit(1)
+def main() -> None:
+    """Main entry point for directory setup."""
+    # Determine project root (assume script is in code/scripts/)
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent.parent
     
-    project_root = sys.argv[1]
+    print(f"Project root: {project_root}")
+    
     ensure_directory_structure(project_root)
     create_state_template(project_root)
-    print("Directory setup complete.")
+    
+    print("Directory structure setup complete.")
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,13 @@
 """
-Scaling study for Cortical Column LLMs.
-Varies column count (1x, 2x, 4x) and trains on standard synthetic tasks.
+Scaling experiments for Cortical Column LLMs.
+
+This module implements the scaling study to vary column count and neuron counts
+to analyze the scaling laws of the microcircuit-based architecture.
+
+Outputs:
+    data/results/scaling_results.json: Results of scaling variants
 """
+
 import json
 import logging
 import os
@@ -9,248 +15,313 @@ import sys
 import time
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Any, Optional
+
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
+import numpy as np
 
-# Import from existing project modules
+# Import from project modules
 from src.models.hybrid_network import create_hybrid_network, HybridNetwork
-from src.models.microcircuit import create_microcircuit_column
+from src.models.microcircuit import MicrocircuitColumnConfig, LayerConfig
+from src.training.trainer import TrainingConfig, run_training, calculate_mae
 from src.data.benchmarks import generate_training_data, generate_test_data
-from src.training.trainer import run_training, TrainingConfig, calculate_mae
-from src.training.homeostasis import apply_scaling_hook, HomeostasisConfig
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class ScalingConfig:
-    """Configuration for a single scaling variant."""
+    """Configuration for a scaling variant."""
     name: str
     columns: int
-    hidden_dim: int
     neurons_per_layer: int
+    hidden_dim: int = 64
     num_layers: int = 4
-    seq_len: int = 100
+    dropout: float = 0.1
+    learning_rate: float = 0.001
     batch_size: int = 32
     epochs: int = 10
-    learning_rate: float = 1e-3
     seed: int = 42
-
+    
 @dataclass
 class ScalingResult:
-    """Result of training a scaling variant."""
-    variant: str
+    """Result from training a scaling variant."""
+    variant_name: str
     columns: int
-    params: int
-    mae: float
-    time: float
+    neurons_per_layer: int
+    total_params: int
+    train_mae: float
+    test_mae: float
+    training_time: float
+    peak_memory_mb: float
+    
 
-def create_scaling_configs() -> List[ScalingConfig]:
+def create_scaling_configs(base_config: Optional[Dict[str, Any]] = None) -> List[ScalingConfig]:
     """
-    Generate configurations for 1x, 2x, and 4x scaling.
-    Base: hidden_dim=64, neurons_per_layer=128
+    Generate scaling configurations by varying column count and neuron density.
+    
+    Args:
+        base_config: Optional base configuration to override defaults.
+    
+    Returns:
+        List of ScalingConfig objects for 1x, 2x, 4x variants.
     """
-    base_hidden_dim = 64
-    base_neurons = 128
-    base_layers = 4
-
-    configs = [
-        ScalingConfig(
-            name="1x_baseline",
-            columns=1,
-            hidden_dim=base_hidden_dim,
-            neurons_per_layer=base_neurons,
-            num_layers=base_layers
-        ),
-        ScalingConfig(
-            name="2x_scaled",
-            columns=2,
-            hidden_dim=base_hidden_dim,
-            neurons_per_layer=base_neurons * 2,
-            num_layers=base_layers
-        ),
-        ScalingConfig(
-            name="4x_scaled",
-            columns=4,
-            hidden_dim=base_hidden_dim,
-            neurons_per_layer=base_neurons * 4,
-            num_layers=base_layers
-        ),
-    ]
+    defaults = {
+        'hidden_dim': 64,
+        'neurons_per_layer': 128,
+        'num_layers': 4,
+        'epochs': 10,
+        'learning_rate': 0.001,
+        'batch_size': 32,
+        'seed': 42
+    }
+    
+    if base_config:
+        defaults.update(base_config)
+    
+    configs = []
+    
+    # 1x variant (baseline)
+    configs.append(ScalingConfig(
+        name='1x_baseline',
+        columns=1,
+        neurons_per_layer=defaults['neurons_per_layer'],
+        hidden_dim=defaults['hidden_dim'],
+        num_layers=defaults['num_layers'],
+        epochs=defaults['epochs'],
+        learning_rate=defaults['learning_rate'],
+        batch_size=defaults['batch_size'],
+        seed=defaults['seed']
+    ))
+    
+    # 2x variant (double neurons)
+    configs.append(ScalingConfig(
+        name='2x_neurons',
+        columns=2,
+        neurons_per_layer=defaults['neurons_per_layer'] * 2,
+        hidden_dim=defaults['hidden_dim'],
+        num_layers=defaults['num_layers'],
+        epochs=defaults['epochs'],
+        learning_rate=defaults['learning_rate'],
+        batch_size=defaults['batch_size'],
+        seed=defaults['seed']
+    ))
+    
+    # 4x variant (quadruple neurons)
+    configs.append(ScalingConfig(
+        name='4x_neurons',
+        columns=4,
+        neurons_per_layer=defaults['neurons_per_layer'] * 4,
+        hidden_dim=defaults['hidden_dim'],
+        num_layers=defaults['num_layers'],
+        epochs=defaults['epochs'],
+        learning_rate=defaults['learning_rate'],
+        batch_size=defaults['batch_size'],
+        seed=defaults['seed']
+    ))
+    
     return configs
+
 
 def create_model_from_config(config: ScalingConfig) -> HybridNetwork:
     """
-    Instantiate a HybridNetwork with the specified scaling parameters.
-    The 'columns' argument determines the number of microcircuit columns
-    repeated in the network.
+    Create a HybridNetwork model from a ScalingConfig.
+    
+    Args:
+        config: Scaling configuration.
+    
+    Returns:
+        Initialized HybridNetwork model.
     """
-    logger.info(f"Creating model for {config.name}: columns={config.columns}, neurons={config.neurons_per_layer}")
-
-    # Create a microcircuit column with the specified neuron count
-    # We assume the HybridNetwork accepts a 'num_columns' and 'neurons_per_layer'
-    # The create_hybrid_network function needs to be adapted to accept these params
-    # For now, we construct the model manually to ensure correct parameterization
-
-    # We'll create a standard HybridNetwork but modify its internal structure
-    # to reflect the scaling. Since create_hybrid_network is the public API,
-    # we pass the scaled neurons_per_layer.
-    # Note: The 'columns' parameter is handled by repeating the microcircuit
-    # module 'columns' times in the network.
-
-    # Construct the microcircuit column
-    microcircuit = create_microcircuit_column(
-        neurons_per_layer=config.neurons_per_layer,
-        num_layers=config.num_layers
-    )
-
-    # Create the hybrid network with the scaled microcircuit
-    # We assume HybridNetwork can accept a custom microcircuit module
-    model = HybridNetwork(
-        microcircuit=microcircuit,
+    logger.info(f"Creating model for variant: {config.name}")
+    logger.info(f"  Columns: {config.columns}, Neurons/layer: {config.neurons_per_layer}")
+    
+    # Create microcircuit column config
+    column_config = MicrocircuitColumnConfig(
         num_columns=config.columns,
-        hidden_dim=config.hidden_dim
+        neurons_per_layer=config.neurons_per_layer,
+        hidden_dim=config.hidden_dim,
+        dropout=config.dropout
     )
-
+    
+    # Create the hybrid network
+    model = create_hybrid_network(
+        num_columns=config.columns,
+        neurons_per_layer=config.neurons_per_layer,
+        hidden_dim=config.hidden_dim,
+        num_layers=config.num_layers,
+        dropout=config.dropout
+    )
+    
     return model
 
+
 def count_parameters(model: nn.Module) -> int:
-    """Count total trainable parameters."""
+    """Count total trainable parameters in a model."""
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
 
 def train_scaling_variant(config: ScalingConfig) -> ScalingResult:
     """
-    Train a single scaling variant and return the result.
+    Train a single scaling variant and return results.
+    
+    Args:
+        config: Scaling configuration.
+    
+    Returns:
+        ScalingResult with metrics and timing.
     """
-    logger.info(f"Starting training for {config.name}")
-    start_time = time.time()
-
-    # Set seed for reproducibility
+    logger.info(f"Starting training for variant: {config.name}")
+    
+    # Set random seed for reproducibility
     torch.manual_seed(config.seed)
-
+    np.random.seed(config.seed)
+    
     # Generate data
-    train_data, train_labels = generate_training_data(
-        n_samples=1000,
-        seq_len=config.seq_len,
-        seed=config.seed
-    )
-    test_data, test_labels = generate_test_data(
-        n_samples=500,
-        seq_len=config.seq_len,
-        seed=config.seed + 1
-    )
-
-    # Convert to tensors
-    train_dataset = TensorDataset(train_data, train_labels)
-    test_dataset = TensorDataset(test_data, test_labels)
-
-    train_loader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=config.batch_size, shuffle=False)
-
+    logger.info("Generating training and test data...")
+    train_data = generate_training_data(seed=config.seed)
+    test_data = generate_test_data(seed=config.seed + 1000)  # Different seed for independence
+    
     # Create model
     model = create_model_from_config(config)
-    num_params = count_parameters(model)
-    logger.info(f"Model {config.name} has {num_params} parameters")
-
-    # Optimizer
-    optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
-
-    # Training config
+    total_params = count_parameters(model)
+    logger.info(f"Model created with {total_params:,} parameters")
+    
+    # Configure training
     training_config = TrainingConfig(
         epochs=config.epochs,
+        batch_size=config.batch_size,
         learning_rate=config.learning_rate,
-        device="cpu",
         gradient_clip=1.0,
-        log_interval=10
+        seed=config.seed,
+        log_gradients=True,
+        homeostasis_enabled=True
     )
-
-    # Homeostasis config (optional, can be disabled if needed)
-    homeostasis_config = HomeostasisConfig(
-        enabled=True,
-        target_ei_ratio=4.0,
-        decay_rate=0.01
-    )
-
+    
     # Train
-    # Note: run_training expects a model, optimizer, loaders, and config
-    # We need to ensure it supports homeostasis
+    start_time = time.time()
+    logger.info(f"Starting training for {config.epochs} epochs...")
+    
     try:
         metrics = run_training(
             model=model,
-            optimizer=optimizer,
-            train_loader=train_loader,
-            test_loader=test_loader,
+            train_data=train_data,
+            test_data=test_data,
             config=training_config,
-            homeostasis_config=homeostasis_config,
-            apply_scaling_hook_fn=apply_scaling_hook
+            variant_name=config.name
         )
     except Exception as e:
         logger.error(f"Training failed for {config.name}: {e}")
         raise
-
-    elapsed_time = time.time() - start_time
-
-    # Evaluate final MAE
-    model.eval()
-    all_preds = []
-    all_targets = []
-    with torch.no_grad():
-        for batch_x, batch_y in test_loader:
-            outputs = model(batch_x)
-            all_preds.append(outputs.numpy() if hasattr(outputs, 'numpy') else outputs.cpu().numpy())
-            all_targets.append(batch_y.numpy() if hasattr(batch_y, 'numpy') else batch_y.cpu().numpy())
-
-    import numpy as np
-    preds = np.concatenate(all_preds, axis=0)
-    targets = np.concatenate(all_targets, axis=0)
-    mae = calculate_mae(preds, targets)
-
-    logger.info(f"Completed {config.name}: MAE={mae:.4f}, Time={elapsed_time:.2f}s")
-
+    
+    training_time = time.time() - start_time
+    
+    # Calculate final metrics
+    train_mae = metrics.get('train_mae', 0.0)
+    test_mae = metrics.get('test_mae', 0.0)
+    peak_memory = metrics.get('peak_memory_mb', 0.0)
+    
+    logger.info(f"Training completed for {config.name}")
+    logger.info(f"  Train MAE: {train_mae:.4f}")
+    logger.info(f"  Test MAE: {test_mae:.4f}")
+    logger.info(f"  Training time: {training_time:.2f}s")
+    
     return ScalingResult(
-        variant=config.name,
+        variant_name=config.name,
         columns=config.columns,
-        params=num_params,
-        mae=float(mae),
-        time=float(elapsed_time)
+        neurons_per_layer=config.neurons_per_layer,
+        total_params=total_params,
+        train_mae=round(train_mae, 4),
+        test_mae=round(test_mae, 4),
+        training_time=round(training_time, 2),
+        peak_memory_mb=round(peak_memory, 2)
     )
 
-def run_scaling_study(output_path: str = "data/results/scaling_results.json") -> List[ScalingResult]:
-    """
-    Run the full scaling study (1x, 2x, 4x) and save results.
-    """
-    logger.info("Starting scaling study")
 
-    configs = create_scaling_configs()
+def run_scaling_study(
+    configs: Optional[List[ScalingConfig]] = None,
+    output_path: str = "data/results/scaling_results.json"
+) -> List[ScalingResult]:
+    """
+    Run the full scaling study across all variants.
+    
+    Args:
+        configs: List of scaling configurations (defaults to 1x, 2x, 4x).
+        output_path: Path to save results JSON.
+    
+    Returns:
+        List of ScalingResult objects.
+    """
+    if configs is None:
+        configs = create_scaling_configs()
+    
+    logger.info(f"Running scaling study with {len(configs)} variants")
+    
     results = []
-
     for config in configs:
         try:
             result = train_scaling_variant(config)
             results.append(result)
         except Exception as e:
-            logger.error(f"Failed to train {config.name}: {e}")
-            # Re-raise to ensure failure is caught
-            raise
-
+            logger.error(f"Failed to train variant {config.name}: {e}")
+            # Continue with other variants
+            continue
+    
     # Save results
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    output_data = {
-        "variants": [asdict(r) for r in results]
+    
+    results_dict = {
+        "variants": [
+            {
+                "name": r.variant_name,
+                "columns": r.columns,
+                "neurons_per_layer": r.neurons_per_layer,
+                "params": r.total_params,
+                "train_mae": r.train_mae,
+                "test_mae": r.test_mae,
+                "time": r.training_time,
+                "peak_memory_mb": r.peak_memory_mb
+            }
+            for r in results
+        ]
     }
-
+    
     with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-
-    logger.info(f"Scaling study complete. Results saved to {output_path}")
+        json.dump(results_dict, f, indent=2)
+    
+    logger.info(f"Scaling results saved to {output_path}")
+    
     return results
 
+
 def main():
-    """Entry point for the scaling study script."""
-    output_path = "data/results/scaling_results.json"
-    run_scaling_study(output_path)
+    """Main entry point for scaling study."""
+    logger.info("Starting scaling study...")
+    
+    # Run the study
+    results = run_scaling_study()
+    
+    # Print summary
+    logger.info("\n" + "="*60)
+    logger.info("SCALING STUDY SUMMARY")
+    logger.info("="*60)
+    
+    for r in results:
+        logger.info(f"{r.variant_name}:")
+        logger.info(f"  Columns: {r.columns}, Neurons/layer: {r.neurons_per_layer}")
+        logger.info(f"  Parameters: {r.total_params:,}")
+        logger.info(f"  Train MAE: {r.train_mae:.4f}")
+        logger.info(f"  Test MAE: {r.test_mae:.4f}")
+        logger.info(f"  Time: {r.training_time:.2f}s")
+    
+    logger.info("="*60)
+    
+    return results
+
 
 if __name__ == "__main__":
     main()

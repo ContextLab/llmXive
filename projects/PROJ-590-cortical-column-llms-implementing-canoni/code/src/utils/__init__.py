@@ -1,1 +1,1 @@
-"""Utility functions for statistics, reporting, and analysis."""
+"""Utility functions for statistics and reporting."""

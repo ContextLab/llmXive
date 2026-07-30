@@ -1,1 +1,1 @@
-"""Experiment runners for baseline, microcircuit, ablation, and scaling studies."""
+"""Experiment runners and configuration management."""

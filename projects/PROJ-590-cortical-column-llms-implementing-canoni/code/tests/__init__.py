@@ -1,1 +1,1 @@
-"""Test suite for Cortical Column LLMs project."""
+"""Test suite root package."""

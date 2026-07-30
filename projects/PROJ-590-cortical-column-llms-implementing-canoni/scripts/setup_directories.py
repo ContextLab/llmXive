@@ -1,88 +1,84 @@
 """
 Script to create the required directory structure for the project.
-Also creates the state template YAML file as required by Constitution Principle V.
+Ensures all directories specified in plan.md exist.
 """
 import os
 import sys
-import json
-from datetime import datetime
 from pathlib import Path
+import yaml
+import datetime
 
-# Define the required directory tree relative to the project root
-REQUIRED_DIRS = [
-    "src/models",
-    "src/data",
-    "src/training",
-    "src/experiments",
-    "src/utils",
-    "tests/unit",
-    "tests/integration",
-    "scripts",
-    "data/results",
-    "data/logs",
-    "data/configs",
-    "state",
-]
-
-def create_directories():
-    """Create all required directories if they do not exist."""
-    project_root = Path(__file__).resolve().parent.parent
-    created = []
-    for dir_path in REQUIRED_DIRS:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path.relative_to(project_root)))
-            print(f"Created directory: {full_path.relative_to(project_root)}")
-        else:
-            print(f"Directory already exists: {full_path.relative_to(project_root)}")
-    
-    if not created:
-        print("All required directories already exist.")
-    else:
-        print(f"Created {len(created)} new directories.")
-    
-    return project_root
-
-def create_state_template(project_root):
+def ensure_directory_structure(root_path: Path) -> None:
     """
-    Create the state template YAML file with required keys:
-    hashes, artifacts, updated_at
-    """
-    state_dir = project_root / "state"
-    template_file = state_dir / "project_state.yaml"
+    Creates the required directory tree as per plan.md.
     
-    # Prepare the initial state content
-    initial_state = {
+    Required directories:
+    - src/models, src/data, src/training, src/experiments, src/utils
+    - tests/unit, tests/integration
+    - scripts
+    - data/results, data/logs, data/configs
+    - state
+    """
+    required_dirs = [
+        "src/models",
+        "src/data",
+        "src/training",
+        "src/experiments",
+        "src/utils",
+        "tests/unit",
+        "tests/integration",
+        "scripts",
+        "data/results",
+        "data/logs",
+        "data/configs",
+        "state",
+        # Additional directories from T001b and T001c context
+        "data/raw",
+        "data/processed",
+        "data/interim",
+        "tests/unit/models",
+        "tests/unit/data",
+    ]
+
+    for dir_path in required_dirs:
+        full_path = root_path / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
+
+def create_state_template(root_path: Path) -> None:
+    """
+    Creates the initial state/template.yaml file if it doesn't exist.
+    This satisfies T001f requirement for artifact versioning.
+    """
+    template_path = root_path / "state" / "template.yaml"
+    
+    if template_path.exists():
+        print(f"State template already exists at {template_path}")
+        return
+
+    template_content = {
         "hashes": {},
-        "artifacts": [],
-        "updated_at": datetime.utcnow().isoformat() + "Z"
+        "artifacts": {},
+        "updated_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     }
     
-    # Write as YAML (using simple formatting to avoid external deps if possible, 
-    # but since we are in a Python script, we can use a simple manual dump or PyYAML if available)
-    # To ensure robustness without assuming PyYAML is installed yet, we write manually.
-    # However, the task requires a YAML file. Let's try to import yaml, fallback to manual.
+    with open(template_path, 'w') as f:
+        yaml.dump(template_content, f, default_flow_style=False, sort_keys=False)
     
-    try:
-        import yaml
-        with open(template_file, "w") as f:
-            yaml.dump(initial_state, f, default_flow_style=False, sort_keys=False)
-        print(f"Created state template: {template_file.relative_to(project_root)}")
-    except ImportError:
-        # Fallback: write manually formatted YAML
-        with open(template_file, "w") as f:
-            f.write("hashes: {}\n")
-            f.write("artifacts: []\n")
-            f.write(f"updated_at: {initial_state['updated_at']}\n")
-        print(f"Created state template (manual YAML): {template_file.relative_to(project_root)}")
+    print(f"Created state template: {template_path}")
 
 def main():
-    print("Setting up project directory structure...")
-    project_root = create_directories()
+    """Main entry point for directory setup."""
+    # Determine project root (parent of scripts directory)
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent
+    
+    print(f"Project root: {project_root}")
+    
+    ensure_directory_structure(project_root)
     create_state_template(project_root)
-    print("Directory setup complete.")
-    return 0
+    
+    print("Directory structure setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
