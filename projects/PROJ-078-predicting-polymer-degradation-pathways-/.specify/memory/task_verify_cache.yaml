@@ -1,3 +1,10 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings, screenshots, or file\u2011tree output were provided to\
+    \ demonstrate that the required folders (`code/`, `data/raw/`, `data/processed/`,\
+    \ `data/reports/`, `tests/`, `state/`) actually exist; without such evidence the\
+    \ claim cannot be verified."
 T003:
   c: true
   h: 56622f8f9f3bdf7152fcf252035075b3ce09841be9b398d9fadfc5d8887fa275
@@ -5,6 +12,13 @@ T003:
     \ linting settings and a `[format]` section aligning with Black\u2019s defaults,\
     \ fulfilling the requirement to configure linting/formatting in the specified\
     \ location."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides only the task description and feature specifications; there
+    is no evidence of a `tests/` directory, nor any `tests/unit` or `tests/integration`
+    subfolders, nor any pytest configuration or test files. The required pytest framework
+    and directory structure are missing.
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,13 +40,6 @@ T014:
     of the required functionality without the actual script, so the required artifact
     is missing. The task cannot be considered completed until a concrete implementation
     that converts SMILES to RDKit molecular graphs and handles valid records is present.
-T014b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `preprocess.py` file or any code, logs, or documentation were presented that
-    shows records with missing temperature, pH, or UV are excluded from the training
-    set and that the exclusion count and reasons are logged. The required artifact
-    is missing, so the task is not satisfied.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,13 +47,21 @@ T015:
     \ detection was provided, nor any example input/output showing that non\u2011\
     polyester records are filtered out. Without the actual artifact, the requirement\
     \ cannot be verified."
-T016:
+T017:
+  c: false
+  h: 2bc0adcf7691c564c230557599375c9252e39ec6737afc64ac7a944130947db1
+  r: "The required input file `data/processed/processed_graph_dataset.csv` is missing,\
+    \ so no statistical power analysis could be performed and no output artifact (e.g.,\
+    \ report or results) is present. The task\u2019s core requirement is therefore\
+    \ unmet."
+T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `preprocess.py` script is present, nor are any raw, processed, or augmented
-    dataset files (or their checksum files) found in the expected `data/raw/`, `data/processed/`,
-    or `data/processed/augmented/` directories. Consequently the required output and
-    verification artifacts are missing.
+  r: No `preprocess.py` file or any code that performs the saving of the final processed
+    dataset was provided. Without the actual script (or evidence of its existence
+    and functionality), the requirement to implement data saving cannot be confirmed.
+    The next implementer must add a concrete `preprocess.py` that writes the processed
+    dataset to disk (e.g., CSV, Parquet, or similar) and include the file in the repository.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,16 +70,10 @@ T023:
     one\u2011out) training loop, seed pinning, macro\u2011F1 reporting, or convergence\
     \ check. The implementer must supply a non\u2011empty `train.py` that fulfills\
     \ all specified behaviors."
-T024:
+T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `model.py` (or any code) implementing Integrated Gradients for feature importance
-    was provided; without the file or its contents we cannot confirm the required
-    functionality exists. The task remains undone.
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `evaluate.py` script is present, and there are no saved model checkpoints,\
-    \ validation macro\u2011F1 reports, or Integrated Gradients attribution maps in\
-    \ `data/reports/`. Without these concrete artifacts the task requirements are\
-    \ not met."
+  r: "No `train.py` (or equivalent training script) is present, nor any logs or output\
+    \ showing a k\u2011fold (or leave\u2011one\u2011out) training loop, random\u2011\
+    seed pinning, mean macro\u2011F1 reporting, or loss\u2011convergence checking.\
+    \ The required artifact is missing, so the task is not satisfied."

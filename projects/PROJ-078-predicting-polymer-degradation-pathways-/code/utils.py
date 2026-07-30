@@ -5,103 +5,169 @@ from pathlib import Path
 from typing import Optional, Callable, Any, Dict
 import random
 
-# Global logger configuration state
-_logger_configured = False
-
-def setup_logging(level: int = logging.INFO, log_file: Optional[str] = None) -> None:
+def setup_logging(
+    level: int = logging.INFO,
+    log_file: Optional[str] = None,
+    format_str: Optional[str] = None
+) -> logging.Logger:
     """
-    Configure root logger with console and optional file handlers.
+    Set up logging configuration with optional file handler.
+    
+    Args:
+        level: Logging level (default: INFO)
+        log_file: Optional path to log file
+        format_str: Optional log format string
+    
+    Returns:
+        Root logger instance
     """
-    global _logger_configured
-    if _logger_configured:
-        return
-
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-
+    if format_str is None:
+        format_str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    
+    # Create root logger
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    
+    # Clear existing handlers
+    logger.handlers.clear()
+    
     # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    root_logger.addHandler(ch)
-
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+    console_handler.setFormatter(logging.Formatter(format_str))
+    logger.addHandler(console_handler)
+    
+    # File handler if specified
     if log_file:
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        root_logger.addHandler(fh)
-
-    _logger_configured = True
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(level)
+        file_handler.setFormatter(logging.Formatter(format_str))
+        logger.addHandler(file_handler)
+    
+    return logger
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Get a logger instance by name.
+    Get a logger with the specified name.
+    
+    Args:
+        name: Logger name (usually __name__)
+    
+    Returns:
+        Logger instance
     """
     return logging.getLogger(name)
 
-def load_config_env(env_file: Optional[str] = None) -> Dict[str, str]:
+def load_config_env(
+    config_path: Optional[str] = None,
+    env_prefix: str = "POLYMER_"
+) -> Dict[str, Any]:
     """
-    Load environment variables from a .env file if it exists.
+    Load configuration from environment variables and optional config file.
+    
+    Args:
+        config_path: Optional path to YAML/JSON config file
+        env_prefix: Prefix for environment variables
+    
+    Returns:
+        Configuration dictionary
     """
     config = {}
-    if env_file and os.path.exists(env_file):
-        with open(env_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
-                    key, value = line.split('=', 1)
-                    os.environ[key.strip()] = value.strip()
-                    config[key.strip()] = value.strip()
+    
+    # Load from config file if provided
+    if config_path:
+        config_path = Path(config_path)
+        if config_path.exists():
+            if config_path.suffix == '.yaml' or config_path.suffix == '.yml':
+                try:
+                    import yaml
+                    with open(config_path, 'r') as f:
+                        file_config = yaml.safe_load(f)
+                        config.update(file_config or {})
+                except ImportError:
+                    get_logger(__name__).warning("PyYAML not installed, skipping YAML config")
+            elif config_path.suffix == '.json':
+                import json
+                with open(config_path, 'r') as f:
+                    file_config = json.load(f)
+                    config.update(file_config)
+    
+    # Override with environment variables
+    for key, value in os.environ.items():
+        if key.startswith(env_prefix):
+            config_key = key[len(env_prefix):].lower()
+            config[config_key] = value
+    
     return config
 
-def get_project_paths() -> Dict[str, Path]:
+def get_project_paths() -> Any:
     """
-    Return a dictionary of project root paths based on the current working directory.
-    Assumes the script is run from the project root.
+    Get project root and key directory paths.
+    
+    Returns:
+        Simple namespace with path attributes
     """
-    root = Path.cwd()
-    # Fallback if run from inside code/
-    if (root / "code").exists() and (root / "data").exists():
-        pass
-    elif (root.parent / "code").exists() and (root.parent / "data").exists():
-        root = root.parent
-
-    return {
-        "root": root,
-        "code": root / "code",
-        "data_raw": root / "data" / "raw",
-        "data_processed": root / "data" / "processed",
-        "data_reports": root / "data" / "reports",
-        "tests": root / "tests",
-        "state": root / "state"
-    }
+    # Assume project root is parent of 'code' directory
+    current_dir = Path(__file__).parent
+    root = current_dir.parent
+    
+    class Paths:
+        def __init__(self, root):
+            self.root = root
+            self.code = root / "code"
+            self.data_raw = root / "data" / "raw"
+            self.data_processed = root / "data" / "processed"
+            self.data_reports = root / "data" / "reports"
+            self.tests = root / "tests"
+            self.state = root / "state"
+            self.specs = root / "specs"
+    
+    return Paths(root)
 
 def retry_with_backoff(
     func: Callable,
-    max_retries: int = 3,
+    max_retries: int = 5,
     base_delay: float = 1.0,
-    max_delay: float = 10.0,
-    logger: Optional[logging.Logger] = None
+    max_delay: float = 60.0,
+    backoff_factor: float = 2.0,
+    exceptions: tuple = (Exception,)
 ) -> Any:
     """
-    Execute a function with exponential backoff retry logic.
-    """
-    if logger is None:
-        logger = get_logger(__name__)
+    Retry a function with exponential backoff.
     
-    attempt = 0
+    Args:
+        func: Function to execute
+        max_retries: Maximum number of retries
+        base_delay: Initial delay in seconds
+        max_delay: Maximum delay in seconds
+        backoff_factor: Factor to multiply delay by
+        exceptions: Tuple of exceptions to catch and retry
+    
+    Returns:
+        Result of func
+    
+    Raises:
+        Last exception if all retries fail
+    """
+    logger = get_logger(__name__)
     delay = base_delay
     
-    while attempt < max_retries:
+    for attempt in range(max_retries):
         try:
             return func()
-        except Exception as e:
-            attempt += 1
-            if attempt == max_retries:
+        except exceptions as e:
+            if attempt == max_retries - 1:
                 logger.error(f"Failed after {max_retries} attempts: {e}")
                 raise
             
-            logger.warning(f"Attempt {attempt} failed: {e}. Retrying in {delay:.2f}s...")
-            time.sleep(delay)
-            delay = min(delay * 2, max_delay) + random.uniform(0, 0.1)
+            logger.warning(
+                f"Attempt {attempt + 1}/{max_retries} failed: {e}. "
+                f"Retrying in {delay:.2f}s..."
+            )
+            time.sleep(delay + random.uniform(0, 0.1 * delay))  # Add jitter
+            delay = min(delay * backoff_factor, max_delay)
+    
+    # Should never reach here, but just in case
+    raise RuntimeError("Retry loop exited without returning")

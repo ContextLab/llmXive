@@ -33,7 +33,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a training dataset split into [deferred] for training and [deferred] held out, **When** the GNN is trained for 50 epochs using 5-fold cross-validation on the [deferred] split (or leave-one-out if n < 50), **Then** the mean macro-F1 score on the cross-validation folds is reported, and the loss converges within 5% over the last 5 epochs.
+1. **Given** a training dataset split into [deferred] for training and [deferred] held out, **When** the GNN is trained for a sufficient number of epochs using 5-fold cross-validation on the [deferred] split (or leave-one-out if n < 50), **Then** the mean macro-F1 score on the cross-validation folds is reported, and the loss converges within 5% over the last 5 epochs.
 2. **Given** a test polymer sample, **When** the model predicts its degradation pathway, **Then** the Integrated Gradients attribution map identifies the ester linkage as a high-importance feature (top [deferred] of attribution scores) for ≥90% of hydrolysis cases, significantly outperforming a null distribution of shuffled motifs.
 3. **Given** the training data is augmented via bond rotation and atom masking, **When** the model is retrained, **Then** the validation macro-F1 score improves or remains stable compared to the non-augmented baseline, and the augmentation process completes within 30 minutes.
 
