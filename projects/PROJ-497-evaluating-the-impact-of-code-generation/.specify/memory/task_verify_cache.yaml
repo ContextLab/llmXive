@@ -1,27 +1,10 @@
-T013:
+T001:
   c: false
-  h: 35e50ccc8795705df7d2ec6a86972e1bd95e997208341a4f73c54a7f54ca2632
-  r: "The repository contains a partially shown `code/analyze.py`, but the file is\
-    \ truncated and does not demonstrate logic that scans both `data/generated/` and\
-    \ `data/human/`, aggregates results, and writes them to `data/processed/bandit_raw_reports.json`.\
-    \ Moreover, the required output file `data/processed/bandit_raw_reports.json`\
-    \ is absent. The task\u2019s core deliverable is therefore not present."
-T013b:
-  c: false
-  h: 5a4b52e0dff58d1d7c6c007cd1eb612d577e1becced6cf3d3db2ae2767380411
-  r: "The repository lacks both `data/processed/bandit_raw_reports.json` (input) and\
-    \ `data/processed/vulnerability_reports.json` (output), and the shown `code/analyze.py`\
-    \ snippet does not contain logic that reads the raw JSON and writes the required\
-    \ structured report. Consequently the task\u2019s core requirement is not satisfied."
-T014:
-  c: false
-  h: 047b7850be2f6007c874081dac221644271ab726087ea249ae969f86a102915f
-  r: "The repository lacks the required input `data/processed/vulnerability_reports.json`\
-    \ and the generated output `data/processed/raw_vulnerability_counts.csv`. Moreover,\
-    \ `code/stats.py` is only partially shown, ends abruptly in the middle of a function,\
-    \ and does not contain a clear implementation that reads the JSON report and writes\
-    \ the CSV with the specified columns. The task\u2019s core functionality and artifacts\
-    \ are therefore missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `data/`, `results/`, `state/`,\
+    \ `tests/`) being present or populated was provided; the implementer\u2019s claim\
+    \ cannot be verified from the given artifacts. The missing project structure must\
+    \ be created and shown."
 T015:
   c: false
   h: e62edfa0203265b9f90985cff252d50c74b86d2e2e87a611f6369e12e1d162ed
@@ -46,8 +29,51 @@ T020:
     test. The missing CSV and incomplete code must be added to satisfy the task.
 T022:
   c: false
-  h: 7f6ebfb42764f6404012e02b35901a1a9f7c5065923aa5c5f39c518a953d0353
-  r: "The repository contains `code/validator.py`, but the file is truncated and does\
-    \ not show the required deterministic stratified sampling, heuristic matching,\
-    \ or CSV writing logic. Moreover, the expected output file `data/processed/validator_flags.csv`\
-    \ is absent. The task\u2019s core deliverables are therefore not present."
+  h: 1582374efcb464cc287677d70f16229bfe2990695a5bfd414a13877db3ee01c8
+  r: "The required output file `data/processed/validator_flags.csv` is absent, and\
+    \ the provided `code/validator.py` is truncated before showing the sampling, pattern\u2011\
+    matching, and CSV\u2011writing logic, so the task\u2019s core requirements are\
+    \ not demonstrably fulfilled. The missing CSV must be generated with the specified\
+    \ columns for the task to be considered complete."
+T023:
+  c: false
+  h: b6a09e87b960826629fa5a8fb5573a40e5bf635f68f941b25990d60351aaac86
+  r: "The required output file `data/processed/fpr_metrics.json` does not exist, and\
+    \ the provided `code/stats.py` excerpt shows only helper functions with no visible\
+    \ logic that reads `validator_flags.csv` and computes group\u2011specific false\
+    \ positive rates. Both the artifact and the core functionality are missing."
+T032:
+  c: false
+  h: 224be298f6ee9b05e92ccdd1881022aad9f33e207e0481a5c7d81f4857d317a0
+  r: The required output file `results/summary.md` does not exist, and the supporting
+    data file `data/processed/fpr_metrics.json` is also missing, so the script cannot
+    generate the required report with the specified statistics and image paths.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or test evidence was provided showing that the\
+    \ report\u2011generation component reads exclusively from `data/processed`. The\
+    \ required artifact (e.g., updated report generation code, unit test, or documentation\
+    \ confirming the single\u2011source\u2011of\u2011truth behavior) is missing, so\
+    \ the task\u2019s requirement is not demonstrated."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No reproducibility evidence was supplied: there are no logs, CSV/JSON files,\
+    \ or comparison results showing that two pipeline runs with the same seed produced\
+    \ identical floating\u2011point outputs (\u2264\u202F1e\u20116 difference), nor\
+    \ any verification of identical model convergence status or seed initialization.\
+    \ The required artifacts are missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test execution logs, result files, or any indication that `pytest` was run
+    and all tests passed are present; the provided information contains only the task
+    description and no artifacts demonstrating successful test execution.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No log files, report artifacts, or verification scripts were provided to demonstrate\
+    \ that PII does not appear in logs or generated reports. The implementer\u2019\
+    s submission contains only a unrelated feature specification and no concrete evidence\
+    \ that the security\u2011hardening requirement has been met."

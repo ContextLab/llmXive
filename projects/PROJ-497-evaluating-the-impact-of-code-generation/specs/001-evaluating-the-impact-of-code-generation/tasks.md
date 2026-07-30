@@ -43,7 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `state/`, `tests/`)
+- [ ] T001a [P] Create `code/` directory structure and verify with `ls -R code/` (artifact: `setup-code-dir.log`)
+- [ ] T001b [P] Create `data/` directory structure and verify with `ls -R data/` (artifact: `setup-data-dir.log`)
+- [ ] T001c [P] Create `results/` directory structure and verify with `ls -R results/` (artifact: `setup-results-dir.log`)
+- [ ] T001d [P] Create `tests/` directory structure and verify with `ls -R tests/` (artifact: `setup-tests-dir.log`)
 - [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (transformers, datasets, bandit, scikit-learn, statsmodels, pandas, matplotlib, seaborn, pyyaml, pingouin)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
@@ -55,15 +58,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/config.py` to manage global config, random seeds, and path constants <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
- in "<unicode string>", line 2, column 11:
- def test_get_config_structure(self):
- ^
-expected <block end>, but found '<scalar>'
- in "<unicode string>", line 3, column 17:
- """Verify get_config returns a dic...
- ^) -->
+- [X] T004 Implement `code/config.py` to manage global config, random seeds, and path constants
 - [X] T005 [P] Create `code/config/bandit_config.yaml` defining the pinned rule-set and exclusions for static analysis (Constitution Principle VI)
+- [X] T005b [P] Create `code/config/cwe_patterns.yaml` defining the complete mapping of CWE IDs to regex patterns for the Reference-Validator Agent
 - [X] T006 [P] Implement `code/download.py` to fetch HumanEval and MBPP datasets from HuggingFace `datasets` library with SHA-256 checksum verification (Constitution Principle III)
 - [X] T007 Create `code/state_utils.py` to compute and store artifact hashes in `state/artifact_hashes.yaml` upon data completion
 - [X] T008 Implement `code/main.py` as the pipeline orchestrator with argument parsing for model selection and benchmark targets
@@ -86,11 +83,9 @@ expected <block end>, but found '<scalar>'
 ### Implementation for User Story 1
 
 - [X] T011 Implement the loader function in `code/download.py` for StarCoder and CodeGen (CPU-only, default precision, no 8-bit/4-bit quantization) to fit ≤7GB RAM. **Note**: Must run sequentially to respect RAM limits; do not load multiple models simultaneously.
-- [X] T012 [US1] Implement `code/generate.py` to select **ALL tasks** from HumanEval and MBPP benchmarks (FR-002) and execute the generation loop. **Logic**: For each task, iterate generation until ≥ 64 valid samples are obtained OR 200 attempts are exhausted. If 200 attempts are exhausted for any task, log the error, flag the dataset as 'insufficient data', and halt the pipeline. **Validation**: Execute benchmark tests on generated samples to determine validity. **Output**: Valid samples saved to `data/generated/{model}/{benchmark}/{task_id}/samples/`.
-- [ ] T013 [US1] Implement `code/analyze.py` to **execute Bandit** on all files in `data/generated/` and `data/human/` using `code/config/bandit_config.yaml`, handling syntax errors by skipping files and logging errors (US-1 Edge Case). **Output**: `data/processed/bandit_raw_reports.json`.
-- [ ] T013b [US1] Implement parsing logic in `code/analyze.py` to read `data/processed/bandit_raw_reports.json` and generate a structured vulnerability report `data/processed/vulnerability_reports.json` containing `file_path`, `cwe_id`, `severity`, and `line_number`. <!-- FAILED: unspecified -->
-- [ ] T014 [US1] Implement `code/stats.py` to calculate `vulnerability_count` and `lines_of_code` **per sample** (one row per file) from `data/processed/vulnerability_reports.json`, producing `data/processed/raw_vulnerability_counts.csv` (FR-004). Schema: `task_id`, `source_type`, `file_path`, `lines_of_code`, `vulnerability_count`.
-- [ ] T015 [US1] Implement aggregation logic in `code/stats.py` to calculate **mean vulnerability count per task** (LLM) vs **single count per task** (Human) from `data/processed/raw_vulnerability_counts.csv`, producing `data/processed/aggregated_analysis_dataset.csv` (Plan Update: Unit of Analysis = Task). <!-- FAILED: unspecified -->
+- [X] T012 [US1] Implement `code/generate.py` to select **ALL tasks** from HumanEval and MBPP benchmarks (FR-002) and execute the generation loop. **Logic**: For each task, iterate generation until ≥ 64 valid samples are obtained OR 200 attempts are exhausted. If 200 attempts are exhausted for any task, log the error, flag the dataset as 'insufficient data', and **exit with code 1** to halt the pipeline. **Validation**: Execute benchmark tests using `evaluate.human_eval` for HumanEval and `mbpp.eval` for MBPP to determine validity. **Output**: Valid samples saved to `data/generated/{model}/{benchmark}/{task_id}/samples/`.
+- [ ] T013 [US1] Implement `code/analyze.py` to **execute Bandit** on all files in `data/generated/` and `data/human/` using the exact command: `bandit -r <path> -f json -o <output> --ini code/config/bandit_config.yaml`. **Logic**: Parse file paths to map to `task_id` and `source_type`. Aggregate multiple Bandit issues per file into a single `vulnerability_count`. **Output 1**: `data/processed/raw_vulnerability_reports.json` (full Bandit details). **Output 2**: `data/processed/raw_vulnerability_counts.csv` (Columns: `task_id`, `source_type`, `file_path`, `lines_of_code`, `vulnerability_count`). **Verification**: Script MUST exit with code 1 if either output file is missing after execution. Log message "ERROR: Analysis output files missing" must be present on failure.
+- [X] T015 [US1] Implement aggregation logic in `code/stats.py` to calculate **mean vulnerability count per task** from `data/processed/raw_vulnerability_counts.csv`. **Logic**: Group by `task_id` and `source_type` before calculating the mean. **Output**: Write the aggregated DataFrame to `data/processed/aggregated_analysis_dataset.csv` with schema: `task_id`, `source_type`, `benchmark`, `lines_of_code` (mean), `vulnerability_count` (mean), `is_valid`.
 - [X] T016 [US1] Add error handling in `code/generate.py` to halt and flag dataset as 'insufficient data' if <64 valid samples are obtained after 200 attempts per task (US-1 Acceptance 5).
 - [X] T017 [US1] Add logging for generation failures and static analysis parse errors in `code/generate.py` and `code/analyze.py`.
 
@@ -111,13 +106,14 @@ expected <block end>, but found '<scalar>'
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/stats.py` (ZINB) to define and fit Zero-Inflated Negative Binomial regression: `vulnerability_count ~ source_type + lines_of_code + (1|benchmark)` using `data/processed/aggregated_analysis_dataset.csv`. **Note**: Do NOT use `(1|task_id)` as `task_id` is unique per row. **Fallback**: If ZINB fails to converge after 3 attempts, execute a permutation test on raw counts (FR-005, FR-015). **Input**: Raw counts (no FPR adjustment).
-- [X] T021 [US2] Implement stratified analysis logic in `code/stats.py` to group by CWE ID, skip tests if n<5 per group, and apply Benjamini-Hochberg correction to p-values (FR-006, FR-007).
-- [ ] T022 [US2] Implement `code/validator.py` as the Reference-Validator Agent: **First**, implement deterministic seed-based subset selection to choose a stratified random sample (n=20) per group. **Second**, use rule-based heuristics to match CWE signatures to code patterns on the selected sample (FR-014, Constitution Principle II). **Output**: `data/processed/validator_flags.csv` (columns: `sample_id`, `is_valid`).
-- [~] T023 [US2] Implement FPR calculation in `code/stats.py` using `data/processed/validator_flags.csv` to compute group-specific False Positive Rates (FR-012). **Output**: `data/processed/fpr_metrics.json`. **Note**: This FPR is reported as a sensitivity metric only; do NOT apply the adjustment formula to the primary outcome.
+- [X] T020 [US2] Implement `code/stats.py` to perform **Primary Statistical Analysis**. **Step 1**: Read `data/processed/aggregated_analysis_dataset.csv`. **Step 2**: Use `vulnerability_count` (RAW) as the primary metric for the ZINB model. **Step 3**: Fit Zero-Inflated Negative Binomial regression: `vulnerability_count ~ source_type + lines_of_code + (1|benchmark)` using `statsmodels.discrete.discrete_model.ZeroInflatedNegativeBinomialP`. **Note**: Do NOT use `(1|task_id)` as `task_id` is the unique row identifier. **Step 4**: If ZINB fails to converge after attempts, execute a permutation test on raw counts. **Output**: Update `data/processed/aggregated_analysis_dataset.csv` with `test_type`, `p_value`, `confidence_interval`, and `convergence_status`. **Note**: Do NOT apply FPR adjustment here; this is for sensitivity analysis only.
+- [ ] T020b [US2] Implement **Sensitivity Analysis** in `code/stats.py`. **Logic**: If `data/processed/fpr_metrics.json` exists, calculate `adjusted_vulnerability_count = vulnerability_count * (1 - group_FPR)`. Fit a secondary ZINB regression using `adjusted_vulnerability_count`. **Output**: Append results to `data/processed/aggregated_analysis_dataset.csv` with `analysis_type = 'sensitivity'`. If `fpr_metrics.json` is missing, skip this task and log "Sensitivity analysis skipped: fpr_metrics.json missing".
+- [X] T021 [US2] Implement stratified analysis logic in `code/stats.py` to group by CWE ID. **Logic**: Check `n >= 5` per group (LLM vs Human) on the **aggregated** dataset. If `n < 5` for a category, log a warning and skip the test for that category. If `n >= 5`, perform the test and apply Benjamini-Hochberg correction to p-values (FR-006, FR-007).
+- [X] T022 [US2] Implement `code/validator.py` as the Reference-Validator Agent: **First**, implement deterministic seed-based subset selection to choose a stratified random sample (n=20) per group. **Second**, use rule-based heuristics from `code/config/cwe_patterns.yaml` to match CWE signatures to code patterns on the selected sample (FR-014, Constitution Principle II). **Output**: `data/processed/validator_flags.csv` (columns: `sample_id`, `is_valid`).
+- [ ] T023 [US2] Implement FPR calculation in `code/stats.py` using `data/processed/validator_flags.csv` to compute group-specific False Positive Rates (FR-012). **Logic**: FPR = (Count where Validator='Clean' AND Bandit='Vuln') / (Total Count where Validator='Clean'). **Output Schema**: `data/processed/fpr_metrics.json` must contain: `{ "group_FPR": { "LLM": float, "Human": float }, "total_samples": int, "false_positives": int }`.
 - [X] T025 [US2] Implement post-hoc power analysis in `code/stats.py` if valid sample count <64; flag dataset as 'under-powered' if power <0.80 (FR-009).
 - [X] T026 [US2] Implement cross-benchmark (HumanEval vs MBPP) and cross-model (StarCoder vs CodeGen) comparison logic in `code/stats.py` (FR-011, FR-013).
-- [ ] T027 [US2] Generate `data/processed/aggregated_analysis_dataset.csv` with final statistics, effect sizes (IRR), and flags (Plan Phase 2.2).
+- [X] T027a [US2] Generate `data/processed/aggregated_analysis_dataset.csv` with final statistics, effect sizes (IRR), and flags. **Schema**: `task_id`, `source_type`, `benchmark`, `lines_of_code`, `vulnerability_count`, `adjusted_vulnerability_count` (nullable), `is_valid`, `power_flag`, `test_type`, `p_value`, `ci_lower`, `ci_upper`, `analysis_type` ('primary' or 'sensitivity').
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,9 +133,9 @@ expected <block end>, but found '<scalar>'
 ### Implementation for User Story 3
 
 - [X] T030 [P] [US3] Implement `code/viz.py` to generate boxplots comparing LLM vs. Human vulnerability counts (FR-008).
-- [X] T031 [US3] Implement `code/viz.py` to generate bar charts for top 5 vulnerability types by frequency per source (FR-008).
-- [~] T032 [US3] Implement `code/report.py` to generate `results/summary.md` containing key statistics, effect sizes, FPR sensitivity metrics, and paths to generated images (FR-008).
-- [~] T033 [US3] Ensure report generation reads exclusively from `data/processed` to satisfy Single Source of Truth (Constitution Principle IV).
+- [X] T031 [US3] Implement `code/viz.py` to generate bar charts for top vulnerability types by frequency per source (FR-008).
+- [ ] T032 [US3] Implement `code/report.py` to generate `results/summary.md`. **Template**: Must include sections: `## Statistical Summary`, `## Sensitivity Analysis`, `## Visualizations`. **Content**: Must include key statistics (p-value, IRR, 95% CI bounds), FPR sensitivity metrics (read from `data/processed/fpr_metrics.json`), and paths to generated images (FR-008). **Constraint**: Script MUST verify it reads exclusively from `data/processed` and fails if hardcoded values are detected.
+- [ ] T033 [US3] Ensure report generation reads exclusively from `data/processed` to satisfy Single Source of Truth (Constitution Principle IV). **Verification**: Add a unit test in `tests/contract/test_report.py` that mocks `data/processed` and verifies no external data sources are accessed.
 - [X] T034 [US3] Add resource usage logging (CPU time, memory) to `code/main.py` to verify ≤6h / ≤7GB limits (SC-004).
 
 **Checkpoint**: All user stories should now be independently functional
@@ -151,11 +147,13 @@ expected <block end>, but found '<scalar>'
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T035 [P] Update `docs/quickstart.md` with instructions to run the full pipeline and reproduce results
-- [X] T036 Code cleanup and refactoring of `code/stats.py` for readability
-- [ ] T037 Verify reproducibility by running pipeline twice with same seed and checking absolute difference ≤1e-6 in **all derived floating-point outputs** (SC-005).
-- [ ] T038 [P] Run `pytest` suite to ensure all unit and integration tests pass
-- [ ] T039 Security hardening: Verify no PII leakage in logs or generated reports
-- [ ] T040 Run quickstart.md validation to ensure end-to-end execution works
+- [ ] T036a [P] Refactor `code/stats.py`: Remove unused imports and verify with `ruff check` (artifact: `refactor-logs.txt`)
+- [ ] T036b [P] Refactor `code/stats.py`: Extract functions > 50 lines into smaller units; verify cyclomatic complexity < 10 (artifact: `complexity-report.txt`)
+- [ ] T037a [P] Implement reproducibility check for floating-point outputs: Re-run pipeline with same seed, compare `data/processed/aggregated_analysis_dataset.csv` and `results/summary.md` using `pandas.testing.assert_frame_equal` with `rtol=1e-6`. **Artifact**: `reproducibility-float-diff.log`.
+- [ ] T037b [P] Implement reproducibility check for status/seeds: Re-run pipeline, compare `convergence_status` and `random_seed` fields using exact string equality. **Artifact**: `reproducibility-status-diff.log`.
+- [ ] T038 [P] Run `pytest` suite and verify all tests pass. **Artifact**: `pytest-results.xml` and `pytest-console.log`.
+- [ ] T039 [P] Security hardening: Verify no PII leakage in logs or generated reports. **Tool**: `grep -rE 'email|ssn|phone'`. **Artifact**: `pii-scan.log`.
+- [ ] T040 [P] Run quickstart.md validation. **Success Criteria**: Exit code 0 and output contains "Pipeline Complete". **Artifact**: `quickstart-run.log`.
 
 ---
 
@@ -249,3 +247,9 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All model loading tasks (T011) MUST use CPU-only, default precision (no 8-bit/4-bit) to ensure feasibility on GitHub Actions free tier.
 - **Critical Constraint**: All data generation (T012) MUST use real datasets (HumanEval/MBPP) and validate samples against benchmark tests; no synthetic/fake data allowed.
+- **Statistical Note**: T020 implements the primary ZINB model on RAW counts. T020b handles the sensitivity analysis with FPR adjustment.
+- **Data Flow**: T023 produces `fpr_metrics.json` which is consumed by T020b (Sensitivity), NOT T020 (Primary).
+- **Revision Note**: T013 explicitly defines the Bandit execution command and output schema to resolve ambiguity in the original analysis task.
+- **Revision Note**: T023 is now explicitly required before T020b can apply the FPR adjustment, ensuring the data dependency is clear.
+- **Revision Note**: T040 has been re-enabled to ensure end-to-end validation of the quickstart guide.
+- **Revision Note**: T037 has been split into T037a (floats) and T037b (status/seeds) to resolve logical comparison errors.
