@@ -1,66 +1,78 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: EstimationResult
 description: >
-  Schema for the output of meta-analysis estimation procedures.
-  This artifact records the pooled effect estimates, heterogeneity statistics (Q, I^2),
-  and reliability flags for each simulated replicate.
+  Schema for the result of applying a meta-analysis estimator to a simulated dataset.
+  Includes pooled effect estimates, confidence intervals, heterogeneity statistics,
+  and reliability flags based on study count.
 type: object
 required:
   - replicate_id
-  - estimator_type
+  - tau2_level
+  - estimator_name
   - pooled_effect
   - se_pooled
   - ci_lower
   - ci_upper
-  - Q
-  - I_squared
+  - i_squared
+  - q_statistic
+  - q_p_value
   - reliability_flag
-  - injected_true_effect
-  - injected_tau2
-  - N_studies
+  - true_effect
+  - bias
+  - coverage
 properties:
   replicate_id:
     type: integer
     description: Unique identifier for the simulation replicate.
-  estimator_type:
+  tau2_level:
+    type: number
+    description: The injected between-study variance (tau^2) for this replicate.
+  estimator_name:
     type: string
-    enum: ["Fixed-Effects", "DerSimonian-Laird", "REML"]
-    description: The estimation method used.
+    description: Name of the estimator used (e.g., "FixedEffects", "DL", "REML").
   pooled_effect:
     type: number
-    description: The calculated pooled effect size (theta_hat).
+    description: The pooled effect size estimate.
   se_pooled:
     type: number
-    description: Standard error of the pooled effect.
+    description: Standard error of the pooled effect estimate.
   ci_lower:
     type: number
-    description: Lower bound of the 95% confidence interval.
+    description: Lower bound of the confidence interval.
   ci_upper:
     type: number
-    description: Upper bound of the 95% confidence interval.
-  Q:
+    description: Upper bound of the confidence interval.
+  i_squared:
+    type: number
+    description: I^2 statistic representing the percentage of total variation across studies due to heterogeneity rather than chance.
+  q_statistic:
     type: number
     description: Cochran's Q statistic for heterogeneity.
-  I_squared:
+  q_p_value:
     type: number
-    description: I^2 statistic representing the percentage of variation across studies due to heterogeneity rather than chance.
+    description: P-value associated with Cochran's Q statistic.
   reliability_flag:
     type: boolean
     description: >
-      Flag indicating data quality. Set to False if N_studies < 5,
-      otherwise True.
-  injected_true_effect:
+      Indicates if the result is considered reliable.
+      Set to False if N_studies < 5 (as defined in T011b), True otherwise.
+  true_effect:
     type: number
     description: The ground-truth effect size injected during simulation.
-  injected_tau2:
+  bias:
     type: number
-    description: The ground-truth between-study variance (tau^2) injected during simulation.
-  N_studies:
+    description: Difference between pooled_effect and true_effect.
+  coverage:
+    type: boolean
+    description: >
+      Whether the confidence interval [ci_lower, ci_upper] contains the true_effect.
+  n_studies:
     type: integer
-    description: Number of studies included in this replicate.
-  convergence_status:
-    type: string
-    enum: ["converged", "failed", "skipped"]
-    description: Status of the estimation algorithm (relevant for REML).
-    default: "converged"
+    description: Number of studies included in this meta-analysis estimate.
+  convergence_success:
+    type: boolean
+    description: Whether the estimator converged successfully (relevant for REML).
+  failure_reason:
+    type: ["string", "null"]
+    description: If convergence_success is false, a string describing the reason; otherwise null.
 additionalProperties: false

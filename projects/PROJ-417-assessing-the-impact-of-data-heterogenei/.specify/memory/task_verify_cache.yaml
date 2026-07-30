@@ -14,14 +14,6 @@ T010:
     \ implementer must add the full simulation loop (\u2265500 replicates per level),\
     \ ensure the generated datasets include the `injected_true_effect` and `injected_tau2`\
     \ columns, and provide the missing schema file."
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code artifact (e.g., modified `generator.py`) was provided to show the required\
-    \ logic for handling cases where the number of studies\u202FN\u202Fis\u202F<\u202F\
-    5. Without the actual implementation or a description of the changes, we cannot\
-    \ confirm that the edge\u2011case handling (flagging/excluding replicates) has\
-    \ been added. The task remains unfinished."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

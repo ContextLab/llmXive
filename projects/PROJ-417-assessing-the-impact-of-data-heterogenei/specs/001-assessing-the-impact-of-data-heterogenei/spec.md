@@ -13,7 +13,7 @@
 
 **Why this priority**: Without the ability to generate controlled, reproducible data with known heterogeneity parameters, the core research question (relationship between heterogeneity and estimator performance) cannot be answered. This is the foundational capability.
 
-**Independent Test**: The system is tested by running the simulation script with a fixed seed and a small subset of heterogeneity levels (e.g., $\tau$) and 10 replicates. The output JSON must contain the injected $\tau^2$ values and the generated effect sizes, and the process must exit with status code 0 within 10 minutes.
+**Independent Test**: The system is tested by running the simulation script with a fixed seed and a small subset of heterogeneity levels (e.g., $\tau$) and multiple replicates. The output JSON must contain the injected $\tau^2$ values and the generated effect sizes, and the process must exit with status code 0 within 10 minutes.
 
 **Acceptance Scenarios**:
 
@@ -35,7 +35,7 @@
 
 1. **Given** a set of 500 simulated datasets with a known true effect size of 0.5, **When** the Random-Effects (DerSimonian-Laird) estimator is applied, **Then** the system calculates the pooled estimate and 95% CI for each, and correctly flags the proportion of CIs containing 0.5 (coverage).
 2. **Given** the same 500 datasets, **When** the Fixed-Effects estimator is applied, **Then** the system calculates the pooled estimate and CI, and the resulting bias (pooled estimate - expected value) is recorded for each replicate.
-3. **Given** a simulation run where $\tau^2$ is set to 0, **When** the Fixed-Effects model is applied, **Then** the coverage probability must be statistically indistinguishable from % (within a Monte Carlo error defined as $\pm$ a small margin at 95% confidence, calculated as $1.96 \times \sqrt{0.95 \times 0.05 / 500}$), confirming the baseline validity of the implementation. (See US-2)
+3. **Given** a simulation run where $\tau^2$ is set to 0, **When** the Fixed-Effects model is applied, **Then** the coverage probability must be statistically indistinguishable from the nominal level (within a Monte Carlo error defined as $\pm$ a small margin at the target confidence, calculated as $1.96 \times \sqrt{p \times (1-p) / N}$), confirming the baseline validity of the implementation. (See US-2)
 
 ---
 
