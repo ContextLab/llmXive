@@ -276,6 +276,34 @@ re-running — same two failures. Do not "fix" by weakening; they need network.
     that stubs above the thing it names proves the stub, and the honest fix is usually to
     lower the injection point rather than to lower the claim.
 
+## Spec gap found before the lifecycle slice (fixed: spec rev 17, FR-034)
+
+Raised in the 2026-07-30 review and CONFIRMED — the transition table left `proposed` with
+only two exits, `ProposalVerified` and `Rejected`, so an operational failure during proposal
+review had no legal transition at all. Two spec passages already routed such failures to
+`eval_failed`/`impl_failed` (FR-033b's `ChainExhausted` line; the LLM-call-ceiling row),
+and NEITHER is reachable from `proposed` — a live internal contradiction, not just an
+omission. The proposal ceiling term `4N + R·(2N+2)` is spent while the Attempt is at
+`proposed`, so the ceiling row was unreachable exactly where it was most likely to fire.
+
+Two things the original finding did not include, both folded into rev 17:
+
+1. **The same gap exists at the PATCH review.** There an infrastructure abort WOULD have had
+   a transition — `eval_failed` — but a counted one, so a provider outage would consume the
+   Problem's quality-failure budget and push it toward a 30-day cooldown. Fixing only the
+   proposal side would have left the two judgment reviews classifying identical failures
+   differently. `FR-034` spans both.
+2. **An uncounted terminal with no bound is a live-lock.** FR-001 already ruled that a
+   transient/availability condition "does NOT by itself count as an Attempt-quality failure
+   or a cooldown event", so `review_aborted` must not touch the quality counter — but then a
+   permanent outage re-proposes the same Problem forever. It carries its own looser bound
+   (5 → 7-day operational cooldown) on a SEPARATE counter.
+
+The naming follows a distinction the spec already made: `*_failed` = the lane reached a
+substantive negative answer; `*_aborted` (`promotion_aborted`, now `review_aborted`) = the
+lane could not reach an answer. `rejected` is substantive — recording it for an
+infrastructure abort would assert a verdict no panel gave.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute
@@ -291,8 +319,15 @@ land.
 **Slice 1A is SIGNED OFF** (maintainer, 2026-07-27): 14/14 tasks, round-9 clean, "no
 remaining correctness findings — the substrate is ready for Slice 1B".
 
-Now executing 1B: `docs/superpowers/plans/2026-07-25-025-slice1b-proposal-convergence.md`
-(10 tasks). Task 1 = the `ReviewRerouted` event type.
+**Slice 1B is SIGNED OFF** (maintainer, 2026-07-29, re-confirmed 2026-07-30 after the
+round-18 clean-abort precision fix): 10/10 tasks plus 4 fixes to already-signed-off 1A
+substrate that the first real end-to-end panel exposed (duplicate `seq`, `GitLogContention`,
+O(n²) appends, the audit sink's non-recursive `_jsonable`). "No remaining correctness
+findings ... ready for the next implementation phase."
+
+Next is the **Attempt-lifecycle slice**, which owns the seam 1B deliberately left open (the
+Attempt-level abort record, round-17 F5). Blocked on a spec amendment first — see
+"Spec gap found before the lifecycle slice" below.
 
 **Do not re-commit `notes/2026-07-15-issue-1139-audit-T+7min.md`.** It is unrelated user
 work that was untracked at session start; `8097c5b183` swept it in and `git rm --cached`
