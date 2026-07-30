@@ -1,3 +1,1 @@
-"""
-Utility functions (logging, config, etc.).
-"""
+# Package marker

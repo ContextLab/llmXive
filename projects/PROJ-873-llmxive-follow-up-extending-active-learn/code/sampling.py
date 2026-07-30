@@ -4,107 +4,147 @@ import random
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 from collections import defaultdict
-from metrics import calculate_dynamic_sample_size
-from config import get_config
 
-def load_comparison_logs():
-    """Load the logged pairwise comparisons from the pipeline."""
-    config = get_config()
-    log_path = os.path.join(config.data_dir, 'logs', 'comparisons.json')
-    if not os.path.exists(log_path):
-        # Fallback to a common location if logs are elsewhere
-        log_path = os.path.join(config.data_dir, 'processed', 'comparison_logs.json')
-    
-    if os.path.exists(log_path):
-        with open(log_path, 'r') as f:
-            return json.load(f)
-    return []
+logger = logging.getLogger(__name__)
 
-def filter_wasted_calls(comparisons: List[Dict[str, Any]]):
-    """Filter comparisons that are flagged as 'wasted' (similarity > 0.95)."""
-    wasted = []
-    for comp in comparisons:
-        if comp.get('similarity', 0) > 0.95:
-            wasted.append(comp)
-    return wasted
+def load_comparison_logs(path: str) -> List[Dict[str, Any]]:
+    """Load comparison logs from a JSON file."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Comparison logs not found: {path}")
+    with open(path, 'r') as f:
+        return json.load(f)
 
-def stratify_by_query(comparisons: List[Dict[str, Any]]):
-    """Group comparisons by query_id for stratified sampling."""
-    buckets = defaultdict(list)
-    for comp in comparisons:
-        qid = comp.get('query_id', 'unknown')
-        buckets[qid].append(comp)
-    return buckets
+def filter_wasted_calls(logs: List[Dict[str, Any]], threshold: float = 0.95) -> List[Dict[str, Any]]:
+    """Filter logs to include only wasted calls (similarity > threshold)."""
+    return [log for log in logs if log.get("similarity", 0.0) > threshold]
 
-def select_stratified_sample(comparisons: List[Dict[str, Any]], sample_size: int) -> List[int]:
-    """Select a stratified random sample from comparisons."""
-    if not comparisons:
-        return []
-    
-    random.shuffle(comparisons)
-    sample = comparisons[:sample_size]
-    return [c.get('index', i) for i, c in enumerate(sample)]
-
-def run_sampling_pipeline():
+def stratify_by_similarity(logs: List[Dict[str, Any]], bins: int = 5) -> Dict[float, List[int]]:
     """
-    Main entry point to generate the consensus sample.
-    This ensures data/results/consensus_sample.json is written.
+    Stratify logs by similarity score into bins.
+    
+    Returns a dictionary mapping bin center to list of indices.
     """
-    config = get_config()
+    if not logs:
+        return {}
     
-    # Load comparison logs
-    comparisons = load_comparison_logs()
-    if not comparisons:
-        logging.warning("No comparison logs found. Creating an empty sample.")
-        # Create empty sample if no data
-        output_path = os.path.join(config.data_dir, 'results', 'consensus_sample.json')
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump([], f)
+    # Determine range
+    similarities = [log.get("similarity", 0.0) for log in logs]
+    min_sim = min(similarities)
+    max_sim = max(similarities)
+    
+    # Create bins
+    bin_width = (max_sim - min_sim) / bins if max_sim > min_sim else 1.0
+    bins_dict = defaultdict(list)
+    
+    for idx, log in enumerate(logs):
+        sim = log.get("similarity", 0.0)
+        # Calculate bin index
+        bin_idx = int((sim - min_sim) / bin_width) if bin_width > 0 else 0
+        bin_idx = min(bin_idx, bins - 1)  # Ensure within bounds
+        bin_center = min_sim + bin_idx * bin_width + bin_width / 2
+        bins_dict[bin_center].append(idx)
+    
+    return dict(bins_dict)
+
+def select_stratified_sample(
+    logs: List[Dict[str, Any]],
+    sample_size: int,
+    bins: int = 5
+) -> List[int]:
+    """
+    Select a stratified random sample from logs.
+    
+    Args:
+        logs: List of comparison logs
+        sample_size: Total number of samples to select
+        bins: Number of similarity bins for stratification
+    
+    Returns:
+        List of indices selected for the sample
+    """
+    if not logs:
         return []
     
-    # Filter wasted calls
-    wasted = filter_wasted_calls(comparisons)
-    
-    if not wasted:
-        logging.warning("No wasted calls found. Creating an empty sample.")
-        output_path = os.path.join(config.data_dir, 'results', 'consensus_sample.json')
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump([], f)
+    # Filter for wasted calls
+    wasted_logs = filter_wasted_calls(logs)
+    if not wasted_logs:
+        logger.warning("No wasted calls found for sampling")
         return []
     
-    # Calculate dynamic sample size
-    sample_size = calculate_dynamic_sample_size(len(wasted))
-    sample_size = min(sample_size, len(wasted))
+    # Stratify
+    strata = stratify_by_similarity(wasted_logs, bins)
     
-    # Stratify and sample
-    buckets = stratify_by_query(wasted)
+    # Calculate proportional sample size per stratum
+    total_wasted = len(wasted_logs)
     sample_indices = []
     
-    # Simple stratified sampling: take proportional sample from each bucket
-    for qid, items in buckets.items():
-        n = max(1, int(len(items) * (sample_size / len(wasted))))
-        n = min(n, len(items))
-        selected = random.sample(items, n)
-        sample_indices.extend([item.get('index', i) for i, item in enumerate(selected)])
+    for bin_center, indices in strata.items():
+        # Proportional allocation
+        prop = len(indices) / total_wasted
+        n = max(1, int(prop * sample_size))  # At least 1 per stratum if possible
+        
+        # Ensure we don't exceed available
+        n = min(n, len(indices))
+        
+        # Random sample from this stratum
+        selected = random.sample(indices, n)
+        sample_indices.extend(selected)
     
-    # Ensure we have exactly sample_size items
-    if len(sample_indices) > sample_size:
-        sample_indices = random.sample(sample_indices, sample_size)
+    # If we need more samples, fill from the largest strata
+    while len(sample_indices) < sample_size and strata:
+        # Find largest stratum not fully sampled
+        for bin_center, indices in sorted(strata.items(), key=lambda x: len(x[1]), reverse=True):
+            remaining = [i for i in indices if i not in sample_indices]
+            if remaining:
+                needed = sample_size - len(sample_indices)
+                sample_indices.extend(random.sample(remaining, min(needed, len(remaining))))
+                break
+        else:
+            break  # No more available
+    
+    return sample_indices[:sample_size]
+
+def run_sampling_pipeline(
+    logs_path: str,
+    config_path: str,
+    output_path: str
+) -> None:
+    """
+    Run the full sampling pipeline.
+    
+    1. Load logs
+    2. Load config (sample size)
+    3. Select stratified sample
+    4. Write output
+    """
+    # Load config
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    
+    sample_size = config.get("sample_size", 50)
+    
+    # Load logs
+    logs = load_comparison_logs(logs_path)
+    
+    # Select sample
+    sample_indices = select_stratified_sample(logs, sample_size)
     
     # Write output
-    output_path = os.path.join(config.data_dir, 'results', 'consensus_sample.json')
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
     with open(output_path, 'w') as f:
         json.dump(sample_indices, f, indent=2)
     
-    logging.info(f"Consensus sample generated: {len(sample_indices)} items -> {output_path}")
+    logger.info(f"Selected {len(sample_indices)} samples. Output: {output_path}")
     return sample_indices
 
 def main():
-    run_sampling_pipeline()
+    """Main entry point."""
+    logging.basicConfig(level=logging.INFO)
+    run_sampling_pipeline(
+        logs_path="data/processed/comparison_logs.json",
+        config_path="data/results/sample_config.json",
+        output_path="data/results/consensus_sample.json"
+    )
 
 if __name__ == "__main__":
     main()

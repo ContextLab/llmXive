@@ -1,3 +1,1 @@
-"""
-Test suite root.
-"""
+# Package marker

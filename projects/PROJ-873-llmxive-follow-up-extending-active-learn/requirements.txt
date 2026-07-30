@@ -10,7 +10,3 @@ nltk
 ollama
 transformers
 pyyaml
-ruff
-black
-resource
-signal

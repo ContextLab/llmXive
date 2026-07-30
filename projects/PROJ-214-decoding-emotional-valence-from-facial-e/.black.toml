@@ -1,0 +1,46 @@
+# Black configuration for PROJ-214: Decoding Emotional Valence from Facial EMG
+# This file configures the Black code formatter to ensure consistent style across the project.
+
+# Target Python version (matching project requirements)
+target-version = ['py311']
+
+# Line length limit (standard Black default, but explicit for clarity)
+line-length = 88
+
+# Exclude generated or third-party directories
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | state
+)/
+'''
+
+# Include files matching these patterns (default is all .py files)
+force-exclude = ''
+
+# Enable all stable features
+preview = false
+
+# Skip magic trailing comma (default behavior)
+# skip-magic-trailing-comma = false
+
+# Skip string normalization (default behavior)
+# skip-string-normalization = false
+
+# Fast mode (use with caution in CI)
+# fast = false
+
+# Quiet mode (reduce output)
+# quiet = false
+
+# Verbose mode (increase output)
+# verbose = false

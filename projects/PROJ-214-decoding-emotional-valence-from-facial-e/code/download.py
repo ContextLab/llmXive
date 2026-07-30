@@ -1,211 +1,246 @@
 """
-DEAP Dataset Downloader and Validator.
+Dataset Download Module for DEAP EMG Project.
 
-Fetches the official DEAP EMG dataset from the verified HuggingFace source,
-extracts specific EMG channels (corrugator, zygomaticus, orbicularis),
-validates checksums, and saves raw data to data/raw/.
-
-This script adheres to FR-001: Data Acquisition and Integrity.
-It does NOT use synthetic fallbacks. If the real source is unreachable,
-it fails loudly.
+Fetches the official DEAP dataset from the verified HuggingFace source
+(emre-ozgür/DEAP-EMG), extracts specific EMG channels (corrugator, zygomaticus,
+orbicularis), and saves them to data/raw/.
 """
-
 import hashlib
 import os
 import shutil
 import sys
 import tarfile
+import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
+# Attempt to import datasets; if missing, the user must install it.
 try:
     from datasets import load_dataset
 except ImportError:
-    print("Error: The 'datasets' library is required. Install with: pip install datasets")
+    print("ERROR: The 'datasets' library is required. Install with: pip install datasets")
     sys.exit(1)
 
-from config import DATA_RAW_DIR, PROJECT_ROOT
+# Import config to ensure paths are consistent with project standards
+try:
+    from config import get_config_summary, ensure_directories
+except ImportError:
+    # Fallback if config is not yet available in path, though T004 should exist
+    from pathlib import Path
+    def ensure_directories():
+        dirs = ["data/raw", "data/processed", "data/models", "code", "tests"]
+        for d in dirs:
+            Path(d).mkdir(parents=True, exist_ok=True)
+    def get_config_summary():
+        return {}
 
-# Configuration for the verified HuggingFace source
-# This dataset contains the DEAP EMG signals extracted from the original paper.
-HF_DATASET_NAME = "emre-ozgür/DEAP-EMG"
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
 
-# Target EMG channels to extract based on the project requirements
+# Constants
+HF_DATASET_ID = "emre-ozgür/DEAP-EMG"
+# Specific EMG channels required by the project spec
 TARGET_CHANNELS = [
-    "corrugator_supercilii",  # frowning muscle
-    "zygomaticus_major",      # smiling muscle
-    "orbicularis_oculi"       # eye-closing muscle
+    "corrugator",
+    "zygomaticus",
+    "orbicularis"
 ]
-
-# Expected file structure inside the dataset archive
-# We expect raw signal files (e.g., .dat or .csv) or a specific directory structure
-# The HuggingFace dataset 'emre-ozgür/DEAP-EMG' typically provides data in a parquet or csv format
-# or as raw files. We will inspect the downloaded structure.
+# Configuration for the download
+DOWNLOAD_CONFIG = {
+    "dataset_id": HF_DATASET_ID,
+    "split": "train", # Usually DEAP is one big split, but we handle it generically
+    "streaming": False # We need to process locally, so we download
+}
 
 def get_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
-    """Calculate the SHA256 hash of a file."""
-    sha256_hash = hashlib.new(algorithm)
+    """
+    Calculate the hash of a file.
+    Used for integrity verification in T005b.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"Cannot hash missing file: {file_path}")
+
+    hasher = hashlib.new(algorithm)
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(4096), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
-def validate_checksums(extracted_dir: Path, expected_hashes: Optional[Dict[str, str]] = None) -> bool:
+def validate_checksums(checksums: Dict[str, str], data_dir: Path) -> bool:
     """
-    Validate the integrity of the downloaded files.
-    
-    Since the specific checksums for the HF dataset might not be hardcoded here 
-    (as they are derived from the HF repo version), we perform a structural 
-    validation and a size check to ensure data was not truncated.
-    
-    If expected_hashes are provided (e.g., from a manifest), we verify against them.
+    Validate downloaded files against expected checksums.
+    Returns True if all valid, False otherwise.
+    Raises an error if a file is missing.
     """
-    if not extracted_dir.exists():
-        print(f"Error: Downloaded directory {extracted_dir} does not exist.")
-        return False
+    all_valid = True
+    for filename, expected_hash in checksums.items():
+        file_path = data_dir / filename
+        if not file_path.exists():
+            logger.error(f"Missing file for checksum validation: {file_path}")
+            all_valid = False
+            continue
 
-    # Basic validation: ensure we have files
-    file_count = sum(1 for _ in extracted_dir.rglob("*") if _.is_file())
-    if file_count == 0:
-        print("Error: Downloaded directory is empty.")
-        return False
+        actual_hash = get_file_hash(file_path)
+        if actual_hash != expected_hash:
+            logger.error(f"Checksum mismatch for {filename}: Expected {expected_hash}, Got {actual_hash}")
+            all_valid = False
+        else:
+            logger.info(f"Checksum valid for {filename}")
+    return all_valid
 
-    print(f"Validation passed: Found {file_count} files in {extracted_dir}.")
-    return True
-
-def download_and_extract_dataset() -> Path:
+def download_and_extract_dataset(output_dir: Path, overwrite: bool = False) -> Tuple[bool, Optional[str]]:
     """
-    Downloads the DEAP EMG dataset from HuggingFace and extracts it to data/raw/.
-    
+    Fetches the DEAP dataset from HuggingFace, extracts EMG data,
+    and saves it to the specified output directory.
+
     Returns:
-        Path: The path to the extracted data directory.
-    
-    Raises:
-        RuntimeError: If the download fails or the dataset is not found.
+        Tuple[bool, Optional[str]]: (Success status, Error message if failed)
     """
-    raw_dir = Path(DATA_RAW_DIR)
+    ensure_directories()
+    raw_dir = output_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    archive_path = raw_dir / "deap_emg_archive"
-    extracted_path = raw_dir / "deap_emg_extracted"
 
-    # Clean up previous runs if they exist to ensure idempotency
-    if extracted_path.exists():
-        shutil.rmtree(extracted_path)
-    
-    print(f"Loading dataset from HuggingFace: {HF_DATASET_NAME}...")
+    # Check if already downloaded to save time, unless overwrite is True
+    expected_file = raw_dir / "deap_emg_processed.h5" # Assuming H5 or similar from HF
+    # Since we don't know the exact internal structure of the HF dataset without loading,
+    # we will fetch it, process it, and save our own processed CSV/Parquet version
+    # to ensure we have the specific channels requested.
+
+    logger.info(f"Checking dataset availability: {HF_DATASET_ID}")
     try:
-        # Load the dataset in streaming mode to avoid memory issues if it's large
-        # We load it to disk directly if possible, or process in memory then save
-        # The 'datasets' library can download to cache, but we want it in data/raw
-        dataset = load_dataset(HF_DATASET_NAME, split="train", trust_remote_code=True)
-        
-        # Check if the dataset has the expected columns (EMG signals)
-        print(f"Dataset columns: {dataset.column_names}")
-        
-        # If the dataset is provided as a parquet/csv file in the HF repo,
-        # we might just need to download the file. 
-        # However, 'datasets' loads it into memory. To save to disk as a raw file:
-        # We will save it as a parquet file in data/raw for subsequent processing.
-        
-        output_file = raw_dir / "deap_emg_raw.parquet"
-        dataset.to_parquet(str(output_file))
-        print(f"Dataset saved to: {output_file}")
-        
-        # If the dataset is actually a collection of raw .dat files, the HF 
-        # 'download' method usually handles the cache. 
-        # For this implementation, assuming the HF dataset provides the processed 
-        # signals in a table format which we save for the pipeline.
-        
-        # If the specific HF repo contains a tarball of raw files, we would need 
-        # a different approach (downloading the file URL). 
-        # Assuming 'emre-ozgür/DEAP-EMG' provides a standard dataset format.
-        
-        return output_file
-
+        # Load the dataset
+        # Note: We use streaming=False to ensure we have the full data in memory/disk for processing
+        # If the dataset is too large for memory, we would need to stream and chunk,
+        # but DEAP is typically manageable (~1GB raw).
+        ds = load_dataset(HF_DATASET_ID, split="train")
     except Exception as e:
-        print(f"CRITICAL ERROR: Failed to download dataset from {HF_DATASET_NAME}.")
-        print(f"Reason: {str(e)}")
-        print("The pipeline requires real data. Exiting without synthetic fallback.")
-        raise RuntimeError("Real data source unreachable.") from e
+        logger.error(f"Failed to load dataset from HuggingFace: {e}")
+        return False, str(e)
 
-def extract_channels(data_path: Path) -> Path:
-    """
-    Extracts the specific EMG channels (corrugator, zygomaticus, orbicularis)
-    from the downloaded dataset and saves them to a processed raw file.
+    logger.info(f"Dataset loaded successfully. Columns: {ds.column_names}")
+    logger.info(f"Dataset size: {len(ds)} samples")
+
+    # Identify EMG columns
+    # The dataset might have columns like 'emg_corrugator', 'emg_zygomaticus', etc.
+    # or just 'corrugator', 'zygomaticus' if pre-filtered.
+    # We need to map TARGET_CHANNELS to actual column names.
+    available_cols = set(ds.column_names)
+    found_channels = []
+    for channel in TARGET_CHANNELS:
+        # Try exact match first
+        if channel in available_cols:
+            found_channels.append(channel)
+        # Try common prefixes
+        elif f"emg_{channel}" in available_cols:
+            found_channels.append(f"emg_{channel}")
+        else:
+            # Try case insensitive
+            matching = [c for c in available_cols if channel.lower() in c.lower()]
+            if matching:
+                found_channels.append(matching[0])
+            else:
+                logger.warning(f"Could not find channel '{channel}' in dataset. Available: {available_cols}")
+
+    if not found_channels:
+        return False, f"No target EMG channels found in dataset. Available columns: {list(available_cols)}"
+
+    logger.info(f"Found channels: {found_channels}")
+
+    # Prepare data for saving
+    # We need to extract the specific columns and potentially the valence labels
+    # The spec implies we need to save the raw/processed EMG for later feature extraction.
+    # We will save a CSV or Parquet file per subject or one aggregated file.
+    # Given the structure of DEAP, it's usually one file per subject or a big matrix.
+    # Let's assume the HF dataset provides a structure we can iterate.
+
+    # Strategy: Save the relevant columns to a single processed CSV/Parquet in data/raw
+    # to be used by preprocessing.py.
+    # We will also save the labels (valence) if available in the same dataset.
+    valence_col = None
+    for col in available_cols:
+        if "valence" in col.lower():
+            valence_col = col
+            break
+
+    # Create a dictionary for the output
+    output_data = {}
+    for col in found_channels:
+        output_data[col] = ds[col]
     
-    Args:
-        data_path: Path to the downloaded dataset file.
+    if valence_col:
+        output_data["valence"] = ds[valence_col]
+        logger.info(f"Using '{valence_col}' as the target label.")
+
+    # Save to disk
+    # We use pandas for easy CSV/Parquet handling
+    try:
+        import pandas as pd
+        df = pd.DataFrame(output_data)
+        output_file = raw_dir / "deap_emg_subset.csv"
         
-    Returns:
-        Path: Path to the filtered dataset containing only target channels.
+        if overwrite and output_file.exists():
+            output_file.unlink()
+        
+        df.to_csv(output_file, index=False)
+        logger.info(f"Saved processed EMG data to: {output_file}")
+        
+        # Also save metadata about what was saved
+        metadata = {
+            "source": HF_DATASET_ID,
+            "channels": found_channels,
+            "valence_column": valence_col,
+            "total_samples": len(df),
+            "output_file": str(output_file)
+        }
+        metadata_file = raw_dir / "deap_metadata.json"
+        import json
+        with open(metadata_file, "w") as f:
+            json.dump(metadata, f, indent=2)
+        
+        return True, None
+    except Exception as e:
+        logger.error(f"Failed to save dataset to disk: {e}")
+        return False, str(e)
+
+def extract_channels(data_dir: Path, target_channels: List[str]) -> Path:
     """
-    import pandas as pd
-    
-    print(f"Loading data from {data_path}...")
-    df = pd.read_parquet(data_path)
-    
-    # Identify columns that match target channels
-    # The column names in the dataset might vary slightly (e.g., 'corrugator' vs 'corrugator_supercilii')
-    # We perform a fuzzy match or strict match based on the dataset schema.
-    available_cols = df.columns.tolist()
-    print(f"Available columns: {available_cols[:10]}... (truncated)")
-    
-    selected_cols = []
-    missing_cols = []
-    
-    for target in TARGET_CHANNELS:
-        found = False
-        for col in available_cols:
-            if target.lower() in col.lower():
-                selected_cols.append(col)
-                found = True
-                break
-        if not found:
-            missing_cols.append(target)
-    
-    if missing_cols:
-        print(f"Warning: Could not find exact matches for: {missing_cols}")
-        print(f"Proceeding with available channels: {selected_cols}")
-    
-    if not selected_cols:
-        raise ValueError("No target EMG channels found in the dataset. Cannot proceed.")
-    
-    # Save the subset
-    output_file = data_path.parent / "deap_emg_channels.parquet"
-    subset_df = df[selected_cols]
-    subset_df.to_parquet(output_file)
-    print(f"Extracted channels saved to: {output_file}")
-    
-    return output_file
+    Extracts specific channels from a raw dataset file if it's in a compressed format.
+    For this implementation, we assume the download_and_extract_dataset function
+    already handles the extraction and saving to CSV.
+    This function serves as a stub or helper for future compressed raw data handling.
+    """
+    # If the raw data is already a CSV (as per our download logic), we just return the path
+    # If it were a tar.gz, we would extract here.
+    return data_dir / "deap_emg_subset.csv"
 
 def main():
-    """Main entry point for the download task."""
-    print("Starting DEAP Dataset Download (T005)...")
+    """
+    Main entry point for the download script.
+    """
+    config = get_config_summary()
+    project_root = Path(config.get("project_root", "."))
+    data_dir = project_root / "data"
     
-    try:
-        # 1. Download the dataset
-        raw_file = download_and_extract_dataset()
-        
-        # 2. Validate the download (checksum/structure)
-        # Note: We validate the file exists and is readable
-        if not validate_checksums(raw_file.parent, None):
-            raise RuntimeError("Download validation failed.")
-        
-        # 3. Extract specific channels
-        channel_file = extract_channels(raw_file)
-        
-        # 4. Log success
-        print(f"SUCCESS: Dataset prepared at {channel_file}")
-        print(f"Target channels: {TARGET_CHANNELS}")
-        
-    except RuntimeError as e:
-        print(f"FAILED: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"UNEXPECTED ERROR: {e}")
-        import traceback
-        traceback.print_exc()
+    logger.info(f"Starting dataset download to {data_dir}")
+    
+    success, error = download_and_extract_dataset(data_dir, overwrite=False)
+    
+    if success:
+        logger.info("Dataset download and extraction completed successfully.")
+        # Calculate and print hash for T005b
+        raw_file = data_dir / "raw" / "deap_emg_subset.csv"
+        if raw_file.exists():
+            file_hash = get_file_hash(raw_file)
+            logger.info(f"File hash (SHA256): {file_hash}")
+            logger.info("Please record this hash in the state file for T005b.")
+    else:
+        logger.error(f"Dataset download failed: {error}")
         sys.exit(1)
 
 if __name__ == "__main__":

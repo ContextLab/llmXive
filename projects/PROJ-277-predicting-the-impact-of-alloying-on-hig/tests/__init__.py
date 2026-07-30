@@ -1,3 +1,1 @@
-"""
-Test suite.
-"""
+# Tests package

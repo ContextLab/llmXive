@@ -1,3 +1,1 @@
-"""
-Integration tests.
-"""
+# Package marker

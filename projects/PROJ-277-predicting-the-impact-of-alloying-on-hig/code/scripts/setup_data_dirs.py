@@ -1,55 +1,68 @@
-"""
-Script to initialize the data directory structure for the project.
-Creates 'data/raw' and 'data/processed' directories as required by T008.
-"""
 import os
 import sys
 from pathlib import Path
-
-# Add the parent directory of 'scripts' to the path to allow imports from 'code'
-# Assuming this script is located at code/scripts/setup_data_dirs.py
-current_dir = Path(__file__).resolve().parent
-code_root = current_dir.parent
-project_root = code_root.parent
-
-# Ensure the project root is in sys.path for relative imports if needed
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from config import get_config_from_args
 from utils.logger import get_logger
 
 def main():
-    # Parse arguments to get the mode (ci/local) which might affect path logic
-    # although for directory creation, the base paths are usually constant.
-    # We use the config utility to ensure consistency with T005.
+    """
+    Creates the directory tree structure for the project:
+    projects/PROJ-277-predicting-oxidation-resistance/
+    ├── code/
+    ├── data/
+    │   ├── raw/
+    │   └── processed/
+    ├── tests/
+    │   ├── contract/
+    │   ├── integration/
+    │   └── unit/
+    ├── logs/
+    └── data/processed/ (for outputs)
+
+    This script is idempotent.
+    """
     config = get_config_from_args()
     logger = get_logger(__name__)
-
-    logger.info("Starting data directory setup (Task T008)...")
-
-    # Define the base data directory relative to the project root
-    data_dir = project_root / "data"
     
-    # Define subdirectories
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-
-    # Create directories if they don't exist
-    directories = [raw_dir, processed_dir]
+    # The project root is defined relative to where this script runs or via config
+    # Based on task description, we create the structure under the project root.
+    # Assuming the script is run from the project root or the config points to it.
+    # The task specifies: projects/PROJ-277-predicting-oxidation-resistance/
+    # We will create this relative to the current working directory or the config base.
     
-    for dir_path in directories:
-        if not dir_path.exists():
-            try:
-                dir_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {dir_path}")
-            except OSError as e:
-                logger.error(f"Failed to create directory {dir_path}: {e}")
-                sys.exit(1)
+    base_path = Path.cwd()
+    project_root = base_path / "projects" / "PROJ-277-predicting-oxidation-resistance"
+    
+    # If the project root doesn't exist, create it
+    project_root.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensuring project root exists: {project_root}")
+    
+    # Define the subdirectories to create
+    # Based on tasks.md and standard conventions
+    directories = [
+        "code",
+        "data",
+        "data/raw",
+        "data/processed",
+        "tests",
+        "tests/contract",
+        "tests/integration",
+        "tests/unit",
+        "logs",
+        "figures" # Added for T028/T032c requirements
+    ]
+    
+    created_count = 0
+    for dir_name in directories:
+        full_path = project_root / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_count += 1
         else:
-            logger.info(f"Directory already exists: {dir_path}")
-
-    logger.info("Data directory structure setup complete.")
+            logger.debug(f"Directory already exists: {full_path}")
+    
+    logger.info(f"Directory setup complete. Created {created_count} new directories.")
     return 0
 
 if __name__ == "__main__":

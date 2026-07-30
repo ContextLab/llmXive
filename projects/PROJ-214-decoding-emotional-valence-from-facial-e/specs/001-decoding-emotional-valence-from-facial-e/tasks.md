@@ -44,9 +44,9 @@
 **Purpose**: Explicitly document deviations from the Spec to satisfy scientific validity and plan constraints.
 
 1. **FR-005 Cross-Validation**: Spec requires "nested 5-fold cross-validation". Plan implements **Nested Leave-One-Subject-Out (LOSO)**.
- * *Justification*: N=32 subjects yields insufficient test subjects (~6) in 5-fold CV for robust generalization error estimation. [UNRESOLVED-CLAIM: c_3d297a89 — status=not_enough_info] LOSO is the standard for N=32 to maximize test set representation.
+ * *Justification*: N=32 subjects yields insufficient test subjects (~6) in 5-fold CV for robust generalization error estimation. [UNRESOLVED-CLAIM: c_763e0556 — status=not_enough_info] LOSO is the standard for N=32 to maximize test set representation.
 2. **FR-005/FR-007 Model Strategy**: Spec mandates Random Forest for all variance analysis. Plan implements **Dual Model Strategy (Random Forest + Logistic Regression)**.
- * *Justification*: Nagelkerke's R² is mathematically undefined for Random Forests. [UNRESOLVED-CLAIM: c_ae54984d — status=not_enough_info] Logistic Regression is required to calculate this metric scientifically.
+ * *Justification*: Nagelkerke's R² is mathematically undefined for Random Forests. [UNRESOLVED-CLAIM: c_008e4af6 — status=not_enough_info] Logistic Regression is required to calculate this metric scientifically.
 3. **FR-001 Dataset URL**: Spec URL contained SSL error artifacts. Plan uses verified HuggingFace source (`emre-ozgür/DEAP-EMG`).
 
 ---
@@ -55,11 +55,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `code/` and `tests/` directories at repository root
+- [ ] T001a [P] Create `code/` and `tests/` directories at repository root <!-- FAILED: unspecified -->
 - [ ] T001b [P] Create `data/raw`, `data/processed`, `data/models` directories at repository root
 
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, scikit-learn, pandas, joblib, shap, requests, scikit-learn-extra, pytest, pytest-cov)
-- [ ] T003a [P] Create `.ruff.toml` configuration file for linting
+- [X] T003a [P] Create `.ruff.toml` configuration file for linting
 - [ ] T003b [P] Create `.black.toml` configuration file for formatting
 
 ---
@@ -71,7 +71,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/config.py` with paths, hyperparameters, random seeds, and DEAP dataset metadata
-- [ ] T005a [P] Create `code/download.py` to fetch the official DEAP dataset from the verified HuggingFace source (`emre-ozgür/DEAP-EMG`), extract specific EMG channels (corrugator, zygomaticus, orbicularis), and save to `data/raw/` (FR-001 part 1)
+- [X] T005a [P] Create `code/download.py` to fetch the official DEAP dataset from the verified HuggingFace source (`emre-ozgür/DEAP-EMG`), extract specific EMG channels (corrugator, zygomaticus, orbicularis), and save to `data/raw/` (FR-001 part 1)
 - [X] T005c [P] **Implement the `state` file update logic**: Create a utility function in `code/config.py` or a dedicated `code/state_manager.py` to initialize, read, and update the file at `state/projects/PROJ-214-decoding-emotional-valence-from-facial-e.yaml`. This function MUST create the file if missing, ensure the `artifact_hashes` map structure exists (as mandated by Constitution Principle V), and provide a method to record new checksums. (Constitution Principle V)
 - [ ] T005b [P] Implement checksum generation for downloaded DEAP dataset files and record the checksums in the project's `state` file at `state/projects/PROJ-214-decoding-emotional-valence-from-facial-e.yaml` under the key `artifact_hashes` to satisfy FR-001 integrity validation (FR-001 part 2). **Depends on T005c**. (Constitution Principle III)
 - [X] T006 [P] Create `code/preprocessing.py` stubs for filtering, windowing, and feature extraction logic (FR-002, FR-003, FR-004)
@@ -79,8 +79,8 @@
 - [X] T008 Create `code/importance.py` stub for permutation importance and SHAP analysis (FR-006)
 - [X] T009 Create `code/validate.py` stub for permutation tests and sensitivity analysis (FR-008, FR-009)
 - [X] T010 Create `code/report.py` stub for final report generation (FR-009, SC-001..005)
-- [ ] T011a [P] Create `tests/unit/__init__.py`
-- [ ] T011b [P] Create `tests/integration/__init__.py`
+- [X] T011a [P] Create `tests/unit/__init__.py`
+- [X] T011b [P] Create `tests/integration/__init__.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -104,9 +104,9 @@
 
 - [X] T015 [US1] Implement signal filtering in `code/preprocessing.py` (FR-002, FR-003): Apply a band-pass Butterworth filter and a **50 Hz/60 Hz notch filter** (detecting the specific frequency from the dataset metadata or defaulting to 50 Hz if unspecified) to raw EMG signals, followed by baseline correction using the pre-stimulus interval.
 - [X] T016 [US1] Implement non-overlapping short-duration windowing and feature extraction (RMS, ZCR, WAMP, MAV) for 3 muscles in `code/preprocessing.py` (FR-004)
-- [ ] T017a [US1] Implement global data check for 'Skewed Valence Scores' (Edge Case: Skewed Valence) to detect subjects with all scores > 5 or < 5 and **exclude them from the TRAINING folds only** (retaining them for testing if valid) in `code/preprocessing.py`. **Do not exclude from the entire pipeline**; only omit from training data. Log the exclusion reason and subject ID.
+- [X] T017a [US1] Implement global data check for 'Skewed Valence Scores' (Edge Case: Skewed Valence) to detect subjects with all scores > 5 or < 5 and **exclude them from the TRAINING folds only** (retaining them for testing if valid) in `code/preprocessing.py`. **Do not exclude from the entire pipeline**; only omit from training data. Log the exclusion reason and subject ID.
 - [ ] T018 [US1] Implement missing channel imputation (median filter) and explicitly **create and write to `data/processed/exclusions.log`** the exclusion of any subject with missing channels, and log this to the final report in `code/preprocessing.py` (Edge Case: Missing Channels)
-- [ ] T019 [US1] **Implement and execute** Nested Leave-One-Subject-Out (LOSO) cross-validation loop with `joblib` parallelization (**n_jobs=2** to match the 2-CPU runner constraint, with sequential fallback if overhead is detected) in `code/train.py` (FR-005) [Deviation: FR-005 '5-fold' -> LOSO per Plan Complexity Tracking]. **Includes global exclusion logic**: Subjects flagged by T017a (skewed valence) are excluded from the **training folds**; subjects with missing channels (T018) are excluded from the current fold. **Includes model training**: Train both Random Forest (with a configured number of trees), Linear SVM (linear kernel), AND Logistic Regression within the loop with strict subject-level isolation.
+- [X] T019 [US1] **Implement and execute** Nested Leave-One-Subject-Out (LOSO) cross-validation loop with `joblib` parallelization (**n_jobs=2** to match the 2-CPU runner constraint, with sequential fallback if overhead is detected) in `code/train.py` (FR-005) [Deviation: FR-005 '5-fold' -> LOSO per Plan Complexity Tracking]. **Includes global exclusion logic**: Subjects flagged by T017a (skewed valence) are excluded from the **training folds**; subjects with missing channels (T018) are excluded from the current fold. **Includes model training**: Train both Random Forest (with a configured number of trees), Linear SVM (linear kernel), AND Logistic Regression within the loop with strict subject-level isolation.
 - [ ] T021 [US1] Implement window-level prediction aggregation via majority voting to produce subject-level labels in `code/train.py`
 - [ ] T022 [US1] Save `model_bundle.pkl` containing **BOTH the trained Random Forest, Linear SVM, AND Logistic Regression models** to `data/models/` and implement memory flushing (delete intermediate features per subject) to stay <7GB RAM (FR-010). **Ensure the bundle is loadable by subsequent scripts (`importance.py`, `validate.py`) without re-training.** [Deviation: Plan Dual Model Strategy for FR-007].
 - [ ] T023 [US1] Calculate and log cross-validated accuracy against majority class baseline and perform a **permutation test (1000 shuffles)** and **paired t-test (paired on fold-level accuracies)** against the label-shuffled baseline (p < 0.05) in `code/validate.py` (SC-001) (Constitution Principle VII)

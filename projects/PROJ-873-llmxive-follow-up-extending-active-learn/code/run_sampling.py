@@ -3,33 +3,36 @@ import sys
 import json
 import logging
 import argparse
-
 from sampling import run_sampling_pipeline
-from config import get_config
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main():
-    """Main entry point for run_sampling script."""
-    parser = argparse.ArgumentParser(description="Run sampling pipeline")
-    parser.add_argument("--size", type=int, default=100, help="Sample size")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--output", type=str, help="Output file path")
-    
+    """Main entry point for the sampling pipeline."""
+    parser = argparse.ArgumentParser(description="Run sampling pipeline for consensus validation")
+    parser.add_argument("--logs", type=str, default="data/processed/comparison_logs.json",
+                      help="Path to comparison logs")
+    parser.add_argument("--config", type=str, default="data/results/sample_config.json",
+                      help="Path to sample configuration")
+    parser.add_argument("--output", type=str, default="data/results/consensus_sample.json",
+                      help="Path to output sample indices")
     args = parser.parse_args()
+
+    if not os.path.exists(args.logs):
+        logger.error(f"Comparison logs not found: {args.logs}")
+        sys.exit(1)
     
-    # If no output specified, use default from config
-    output_file = args.output
-    if not output_file:
-        config = get_config()
-        output_file = os.path.join(config.data_dir, 'results', 'consensus_sample.json')
-    
-    run_sampling_pipeline(args.size, output_file, args.seed)
-    logger.info(f"Sampling complete. Output: {output_file}")
+    if not os.path.exists(args.config):
+        logger.error(f"Sample config not found: {args.config}")
+        sys.exit(1)
+
+    try:
+        run_sampling_pipeline(args.logs, args.config, args.output)
+        logger.info(f"Sampling complete. Output written to {args.output}")
+    except Exception as e:
+        logger.error(f"Sampling failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

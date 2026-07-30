@@ -5,13 +5,28 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "predicting-oxidation-resistance"
 version = "0.1.0"
-description = "Predicting the Impact of Alloying on High-Temperature Oxidation Resistance"
+description = "Predicting the impact of alloying on high-temperature oxidation resistance"
 readme = "README.md"
 requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Research Team"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 dependencies = [
     "pandas>=2.0.0",
     "scikit-learn>=1.3.0",
-    "shap>=0.44.0",
+    "shap>=0.43.0",
     "pyyaml>=6.0",
     "requests>=2.31.0",
     "numpy>=1.24.0",
@@ -22,18 +37,43 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "flake8>=6.1.0",
-    "black>=23.7.0",
-    "pre-commit>=3.4.0",
+    "black>=23.12.0",
     "pytest>=7.4.0",
+    "pre-commit>=3.6.0",
 ]
 
 [project.scripts]
-oxidation-predict = "code.main:main"
+oxidation-pipeline = "main:main"
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["code*", "tests*"]
+where = ["code"]
+include = ["*"]
 
+# Linting Configuration: flake8
+[tool.flake8]
+max-line-length = 88
+extend-ignore = [
+    "E203", # Whitespace before ':' (conflicts with Black)
+    "W503", # Line break before binary operator (conflicts with Black)
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    "data/",
+    "logs/",
+    "venv",
+    ".venv",
+]
+per-file-ignores = [
+    # Allow unused imports in __init__.py for re-exports
+    "*/__init__.py:F401",
+]
+
+# Code Formatting Configuration: Black
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
@@ -49,29 +89,9 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | data
+  | logs
 )/
 '''
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = ["E203", "W503"]
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-    ".venv",
-    "venv",
-]
-per-file-ignores = [
-    "__init__.py:F401",
-]
-max-complexity = 10
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+skip-string-normalization = false
+preview = true

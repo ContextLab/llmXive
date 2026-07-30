@@ -9,5 +9,3 @@ scikit-learn-extra>=0.3.0
 pytest>=7.3.0
 pytest-cov>=4.0.0
 datasets>=2.14.0
-black>=23.0.0
-ruff>=0.0.280

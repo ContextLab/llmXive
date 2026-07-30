@@ -1,27 +1,53 @@
-# Ruff configuration for llmXive project
-# Enforces strict linting rules consistent with scientific code standards
-
-line-length = 88
-target-version = "py311"
-
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+# Enable specific rule sets
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (imports)
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
 ]
+
+# Ignore specific rules that are too strict or not applicable
 ignore = [
     "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in ML)
+    "B008", # Do not perform function call in argument defaults (common in data pipelines)
+    "ARG001", # Unused function arguments (sometimes needed for interface compliance)
 ]
 
+# Per-file ignores
+per-file-ignores = { "tests/*" = ["ARG001", "N802"] }
+
+# Allow fix for all rules except E501 (line length)
+fixable = ["ALL"]
+unfixable = ["E501"]
+
+# Allow unused variables in notebooks or specific contexts if needed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Line length for formatting (matches black default)
+line-length = 100
+
 [lint.isort]
-known-first-party = [
-    "code"
-]
-force-to-top = ["code"]
+known-first-party = ["config", "download", "preprocessing", "train", "importance", "validate", "report", "setup_directories", "lint_check"]
+force-single-line = false
+lines-between-types = 0
+relative-imports-order = "closest-to-furthest"
+
+[lint.pyflakes]
+allowed-unused-imports = []

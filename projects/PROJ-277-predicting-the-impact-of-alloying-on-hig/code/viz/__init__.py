@@ -1,3 +1,1 @@
-"""
-Visualization utilities.
-"""
+# Visualization package
