@@ -4,76 +4,70 @@ import os
 from pathlib import Path
 import logging
 from typing import List, Optional, Dict, Any
-
 from utils.config import get_project_root, get_path, ensure_dir
 
-def run_mypy_check() -> int:
+def run_mypy_check() -> bool:
     """
     Run mypy type checking on the code/ directory.
 
     Returns:
-        int: 0 if type checking passes (exit code 0), 1 otherwise.
+        bool: True if mypy passes (exit code 0), False otherwise.
     """
     project_root = get_project_root()
     code_dir = project_root / "code"
-    processed_dir = project_root / "data" / "processed"
-    ensure_dir(processed_dir)
-    log_path = processed_dir / "type_log.txt"
+    log_path = project_root / "data" / "processed" / "type_log.txt"
 
-    logging.info("Running mypy type check on code/ directory...")
+    # Ensure log directory exists
+    ensure_dir(log_path.parent)
+
+    logging.info(f"Running mypy on {code_dir}...")
 
     try:
         # Run mypy on the code directory
         result = subprocess.run(
-            [sys.executable, "-m", "mypy", "--ignore-missing-imports", str(code_dir)],
-            cwd=project_root,
+            ["mypy", str(code_dir), "--ignore-missing-imports"],
             capture_output=True,
             text=True,
-            timeout=300
+            cwd=project_root
         )
 
         # Write output to log file
-        with open(log_path, "w") as f:
-            f.write("STDOUT:\n")
+        with open(log_path, "w", encoding="utf-8") as f:
             f.write(result.stdout)
-            f.write("\nSTDERR:\n")
             f.write(result.stderr)
-            f.write(f"\nReturn Code: {result.returncode}\n")
+
+        logging.info(f"Type check log written to {log_path}")
 
         if result.returncode == 0:
-            logging.info("Type check passed successfully.")
-            return 0
+            logging.info("Type checking passed successfully.")
+            return True
         else:
-            logging.error("Type check failed. See data/processed/type_log.txt for details.")
-            return 1
+            logging.error(f"Type checking failed with exit code {result.returncode}")
+            logging.error(result.stdout)
+            logging.error(result.stderr)
+            return False
 
-    except subprocess.TimeoutExpired:
-        logging.error("mypy check timed out.")
-        with open(log_path, "w") as f:
-            f.write("Error: mypy check timed out after 300 seconds.\n")
-        return 1
     except FileNotFoundError:
-        logging.error("mypy not found. Please install it: pip install mypy")
-        with open(log_path, "w") as f:
-            f.write("Error: mypy not found. Please install it: pip install mypy\n")
-        return 1
+        logging.error("mypy not found. Please install it via 'pip install mypy'.")
+        return False
     except Exception as e:
-        logging.error(f"Unexpected error during type check: {e}")
-        with open(log_path, "w") as f:
-            f.write(f"Error: {str(e)}\n")
-        return 1
+        logging.error(f"Error running mypy: {e}")
+        return False
 
-def main() -> None:
+def main() -> int:
     """
     Main entry point for the type check script.
+
+    Returns:
+        int: Exit code (0 for success, 1 for failure).
     """
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
-    exit_code = run_mypy_check()
-    sys.exit(exit_code)
+    success = run_mypy_check()
+    return 0 if success else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

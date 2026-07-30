@@ -1,33 +1,24 @@
 """
-Setup script to create and verify the core project directory structure.
-Implements T001b: Create code/ingest/, code/analysis/, code/utils/ subdirectories.
-Also handles T001a (root directories) and T001c (test directories) for completeness
-as they are interdependent setup tasks.
+Project initialization script for llmXive pipeline.
+Creates the required directory structure and .gitkeep files.
 """
 import os
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
-def get_project_root() -> Path:
-    """
-    Determine the project root directory.
-    Assumes the script is run from the repository root or code/ directory.
-    """
-    current = Path.cwd()
-    # Check if we are in code/
-    if current.name == "code":
-        return current.parent
-    # Check if we are in root (look for code/ sibling)
-    if (current / "code").is_dir():
-        return current
-    # Fallback: look for a marker or assume current
-    return current
+from utils.config import get_project_root, ensure_dir
+
 
 def create_directory(path: Path) -> bool:
     """
     Create a directory if it does not exist.
-    Returns True if successful, False otherwise.
+    
+    Args:
+        path: The directory path to create.
+        
+    Returns:
+        True if directory was created or already exists, False otherwise.
     """
     try:
         path.mkdir(parents=True, exist_ok=True)
@@ -36,88 +27,88 @@ def create_directory(path: Path) -> bool:
         print(f"Error creating directory {path}: {e}", file=sys.stderr)
         return False
 
+
 def verify_directory(path: Path) -> bool:
     """
-    Verify that a directory exists using os.path.exists.
-    Returns True if it exists and is a directory, False otherwise.
+    Verify that a directory exists.
+    
+    Args:
+        path: The directory path to verify.
+        
+    Returns:
+        True if directory exists, False otherwise.
     """
-    if not os.path.exists(path):
-        print(f"Verification Failed: Directory {path} does not exist.", file=sys.stderr)
-        return False
-    if not os.path.isdir(path):
-        print(f"Verification Failed: {path} exists but is not a directory.", file=sys.stderr)
-        return False
-    return True
+    return path.is_dir()
 
-def ensure_directory_structure(root: Path) -> Tuple[bool, List[str]]:
+
+def ensure_directory_structure() -> bool:
     """
-    Create and verify the required directory structure.
+    Create and verify the full project directory structure.
     
     Returns:
-        Tuple of (success: bool, errors: List[str])
+        True if all directories were created and verified successfully,
+        False otherwise.
     """
-    errors = []
+    project_root = get_project_root()
     
-    # Define required directories relative to root
-    required_dirs = [
-        # Phase 1: Setup (Root) - T001a
-        "code",
-        "tests",
-        "data",
-        
-        # Phase 1: Setup (Subdirectories) - T001b
-        "code/ingest",
-        "code/analysis",
-        "code/utils",
-        
-        # Phase 1: Setup (Test Subdirectories) - T001c
-        "tests/unit",
-        "tests/integration",
-        
-        # Data Subdirectories for T008a/b (often created alongside)
-        "data/raw",
-        "data/processed",
+    # Define all required directories relative to project root
+    required_dirs: List[Path] = [
+        project_root / "code",
+        project_root / "tests",
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "code" / "ingest",
+        project_root / "code" / "analysis",
+        project_root / "code" / "utils",
+        project_root / "tests" / "unit",
+        project_root / "tests" / "integration",
     ]
-
-    print(f"Project Root identified: {root}")
-    print("Creating and verifying directory structure...")
-
-    for dir_name in required_dirs:
-        target_path = root / dir_name
+    
+    all_success = True
+    
+    for dir_path in required_dirs:
+        # Create directory
+        if not create_directory(dir_path):
+            all_success = False
+            continue
         
-        # Create if missing
-        if not target_path.exists():
-            print(f"  Creating: {dir_name} ...", end=" ")
-            if create_directory(target_path):
-                print("OK")
-            else:
-                errors.append(f"Failed to create {dir_name}")
-        else:
-            print(f"  Exists: {dir_name}")
-
-        # Verify
-        if not verify_directory(target_path):
-            errors.append(f"Verification failed for {dir_name}")
-
-    success = len(errors) == 0
-    return success, errors
-
-def main():
-    """
-    Entry point for the setup script.
-    Exits with code 1 if any directory creation or verification fails.
-    """
-    root = get_project_root()
-    success, errors = ensure_directory_structure(root)
-
-    if errors:
-        print("\n❌ Setup Failed:")
-        for err in errors:
-            print(f"   - {err}")
-        sys.exit(1)
+        # Verify directory exists
+        if not verify_directory(dir_path):
+            print(f"Verification failed: Directory {dir_path} does not exist after creation.", file=sys.stderr)
+            all_success = False
+            continue
+        
+        # Create .gitkeep file to ensure directory is tracked by git
+        gitkeep_path = dir_path / ".gitkeep"
+        try:
+            gitkeep_path.touch(exist_ok=True)
+            print(f"Created: {dir_path} with .gitkeep")
+        except OSError as e:
+            print(f"Error creating .gitkeep in {dir_path}: {e}", file=sys.stderr)
+            all_success = False
+    
+    if all_success:
+        print("✓ All project directories created and verified successfully.")
     else:
-        print("\n✅ All directories created and verified successfully.")
-        sys.exit(0)
+        print("✗ Some directories failed to create or verify.", file=sys.stderr)
+    
+    return all_success
+
+
+def main() -> int:
+    """
+    Main entry point for the directory initialization script.
+    
+    Returns:
+        Exit code: 0 for success, 1 for failure.
+    """
+    print("Initializing project directory structure for llmXive...")
+    
+    success = ensure_directory_structure()
+    
+    return 0 if success else 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

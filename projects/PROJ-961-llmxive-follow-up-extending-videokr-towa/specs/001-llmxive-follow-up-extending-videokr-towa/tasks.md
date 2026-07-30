@@ -50,7 +50,7 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites & Utils)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **T035 is moved to Phase 6.**
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. **T035 is moved to Phase 6.**
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
@@ -59,7 +59,7 @@
 - [X] T006 [P] Create `code/utils/graph_utils.py` with shortest path logic (BFS) handling disconnected graphs.
 - [X] T007 [P] Create `code/utils/entity_linker.py` for mapping question entities to graph nodes (fuzzy/embedding based). **Conditional Logic**: The script must first check if the input dataset already contains a `node_id` or `entity_id` column. If present, it MUST skip the linking process and use the provided IDs. If absent, it MUST implement the fuzzy/embedding linking logic. This satisfies FR-001 without assuming a specific data source structure.
 - [X] T009 [P] Implement `code/ingest/checksum.py` as a utility script to be invoked by T013 for verifying raw data integrity (Constitution Principle III).
-- [X] T034 [S] **Refactor Scripts to Library**: Refactor `code/ingest/annotate_graph.py` (T013), `code/analysis/stratify_accuracy.py` (T019), `code/analysis/bin_utils.py` (T020a), `code/analysis/detect_threshold.py` (T020b), `code/analysis/visualize_continuous.py` (T022), and `code/analysis/sensitivity.py` (T025) to expose a `run()` function in each module. **Constraint**: Remove `if __name__ == '__main__':` execution logic from these modules; instead, they must be importable by T035. The `run()` function must accept a `config` object and return a status code. **Verification**: Import each module in a test script and call `run()` to verify it executes without `__main__` block interference.
+- [X] T034 [S] **Refactor Scripts to Library**: Refactor `code/ingest/annotate_graph.py` (T013), `code/analysis/stratify_accuracy.py` (T019), `code/analysis/detect_threshold.py` (T020b), `code/analysis/visualize_continuous.py` (T022), and `code/analysis/sensitivity.py` (T025) to expose a `run()` function in each module. **Constraint**: Remove `if __name__ == '__main__':` execution logic from these modules; instead, they must be importable by T035. The `run()` function must accept a `config` object and return a status code. **Verification**: Import each module in a test script and call `run()` to verify it executes without `__main__` block interference. **Dependency**: Must run after T004, T005, T006, T007, T009. **Note**: `code/analysis/bin_utils.py` (T020a) is excluded from this refactoring as it is a separate implementation task in Phase 4 and does not exist at this stage.
 
 ---
 
@@ -85,6 +85,7 @@
  3. **Oversampling Logic**: Use stratified resampling (with replacement) on the **pilot subset** (which fits in memory) to reach N>=50 for rare bins. **Explicitly preserve the distribution of hop counts**. **Seed**: MUST use `config.get_seed('oversampling')`.
  4. **Logging**: Log the sampling method, pilot size (1000), oversampling target, and final sample size to `data/processed/sampling_log.json`.
  - **Chunked Processing**: Implement chunked streaming (e.g., `pandas.read_csv(chunksize=...)`) to process the dataset in memory-safe batches if full load is not feasible.
+ - **Pre-Retry Logging**: **CRITICAL**: Before executing any self-healing retry logic, the script MUST calculate and write `total_input_records`, `unresolvable_count`, and `proportion` to `data/processed/annotation_coverage.json` based on the current run's state. This log must be written **BEFORE** any retry attempt to ensure traceability of failure modes (data unavailability vs. algorithm failure) even if retries occur.
  - **Self-Healing Regeneration Logic**: If the output file `data/processed/annotated_videokr.csv` is empty, missing, or has <50 rows after the initial run, **re-run** the full annotation pipeline with adjusted parameters (pilot size doubled, max 2 retries). If 2 retries fail, raise a `DataUnavailableError`. **DO NOT** rely on a separate task to regenerate. This task MUST guarantee the artifact exists or raises a clear error.
  - **Map entities**: Map question entities to graph nodes using `entity_linker.py`. **Conditional**: If `entity_linker.py` detects pre-existing node IDs (per T007), use them directly. Otherwise, perform linking.
  - **Input**: `question` text column.
@@ -93,8 +94,8 @@
  - **Calculate Exact Hops**: Calculate the **exact integer** shortest path hops (1, 2, 3, 4, 5...) for each record. Output this as the column `chain_length` (integer type).
  - **Algorithm**: Use BFS (Breadth-First Search) for unweighted graphs. If weighted, use Dijkstra.
  - **Tie-Breaking**: If multiple shortest paths exist, use the one with the lexicographically smallest node sequence.
- - **Generate Binned Column**: Derive a second column `chain_bin` (categorical: '1', '2', '3+') from `chain_length` to satisfy FR-002's requirement for binned categories.
- - **Handle Disconnected**: Exclude or label 'unresolvable' for disconnected graphs.
+ - **Generate Binned Column**: Derive a second column `chain_bin` (categorical: '1', '2', '3+') from `chain_length` for categorical analysis.
+ - **Handle Disconnected**: Exclude or label 'unresolvable' for disconnected graphs.  For both 'unmapped' and 'unresolvable' records, **explicitly write `-1` to the `chain_length` column** to ensure integer type consistency for downstream binning.
  - **Enforce Shortest Path**: Use the shortest path rule for multiple paths.
  - **Preserve Correctness**: **Explicitly copy** the `correctness` column from the source VideoKR-SFT dataset to the output CSV. (FR-001, Data Model)
  - **Write Output**: **Explicitly write** the final artifact `data/processed/annotated_videokr.csv` with columns: `id`, `question`, `answer`, `chain_length` (integer), `chain_bin` (categorical), `correctness`. (FR-001, FR-002, SC-001)
@@ -103,7 +104,7 @@
  - **Input**: `data/processed/annotated_videokr.csv` (produced by T013).
  - **Logic**: Verify that the row count matches the input (excluding unmapped/unresolvable). Log `total_input_records` (count BEFORE any exclusion), `unresolvable_count`, and `annotated_count`.
  - **Output**: Write `data/processed/annotation_coverage.json` with the counts and `proportion = annotated_count / total_input_records`. (SC-001)
- - **Constraint**: If `annotated_videokr.csv` is missing, this task **FAILS** and reports the error to the orchestrator (T035). It does NOT attempt to regenerate (that is T013's self-healing logic).
+ - **Constraint**: If `annotated_videokr.csv` is missing, this task **FAILS** and reports the error to the orchestrator (T035). It does not attempt to regenerate (that is T013's self-healing logic).
  - **Depends on**: T013 completion.
 - [X] T016 [US1] Write hash of `annotated_videokr.csv` to `state/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa.yaml`
 
@@ -126,7 +127,7 @@
 
 - [X] T019 [S] [US2] **Implementation (Stratification)**: Implement `code/analysis/stratify_accuracy.py` to:
  - Calculate accuracy rate for bins 1-hop, 2-hop, 3+ hops (aggregating 3, 4, 5... into '3+' for the primary report as per Spec US-2).
- - **Bin Size Check**: If the '3+' bin (or any other bin) has <50 records, **raise a `BinPowerError`** immediately. This error must be caught by the orchestrator (T035) to prevent T020b from running. **Do not** just prepare a flag; the pipeline must halt or defer. (FR-003)
+ - **Bin Size Check**: If the '3+' bin (or any other bin) has <50 records, **raise a `BinPowerError`** immediately. This error must be caught by the orchestrator (T035) to prevent T020b from running. (FR-003)
  - **Dependency**: **Must run after T013** to access `data/processed/annotated_videokr.csv`.
 - [X] T020a [S] [US2] **Bin Preparation & Merging Logic**: Implement `code/analysis/bin_utils.py` to:
  - **Input**: Use **exact integer `chain_length` data from T013** (1, 2, 3, 4, 5...) and bin counts from T019.
@@ -135,7 +136,7 @@
  2. **Re-check**: If the merged bin has >= 50 samples, proceed with the test on the merged bin and log `bin_status: "merged"` to `data/processed/bin_status.json`.
  3. **Defer**: If the merged bin still has < 50 samples, **defer** the statistical test for this comparison. Write `status: "deferred"`, `reason: "insufficient_power"`, and `bin_status: "deferred"` to the JSON file. **Do not** fabricate data, merge blindly, or force a test.
  - **Output**: Write a JSON file `data/processed/bin_config.json` containing `{'bins': [...], 'strategy': 'merged' | 'deferred'}`. This defines the **final static binning strategy** to be used by T020b.
- - **Depends on T013** (raw data) and **T019** (bin counts). **Must run after T019**.
+ - **Depends on T013** (raw data) and **T019**. **Must run after T019**.
 - [X] T042 [S] [US2] **Permutation Test Reproducibility Check**: Implement a distinct validation step in `code/analysis/detect_threshold.py` (T020b) that runs the permutation test twice with the same seed and verifies the p-values match exactly. **Constraint**: If results differ, raise a `ReproducibilityError`. **Verification**: Log the comparison to `data/processed/reproducibility_check.json`. **Dependency**: Must be integrated into T020b execution flow, but executed as a pre-check before the main T020b logic runs. **Must run after T020a**.
 - [X] T020b [S] [US2] **Threshold Detection (Permutation Test) & Final Output**: Implement `code/analysis/detect_threshold.py` to:
  - **Input**: Use **exact integer `chain_length` data from T013** and the **static binning strategy from T020a** (`data/processed/bin_config.json`).
@@ -143,16 +144,16 @@
  - **Grid-Search Logic**: Iterate knot locations from **1 to 5** (fixed range per Spec FR-004). For each knot:
  1. Fit a linear model (accuracy ~ hop_count).
  2. Fit a piecewise linear model (accuracy ~ hop_count + max(0, hop_count - knot)).
- 3. **Permutation Engine**: Perform the permutation test by **randomly shuffling the `correctness` labels** (n=1000 times) and recalculating the test statistic for each shuffle to build the null distribution. **DO NOT** rely on asymptotic approximations.
+ 3. **Permutation Engine**: Perform the permutation test by **randomly shuffling the `correctness` labels** (n=1000 times) and recalculating the test statistic for each shuffle to build the null distribution. **DO NOT** rely on asymptotic approximations.  The grid search is performed inside the permutation loop to prevent inflated p-values.
  4. **Test Statistic Definition**: The test statistic is the **Difference in Residual Sum of Squares (RSS)** between the linear model and the piecewise linear model.
  5. Calculate the p-value as the proportion of permuted statistics >= observed statistic.
  - **Correction**: Apply **Bonferroni correction** for the number of tests performed (p_corrected = p_raw * num_tests).
  - **Selection**: Select the knot location with the minimum corrected p-value.
- - **Power Analysis**: If total sample size < 1000 or smallest bin < 50, log a warning to `data/processed/power_analysis.json` stating 'Insufficient power for robust inference' (do not attempt calculation without parameters). **Note**: The Permutation Test inherently handles power via empirical distribution; no separate parametric power analysis task (T041) is required or implemented.
+ - **Power Analysis**: If total sample size < 1000 or smallest bin < 50, log a warning to `data/processed/power_analysis.json` stating 'Insufficient power for robust inference' (do not attempt calculation without parameters).
  - **Output**: Identify the optimal knot and report the corrected p-value. (FR-004)
  - **Final Artifact**: **Explicitly write** `data/processed/threshold_results.json` with the following schema: `p_value` (float), `alpha` (0.05), `is_significant` (boolean), `conclusion` (string), `optimal_knot` (int). (SC-002)
  - **Depends on T013** (raw data), **T006** (graph utils), **T020a** (static binning), and **T042** (reproducibility). **T019 is a transitive dependency via T020a**. **Must run after T020a**.
- - **Note**: T019 (binned accuracy) is NOT a direct dependency for the core grid search, but T020b cannot run until T020a is complete, and T020a requires T019. **T023 is removed; this task produces the final JSON.**
+ - **Note**: T019 (binned accuracy) is NOT a direct dependency for the core grid search, but T020b cannot run until T020a is complete, and T020a depends on T019. **T023 is removed; this task produces the final JSON.**
 - [X] T022 [S] [US2] **Continuous Visualization & Raw Data Generation**: Implement `code/analysis/visualize_continuous.py` to:
  - **Input**: `data/processed/annotated_videokr.csv` (T013 output) AND `data/processed/accuracy_binned.csv` (from T019).
  - **Logic**:
@@ -201,15 +202,13 @@
 
 **Goal**: Finalize reporting, documentation, runtime measurement, and orchestration.
 
-- [ ] T031a [P] Remove unused imports from all scripts in `code/`. **Verification**: Run `ruff check code/`. **Fail if exit code != 0**. Log output to `data/processed/lint_log.txt`.
-- [ ] T031b [P] Add type hints to all public functions in `code/`. **Verification**: Run `mypy code/`. **Fail if exit code != 0**. Log output to `data/processed/type_log.txt`.
-- [ ] T031c1 [P] **Docstring Linting**: Run `pydocstyle code/` (excluding `tests/` and `__init__.py`). **Fail if exit code != 0**. Log output to `data/processed/docstring_log.txt`.
-- [ ] T031c2 [P] **Docstring Coverage**: Ensure all public functions in `code/` have docstrings. **Verification**: Run `pydocstyle --count` and ensure coverage > 90%.
+- [ ] T031a [P] **Linting (Strict)**: Run `ruff check code/`. **Verification**: If `ruff` returns a non-zero exit code (including style warnings or missing docstrings), the pipeline **MUST FAIL immediately**. This is a hard block for the 'Polish' phase. **Output**: Log output to `data/processed/lint_log.txt`. **Dependency**: Must run after completion of T013, T013b, T019, T020a, T020b, T022, T025, and T034. The pipeline cannot be marked as successful if this task fails.
+- [ ] T031b [P] **Type Checking (Strict)**: Run `mypy code/`. **Verification**: If `mypy` returns a non-zero exit code (including type warnings), the pipeline **MUST FAIL immediately**. This is a hard block for the 'Polish' phase. **Output**: Log output to `data/processed/type_log.txt`. **Dependency**: Must run after completion of T013, T013b, T019, T020a, T020b, T022, T025, and T034. The pipeline cannot be marked as successful if this task fails.
 - [X] T029 [P] [US3] **Documentation updates in `specs/001-video-reasoning-threshold/`**:
  - Update `quickstart.md` (located at `specs/001-video-reasoning-threshold/quickstart.md`) to include:
  1. **Usage Section**: Instructions on how to run `code/main.py` end-to-end.
  2. **Data Requirements**: List of required datasets (VideoKR-SFT, Knowledge Graph) and their sources.
- 3. **Output Artifacts**: List of all generated files: `data/processed/annotated_videokr.csv`, `data/processed/accuracy_binned.png`, `data/processed/accuracy_vs_hop_raw.png`, `data/processed/threshold_results.json`, `data/processed/sensitivity_summary.md`, `data/processed/stability_metric.json`, `data/processed/runtime_log.json`, `data/processed/memory_log.json`, `data/processed/sensitivity_thresholds.csv`.
+ 3. **Output Artifacts**: List of all generated files: `data/processed/annotated_videokr.csv`, `data/processed/accuracy_binned.png`, `data/processed/accuracy_vs_hop_raw.png`, `data/processed/threshold_results.json`, `data/processed/sensitivity_summary.md`, `data/processed/stability_metric.json`, `data/processed/runtime_log.json`, `data/processed/memory_log.json`.
  - Ensure usage instructions are clear and reproducible.
  - Ensure `quickstart.md` exists and is up-to-date.
 - [X] T033 Run `quickstart.md` validation to ensure reproducibility
@@ -239,107 +238,5 @@
 
 **Goal**: No mandatory tasks remain. This phase is reserved for future analysis-driven revisions.
 
----
-
-## Dependencies & Execution Order
-
-### Execution Flow
-
-1. **Setup (Phase 1)**: T001 (Initialize Project Structure)
-2. **Foundational (Phase 2)**: T004, T005, T006, T007, T009 (Parallel) -> T034 (Refactor Scripts)
-3. **User Stories (Phase 3-5)**:
-   - **US1 (T012, T040, T013, T013b, T016)**: Runs first (data ingestion).
-   - **US2 (T019, T020a, T042, T020b, T022)**: Runs after US1 (T019 depends on T013; T020a depends on T019; T020b depends on T020a).
-   - **US3 (T025)**: Runs after US2 (depends on T020b).
-4. **Polish & Execution (Phase 6)**: T031a-c, T029, T033, T035 (Orchestrator), T037 (Report).
-5. **Revision (Phase 7)**: Reserved.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (annotated data)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 logic and data (T013, T019, **T020b**, **T025**)
-- **Polish (Phase 6)**: Depends on completion of Phase 5.
-- **Revision (Phase 7)**: Reserved.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation. **Tests are part of the 'Implementation' block for the story.**
-- Models/Utils before Services
-- Services before Endpoints/Analysis scripts
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-- **Note**: T035 (Orchestrator Logger) is **NOT** parallel-safe and must run last, after T028. However, it **starts** at the beginning of the pipeline execution, not after Phase 5 completion.
-- **Revision Tasks**: Reserved.
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for graph_utils.py shortest path logic in tests/unit/test_graph_utils.py"
-Task: "Integration test for annotate_graph.py on a sample subset in tests/integration/test_pipeline.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/ingest/download_data.py"
-Task: "Implement code/utils/entity_linker.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [S] tasks = Sequential (must run in order)
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI (limited cores, limited RAM, h limit). No GPU, no low-bit models, no large LLMs.
-- **Data Integrity**: No fake data. All datasets must be fetched from real, verified sources.
-- **Dual-Method Analysis**: Non-linearity is tested via Permutation Test (T020b, discrete) only. GAMs (FR-007) are explicitly rejected by the Plan's 'Complexity Tracking' table as statistically invalid for discrete ordinal variables; T034 removed.
-- **Orchestrator**: T035 is the **only** task that executes the pipeline. T013-T025 are functions called by T035.
-- **Revision Compliance**: Phase 7 tasks (T040, T041, T042) have been moved to their correct phases (3, 4) to resolve logical contradictions and ensure core logic is validated before execution.
+- [ ] T050 [S] **Compliance Check**: Verify that no task in the pipeline attempts to generate synthetic data or uses a fallback mechanism for missing real data. **Verification**: Scan `code/` for `generate_synthetic`, `mock_`, `random_` (outside of permutation tests in `detect_threshold.py` and `sensitivity.py`), and `if download_failed:` blocks. **Fail if any are found.**
+- [ ] T051 [S] **Resource Constraint Audit**: Verify that all data processing tasks (T013, T019, T020b) explicitly implement streaming or chunked processing logic to respect the 7GB RAM limit. **Verification**: Inspect `code/ingest/annotate_graph.py`, `code/analysis/stratify_accuracy.py`, and `code/analysis/detect_threshold.py` for `streaming=True`, `chunksize`, or `itertools.islice` usage.
