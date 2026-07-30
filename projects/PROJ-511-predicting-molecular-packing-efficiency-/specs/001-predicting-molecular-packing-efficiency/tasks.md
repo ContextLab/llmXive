@@ -61,7 +61,7 @@
 - [ ] T007 [P] Create base data loading utilities for CIF parsing and SMILES generation in `code/`
 - [ ] T008 [P] Configure error handling for corrupt CIFs and missing metadata in `code/`
 - [ ] T009 [P] Setup environment configuration for COD URL and HuggingFace model path in `code/`
-- [ ] T013b [P] [US1] Implement `code/extract_physics_features.py` to calculate H-bond capacity (donor/acceptor counts), aromatic ring fraction, and thermodynamic confounders (temperature, solvent presence) from CIF metadata and 3D geometry. **Reads raw CIFs and produces `data/physics_features.csv`**. (FR-013, FR-002, Pauling/Curie requirements integrated into core flow)
+- [ ] T013b [P] [US1] Implement `code/extract_physics_features.py` to calculate H-bond capacity (donor/acceptor counts), aromatic ring fraction, and thermodynamic confounders (temperature, solvent presence) from CIF metadata and 3D geometry. **Reads raw CIFs and produces `data/physics_features.csv`**. (FR-013, FR-002, Pauling/Curie requirements integrated into core flow) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,7 +85,7 @@
 
 - [X] T012 [US1] Implement `code/download_cif.py` to fetch organic CIFs (≤50 non-H atoms) from COD with logging (FR-001, FR-017)
 - [X] T013 [US1] Implement `code/parse_cif.py` to extract/generate SMILES via RDKit, flag source, and record confounders (FR-002, FR-013)
-- [ ] T015 [US1] Implement `code/compute_raw_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **CAPE** (target) using Bondi radii (FR-003, FR-011, FR-018). **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`**. This task must output both metrics clearly to allow downstream filtering.
+- [ ] T015 [US1] Implement `code/compute_raw_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **CAPE** (target) using Bondi radii (FR-003, FR-011, FR-018). **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`**. This task must output both metrics clearly to allow downstream filtering. <!-- FAILED: unspecified -->
 - [ ] T016 [US1] Implement `code/filter_dataset.py` to filter records with missing SMILES, invalid CAPE, or invalid Raw PC from `data/dataset_with_metrics.csv`, producing `data/dataset_filtered.csv` (FR-003, SC-001). Explicitly ensure CAPE is valid before filtering.
 - [ ] T017 [US1] Add logging for download statistics, parsing failures, and filtering counts (FR-001, FR-017)
 - [ ] T018 [US1] Implement `code/add_3d_descriptors.py` to calculate 3D descriptors (radius of gyration, asphericity, moments) from RDKit conformers using **ETKDG parameters, seed=42, max_attempts=50**. **Reads `data/dataset_filtered.csv` and merges 3D descriptors to produce final `data/dataset.csv`**. (FR-012)
@@ -146,7 +146,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours (SC-005)
+- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours [UNRESOLVED-CLAIM: c_96502734 — status=not_enough_info] (SC-005)
 - [ ] T052a [P] Run `black --check` on `code/` and fix formatting violations
 - [ ] T052b [P] Run `flake8` on `code/` and fix linting errors
 - [ ] T052c [P] Run automated linting: `pylint --max-line-length=100 --max-branches=10 --max-returns=10 code/` and `radon cc -m code/` ensuring max cyclomatic complexity is ≤ 10. Log results in `code/REFACTORING_LOG.txt`.
@@ -249,7 +249,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained RAM. No GPU, no 8-bit quantization, no large model training.
+- **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained RAM. No GPU, no 8-bit quantization, no large model training. [UNRESOLVED-CLAIM: c_eafa7a1e — status=not_enough_info]
 - **Reviewer Compliance**:
  - **Physics Integration**: H-bond capacity, aromaticity, and thermodynamic confounders (T013b) are now core features calculated in Phase 2, not post-hoc revisions.
  - **Data Integrity**: No synthetic data or fabricated metrics are used. All features are derived from real COD data or standard physical constants (Bondi radii).

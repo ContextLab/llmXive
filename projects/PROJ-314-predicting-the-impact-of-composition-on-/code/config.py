@@ -2,64 +2,82 @@ import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
+from dotenv import load_dotenv
 from . import logger
 
-_config: Dict[str, Any] = {}
-_initialized = False
+# Load environment variables from .env file
+# This resolves T011 requirement for environment configuration management
+def load_environment():
+    """Load environment variables from .env file if it exists."""
+    env_path = Path(__file__).parent.parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+        logger.info(f"Loaded environment from {env_path}")
+    else:
+        logger.warning(".env file not found. Using system environment variables.")
+
+# Initialize config by loading environment
+load_environment()
 
 def initialize_config():
-    global _config, _initialized
-    if _initialized:
-        return
-    
-    # Load from environment or defaults
-    _config = {
-        'project_root': Path(os.getenv('PROJECT_ROOT', Path(__file__).parent.parent)),
-        'data_source_url': os.getenv('DATA_SOURCE_URL', ''),
-        'random_seed': int(os.getenv('RANDOM_SEED', '42')),
-        'max_runtime_hours': int(os.getenv('MAX_RUNTIME_HOURS', '6')),
-        'n_permutations': int(os.getenv('N_PERMUTATIONS', '1000')),
-    }
-    _initialized = True
-    logger.info("Configuration initialized.")
+    """Initialize global configuration state."""
+    # This function can be extended to load more complex configs if needed
+    pass
 
-def load_environment():
-    """Load .env file if it exists."""
-    from dotenv import load_dotenv
-    env_path = Path(__file__).parent.parent / '.env'
-    load_dotenv(dotenv_path=env_path)
-    initialize_config()
+def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
+    """Get a configuration value from environment variables."""
+    return os.getenv(key, default)
 
-def get_config_value(key: str) -> Any:
-    if not _initialized:
-        initialize_config()
-    return _config.get(key)
-
-def get_int_config(key: str, default: int = 0) -> int:
-    val = get_config_value(key)
+def get_int_config(key: str, default: Optional[int] = None) -> Optional[int]:
+    """Get an integer configuration value."""
+    val = os.getenv(key)
     if val is None:
         return default
-    return int(val)
+    try:
+        return int(val)
+    except ValueError:
+        logger.error(f"Invalid integer for config key {key}: {val}")
+        return default
 
-def get_float_config(key: str, default: float = 0.0) -> float:
-    val = get_config_value(key)
+def get_float_config(key: str, default: Optional[float] = None) -> Optional[float]:
+    """Get a float configuration value."""
+    val = os.getenv(key)
     if val is None:
         return default
-    return float(val)
+    try:
+        return float(val)
+    except ValueError:
+        logger.error(f"Invalid float for config key {key}: {val}")
+        return default
 
-def get_bool_config(key: str, default: bool = False) -> bool:
-    val = get_config_value(key)
+def get_bool_config(key: str, default: Optional[bool] = None) -> Optional[bool]:
+    """Get a boolean configuration value."""
+    val = os.getenv(key)
     if val is None:
         return default
     if isinstance(val, bool):
         return val
-    return str(val).lower() in ('true', '1', 'yes')
+    if val.lower() in ('true', '1', 'yes', 'on'):
+        return True
+    if val.lower() in ('false', '0', 'no', 'off'):
+        return False
+    logger.warning(f"Invalid boolean for config key {key}: {val}")
+    return default
 
-def get_api_key(service: str) -> Optional[str]:
-    return os.getenv(f"{service.upper()}_API_KEY")
+def get_api_key(service: str = "MATERIALS_PROJECT") -> Optional[str]:
+    """Get API key for a specific service."""
+    key_name = f"{service}_API_KEY"
+    return os.getenv(key_name)
 
-def get_data_source_url() -> str:
-    return get_config_value('data_source_url')
+def get_data_source_url() -> Optional[str]:
+    """Get the data source URL from environment."""
+    return os.getenv("DATA_SOURCE_URL")
 
 def get_project_config() -> Dict[str, Any]:
-    return _config.copy()
+    """Get a dictionary of all relevant project configurations."""
+    return {
+        "log_level": os.getenv("LOG_LEVEL", "INFO"),
+        "log_file": os.getenv("LOG_FILE", "logs/pipeline.log"),
+        "data_source_url": get_data_source_url(),
+        "materials_project_key": get_api_key("MATERIALS_PROJECT"),
+    }

@@ -1,12 +1,3 @@
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.env` file, configuration script, or documentation for environment variable
-    handling is present in the provided evidence. Without an actual artifact demonstrating
-    that API keys (or other secrets) are loaded from a `.env` file, the requirement
-    for environment configuration management is not satisfied. The next implementer
-    must add a `.env` example (e.g., `.env.example`), code that loads it (e.g., using
-    `python-dotenv` or similar), and documentation on its usage.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,3 +39,18 @@ T032:
     \ splitting. Without an artifact showing the implemented change (e.g., updated\
     \ data pipeline, unit test, or commit diff), the requirement cannot be confirmed\
     \ as met."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I examined the repository for any files under `data/results/` that would be\
+    \ SHAP summary plots (e.g., PNG/JPEG/HTML) or feature\u2011ranking tables (e.g.,\
+    \ CSV/TSV). No such artifacts are present, nor is any placeholder or generated\
+    \ output provided. Consequently the required SHAP visualizations and ranking tables\
+    \ have not been delivered."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation showing that the conclusion text was modified\
+    \ to append \u201Cstatistical associations only\u201D and remove the word \u201C\
+    cause\u201D was provided. Without any artifact to inspect, we cannot confirm the\
+    \ disclaimer logic was implemented. The required change is therefore unverified."

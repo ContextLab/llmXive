@@ -1,19 +1,27 @@
-# Data artifacts and large files
+# Data artifacts and raw downloads
 data/raw_cif/
-*.pt
-*.csv
-*.json
-*.pkl
-*.h5
-*.parquet
+data/*.csv
+data/*.json
+data/*.parquet
+data/physics_features.csv
+data/dataset*.csv
 
-# Python cache and temporary files
+# Model checkpoints and weights
+models/*.pt
+models/*.pth
+models/*.bin
+models/*.safetensors
+models/*.onnx
+
+# Python cache and bytecode
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
 .coverage
+coverage.xml
 htmlcov/
 
 # Environment and secrets
@@ -22,7 +30,7 @@ htmlcov/
 .env.*.local
 *.pem
 *.key
-secrets/
+.secret*
 
 # IDE and editor files
 .idea/
@@ -30,19 +38,26 @@ secrets/
 *.swp
 *.swo
 *~
-.DS_Store
-Thumbs.db
+.project
+.settings/
 
-# Logs and reports
-logs/
-*.log
-results/
-models/
-
-# Jupyter notebook checkpoints
-.ipynb_checkpoints/
-
-# Build artifacts
-dist/
+# Build and distribution
 build/
+dist/
 *.egg-info/
+.eggs/
+*.egg
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+.tmp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini

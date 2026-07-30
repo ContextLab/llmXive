@@ -1,18 +1,17 @@
 status: none
-intent: SUS Instrument and HCI Metrics and XAI Simulation dataset python package dataset
+intent: SUS instrument scores, HCI task metrics, XAI explanation logs python package
+  dataset
 required_fields:
 - participant_id
-- sus_item1
-- sus_item2
-- sus_item3
-- sus_item4
-- sus_item5
-- sus_item6
-- sus_item7
-- sus_item8
-- sus_item9
-- sus_item10
-- sus_total_score
-cache_key: 06d34bdd2e4dbdc85cfa45cb06fcbb8b13fd1cdee4d49741609ec8c5a3d0c43a
-searched_at: '2026-07-24T13:37:56.039451+00:00'
+- condition
+- explanation_engagement_time
+- error_log_timestamp
+- sus_score
+- task_completion_time
+- task_success
+- interaction_event
+- explanation_text
+- error_type
+cache_key: a71da2f6a1098f9ddc277f70c667d8dc22875146eb4c94d7e34a9353bdc45576
+searched_at: '2026-07-30T05:05:30.707198+00:00'
 retry_count: 1

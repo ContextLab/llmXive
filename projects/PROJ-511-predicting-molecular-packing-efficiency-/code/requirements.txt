@@ -1,0 +1,14 @@
+rdkit==2024.3.1
+torch-cpu==2.1.0
+scikit-learn==1.4.0
+pandas==2.2.0
+numpy==1.26.3
+requests==2.31.0
+tqdm==4.66.1
+jinja2==3.1.3
+statsmodels==0.14.1
+scipy==1.12.0
+matplotlib==3.8.2
+seaborn==0.13.2
+pyyaml==6.0.1
+jsonschema==4.20.0

@@ -1,147 +1,216 @@
 """
-Error handling utilities for the molecular packing efficiency project.
+Error handling utilities for CIF parsing and metadata validation.
+
+This module provides robust error handling for corrupt CIF files and missing
+metadata, ensuring the pipeline fails loudly with informative logs rather than
+silently skipping or producing garbage data.
 """
 import logging
 import os
+import traceback
 from typing import Dict, List, Optional, Tuple, Any, Callable
 from functools import wraps
-import traceback
+
 from utils import setup_logging
 
-# Setup logging
-logger = setup_logging(__name__)
+# Configure logger
+logger = logging.getLogger(__name__)
+
 
 class CIFParseError(Exception):
-    """Error raised when CIF parsing fails."""
-    pass
+    """Raised when a CIF file cannot be parsed due to corruption or format errors."""
+    def __init__(self, message: str, cif_id: Optional[str] = None):
+        self.cif_id = cif_id
+        super().__init__(message)
+
 
 class MissingMetadataError(Exception):
-    """Error raised when required metadata is missing."""
-    pass
+    """Raised when required metadata fields are missing from a CIF file."""
+    def __init__(self, message: str, missing_fields: List[str], cif_id: Optional[str] = None):
+        self.missing_fields = missing_fields
+        self.cif_id = cif_id
+        super().__init__(message)
+
 
 class DataValidationError(Exception):
-    """Error raised when data validation fails."""
-    pass
+    """Raised when data fails validation against expected schema or constraints."""
+    def __init__(self, message: str, details: Dict[str, Any], cif_id: Optional[str] = None):
+        self.details = details
+        self.cif_id = cif_id
+        super().__init__(message)
 
-def handle_corrupt_cif(cif_path: str, error: Exception) -> bool:
+
+def handle_corrupt_cif(cif_path: str, cif_id: str, error: Exception) -> Dict[str, Any]:
     """
-    Handle a corrupt CIF file.
-    
+    Handle a corrupt CIF file by logging the error and returning a failure record.
+
     Args:
         cif_path: Path to the corrupt CIF file
-        error: The exception that occurred
-        
-    Returns:
-        True if the file should be skipped, False otherwise
-    """
-    logger.error(f"Corrupt CIF file {cif_path}: {error}")
-    # Remove the corrupt file
-    try:
-        if os.path.exists(cif_path):
-            os.remove(cif_path)
-    except Exception as e:
-        logger.warning(f"Failed to remove corrupt file {cif_path}: {e}")
-    return True
+        cif_id: Crystallographic Open Database identifier
+        error: The exception that occurred during parsing
 
-def validate_required_metadata(metadata: Dict[str, Any], required_fields: List[str]) -> bool:
+    Returns:
+        A dictionary with error details for downstream processing
     """
-    Validate that required metadata fields are present.
-    
+    error_msg = f"Corrupt CIF detected: {cif_id} at {cif_path}"
+    logger.error(f"{error_msg}: {str(error)}")
+    logger.debug(traceback.format_exc())
+
+    return {
+        "cif_id": cif_id,
+        "status": "failed",
+        "error_type": "corrupt_cif",
+        "error_message": str(error),
+        "skipped": True
+    }
+
+
+def validate_required_metadata(metadata: Dict[str, Any], required_fields: List[str], cif_id: str) -> Tuple[bool, List[str]]:
+    """
+    Validate that all required metadata fields are present and non-empty.
+
     Args:
-        metadata: Metadata dictionary
-        required_fields: List of required field names
-        
-    Returns:
-        True if all required fields are present, False otherwise
-    """
-    missing_fields = [field for field in required_fields if field not in metadata or metadata[field] is None]
-    if missing_fields:
-        logger.warning(f"Missing required metadata fields: {missing_fields}")
-        return False
-    return True
+        metadata: Dictionary of parsed CIF metadata
+        required_fields: List of field names that must be present
+        cif_id: Crystallographic Open Database identifier for logging
 
-def safe_cif_read(cif_path: str) -> Optional[str]:
+    Returns:
+        Tuple of (is_valid, list_of_missing_fields)
     """
-    Safely read a CIF file.
-    
+    missing = []
+    for field in required_fields:
+        value = metadata.get(field)
+        if value is None or value == "" or (isinstance(value, str) and value.strip() == ""):
+            missing.append(field)
+
+    if missing:
+        error = MissingMetadataError(
+            f"Missing required metadata for {cif_id}",
+            missing_fields=missing,
+            cif_id=cif_id
+        )
+        logger.error(f"Missing metadata for {cif_id}: {missing}")
+        return False, missing
+
+    return True, []
+
+
+def safe_cif_read(cif_path: str, cif_id: str, parser_func: Callable) -> Optional[Dict[str, Any]]:
+    """
+    Safely read and parse a CIF file, catching and logging all errors.
+
     Args:
         cif_path: Path to the CIF file
-        
+        cif_id: Crystallographic Open Database identifier
+        parser_func: Function to call to parse the CIF (e.g., parse_cif_file)
+
     Returns:
-        CIF content as string, or None if reading fails
+        Parsed data dictionary if successful, None if failed
     """
     try:
-        with open(cif_path, 'r', encoding='utf-8') as f:
-            return f.read()
+        if not os.path.exists(cif_path):
+            raise FileNotFoundError(f"CIF file not found: {cif_path}")
+
+        if not os.path.isfile(cif_path):
+            raise ValueError(f"Path is not a file: {cif_path}")
+
+        result = parser_func(cif_path)
+
+        if result is None:
+            raise CIFParseError("Parser returned None", cif_id=cif_id)
+
+        logger.debug(f"Successfully parsed {cif_id}")
+        return result
+
+    except CIFParseError:
+        handle_corrupt_cif(cif_path, cif_id, CIFParseError("Parsing failed"))
+        return None
+    except MissingMetadataError as e:
+        logger.error(f"Metadata validation failed for {cif_id}: {e.missing_fields}")
+        return None
     except Exception as e:
-        logger.error(f"Failed to read CIF file {cif_path}: {e}")
+        error_record = handle_corrupt_cif(cif_path, cif_id, e)
+        logger.error(f"Unhandled exception for {cif_id}: {type(e).__name__}: {str(e)}")
         return None
 
-def get_cif_metadata_summary(cif_content: str) -> Dict[str, Any]:
-    """
-    Extract a summary of metadata from CIF content.
-    
-    Args:
-        cif_content: CIF file content
-        
-    Returns:
-        Dictionary of metadata summary
-    """
-    metadata = {}
-    
-    # Extract common metadata fields
-    metadata_fields = [
-        '_cell_length_a', '_cell_length_b', '_cell_length_c',
-        '_cell_angle_alpha', '_cell_angle_beta', '_cell_angle_gamma',
-        '_chemical_formula_sum', '_space_group_name_H-M_alt',
-        '_exptl_crystal_density_diffrn', '_reflns_number_total'
-    ]
-    
-    for field in metadata_fields:
-        for line in cif_content.split('\n'):
-            if line.startswith(field):
-                value = line.split(None, 1)[1].strip() if len(line.split(None, 1)) > 1 else None
-                metadata[field] = value
-                break
-    
-    return metadata
 
-def log_processing_statistics(stats: Dict[str, Any]):
+def get_cif_metadata_summary(metadata: Dict[str, Any], cif_id: str) -> Dict[str, Any]:
     """
-    Log processing statistics.
-    
-    Args:
-        stats: Dictionary of statistics to log
-    """
-    logger.info("Processing statistics:")
-    for key, value in stats.items():
-        logger.info(f"  {key}: {value}")
+    Generate a summary of metadata for logging and validation purposes.
 
-def error_handler(func: Callable) -> Callable:
-    """
-    Decorator to handle errors in processing functions.
-    
     Args:
-        func: Function to wrap
-        
+        metadata: Parsed CIF metadata dictionary
+        cif_id: Crystallographic Open Database identifier
+
     Returns:
-        Wrapped function with error handling
+        Summary dictionary with key fields and validation status
     """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except CIFParseError as e:
-            logger.error(f"CIF parsing error in {func.__name__}: {e}")
-            return None
-        except MissingMetadataError as e:
-            logger.error(f"Missing metadata error in {func.__name__}: {e}")
-            return None
-        except DataValidationError as e:
-            logger.error(f"Data validation error in {func.__name__}: {e}")
-            return None
-        except Exception as e:
-            logger.error(f"Unexpected error in {func.__name__}: {e}")
-            logger.debug(traceback.format_exc())
-            return None
-    return wrapper
+    summary = {
+        "cif_id": cif_id,
+        "has_formula": "formula" in metadata and bool(metadata["formula"]),
+        "has_cell_params": all(
+            k in metadata and metadata[k] is not None
+            for k in ["_cell_length_a", "_cell_length_b", "_cell_length_c",
+                      "_cell_angle_alpha", "_cell_angle_beta", "_cell_angle_gamma"]
+        ),
+        "has_atoms": "_atom_site_label" in metadata and len(metadata["_atom_site_label"]) > 0,
+        "atom_count": len(metadata.get("_atom_site_label", [])),
+        "source": metadata.get("_database_codb_id", cif_id),
+        "temperature": metadata.get("_exptl_crystal_growth_temperature", "N/A")
+    }
+    return summary
+
+
+def log_processing_statistics(stats: Dict[str, Any]) -> None:
+    """
+    Log summary statistics of CIF processing.
+
+    Args:
+        stats: Dictionary with keys: total, successful, failed, skipped
+    """
+    total = stats.get("total", 0)
+    successful = stats.get("successful", 0)
+    failed = stats.get("failed", 0)
+    skipped = stats.get("skipped", 0)
+
+    logger.info(f"Processing Statistics: Total={total}, Success={successful}, "
+                f"Failed={failed}, Skipped={skipped}")
+
+    if total > 0:
+        success_rate = (successful / total) * 100
+        logger.info(f"Success rate: {success_rate:.2f}%")
+
+    if failed > 0:
+        logger.warning(f"{failed} CIFs failed to parse. Check logs for details.")
+
+
+class error_handler:
+    """
+    Context manager for handling errors in a block of code.
+
+    Usage:
+        with error_handler(cif_id="12345"):
+            process_data()
+    """
+    def __init__(self, cif_id: str, context: str = "processing"):
+        self.cif_id = cif_id
+        self.context = context
+        self.errors: List[Dict[str, Any]] = []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None:
+            error_record = {
+                "cif_id": self.cif_id,
+                "context": self.context,
+                "error_type": exc_type.__name__,
+                "error_message": str(exc_val),
+                "traceback": traceback.format_exc()
+            }
+            self.errors.append(error_record)
+            logger.error(f"Error in {self.context} for {self.cif_id}: {error_record['error_message']}")
+            # Do not suppress the exception - let it propagate
+            return False
+        return True

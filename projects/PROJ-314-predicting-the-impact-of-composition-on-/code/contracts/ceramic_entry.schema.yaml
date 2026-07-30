@@ -2,85 +2,121 @@ $schema: http://json-schema.org/draft-07/schema#
 title: CeramicEntry
 description: >
   Schema for a single ceramic material entry after ingestion and cleaning.
-  Corresponds to the output of the data ingestion pipeline (US1).
+  Includes composition, target variable (Weibull modulus), sample count,
+  flags for data quality, and computed elemental descriptors.
 type: object
 required:
   - composition
   - weibull_modulus
   - sample_count
-  - is_range_flag
   - primary_anion_cation_group
+  - mean_atomic_radius
+  - electronegativity_std
+  - valence_electron_concentration
+  - cation_size_variance
+  - sintering_temp
 properties:
   composition:
     type: string
-    description: "Stoichiometric chemical formula (e.g., 'Al2O3', 'SiC')."
+    description: >
+      Chemical formula in standard notation (e.g., "Al2O3", "BaTiO3").
+      Used as the primary key for data retrieval and merging.
     pattern: "^[A-Z][a-z]?[0-9]*([A-Z][a-z]?[0-9]*)*$"
   
   weibull_modulus:
     type: number
-    description: "The Weibull modulus (m) value. May be a float or integer."
-    minimum: 0.0
+    format: float
+    description: >
+      The Weibull modulus (m) value representing the variability in
+      material strength. This is the target variable for prediction.
+    minimum: 0
   
   sample_count:
     type: integer
-    description: "Number of samples (N) used to calculate the Weibull modulus."
+    description: >
+      Number of samples (N) used to derive the Weibull modulus.
+      Used for filtering low-confidence data points (N < 30).
     minimum: 1
   
   is_range_flag:
     type: boolean
-    description: "True if the original weibull_modulus was reported as a range, False if a single point."
+    description: >
+      True if the original Weibull modulus was reported as a range,
+      False if it was a single value.
   
   range_original:
     type: string
     nullable: true
-    description: "Original string representation of the range if is_range_flag is true (e.g., '10-15'), otherwise null."
+    description: >
+      The original string representation of the range if is_range_flag is true
+      (e.g., "5.2-6.8"). Null otherwise.
   
   range_uncertainty:
     type: number
     nullable: true
-    description: "Calculated uncertainty (half-width) of the range if is_range_flag is true, otherwise null."
+    description: >
+      Calculated uncertainty derived from the range (e.g., half the range width).
+      Null if is_range_flag is false.
   
   primary_anion_cation_group:
     type: string
-    description: "Group classification based on primary anion and cation (e.g., 'O-Al', 'C-Si')."
+    description: >
+      Categorical classification of the material based on its primary
+      anion and cation groups (e.g., "Oxide-AlkalineEarth", "Nitride-Si").
+      Used for stratified splitting in modeling.
   
   mean_atomic_radius:
     type: number
-    nullable: true
-    description: "Composition-weighted mean atomic radius (Å)."
+    format: float
+    description: >
+      Weighted mean atomic radius of the constituent elements in Angstroms.
   
   electronegativity_std:
     type: number
-    nullable: true
-    description: "Standard deviation of electronegativity values in the composition."
+    format: float
+    description: >
+      Standard deviation of electronegativity values for the constituent elements.
   
   valence_electron_concentration:
     type: number
-    nullable: true
-    description: "Valence Electron Concentration (VEC) calculated as sum(valence) / total atoms."
+    format: float
+    description: >
+      Valence Electron Concentration (VEC): sum of valence electrons of all
+      atoms divided by total number of atoms in the formula unit.
   
   cation_size_variance:
     type: number
-    nullable: true
-    description: "Variance in cation ionic radii within the composition."
+    format: float
+    description: >
+      Variance in ionic radii of the cation species.
   
   sintering_temp:
     type: number
+    format: float
     nullable: true
-    description: "Sintering temperature in Celsius or Kelvin (units specified in metadata)."
+    description: >
+      Sintering temperature in Celsius. May be null if not reported.
   
   is_imputed:
     type: boolean
-    description: "True if any primary predictor fields were imputed, False if all values were original."
+    description: >
+      True if any values for this entry were imputed (e.g., missing sintering temp),
+      False if all values were originally present.
   
   source_id:
     type: string
     nullable: true
-    description: "Identifier from the source dataset (e.g., Materials Project ID, DOI)."
+    description: >
+      Unique identifier from the source database (e.g., Materials Project ID).
   
-  notes:
+  source_url:
     type: string
     nullable: true
-    description: "Optional notes regarding data cleaning or exclusions."
-
-additionalProperties: false
+    description: >
+      URL of the source publication or database entry.
+  
+  processing_notes:
+    type: string
+    nullable: true
+    description: >
+      Any notes regarding data cleaning, exclusion reasons, or fallback logic used.

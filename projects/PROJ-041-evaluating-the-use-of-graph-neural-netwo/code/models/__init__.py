@@ -1,4 +1,4 @@
-# Graph Neural Network models and baselines for network traffic anomaly detection.
-# This package is initialized by task T001b.
-
-__all__ = []
+"""
+Models package for GNN anomaly detection pipeline.
+Contains implementations of Graph Neural Networks and baseline models.
+"""

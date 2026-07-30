@@ -124,7 +124,7 @@
 
 - [X] T026 [US2] Implement `prepare_splits()` in `code/modeling.py`: Stratified split based on `primary_anion_cation_group` (derived from US1 output); switch to hold-out if 30 <= N < 50 (FR-005, SC-004)
 - [X] T027 [US2] Implement `train_models()` in `code/modeling.py`: Train RF and GBM with limited hyperparameter search (a constrained number of combinations) to fit 6h runtime (FR-004)
-- [ ] T028 [US2] Implement `evaluate_models()` in `code/modeling.py`: Calculate MAE, R², and compare against global mean baseline (SC-001). **Output**: Save metrics to `data/results/model_metrics.json`.
+- [X] T028 [US2] Implement `evaluate_models()` in `code/modeling.py`: Calculate MAE, R², and compare against global mean baseline (SC-001). **Output**: Save metrics to `data/results/model_metrics.json`.
 - [X] T029 [US2] Implement `run_permutation_test()` in `code/modeling.py`:
  1. Perform permutation test with **1000 permutations** and **random_seed=42**.
  2. **Success Criteria**: The model is significant ONLY if p-value < 0.05 (SC-001).
@@ -135,7 +135,7 @@
  2. Re-run the model without the `primary_anion_cation_group` feature.
  3. **Logic**: Calculate performance drop = (Original MAE - New MAE) / Original MAE.
  4. **Mandatory Output**: If drop < 0.10, write a "Potential Leakage" warning to `data/results/leakage_report.json` (FR-005.5).
-- [ ] T031 [US2] Generate `data/results/model_metrics.json` with all scores and stratification reports
+- [X] T031 [US2] Generate `data/results/model_metrics.json` with all scores and stratification reports
 - [ ] T032 [US2] Add logic to exclude classes with < 5 samples from stratification if necessary (Rare Class Handling)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -165,8 +165,8 @@
  1. Cluster features with VIF > 5 for *interpretive grouping*.
  2. **Constraint**: Suppress individual causal claims for clustered features. Report aggregate importance for clusters instead to prevent invalid claims (SC-003).
  3. Do NOT suppress individual VIF scores in the diagnostic report (T037), only in the interpretive summary.
-- [ ] T039 [US3] Implement `calculate_cv_stability()` in `code/report.py`: Calculate Coefficient of Variation for top features across folds (FR-009, SC-002)
-- [ ] T040 [US3] Implement `generate_interpretation()` in `code/report.py`:
+- [X] T039 [US3] Implement `calculate_cv_stability()` in `code/report.py`: Calculate Coefficient of Variation for top features across folds (FR-009, SC-002)
+- [X] T040 [US3] Implement `generate_interpretation()` in `code/report.py`:
  1. Rank features.
  2. Map top descriptors to physical mechanisms using `code/physics_mappings.py` (created in T022).
  3. Include correlation matrix between top descriptors and Weibull modulus.
@@ -181,7 +181,7 @@
 
 **Purpose**: Finalize reports, ensure compliance, and update project state.
 
-- [ ] T043 [P] Implement `generate_final_report()` in `code/report.py`: Combine metrics, SHAP analysis, and disclaimers
+- [X] T043 [P] Implement `generate_final_report()` in `code/report.py`: Combine metrics, SHAP analysis, and disclaimers
 - [ ] T044 [P] Run `hash_artifacts.py` to update `state/` with content hashes for all new data/code artifacts
 - [ ] T045 [P] Run `quickstart.md` validation to ensure reproducibility
 - [ ] T046 [P] Code cleanup and refactoring

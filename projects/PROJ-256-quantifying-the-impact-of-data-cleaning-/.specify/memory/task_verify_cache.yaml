@@ -1,10 +1,11 @@
 T012:
   c: false
-  h: 6e80cf2ca9aeae49ef9abe26fa9847f82eb15d67f8c8db83e9c9ce2b5fd627d6
-  r: "The repository contains a partially shown `code/analysis.py` with t\u2011test\
-    \ and regression functions, but there is no evidence that it writes the required\
-    \ `data/processed/baseline_metrics.json`, and that file is missing. Consequently\
-    \ the task\u2019s output artifact and validation steps are not satisfied."
+  h: 21f9a23e8e98e7ccecb0b0b7005a1141dfc7a6e993486e122927592931f7c86c
+  r: "The required output file `data/processed/baseline_metrics.json` does not exist,\
+    \ so the baseline metrics are never written. Additionally, the provided `code/analysis.py`\
+    \ snippet does not show any validation that p\u2011values lie in (0,\u202F1) or\
+    \ that confidence\u2011interval bounds are finite. Both the missing artifact and\
+    \ the lack of evident validation mean the task requirements are not met."
 T014#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

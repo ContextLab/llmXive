@@ -2,63 +2,52 @@
 
 ## Prerequisites
 - Python 3.11+
-- Git
-- A modern web browser (for the simulator)
+- pip
 
-## Installation
-
-1.  **Clone and Setup**
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-015-improving-accessibility-and-usability-of
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-
-2.  **Verify Dependencies**
-    Ensure `scipy`, `matplotlib`, `pandas`, and `streamlit` are installed.
-    ```bash
-    python -c "import scipy, matplotlib, pandas, streamlit; print('All dependencies OK')"
-    ```
-
-## Running the Simulator
-
-The simulator generates the required data for the study.
-
-1.  **Start the Simulator**
-    ```bash
-    streamlit run code/simulator/app.py
-    ```
-2.  **Configure Session**
-    - Select a `participant_id` (or generate a new one).
-    - Choose `interface_type` (Traditional or Explainable).
-    - Complete the assigned HCI tasks.
-    - Fill out the SUS questionnaire.
-3.  **Data Output**
-    - The simulator automatically saves logs to `data/raw/sessions.jsonl`.
-    - Check the console for "Session saved" confirmation.
-
-## Running the Analysis Pipeline
-
-To reproduce the statistical analysis and generate figures:
-
-1.  **Execute the Notebook**
-    ```bash
-    jupyter nbconvert --to notebook --execute code/analysis.ipynb --output code/analysis_executed.ipynb
-    ```
-    *Or open in Jupyter Lab:*
-    ```bash
-    jupyter lab code/analysis.ipynb
-    ```
-2.  **Verify Outputs**
-    - Check `data/processed/metrics_summary.csv` for statistical results.
-    - Check `code/figures/` for generated box plots and bar charts.
-    - Ensure the Holm-Bonferroni corrected p-values are present.
-
-## Testing
-
-Run the unit tests for the statistical logic:
+## 1. Installation
+Clone the repository and install dependencies:
 ```bash
-pytest tests/unit/ -v
+pip install -r code/requirements.txt
 ```
+*Note: `requirements.txt` includes `streamlit`, `pandas`, `scipy`, `statsmodels`, `pyyaml`.*
+
+## 2. Running the Simulator (Data Collection)
+To collect human participant data:
+```bash
+cd code/simulator
+streamlit run app.py
+```
+- Open the URL provided in the terminal.
+- Participants will complete tasks and fill out the SUS survey.
+- Data is saved to `data/raw/` as JSON files.
+
+## 3. Running the Analysis Pipeline
+To clean data and perform statistical analysis:
+```bash
+cd code
+python main.py
+```
+This script performs:
+1. **Validation**: Checks raw JSON against `contracts/session.schema.yaml`.
+2. **Cleaning**: Filters incomplete sessions, imputes SUS scores (FR-005).
+3. **Statistics**: Runs Repeated Measures ANOVA and Holm-Bonferroni correction (FR-002).
+4. **Power Analysis**: Computes power and generates `power_report.md` (FR-006).
+
+## 4. Verifying Reproducibility
+To ensure the pipeline is reproducible (NFR-001):
+```bash
+# Run the CI workflow locally (requires act or similar, or just check the script)
+python code/utils/checksum.py --verify
+```
+This verifies that all processed files match their recorded checksums.
+
+## 5. Viewing Results
+- **Cleaned Data**: `data/processed/cleaned_sessions.csv`
+- **Metrics Summary**: `data/processed/metrics_summary.csv`
+- **Statistical Report**: `data/processed/power_report.md`
+- **Visualizations**: Generated in `data/figures/` (if applicable).
+
+## 6. Troubleshooting
+- **Missing Data**: If `cleaned_sessions.csv` is empty, check `data/raw` for valid sessions. Ensure participants completed the survey.
+- **Schema Errors**: If validation fails, check `contracts/session.schema.yaml` and ensure raw JSON matches.
+- **Power Issues**: If power < 0.8, the report will indicate that N=30 was insufficient for the observed effect size.

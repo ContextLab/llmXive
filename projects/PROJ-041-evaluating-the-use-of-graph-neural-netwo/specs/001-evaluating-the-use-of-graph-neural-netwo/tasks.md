@@ -49,11 +49,11 @@
 - [ ] T001d [P] Create directory `code/utils`
 - [ ] T001e [P] Create directory `data/raw`
 - [ ] T001f [P] Create directory `data/processed`
-- [~] T001g [P] Create directory `data/results`
-- [~] T001h [P] Create directory `tests`
-- [~] T001i [P] Create directory `tests/integration`
+- [ ] T001g [P] Create directory `data/results`
+- [ ] T001h [P] Create directory `tests`
+- [ ] T001i [P] Create directory `tests/integration`
 - [X] T002 Initialize Python project with `requirements.txt` (pinning `torch` CPU version, `networkx`, `scikit-learn`, `xgboost`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `captum`, `pytest`, `pytest-memory-profiler`)
-- [~] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
+- [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
 
 ---
 
@@ -66,12 +66,12 @@
 - [X] T004 Implement `code/utils/seed.py` to manage deterministic random seeds
 - [X] T005 Implement `code/utils/memory_monitor.py` wrapper using `tracemalloc` to enforce a hard memory limit
 - [ ] T006 Create `contracts/dataset.schema.yaml` and `contracts/graph.schema.yaml` defining data structures
-- [~] T007a [P] Download CTU dataset from canonical URL: and validate checksum
-- [~] T007b [P] Download the NF-BoT-IoT dataset from its canonical URL () and validate the checksum (Fallback).
+- [~] T007a [P] Download CTU dataset from canonical URL: and validate checksum [UNRESOLVED-CLAIM: c_ca15fd91 — status=not_enough_info]
+- [~] T007b [P] Download the NF-BoT-IoT dataset from its canonical URL () and validate the checksum (Fallback). [UNRESOLVED-CLAIM: c_8554c16b — status=not_enough_info]
 - [X] T007c [P] Implement fallback logic in `code/data/ingest_netflow.py`: Check CTU availability; if missing, switch to BoT-IoT and log source
 - [X] T007d [P] Define `Target AUC Threshold` in `code/config.yaml` (key: `target_auc`, default: 0.75) per SC-005
-- [X] T008 Implement `code/data/preprocess.py` for strict subsampling: **Rule**: Extract ONLY the Largest Connected Component (LCC). If LCC < 5,000 nodes, retain LCC as-is. **Do NOT pad**.
-- [X] T009 Implement `code/data/splits.py` for Temporal Holdout validation strategy (Train on the majority of time-windowed flows, test on the remaining minority., configurable via `config.temporal_split_ratio`)
+- [X] T008 Implement `code/data/preprocess.py` for strict subsampling: **Rule**: Extract ONLY the Largest Connected Component (LCC). If LCC < 5,000 nodes, retain LCC as-is. [UNRESOLVED-CLAIM: c_c4f73af4 — status=not_enough_info] **Do NOT pad**.
+- [X] T009 Implement `code/data/splits.py` for Temporal Holdout validation strategy (Train on the majority of time-windowed flows, test on the remaining minority [UNRESOLVED-CLAIM: c_7e8d5ab2 — status=not_enough_info]., configurable via `config.temporal_split_ratio`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,14 +81,14 @@
 
 **Goal**: Ingest raw NetFlow records, construct directed communication graphs, and verify memory safety (<7GB) and node limits (≤5,000).
 
-**Independent Test**: Run `code/data/ingest_netflow.py` and `code/data/preprocess.py` on a single scenario; verify peak memory <7GB and graph object integrity.
+**Independent Test**: Run `code/data/ingest_netflow.py` and `code/data/preprocess.py` on a single scenario; verify peak memory <7GB [UNRESOLVED-CLAIM: c_847757ae — status=not_enough_info] and graph object integrity.
 
 ### Tests for User Story 1 (Write Skeletons First)
 
 > **NOTE**: Write these test **skeletons** FIRST (T010-T012), then implement code (T013-T017), then run tests.
 
 - [X] T010 [P] [US1] Write test skeleton for graph construction memory limit in `tests/test_memory_limits.py` (asserts `tracemalloc` < 7GB) [Depends on T005, T013]
-- [ ] T011 [P] [US1] Write test skeleton for node count subsampling in `tests/test_graph_construction.py` (asserts nodes ≤ 5,000, LCC rule) [Depends on T008, T013]
+- [ ] T011 [P] [US1] Write test skeleton for node count subsampling in `tests/test_graph_construction.py` (asserts nodes ≤ 5,000 [UNRESOLVED-CLAIM: c_88011a1f — status=not_enough_info], LCC rule) [Depends on T008, T013]
 - [ ] T012 [P] [US1] Write test skeleton for data ingestion pipeline in `tests/integration/test_ingest.py` (verifies real data fetch and schema compliance)
 
 ### Implementation for User Story 1
@@ -111,7 +111,7 @@
 
 ### Tests for User Story 2 (Write Skeletons First)
 
-- [ ] T018 [P] [US2] Write test skeleton for GCN convergence on CPU in `tests/test_models.py` (asserts no CUDA errors, converges ≤30 epochs)
+- [ ] T018 [P] [US2] Write test skeleton for GCN convergence on CPU in `tests/test_models.py` (asserts no CUDA errors, converges ≤30 epochs [UNRESOLVED-CLAIM: c_e7024bbf — status=not_enough_info])
 - [ ] T019 [P] [US2] Write test skeleton for baseline training in `tests/test_models.py` (asserts RF/XGBoost produce predictions)
 - [ ] T020 [P] [US2] Write test skeleton for Temporal Holdout split in `tests/integration/test_splits.py` (verifies no data leakage)
 
@@ -139,7 +139,7 @@
 ### Tests for User Story 3 (Write Skeletons First)
 
 - [ ] T027 [P] [US3] Write test skeleton for Permutation Test logic in `tests/test_significance_tests.py` (validates p-value calculation for small N)
-- [ ] T028 [P] [US3] Write test skeleton for Benjamini-Hochberg correction in `tests/test_significance_tests.py` (validates FDR < 0.05 threshold)
+- [ ] T028 [P] [US3] Write test skeleton for Benjamini-Hochberg correction in `tests/test_significance_tests.py` (validates FDR < 0.05 threshold [UNRESOLVED-CLAIM: c_a5b1fe42 — status=not_enough_info])
 - [ ] T029 [P] [US3] Write test skeleton for Integrated Gradients attribution in `tests/integration/test_attribution.py`
 
 ### Implementation for User Story 3
@@ -152,7 +152,7 @@
 - [ ] T033b [US3] Implement "Distinct Ranking Artifact" generation in `code/analysis/attribution.py`: Compare GNN vs RF rankings and output distinct patterns
 - [ ] T034 [US3] Implement correlation analysis in `code/analysis/significance_tests.py`: Degree-based vs temporal-based patterns
 - [ ] T035 [US3] Write final statistical report to `data/results/significance_report.json` and plots to `data/results/`
-- [ ] T035b [US3] Enforce Target AUC Threshold in `code/models/metrics.py`: Read threshold from `code/config.yaml` (key: `target_auc`, default a moderate threshold)
+- [ ] T035b [US3] Enforce Target AUC Threshold in `code/models/metrics.py`: Read threshold from `code/config.yaml` (key: `target_auc`, default a moderate threshold [UNRESOLVED-CLAIM: c_3821fe6c — status=not_enough_info])
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -167,7 +167,7 @@
 - [ ] T037a [P] Refactor `code/models/gcn.py` and `code/data/preprocess.py` to remove unused imports
 - [ ] T037b [P] Optimize memory usage in `code/data/preprocess.py` graph construction loop
 - [ ] T038a [P] Profile `code/main.py` to identify runtime bottlenecks
-- [ ] T038b [P] Optimize graph construction loop in `code/data/preprocess.py` to ensure end-to-end runtime < 6 hours
+- [ ] T038b [P] Optimize graph construction loop in `code/data/preprocess.py` to ensure end-to-end runtime < 6 hours [UNRESOLVED-CLAIM: c_87981ff7 — status=not_enough_info]
 - [ ] T039 [P] Additional unit tests for edge cases (missing labels, empty graphs) in `tests/unit/`
 - [ ] T040 Run `quickstart.md` validation and verify all artifacts have content hashes
 

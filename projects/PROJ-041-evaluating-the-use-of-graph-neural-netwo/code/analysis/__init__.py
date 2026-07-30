@@ -1,4 +1,3 @@
 """
-Analysis module for llmXive project.
-Contains scripts for significance testing, attribution analysis, and statistical validation.
+Analysis module for statistical significance testing and feature attribution.
 """

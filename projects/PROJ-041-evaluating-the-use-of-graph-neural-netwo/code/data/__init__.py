@@ -1,2 +1,3 @@
-# code/data package
-# Contains modules for data ingestion, preprocessing, and splitting.
+"""
+Data processing module for network traffic graph construction and preprocessing.
+"""

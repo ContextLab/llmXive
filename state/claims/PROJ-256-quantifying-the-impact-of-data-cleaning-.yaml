@@ -1762,3 +1762,197 @@
   source_type: external
   status: verified
   updated_at: '2026-07-27T10:51:30Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns successful HTTP status and non-empty content
+    for UCI HAR URL
+  claim_id: c_333b1a12
+  context: Unit test in `tests/unit/test_acquisition.py` verifies the behavior of
+    the dataset download function.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_dataset_returns_successful_HTTP_status_and_non-empt
+  kind: entity_fact
+  raw_text: Verify `download_dataset` returns a successful HTTP status and non-empty
+    content for UCI HAR URL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:41:19Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with valid p-values
+    between 0 and 1 and finite confidence intervals
+  claim_id: c_b07090b0
+  context: Integration test in `tests/integration/test_baseline.py` checks that the
+    baseline metrics file contains proper statistical values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify baseline analysis script produces `baseline_metrics.json` with
+    valid p-values (0 < p < 1) and finite CIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:42:34Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_iqr_outlier_removal removes rows where absolute z-score exceeds
+    k and logs count
+  claim_id: c_d1065fe2
+  context: Unit test in `tests/unit/test_cleaning.py` ensures the outlier removal
+    function behaves as specified.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_iqr_outlier_removal_removes_rows_where_absolute_z-scor
+  kind: entity_fact
+  raw_text: Verify `apply_iqr_outlier_removal` removes rows where |z-score| > k and
+    logs count.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:44:56Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_mean_imputation results in zero missing values in target columns
+  claim_id: c_2e96fed5
+  context: Unit test in `tests/unit/test_cleaning.py` confirms that mean imputation
+    eliminates missing values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_results_in_zero_missing_values_in_targ
+  kind: causal
+  raw_text: Verify `apply_mean_imputation` results in zero missing values in target
+    columns.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:45:00Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: analysis.run_t_test uses scipy.stats.ttest_ind and statsmodels OLS for
+    regression, yielding correct p-values
+  claim_id: c_c17d2664
+  context: Unit test T066 ensures the analysis module employs the proper statistical
+    libraries.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis.run_t_test_uses_scipy.stats.ttest_ind_and_statsmode
+  kind: entity_fact
+  raw_text: "Verify that `analysis.run_t_test` uses `scipy.stats.ttest_ind` and `statsmodels`\
+    \ OLS for regression, confirming corrected p\u2011value computation."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:45:55Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: cleaning functions return (cleaned_df, metadata) with rows_removed and
+    missing_values_remaining
+  claim_id: c_0d02b8d7
+  context: Unit test T067 checks the return signature of cleaning functions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cleaning_functions_return_(cleaned_df,_metadata)_with_rows_r
+  kind: entity_fact
+  raw_text: Verify that cleaning functions now return `(cleaned_df, metadata)` where
+    `metadata` includes `rows_removed` and `missing_values_remaining`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:47:17Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: forest plot of p-value shifts saved as PNG at output/figures/pvalue_shifts_forest.png
+  claim_id: c_96042ff2
+  context: "Task T034 specifies creation of a visual summary of p\u2011value shifts."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Forest_plot_of_p-value_shifts_saved_as_PNG_at_output/figures
+  kind: entity_fact
+  raw_text: "Generate forest plot of p\u2011value shifts using matplotlib/seaborn\
+    \ and save as PNG to `output/figures/pvalue_shifts_forest.png`."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:48:18Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: heatmap of CI-width changes saved as PNG at output/figures/ci_width_heatmap.png
+  claim_id: c_10de5345
+  context: "Task T035 defines production of a heatmap visualizing confidence\u2011\
+    interval width changes."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Heatmap_of_CI-width_changes_saved_as_PNG_at_output/figures/c
+  kind: entity_fact
+  raw_text: "Generate heatmap of CI\u2011width changes across strategies and dataset\
+    \ bins and save as PNG to `output/figures/ci_width_heatmap.png`."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:49:20Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied and logged
+  claim_id: c_91e24702
+  context: Task T028 implements BH correction and logs the method.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: "Benjamini\u2013Hochberg procedure"
+      source_id: Q136366870
+      url: https://www.wikidata.org/wiki/Q136366870
+      value: "Benjamini\u2013Hochberg"
+    filled: true
+  kind: entity_fact
+  raw_text: "Benjamini\u2011Hochberg (BH) multiple\u2011comparison correction (replaces\
+    \ Bonferroni) and log the correction method used."
+  resolved_value: "Benjamini\u2013Hochberg"
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-30T04:50:01Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: stratification logic logs warnings for empty bins and continues
+  claim_id: c_637e84e3
+  context: Integration test T026 verifies that binning warnings are emitted without
+    halting execution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratification_logic_logs_warnings_for_empty_bins_and_contin
+  kind: entity_fact
+  raw_text: Stratification logic logs warnings for empty bins and proceeds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:50:55Z'

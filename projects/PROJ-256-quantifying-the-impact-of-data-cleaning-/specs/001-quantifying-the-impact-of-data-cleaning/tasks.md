@@ -51,8 +51,8 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T009 [P] [US1] Contract test in `tests/unit/test_acquisition.py`: Verify `download_dataset` returns a successful HTTP status and non-empty content for UCI HAR URL.
-- [X] T010 [P] [US1] Integration test in `tests/integration/test_baseline.py`: Verify baseline analysis script produces `baseline_metrics.json` with valid p-values (0 < p < 1) and finite CIs.
+- [X] T009 [P] [US1] Contract test in `tests/unit/test_acquisition.py`: Verify `download_dataset` returns a successful HTTP status and non-empty content for UCI HAR URL. [UNRESOLVED-CLAIM: c_333b1a12 — status=not_enough_info]
+- [X] T010 [P] [US1] Integration test in `tests/integration/test_baseline.py`: Verify baseline analysis script produces `baseline_metrics.json` with valid p-values (0 < p < 1) and finite CIs. [UNRESOLVED-CLAIM: c_b07090b0 — status=not_enough_info]
 
 ### Implementation for User Story 1
 
@@ -77,8 +77,8 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T014 [P] [US2] Unit test in `tests/unit/test_cleaning.py`: Verify `apply_iqr_outlier_removal` removes rows where |z-score| > k and logs count.
-- [X] T015 [P] [US2] Unit test in `tests/unit/test_cleaning.py`: Verify `apply_mean_imputation` results in zero missing values in target columns.
+- [X] T014 [P] [US2] Unit test in `tests/unit/test_cleaning.py`: Verify `apply_iqr_outlier_removal` removes rows where |z-score| > k and logs count. [UNRESOLVED-CLAIM: c_d1065fe2 — status=not_enough_info]
+- [X] T015 [P] [US2] Unit test in `tests/unit/test_cleaning.py`: Verify `apply_mean_imputation` results in zero missing values in target columns. [UNRESOLVED-CLAIM: c_2e96fed5 — status=not_enough_info]
 - [X] T016 [P] [US2] Unit test in `tests/unit/test_cleaning.py`: Verify `apply_categorical_recoding` produces factor-encoded columns and validates against FR-002 (outlier removal) and FR-003 (imputation) requirements.
 
 ### Implementation for User Story 2
@@ -112,15 +112,15 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 ### Implementation for User Story 3
 
 - [X] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on existence of `cleaned_metrics.json` (T069) and `baseline_metrics.json` (T013). **Requirement**: Compute \|p_cleaned − p_baseline\| (≥3 decimal precision), CI width change (≥2 decimal precision), effect‑size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR‑006.
-- [X] T028 [US3] Implement Benjamini‑Hochberg (BH) multiple‑comparison correction (replaces Bonferroni) and log the correction method used. **Verification**: Test ensures BH is applied.
+- [X] T028 [US3] Implement {{claim:c_91e24702}} (Wikidata Q136366870, https://www.wikidata.org/wiki/Q136366870) **Verification**: Test ensures BH is applied.
 - [X] T029 [US3] Implement missingness‑rate binning with explicit thresholds (0%, ≤5%, ≤10%, >10%). **Requirement**: Use `logger.warning` with message `"Missingness bin empty: bin <X> has no datasets"`. **Note**: Deviates from FR-008 literal text (which requires ≥1 dataset) to follow Plan's Methodological Pivot (skip with warning).
 - [X] T030 [US3] Implement dataset‑size binning sensitivity analysis (n<50, 50‑200, >200). **Output**: `data/processed/dataset_size_binning_report.json`. **Requirement**: If a bin has no datasets, log a warning and skip the bin. **Note**: Deviates from FR-008 literal text (which requires ≥1 dataset) to follow Plan's Methodological Pivot (skip with warning).
 - [X] T031 [US3] Implement bootstrap variance estimation (≥1000 resamples per dataset, default 1000) and report 95 % CI for each metric shift. **Dependency**: Depends on `baseline_metrics.json` and `cleaned_metrics.json`. No fallback to 500 iterations (Constitution VI compliance). Add test to assert iteration count ≥1000.
 - [X] T032 [US3] Generate permutation null datasets for false‑positive‑rate (FPR) estimation. **Output**: `data/processed/null_fpr_metrics.json` with fields `{outlier_k, fpr, dataset_id}`. Add test to validate the schema.
 - [X] T033a [US3] Perform outlier‑threshold sweep for k ∈ {, 1.5, 2.0} and compute FPR. **Output**: `data/processed/outlier_threshold_sweep_report.json`. Add test to verify presence of FPR metrics.
 - [X] T033b [US3] Compute inconsistency rate (proportion of datasets where significance status changes) for each outlier threshold. **Output**: Append to `data/processed/outlier_threshold_sweep_report.json`. **Note**: Implements the *intended* logic of FR-006 once spec is fixed.
-- [X] T034 [US3] Generate forest plot of p‑value shifts using matplotlib/seaborn and save as PNG to `output/figures/pvalue_shifts_forest.png`.
-- [X] T035 [US3] Generate heatmap of CI‑width changes across strategies and dataset bins and save as PNG to `output/figures/ci_width_heatmap.png`.
+- [X] T034 [US3] Generate forest plot of p‑value shifts using matplotlib/seaborn and save as PNG to `output/figures/pvalue_shifts_forest.png`. [UNRESOLVED-CLAIM: c_96042ff2 — status=not_enough_info]
+- [X] T035 [US3] Generate heatmap of CI‑width changes across strategies and dataset bins and save as PNG to `output/figures/ci_width_heatmap.png`. [UNRESOLVED-CLAIM: c_10de5345 — status=not_enough_info]
 - [X] T036 [US3] Implement per‑dataset p‑value shift reporting; **Skip Median and IQR** due to n=2 instability. Report per-dataset deltas with qualitative directionality. **Note**: Deviates from SC-001 literal text (which requires Median/IQR) to follow Plan's Methodological Pivot.
 - [X] T037 [US3] Implement per‑dataset CI width change reporting with same limitation handling (skip Median/IQR).
 - [X] T038 [US3] Implement per‑dataset effect‑size change reporting with same limitation handling (skip Median/IQR).
@@ -144,7 +144,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 - [X] T047 Run quickstart.md validation and fix any pipeline execution issues
 - [X] T048 Verify all artifacts are checksummed and state.yaml is updated
 - [X] T049 [P] Add CI/CD workflow file for GitHub Actions with CPU‑only constraints
-- [X] T066 [P] Unit test in `tests/unit/test_analysis_fix.py`: Verify that `analysis.run_t_test` uses `scipy.stats.ttest_ind` and `statsmodels` OLS for regression, confirming corrected p‑value computation.
+- [X] T066 [P] Unit test in `tests/unit/test_analysis_fix.py`: Verify that `analysis.run_t_test` uses `scipy.stats.ttest_ind` and `statsmodels` OLS for regression, confirming corrected p‑value computation. [UNRESOLVED-CLAIM: c_c17d2664 — status=not_enough_info]
 - [X] T067 [P] Unit test in `tests/unit/test_cleaning_signature.py`: Verify that cleaning functions now return `(cleaned_df, metadata)` and downstream `reporting` functions accept this tuple.
 
 ---

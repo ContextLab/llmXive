@@ -1,107 +1,87 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Molecular Packing Efficiency Dataset
-description: >
-  Schema for the final dataset containing SMILES representations, packing coefficients,
-  3D descriptors, and confounder fields derived from CIF data.
+title: Molecular Packing Efficiency Dataset Schema
+description: |
+  Schema for the final dataset (data/dataset.csv) containing SMILES representations,
+  packing coefficients (PC, CAPE), 3D descriptors, and confounder fields.
+  This schema enforces data integrity and type safety for downstream ML pipelines.
 type: object
 required:
   - smiles
   - pc
   - cape
+  - hbond_count
+  - aromatic_ring_count
   - radius_of_gyration
   - asphericity
-  - h_bond_count
-  - aromatic_ring_count
   - temperature
   - solvent_present
+  - non_h_atom_count
+  - source
 properties:
+  # Molecular Connectivity
   smiles:
     type: string
-    description: Canonical SMILES string representing the molecular connectivity.
+    description: Canonical SMILES string representing molecular connectivity.
     minLength: 1
+
+  # Packing Metrics (Target & Diagnostic)
   pc:
     type: number
-    description: Raw Packing Coefficient (diagnostic metric).
+    description: Raw Packing Coefficient (diagnostic). Ratio of molecular volume to unit cell volume.
     minimum: 0.0
     maximum: 1.0
+
   cape:
     type: number
-    description: Corrected Atomic Packing Efficiency (target variable).
+    description: Corrected Atomic Packing Efficiency (target). Adjusted for thermal motion and voids.
     minimum: 0.0
     maximum: 1.0
-  radius_of_gyration:
-    type: number
-    description: Radius of gyration calculated from 3D conformer.
-    minimum: 0.0
-  asphericity:
-    type: number
-    description: Asphericity descriptor derived from the inertia tensor.
-    minimum: 0.0
-  h_bond_count:
+
+  # Physics-Derived Features (Pauling/Curie requirements)
+  hbond_count:
     type: integer
-    description: Total count of hydrogen bond donors and acceptors.
+    description: Total count of potential hydrogen bond donors and acceptors.
     minimum: 0
+
   aromatic_ring_count:
     type: integer
     description: Number of aromatic rings in the molecule.
     minimum: 0
+
+  # 3D Descriptors (ETKDG generated conformers)
+  radius_of_gyration:
+    type: number
+    description: Radius of gyration (Angstrom) calculated from 3D conformer.
+    minimum: 0.0
+
+  asphericity:
+    type: number
+    description: Asphericity descriptor (0=sphere, >0=elongated).
+    minimum: 0.0
+
+  # Thermodynamic Confounders
   temperature:
     type: number
-    description: Crystallographic temperature (K) from CIF metadata.
+    description: Data collection temperature in Kelvin.
     minimum: 0.0
+
   solvent_present:
     type: boolean
-    description: Flag indicating if solvent molecules were present in the unit cell.
-  cif_id:
-    type: string
-    description: Unique identifier for the source CIF file (e.g., COD ID).
-  formula:
-    type: string
-    description: Chemical formula extracted from CIF.
-  atom_count:
+    description: Flag indicating if solvent molecules are present in the crystal structure.
+
+  # Metadata & Quality Control
+  non_h_atom_count:
     type: integer
-    description: Total non-hydrogen atom count.
+    description: Count of non-hydrogen atoms (filtering criterion).
     minimum: 1
-  unit_cell_volume:
-    type: number
-    description: Unit cell volume in cubic Angstroms.
-    minimum: 0.0
-  unit_cell_a:
-    type: number
-    description: Unit cell parameter a.
-    minimum: 0.0
-  unit_cell_b:
-    type: number
-    description: Unit cell parameter b.
-    minimum: 0.0
-  unit_cell_c:
-    type: number
-    description: Unit cell parameter c.
-    minimum: 0.0
-  unit_cell_alpha:
-    type: number
-    description: Unit cell angle alpha.
-    minimum: 0.0
-    maximum: 180.0
-  unit_cell_beta:
-    type: number
-    description: Unit cell angle beta.
-    minimum: 0.0
-    maximum: 180.0
-  unit_cell_gamma:
-    type: number
-    description: Unit cell angle gamma.
-    minimum: 0.0
-    maximum: 180.0
-  symmetry_group:
-    type: string
-    description: Space group symbol.
+
   source:
     type: string
-    description: Source of the data (e.g., 'COD').
-  flags:
-    type: array
-    items:
-      type: string
-    description: List of data quality flags or warnings.
+    description: Source identifier (e.g., COD ID or dataset name).
+
 additionalProperties: false
+description: |
+  This schema ensures that the dataset produced by T018 (add_3d_descriptors.py)
+  and validated by T019 (validate_dataset.py) contains all necessary fields
+  for the MLP training in US2. It explicitly includes fields mandated by
+  reviewer feedback (Pauling: H-bonds, Curie: confounders, Franklin: source).
