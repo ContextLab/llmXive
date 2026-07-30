@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Artifact Schema"
+description: "Schema for the model output metrics and metadata."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "XGBRegressor"
+      - "XGBClassifier"
+    description: "Type of XGBoost model trained."
+  hyperparameters:
+    type: "object"
+    description: "JSON-serializable dictionary of model hyperparameters."
+  feature_importances:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Map of feature name to importance score."
+  metrics:
+    type: "object"
+    properties:
+      r2:
+        type: "number"
+        description: "R-squared score (for regression)."
+      auc:
+        type: "number"
+        description: "Area Under Curve (for classification)."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error (for regression)."
+      accuracy:
+        type: "number"
+        description: "Accuracy (for classification)."
+      std_dev:
+        type: "number"
+        description: "Standard deviation of metrics across 5-fold CV."
+    required:
+      - std_dev
+    additionalProperties: true
+  vif_scores:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Variance Inflation Factor scores for top predictors."
+  random_seed:
+    type: "integer"
+    const: 42
+    description: "Random seed used for reproducibility."
+  report_disclaimer:
+    type: "string"
+    description: "Mandatory associational disclaimer text."
+    const: "These findings are associational, not causal, as the data is observational."
+required:
+  - model_type
+  - hyperparameters
+  - feature_importances
+  - metrics
+  - random_seed
+  - report_disclaimer
+additionalProperties: false

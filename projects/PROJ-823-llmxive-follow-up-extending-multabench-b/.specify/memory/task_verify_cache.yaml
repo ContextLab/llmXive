@@ -1,50 +1,3 @@
-T009c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data-model.md` file or its contents were presented, so we cannot verify that
-    it references the new contract files or defines `run_id` propagation. The required
-    documentation artifact is missing.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were presented showing that logic was added\
-    \ to detect zero\u2011variance columns or missing image/text fields and to skip\
-    \ or impute them. Without any artifact (e.g., updated data preprocessing module,\
-    \ unit tests, or commit diff) the requirement is not demonstrated. The implementer\
-    \ must provide the actual implementation and evidence that it runs correctly on\
-    \ such edge\u2011case datasets."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a Parquet file at `data/processed/embeddings_{run_id}.parquet`
-    was provided, nor any code or description showing that such a file is created
-    with the required `run_id` and metadata. The required serialization artifact is
-    missing.
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, test, or documentation artifact was provided showing that a validation
-    step was added to guarantee that gradient tracking is disabled during inference.
-    Without a concrete implementation (e.g., a function/assertion in the inference
-    pipeline, unit tests, or a commit diff), the requirement cannot be confirmed as
-    satisfied. The next implementer must add the validation code and supply the corresponding
-    source file or test results.
-T024:
-  c: false
-  h: aaffdf83834301e97eab64427cb0a3e910d920988d74eb79f0902d5daf117546
-  r: "The required output file `data/processed/metadata_stats_summary.csv` does not\
-    \ exist, so the task\u2019s primary deliverable is missing. Consequently the implementation\
-    \ cannot be verified as having computed and saved the requested statistics for\
-    \ all datasets."
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided showing that logic for handling\
-    \ edge cases such as zero\u2011variance features was added (e.g., skipping those\
-    \ columns or imputing constant values). Without an artifact demonstrating the\
-    \ implementation (and any associated tests), the requirement cannot be confirmed\
-    \ as met. The next implementer should add the necessary code changes and include\
-    \ the updated files or a diff as evidence."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -81,3 +34,42 @@ T032b:
     \ CSV from T032a and extracts the \u201CGPU\u2011Tuned\u201D baseline entries\
     \ from the MulTaBench paper. The required artifact (logic for fetching those baselines)\
     \ is missing, so the task is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, notebook, CSV/JSON results, or figure) showing the\
+    \ Pearson correlation between \u201CRecovery Ratio\u201D and the metadata features\
+    \ for all datasets is present. Without any output file, code, or documented results,\
+    \ the requirement cannot be verified as fulfilled. The implementer must provide\
+    \ the actual correlation calculations (e.g., a table of correlation coefficients\
+    \ and p\u2011values) for every dataset with complete data."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or JSON file containing Benjamini\u2011Hochberg adjusted p\u2011\
+    values is provided. The claim lacks any artifact showing that p\u2011values from\
+    \ T033 and T035 were read, corrected, and written to the required JSON output.\
+    \ The implementer must supply the implementation (e.g., a Python module or notebook)\
+    \ and the resulting JSON file with the adjusted p\u2011values."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No statistical analysis artifact (e.g., script, results table, or figure) showing\
+    \ a one\u2011sample t\u2011test or Wilcoxon test across all valid datasets is\
+    \ present. The implementer provided no code, output, or documentation of the required\
+    \ comparison, so the task is not satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data/artifacts/correlation_report_{run_id}.json` file was presented, and\
+    \ the response contains no JSON content with correlation coefficients, p\u2011\
+    values, or significance flags. The required artifact is missing, so the task is\
+    \ not satisfied."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., updated final report, changelog, or code that adds the \u201C\
+    Data Availability Gap\u201D section) was provided for inspection. Consequently,\
+    \ we cannot confirm that the required reporting for datasets lacking GPU\u2011\
+    Tuned baselines was added. The implementer must supply the modified report (or\
+    \ source files) showing the new \u201CData Availability Gap\u201D content."

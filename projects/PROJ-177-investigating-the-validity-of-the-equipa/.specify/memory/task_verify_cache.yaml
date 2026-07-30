@@ -23,3 +23,17 @@ T021:
     argument and never reads `data/derived/energy_samples.csv`. Moreover, the required
     CSV file is absent from the repository. Both the input data and the required reading
     logic are missing, so the task is not fulfilled.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/statistical_results.json` file was presented; the evidence does\
+    \ not include the required JSON containing test types, statistics, p\u2011values,\
+    \ and rejection flags. The implementer must supply a non\u2011empty JSON file\
+    \ at the specified path with the appropriate content."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, documentation, or test output was provided that shows logic\
+    \ for detecting and handling non\u2011stationary (chirped) signal segments via\
+    \ binning or exclusion. Without any artifact to inspect, we cannot confirm the\
+    \ required functionality was implemented."

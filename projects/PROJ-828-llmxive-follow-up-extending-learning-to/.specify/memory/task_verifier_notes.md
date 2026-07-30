@@ -4,4 +4,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T004** — declared artifact(s) missing/empty/invalid: src/utils/seeds.py
 - **T005** — declared artifact(s) missing/empty/invalid: src/utils/memory_monitor.py
-- **T006** — declared artifact(s) missing/empty/invalid: src/utils/hasher.py

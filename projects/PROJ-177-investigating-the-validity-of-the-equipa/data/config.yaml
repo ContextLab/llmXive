@@ -1,24 +1,17 @@
-# Configuration for Granular System Simulation
-# Material properties and frequency bins
-
+# Configuration for granular system energy calculations
+mass: 0.001  # kg (1 gram)
+radius: 0.0025  # m (2.5 mm)
+gravity: 9.81  # m/s^2
+inertia: 0.0  # Will be derived as 2/5 * m * r^2 if 0
 materials:
   steel:
-    mass_density: 7850.0 # kg/m^3
-    radius: 0.0025 # 2.5mm default radius in meters
-    roughness_proxy: 0.05
+    mass: 0.001
+    radius: 0.0025
   polymer:
-    mass_density: 1100.0 # kg/m^3
-    radius: 0.0025 # 2.5mm default radius in meters
-    roughness_proxy: 0.15
-
+    mass: 0.0005
+    radius: 0.0025
 frequency_bins:
-  - name: "low"
-    range: [0, 10] # Hz
-  - name: "medium"
-    range: [10, 50] # Hz
-  - name: "high"
-    range: [50, 200] # Hz
-
-constants:
-  g: 9.81 # m/s^2
-  moment_of_inertia_factor: 0.4 # 2/5 for solid sphere
+  - 10
+  - 20
+  - 50
+  - 100

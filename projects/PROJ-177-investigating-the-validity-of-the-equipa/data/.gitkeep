@@ -1,1 +1,3 @@
-# This directory contains raw and derived data files.
+# Data directory placeholder
+# Raw data will be stored here (e.g., data/raw/)
+# Derived data will be stored here (e.g., data/derived/)

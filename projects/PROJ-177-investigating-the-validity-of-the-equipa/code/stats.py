@@ -1,3 +1,9 @@
+"""
+Statistical analysis module for granular system energy distributions.
+
+Implements hypothesis testing (KS, Chi-squared), binning, and handling
+of non-stationary segments (chirped signals).
+"""
 import os
 import json
 import numpy as np
@@ -5,341 +11,405 @@ import pandas as pd
 from typing import Dict, List, Tuple, Any, Optional
 from pathlib import Path
 from scipy import stats
-from scipy.special import gamma
+from scipy.stats import chi2, kstest
+import warnings
 
 class StatsError(Exception):
     """Custom exception for statistical analysis errors."""
     pass
 
-def bin_energy_data(df: pd.DataFrame, bin_columns: List[str] = ['frequency_bin', 'material_type']) -> Dict[str, pd.DataFrame]:
+def bin_energy_data(df: pd.DataFrame, bin_columns: List[str]) -> pd.DataFrame:
     """
     Bin energy data by driving frequency and material type.
-
+    
     Args:
-        df: DataFrame containing energy data with columns for frequency, material, and energies.
-        bin_columns: List of columns to group by.
-
+        df: DataFrame with energy columns and metadata
+        bin_columns: List of columns to use for binning (e.g., ['frequency', 'material'])
+        
     Returns:
-        Dictionary mapping bin keys to DataFrames.
+        DataFrame with bin assignments
     """
     if not all(col in df.columns for col in bin_columns):
-        raise StatsError(f"Missing required columns for binning: {bin_columns}")
+        missing = [col for col in bin_columns if col not in df.columns]
+        raise StatsError(f"Missing required columns for binning: {missing}")
+    
+    # Create a unique bin identifier
+    df = df.copy()
+    df['bin_id'] = df[bin_columns].astype(str).agg('-'.join, axis=1)
+    return df
 
-    groups = df.groupby(bin_columns)
-    bins = {}
-    for name, group in groups:
-        # Handle tuple names from multi-level groupby
-        if isinstance(name, tuple):
-            key = "_".join(str(x) for x in name)
-        else:
-            key = str(name)
-        bins[key] = group.copy()
-    return bins
-
-def calculate_maxwell_boltzmann_pdf(x: np.ndarray, kT: float) -> np.ndarray:
+def calculate_maxwell_boltzmann_pdf(energies: np.ndarray, kT: float) -> np.ndarray:
     """
-    Calculate the Maxwell-Boltzmann probability density function for energy.
-    For 3D translational motion, f(E) ~ sqrt(E) * exp(-E/kT).
-    For rotational/vibrational, the degrees of freedom change, but we assume
-    the standard form for equipartition testing (3 degrees of freedom).
-
+    Calculate the Maxwell-Boltzmann probability density function.
+    
+    For a 3D system, the energy distribution follows:
+    P(E) = (2/sqrt(pi)) * (1/(kT)^(3/2)) * sqrt(E) * exp(-E/kT)
+    
     Args:
-        x: Array of energy values.
-        kT: Thermal energy scale (Boltzmann constant * Temperature).
-
+        energies: Array of energy values
+        kT: Thermal energy scale parameter
+        
     Returns:
-        Array of PDF values.
+        PDF values for the given energies
     """
     if kT <= 0:
         raise StatsError("kT must be positive")
     
-    # Avoid division by zero or log of zero
-    x = np.array(x, dtype=float)
-    x = np.maximum(x, 1e-10)
+    # Avoid division by zero and negative energies
+    energies = np.maximum(energies, 1e-10)
     
-    # Normalization constant for 3D: (2/sqrt(pi)) * (1/kT)^(3/2) * sqrt(E)
-    # PDF(E) = (2 / (sqrt(pi) * (kT)^(3/2))) * sqrt(E) * exp(-E / kT)
-    const = 2.0 / (np.sqrt(np.pi) * (kT ** 1.5))
-    pdf = const * np.sqrt(x) * np.exp(-x / kT)
+    prefactor = 2.0 / np.sqrt(np.pi)
+    scale_factor = 1.0 / (kT ** 1.5)
+    pdf = prefactor * scale_factor * np.sqrt(energies) * np.exp(-energies / kT)
     return pdf
 
-def perform_ks_test(energy_data: pd.DataFrame, kT: float, energy_col: str = 'E_trans') -> Dict[str, Any]:
+def perform_ks_test(energies: np.ndarray, kT: float) -> Tuple[float, float]:
     """
-    Perform Kolmogorov-Smirnov test against the theoretical Maxwell-Boltzmann distribution.
-
-    Args:
-        energy_data: DataFrame with energy column.
-        kT: Thermal energy scale.
-        energy_col: Name of the energy column to test.
-
-    Returns:
-        Dictionary with statistic, p-value, and rejection flag.
-    """
-    if energy_col not in energy_data.columns:
-        raise StatsError(f"Column {energy_col} not found in data")
+    Perform Kolmogorov-Smirnov test against Maxwell-Boltzmann distribution.
     
-    data = energy_data[energy_col].dropna().values
-    if len(data) == 0:
-        raise StatsError("No valid data points for KS test")
-
-    # Define the CDF of the Maxwell-Boltzmann distribution
-    # CDF(x) = erf(sqrt(x/kT)) - 2/sqrt(pi) * sqrt(x/kT) * exp(-x/kT)
-    def mb_cdf(x, kT_val):
-        x = np.array(x, dtype=float)
-        x = np.maximum(x, 1e-10)
-        sqrt_x_kT = np.sqrt(x / kT_val)
-        # Use scipy's erf
+    Args:
+        energies: Array of observed energy values
+        kT: Thermal energy scale parameter for the theoretical distribution
+        
+    Returns:
+        Tuple of (KS statistic, p-value)
+    """
+    if len(energies) == 0:
+        raise StatsError("Cannot perform KS test on empty data")
+    
+    # Define the theoretical CDF for MB distribution
+    def mb_cdf(x):
+        # CDF for Maxwell-Boltzmann: erf(sqrt(x/kT)) - (2/sqrt(pi)) * sqrt(x/kT) * exp(-x/kT)
+        x = np.array(x)
+        if np.any(x < 0):
+            raise StatsError("Energy values must be non-negative")
+        sqrt_xt = np.sqrt(x / kT)
         from scipy.special import erf
-        cdf_val = erf(sqrt_x_kT) - (2.0 / np.sqrt(np.pi)) * sqrt_x_kT * np.exp(-x / kT_val)
-        return np.clip(cdf_val, 0.0, 1.0)
-
+        return erf(sqrt_xt) - (2.0 / np.sqrt(np.pi)) * sqrt_xt * np.exp(-x / kT)
+    
     # Perform KS test
-    statistic, pvalue = stats.kstest(data, lambda x: mb_cdf(x, kT))
+    statistic, pvalue = kstest(energies, mb_cdf)
+    return statistic, pvalue
 
-    return {
-        "test": "Kolmogorov-Smirnov",
-        "statistic": float(statistic),
-        "pvalue": float(pvalue),
-        "rejection": pvalue < 0.05  # Default alpha
-    }
-
-def perform_chisquared_test(energy_data: pd.DataFrame, kT: float, energy_col: str = 'E_trans', bins: int = 10) -> Dict[str, Any]:
+def perform_chisquared_test(energies: np.ndarray, kT: float, n_bins: int = 20) -> Tuple[float, float, List[int], List[float]]:
     """
-    Perform Chi-squared goodness-of-fit test against Maxwell-Boltzmann.
-
+    Perform Chi-squared goodness-of-fit test against Maxwell-Boltzmann distribution.
+    
     Args:
-        energy_data: DataFrame with energy column.
-        kT: Thermal energy scale.
-        energy_col: Name of the energy column to test.
-        bins: Number of bins for histogram.
-
+        energies: Array of observed energy values
+        kT: Thermal energy scale parameter
+        n_bins: Number of bins for histogram (default 20)
+        
     Returns:
-        Dictionary with statistic, p-value, and rejection flag.
+        Tuple of (Chi-squared statistic, p-value, observed counts, expected counts)
     """
-    if energy_col not in energy_data.columns:
-        raise StatsError(f"Column {energy_col} not found in data")
-
-    data = energy_data[energy_col].dropna().values
-    if len(data) == 0:
-        raise StatsError("No valid data points for Chi-squared test")
-
-    # Create bins
-    min_val, max_val = np.min(data), np.max(data)
-    if min_val == max_val:
-        max_val = min_val + 1.0
-    bin_edges = np.linspace(min_val, max_val, bins + 1)
+    if len(energies) == 0:
+        raise StatsError("Cannot perform Chi-squared test on empty data")
     
-    # Observed counts
-    observed, _ = np.histogram(data, bins=bin_edges)
+    # Create bins using quantiles to ensure sufficient counts per bin
+    # or use standard rules if data allows
+    try:
+        bin_edges = np.histogram_bin_edges(energies, bins=n_bins)
+    except ValueError:
+        # Fallback to equal width if standard binning fails
+        bin_edges = np.linspace(energies.min(), energies.max(), n_bins + 1)
     
-    # Expected counts from MB distribution
-    # Integrate PDF over each bin
+    # Ensure last bin covers max value
+    bin_edges[-1] = bin_edges[-1] + 1e-10
+    
+    # Calculate observed counts
+    observed_counts, _ = np.histogram(energies, bins=bin_edges)
+    
+    # Calculate expected counts by integrating PDF over bins
     expected_counts = []
-    for i in range(bins):
-        low, high = bin_edges[i], bin_edges[i+1]
-        # Numerical integration of PDF
-        x_fine = np.linspace(low, high, 100)
-        pdf_vals = calculate_maxwell_boltzmann_pdf(x_fine, kT)
-        # Simple trapezoidal integration
-        integral = np.trapz(pdf_vals, x_fine)
-        expected_counts.append(integral * len(data))
+    for i in range(len(bin_edges) - 1):
+        left, right = bin_edges[i], bin_edges[i+1]
+        # Integrate PDF from left to right
+        # For MB: integral of sqrt(E)*exp(-E/kT) dE
+        # Use numerical integration for accuracy
+        from scipy.integrate import quad
+        integral, _ = quad(lambda x: calculate_maxwell_boltzmann_pdf(np.array([x]), kT)[0], left, right)
+        expected_counts.append(integral * len(energies))
     
-    expected = np.array(expected_counts)
+    expected_counts = np.array(expected_counts)
     
-    # Avoid division by zero in Chi-squared
-    mask = expected > 0
+    # Avoid division by zero
+    mask = expected_counts > 0
     if not np.all(mask):
-        # Merge empty bins if necessary (simplified: just filter)
-        if np.sum(expected) == 0:
-            raise StatsError("Expected counts are zero; cannot perform Chi-squared test")
-        observed = observed[mask]
-        expected = expected[mask]
+        warnings.warn(f"Some expected counts are zero. {np.sum(~mask)} bins excluded.")
+    
+    # Calculate Chi-squared statistic
+    chi2_stat = np.sum((observed_counts[mask] - expected_counts[mask])**2 / expected_counts[mask])
+    
+    # Degrees of freedom: number of bins - 1 - number of estimated parameters
+    # Here kT is given, so df = n_bins - 1
+    df = np.sum(mask) - 1
+    if df <= 0:
+        raise StatsError("Insufficient bins for Chi-squared test")
+    
+    pvalue = 1 - chi2.cdf(chi2_stat, df)
+    
+    return chi2_stat, pvalue, observed_counts.tolist(), expected_counts.tolist()
 
-    statistic, pvalue = stats.chisquare(observed, expected)
-
-    return {
-        "test": "Chi-squared",
-        "statistic": float(statistic),
-        "pvalue": float(pvalue),
-        "rejection": pvalue < 0.05
-    }
-
-def apply_benjamini_hochberg(p_values: List[float], alpha: float = 0.05) -> Tuple[List[bool], List[float]]:
+def apply_benjamini_hochberg(p_values: List[float]) -> List[float]:
     """
-    Apply Benjamini-Hochberg procedure for False Discovery Rate (FDR) correction.
-
+    Apply Benjamini-Hochberg False Discovery Rate correction.
+    
     Args:
-        p_values: List of raw p-values from multiple hypothesis tests.
-        alpha: Desired FDR level.
-
+        p_values: List of p-values from multiple tests
+        
     Returns:
-        Tuple of (rejection_flags, adjusted_p_values).
-        rejection_flags: Boolean list indicating if the hypothesis is rejected after correction.
-        adjusted_p_values: The adjusted p-values.
+        List of adjusted p-values
     """
-    if not p_values:
-        return [], []
-
-    if any(not isinstance(p, (int, float)) or p < 0 or p > 1 for p in p_values):
-        raise StatsError("All p-values must be floats between 0 and 1")
-
+    if len(p_values) == 0:
+        return []
+    
+    p_values = np.array(p_values)
     n = len(p_values)
     sorted_indices = np.argsort(p_values)
-    sorted_p = np.array([p_values[i] for i in sorted_indices])
+    sorted_p = p_values[sorted_indices]
     
     # Calculate adjusted p-values
-    # Formula: p_adj(i) = min( (n/i) * p(i), p_adj(i+1) ) for i = n-1 down to 1
-    # And p_adj(n) = n * p(n)
-    adjusted = np.zeros(n)
-    adjusted[-1] = sorted_p[-1] * n
+    adjusted_p = np.zeros(n)
+    for i in range(n):
+        adjusted_p[sorted_indices[i]] = sorted_p[i] * n / (i + 1)
     
-    for i in range(n - 2, -1, -1):
-        # Rank is i+1 (1-based)
-        rank = i + 1
-        current_adj = sorted_p[i] * n / rank
-        # Ensure monotonicity
-        adjusted[i] = min(current_adj, adjusted[i+1])
+    # Ensure monotonicity (cumulative min from the end)
+    for i in range(n-2, -1, -1):
+        adjusted_p[sorted_indices[i]] = min(adjusted_p[sorted_indices[i]], adjusted_p[sorted_indices[i+1]])
     
-    # Clip to 1.0
-    adjusted = np.clip(adjusted, 0.0, 1.0)
+    # Clip to [0, 1]
+    adjusted_p = np.clip(adjusted_p, 0, 1)
     
-    # Map back to original order
-    final_adjusted = np.zeros(n)
-    final_adjusted[sorted_indices] = adjusted
-    
-    # Determine rejections
-    rejections = final_adjusted < alpha
+    return adjusted_p.tolist()
 
-    return list(rejections), list(final_adjusted)
-
-def run_statistical_analysis(
-    input_path: str,
-    output_path: str,
-    alpha: float = 0.05,
-    energy_types: List[str] = ['E_trans', 'E_rot', 'E_pot', 'E_vib']
-) -> Dict[str, Any]:
+def detect_non_stationary_segments(df: pd.DataFrame, time_col: str = 'timestamp', 
+                                   signal_col: str = 'driving_frequency', 
+                                   threshold: float = 0.05) -> pd.DataFrame:
     """
-    Main function to run the full statistical analysis pipeline:
-    1. Load data
-    2. Bin by frequency/material
-    3. Perform KS and Chi-squared tests for each bin
-    4. Apply Benjamini-Hochberg correction across all tests
-    5. Save results
-
+    Detect non-stationary segments (chirped signals) in the data.
+    
+    A segment is considered non-stationary if the rate of change in driving frequency
+    exceeds a threshold relative to the mean frequency.
+    
     Args:
-        input_path: Path to energy_samples.csv
-        output_path: Path to save statistical_results.json
-        alpha: Significance level for FDR correction
-        energy_types: List of energy columns to analyze
+        df: DataFrame with timestamp and signal columns
+        time_col: Name of the timestamp column
+        signal_col: Name of the driving frequency column
+        threshold: Threshold for detecting significant changes (default 0.05)
+        
+    Returns:
+        DataFrame with a 'is_stationary' boolean column
     """
-    input_file = Path(input_path)
-    if not input_file.exists():
-        raise StatsError(f"Input file not found: {input_path}")
-
-    df = pd.read_csv(input_file)
+    if time_col not in df.columns or signal_col not in df.columns:
+        raise StatsError(f"Required columns '{time_col}' and/or '{signal_col}' not found in DataFrame")
     
-    # Estimate kT from the data (assuming equipartition holds roughly for estimation)
-    # E = 1/2 kT * f => kT = 2 * mean(E) / f
-    # For 3D translation, f=3. We'll estimate kT from E_trans mean.
-    if 'E_trans' in df.columns:
-        mean_E_trans = df['E_trans'].mean()
-        kT_est = 2.0 * mean_E_trans / 3.0
-    else:
-        # Fallback: use a default or raise error
-        kT_est = 1.0 
-
-    bins = bin_energy_data(df)
+    df = df.copy()
     
-    all_p_values = []
-    all_test_results = []
-    test_id_counter = 0
+    # Sort by timestamp
+    df = df.sort_values(time_col).reset_index(drop=True)
+    
+    # Calculate the rate of change in frequency
+    freq_diff = df[signal_col].diff()
+    time_diff = df[time_col].diff()
+    
+    # Avoid division by zero
+    time_diff = time_diff.replace(0, np.nan)
+    rate_of_change = freq_diff / time_diff
+    
+    # Calculate the mean frequency and its standard deviation
+    mean_freq = df[signal_col].mean()
+    if mean_freq == 0:
+        mean_freq = 1e-10
+    
+    # Normalize rate of change by mean frequency
+    normalized_rate = rate_of_change / mean_freq
+    
+    # Identify non-stationary segments
+    # A segment is non-stationary if the normalized rate exceeds the threshold
+    df['is_stationary'] = np.abs(normalized_rate) <= threshold
+    
+    # Fill NaN values (first row) as stationary if the rate is not extreme
+    df['is_stationary'] = df['is_stationary'].fillna(True)
+    
+    return df
 
-    for bin_key, bin_df in bins.items():
-        bin_results = {
-            "bin_key": bin_key,
-            "sample_size": len(bin_df),
-            "tests": []
+def handle_non_stationary_segments(df: pd.DataFrame, strategy: str = 'exclude', 
+                                   time_col: str = 'timestamp',
+                                   signal_col: str = 'driving_frequency') -> pd.DataFrame:
+    """
+    Handle non-stationary segments (chirped signals) by binning or exclusion.
+    
+    Args:
+        df: Input DataFrame with energy and signal data
+        strategy: Strategy to handle non-stationary segments ('exclude' or 'bin')
+        time_col: Name of the timestamp column
+        signal_col: Name of the driving frequency column
+        
+    Returns:
+        Processed DataFrame with non-stationary segments handled
+    """
+    if strategy not in ['exclude', 'bin']:
+        raise StatsError(f"Invalid strategy '{strategy}'. Must be 'exclude' or 'bin'.")
+    
+    # Detect non-stationary segments
+    df_processed = detect_non_stationary_segments(df, time_col, signal_col)
+    
+    if strategy == 'exclude':
+        # Exclude non-stationary segments
+        df_final = df_processed[df_processed['is_stationary']].copy()
+        excluded_count = len(df_processed) - len(df_final)
+        if excluded_count > 0:
+            warnings.warn(f"Excluded {excluded_count} rows ({excluded_count/len(df_processed)*100:.2f}%) due to non-stationary segments (chirped signals).")
+    else:  # strategy == 'bin'
+        # Bin non-stationary segments separately
+        # Create a separate bin for non-stationary data
+        df_final = df_processed.copy()
+        df_final['bin_id'] = df_final.apply(
+            lambda row: f"non_stationary" if not row['is_stationary'] else row.get('bin_id', 'unknown'),
+            axis=1
+        )
+        warnings.warn(f"Non-stationary segments ({len(df_final[~df_final['is_stationary']])} rows) binned separately.")
+    
+    return df_final
+
+def run_statistical_analysis(df: pd.DataFrame, config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Run the full statistical analysis pipeline.
+    
+    Args:
+        df: DataFrame with energy data and metadata
+        config: Configuration dictionary with parameters
+        
+    Returns:
+        Dictionary containing all statistical results
+    """
+    results = {
+        'bins': [],
+        'tests': [],
+        'summary': {}
+    }
+    
+    # Handle non-stationary segments
+    strategy = config.get('non_stationary_strategy', 'exclude')
+    df_processed = handle_non_stationary_segments(
+        df, 
+        strategy=strategy,
+        time_col=config.get('time_col', 'timestamp'),
+        signal_col=config.get('signal_col', 'driving_frequency')
+    )
+    
+    # Bin the data
+    bin_columns = config.get('bin_columns', ['frequency', 'material'])
+    df_binned = bin_energy_data(df_processed, bin_columns)
+    
+    # Group by bins and perform tests
+    p_values = []
+    test_results = []
+    
+    for bin_id, group in df_binned.groupby('bin_id'):
+        # Calculate kT from the mean energy (equipartition: E = kT for 1D, 3/2 kT for 3D)
+        # Assuming 3D system: kT = 2/3 * mean(E_trans)
+        mean_energy = group['E_trans'].mean()
+        kT = (2.0/3.0) * mean_energy if mean_energy > 0 else 1.0
+        
+        # Perform KS test
+        try:
+            ks_stat, ks_p = perform_ks_test(group['E_trans'].values, kT)
+        except Exception as e:
+            ks_stat, ks_p = None, None
+        
+        # Perform Chi-squared test
+        try:
+            chi2_stat, chi2_p, obs_counts, exp_counts = perform_chisquared_test(
+                group['E_trans'].values, kT, n_bins=config.get('n_bins', 20)
+            )
+        except Exception as e:
+            chi2_stat, chi2_p, obs_counts, exp_counts = None, None, [], []
+        
+        # Store results
+        test_result = {
+            'bin_id': bin_id,
+            'n_samples': len(group),
+            'mean_energy': float(mean_energy),
+            'estimated_kT': float(kT),
+            'ks_test': {
+                'statistic': float(ks_stat) if ks_stat is not None else None,
+                'p_value': float(ks_p) if ks_p is not None else None
+            },
+            'chisquared_test': {
+                'statistic': float(chi2_stat) if chi2_stat is not None else None,
+                'p_value': float(chi2_p) if chi2_p is not None else None,
+                'observed_counts': obs_counts,
+                'expected_counts': exp_counts
+            },
+            'non_stationary_excluded': not group['is_stationary'].all()
         }
         
-        for energy_type in energy_types:
-            if energy_type not in bin_df.columns:
-                continue
-            
-            # Perform KS test
-            try:
-                ks_res = perform_ks_test(bin_df, kT_est, energy_type)
-                ks_res['energy_type'] = energy_type
-                ks_res['test_id'] = test_id_counter
-                all_p_values.append(ks_res['pvalue'])
-                bin_results['tests'].append(ks_res)
-                test_id_counter += 1
-            except Exception as e:
-                bin_results['tests'].append({"test": "KS", "error": str(e), "energy_type": energy_type})
-
-            # Perform Chi-squared test
-            try:
-                chi_res = perform_chisquared_test(bin_df, kT_est, energy_type)
-                chi_res['energy_type'] = energy_type
-                chi_res['test_id'] = test_id_counter
-                all_p_values.append(chi_res['pvalue'])
-                bin_results['tests'].append(chi_res)
-                test_id_counter += 1
-            except Exception as e:
-                bin_results['tests'].append({"test": "Chi-squared", "error": str(e), "energy_type": energy_type})
+        test_results.append(test_result)
         
-        all_test_results.append(bin_results)
-
-    # Apply Benjamini-Hochberg correction
-    if all_p_values:
-        rejections, adjusted_p = apply_benjamini_hochberg(all_p_values, alpha)
-        
-        # Map back to results
-        test_idx = 0
-        for bin_result in all_test_results:
-            for test in bin_result['tests']:
-                if 'pvalue' in test:
-                    test['adjusted_pvalue'] = adjusted_p[test_idx]
-                    test['rejected_fdr'] = rejections[test_idx]
-                    test_idx += 1
-    else:
-        for bin_result in all_test_results:
-            for test in bin_result['tests']:
-                test['adjusted_pvalue'] = None
-                test['rejected_fdr'] = None
-
-    final_output = {
-        "summary": {
-            "total_bins": len(bins),
-            "total_tests": len(all_p_values),
-            "fdr_alpha": alpha,
-            "estimated_kT": kT_est
-        },
-        "bins": all_test_results
+        if ks_p is not None:
+            p_values.append(ks_p)
+        if chi2_p is not None:
+            p_values.append(chi2_p)
+    
+    # Apply FDR correction
+    if p_values:
+        adjusted_p_values = apply_benjamini_hochberg(p_values)
+        # Map adjusted p-values back to tests (simplified: assume 2 tests per bin)
+        # This is a rough mapping; in practice, you'd track which p-value belongs to which test
+        idx = 0
+        for i, result in enumerate(test_results):
+            if result['ks_test']['p_value'] is not None:
+                result['ks_test']['adjusted_p_value'] = float(adjusted_p_values[idx])
+                idx += 1
+            if result['chisquared_test']['p_value'] is not None:
+                result['chisquared_test']['adjusted_p_value'] = float(adjusted_p_values[idx])
+                idx += 1
+    
+    results['tests'] = test_results
+    
+    # Summary
+    total_bins = len(test_results)
+    significant_bins = sum(1 for t in test_results 
+                          if (t['ks_test']['p_value'] is not None and t['ks_test']['p_value'] < 0.05) or
+                             (t['chisquared_test']['p_value'] is not None and t['chisquared_test']['p_value'] < 0.05))
+    
+    results['summary'] = {
+        'total_bins': total_bins,
+        'significant_bins': significant_bins,
+        'rejection_rate': significant_bins / total_bins if total_bins > 0 else 0.0,
+        'non_stationary_handling': strategy
     }
-
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w') as f:
-        json.dump(final_output, f, indent=2)
-
-    return final_output
+    
+    return results
 
 def main():
+    """Main entry point for statistical analysis."""
     import argparse
-    parser = argparse.ArgumentParser(description="Run statistical analysis on granular energy data")
-    parser.add_argument("--input", required=True, help="Path to energy_samples.csv")
-    parser.add_argument("--output", required=True, help="Path to output JSON")
-    parser.add_argument("--alpha", type=float, default=0.05, help="FDR significance level")
+    
+    parser = argparse.ArgumentParser(description='Run statistical analysis on granular energy data')
+    parser.add_argument('--input', type=str, required=True, help='Path to energy_samples.csv')
+    parser.add_argument('--output', type=str, required=True, help='Path to output JSON file')
+    parser.add_argument('--config', type=str, default='data/config.yaml', help='Path to config file')
     args = parser.parse_args()
+    
+    # Load config
+    import yaml
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Load data
+    df = pd.read_csv(args.input)
+    
+    # Run analysis
+    results = run_statistical_analysis(df, config)
+    
+    # Save results
+    with open(args.output, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    print(f"Statistical analysis complete. Results saved to {args.output}")
 
-    try:
-        results = run_statistical_analysis(args.input, args.output, args.alpha)
-        print(f"Analysis complete. Results saved to {args.output}")
-        print(f"Total tests performed: {results['summary']['total_tests']}")
-    except StatsError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    import sys
+if __name__ == '__main__':
     main()

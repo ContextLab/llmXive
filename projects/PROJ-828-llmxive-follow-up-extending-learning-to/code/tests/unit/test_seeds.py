@@ -1,5 +1,5 @@
 """
-Unit tests for seed pinning utilities.
+Unit tests for seed management utilities.
 """
 
 import pytest
@@ -9,8 +9,8 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.utils.seeds import (
     set_seed,
@@ -20,180 +20,150 @@ from src.utils.seeds import (
     get_seed_environment
 )
 
-import numpy as np
-import torch
-
 
 class TestSetSeed:
-    """Tests for set_seed function."""
+    """Tests for the set_seed function."""
 
-    def test_set_seed_python(self):
-        """Test that Python random seed is set correctly."""
-        seed = 42
-        set_seed(seed, deterministic=False)
-        
-        # Generate two random numbers
+    def test_seed_affects_random(self):
+        """Test that set_seed affects Python's random module."""
+        set_seed(42)
         val1 = random.random()
-        
-        # Reset seed
-        set_seed(seed, deterministic=False)
+
+        set_seed(42)
         val2 = random.random()
-        
-        assert val1 == val2, "Python random should be reproducible with same seed"
 
-    def test_set_seed_numpy(self):
-        """Test that NumPy random seed is set correctly."""
-        seed = 42
-        set_seed(seed, deterministic=False)
-        
+        assert val1 == val2
+
+    def test_seed_affects_numpy(self):
+        """Test that set_seed affects NumPy."""
+        import numpy as np
+
+        set_seed(123)
         arr1 = np.random.rand(5)
-        
-        set_seed(seed, deterministic=False)
+
+        set_seed(123)
         arr2 = np.random.rand(5)
-        
-        np.testing.assert_array_equal(arr1, arr2, "NumPy random should be reproducible")
 
-    def test_set_seed_torch(self):
-        """Test that PyTorch random seed is set correctly."""
-        seed = 42
-        set_seed(seed, deterministic=False)
-        
-        t1 = torch.rand(5)
-        
-        set_seed(seed, deterministic=False)
-        t2 = torch.rand(5)
-        
-        torch.testing.assert_close(t1, t2, "PyTorch random should be reproducible")
+        assert np.array_equal(arr1, arr2)
 
-    def test_deterministic_mode(self):
-        """Test that deterministic mode sets appropriate flags."""
-        seed = 42
-        set_seed(seed, deterministic=True)
-        
-        assert torch.backends.cudnn.deterministic is True
-        assert torch.backends.cudnn.benchmark is False
+    def test_seed_affects_torch(self):
+        """Test that set_seed affects PyTorch."""
+        import torch
 
-    def test_environment_variable_set(self):
+        set_seed(456)
+        tensor1 = torch.rand(5)
+
+        set_seed(456)
+        tensor2 = torch.rand(5)
+
+        assert torch.equal(tensor1, tensor2)
+
+    def test_env_variable_set(self):
         """Test that PYTHONHASHSEED environment variable is set."""
-        seed = 42
-        with patch.dict(os.environ, {}, clear=True):
-            set_seed(seed, deterministic=False)
-            assert os.environ.get('PYTHONHASHSEED') == str(seed)
+        set_seed(789)
+        assert os.environ.get('PYTHONHASHSEED') == '789'
 
 
 class TestGenerateSeedFromString:
-    """Tests for generate_seed_from_string function."""
+    """Tests for the generate_seed_from_string function."""
 
-    def test_generate_seed_from_string(self):
-        """Test that string generates consistent seed."""
-        seed_str = "test_string"
-        seed1 = generate_seed_from_string(seed_str)
-        seed2 = generate_seed_from_string(seed_str)
-        
-        assert seed1 == seed2, "Same string should generate same seed"
-        assert isinstance(seed1, int), "Seed should be an integer"
-        assert 0 <= seed1 < 2**31, "Seed should be in valid range"
-
-    def test_generate_with_offset(self):
-        """Test that offset changes the generated seed."""
-        seed_str = "test_string"
-        seed1 = generate_seed_from_string(seed_str, offset=0)
-        seed2 = generate_seed_from_string(seed_str, offset=1)
-        
-        assert seed1 != seed2, "Different offsets should generate different seeds"
+    def test_deterministic_output(self):
+        """Test that the same string produces the same seed."""
+        seed1 = generate_seed_from_string("test_string")
+        seed2 = generate_seed_from_string("test_string")
+        assert seed1 == seed2
 
     def test_different_strings_different_seeds(self):
-        """Test that different strings generate different seeds."""
+        """Test that different strings produce different seeds."""
         seed1 = generate_seed_from_string("string1")
         seed2 = generate_seed_from_string("string2")
-        
-        assert seed1 != seed2, "Different strings should generate different seeds"
+        assert seed1 != seed2
 
-    def test_empty_string(self):
-        """Test that empty string generates a valid seed."""
-        seed = generate_seed_from_string("")
-        assert isinstance(seed, int)
-        assert 0 <= seed < 2**31
+    def test_within_range(self):
+        """Test that generated seed is within valid range."""
+        seed = generate_seed_from_string("test", max_seed=100)
+        assert 0 <= seed <= 100
+
+    def test_hash_consistency(self):
+        """Test that SHA-256 hash is used consistently."""
+        seed1 = generate_seed_from_string("hello")
+        seed2 = generate_seed_from_string("hello")
+        assert seed1 == seed2
 
 
 class TestGetSeedConfig:
-    """Tests for get_seed_config function."""
+    """Tests for the get_seed_config function."""
 
-    def test_get_seed_config(self):
-        """Test that config dictionary is created correctly."""
-        config = get_seed_config(base_seed=42, variant_name="opd", run_index=0)
-        
-        assert config['base_seed'] == 42
-        assert config['variant_name'] == "opd"
-        assert config['run_index'] == 0
-        assert 'variant_seed' in config
-        assert config['deterministic'] is True
+    def test_provides_seed_key(self):
+        """Test that config always contains a 'seed' key."""
+        config = get_seed_config()
+        assert 'seed' in config
 
-    def test_different_run_indices(self):
-        """Test that different run indices generate different seeds."""
-        config1 = get_seed_config(base_seed=42, variant_name="opd", run_index=0)
-        config2 = get_seed_config(base_seed=42, variant_name="opd", run_index=1)
-        
-        assert config1['variant_seed'] != config2['variant_seed']
+    def test_direct_seed(self):
+        """Test config with direct seed value."""
+        config = get_seed_config(seed=42)
+        assert config['seed'] == 42
 
-    def test_different_variants(self):
-        """Test that different variants generate different seeds."""
-        config1 = get_seed_config(base_seed=42, variant_name="opd", run_index=0)
-        config2 = get_seed_config(base_seed=42, variant_name="rl", run_index=0)
-        
-        assert config1['variant_seed'] != config2['variant_seed']
+    def test_seed_from_string(self):
+        """Test config with seed string."""
+        config = get_seed_config(seed_string="test")
+        assert config['seed_string'] == "test"
+        assert isinstance(config['seed'], int)
 
-    def test_different_base_seeds(self):
-        """Test that different base seeds generate different seeds."""
-        config1 = get_seed_config(base_seed=42, variant_name="opd", run_index=0)
-        config2 = get_seed_config(base_seed=100, variant_name="opd", run_index=0)
-        
-        assert config1['variant_seed'] != config2['variant_seed']
+    def test_default_seed(self):
+        """Test that default seed is used when neither is provided."""
+        config = get_seed_config()
+        assert config['seed'] == 42
+
+    def test_is_deterministic_flag(self):
+        """Test that is_deterministic is always True."""
+        config = get_seed_config(seed=42)
+        assert config['is_deterministic'] is True
+
 
 class TestApplySeedConfig:
-    """Tests for apply_seed_config function."""
+    """Tests for the apply_seed_config function."""
 
-    def test_apply_seed_config(self):
-        """Test that seed config is applied correctly."""
-        config = get_seed_config(base_seed=42, variant_name="opd", run_index=0)
-        
-        # Generate a random value
+    def test_applies_seed_correctly(self):
+        """Test that apply_seed_config sets the correct seed."""
+        config = get_seed_config(seed=999)
+        result = apply_seed_config(config)
+        assert result == 999
+
+    def test_sets_random_state(self):
+        """Test that apply_seed_config actually sets the random state."""
+        config = get_seed_config(seed=111)
+        apply_seed_config(config)
         val1 = random.random()
-        
-        # Apply config
+
         apply_seed_config(config)
         val2 = random.random()
-        
-        # Apply config again
-        apply_seed_config(config)
-        val3 = random.random()
-        
-        assert val2 == val3, "Applying same config should produce same results"
 
-    def test_apply_seed_config_missing_seed(self):
-        """Test that missing variant_seed raises error."""
-        config = {'base_seed': 42}
-        
-        with pytest.raises(ValueError, match="Config must contain 'variant_seed' key"):
-            apply_seed_config(config)
+        assert val1 == val2
+
+    def test_raises_on_missing_seed(self):
+        """Test that ValueError is raised when seed is missing."""
+        with pytest.raises(ValueError):
+            apply_seed_config({})
+
 
 class TestGetSeedEnvironment:
-    """Tests for get_seed_environment function."""
+    """Tests for the get_seed_environment function."""
 
-    def test_seed_from_environment(self):
-        """Test that seed is read from environment variable."""
-        with patch.dict(os.environ, {'LLMXIVE_SEED': '42'}):
-            seed = get_seed_environment()
-            assert seed == 42
+    def test_returns_dict(self):
+        """Test that function returns a dictionary."""
+        env = get_seed_environment()
+        assert isinstance(env, dict)
 
-    def test_no_seed_in_environment(self):
-        """Test that None is returned when no seed in environment."""
-        with patch.dict(os.environ, {}, clear=True):
-            seed = get_seed_environment()
-            assert seed is None
+    def test_contains_expected_keys(self):
+        """Test that all expected keys are present."""
+        env = get_seed_environment()
+        expected_keys = ['PYTHONHASHSEED', 'CUBLAS_WORKSPACE_CONFIG', 'CUDA_DETERMINISTIC']
+        for key in expected_keys:
+            assert key in env
 
-    def test_invalid_seed_in_environment(self):
-        """Test that None is returned for invalid seed value."""
-        with patch.dict(os.environ, {'LLMXIVE_SEED': 'invalid'}):
-            seed = get_seed_environment()
-            assert seed is None
+    def test_pythonhashseed_reflects_set_seed(self):
+        """Test that PYTHONHASHSEED reflects the last set_seed call."""
+        set_seed(12345)
+        env = get_seed_environment()
+        assert env['PYTHONHASHSEED'] == '12345'

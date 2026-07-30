@@ -96,7 +96,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/stats.py` function to bin energy data by driving frequency and material type, reading input from `data/derived/energy_samples.csv` (Constitution Principle VII)
+- [X] T021 [US2] Implement `code/stats.py` function to bin energy data by driving frequency and material type, reading input from `data/derived/energy_samples.csv` (Constitution Principle VII)
 - [X] T022 [US2] Implement `code/stats.py` function to perform Kolmogorov-Smirnov test against the theoretical Maxwell-Boltzmann distribution (using sample mean to estimate scale parameter if required by KS variant, but explicitly targeting MB) (FR-003)
 - [X] T023 [US2] Implement `code/stats.py` function to perform Chi-squared goodness-of-fit test: bin observed counts using standard binning rules and calculate expected counts by integrating the Maxwell-Boltzmann PDF over these bins (FR-004)
 - [X] T024 [US2] Implement `code/stats.py` function to apply Benjamini-Hochberg (FDR) correction for multiple comparisons (FR-006)
@@ -117,13 +117,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T027 [P] [US3] Unit test for threshold sweep logic in `tests/test_sensitivity.py` (verify iteration over $\alpha \in \{0.01, 0.05, 0.10\}$)
-- [ ] T028 [P] [US3] Unit test for discrepancy boundary sweep in `tests/test_sensitivity.py` (verify iteration over boundaries $\{1\%, 5\%, 10\%\}$)
+- [X] T027 [P] [US3] Unit test for threshold sweep logic in `tests/test_sensitivity.py` (verify iteration over $\alpha \in \{0.01, 0.05, 0.10\}$)
+- [X] T028 [P] [US3] Unit test for discrepancy boundary sweep in `tests/test_sensitivity.py` (verify iteration over boundaries $\{1\%, 5\%, 10\%\}$)
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/sensitivity.py` function to sweep significance threshold $\alpha$ over the set $\{0.01, 0.05, 0.10\}$ and record rejection counts (FR-005)
-- [ ] T030 [US3] Implement `code/sensitivity.py` function to sweep quasi-thermal energy ratio boundaries over the set $\{1\%, 5\%, 10\%\}$ anchored to the reference value 1.0 and record classification rates (FR-005)
+- [X] T029 [US3] Implement `code/sensitivity.py` function to sweep significance threshold $\alpha$ over the set $\{0.01, 0.05, 0.10\}$ and record rejection counts (FR-005)
+- [X] T030 [US3] Implement `code/sensitivity.py` function to sweep quasi-thermal energy ratio boundaries over the set $\{1\%, 5\%, 10\%\}$ anchored to the reference value 1.0 and record classification rates (FR-005)
 - [ ] T031 [US3] Generate `sensitivity_analysis_report.json` in `artifacts/` containing threshold vs. rejection rate data (FR-005)
 - [ ] T032 [US3] Verify robustness: ensure primary rejection decision remains *identical* across the specific threshold set $\{0.01, 0.05, 0.10\}$ and output the boolean comparison result (Success Criterion SC-003)
 

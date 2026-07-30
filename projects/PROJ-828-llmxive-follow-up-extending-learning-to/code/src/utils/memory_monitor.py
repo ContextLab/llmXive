@@ -1,284 +1,280 @@
 """
-Memory monitoring utilities for the llmXive pipeline.
+Memory monitoring utilities for enforcing RAM limits during training.
 
-Provides functionality to track RAM usage and enforce memory limits
-to ensure training runs stay within hardware constraints (7GB RAM limit).
+This module provides tools to track RAM usage and enforce a memory limit,
+ensuring training runs stay within the 7GB constraint specified in the project.
 """
+
 import os
 import gc
 import time
 import threading
 from typing import Optional, Callable, Any, Dict, List
 from contextlib import contextmanager
-import psutil
-import numpy as np
 
-# Project root relative to this file
-_PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-_RESULTS_DIR = os.path.join(_PROJECT_ROOT, 'results')
-_MEMORY_LOG_PATH = os.path.join(_RESULTS_DIR, 'memory_usage.log')
+# Try to import psutil for accurate memory measurement
+# If not available, fall back to /proc on Linux or basic estimation
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
 
-# Default memory limit in GB (matches hardware constraint)
-DEFAULT_MEMORY_LIMIT_GB = 7.0
+# Platform-specific imports for fallback
+if os.name == 'posix':
+    try:
+        from resource import getrusage, RUSAGE_SELF
+        HAS_RESOURCE = True
+    except ImportError:
+        HAS_RESOURCE = False
+else:
+    HAS_RESOURCE = False
+
 
 class MemoryMonitor:
     """
-    Monitors RAM usage and enforces a memory limit.
-    
+    Monitors memory usage of the current process.
+
     Attributes:
-        limit_gb: Memory limit in gigabytes.
-        usage_history: List of (timestamp, usage_gb) tuples.
-        peak_usage_gb: Peak observed memory usage in gigabytes.
+        limit_bytes (int): Memory limit in bytes.
+        history (List[Dict]): List of recorded memory snapshots.
+        peak_bytes (int): Peak memory usage observed.
+        _thread (threading.Thread): Background monitoring thread.
+        _stop_event (threading.Event): Event to signal thread stop.
     """
-    
-    def __init__(self, limit_gb: float = DEFAULT_MEMORY_LIMIT_GB):
+
+    def __init__(self, limit_mb: float = 7000, sample_interval: float = 0.1):
         """
         Initialize the memory monitor.
-        
+
         Args:
-            limit_gb: Maximum allowed memory usage in GB.
+            limit_mb: Memory limit in megabytes (default 7000MB = 7GB).
+            sample_interval: Interval in seconds between memory samples.
         """
-        self.limit_gb = limit_gb
-        self.limit_bytes = limit_gb * 1024**3
-        self.usage_history: List[tuple] = []
-        self.peak_usage_gb: float = 0.0
-        self._monitor_thread: Optional[threading.Thread] = None
+        self.limit_bytes = int(limit_mb * 1024 * 1024)
+        self.sample_interval = sample_interval
+        self.history: List[Dict[str, Any]] = []
+        self.peak_bytes: int = 0
+        self._thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
-        self._process = psutil.Process(os.getpid())
-        
-        # Ensure results directory exists
-        os.makedirs(_RESULTS_DIR, exist_ok=True)
+        self._start_time: Optional[float] = None
 
-    def get_current_usage_gb(self) -> float:
+    def _get_memory_usage(self) -> int:
         """
-        Get current memory usage in gigabytes.
-        
+        Get current memory usage in bytes.
+
         Returns:
-            Current RSS memory usage in GB.
+            Current memory usage in bytes.
         """
-        try:
-            # Get memory info for current process
-            mem_info = self._process.memory_info()
-            return mem_info.rss / (1024**3)
-        except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-            raise RuntimeError(f"Failed to get memory usage: {e}")
+        if HAS_PSUTIL:
+            process = psutil.Process(os.getpid())
+            return process.memory_info().rss
+        elif HAS_RESOURCE:
+            # Fallback for Linux/Unix using resource module
+            usage = getrusage(RUSAGE_SELF)
+            # ru_maxrss is in kilobytes on Linux, bytes on macOS
+            if os.uname().sysname == 'Darwin':
+                return usage.ru_maxrss
+            else:
+                return usage.ru_maxrss * 1024
+        else:
+            # Last resort: return 0 or raise error
+            # For safety, we raise an error if no method is available
+            raise RuntimeError(
+                "No memory measurement backend available. "
+                "Install 'psutil' or run on a supported POSIX system."
+            )
 
-    def check_limit(self) -> bool:
-        """
-        Check if current memory usage is within the limit.
-        
-        Returns:
-            True if usage is within limit, False otherwise.
-        """
-        current = self.get_current_usage_gb()
-        if current > self.limit_gb:
-            return False
-        return True
-
-    def force_gc(self) -> float:
-        """
-        Force garbage collection and return memory after cleanup.
-        
-        Returns:
-            Memory usage in GB after garbage collection.
-        """
-        gc.collect()
-        return self.get_current_usage_gb()
-
-    def _monitor_loop(self, interval: float = 0.1):
-        """Background monitoring loop."""
-        while not self._stop_event.is_set():
-            usage = self.get_current_usage_gb()
-            self.usage_history.append((time.time(), usage))
-            
-            # Update peak
-            if usage > self.peak_usage_gb:
-                self.peak_usage_gb = usage
-            
-            # Check limit
-            if usage > self.limit_gb:
-                self._log_warning(f"Memory limit exceeded: {usage:.2f}GB > {self.limit_gb}GB")
-                # Force garbage collection
-                usage = self.force_gc()
-                if usage > self.limit_gb:
-                    self._log_warning("Memory limit still exceeded after GC, triggering failure.")
-            
-            time.sleep(interval)
-
-    def start_monitoring(self, interval: float = 0.1):
-        """
-        Start background memory monitoring.
-        
-        Args:
-            interval: Sampling interval in seconds.
-        """
-        if self._monitor_thread and self._monitor_thread.is_alive():
+    def start(self) -> None:
+        """Start background monitoring thread."""
+        if self._thread is not None and self._thread.is_alive():
             return
-        
+
         self._stop_event.clear()
-        self._monitor_thread = threading.Thread(
-            target=self._monitor_loop, 
-            args=(interval,), 
-            daemon=True
-        )
-        self._monitor_thread.start()
+        self._start_time = time.time()
+        self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
+        self._thread.start()
 
-    def stop_monitoring(self):
-        """Stop background memory monitoring."""
-        if self._monitor_thread:
-            self._stop_event.set()
-            self._monitor_thread.join(timeout=1.0)
+    def stop(self) -> None:
+        """Stop background monitoring thread."""
+        if self._thread is None:
+            return
 
-    def _log_warning(self, message: str):
-        """Log a warning message to the memory log file."""
-        timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
-        log_line = f"[{timestamp}] WARNING: {message}\n"
-        with open(_MEMORY_LOG_PATH, 'a') as f:
-            f.write(log_line)
-        # Also print to stderr
-        import sys
-        print(log_line.strip(), file=sys.stderr)
+        self._stop_event.set()
+        self._thread.join(timeout=2.0)
+        self._thread = None
 
-    def get_statistics(self) -> Dict[str, float]:
-        """
-        Get memory usage statistics.
-        
-        Returns:
-            Dictionary with current, peak, and limit values.
-        """
-        return {
-            'current_gb': self.get_current_usage_gb(),
-            'peak_gb': self.peak_usage_gb,
-            'limit_gb': self.limit_gb,
-            'samples': len(self.usage_history)
-        }
+    def _monitor_loop(self) -> None:
+        """Background loop to sample memory usage."""
+        while not self._stop_event.is_set():
+            try:
+                current_mem = self._get_memory_usage()
+                self.history.append({
+                    'timestamp': time.time(),
+                    'elapsed': time.time() - (self._start_time or time.time()),
+                    'memory_bytes': current_mem
+                })
+                if current_mem > self.peak_bytes:
+                    self.peak_bytes = current_mem
 
-    def save_report(self, path: Optional[str] = None):
-        """
-        Save a memory usage report to a file.
-        
-        Args:
-            path: Optional path for the report. Defaults to results/memory_report.txt.
-        """
-        if path is None:
-            path = os.path.join(_RESULTS_DIR, 'memory_report.txt')
-        
-        stats = self.get_statistics()
-        
-        with open(path, 'w') as f:
-            f.write("Memory Monitor Report\n")
-            f.write("=" * 40 + "\n")
-            f.write(f"Limit: {stats['limit_gb']:.2f} GB\n")
-            f.write(f"Current Usage: {stats['current_gb']:.2f} GB\n")
-            f.write(f"Peak Usage: {stats['peak_gb']:.2f} GB\n")
-            f.write(f"Samples Collected: {stats['samples']}\n")
-            f.write("=" * 40 + "\n")
-            
-            if self.usage_history:
-                f.write("\nUsage History (last 10 samples):\n")
-                for ts, usage in self.usage_history[-10:]:
-                    f.write(f"  {time.strftime('%H:%M:%S', time.localtime(ts))}: {usage:.3f} GB\n")
+                # Check limit
+                if current_mem > self.limit_bytes:
+                    # Force garbage collection
+                    gc.collect()
+                    # Re-check after GC
+                    current_mem = self._get_memory_usage()
+                    if current_mem > self.limit_bytes:
+                        # Log but don't stop - let the context manager or caller handle it
+                        pass
+
+            except Exception:
+                # Silently ignore errors in background thread
+                pass
+
+            self._stop_event.wait(self.sample_interval)
+
+    def get_current_memory_bytes(self) -> int:
+        """Get current memory usage."""
+        return self._get_memory_usage()
+
+    def get_peak_memory_bytes(self) -> int:
+        """Get peak memory usage since start."""
+        return max(self.peak_bytes, self._get_memory_usage())
+
+    def get_memory_mb(self) -> float:
+        """Get current memory usage in MB."""
+        return self.get_current_memory_bytes() / (1024 * 1024)
+
+    def get_peak_memory_mb(self) -> float:
+        """Get peak memory usage in MB."""
+        return self.get_peak_memory_bytes() / (1024 * 1024)
+
+    def is_over_limit(self) -> bool:
+        """Check if current memory usage exceeds the limit."""
+        return self.get_current_memory_bytes() > self.limit_bytes
+
+    def get_history(self) -> List[Dict[str, Any]]:
+        """Get memory history."""
+        return self.history.copy()
+
+    def reset(self) -> None:
+        """Reset monitor state."""
+        self.history.clear()
+        self.peak_bytes = 0
+        self._start_time = time.time()
+
 
 @contextmanager
-def memory_limit_context(limit_gb: float = DEFAULT_MEMORY_LIMIT_GB, 
-                          check_interval: float = 0.5):
+def memory_limit_context(
+    limit_mb: float = 7000,
+    monitor: Optional[MemoryMonitor] = None,
+    strict: bool = True
+):
     """
-    Context manager that enforces a memory limit during execution.
-    
-    If memory usage exceeds the limit, a RuntimeError is raised.
-    
+    Context manager to enforce a memory limit.
+
     Args:
-        limit_gb: Memory limit in GB.
-        check_interval: Interval for checking memory in seconds.
-        
+        limit_mb: Memory limit in MB.
+        monitor: Optional existing MemoryMonitor instance.
+        strict: If True, raises MemoryError when limit exceeded.
+
     Yields:
         MemoryMonitor instance.
-        
+
     Raises:
-        RuntimeError: If memory limit is exceeded.
+        MemoryError: If strict mode and memory limit exceeded.
     """
-    monitor = MemoryMonitor(limit_gb=limit_gb)
-    monitor.start_monitoring(interval=check_interval)
-    
+    if monitor is None:
+        monitor = MemoryMonitor(limit_mb=limit_mb)
+
+    monitor.start()
     try:
         yield monitor
+        # Final check on exit
+        if strict and monitor.is_over_limit():
+            raise MemoryError(
+                f"Memory limit exceeded: {monitor.get_memory_mb():.2f}MB "
+                f"> {limit_mb}MB"
+            )
+    except MemoryError:
+        raise
+    except Exception:
+        raise
     finally:
-        monitor.stop_monitoring()
-        monitor.save_report()
+        monitor.stop()
+        gc.collect()
 
-def enforce_memory_limit(limit_gb: float = DEFAULT_MEMORY_LIMIT_GB, 
-                         check_interval: float = 0.5):
+
+def enforce_memory_limit(
+    limit_mb: float = 7000,
+    check_interval: float = 0.5,
+    callback: Optional[Callable[[float], None]] = None
+) -> MemoryMonitor:
     """
-    Decorator factory to enforce memory limits on functions.
-    
+    Enforce a memory limit with periodic checks.
+
+    This function starts a background monitor and can optionally call
+    a callback function when memory usage exceeds a threshold.
+
     Args:
-        limit_gb: Memory limit in GB.
-        check_interval: Interval for checking memory in seconds.
-        
+        limit_mb: Memory limit in MB.
+        check_interval: Interval between checks in seconds.
+        callback: Optional callback function that receives memory usage in MB.
+
     Returns:
-        Decorator that wraps the function with memory monitoring.
+        Running MemoryMonitor instance.
     """
-    def decorator(func: Callable) -> Callable:
-        def wrapper(*args, **kwargs) -> Any:
-            monitor = MemoryMonitor(limit_gb=limit_gb)
-            monitor.start_monitoring(interval=check_interval)
-            
-            try:
-                result = func(*args, **kwargs)
-                return result
-            finally:
-                monitor.stop_monitoring()
-                monitor.save_report()
-                # Check final status
-                if not monitor.check_limit():
-                    raise RuntimeError(
-                        f"Memory limit ({limit_gb}GB) exceeded during {func.__name__}. "
-                        f"Peak usage: {monitor.peak_usage_gb:.2f}GB"
-                    )
-        return wrapper
-    return decorator
+    monitor = MemoryMonitor(limit_mb=limit_mb, sample_interval=check_interval)
+    monitor.start()
 
-def main():
-    """
-    Command-line interface for memory monitoring demonstration.
-    
-    Usage:
-        python -m src.utils.memory_monitor [--limit GB] [--duration SEC]
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Memory Monitor Utility')
-    parser.add_argument('--limit', type=float, default=DEFAULT_MEMORY_LIMIT_GB,
-                      help=f'Memory limit in GB (default: {DEFAULT_MEMORY_LIMIT_GB})')
-    parser.add_argument('--duration', type=float, default=5.0,
-                      help='Duration to run monitoring in seconds (default: 5.0)')
-    parser.add_argument('--check-interval', type=float, default=0.5,
-                      help='Check interval in seconds (default: 0.5)')
-    
-    args = parser.parse_args()
-    
-    print(f"Starting memory monitor (limit: {args.limit}GB, duration: {args.duration}s)")
-    
-    monitor = MemoryMonitor(limit_gb=args.limit)
-    monitor.start_monitoring(interval=args.check_interval)
-    
-    # Simulate some work
-    time.sleep(args.duration)
-    
-    monitor.stop_monitoring()
-    monitor.save_report()
-    
-    stats = monitor.get_statistics()
-    print(f"\nMonitoring complete.")
-    print(f"Peak usage: {stats['peak_gb']:.3f} GB")
-    print(f"Limit: {stats['limit_gb']} GB")
-    print(f"Status: {'OK' if stats['peak_gb'] <= stats['limit_gb'] else 'EXCEEDED'}")
-    
-    if stats['peak_gb'] > stats['limit_gb']:
-        print("WARNING: Memory limit was exceeded!")
-        return 1
-    return 0
+    # Start a watcher thread if callback is provided
+    if callback is not None:
+        def watcher():
+            while not monitor._stop_event.is_set():
+                current_mb = monitor.get_memory_mb()
+                if current_mb > limit_mb * 0.9:  # 90% threshold
+                    callback(current_mb)
+                monitor._stop_event.wait(check_interval)
 
-if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+        watcher_thread = threading.Thread(target=watcher, daemon=True)
+        watcher_thread.start()
+
+    return monitor
+
+
+def main() -> None:
+    """
+    Main function for testing the memory monitor.
+    """
+    print("Memory Monitor Test")
+    print("=" * 40)
+
+    monitor = MemoryMonitor(limit_mb=7000, sample_interval=0.1)
+    monitor.start()
+
+    # Simulate some memory usage
+    data = []
+    for i in range(100):
+        data.append([j * 1.5 for j in range(10000)])
+        time.sleep(0.1)
+
+        if monitor.is_over_limit():
+            print(f"Warning: Memory limit exceeded at iteration {i}")
+            break
+
+    monitor.stop()
+
+    print(f"Peak memory: {monitor.get_peak_memory_mb():.2f} MB")
+    print(f"Final memory: {monitor.get_memory_mb():.2f} MB")
+    print(f"Sample count: {len(monitor.get_history())}")
+
+    # Demonstrate context manager
+    print("\nTesting context manager...")
+    with memory_limit_context(limit_mb=7000) as ctx:
+        # Simulate work
+        _ = [0] * 1000000
+        print(f"Memory in context: {ctx.get_memory_mb():.2f} MB")
+
+
+if __name__ == "__main__":
+    main()

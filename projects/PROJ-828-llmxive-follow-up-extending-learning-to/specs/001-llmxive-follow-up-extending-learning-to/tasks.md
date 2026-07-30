@@ -67,7 +67,7 @@
 - [ ] T012 Create `src/cli/run_experiment.py` as the single entry point orchestrating all training and analysis
 - [ ] T013 [P] Create `tests/unit/test_svd.py` to verify SVD on small matrices fits memory constraints
 - [ ] T014 [P] Create `tests/unit/test_projection.py` to verify projection math (cosine similarity ≥ 0.99)
-- [ ] T018c [P] Implement logic in `src/analysis/metrics.py` to define the 'early' window (first [deferred] of training steps, minimum 50 steps) [UNRESOLVED-CLAIM: c_b1fa6787 — status=not_enough_info] and write it to `results/early_window_config.json`
+- [ ] T018c [P] Implement logic in `src/analysis/metrics.py` to define the 'early' window (first [deferred] of training steps, minimum 50 steps) and write it to `results/early_window_config.json`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -92,7 +92,7 @@
 - [ ] T019 [US1] Implement **layer-wise SVD logic** in `src/training/projection_utils.py` for accumulated updates
 - [ ] T020 [US1] Implement logic to select $k$ such that cumulative explained variance ≥ 80% (default $k=10$ if none)
 - [ ] T021 [US1] Save stable subspace matrix (shape $k \times n_{params}$) to `results/opd_subspace.npy`
-- [ ] T022 [US1] Log memory usage during SVD to ensure < 7GB limit
+- [ ] T022 [US1] Log memory usage during SVD to ensure < 7GB limit [UNRESOLVED-CLAIM: c_79d7eae6 — status=not_enough_info]
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,7 +102,7 @@
 
 **Goal**: Train a PPO-based RL agent where gradients are projected onto the stable subspace from US1 before update.
 
-**Independent Test**: Run PPO training with projection active, verify update direction cosine similarity with subspace basis ≥ 0.99 [UNRESOLVED-CLAIM: c_2ee575ab — status=not_enough_info].
+**Independent Test**: Run PPO training with projection active, verify update direction cosine similarity with subspace basis ≥ 0.99.
 
 ### Tests for User Story 2
 
@@ -115,7 +115,7 @@
 - [ ] T026 [US2] Implement `src/training/low_rank_rl.py` loading subspace from `results/opd_subspace.npy` (Depends on T021)
 - [ ] T027 [US2] Implement **gradient projection logic** in `low_rank_rl.py` to constrain raw RL gradients to top-$k$ vectors
 - [ ] T028 [US2] Add logging to verify update vector lies entirely within span of top-$k$ vectors
-- [ ] T029 [US2] Log cosine similarity between applied update and subspace basis (must be ≥ 0.99) [UNRESOLVED-CLAIM: c_5bf47204 — status=not_enough_info]
+- [ ] T029 [US2] Log cosine similarity between applied update and subspace basis (must be ≥ 0.99) [UNRESOLVED-CLAIM: c_9bfdb535 — status=not_enough_info]
 - [ ] T030 [US2] Save Low-Rank RL training logs and checkpoints to `results/low_rank_rl/`
 - [ ] T030b [US2] Implement per-step update direction logging in `src/training/low_rank_rl.py`. **Storage**: Save per-layer update vectors to separate files `results/low_rank_rl/updates_seed_{i}/layer_{l}.pt` (NOT a single stacked array).
 
@@ -158,7 +158,7 @@
 - [ ] T038c [US3] Generate statistical report artifact in `results/statistical_report.md` containing p-values and effect sizes
 - [ ] T040 [US3] Compute Early Trajectory Alignment (first [deferred] of steps, min 50) between Low-Rank RL and OPD using logged $\Delta W_t$ vectors (Depends on T018c config and T043/T043b execution logs)
 - [ ] T042-b [US3] **Orchestrate** conditional re-run for 4 variants with **N=10 seeds** if T048c triggers (Managed by T042-b)
-- [ ] T048 [US3] Implement adaptive sample size logic in `src/analysis/power_analysis.py` to trigger re-runs if effect size < 0.5 (up to N=10) [UNRESOLVED-CLAIM: c_d75d5f6f — status=refuted] OR flag for human review if time limit is exceeded.
+- [ ] T048 [US3] Implement adaptive sample size logic in `src/analysis/power_analysis.py` to trigger re-runs if effect size < 0.5 (up to N=10) OR flag for human review if time limit is exceeded.
 - [ ] T048b [US3] Implement conditional branching logic in `src/analysis/power_analysis.py` to check effect size and prepare for re-run (Depends on T038b-d)
 - [ ] T048c [US3] Execute conditional branching logic: if effect size < 0.5 AND N < 10 AND time permits, re-invoke T042-b via CLI flag `--rerun-seeds` (Depends on T048b)
 - [ ] T048d [US3] Re-run analysis (T036-exec, T038b-d, T038c) on new data if re-run occurred (Depends on T048c)
@@ -177,7 +177,7 @@
 - [ ] T051 Code cleanup and refactoring of training loops
 - [ ] T052 Performance optimization for CPU execution (batching, mixed precision)
 - [ ] T053 [P] Additional unit tests in `tests/unit/`
-- [ ] T054 Run quickstart.md validation to ensure 6-hour limit compliance (with N=3 seed count and 4 variants)
+- [ ] T054 Run quickstart.md validation to ensure 6-hour limit compliance (with N=3 seed count and 4 variants) [UNRESOLVED-CLAIM: c_070d3ca0 — status=not_enough_info]
 - [ ] T055 Verify all `results/` artifacts have SHA-256 hashes recorded in `state/`
 
 ---
@@ -272,7 +272,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours [UNRESOLVED-CLAIM: c_d58e1812 — status=not_enough_info]. No GPU, no 8-bit quantization.
+- **CRITICAL**: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours [UNRESOLVED-CLAIM: c_61785c03 — status=not_enough_info]. No GPU, no 8-bit quantization.
 - **CRITICAL**: Use real GSM8K data from HuggingFace; no synthetic data or fabrication.
 - **NOTE**: Task T042-a orchestrates N=3 pilot runs for 4 variants. T042-b handles conditional re-runs to N=10 if power analysis requires and time permits.
 - **NOTE**: T018b and T030b explicitly log per-step vectors **layer-wise** to separate files to satisfy FR-008 and memory constraints.
