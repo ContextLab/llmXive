@@ -83,3 +83,110 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T07:13:43Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: Cyberbullying Survey 2021 variable list includes age, gender, education,
+    income, social support, harassment severity, depression, anxiety, and PTSD items
+  claim_id: c_ac281172
+  context: 'Validation: Verify file integrity (checksum if available) and validate
+    that required columns exist (age, gender, education, income, social_support_items,
+    harassment_severity_items, depression_items, anxiety_items, ptsd_items, platform).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Cyberbullying Survey 2021 dataset contains variables for age, gender,
+    education, income, social support items, harassment severity items, depression
+    items, anxiety items, and PTSD items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:04:46Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: CES-D scale has 20 items and a total score range of 0 to 60
+  claim_id: c_648158f7
+  context: "Content outline (example values): CES-D: items: [depressed1...depressed20],\
+    \ scoring: -3 per item, total 0\u201160"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CES-D scale consists of 20 items with a total scoring range of 0 to
+    60.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:10:22Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: GAD-7 scale has 7 items and a total score range of 0 to 21
+  claim_id: c_abef16e0
+  context: "Content outline (example values): GAD-7: items: [gad1...gad7], scoring:\
+    \ \u20113 per item, total 0\u201121"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The GAD-7 is a seven-item anxiety screening instrument developed in 2006
+        with a similar format to that of the PHQ-9. Total scores range from 0 to 21
+        with scores of 5, 10, and 15 indicating mild, moderate, and severe anxiety,
+        respectively. Unlike the PHQ-9, clinicians use the GAD-7 to assess the severity
+        of anxiety only. Unlike the PHQ-9, the GAD-7 does not generate provisional
+        diagnoses. A clinical interview must be given to arrive at a clinical diagnosis.
+        The GAD-2 is a 2-question shortened version of the GAD-7; it uses the first
+        two items on the GAD-7. A total score that is greater than 3 indicates that
+        a clinician should administer the full GAD-7 and conduct a clinical interview
+        to assess the presence and type of anxiety disorder.
+      source_id: PHQ-9
+      url: https://en.wikipedia.org/wiki/PHQ-9
+      value: 0 to 21
+    filled: true
+  kind: numeric
+  raw_text: The GAD-7 scale consists of 7 items with a total scoring range of 0 to
+    21.
+  resolved_value: 0 to 21
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-30T01:10:33Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: PCL-5 scale has 25 items and a total score range of 0 to 100
+  claim_id: c_b6a3f122
+  context: "Content outline (example values): PCL-5: items: [pcl1...pcl25], scoring:\
+    \ \u20114 per item, total 0\u2011100"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PCL-5 scale consists of 25 items with a total scoring range of 0 to
+    100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:10:53Z'
+- artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  attempts: 1
+  canonical: GSS 2022 excluded from Cyberbullying Survey 2021 analysis due to methodological
+    invalidity and missing PCL-5 items
+  claim_id: c_daae0729
+  context: 'The GSS 2022 dataset is excluded per plan.md and spec.md. Content: Explicitly
+    state that GSS 2022 was excluded due to methodological invalidity for interaction
+    analysis (confounding with dataset source) and lack of verified PCL-5 items.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Cyberbullying Survey 2021 dataset excludes the GSS 2022 dataset due
+    to methodological invalidity for interaction analysis and lack of verified PCL-5
+    items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:11:12Z'

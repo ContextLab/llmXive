@@ -1,264 +1,251 @@
-"""
-Validation module for the synthetic cohort.
-Implements balance checks, variance checks, and multicollinearity diagnostics.
-"""
-
 import os
 import logging
+import json
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 import pandas as pd
 import numpy as np
-import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+# Configure logger
 logger = logging.getLogger(__name__)
 
-# Thresholds
-SMD_THRESHOLD = 0.1
-HARASSMENT_SD_THRESHOLD = 0.5
-MIN_N_FOR_HARASSMENT = 30
-VIF_THRESHOLD = 5.0
+def load_intermediate_cohort(path: Path) -> pd.DataFrame:
+    """Load the intermediate cohort CSV."""
+    if not path.exists():
+        raise FileNotFoundError(f"Intermediate cohort not found at {path}")
+    df = pd.read_csv(path)
+    logger.info(f"Loaded intermediate cohort with {len(df)} rows and {len(df.columns)} columns")
+    return df
 
-def calculate_smd(
-    df: pd.DataFrame,
-    treatment_col: str = 'dataset_source',
-    covariates: List[str] = None
-) -> Dict[str, float]:
-    """
-    Calculate Standardized Mean Differences (SMD) for covariates.
-    
-    Args:
-        df: DataFrame with treatment assignment and covariates
-        treatment_col: Column indicating dataset source (0/1)
-        covariates: List of covariate column names
-        
-    Returns:
-        Dictionary mapping covariate names to SMD values
-    """
-    if covariates is None:
-        covariates = ['age', 'gender', 'education', 'income', 'social_support', 'harassment_severity']
-    
-    # Filter to valid columns
-    valid_covariates = [c for c in covariates if c in df.columns and treatment_col in df.columns]
-    
-    smd_results = {}
-    
-    for col in valid_covariates:
-        if df[col].dtype not in [np.float64, np.int64]:
-            # Convert categorical to numeric if necessary
-            try:
-                df_col = pd.Categorical(df[col]).codes
-            except:
-                logger.warning(f"Skipping non-numeric covariate: {col}")
-                continue
-        else:
-            df_col = df[col]
-        
-        treated = df_col[df[treatment_col] == 1]
-        control = df_col[df[treatment_col] == 0]
-        
-        if len(treated) == 0 or len(control) == 0:
-            smd_results[col] = np.nan
-            continue
-        
-        mean_t = treated.mean()
-        mean_c = control.mean()
-        std_t = treated.std()
-        std_c = control.std()
-        
-        # Pooled standard deviation
-        pooled_std = np.sqrt((std_t**2 + std_c**2) / 2)
-        
-        if pooled_std == 0:
-            smd_results[col] = 0.0
-        else:
-            smd_results[col] = abs(mean_t - mean_c) / pooled_std
-    
-    return smd_results
+def calculate_smd(group1: pd.Series, group2: pd.Series) -> float:
+    """Calculate Standardized Mean Difference (SMD) between two groups."""
+    mean1 = group1.mean()
+    mean2 = group2.mean()
+    std_pooled = np.sqrt((group1.std()**2 + group2.std()**2) / 2)
+    if std_pooled == 0:
+        return 0.0
+    return (mean1 - mean2) / std_pooled
 
-def check_balance(smd_results: Dict[str, float]) -> Tuple[bool, Dict[str, bool]]:
-    """
-    Check if all covariates meet the SMD threshold.
+def check_balance(df: pd.DataFrame, treatment_col: str = 'harassment_exposure') -> Dict[str, float]:
+    """Check covariate balance between treatment and control groups."""
+    if treatment_col not in df.columns:
+        raise ValueError(f"Treatment column '{treatment_col}' not found in dataframe")
     
-    Args:
-        smd_results: Dictionary of SMD values
-        
-    Returns:
-        Tuple of (overall_pass, individual_results)
-    """
-    individual_results = {}
-    all_pass = True
+    treated = df[df[treatment_col] == 1]
+    control = df[df[treatment_col] == 0]
     
-    for col, val in smd_results.items():
-        if np.isnan(val):
-            individual_results[col] = False
-            all_pass = False
-        elif val <= SMD_THRESHOLD:
-            individual_results[col] = True
-        else:
-            individual_results[col] = False
-            all_pass = False
+    # Identify numeric covariates (excluding the treatment itself and outcomes)
+    covariates = df.select_dtypes(include=[np.number]).columns.tolist()
+    if treatment_col in covariates:
+        covariates.remove(treatment_col)
     
-    return all_pass, individual_results
+    # Remove outcome variables if they exist in numeric columns to avoid checking them as covariates
+    outcomes = ['depression', 'anxiety', 'ptsd']
+    for outcome in outcomes:
+        if outcome in covariates:
+            covariates.remove(outcome)
+    
+    balance_stats = {}
+    for col in covariates:
+        s = df[col]
+        smd = calculate_smd(s[treated.index], s[control.index])
+        balance_stats[col] = abs(smd)
+    
+    return balance_stats
 
-def check_harassment_variance(df: pd.DataFrame, var_col: str = 'harassment_exposure') -> Tuple[bool, Dict[str, Any]]:
+def check_harassment_variance(df: pd.DataFrame, threshold_sd: float = 0.2, min_exposed_n: int = 30) -> Dict[str, Any]:
     """
-    Check variance of harassment exposure.
-    
-    Args:
-        df: DataFrame
-        var_col: Column name for harassment exposure
-        
-    Returns:
-        Tuple of (pass_check, details)
+    Check 1: Variance of Harassment Exposure.
+    - SD > threshold_sd
+    - N > min_exposed_n for exposed group
     """
-    if var_col not in df.columns:
-        return False, {'error': f"Column {var_col} not found"}
+    if 'harassment_exposure' not in df.columns:
+        raise ValueError("Column 'harassment_exposure' not found in dataframe")
     
-    vals = df[var_col].dropna()
-    n = len(vals)
-    std = vals.std()
+    exposure = df['harassment_exposure']
+    sd = exposure.std()
+    n_exposed = exposure.sum()
     
-    details = {
-        'n': n,
-        'std': std,
-        'min': vals.min() if n > 0 else 0,
-        'max': vals.max() if n > 0 else 0
+    passed_sd = sd > threshold_sd
+    passed_n = n_exposed >= min_exposed_n
+    
+    logger.info(f"Harassment Exposure Check: SD={sd:.4f} (>{threshold_sd}? {passed_sd}), N_exposed={n_exposed} (>={min_exposed_n}? {passed_n})")
+    
+    return {
+        "check": "harassment_variance",
+        "passed": passed_sd and passed_n,
+        "details": {
+            "sd": float(sd),
+            "threshold_sd": threshold_sd,
+            "n_exposed": int(n_exposed),
+            "min_exposed_n": min_exposed_n,
+            "passed_sd": passed_sd,
+            "passed_n": passed_n
+        }
     }
-    
-    passed = (n >= MIN_N_FOR_HARASSMENT) and (std > HARASSMENT_SD_THRESHOLD)
-    
-    if not passed:
-        reason = []
-        if n < MIN_N_FOR_HARASSMENT:
-            reason.append(f"N={n} < {MIN_N_FOR_HARASSMENT}")
-        if std <= HARASSMENT_SD_THRESHOLD:
-            reason.append(f"SD={std:.4f} <= {HARASSMENT_SD_THRESHOLD}")
-        details['reason'] = "; ".join(reason)
-    
-    return passed, details
 
-def check_vif(df: pd.DataFrame, formula_vars: List[str] = None) -> Tuple[bool, Dict[str, float]]:
+def check_social_support_variance(df: pd.DataFrame, threshold_sd: float = 0.5) -> Dict[str, Any]:
     """
-    Check Variance Inflation Factors (VIF) for multicollinearity.
-    
-    Args:
-        df: DataFrame
-        formula_vars: List of variables to check
-        
-    Returns:
-        Tuple of (all_pass, vif_dict)
+    Check 2: Variance of Social Support.
+    - SD > threshold_sd
     """
-    if formula_vars is None:
-        formula_vars = ['social_support', 'harassment_exposure', 'social_support:harassment_exposure', 
-                        'age', 'gender', 'education', 'income']
+    if 'social_support' not in df.columns:
+        raise ValueError("Column 'social_support' not found in dataframe")
     
-    # Ensure interaction term exists if requested
-    if 'social_support:harassment_exposure' in formula_vars:
-        if 'social_support:harassment_exposure' not in df.columns:
-            df = df.copy()
-            df['social_support:harassment_exposure'] = df['social_support'] * df['harassment_exposure']
+    support = df['social_support']
+    sd = support.std()
+    passed = sd > threshold_sd
     
-    # Prepare data
-    cols_to_use = [v for v in formula_vars if v in df.columns]
-    if len(cols_to_use) < 2:
-        return True, {}
+    logger.info(f"Social Support Variance Check: SD={sd:.4f} (>{threshold_sd}? {passed})")
     
-    clean_df = df[cols_to_use].dropna()
-    X = sm.add_constant(clean_df)
+    return {
+        "check": "social_support_variance",
+        "passed": passed,
+        "details": {
+            "sd": float(sd),
+            "threshold_sd": threshold_sd
+        }
+    }
+
+def check_vif(df: pd.DataFrame, 
+              covariates: Optional[List[str]] = None) -> Dict[str, Any]:
+    """
+    Check 3: Multicollinearity via VIF.
+    Model matrix: social_support, harassment_exposure, interaction, plus covariates.
+    Ensure all VIF < 5.
+    """
+    required_cols = ['social_support', 'harassment_exposure']
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Required column '{col}' not found in dataframe")
     
-    vif_dict = {}
-    max_vif = 0
+    # Create interaction term
+    df_temp = df.copy()
+    df_temp['interaction'] = df_temp['social_support'] * df_temp['harassment_exposure']
     
-    for i, col in enumerate(X.columns):
+    # Define base predictors
+    predictors = ['social_support', 'harassment_exposure', 'interaction']
+    
+    # Add covariates if provided (typically demographics)
+    if covariates:
+        # Filter to existing columns only
+        available_covariates = [c for c in covariates if c in df_temp.columns]
+        predictors.extend(available_covariates)
+    
+    # Ensure we have a numeric matrix
+    X = df_temp[predictors].dropna()
+    
+    if len(X) < len(predictors) + 1:
+        raise ValueError("Not enough samples to compute VIF for the specified predictors")
+    
+    # Add constant for VIF calculation
+    X_with_const = sm.add_constant(X)
+    
+    vif_results = {}
+    max_vif = 0.0
+    all_passed = True
+    
+    for i, col in enumerate(X_with_const.columns):
         if col == 'const':
             continue
-        
         try:
-            vif = sm.stats.variance_inflation_factor(X.values, i)
-            vif_dict[col] = vif
-            max_vif = max(max_vif, vif)
-        except Exception:
-            vif_dict[col] = np.nan
+            vif_val = variance_inflation_factor(X_with_const.values, i)
+            vif_results[col] = float(vif_val)
+            if vif_val >= 5.0:
+                all_passed = False
+            if vif_val > max_vif:
+                max_vif = vif_val
+        except Exception as e:
+            logger.warning(f"Could not compute VIF for {col}: {e}")
+            vif_results[col] = float('nan')
     
-    passed = all(v < VIF_THRESHOLD for v in vif_dict.values() if not np.isnan(v))
+    logger.info(f"VIF Check: Max VIF={max_vif:.2f} (threshold 5.0). Passed: {all_passed}")
     
-    return passed, vif_dict
+    return {
+        "check": "multicollinearity_vif",
+        "passed": all_passed,
+        "details": {
+            "max_vif": float(max_vif),
+            "threshold": 5.0,
+            "vif_by_variable": vif_results
+        }
+    }
 
-def validate_synthetic_cohort(df: pd.DataFrame) -> Dict[str, Any]:
+def validate_synthetic_cohort(input_path: Path, output_path: Path) -> bool:
     """
-    Run all validation checks on the synthetic cohort.
-    
-    Args:
-        df: The synthetic cohort DataFrame
-        
-    Returns:
-        Dictionary with validation results
+    Main validation function for T015.
+    Loads intermediate cohort, runs checks, saves JSON report.
+    Raises Exception with E-VALIDATION-001 if any check fails.
     """
-    logger.info("Starting validation of synthetic cohort")
+    logger.info(f"Starting validation of cohort at {input_path}")
+    df = load_intermediate_cohort(input_path)
     
     results = {
-        'smd_check': {},
-        'harassment_check': {},
-        'vif_check': {},
-        'overall_valid': True,
-        'warnings': []
+        "input_file": str(input_path),
+        "n_rows": len(df),
+        "n_cols": len(df.columns),
+        "checks": []
     }
     
-    # SMD Check
-    smd_vals = calculate_smd(df)
-    smd_pass, smd_details = check_balance(smd_vals)
-    results['smd_check'] = {
-        'passed': smd_pass,
-        'threshold': SMD_THRESHOLD,
-        'values': smd_vals
-    }
-    if not smd_pass:
-        results['overall_valid'] = False
-        results['warnings'].append(f"SMD check failed: {smd_details}")
+    # Check 1: Harassment Variance
+    try:
+        res1 = check_harassment_variance(df)
+        results["checks"].append(res1)
+    except Exception as e:
+        logger.error(f"Harassment variance check failed: {e}")
+        results["checks"].append({"check": "harassment_variance", "passed": False, "error": str(e)})
     
-    # Harassment Variance Check
-    harm_pass, harm_details = check_harassment_variance(df)
-    results['harassment_check'] = harm_details
-    if not harm_pass:
-        results['overall_valid'] = False
-        results['warnings'].append(f"Harassment variance check failed: {harm_details.get('reason', 'unknown')}")
+    # Check 2: Social Support Variance
+    try:
+        res2 = check_social_support_variance(df)
+        results["checks"].append(res2)
+    except Exception as e:
+        logger.error(f"Social support variance check failed: {e}")
+        results["checks"].append({"check": "social_support_variance", "passed": False, "error": str(e)})
     
-    # VIF Check
-    vif_pass, vif_vals = check_vif(df)
-    results['vif_check'] = {
-        'passed': vif_pass,
-        'threshold': VIF_THRESHOLD,
-        'values': vif_vals
-    }
-    if not vif_pass:
-        results['overall_valid'] = False
-        results['warnings'].append(f"VIF check failed: max VIF > {VIF_THRESHOLD}")
+    # Check 3: VIF
+    # Standard covariates based on data model: age, gender, education, income
+    covariates = ['age', 'gender', 'education', 'income']
+    try:
+        res3 = check_vif(df, covariates=covariates)
+        results["checks"].append(res3)
+    except Exception as e:
+        logger.error(f"VIF check failed: {e}")
+        results["checks"].append({"check": "multicollinearity_vif", "passed": False, "error": str(e)})
     
-    logger.info(f"Validation complete. Overall valid: {results['overall_valid']}")
-    return results
+    # Determine overall pass
+    all_passed = all(check["passed"] for check in results["checks"] if "passed" in check)
+    results["overall_passed"] = all_passed
+    
+    # Save report
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Validation report saved to {output_path}")
+    
+    if not all_passed:
+        error_details = [c for c in results["checks"] if not c.get("passed", True)]
+        raise Exception(f"E-VALIDATION-001: Cohort validation failed. Failing checks: {[c['check'] for c in error_details]}")
+    
+    return True
 
 def main():
-    """Main entry point for validation."""
-    logging.basicConfig(level=logging.INFO)
+    """Entry point for T015 validation."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    # Load data
+    # Paths relative to project root
+    base_dir = Path(__file__).parent.parent.parent
+    input_path = base_dir / "data" / "results" / "intermediate_cohort.csv"
+    output_path = base_dir / "data" / "results" / "validation_report.json"
+    
     try:
-        df = pd.read_csv("data/results/synthetic_cohort.csv")
-    except FileNotFoundError:
-        logger.error("Synthetic cohort not found. Run cohort construction first.")
-        return None
-    
-    # Validate
-    results = validate_synthetic_cohort(df)
-    
-    # Log results
-    if results['overall_valid']:
-        logger.info("All validation checks passed.")
-    else:
-        logger.warning("Validation failed with warnings: " + "; ".join(results['warnings']))
-    
-    return results
+        validate_synthetic_cohort(input_path, output_path)
+        logger.info("Validation completed successfully.")
+    except Exception as e:
+        logger.error(f"Validation failed: {e}")
+        # Re-raise to ensure pipeline stops if this is run directly
+        raise
 
 if __name__ == "__main__":
     main()

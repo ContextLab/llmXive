@@ -1,10 +1,10 @@
-T015:
+T012b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifacts (e.g., a synthetic cohort CSV, covariate balance statistics, or
-    regression output files) were provided; the claim cannot be verified against any
-    concrete data or code. The required deliverables are missing, so the task is not
-    satisfied.
+  r: "No evidence was provided that `research.md` and `data-model.md` exist or contain\
+    \ any text documenting the exclusion of the GSS 2022 dataset, which is the sole\
+    \ requirement of task T012b. The implementer must supply the two markdown files\
+    \ with explicit statements about why GSS\u202F2022 is excluded."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,13 +12,6 @@ T017:
     the claim lacks any artifact showing added comprehensive logging for the ingestion,
     preprocessing, matching, and validation steps (including fallback decisions).
     The required code/files are missing, so the task is not satisfied.
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, log file, or documentation was provided showing that the GSS 2022 structure\
-    \ is validated, that missing PCL\u20115 or harassment variables trigger a warning\
-    \ and cause the GSS ingestion to be skipped, and that the fallback to the Cyberbullying\
-    \ dataset alone is documented. The required artifact is missing."
 T019:
   c: false
   h: cfc7054afad0bc67260b2d9e20463b763235fc7cd034b571fbb659f6277b2c98
@@ -32,3 +25,11 @@ T022:
     \ a fallback mechanism to refit a standard OLS model when the robust model fails\
     \ to converge, nor evidence that the status `E\u2011NONCONV\u2011001` is logged.\
     \ The required artifact is missing."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of an updated `specs/001-social-support-resilience/spec.md` or a\
+    \ newly created `specs/001-social-support-resilience/spec-waiver.md` is provided;\
+    \ the required files are missing from the artifact list. The task cannot be considered\
+    \ complete until those specification documents are present and contain the described\
+    \ single\u2011dataset changes."

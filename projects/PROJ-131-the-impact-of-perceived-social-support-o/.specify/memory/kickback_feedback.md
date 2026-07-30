@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T008` (rejected 1x): No `main_pipeline.py` file or any code configuring an entry point to orchestrate the modular steps (data ingestion, weighting, regression, etc.) is present in the provided artifacts. The required orchestrating script is missing, so the task is not satisfied.
+- `T015` (rejected 1x): No artifacts (e.g., a synthetic cohort CSV, covariate balance statistics, or regression output files) were provided; the claim cannot be verified against any concrete data or code. The required deliverables are missing, so the task is not satisfied.
 
 ## Required change
 

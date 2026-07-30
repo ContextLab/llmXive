@@ -1,97 +1,91 @@
-# Feature Specification: The Impact of Perceived Social Support on Resilience to Online Harassment
+# Specification: The Impact of Perceived Social Support on Resilience to Online Harassment
 
-**Feature Branch**: `001-social-support-resilience`  
-**Created**: 2023-10-27  
-**Status**: Draft  
-**Input**: User description: "Research on whether higher perceived social support buffers anxiety, depression, and PTSD symptoms in victims of online harassment, using GSS and Cyberbullying Survey data with propensity-score matching and interaction analysis."
+## 1. Overview
 
-## User Scenarios & Testing
+This project investigates the moderating role of perceived social support on the relationship between online harassment exposure and mental health outcomes (depression, anxiety, PTSD).
 
-### User Story 1 - Data Harmonization and Synthetic Cohort Construction (Priority: P1)
+**Methodological Note**: This specification adopts a **single-dataset approach** using the Cyberbullying Survey 2021. The General Social Survey (GSS) 2022 is explicitly excluded from this analysis due to methodological incompatibility for interaction terms (confounding dataset source with harassment/support levels) and lack of verified PCL-5 items.
 
-The system MUST ingest two independent datasets (GSS 2022 and Cyberbullying Survey 2021), harmonize variable names, handle missing values, and generate a synthetic cohort dataset by aligning demographic distributions via weighting and matching. This creates a pseudo-population where harassment exposure and support levels can be analyzed for interaction effects, acknowledging that the pairs are synthetic and not true longitudinal matches.
+## 2. Functional Requirements (Single-Dataset Approach)
 
-**Why this priority**: Without a valid, aligned dataset where harassment exposure and support levels are comparable across the merged sample, no statistical analysis can proceed. This is the foundational step for the entire research question.
+### FR-001-Single: Data Source
+The analysis shall use the **Cyberbullying Survey 2021** dataset as the sole source of data.
+- The dataset must contain measures for:
+ - Harassment exposure (binary and continuous severity).
+ - Perceived social support.
+ - Mental health outcomes: Depression (CES-D), Anxiety (GAD-7), and PTSD (PCL-5).
+ - Covariates: Age, Gender, Education, Income, Platform.
+- **Exclusion**: The GSS 2022 dataset is excluded. No dual-dataset merging or comparison is performed.
 
-**Independent Test**: The system can be tested by running the data ingestion and weighting pipeline alone and verifying that the output CSV contains a synthetic cohort with no `NaN` values in critical predictor/outcome columns and that the distribution of covariates (age, gender, education) is balanced between the weighted groups (standardized mean difference ≤ 0.1).
+### FR-002-Single: Variable Harmonization
+All variables must be harmonized to a common schema within the single dataset context.
+- Scale scoring must follow `config/scales.yaml`.
+- Missing data must be handled via listwise deletion (>5% missing) followed by MICE imputation.
+- No external data imputation or synthetic generation is permitted.
 
-**Acceptance Scenarios**:
+### FR-003: Interaction Analysis
+The primary analysis must test the interaction between `SocialSupport` and `HarassmentExposure` on mental health outcomes using OLS regression with heteroskedasticity-consistent (HC3) standard errors.
 
-1. **Given** raw GSS and Cyberbullying Survey CSV files exist, **When** the ingestion script is executed, **Then** a synthetic cohort dataset is produced with one row per synthetic unit and all demographic covariates filled.
-2. **Given** the synthetic cohort, **When** a balance check is run on covariates, **Then** the standardized mean difference for every covariate is ≤ 0.1.
-3. **Given** missing values in non-critical fields, **When** the script processes them, **Then** missing values are imputed or rows are dropped according to the defined rule (e.g., listwise deletion) without crashing.
+### FR-004: Robustness Checks
+Sensitivity analyses must be performed using:
+- Continuous harassment severity instead of binary exposure.
+- Stratification by platform (top 3 platforms).
 
-### User Story 2 - Interaction Analysis and Hypothesis Testing (Priority: P2)
+## 3. User Stories (Single-Dataset)
 
-The system MUST fit robust linear regression models (OLS with heteroskedasticity-consistent standard errors) for three outcomes (Depression, Anxiety, PTSD) testing the interaction between Social Support and Harassment Exposure, and output regression coefficients with 95% bias-corrected bootstrapped confidence intervals. If PCL-5 items are unavailable, the system MUST proceed with only Depression and Anxiety models.
+### US-1-Single: Single-Dataset Cohort Construction
+**As a** researcher,
+**I want** to ingest and clean the Cyberbullying Survey 2021 dataset,
+**So that** I have a validated analysis cohort with no missing critical variables and correct scale scores.
 
-**Why this priority**: This directly answers the core research question: "Do individuals with higher support show lower distress?" The interaction term is the specific metric of the buffering effect.
+**Acceptance Criteria**:
+1. Ingestion script successfully loads Cyberbullying Survey 2021.
+2. GSS 2022 is not loaded or referenced.
+3. Scale scoring (CES-D, GAD-7, PCL-5) is applied correctly.
+4. Missingness is handled per protocol (listwise deletion + MICE).
+5. A validation report confirms variance and multicollinearity checks pass.
+6. Final artifact: `data/results/analysis_cohort.csv`.
 
-**Independent Test**: The system can be tested by running the regression module on the synthetic cohort dataset and verifying that the output table contains the interaction coefficient, standard error, p-value, and bootstrapped confidence intervals for all available outcomes, and that the script completes within a reasonable time limit.
+### US-2: Interaction Modeling
+**As a** researcher,
+**I want** to fit OLS models with interaction terms and bootstrap confidence intervals,
+**So that** I can quantify the buffering effect of social support.
 
-**Acceptance Scenarios**:
+**Acceptance Criteria**:
+1. Models fit for Depression, Anxiety, and PTSD.
+2. Interaction term `SocialSupport:HarassmentExposure` is included.
+3. BCa bootstrap CIs are computed.
+4. FDR correction is applied to p-values.
 
-1. **Given** the synthetic cohort dataset, **When** the regression model is fit for Depression, **Then** the output includes the interaction term `SocialSupport:HarassmentExposure` with a 95% bootstrap CI.
-2. **Given** the model results, **When** the significance test is performed, **Then** the p-value for the interaction term is calculated using a Wald test.
-3. **Given** the analysis completes, **When** the results are saved, **Then** a CSV file is generated containing coefficients, p-values, and CIs for all available mental health outcomes.
+### US-3: Sensitivity Analysis
+**As a** researcher,
+**I want** to re-run models with alternative definitions,
+**So that** I can confirm the robustness of the findings.
 
-### User Story 3 - Sensitivity Analysis and Robustness Checks (Priority: P3)
+## 4. Success Criteria (Revised)
 
-The system MUST execute sensitivity analyses by varying the harassment exposure definition (binary vs. continuous severity) and, if platform-level data is available, stratifying by platform type, reporting how the interaction effect size changes across these variations.
+### SC-001-Single: Single-Dataset Validation
+The analysis cohort derived from the Cyberbullying Survey 2021 must pass:
+1. **Variance Check**: Standard deviation of `harassment_exposure` > 0.2 and N > 30 in the exposed group.
+2. **Support Variance**: Standard deviation of `social_support` > 0.5.
+3. **Multicollinearity**: VIF < 5 for the full model matrix including interaction.
+4. **Completeness**: No synthetic data or GSS data is present in the final cohort.
 
-**Why this priority**: This addresses the robustness of the findings and the "threshold justification" requirement. It ensures the results are not artifacts of a specific operationalization of "harassment" or "platform."
+## 5. Data Dictionary (Excerpt)
 
-**Independent Test**: The system can be tested by running the sensitivity analysis script which re-runs the models with modified inputs and produces a comparison table showing the variation in the interaction coefficient across the defined scenarios.
+| Variable | Source | Type | Description |
+|:--- |:--- |:--- |:--- |
+| `age` | Cyberbullying Survey 2021 | Numeric | Age in years |
+| `gender` | Cyberbullying Survey 2021 | Categorical | Gender identity |
+| `harassment_severity` | Cyberbullying Survey 2021 | Numeric | Sum of severity items |
+| `harassment_exposure` | Derived | Binary | 1 if severity > 0, else 0 |
+| `social_support` | Cyberbullying Survey 2021 | Numeric | Sum of support items |
+| `depression` | CES-D | Numeric | Total CES-D score |
+| `anxiety` | GAD-7 | Numeric | Total GAD-7 score |
+| `ptsd` | PCL-5 | Numeric | Total PCL-5 score |
 
-**Acceptance Scenarios**:
+## 6. Exclusions
 
-1. **Given** the baseline model results, **When** the sensitivity analysis runs with continuous severity instead of binary exposure, **Then** the new interaction coefficient is calculated and compared to the baseline.
-2. **Given** the baseline model and available platform data, **When** the analysis is stratified by platform (e.g., Twitter vs. Reddit), **Then** separate interaction coefficients are output for each platform group.
-3. **Given** all sensitivity runs, **When** the summary report is generated, **Then** it includes a table showing the range of interaction coefficients across all tested scenarios.
-
-### Edge Cases
-
-- What happens when the demographic weighting/matching fails to find sufficient matches for a specific demographic subgroup (e.g., < 30 matched pairs)? The system must flag this in the output log and exclude that subgroup from the final analysis rather than crashing or imputing invalid data.
-- How does the system handle a dataset where the "Harassment Severity" variable has a high proportion of zeros (no harassment)? The system must verify that the interaction term is estimable (i.e., sufficient variance in the exposure variable) and report a warning if the effective sample size for the interaction is too low (< 30 observations).
-- How does the system handle non-convergence of the robust linear regression model? The system must catch the convergence error, log the specific model parameters that failed, and attempt a fallback with a simpler Ordinary Least Squares (OLS) regression without robust standard errors, reporting the fallback status in the results.
-
-## Requirements
-
-### Functional Requirements
-
-- **FR-001**: System MUST ingest and harmonize variables from the GSS 2022 and Cyberbullying Survey 2021 datasets, mapping raw survey items to standardized constructs (Social Support, Harassment Severity, Mental Health Outcomes) (See US-1).
-- **FR-002**: System MUST align demographic distributions between the two independent surveys using weighting and matching to create a synthetic cohort dataset, ensuring the maximum caliper width is ≤ 0.2 standard deviations of the logit of the propensity score (See US-1).
-- **FR-003**: System MUST fit robust linear regression models (OLS with heteroskedasticity-consistent standard errors) for Depression (CES-D), Anxiety (GAD-7), and PTSD symptoms (if PCL-5 items are available; otherwise, only Depression and Anxiety), each including an interaction term between Social Support and Harassment Exposure (See US-2).
-- **FR-004**: System MUST compute 95% bias-corrected bootstrapped confidence intervals (1,000 resamples) for all interaction coefficients using CPU-tractable methods (See US-2).
-- **FR-005**: System MUST execute sensitivity analyses by re-running models with (a) continuous harassment severity instead of binary exposure, and (b) stratification by platform type (if platform-level data is available), reporting coefficient shifts (See US-3).
-- **FR-006**: System MUST validate that all predictor variables used in the regression are present in the source datasets; if a required variable is missing, the system MUST skip the model for that outcome and log a specific error code (e.g., E-MISSING-001) (See US-2).
-- **FR-007**: System MUST apply the Benjamini-Hochberg procedure for multiple-comparison correction to the family of available hypothesis tests (one per outcome) to control the false discovery rate (See US-2).
-
-### Key Entities
-
-- **Synthetic Cohort Unit**: A synthetic record representing a weighted/matched pair of individuals (one from GSS, one from Cyberbullying Survey) aligned on demographics, containing derived scores for support, exposure, and mental health.
-- **Interaction Effect**: The statistical coefficient representing the moderation of harassment impact by social support, stored with its standard error and confidence interval.
-- **Platform Type**: A categorical variable derived from the survey data (e.g., Twitter, Reddit, Mastodon) used for stratification in sensitivity analysis (if available).
-
-## Success Criteria
-
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
-
-- **SC-001**: The balance of covariates in the synthetic cohort is measured against the standardized mean difference threshold of ≤ 0.1 (See FR-002, US-1).
-- **SC-002**: The statistical significance of the buffering effect is measured by whether the 95% bias-corrected bootstrapped confidence interval for the interaction term excludes zero (See FR-004, US-2).
-- **SC-003**: The robustness of the findings is measured by the magnitude of change in the interaction coefficient across the sensitivity analysis scenarios (continuous vs. binary exposure) (See FR-005, US-3).
-- **SC-004**: The control of Type I error is measured by the application of the Benjamini-Hochberg procedure to the set of available outcome tests (See FR-007, US-2).
-- **SC-005**: The computational feasibility is measured by the total execution time of the analysis pipeline, which must complete within 6 hours on a 2-core CPU-only runner (See FR-004, US-2).
-- **SC-006**: The validity of the measurement instruments is measured by the use of established, validated scales (CES-D, GAD-7, PCL-5) as defined in the source datasets (See FR-001, US-1).
-
-## Assumptions
-
-- **Assumption about data availability**: The 2022 GSS dataset contains valid items for the PCL-5 (PTSD) scale or a sufficiently proximal measure that can be constructed; if the PCL-5 items are missing, the analysis will proceed with CES-D and GAD-7 only, and the scope will be reduced to anxiety and depression.
-- **Assumption about matching quality**: Demographic weighting and matching on the available demographic variables (age, gender, education, income) will yield a sufficient number of synthetic units (N > 300) to provide adequate statistical power for detecting an interaction effect, given the effect sizes typical in social science literature.
-- **Assumption about computational constraints**: The bootstrapping procedure (1,000 resamples) for three models will complete within the 6-hour GitHub Actions free-tier limit using standard Python `scipy`/`statsmodels` libraries on a 2-core CPU.
-- **Assumption about platform classification**: The "Platform Type" variable in the Cyberbullying Survey is coded consistently enough to allow for meaningful stratification (e.g., distinct categories for Twitter, Reddit, etc.) rather than a single "Social Media" bucket; if not, stratification will be skipped.
-- **Assumption about causality**: The analysis is observational and uses a synthetic cohort; therefore, findings will be framed strictly as associational (buffering effect) rather than causal, acknowledging that unobserved confounders may exist and that the synthetic nature of the pairs limits the interpretation of within-person mechanisms.
-- **Assumption about threshold sensitivity**: A sensitivity analysis sweeping the harassment severity cutoff (if a binary threshold is used in alternative models) over a range of {0.01, 0.05, 0.1} will be sufficient to demonstrate robustness without requiring exhaustive grid searches.
-- **Assumption about power limitations**: The synthetic cohort approach reduces effective sample size and does not create new information; the analysis is powered to detect large effect sizes (d ≥ 0.5) only, and smaller effects may be underpowered.
+- **GSS 2022**: Explicitly excluded.
+- **Dual-Dataset Interaction**: Not performed.
+- **Synthetic Data**: Not permitted for final analysis.

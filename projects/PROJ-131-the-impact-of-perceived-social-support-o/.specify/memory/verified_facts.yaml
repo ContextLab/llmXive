@@ -1,0 +1,14 @@
+0 21|consist gad item range scale scoring:
+  quote: The GAD-7 is a seven-item anxiety screening instrument developed in 2006
+    with a similar format to that of the PHQ-9. Total scores range from 0 to 21 with
+    scores of 5, 10, and 15 indicating mild, moderate, and severe anxiety, respectively.
+    Unlike the PHQ-9, clinicians use the GAD-7 to assess the severity of anxiety only.
+    Unlike the PHQ-9, the GAD-7 does not generate provisional diagnoses. A clinical
+    interview must be given to arrive at a clinical diagnosis. The GAD-2 is a 2-question
+    shortened version of the GAD-7; it uses the first two items on the GAD-7. A total
+    score that is greater than 3 indicates that a clinician should administer the
+    full GAD-7 and conduct a clinical interview to assess the presence and type of
+    anxiety disorder.
+  source_id: PHQ-9
+  url: https://en.wikipedia.org/wiki/PHQ-9
+  value: 0 to 21
