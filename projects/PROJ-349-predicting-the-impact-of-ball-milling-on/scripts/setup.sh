@@ -1,52 +1,81 @@
 #!/bin/bash
 # Setup script for PROJ-349-predicting-the-impact-of-ball-milling-on
-# Creates the required directory structure
+# Creates the directory structure defined in scripts/setup_manifest.txt
 
-set -e
+set -e  # Exit on any error
 
-echo "Setting up project directory structure..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Core directories
-mkdir -p src
-mkdir -p tests
+echo "Setting up project structure in: $PROJECT_ROOT"
 
-# Data directories
-mkdir -p data/raw
-mkdir -p data/processed
-mkdir -p data/splits
+# Read directories from manifest and create them
+while IFS= read -r line; do
+    # Skip comments and empty lines
+    [[ "$line" =~ ^#.*$ ]] && continue
+    [[ -z "$line" ]] && continue
+    
+    # Trim whitespace
+    dir=$(echo "$line" | xargs)
+    
+    if [[ -n "$dir" ]]; then
+        full_path="$PROJECT_ROOT/$dir"
+        if [[ ! -d "$full_path" ]]; then
+            mkdir -p "$full_path"
+            echo "Created: $dir"
+        else
+            echo "Exists: $dir"
+        fi
+    fi
+done < "$SCRIPT_DIR/setup_manifest.txt"
 
-# Results and contracts
-mkdir -p results
-mkdir -p contracts
+# Create .gitignore if it doesn't exist
+GITIGNORE="$PROJECT_ROOT/.gitignore"
+if [[ ! -f "$GITIGNORE" ]]; then
+    cat > "$GITIGNORE" << 'EOF'
+    # Python
+    __pycache__/
+    *.py[cod]
+    *$py.class
+    .venv/
+    venv/
+    ENV/
+    env/
 
-# CI/CD
-mkdir -p .github/workflows
+    # Jupyter
+    .ipynb_checkpoints/
 
-# Configuration and documentation
-mkdir -p docs
-mkdir -p scripts
+    # IDE
+    .idea/
+    .vscode/
+    *.swp
+    *.swo
 
-# Create placeholder files to ensure directories are tracked by git
-touch src/.gitkeep
-touch tests/.gitkeep
-touch data/raw/.gitkeep
-touch data/processed/.gitkeep
-touch data/splits/.gitkeep
-touch results/.gitkeep
-touch contracts/.gitkeep
-touch .github/workflows/.gitkeep
-touch docs/.gitkeep
-touch scripts/.gitkeep
+    # Data
+    data/raw/*.csv
+    data/raw/*.json
+    data/processed/*.parquet
+    data/processed/*.json
+    data/splits/
 
-echo "Directory structure created successfully."
-echo "Directories created:"
-echo "  - src/"
-echo "  - tests/"
-echo "  - data/raw/"
-echo "  - data/processed/"
-echo "  - data/splits/"
-echo "  - results/"
-echo "  - contracts/"
-echo "  - .github/workflows/"
-echo "  - docs/"
-echo "  - scripts/"
+    # Results
+    results/
+
+    # Environment
+    .env
+    *.log
+
+    # OS
+    .DS_Store
+    Thumbs.db
+    EOF
+    echo "Created: .gitignore"
+fi
+
+echo ""
+echo "Project structure setup complete!"
+echo "Next steps:"
+echo "  1. Review the created directories"
+echo "  2. Run 'pip install -r requirements.txt' (after creating requirements.txt)"
+echo "  3. Initialize git: git init"
+echo "  4. Configure linting: black, flake8"

@@ -1,164 +1,101 @@
 """
-Seed management utility for llmXive project.
+Seed management utility for reproducible experiments.
 
-This module provides a centralized way to pin all random states across
-the entire project to ensure reproducibility of experiments.
+This module provides a centralized way to pin and manage all random states
+across the project to ensure reproducibility.
 """
-
-import random
 import os
-from typing import Optional, List
+import random
+from typing import Optional, Dict, Any
+import numpy as np
 
-# Try to import numpy if available (common in this project's stack)
-try:
-    import numpy as np
-    HAS_NUMPY = True
-except ImportError:
-    HAS_NUMPY = False
-
-# Try to import torch if available
-try:
-    import torch
-    HAS_TORCH = True
-except ImportError:
-    HAS_TORCH = False
-
-# Try to import tensorflow if available
-try:
-    import tensorflow as tf
-    HAS_TENSORFLOW = True
-except ImportError:
-    HAS_TENSORFLOW = False
-
-# Try to import sklearn if available
-try:
-    import sklearn
-    HAS_SKLEARN = True
-except ImportError:
-    HAS_SKLEARN = False
-
-# Default seed value for the project
-DEFAULT_SEED = 42
-
-
-def set_seed(seed: Optional[int] = None) -> int:
-    """
-    Set random seeds for all supported libraries to ensure reproducibility.
-
-    Args:
-        seed: The seed value to use. If None, uses DEFAULT_SEED (42).
-
-    Returns:
-        The seed value that was set.
-
-    Note:
-        This function sets seeds for:
-        - Python's random module
-        - NumPy (if installed)
-        - PyTorch (if installed)
-        - TensorFlow (if installed)
-        - scikit-learn (via numpy seed)
-
-        It also sets the PYTHONHASHSEED environment variable for
-        deterministic behavior in hashing.
-    """
-    if seed is None:
-        seed = DEFAULT_SEED
-
-    # Ensure seed is an integer
-    seed = int(seed)
-
-    # Set Python's random seed
-    random.seed(seed)
-
-    # Set NumPy seed
-    if HAS_NUMPY:
-        np.random.seed(seed)
-
-    # Set PyTorch seeds
-    if HAS_TORCH:
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-
-    # Set TensorFlow seeds
-    if HAS_TENSORFLOW:
-        tf.random.set_seed(seed)
-
-    # Set environment variable for hash seed
-    os.environ['PYTHONHASHSEED'] = str(seed)
-
-    return seed
-
-
-def get_random_state(seed: Optional[int] = None):
-    """
-    Get a random state object for reproducible random number generation.
-
-    This is useful when you need to pass a random state to a function
-    that requires it, rather than setting a global seed.
-
-    Args:
-        seed: The seed value to use. If None, uses DEFAULT_SEED (42).
-
-    Returns:
-        A random.Random instance (or np.random.RandomState if numpy is available
-        and requested).
-    """
-    if seed is None:
-        seed = DEFAULT_SEED
-
-    if HAS_NUMPY:
-        return np.random.RandomState(seed)
-    else:
-        return random.Random(seed)
-
-
-def set_all_seeds(seed: Optional[int] = None) -> int:
-    """
-    Alias for set_seed to provide a more explicit name.
-
-    Args:
-        seed: The seed value to use. If None, uses DEFAULT_SEED (42).
-
-    Returns:
-        The seed value that was set.
-    """
-    return set_seed(seed)
+# Global seed value for the project
+_PROJECT_SEED = 42
+_RANDOM_STATE = np.random.RandomState(_PROJECT_SEED)
 
 
 def get_seed() -> int:
     """
-    Get the current default seed value.
-
+    Get the global project seed.
+    
     Returns:
-        The current default seed value.
+        int: The global seed value (default 42).
     """
-    return DEFAULT_SEED
+    return _PROJECT_SEED
 
 
-def set_seed_from_env(seed_env_var: str = "SEED", default: Optional[int] = None) -> int:
+def set_seed(seed: Optional[int] = None) -> None:
     """
-    Set seed from an environment variable, falling back to a default.
-
+    Set the global project seed and reinitialize all random generators.
+    
     Args:
-        seed_env_var: The name of the environment variable to read.
-        default: The default seed value if the env var is not set.
-                 If None, uses DEFAULT_SEED (42).
-
-    Returns:
-        The seed value that was set.
+        seed (int, optional): The seed value to use. If None, uses the default.
     """
-    seed_str = os.environ.get(seed_env_var)
-    if seed_str is not None:
-        try:
-            seed = int(seed_str)
-        except ValueError:
-            raise ValueError(f"Invalid seed value in environment variable '{seed_env_var}': {seed_str}")
-    else:
-        seed = default if default is not None else DEFAULT_SEED
+    global _PROJECT_SEED, _RANDOM_STATE
+    
+    if seed is None:
+        seed = _PROJECT_SEED
+    
+    _PROJECT_SEED = seed
+    
+    # Seed Python's random module
+    random.seed(seed)
+    
+    # Seed NumPy's random generator
+    _RANDOM_STATE = np.random.RandomState(seed)
+    np.random.seed(seed)
+    
+    # Seed environment variable for other libraries (e.g., PyTorch, TensorFlow)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
-    return set_seed(seed)
+
+def get_random_state() -> np.random.RandomState:
+    """
+    Get the current global NumPy random state.
+    
+    Returns:
+        np.random.RandomState: The current random state object.
+    """
+    return _RANDOM_STATE
+
+
+def set_random_state(state: np.random.RandomState) -> None:
+    """
+    Set the global NumPy random state.
+    
+    Args:
+        state (np.random.RandomState): The random state to use.
+    """
+    global _RANDOM_STATE
+    _RANDOM_STATE = state
+
+
+def get_seed_config() -> Dict[str, Any]:
+    """
+    Get a configuration dictionary with all seed-related settings.
+    
+    Returns:
+        dict: Configuration with seed values and states.
+    """
+    return {
+        'project_seed': _PROJECT_SEED,
+        'numpy_seed': _RANDOM_STATE.get_state()[1][0],  # First value of the state
+        'python_seed': random.getstate()[1][0],  # First value of the state
+    }
+
+
+def init_seed(seed: Optional[int] = None) -> Dict[str, Any]:
+    """
+    Initialize all random seeds and return the configuration.
+    
+    This is the main entry point for setting up reproducibility at the
+    start of any experiment or script.
+    
+    Args:
+        seed (int, optional): The seed to initialize with. Defaults to global seed.
+        
+    Returns:
+        dict: The seed configuration after initialization.
+    """
+    set_seed(seed)
+    return get_seed_config()

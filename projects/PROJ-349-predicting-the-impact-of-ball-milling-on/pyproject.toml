@@ -1,13 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-ball-milling"
+name = "ball-milling-impact-prediction"
 version = "0.1.0"
-description = "Predicting the Impact of Ball Milling on Particle Size Distribution"
-readme = "README.md"
-requires-python = ">=3.9"
+description = "Predicting the impact of ball milling on particle size distribution"
+requires-python = ">=3.10"
 dependencies = [
     "pandas==2.2.*",
     "numpy==1.26.*",
@@ -19,50 +18,42 @@ dependencies = [
     "tqdm==4.66.*",
     "pyarrow==16.*",
     "pdfminer.six==20231228",
+    "easyocr==1.7.*",
+    "opencv-python==4.8.*",
+    "pdf2image==1.16.*",
+    "arxiv",
+    "psutil"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "flake8>=7.0.0",
-    "black>=24.0.0",
-    "pre-commit>=3.5.0",
-    "pytest>=8.0.0",
-    "pytest-cov>=4.1.0",
-    "psutil>=5.9.0",
-    "arxiv>=2.1.0",
-    "easyocr>=1.7.0",
-    "pdf2image>=1.16.0",
-    "opencv-python>=4.8.0",
+    "flake8",
+    "black",
+    "pytest",
+    "pre-commit"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py310', 'py311', 'py312']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
-    | results
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | code
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code", "code.*", "src", "src.*", "tests", "tests.*"]
-exclude = ["data*", "results*", "docs*", ".github*"]

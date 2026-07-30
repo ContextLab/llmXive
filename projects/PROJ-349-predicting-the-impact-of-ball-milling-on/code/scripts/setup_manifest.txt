@@ -1,0 +1,8 @@
+src/
+tests/
+data/raw
+data/processed
+data/splits
+results
+contracts/
+.github/workflows/

@@ -9,8 +9,10 @@ import pytest
 from unittest.mock import patch, MagicMock
 import requests
 import json
+import logging
 
 # Import the specific exceptions defined in the project API
+# Note: Using the path provided in the API surface list
 from code.src.exceptions import (
     DataIngestionError,
     SourceConnectionError,
@@ -21,6 +23,7 @@ from code.src.exceptions import (
 )
 
 # Import the error handler to be tested
+# Note: Using the path provided in the API surface list
 from code.src.utils.error_handler import handle_ingestion_errors
 
 class MockIngestor:
@@ -36,9 +39,17 @@ class MockIngestor:
         elif self.behavior == "timeout":
             raise requests.exceptions.Timeout("Request timed out")
         elif self.behavior == "auth":
-            raise requests.exceptions.HTTPError(response=MagicMock(status_code=401, reason="Unauthorized"))
+            # Create a mock response object for HTTPError
+            mock_response = MagicMock()
+            mock_response.status_code = 401
+            mock_response.reason = "Unauthorized"
+            raise requests.exceptions.HTTPError(response=mock_response)
         elif self.behavior == "not_found":
-            raise requests.exceptions.HTTPError(response=MagicMock(status_code=404, reason="Not Found"))
+            # Create a mock response object for HTTPError
+            mock_response = MagicMock()
+            mock_response.status_code = 404
+            mock_response.reason = "Not Found"
+            raise requests.exceptions.HTTPError(response=mock_response)
         elif self.behavior == "bad_json":
             raise json.JSONDecodeError("Expecting value", "doc", 0)
         elif self.behavior == "value_error":

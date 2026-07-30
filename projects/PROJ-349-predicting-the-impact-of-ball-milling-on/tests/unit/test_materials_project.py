@@ -1,129 +1,135 @@
 """
-Unit tests for Materials Project data fetcher.
+Unit tests for Materials Project Data Fetcher (Task T012).
 """
 
 import json
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
+from unittest.mock import patch, MagicMock, mock_open
 import pytest
-import pandas as pd
-
-import sys
-# Ensure src is in path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
 
 from src.ingest.materials_project import (
-    get_api_key,
-    fetch_materials_data,
-    extract_and_normalize,
+    fetch_materials_project_data,
     save_to_json,
-    run_materials_ingestion,
-    REQUIRED_FIELDS
+    run_materials_project_ingestion,
 )
+from src.utils.exceptions import DataIngestionError
 
+@pytest.fixture
+def mock_api_response():
+    return {
+        "data": [
+            {
+                "material_id": "mp-12345",
+                "keywords": ["ball milling", "synthesis"],
+                "abstract": "Study on ball milling effects.",
+                "thermo": {"density": 4.5},
+                "structure": {"num_sites": 10},
+            },
+            {
+                "material_id": "mp-67890",
+                "keywords": ["milling", "powder"],
+                "abstract": "Another milling study.",
+                "thermo": {},
+                "structure": {"num_sites": 20},
+            },
+        ]
+    }
 
-class TestGetApiKey:
-    def test_api_key_present(self, monkeypatch):
-        monkeypatch.setenv("MP_API_KEY", "test_key_123")
-        assert get_api_key() == "test_key_123"
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-    def test_api_key_missing(self, monkeypatch):
-        monkeypatch.delenv("MP_API_KEY", raising=False)
-        assert get_api_key() is None
-
-
-class TestFetchMaterialsData:
-    @patch('src.ingest.materials_project.requests.get')
-    def test_successful_fetch(self, mock_get):
+def test_fetch_materials_project_data_success(mock_api_response):
+    with patch("src.ingest.materials_project.requests.get") as mock_get:
         mock_response = MagicMock()
-        mock_response.raise_for_status = MagicMock()
-        mock_response.json.return_value = {
-            "data": [
-                {
-                    "material_id": "mp-123",
-                    "pretty_formula": "SiO2",
-                    "density": 2.65,
-                    "elasticity": {"E_VRH": 70.0}
-                }
-            ]
-        }
+        mock_response.json.return_value = mock_api_response
+        mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
 
-        result = fetch_materials_data("fake_key", ["milling"])
-        assert len(result) == 1
-        assert result[0]["material_id"] == "mp-123"
-        mock_get.assert_called_once()
+        # Set API key for test
+        with patch.dict(os.environ, {"MP_API_KEY": "test-key"}):
+            records = fetch_materials_project_data(max_pages=1)
 
-    @patch('src.ingest.materials_project.requests.get')
-    def test_connection_error(self, mock_get):
-        mock_get.side_effect = Exception("Network error")
-        result = fetch_materials_data("fake_key", ["milling"])
-        assert result == []
+            assert len(records) == 2
+            assert records[0]["source_name"] == "Materials Project"
+            assert records[0]["source_id"] == "mp-12345"
+            assert records[0]["density"] == 4.5
+            assert records[1]["source_id"] == "mp-67890"
 
+def test_fetch_materials_project_data_missing_id(mock_api_response):
+    # Modify response to include a record without material_id
+    mock_api_response["data"].append({"keywords": ["test"]})
 
-class TestExtractAndNormalize:
-    def test_normalize_fields(self):
-        raw = [
-            {
-                "material_id": "mp-123",
-                "pretty_formula": "SiO2",
-                "density": 2.65,
-                "elasticity": {"E_VRH": 70.0}
-            }
-        ]
-        df = extract_and_normalize(raw)
-        
-        assert isinstance(df, pd.DataFrame)
-        assert "experiment_id" in df.columns
-        assert "youngs_modulus" in df.columns
-        assert "density" in df.columns
-        assert df.loc[0, "experiment_id"] == "mp-123"
-        assert df.loc[0, "youngs_modulus"] == 70.0
-        assert df.loc[0, "milling_speed"] is None # Not in source
+    with patch("src.ingest.materials_project.requests.get") as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = mock_api_response
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
 
-    def test_empty_input(self):
-        df = extract_and_normalize([])
-        assert isinstance(df, pd.DataFrame)
-        assert len(df) == 0
-        assert list(df.columns) == REQUIRED_FIELDS
+        with patch.dict(os.environ, {"MP_API_KEY": "test-key"}):
+            records = fetch_materials_project_data(max_pages=1)
 
+            # Should filter out the record without ID
+            assert len(records) == 2
+            assert all(r["source_id"] is not None for r in records)
 
-class TestSaveToJson:
-    def test_save_creates_file(self):
-        df = pd.DataFrame({"col1": [1, 2], "col2": ["a", "b"]})
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = Path(tmpdir) / "test.json"
-            save_to_json(df, path)
-            assert path.exists()
-            
-            with open(path) as f:
-                data = json.load(f)
-                assert len(data) == 2
+def test_fetch_materials_project_data_no_api_key():
+    with patch.dict(os.environ, {}, clear=True):
+        records = fetch_materials_project_data()
+        assert records == []
 
+def test_fetch_materials_project_data_empty_response():
+    with patch("src.ingest.materials_project.requests.get") as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"data": []}
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
 
-class TestRunIngestion:
-    @patch('src.ingest.materials_project.get_api_key')
-    @patch('src.ingest.materials_project.fetch_materials_data')
-    @patch('src.ingest.materials_project.save_to_json')
-    def test_run_with_key(self, mock_save, mock_fetch, mock_key):
-        mock_key.return_value = "test_key"
-        mock_fetch.return_value = [{"material_id": "mp-1", "density": 1.0, "elasticity": {}}]
-        
-        df = run_materials_ingestion()
-        
-        assert len(df) == 1
-        mock_fetch.assert_called_once()
-        mock_save.assert_called_once()
+        with patch.dict(os.environ, {"MP_API_KEY": "test-key"}):
+            records = fetch_materials_project_data(max_pages=1)
+            assert records == []
 
-    @patch('src.ingest.materials_project.get_api_key')
-    @patch('src.ingest.materials_project.save_to_json')
-    def test_run_without_key(self, mock_save, mock_key):
-        mock_key.return_value = None
-        
-        df = run_materials_ingestion()
-        
-        assert len(df) == 0
-        mock_save.assert_called_once()
+def test_save_to_json(temp_dir):
+    data = [{"source_id": "mp-1", "value": 10}]
+    output_path = temp_dir / "test.json"
+
+    save_to_json(data, output_path)
+
+    assert output_path.exists()
+    with open(output_path, "r") as f:
+        loaded = json.load(f)
+    assert loaded == data
+
+def test_run_materials_project_ingestion_success(mock_api_response, temp_dir, caplog):
+    # Patch the output path to use temp_dir
+    with patch("src.ingest.materials_project.OUTPUT_PATH", temp_dir / "output.json"):
+        with patch("src.ingest.materials_project.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.json.return_value = mock_api_response
+            mock_response.raise_for_status.return_value = None
+            mock_get.return_value = mock_response
+
+            with patch.dict(os.environ, {"MP_API_KEY": "test-key"}):
+                records = run_materials_project_ingestion()
+
+                assert len(records) == 2
+                assert (temp_dir / "output.json").exists()
+
+def test_run_materials_project_ingestion_no_data(temp_dir, caplog):
+    with patch("src.ingest.materials_project.OUTPUT_PATH", temp_dir / "output.json"):
+        with patch("src.ingest.materials_project.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.json.return_value = {"data": []}
+            mock_response.raise_for_status.return_value = None
+            mock_get.return_value = mock_response
+
+            with patch.dict(os.environ, {"MP_API_KEY": "test-key"}):
+                records = run_materials_project_ingestion()
+
+                assert records == []
+                assert (temp_dir / "output.json").exists()
+                with open(temp_dir / "output.json", "r") as f:
+                    assert f.read() == "[]"

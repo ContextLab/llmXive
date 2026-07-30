@@ -1,72 +1,68 @@
-"""
-Logging utility for the llmXive research pipeline.
-"""
-
 import logging
 import os
 from pathlib import Path
 from typing import Optional, Union
 
-_logger: Optional[logging.Logger] = None
-
-def get_logger() -> logging.Logger:
-    """
-    Get the global logger instance. Initializes it if not already done.
-    """
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger("llmXive")
-        _logger.setLevel(logging.INFO)
-
-        # Create console handler
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-
-        # Create formatter
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        ch.setFormatter(formatter)
-
-        # Add handler to logger
-        if not _logger.handlers:
-            _logger.addHandler(ch)
-
-    return _logger
+_logger_instance = None
+_log_level = logging.INFO
 
 def get_module_logger(name: str) -> logging.Logger:
     """
-    Get a module-specific logger.
-
-    Args:
-        name: The name of the module (usually __name__).
-
-    Returns:
-        A logger instance for the module.
+    Returns a logger instance for the given module name.
+    Ensures the logger is configured with the project's settings.
     """
-    parent_logger = get_logger()
-    return parent_logger.getChild(name)
+    global _logger_instance
+    if _logger_instance is None:
+        _configure_root_logger()
+        _logger_instance = logging.getLogger("project_root")
+    
+    logger = logging.getLogger(name)
+    logger.handlers = [] 
+    logger.propagate = False
+    
+    # Add a handler if not already present to ensure it logs
+    # In a complex app, we might manage handlers globally, 
+    # but here we ensure the specific logger has a stream handler.
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(_log_level)
+    
+    return logger
 
-def set_log_level(level: Union[str, int]) -> None:
-    """
-    Set the logging level for the global logger.
+def _configure_root_logger():
+    global _logger_instance
+    if _logger_instance is not None:
+        return
+    
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    
+    if not root_logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        root_logger.addHandler(handler)
 
-    Args:
-        level: Logging level (e.g., 'DEBUG', 'INFO', logging.DEBUG).
-    """
-    logger = get_logger()
+def set_log_level(level: Union[int, str]):
+    global _log_level
     if isinstance(level, str):
-        level = getattr(logging, level.upper(), logging.INFO)
-    logger.setLevel(level)
-    for handler in logger.handlers:
-        handler.setLevel(level)
+        _log_level = getattr(logging, level.upper())
+    else:
+        _log_level = level
+    
+    logging.getLogger("project_root").setLevel(_log_level)
+    for handler in logging.getLogger("project_root").handlers:
+        handler.setLevel(_log_level)
 
-def reset_logger() -> None:
-    """
-    Reset the global logger to its initial state.
-    """
-    global _logger
-    if _logger is not None:
-        _logger.handlers.clear()
-        _logger.setLevel(logging.NOTSET)
-        _logger = None
+def reset_logger():
+    global _logger_instance, _log_level
+    _logger_instance = None
+    _log_level = logging.INFO
+    logging.getLogger().handlers = []

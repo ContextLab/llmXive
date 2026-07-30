@@ -1,72 +1,53 @@
-# Dataset Schema for Ball Milling Experiments
-# This schema defines the required fields and their types for the ball milling dataset.
-# Used by T007b for schema validation.
-
-version: "1.0"
-description: "Schema for ball milling experimental data including process parameters and particle size distribution metrics."
-
 fields:
   experiment_id:
-    type: str
+    type: string
     required: true
-    description: "Unique identifier for the experiment"
-    
   source:
-    type: str
+    type: string
     required: true
-    description: "Data source (materials_project, nist, arxiv)"
-    
+  source_id:
+    type: string
+    required: true
   material_type:
-    type: str
+    type: string
     required: true
-    description: "Type of material being milled"
-    
   milling_speed:
     type: float
     required: true
-    description: "Milling speed in RPM"
-    
   milling_time:
     type: float
     required: true
-    description: "Milling time in hours"
-    
   ball_to_powder_ratio:
     type: float
     required: true
-    description: "Ratio of ball mass to powder mass"
-    
   youngs_modulus:
     type: float
     required: true
-    description: "Young's modulus of the material in GPa"
-    
   density:
     type: float
     required: true
-    description: "Density of the material in g/cm³"
-    
   d10:
     type: float
     required: true
-    description: "Particle size at 10th percentile in micrometers"
-    
   d50:
     type: float
     required: true
-    description: "Particle size at 50th percentile (median) in micrometers"
-    
   d90:
     type: float
     required: true
-    description: "Particle size at 90th percentile in micrometers"
-    
   process_duration:
     type: float
-    required: true
-    description: "Total process duration in hours"
-
-constraints:
-  # Constraints are checked separately in T015c and T017c
-  min_rows: 150
-  target_rows: 500
+    required: false
+required_columns:
+  - experiment_id
+  - source
+  - source_id
+  - material_type
+  - milling_speed
+  - milling_time
+  - ball_to_powder_ratio
+  - youngs_modulus
+  - density
+  - d10
+  - d50
+  - d90

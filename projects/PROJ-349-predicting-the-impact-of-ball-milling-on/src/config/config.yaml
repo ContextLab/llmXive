@@ -1,0 +1,45 @@
+# Configuration for Ball Milling Impact Prediction Pipeline
+# Generated for T009: Config template creation
+
+# API Endpoints for external data sources
+api_endpoints:
+  materials_project:
+    base_url: "https://next-gen.materialsproject.org/api/v2/materials"
+    timeout: 30
+  nist:
+    base_url: "https://www.nist.gov/programs-projects/search"
+    timeout: 30
+  arxiv:
+    base_url: "http://export.arxiv.org/api/query"
+    timeout: 60
+
+# Resource Limits for GPR Training (User Story 2)
+# These limits trigger the fallback to Random Forest if exceeded
+resource_limits:
+  gpr_max_runtime: 1800  # 30 minutes in seconds
+  gpr_max_memory: 5.0   # 5 GB RAM
+
+# OCR Fallback Settings (User Story 1)
+# Controls whether OCR is attempted for unstructured PSD images
+ocr_settings:
+  ocr_enabled: false  # Set to true to enable EasyOCR extraction
+  ocr_language: "en"
+  ocr_model_version: "en"  # easyocr model version
+
+# Data Paths (relative to project root)
+data_paths:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  splits_dir: "data/splits"
+  flagged_dir: "data/flagged"
+  results_dir: "results"
+  figures_dir: "figures"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/pipeline.log"
+
+# Random Seed for Reproducibility
+seed: 42
