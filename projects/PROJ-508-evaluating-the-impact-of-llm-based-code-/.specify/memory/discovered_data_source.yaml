@@ -1,0 +1,18 @@
+status: none
+intent: GHTorrent downloadable dataset GitHub metadata python package dataset
+required_fields:
+- repo_id
+- repo_name
+- owner_login
+- repo_full_name
+- repo_description
+- repo_created_at
+- repo_updated_at
+- repo_language
+- pull_request_id
+- pull_request_number
+- pull_request_title
+- pull_request_body
+cache_key: 5ef09493438cc8a0fb67b20fb347851b1c80491520c797e2bb9d4de3c50aa904
+searched_at: '2026-07-30T15:16:58.301518+00:00'
+retry_count: 1

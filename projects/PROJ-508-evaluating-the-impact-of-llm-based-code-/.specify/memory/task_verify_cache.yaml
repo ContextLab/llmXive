@@ -1,10 +1,47 @@
-T024:
+T004:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided specification excerpt includes FR\u2011008 with the exact required\
+    \ sentence about calculating `diff_complexity_score` and flagging \u201CAI Noise\u201D\
+    \ when the score\u202F>\u202F0.3 and the commit message contains \u201Cfix\u201D\
+    , \u201Chotfix\u201D, or \u201Cpatch\u201D. This confirms that `spec.md` contains\
+    \ the requested FR\u2011008 text."
+T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, scripts, or documentation implementing the extraction of `avg_comment_length`,
-    `review_thread_depth`, or `revert_frequency` were found in the provided artifacts.
-    The claim lacks any tangible artifact demonstrating that these metrics are computed,
-    stored, or integrated into the pipeline.
+  r: "The provided spec excerpt ends with a truncated SC-009 entry (\"Note: This study\
+    \ uses proxy metrics for cogn\") and does not contain the full required sentence,\
+    \ including the clause about self\u2011report measures (e.g., NASA\u2011TLX).\
+    \ The complete text required by the task is missing."
+T006:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided specification excerpt includes FR-003 stating the use of Mixed\u2011\
+    Effects Models (GLMM) with random intercepts for repositories and the requirement\
+    \ to apply Zero\u2011Inflated Negative Binomial (ZINB) or Hurdle models for zero\u2011\
+    inflated outcomes, satisfying the task."
+T007:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided specification excerpt shows that `spec.md` includes FR-002 stating
+    the iteration count is the total number of push events between PR open and merge
+    with no exclusions, matching the required wording. The artifact is present and
+    contains the correct updated content.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `ruff.toml`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) were presented, and the evidence\
+    \ does not show that ruff and black have been installed or integrated into the\
+    \ project. The required artifacts are missing, so the task is not satisfied."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I could find no `pytest` configuration file (e.g., `pytest.ini`, `conftest.py`)
+    nor any `tests/` directory with scaffolded test files in the repository. Without
+    these artifacts, the requirement to set up pytest and basic test scaffolding is
+    not satisfied. The next implementer should add a `tests/` folder containing at
+    least one placeholder test module and a pytest configuration file.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,19 +49,14 @@ T025:
     \ of a filter that excludes repositories with fewer than 10 pull requests in the\
     \ past 12 months was provided. Without such evidence, the requirement of SC\u2011\
     001 cannot be verified as satisfied."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, module, script, or dataset implementing the domain complexity calculation\
-    \ (unique languages\u202F+\u202Fdependency count from manifests) is present in\
-    \ the provided artifacts. The required implementation is missing, so the task\
-    \ is not satisfied."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, notebook, script, or model artifact implementing a GLMM with random
-    intercepts for repositories was supplied; the only information is the task description
-    itself. Consequently, the required implementation evidence is missing.
+T033:
+  c: true
+  h: d56a928aa9218962f675dd1bcd2b369864e43de7b30301845ddb6450b906267d
+  r: "The file `code/analyze.py` exists, is non\u2011empty, and defines a `load_master_dataset()`\
+    \ function that builds the path to `data/derived/master_dataset.csv` and reads\
+    \ it with `pd.read_csv`. This satisfies the requirement to implement loading of\
+    \ that CSV. (The CSV itself is not a required artifact for the implementation\
+    \ task.)"
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

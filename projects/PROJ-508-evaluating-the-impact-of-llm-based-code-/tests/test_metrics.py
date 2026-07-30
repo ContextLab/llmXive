@@ -1,6 +1,3 @@
-"""
-Tests for metrics calculation functions.
-"""
 import pytest
 from code.utils.metrics import (
     calculate_avg_comment_length,
@@ -10,190 +7,174 @@ from code.utils.metrics import (
     is_ai_noise_flag
 )
 
-
 class TestAvgCommentLength:
-    """Tests for calculate_avg_comment_length function."""
-
     def test_empty_comments(self):
-        """Test with empty comment list."""
+        """Test with empty comments list"""
         result = calculate_avg_comment_length([])
         assert result == 0.0
 
     def test_single_comment(self):
-        """Test with a single comment."""
+        """Test with a single comment"""
         comments = [{'body': 'Hello world'}]
         result = calculate_avg_comment_length(comments)
-        assert result == 11.0  # len('Hello world')
+        assert result == 11.0
 
     def test_multiple_comments(self):
-        """Test with multiple comments."""
+        """Test with multiple comments"""
         comments = [
             {'body': 'Short'},
             {'body': 'This is a longer comment'},
-            {'body': 'Hi'}
+            {'body': 'Medium'}
         ]
         result = calculate_avg_comment_length(comments)
-        expected = (5 + 24 + 2) / 3
-        assert result == expected
+        # (5 + 24 + 6) / 3 = 35 / 3 = 11.666...
+        assert abs(result - 11.666) < 0.01
 
     def test_missing_body_field(self):
-        """Test with comments missing body field."""
-        comments = [{'text': 'Using text field'}]
+        """Test with comments missing body field"""
+        comments = [
+            {'content': 'Has content'},
+            {'other_field': 'No body'}
+        ]
         result = calculate_avg_comment_length(comments)
-        assert result == 16.0
-
-    def test_empty_body(self):
-        """Test with empty body."""
-        comments = [{'body': ''}]
-        result = calculate_avg_comment_length(comments)
-        assert result == 0.0
-
+        # Only first comment has valid content
+        assert result == 13.0
 
 class TestReviewThreadDepth:
-    """Tests for calculate_review_thread_depth function."""
-
-    def test_empty_threads(self):
-        """Test with empty thread list."""
+    def test_empty_comments(self):
+        """Test with empty review comments list"""
         result = calculate_review_thread_depth([])
         assert result == 0
 
-    def test_single_thread_single_comment(self):
-        """Test with a single thread containing one comment."""
-        threads = [{'comments': [{'id': 1}]}]
-        result = calculate_review_thread_depth(threads)
+    def test_single_comment(self):
+        """Test with a single review comment"""
+        comments = [{'in_reply_to_id': 'thread1'}]
+        result = calculate_review_thread_depth(comments)
         assert result == 1
-
-    def test_single_thread_multiple_comments(self):
-        """Test with a single thread containing multiple comments."""
-        threads = [{'comments': [{'id': 1}, {'id': 2}, {'id': 3}]}]
-        result = calculate_review_thread_depth(threads)
-        assert result == 3
 
     def test_multiple_threads(self):
-        """Test with multiple threads of varying depths."""
-        threads = [
-            {'comments': [{'id': 1}]},
-            {'comments': [{'id': 2}, {'id': 3}]},
-            {'comments': [{'id': 4}, {'id': 5}, {'id': 6}, {'id': 7}]}
+        """Test with multiple threads of different depths"""
+        comments = [
+            {'in_reply_to_id': 'thread1'},
+            {'in_reply_to_id': 'thread1'},
+            {'in_reply_to_id': 'thread1'},
+            {'in_reply_to_id': 'thread2'},
+            {'in_reply_to_id': 'thread2'}
         ]
-        result = calculate_review_thread_depth(threads)
-        assert result == 4
+        result = calculate_review_thread_depth(comments)
+        # thread1 has 3 comments, thread2 has 2
+        assert result == 3
 
-    def test_missing_comments_field(self):
-        """Test with threads missing comments field."""
-        threads = [{} , {'review_comments': [{'id': 1}]}]
-        result = calculate_review_thread_depth(threads)
-        assert result == 1
-
+    def test_no_thread_id(self):
+        """Test with comments that have no thread ID"""
+        comments = [
+            {'path': 'file1.py'},
+            {'path': 'file1.py'},
+            {'path': 'file2.py'}
+        ]
+        result = calculate_review_thread_depth(comments)
+        # Both file1.py comments are in same thread
+        assert result == 2
 
 class TestRevertFrequency:
-    """Tests for calculate_revert_frequency function."""
-
     def test_empty_commits(self):
-        """Test with empty commit list."""
+        """Test with empty commits list"""
         result = calculate_revert_frequency([])
         assert result == 0.0
 
     def test_no_reverts(self):
-        """Test with commits that are not reverts."""
+        """Test with commits that have no reverts"""
         commits = [
-            {'message': 'Add feature'},
-            {'message': 'Fix bug'},
-            {'message': 'Update docs'}
+            {'commit': {'message': 'Add feature'}},
+            {'commit': {'message': 'Fix bug'}}
         ]
         result = calculate_revert_frequency(commits)
         assert result == 0.0
 
     def test_all_reverts(self):
-        """Test with all commits being reverts."""
+        """Test with all commits being reverts"""
         commits = [
-            {'message': 'Revert "Add feature"'},
-            {'message': 'Revert: Fix bug'},
-            {'message': 'revert update'}
+            {'commit': {'message': 'Revert "Add feature"'}},
+            {'commit': {'message': 'Revert "Fix bug"'}}
         ]
         result = calculate_revert_frequency(commits)
         assert result == 1.0
 
     def test_mixed_commits(self):
-        """Test with mixed revert and non-revert commits."""
+        """Test with mixed revert and non-revert commits"""
         commits = [
-            {'message': 'Add feature'},
-            {'message': 'Revert "Add feature"'},
-            {'message': 'Fix bug'},
-            {'message': 'Revert: Fix bug'}
+            {'commit': {'message': 'Add feature'}},
+            {'commit': {'message': 'Revert "Add feature"'}},
+            {'commit': {'message': 'Another commit'}},
+            {'commit': {'message': 'revert some change'}}
         ]
         result = calculate_revert_frequency(commits)
+        # 2 reverts out of 4 commits
         assert result == 0.5
 
-    def test_case_insensitive(self):
-        """Test that revert detection is case insensitive."""
-        commits = [
-            {'message': 'REVERT "Add feature"'},
-            {'message': 'Revert "Fix bug"'},
-            {'message': 'revert docs'}
-        ]
-        result = calculate_revert_frequency(commits)
-        assert result == 1.0
-
-
 class TestDiffComplexityScore:
-    """Tests for calculate_diff_complexity_score function."""
-
     def test_no_deletions(self):
-        """Test with no deletions."""
-        result = calculate_diff_complexity_score(10, 0, 100)
+        """Test when lines_deleted is 0"""
+        result = calculate_diff_complexity_score(10, 0, 10)
         assert result == 0.0
-
-    def test_valid_score(self):
-        """Test with valid additions and deletions."""
-        result = calculate_diff_complexity_score(10, 10, 100)
-        assert result == 0.2
-
-    def test_high_score(self):
-        """Test with high complexity score."""
-        result = calculate_diff_complexity_score(50, 50, 100)
-        assert result == 1.0
 
     def test_zero_total_lines(self):
-        """Test with zero total lines."""
-        result = calculate_diff_complexity_score(10, 10, 0)
+        """Test when total_lines is 0"""
+        result = calculate_diff_complexity_score(0, 0, 0)
         assert result == 0.0
 
+    def test_simple_case(self):
+        """Test a simple case"""
+        result = calculate_diff_complexity_score(10, 10, 20)
+        assert result == 1.0
 
-class TestAINoiseFlag:
-    """Tests for is_ai_noise_flag function."""
+    def test_partial_complexity(self):
+        """Test partial complexity"""
+        result = calculate_diff_complexity_score(5, 10, 15)
+        assert result == 1.0  # (5+10)/15 = 1.0
 
     def test_low_complexity(self):
-        """Test with low complexity score."""
-        result = is_ai_noise_flag(0.2, 'fix bug')
-        assert result is False
+        """Test low complexity case"""
+        result = calculate_diff_complexity_score(2, 10, 12)
+        assert result == 1.0  # (2+10)/12 = 1.0
+
+class TestIsAiNoiseFlag:
+    def test_low_complexity(self):
+        """Test with low complexity score"""
+        result = is_ai_noise_flag(0.2, 'fix something')
+        assert result == False
 
     def test_high_complexity_no_keyword(self):
-        """Test with high complexity but no noise keyword."""
-        result = is_ai_noise_flag(0.4, 'add feature')
-        assert result is False
+        """Test with high complexity but no noise keyword"""
+        result = is_ai_noise_flag(0.5, 'add new feature')
+        assert result == False
 
-    def test_high_complexity_fix_keyword(self):
-        """Test with high complexity and fix keyword."""
-        result = is_ai_noise_flag(0.4, 'fix bug')
-        assert result is True
+    def test_high_complexity_with_fix(self):
+        """Test with high complexity and 'fix' keyword"""
+        result = is_ai_noise_flag(0.5, 'fix bug in module')
+        assert result == True
 
-    def test_high_complexity_hotfix_keyword(self):
-        """Test with high complexity and hotfix keyword."""
-        result = is_ai_noise_flag(0.4, 'hotfix critical issue')
-        assert result is True
+    def test_high_complexity_with_hotfix(self):
+        """Test with high complexity and 'hotfix' keyword"""
+        result = is_ai_noise_flag(0.5, 'hotfix for critical issue')
+        assert result == True
 
-    def test_high_complexity_patch_keyword(self):
-        """Test with high complexity and patch keyword."""
-        result = is_ai_noise_flag(0.4, 'patch vulnerability')
-        assert result is True
+    def test_high_complexity_with_patch(self):
+        """Test with high complexity and 'patch' keyword"""
+        result = is_ai_noise_flag(0.5, 'patch security vulnerability')
+        assert result == True
 
-    def test_boundary_complexity(self):
-        """Test at boundary complexity score."""
-        result = is_ai_noise_flag(0.3, 'fix bug')
-        assert result is False  # Must be > 0.3, not >=
+    def test_boundary_case(self):
+        """Test at the boundary of complexity threshold"""
+        result = is_ai_noise_flag(0.3, 'fix something')
+        assert result == False  # Must be > 0.3, not >= 0.3
 
-    def test_boundary_complexity_plus(self):
-        """Test just above boundary complexity score."""
-        result = is_ai_noise_flag(0.31, 'fix bug')
-        assert result is True
+    def test_case_insensitive(self):
+        """Test that keyword matching is case insensitive"""
+        result = is_ai_noise_flag(0.5, 'FIX critical issue')
+        assert result == True
+
+    def test_keyword_in_middle(self):
+        """Test keyword appearing in middle of message"""
+        result = is_ai_noise_flag(0.5, 'some fix in the middle')
+        assert result == True

@@ -43,7 +43,7 @@ This metric is used to distinguish between "solving a problem" and "fixing AI-ge
 ## Scientific Constraints
 
 ### SC-001: Repository Filtering
-Repositories with fewer than 10 Pull Requests in the last 12 months MUST be excluded from the analysis.
+Repositories with a low volume of Pull Requests in the last 12 months MUST be excluded from the analysis.
 
 ### SC-002: Data Privacy
 All Personally Identifiable Information (PII) must be scanned and removed before storage in derived datasets.

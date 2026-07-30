@@ -1,57 +1,36 @@
-"""
-Configuration management module.
-Handles environment variables and API key loading.
-"""
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 import json
 
 class Config:
-    """Configuration holder for the project."""
+    def __init__(self, config_dict: Optional[Dict[str, Any]] = None):
+        if config_dict:
+            self._config = config_dict
+        else:
+            self._config = self._load_default()
     
-    def __init__(self):
-        self._data: Dict[str, Any] = {}
-        self._load_env()
-        self._load_defaults()
+    def _load_default(self) -> Dict[str, Any]:
+        base = Path(__file__).resolve().parent.parent.parent
+        return {
+            'paths': {
+                'project_root': str(base),
+                'raw_data': str(base / 'data' / 'raw'),
+                'derived_data': str(base / 'data' / 'derived'),
+                'output_dir': str(base / 'docs' / 'output'),
+                'figures_dir': str(base / 'figures')
+            },
+            'api': {
+                'github_token': os.getenv('GITHUB_TOKEN', ''),
+                'base_url': 'https://api.github.com'
+            }
+        }
 
-    def _load_env(self) -> None:
-        """Load configuration from environment variables."""
-        self._data["github_api_base"] = os.getenv(
-            "GITHUB_API_BASE", 
-            "https://api.github.com"
-        )
-        self._data["github_token"] = os.getenv("GITHUB_TOKEN", "")
-        self._data["log_level"] = os.getenv("LOG_LEVEL", "INFO")
-
-    def _load_defaults(self) -> None:
-        """Set default values if not present."""
-        if "data_dir" not in self._data:
-            self._data["data_dir"] = str(Path(__file__).parent.parent.parent / "data")
-
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get a configuration value."""
-        return self._data.get(key, default)
-
-    def set(self, key: str, value: Any) -> None:
-        """Set a configuration value."""
-        self._data[key] = value
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Return the configuration as a dictionary."""
-        return self._data.copy()
-
-
-_config_instance: Optional[Config] = None
+    def __getitem__(self, key):
+        return self._config[key]
+    
+    def __contains__(self, key):
+        return key in self._config
 
 def get_config() -> Config:
-    """
-    Get the singleton configuration instance.
-    
-    Returns:
-        The global Config instance.
-    """
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = Config()
-    return _config_instance
+    return Config()
