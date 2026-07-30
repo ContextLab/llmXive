@@ -1,84 +1,54 @@
-# Dataset Schema Template for Z-Reward Evaluation
-# This file defines the expected structure for the input dataset.
-# It serves as a contract for T038 (Schema Discovery) to validate against.
-#
-# Note: This is a template. The actual schema may be discovered and
-# validated in T038, resulting in a 'dataset.validated.schema.yaml'.
-
-schema_version: "1.0.0"
-description: "Expected schema for Z-Reward teacher/student alignment dataset"
-source: "Z-Reward Evaluation Dataset"
-
-fields:
-  - name: prompt
+$schema: http://json-schema.org/draft-07/schema#
+title: Z-Reward Dataset Schema
+description: Schema for the raw Z-Reward evaluation dataset.
+type: object
+properties:
+  sample_id:
     type: string
-    description: "The input text prompt provided to the models"
-    required: true
-    nullable: false
-
-  - name: image_url
+    description: Unique identifier for the sample.
+  prompt:
     type: string
-    description: "URL to the input image (if applicable)"
-    required: false
-    nullable: true
-
-  - name: teacher_scores
+    description: Input text prompt.
+  teacher_scores:
+    type: array
+    items:
+      type: number
+    minItems: 4
+    maxItems: 4
+    description: Scores for [Alignment, Realism, Aesthetics, Plausibility].
+  student_score:
+    type: number
+    description: Scalar output from student model.
+  human_annotations:
     type: object
-    description: "Dictionary of scores assigned by the teacher model across dimensions"
-    required: true
-    nullable: false
     properties:
       Alignment:
-        type: float
-        description: "Teacher score for alignment dimension"
+        type: number
       Realism:
-        type: float
-        description: "Teacher score for realism dimension"
+        type: number
       Aesthetics:
-        type: float
-        description: "Teacher score for aesthetics dimension"
+        type: number
       Plausibility:
-        type: float
-        description: "Teacher score for plausibility dimension"
-
-  - name: student_scalar
-    type: float
-    description: "Single scalar score output by the student model"
-    required: true
-    nullable: false
-
-  - name: human_annotations
-    type: object
-    description: "Dictionary of human-annotated scores for validation"
-    required: true
-    nullable: false
-    properties:
-      Alignment:
-        type: float
-        description: "Human score for alignment dimension"
-      Realism:
-        type: float
-        description: "Human score for realism dimension"
-      Aesthetics:
-        type: float
-        description: "Human score for aesthetics dimension"
-      Plausibility:
-        type: float
-        description: "Human score for plausibility dimension"
-
-  - name: primary_dimension
+        type: number
+    required:
+      - Alignment
+      - Realism
+      - Aesthetics
+      - Plausibility
+    description: Human annotations for all four dimensions.
+  primary_dimension:
     type: string
-    description: "The specific dimension used for primary fidelity loss calculation"
-    required: true
-    nullable: false
     enum:
       - Alignment
       - Realism
       - Aesthetics
       - Plausibility
-
-metadata:
-  created_at: "2023-10-27T00:00:00Z"
-  updated_at: "2023-10-27T00:00:00Z"
-  author: "llmXive Pipeline"
-  status: "template"
+    description: The dimension used for fidelity loss calculation.
+required:
+  - sample_id
+  - prompt
+  - teacher_scores
+  - student_score
+  - human_annotations
+  - primary_dimension
+additionalProperties: false

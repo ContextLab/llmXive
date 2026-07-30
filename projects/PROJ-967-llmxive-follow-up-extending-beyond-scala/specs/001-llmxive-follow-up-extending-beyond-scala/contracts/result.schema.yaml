@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: Schema for the final model results.
+type: object
+properties:
+  r_squared:
+    type: number
+    description: R² score of the model.
+  mae:
+    type: number
+    description: Mean Absolute Error.
+  p_value:
+    type: number
+    description: P-value from permutation test.
+  n_samples:
+    type: integer
+    description: Number of samples used.
+  n_features:
+    type: integer
+    description: Number of features used.
+  timestamp:
+    type: string
+    format: date-time
+    description: Timestamp of the run.
+required:
+  - r_squared
+  - mae
+  - p_value
+  - n_samples
+  - n_features
+  - timestamp
+additionalProperties: false

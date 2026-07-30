@@ -1,8 +1,10 @@
 """
-Integration script for Training and Evaluation (T031).
-Orchestrates the full pipeline: Load features -> Train Model -> Cross-Validation ->
-Permutation Test -> Null Baseline Comparison -> Save Final Results.
+Integration Module for Training and Evaluation.
+
+This module implements T031: Integrate training and evaluation.
+It orchestrates the full pipeline from data loading to final results.
 """
+
 import argparse
 import json
 import logging
@@ -11,285 +13,297 @@ import sys
 import pickle
 from pathlib import Path
 
-import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.metrics import r2_score, mean_absolute_error
 from sklearn.dummy import DummyRegressor
 from scipy import stats
 
-# Import existing modules from the project API surface
-from train import (
-    setup_logging as train_setup_logging,
-    load_features as train_load_features,
-    prepare_data as train_prepare_data,
-    train_and_evaluate as train_run_training,
-    run_cross_validation as train_run_cv,
-    calculate_permutation_pvalue as train_calc_perm_pvalue,
-    save_results as train_save_results
-)
-from evaluate import (
-    setup_logging as eval_setup_logging,
-    load_features as eval_load_features,
-    load_model as eval_load_model,
-    calculate_metrics as eval_calc_metrics,
-    calculate_baseline_mae as eval_calc_baseline_mae,
-    calculate_permutation_pvalue as eval_calc_perm_pvalue,
-    evaluate_model as eval_run_eval,
-    save_results as eval_save_results
-)
-from null_baseline import (
-    setup_logging as nb_setup_logging,
-    load_features as nb_load_features,
-    load_rf_results as nb_load_rf_results,
-    calculate_mean_baseline_metrics as nb_calc_mean_baseline,
-    compare_and_save_results as nb_compare_and_save
-)
+# Configure logging
+logger = logging.getLogger(__name__)
 
-def setup_logging(log_file=None):
-    """Configure logging for the integration script."""
+def setup_logging(log_level=logging.INFO):
+    """Configure logging for the module."""
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    logger = logging.getLogger('integrate_train_eval')
-    if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logger.addHandler(file_handler)
-    return logger
 
-def ensure_directories(base_path):
-    """Ensure required output directories exist."""
-    data_processed = base_path / 'data' / 'processed'
-    results = base_path / 'results'
-    data_processed.mkdir(parents=True, exist_ok=True)
-    results.mkdir(parents=True, exist_ok=True)
-    return data_processed, results
+def ensure_directories(paths):
+    """Ensure all required directories exist."""
+    for path in paths:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        Path(path).mkdir(parents=True, exist_ok=True)
 
-def run_integration_pipeline(base_path, logger):
-    """
-    Execute the full training and evaluation pipeline.
-    1. Load cleaned data (features + target).
-    2. Train Random Forest (T027a, T027b).
-    3. Save model (T027c).
-    4. Run Cross-Validation (T028).
-    5. Run Permutation Test (T030a).
-    6. Run Null Baseline Comparison (T030c).
-    7. Aggregate results and write to results/results.json (T031).
-    """
-    logger.info("Starting Integration Pipeline (T031)...")
+def load_features(features_path):
+    """Load features from JSON."""
+    with open(features_path, 'r') as f:
+        return json.load(f)
 
-    # Paths
-    data_path = base_path / 'data' / 'processed'
-    results_path = base_path / 'results'
-    cleaned_data_path = data_path / 'cleaned_data.parquet'
-    model_path = results_path / 'model.pkl'
-    results_json_path = results_path / 'results.json'
-    split_config_path = data_path / 'split_config.json'
+def prepare_data(features, test_size=0.2, random_state=42, n_bins=5):
+    """Prepare data with quantile-based stratification."""
+    feature_keys = [
+        'variance', 'entropy', 'score_magnitude', 'mahalanobis_distance',
+        'dominant_eigenvalue', 'fidelity_loss'
+    ]
 
-    # Check dependencies
-    if not cleaned_data_path.exists():
-        raise FileNotFoundError(f"Cleaned data not found at {cleaned_data_path}. "
-                                "Please ensure T024 (fidelity_loss) has completed.")
+    valid_features = []
+    for i, f in enumerate(features):
+        if all(key in f and f[key] is not None for key in feature_keys):
+            valid_features.append((i, f))
 
-    # 1. Load Features
-    logger.info("Loading features from cleaned_data.parquet...")
-    df = train_load_features(str(cleaned_data_path))
-    
-    # Identify target and features
-    target_col = 'fidelity_loss'
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in data. Columns: {df.columns.tolist()}")
-    
-    feature_cols = [c for c in df.columns if c not in [target_col, 'sample_id']]
-    X = df[feature_cols].values
-    y = df[target_col].values
+    logger.info(f"Valid samples: {len(valid_features)}/{len(features)}")
 
-    logger.info(f"Data loaded: {len(df)} samples, {len(feature_cols)} features.")
+    X = np.array([[f[k] for k in feature_keys[:-1]] for _, f in valid_features])
+    y = np.array([f['fidelity_loss'] for _, f in valid_features])
+    indices = np.array([i for i, _ in valid_features])
 
-    # 2. Prepare Data (Stratified Split)
-    logger.info("Preparing data split (Quantile Binning for Stratification)...")
-    
-    # Quantile binning for stratification
-    n_bins = 5
-    y_bins = pd.qcut(y, q=n_bins, labels=False, duplicates='drop')
-    
+    y_bins = np.digitize(y, np.percentile(y, np.linspace(0, 100, n_bins + 1)[1:-1]))
+    y_bins = np.clip(y_bins, 0, n_bins - 1)
+
     X_train, X_test, y_train, y_test, idx_train, idx_test = train_test_split(
-        X, y, np.arange(len(y)),
-        test_size=0.2,
-        random_state=42,
+        X, y, indices,
+        test_size=test_size,
+        random_state=random_state,
         stratify=y_bins
     )
 
-    # Save split config (T027a requirement)
     split_config = {
-        "test_size": 0.2,
-        "random_state": 42,
-        "n_train": len(idx_train),
-        "n_test": len(idx_test),
-        "stratification_bins": n_bins
+        'train_indices': idx_train.tolist(),
+        'test_indices': idx_test.tolist(),
+        'test_size': test_size,
+        'random_state': random_state,
+        'n_bins': n_bins
     }
-    with open(split_config_path, 'w') as f:
-        json.dump(split_config, f, indent=2)
-    logger.info(f"Split configuration saved to {split_config_path}")
 
-    # 3. Train Model (T027b)
-    logger.info("Training Random Forest Regressor...")
-    rf_model = RandomForestRegressor(
+    return X_train, X_test, y_train, y_test, split_config
+
+def train_model(X_train, y_train, n_estimators=100, random_state=42):
+    """Train Random Forest model."""
+    model = RandomForestRegressor(
+        n_estimators=n_estimators,
+        max_depth=None,
+        random_state=random_state,
+        n_jobs=2
+    )
+    model.fit(X_train, y_train)
+    return model
+
+def evaluate_model(model, X_test, y_test):
+    """Evaluate model on test set."""
+    y_pred = model.predict(X_test)
+    r2 = r2_score(y_test, y_pred)
+    mae = mean_absolute_error(y_test, y_pred)
+    return {'r2': r2, 'mae': mae, 'predictions': y_pred.tolist()}
+
+def run_cross_validation(X, y, cv_folds=5, random_state=42):
+    """Run k-fold cross-validation."""
+    model = RandomForestRegressor(
         n_estimators=100,
         max_depth=None,
-        random_state=42,
-        n_jobs=2  # CPU-only
+        random_state=random_state,
+        n_jobs=2
     )
-    rf_model.fit(X_train, y_train)
 
-    # 4. Save Model (T027c)
-    logger.info(f"Saving model to {model_path}...")
-    with open(model_path, 'wb') as f:
-        pickle.dump(rf_model, f)
-    logger.info("Model saved.")
+    n_bins = 5
+    y_bins = np.digitize(y, np.percentile(y, np.linspace(0, 100, n_bins + 1)[1:-1]))
+    y_bins = np.clip(y_bins, 0, n_bins - 1)
 
-    # 5. Cross-Validation (T028)
-    logger.info("Running 5-Fold Stratified Cross-Validation...")
-    cv_scores = train_run_cv(
-        X, y, 
-        n_splits=5, 
-        random_state=42,
-        model_type='rf',
-        n_estimators=100,
-        max_depth=None
-    )
-    cv_r2_mean = np.mean(cv_scores)
-    cv_r2_std = np.std(cv_scores)
-    logger.info(f"CV R²: {cv_r2_mean:.4f} (+/- {cv_r2_std:.4f})")
+    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
+    scores = cross_val_score(model, X, y, cv=cv, scoring='r2')
 
-    # 6. Evaluate on Test Set (T029)
-    logger.info("Evaluating on Test Set...")
-    y_pred = rf_model.predict(X_test)
-    test_r2 = r2_score(y_test, y_pred)
-    test_mae = mean_absolute_error(y_test, y_pred)
-    logger.info(f"Test R²: {test_r2:.4f}, Test MAE: {test_mae:.4f}")
+    return scores
 
-    # 7. Permutation Test (T030a)
-    logger.info("Running Permutation Test (n=1000)...")
-    p_value = train_calc_perm_pvalue(
-        X_test, y_test, rf_model, 
-        n_permutations=1000, 
-        random_state=42
-    )
-    logger.info(f"Permutation Test p-value: {p_value:.4f}")
+def calculate_permutation_pvalue(X_train, y_train, n_permutations=1000, random_state=42):
+    """Calculate permutation test p-value."""
+    np.random.seed(random_state)
 
-    # 8. Null Baseline Comparison (T030c)
-    logger.info("Running Null Baseline Comparison (Mean Predictor)...")
-    
-    # Train Mean Predictor on TRAIN set
-    mean_pred = DummyRegressor(strategy='mean')
-    mean_pred.fit(X_train, y_train)
-    
-    # Evaluate on TEST set
-    y_pred_mean = mean_pred.predict(X_test)
-    mean_r2 = r2_score(y_test, y_pred_mean)
-    mean_mae = mean_absolute_error(y_test, y_pred_mean)
-    
-    # Statistical Significance Test (Paired T-Test on Residuals)
-    residuals_rf = y_test - y_pred
-    residuals_mean = y_test - y_pred_mean
-    
-    t_stat, t_p_value = stats.ttest_rel(residuals_mean, residuals_rf) # Positive t means RF is better (smaller residuals)
-    
-    logger.info(f"Mean Predictor - R²: {mean_r2:.4f}, MAE: {mean_mae:.4f}")
-    logger.info(f"Paired T-Test (Residuals): t={t_stat:.4f}, p={t_p_value:.4f}")
+    model = RandomForestRegressor(n_estimators=100, random_state=random_state, n_jobs=2)
+    model.fit(X_train, y_train)
+    y_pred_orig = model.predict(X_train)
+    r2_orig = r2_score(y_train, y_pred_orig)
 
-    # 9. Aggregate Results
-    results = {
-        "task_id": "T031",
-        "pipeline_status": "completed",
-        "model_config": {
-            "type": "RandomForestRegressor",
-            "n_estimators": 100,
-            "max_depth": None,
-            "random_state": 42,
-            "n_jobs": 2
-        },
-        "data_split": {
-            "train_size": len(idx_train),
-            "test_size": len(idx_test),
-            "stratification_bins": 5
-        },
-        "cross_validation": {
-            "r2_mean": float(cv_r2_mean),
-            "r2_std": float(cv_r2_std)
-        },
-        "test_set_metrics": {
-            "r2": float(test_r2),
-            "mae": float(test_mae),
-            "permutation_p_value": float(p_value)
-        },
-        "null_baseline": {
-            "strategy": "mean",
-            "r2": float(mean_r2),
-            "mae": float(mean_mae),
-            "comparison": {
-                "r2_improvement": float(test_r2 - mean_r2),
-                "mae_improvement": float(mean_mae - test_mae),
-                "statistical_significance": {
-                    "test": "paired_t_test_residuals",
-                    "t_statistic": float(t_stat),
-                    "p_value": float(t_p_value),
-                    "significant_at_0.05": bool(t_p_value < 0.05)
-                }
-            }
-        },
-        "artifacts": {
-            "model_path": str(model_path),
-            "split_config_path": str(split_config_path),
-            "results_path": str(results_json_path)
-        }
+    r2_permuted = []
+    for i in range(n_permutations):
+        X_shuffled = X_train.copy()
+        np.random.shuffle(X_shuffled)
+
+        perm_model = RandomForestRegressor(n_estimators=100, random_state=random_state + i, n_jobs=2)
+        perm_model.fit(X_shuffled, y_train)
+        y_pred_perm = perm_model.predict(X_shuffled)
+        r2_perm = r2_score(y_train, y_pred_perm)
+        r2_permuted.append(r2_perm)
+
+    r2_permuted = np.array(r2_permuted)
+    p_value = np.sum(r2_permuted >= r2_orig) / n_permutations
+
+    return {
+        'p_value': p_value,
+        'observed_r2': r2_orig,
+        'permuted_r2_mean': float(r2_permuted.mean()),
+        'permuted_r2_std': float(r2_permuted.std())
     }
 
-    # 10. Write Final Results (T031)
-    logger.info(f"Writing final results to {results_json_path}...")
-    with open(results_json_path, 'w') as f:
+def calculate_mean_baseline(X_train, y_train, X_test, y_test):
+    """Train and evaluate mean baseline."""
+    mean_model = DummyRegressor(strategy='mean')
+    mean_model.fit(X_train, y_train)
+    y_pred_mean = mean_model.predict(X_test)
+
+    r2 = r2_score(y_test, y_pred_mean)
+    mae = mean_absolute_error(y_test, y_pred_mean)
+
+    return {
+        'r2': r2,
+        'mae': mae,
+        'predictions': y_pred_mean.tolist()
+    }
+
+def run_integration_pipeline(
+    features_path,
+    split_output,
+    model_output,
+    results_output,
+    comparison_output,
+    test_size=0.2,
+    n_estimators=100,
+    n_permutations=1000,
+    random_state=42
+):
+    """Run the full integration pipeline."""
+    logger.info("Loading features...")
+    features = load_features(features_path)
+
+    logger.info("Preparing data...")
+    X_train, X_test, y_train, y_test, split_config = prepare_data(
+        features, test_size, random_state
+    )
+
+    # Save split config
+    with open(split_output, 'w') as f:
+        json.dump(split_config, f, indent=2)
+
+    logger.info("Training model...")
+    model = train_model(X_train, y_train, n_estimators, random_state)
+
+    logger.info("Evaluating model...")
+    test_metrics = evaluate_model(model, X_test, y_test)
+    train_metrics = evaluate_model(model, X_train, y_train)
+
+    logger.info("Running cross-validation...")
+    cv_scores = run_cross_validation(
+        np.vstack([X_train, X_test]),
+        np.concatenate([y_train, y_test])
+    )
+
+    logger.info("Running permutation test...")
+    permutation_results = calculate_permutation_pvalue(X_train, y_train, n_permutations, random_state)
+
+    logger.info("Calculating mean baseline...")
+    mean_baseline = calculate_mean_baseline(X_train, y_train, X_test, y_test)
+
+    # Paired t-test on residuals
+    residuals_rf = y_test - np.array(test_metrics['predictions'])
+    residuals_mean = y_test - np.array(mean_baseline['predictions'])
+    t_stat, p_value = stats.ttest_rel(residuals_mean, residuals_rf)
+
+    is_significantly_better = (t_stat < 0) and (p_value < 0.05)
+    r2_positive = test_metrics['r2'] > 0.0
+    task_passed = is_significantly_better or r2_positive
+
+    # Save model
+    with open(model_output, 'wb') as f:
+        pickle.dump(model, f)
+
+    # Save results
+    results = {
+        'model_metrics': {
+            'train': train_metrics,
+            'test': test_metrics
+        },
+        'cross_validation': {
+            'scores': cv_scores.tolist(),
+            'mean': float(cv_scores.mean()),
+            'std': float(cv_scores.std())
+        },
+        'permutation_test': permutation_results,
+        'mean_baseline': mean_baseline,
+        'statistical_test': {
+            't_statistic': float(t_stat),
+            'p_value': float(p_value),
+            'is_significantly_better': is_significantly_better
+        },
+        'task_passed': task_passed,
+        'pass_reason': 'Significant improvement (t-test)' if is_significantly_better else 'R2 > 0.0' if r2_positive else 'Failed'
+    }
+
+    with open(results_output, 'w') as f:
         json.dump(results, f, indent=2)
-    
-    logger.info("Integration Pipeline (T031) completed successfully.")
+
+    # Save comparison
+    comparison = {
+        'random_forest': {'r2': test_metrics['r2'], 'mae': test_metrics['mae']},
+        'mean_baseline': {'r2': mean_baseline['r2'], 'mae': mean_baseline['mae']},
+        'statistical_test': {
+            't_statistic': float(t_stat),
+            'p_value': float(p_value),
+            'is_significantly_better': is_significantly_better
+        },
+        'task_passed': task_passed
+    }
+
+    with open(comparison_output, 'w') as f:
+        json.dump(comparison, f, indent=2)
+
     return results
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="T031: Integrate Training and Evaluation Pipeline")
-    parser.add_argument(
-        "--base-path", 
-        type=str, 
-        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala",
-        help="Base path of the project"
-    )
-    parser.add_argument(
-        "--log-file",
-        type=str,
-        default=None,
-        help="Optional log file path"
-    )
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description='Run integrated training and evaluation pipeline.')
+    parser.add_argument('--features', type=str, required=True, help='Path to features JSON')
+    parser.add_argument('--split-output', type=str, required=True, help='Path to save split config')
+    parser.add_argument('--model-output', type=str, required=True, help='Path to save model')
+    parser.add_argument('--results-output', type=str, required=True, help='Path to save results')
+    parser.add_argument('--comparison-output', type=str, required=True, help='Path to save comparison')
+    parser.add_argument('--test-size', type=float, default=0.2)
+    parser.add_argument('--n-estimators', type=int, default=100)
+    parser.add_argument('--n-permutations', type=int, default=1000)
+    parser.add_argument('--random-state', type=int, default=42)
+    parser.add_argument('--log-level', type=str, default='INFO')
     return parser.parse_args()
 
 def main():
+    """Main entry point."""
     args = parse_args()
-    logger = setup_logging(args.log_file)
-    base_path = Path(args.base_path)
-    
-    if not base_path.exists():
-        logger.error(f"Base path does not exist: {base_path}")
-        sys.exit(1)
+    setup_logging(getattr(logging, args.log_level))
+
+    logger.info("Starting integrated pipeline...")
 
     try:
-        run_integration_pipeline(base_path, logger)
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+        ensure_directories([
+            args.split_output, args.model_output,
+            args.results_output, args.comparison_output
+        ])
 
-if __name__ == "__main__":
+        results = run_integration_pipeline(
+            args.features,
+            args.split_output,
+            args.model_output,
+            args.results_output,
+            args.comparison_output,
+            args.test_size,
+            args.n_estimators,
+            args.n_permutations,
+            args.random_state
+        )
+
+        logger.info(f"Pipeline completed. Task passed: {results['task_passed']}")
+        sys.exit(0 if results['task_passed'] else 1)
+
+    except Exception as e:
+        logger.error(f"ERROR: {str(e)}", exc_info=True)
+        sys.exit(2)
+
+if __name__ == '__main__':
     main()

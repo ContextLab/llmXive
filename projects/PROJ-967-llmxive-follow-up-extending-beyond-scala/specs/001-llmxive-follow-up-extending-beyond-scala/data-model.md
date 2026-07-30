@@ -1,64 +1,62 @@
 # Data Model: llmXive Follow-up: Teacher Entanglement vs. Scalar Distillation Loss
 
 ## Overview
-This document defines the data structures used throughout the `llmXive-entanglement-analysis` feature. It covers the raw input schema, the engineered feature schema, and the final output schema.
 
-## Raw Data Schema (Input)
-Derived from the Z-Reward evaluation dataset.
+This document defines the data structures used in the analysis pipeline. It ensures consistency between ingestion, feature engineering, and modeling.
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `sample_id` | string | Unique identifier for the prompt/image pair. | Dataset Metadata |
-| `prompt` | string | The text prompt used for generation. | Dataset |
-| `teacher_scores` | array[float] | 4-element array: [Alignment, Realism, Aesthetics, Plausibility]. | Pre-computed Teacher Output |
-| `student_score` | float | Single scalar score from the student model. | Pre-computed Student Output |
-| `human_annotations` | array[float] | 4-element array: [Alignment, Realism, Aesthetics, Plausibility]. | Human Annotators |
-| `primary_dimension` | string | The dimension ID (e.g., "alignment") to use for fidelity loss calculation. Defaults to "alignment" if missing. | Metadata / Fixed Rule |
+## Entities
 
-## Engineered Feature Schema (Intermediate)
-Output of `features.py`.
+### 1. Sample
+A single data point containing prompt, teacher scores, student score, and human annotations.
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `sample_id` | string | Foreign key to raw data. |
-| `variance` | float | Variance of `teacher_scores`. |
-| `range` | float | Max - Min of `teacher_scores` (replaces Entropy). |
-| `std_dev` | float | Standard deviation of `teacher_scores`. |
-| `skewness` | float | Skewness of `teacher_scores`. |
-| `kurtosis` | float | Kurtosis of `teacher_scores`. |
-| `global_eigenvalue` | float | Dominant eigenvalue of the *dataset-wide* covariance matrix (constant per sample). |
-| `is_constant` | boolean | True if variance is 0 (all scores identical). |
+|-------|------|-------------|
+| `sample_id` | string | Unique identifier |
+| `prompt` | string | Input text prompt |
+| `teacher_scores` | list[float] | Scores for [Alignment, Realism, Aesthetics, Plausibility] |
+| `student_score` | float | Scalar output from student model |
+| `human_annotations` | dict | Keys: dimension names, Values: float scores |
+| `primary_dimension` | string | The dimension used for fidelity loss calculation (from metadata) |
+| `fidelity_loss` | float | MAE between student_score and human_annotations[primary_dimension] |
+| `exclusion_status` | string | "included" or "excluded"; reason if excluded (e.g., "missing_human_annotation") |
 
-## Target Variable Schema (Intermediate)
-Computed in `features.py`.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `sample_id` | string | Foreign key. |
-| `fidelity_loss` | float | MAE: $|student\_score - human\_annotations[target\_dimension]|$. |
-| `excluded` | boolean | True if human annotation for target dimension was missing. |
-
-## Final Output Schema (Results)
-Output of `evaluate.py`.
+### 2. Entanglement Features
+Derived features for each sample.
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `r2_score` | float | Coefficient of determination from 5-fold CV. |
-| `mae` | float | Mean Absolute Error from 5-fold CV. |
-| `p_value` | float | P-value from permutation test. |
-| `feature_importance` | object | Map of feature name to importance score (after PCA). |
-| `cv_std` | float | Standard deviation of R² across folds. |
-| `n_samples` | integer | Number of samples used in training. |
-| `timestamp` | string | ISO 8601 timestamp of execution. |
-| `config` | object | Configuration used for the run (n_estimators, random_state, etc.). |
+|-------|------|-------------|
+| `sample_id` | string | Unique identifier |
+| `variance` | float | Variance of teacher_scores |
+| `entropy` | float | Shannon entropy of normalized teacher_scores |
+| `skewness` | float | Skewness of teacher_scores |
+| `kurtosis` | float | Kurtosis of teacher_scores |
+| `mahalanobis_distance` | float | Distance from mean of teacher_scores using global covariance |
+| `difficulty_proxy` | float | Mean of teacher_scores (control for prompt difficulty) |
+| `dominant_eigenvalue` | float | Global dominant eigenvalue (context_only, not for training) |
 
-## Data Flow Diagram
-```mermaid
-graph TD
-    A[Z-Reward Raw Data] -->|Ingest | B(Aligned DataFrame)
-    B -->|Filter Missing | C(Cleaned DataFrame)
-    C -->|Feature Eng + Target Calc | D[Entanglement Features + Loss]
-    D -->|PCA | E[Reduced Features]
-    E -->|Train RF | G[Model]
-    G -->|Evaluate | H[results/results.json]
-```
+### 3. Model Results
+Final output of the pipeline.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `r_squared` | float | R² score of the model |
+| `mae` | float | Mean Absolute Error |
+| `p_value` | float | P-value from permutation test |
+| `n_samples` | int | Number of samples used |
+| `n_features` | int | Number of features used |
+
+## Storage Formats
+
+- **Raw Data**: CSV or JSON (downloaded from source).
+- **Processed Data**: Parquet (for efficiency) or JSON.
+- **Features**: JSON (one record per sample).
+- **Results**: JSON (`results/results.json`).
+- **Data Quality Report**: JSON (`data/processed/data_quality_report.json`).
+
+## Data Flow
+
+1. **Ingestion**: Raw CSV/JSON -> `data/processed/raw_samples.json`
+2. **Feature Engineering**: `raw_samples.json` -> `data/processed/features.json`
+3. **Modeling**: `features.json` -> `results/model.pkl`, `results/results.json`
+4. **Quality Report**: `ingestion.py` -> `data/processed/data_quality_report.json`
+5. **Validation Report**: `stats.py` -> `results/validation_report.json`

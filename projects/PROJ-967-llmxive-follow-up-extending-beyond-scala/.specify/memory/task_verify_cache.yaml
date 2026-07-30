@@ -1,10 +1,39 @@
-T024:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, scripts, data files, or results were provided; the claim lacks any tangible
-    artifact demonstrating dataset ingestion, entanglement feature calculation, or
-    the dimensional fidelity loss model. The required outputs are missing, so the
-    task is not satisfied.
+  r: "No directory listings or other evidence were provided showing that the required\
+    \ paths (`projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw`,\
+    \ `.../data/processed`, `.../code`, `.../tests`, `.../results`) actually exist\
+    \ in the repository. The implementer\u2019s claim cannot be verified without concrete\
+    \ filesystem artifacts."
+T003:
+  c: false
+  h: df4fe01d31eeda5b1e04a4020c1d8936663aed2cfb357c18d2516c08c82b471a
+  r: The repository contains a `pyproject.toml`, but it does not pin exact versions
+    for the tools (it uses `>=` ranges) and the required `.ruff.toml` file is missing
+    entirely. Both artifacts and exact version pinning are needed to satisfy the task.
+T022a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data artifact implementing the per\u2011sample entanglement\
+    \ score is present; the response contains only the specification text and no concrete\
+    \ implementation, output files, or verification results. Consequently the required\
+    \ feature has not been delivered."
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, data files, or generated outputs were supplied; the claim\
+    \ lacks any tangible artifact (e.g., ingestion script, feature\u2011engineering\
+    \ module, JSON records, or model training results) required by the user stories.\
+    \ Consequently the task requirements are not demonstrably met."
+T022c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, data files, or output artifacts (e.g., dataset ingestion script,\
+    \ per\u2011sample Mahalanobis distance computation module, JSON feature records,\
+    \ or Random Forest training results) were provided for inspection, so the claimed\
+    \ implementation cannot be verified as complete. The required deliverables are\
+    \ missing."
 T027a:
   c: false
   h: 899f3e299173b4e9e0d01d34e3bd8c7976cedaefd39e9cd81ec7f6b2e23c1488
@@ -13,14 +42,20 @@ T027a:
     \ this file triggers a `ValueError`, so the training setup cannot actually run\
     \ on real data. A non\u2011empty features JSON with the expected fields is needed\
     \ for the task to be genuinely complete."
-T030a:
+T030c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code defining the required `calculate_permutation_pvalue` function is present;\
-    \ the claim provides only a textual description of the task without any artifact\
-    \ (function implementation, tests, or usage example). Consequently, the permutation\
-    \ test logic, R\xB2 calculations, and p\u2011value computation are not demonstrated,\
-    \ so the requirement is unmet."
+  r: "No code, data files, or output artifacts (e.g., ingestion script, feature\u2011\
+    engineering JSON, Random Forest training results) were supplied; the claim cannot\
+    \ be verified against any concrete evidence. The required scripts and their generated\
+    \ summaries/results are missing."
+T031:
+  c: false
+  h: 2a964bae36c54a8dc0900b05a45a878bab2f8874266a35da63311ec221e8682d
+  r: "The required output file `results/results.json` is missing, and there is no\
+    \ evidence that the model was trained, cross\u2011validation, permutation test,\
+    \ or null baseline were executed. Without the final metrics file, the task\u2019\
+    s core requirement is not satisfied."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,24 +83,9 @@ T036:
     quickstart.md was executed and its reproducibility checks passed was provided.
     Without such evidence, the claim that the quickstart validation was run cannot
     be verified.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or dataset files were provided that demonstrate fetching the\
-    \ Z\u2011Reward evaluation dataset via `datasets.load_dataset`, nor any evidence\
-    \ of a prioritized source list. The required artifact (a working download implementation)\
-    \ is missing."
 T038:
   c: false
-  h: 94b2eda1ebfb69390680bc64429272c031bb9d85b639344acbf1838cebe35a64
-  r: "The required `dataset.schema.yaml` file is missing, and the `z_reward_data.parquet`\
-    \ file contains only placeholder text rather than real Parquet data. No schema\u2011\
-    discovery mapping (e.g., a list or table linking column names to logical fields)\
-    \ is provided. Consequently the task\u2019s core requirement is not satisfied."
-T041:
-  c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ingestion script, feature\u2011engineering code, or predictive\u2011modeling\
-    \ implementation (or any related data files) was supplied; the repository contains\
-    \ no artifacts matching the required outputs for the three user stories. Consequently\
-    \ the task\u2019s core requirements are not met."
+  r: No script, notebook, or output file showing that the raw dataset in `data/raw/`
+    was read and its columns mapped to logical fields (prompt, scores, annotations)
+    was provided. The required artifact (schema discovery mapping) is missing.

@@ -1,118 +1,132 @@
 """
 Tests for T024: Dimensional Fidelity Loss Calculation.
 """
+
 import os
-import tempfile
 import json
+import tempfile
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
-
-# Import the functions from the module
-# Note: We assume the module is in code/fidelity_loss.py
-# Adjust import path if necessary based on project structure
-import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-from fidelity_loss import calculate_fidelity_loss, load_raw_data, save_cleaned_data
+# Import the module functions
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+from fidelity_loss import (
+    load_raw_data,
+    calculate_fidelity_loss,
+    save_cleaned_data,
+    save_summary
+)
 
-@pytest.fixture
-def sample_raw_data():
-    """Create a sample dataframe mimicking the output of T012/T013/T014."""
-    data = [
-        {
-            "sample_id": "1",
-            "prompt": "Sample 1",
-            "image_url": "url1",
-            "teacher_scores": {"Alignment": 0.9, "Realism": 0.8, "Aesthetics": 0.7, "Plausibility": 0.6},
-            "student_scalar": 0.85,
-            "human_annotations": {"Alignment": 0.9, "Realism": 0.8, "Aesthetics": 0.7, "Plausibility": 0.6},
-            "primary_dimension": "Alignment"
-        },
-        {
-            "sample_id": "2",
-            "prompt": "Sample 2",
-            "image_url": "url2",
-            "teacher_scores": {"Alignment": 0.5, "Realism": 0.4, "Aesthetics": 0.3, "Plausibility": 0.2},
-            "student_scalar": 0.3,
-            "human_annotations": {"Alignment": 0.5, "Realism": 0.4, "Aesthetics": 0.3, "Plausibility": 0.2},
-            "primary_dimension": "Realism"
-        },
-        {
-            "sample_id": "3",
-            "prompt": "Sample 3 (Missing Primary)",
-            "image_url": "url3",
-            "teacher_scores": {"Alignment": 0.1, "Realism": 0.1, "Aesthetics": 0.1, "Plausibility": 0.1},
-            "student_scalar": 0.1,
-            "human_annotations": {"Alignment": 0.1, "Realism": 0.1, "Aesthetics": 0.1, "Plausibility": 0.1},
-            "primary_dimension": None  # Should be excluded
-        },
-        {
-            "sample_id": "4",
-            "prompt": "Sample 4 (Missing Student)",
-            "image_url": "url4",
-            "teacher_scores": {"Alignment": 0.2, "Realism": 0.2, "Aesthetics": 0.2, "Plausibility": 0.2},
-            "student_scalar": np.nan,  # Should be excluded
-            "human_annotations": {"Alignment": 0.2, "Realism": 0.2, "Aesthetics": 0.2, "Plausibility": 0.2},
-            "primary_dimension": "Alignment"
-        },
-        {
-            "sample_id": "5",
-            "prompt": "Sample 5 (Missing Human Ann)",
-            "image_url": "url5",
-            "teacher_scores": {"Alignment": 0.3, "Realism": 0.3, "Aesthetics": 0.3, "Plausibility": 0.3},
-            "student_scalar": 0.3,
-            "human_annotations": None,  # Should be excluded
-            "primary_dimension": "Aesthetics"
-        },
-        {
-            "sample_id": "6",
-            "prompt": "Sample 6 (Human Ann Missing Key)",
-            "image_url": "url6",
-            "teacher_scores": {"Alignment": 0.4, "Realism": 0.4, "Aesthetics": 0.4, "Plausibility": 0.4},
-            "student_scalar": 0.4,
-            "human_annotations": {"Alignment": 0.4},  # Missing 'Plausibility' which is primary
-            "primary_dimension": "Plausibility"
-        }
-    ]
+
+def create_test_dataframe():
+    """Create a mock dataframe with the expected schema."""
+    data = {
+        'sample_id': ['s1', 's2', 's3', 's4', 's5'],
+        'prompt': ['p1', 'p2', 'p3', 'p4', 'p5'],
+        'image_url': ['i1', 'i2', 'i3', 'i4', 'i5'],
+        'teacher_scores': [
+            {'Alignment': 0.5, 'Realism': 0.6, 'Aesthetics': 0.7, 'Plausibility': 0.8},
+            {'Alignment': 0.4, 'Realism': 0.5, 'Aesthetics': 0.6, 'Plausibility': 0.7},
+            {'Alignment': 0.3, 'Realism': 0.4, 'Aesthetics': 0.5, 'Plausibility': 0.6},
+            {'Alignment': 0.2, 'Realism': 0.3, 'Aesthetics': 0.4, 'Plausibility': 0.5},
+            {'Alignment': 0.1, 'Realism': 0.2, 'Aesthetics': 0.3, 'Plausibility': 0.4}
+        ],
+        'student_scalar': [0.6, 0.5, 0.4, np.nan, 0.2], # s4 missing scalar
+        'human_annotations': [
+            {'Alignment': 0.55, 'Realism': 0.65, 'Aesthetics': 0.75, 'Plausibility': 0.85},
+            {'Alignment': 0.45, 'Realism': 0.55, 'Aesthetics': 0.65, 'Plausibility': 0.75},
+            {'Alignment': 0.35, 'Realism': 0.45, 'Aesthetics': 0.55, 'Plausibility': 0.65},
+            {'Alignment': 0.25, 'Realism': 0.35, 'Aesthetics': 0.45, 'Plausibility': 0.55},
+            {'Alignment': 0.15, 'Realism': 0.25, 'Aesthetics': 0.35, 'Plausibility': 0.45}
+        ],
+        'primary_dimension': [
+            'Alignment',
+            'Realism',
+            'Aesthetics',
+            'Plausibility', # Will be excluded due to missing student_scalar
+            'Alignment'
+        ]
+    }
     return pd.DataFrame(data)
 
-def test_calculate_fidelity_loss_filters_and_computes(sample_raw_data):
-    """Test that calculate_fidelity_loss correctly filters and computes MAE."""
-    result_df = calculate_fidelity_loss(sample_raw_data)
 
-    # Expected: Only samples 1 and 2 should remain
-    # Sample 1: |0.85 - 0.9| = 0.05
-    # Sample 2: |0.3 - 0.4| = 0.1
-    assert len(result_df) == 2, f"Expected 2 rows, got {len(result_df)}"
+def test_calculate_fidelity_loss_basic():
+    """Test basic calculation of fidelity loss."""
+    df = create_test_dataframe()
+    result = calculate_fidelity_loss(df)
 
-    # Check sample IDs
-    assert set(result_df['sample_id'].tolist()) == {'1', '2'}
+    # Check that s4 (missing student_scalar) is excluded
+    assert 's4' not in result['sample_id'].values
 
-    # Check fidelity loss values
-    row1 = result_df[result_df['sample_id'] == '1'].iloc[0]
-    assert np.isclose(row1['fidelity_loss'], 0.05), f"Expected 0.05, got {row1['fidelity_loss']}"
-
-    row2 = result_df[result_df['sample_id'] == '2'].iloc[0]
-    assert np.isclose(row2['fidelity_loss'], 0.1), f"Expected 0.1, got {row2['fidelity_loss']}"
-
-def test_save_and_load_cleaned_data(sample_raw_data):
-    """Test saving to parquet and loading back."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "cleaned.parquet")
-        clean_df = calculate_fidelity_loss(sample_raw_data)
-        save_cleaned_data(clean_df, output_path)
-
-        assert os.path.exists(output_path)
-
-        loaded_df = load_raw_data(output_path)
-        assert len(loaded_df) == 2
-        assert 'fidelity_loss' in loaded_df.columns
-
-def test_empty_dataframe():
-    """Test behavior with empty dataframe."""
-    empty_df = pd.DataFrame(columns=['sample_id', 'primary_dimension', 'student_scalar', 'human_annotations'])
-    result = calculate_fidelity_loss(empty_df)
-    assert len(result) == 0
+    # Check that remaining rows have fidelity_loss
     assert 'fidelity_loss' in result.columns
+    assert len(result) == 4 # s1, s2, s3, s5
+
+    # Verify calculation for s1: |0.6 - 0.55| = 0.05
+    s1_row = result[result['sample_id'] == 's1'].iloc[0]
+    assert abs(s1_row['fidelity_loss'] - 0.05) < 1e-6
+
+    # Verify calculation for s2: |0.5 - 0.55| = 0.05 (Realism)
+    s2_row = result[result['sample_id'] == 's2'].iloc[0]
+    assert abs(s2_row['fidelity_loss'] - 0.05) < 1e-6
+
+
+def test_calculate_fidelity_loss_missing_primary_dimension():
+    """Test handling of missing primary_dimension."""
+    df = create_test_dataframe()
+    df.loc[df['sample_id'] == 's1', 'primary_dimension'] = None
+
+    result = calculate_fidelity_loss(df)
+
+    # s1 should be excluded
+    assert 's1' not in result['sample_id'].values
+    # s4 should also be excluded (missing scalar)
+    assert 's4' not in result['sample_id'].values
+    assert len(result) == 3
+
+
+def test_calculate_fidelity_loss_missing_human_annotation_key():
+    """Test handling when the primary dimension is missing in human_annotations."""
+    df = create_test_dataframe()
+    # Modify s2's human_annotations to not have 'Realism'
+    df.loc[df['sample_id'] == 's2', 'human_annotations'] = {'Alignment': 0.45}
+
+    result = calculate_fidelity_loss(df)
+
+    # s2 should be excluded
+    assert 's2' not in result['sample_id'].values
+    # s4 should also be excluded
+    assert 's4' not in result['sample_id'].values
+    assert len(result) == 3
+
+
+def test_save_summary(tmp_path):
+    """Test saving the summary JSON."""
+    df = create_test_dataframe()
+    cleaned_df = calculate_fidelity_loss(df)
+    
+    summary_path = tmp_path / "summary.json"
+    save_summary(cleaned_df, str(summary_path))
+
+    assert summary_path.exists()
+    with open(summary_path, 'r') as f:
+        summary = json.load(f)
+
+    assert 'count' in summary
+    assert 'mean' in summary
+    assert 'median' in summary
+    assert summary['count'] == 4 # s1, s2, s3, s5
+
+def test_load_raw_data_missing_file():
+    """Test that load_raw_data raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        load_raw_data("non_existent_path.parquet")
+
+def test_empty_dataframe_handling():
+    """Test handling of empty dataframe."""
+    df = pd.DataFrame(columns=['sample_id', 'primary_dimension', 'student_scalar', 'human_annotations'])
+    result = calculate_fidelity_loss(df)
+    assert result.empty

@@ -1,80 +1,238 @@
 """
-Tests for the Z-Reward dataset downloader.
-These tests verify the validation logic and error handling.
-Note: These tests do NOT actually download the dataset to avoid network dependencies in CI.
-Instead, they mock the download and test the validation logic.
+Tests for download_zreward.py
+
+These tests verify the dataset download logic and schema validation.
 """
+import os
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+
 import pytest
 import pandas as pd
-from unittest.mock import patch, MagicMock
+
+# Import the module functions
 import sys
-import os
-
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from code.download_zreward import validate_columns, REQUIRED_COLUMNS, RUBRIC_DIMENSIONS
-
-
-def create_mock_dataframe():
-    """Create a mock dataframe that matches the expected schema."""
-    data = {
-        "prompt": ["Sample 1", "Sample 2"],
-        "image_url": ["url1", "url2"],
-        "teacher_scores": [
-            {"Alignment": 0.8, "Realism": 0.7, "Aesthetics": 0.9, "Plausibility": 0.6},
-            {"Alignment": 0.5, "Realism": 0.6, "Aesthetics": 0.4, "Plausibility": 0.5}
-        ],
-        "student_scalar": [0.75, 0.55],
-        "human_annotations": [
-            {"Alignment": 0.85, "Realism": 0.75, "Aesthetics": 0.88, "Plausibility": 0.65},
-            {"Alignment": 0.55, "Realism": 0.65, "Aesthetics": 0.45, "Plausibility": 0.55}
-        ],
-        "primary_dimension": ["Alignment", "Realism"]
-    }
-    return pd.DataFrame(data)
+sys.path.insert(0, 'projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code')
+from download_zreward import (
+    validate_columns,
+    download_dataset,
+    download_from_local_archive,
+    REQUIRED_COLUMNS,
+    REQUIRED_RUBRIC_KEYS,
+)
 
 
-def test_validate_columns_valid():
-    """Test validation with a valid dataframe."""
-    df = create_mock_dataframe()
-    is_valid, errors = validate_columns(df, MagicMock())
-    assert is_valid is True
-    assert len(errors) == 0
+class TestValidateColumns:
+    """Tests for the validate_columns function."""
+
+    def test_valid_columns(self, caplog):
+        """Test that valid columns pass validation."""
+        # Create a mock DataFrame with all required columns
+        df = pd.DataFrame({
+            "prompt": ["test prompt"],
+            "image_url": ["http://example.com/img.jpg"],
+            "teacher_scores": [
+                {"Alignment": 0.9, "Realism": 0.8, "Aesthetics": 0.7, "Plausibility": 0.85}
+            ],
+            "student_scalar": [0.75],
+            "human_annotations": [
+                {"Alignment": 0.88, "Realism": 0.79, "Aesthetics": 0.68, "Plausibility": 0.82}
+            ],
+            "primary_dimension": ["Alignment"],
+        })
+
+        # This should not raise
+        validate_columns(df, MagicMock())
+
+    def test_missing_top_level_columns(self, caplog):
+        """Test that missing top-level columns raise an error."""
+        df = pd.DataFrame({
+            "prompt": ["test"],
+            "teacher_scores": [{}],
+        })
+
+        with pytest.raises(RuntimeError) as exc_info:
+            validate_columns(df, MagicMock())
+
+        assert "missing required columns" in str(exc_info.value).lower()
+
+    def test_missing_teacher_scores_keys(self, caplog):
+        """Test that missing teacher_scores keys raise an error."""
+        df = pd.DataFrame({
+            "prompt": ["test"],
+            "image_url": ["http://example.com"],
+            "teacher_scores": [{"Alignment": 0.9}],  # Missing other keys
+            "student_scalar": [0.75],
+            "human_annotations": [
+                {"Alignment": 0.88, "Realism": 0.79, "Aesthetics": 0.68, "Plausibility": 0.82}
+            ],
+            "primary_dimension": ["Alignment"],
+        })
+
+        with pytest.raises(RuntimeError) as exc_info:
+            validate_columns(df, MagicMock())
+
+        assert "teacher_scores missing required keys" in str(exc_info.value)
+
+    def test_missing_human_annotations_keys(self, caplog):
+        """Test that missing human_annotations keys raise an error."""
+        df = pd.DataFrame({
+            "prompt": ["test"],
+            "image_url": ["http://example.com"],
+            "teacher_scores": [
+                {"Alignment": 0.9, "Realism": 0.8, "Aesthetics": 0.7, "Plausibility": 0.85}
+            ],
+            "student_scalar": [0.75],
+            "human_annotations": [{"Alignment": 0.88}],  # Missing other keys
+            "primary_dimension": ["Alignment"],
+        })
+
+        with pytest.raises(RuntimeError) as exc_info:
+            validate_columns(df, MagicMock())
+
+        assert "human_annotations missing required keys" in str(exc_info.value)
+
+    def test_non_dict_teacher_scores(self, caplog):
+        """Test that non-dict teacher_scores raise an error."""
+        df = pd.DataFrame({
+            "prompt": ["test"],
+            "image_url": ["http://example.com"],
+            "teacher_scores": ["not a dict"],
+            "student_scalar": [0.75],
+            "human_annotations": [
+                {"Alignment": 0.88, "Realism": 0.79, "Aesthetics": 0.68, "Plausibility": 0.82}
+            ],
+            "primary_dimension": ["Alignment"],
+        })
+
+        with pytest.raises(RuntimeError) as exc_info:
+            validate_columns(df, MagicMock())
+
+        assert "teacher_scores column contains non-dict values" in str(exc_info.value)
+
+    def test_non_dict_human_annotations(self, caplog):
+        """Test that non-dict human_annotations raise an error."""
+        df = pd.DataFrame({
+            "prompt": ["test"],
+            "image_url": ["http://example.com"],
+            "teacher_scores": [
+                {"Alignment": 0.9, "Realism": 0.8, "Aesthetics": 0.7, "Plausibility": 0.85}
+            ],
+            "student_scalar": [0.75],
+            "human_annotations": ["not a dict"],
+            "primary_dimension": ["Alignment"],
+        })
+
+        with pytest.raises(RuntimeError) as exc_info:
+            validate_columns(df, MagicMock())
+
+        assert "human_annotations column contains non-dict values" in str(exc_info.value)
 
 
-def test_validate_columns_missing_top_level():
-    """Test validation with missing top-level columns."""
-    df = create_mock_dataframe()
-    df = df.drop(columns=["prompt"])
-    is_valid, errors = validate_columns(df, MagicMock())
-    assert is_valid is False
-    assert "prompt" in errors
+class TestDownloadDataset:
+    """Tests for the download_dataset function."""
+
+    @patch("download_zreward.load_dataset")
+    @patch("download_zreward.calculate_sha256")
+    @patch("download_zreward.save_checksum")
+    def test_download_success(self, mock_save_checksum, mock_calc_sha, mock_load_dataset, tmp_path):
+        """Test successful dataset download."""
+        # Mock the dataset
+        mock_dataset = MagicMock()
+        mock_dataset.to_pandas.return_value = pd.DataFrame({
+            "prompt": ["test"],
+            "image_url": ["http://example.com"],
+            "teacher_scores": [
+                {"Alignment": 0.9, "Realism": 0.8, "Aesthetics": 0.7, "Plausibility": 0.85}
+            ],
+            "student_scalar": [0.75],
+            "human_annotations": [
+                {"Alignment": 0.88, "Realism": 0.79, "Aesthetics": 0.68, "Plausibility": 0.82}
+            ],
+            "primary_dimension": ["Alignment"],
+        })
+        mock_load_dataset.return_value = mock_dataset
+        mock_calc_sha.return_value = "abc123"
+
+        logger = MagicMock()
+
+        result = download_dataset("test/dataset", str(tmp_path), logger)
+
+        # Verify the file was created
+        assert result.exists()
+        assert result.name == "zreward_raw.parquet"
+
+        # Verify calls
+        mock_load_dataset.assert_called_once_with("test/dataset", split="train")
+        mock_calc_sha.assert_called_once()
+        mock_save_checksum.assert_called_once()
+
+    @patch("download_zreward.load_dataset")
+    def test_download_failure(self, mock_load_dataset, tmp_path):
+        """Test that download failure raises an error."""
+        mock_load_dataset.side_effect = Exception("Network error")
+
+        logger = MagicMock()
+
+        with pytest.raises(Exception):
+            download_dataset("test/dataset", str(tmp_path), logger)
 
 
-def test_validate_columns_invalid_teacher_scores():
-    """Test validation with invalid teacher_scores structure."""
-    df = create_mock_dataframe()
-    df.loc[0, "teacher_scores"] = "not a dict"
-    is_valid, errors = validate_columns(df, MagicMock())
-    assert is_valid is False
-    assert any("teacher_scores" in err for err in errors)
+class TestDownloadFromLocalArchive:
+    """Tests for the download_from_local_archive function."""
 
+    def test_download_from_parquet(self, tmp_path):
+        """Test loading from a local parquet file."""
+        # Create a test parquet file
+        test_df = pd.DataFrame({
+            "prompt": ["test"],
+            "image_url": ["http://example.com"],
+            "teacher_scores": [
+                {"Alignment": 0.9, "Realism": 0.8, "Aesthetics": 0.7, "Plausibility": 0.85}
+            ],
+            "student_scalar": [0.75],
+            "human_annotations": [
+                {"Alignment": 0.88, "Realism": 0.79, "Aesthetics": 0.68, "Plausibility": 0.82}
+            ],
+            "primary_dimension": ["Alignment"],
+        })
 
-def test_validate_columns_missing_rubric_dimensions():
-    """Test validation with missing rubric dimensions in teacher_scores."""
-    df = create_mock_dataframe()
-    # Remove one dimension
-    df.loc[0, "teacher_scores"] = {"Alignment": 0.8, "Realism": 0.7, "Aesthetics": 0.9}
-    is_valid, errors = validate_columns(df, MagicMock())
-    assert is_valid is False
-    assert any("missing rubric dimensions" in err for err in errors)
+        input_path = tmp_path / "input.parquet"
+        test_df.to_parquet(input_path)
 
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
 
-def test_validate_columns_nan_primary_dimension():
-    """Test validation with NaN in primary_dimension."""
-    df = create_mock_dataframe()
-    df.loc[0, "primary_dimension"] = None
-    is_valid, errors = validate_columns(df, MagicMock())
-    assert is_valid is False
-    assert any("primary_dimension contains NaN" in err for err in errors)
+        logger = MagicMock()
+
+        result = download_from_local_archive(str(input_path), str(output_dir), logger)
+
+        # Verify the file was created
+        assert result.exists()
+        assert result.name == "zreward_raw.parquet"
+
+    def test_file_not_found(self, tmp_path):
+        """Test that missing file raises an error."""
+        logger = MagicMock()
+
+        with pytest.raises(FileNotFoundError):
+            download_from_local_archive(
+                str(tmp_path / "nonexistent.parquet"),
+                str(tmp_path / "output"),
+                logger
+            )
+
+    def test_unsupported_format(self, tmp_path):
+        """Test that unsupported file format raises an error."""
+        # Create a dummy file with unsupported extension
+        input_path = tmp_path / "input.txt"
+        input_path.write_text("dummy content")
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        logger = MagicMock()
+
+        with pytest.raises(ValueError):
+            download_from_local_archive(str(input_path), str(output_dir), logger)

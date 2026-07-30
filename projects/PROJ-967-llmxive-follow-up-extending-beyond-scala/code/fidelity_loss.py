@@ -1,37 +1,53 @@
 """
-T024: Implement dimensional fidelity loss calculation.
+T024: Implement "dimensional fidelity loss" calculation.
 
-This module calculates the Mean Absolute Error (MAE) between the student's
-scalar output and the human-annotated score for the primary dimension.
-It filters the dataset to exclude samples with missing primary dimensions,
-missing student scalars, or missing human annotations, and writes the
-cleaned dataframe to disk.
+This module calculates the Mean Absolute Error (MAE) between the student's scalar
+output and the human-annotated score for the primary dimension. It filters the
+dataset to exclude samples missing critical data (primary_dimension, student_scalar,
+or human annotations) and outputs the cleaned dataset and a summary of the fidelity loss.
+
+Dependencies:
+  - Uses data from code/ingest.py (data/processed/raw_data.parquet)
+  - Outputs to data/processed/cleaned_data.parquet
+  - Outputs summary to data/processed/fidelity_loss_summary.json
 """
+
 import argparse
+import json
 import logging
 import os
 import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
+import numpy as np
 
-# Setup logging
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+
 def setup_logging():
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
-    return logging.getLogger(__name__)
+    """Configure logging for the script."""
+    pass  # Already configured in main or global scope
 
-logger = setup_logging()
 
 def load_raw_data(input_path: str) -> pd.DataFrame:
     """
-    Load the aligned raw data from parquet.
-    Expects columns: prompt, image_url, teacher_scores, student_scalar,
-    human_annotations, primary_dimension, excluded_reason (optional).
+    Load the aligned dataset from the ingestion step.
+
+    Args:
+        input_path: Path to the raw_data.parquet file.
+
+    Returns:
+        pandas DataFrame containing the dataset.
+
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If the file format is unsupported or empty.
     """
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
@@ -40,106 +56,187 @@ def load_raw_data(input_path: str) -> pd.DataFrame:
     try:
         df = pd.read_parquet(input_path)
     except Exception as e:
-        raise RuntimeError(f"Failed to load parquet file: {e}")
+        logger.error(f"Failed to read parquet file: {e}")
+        raise
+
+    if df.empty:
+        raise ValueError("Input dataset is empty.")
 
     logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
     return df
 
+
 def calculate_fidelity_loss(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate fidelity loss (MAE) for valid samples.
-    Filters out samples where:
-    - primary_dimension is missing (NaN or None)
-    - student_scalar is missing (NaN or None)
-    - human_annotations is missing or does not contain the primary dimension key.
+    Calculate dimensional fidelity loss and filter the dataframe.
 
-    Returns a dataframe with 'fidelity_loss' column added.
+    Logic:
+    1. Identify samples with missing 'primary_dimension', 'student_scalar',
+       or missing human annotations for the primary dimension.
+    2. Exclude these samples (marking them as 'excluded' or dropping them).
+    3. For remaining samples, extract the human score for the primary dimension.
+    4. Compute MAE = |student_scalar - human_score_primary| for each sample.
+
+    Args:
+        df: The input dataframe from ingestion.
+
+    Returns:
+        A filtered dataframe containing only valid samples with a new column
+        'fidelity_loss' (the calculated MAE).
     """
-    logger.info("Starting fidelity loss calculation and filtering...")
+    logger.info("Calculating dimensional fidelity loss...")
 
-    # Create a copy to avoid SettingWithCopyWarning
-    clean_df = df.copy()
+    # Create a copy to avoid modifying the original reference
+    working_df = df.copy()
 
-    # 1. Filter: Exclude samples where primary_dimension is missing
-    # Check for NaN, None, or empty string
-    mask_primary = clean_df['primary_dimension'].notna() & (clean_df['primary_dimension'] != '')
-    if 'excluded_reason' in clean_df.columns:
-        # Update existing exclusion reasons if necessary, or just filter
-        clean_df = clean_df[mask_primary]
-    else:
-        clean_df = clean_df[mask_primary]
+    # Ensure columns exist, otherwise create them with NaN to handle gracefully
+    # (Though T012/T013/T014 should have handled this, we double-check)
+    if 'primary_dimension' not in working_df.columns:
+        logger.warning("Column 'primary_dimension' missing. Marking all as excluded.")
+        working_df['excluded_reason'] = 'missing_primary_dimension'
+        working_df['fidelity_loss'] = np.nan
+        return working_df[working_df['excluded_reason'].isna()].copy() # Return empty if all excluded
 
-    logger.info(f"After filtering missing primary_dimension: {len(clean_df)} rows")
+    if 'student_scalar' not in working_df.columns:
+        logger.warning("Column 'student_scalar' missing. Marking all as excluded.")
+        working_df['excluded_reason'] = 'missing_student_scalar'
+        working_df['fidelity_loss'] = np.nan
+        return working_df[working_df['excluded_reason'].isna()].copy()
 
-    # 2. Filter: Exclude samples where student_scalar is missing
-    mask_student = clean_df['student_scalar'].notna()
-    clean_df = clean_df[mask_student]
-    logger.info(f"After filtering missing student_scalar: {len(clean_df)} rows")
+    # Filter logic:
+    # 1. Exclude if primary_dimension is missing/NaN
+    # 2. Exclude if student_scalar is missing/NaN
+    # 3. Exclude if human_annotations is missing/NaN
+    # 4. Exclude if the specific primary_dimension key is missing in human_annotations
 
-    # 3. Filter: Exclude samples where human_annotations is missing or invalid
-    # human_annotations is expected to be a dict-like object or a JSON string representation
-    def is_valid_annotation(row):
-        ann = row.get('human_annotations')
-        if ann is None or (isinstance(ann, float) and np.isnan(ann)):
+    # Step 1: Check primary_dimension
+    mask_primary = working_df['primary_dimension'].notna()
+    working_df.loc[~mask_primary, 'excluded_reason'] = 'missing_primary_dimension'
+
+    # Step 2: Check student_scalar
+    mask_scalar = working_df['student_scalar'].notna()
+    working_df.loc[~mask_scalar, 'excluded_reason'] = 'missing_student_scalar'
+
+    # Step 3: Check human_annotations existence
+    # Assuming human_annotations is a dict-like object or a JSON string column
+    # Based on schema, it's an object. Pandas usually loads this as dict or string.
+    mask_human_exists = working_df['human_annotations'].notna()
+    working_df.loc[~mask_human_exists, 'excluded_reason'] = 'missing_human_annotations'
+
+    # Step 4: Check specific dimension in human_annotations
+    # We need to apply a function to check if the key exists in the dict
+    def check_dimension_exists(row):
+        if pd.isna(row.get('human_annotations')):
             return False
-        if isinstance(ann, str):
+        if not isinstance(row['human_annotations'], dict):
+            # If it's a string, try to parse, otherwise fail
             try:
                 import json
-                ann = json.loads(ann)
+                row['human_annotations'] = json.loads(row['human_annotations'])
             except:
                 return False
-        if not isinstance(ann, dict):
-            return False
-        primary_dim = row.get('primary_dimension')
-        if primary_dim and primary_dim in ann:
-            return True
+        dim = row.get('primary_dimension')
+        if dim and isinstance(row['human_annotations'], dict):
+            return dim in row['human_annotations']
         return False
 
-    mask_ann = clean_df.apply(is_valid_annotation, axis=1)
-    clean_df = clean_df[mask_ann]
-    logger.info(f"After filtering missing/invalid human_annotations: {len(clean_df)} rows")
+    # Apply check only to rows that passed previous checks to save time
+    valid_mask = mask_primary & mask_scalar & mask_human_exists
+    working_df.loc[valid_mask, 'has_primary_human_score'] = valid_mask.apply(
+        lambda idx: check_dimension_exists(working_df.loc[idx]), axis=1
+    )
+    
+    # Mark failures
+    working_df.loc[~working_df['has_primary_human_score'], 'excluded_reason'] = 'missing_primary_human_score'
 
-    # 4. Calculate Fidelity Loss (MAE)
-    # Extract the human score for the primary dimension
+    # Final valid mask
+    valid_final = working_df['excluded_reason'].isna()
+    valid_df = working_df[valid_final].copy()
+
+    if valid_df.empty:
+        logger.warning("No valid samples found after filtering. Returning empty dataframe.")
+        return valid_df
+
+    logger.info(f"Filtered out {len(working_df) - len(valid_df)} samples. Remaining: {len(valid_df)}")
+
+    # Calculate Fidelity Loss: |student_scalar - human_score_primary|
     def get_human_score(row):
+        dim = row['primary_dimension']
         ann = row['human_annotations']
-        if isinstance(ann, str):
-            import json
-            ann = json.loads(ann)
-        primary_dim = row['primary_dimension']
-        return ann.get(primary_dim, np.nan)
+        if isinstance(ann, dict) and dim in ann:
+            return float(ann[dim])
+        return np.nan
 
-    clean_df['human_score_primary'] = clean_df.apply(get_human_score, axis=1)
+    valid_df['human_score_primary'] = valid_df.apply(get_human_score, axis=1)
+    
+    # Handle any NaNs that slipped through (should not happen if logic is correct)
+    if valid_df['human_score_primary'].isna().any():
+        logger.warning("Found NaN human scores after filtering. Dropping these rows.")
+        valid_df = valid_df[valid_df['human_score_primary'].notna()]
 
-    # Ensure we have valid human scores for the primary dimension
-    mask_human_score = clean_df['human_score_primary'].notna()
-    clean_df = clean_df[mask_human_score]
-    logger.info(f"After filtering missing human score for primary dimension: {len(clean_df)} rows")
+    valid_df['fidelity_loss'] = np.abs(valid_df['student_scalar'] - valid_df['human_score_primary'])
 
-    # Calculate MAE: |student_scalar - human_score_primary|
-    clean_df['fidelity_loss'] = np.abs(clean_df['student_scalar'] - clean_df['human_score_primary'])
+    # Clean up helper columns if desired, or keep them for debugging
+    # We drop 'has_primary_human_score' as it was intermediate
+    if 'has_primary_human_score' in valid_df.columns:
+        valid_df.drop(columns=['has_primary_human_score'], inplace=True)
 
-    logger.info(f"Fidelity loss calculated. Mean: {clean_df['fidelity_loss'].mean():.4f}, Std: {clean_df['fidelity_loss'].std():.4f}")
+    logger.info(f"Calculated fidelity_loss for {len(valid_df)} samples.")
+    return valid_df
 
-    return clean_df
 
-def save_cleaned_data(df: pd.DataFrame, output_path: str):
+def save_cleaned_data(df: pd.DataFrame, output_path: str) -> None:
     """
-    Save the cleaned dataframe to parquet.
-    """
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
+    Save the cleaned dataframe to a parquet file.
 
+    Args:
+        df: The processed dataframe.
+        output_path: Path to save the parquet file.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     logger.info(f"Saving cleaned data to {output_path}")
-    try:
-        df.to_parquet(output_path, index=False)
-        logger.info("Successfully saved cleaned data.")
-    except Exception as e:
-        raise RuntimeError(f"Failed to save cleaned data: {e}")
+    df.to_parquet(output_path, index=False)
+    logger.info("Saved successfully.")
+
+
+def save_summary(df: pd.DataFrame, summary_path: str) -> None:
+    """
+    Calculate and save summary statistics of the fidelity loss.
+
+    Args:
+        df: The dataframe containing 'fidelity_loss'.
+        summary_path: Path to save the JSON summary.
+    """
+    if df.empty or 'fidelity_loss' not in df.columns:
+        summary = {
+            "count": 0,
+            "mean": None,
+            "median": None,
+            "std": None,
+            "min": None,
+            "max": None,
+            "note": "No valid samples for fidelity loss calculation"
+        }
+    else:
+        losses = df['fidelity_loss'].dropna()
+        summary = {
+            "count": int(len(losses)),
+            "mean": float(losses.mean()) if len(losses) > 0 else None,
+            "median": float(losses.median()) if len(losses) > 0 else None,
+            "std": float(losses.std()) if len(losses) > 0 else None,
+            "min": float(losses.min()) if len(losses) > 0 else None,
+            "max": float(losses.max()) if len(losses) > 0 else None
+        }
+
+    os.makedirs(os.path.dirname(summary_path), exist_ok=True)
+    logger.info(f"Saving summary to {summary_path}")
+    with open(summary_path, 'w') as f:
+        json.dump(summary, f, indent=2)
+    logger.info("Summary saved successfully.")
+
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Calculate dimensional fidelity loss and clean data.")
+    parser = argparse.ArgumentParser(description="Calculate dimensional fidelity loss.")
     parser.add_argument(
         "--input",
         type=str,
@@ -147,29 +244,45 @@ def parse_args():
         help="Path to the input raw data parquet file."
     )
     parser.add_argument(
-        "--output",
+        "--output-data",
         type=str,
         default="data/processed/cleaned_data.parquet",
-        help="Path to save the cleaned data parquet file."
+        help="Path to save the cleaned data."
+    )
+    parser.add_argument(
+        "--output-summary",
+        type=str,
+        default="data/processed/fidelity_loss_summary.json",
+        help="Path to save the fidelity loss summary JSON."
     )
     return parser.parse_args()
+
 
 def main():
     args = parse_args()
 
-    logger.info(f"Starting T024: Fidelity Loss Calculation")
-    logger.info(f"Input: {args.input}")
-    logger.info(f"Output: {args.output}")
-
     try:
+        # 1. Load Data
         df = load_raw_data(args.input)
-        clean_df = calculate_fidelity_loss(df)
-        save_cleaned_data(clean_df, args.output)
 
-        logger.info("T024 completed successfully.")
+        # 2. Calculate Fidelity Loss and Filter
+        cleaned_df = calculate_fidelity_loss(df)
+
+        # 3. Save Cleaned Data
+        save_cleaned_data(cleaned_df, args.output_data)
+
+        # 4. Save Summary
+        save_summary(cleaned_df, args.output_summary)
+
+        logger.info("Task T024 completed successfully.")
+        return 0
+
     except Exception as e:
-        logger.error(f"T024 failed: {e}")
-        raise
+        logger.error(f"Task T024 failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

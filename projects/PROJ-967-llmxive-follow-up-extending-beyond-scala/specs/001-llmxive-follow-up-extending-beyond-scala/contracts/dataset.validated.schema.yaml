@@ -1,71 +1,40 @@
-schema:
-  description: "Validated schema for Z-Reward dataset after T038 discovery"
-  version: "1.0.0"
-  derived_from: "data/processed/raw_data.parquet"
-  fields:
-    - name: prompt
-      type: string
-      logical_field: prompt
-      source_column: prompt
-      required: true
-      description: "User prompt text"
-    - name: image_url
-      type: string
-      logical_field: image_url
-      source_column: image_url
-      required: false
-      description: "Optional image URL associated with the prompt"
-    - name: teacher_scores
-      type: object
-      logical_field: teacher_scores
-      source_column: teacher_scores
-      required: true
-      description: "Dictionary of teacher model scores per dimension"
-      dimensions:
-        - Alignment
-        - Realism
-        - Aesthetics
-        - Plausibility
-    - name: student_scalar
-      type: float
-      logical_field: student_scalar
-      source_column: student_scalar
-      required: true
-      description: "Student model scalar output"
-    - name: human_annotations
-      type: object
-      logical_field: human_annotations
-      source_column: human_annotations
-      required: true
-      description: "Dictionary of human annotations per dimension"
-      dimensions:
-        - Alignment
-        - Realism
-        - Aesthetics
-        - Plausibility
-    - name: primary_dimension
-      type: string
-      logical_field: primary_dimension
-      source_column: primary_dimension
-      required: true
-      description: "The primary quality dimension for the sample"
-    - name: sample_id
-      type: string
-      logical_field: sample_id
-      source_column: sample_id
-      required: true
-      description: "Unique identifier for the sample"
-    - name: excluded_reason
-      type: string
-      logical_field: excluded_reason
-      source_column: excluded_reason
-      required: false
-      description: "Reason for exclusion if sample was filtered (e.g., 'missing_student_scalar', 'missing_primary_dimension')"
-validation_status: "PASSED"
-critical_columns_found:
-  - prompt
-  - teacher_scores
-  - student_scalar
-  - human_annotations
-  - primary_dimension
-mapping_notes: "Schema discovered from raw_data.parquet. All critical logical fields mapped to physical columns. No discrepancies found requiring fallback."
+logical_mapping:
+  human_annotations:
+    actual_column: human_annotations
+    detected: true
+    logical_name: human_annotations
+    rubric_keys:
+    - Alignment
+    - Realism
+    - Aesthetics
+    - Plausibility
+    structure: nested_dict
+  image_url:
+    actual_column: image_url
+    detected: true
+    logical_name: image_url
+  primary_dimension:
+    actual_column: primary_dimension
+    detected: true
+    logical_name: primary_dimension
+  prompt:
+    actual_column: prompt
+    detected: true
+    logical_name: prompt
+  student_scalar:
+    actual_column: student_scalar
+    detected: true
+    logical_name: student_scalar
+  teacher_scores:
+    actual_column: teacher_scores
+    detected: true
+    logical_name: teacher_scores
+    rubric_keys:
+    - Alignment
+    - Realism
+    - Aesthetics
+    - Plausibility
+    structure: nested_dict
+source: discovered_from_raw_data
+validation_status: validated
+warnings: []
