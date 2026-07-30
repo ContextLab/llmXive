@@ -4,9 +4,9 @@ T001e:
   r: The task T001e is explicitly marked as removed and not authorized by the specification,
     so no artifacts or output are required. Consequently, there is nothing missing
     or incorrect to verify.
-T002:
+T001g:
   c: false
-  h: 8784b0d8f057950941ba263937103109d2b47de5e0aca67ad2f7e6b25fcde90f
-  r: "The required file `src/utils/annotation_tool.py` does not exist, so no CLI tool\
-    \ was provided to read the instructions and collect rater inputs. Consequently\
-    \ the task\u2019s deliverable is missing."
+  h: 90c0f2f77d7ac65df38d67224398856df380203c692605c71409736b0f7f8c61
+  r: The required artifact `data/raw/conversations.jsonl` does not exist, so the implementer
+    could not verify the presence of an `authenticity_score` field as required. The
+    task remains unfinished until the file is provided and inspected.

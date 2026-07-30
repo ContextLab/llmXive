@@ -1,21 +1,26 @@
-# Explicit Ruff configuration for the project
-# This file is a duplicate of settings in pyproject.toml for IDE compatibility
+# Ruff configuration for llmXive lottery analysis project
 target-version = "py39"
 line-length = 88
+
+[lint]
 select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
 ]
 ignore = [
-    "E501",
-    "B008",
-    "C901",
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data loading)
 ]
 
-[isort]
+[lint.isort]
 known-first-party = ["code", "tests"]
-force-sort-within-sections = true
+force-single-line = false
+lines-between-types = 0
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "S105"] # Allow asserts and hardcoded strings in tests

@@ -1,5 +1,5 @@
 """
-Unit tests for the annotation_tool.py module.
+Unit tests for the annotation tool.
 """
 
 import json
@@ -9,10 +9,6 @@ import pytest
 import pandas as pd
 import csv
 import os
-import sys
-
-# Add parent directory to path to import src modules
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.utils.annotation_tool import (
     load_raw_conversations,
@@ -21,99 +17,126 @@ from src.utils.annotation_tool import (
     generate_gold_standard
 )
 
-
+# Fixtures
 @pytest.fixture
 def sample_jsonl(tmp_path):
     """Create a temporary JSONL file with sample conversations."""
+    filepath = tmp_path / "conversations.jsonl"
     data = [
-        {"id": "conv_001", "text": "I think this is a good idea."},
-        {"id": "conv_002", "text": "Maybe we should try something else."},
-        {"id": "conv_003", "text": "It seems like the best option."},
-        {"id": "conv_004", "text": "I believe we can do it."},
-        {"id": "conv_005", "text": "Perhaps we need more time."}
+        {"conversation_id": "c1", "text": "Maybe I think it is so."},
+        {"conversation_id": "c2", "text": "It is definitely true."},
+        {"conversation_id": "c3", "text": "Perhaps we should try."}
     ]
-    file_path = tmp_path / "sample_conversations.jsonl"
-    with open(file_path, 'w') as f:
+    with open(filepath, 'w', encoding='utf-8') as f:
         for item in data:
-            f.write(json.dumps(item) + '\n')
-    return file_path
-
+            f.write(json.dumps(item) + "\n")
+    return filepath
 
 @pytest.fixture
 def sample_instructions(tmp_path):
-    """Create a temporary instructions file."""
+    """Create a temporary instructions markdown file."""
+    filepath = tmp_path / "instructions.md"
     content = """
     # Annotation Instructions
 
-    ## Authenticity Scale
-    1-5 Likert scale:
+    ## Likert Scale
     1: Not Authentic
-    5: Extremely Authentic
+    2: Somewhat Not Authentic
+    3: Neutral
+    4: Somewhat Authentic
+    5: Very Authentic
 
     ## Hedges
-    Identify words like 'maybe', 'perhaps', 'seem'.
+    Mark words like 'maybe', 'perhaps', 'think'.
     """
-    file_path = tmp_path / "instructions.md"
-    file_path.write_text(content)
-    return file_path
+    filepath.write_text(content)
+    return filepath
 
-
+# Tests for load_raw_conversations
 def test_load_raw_conversations(sample_jsonl):
-    """Test loading raw conversations from JSONL."""
     conversations = load_raw_conversations(sample_jsonl)
-    assert len(conversations) == 5
-    assert conversations[0]['id'] == 'conv_001'
-    assert 'text' in conversations[0]
-
+    assert len(conversations) == 3
+    assert conversations[0]["conversation_id"] == "c1"
+    assert conversations[0]["text"] == "Maybe I think it is so."
 
 def test_load_raw_conversations_missing_file():
-    """Test error handling for missing file."""
     with pytest.raises(FileNotFoundError):
         load_raw_conversations(Path("nonexistent.jsonl"))
 
-
+# Tests for parse_instructions
 def test_parse_instructions(sample_instructions):
-    """Test parsing instructions."""
     instructions = parse_instructions(sample_instructions)
-    assert instructions['scale_min'] == 1
-    assert instructions['scale_max'] == 5
-    assert 1 in instructions['scale_labels']
+    assert "Likert" in instructions["raw_content"]
+    assert 1 in instructions["likert_scale"]
+    assert instructions["likert_scale"][1] == "Not Authentic"
+    assert instructions["likert_scale"][5] == "Very Authentic"
 
-
+# Tests for save_rater_log
 def test_save_rater_log(tmp_path):
-    """Test saving rater logs to CSV."""
     logs = [
-        {'turn_id': 1, 'rater_id': 'r1', 'timestamp': '2023-01-01', 'score_or_flags': 4, 'text_preview': 'Hi'},
-        {'turn_id': 2, 'rater_id': 'r1', 'timestamp': '2023-01-01', 'score_or_flags': 3, 'text_preview': 'Hello'}
+        {
+            "conversation_id": "c1",
+            "text_content": "Hello",
+            "authenticity_score": 4,
+            "rater_id": "r1",
+            "timestamp": "2023-01-01T00:00:00"
+        }
     ]
-    output_path = tmp_path / "test_log.csv"
-    save_rater_log(logs, output_path, 'authenticity')
+    output_dir = tmp_path / "logs"
+    filepath = save_rater_log(logs, output_dir, "authenticity", "r1")
 
-    assert output_path.exists()
-    df = pd.read_csv(output_path)
-    assert len(df) == 2
-    assert df['rater_id'].iloc[0] == 'r1'
+    assert filepath.exists()
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 1
+        assert rows[0]["conversation_id"] == "c1"
+        assert rows[0]["authenticity_score"] == "4"
 
-
-def test_generate_gold_standard(tmp_path):
-    """Test generating gold standard from logs."""
+def test_save_rater_log_hedges(tmp_path):
     logs = [
-        {'turn_id': 1, 'rater_id': 'r1', 'timestamp': '2023-01-01', 'score_or_flags': 4, 'text_preview': 'Hi'},
-        {'turn_id': 1, 'rater_id': 'r2', 'timestamp': '2023-01-01', 'score_or_flags': 5, 'text_preview': 'Hi'},
-        {'turn_id': 2, 'rater_id': 'r1', 'timestamp': '2023-01-01', 'score_or_flags': 3, 'text_preview': 'Hello'}
+        {
+            "conversation_id": "c1",
+            "text_content": "Maybe hello",
+            "hedge_flags": [0],
+            "rater_id": "r1",
+            "timestamp": "2023-01-01T00:00:00"
+        }
     ]
-    output_path = tmp_path / "gold_standard_authenticity.csv"
-    result_path = generate_gold_standard(logs, 'authenticity')
+    output_dir = tmp_path / "logs"
+    filepath = save_rater_log(logs, output_dir, "hedges", "r1")
 
-    # The function writes to data/processed by default, but we can't easily mock that in unit tests
-    # without changing the function signature.
-    # For this test, we assume the function works as designed and check the side effect.
-    # We will modify the test to check if the file is created in the expected location relative to tmp_path
-    # or we just test the logic by mocking the write.
-    # Given the constraints, we test the existence of the function and its signature.
-    assert result_path is not None # Should return a path if logs are present
+    assert filepath.exists()
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 1
+        assert json.loads(rows[0]["hedge_flags"]) == [0]
 
-def test_generate_gold_standard_insufficient_samples(tmp_path):
-    """Test gold standard generation with no logs."""
-    result = generate_gold_standard([], 'authenticity')
-    assert result is None
+# Tests for generate_gold_standard
+def test_generate_gold_standard():
+    logs = [
+        {
+            "conversation_id": "c1",
+            "text_content": "Hello",
+            "authenticity_score": 5,
+            "rater_id": "r1",
+            "timestamp": "2023-01-01T00:00:00"
+        },
+        {
+            "conversation_id": "c2",
+            "text_content": "World",
+            "authenticity_score": 3,
+            "rater_id": "r1",
+            "timestamp": "2023-01-01T00:00:01"
+        }
+    ]
+    gold = generate_gold_standard(logs, "authenticity")
+    assert len(gold) == 2
+    assert gold[0]["authenticity_score"] == 5
+    assert gold[1]["authenticity_score"] == 3
+
+def test_generate_gold_standard_insufficient_samples():
+    logs = []
+    gold = generate_gold_standard(logs, "authenticity")
+    assert len(gold) == 0

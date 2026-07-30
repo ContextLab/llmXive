@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/datasets/lottery-results
   verified_at: '2026-07-13T02:58:16.837801Z'
-- artifact_hash: 635e914c2a8cd5d913bf737661bdd6644e706e2a5bc35ed3e593b01f7f13600e
+- artifact_hash: 7efb89bc6fcec0c74fad00fd868d17ae68670cf583927700637251f945ecf722
   artifact_path: projects/PROJ-095-statistical-analysis-of-lottery-number-f/specs/001-statistical-analysis-of-lottery-number-f/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://en.wikipedia.org/wiki/Replication_crisis
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Replication_crisis
-  verified_at: '2026-07-26T22:20:10.313504Z'
+  verified_at: '2026-07-30T01:30:13.254335Z'

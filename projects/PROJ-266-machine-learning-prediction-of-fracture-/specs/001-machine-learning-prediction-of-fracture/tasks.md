@@ -41,9 +41,9 @@
 
 - [ ] T004a [P] Create data directory structure (`data/raw`, `data/processed`, `data/explainability`)
 - [X] T004b [P] Implement checksum validation infrastructure in `code/data/ingest.py`
-- [X] T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py` to produce ≥2,000 images (Plan-driven correction to Spec's ≥500; see Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. **Includes verification step to confirm count ≥2,000.**
-- [~] T005b [P] Benchmark synthetic generator runtime for [deferred] images on 2-core CPU to verify ≤6h constraint [UNRESOLVED-CLAIM: c_ca82390f — status=not_enough_info] (SC-004)
-- [~] T006a [P] Create base data contracts in `contracts/` (dataset_schema, evaluation_schema)
+- [X] T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py` to produce ≥2,000 images [UNRESOLVED-CLAIM: c_139f682f — status=not_enough_info] (Plan-driven correction to Spec's ≥500; see Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. **Includes verification step to confirm count ≥2,000.**
+- [ ] T005b [P] Benchmark synthetic generator runtime for [deferred] images on 2-core CPU to verify ≤6h constraint (SC-004)
+- [ ] T006a [P] Create base data contracts in `contracts/` (dataset_schema, evaluation_schema)
 - [ ] T006b [P] Create attribution schema contract `contracts/attribution_schema.schema.yaml` (required for T048)
 - [X] T007 Implement configuration management for random seeds (fixed 42 for splits, variable for training) in `code/utils/config.py`
 - [ ] T008 Setup error handling and logging infrastructure in `code/utils/logger.py`

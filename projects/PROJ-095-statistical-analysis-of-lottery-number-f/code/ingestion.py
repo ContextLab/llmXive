@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import logging
+import hashlib
 import requests
 from typing import Dict, Any, Optional
 
@@ -51,9 +52,10 @@ def fetch_lottery_data(url: str, output_path: str) -> str:
     logger.info(f"Fetching data from {url}")
     
     try:
-        # Verify URL reachability
+        # Verify URL reachability via HEAD request
         head_response = requests.head(url, timeout=30)
         head_response.raise_for_status()
+        logger.info(f"URL verified (HEAD request successful). Status: {head_response.status_code}")
         
         # Download the file
         response = requests.get(url, timeout=30)
@@ -142,6 +144,10 @@ def main():
             fetch_lottery_data(url, raw_path)
         else:
             logger.info(f"Raw data already exists at {raw_path}. Skipping download.")
+        
+        # Calculate and log checksum for the raw file
+        checksum = calculate_checksum(raw_path)
+        logger.info(f"SHA256 Checksum for {raw_path}: {checksum}")
         
         # Process data (handles missing sales)
         df = process_draws(raw_path, processed_path)

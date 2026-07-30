@@ -1,1 +1,2 @@
-# Placeholder for feature data directory
+# This file ensures the data/features directory is tracked by git
+# even if it is empty initially.

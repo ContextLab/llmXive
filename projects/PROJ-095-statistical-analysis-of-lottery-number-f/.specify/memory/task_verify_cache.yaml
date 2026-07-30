@@ -16,14 +16,15 @@ T003:
     \ have been set up. Consequently the required artifact for task T003 is missing."
 T008:
   c: false
-  h: b6f4f303e5e04c78a64e1f6ce33d40cd7c823e47b3eb4d5e65afc14be7b3a482
-  r: "The provided `code/ingestion.py` includes URL loading and a HEAD\u2011request\
-    \ download, but it never computes or logs a SHA checksum, and the truncated `process_draws`\
-    \ function does not show the required warning for missing `total_sales`. Moreover,\
-    \ the expected output file `data/raw/lottery_draws.csv` is absent, indicating\
-    \ the script has not been demonstrated to produce the required artifact. The implementation\
-    \ must add checksum generation/logging and explicit handling of missing `total_sales`,\
-    \ and ensure the script creates the CSV at the specified path."
+  h: 03e13a7b80b6123cabcfbacd2019531ae5e46810bc9b3a25bde699f50144344b
+  r: "The provided `code/ingestion.py` is present, but the visible portion does not\
+    \ show generation and logging of a SHA checksum, nor a clear entry point that\
+    \ reads the URL from `config/data_sources.json` and saves to `data/raw/lottery_draws.csv`.\
+    \ Additionally, the required output file `data/raw/lottery_draws.csv` is missing,\
+    \ indicating the script has not been executed or does not produce the expected\
+    \ artifact. The implementer must ensure the script fully implements steps 1\u2011\
+    4, including checksum creation, and verify that running it creates the CSV at\
+    \ the specified location."
 T011:
   c: false
   h: cbbb5fef2fc2c916486b394206ed2f4a043d51aa87e980b9314da1ff26933506
@@ -45,3 +46,40 @@ T014:
     and thus there is no unit test verifying that `calculate_birthday_ratio` returns
     1.0 for `[1,2,3,4,5,6]` and 0.0 for `[32,33,34,35,36,37]`. The required artifact
     is missing.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `test_metrics.py` file or any unit\u2011test code for `calculate_consecutive_ratio`\
+    \ is present in the provided evidence; the required test artifact is missing entirely.\
+    \ The task therefore remains undone."
+T016a:
+  c: false
+  h: e29b952583c46206b6f3f4b6d0656276e088744dcde0de8485e3d9130031a454
+  r: "The `compute_correlation_continuous` function only returns a coefficient and\
+    \ p\u2011value for `jackpot_amount` vs. `birthday_cluster_ratio`; it never handles\
+    \ the secondary metric `consecutive_pattern_count`, does not return the required\
+    \ `control_variable_note`, and even lacks the `scipy` import it uses. Moreover,\
+    \ `data/results/correlation_result.json` is explicitly marked as a placeholder\
+    \ rather than a real computed result. The implementation therefore does not meet\
+    \ the task\u2019s specifications."
+T018:
+  c: false
+  h: 7b7b394239ebc348a2c483db0e1c573bf4e8a859ef3cb73f00b3d36c72896721
+  r: "The `correlation_result.json` file contains a placeholder comment stating the\
+    \ values are not computed and will be generated later, so the `outlier_sensitivity_delta`\
+    \ is not a genuine result of the required outlier analysis. The task\u2019s required\
+    \ computation and reporting of the delta have not been actually performed."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `test_analysis.py` file or any unit\u2011test code was presented. The claim\
+    \ lacks the required artifact\u2014a concrete test that creates a synthetic dataset,\
+    \ runs the correlation computation, and asserts the expected r\u2011value. Without\
+    \ the test file, the task is not satisfied."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `test_pipeline.py` integration test file or any related test code was provided;\
+    \ therefore the required artifact to verify the end\u2011to\u2011end CSV\u2011\
+    to\u2011JSON correlation pipeline does not exist. The task remains unfinished\
+    \ until a concrete test script is added."

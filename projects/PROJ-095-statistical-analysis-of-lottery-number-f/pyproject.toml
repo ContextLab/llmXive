@@ -1,30 +1,20 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lottery-draw-integrity"
+name = "lottery-integrity-analysis"
 version = "0.1.0"
 description = "Statistical analysis of lottery number frequencies and anomaly detection"
 requires-python = ">=3.9"
 dependencies = [
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "scipy>=1.10.0",
-    "requests>=2.31.0",
-    "pyyaml>=6.0",
-    "memory-profiler>=0.61.0",
-    "pytest>=7.4.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
+    "pandas",
+    "numpy",
+    "scipy",
+    "requests",
+    "pyyaml",
+    "memory-profiler",
+    "pytest",
 ]
 
 [tool.black]
@@ -33,8 +23,7 @@ target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -46,36 +35,26 @@ exclude = '''
 )/
 '''
 
-[tool.ruff]
-target-version = "py39"
-line-length = 88
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in data pipelines)
-    "C901", # too complex (will be addressed incrementally)
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
-
-[tool.ruff.isort]
-known-first-party = ["code", "tests"]
-force-sort-within-sections = true
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
 filterwarnings = [
     "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["code"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
 ]

@@ -1,1 +1,1 @@
-# Code package root
+# Code package

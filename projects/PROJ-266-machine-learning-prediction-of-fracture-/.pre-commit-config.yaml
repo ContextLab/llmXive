@@ -1,12 +1,15 @@
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 23.12.1
     hooks:
       - id: black
         language_version: python3.11
+        args: [--config=pyproject.toml]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        args: [--config=pyproject.toml, --fix]
+      - id: ruff-format
+        args: [--config=pyproject.toml]

@@ -33,6 +33,20 @@ T004a:
   r: No evidence of the required `data/raw`, `data/processed`, or `data/explainability`
     directories is provided; the implementer did not supply any artifact showing these
     folders exist or contain any files. The task therefore remains unfulfilled.
+T005b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No benchmark script, runtime logs, or report showing the synthetic image generator\u2019\
+    s execution time on a 2\u2011core CPU are present. The claim provides no measurable\
+    \ data to confirm the \u22646\u202Fhour constraint, so the required artifact is\
+    \ missing."
+T006a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `contracts/` directory or files such as `dataset_schema` or `evaluation_schema`
+    were presented; without these concrete schema definitions the requirement to create
+    base data contracts is not satisfied. The next implementer must add the `contracts/`
+    folder containing the specified schema files with appropriate content.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

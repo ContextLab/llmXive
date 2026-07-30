@@ -64,26 +64,6 @@
   updated_at: '2026-07-07T16:17:11Z'
 - artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
   attempts: 1
-  canonical: synthetic microstructure generator produces at least 2000 images
-  claim_id: c_58dae972
-  context: "T005 [P] Implement synthetic microstructure generator in code/data/synthetic_gen.py\
-    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
-    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
-  kind: magnitude
-  raw_text: "Implement synthetic microstructure generator in code/data/synthetic_gen.py\
-    \ to produce \u22652,000 images with physics-informed K_IC values."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T16:18:27Z'
-- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
-  attempts: 1
   canonical: synthetic generator runtime verified to be less than or equal to 6 hours
     on 2-core CPU
   claim_id: c_5616b061
@@ -959,26 +939,6 @@
   updated_at: '2026-07-23T21:39:50Z'
 - artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
   attempts: 1
-  canonical: Synthetic microstructure generator produces at least 2000 images
-  claim_id: c_139f682f
-  context: "T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py`\
-    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
-    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
-  kind: magnitude
-  raw_text: "Implement synthetic microstructure generator in `code/data/synthetic_gen.py`\
-    \ to produce \u22652,000 images"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-23T21:40:03Z'
-- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
-  attempts: 1
   canonical: Synthetic generator runtime benchmark on 2-core CPU must be less than
     or equal to 6 hours
   claim_id: c_e8f6e2d0
@@ -1189,3 +1149,329 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T21:42:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic microstructure generator produces at least 2000 images with
+    physics-informed fracture toughness values
+  claim_id: c_f706c54d
+  context: "T005 [P] Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. Includes\
+    \ verification step to confirm count \u22652,000."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images... with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:10:47Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces at least 2000 images
+  claim_id: c_ff01e2dd
+  context: "Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images
+  kind: magnitude
+  raw_text: "produce \u22652,000 images"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:12:16Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: benchmark synthetic generator runtime to verify constraint of 6 hours
+    or less
+  claim_id: c_68c52120
+  context: "Benchmark synthetic generator runtime for [deferred] images on 2-core\
+    \ CPU to verify \u22646h constraint (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify \u22646h constraint"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:12:16Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: random seed 42 used for stratified splits
+  claim_id: c_a8a85502
+  context: Implement stratified split logic in code/data/preprocess.py (seed 42, steel/Al/Ti
+    stratification)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed 42 for splits
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:12:43Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation strategy includes rotation of plus or minus 10 degrees
+  claim_id: c_0494b739
+  context: "Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "rotation \xB110\xB0"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:13:24Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation strategy includes Gaussian noise with standard deviation
+    0.01
+  claim_id: c_cd106400
+  context: "Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Gaussian noise \u03C3=0.01"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:13:51Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation strategy includes brightness jitter of plus or minus 10
+    percent
+  claim_id: c_6244ceed
+  context: "Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "brightness jitter \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:13:51Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stability threshold requires mean Intersection over Union greater than
+    0.5
+  claim_id: c_76030cf0
+  context: Validate attribution outputs against contracts/attribution_schema.schema.yaml
+    (created in T006b) and check stability threshold (mean IoU > 0.5) per US-3 Acceptance
+    Scenario 2
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_threshold_requires_mean_Intersection_over_Union_gr
+  kind: magnitude
+  raw_text: mean IoU > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:14:29Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pipeline benchmarked on 2-core CPU
+  claim_id: c_764af7ea
+  context: "Benchmark full pipeline runtime on 2-core CPU with [deferred] images to\
+    \ verify \u22646h constraint (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:15:04Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: all tasks executable within 6 hours runtime
+  claim_id: c_ae57cd0e
+  context: 'Critical Constraint: All tasks must be executable on CPU-only CI (2 cores,
+    7GB RAM) within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 6 hours runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:15:39Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 2
+  canonical: synthetic microstructure generator produces at least 2000 images
+  claim_id: c_58dae972
+  context: "T005 [P] Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:16:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: tasks executable on 2 core CPU with 7GB RAM within 6 hours
+  claim_id: c_8c4c2fbf
+  context: 'Critical Constraint: All tasks must be executable on CPU-only CI (2 cores,
+    7GB RAM) within 6 hours. No GPU, no 8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must be executable on CPU-only CI (2 cores, 7GB RAM) within
+    6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:16:24Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: 2000 synthetic microstructure images generated for Steel, Aluminum, and
+    Titanium
+  claim_id: c_6752daf2
+  context: 'Since experimental microstructure-$K_{IC}$ pairs are scarce and proprietary,
+    we utilize a physics-informed synthetic generator (`code/data/synthetic_gen.py`).
+    This generator creates 2,000+ distinct microstructure images simulating three
+    alloy families: Steel, Aluminum, and Titanium.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'This generator creates 2,000+ distinct microstructure images simulating
+    three alloy families: Steel, Aluminum, and Titanium.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:17:26Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Dataset split ratio of 70/15/15 for Train/Validation/Test sets
+  claim_id: c_168bd7be
+  context: The dataset is split into Train/Validation/Test sets (70/15/15) stratified
+    by alloy family to ensure balanced representation across all material types.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset is split into Train/Validation/Test sets (70/15/15) stratified
+    by alloy family.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:17:42Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Permutation test performed with 1000 label shuffles
+  claim_id: c_70d86146
+  context: 'To ensure the model''s predictions are not due to chance, we employ: Permutation
+    Testing: The target labels are shuffled 1,000 times to generate a null distribution
+    of $R^2$ scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target labels are shuffled 1,000 times to generate a null distribution
+    of $R^2$ scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:18:19Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: 95% confidence intervals derived from 100 bootstrap resamples
+  claim_id: c_0205dc15
+  context: Feature importance and performance metrics are reported with 95% confidence
+    intervals derived from 100 bootstrap resamples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feature importance and performance metrics are reported with 95% confidence
+    intervals derived from 100 bootstrap resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:18:19Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Minimum resolvable feature size approximated as 2 times pixel size
+  claim_id: c_ab0980d6
+  context: 'The minimum resolvable feature size ($d_{min}$) is defined by the Nyquist-Shannon
+    sampling theorem: $$ d_{min} \approx 2 \times \text{pixel\_size} = 2 \times \text{resolution\_um}
+    $$'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The minimum resolvable feature size ($d_{min}$) is defined by the Nyquist-Shannon
+    sampling theorem: $d_{min} \approx 2 \times \text{pixel\_size}$.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:18:44Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 2
+  canonical: Synthetic microstructure generator produces at least 2000 images
+  claim_id: c_139f682f
+  context: "T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py`\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator in `code/data/synthetic_gen.py`\
+    \ to produce \u22652,000 images"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:19:13Z'

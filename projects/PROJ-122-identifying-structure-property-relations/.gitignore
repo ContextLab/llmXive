@@ -24,28 +24,55 @@ wheels/
 venv/
 ENV/
 env/
+.venv/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+.project
+.pydevproject
 
-# Data and State (keep raw data out of git if large, keep state files for tracking)
-data/raw/*.csv
-data/raw/*.json
-data/processed/*.csv
-data/processed/*.json
-state/projects/*.yaml
-state/projects/*.json
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+.tox/
+nosetests.xml
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
 
 # Logs
 *.log
 logs/
 
+# Data (Raw and Intermediate)
+data/raw/
+data/processed/
+data/features/
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/features/.gitkeep
+
+# State
+state/
+!state/projects/.gitkeep
+
 # OS
 .DS_Store
 Thumbs.db
 
-# Jupyter
-.ipynb_checkpoints
+# Project specific
+.env
+.secret*
+secrets/
+config_local.yaml
+debug/
+tmp/

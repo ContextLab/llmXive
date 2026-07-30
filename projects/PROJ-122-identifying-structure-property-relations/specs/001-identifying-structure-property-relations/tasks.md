@@ -94,8 +94,8 @@
 - [X] T019b [US1] Implement weight-fraction tolerance sensitivity sweep in `code/01_ingest.py`: Run validation with thresholds defined in `config.py` (configurable list, not hardcoded) and log the impact on valid record counts and pass rate percentage per threshold to `tolerance_sensitivity_report.json` (FR-014).
 - [ ] T019c [US1] Implement "Join Success Rate Check & Fallback Trigger" in `code/01_ingest.py`: Calculate the percentage of records with a "perfect join" (SMILES + Composition + Tg + Modulus). If failure rate > 50%, trigger "Monomer-Level Fallback" mode immediately and halt the main blend pipeline, switching to `code/02b_fallback.py` (FR-013, Plan Gate 1).
 - [ ] T020 [US1] Save raw data to `data/raw/` with SHA-256 checksums in `state/`
-- [ ] T020b [US1] Update Single Source of Truth: Write final artifact hashes to `state/projects/PROJ-122-identifying-structure-property-relations.yaml` (FR-018, Constitution).
-- [ ] T020c [US1] Implement "Source Tagging" in `code/01_ingest.py`: Tag all ingested records with their source origin to enable stratified splitting in downstream tasks (FR-016). (Note: The actual split logic is implemented in T033c).
+- [X] T020b [US1] Update Single Source of Truth: Write final artifact hashes to `state/projects/PROJ-122-identifying-structure-property-relations.yaml` (FR-018, Constitution).
+- [X] T020c [US1] Implement "Source Tagging" in `code/01_ingest.py`: Tag all ingested records with their source origin to enable stratified splitting in downstream tasks (FR-016). (Note: The actual split logic is implemented in T033c). <!-- SKIPPED: non-mapping output -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,9 +109,9 @@
 
 ### Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for RDKit descriptor generation (MW, TPSA, Free Volume) in `tests/test_features.py`
-- [ ] T022 [P] [US2] Unit test for Fox and Gordon-Taylor equation calculations in `tests/test_features.py`
-- [ ] T023 [P] [US2] Unit test for VIF calculation logic (diagnostic only) in `tests/test_features.py`: Verify VIF computation for a small matrix and flagging of values > 5.0.
+- [X] T021 [P] [US2] Unit test for RDKit descriptor generation (MW, TPSA, Free Volume) in `tests/test_features.py`
+- [X] T022 [P] [US2] Unit test for Fox and Gordon-Taylor equation calculations in `tests/test_features.py`
+- [X] T023 [P] [US2] Unit test for VIF calculation logic (diagnostic only) in `tests/test_features.py`: Verify VIF computation for a small matrix and flagging of values > 5.0.
 
 ### Implementation for User Story 2
 

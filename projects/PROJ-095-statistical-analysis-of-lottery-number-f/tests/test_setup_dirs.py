@@ -1,75 +1,59 @@
+"""
+Unit tests for setup_dirs.py (T001a).
+Verifies that the directory structure is created correctly.
+"""
 import os
-import pytest
-import sys
-import tempfile
 import shutil
+import tempfile
+import pytest
+from code.setup_dirs import main
 
-# Add the code directory to the path to import setup_dirs
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-from setup_dirs import main
-
-def test_directory_creation(tmp_path):
-    """
-    Test that setup_dirs.main creates the required directory structure.
-    We run this in a temporary directory to avoid polluting the actual project root
-    during unit testing, but we mock the CWD to point to tmp_path.
-    """
-    # The task requires specific directories relative to the project root.
-    # We will simulate this by changing the current working directory to tmp_path
-    # and verifying the directories are created there.
-    
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to simulate the project root."""
+    temp_dir = tempfile.mkdtemp()
     original_cwd = os.getcwd()
-    try:
-        os.chdir(str(tmp_path))
-        
-        # Run the main function
-        exit_code = main()
-        
-        assert exit_code == 0, "main() should return 0 on success"
-        
-        # Define expected directories relative to tmp_path
-        expected_dirs = [
-            "data/raw",
-            "data/processed",
-            "data/results",
-            "code",
-            "tests/unit",
-            "tests/integration",
-            "config"
-        ]
-        
-        for dir_name in expected_dirs:
-            full_path = os.path.join(str(tmp_path), dir_name)
-            assert os.path.isdir(full_path), f"Expected directory {full_path} was not created."
-            
-    finally:
-        os.chdir(original_cwd)
+    os.chdir(temp_dir)
+    yield temp_dir
+    os.chdir(original_cwd)
+    shutil.rmtree(temp_dir)
 
-def test_directory_idempotency(tmp_path):
-    """
-    Test that running the script twice does not cause errors (idempotency).
-    """
-    original_cwd = os.getcwd()
-    try:
-        os.chdir(str(tmp_path))
-        
-        # Run twice
-        exit_code_1 = main()
-        exit_code_2 = main()
-        
-        assert exit_code_1 == 0
-        assert exit_code_2 == 0
-        
-        # Verify directories still exist
-        expected_dirs = [
-            "data/raw",
-            "code",
-            "config"
-        ]
-        
-        for dir_name in expected_dirs:
-            full_path = os.path.join(str(tmp_path), dir_name)
-            assert os.path.isdir(full_path)
-            
-    finally:
-        os.chdir(original_cwd)
+def test_create_directories(temp_project_root):
+    """Test that main() creates the required directories."""
+    # Directories that should be created
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "code",
+        "tests/unit",
+        "tests/integration",
+        "config"
+    ]
+
+    # Verify they do not exist before running
+    for d in required_dirs:
+        assert not os.path.exists(d), f"Directory {d} should not exist before setup"
+
+    # Run the setup
+    exit_code = main()
+
+    # Verify exit code is 0 (success)
+    assert exit_code == 0, "main() should return 0 on success"
+
+    # Verify all directories now exist
+    for d in required_dirs:
+        assert os.path.exists(d), f"Directory {d} should exist after setup"
+        assert os.path.isdir(d), f"{d} should be a directory"
+
+def test_directories_persist_if_exist(temp_project_root):
+    """Test that main() handles existing directories gracefully."""
+    # Create one directory manually
+    os.makedirs("data/raw", exist_ok=True)
+
+    # Run setup
+    exit_code = main()
+
+    # Should still succeed
+    assert exit_code == 0
+    assert os.path.exists("data/raw")

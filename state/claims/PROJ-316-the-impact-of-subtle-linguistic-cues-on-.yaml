@@ -1274,3 +1274,166 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T00:07:54Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on/tasks.md
+  attempts: 1
+  canonical: 15-word hedge lexicon defined as maybe, perhaps, possibly, probably,
+    likely, unlikely, seem, seems, appear, appears, believe, think, guess, suppose,
+    assume
+  claim_id: c_35b54fde
+  context: T010 [P] [US1] Implement src/extraction/hedge_extractor.py using NLTK and
+    the predefined 15-word hedge lexicon to calculate hedge_count and hedge_ratio.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The hedge lexicon is: [''maybe'', ''perhaps'', ''possibly'', ''probably'',
+    ''likely'', ''unlikely'', ''seem'', ''seems'', ''appear'', ''appears'', ''believe'',
+    ''think'', ''guess'', ''suppose'', ''assume''].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:58:37Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on/tasks.md
+  attempts: 1
+  canonical: Inter-rater reliability threshold set to Cohen's Kappa 0.6 for dataset
+    validity
+  claim_id: c_a7c21067
+  context: 'T001c [Phase0] [US1] Generate ''Gold Standard'' subset of 50 annotated
+    turns... Failure Path: If inter-rater reliability (Cohen''s Kappa) < 0.6, flag
+    the dataset and halt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If inter-rater reliability (Cohen's Kappa) < 0.6, flag the dataset and
+    halt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:58:37Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on/tasks.md
+  attempts: 1
+  canonical: Gold standard subset size of 50 annotated turns
+  claim_id: c_63bdc75c
+  context: 'T001c [Phase0] [US1] Generate ''Gold Standard'' subset of 50 annotated
+    turns. Deliverable: Create data/processed/gold_standard_50.csv...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 'Gold Standard' subset of 50 annotated turns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:59:13Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on/tasks.md
+  attempts: 1
+  canonical: Lexicon validation precision threshold set to 0.8
+  claim_id: c_c491b0a0
+  context: 'T001d [Phase0] [US1] [FR-010] Execute pragmatic validation of the hedge
+    lexicon... Gate: If precision < 0.8, flag dataset for manual review...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If precision < 0.8, flag dataset for manual review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:59:13Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on/tasks.md
+  attempts: 1
+  canonical: Sentiment analysis performed using vaderSentiment version 3.x
+  claim_id: c_9f783c01
+  context: T011 [P] [US1] Implement src/extraction/sentiment_analyzer.py using vaderSentiment
+    (version 3.x) to calculate sentiment_score...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use vaderSentiment (version 3.x) to calculate sentiment_score.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T00:59:43Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor exclusion threshold set to 5
+  claim_id: c_3fad3c72
+  context: 'T021 [US3] Implement src/analysis/regression.py to fit multiple linear
+    regression. Logic: 1) Calculate VIF for all predictors; if VIF > 5, exclude the
+    predictor with the highest VIF...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Inflation_Factor_exclusion_threshold_set_to_5
+  kind: magnitude
+  raw_text: If VIF > 5, exclude the predictor with the highest VIF and log the specific
+    excluded variable.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:00:58Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis iterates over 15 hedge words
+  claim_id: c_e70d91d1
+  context: 'T026 [US3] Implement src/analysis/sensitivity.py to perform the leave-one-out
+    sensitivity analysis (SC-003). Logic: Iterate through the 15-word hedge lexicon...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis iterates through the 15-word hedge lexicon.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:03:37Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on/tasks.md
+  attempts: 1
+  canonical: Quantitative metrics extracted include pronoun count, hedge count, and
+    valence
+  claim_id: c_d37384bf
+  context: "Phase 2: User Story 1 - Automated Linguistic Feature Extraction (Priority:\
+    \ P1) \U0001F3AF MVP. Goal: Extract quantitative metrics (pronoun count, hedge\
+    \ count, valence) from raw conversation text."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantitative_metrics_extracted_include_pronoun_count,_hedge
+  kind: entity_fact
+  raw_text: Extract quantitative metrics (pronoun count, hedge count, valence) from
+    raw conversation text.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:03:59Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on/tasks.md
+  attempts: 1
+  canonical: Data acquisition targets convai2 or cornell-movie-dialogs datasets from
+    HuggingFace
+  claim_id: c_5fff2fb8
+  context: 'T001f [Phase0] Acquire and format the raw conversation dataset... Execution:
+    Fetch the ''convai2'' or ''cornell-movie-dialogs'' dataset from HuggingFace...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_acquisition_targets_convai2_or_cornell-movie-dialogs_da
+  kind: entity_fact
+  raw_text: Fetch the 'convai2' or 'cornell-movie-dialogs' dataset from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T01:04:19Z'
