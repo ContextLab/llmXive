@@ -74,8 +74,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T008 [P] [US1] Contract test for `unified_metrics.csv` schema in `tests/contract/test_dataset_schema.py`
-- [ ] T009 [P] [US1] Integration test for repo cloning and filtering in `tests/integration/test_data_extraction.py`
+- [X] T008 [P] [US1] Contract test for `unified_metrics.csv` schema in `tests/contract/test_dataset_schema.py`
+- [X] T009 [P] [US1] Integration test for repo cloning and filtering in `tests/integration/test_data_extraction.py`
 
 ### Implementation for User Story 1
 
@@ -83,8 +83,8 @@
 - [ ] T011 [P] [US1] Implement `data_extraction.py`: Clone repos and extract per-file commit counts & lines changed (last 2 years) using `pydriller`
 - [ ] T012 [P] [US1] Implement `data_extraction.py`: Generate `data/raw/repos_metadata.csv`
 - [X] T013a [P] [US1] Implement `utils.py`: Validate tool availability (Radon, Semgrep) and log star counts/citation presence in `data/logs/tool_validation_log.csv` (Depends on T005)
-- [~] T013b [P] [US1] Implement `utils.py`: Verify tool validation per SC-005: check if tool matches 'Kitchenham et al. 2009'/'Meneely et al. 2009' (presence check only per Plan limitation) OR has >5,000 GitHub stars; log validation status
-- [~] T014 [P] [US1] Implement `static_analysis.py`: Run `radon` (v.0) on Python files to calculate CC and MI; Run `semgrep` (latest stable version) on Java, JS, TS, Go, Rust files to capture Code Smells and CC. Calculate `debt_score` = Sum(Code Smells + CC). **Note**: Semgrep is used as a Plan-approved override for CPU feasibility; Spec FR-002/SC-005 conflict requires future kickback.
+- [ ] T013b [P] [US1] Implement `utils.py`: Verify tool validation per SC-005: check if tool matches 'Kitchenham et al. 2009'/'Meneely et al. 2009' (presence check only per Plan limitation) OR has >5,000 GitHub stars; log validation status
+- [ ] T014 [P] [US1] Implement `static_analysis.py`: Run `radon` (v.0) on Python files to calculate CC and MI; Run `semgrep` (latest stable version) on Java, JS, TS, Go, Rust files to capture Code Smells and CC. Calculate `debt_score` = Sum(Code Smells + CC). **Note**: Semgrep is used as a Plan-approved override for CPU feasibility; Spec FR-002/SC-005 conflict requires future kickback.
 - [ ] T015 [US1] Implement `preprocessing.py`: Filter non-source-code files and exclude files with `avg_loc` < 10. Generate parameterized datasets for sensitivity analysis with thresholds **5, 10, 20** (Plan Phase 4b). Output `data/processed/unified_metrics.csv` containing **raw** metrics: `total_lines_changed`, `debt_score`, `avg_loc`, `contributor_count`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -104,7 +104,7 @@
 
 ### Implementation for User Story 2
 
-- [~] T018 [US2] Implement `analysis.py`: Load `unified_metrics.csv` (Depends on T015); perform VIF check on covariates (`project_age`, `language`, `contributor_count`); apply Ridge regression if VIF > 5
+- [ ] T018 [US2] Implement `analysis.py`: Load `unified_metrics.csv` (Depends on T015); perform VIF check on covariates (`project_age`, `language`, `contributor_count`); apply Ridge regression if VIF > 5
 - [~] T019 [US2] Implement `analysis.py`: Fit mixed-effects model: `debt_score ~ total_lines_changed + avg_loc + covariates + (1|repo_id)`
 - [~] T020 [US2] Implement `analysis.py`: Calculate Pearson and Spearman correlation coefficients on **raw** `total_lines_changed` vs `debt_score`, controlling for `avg_loc` as a covariate
 - [~] T021 [US2] Implement `analysis.py`: Perform **Meta-analysis of Fisher-transformed r** coefficients across repositories to control family-wise error rate (Plan Phase 4 override of Bonferroni)
@@ -145,8 +145,8 @@
 
 - [~] T032a [P] Update `quickstart.md` with installation and execution instructions
 - [~] T032b [P] Update `research.md` with methodology details and validation study citations
-- [ ] T033 Code cleanup and refactoring of `preprocessing.py` and `analysis.py`
-- [ ] T034 Performance optimization: Ensure parallelism is limited to a constrained number of concurrent repo processes.
+- [~] T033 Code cleanup and refactoring of `preprocessing.py` and `analysis.py`
+- [~] T034 Performance optimization: Ensure parallelism is limited to a constrained number of concurrent repo processes.
 - [ ] T035 [P] Additional unit tests in `tests/unit/` for metric calculation logic
 - [ ] T036 Run `quickstart.md` validation to ensure end-to-end reproducibility
 

@@ -1,0 +1,44 @@
+T009:
+  c: false
+  h: 33dfd42bd546e243df97736e8193e8bce12f1a247418f182567a5e6922c04fad
+  r: The `code/schema.py` file exists, but the required `contracts/dataset.schema.yaml`
+    (or `schema.yaml`) is missing, so the utilities cannot be aligned with the schema
+    as the task demands. The missing schema file must be added for the task to be
+    complete.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or log file was provided that shows learners without forum interactions
+    are being filtered out and that the number excluded is being recorded. The required
+    artifact (implementation of the exclusion logic and logging of the exclusion count)
+    is missing.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or log file was provided that demonstrates the implementation
+    of the exclusion logic for courses with fewer than 50 learners, nor any evidence
+    that the number of excluded courses is being logged. Without such artifacts, the
+    requirement cannot be confirmed as satisfied.
+T021:
+  c: false
+  h: 4d59ba2d8b04186f85731a584fb03d05db7e708bba130b69780cbd7030afa7f2
+  r: "The required unit test file `tests/test_intervals.py` does not exist in the\
+    \ repository, so no test code verifying \u22650.1\u202Fh precision is provided.\
+    \ The task\u2019s primary artifact is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or data file implementing the median feedback\u2011\
+    interval calculation per learner is present. The required artifact (e.g., a function\
+    \ or pipeline step that computes each learner\u2019s median interval and assigns\
+    \ them to the \u201CImmediate\u201D, \u201CDelayed\u201D, or \u201CVariable\u201D\
+    \ groups) is missing, so the task\u2019s requirement is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or any other artifact implementing the required binning\
+    \ logic (assigning learners to \u201CImmediate\u201D, \u201CDelayed\u201D, or\
+    \ \u201CVariable\u201D groups based on median feedback interval) was provided.\
+    \ Without such a concrete implementation or output, the claim that FR\u2011004\
+    \ is satisfied cannot be verified. The missing artifact must be supplied for the\
+    \ task to be considered complete."

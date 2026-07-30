@@ -1,0 +1,524 @@
+{
+  "fetched_at": "2026-07-30T18:39:49Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Spec\"",
+      "target_n": 5
+    },
+    "duration_seconds": 57.047,
+    "ended_at": "2026-07-30T18:39:49Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "instance-adaptive diffusion policies for natural language generation"
+        ],
+        [
+          2,
+          "adaptive scheduling in diffusion-based text synthesis"
+        ],
+        [
+          3,
+          "policy learning for controllable diffusion language models"
+        ],
+        [
+          4,
+          "diffusion models with instance-specific guidance in linguistics"
+        ],
+        [
+          5,
+          "adaptive control mechanisms for autoregressive-free text generation"
+        ],
+        [
+          6,
+          "diffusion-based semantic representation learning"
+        ],
+        [
+          7,
+          "instance-conditioned diffusion trajectories for NLP"
+        ],
+        [
+          8,
+          "reinforcement learning for diffusion-based language modeling"
+        ],
+        [
+          9,
+          "dynamic policy adaptation in generative diffusion models"
+        ],
+        [
+          10,
+          "diffusion-based text generation with adaptive inference strategies"
+        ],
+        [
+          11,
+          "instance-aware generative modeling for linguistic tasks"
+        ],
+        [
+          12,
+          "optimizing diffusion steps via learned policies in NLP"
+        ],
+        [
+          13,
+          "adaptive diffusion schedules for syntactic structure generation"
+        ],
+        [
+          14,
+          "policy-gradient methods for diffusion-based language tasks"
+        ],
+        [
+          15,
+          "context-sensitive diffusion policies for natural language"
+        ],
+        [
+          16,
+          "learning instance-specific noise schedules in text diffusion"
+        ],
+        [
+          17,
+          "adaptive decoding strategies for diffusion language models"
+        ],
+        [
+          18,
+          "diffusion-based semantic parsing with adaptive policies"
+        ],
+        [
+          19,
+          "instance-adaptive generation in non-autoregressive language models"
+        ],
+        [
+          20,
+          "hybrid policy learning for diffusion-based linguistic synthesis"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "instance-adaptive diffusion policies for natural language generation": 5,
+        "llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Spec\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "diffusion policy adaptation linguistic generation",
+      "BlockPilot instance adaptive diffusion linguistic",
+      "token-level diffusion language model inference",
+      "diffusion-based text generation evaluation perplexity",
+      "non-autoregressive language modeling training dynamics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.31315"
+      ]
+    },
+    "per_query_hit_count": {
+      "BlockPilot instance adaptive diffusion linguistic": 3,
+      "diffusion policy adaptation linguistic generation": 3,
+      "diffusion-based text generation evaluation perplexity": 3,
+      "llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Spec\" linguistics": 3,
+      "non-autoregressive language modeling training dynamics": 3,
+      "token-level diffusion language model inference": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2409.00588",
+          "rationale": "The paper focuses on reinforcement learning and robot control using diffusion policies, which is an off-domain application compared to the user's specific question regarding \"linguistics\" and \"Diffusion-based Spec\" (likely referring to speech or text generation). While both involve diffusion models, the paper does not address the linguistic domain, the specific \"BlockPilot\" mechanism, or the instance-adaptive policy learning for language tasks required by the user's research question.",
+          "title": "Diffusion Policy Policy Optimization"
+        },
+        {
+          "primary_pointer": "2306.06371",
+          "rationale": "The paper focuses on Java code generation from natural language, which is a distinct application domain from the user's question regarding \"Diffusion-based Spec\" (speculative decoding) and \"Instance-Adaptive Policy Learning\" for LLMs. While both involve LLMs, the candidate paper does not measure the same mechanism (speculative decoding policies), variables (speculation efficiency/acceptance rates), or domain (diffusion-based generation strategies) required for the user's specific literature revi",
+          "title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text"
+        },
+        {
+          "primary_pointer": "2103.14757",
+          "rationale": "The paper focuses on a specific application of NLP for generating multiple-choice questions from lesson materials, which is a distinct construct from the user's question regarding instance-adaptive policy learning for diffusion-based speech synthesis (implied by \"Spec\" and \"BlockPilot\"). It fails to address the core mechanisms (diffusion models, policy learning), the domain (speech/signal processing), or the specific variables of the user's research, falling under the rejection rule for distinct",
+          "title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques"
+        },
+        {
+          "primary_pointer": "2110.10780",
+          "rationale": "The paper focuses on clinical NLP frameworks for electronic health records (EHR) and lacks any connection to the user's specific domain of diffusion-based speech synthesis, instance-adaptive policy learning, or the \"llmXive\" follow-up context. It fails all inclusion criteria (a-f) as it addresses a distinct construct (clinical data annotation) sharing only the broad keyword \"NLP\" without any overlap in mechanism, variables, or empirical population.",
+          "title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)"
+        },
+        {
+          "primary_pointer": "cmp-lg/9803002",
+          "rationale": "The paper focuses on natural language interfaces for temporal databases and linguistic mechanisms like tense and aspect, which is an off-domain application of linguistics unrelated to the user's question about extending diffusion-based specification policies for LLMs. It shares no measurable connection to the specific mechanism (diffusion-based spec), domain (LLM policy learning), or variables (BlockPilot architecture) central to the user's research.",
+          "title": "Time, Tense and Aspect in Natural Language Database Interfaces"
+        },
+        {
+          "primary_pointer": "2211.00727",
+          "rationale": "The paper focuses on quantum computing algorithms for sentence generation, which is a distinct domain and mechanism from the user's question regarding instance-adaptive policy learning for diffusion-based speech synthesis in LLMs. It fails to satisfy any inclusion criteria as it does not measure the same biological/algorithmic mechanism, share the same empirical population, or provide a foundational method for the specific \"BlockPilot\" or diffusion-based speech context.",
+          "title": "Quantum Natural Language Generation on Near-Term Devices"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-30T18:38:52Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"blockpilot: instance-adaptive policy learning for diffusion-based spec\" linguistics",
+      "raw": "llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Spec\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Test-time adaptation (TTA) aims to improve the performance of source-domain pre-trained models on previously unseen, shifted target domains. Traditional TTA methods primarily adapt model weights based on target data streams, making model performance sensitive to the amount and order of target data. The recently proposed diffusion-driven TTA methods mitigate this by adapting model inputs instead of weights, where an unconditional diffusion model, trained on the source domain, transforms target-domain data into a synthetic domain that is expected to approximate the source domain. However, in this paper, we reveal that although the synthetic data in diffusion-driven TTA seems indistinguishable from the source data, it is unaligned with, or even markedly different from the latter for deep networks. To address this issue, we propose a \\textbf{S}ynthetic-\\textbf{D}omain \\textbf{A}lignment (SDA) framework. Our key insight is to fine-tune the source model with synthetic data to ensure better alignment. Specifically, we first employ a conditional diffusion model to generate labeled samples, creating a synthetic dataset. Subsequently, we use the aforementioned unconditional diffusion model to add noise to and denoise each sample before fine-tuning. This Mix of Diffusion (MoD) process mitigates the potential domain misalignment between the conditional and unconditional models. Extensive experiments across classifiers, segmenters, and multimodal large language models (MLLMs, \\eg, LLaVA) demonstrate that SDA achieves superior domain alignment and consistently outperforms existing diffusion-driven TTA methods. Our code is available at https://github.com/SHI-Labs/Diffusion-Driven-Test-Time-Adaptation-via-Synthetic-Domain-Alignment.",
+          "claimed_authors": [
+            "Jiayi Guo",
+            "Junhao Zhao",
+            "Chaoqun Du",
+            "Yulin Wang",
+            "Chunjiang Ge",
+            "Zanlin Ni",
+            "Shiji Song",
+            "Humphrey Shi",
+            "Gao Huang"
+          ],
+          "claimed_title": "Everything to the Synthetic: Diffusion-driven Test-time Adaptation via Synthetic-Domain Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.04295"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Everything to the Synthetic: Diffusion-driven Test-time Adaptation via Synthetic-Domain Alignment')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Jump frequencies of 111In/Cd tracer atoms were measured for a series of layered phases LanCoIn3n+2 using the technique of perturbed angular correlation of gamma rays (PAC). The frequencies were determined by analysis of nuclear quadrupole relaxation produced by fluctuating electric field gradients. Samples were synthesized having nominal values n= 1, 2, 3, 5 and \\infty, with n=\\infty corresponding to the L12 phase LaIn3. The phases form heuristically from LaIn3 by replacing every (n+1)th (100) mixed plane of La and In atoms with a plane of Co-atoms. For the n=1 phase, LaCoIn5, jump frequencies were too small to detect. Two signals were observed, one for indium atoms next to the Co-planes and the other for more distant indium atoms. No relaxation was observed for atoms next to the Co-planes, indicating that there is no diffusion across the Co-planes. With increasing n, jump rates for the other In-atoms increased toward values observed for LaIn3. Jump frequency activation enthalpies for n= 3 and 5 were observed to be the same as for n=\\infty, suggesting the same diffusion mechanism. However, the jump-frequency prefactors were found to be smaller for small n, which is attributed to reductions in the connectivity of the diffusion sublattice. We conclude that diffusion in the layered phases is remarkably similar to diffusion in LaIn3 once the reduced connectivity is taken into account.",
+          "claimed_authors": [
+            "Randal Newhouse",
+            "Gary S. Collins"
+          ],
+          "claimed_title": "Diffusion in LanCoIn3n+2 phases studied by perturbed angular correlation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1109.2262"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Diffusion in LanCoIn3n+2 phases studied by perturbed angular correlation')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "\\textit{Multiple Instance Learning} (MIL) is concerned with learning from bags of instances, where only bag labels are given and instance labels are unknown. Existent approaches in this field were mainly designed for the bag-level label prediction (predict labels for bags) but not the instance-level (predict labels for instances), with the task loss being only defined at the bag level. This restricts their application in many tasks, where the instance-level labels are more interested. In this paper, we propose a novel algorithm, whose loss is specifically defined at the instance level, to address instance-level label prediction in MIL. We prove that the loss of this algorithm can be unbiasedly and consistently estimated without using instance labels, under the i.i.d assumption. Empirical study validates the above statements and shows that the proposed algorithm can achieve superior instance-level and comparative bag-level performance, compared to state-of-the-art MIL methods. In addition, it shows that the proposed method can achieve similar results as the fully supervised model (trained with instance labels) for label prediction at the instance level.",
+          "claimed_authors": [
+            "Minlong Peng",
+            "Qi Zhang"
+          ],
+          "claimed_title": "Address Instance-level Label Prediction in Multiple Instance Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.12226"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Address Instance-level Label Prediction in Multiple Instance Learning')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion Large Language Models (DLLMs) are inherently ill-suited for variable-length generation, as their inference is defined on a fixed-length canvas and implicitly assumes a known target length. When the length is unknown, as in realistic completion and infilling, naively comparing confidence across mask lengths becomes systematically biased, leading to under-generation or redundant continuations. In this paper, we show that this failure arises from an intrinsic lengthinduced bias in generation confidence estimates, leaving existing DLLMs without a robust way to determine generation length and making variablelength inference unreliable. To address this issue, we propose LR-DLLM, a length-regularized inference framework for DLLMs that treats generation length as an explicit variable and achieves reliable length determination at inference time. It decouples semantic compatibility from lengthinduced uncertainty through an explicit length regularization that corrects biased confidence estimates. Based on this, LR-DLLM enables dynamic expansion or contraction of the generation span without modifying the underlying DLLM or its training procedure. Experiments show that LRDLLM achieves 51.3% Pass@1 on HumanEvalInfilling under fully unknown lengths (+13.4% vs. DreamOn) and 51.5% average Pass@1 on four-language McEval (+14.3% vs. DreamOn).",
+          "claimed_authors": [
+            "Zicong Cheng",
+            "Ruixuan Jia",
+            "Jia Li",
+            "Guo-Wei Yang",
+            "Meng-Hao Guo",
+            "Shi-Min Hu"
+          ],
+          "claimed_title": "Improving Variable-Length Generation in Diffusion Language Models via Length Regularization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.07546"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Improving Variable-Length Generation in Diffusion Language Models via Length Regularization')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Subword tokenization has become the prevailing standard in the field of natural language processing (NLP) over recent years, primarily due to the widespread utilization of pre-trained language models. This shift began with Byte-Pair Encoding (BPE) and was later followed by the adoption of SentencePiece and WordPiece. While subword tokenization consistently outperforms character and word-level tokenization, the precise factors contributing to its success remain unclear. Key aspects such as the optimal segmentation granularity for diverse tasks and languages, the influence of data sources on tokenizers, and the role of morphological information in Indo-European languages remain insufficiently explored. This is particularly pertinent for biomedical terminology, characterized by specific rules governing morpheme combinations. Despite the agglutinative nature of biomedical terminology, existing language models do not explicitly incorporate this knowledge, leading to inconsistent tokenization strategies for common terms. In this paper, we seek to delve into the complexities of subword tokenization in French biomedical domain across a variety of NLP tasks and pinpoint areas where further enhancements can be made. We analyze classical tokenization algorithms, including BPE and SentencePiece, and introduce an original tokenization strategy that integrates morpheme-enriched word segmentation into existing tokenization methods.",
+          "claimed_authors": [
+            "Yanis Labrak",
+            "Adrien Bazoge",
+            "Beatrice Daille",
+            "Mickael Rouvier",
+            "Richard Dufour"
+          ],
+          "claimed_title": "How Important Is Tokenization in French Medical Masked Language Models?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.15010"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='How Important Is Tokenization in French Medical Masked Language Models?')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Classical search algorithms have long underpinned modern artificial intelligence. In this work, we tackle the challenge of inference-time control in diffusion models -- adapting generated outputs to meet diverse test-time objectives -- using principles from classical search. We propose a general framework that orchestrates local and global search to efficiently navigate the generative space. It employs a theoretically grounded local search via annealed Langevin MCMC and performs compute-efficient global exploration using breadth-first and depth-first tree search. We evaluate our approach on a range of challenging domains, including planning, offline reinforcement learning, and image generation. Across all tasks, we observe significant gains in both performance and efficiency. These results show that classical search provides a principled and practical foundation for inference-time scaling in diffusion models. Project page at https://diffusion-inference-scaling.github.io/.",
+          "claimed_authors": [
+            "Xiangcheng Zhang",
+            "Haowei Lin",
+            "Haotian Ye",
+            "James Zou",
+            "Jianzhu Ma",
+            "Yitao Liang",
+            "Yilun Du"
+          ],
+          "claimed_title": "Inference-time Scaling of Diffusion Models through Classical Search",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.23614"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Inference-time Scaling of Diffusion Models through Classical Search')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This survey reviews the progress of diffusion models in generating images from text, ~\\textit{i.e.} text-to-image diffusion models. As a self-contained work, this survey starts with a brief introduction of how diffusion models work for image synthesis, followed by the background for text-conditioned image synthesis. Based on that, we present an organized review of pioneering methods and their improvements on text-to-image generation. We further summarize applications beyond image generation, such as text-guided generation for various modalities like videos, and text-guided image editing. Beyond the progress made so far, we discuss existing challenges and promising future directions.",
+          "claimed_authors": [
+            "Chenshuang Zhang",
+            "Chaoning Zhang",
+            "Mengchun Zhang",
+            "In So Kweon",
+            "Junmo Kim"
+          ],
+          "claimed_title": "Text-to-image Diffusion Models in Generative AI: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.07909"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Text-to-image Diffusion Models in Generative AI: A Survey')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We question the current evaluation practice on diffusion-based purification methods. Diffusion-based purification methods aim to remove adversarial effects from an input data point at test time. The approach gains increasing attention as an alternative to adversarial training due to the disentangling between training and testing. Well-known white-box attacks are often employed to measure the robustness of the purification. However, it is unknown whether these attacks are the most effective for the diffusion-based purification since the attacks are often tailored for adversarial training. We analyze the current practices and provide a new guideline for measuring the robustness of purification methods against adversarial attacks. Based on our analysis, we further propose a new purification strategy improving robustness compared to the current diffusion-based purification methods.",
+          "claimed_authors": [
+            "Minjong Lee",
+            "Dongwoo Kim"
+          ],
+          "claimed_title": "Robust Evaluation of Diffusion-Based Adversarial Purification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.09051"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Robust Evaluation of Diffusion-Based Adversarial Purification')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we introduce a novel dIffusion language modEl pre-training framework for text generation, which we call GENIE. GENIE is a large-scale pretrained diffusion language model that consists of an encoder and a diffusion-based decoder, which can generate text by gradually transforming a random noise sequence into a coherent text sequence. To pre-train GENIE on a large-scale language corpus, we design a new continuous paragraph denoise objective, which encourages the diffusion-decoder to reconstruct a clean text paragraph from a corrupted version, while preserving the semantic and syntactic coherence. We evaluate GENIE on four downstream text generation benchmarks, namely XSum, CNN/DailyMail, Gigaword, and CommonGen. Our experimental results show that GENIE achieves comparable performance with the state-of-the-art autoregressive models on these benchmarks, and generates more diverse text samples. The code and models of GENIE are available at https://github.com/microsoft/ProphetNet/tree/master/GENIE.",
+          "claimed_authors": [
+            "Zhenghao Lin",
+            "Yeyun Gong",
+            "Yelong Shen",
+            "Tong Wu",
+            "Zhihao Fan",
+            "Chen Lin",
+            "Nan Duan",
+            "Weizhu Chen"
+          ],
+          "claimed_title": "Text Generation with Diffusion Language Models: A Pre-training Approach with Continuous Paragraph Denoise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.11685"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Text Generation with Diffusion Language Models: A Pre-training Approach with Continuous Paragraph Denoise')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+          "claimed_authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "claimed_title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21676"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='How do language models learn facts? Dynamics, curricula and hallucinations')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When language models (LMs) are trained to forget (or \"unlearn'') a skill, how precisely does their behavior change? We study the behavior of transformer LMs in which tasks have been forgotten via fine-tuning on randomized labels. Such LMs learn to generate near-random predictions for individual examples in the \"training'' set used for forgetting. Across tasks, however, LMs exhibit extreme variability in whether LM predictions change on examples outside the training set. In some tasks (like entailment classification), forgetting generalizes robustly, and causes models to produce uninformative predictions on new task instances; in other tasks (like physical commonsense reasoning and scientific question answering) forgetting affects only the training examples, and models continue to perform the \"forgotten'' task accurately even for examples very similar to those that appeared in the training set. Dataset difficulty is not predictive of whether a behavior can be forgotten; instead, generalization in forgetting is (weakly) predicted by the confidence of LMs' initial task predictions and the variability of LM representations of training data, with low confidence and low variability both associated with greater generalization. Perhaps most surprisingly, random-label forgetting appears to be somewhat insensitive to the contents of the training set: for example, models trained on science questions with random labels continue to answer other science questions accurately, but begin to produce random labels on entailment classification tasks. Finally, we show that even generalizable forgetting is shallow: linear probes trained on LMs' representations can still perform tasks reliably after forgetting. Our results highlight the difficulty and unpredictability of performing targeted skill removal from models via fine-tuning.",
+          "claimed_authors": [
+            "Eric Zhang",
+            "Leshem Chosen",
+            "Jacob Andreas"
+          ],
+          "claimed_title": "Unforgettable Generalization in Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.02228"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Unforgettable Generalization in Language Models')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate a fully Latent AutoRegressive scheme based on a Gaussian Process (GP) integrated into a Variational Autoencoder (VAE). In this setting, sequential dynamics are transferred from the observation space to a continuous latent space, while linguistic generation remains parallel through a non-autoregressive decoder. We present a complete methodological formulation, including a causal GP prior, a structured amortized posterior, and a training protocol based on a regularized ELBO. Empirical evaluation, conducted within a deliberately constrained proof-of-concept (POC) framework, shows that the model can be trained stably and that the sequential and parallel sampling variants exhibit consistent behavior. Overall, the results suggest that part of the temporal structure in a language model can be supported by the probabilistic geometry of the latent space rather than by explicit neural operations.",
+          "claimed_authors": [
+            "Yves Ruffenach"
+          ],
+          "claimed_title": "Latent-Autoregressive GP-VAE Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.09535"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"BlockPilot: Instance-Adaptive Policy Learning for ', candidate_title='Latent-Autoregressive GP-VAE Language Model')",
+        "failed_at": "2026-07-30T18:39:23Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hao Zhang",
+            "Yiming Hu",
+            "Yong Wang",
+            "Mingqiao Mo",
+            "Xin Xiao",
+            "Xiangxiang Chu"
+          ],
+          "title": "BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Speculative Decoding",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.31315",
+        "summary": "Speculative decoding accelerates inference by using a lightweight draft model to generate candidate tokens in parallel, and are then verified by the target model, enabling lossless acceleration. Recently, diffusion-based speculative decoding further improves parallelism by generating multiple tokens per forward pass via block-level diffusion, achieving state-of-the-art (SOTA) performance. However, existing methods adopt a fixed inference block size and assume a uniform optimal decoding strategy across all inputs. In this paper, we show that this assumption is suboptimal, as the optimal block size varies across samples and plays a critical role in speculative decoding performance. Moreover, these values exhibit a clear local structure, concentrating around the training block size, which reduces the problem to a low-dimensional and structured decision space. Based on these insights, we propose BlockPilot, a sample-adaptive policy that predicts the optimal block size from the prefilling representation. Specifically, we formulate block size selection as a lightweight policy learning problem and propose an instance-adaptive decision mechanism that predicts the optimal block size based on the representation of the prefilling stage. The prediction is performed only once after prefilling, allowing for seamless integration. Extensive experiments demonstrate that our method is plug-and-play, introduces minimal overhead, and consistently improves efficiency, achieving an acceptance length of 5.92 and a 4.20$\\times$ speedup on Qwen3-4B under temperature $T=1$.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.31315",
+          "http_status": 200,
+          "pdf_sample_score": 0.2949,
+          "query_relevance_score": 0.5455,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-30T18:39:23Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"blockpilot: instance-adaptive policy learning for diffusion-based spec\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

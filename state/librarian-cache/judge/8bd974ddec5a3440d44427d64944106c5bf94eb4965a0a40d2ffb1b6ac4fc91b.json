@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.10780",
+  "judged_at": "2026-07-30T18:39:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"blockpilot: instance-adaptive policy learning for diffusion-based spec\" linguistics",
+  "rationale": "The paper focuses on clinical NLP frameworks for electronic health records (EHR) and lacks any connection to the user's specific domain of diffusion-based speech synthesis, instance-adaptive policy learning, or the \"llmXive\" follow-up context. It fails all inclusion criteria (a-f) as it addresses a distinct construct (clinical data annotation) sharing only the broad keyword \"NLP\" without any overlap in mechanism, variables, or empirical population.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.00727",
+  "judged_at": "2026-07-30T18:39:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"blockpilot: instance-adaptive policy learning for diffusion-based spec\" linguistics",
+  "rationale": "The paper focuses on quantum computing algorithms for sentence generation, which is a distinct domain and mechanism from the user's question regarding instance-adaptive policy learning for diffusion-based speech synthesis in LLMs. It fails to satisfy any inclusion criteria as it does not measure the same biological/algorithmic mechanism, share the same empirical population, or provide a foundational method for the specific \"BlockPilot\" or diffusion-based speech context.",
+  "relevant": false
+}

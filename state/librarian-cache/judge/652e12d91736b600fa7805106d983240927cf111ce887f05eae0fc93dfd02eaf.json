@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.06371",
+  "judged_at": "2026-07-30T18:39:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"blockpilot: instance-adaptive policy learning for diffusion-based spec\" linguistics",
+  "rationale": "The paper focuses on Java code generation from natural language, which is a distinct application domain from the user's question regarding \"Diffusion-based Spec\" (speculative decoding) and \"Instance-Adaptive Policy Learning\" for LLMs. While both involve LLMs, the candidate paper does not measure the same mechanism (speculative decoding policies), variables (speculation efficiency/acceptance rates), or domain (diffusion-based generation strategies) required for the user's specific literature revi",
+  "relevant": false
+}

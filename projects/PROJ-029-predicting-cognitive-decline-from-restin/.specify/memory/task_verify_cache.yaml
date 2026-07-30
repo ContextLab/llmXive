@@ -1,0 +1,13 @@
+T024:
+  c: false
+  h: 10de7ca2e707b90f90157a9b1083a325152b0d6926d1c13d194afc6a78459685
+  r: "The repository contains `code/05_evaluate_model.py`, but the file is truncated\
+    \ and does not show the logic that computes ROC\u2011AUC, accuracy, F1\u2011score\
+    \ per fold and writes the results. Moreover, the required output `data/processed/performance_report.json`\
+    \ is absent. The task\u2019s core deliverable is therefore not present."
+T029:
+  c: false
+  h: ebdfb2dbae7a903c9bb409bea4baa09f213f8fef796acfd5da802a6a38c3e061
+  r: "The provided `code/06_permutation_test.py` does not import the training logic\
+    \ from `code/04_train_model.py` and the required output file `data/processed/permutation_results.json`\
+    \ is missing, so the task\u2019s specifications are not satisfied."

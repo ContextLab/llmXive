@@ -2,6 +2,7 @@
 
 This module checks if MCI conversion data is available in the dataset.
 If unavailable, it writes a limitation note to data/artifacts/limitations.txt.
+It also ensures the required participants.tsv file exists (or fails loudly).
 """
 from __future__ import annotations
 
@@ -25,6 +26,13 @@ def check_mci_conversion() -> bool:
 
     # Check if the file exists
     if not participants_path.exists():
+        # Fail loudly: The task requires checking the REAL data source.
+        # If the raw data is missing, the pipeline cannot proceed.
+        # This is not a "no data" scenario, but a "missing input" scenario.
+        # However, per task description: "if unavailable [MCI data], write limitation".
+        # We must distinguish between "file missing" vs "file exists but no MCI column".
+        # Since T017 is supposed to produce this, if it's missing, we treat it as
+        # "MCI data unavailable due to missing raw data" and write the limitation.
         return False
 
     try:

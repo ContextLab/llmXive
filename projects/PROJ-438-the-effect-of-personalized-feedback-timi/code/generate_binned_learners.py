@@ -1,87 +1,87 @@
 """
-Task T026: Generate data/processed/learners_binned.csv with interval and group columns.
+T026: Generate data/processed/learners_binned.csv with interval and group columns.
 
-This script loads the learner-level intervals computed by compute_intervals.py,
-applies the binning logic defined in bin_feedback_groups.py, and saves the
-final binned dataset required for User Story 2.
+This script orchestrates the binning of learner intervals into feedback timing groups
+(Immediate, Delayed, Variable) and saves the result to the processed data directory.
 
-Output: data/processed/learners_binned.csv
+It relies on the output of T023 (compute_intervals.py) which produces learner-level
+median intervals.
 """
 import os
 import sys
-import pandas as pd
 from pathlib import Path
 
-# Import from sibling modules using the defined API surface
+# Ensure the code directory is in the path for imports
+code_dir = Path(__file__).resolve().parent
+sys.path.insert(0, str(code_dir))
+
 from bin_feedback_groups import load_learner_intervals, assign_feedback_group, bin_feedback_groups, save_binned_data
 from logging_config import get_logger, info, error, warning
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-
-# Input/Output paths
-INPUT_FILE = DATA_PROCESSED_DIR / "learners_intervals.csv"
-OUTPUT_FILE = DATA_PROCESSED_DIR / "learners_binned.csv"
+logger = get_logger(__name__)
 
 def main():
-    logger = get_logger(__name__)
-    info("Starting T026: Generate binned learners dataset")
+    """
+    Main entry point for generating the binned learners dataset.
     
-    # Ensure output directory exists
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    1. Loads learner intervals from data/processed/learners_intervals.csv (produced by T023).
+    2. Assigns feedback groups based on median intervals.
+    3. Saves the result to data/processed/learners_binned.csv.
+    """
+    logger.info("Starting generation of binned learners dataset (T026)...")
     
-    # Check if input file exists
-    if not INPUT_FILE.exists():
-        error(f"Input file not found: {INPUT_FILE}")
-        error("Please run compute_intervals.py (T023) first to generate learners_intervals.csv")
+    # Define paths relative to project root
+    # Assuming project root is parent of 'code' directory
+    project_root = code_dir.parent
+    input_path = project_root / "data" / "processed" / "learners_intervals.csv"
+    output_path = project_root / "data" / "processed" / "learners_binned.csv"
+    
+    # Validate input file existence
+    if not input_path.exists():
+        error(f"Input file not found: {input_path}. Please run compute_intervals.py (T023) first.")
         sys.exit(1)
     
-    info(f"Loading interval data from {INPUT_FILE}")
+    info(f"Loading learner intervals from: {input_path}")
     try:
-        df_intervals = load_learner_intervals(INPUT_FILE)
+        learner_intervals_df = load_learner_intervals(str(input_path))
     except Exception as e:
-        error(f"Failed to load interval data: {e}")
+        error(f"Failed to load learner intervals: {e}")
         sys.exit(1)
     
-    if df_intervals.empty:
-        error("Loaded data is empty. Cannot proceed with binning.")
+    if learner_intervals_df.empty:
+        error("Loaded learner intervals dataframe is empty. Cannot proceed with binning.")
         sys.exit(1)
     
-    info(f"Loaded {len(df_intervals)} learner records with intervals")
+    info(f"Loaded {len(learner_intervals_df)} learner records for binning.")
     
-    # Apply binning logic
-    # The bin_feedback_groups function expects a dataframe with a 'median_interval_hours' column
-    # and returns a dataframe with 'feedback_group' added
-    info("Applying feedback group binning (<2h: Immediate, 2-48h: Delayed, >48h: Variable)")
-    try:
-        df_binned = bin_feedback_groups(df_intervals)
-    except Exception as e:
-        error(f"Binning logic failed: {e}")
+    # Perform binning
+    info("Assigning feedback timing groups...")
+    binned_df = bin_feedback_groups(learner_intervals_df)
+    
+    if binned_df is None or binned_df.empty:
+        error("Binning process resulted in an empty or None dataframe.")
         sys.exit(1)
     
-    # Verify required columns exist
+    # Validate output columns
     required_cols = ['learner_id', 'median_interval_hours', 'feedback_group']
-    missing_cols = [c for c in required_cols if c not in df_binned.columns]
+    missing_cols = [col for col in required_cols if col not in binned_df.columns]
     if missing_cols:
-        error(f"Missing required columns after binning: {missing_cols}")
+        error(f"Binned dataframe missing required columns: {missing_cols}")
         sys.exit(1)
     
-    # Save the output
-    info(f"Saving binned data to {OUTPUT_FILE}")
+    info(f"Binning complete. {len(binned_df)} records assigned to groups.")
+    info(f"Group distribution:\n{binned_df['feedback_group'].value_counts()}")
+    
+    # Save output
+    info(f"Saving binned learners to: {output_path}")
     try:
-        save_binned_data(df_binned, OUTPUT_FILE)
+        save_binned_data(binned_df, str(output_path))
     except Exception as e:
-        error(f"Failed to save binned data: {e}")
+        error(f"Failed to save binned learners data: {e}")
         sys.exit(1)
     
-    # Summary statistics
-    group_counts = df_binned['feedback_group'].value_counts()
-    info("Binning distribution:")
-    for group, count in group_counts.items():
-        info(f"  {group}: {count} learners ({100*count/len(df_binned):.1f}%)")
-    
-    info(f"T026 Complete: Generated {OUTPUT_FILE} with {len(df_binned)} records")
+    info(f"Successfully generated {output_path}")
+    logger.info("T026 task completed successfully.")
 
 if __name__ == "__main__":
     main()

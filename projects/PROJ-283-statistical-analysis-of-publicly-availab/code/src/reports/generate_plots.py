@@ -1,13 +1,3 @@
-"""
-generate_plots.py
-
-Generates diagnostic plots for the chess Elo analysis pipeline.
-Specifically implements:
-- Predicted vs Actual deviation scatterplots (T032)
-- Residual plots (T031)
-- Feature importance plots (T031)
-- Diagnostic report generation (T033)
-"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,355 +11,257 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Ensure consistent plotting style
-plt.style.use('seaborn-v0_8-whitegrid')
+# Set style for plots
+sns.set(style="whitegrid")
 
 def load_model_results(results_path: Path) -> Dict[str, Any]:
-    """
-    Load model results from a JSON file.
-
-    Args:
-        results_path: Path to the model results JSON file.
-
-    Returns:
-        Dictionary containing model results.
-
-    Raises:
-        FileNotFoundError: If the results file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
-    """
+    """Load model metrics from JSON file."""
     if not results_path.exists():
         raise FileNotFoundError(f"Model results file not found: {results_path}")
-
+    
     with open(results_path, 'r') as f:
         return json.load(f)
 
 def load_processed_data(data_path: Path) -> pd.DataFrame:
-    """
-    Load processed game data from a Parquet or CSV file.
-
-    Args:
-        data_path: Path to the processed data file.
-
-    Returns:
-        DataFrame containing processed game data.
-
-    Raises:
-        FileNotFoundError: If the data file does not exist.
-        ValueError: If the file format is unsupported.
-    """
-    if not data_path.exists():
-        raise FileNotFoundError(f"Processed data file not found: {data_path}")
-
+    """Load processed game data from Parquet or CSV."""
     if data_path.suffix == '.parquet':
         return pd.read_parquet(data_path)
     elif data_path.suffix == '.csv':
         return pd.read_csv(data_path)
     else:
-        raise ValueError(f"Unsupported file format: {data_path.suffix}. Use .parquet or .csv")
+        raise ValueError(f"Unsupported file format: {data_path.suffix}")
 
-def calculate_residuals(df: pd.DataFrame, model_type: str = 'ridge') -> pd.DataFrame:
-    """
-    Calculate residuals for the given model.
+def calculate_residuals(df: pd.DataFrame, model_type: str) -> pd.Series:
+    """Calculate residuals for a given model."""
+    if model_type not in df.columns or 'outcome' not in df.columns:
+        raise ValueError(f"Required columns not found for {model_type}")
+    
+    return df['outcome'] - df[model_type]
 
-    Args:
-        df: DataFrame containing game data and model predictions.
-        model_type: Type of model ('ridge' or 'glm').
-
-    Returns:
-        DataFrame with added 'residual' column.
-    """
-    pred_col = f'predicted_{model_type}'
-    actual_col = 'outcome'
-
-    if pred_col not in df.columns:
-        raise ValueError(f"Column '{pred_col}' not found in DataFrame. Available columns: {df.columns.tolist()}")
-    if actual_col not in df.columns:
-        raise ValueError(f"Column '{actual_col}' not found in DataFrame. Available columns: {df.columns.tolist()}")
-
-    df = df.copy()
-    df['residual'] = df[actual_col] - df[pred_col]
-    return df
-
-def create_predicted_vs_actual_plot(df: pd.DataFrame, model_type: str = 'ridge', output_path: Optional[Path] = None) -> Path:
-    """
-    Create a predicted vs. actual deviation scatterplot (T032).
-
-    This plot visualizes the relationship between predicted probabilities
-    and actual outcomes, with a diagonal line representing perfect prediction.
-
-    Args:
-        df: DataFrame containing game data with predictions.
-        model_type: Type of model ('ridge' or 'glm').
-        output_path: Optional path to save the plot. If None, plot is shown but not saved.
-
-    Returns:
-        Path to the saved plot file.
-    """
-    pred_col = f'predicted_{model_type}'
-    actual_col = 'outcome'
-
-    if pred_col not in df.columns:
-        raise ValueError(f"Column '{pred_col}' not found in DataFrame.")
-    if actual_col not in df.columns:
-        raise ValueError(f"Column '{actual_col}' not found in DataFrame.")
-
-    # Create the figure
-    fig, ax = plt.subplots(figsize=(10, 8))
-
-    # Scatter plot of predicted vs actual
-    sns.scatterplot(
-        x=df[pred_col],
-        y=df[actual_col],
-        alpha=0.6,
-        edgecolor=None,
-        ax=ax,
-        label='Games'
-    )
-
-    # Add diagonal line (perfect prediction)
-      # Create a range from min to max of predictions
-    min_val = min(df[pred_col].min(), df[actual_col].min())
-    max_val = max(df[pred_col].max(), df[actual_col].max())
-    x_line = np.linspace(min_val, max_val, 100)
-    ax.plot(x_line, x_line, 'r--', linewidth=2, label='Perfect Prediction')
-
-    # Labels and title
-    ax.set_xlabel(f'Predicted Probability ({model_type.capitalize()})', fontsize=12)
-    ax.set_ylabel('Actual Outcome (1=Win, 0.5=Draw, 0=Loss)', fontsize=12)
-    ax.set_title(f'Predicted vs. Actual Outcome Deviation ({model_type.capitalize()} Model)', fontsize=14)
-    ax.legend(loc='upper left')
-
-    # Set axis limits to [0, 1] for better visualization
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-
-    # Add grid
-    ax.grid(True, linestyle='--', alpha=0.7)
-
-    # Save or show
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        logger.info(f"Predicted vs Actual plot saved to: {output_path}")
-    else:
-        plt.show()
-
-    plt.close(fig)
+def create_predicted_vs_actual_plot(
+    df: pd.DataFrame, 
+    model_type: str, 
+    output_path: Path,
+    title: str = "Predicted vs Actual Outcome"
+) -> Path:
+    """Create scatter plot of predicted vs actual values."""
+    plt.figure(figsize=(10, 8))
+    
+    predicted = df[model_type]
+    actual = df['outcome']
+    
+    plt.scatter(actual, predicted, alpha=0.6, edgecolors='w', linewidth=0.5)
+    plt.plot([actual.min(), actual.max()], [actual.min(), actual.max()], 'r--', lw=2, label='Perfect Prediction')
+    
+    plt.xlabel('Actual Outcome')
+    plt.ylabel(f'Predicted Outcome ({model_type})')
+    plt.title(title)
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    
+    logger.info(f"Saved predicted vs actual plot to {output_path}")
     return output_path
 
-def create_residual_plot(df: pd.DataFrame, model_type: str = 'ridge', output_path: Optional[Path] = None) -> Path:
-    """
-    Create a residual plot showing residuals vs. predicted values.
-
-    Args:
-        df: DataFrame containing game data and residuals.
-        model_type: Type of model ('ridge' or 'glm').
-        output_path: Optional path to save the plot.
-
-    Returns:
-        Path to the saved plot file.
-    """
-    pred_col = f'predicted_{model_type}'
-    res_col = 'residual'
-
-    if pred_col not in df.columns:
-        raise ValueError(f"Column '{pred_col}' not found in DataFrame.")
-    if res_col not in df.columns:
-        raise ValueError(f"Column '{res_col}' not found in DataFrame. Run calculate_residuals first.")
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Scatter plot of residuals vs predictions
-    sns.scatterplot(
-        x=df[pred_col],
-        y=df[res_col],
-        alpha=0.6,
-        edgecolor=None,
-        ax=ax
-    )
-
-    # Add horizontal line at 0
-    ax.axhline(y=0, color='r', linestyle='--', linewidth=2, label='Zero Residual')
-
-    # Labels and title
-    ax.set_xlabel(f'Predicted Probability ({model_type.capitalize()})', fontsize=12)
-    ax.set_ylabel('Residual (Actual - Predicted)', fontsize=12)
-    ax.set_title(f'Residual Plot ({model_type.capitalize()} Model)', fontsize=14)
-    ax.legend()
-
-    # Add grid
-    ax.grid(True, linestyle='--', alpha=0.7)
-
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        logger.info(f"Residual plot saved to: {output_path}")
-    else:
-        plt.show()
-
-    plt.close(fig)
+def create_residual_plot(
+    residuals: pd.Series, 
+    output_path: Path,
+    title: str = "Residual Plot"
+) -> Path:
+    """Create residual plot to check for patterns."""
+    plt.figure(figsize=(10, 6))
+    
+    indices = range(len(residuals))
+    plt.scatter(indices, residuals, alpha=0.6, edgecolors='w', linewidth=0.5)
+    plt.axhline(y=0, color='r', linestyle='--', linewidth=2)
+    
+    plt.xlabel('Game Index')
+    plt.ylabel('Residuals')
+    plt.title(title)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    
+    logger.info(f"Saved residual plot to {output_path}")
     return output_path
 
-def create_feature_importance_plot(coefficients: Dict[str, float], output_path: Optional[Path] = None) -> Path:
-    """
-    Create a feature importance plot based on model coefficients.
-
-    Args:
-        coefficients: Dictionary of feature names to coefficient values.
-        output_path: Optional path to save the plot.
-
-    Returns:
-        Path to the saved plot file.
-    """
-    if not coefficients:
-        raise ValueError("Coefficients dictionary is empty.")
-
+def create_feature_importance_plot(
+    coefficients: Dict[str, float], 
+    output_path: Path,
+    title: str = "Feature Importance"
+) -> Path:
+    """Create bar plot of feature importance (absolute coefficients)."""
     # Convert to DataFrame for easier plotting
-    coef_df = pd.DataFrame(list(coefficients.items()), columns=['feature', 'coefficient'])
-    coef_df = coef_df.sort_values('coefficient', ascending=True)
-
-    fig, ax = plt.subplots(figsize=(12, 10))
-
-    # Horizontal bar chart
-    sns.barplot(
-        x='coefficient',
-        y='feature',
-        data=coef_df,
-        palette='viridis',
-        ax=ax
-    )
-
-    # Labels and title
-    ax.set_xlabel('Coefficient Value', fontsize=12)
-    ax.set_ylabel('Feature', fontsize=12)
-    ax.set_title('Feature Importance (Model Coefficients)', fontsize=14)
-
-    # Add grid
-    ax.grid(True, linestyle='--', alpha=0.7, axis='x')
-
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        logger.info(f"Feature importance plot saved to: {output_path}")
-    else:
-        plt.show()
-
-    plt.close(fig)
+    df_importance = pd.DataFrame({
+        'feature': list(coefficients.keys()),
+        'coefficient': list(coefficients.values())
+    })
+    
+    # Sort by absolute value
+    df_importance = df_importance.sort_values('coefficient', key=abs, ascending=False)
+    
+    plt.figure(figsize=(12, 8))
+    plt.barh(df_importance['feature'], df_importance['coefficient'], color='skyblue')
+    plt.xlabel('Coefficient Value')
+    plt.ylabel('Feature')
+    plt.title(title)
+    
+    # Add value labels
+    for i, v in enumerate(df_importance['coefficient']):
+        plt.text(v, i, f"{v:.3f}", va='center')
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    
+    logger.info(f"Saved feature importance plot to {output_path}")
     return output_path
 
 def generate_diagnostic_report(
-    df: pd.DataFrame,
-    model_results: Dict[str, Any],
+    model_metrics: Dict[str, Any],
+    residuals_stats: Dict[str, Dict[str, float]],
+    plots_info: Dict[str, str],
     output_path: Path
-) -> Path:
-    """
-    Generate a comprehensive diagnostic report in JSON format.
-
-    Args:
-        df: DataFrame containing processed game data.
-        model_results: Dictionary containing model metrics and coefficients.
-        output_path: Path to save the diagnostic report.
-
-    Returns:
-        Path to the saved report file.
-    """
+) -> Dict[str, Any]:
+    """Generate a comprehensive diagnostic report as JSON."""
     report = {
-        "dataset_info": {
-            "total_games": len(df),
-            "columns": df.columns.tolist(),
-            "outcome_distribution": df['outcome'].value_counts().to_dict() if 'outcome' in df.columns else {}
-        },
-        "model_metrics": model_results,
-        "data_quality": {
-            "missing_values": df.isnull().sum().to_dict(),
-            "null_counts_by_column": df.isnull().sum().to_dict()
+        "generated_at": pd.Timestamp.now().isoformat(),
+        "model_metrics": model_metrics,
+        "residuals_statistics": residuals_stats,
+        "plots_generated": list(plots_info.keys()),
+        "plot_file_paths": plots_info,
+        "summary": {
+            "total_models_evaluated": len(model_metrics),
+            "total_plots_created": len(plots_info),
+            "residuals_mean_all": np.mean([stats['mean'] for stats in residuals_stats.values()]),
+            "residuals_std_all": np.mean([stats['std'] for stats in residuals_stats.values()])
         }
     }
-
-    # Calculate additional statistics if available
-    if 'predicted_ridge' in df.columns and 'outcome' in df.columns:
-        report["ridge_model_stats"] = {
-            "mean_absolute_error": (df['outcome'] - df['predicted_ridge']).abs().mean(),
-            "mean_squared_error": ((df['outcome'] - df['predicted_ridge']) ** 2).mean(),
-            "r_squared": df['outcome'].corr(df['predicted_ridge']) ** 2
-        }
-
-    if 'predicted_glm' in df.columns and 'outcome' in df.columns:
-        report["glm_model_stats"] = {
-            "mean_absolute_error": (df['outcome'] - df['predicted_glm']).abs().mean(),
-            "mean_squared_error": ((df['outcome'] - df['predicted_glm']) ** 2).mean(),
-            "r_squared": df['outcome'].corr(df['predicted_glm']) ** 2
-        }
-
-    # Save report
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2, default=str)
-
-    logger.info(f"Diagnostic report saved to: {output_path}")
-    return output_path
+    
+    logger.info(f"Saved diagnostic report to {output_path}")
+    return report
 
 def main():
-    """
-    Main entry point for generating diagnostic plots and reports.
-    """
+    """Main function to generate all diagnostic plots and report."""
     # Define paths
     base_dir = Path(__file__).resolve().parent.parent.parent
-    data_dir = base_dir / "data"
-    results_dir = data_dir / "results"
-
-    # Ensure directories exist
+    results_dir = base_dir / "data" / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
-
-    # File paths
-    processed_data_path = data_dir / "processed" / "games.parquet"
-    model_results_path = results_dir / "model_metrics.json"
-    output_plots_dir = results_dir / "plots"
-
-    try:
-        # Load data
-        logger.info("Loading processed data...")
-        df = load_processed_data(processed_data_path)
-
-        logger.info("Loading model results...")
-        model_results = load_model_results(model_results_path)
-
-        # Calculate residuals for Ridge model
-        logger.info("Calculating residuals...")
-        df = calculate_residuals(df, model_type='ridge')
-
-        # Generate plots
-        logger.info("Generating predicted vs actual plot...")
-        pred_vs_actual_path = output_plots_dir / "predicted_vs_actual_ridge.png"
-        create_predicted_vs_actual_plot(df, model_type='ridge', output_path=pred_vs_actual_path)
-
-        logger.info("Generating residual plot...")
-        residual_path = output_plots_dir / "residuals_ridge.png"
-        create_residual_plot(df, model_type='ridge', output_path=residual_path)
-
-        # Generate feature importance plot if coefficients are available
-        if 'ridge' in model_results and 'coefficients' in model_results['ridge']:
-            logger.info("Generating feature importance plot...")
-            importance_path = output_plots_dir / "feature_importance_ridge.png"
+    
+    # Paths to input files
+    processed_data_path = base_dir / "data" / "processed" / "games.parquet"
+    model_metrics_path = results_dir / "model_metrics.json"
+    
+    # Output paths
+    plots_dir = results_dir
+    diagnostics_json_path = results_dir / "diagnostics.json"
+    
+    # Verify input files exist
+    if not processed_data_path.exists():
+        raise FileNotFoundError(f"Processed data not found at {processed_data_path}")
+    if not model_metrics_path.exists():
+        raise FileNotFoundError(f"Model metrics not found at {model_metrics_path}")
+    
+    # Load data
+    logger.info("Loading processed data...")
+    df = load_processed_data(processed_data_path)
+    
+    logger.info("Loading model metrics...")
+    model_metrics = load_model_results(model_metrics_path)
+    
+    # Identify models in the data
+    # We expect columns like 'predicted_outcome_GLM' and 'predicted_outcome_Ridge'
+    # or similar naming convention based on fit.py
+    model_columns = [col for col in df.columns if col.startswith('predicted_outcome_')]
+    
+    if not model_columns:
+        raise ValueError("No predicted outcome columns found in the processed data. "
+                       "Expected columns like 'predicted_outcome_GLM' or 'predicted_outcome_Ridge'.")
+    
+    logger.info(f"Found model columns: {model_columns}")
+    
+    plots_info = {}
+    residuals_stats = {}
+    
+    for model_col in model_columns:
+        model_name = model_col.replace('predicted_outcome_', '')
+        logger.info(f"Processing model: {model_name}")
+        
+        # Calculate residuals
+        residuals = calculate_residuals(df, model_col)
+        
+        # Store statistics
+        residuals_stats[model_name] = {
+            "mean": float(residuals.mean()),
+            "std": float(residuals.std()),
+            "min": float(residuals.min()),
+            "max": float(residuals.max())
+        }
+        
+        # 1. Predicted vs Actual Plot
+        plot_path = plots_dir / f"predicted_vs_actual_{model_name}.png"
+        create_predicted_vs_actual_plot(
+            df, 
+            model_col, 
+            plot_path, 
+            title=f"Predicted vs Actual - {model_name}"
+        )
+        plots_info[f"predicted_vs_actual_{model_name}"] = str(plot_path.relative_to(base_dir))
+        
+        # 2. Residual Plot
+        plot_path = plots_dir / f"residuals_{model_name}.png"
+        create_residual_plot(
+            residuals, 
+            plot_path, 
+            title=f"Residuals - {model_name}"
+        )
+        plots_info[f"residuals_{model_name}"] = str(plot_path.relative_to(base_dir))
+        
+        # 3. Feature Importance Plot (if coefficients are available in model_metrics)
+        # Check if coefficients exist for this model in the loaded metrics
+        model_metrics_flat = model_metrics.get('models', {})
+        # Try to find coefficients for this model
+        # The structure might be {'Gaussian GLM': {...}, 'Ridge': {...}}
+        # We need to map model_name (e.g., "GLM") to the key in metrics
+        # Heuristic: Look for keys containing the model name or common aliases
+        coeff_key = None
+        for key in model_metrics_flat:
+            if model_name.lower() in key.lower() or key.lower() in model_name.lower():
+                coeff_key = key
+                break
+        
+        if coeff_key and 'coefficients' in model_metrics_flat[coeff_key]:
+            coeffs = model_metrics_flat[coeff_key]['coefficients']
+            plot_path = plots_dir / f"feature_importance_{model_name}.png"
             create_feature_importance_plot(
-                model_results['ridge']['coefficients'],
-                output_path=importance_path
+                coeffs, 
+                plot_path, 
+                title=f"Feature Importance - {model_name}"
             )
-
-        # Generate diagnostic report
-        logger.info("Generating diagnostic report...")
-        report_path = results_dir / "diagnostics.json"
-        generate_diagnostic_report(df, model_results, report_path)
-
-        logger.info("All plots and reports generated successfully.")
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Error generating plots: {e}")
-        raise
+            plots_info[f"feature_importance_{model_name}"] = str(plot_path.relative_to(base_dir))
+        else:
+            logger.warning(f"Coefficients not found for model {model_name} in model_metrics, skipping feature importance plot.")
+    
+    # Generate final diagnostic report
+    logger.info("Generating diagnostic report...")
+    report = generate_diagnostic_report(
+        model_metrics,
+        residuals_stats,
+        plots_info,
+        diagnostics_json_path
+    )
+    
+    logger.info("All plots and report generated successfully.")
+    print(f"Diagnostic report saved to: {diagnostics_json_path}")
+    print(f"Plots saved to: {plots_dir}")
+    
+    return report
 
 if __name__ == "__main__":
     main()

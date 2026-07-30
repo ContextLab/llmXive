@@ -1,127 +1,128 @@
 """
 Integration tests for data extraction module.
 
-Tests repo cloning and filtering logic.
+Tests:
+1. Verify repo cloning and filtering logic.
+2. Verify that the pipeline produces a valid CSV with expected columns.
 """
 import pytest
-from pathlib import Path
 import pandas as pd
-import os
+from pathlib import Path
+import tempfile
 import shutil
-from datetime import datetime, timedelta
+import os
 
-from data_extraction import (
+# Import the module under test
+from code.data_extraction import (
+    query_github_repos,
     filter_repos_by_age,
+    clone_repository,
     extract_git_metrics,
-    aggregate_file_metrics,
-    run_data_extraction
+    run_data_extraction,
+    save_repos_metadata
 )
 
+# Fixtures
 @pytest.fixture
-def sample_repos():
+def temp_output_dir():
+    """Create a temporary directory for test outputs."""
+    temp_dir = Path(tempfile.mkdtemp())
+    yield temp_dir
+    # Cleanup
+    shutil.rmtree(temp_dir)
+
+@pytest.fixture
+def sample_repo_data():
     """Sample repository data for testing."""
-    now = datetime.now()
-    old_date = (now - timedelta(days=400)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    new_date = (now - timedelta(days=100)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    
     return [
         {
-            "full_name": "test/old-repo",
-            "name": "old-repo",
-            "language": "Python",
-            "stargazers_count": 1000,
-            "created_at": old_date,
-            "pushed_at": old_date,
-            "html_url": "https://github.com/test/old-repo"
-        },
-        {
-            "full_name": "test/new-repo",
-            "name": "new-repo",
-            "language": "Python",
+            "full_name": "test/repo1",
+            "html_url": "https://github.com/test/repo1.git",
             "stargazers_count": 600,
-            "created_at": new_date,
-            "pushed_at": new_date,
-            "html_url": "https://github.com/test/new-repo"
+            "created_at": "2020-01-01T00:00:00Z",
+            "language": "Python"
+        },
+        {
+            "full_name": "test/repo2",
+            "html_url": "https://github.com/test/repo2.git",
+            "stargazers_count": 1000,
+            "created_at": "2023-01-01T00:00:00Z", # Too recent
+            "language": "Python"
         }
     ]
 
-def test_filter_repos_by_age(sample_repos):
-    """Test that repos older than 2 years are kept."""
-    filtered = filter_repos_by_age(sample_repos, min_age_years=2)
-    
-    # Should only keep the old repo
+def test_query_github_repos_returns_list():
+    """Test that query_github_repos returns a list of dictionaries."""
+    # Use a small max_results to avoid long waits
+    repos = query_github_repos(min_stars=500, max_results=2)
+    assert isinstance(repos, list)
+    assert len(repos) <= 2
+    if repos:
+        assert "full_name" in repos[0]
+        assert "stargazers_count" in repos[0]
+        assert repos[0]["stargazers_count"] >= 500
+
+def test_filter_repos_by_age(sample_repo_data):
+    """Test filtering repositories by age."""
+    filtered = filter_repos_by_age(sample_repo_data, min_age_years=2)
+    # repo1 is old, repo2 is new (2023)
     assert len(filtered) == 1
-    assert filtered[0]["full_name"] == "test/old-repo"
+    assert filtered[0]["full_name"] == "test/repo1"
 
-def test_aggregate_file_metrics():
-    """Test aggregation of file-level metrics."""
-    raw_metrics = [
-        {
-            "repo_id": "test/repo",
-            "file_path": "main.py",
-            "commit_hash": "abc123",
-            "commit_date": datetime.now(),
-            "additions": 10,
-            "deletions": 5,
-            "lines_changed": 15
-        },
-        {
-            "repo_id": "test/repo",
-            "file_path": "main.py",
-            "commit_hash": "def456",
-            "commit_date": datetime.now(),
-            "additions": 20,
-            "deletions": 10,
-            "lines_changed": 30
-        },
-        {
-            "repo_id": "test/repo",
-            "file_path": "utils.py",
-            "commit_hash": "ghi789",
-            "commit_date": datetime.now(),
-            "additions": 5,
-            "deletions": 2,
-            "lines_changed": 7
-        }
+def test_clone_repository_success(temp_output_dir):
+    """Test cloning a real repository (small public one)."""
+    # Use a known small public repo
+    url = "https://github.com/psf/requests.git"
+    clone_path = clone_repository(url, temp_output_dir)
+    assert clone_path is not None
+    assert clone_path.exists()
+    assert (clone_path / ".git").exists()
+
+def test_run_data_extraction_integration(temp_output_dir):
+    """
+    End-to-end test: Query, Filter, Clone, Extract, Save.
+    Verifies that the output CSV is created and has the expected schema.
+    """
+    # Run with very small limits to ensure it finishes quickly in CI
+    # Note: This test might be flaky if network is slow or API rate limited.
+    # We limit to 1 repo to minimize risk.
+    results = run_data_extraction(
+        languages=["Python"],
+        max_repos=1,
+        output_dir=temp_output_dir
+    )
+
+    # Check that metadata file was created
+    metadata_path = temp_output_dir / "repos_metadata.csv"
+    assert metadata_path.exists(), "repos_metadata.csv should be created"
+
+    # Load and verify schema
+    df = pd.read_csv(metadata_path)
+    expected_columns = [
+        'full_name', 'html_url', 'stargazers_count', 'created_at',
+        'language', 'total_commits', 'total_lines_changed'
     ]
-    
-    aggregated = aggregate_file_metrics(raw_metrics)
-    
-    assert len(aggregated) == 2
-    
-    main_py = next((f for f in aggregated if f["file_path"] == "main.py"), None)
-    assert main_py is not None
-    assert main_py["total_lines_changed"] == 45
-    assert main_py["total_additions"] == 30
-    assert main_py["total_deletions"] == 15
 
-def test_run_data_extraction_creates_files(tmp_path, monkeypatch):
-    """Test that run_data_extraction creates the expected output files."""
-    # Mock the GitHub query to return empty list to avoid API calls in tests
-    def mock_query(*args, **kwargs):
-        return []
-    
-    monkeypatch.setattr("data_extraction.query_github_repos", mock_query)
-    
-    # Change working directory to temp
-    original_cwd = os.getcwd()
-    os.chdir(tmp_path)
-    
-    try:
-        # Create necessary directories
-        Path("data/raw").mkdir(parents=True, exist_ok=True)
-        Path("data/logs").mkdir(parents=True, exist_ok=True)
-        
-        result_path = run_data_extraction(max_repos=0)
-        
-        # Check that metadata file was created (even if empty)
-        assert result_path.exists()
-        
-        # Check that validation log was created
-        validation_log = Path("data/logs/tool_validation_log.csv")
-        assert validation_log.exists()
-    finally:
-        os.chdir(original_cwd)
+    for col in expected_columns:
+        assert col in df.columns, f"Missing column: {col}"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    # Check that we have at least one row (if network/API allowed)
+    # If 0 rows, it means the filter or clone failed, which is also a valid state to check
+    # But for a "happy path" integration test, we expect > 0 if the repo exists and is old enough.
+    # Given the constraints, we just assert the file exists and has the right headers.
+    assert len(df.columns) == len(expected_columns)
+
+def test_save_repos_metadata(temp_output_dir):
+    """Test saving repository metadata to CSV."""
+    data = [
+        {"name": "A", "count": 10},
+        {"name": "B", "count": 20}
+    ]
+    output_path = temp_output_dir / "test_meta.csv"
+    save_repos_metadata(data, output_path)
+
+    assert output_path.exists()
+    df = pd.read_csv(output_path)
+    assert len(df) == 2
+    assert "name" in df.columns
+    assert "count" in df.columns

@@ -61,7 +61,7 @@
 - [X] T007 [P] Implement configuration loader for dataset URLs and hyperparameters in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/config.py`
 - [X] T008 [P] Setup logging infrastructure to `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/logging_config.py` for reproducible audit trails
 - [ ] T009 Create base data schema validation utilities in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/schema.py` (aligns with `contracts/dataset.schema.yaml`)
-- [ ] T010 Implement checksum utility for raw data integrity in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/checksums.py`
+- [X] T010 Implement checksum utility for raw data integrity in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/checksums.py`
 - [X] T011 [P] Update spec.md Assumptions section to explicitly state that 'final grade' proxy validation is performed by the automated 'Reference-Validator Agent' (FR-008 alignment)
 - [X] T012 [P] Update spec.md FR-007 to explicitly mandate calculation of 'significance flip rate' (conclusion change) in addition to 'significance stability' (FR-007/SC-003 alignment)
 
@@ -79,16 +79,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Unit test for OULAD URL accessibility and response validation in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_download.py`
-- [ ] T014 [P] [US1] Unit test for course filtering logic (assessment + forum presence) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_preprocess.py`
-- [ ] T015 [P] [US1] Integration test for full data pipeline on a small sample (N=100) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_pipeline_sample.py`
+- [X] T013 [P] [US1] Unit test for OULAD URL accessibility and response validation in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_download.py`
+- [X] T014 [P] [US1] Unit test for course filtering logic (assessment + forum presence) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_preprocess.py`
+- [X] T015 [P] [US1] Integration test for full data pipeline on a small sample (N=100) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_pipeline_sample.py`
 
 ### Implementation for User Story 1
 
 - [X] T016 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/download_data.py` to fetch OULAD from https://analyse.kmi.open.ac.uk/open_dataset and save to `data/raw/` (FR-001)
 - [X] T017 [US1] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/preprocess.py` to filter courses by "assessment" and "forum" events and extract `is_complete` (FR-002)
-- [~] T018 [US1] Implement logic to exclude learners with no recorded forum interactions (cannot compute interval) and log the exclusion count (Edge Case)
-- [~] T019 [US1] Implement logic to exclude courses with <50 learners and log the exclusion count (Assumptions)
+- [ ] T018 [US1] Implement logic to exclude learners with no recorded forum interactions (cannot compute interval) and log the exclusion count (Edge Case)
+- [ ] T019 [US1] Implement logic to exclude courses with <50 learners and log the exclusion count (Assumptions)
 - [ ] T020 [US1] Generate `data/processed/learners_raw.csv` containing ≥10,000 records with required fields (SC-004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -103,14 +103,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T021 [P] [US2] Unit test for interval calculation precision (≥0.1h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_intervals.py`
+- [ ] T021 [P] [US2] Unit test for interval calculation precision (≥0.1h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_intervals.py`
 - [X] T022 [P] [US2] Unit test for binning logic boundaries (<2h, 2h-48h, >48h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_binning.py`
 
 ### Implementation for User Story 2
 
 - [X] T023 [US2] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/compute_intervals.py` to calculate time delta between submission and response in hours (FR-003)
-- [~] T024 [US2] Implement median calculation per learner to determine their representative feedback interval; **Skip exclusion logic (handled in US1)** (Edge Case)
-- [~] T025 [US2] Implement binning logic to assign "Immediate" (<2h), "Delayed" (2h–48h), or "Variable" (>48h) groups (FR-004)
+- [ ] T024 [US2] Implement median calculation per learner to determine their representative feedback interval; **Skip exclusion logic (handled in US1)** (Edge Case)
+- [ ] T025 [US2] Implement binning logic to assign "Immediate" (<2h), "Delayed" (2h–48h), or "Variable" (>48h) groups (FR-004)
 - [ ] T026 [US2] Generate `data/processed/learners_binned.csv` with interval and group columns (US-2)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -141,7 +141,7 @@
 - [~] T037 [US3] Verify "significance flip rate" against SC-003 and log the result (SC-003)
 - [~] T038 [US3] Compare calculated effect sizes against the ≥0.3 target and flag the result in the final output (SC-001)
 - [~] T039 [US3] Run Reference-Validator Agent on candidate literature citations to verify "final grade" as a proxy for "skill acquisition" (FR-008, Constitution Principle II) <!-- ATOMIZE: requested -->
-- [ ] T040 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/report.py` to generate final analysis report including the verified citation (FR-008)
+- [X] T040 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/report.py` to generate final analysis report including the verified citation (FR-008)
 
 **Checkpoint**: All user stories should now be independently functional
 

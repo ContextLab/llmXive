@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://research.stem.open.ac.uk/ouanalyse/
   verified_at: '2026-07-04T14:41:02.413902Z'
-- artifact_hash: e2d0dacf8693a30584a83e20ebace0f194fdd695d402ad0b8443071943038e39
+- artifact_hash: 99e1c6baec431bddb769077e8760d49f65dad4b3e871a300db717d4a51375046
   artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -39,6 +39,6 @@
   fetched_title: OU Analyse
   kind: url
   value: https://analyse.kmi.open.ac.uk/open_dataset
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://research.stem.open.ac.uk/ouanalyse/
-  verified_at: '2026-07-05T18:36:41.283968Z'
+  verified_at: '2026-07-30T19:05:03.427651Z'

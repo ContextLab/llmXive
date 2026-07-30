@@ -1,51 +1,27 @@
-# Model Output Schema
-# Defines the structure for model evaluation metrics and coefficients
-# Aligned with Plan.md Complexity Tracking override of Spec FR-005
-schema_name: model_output
-version: "1.0.0"
-description: >
-  Schema for storing model training results, including coefficients,
-  statistical significance metrics, and cross-validation scores.
+name: model_output
+description: Schema for model output metrics including coefficients, p-values, and fit statistics.
 columns:
   - name: model_type
     type: string
-    description: Type of model used (e.g., 'GaussianGLM', 'RidgeRegression')
     nullable: false
+    description: Type of model (e.g., 'Gaussian GLM', 'Ridge Regression')
   - name: coefficients
     type: object
-    description: Dictionary mapping feature names to their estimated coefficients
     nullable: false
+    description: Dictionary mapping feature names to their coefficient values
   - name: p_values
     type: object
-    description: >
-      Dictionary mapping feature names to their p-values (after FDR correction if applicable).
-      For models where p-values are not directly available (e.g., Ridge), this may be null
-      or contain a placeholder indicating non-applicability.
-    nullable: true
+    nullable: false
+    description: Dictionary mapping feature names to their p-values (after FDR correction if applicable)
   - name: r_squared
-    type: float
-    description: Coefficient of determination (R²) for the model
+    type: number
     nullable: false
+    description: R-squared value of the model fit
   - name: aic
-    type: float
-    description: Akaike Information Criterion (AIC) for the model
-    nullable: true
-  - name: cross_validation_scores
-    type: list
-    description: >
-      List of scores (e.g., R² or MSE) from k-fold cross-validation.
-      Order corresponds to the fold indices (0 to k-1).
+    type: number
     nullable: false
-constraints:
-  - rule: r_squared_range
-    condition: 0.0 <= r_squared <= 1.0
-    message: "R-squared value must be between 0 and 1"
-  - rule: coefficients_structure
-    condition: isinstance(coefficients, dict) and all(isinstance(k, str) and isinstance(v, (int, float)) for k, v in coefficients.items())
-    message: "Coefficients must be a dictionary of string keys and numeric values"
-  - rule: p_values_structure
-    condition: p_values is None or (isinstance(p_values, dict) and all(isinstance(k, str) and isinstance(v, (int, float)) for k, v in p_values.items()))
-    message: "P-values must be a dictionary of string keys and numeric values, or null"
-  - rule: cv_scores_structure
-    condition: isinstance(cross_validation_scores, list) and all(isinstance(s, (int, float)) for s in cross_validation_scores)
-    message: "Cross-validation scores must be a list of numeric values"
+    description: Akaike Information Criterion value
+  - name: cross_validation_scores
+    type: array
+    nullable: false
+    description: List of scores from cross-validation folds

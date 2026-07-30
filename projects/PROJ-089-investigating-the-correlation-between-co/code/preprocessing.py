@@ -1,15 +1,12 @@
 """
-Preprocessing module for T015.
+Preprocessing module for filtering and preparing metrics data.
 
-Filters non-source-code files, excludes files with avg_loc < 10 (default),
-and generates parameterized datasets for sensitivity analysis with thresholds 5, 10, 20.
-
-Outputs:
-    data/processed/unified_metrics.csv (raw metrics)
-    data/processed/unified_metrics_threshold_5.csv
-    data/processed/unified_metrics_threshold_10.csv
-    data/processed/unified_metrics_threshold_20.csv
+Implements:
+- Filtering non-source code files
+- Excluding files with avg_loc < threshold
+- Generating parameterized datasets for sensitivity analysis
 """
+
 import os
 import logging
 from pathlib import Path
@@ -17,218 +14,359 @@ from typing import List, Dict, Any, Optional
 import pandas as pd
 import numpy as np
 
-# Import from existing project modules
 from config import get_config_summary, ensure_directories
 from utils import get_logger
 
-# Define source code extensions
+# Source file extensions
 SOURCE_EXTENSIONS = {
-    '.py', '.js', '.ts', '.jsx', '.tsx', '.java', '.c', '.cpp', '.h', '.hpp',
-    '.go', '.rs', '.rb', '.php', '.swift', '.kt', '.scala', '.r', '.m', '.mm',
-    '.pl', '.pm', '.sh', '.bash', '.zsh', '.fish', '.ps1', '.sql', '.html',
-    '.css', '.scss', '.sass', '.less', '.vue', '.svelte', '.cs', '.fs', '.fsx'
+    # Python
+    '.py',
+    # Java
+    '.java',
+    # JavaScript/TypeScript
+    '.js', '.jsx', '.ts', '.tsx',
+    # Go
+    '.go',
+    # Rust
+    '.rs',
+    # C/C++
+    '.c', '.cpp', '.cc', '.h', '.hpp',
+    # Ruby
+    '.rb',
+    # PHP
+    '.php',
+    # Swift
+    '.swift',
+    # Kotlin
+    '.kt', '.kts',
+    # Scala
+    '.scala',
+    # R
+    '.r', '.R',
+    # Julia
+    '.jl',
+    # Shell
+    '.sh', '.bash',
+    # HTML/CSS (often counted in web projects)
+    '.html', '.htm', '.css', '.scss', '.sass', '.less',
+    # Config files that might be analyzed
+    '.yaml', '.yml', '.json', '.xml', '.toml', '.ini', '.cfg',
+    # SQL
+    '.sql',
+    # Markdown (sometimes included in documentation debt)
+    '.md', '.rst', '.txt',
 }
 
-# Non-source files patterns to exclude
+# Directories to exclude
 EXCLUDED_DIRS = {
-    'node_modules', 'venv', '.venv', '__pycache__', '.git', '.svn', '.hg',
-    'dist', 'build', '.idea', '.vscode', 'target', 'out', 'bin', 'obj',
-    'vendor', 'third_party', 'external', 'dependencies', 'test_data', 'fixtures'
+    'node_modules', '__pycache__', '.git', '.svn', '.hg',
+    'venv', 'env', '.env', 'dist', 'build', 'target',
+    'vendor', 'third_party', 'external', 'libs',
+    '.idea', '.vscode', '.settings', '.pytest_cache',
+    'coverage', 'htmlcov', '.tox', '.mypy_cache',
 }
 
-EXCLUDED_FILES = {
-    'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'Gemfile.lock',
-    'Cargo.lock', 'composer.lock', 'poetry.lock', 'pipfile.lock',
-    'requirements.txt', 'setup.py', 'pyproject.toml', 'Makefile', 'Dockerfile',
-    'docker-compose.yml', '.gitignore', '.dockerignore', 'README.md', 'LICENSE',
-    'CHANGELOG.md', 'CONTRIBUTING.md', 'setup.cfg', 'tox.ini', '.coveragerc'
+# Directories to exclude based on name patterns
+EXCLUDED_DIR_PATTERNS = {
+    'test', 'tests', 'spec', 'specs', 'benchmark', 'bench',
+    'example', 'examples', 'sample', 'samples',
+    'mock', 'mocks', 'fixture', 'fixtures',
+    'generated', 'gen', 'out', 'output',
 }
 
-def is_source_file(file_path: Path) -> bool:
-    """Check if a file is a source code file based on extension and name."""
-    if file_path.suffix.lower() not in SOURCE_EXTENSIONS:
-        return False
-    
-    # Check if any parent directory is excluded
-    for part in file_path.parts:
-        if part in EXCLUDED_DIRS:
-            return False
-    
-    # Check if the filename itself is excluded
-    if file_path.name in EXCLUDED_FILES:
-        return False
-    
-    return True
+logger = get_logger(__name__)
 
-def filter_non_source_files(df: pd.DataFrame, file_path_column: str = 'file_path') -> pd.DataFrame:
-    """Filter out non-source-code files from the dataframe."""
-    valid_rows = []
-    for idx, row in df.iterrows():
-        file_path = Path(row[file_path_column])
-        if is_source_file(file_path):
-            valid_rows.append(row)
-    
-    return pd.DataFrame(valid_rows) if valid_rows else pd.DataFrame(columns=df.columns)
-
-def apply_loc_threshold(df: pd.DataFrame, threshold: int, loc_column: str = 'avg_loc') -> pd.DataFrame:
-    """Filter files based on avg_loc threshold."""
-    if loc_column not in df.columns:
-        raise ValueError(f"Column '{loc_column}' not found in dataframe")
-    
-    return df[df[loc_column] >= threshold].copy()
-
-def generate_parameterized_datasets(input_df: pd.DataFrame, thresholds: List[int] = [5, 10, 20]) -> Dict[int, pd.DataFrame]:
+def is_source_file(file_path: str) -> bool:
     """
-    Generate datasets for sensitivity analysis with different LOC thresholds.
+    Check if a file is a source code file based on extension.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        True if the file has a recognized source code extension
+    """
+    path = Path(file_path)
+    return path.suffix.lower() in SOURCE_EXTENSIONS
+
+def should_exclude_dir(dir_name: str) -> bool:
+    """
+    Check if a directory should be excluded from analysis.
+    
+    Args:
+        dir_name: Name of the directory
+        
+    Returns:
+        True if the directory should be excluded
+    """
+    dir_lower = dir_name.lower()
+    if dir_lower in EXCLUDED_DIRS:
+        return True
+    if any(pattern in dir_lower for pattern in EXCLUDED_DIR_PATTERNS):
+        return True
+    return False
+
+def filter_non_source_files(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Filter out non-source code files from the dataset.
+    
+    Args:
+        df: DataFrame with a 'file_path' column
+        
+    Returns:
+        Filtered DataFrame containing only source files
+    """
+    if df.empty:
+        logger.warning("Input DataFrame is empty")
+        return df
+    
+    if 'file_path' not in df.columns:
+        raise ValueError("DataFrame must contain 'file_path' column")
+    
+    # Filter by extension
+    mask_extension = df['file_path'].apply(lambda x: is_source_file(str(x)))
+    
+    # Filter by directory
+    def has_excluded_dir(path_str):
+        path = Path(path_str)
+        for parent in path.parents:
+            if should_exclude_dir(parent.name):
+                return True
+        return False
+    
+    mask_dir = ~df['file_path'].apply(has_excluded_dir)
+    
+    combined_mask = mask_extension & mask_dir
+    filtered_df = df[combined_mask].copy()
+    
+    logger.info(
+        f"Filtered {len(df) - len(filtered_df)} non-source files "
+        f"(from {len(df)} to {len(filtered_df)} rows)"
+    )
+    
+    return filtered_df
+
+def apply_loc_threshold(df: pd.DataFrame, min_loc: int) -> pd.DataFrame:
+    """
+    Filter out files with avg_loc below the specified threshold.
+    
+    Args:
+        df: DataFrame with 'avg_loc' column
+        min_loc: Minimum lines of code threshold
+        
+    Returns:
+        Filtered DataFrame
+    """
+    if df.empty:
+        logger.warning("Input DataFrame is empty")
+        return df
+    
+    if 'avg_loc' not in df.columns:
+        raise ValueError("DataFrame must contain 'avg_loc' column")
+    
+    filtered_df = df[df['avg_loc'] >= min_loc].copy()
+    
+    logger.info(
+        f"Applied LOC threshold >= {min_loc}: "
+        f"filtered {len(df) - len(filtered_df)} files "
+        f"(from {len(df)} to {len(filtered_df)} rows)"
+    )
+    
+    return filtered_df
+
+def generate_parameterized_datasets(
+    input_df: pd.DataFrame,
+    thresholds: List[int] = [5, 10, 20]
+) -> Dict[int, pd.DataFrame]:
+    """
+    Generate parameterized datasets for sensitivity analysis with different LOC thresholds.
     
     Args:
         input_df: DataFrame with raw metrics
-        thresholds: List of LOC thresholds to apply (default: [5, 10, 20])
-    
+        thresholds: List of LOC thresholds to apply
+        
     Returns:
-        Dictionary mapping threshold value to filtered DataFrame
+        Dictionary mapping threshold to filtered DataFrame
     """
     datasets = {}
     
     for threshold in thresholds:
-        filtered_df = apply_loc_threshold(input_df, threshold)
+        logger.info(f"Generating dataset for LOC threshold = {threshold}")
+        filtered_df = apply_loc_threshold(input_df.copy(), threshold)
         datasets[threshold] = filtered_df
     
     return datasets
 
-def save_datasets(datasets: Dict[int, pd.DataFrame], output_dir: Path, base_filename: str = 'unified_metrics') -> List[str]:
+def save_datasets(
+    datasets: Dict[int, pd.DataFrame],
+    output_dir: Path,
+    base_filename: str = "unified_metrics"
+) -> List[Path]:
     """
     Save parameterized datasets to CSV files.
     
     Args:
         datasets: Dictionary of threshold -> DataFrame
-        output_dir: Directory to save files
+        output_dir: Output directory path
         base_filename: Base name for output files
-    
+        
     Returns:
-        List of paths to saved files
+        List of output file paths
     """
-    saved_files = []
+    output_paths = []
     
-    # Save the default dataset (threshold 10)
-    if 10 in datasets:
-        default_path = output_dir / f"{base_filename}.csv"
-        datasets[10].to_csv(default_path, index=False)
-        saved_files.append(str(default_path))
-    
-    # Save threshold-specific datasets
     for threshold, df in datasets.items():
-        if threshold != 10:  # Already saved as default
-            threshold_path = output_dir / f"{base_filename}_threshold_{threshold}.csv"
-            df.to_csv(threshold_path, index=False)
-            saved_files.append(str(threshold_path))
+        filename = f"{base_filename}_loc_{threshold}.csv"
+        output_path = output_dir / filename
+        
+        df.to_csv(output_path, index=False)
+        output_paths.append(output_path)
+        
+        logger.info(f"Saved dataset (threshold={threshold}): {output_path} "
+                    f"({len(df)} rows)")
     
-    return saved_files
+    return output_paths
 
 def validate_raw_metrics(df: pd.DataFrame) -> bool:
     """
-    Validate that the dataframe contains the required raw metrics columns.
-    
-    Required columns: total_lines_changed, debt_score, avg_loc, contributor_count
-    """
-    required_columns = ['total_lines_changed', 'debt_score', 'avg_loc', 'contributor_count']
-    
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    if missing_columns:
-        raise ValueError(f"Missing required raw metric columns: {missing_columns}")
-    
-    # Check for non-null values in required columns
-    for col in required_columns:
-        null_count = df[col].isnull().sum()
-        if null_count > 0:
-            logging.warning(f"Column '{col}' has {null_count} null values")
-    
-    return True
-
-def run_preprocessing(input_file: str, output_dir: str, thresholds: List[int] = [5, 10, 20]) -> Dict[str, Any]:
-    """
-    Main preprocessing function.
+    Validate that required raw metric columns exist and are non-null.
     
     Args:
-        input_file: Path to input unified_metrics.csv (raw metrics from static analysis)
-        output_dir: Directory to save processed output files
-        thresholds: List of LOC thresholds for sensitivity analysis
-    
+        df: DataFrame to validate
+        
     Returns:
-        Dictionary with execution results and statistics
+        True if validation passes
+        
+    Raises:
+        ValueError if validation fails
     """
-    logger = get_logger(__name__)
+    required_columns = [
+        'total_lines_changed',
+        'debt_score',
+        'avg_loc',
+        'contributor_count'
+    ]
+    
+    for col in required_columns:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
+        
+        null_count = df[col].isna().sum()
+        if null_count > 0:
+            raise ValueError(
+                f"Column '{col}' has {null_count} null values. "
+                "All raw metrics must be non-null."
+            )
+        
+        # Check for negative values where not expected
+        if col in ['total_lines_changed', 'debt_score', 'avg_loc']:
+            if (df[col] < 0).any():
+                raise ValueError(
+                    f"Column '{col}' contains negative values, which is unexpected."
+                )
+    
+    logger.info("Raw metrics validation passed")
+    return True
+
+def run_preprocessing(
+    input_path: Path,
+    output_dir: Path,
+    thresholds: List[int] = [5, 10, 20]
+) -> Dict[str, Any]:
+    """
+    Run the full preprocessing pipeline.
+    
+    Args:
+        input_path: Path to input CSV with raw metrics
+        output_dir: Directory to save output files
+        thresholds: LOC thresholds for sensitivity analysis
+        
+    Returns:
+        Dictionary with processing results
+    """
+    logger.info(f"Starting preprocessing from {input_path}")
     
     # Ensure output directory exists
-    ensure_directories()
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    ensure_directories([output_dir])
     
     # Load input data
-    input_path = Path(input_file)
     if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_file}")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    logger.info(f"Loading input data from {input_file}")
     df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows")
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
     
     # Validate raw metrics
     validate_raw_metrics(df)
     
-    # Filter non-source files
-    logger.info("Filtering non-source-code files...")
-    filtered_df = filter_non_source_files(df)
-    logger.info(f"Filtered to {len(filtered_df)} source files (removed {len(df) - len(filtered_df)} non-source files)")
+    # Step 1: Filter non-source files
+    df_filtered = filter_non_source_files(df)
     
-    # Generate parameterized datasets
-    logger.info(f"Generating datasets for thresholds: {thresholds}")
-    datasets = generate_parameterized_datasets(filtered_df, thresholds)
+    # Step 2: Generate parameterized datasets
+    datasets = generate_parameterized_datasets(df_filtered, thresholds)
     
-    # Save datasets
-    logger.info("Saving datasets...")
-    saved_files = save_datasets(datasets, output_path)
+    # Step 3: Save all datasets
+    output_paths = save_datasets(datasets, output_dir)
     
     # Prepare results summary
     results = {
-        'input_file': str(input_path),
-        'output_directory': str(output_path),
-        'total_input_rows': len(df),
-        'filtered_source_rows': len(filtered_df),
-        'non_source_removed': len(df) - len(filtered_df),
-        'thresholds_processed': thresholds,
-        'output_files': saved_files,
-        'datasets_summary': {
-            threshold: len(df) for threshold, df in datasets.items()
-        }
+        'input_rows': len(df),
+        'after_filter_rows': len(df_filtered),
+        'datasets_generated': len(datasets),
+        'thresholds': thresholds,
+        'output_files': [str(p) for p in output_paths],
+        'dataset_sizes': {k: len(v) for k, v in datasets.items()},
     }
     
-    logger.info(f"Preprocessing complete. Saved {len(saved_files)} files.")
-    logger.info(f"Dataset sizes by threshold: {results['datasets_summary']}")
-    
+    logger.info(f"Preprocessing complete. Results: {results}")
     return results
 
 def main():
-    """Entry point for preprocessing script."""
+    """Main entry point for preprocessing script."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Preprocess metrics data for sensitivity analysis')
-    parser.add_argument('--input', type=str, default='data/processed/unified_metrics_raw.csv',
-                      help='Input CSV file with raw metrics')
-    parser.add_argument('--output', type=str, default='data/processed',
-                      help='Output directory for processed files')
-    parser.add_argument('--thresholds', type=int, nargs='+', default=[5, 10, 20],
-                      help='LOC thresholds for sensitivity analysis')
+    parser = argparse.ArgumentParser(
+        description='Preprocess metrics data: filter files and generate sensitivity datasets'
+    )
+    parser.add_argument(
+        '--input',
+        type=Path,
+        default=Path('data/raw/static_analysis_metrics.csv'),
+        help='Input CSV file with raw metrics'
+    )
+    parser.add_argument(
+        '--output-dir',
+        type=Path,
+        default=Path('data/processed'),
+        help='Output directory for processed datasets'
+    )
+    parser.add_argument(
+        '--thresholds',
+        type=int,
+        nargs='+',
+        default=[5, 10, 20],
+        help='LOC thresholds for sensitivity analysis'
+    )
     
     args = parser.parse_args()
     
     try:
-        results = run_preprocessing(args.input, args.output, args.thresholds)
-        print(f"Preprocessing completed successfully.")
-        print(f"Output files: {results['output_files']}")
-        print(f"Dataset sizes: {results['datasets_summary']}")
+        results = run_preprocessing(
+            input_path=args.input,
+            output_dir=args.output_dir,
+            thresholds=args.thresholds
+        )
+        
+        print("Preprocessing completed successfully!")
+        print(f"Input rows: {results['input_rows']}")
+        print(f"Filtered rows: {results['after_filter_rows']}")
+        print(f"Datasets generated: {results['datasets_generated']}")
+        print("Output files:")
+        for f in results['output_files']:
+            print(f"  - {f}")
+            
     except Exception as e:
-        logging.error(f"Preprocessing failed: {e}")
+        logger.error(f"Preprocessing failed: {e}")
         raise
 
 if __name__ == '__main__':

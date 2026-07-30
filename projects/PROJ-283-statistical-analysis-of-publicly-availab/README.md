@@ -1,151 +1,143 @@
 # Statistical Analysis of Publicly Available Chess Game Data for Elo Rating Prediction
 
-This project implements a statistical analysis pipeline to predict Elo rating outcomes based on publicly available chess game data from Lichess. The system ingests PGN files, extracts features (ECO codes, move times, material imbalance), and fits regression models to analyze the relationship between game features and outcome deviations.
+This project implements a statistical analysis pipeline to predict chess game outcomes and analyze Elo ratings using publicly available Lichess game data.
 
 ## Features
 
-- **Data Ingestion**: Downloads and parses Lichess PGN game records
-- **Feature Extraction**: Calculates ECO codes, average move times, material imbalance at move 5
-- **Elo Modeling**: Computes expected probabilities and outcome deviations
-- **Statistical Analysis**: Fits Gaussian GLM and Ridge regression models with FDR correction
-- **Validation**: Performs k-fold cross-validation and generates diagnostic reports
-- **Visualization**: Creates residual plots, predicted vs. actual scatterplots, and feature importance rankings
+- **Data Ingestion**: Downloads and parses PGN files from Lichess/HuggingFace
+- **Feature Extraction**: Extracts ECO codes, move times, material imbalance at move 5
+- **Elo Analysis**: Calculates expected probabilities and outcome deviations
+- **Statistical Modeling**: Fits Gaussian GLM and Ridge Regression models
+- **Model Validation**: Cross-validation, FDR correction, and sensitivity analysis
+- **Diagnostic Reporting**: Generates plots and comprehensive reports
 
 ## Project Structure
 
 ```
 .
-├── code/
-│ ├── src/
-│ │ ├── config.py # Configuration and constants
-│ │ ├── data/
-│ │ │ ├── parse.py # PGN parsing and feature extraction
-│ │ │ └── process.py # Data processing and calculations
-│ │ ├── models/
-│ │ │ ├── fit.py # Model fitting (GLM, Ridge)
-│ │ │ ├── metrics.py # Statistical metrics and FDR correction
-│ │ │ └── validate.py # Cross-validation and validation pipeline
-│ │ ├── reports/
-│ │ │ ├── generate_plots.py # Diagnostic plot generation
-│ │ │ └── sensitivity.py # Sensitivity analysis
-│ │ └── validation/
-│ │ └── validate_contracts.py # Schema validation
-│ └── tests/
-│ ├── unit/ # Unit tests
-│ ├── contract/ # Contract tests
-│ └── integration/ # Integration tests
-├── data/
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed datasets
-│ └── results/ # Model outputs and reports
-├── specs/
-│ ├── contracts/ # Data schemas
-│ └── 001-statistical-chess-elo-analysis/
-├── requirements.txt
 ├── README.md
-└── quickstart.md
+├── quickstart.md
+├── requirements.txt
+├── pyproject.toml
+├── code/
+│ ├── __init__.py
+│ ├── config.py
+│ ├── setup_structure.py
+│ └── src/
+│ ├── __init__.py
+│ ├── config.py
+│ ├── data/
+│ │ ├── __init__.py
+│ │ ├── download.py
+│ │ ├── parse.py
+│ │ └── process.py
+│ ├── main.py
+│ ├── models/
+│ │ ├── __init__.py
+│ │ ├── fit.py
+│ │ ├── metrics.py
+│ │ ├── save_metrics.py
+│ │ └── validate.py
+│ ├── reports/
+│ │ ├── __init__.py
+│ │ ├── generate_plots.py
+│ │ └── sensitivity.py
+│ └── validation/
+│ ├── __init__.py
+│ └── validate_contracts.py
+├── data/
+│ ├── raw/
+│ ├── processed/
+│ └── results/
+├── specs/
+│ └── contracts/
+│ ├── game_record.schema.yaml
+│ └── model_output.schema.yaml
+└── tests/
+ ├── __init__.py
+ ├── contract/
+ ├── unit/
+ └── integration/
 ```
-
-## Prerequisites
-
-- Python 3.11+
-- pip package manager
 
 ## Installation
 
 1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd <project-directory>
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-3. Verify installation:
- ```bash
- python -c "import pandas, numpy, sklearn, statsmodels, chess; print('All dependencies installed successfully')"
- ```
-
-## Usage
-
-### Quick Start
-
-See `quickstart.md` for a step-by-step guide to running the pipeline.
-
-### Running the Pipeline
-
-The pipeline consists of several stages that can be run independently:
-
-1. **Data Download and Parsing**:
- ```bash
- python code/src/data/parse.py
- ```
-
-2. **Data Processing**:
- ```bash
- python code/src/data/process.py
- ```
-
-3. **Model Fitting**:
- ```bash
- python code/src/models/fit.py
- ```
-
-4. **Model Validation**:
- ```bash
- python code/src/models/validate.py
- ```
-
-5. **Generate Reports and Plots**:
- ```bash
- python code/src/reports/generate_plots.py
- ```
-
-### Running Tests
-
 ```bash
-pytest code/tests/ -v
+git clone <repository-url>
+cd <project-name>
+```
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Quick Start
+
+See [quickstart.md](quickstart.md) for detailed instructions on running the pipeline.
+
+### Basic Usage
+
+Run the complete pipeline:
+```bash
+python code/src/main.py
 ```
 
 ## Configuration
 
-Edit `code/src/config.py` to modify:
-- Random seeds for reproducibility
+Edit `code/src/config.py` to customize:
+- Random seeds
 - File paths
-- Lichess dataset URLs
-- Analysis parameters
+- Dataset URLs
+
+## Data Pipeline
+
+1. **Download**: Fetches PGN files from Lichess/HuggingFace
+2. **Parse**: Extracts features from PGN files
+3. **Process**: Calculates Elo probabilities and deviations
+4. **Model**: Fits Gaussian GLM and Ridge Regression
+5. **Validate**: Performs cross-validation and generates metrics
+6. **Report**: Creates diagnostic plots and summaries
 
 ## Output Files
 
-The pipeline generates the following outputs:
+- `data/processed/games.parquet`: Processed game records
+- `data/results/model_metrics.json`: Model performance metrics
+- `data/results/diagnostics.json`: Diagnostic report summary
+- `data/results/*.png`: Diagnostic plots
 
-- `data/processed/games.parquet`: Cleaned and processed game records
-- `data/results/model_metrics.json`: Model coefficients, p-values, R², AIC
-- `data/results/diagnostics.json`: Cross-validation results and diagnostic summary
-- `data/results/*.png`: Diagnostic plots (residuals, predicted vs. actual, feature importance)
+## Validation
 
-## Contract Validation
+The pipeline includes contract validation to ensure data quality:
+- Schema validation for game records
+- Schema validation for model outputs
+- Contract tests in `tests/contract/`
 
-The system uses YAML schemas defined in `specs/contracts/` to validate data integrity:
-- `game_record.schema.yaml`: Validates game record structure
-- `model_output.schema.yaml`: Validates model output structure
+## Testing
 
-Run validation:
+Run all tests:
 ```bash
-python code/src/validation/validate_contracts.py
+pytest tests/
 ```
+
+Run specific test suites:
+```bash
+pytest tests/unit/
+pytest tests/contract/
+pytest tests/integration/
+```
+
+## Dependencies
+
+See `requirements.txt` for the complete list of dependencies.
 
 ## License
 
-This project is for research purposes.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+This project is licensed under the MIT License.

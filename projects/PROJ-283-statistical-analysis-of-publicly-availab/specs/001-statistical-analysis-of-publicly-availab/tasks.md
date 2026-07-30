@@ -128,10 +128,10 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T034 [P] Documentation updates in `README.md` and `quickstart.md`.
-- [ ] T035 Code cleanup and refactoring. <!-- ATOMIZE: requested -->
+- [ ] T035 Code cleanup and refactoring. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T036 Performance optimization (ensure RAM usage < 7GB, sample data if necessary).
 - [ ] T037 [P] Additional unit tests (if requested) in `tests/unit/`.
-- [~] T038 Run quickstart.md validation.
+- [ ] T038 Run quickstart.md validation.
 
 ---
 

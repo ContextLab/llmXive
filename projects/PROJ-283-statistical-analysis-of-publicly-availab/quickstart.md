@@ -1,214 +1,145 @@
 # Quick Start Guide
 
-This guide provides step-by-step instructions to run the chess Elo rating prediction pipeline.
+This guide provides step-by-step instructions for running the chess Elo rating analysis pipeline.
 
 ## Prerequisites
 
 - Python 3.11 or higher
 - pip package manager
-- Internet connection (for downloading Lichess data)
+- At least 7GB of available RAM (for full dataset processing)
 
 ## Step 1: Setup Environment
 
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd <project-directory>
+cd <project-name>
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Verify installation
-python -c "import pandas, numpy, sklearn, statsmodels, chess; print('Environment ready')"
 ```
 
-## Step 2: Create Directory Structure
+## Step 2: Verify Configuration
 
-The project structure is created automatically, but you can verify:
+The configuration file `code/src/config.py` contains:
+- `RANDOM_SEED`: Random seed for reproducibility (default: 42)
+- `DATA_DIR`: Path to data directory (default: `data/`)
+- `LICHOSS_DATASET_URL`: URL for Lichess dataset
+
+Review and adjust these settings if needed.
+
+## Step 3: Run the Pipeline
+
+### Full Pipeline
+
+To run the complete analysis pipeline:
 
 ```bash
-python code/src/setup_structure.py
+python code/src/main.py
 ```
 
-This creates:
-- `data/raw/` - Raw downloaded PGN files
-- `data/processed/` - Processed datasets
-- `data/results/` - Model outputs and reports
-- `specs/contracts/` - Data schemas
-- `tests/unit/`, `tests/contract/`, `tests/integration/` - Test directories
+This will:
+1. Download chess game data from Lichess
+2. Parse PGN files and extract features
+3. Calculate Elo probabilities and deviations
+4. Fit statistical models (Gaussian GLM and Ridge Regression)
+5. Perform cross-validation and sensitivity analysis
+6. Generate diagnostic plots and reports
 
-## Step 3: Download and Parse Data
+### Individual Components
+
+You can also run individual components:
 
 ```bash
+# Download data only
+python code/src/data/download.py
+
+# Parse PGN files
 python code/src/data/parse.py
-```
 
-This script will:
-1. Verify dataset URL reachability
-2. Sample games to check for required metadata
-3. Parse PGN files and extract features
-4. Save processed data to `data/processed/games.parquet`
-
-**Expected Output**:
-- Console logs showing progress
-- `data/processed/games.parquet` containing game records with columns:
- - `game_id`, `white_rating`, `black_rating`, `eco_code`
- - `avg_move_time_white`, `avg_move_time_black`
- - `material_imbalance_move5`, `outcome`
- - `elo_expected_prob`, `outcome_deviation`
-
-## Step 4: Process and Calculate Metrics
-
-```bash
+# Process game records
 python code/src/data/process.py
-```
 
-This calculates:
-- Expected Elo probabilities using the formula: `P = 1 / (1 + 10^((R2-R1)/400))`
-- Outcome deviations: `(actual_result - expected_probability)`
-- Applies probability capping for numerical stability
-
-**Expected Output**:
-- Updated `data/processed/games.parquet` with calculated metrics
-- Validation against `game_record.schema.yaml`
-
-## Step 5: Fit Statistical Models
-
-```bash
+# Fit models
 python code/src/models/fit.py
-```
 
-This fits:
-- Gaussian GLM (Gaussian family)
-- Ridge Regression
-- Maps ECO codes to opening families
-- Applies Benjamini-Hochberg FDR correction
+# Calculate metrics
+python code/src/models/metrics.py
 
-**Expected Output**:
-- Model coefficients and statistics
-- `data/results/model_metrics.json` with:
- - `model_type`, `coefficients`, `p_values`
- - `r_squared`, `aic`, `cross_validation_scores`
-
-## Step 6: Validate Models
-
-```bash
+# Run validation
 python code/src/models/validate.py
-```
 
-This performs:
-- 5-fold cross-validation
-- Calculates R² and MSE variance across folds
-- Checks for model instability (SC-003 threshold: std_dev_r2 < 0.05)
-
-**Expected Output**:
-- Cross-validation results in `data/results/model_metrics.json`
-- Console output with validation metrics
-- RuntimeError if model instability detected
-
-## Step 7: Generate Reports and Visualizations
-
-```bash
+# Generate plots
 python code/src/reports/generate_plots.py
 ```
 
-This creates:
-- Residual plots
-- Predicted vs. actual scatterplots
-- Feature importance rankings
-- Diagnostic report summary
+## Step 4: Verify Outputs
 
-**Expected Output**:
-- PNG plots in `data/results/`:
- - `residuals.png`
- - `predicted_vs_actual.png`
- - `feature_importance.png`
-- `data/results/diagnostics.json` with summary statistics
-
-## Step 8: Run Sensitivity Analysis
+After running the pipeline, check the output files:
 
 ```bash
-python code/src/reports/sensitivity.py
+# Processed game data
+ls data/processed/
+
+# Model metrics
+cat data/results/model_metrics.json
+
+# Diagnostic report
+cat data/results/diagnostics.json
+
+# Generated plots
+ls data/results/*.png
 ```
 
-This performs:
-- Threshold sweep analysis
-- Jaccard index calculation for significant predictors
-- Sensitivity report generation
-
-**Expected Output**:
-- `data/results/sensitivity_report.json`
-
-## Step 9: Validate All Contracts
-
-```bash
-python code/src/validation/validate_contracts.py
-```
-
-This validates:
-- All processed datasets against their schemas
-- Ensures data integrity throughout the pipeline
-
-**Expected Output**:
-- Console output with validation results
-- SchemaValidationError if any contract fails
-
-## Step 10: Run Tests
+## Step 5: Run Tests
 
 ```bash
 # Run all tests
-pytest code/tests/ -v
+pytest tests/
 
-# Run specific test suites
-pytest code/tests/unit/ -v # Unit tests
-pytest code/tests/contract/ -v # Contract tests
-pytest code/tests/integration/ -v # Integration tests
+# Run unit tests only
+pytest tests/unit/
+
+# Run contract tests only
+pytest tests/contract/
+
+# Run integration tests only
+pytest tests/integration/
 ```
 
-## Troubleshooting
+## Common Issues
 
-### Common Issues
+### Memory Issues
 
-1. **Missing Dependencies**:
- ```bash
- pip install -r requirements.txt --upgrade
- ```
+If you encounter memory issues with the full dataset:
+- The pipeline automatically streams data in chunks
+- You can adjust the sample size in `code/src/config.py`
+- Consider using a smaller subset of the data for testing
 
-2. **Data Download Failures**:
- - Check internet connection
- - Verify Lichess API is accessible
- - The script includes exponential backoff retry logic
+### API Rate Limiting
 
-3. **Model Instability Error**:
- - If you see "SC-003 Threshold Exceeded: Model instability detected",
- the model has high variance across folds. Consider:
- - Increasing dataset size
- - Adjusting regularization parameters
- - Checking for data quality issues
+If you hit rate limits when downloading data:
+- The download module includes exponential backoff retry logic
+- You can adjust retry parameters in `code/src/data/download.py`
 
-4. **Schema Validation Errors**:
- - Ensure all required columns are present
- - Check for null values in critical fields
- - Verify data types match schema definitions
+### Validation Errors
 
-### Performance Tips
-
-- For large datasets, the pipeline includes sampling logic
-- Monitor RAM usage (target: < 7GB)
-- Use `--sample` flag if available for testing with smaller subsets
+If schema validation fails:
+- Check the log output for specific validation errors
+- Verify that the input data matches the expected schema
+- Review the contract definitions in `specs/contracts/`
 
 ## Next Steps
 
-- Review generated plots and diagnostic reports
-- Analyze model coefficients and p-values
-- Explore feature importance rankings
-- Conduct additional sensitivity analyses
-- Consider extending the model with additional features
+- Review the diagnostic plots in `data/results/`
+- Analyze the model metrics in `data/results/model_metrics.json`
+- Read the detailed API documentation in the source code
+- Contribute to the project by adding new features or improvements
 
 ## Support
 
-For issues or questions:
-- Check the `README.md` for detailed documentation
-- Review the `specs/` directory for design documents
-- Examine test files in `tests/` for usage examples
-- Consult the project's issue tracker
+For issues or questions, please open an issue in the project repository.

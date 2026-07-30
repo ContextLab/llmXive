@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-04T02:14:43.722258Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-986-llmxive-follow-up-extending-blockpilot-i
-last_run_id: null
+last_run_id: 8c80152b-f121-4057-ae59-c8b938e7c065
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "BlockPilot: Instance-Adaptive Policy Learning
   for Diffusion-based Spec"'
-updated_at: '2026-07-04T02:14:43.722258Z'
+updated_at: '2026-07-30T18:40:04.105257Z'
