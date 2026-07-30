@@ -347,6 +347,38 @@ substantive negative determination — **panel OR deterministic pre-gate** — s
 `(problem_id,"cooldown")` corrected to `(problem_id,"cooldown",cause,epoch)`, which had
 allowed exactly ONE cooldown per Problem for all time and conflated both causes.
 
+### Rev 19 — the fix for rev 18 opened two gaps of its own
+
+**A liveness-based reclaim is a concurrency primitive, and I added one without stating its
+invariant.** `ClaimExpired` (rev 18) frees a wedged slot by declaring a claim dead after a
+timeout — but the original run may still be ALIVE, so it can append its own terminal
+concurrently with the reclaimer's. Result: two terminals on one Attempt, and a run that has
+been reclaimed still operating as though it held the lane. Ref-level CAS does NOT save this:
+it ORDERS the two appends, it does not reject either. Nor do the per-transition idempotency
+keys — those guard REPEATS of one transition, not two DIFFERENT terminals racing.
+
+Rev 19 states the missing invariant: **exactly one terminal per Attempt**, every terminal
+append CAS-conditioned on the Attempt having none, first writer wins, loser discards. Plus
+the three consequences: the reclaimer re-verifies expiry + no-terminal INSIDE the committing
+CAS; the loser performs no further side effect; and **a run must re-confirm it still holds
+the claim immediately before each irreversible side effect**. That last one is the real
+lesson — without it the reclaim would have reintroduced precisely the concurrent-writer
+hazard the singleton coordinator exists to prevent, i.e. the "fix" would have been strictly
+worse than the wedge. **General form: adding a timeout-based takeover to a mutual-exclusion
+scheme silently converts it from "one writer" to "one writer who must keep proving it."**
+
+**Two magic numbers became derived.** `claim_expiry` was a literal 2 h that cleared the
+105-min post-claim wall-clock sum by 15 min — and would have become WRONG the instant anyone
+raised a phase budget, with nothing to catch it. Now `2 × (implementation + patch_review +
+evaluation)`, post-claim phases only (the claim is granted AFTER the proposal review), so it
+self-adjusts. `K` is now the smallest integer with `K × controller_cadence > 24 h`, which at
+the 6 h cadence evaluates to the same 5 — but now the spec carries the INVARIANT ("only an
+outage lasting beyond a day cools down a Problem") instead of the number. Same discipline the
+LLM-call ceiling row already used; I should have applied it when I introduced them.
+
+Also repaired the revision-history header, which had accumulated unclosed `Prior revision N (`
+parens (unbalanced by 2 before rev 19); the block is now balanced.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute
