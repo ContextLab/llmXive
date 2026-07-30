@@ -42,3 +42,30 @@ T013b:
   r: No `utils/synthetic.py` file or any code implementing a synthetic data generator
     is present in the provided evidence, so the required artifact does not exist and
     the task cannot be considered fulfilled.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code changes or file contents for `utils/io.py` were provided, so there is
+    no evidence that label filtering was implemented to exclude compositions without
+    definitive phase labels. The required artifact is missing.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `utils/io.py` file containing the required capping\
+    \ logic was provided; the claim lacks any code, diff, or description showing stratified\
+    \ random sampling by alloy system to enforce the \u226410,000 composition limit.\
+    \ The necessary artifact is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, test results, or data files were provided that demonstrate\
+    \ validation checks enforcing \u226595\u202F% descriptor completeness or dropping\
+    \ compositions with missing elemental properties. The claim lacks any concrete\
+    \ artifact (e.g., a script, function, unit test, or log output) showing the required\
+    \ validation logic, so the requirement is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `utils/stats.py` file containing Bonferroni correction logic\
+    \ is provided; the required code artifact is missing, so the task\u2019s requirement\
+    \ is not satisfied."

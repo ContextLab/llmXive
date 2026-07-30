@@ -1,1 +1,1 @@
-"""Executable scripts directory marker."""
+"""Executable scripts."""

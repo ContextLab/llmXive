@@ -3,157 +3,154 @@ import sys
 import logging
 import csv
 import random
-from typing import List, Dict, Any, Tuple
-import json
-import hashlib
-from data.utils import set_seed, ensure_seed_initialized, setup_logging
+from typing import List, Dict, Any, Tuple, Optional, Union
 
-# Allowed features per FR-001
-ATOMS = ['C', 'H', 'O', 'N', 'S', 'F', 'Cl']
-HYBRIDS = ['SP', 'SP2', 'SP3']
-BOND_TYPES = ['SINGLE', 'DOUBLE', 'TRIPLE']
+from data.utils import set_seed, get_seed
+from models.polymer_graph import PolymerGraph
+from models.permeability_record import PermeabilityRecord
 
-# Atomic weights for MW calculation
-ATOM_WEIGHTS = {
-    'C': 12.01,
-    'H': 1.008,
-    'O': 16.00,
-    'N': 14.01,
-    'S': 32.06,
-    'F': 19.00,
-    'Cl': 35.45
-}
+logger = logging.getLogger(__name__)
 
-def _generate_valid_smiles(nodes: List[Dict]) -> str:
-    """
-    Constructs a simplified SMILES string from node list.
-    Uses a basic chain representation to ensure RDKit compatibility.
-    """
-    if not nodes:
-        return ""
-    
-    # Map atom types to simple SMILES characters
-    # For simulation purposes, we assume a linear chain of these atoms
-    # This is a simplified representation for the synthetic dataset
-    char_map = {
-        'C': 'C',
-        'H': 'C', # H usually implicit, using C to maintain chain length for MW correlation
-        'O': 'O',
-        'N': 'N',
-        'S': 'S',
-        'F': 'F',
-        'Cl': 'Cl'
-    }
-    
-    chars = []
-    for node in nodes:
-        atom = node['atom_type']
-        chars.append(char_map.get(atom, 'C'))
-    
-    return "".join(chars)
+# Note: This module provides synthetic data generation ONLY for internal testing
+# when real data is strictly unavailable. Per project constraints (SC-001),
+# real data sources (NIST/PubChem) must be attempted first.
+# This module is explicitly designed to be bypassed by the ingestion pipeline
+# if real data is found.
 
-def generate_polymer_graphs(count: int = 1000, seed: int = 42) -> List[Dict[str, Any]]:
+def generate_polymer_graphs(
+    count: Optional[int] = None,
+    seed: Optional[int] = None,
+    num_samples: Optional[int] = None
+) -> Tuple[List[PolymerGraph], List[PermeabilityRecord]]:
     """
-    Generates synthetic polymer graphs with associated log-permeability values.
-    Uses ONLY node/edge features defined in FR-001 (atom type, hybridization, bond type)
-    and basic molecular weight (derived from atom count/type).
+    Generates synthetic polymer graphs for testing purposes ONLY.
     
-    Constraint: No physics-based features like 'free-volume' or 'chain dynamics' are included.
-    The log-permeability is a heuristic derived from the graph topology (size/composition)
-    to provide a target for the model, strictly adhering to the simulation requirement.
+    This function accepts arguments from multiple call sites:
+    - `generate_polymer_graphs(count, seed)` from simulation.py main
+    - `generate_polymer_graphs(num_samples=1000)` from ingestion.py fallback
+    
+    Args:
+        count: Number of samples to generate (positional arg from simulation.py)
+        seed: Random seed for reproducibility
+        num_samples: Number of samples to generate (keyword arg from ingestion.py)
+        
+    Returns:
+        Tuple of (list of PolymerGraph, list of PermeabilityRecord)
+        
+    Raises:
+        ValueError: If neither count nor num_samples is provided
     """
-    set_seed(seed)
-    ensure_seed_initialized()
-    logging.info(f"Generating {count} synthetic polymer graphs with seed {seed}...")
-    
+    # Resolve sample count from either positional or keyword argument
+    if num_samples is not None:
+        actual_count = num_samples
+    elif count is not None:
+        actual_count = count
+    else:
+        raise ValueError("generate_polymer_graphs requires either 'count' or 'num_samples' argument")
+        
+    if seed is not None:
+        set_seed(seed)
+    else:
+        ensure_seed = get_seed()
+        if ensure_seed is None:
+            set_seed(42)
+        
     graphs = []
+    records = []
     
-    for i in range(count):
-        # Generate a random repeat unit structure (simplified)
-        # Molecular weight is derived from the atoms used
-        num_atoms = random.randint(10, 50)
+    # Simple synthetic generation for testing only
+    # In production, this path should never be reached due to real data requirements
+    atom_types = ["C", "H", "O", "N", "Cl"]
+    bond_types = [1, 2, 3]
+    
+    for i in range(actual_count):
+        # Create a minimal synthetic graph
+        num_atoms = random.randint(5, 20)
         nodes = []
-        total_mw = 0.0
-        
-        for _ in range(num_atoms):
-            atom = random.choice(ATOMS)
-            node = {
-                "atom_type": atom,
-                "hybridization": random.choice(HYBRIDS)
-            }
-            nodes.append(node)
-            total_mw += ATOM_WEIGHTS[atom]
-        
         edges = []
-        # Create a simple chain-like connectivity to ensure a valid graph structure
-        # This mimics a polymer backbone
-        for j in range(num_atoms - 1):
-            edge = {
-                "bond_type": random.choice(BOND_TYPES)
-            }
-            edges.append(edge)
         
-        # Generate a simplified SMILES string for validity checks in ingestion
-        smiles = _generate_valid_smiles(nodes)
-        
-        # Calculate a pseudo-log-permeability based on size and composition
-        # Heuristic: Larger molecules generally have lower permeability (negative correlation)
-        # but specific functional groups (O, N) might increase it slightly in this simulation context.
-        # This is a synthetic target for the model to learn, not a physical law.
-        # Formula: Base + Size factor + Composition factor + Noise
-        base = -6.0
-        size_factor = -0.05 * num_atoms
-        comp_factor = 0.1 * (total_mw / 100.0) # Normalize MW contribution
-        noise = random.uniform(-0.5, 0.5)
-        
-        log_perm = base + size_factor + comp_factor + noise
-        
-        graphs.append({
-            "id": i,
-            "smiles": smiles,
-            "nodes": nodes,
-            "edges": edges,
-            "molecular_weight": total_mw,
-            "log_permeability": log_perm
-        })
+        for j in range(num_atoms):
+            atom = random.choice(atom_types)
+            hybridization = random.choice(["sp", "sp2", "sp3"])
+            nodes.append({
+                "atom_type": atom,
+                "hybridization": hybridization,
+                "index": j
+            })
             
-    return graphs
-
-def save_simulation_data(filepath: str, count: int = 1000, seed: int = 42):
-    """
-    Saves generated simulation data to a CSV file.
-    The CSV contains flattened data suitable for ingestion.
-    Columns: id, smiles, num_atoms, num_edges, molecular_weight, log_permeability
-    """
-    graphs = generate_polymer_graphs(count, seed)
-    
-    rows = []
-    for g in graphs:
-        rows.append({
-            "id": g["id"],
-            "smiles": g["smiles"],
-            "num_atoms": len(g["nodes"]),
-            "num_edges": len(g["edges"]),
-            "molecular_weight": round(g["molecular_weight"], 2),
-            "log_permeability": round(g["log_permeability"], 4)
-        })
-    
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    
-    with open(filepath, 'w', newline='') as csvfile:
-        fieldnames = ["id", "smiles", "num_atoms", "num_edges", "molecular_weight", "log_permeability"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            if j > 0:
+                bond = random.choice(bond_types)
+                edges.append({
+                    "source": j - 1,
+                    "target": j,
+                    "bond_type": bond
+                })
         
-        writer.writeheader()
-        writer.writerows(rows)
+        # Create synthetic polymer graph
+        graph = PolymerGraph(
+            nodes=nodes,
+            edges=edges,
+            smiles=f"C{num_atoms}H{num_atoms*2}",  # Synthetic SMILES
+            mw=float(num_atoms * 12.01 + num_atoms * 2 * 1.008)
+        )
+        graphs.append(graph)
+        
+        # Create synthetic permeability record
+        log_perm = random.uniform(-10.0, -4.0)
+        record = PermeabilityRecord(
+            polymer_id=f"synth_{i:04d}",
+            smiles=graph.smiles,
+            log_permeability=log_perm,
+            temperature=298.0,
+            source="synthetic"
+        )
+        records.append(record)
+        
+    return graphs, records
+
+def save_simulation_data(
+    graphs: List[PolymerGraph],
+    records: List[PermeabilityRecord],
+    output_path: str
+) -> None:
+    """
+    Saves synthetic polymer data to a CSV file for testing.
     
-    logging.info(f"Simulation data saved to {filepath}")
+    Args:
+        graphs: List of PolymerGraph objects
+        records: List of PermeabilityRecord objects
+        output_path: Path to save the CSV file
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['polymer_id', 'smiles', 'log_permeability', 'temperature', 'source', 'mw'])
+        
+        for graph, record in zip(graphs, records):
+            writer.writerow([
+                record.polymer_id,
+                graph.smiles,
+                record.log_permeability,
+                record.temperature,
+                record.source,
+                graph.mw
+            ])
+    
+    logger.info(f"Saved {len(graphs)} synthetic samples to {output_path}")
 
 def main():
-    """Main entry point for simulation generation."""
-    output_path = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/simulation_data.csv"
-    save_simulation_data(output_path, count=1000, seed=42)
+    """Main entry point for standalone simulation data generation."""
+    logging.basicConfig(level=logging.INFO)
+    
+    # Generate test data
+    graphs, records = generate_polymer_graphs(count=100, seed=42)
+    
+    # Save to file
+    output_path = "data/raw/synthetic_polymer_data.csv"
+    save_simulation_data(graphs, records, output_path)
+    
+    logger.info("Simulation data generation complete.")
 
 if __name__ == "__main__":
-    setup_logging()
     main()

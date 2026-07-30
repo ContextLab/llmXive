@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `utils/io.py` with functions for loading CSV/JSON data and handling Materials Project API requests (API Key via env var, v3 endpoint)
-- [ ] T005 [P] Implement `utils/dedup.py` for deduplicating compositions by unique chemical formula (normalized atomic fractions), {{claim:c_6a2d6a3c}} (Wikidata Q19881044, https://www.wikidata.org/wiki/Q19881044)
+- [ ] T005 [P] Implement `utils/dedup.py` for deduplicating compositions by unique chemical formula (normalized atomic fractions) [UNRESOLVED-CLAIM: c_60fd6324 — status=not_enough_info], {{claim:c_6a2d6a3c}} (Wikidata Q19881044, https://www.wikidata.org/wiki/Q19881044)
 - [X] T006 Create `data/provenance.json` schema for tracking source URLs (Zenodo) and checksums
 - [ ] T007 [P] Setup `data/raw/` and `data/processed/` directory structure with `.gitkeep`
 - [ ] T008 Configure environment configuration management for API keys (Materials Project) and dataset paths
@@ -79,10 +79,10 @@
 - [ ] T013 [US1] Implement data ingestion script `code/main.py` (or `scripts/ingest.py`) to fetch from Zenodo DOI and Materials Project API (v3, API Key via env, fields: composition, phase, elemental properties), merging records. **Constraint**: If the primary DOI source is unavailable, MUST fallback to the synthetic generator (T013b) to ensure reproducibility per plan.md.
 - [ ] T013b [US1] Implement synthetic data generator `utils/synthetic.py` to generate valid alloy compositions with realistic descriptors when canonical DOI is unavailable (supports reproducibility per plan.md Constitution Check).
 - [X] T011 [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py` (Requires T013 completion).
-- [~] T014 [US1] Implement label filtering in `utils/io.py` to exclude compositions lacking definitive phase labels (amorphous/crystalline) per FR-009
-- [~] T015 [US1] Implement dataset capping logic in `utils/io.py` to enforce ≤10,000 compositions limit per FR-007 using **stratified random sampling** by alloy system. This task ensures the hard cap is met before training.
+- [ ] T014 [US1] Implement label filtering in `utils/io.py` to exclude compositions lacking definitive phase labels (amorphous/crystalline) per FR-009
+- [ ] T015 [US1] Implement dataset capping logic in `utils/io.py` to enforce ≤10,000 compositions limit per FR-007 using **stratified random sampling** by alloy system. This task ensures the hard cap is met before training.
 - [ ] T016 [US1] Generate `data/processed/engineered_dataset.csv` with all required descriptors and metadata
-- [~] T017 [US1] Add validation checks to ensure ≥95% descriptor completeness and drop compositions with missing elemental properties
+- [ ] T017 [US1] Add validation checks to ensure ≥95% descriptor completeness and drop compositions with missing elemental properties
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,7 +102,7 @@
 - [ ] T022 [P] [US2] Implement XGBoost classifier training with hyperparameter optimization within `models/train.py`
 - [ ] T023 [P] [US2] Implement Logistic Regression baseline training in `models/train.py`
 - [ ] T024 [US2] Implement metrics calculation (balanced accuracy, precision, recall, F1) in `models/evaluate.py`
-- [~] T026 [US2] Implement Bonferroni correction logic for multiple hypothesis testing per FR-008 in `utils/stats.py`. **Mandatory**: This logic must be available before T025.
+- [ ] T026 [US2] Implement Bonferroni correction logic for multiple hypothesis testing per FR-008 in `utils/stats.py`. **Mandatory**: This logic must be available before T025.
 - [ ] T025 [US2] Implement **paired t-test** (using `scipy.stats.ttest_rel`) to compare RF/XGBoost vs. baseline, reporting p-values. **Mandatory**: Apply Bonferroni correction (from T026) as the primary method for multiple hypothesis testing per FR-008.
 - [ ] T027 [US2] Generate `data/results/model_performance_metrics.json` with all fold-level scores and aggregate metrics
 - [ ] T028 [US2] Add logic to handle edge cases: insufficient samples per alloy system for stratification (fallback to simple split or warning)

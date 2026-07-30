@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory is tracked by git.
-# Real data files will be placed here by the ingestion pipeline.
+# This directory contains raw data downloaded from external sources (Zenodo, Materials Project).
+# Do not commit large binary files here. Use .gitignore to exclude raw data files.

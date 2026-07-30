@@ -1,1 +1,1 @@
-"""Machine learning models and evaluation."""
+"""Model training, evaluation, and metrics."""

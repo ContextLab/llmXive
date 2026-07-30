@@ -1,1 +1,1 @@
-"""Processed data directory marker."""
+"""Processed data storage."""

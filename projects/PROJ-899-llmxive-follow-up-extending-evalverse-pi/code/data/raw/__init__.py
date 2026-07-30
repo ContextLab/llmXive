@@ -1,1 +1,1 @@
-"""Raw data directory marker."""
+"""Raw data storage (populated by download scripts)."""

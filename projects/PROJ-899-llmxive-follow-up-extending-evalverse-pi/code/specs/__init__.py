@@ -1,1 +1,1 @@
-"""Feature specifications and design docs."""
+"""Feature specifications and design documents."""

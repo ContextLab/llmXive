@@ -1,109 +1,174 @@
+"""
+Environment configuration management for API keys and dataset paths.
+
+This module handles:
+- Loading API keys (Materials Project) from environment variables
+- Defining and validating data directory paths
+- Ensuring required directories exist
+"""
 import os
+import logging
 from pathlib import Path
 from typing import Optional
 
-# Project root is assumed to be the directory containing this file's parent
-# or we can explicitly look for a marker file. Assuming standard layout:
-# project_root/
-#   code/
-#     config.py
-#   data/
-#   .env
+# Project root is assumed to be the parent of the 'code' directory
+# If running as a script, we try to infer it, otherwise default to standard layout.
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_ENV_PATH = _PROJECT_ROOT / ".env"
 
-# Default paths relative to project root
-_DEFAULT_DATA_DIR = _PROJECT_ROOT / "data"
-_DEFAULT_RAW_DIR = _DEFAULT_DATA_DIR / "raw"
-_DEFAULT_PROCESSED_DIR = _DEFAULT_DATA_DIR / "processed"
-_DEFAULT_RESULTS_DIR = _DEFAULT_DATA_DIR / "results"
+# Default relative paths
+_DATA_DIR = "data"
+_RAW_DIR = "raw"
+_PROCESSED_DIR = "processed"
+_RESULTS_DIR = "results"
 
-# Materials Project API configuration
-_MP_API_KEY_ENV_VAR = "MATERIALS_PROJECT_API_KEY"
-_MP_API_BASE_URL = "https://next-gen.materialsproject.org/api/v3"
+# Environment variable names
+_ENV_MP_API_KEY = "MATERIALS_PROJECT_API_KEY"
+_ENV_DATA_ROOT = "PROJECT_DATA_ROOT"
 
-def _load_env_file(env_path: Path) -> None:
-    """Load variables from a .env file into os.environ if it exists."""
-    if not env_path.exists():
-        return
-    with open(env_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            key, _, value = line.partition("=")
-            key = key.strip()
-            value = value.strip().strip('"').strip("'")
-            os.environ.setdefault(key, value)
+logger = logging.getLogger(__name__)
 
-def init_environment() -> None:
-    """
-    Initialize the environment by loading the .env file if present.
-    This should be called early in the application lifecycle.
-    """
-    _load_env_file(_ENV_PATH)
 
 def get_materials_project_api_key() -> str:
     """
-    Retrieve the Materials Project API key.
-    Raises KeyError if the key is not found in environment variables.
+    Retrieve the Materials Project API key from the environment.
+
+    Raises:
+        RuntimeError: If the API key is not set.
     """
-    key = os.getenv(_MP_API_KEY_ENV_VAR)
-    if not key:
-        raise KeyError(
-            f"Missing required environment variable '{_MP_API_KEY_ENV_VAR}'. "
-            f"Please set it in your environment or add it to the '{_ENV_PATH}' file."
+    api_key = os.getenv(_ENV_MP_API_KEY)
+    if not api_key:
+        raise RuntimeError(
+            f"Environment variable {_ENV_MP_API_KEY} is not set. "
+            "Please set it to your Materials Project API key."
         )
-    return key
+    return api_key
+
+
+def get_materials_project_base_url() -> str:
+    """
+    Retrieve the base URL for the Materials Project API.
+    Defaults to the production v3 endpoint.
+    """
+    return os.getenv("MATERIALS_PROJECT_BASE_URL", "https://api.materialsproject.org")
+
+
+def _get_data_root() -> Path:
+    """
+    Determine the root directory for data artifacts.
+
+    Priority:
+    1. Environment variable PROJECT_DATA_ROOT
+    2. Default: <project_root>/data
+    """
+    env_root = os.getenv(_ENV_DATA_ROOT)
+    if env_root:
+        return Path(env_root).resolve()
+    return (_PROJECT_ROOT / _DATA_DIR).resolve()
+
 
 def get_data_path() -> Path:
-    """Get the base data directory path."""
-    return _DEFAULT_DATA_DIR
+    """Returns the base data directory path."""
+    return _get_data_root()
+
 
 def get_raw_data_path() -> Path:
-    """Get the raw data directory path."""
-    return _DEFAULT_RAW_DIR
+    """Returns the path to the raw data directory."""
+    return get_data_path() / _RAW_DIR
+
 
 def get_processed_data_path() -> Path:
-    """Get the processed data directory path."""
-    return _DEFAULT_PROCESSED_DIR
+    """Returns the path to the processed data directory."""
+    return get_data_path() / _PROCESSED_DIR
+
 
 def get_results_path() -> Path:
-    """Get the results directory path."""
-    return _DEFAULT_RESULTS_DIR
+    """Returns the path to the results directory (for models, plots, etc.)."""
+    return get_data_path() / _RESULTS_DIR
 
-def get_custom_dataset_path() -> Optional[Path]:
+
+def get_custom_dataset_path(filename: str) -> Path:
     """
-    Get a custom dataset path if specified via environment variable.
-    Returns None if not set.
+    Returns the full path for a custom dataset file within the processed directory.
+
+    Args:
+        filename: The name of the dataset file (e.g., 'my_dataset.csv').
     """
-    custom_path = os.getenv("CUSTOM_DATASET_PATH")
-    if custom_path:
-        return Path(custom_path)
-    return None
+    return get_processed_data_path() / filename
+
 
 def ensure_data_directories() -> None:
     """
-    Ensure that all required data directories exist.
-    Creates them if they are missing.
-    """
-    _DEFAULT_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    _DEFAULT_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    _DEFAULT_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    _DEFAULT_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    Creates all required data directories if they do not exist.
 
-def get_materials_project_base_url() -> str:
-    """Get the base URL for the Materials Project API."""
-    return _MP_API_BASE_URL
+    Directories created:
+    - data/raw
+    - data/processed
+    - data/results
+    """
+    dirs = [
+        get_raw_data_path(),
+        get_processed_data_path(),
+        get_results_path(),
+    ]
+
+    for dir_path in dirs:
+        if not dir_path.exists():
+            logger.info(f"Creating directory: {dir_path}")
+            dir_path.mkdir(parents=True, exist_ok=True)
+        else:
+            logger.debug(f"Directory already exists: {dir_path}")
+
 
 def validate_environment() -> bool:
     """
-    Validate that the environment is correctly configured.
-    Returns True if valid, raises an error otherwise.
+    Validates that the environment is correctly configured.
+
+    Checks:
+    - Materials Project API key is set.
+    - Data directories are writable.
+
+    Returns:
+        True if valid, raises RuntimeError otherwise.
     """
+    # Check API Key
     try:
         get_materials_project_api_key()
-    except KeyError:
-        return False
-    ensure_data_directories()
+    except RuntimeError as e:
+        logger.error(f"API Key validation failed: {e}")
+        raise
+
+    # Check directories
+    try:
+        ensure_data_directories()
+        # Try writing a temp file to ensure permissions
+        for dir_path in [get_raw_data_path(), get_processed_data_path(), get_results_path()]:
+            test_file = dir_path / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+    except OSError as e:
+        logger.error(f"Directory validation failed: {e}")
+        raise RuntimeError(f"Cannot write to data directories: {e}")
+
+    logger.info("Environment validation successful.")
     return True
+
+
+def init_environment() -> None:
+    """
+    Initializes the environment for the application.
+
+    Performs:
+    - Sets up logging (if not already configured).
+    - Validates environment variables.
+    - Ensures data directories exist.
+    """
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+
+    logger.info("Initializing environment...")
+    validate_environment()
+    ensure_data_directories()
+    logger.info("Environment initialization complete.")

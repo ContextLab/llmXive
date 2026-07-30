@@ -1,20 +1,9 @@
-T001:
+T019:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure (`src/`, `tests/`, `specs/`) is shown or described in
-    the provided evidence; the claim lacks any artifact confirming those folders exist
-    or contain files. The implementer must create and show the required project directories.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting/formatting configuration files (e.g., `pyproject.toml` with `[tool.black]`\
-    \ and `[tool.ruff]` sections, `.ruff.toml`, or a pre\u2011commit hook) were presented,\
-    \ so there is no evidence that ruff and black have been set up in the repository.\
-    \ The required artifacts are missing."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files (e.g., `pyproject.toml`, `.env`, or similar) or scripts
-    establishing the `data/raw` and `data/processed` directories were presented, and
-    there is no evidence that those directories actually exist in the repository.
-    The required environment setup and cache directory structure are therefore missing.
+  h: 1c108a94b17272796a8f9bb78a5fe64cc82eb2760dff7639d8cc36b003a564ac
+  r: "The repository contains a partially\u2011implemented `src/models/evaluate.py`\
+    \ that defines helper functions but the file is truncated (e.g., `calculate_metrics`\
+    \ ends abruptly) and does not include code that runs the mean and shuffled baselines\
+    \ or writes results to `data/baseline_results.csv`. Moreover, the required output\
+    \ file `data/baseline_results.csv` is absent. The task\u2019s mandatory artifact\
+    \ is therefore missing and the implementation is incomplete."

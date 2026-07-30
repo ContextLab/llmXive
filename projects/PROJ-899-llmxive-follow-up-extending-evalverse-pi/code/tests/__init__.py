@@ -1,1 +1,1 @@
-"""Test suite for llmXive pipeline."""
+"""Test suite for llmXive."""

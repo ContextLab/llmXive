@@ -1,1 +1,1 @@
-"""llmXive Feature Distillation Pipeline."""
+"""llmXive: Automated Science Pipeline."""

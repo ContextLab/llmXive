@@ -1,64 +1,55 @@
-#!/usr/bin/env python3
 """
-Script to setup the project environment and create necessary directories.
-
-This script ensures that all required data directories are created and
-validates that the environment is properly configured for the llmXive
-pipeline.
+Script to initialize the project environment and data directory structure.
+Creates raw, processed, state, cache, figures, and reports directories.
+Validates the environment setup.
 """
 import sys
 from pathlib import Path
 
-# Add code to path
-code_path = Path(__file__).parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
-
 from src.config import ensure_environment, get_config_summary
 from src.data.config import is_data_directory_ready, get_data_summary
 
-def main():
-    """Main entry point for environment setup."""
-    print("Setting up llmXive environment...")
-    print("-" * 50)
-    
-    # Ensure environment is configured
-    if not ensure_environment():
-        print("ERROR: Failed to configure environment.")
-        sys.exit(1)
-    
-    print("✓ Environment configuration successful")
-    
-    # Verify data directories
+
+def main() -> int:
+    """
+    Main entry point for environment setup.
+    Returns 0 on success, 1 on failure.
+    """
+    print("Initializing llmXive environment...")
+
+    # Ensure project-level environment (config files, etc.)
+    print("Ensuring project environment...")
+    ensure_environment()
+
+    # Ensure data directories exist
+    print("Ensuring data directory structure...")
+    from src.data.config import ensure_directories
+    dirs = ensure_directories()
+
+    print("\nDirectory Structure Created:")
+    for name, path in dirs.items():
+        print(f"  - {name}: {path}")
+
+    # Validate readiness
+    print("\nValidating data directory readiness...")
     if not is_data_directory_ready():
-        print("ERROR: Data directories are not ready.")
-        sys.exit(1)
-    
-    print("✓ Data directories are ready")
-    
-    # Display configuration summary
+        print("ERROR: Data directories are not ready or writable.")
+        return 1
+
+    print("Environment setup successful.")
     print("\nConfiguration Summary:")
-    print("-" * 50)
     summary = get_config_summary()
     for key, value in summary.items():
-        if key == "paths":
-            print(f"{key}:")
-            for path_key, path_value in value.items():
-                print(f"  {path_key}: {path_value}")
-        else:
-            print(f"{key}: {value}")
-    
-    # Display data directory status
-    print("\nData Directory Status:")
-    print("-" * 50)
+        print(f"  {key}: {value}")
+
+    print("\nData Summary:")
     data_summary = get_data_summary()
-    for name, info in data_summary.items():
-        status = "✓" if info["exists"] else "✗"
-        print(f"{status} {name}: {info['path']}")
-    
-    print("\n" + "-" * 50)
-    print("Environment setup complete!")
+    for key, value in data_summary.items():
+        status = "OK" if value.get("exists") else "MISSING"
+        print(f"  {key}: {status}")
+
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -71,7 +71,7 @@
 
 **Goal**: Obtain a clean dataset of ≥500 organic crystal structures with SMILES and packing coefficients.
 
-**Independent Test**: The pipeline can be run on a fresh CI runner and must output `data/dataset.csv` with ≥500 rows, valid SMILES, and numeric packing coefficients.
+**Independent Test**: The pipeline can be run on a fresh CI runner and must output `data/dataset.csv` with ≥500 rows, valid SMILES, and numeric packing coefficients. [UNRESOLVED-CLAIM: c_f49d34b9 — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -97,9 +97,9 @@
 
 ## Phase 4: User Story 2 - Train and evaluate a lightweight predictor (Priority: P2)
 
-**Goal**: Train a multi-layer perceptron on SMILES-transformer features + D descriptors + confounders to predict CAPE, with rigorous statistical validation.
+**Goal**: Train a multi-layer perceptron on SMILES-transformer features + D descriptors + confounders to predict CAPE, with rigorous statistical validation. [UNRESOLVED-CLAIM: c_cc526eee — status=not_enough_info]
 
-**Independent Test**: Running the training script on `dataset.csv` must produce `model.pt` and `results/validation_report.json` with MAE, Pearson r, Spearman ρ, Shapiro-Wilk, and a permutation p-value.
+**Independent Test**: Running the training script on `dataset.csv` must produce `model.pt` and `results/validation_report.json` with MAE, Pearson r, Spearman ρ, Shapiro-Wilk, and a permutation p-value. [UNRESOLVED-CLAIM: c_00cbbf3f — status=not_enough_info]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -109,7 +109,7 @@
 ### Implementation for User Story 2
 
 - [ ] T024 [US2] Implement `code/feature_assembly.py` to encode SMILES using frozen `seyonec/PubChem10M_SMILES_BPE_60k` (CPU) and **assemble the final feature matrix** by loading `data/dataset.csv` (from T018/T019) and merging the embedding with 3D descriptors, H-bond count, aromatic ring count, and confounders (FR-004, FR-013). **Note**: Only spec-mandated features are used; no external physics features are added. **Depends on T013b for physics features**.
-- [ ] T025 [US2] Implement `code/train_mlp.py` to train a 2-layer MLP (≤100k params) on 80/20 split (FR-005)
+- [ ] T025 [US2] {{claim:c_eee70081}} (FR-005)
 - [ ] T026 [US2] Implement `code/evaluate.py` to compute MAE, Pearson r, Spearman ρ, Shapiro-Wilk test (FR-006, FR-015)
 - [ ] T027 [US2] Implement `code/evaluate.py` to run a **permutation test with exactly 10,000 shuffles** to achieve 0.0001 resolution (FR-006, FR-016, Constitution VII). **Mandate [deferred] shuffles. If runtime exceeds the time budget, the pipeline MUST fail with an explicit error message and deviation log., rather than reducing the shuffle count, to preserve statistical rigor per FR-016**. Report the final p-value and the number of shuffles used, ensuring the quantity is sufficient for robust permutation testing.
 - [ ] T028 [US2] Implement `code/evaluate.py` to perform VIF diagnostics on **all predictor variables** (fingerprint dimensions, 3D descriptors, and confounders) as mandated by FR-009. **Use `statsmodels.stats.outliers_influence.variance_inflation_factor` on the full feature matrix. Do NOT omit raw dimensions or default to PCA reduction. If dimensionality is high, implement batching to handle the calculation, but NEVER omit raw dimensions or default to PCA reduction without explicit justification**. (FR-009)
@@ -146,11 +146,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours [UNRESOLVED-CLAIM: c_96502734 — status=not_enough_info] (SC-005)
+- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours [UNRESOLVED-CLAIM: c_86855ddd — status=not_enough_info] (SC-005)
 - [ ] T052a [P] Run `black --check` on `code/` and fix formatting violations
 - [ ] T052b [P] Run `flake8` on `code/` and fix linting errors
-- [ ] T052c [P] Run automated linting: `pylint --max-line-length=100 --max-branches=10 --max-returns=10 code/` and `radon cc -m code/` ensuring max cyclomatic complexity is ≤ 10. Log results in `code/REFACTORING_LOG.txt`.
-- [ ] T052d [P] Refactor code for readability based on T052c logs: Ensure all functions have < 50 lines, docstrings present, and variable names are descriptive. Pass criterion: T052c logs show max complexity ≤ 10 and function length < 50 lines.
+- [ ] T052c [P] Run automated linting: `pylint --max-line-length=100 --max-branches=10 --max-returns=10 code/` and `radon cc -m code/` ensuring max cyclomatic complexity is ≤ 10 [UNRESOLVED-CLAIM: c_fcd5bf36 — status=not_enough_info]. Log results in `code/REFACTORING_LOG.txt`.
+- [ ] T052d [P] Refactor code for readability based on T052c logs: Ensure all functions have < 50 lines [UNRESOLVED-CLAIM: c_8a8ebd38 — status=not_enough_info], docstrings present, and variable names are descriptive. Pass criterion: T052c logs show max complexity ≤ 10 and function length < 50 lines.
 - [ ] T053 [P] Performance optimization: parallelize permutation test shuffles if needed (within CPU limits)
 - [ ] T054 [P] Additional unit tests for feature extraction logic in `tests/unit/`
 - [ ] T055 Security hardening: sanitize external data inputs
@@ -249,7 +249,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained RAM. No GPU, no 8-bit quantization, no large model training. [UNRESOLVED-CLAIM: c_eafa7a1e — status=not_enough_info]
+- **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained RAM. No GPU, no 8-bit quantization, no large model training.
 - **Reviewer Compliance**:
  - **Physics Integration**: H-bond capacity, aromaticity, and thermodynamic confounders (T013b) are now core features calculated in Phase 2, not post-hoc revisions.
  - **Data Integrity**: No synthetic data or fabricated metrics are used. All features are derived from real COD data or standard physical constants (Bondi radii).

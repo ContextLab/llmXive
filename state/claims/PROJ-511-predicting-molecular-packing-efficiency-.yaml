@@ -854,3 +854,207 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T04:24:33Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 0
+  canonical: Train 2-layer MLP with at most 100k parameters on 80/20 split
+  claim_id: c_eee70081
+  context: "Implementation for User Story 2: Implement `code/train_mlp.py` to train\
+    \ a 2-layer MLP (\u2264100k params) on 80/20 split (FR-005)"
+  evidence:
+    candidates:
+    - - Train 2-layer MLP with at most
+      - 100000.0
+    - - Donate Create account Log in Train
+      - 2.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Train_2-layer_MLP_with_at_most_100,000_parameters_on_80/20_d
+  kind: magnitude
+  raw_text: "Implement `code/train_mlp.py` to train a 2-layer MLP (\u2264100k params)\
+    \ on 80/20 split"
+  resolved_value: Train 2-layer MLP with at most 100,000 parameters on 80/20 data
+    split
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-30T07:35:01Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Pipeline outputs dataset with at least 500 rows of valid SMILES and packing
+    coefficients
+  claim_id: c_f49d34b9
+  context: "Independent Test for User Story 1: The pipeline can be run on a fresh\
+    \ CI runner and must output `data/dataset.csv` with \u2265500 rows, valid SMILES,\
+    \ and numeric packing coefficients."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_dataset_with_at_least_500_rows_of_valid_SMI
+  kind: magnitude
+  raw_text: "The pipeline can be run on a fresh CI runner and must output `data/dataset.csv`\
+    \ with \u2265500 rows, valid SMILES, and numeric packing coefficients."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:36:04Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Train MLP on SMILES-transformer features, D descriptors, and confounders
+    to predict CAPE
+  claim_id: c_cc526eee
+  context: 'Goal for User Story 2: Train a multi-layer perceptron on SMILES-transformer
+    features + D descriptors + confounders to predict CAPE, with rigorous statistical
+    validation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_MLP_on_SMILES-transformer_features,_D_descriptors,_and
+  kind: entity_fact
+  raw_text: Train a multi-layer perceptron on SMILES-transformer features + D descriptors
+    + confounders to predict CAPE, with rigorous statistical validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:38:17Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Training script produces model.pt and validation_report.json with MAE,
+    Pearson r, Spearman rho, Shapiro-Wilk, and permutation p-value
+  claim_id: c_00cbbf3f
+  context: "Independent Test for User Story 2: Running the training script on `dataset.csv`\
+    \ must produce `model.pt` and `results/validation_report.json` with MAE, Pearson\
+    \ r, Spearman \u03C1, Shapiro-Wilk, and a permutation p-value."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_script_produces_model.pt_and_validation_report.json
+  kind: entity_fact
+  raw_text: "Running the training script on `dataset.csv` must produce `model.pt`\
+    \ and `results/validation_report.json` with MAE, Pearson r, Spearman \u03C1, Shapiro-Wilk,\
+    \ and a permutation p-value."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:39:49Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Permutation test uses exactly 10000 shuffles to achieve 0.0001 resolution
+  claim_id: c_565b4659
+  context: 'Implementation for User Story 2: Implement `code/evaluate.py` to run a
+    permutation test with exactly 10,000 shuffles to achieve 0.0001 resolution (FR-006,
+    FR-016, Constitution VII).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/evaluate.py` to run a permutation test with exactly 10,000
+    shuffles to achieve 0.0001 resolution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:40:16Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Variation in r across thresholds 0.5, 0.6, 0.7 is at most 0.05
+  claim_id: c_7035d4d2
+  context: "Implementation for User Story 3: Implement `code/sensitivity.py` to compute\
+    \ and report the variation in r across the set {0.5, 0.6, 0.7} and verify it is\
+    \ \u2264 \xB10.05 (SC-004)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variation_in_r_across_thresholds_0.5,_0.6,_0.7_is_at_most_0.
+  kind: magnitude
+  raw_text: "Verify that variation in r across the set {0.5, 0.6, 0.7} is \u2264 \xB1\
+    0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:42:17Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Full end-to-end pipeline runtime is at most 6 hours
+  claim_id: c_86855ddd
+  context: "Phase 6: Run full end-to-end pipeline on CI and verify runtime \u2264\
+    \ 6 hours (SC-005)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_end-to-end_pipeline_runtime_is_at_most_6_hours
+  kind: magnitude
+  raw_text: "Run full end-to-end pipeline on CI and verify runtime \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:43:06Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Max cyclomatic complexity is at most 10
+  claim_id: c_fcd5bf36
+  context: "Phase 6: Run automated linting: `pylint --max-line-length=100 --max-branches=10\
+    \ --max-returns=10 code/` and `radon cc -m code/` ensuring max cyclomatic complexity\
+    \ is \u2264 10. Log results in `code/REFACTORING_LOG.txt`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Max_cyclomatic_complexity_is_at_most_10
+  kind: magnitude
+  raw_text: "Run automated linting: `pylint --max-line-length=100 --max-branches=10\
+    \ --max-returns=10 code/` and `radon cc -m code/` ensuring max cyclomatic complexity\
+    \ is \u2264 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:43:47Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: All functions have fewer than 50 lines
+  claim_id: c_8a8ebd38
+  context: "Phase 6: Refactor code for readability based on T052c logs: Ensure all\
+    \ functions have < 50 lines, docstrings present, and variable names are descriptive.\
+    \ Pass criterion: T052c logs show max complexity \u2264 10 and function length\
+    \ < 50 lines."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/All_functions_have_fewer_than_50_lines
+  kind: magnitude
+  raw_text: 'Refactor code for readability based on T052c logs: Ensure all functions
+    have < 50 lines'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:44:50Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Fetch organic CIFs with at most 50 non-hydrogen atoms from COD
+  claim_id: c_8b42643b
+  context: "Implementation for User Story 1: Implement `code/download_cif.py` to fetch\
+    \ organic CIFs (\u226450 non-H atoms) from COD with logging (FR-001, FR-017)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_organic_CIFs_with_at_most_50_non-hydrogen_atoms_from_C
+  kind: magnitude
+  raw_text: "Fetch organic CIFs (\u226450 non-H atoms) from COD"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:45:43Z'

@@ -786,3 +786,45 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-27T19:05:57Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: speckit-tasks command replaces sample tasks based on spec, plan, data-model,
+    and contracts
+  claim_id: c_224946cc
+  context: 'IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes
+    only. The /speckit-tasks command MUST replace these with actual tasks...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Speckit-tasks_command_replaces_sample_tasks_based_on_spec,_p
+  kind: entity_fact
+  raw_text: 'The /speckit-tasks command MUST replace these with actual tasks based
+    on: User stories from spec.md (with their priorities P1, P2, P3...), Feature requirements
+    from plan.md, Entities from data-model.md, Endpoints from contracts/'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:12:20Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: deduplication of compositions by unique chemical formula using normalized
+    atomic fractions
+  claim_id: c_60fd6324
+  context: Implement `utils/dedup.py` for deduplicating compositions by unique chemical
+    formula (normalized atomic fractions), {{claim:c_6a2d6a3c}} (Wikidata Q19881044,
+    https://www.wikidata.org/wiki/Q19881044)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deduplication_of_compositions_by_unique_chemical_formula_usi
+  kind: entity_fact
+  raw_text: deduplicating compositions by unique chemical formula (normalized atomic
+    fractions)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:21:12Z'

@@ -72,7 +72,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement NIST/PubChem data fetcher in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`. **Logic**:
+- [X] T010 [US1] Implement NIST/PubChem data fetcher in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`. **Logic**:
  1. Attempt to load real polymer data using `datasets.load_dataset('polymer_science/permeability_nist', split='train')`.
  2. If that fails, attempt `datasets.load_dataset('pubchem_polymer', split='train')`.
  3. If both fail, attempt to fetch from verified raw URLs (e.g., NIST raw CSV links) using `requests` or `pandas.read_csv`.
@@ -80,8 +80,8 @@
  5. If real data is loaded, save to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/polymer_raw.csv`.
  6. Log the source used. **CRITICAL**: No simulation fallback is permitted.
  7. **Output**: Save raw data checksums to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/checksums.json`.
-- [ ] T011a [US1] Implement SMILES-to-PolymerGraph parser in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py` using RDKit. **Logic**: Handle stereochemistry; convert SMILES to graph object. **Specific Action**: If a SMILES string contains undefined stereochemistry (e.g., `@?`), treat the bond as a single bond to ensure graph validity, as per spec acceptance scenarios.
-- [ ] T011b [US1] Implement molecular weight calculation for repeat units in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`. **Dependency**: T011a. **Logic**: Calculate MW of the repeat unit; flag if < 1000 Da.
+- [X] T011a [US1] Implement SMILES-to-PolymerGraph parser in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py` using RDKit. **Logic**: Handle stereochemistry; convert SMILES to graph object. **Specific Action**: If a SMILES string contains undefined stereochemistry (e.g., `@?`), treat the bond as a single bond to ensure graph validity, as per spec acceptance scenarios.
+- [X] T011b [US1] Implement molecular weight calculation for repeat units in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`. **Dependency**: T011a. **Logic**: Calculate MW of the repeat unit; flag if < 1000 Da.
 - [ ] T012 [US1] Implement data cleaning logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/ingestion.py`: exclude entries with missing permeability; identify duplicates by SMILES string. **Logic for Duplicates**: If duplicates exist, calculate the arithmetic mean of log-permeability. **Logic for Conflicts**: If the variance between duplicate permeability values exceeds a defined threshold (e.g., > 0.5 log units), flag the entry for manual review by writing to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/review_log.csv` with status "FLAGGED_CONFLICT" and reason "High variance in duplicate values". **Constraint**: **Always exclude** entries where calculated MW of the repeat unit < 1000 Da. Log these exclusions to `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/raw/review_log.csv` with reason "MW < 1000 Da". **Do NOT** rely on environment variables; the rule is deterministic.
 - [X] T013 [US1] Implement node/edge feature extraction (atom type, hybridization, bond type) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py`. **Constraint**: Use ONLY 2D features defined in FR-001 as the core schema.
 - [ ] T014 [US1] Save cleaned dataset to HDF5/Parquet in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Dependency**: T013 must complete before T014 to ensure feature completeness.

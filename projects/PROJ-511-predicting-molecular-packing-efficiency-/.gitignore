@@ -4,33 +4,42 @@ data/*.csv
 data/*.json
 data/*.parquet
 data/physics_features.csv
-data/dataset*.csv
+data/dataset_intermediate.csv
+data/dataset_with_metrics.csv
+data/dataset_filtered.csv
+data/dataset.csv
 
-# Model checkpoints and weights
+# Model binaries
 models/*.pt
 models/*.pth
 models/*.bin
-models/*.safetensors
-models/*.onnx
 
-# Python cache and bytecode
+# Python cache and temp files
 __pycache__/
 *.py[cod]
-*$py.class
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-coverage.xml
-htmlcov/
+$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Environment and secrets
 .env
 .env.local
 .env.*.local
-*.pem
-*.key
-.secret*
 
 # IDE and editor files
 .idea/
@@ -38,26 +47,21 @@ htmlcov/
 *.swp
 *.swo
 *~
-.project
-.settings/
-
-# Build and distribution
-build/
-dist/
-*.egg-info/
-.eggs/
-*.egg
-
-# Logs and temporary files
-*.log
-logs/
-tmp/
-temp/
-.tmp/
-
-# OS generated files
 .DS_Store
-.DS_Store?
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+
+# Logs and reports (optional, can be committed if needed)
+# results/*.log
+# results/*.html
+# results/*.txt
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Temporary processing files
+*.tmp
+*.temp
