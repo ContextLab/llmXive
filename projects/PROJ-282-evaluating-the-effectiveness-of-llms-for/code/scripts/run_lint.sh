@@ -1,9 +1,11 @@
 #!/bin/bash
-# Script to run linting checks using ruff
-# Exit on error
 set -e
 
-echo "Running Ruff linter..."
-ruff check code/
+echo "Running Ruff (Linting)..."
+cd code
+python -m ruff check .
 
-echo "Linting complete."
+echo "Running Black (Formatting Check)..."
+python -m black --check .
+
+echo "Lint and Format checks passed."

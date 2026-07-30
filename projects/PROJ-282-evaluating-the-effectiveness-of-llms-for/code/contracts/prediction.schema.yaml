@@ -1,36 +1,33 @@
-schema_version: "1.0"
-name: PredictionResult
-description: "Schema for LLM and Static Analyzer prediction results against ground truth."
-fields:
-  - name: snippet_id
+# Contract for PredictionResult data structure
+# Generated artifact for T009a - T009b depends on this
+type: object
+title: PredictionResult
+description: Result of LLM or Static Analyzer prediction
+properties:
+  snippet_id:
     type: string
-    description: "Unique identifier for the code snippet."
-    required: true
-  - name: model_id
+    description: Reference to the CodeSnippet id
+  predicted_label:
     type: string
-    description: "Identifier of the model or analyzer that generated the prediction."
-    required: true
-  - name: predicted_label
+    description: Predicted vulnerability label
+    enum:
+      - vulnerable
+      - safe
+      - uncertain
+  predicted_category:
     type: string
-    description: "The vulnerability category predicted (e.g., 'SQLi', 'Buffer Overflow', 'none', 'uncertain')."
-    required: true
-  - name: confidence
-    type: number
-    description: "Confidence score of the prediction (0.0 to 1.0)."
-    required: true
-  - name: ground_truth_label
-    type: string
-    description: "The actual ground truth label from the dataset."
-    required: true
-  - name: is_correct
+    description: Predicted vulnerability category
+    nullable: true
+  is_correct:
     type: boolean
-    description: "Boolean flag indicating if predicted_label matches ground_truth_label."
-    required: true
-  - name: inference_time_ms
+    description: Whether the prediction matches ground truth
+    nullable: true
+  inference_time_ms:
     type: number
-    description: "Time taken to generate the prediction in milliseconds."
-    required: false
-  - name: raw_response
-    type: string
-    description: "The raw text response from the LLM or analyzer output."
-    required: false
+    format: float
+    description: Time taken for inference in milliseconds
+    nullable: true
+required:
+  - snippet_id
+  - predicted_label
+  - is_correct

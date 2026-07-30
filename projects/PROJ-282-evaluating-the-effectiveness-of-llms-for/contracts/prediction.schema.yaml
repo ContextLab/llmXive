@@ -1,36 +1,28 @@
-schema_version: "1.0"
-name: PredictionResult
-description: "Schema for LLM and Static Analyzer prediction results against ground truth."
-fields:
-  - name: snippet_id
+# Contract for PredictionResult
+# Auto-generated schema for T009a/T009b
+# This file defines the structure of the PredictionResult dataclass
+# to prevent schema drift.
+type: object
+properties:
+  snippet_id:
     type: string
-    description: "Unique identifier for the code snippet."
-    required: true
-  - name: model_id
+    description: Unique identifier for the code snippet
+  predicted_label:
     type: string
-    description: "Identifier of the model or analyzer that generated the prediction."
-    required: true
-  - name: predicted_label
+    description: The label predicted by the model (e.g., 'vulnerable', 'safe')
+  predicted_category:
     type: string
-    description: "The vulnerability category predicted (e.g., 'SQLi', 'Buffer Overflow', 'none', 'uncertain')."
-    required: true
-  - name: confidence
-    type: number
-    description: "Confidence score of the prediction (0.0 to 1.0)."
-    required: true
-  - name: ground_truth_label
-    type: string
-    description: "The actual ground truth label from the dataset."
-    required: true
-  - name: is_correct
+    description: The specific vulnerability category predicted (e.g., 'SQLi', 'Buffer Overflow', 'none', 'uncertain')
+  is_correct:
     type: boolean
-    description: "Boolean flag indicating if predicted_label matches ground_truth_label."
-    required: true
-  - name: inference_time_ms
+    description: Boolean flag indicating if the prediction matches the ground truth
+  inference_time_ms:
     type: number
-    description: "Time taken to generate the prediction in milliseconds."
-    required: false
-  - name: raw_response
-    type: string
-    description: "The raw text response from the LLM or analyzer output."
-    required: false
+    description: Time taken for inference in milliseconds
+required:
+  - snippet_id
+  - predicted_label
+  - predicted_category
+  - is_correct
+  - inference_time_ms
+additionalProperties: false

@@ -1,0 +1,40 @@
+# Contract for FeatureVector data structure
+# Generated artifact for T008a - T008b depends on this
+type: object
+title: FeatureVector
+description: Extracted features for a code snippet
+properties:
+  snippet_id:
+    type: string
+    description: Reference to the CodeSnippet id
+  ast_depth:
+    type: integer
+    description: Maximum depth of the Abstract Syntax Tree
+  cyclomatic_complexity:
+    type: integer
+    description: Cyclomatic complexity of the code
+  node_count:
+    type: integer
+    description: Total number of AST nodes
+  taint_api_count:
+    type: integer
+    description: Count of identified taint source API calls
+  sanitization_present:
+    type: boolean
+    description: Whether sanitization functions are detected
+  embedding_similarity_score:
+    type: number
+    format: float
+    description: Similarity score against vulnerability patterns
+  label_missing:
+    type: boolean
+    description: Flag indicating if ground truth label is missing
+    default: false
+required:
+  - snippet_id
+  - ast_depth
+  - cyclomatic_complexity
+  - node_count
+  - taint_api_count
+  - sanitization_present
+  - embedding_similarity_score

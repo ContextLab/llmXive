@@ -1,9 +1,10 @@
 #!/bin/bash
-# Script to format code using black
-# Exit on error
+# Format the codebase using black and ruff-format
 set -e
 
-echo "Running Black formatter..."
+echo "Running Black and Ruff Formatter..."
+cd "$(dirname "$0")/.."
 black code/
+ruff format code/
 
 echo "Formatting complete."

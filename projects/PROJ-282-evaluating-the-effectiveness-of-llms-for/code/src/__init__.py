@@ -1,3 +1,1 @@
-"""
-llmXive Research Pipeline - Source Code Package
-"""
+# llmXive Project Source Package

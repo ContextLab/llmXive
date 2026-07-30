@@ -1,0 +1,38 @@
+# Contract for CodeSnippet data structure
+# Generated artifact for T007a - T007b depends on this
+type: object
+title: CodeSnippet
+description: Represents a single code snippet with ground truth vulnerability labels
+properties:
+  id:
+    type: string
+    description: Unique identifier for the snippet
+    format: uuid
+  language:
+    type: string
+    description: Programming language of the code snippet
+    enum:
+      - Python
+      - C
+      - C++
+      - JavaScript
+      - Java
+  source_code:
+    type: string
+    description: The actual source code content
+  ground_truth_label:
+    type: string
+    description: Ground truth vulnerability label (vulnerable, safe)
+    enum:
+      - vulnerable
+      - safe
+      - null
+  ground_truth_category:
+    type: string
+    description: Specific vulnerability category if applicable
+    nullable: true
+required:
+  - id
+  - language
+  - source_code
+  - ground_truth_label

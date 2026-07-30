@@ -1,90 +1,32 @@
-# Feature Vector Schema Contract
-# This file defines the structure of the FeatureVector dataclass.
-# Generated artifacts MUST match this schema exactly to prevent drift.
-
-schema_version: "1.0.0"
-entity_name: FeatureVector
-description: >
-  Aggregated features for a code snippet including structural, semantic,
-  and embedding-based metrics used for vulnerability prediction analysis.
-
-fields:
-  - name: feature_vector_id
-    type: str
-    description: Unique UUID for this feature vector record
-    required: true
-    generated: true
-    
-  - name: snippet_id
-    type: str
-    description: Foreign key reference to the source CodeSnippet
-    required: true
-    
-  - name: language
-    type: str
-    description: Programming language of the code snippet (e.g., 'python', 'c', 'javascript')
-    required: true
-    
-  # Structural Metrics (from tree-sitter AST analysis)
-  - name: ast_depth
-    type: float
+# Contract for FeatureVector
+# Auto-generated schema for T008a/T008b
+# This file defines the structure of the FeatureVector dataclass
+# to prevent schema drift.
+type: object
+properties:
+  ast_depth:
+    type: integer
     description: Maximum depth of the Abstract Syntax Tree
-    required: false
-    nullable: true
-    
-  - name: ast_node_count
-    type: int
+  cyclomatic_complexity:
+    type: integer
+    description: Cyclomatic complexity metric
+  node_count:
+    type: integer
     description: Total number of nodes in the AST
-    required: false
-    nullable: true
-    
-  - name: cyclomatic_complexity
-    type: int
-    description: Cyclomatic complexity metric (McCabe)
-    required: false
-    nullable: true
-    
-  - name: lines_of_code
-    type: int
-    description: Number of lines of code in the snippet
-    required: false
-    nullable: true
-    
-  # Semantic Metrics (taint analysis)
-  - name: taint_source_count
-    type: int
-    description: Count of detected taint-source API calls
-    required: false
-    nullable: true
-    
-  - name: taint_sink_count
-    type: int
-    description: Count of detected taint-sink API calls
-    required: false
-    nullable: true
-    
-  - name: has_sanitization
-    type: bool
-    description: Whether sanitization functions were detected
-    required: false
-    nullable: true
-    
-  # Embedding Metrics
-  - name: embedding_similarity_score
-    type: float
-    description: Cosine similarity score against canonical vulnerability patterns
-    required: false
-    nullable: true
-    
-  # Metadata
-  - name: extraction_timestamp
-    type: str
-    description: ISO 8601 timestamp of feature extraction
-    required: true
-    generated: true
-    
-  - name: parser_version
-    type: str
-    description: Version of the parser/feature extractor used
-    required: false
-    nullable: true
+  taint_api_count:
+    type: integer
+    description: Count of known taint-source API calls
+  sanitization_present:
+    type: boolean
+    description: Boolean indicating if sanitization functions are present
+  embedding_similarity_score:
+    type: number
+    description: Similarity score against vulnerability pattern embeddings
+required:
+  - ast_depth
+  - cyclomatic_complexity
+  - node_count
+  - taint_api_count
+  - sanitization_present
+  - embedding_similarity_score
+additionalProperties: false

@@ -1,3 +1,9 @@
+"""
+Structured logging utility for the llmXive research pipeline.
+
+Provides a consistent JSON-formatted logging interface for all pipeline stages,
+ensuring reproducibility and ease of parsing for downstream analysis.
+"""
 import json
 import logging
 import sys
@@ -5,125 +11,192 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 from pathlib import Path
 
+from src.utils.config import get_project_root
+
+
 class StructuredFormatter(logging.Formatter):
     """
-    Custom logging formatter that outputs structured JSON logs.
-    Includes timestamp, log level, stage, and arbitrary extra fields.
+    Custom logging formatter that outputs JSON-structured logs.
+    
+    Ensures that every log entry contains:
+    - timestamp (ISO 8601)
+    - level
+    - stage (if available in context)
+    - message
+    - extra metadata (if provided)
     """
-    def __init__(self, stage: str = "general"):
-        super().__init__()
-        self.stage = stage
-
+    
     def format(self, record: logging.LogRecord) -> str:
         log_entry = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
-            "stage": self.stage,
-            "message": record.getMessage(),
             "logger": record.name,
-            "function": record.funcName,
-            "line": record.lineno
+            "message": record.getMessage(),
         }
-
-        # Attach extra fields if present
-        if hasattr(record, "extra_data"):
-            log_entry["data"] = record.extra_data
-
-        # Handle exceptions if present
+        
+        # Add extra fields if present
+        if hasattr(record, 'stage'):
+            log_entry["stage"] = record.stage
+        
+        if hasattr(record, 'artifact'):
+            log_entry["artifact"] = record.artifact
+        
+        if hasattr(record, 'duration_ms'):
+            log_entry["duration_ms"] = record.duration_ms
+        
+        if hasattr(record, 'error_code'):
+            log_entry["error_code"] = record.error_code
+        
+        # Include exception info if present
         if record.exc_info:
             log_entry["exception"] = self.formatException(record.exc_info)
-
+        
         return json.dumps(log_entry)
 
-def get_logger(name: str, stage: str = "general", log_file: Optional[str] = None) -> logging.Logger:
+
+def get_logger(name: str) -> logging.Logger:
     """
-    Creates and configures a logger with the StructuredFormatter.
+    Retrieve or create a logger with the structured formatter.
     
     Args:
-        name: Name of the logger (usually __name__).
-        stage: The pipeline stage name for context.
-        log_file: Optional path to a file to write logs to.
-    
+        name: Logger name (typically module name)
+        
     Returns:
-        Configured logger instance.
+        Configured logger instance
     """
     logger = logging.getLogger(name)
     
-    # Avoid duplicate handlers if called multiple times
+    # Avoid duplicate handlers
     if logger.handlers:
         return logger
     
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(StructuredFormatter(stage))
+    console_handler.setFormatter(StructuredFormatter())
     logger.addHandler(console_handler)
     
-    # File handler if specified
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(StructuredFormatter(stage))
-        logger.addHandler(file_handler)
+    return logger
+
+
+def create_project_logger(stage_name: str) -> logging.Logger:
+    """
+    Create a logger specific to a pipeline stage.
     
-    return logger
-
-def _attach_extra(logger: logging.Logger, data: Dict[str, Any]) -> logging.Logger:
-    """Helper to attach extra data to log records via a custom Filter or by wrapping."""
-    # Since we can't easily inject into the record without a custom filter, 
-    # we will rely on the caller passing data via the logging methods if supported,
-    # or we use a custom LogRecord factory. 
-    # For simplicity in this specific implementation, we will use a closure-based approach
-    # or simply assume the user passes data in the message or we modify the formatter logic.
-    # 
-    # Better approach: Use a custom Filter.
-    class DataFilter(logging.Filter):
-        def __init__(self, data):
-            super().__init__()
-            self.data = data
+    Args:
+        stage_name: Name of the pipeline stage (e.g., "download", "preprocess")
         
-        def filter(self, record):
-            record.extra_data = self.data
-            return True
-
-    logger.addFilter(DataFilter(data))
+    Returns:
+        Logger instance configured for the stage
+    """
+    logger = get_logger(f"llmXive.{stage_name}")
+    logger.stage = stage_name
     return logger
 
-def log_stage_start(logger: logging.Logger, stage_name: str, config: Optional[Dict[str, Any]] = None) -> None:
-    """Logs the beginning of a pipeline stage."""
-    logger.info(f"--- Stage '{stage_name}' started ---", extra={"stage_override": stage_name})
-    if config:
-        logger.info("Stage configuration", extra={"config": config})
 
-def log_stage_complete(logger: logging.Logger, stage_name: str, duration_seconds: Optional[float] = None, artifact_path: Optional[str] = None) -> None:
-    """Logs the successful completion of a pipeline stage."""
-    msg = f"--- Stage '{stage_name}' completed ---"
-    if duration_seconds is not None:
-        msg += f" (Duration: {duration_seconds:.2f}s)"
-    logger.info(msg)
-    if artifact_path:
-        log_artifact(logger, "output_file", artifact_path)
+def log_stage_start(logger: logging.Logger, stage_name: str) -> None:
+    """
+    Log the beginning of a pipeline stage.
+    
+    Args:
+        logger: Logger instance
+        stage_name: Name of the stage
+    """
+    logger.info(f"Stage '{stage_name}' started", extra={"stage": stage_name})
 
-def log_stage_failure(logger: logging.Logger, stage_name: str, error: Exception) -> None:
-    """Logs a failure in a pipeline stage."""
-    logger.error(f"--- Stage '{stage_name}' FAILED ---", exc_info=True)
-    logger.error(f"Error: {str(error)}")
 
-def log_artifact(logger: logging.Logger, artifact_name: str, path: str, metadata: Optional[Dict[str, Any]] = None) -> None:
-    """Logs the creation or presence of an artifact."""
-    data = {"artifact_name": artifact_name, "path": path}
+def log_stage_complete(
+    logger: logging.Logger, 
+    stage_name: str, 
+    duration_ms: Optional[float] = None
+) -> None:
+    """
+    Log the successful completion of a pipeline stage.
+    
+    Args:
+        logger: Logger instance
+        stage_name: Name of the stage
+        duration_ms: Optional duration in milliseconds
+    """
+    extra = {"stage": stage_name}
+    if duration_ms is not None:
+        extra["duration_ms"] = duration_ms
+    logger.info(f"Stage '{stage_name}' completed", extra=extra)
+
+
+def log_stage_failure(
+    logger: logging.Logger, 
+    stage_name: str, 
+    error_message: str, 
+    error_code: Optional[str] = None
+) -> None:
+    """
+    Log a pipeline stage failure.
+    
+    Args:
+        logger: Logger instance
+        stage_name: Name of the stage
+        error_message: Description of the failure
+        error_code: Optional error code for categorization
+    """
+    extra = {"stage": stage_name, "error_code": error_code}
+    logger.error(
+        f"Stage '{stage_name}' failed: {error_message}",
+        extra=extra,
+        exc_info=True
+    )
+
+
+def log_artifact(
+    logger: logging.Logger, 
+    artifact_path: str, 
+    artifact_type: str,
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Log the creation or processing of an artifact.
+    
+    Args:
+        logger: Logger instance
+        artifact_path: Path to the artifact (relative to project root)
+        artifact_type: Type of artifact (e.g., "dataset", "prediction", "feature")
+        metadata: Optional metadata dictionary to include
+    """
+    extra = {"artifact": artifact_path, "artifact_type": artifact_type}
     if metadata:
-        data["metadata"] = metadata
-    logger.info(f"Artifact logged: {artifact_name}", extra={"data": data})
+        extra["metadata"] = metadata
+    
+    logger.info(
+        f"Artifact logged: {artifact_type} at {artifact_path}",
+        extra=extra
+    )
 
-# Convenience function to create a standard project logger
-def create_project_logger(stage_name: str, log_dir: str = "logs") -> logging.Logger:
+
+def log_config(logger: logging.Logger, config_dict: Dict[str, Any]) -> None:
     """
-    Creates a logger for the project with a specific stage and log file.
+    Log the current configuration for reproducibility.
+    
+    Args:
+        logger: Logger instance
+        config_dict: Configuration dictionary to log
     """
-    log_file_path = f"{log_dir}/{stage_name}.log"
-    return get_logger(__name__, stage=stage_name, log_file=log_file_path)
+    logger.info(
+        "Configuration snapshot",
+        extra={"config": json.dumps(config_dict, default=str)}
+    )
+
+
+def log_memory_snapshot(logger: logging.Logger, ram_used_gb: float, batch_size: int) -> None:
+    """
+    Log a memory usage snapshot.
+    
+    Args:
+        logger: Logger instance
+        ram_used_gb: Current RAM usage in GB
+        batch_size: Current batch size being used
+    """
+    logger.info(
+        f"Memory snapshot: {ram_used_gb:.2f} GB used, batch size: {batch_size}",
+        extra={"ram_used_gb": ram_used_gb, "batch_size": batch_size}
+    )

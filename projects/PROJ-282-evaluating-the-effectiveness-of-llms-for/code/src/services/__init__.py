@@ -1,1 +1,1 @@
-# Services package
+# Services module

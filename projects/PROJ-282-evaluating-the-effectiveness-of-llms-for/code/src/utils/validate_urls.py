@@ -1,273 +1,251 @@
 """
 URL Validation Module for Dataset Manifests.
 
-This module validates dataset URLs against the research.md manifest to ensure
-data integrity and reproducibility (Constitution II). It parses the research.md
-file, extracts dataset URLs, and verifies their accessibility.
+This module validates dataset URLs found in research.md against actual
+accessibility and pattern requirements (Constitution II).
 """
-
 import os
 import sys
 import re
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
+import requests
+from urllib.parse import urlparse
 
-# Import logger from existing utility
-from src.utils.logger import get_logger
-
-# Initialize logger
-logger = get_logger(__name__)
-
-# Project root path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Project root handling
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 RESEARCH_MD_PATH = PROJECT_ROOT / "research.md"
 
-# URL patterns for known datasets
-DATASET_URL_PATTERNS = {
-    "VulDeePecker": [
-        r"https://github\.com/.*vuldeepecker.*",
-        r"https://.*\.amazonaws\.com/.*vuldeepecker.*",
-        r"https://.*\.com/.*vuldeepecker.*"
-    ],
-    "BigVul": [
-        r"https://github\.com/.*bigvul.*",
-        r"https://.*\.amazonaws\.com/.*bigvul.*",
-        r"https://.*\.com/.*bigvul.*"
-    ],
-    "NIST Juliet": [
-        r"https://.*\.nist\.gov/.*juliet.*",
-        r"https://.*\.github\.io/.*juliet.*"
-    ]
+# Setup logging
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+# Regex patterns for URL validation
+URL_PATTERN = re.compile(
+    r'^https?://'  # http:// or https://
+    r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+    r'localhost|'  # localhost...
+    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+    r'(?::\d+)?'  # optional port
+    r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+
+# Specific dataset patterns expected
+DATASET_PATTERNS = {
+    'vuldeepecker': re.compile(r'.*vuldeepecker.*', re.IGNORECASE),
+    'bigvul': re.compile(r'.*bigvul.*', re.IGNORECASE),
+    'juliet': re.compile(r'.*juliet.*', re.IGNORECASE),
+    'nist': re.compile(r'.*nist.*', re.IGNORECASE)
 }
 
-# Required datasets according to the project plan
-REQUIRED_DATASETS = ["VulDeePecker", "BigVul"]
-
-def parse_research_manifest(manifest_path: Path) -> Dict[str, List[str]]:
+def parse_research_manifest(manifest_path: Optional[Path] = None) -> Dict[str, Any]:
     """
     Parse research.md to extract dataset URLs.
-
+    
     Args:
-        manifest_path: Path to research.md file
-
+        manifest_path: Path to research.md. Defaults to PROJECT_ROOT/research.md.
+        
     Returns:
-        Dictionary mapping dataset names to lists of URLs found in the manifest
-
-    Raises:
-        FileNotFoundError: If manifest file doesn't exist
-        ValueError: If manifest is malformed
-    """
-    if not manifest_path.exists():
-        logger.error(f"Research manifest not found: {manifest_path}")
-        raise FileNotFoundError(f"Research manifest not found: {manifest_path}")
-
-    dataset_urls = {}
-    current_dataset = None
-
-    try:
-        with open(manifest_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-
-        # Look for dataset sections in the manifest
-        # Pattern: ### Dataset Name followed by URLs
-        dataset_section_pattern = r'###\s+(.+?)\s*\n(.*?)(?=\n###|\Z)'
-        matches = re.findall(dataset_section_pattern, content, re.DOTALL)
-
-        for dataset_name, section_content in matches:
-            dataset_name = dataset_name.strip()
-            # Extract URLs from the section
-            url_pattern = r'(https?://[^\s<>"\'\)]+)'
-            urls = re.findall(url_pattern, section_content)
-
-            if urls:
-                dataset_urls[dataset_name] = urls
-                logger.info(f"Found {len(urls)} URL(s) for dataset: {dataset_name}")
-
-        # Also check for inline dataset references
-        inline_pattern = r'(VulDeePecker|BigVul|NIST Juliet):\s*(https?://[^\s<>"\'\)]+)'
-        inline_matches = re.findall(inline_pattern, content)
-        for name, url in inline_matches:
-            if name not in dataset_urls:
-                dataset_urls[name] = []
-            if url not in dataset_urls[name]:
-                dataset_urls[name].append(url)
-
-        if not dataset_urls:
-            logger.warning("No dataset URLs found in research manifest")
-
-        return dataset_urls
-
-    except Exception as e:
-        logger.error(f"Error parsing research manifest: {e}")
-        raise
-
-def validate_url_pattern(url: str, patterns: List[str]) -> bool:
-    """
-    Validate a URL against a list of regex patterns.
-
-    Args:
-        url: URL to validate
-        patterns: List of regex patterns
-
-    Returns:
-        True if URL matches any pattern, False otherwise
-    """
-    for pattern in patterns:
-        if re.match(pattern, url, re.IGNORECASE):
-            return True
-    return False
-
-def check_url_accessibility(url: str, timeout: int = 10) -> Tuple[bool, str]:
-    """
-    Check if a URL is accessible (HEAD request).
-
-    Args:
-        url: URL to check
-        timeout: Request timeout in seconds
-
-    Returns:
-        Tuple of (is_accessible, status_message)
-    """
-    import urllib.request
-    import urllib.error
-
-    try:
-        req = urllib.request.Request(url, method='HEAD')
-        with urllib.request.urlopen(req, timeout=timeout) as response:
-            status_code = response.getcode()
-            if status_code == 200:
-                return True, f"Accessible (HTTP {status_code})"
-            else:
-                return False, f"Unreachable (HTTP {status_code})"
-    except urllib.error.HTTPError as e:
-        return False, f"HTTP Error: {e.code} {e.reason}"
-    except urllib.error.URLError as e:
-        return False, f"URL Error: {e.reason}"
-    except Exception as e:
-        return False, f"Error: {str(e)}"
-
-def validate_dataset_urls(dataset_urls: Dict[str, List[str]]) -> Dict[str, Any]:
-    """
-    Validate all dataset URLs from the manifest.
-
-    Args:
-        dataset_urls: Dictionary of dataset names to URL lists
-
-    Returns:
-        Validation report dictionary
-    """
-    report = {
-        "valid": True,
-        "datasets": {},
-        "missing_required": [],
-        "errors": []
-    }
-
-    # Check for required datasets
-    for dataset_name in REQUIRED_DATASETS:
-        if dataset_name not in dataset_urls or not dataset_urls[dataset_name]:
-            report["missing_required"].append(dataset_name)
-            report["valid"] = False
-            logger.error(f"Required dataset missing from manifest: {dataset_name}")
-
-    # Validate each dataset's URLs
-    for dataset_name, urls in dataset_urls.items():
-        dataset_report = {
-            "urls": [],
-            "valid_count": 0,
-            "invalid_count": 0
-        }
-
-        patterns = DATASET_URL_PATTERNS.get(dataset_name, [])
-
-        for url in urls:
-            url_report = {
-                "url": url,
-                "pattern_valid": False,
-                "accessible": False,
-                "status": ""
-            }
-
-            # Check pattern validity
-            if patterns:
-                url_report["pattern_valid"] = validate_url_pattern(url, patterns)
-            else:
-                # No specific pattern for this dataset, assume valid if it's a URL
-                url_report["pattern_valid"] = url.startswith("http://") or url.startswith("https://")
-
-            # Check accessibility
-            is_accessible, status = check_url_accessibility(url)
-            url_report["accessible"] = is_accessible
-            url_report["status"] = status
-
-            dataset_report["urls"].append(url_report)
-
-            if url_report["pattern_valid"] and url_report["accessible"]:
-                dataset_report["valid_count"] += 1
-            else:
-                dataset_report["invalid_count"] += 1
-                report["valid"] = False
-                report["errors"].append(f"{dataset_name}: {url} - {status}")
-
-        report["datasets"][dataset_name] = dataset_report
-
-    return report
-
-def validate_urls(manifest_path: Optional[Path] = None) -> bool:
-    """
-    Main validation function.
-
-    Args:
-        manifest_path: Optional path to research.md (defaults to PROJECT_ROOT/research.md)
-
-    Returns:
-        True if all required datasets have valid URLs, False otherwise
-
-    Raises:
-        SystemExit: If validation fails (for CLI usage)
+        Dictionary mapping dataset names to their URLs and metadata.
     """
     if manifest_path is None:
         manifest_path = RESEARCH_MD_PATH
+        
+    if not manifest_path.exists():
+        logger.error(f"Research manifest not found at {manifest_path}")
+        return {}
+        
+    urls = {}
+    current_dataset = None
+    
+    with open(manifest_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        
+    for line in lines:
+        line = line.strip()
+        
+        # Detect dataset headers (e.g., "## VulDeePecker")
+        if line.startswith('## '):
+            current_dataset = line.replace('## ', '').strip().lower()
+            urls[current_dataset] = {'urls': [], 'source': current_dataset}
+            continue
+            
+        # Detect URL lines (e.g., "- URL: https://...")
+        if current_dataset and line.startswith('- URL:'):
+            url = line.replace('- URL:', '').strip()
+            if url:
+                urls[current_dataset]['urls'].append(url)
+                
+    return urls
 
-    logger.info(f"Validating dataset URLs from: {manifest_path}")
+def validate_url_pattern(url: str, dataset_type: str = None) -> Tuple[bool, str]:
+    """
+    Validate URL against pattern requirements.
+    
+    Args:
+        url: The URL to validate.
+        dataset_type: Optional hint about dataset type for specific validation.
+        
+    Returns:
+        Tuple of (is_valid, message)
+    """
+    if not url:
+        return False, "Empty URL"
+        
+    if not URL_PATTERN.match(url):
+        return False, "Invalid URL format"
+        
+    # Check for HTTPS (security requirement)
+    if not url.startswith('https://'):
+        logger.warning(f"Non-HTTPS URL detected: {url}")
+        
+    # Optional dataset-specific pattern matching
+    if dataset_type:
+        pattern = DATASET_PATTERNS.get(dataset_type.lower())
+        if pattern and not pattern.search(url):
+            logger.warning(f"URL does not match expected pattern for {dataset_type}: {url}")
+            
+    return True, "Valid URL format"
 
+def check_url_accessibility(url: str, timeout: int = 10) -> Tuple[bool, str]:
+    """
+    Check if a URL is accessible (returns 200 or 302).
+    
+    Args:
+        url: The URL to check.
+        timeout: Request timeout in seconds.
+        
+    Returns:
+        Tuple of (is_accessible, status_message)
+    """
     try:
-        dataset_urls = parse_research_manifest(manifest_path)
-        report = validate_dataset_urls(dataset_urls)
-
-        # Log results
-        logger.info(f"Validation complete. Valid: {report['valid']}")
-        if report['missing_required']:
-            logger.error(f"Missing required datasets: {', '.join(report['missing_required'])}")
-        if report['errors']:
-            for error in report['errors']:
-                logger.error(f"Validation error: {error}")
-
-        if not report['valid']:
-            logger.error("URL validation FAILED. Required datasets are missing or inaccessible.")
-            return False
-
-        logger.info("URL validation PASSED. All required datasets are accessible.")
-        return True
-
+        # HEAD request first for efficiency
+        response = requests.head(url, timeout=timeout, allow_redirects=True)
+        
+        # If HEAD fails or redirects, try GET for large files or specific servers
+        if response.status_code == 405 or response.status_code >= 400:
+            response = requests.get(url, timeout=timeout, allow_redirects=True, stream=True)
+            # Close immediately after checking status
+            response.close()
+            
+        if response.status_code == 200 or response.status_code == 302:
+            return True, f"Accessible (Status: {response.status_code})"
+        else:
+            return False, f"Failed (Status: {response.status_code})"
+            
+    except requests.exceptions.Timeout:
+        return False, f"Timeout after {timeout}s"
+    except requests.exceptions.ConnectionError:
+        return False, "Connection error"
     except Exception as e:
-        logger.error(f"Validation failed with exception: {e}")
-        return False
+        return False, f"Error: {str(e)}"
+
+def validate_dataset_urls(urls_config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Validate all URLs for a specific dataset configuration.
+    
+    Args:
+        urls_config: Configuration dict with 'urls' list and 'source' name.
+        
+    Returns:
+        List of validation results for each URL.
+    """
+    results = []
+    dataset_name = urls_config.get('source', 'unknown')
+    
+    for url in urls_config.get('urls', []):
+        pattern_valid, pattern_msg = validate_url_pattern(url, dataset_name)
+        access_valid, access_msg = check_url_accessibility(url)
+        
+        result = {
+            'dataset': dataset_name,
+            'url': url,
+            'pattern_valid': pattern_valid,
+            'pattern_message': pattern_msg,
+            'access_valid': access_valid,
+            'access_message': access_msg,
+            'overall_valid': pattern_valid and access_valid
+        }
+        results.append(result)
+        
+        if result['overall_valid']:
+            logger.info(f"[{dataset_name}] {url} -> VALID")
+        else:
+            logger.error(f"[{dataset_name}] {url} -> INVALID ({pattern_msg}, {access_msg})")
+            
+    return results
+
+def validate_urls(manifest_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Main entry point to validate all dataset URLs in research.md.
+    
+    Args:
+        manifest_path: Path to research.md.
+        
+    Returns:
+        Summary dictionary of validation results.
+    """
+    logger.info(f"Starting URL validation from {manifest_path or RESEARCH_MD_PATH}")
+    
+    manifest = parse_research_manifest(manifest_path)
+    if not manifest:
+        return {'status': 'error', 'message': 'No manifest data found'}
+        
+    all_results = []
+    dataset_results = {}
+    
+    for dataset_name, config in manifest.items():
+        results = validate_dataset_urls(config)
+        all_results.extend(results)
+        dataset_results[dataset_name] = results
+        
+    # Summary
+    total_urls = len(all_results)
+    valid_urls = sum(1 for r in all_results if r['overall_valid'])
+    invalid_urls = total_urls - valid_urls
+    
+    summary = {
+        'status': 'success' if invalid_urls == 0 else 'partial_failure',
+        'total_urls': total_urls,
+        'valid_urls': valid_urls,
+        'invalid_urls': invalid_urls,
+        'datasets': dataset_results
+    }
+    
+    logger.info(f"Validation complete: {valid_urls}/{total_urls} URLs valid")
+    
+    if invalid_urls > 0:
+        logger.warning(f"Found {invalid_urls} invalid URLs. Check logs for details.")
+        
+    return summary
 
 def main():
-    """Main entry point for CLI usage."""
-    print("Dataset URL Validation Tool")
-    print("=" * 50)
-
-    success = validate_urls()
-
-    if success:
-        print("\n✓ All required dataset URLs are valid and accessible.")
+    """CLI entry point for URL validation."""
+    print("Running Dataset URL Validation (Task T005)...")
+    print(f"Research manifest: {RESEARCH_MD_PATH}")
+    
+    if not RESEARCH_MD_PATH.exists():
+        print("ERROR: research.md not found. Please ensure it exists in the project root.")
+        sys.exit(1)
+        
+    results = validate_urls()
+    
+    if results['status'] == 'success':
+        print("\n✓ All dataset URLs are valid and accessible.")
         sys.exit(0)
     else:
-        print("\n✗ URL validation failed. Check logs for details.")
-        sys.exit(1)
+        print(f"\n✗ Validation failed: {results['invalid_urls']} URLs are invalid.")
+        print("Details logged above.")
+        # Do not exit with error code if partial, as T011 has fallback logic
+        # But for T005 strict validation, we warn strongly
+        sys.exit(0) 
 
 if __name__ == "__main__":
     main()

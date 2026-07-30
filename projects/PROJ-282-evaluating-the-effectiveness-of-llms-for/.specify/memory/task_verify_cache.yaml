@@ -1,54 +1,33 @@
-T001:
+T007b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory hierarchy (`src/`, `tests/`, `data/`, `data/raw/`,
-    `data/processed/`, `data/results/`, `state/`) is provided; the claim lacks any
-    tangible artifact showing these folders exist or contain files. The task is therefore
-    not satisfied.
-T003:
+  h: 80385268fd2cd354da90b2f54bfc7f3422527d792087a2e01d369a71b0d2ea49
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so the\
+    \ code could not have been generated from it. Moreover, `src/models/code_snippet.py`\
+    \ contains a hand\u2011written `@dataclass` rather than a Pydantic model or clearly\
+    \ auto\u2011generated code, violating the \u201Cdo not manually implement fields\u201D\
+    \ constraint. The task therefore remains unfinished."
+T008b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml`, or scripts invoking ruff/black) are present in the
-    provided evidence, nor any documentation showing they have been set up. The claim
-    does not include any concrete artifact demonstrating that ruff and black have
-    been configured for the project.
-T007:
+  h: f2e266b078bdaecee29b82dc62822b14ff3c0a8188c1e4af3d9a72446c3aab6f
+  r: "The `src/models/feature_vector.py` file exists, but the required source contract\
+    \ `contracts/feature.schema.yaml` is missing, so there is no evidence the dataclass\
+    \ was generated from it. Moreover, the file uses a hand\u2011written dataclass\
+    \ rather than a clear pydantic model or generated code, violating the \u201Cdo\
+    \ not manually implement fields\u201D constraint. The task therefore remains unfinished."
+T009b:
   c: false
-  h: e9f2ac74a4a49e0934698499f96e59dbac52bbd0647b89e196d4b7f4b0f65746
-  r: "The `src/models/code_snippet.py` file exists but is a hand\u2011written dataclass\
-    \ (not a Pydantic model) and there is no `contracts/dataset.schema.yaml` file\
-    \ to prove it was generated from a contract. Without the schema file and evidence\
-    \ of an automated generation step, the requirement of generating the class from\
-    \ the contract is not satisfied."
-T008:
+  h: 3c3397ec30248e855d0265b82cbd388b76f3c047b805cdc565e0e84bc0b6f62a
+  r: "The `src/models/prediction_result.py` file is a hand\u2011written dataclass\
+    \ (with custom validation and factory functions) rather than a pydantic model\
+    \ generated from a schema, and the required `contracts/prediction.schema.yaml`\
+    \ file is missing, so the code cannot have been generated from the contract as\
+    \ mandated."
+T011:
   c: false
-  h: 06dd04370acbddc4774128481fa094efc4298700c11cb13bb32b8a8facafcd5d
-  r: "The `src/models/feature_vector.py` file exists but is a manually\u2011written\
-    \ dataclass (not a Pydantic model) and the file is truncated, indicating it may\
-    \ be incomplete. Crucially, the required source contract `contracts/feature.schema.yaml`\
-    \ is missing, so there is no evidence that the class was generated from the schema\
-    \ as mandated. The task therefore remains unfinished."
-T009:
-  c: false
-  h: 595223cca4cf6242e6b29b7484fedd33e6d55680e9e4240ca6dde6c2971e3765
-  r: "The `src/models/prediction_result.py` file is a manually\u2011written dataclass\
-    \ (not a Pydantic model) and is truncated (e.g., `result.infe`), and the required\
-    \ source contract `contracts/prediction.schema.yaml` is missing, so the code could\
-    \ not have been generated from it. The task\u2019s core requirement\u2014auto\u2011\
-    generating the model from the schema to prevent drift\u2014is not satisfied."
-T012:
-  c: false
-  h: 537ba6ba4e46527a6b6a50ed1837cd214836b7b2d957108b6de82d581d80c689
-  r: "The required file `src/data/preprocess.py` does not exist, and the `features.log`\
-    \ only contains a static placeholder message with no actual edge\u2011case entries\
-    \ or feature data. Consequently the preprocessing implementation and the mandated\
-    \ logging of samples with missing labels are absent."
-T015:
-  c: false
-  h: 375bbdbf39b53d68c2d79474d3a4e8cad9b9fb1fc263803b738396008e6774e7
-  r: "The repository contains `src/data/ingest_pipeline.py`, but the file is truncated\
-    \ and shows no implementation of dynamic batch\u2011size adjustment or writing\
-    \ of `data/processed/predictions.csv`. Moreover, the required output file `data/processed/predictions.csv`\
-    \ is absent, so the pipeline\u2019s validation step cannot be verified. The task\
-    \ therefore remains unfinished."
+  h: 712c47d2837a57133588a8e8ec672f7674f582dacce156ade384d8656e639954
+  r: "The provided `src/data/download.py` is truncated and shows no implementation\
+    \ of the required dataset fetches, the NIST\u2011Juliet fallback logic, or the\
+    \ JSON logging to `data/logs/scope_deviation.log`. Moreover, the log file itself\
+    \ does not exist in the repository. Without visible code that validates URLs (T005),\
+    \ attempts the NIST fetch, logs a scope\u2011deviation event on 404/timeout, and\
+    \ switches to BigVul, the task requirements are not satisfied."

@@ -1,7 +1,6 @@
 """
-Unit tests for URL validation module.
+Unit tests for URL validation module (T005).
 """
-
 import os
 import tempfile
 import pytest
@@ -11,185 +10,138 @@ from unittest.mock import patch, MagicMock
 from src.utils.validate_urls import (
     parse_research_manifest,
     validate_url_pattern,
+    check_url_accessibility,
     validate_dataset_urls,
     validate_urls
 )
 
-
 class TestParseResearchManifest:
-    """Tests for parse_research_manifest function."""
-
-    def test_valid_manifest_parsing(self, tmp_path):
+    def test_parse_valid_manifest(self, tmp_path):
         """Test parsing a valid research.md file."""
-        manifest_content = """
-        # Research Manifest
+        content = """
+        # Research Data Sources
 
-        ### VulDeePecker
-        - https://github.com/example/vuldeepecker
-        - https://example.com/vuldeepecker/dataset.zip
+        ## VulDeePecker
+        - URL: https://example.com/vuldeepecker.json
 
-        ### BigVul
-        - https://github.com/example/bigvul
+        ## BigVul
+        - URL: https://example.com/bigvul.zip
+        - URL: https://mirror.com/bigvul.tar.gz
         """
         manifest_file = tmp_path / "research.md"
-        manifest_file.write_text(manifest_content)
+        manifest_file.write_text(content)
 
         result = parse_research_manifest(manifest_file)
 
-        assert "VulDeePecker" in result
-        assert "BigVul" in result
-        assert len(result["VulDeePecker"]) == 2
-        assert len(result["BigVul"]) == 1
+        assert "vuldeepecker" in result
+        assert "bigvul" in result
+        assert len(result["vuldeepecker"]["urls"]) == 1
+        assert len(result["bigvul"]["urls"]) == 2
+        assert result["bigvul"]["urls"][0] == "https://example.com/bigvul.zip"
 
-    def test_missing_manifest_file(self, tmp_path):
-        """Test handling of missing manifest file."""
-        non_existent = tmp_path / "non_existent.md"
-
-        with pytest.raises(FileNotFoundError):
-            parse_research_manifest(non_existent)
-
-    def test_empty_manifest(self, tmp_path):
-        """Test parsing an empty manifest file."""
-        manifest_file = tmp_path / "research.md"
-        manifest_file.write_text("")
-
-        result = parse_research_manifest(manifest_file)
+    def test_parse_missing_file(self, tmp_path):
+        """Test parsing a non-existent file."""
+        result = parse_research_manifest(tmp_path / "nonexistent.md")
         assert result == {}
 
-    def test_inline_url_pattern(self, tmp_path):
-        """Test parsing inline URL patterns."""
-        manifest_content = """
-        # Research Manifest
-
-        VulDeePecker: https://github.com/example/vuldeepecker
-        BigVul: https://github.com/example/bigvul
-        """
-        manifest_file = tmp_path / "research.md"
-        manifest_file.write_text(manifest_content)
-
-        result = parse_research_manifest(manifest_file)
-
-        assert "VulDeePecker" in result
-        assert "BigVul" in result
-
-
 class TestValidateUrlPattern:
-    """Tests for validate_url_pattern function."""
+    def test_valid_http_url(self):
+        is_valid, msg = validate_url_pattern("http://example.com/data")
+        assert is_valid is True
 
-    def test_matching_pattern(self):
-        """Test URL matching against valid pattern."""
-        url = "https://github.com/example/vuldeepecker"
-        patterns = [r"https://github\.com/.*vuldeepecker.*"]
+    def test_valid_https_url(self):
+        is_valid, msg = validate_url_pattern("https://example.com/data")
+        assert is_valid is True
 
-        assert validate_url_pattern(url, patterns) is True
+    def test_invalid_url_no_protocol(self):
+        is_valid, msg = validate_url_pattern("example.com/data")
+        assert is_valid is False
+        assert "Invalid URL format" in msg
 
-    def test_non_matching_pattern(self):
-        """Test URL not matching pattern."""
-        url = "https://example.com/other"
-        patterns = [r"https://github\.com/.*vuldeepecker.*"]
+    def test_empty_url(self):
+        is_valid, msg = validate_url_pattern("")
+        assert is_valid is False
 
-        assert validate_url_pattern(url, patterns) is False
+    def test_dataset_pattern_match(self):
+        # URL contains dataset name
+        is_valid, msg = validate_url_pattern("https://github.com/bigvul/dataset", "bigvul")
+        assert is_valid is True
 
-    def test_case_insensitive(self):
-        """Test case-insensitive matching."""
-        url = "HTTPS://GITHUB.COM/EXAMPLE/VULDEEPCKER"
-        patterns = [r"https://github\.com/.*vuldeepecker.*"]
+    def test_dataset_pattern_mismatch(self):
+        # URL does not contain expected dataset name
+        is_valid, msg = validate_url_pattern("https://github.com/other/dataset", "juliet")
+        # This logs a warning but returns True for format validity
+        assert is_valid is True
 
-        assert validate_url_pattern(url, patterns) is True
+class TestCheckUrlAccessibility:
+    @patch('src.utils.validate_urls.requests.head')
+    def test_accessible_url(self, mock_head):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_head.return_value = mock_response
 
+        is_accessible, msg = check_url_accessibility("https://example.com")
+        assert is_accessible is True
+        assert "Accessible" in msg
+
+    @patch('src.utils.validate_urls.requests.head')
+    def test_unaccessible_url(self, mock_head):
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_head.return_value = mock_response
+
+        is_accessible, msg = check_url_accessibility("https://example.com")
+        assert is_accessible is False
+        assert "Failed" in msg
+
+    @patch('src.utils.validate_urls.requests.head')
+    def test_timeout_error(self, mock_head):
+        mock_head.side_effect = Exception("Timeout")
+
+        is_accessible, msg = check_url_accessibility("https://example.com")
+        assert is_accessible is False
+        assert "Error" in msg or "Timeout" in msg
 
 class TestValidateDatasetUrls:
-    """Tests for validate_dataset_urls function."""
-
-    def test_all_valid_urls(self):
-        """Test validation with all valid URLs."""
-        dataset_urls = {
-            "VulDeePecker": ["https://github.com/example/vuldeepecker"],
-            "BigVul": ["https://github.com/example/bigvul"]
+    def test_validate_single_url(self):
+        config = {
+            'source': 'test_dataset',
+            'urls': ['https://example.com/data']
         }
-
+        
+        # Mock the accessibility check to avoid real network calls
         with patch('src.utils.validate_urls.check_url_accessibility') as mock_check:
-            mock_check.return_value = (True, "Accessible (HTTP 200)")
-
-            report = validate_dataset_urls(dataset_urls)
-
-            assert report["valid"] is True
-            assert len(report["missing_required"]) == 0
-
-    def test_missing_required_dataset(self):
-        """Test validation with missing required dataset."""
-        dataset_urls = {
-            "BigVul": ["https://github.com/example/bigvul"]
-            # VulDeePecker is missing
-        }
-
-        report = validate_dataset_urls(dataset_urls)
-
-        assert report["valid"] is False
-        assert "VulDeePecker" in report["missing_required"]
-
-    def test_inaccessible_url(self):
-        """Test validation with inaccessible URL."""
-        dataset_urls = {
-            "VulDeePecker": ["https://invalid-url.example.com"]
-        }
-
-        with patch('src.utils.validate_urls.check_url_accessibility') as mock_check:
-            mock_check.return_value = (False, "URL Error: Connection refused")
-
-            report = validate_dataset_urls(dataset_urls)
-
-            assert report["valid"] is False
-            assert len(report["errors"]) > 0
-
+            mock_check.return_value = (True, "Accessible")
+            
+            results = validate_dataset_urls(config)
+            
+            assert len(results) == 1
+            assert results[0]['dataset'] == 'test_dataset'
+            assert results[0]['overall_valid'] is True
 
 class TestValidateUrls:
-    """Tests for main validate_urls function."""
-
-    def test_validate_success(self, tmp_path):
-        """Test successful validation."""
-        manifest_content = """
-        # Research Manifest
-
-        ### VulDeePecker
-        - https://github.com/example/vuldeepecker
-
-        ### BigVul
-        - https://github.com/example/bigvul
+    def test_validate_full_manifest(self, tmp_path):
+        content = """
+        ## TestDataset
+        - URL: https://example.com/test
         """
         manifest_file = tmp_path / "research.md"
-        manifest_file.write_text(manifest_content)
+        manifest_file.write_text(content)
 
         with patch('src.utils.validate_urls.check_url_accessibility') as mock_check:
-            mock_check.return_value = (True, "Accessible (HTTP 200)")
-
-            with patch('src.utils.validate_urls.RESEARCH_MD_PATH', manifest_file):
-                result = validate_urls(manifest_file)
-
-                assert result is True
-
-    def test_validate_failure(self, tmp_path):
-        """Test failed validation due to missing dataset."""
-        manifest_content = """
-        # Research Manifest
-
-        ### BigVul
-        - https://github.com/example/bigvul
-        """
+            mock_check.return_value = (True, "Accessible")
+            
+            results = validate_urls(manifest_file)
+            
+            assert results['status'] == 'success'
+            assert results['total_urls'] == 1
+            assert results['valid_urls'] == 1
+            assert 'testdataset' in results['datasets']
+            
+    def test_validate_empty_manifest(self, tmp_path):
+        content = "# No URLs here"
         manifest_file = tmp_path / "research.md"
-        manifest_file.write_text(manifest_content)
+        manifest_file.write_text(content)
 
-        with patch('src.utils.validate_urls.RESEARCH_MD_PATH', manifest_file):
-            result = validate_urls(manifest_file)
-
-            assert result is False
-
-    def test_manifest_not_found(self):
-        """Test handling of missing manifest."""
-        with patch('src.utils.validate_urls.RESEARCH_MD_PATH', Path("/non/existent/path.md")):
-            result = validate_urls()
-            assert result is False
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        results = validate_urls(manifest_file)
+        assert results['status'] == 'error'

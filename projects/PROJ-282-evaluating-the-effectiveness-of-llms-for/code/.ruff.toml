@@ -1,12 +1,29 @@
-# Ruff configuration for llmxive-proj-282
-# Extends pyproject.toml settings with file-specific overrides
+# Standalone Ruff configuration for CLI usage
+# This file is redundant with pyproject.toml but ensures CLI tools pick up settings
+# even if run from subdirectories without pyproject discovery.
 
-[lint]
-# Additional rules for specific files
-per-file-ignores = { "code/tests/*" = ["S101"] }
+line-length = 100
+target-version = "py310"
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+]

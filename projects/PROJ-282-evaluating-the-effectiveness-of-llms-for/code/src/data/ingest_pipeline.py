@@ -1,14 +1,3 @@
-"""
-Ingest Pipeline: Orchestrates download, preprocessing, and LLM inference.
-
-This script runs the full User Story 1 pipeline:
-1. Downloads raw datasets (T011)
-2. Preprocesses them into CodeSnippets (T012)
-3. Runs Zero-Shot LLM Inference (T013, T014)
-4. Outputs predictions.csv conforming to PredictionResult schema.
-
-Memory Safety: Implements dynamic batch size adjustment based on available RAM.
-"""
 import os
 import sys
 import gc
@@ -18,250 +7,201 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Project imports matching API surface
-from src.data.download import download_all_datasets, validate_dataset
-from src.data.preprocess import create_code_snippets, save_snippets_to_csv
+# Project imports
+from src.utils.logger import get_logger, log_stage_start, log_stage_complete, log_stage_failure
+from src.utils.memory_monitor import MemoryMonitor, check_memory_constraint, force_gc
+from src.utils.config import get_config, get_data_processed_path
+from src.data.download import download_all_datasets
+from src.data.preprocess import (
+    create_code_snippets,
+    save_snippets_to_csv,
+    parse_raw_directory,
+    detect_language_from_extension
+)
+from src.models.code_snippet import CodeSnippet
+from src.models.prediction_result import PredictionResult, create_prediction_result
 from src.models.llm_inference import (
-    InferenceConfig, 
-    get_available_ram_gb, 
-    check_memory_constraint,
     load_model_4bit_cpu,
     run_inference_batch,
     process_snippets_zero_shot,
-    parse_llm_response
+    InferenceConfig
 )
-from src.models.prediction_result import PredictionResult, create_prediction_result, prediction_result_to_dict
-from src.models.code_snippet import CodeSnippet
-from src.utils.logger import get_logger, log_stage_start, log_stage_complete, log_stage_failure, create_project_logger
-from src.utils.config import get_config
+
+logger = get_logger("ingest_pipeline")
 
 # Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-OUTPUT_FILE = DATA_PROCESSED_DIR / "predictions.csv"
-LOG_FILE = PROJECT_ROOT / "logs" / "ingest_pipeline.log"
+MAX_BATCH_SIZE = 32
+MIN_BATCH_SIZE = 1
+MEMORY_THRESHOLD_RATIO = 0.85  # Reduce batch if usage > 85%
 
-# Ensure directories exist
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-(PROJECT_ROOT / "logs").mkdir(parents=True, exist_ok=True)
-
-logger = create_project_logger("ingest_pipeline", LOG_FILE)
-
-def adjust_batch_size(initial_batch: int, min_batch: int = 1) -> int:
+def adjust_batch_size(current_batch: int, memory_monitor: MemoryMonitor) -> int:
     """
-    Dynamic batch size adjustment based on available RAM.
-    Checks current RAM usage and reduces batch size if constraints are violated.
+    Dynamically adjust batch size based on memory usage.
+    Returns a new batch size (1 <= size <= current_batch).
     """
-    current_batch = initial_batch
-    ram_gb = get_available_ram_gb()
-    
-    # Safety threshold: ensure we don't exceed 70% of available RAM for safety margin
-    # T004 specifies a hard limit of ~7GB, but we check dynamically
-    if ram_gb < 2.0:
-        logger.warning(f"Very low RAM detected ({ram_gb:.2f}GB). Setting batch size to {min_batch}.")
-        return min_batch
-    
-    # Heuristic: If RAM is tight (< 4GB), reduce batch size
-    if ram_gb < 4.0:
-        current_batch = max(min_batch, initial_batch // 2)
-        logger.info(f"Low RAM ({ram_gb:.2f}GB). Reduced batch size to {current_batch}.")
-    elif ram_gb < 6.0:
-        current_batch = max(min_batch, initial_batch // 4)
-        logger.info(f"Moderate RAM ({ram_gb:.2f}GB). Reduced batch size to {current_batch}.")
-    
+    usage_ratio = memory_monitor.get_memory_usage_ratio()
+    if usage_ratio > MEMORY_THRESHOLD_RATIO:
+        new_size = max(MIN_BATCH_SIZE, current_batch // 2)
+        logger.warning(f"High memory usage ({usage_ratio:.2%}). Reducing batch size from {current_batch} to {new_size}.")
+        return new_size
+    elif usage_ratio < 0.5 and current_batch < MAX_BATCH_SIZE:
+        # Can try to increase batch size if memory is low
+        new_size = min(MAX_BATCH_SIZE, current_batch * 2)
+        logger.info(f"Low memory usage ({usage_ratio:.2%}). Increasing batch size to {new_size}.")
+        return new_size
     return current_batch
-
-def run_ingest_pipeline(
-    batch_size: int = 8, 
-    max_retries: int = 3,
-    force_redownload: bool = False
-) -> List[PredictionResult]:
-    """
-    Main orchestration function for the ingest pipeline.
-    
-    Args:
-        batch_size: Initial batch size for LLM inference.
-        max_retries: Number of retries for memory failures.
-        force_redownload: If True, re-downloads datasets.
-        
-    Returns:
-        List of PredictionResult objects.
-    """
-    log_stage_start(logger, "Ingest Pipeline", batch_size=batch_size)
-    
-    all_predictions: List[PredictionResult] = []
-    
-    # Step 1: Download Datasets
-    log_stage_start(logger, "Step 1: Downloading Datasets")
-    try:
-        download_all_datasets(DATA_RAW_DIR, force=force_redownload)
-        # Validate integrity
-        if not validate_dataset(DATA_RAW_DIR):
-            raise RuntimeError("Dataset validation failed.")
-        log_stage_complete(logger, "Step 1: Downloading Datasets")
-    except Exception as e:
-        log_stage_failure(logger, "Step 1: Downloading Datasets", str(e))
-        raise e
-    
-    # Step 2: Preprocess Data
-    log_stage_start(logger, "Step 2: Preprocessing Datasets")
-    try:
-        # This function is expected to return a list of CodeSnippet objects
-        # based on the API surface provided in T012
-        snippets = create_code_snippets(DATA_RAW_DIR)
-        if not snippets:
-            raise RuntimeError("No snippets extracted from datasets.")
-        
-        logger.info(f"Extracted {len(snippets)} code snippets.")
-        
-        # Save intermediate CSV for debugging/audit (optional but good practice)
-        save_snippets_to_csv(snippets, DATA_PROCESSED_DIR / "snippets_raw.csv")
-        log_stage_complete(logger, "Step 2: Preprocessing Datasets")
-    except Exception as e:
-        log_stage_failure(logger, "Step 2: Preprocessing Datasets", str(e))
-        raise e
-    
-    # Step 3: LLM Inference with Dynamic Batch Sizing
-    log_stage_start(logger, "Step 3: Running LLM Inference")
-    
-    # Load model once
-    try:
-        logger.info("Loading model in 4-bit quantized mode on CPU...")
-        model, tokenizer = load_model_4bit_cpu()
-        log_stage_complete(logger, "Model Loaded")
-    except Exception as e:
-        log_stage_failure(logger, "Model Loading", str(e))
-        raise e
-    
-    inference_config = InferenceConfig(
-        temperature=0.0,
-        max_new_tokens=256,
-        top_p=1.0,
-        do_sample=False
-    )
-    
-    current_batch = adjust_batch_size(batch_size)
-    retry_count = 0
-    total_processed = 0
-    
-    while total_processed < len(snippets):
-        gc.collect()
-        if not check_memory_constraint(threshold_gb=6.5): # Safety margin
-            if retry_count < max_retries:
-                logger.warning("Memory constraint violated. Reducing batch size and retrying.")
-                current_batch = max(1, current_batch // 2)
-                retry_count += 1
-                gc.collect()
-                time.sleep(2)
-                continue
-            else:
-                raise MemoryError(f"Memory constraint violated after {max_retries} retries. Current batch size: {current_batch}")
-        
-        # Slice batch
-        batch_snippets = snippets[total_processed : total_processed + current_batch]
-        batch_ids = [s.id for s in batch_snippets]
-        
-        logger.info(f"Processing batch {total_processed//current_batch + 1}: {len(batch_snippets)} samples (Batch Size: {current_batch})")
-        
-        try:
-            # Run inference on the batch
-            # process_snippets_zero_shot returns a list of raw LLM outputs or dicts
-            # We assume it handles the prompt construction internally based on T013
-            raw_outputs = process_snippets_zero_shot(
-                model=model, 
-                tokenizer=tokenizer, 
-                snippets=batch_snippets, 
-                config=inference_config
-            )
-            
-            # Parse and map to PredictionResult
-            for snippet, raw_output in zip(batch_snippets, raw_outputs):
-                # Parse the LLM response to get label/category
-                parsed = parse_llm_response(raw_output)
-                
-                # Determine correctness
-                is_correct = (
-                    parsed.get('predicted_label') == snippet.ground_truth_label and
-                    parsed.get('predicted_category') == snippet.ground_truth_category
-                )
-                
-                # Create PredictionResult
-                pred_result = create_prediction_result(
-                    snippet=snippet,
-                    predicted_label=parsed.get('predicted_label'),
-                    predicted_category=parsed.get('predicted_category'),
-                    is_correct=is_correct,
-                    inference_time_ms=parsed.get('inference_time_ms', 0.0)
-                )
-                all_predictions.append(pred_result)
-            
-            total_processed += len(batch_snippets)
-            retry_count = 0 # Reset retry on success
-            
-        except MemoryError:
-            logger.warning("MemoryError during batch processing. Reducing batch size.")
-            current_batch = max(1, current_batch // 2)
-            retry_count += 1
-            continue
-        except Exception as e:
-            log_stage_failure(logger, f"Inference Batch {total_processed//current_batch}", str(e))
-            raise e
-    
-    log_stage_complete(logger, "Step 3: Running LLM Inference", samples_processed=len(all_predictions))
-    
-    return all_predictions
 
 def save_predictions_to_csv(predictions: List[PredictionResult], output_path: Path):
     """
-    Saves predictions to CSV strictly conforming to the PredictionResult schema.
+    Save a list of PredictionResult objects to a CSV file.
+    Validates against the schema implicitly by ensuring all fields are present.
     """
     if not predictions:
         logger.warning("No predictions to save.")
+        # Create empty file with headers
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['snippet_id', 'predicted_label', 'predicted_category', 'is_correct', 'inference_time_ms'])
         return
-    
-    # Define headers based on PredictionResult dataclass fields
-    # Fields: snippet_id, predicted_label, predicted_category, is_correct, inference_time_ms
-    fieldnames = ['snippet_id', 'predicted_label', 'predicted_category', 'is_correct', 'inference_time_ms']
-    
-    logger.info(f"Saving {len(predictions)} predictions to {output_path}")
-    
+
+    # Define expected columns based on PredictionResult schema
+    fieldnames = [
+        'snippet_id',
+        'predicted_label',
+        'predicted_category',
+        'is_correct',
+        'inference_time_ms'
+    ]
+
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        
         for pred in predictions:
             row = {
                 'snippet_id': pred.snippet_id,
                 'predicted_label': pred.predicted_label,
                 'predicted_category': pred.predicted_category,
-                'is_correct': str(pred.is_correct), # CSV boolean as string
+                'is_correct': pred.is_correct,
                 'inference_time_ms': pred.inference_time_ms
             }
             writer.writerow(row)
+
+    logger.info(f"Saved {len(predictions)} predictions to {output_path}")
+
+def run_ingest_pipeline():
+    """
+    Orchestrates the full pipeline: Download -> Preprocess -> Inference -> Save.
+    Implements dynamic batch sizing and memory monitoring.
+    """
+    config = get_config()
+    memory_monitor = MemoryMonitor()
+    output_dir = get_data_processed_path()
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Successfully saved predictions to {output_path}")
+    predictions_output = output_dir / "predictions.csv"
+    
+    log_stage_start("ingest_pipeline", "Starting full ingestion and inference pipeline")
+
+    try:
+        # 1. Download Datasets (T011)
+        log_stage_start("download", "Downloading datasets (VulDeePecker, BigVul, NIST/Juliet)")
+        download_all_datasets()
+        log_stage_complete("download", "Datasets downloaded successfully")
+
+        # 2. Preprocess (T012)
+        log_stage_start("preprocess", "Preprocessing raw datasets into CodeSnippets")
+        raw_dirs = [
+            config.data_paths.raw / "vuldeepecker",
+            config.data_paths.raw / "bigvul",
+            config.data_paths.raw / "juliet"
+        ]
+        
+        all_snippets: List[CodeSnippet] = []
+        for raw_dir in raw_dirs:
+            if raw_dir.exists():
+                snippets = parse_raw_directory(raw_dir)
+                all_snippets.extend(snippets)
+                logger.info(f"Parsed {len(snippets)} snippets from {raw_dir}")
+            else:
+                logger.warning(f"Raw directory not found: {raw_dir}")
+
+        # Save intermediate snippets for debugging/auditing (optional but good practice)
+        snippets_csv = output_dir / "snippets.csv"
+        save_snippets_to_csv(all_snippets, snippets_csv)
+        log_stage_complete("preprocess", f"Preprocessed {len(all_snippets)} total snippets")
+
+        # 3. LLM Inference (T013)
+        log_stage_start("inference", "Running zero-shot LLM inference")
+        
+        # Load model (T013 step 1)
+        inference_config = InferenceConfig(
+            max_tokens=256,
+            temperature=0.0,
+            top_p=1.0
+        )
+        model = load_model_4bit_cpu(inference_config)
+        
+        # Process in batches with dynamic sizing
+        predictions: List[PredictionResult] = []
+        batch_size = MAX_BATCH_SIZE
+        total_snippets = len(all_snippets)
+        processed_count = 0
+        
+        start_time = time.time()
+
+        while processed_count < total_snippets:
+            # Check memory constraint before starting batch
+            if not check_memory_constraint(memory_monitor, threshold_ratio=MEMORY_THRESHOLD_RATIO):
+                logger.warning("Memory constraint approached. Forcing GC and reducing batch.")
+                force_gc()
+                batch_size = adjust_batch_size(batch_size, memory_monitor)
+                if batch_size == MIN_BATCH_SIZE:
+                    logger.error("Batch size at minimum. Pipeline may be too memory intensive.")
+                    # Continue anyway but log warning
+            
+            current_batch = all_snippets[processed_count : processed_count + batch_size]
+            if not current_batch:
+                break
+
+            logger.info(f"Processing batch of {len(current_batch)} snippets (Batch size: {batch_size})")
+            
+            # Run inference on batch
+            batch_predictions = process_snippets_zero_shot(model, current_batch, inference_config)
+            predictions.extend(batch_predictions)
+            
+            processed_count += len(current_batch)
+            logger.info(f"Progress: {processed_count}/{total_snippets} ({100*processed_count/total_snippets:.1f}%)")
+            
+            # Adjust batch size for next iteration based on memory usage
+            batch_size = adjust_batch_size(batch_size, memory_monitor)
+            
+            # Periodic GC
+            if processed_count % (batch_size * 4) == 0:
+                force_gc()
+
+        total_time = time.time() - start_time
+        log_stage_complete("inference", f"Inference complete. Processed {len(predictions)} snippets in {total_time:.2f}s")
+
+        # 4. Save Results (Validation)
+        log_stage_start("save", "Saving predictions to CSV")
+        save_predictions_to_csv(predictions, predictions_output)
+        log_stage_complete("save", f"Predictions saved to {predictions_output}")
+
+        log_stage_complete("ingest_pipeline", "Pipeline completed successfully")
+        return predictions
+
+    except Exception as e:
+        log_stage_failure("ingest_pipeline", str(e))
+        raise
 
 def main():
     """Entry point for the ingest pipeline."""
-    logger.info("Starting Ingest Pipeline...")
-    
+    logger.info("Starting Ingest Pipeline (T015)")
     try:
-        # Run the pipeline
-        predictions = run_ingest_pipeline(batch_size=4) # Conservative start
-        
-        # Save output
-        if not OUTPUT_FILE.parent.exists():
-            OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-        
-        save_predictions_to_csv(predictions, OUTPUT_FILE)
-        
-        logger.info("Ingest Pipeline completed successfully.")
-        print(f"Pipeline complete. Output saved to: {OUTPUT_FILE}")
-        
+        run_ingest_pipeline()
+        logger.info("Ingest Pipeline finished successfully.")
     except Exception as e:
-        logger.error(f"Ingest Pipeline failed: {str(e)}")
-        log_stage_failure(logger, "Ingest Pipeline", str(e))
+        logger.error(f"Ingest Pipeline failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
