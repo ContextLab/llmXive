@@ -1,0 +1,101 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for the aggregated evaluation metrics (accuracy, p-values, effect sizes) produced by the Socratic Transformers pipeline."
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique identifier for the experiment run."
+  conditions:
+    type: "array"
+    description: "List of results for each experimental condition."
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+          enum: ["selection", "ablation", "static"]
+          description: "Name of the condition."
+        dataset:
+          type: "string"
+          description: "Dataset used for evaluation (e.g., 'gsm8k_test')."
+        accuracy:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "Accuracy score."
+        samples:
+          type: "integer"
+          minimum: 1
+          description: "Number of samples evaluated."
+        loss:
+          type: "number"
+          description: "Final training loss (if applicable)."
+      required:
+        - "name"
+        - "dataset"
+        - "accuracy"
+        - "samples"
+  statistical_analysis:
+    type: "object"
+    description: "Results of statistical tests comparing conditions."
+    properties:
+      comparison_a_vs_b:
+        type: "object"
+        properties:
+          p_value:
+            type: "number"
+            description: "P-value for Selection vs. Ablation (Independent T-Test)."
+          effect_size_cohen_d:
+            type: "number"
+            description: "Cohen's d effect size."
+          significant:
+            type: "boolean"
+            description: "True if p < alpha (Bonferroni corrected)."
+      comparison_a_vs_c:
+        type: "object"
+        properties:
+          p_value:
+            type: "number"
+            description: "P-value for Selection vs. Static (Independent T-Test)."
+          effect_size_cohen_d:
+            type: "number"
+            description: "Cohen's d effect size."
+          significant:
+            type: "boolean"
+            description: "True if p < alpha (Bonferroni corrected)."
+      alpha_corrected:
+        type: "number"
+        description: "Bonferroni corrected alpha threshold."
+      mdes:
+        type: "number"
+        description: "Minimum Detectable Effect Size for the sample size."
+    required:
+      - "comparison_a_vs_b"
+      - "comparison_a_vs_c"
+      - "alpha_corrected"
+      - "mdes"
+  metadata:
+    type: "object"
+    properties:
+      timestamp:
+        type: "string"
+        format: "date-time"
+      seed:
+        type: "integer"
+      model_name:
+        type: "string"
+      quantization:
+        type: "string"
+        enum: ["4bit", "8bit", "16bit"]
+    required:
+      - "timestamp"
+      - "seed"
+      - "model_name"
+      - "quantization"
+required:
+  - "experiment_id"
+  - "conditions"
+  - "statistical_analysis"
+  - "metadata"
+additionalProperties: false

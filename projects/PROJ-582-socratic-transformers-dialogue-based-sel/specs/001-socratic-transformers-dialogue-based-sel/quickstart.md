@@ -1,80 +1,89 @@
-# Quickstart: Socratic Transformers
+# Quickstart: Socratic Transformers (PROJ-582)
 
-## Prerequisites
+## 1. Prerequisites
 
-*   Python 3.11+
-*   Access to a GitHub Actions runner (free-tier) or local machine with ≥7GB RAM.
-*   HuggingFace account (optional, for model access).
+- **Python**: 3.11+
+- **System**: Linux (Ubuntu 22.04 recommended) or macOS.
+- **Memory**: 8GB+ RAM recommended (7GB minimum for CPU-only run).
+- **Disk**: 20GB+ free space.
 
-## Installation
+## 2. Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-582-socratic-transformers-dialogue-based-sel/code
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-
-2.  **Verify Dependencies**:
-    Ensure `bitsandbytes` is installed with CPU support:
-    ```bash
-    python -c "import bitsandbytes; print(bitsandbytes.__version__)"
-    ```
-
-## Running the Pipeline
-
-### Step 1: Generate Data
-Run the data generation script for the Socratic condition.
 ```bash
-python src/data/generate_dialogue.py \
-  --dataset gsm8k \
-  --condition socratic \
-  --seed 42 \
-  --threshold 0.05 \
-  --output data/generated/dialogue_socratic_seed42.jsonl
-```
-*Note: This will download GSMK if not present and generate a representative set of samples.*
+# Clone the repository
+git clone
+cd socratic-transformers
 
-### Step 2: Train Model
-Train the Phi-1.5 model on the generated data.
-```bash
-python src/train/train_loop.py \
-  --data_path data/generated/dialogue_socratic_seed42.jsonl \
-  --condition socratic \
-  --seed 42 \
-  --output_dir models/socratic_seed42 \
-  --max_epochs 3
-```
-*Warning: This may take several hours on a CPU-only runner.*
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
-### Step 3: Evaluate
-Evaluate the trained model on GSM8K test.
-```bash
-python src/eval/benchmark.py \
-  --model_path models/socratic_seed42 \
-  --benchmark gsm8k_test \
-  --output data/results/eval_seed42.jsonl
+# Install dependencies
+pip install -r projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt
 ```
 
-### Step 4: Analyze
-Run the statistical analysis (requires results from multiple seeds).
+## 3. Configuration
+
+Set the project root and environment variables:
+
 ```bash
-python src/analyze/stats.py \
-  --input_dir data/results \
-  --output data/results/aggregated_stats.csv
+export PROJECT_ROOT="projects/PROJ-582-socratic-transformers-dialogue-based-sel"
+export PYTHONPATH="$PROJECT_ROOT/code:$PYTHONPATH"
+export RANDOM_SEED=42
 ```
 
-## Validation
+## 4. Running the Pipeline
 
-To ensure data integrity, run the contract tests:
+### Step 1: Download Data
 ```bash
-pytest tests/contract/
+python -m src.data.download --dataset gsm8k --output data/raw
+python -m src.data.download --dataset math --output data/raw
+```
+*This will verify checksums and store raw data in `data/raw/`.*
+
+### Step 2: Generate Training Data
+```bash
+# Generate Static Tuples
+python -m src.data.static_extractor --input data/raw/gsm8k_train.parquet --output data/processed/static
+
+# Generate Dialogue Tuples (Selection)
+python -m src.data.generate_dialogue --input data/raw/gsm8k_train.parquet --output data/processed/dialogue --mode selection
+
+# Generate Ablation Tuples
+python -m src.data.ablation --input data/processed/dialogue/gsm8k_dialogue.jsonl --output data/processed/ablation
 ```
 
-## Troubleshooting
+### Step 3: Train Models
+```bash
+# Train Selection Condition
+python -m src.train.train_loop --condition selection --data data/processed/train_splits/selection_train.jsonl --output data/results/selection_model
 
-*   **OOM Error**: If you encounter `RuntimeError: CUDA out of memory` (unexpected on CPU) or `MemoryError`, check that `bitsandbytes` is loaded with `cpu` flag. Ensure no other processes are using RAM.
-*   **Degenerate Dialogue**: If the log shows `DEGENERATE_DIALOGUE_TRUNCATED`, the model is repeating itself. This is expected behavior; the sample is skipped.
-*   **Timeout**: If training exceeds 6 hours, reduce `max_epochs` or `batch_size` in `train_loop.py`.
+# Train Ablation Condition
+python -m src.train.train_loop --condition ablation --data data/processed/train_splits/ablation_train.jsonl --output data/results/ablation_model
+
+# Train Static Condition
+python -m src.train.train_loop --condition static --data data/processed/train_splits/static_train.jsonl --output data/results/static_model
+```
+
+### Step 4: Evaluate
+```bash
+python -m src.utils.metrics --models data/results/ --test-data data/raw/gsm8k_test.parquet --output data/results/metrics.json
+```
+
+### Step 5: Analyze Results
+```bash
+python -m src.utils.stats_analysis --input data/results/metrics.json --output data/results/analysis_report.md
+```
+
+## 5. Troubleshooting
+
+- **OOM Error**: If you encounter `CUDA out of memory` or CPU OOM, ensure you are using the 4-bit quantization flag (`--quantize 4bit`). If on CPU, reduce the batch size to 1.
+- **Data Download Failure**: Verify network connectivity. The script uses `streaming=True` to avoid large downloads.
+- **Quality Gate Failures**: If too many dialogues are discarded, check the `critique_prompt` in `src/data/generate_dialogue.py`.
+
+## 6. Reproducibility
+
+To reproduce the exact results from a previous run:
+1. Ensure `RANDOM_SEED=42` is set.
+2. Verify `data/raw/` checksums match the `state/` manifest.
+3. Run the pipeline in sequence.

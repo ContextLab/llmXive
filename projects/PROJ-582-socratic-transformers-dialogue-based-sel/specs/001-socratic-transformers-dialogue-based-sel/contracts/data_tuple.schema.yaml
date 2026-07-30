@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Data Tuple Schema"
+description: "Schema for generated training tuples (Static, Dialogue, Ablation)."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the tuple."
+  source:
+    type: "string"
+    enum: ["gsm8k", "math"]
+    description: "Source dataset."
+  question:
+    type: "string"
+    description: "The original question/problem."
+  initial_answer:
+    type: "string"
+    description: "The model's initial (potentially erroneous) answer."
+  revised_answer:
+    type: "string"
+    description: "The revised answer after critique."
+  critique:
+    type: "string"
+    description: "The critique text (adversarial or syntactic distractor)."
+  critique_type:
+    type: "string"
+    enum: ["logical_contradiction", "unsupported_assumption", "calculation_error", "syntactic_distractor"]
+    description: "Type of critique applied."
+  quality_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Quality score of the dialogue (for Selection condition)."
+  token_count:
+    type: "integer"
+    description: "Token count of the critique (for Ablation condition)."
+  complexity_score:
+    type: "number"
+    description: "Syntactic complexity score (for Ablation condition)."
+required:
+  - "id"
+  - "source"
+  - "question"
+  - "initial_answer"
+  - "revised_answer"
+  - "critique"
+  - "critique_type"
+additionalProperties: false

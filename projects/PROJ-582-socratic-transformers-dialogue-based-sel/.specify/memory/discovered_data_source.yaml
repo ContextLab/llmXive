@@ -1,0 +1,8 @@
+status: none
+intent: download GSM8K and MMLU STEM via huggingface python package dataset
+required_fields:
+- question
+- answer
+cache_key: 579ec5883ac67679659b17893082e137a56f4deed40857f5515c9d8b7877df85
+searched_at: '2026-07-29T23:50:08.873343+00:00'
+retry_count: 1

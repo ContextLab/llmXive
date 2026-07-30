@@ -38,15 +38,15 @@ properties:
           - "confidence_score"
           - "reasoning_snippet"
       - type: "object"
-        description: "Ablation condition: neutral reasoning trace object."
+        description: "Ablation condition: syntactic distractor object."
         properties:
           confidence_score:
             type: "number"
             const: 0.5
-            description: "Fixed confidence score for neutral trace."
+            description: "Fixed confidence score for distractor."
           reasoning_snippet:
             type: "string"
-            description: "Neutral reasoning trace text (no critique)."
+            description: "Syntactic distractor text (no logical content)."
         required:
           - "confidence_score"
           - "reasoning_snippet"
