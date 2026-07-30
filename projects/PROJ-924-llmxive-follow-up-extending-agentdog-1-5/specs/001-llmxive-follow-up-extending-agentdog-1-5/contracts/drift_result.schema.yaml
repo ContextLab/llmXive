@@ -1,33 +1,28 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "DriftResult"
-description: "Schema for the output of the drift scoring process for a single log."
-type: "object"
-properties:
-  log_id:
-    type: "string"
-    description: "Reference to the AgentLog."
-    minLength: 1
-  drift_score:
-    type: "number"
-    description: "Minimum cosine distance to any centroid."
-    minimum: 0.0
-    maximum: 2.0
-  nearest_category_id:
-    type: "string"
-    description: "ID of the closest taxonomy centroid."
-    minLength: 1
-  nearest_distance:
-    type: "number"
-    description: "Exact distance to the nearest centroid."
-    minimum: 0.0
-    maximum: 2.0
-  flagged_for_review:
-    type: "boolean"
-    description: "True if score > threshold (e.g., 2 SD above mean)."
+$schema: http://json-schema.org/draft-07/schema#
+title: Drift Result
+description: Schema for the output of the drift scoring pipeline.
+type: object
 required:
   - log_id
   - drift_score
-  - nearest_category_id
-  - nearest_distance
-  - flagged_for_review
+  - review_flag
+properties:
+  log_id:
+    type: string
+    description: Unique identifier for the log entry.
+    pattern: "^[a-zA-Z0-9_-]+$"
+  drift_score:
+    type: number
+    minimum: 0.0
+    maximum: 2.0
+    description: Cosine distance to the nearest centroid. Range [0, 2].
+  review_flag:
+    type: boolean
+    description: True if the drift score exceeds the threshold or if the log is empty.
+  centroid_id:
+    type: string
+    description: (Optional) ID of the nearest centroid.
+  distance_to_centroid:
+    type: number
+    description: (Optional) Exact distance to the nearest centroid.
 additionalProperties: false

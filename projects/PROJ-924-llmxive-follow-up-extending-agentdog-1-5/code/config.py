@@ -1,211 +1,178 @@
 """
-Configuration management for the llmXive automated science pipeline.
-Manages random seeds, paths, batch sizes, and model parameters.
+Configuration management for the llmXive drift detection pipeline.
+
+This module provides centralized configuration handling including:
+- Random seed management
+- Path resolution
+- Batch size and memory limits
+- Model selection
 """
 import os
 import random
 from pathlib import Path
 from typing import Any, Dict, Optional, List
-
 import numpy as np
 
-# Project root directory
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # Default configuration values
-_DEFAULT_CONFIG: Dict[str, Any] = {
-    "random_seed": 42,
-    "batch_size": 32,
-    "max_memory_gb": 7.0,
-    "drift_threshold": 0.5,
-    "centroid_model": "all-MiniLM-L6-v2",
-    "baseline_model": "facebook/bart-large-mnli",
-    "paths": {
-        "data_raw": "data/raw",
-        "data_processed": "data/processed",
-        "data_test": "data/test",
-        "data_checksums": "data/checksums.json",
-        "specs": "specs/001-llmxive-drift-detection",
-        "figures": "figures",
-        "outputs": "data/processed",
-    },
+_config = {
+    "RANDOM_SEED": 42,
+    "MAX_RAM_GB": 7,
+    "BATCH_SIZE": 64,
+    "PROJECT_ROOT": None,
+    "DRIFT_THRESHOLD": 0.5,
+    "CENTROID_MODEL": "all-MiniLM-L6-v2",
+    "BASELINE_MODEL": "facebook/bart-large-mnli",
 }
 
-_current_config: Dict[str, Any] = _DEFAULT_CONFIG.copy()
 
-
-def set_seed(seed: int) -> None:
+def set_seed(seed: Optional[int] = None) -> None:
     """
-    Set random seeds for reproducibility across numpy, random, and torch (if available).
-
+    Set the random seed for reproducibility.
+    
     Args:
-        seed: The random seed value to use.
+        seed: Random seed value. Uses _config["RANDOM_SEED"] if None.
     """
-    _current_config["random_seed"] = seed
+    if seed is None:
+        seed = _config["RANDOM_SEED"]
+    
     random.seed(seed)
     np.random.seed(seed)
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
 
 def get_config() -> Dict[str, Any]:
     """
     Get the current configuration dictionary.
-
+    
     Returns:
-        A copy of the current configuration dictionary.
+        Dictionary containing all configuration values.
     """
-    return _current_config.copy()
+    return _config.copy()
 
 
-def update_config(updates: Dict[str, Any]) -> None:
+def update_config(key: str, value: Any) -> None:
     """
-    Update the configuration with new values.
-
+    Update a configuration value.
+    
     Args:
-        updates: A dictionary of configuration updates.
+        key: Configuration key.
+        value: New value.
     """
-    def _deep_update(base: Dict, updates: Dict) -> None:
-        for key, value in updates.items():
-            if key in base and isinstance(base[key], dict) and isinstance(value, dict):
-                _deep_update(base[key], value)
-            else:
-                base[key] = value
-
-    _deep_update(_current_config, updates)
+    _config[key] = value
 
 
-def get_config_summary() -> str:
+def get_config_summary() -> Dict[str, Any]:
     """
-    Get a human-readable summary of the current configuration.
-
+    Get a summary of the current configuration.
+    
     Returns:
-        A string containing key configuration values.
+        Dictionary with key configuration values for logging.
     """
-    return (
-        f"Random Seed: {_current_config['random_seed']}\n"
-        f"Batch Size: {_current_config['batch_size']}\n"
-        f"Max Memory (GB): {_current_config['max_memory_gb']}\n"
-        f"Drift Threshold: {_current_config['drift_threshold']}\n"
-        f"Centroid Model: {_current_config['centroid_model']}\n"
-        f"Baseline Model: {_current_config['baseline_model']}"
-    )
+    return {
+        "random_seed": _config["RANDOM_SEED"],
+        "max_ram_gb": _config["MAX_RAM_GB"],
+        "batch_size": _config["BATCH_SIZE"],
+        "drift_threshold": _config["DRIFT_THRESHOLD"],
+        "centroid_model": _config["CENTROID_MODEL"],
+        "baseline_model": _config["BASELINE_MODEL"],
+    }
 
 
-def get_path(key: str, *subpaths: str) -> Path:
+def get_path(relative_path: str) -> Path:
     """
-    Resolve a path from the configuration.
-
+    Get an absolute path relative to the project root.
+    
     Args:
-        key: The configuration key for the base path (e.g., 'data_raw').
-        subpaths: Optional subpaths to append to the base path.
-
+        relative_path: Path relative to project root.
+        
     Returns:
-        A Path object pointing to the resolved location.
-
-    Raises:
-        KeyError: If the key is not found in the paths configuration.
+        Absolute Path object.
     """
-    paths = _current_config.get("paths", {})
-    if key not in paths:
-        raise KeyError(f"Path key '{key}' not found in configuration. Available keys: {list(paths.keys())}")
+    if _config["PROJECT_ROOT"] is None:
+        # Default to parent of code directory if not set
+        _config["PROJECT_ROOT"] = Path(__file__).parent.parent
+    
+    return Path(_config["PROJECT_ROOT"]) / relative_path
 
-    base = _PROJECT_ROOT / paths[key]
-    return base.joinpath(*subpaths) if subpaths else base
 
-
-def get_output_path(filename: str, subdirectory: Optional[str] = None) -> Path:
+def get_output_path(relative_path: str) -> Path:
     """
-    Get a path for output files in the processed data directory.
-
+    Get an output path, ensuring the directory exists.
+    
     Args:
-        filename: The name of the output file.
-        subdirectory: Optional subdirectory within the outputs path.
-
+        relative_path: Path relative to project root.
+        
     Returns:
-        A Path object pointing to the output location.
+        Absolute Path object with parent directories created.
     """
-    if subdirectory:
-        return _PROJECT_ROOT / _current_config["paths"]["data_processed"] / subdirectory / filename
-    return _PROJECT_ROOT / _current_config["paths"]["data_processed"] / filename
+    path = get_path(relative_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def ensure_directories(paths: List[str]) -> None:
     """
     Ensure that the specified directories exist.
-
+    
     Args:
-        paths: List of configuration keys representing directory paths to create.
+        paths: List of relative paths to ensure exist.
     """
-    for path_key in paths:
-        dir_path = get_path(path_key)
-        dir_path.mkdir(parents=True, exist_ok=True)
+    for path_str in paths:
+        path = get_path(path_str)
+        path.mkdir(parents=True, exist_ok=True)
 
 
 def get_batch_size() -> int:
     """
-    Get the configured batch size.
-
+    Get the batch size for processing.
+    
     Returns:
-        The batch size integer.
+        Batch size integer.
     """
-    return _current_config["batch_size"]
+    return _config["BATCH_SIZE"]
 
 
-def get_max_memory_gb() -> float:
+def get_max_memory_gb() -> int:
     """
-    Get the configured maximum memory limit in GB.
-
+    Get the maximum memory limit in GB.
+    
     Returns:
-        The memory limit as a float.
+        Maximum RAM in GB.
     """
-    return _current_config["max_memory_gb"]
+    return _config["MAX_RAM_GB"]
 
 
 def get_drift_threshold() -> float:
     """
-    Get the configured drift threshold.
-
+    Get the drift threshold for flagging.
+    
     Returns:
-        The drift threshold float.
+        Drift threshold value.
     """
-    return _current_config["drift_threshold"]
+    return _config["DRIFT_THRESHOLD"]
 
 
 def get_centroid_model() -> str:
     """
-    Get the configured centroid model name.
-
+    Get the model name for centroid embedding generation.
+    
     Returns:
-        The model name string.
+        Model name string.
     """
-    return _current_config["centroid_model"]
+    return _config["CENTROID_MODEL"]
 
 
 def get_baseline_model() -> str:
     """
-    Get the configured baseline model name.
-
+    Get the model name for baseline classification.
+    
     Returns:
-        The model name string.
+        Model name string.
     """
-    return _current_config["baseline_model"]
+    return _config["BASELINE_MODEL"]
 
 
-if __name__ == "__main__":
-    # Example usage / self-test
-    print("llmXive Configuration Module")
-    print("=" * 40)
-    print(get_config_summary())
-    print("=" * 40)
-    print("Testing path resolution...")
-    print(f"Data Raw Path: {get_path('data_raw')}")
-    print(f"Output Path: {get_output_path('test.csv', 'subdir')}")
-    print("Directories check...")
-    ensure_directories(["data_raw", "data_processed", "data_test"])
-    print("Configuration module ready.")
+# Initialize project root if not set
+if _config["PROJECT_ROOT"] is None:
+    _config["PROJECT_ROOT"] = Path(__file__).parent.parent

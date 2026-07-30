@@ -75,26 +75,3 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-follow-up/releases/tag/v0.1.0
   verified_at: '2026-07-25T13:58:11.066141Z'
-- artifact_hash: 663b9110d955bd671182e2c6ecc80f8a6ffdcf2d44ec71fc781b08a094ebfb64
-  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://raw.githubusercontent.com/AgentDoG/safety-taxonomy/main/taxonomy.json`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/AgentDoG/safety-taxonomy/main/taxonomy.json
-  verified_at: '2026-07-30T08:32:04.073021Z'
-- artifact_hash: 663b9110d955bd671182e2c6ecc80f8a6ffdcf2d44ec71fc781b08a094ebfb64
-  artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2607.07974] A Multi-cluster Boundary Learning Method for Out-of-Scope
-    Intent Detection via MiniLM Embedding'
-  kind: url
-  value: https://arxiv.org/abs/2607.07974
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2607.07974
-  verified_at: '2026-07-30T08:32:04.073021Z'

@@ -8,4 +8,5 @@ statsmodels
 pytest
 transformers
 accelerate
-openai
+ruff
+black

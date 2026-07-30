@@ -1,22 +1,18 @@
 """
-utils.py - Contract validation helpers and JSON/CSV schema loading.
+Utility functions for contract validation, schema loading, and file I/O.
 
-This module provides utilities for:
-- Loading and saving JSON/CSV files
-- Loading JSON Schema definitions
-- Validating data against schemas
-- UUID validation
+This module provides helpers for validating data against JSON schemas,
+loading and saving JSON/CSV files, and performing contract checks.
 """
-
 import json
 import csv
 import os
 import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union
+import yaml
 
-# Import config utilities for path resolution
-from config import get_path, ensure_directories
+from config import get_path
 
 
 class SchemaValidationError(Exception):
@@ -24,85 +20,83 @@ class SchemaValidationError(Exception):
     pass
 
 
-def load_json_file(path: Union[str, Path]) -> Dict[str, Any]:
+def load_json_file(file_path: Union[str, Path]) -> Dict[str, Any]:
     """
     Load a JSON file and return its contents as a dictionary.
-
+    
     Args:
-        path: Path to the JSON file.
-
+        file_path: Path to the JSON file.
+        
     Returns:
         Dictionary containing the JSON data.
-
+        
     Raises:
         FileNotFoundError: If the file does not exist.
         json.JSONDecodeError: If the file contains invalid JSON.
     """
-    path = Path(path)
+    path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"JSON file not found: {path}")
-
+    
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 
-def save_json_file(data: Dict[str, Any], path: Union[str, Path], indent: int = 2) -> None:
+def save_json_file(data: Dict[str, Any], file_path: Union[str, Path]) -> None:
     """
     Save a dictionary to a JSON file.
-
+    
     Args:
         data: Dictionary to save.
-        path: Path to the output JSON file.
-        indent: Indentation level for pretty-printing.
+        file_path: Path where the JSON file will be saved.
     """
-    path = Path(path)
-    ensure_directories([path.parent])
-
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=indent, ensure_ascii=False)
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 
-def load_csv_file(path: Union[str, Path]) -> List[Dict[str, str]]:
+def load_csv_file(file_path: Union[str, Path]) -> List[Dict[str, str]]:
     """
     Load a CSV file and return its contents as a list of dictionaries.
-
+    
     Args:
-        path: Path to the CSV file.
-
+        file_path: Path to the CSV file.
+        
     Returns:
-        List of dictionaries where keys are column names.
-
+        List of dictionaries, one per row.
+        
     Raises:
         FileNotFoundError: If the file does not exist.
     """
-    path = Path(path)
+    path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"CSV file not found: {path}")
-
-    with open(path, 'r', encoding='utf-8', newline='') as f:
+    
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         return list(reader)
 
 
-def save_csv_file(data: List[Dict[str, Any]], path: Union[str, Path]) -> None:
+def save_csv_file(data: List[Dict[str, Any]], file_path: Union[str, Path]) -> None:
     """
     Save a list of dictionaries to a CSV file.
-
+    
     Args:
         data: List of dictionaries to save.
-        path: Path to the output CSV file.
+        file_path: Path where the CSV file will be saved.
     """
     if not data:
         # Create empty file if no data
-        path = Path(path)
-        ensure_directories([path.parent])
-        with open(path, 'w', encoding='utf-8', newline='') as f:
-            pass
+        path = Path(file_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
         return
-
-    path = Path(path)
-    ensure_directories([path.parent])
-
+    
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
     fieldnames = list(data[0].keys())
     with open(path, 'w', encoding='utf-8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -112,214 +106,196 @@ def save_csv_file(data: List[Dict[str, Any]], path: Union[str, Path]) -> None:
 
 def load_schema(schema_path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Load a JSON Schema definition from a file.
-
+    Load a JSON schema from a file.
+    
     Args:
         schema_path: Path to the schema file.
-
+        
     Returns:
         Dictionary containing the schema definition.
     """
     return load_json_file(schema_path)
 
 
-def validate_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+def validate_against_schema(data: Any, schema: Dict[str, Any]) -> bool:
     """
-    Validate data against a JSON Schema.
-
-    This is a basic validator that checks required fields and types.
-    For full validation, consider using the 'jsonschema' library.
-
+    Validate data against a JSON schema.
+    
+    This is a simplified validation that checks:
+    - Required fields are present
+    - Field types match (for simple types: string, integer, number, boolean, array, object)
+    
     Args:
         data: Data to validate.
-        schema: JSON Schema definition.
-
+        schema: JSON schema definition.
+        
     Returns:
-        True if valid.
-
+        True if validation passes.
+        
     Raises:
         SchemaValidationError: If validation fails.
     """
-    # Check required fields
-    required = schema.get('required', [])
-    for field in required:
-        if field not in data:
-            raise SchemaValidationError(f"Missing required field: {field}")
-
-    # Check property types (basic implementation)
-    properties = schema.get('properties', {})
-    for field, value in data.items():
-        if field in properties:
-            expected_type = properties[field].get('type')
-            if expected_type:
-                if expected_type == 'string' and not isinstance(value, str):
-                    raise SchemaValidationError(f"Field '{field}' must be a string")
-                elif expected_type == 'integer' and not isinstance(value, int):
-                    raise SchemaValidationError(f"Field '{field}' must be an integer")
-                elif expected_type == 'number' and not isinstance(value, (int, float)):
-                    raise SchemaValidationError(f"Field '{field}' must be a number")
-                elif expected_type == 'boolean' and not isinstance(value, bool):
-                    raise SchemaValidationError(f"Field '{field}' must be a boolean")
-                elif expected_type == 'array' and not isinstance(value, list):
-                    raise SchemaValidationError(f"Field '{field}' must be an array")
-                elif expected_type == 'object' and not isinstance(value, dict):
-                    raise SchemaValidationError(f"Field '{field}' must be an object")
-
+    def validate_type(value: Any, expected_type: str) -> bool:
+        """Check if a value matches the expected JSON schema type."""
+        type_mapping = {
+            'string': str,
+            'integer': int,
+            'number': (int, float),
+            'boolean': bool,
+            'array': list,
+            'object': dict,
+            'null': type(None)
+        }
+        
+        if expected_type not in type_mapping:
+            return True  # Unknown type, skip validation
+        
+        expected_python_type = type_mapping[expected_type]
+        return isinstance(value, expected_python_type)
+    
+    def validate_object(obj: Any, schema_obj: Dict[str, Any], path: str = "") -> None:
+        """Recursively validate an object against a schema."""
+        if not isinstance(obj, dict):
+            if schema_obj.get('type') == 'object':
+                raise SchemaValidationError(f"Expected object at {path}, got {type(obj).__name__}")
+            return
+        
+        # Check required fields
+        required = schema_obj.get('required', [])
+        for field in required:
+            if field not in obj:
+                raise SchemaValidationError(f"Missing required field '{field}' at {path}")
+        
+        # Validate properties
+        properties = schema_obj.get('properties', {})
+        for key, value in obj.items():
+            if key in properties:
+                prop_schema = properties[key]
+                current_path = f"{path}.{key}" if path else key
+                
+                # Check type
+                if 'type' in prop_schema:
+                    if not validate_type(value, prop_schema['type']):
+                        raise SchemaValidationError(
+                            f"Type mismatch at {current_path}: expected {prop_schema['type']}, got {type(value).__name__}"
+                        )
+                
+                # Recursively validate nested objects
+                if prop_schema.get('type') == 'object' and isinstance(value, dict):
+                    validate_object(value, prop_schema, current_path)
+                
+                # Validate array items
+                if prop_schema.get('type') == 'array' and isinstance(value, list):
+                    items_schema = prop_schema.get('items', {})
+                    for i, item in enumerate(value):
+                        item_path = f"{current_path}[{i}]"
+                        if items_schema.get('type') == 'object' and isinstance(item, dict):
+                            validate_object(item, items_schema, item_path)
+                        elif 'type' in items_schema:
+                            if not validate_type(item, items_schema['type']):
+                                raise SchemaValidationError(
+                                    f"Type mismatch at {item_path}: expected {items_schema['type']}, got {type(item).__name__}"
+                                )
+    
+    validate_object(data, schema)
     return True
 
 
-def is_valid_uuid4(uuid_str: str) -> bool:
+def validate_schema(data: Any, schema_path: Union[str, Path]) -> bool:
     """
-    Validate if a string is a valid UUID4.
-
+    Validate data against a JSON schema file.
+    
+    This is the main entry point for contract validation.
+    
     Args:
-        uuid_str: String to validate.
-
+        data: Data to validate.
+        schema_path: Path to the JSON schema file.
+        
     Returns:
-        True if valid UUID4, False otherwise.
+        True if validation passes.
+        
+    Raises:
+        SchemaValidationError: If validation fails.
+        FileNotFoundError: If the schema file does not exist.
     """
-    if not uuid_str or not isinstance(uuid_str, str):
+    schema = load_schema(schema_path)
+    return validate_against_schema(data, schema)
+
+
+def is_valid_uuid4(uuid_string: str) -> bool:
+    """
+    Check if a string is a valid UUID4.
+    
+    Args:
+        uuid_string: String to check.
+        
+    Returns:
+        True if the string is a valid UUID4 format.
+    """
+    if not uuid_string:
         return False
+    
+    uuid_pattern = re.compile(
+        r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+        re.IGNORECASE
+    )
+    return bool(uuid_pattern.match(uuid_string))
 
-    # UUID4 pattern: 8-4-4-4-12 hex digits
-    pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
-    return bool(re.match(pattern, uuid_str.lower()))
 
-
-# Specific schema loaders for common artifacts in this project
-
+# Convenience loaders for specific project schemas
 def load_config_schema() -> Dict[str, Any]:
     """Load the configuration schema."""
     schema_path = get_path('specs/001-llmxive-drift-detection/contracts/config.schema.yaml')
-    # Convert .yaml to .json if needed, or load directly if json
-    if schema_path.exists():
-        # Try JSON first
-        try:
-            return load_json_file(schema_path.with_suffix('.json'))
-        except (FileNotFoundError, json.JSONDecodeError):
-            pass
-    # Fallback path
-    return load_json_file(get_path('specs/001-llmxive-drift-detection/contracts/config.schema.json'))
+    return load_schema(schema_path)
 
 
 def load_drift_result_schema() -> Dict[str, Any]:
     """Load the drift result schema."""
-    return load_json_file(get_path('specs/001-llmxive-drift-detection/contracts/drift_result.schema.json'))
+    schema_path = get_path('specs/001-llmxive-drift-detection/contracts/drift_result.schema.yaml')
+    return load_schema(schema_path)
 
 
-def validate_drift_result_schema(data: Dict[str, Any]) -> bool:
+def validate_drift_result_schema(data: Any) -> bool:
     """Validate data against the drift result schema."""
     schema = load_drift_result_schema()
     return validate_against_schema(data, schema)
 
 
-def load_taxonomy_mapping_file(path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
-    """
-    Load the taxonomy mapping file.
-
-    Args:
-        path: Optional path override. If None, uses default from config.
-
-    Returns:
-        Dictionary containing the taxonomy mapping.
-    """
-    if path is None:
-        path = get_path('data/processed/taxonomy_mapping.json')
-    return load_json_file(path)
+def load_taxonomy_mapping_file(file_path: Union[str, Path]) -> Dict[str, Any]:
+    """Load a taxonomy mapping file."""
+    return load_json_file(file_path)
 
 
-def save_taxonomy_mapping_file(data: Dict[str, Any], path: Optional[Union[str, Path]] = None) -> None:
-    """
-    Save the taxonomy mapping file.
-
-    Args:
-        data: Taxonomy mapping data.
-        path: Optional path override.
-    """
-    if path is None:
-        path = get_path('data/processed/taxonomy_mapping.json')
-    save_json_file(data, path)
+def save_taxonomy_mapping_file(data: Dict[str, Any], file_path: Union[str, Path]) -> None:
+    """Save a taxonomy mapping file."""
+    save_json_file(data, file_path)
 
 
-def load_centroids_file(path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
-    """
-    Load the centroids file.
-
-    Args:
-        path: Optional path override.
-
-    Returns:
-        Dictionary containing centroid data.
-    """
-    if path is None:
-        path = get_path('data/processed/taxonomy_centroids.json')
-    return load_json_file(path)
+def load_centroids_file(file_path: Union[str, Path]) -> Dict[str, Any]:
+    """Load a centroids file."""
+    return load_json_file(file_path)
 
 
-def save_centroids_file(data: Dict[str, Any], path: Optional[Union[str, Path]] = None) -> None:
-    """
-    Save the centroids file.
-
-    Args:
-        data: Centroid data.
-        path: Optional path override.
-    """
-    if path is None:
-        path = get_path('data/processed/taxonomy_centroids.json')
-    save_json_file(data, path)
+def save_centroids_file(data: Dict[str, Any], file_path: Union[str, Path]) -> None:
+    """Save a centroids file."""
+    save_json_file(data, file_path)
 
 
-def load_drift_scores_file(path: Optional[Union[str, Path]] = None) -> List[Dict[str, Any]]:
-    """
-    Load the drift scores file (CSV).
-
-    Args:
-        path: Optional path override.
-
-    Returns:
-        List of dictionaries containing drift scores.
-    """
-    if path is None:
-        path = get_path('data/processed/drift_scores.csv')
-    return load_csv_file(path)
+def load_drift_scores_file(file_path: Union[str, Path]) -> List[Dict[str, Any]]:
+    """Load a drift scores file (JSON format)."""
+    return load_json_file(file_path)
 
 
-def save_drift_scores_file(data: List[Dict[str, Any]], path: Optional[Union[str, Path]] = None) -> None:
-    """
-    Save the drift scores file.
-
-    Args:
-        data: List of drift score records.
-        path: Optional path override.
-    """
-    if path is None:
-        path = get_path('data/processed/drift_scores.csv')
-    save_csv_file(data, path)
+def save_drift_scores_file(data: List[Dict[str, Any]], file_path: Union[str, Path]) -> None:
+    """Save a drift scores file (JSON format)."""
+    save_json_file(data, file_path)
 
 
-def load_ground_truth_fixture(path: Optional[Union[str, Path]] = None) -> List[Dict[str, Any]]:
-    """
-    Load the ground truth fixture file.
-
-    Args:
-        path: Optional path override.
-
-    Returns:
-        List of dictionaries containing ground truth data.
-    """
-    if path is None:
-        path = get_path('data/test/real_ground_truth_fixture.json')
-    return load_json_file(path)
+def load_ground_truth_fixture(file_path: Union[str, Path]) -> List[Dict[str, Any]]:
+    """Load a ground truth fixture file."""
+    return load_json_file(file_path)
 
 
-def save_ground_truth_fixture(data: List[Dict[str, Any]], path: Optional[Union[str, Path]] = None) -> None:
-    """
-    Save the ground truth fixture file.
-
-    Args:
-        data: List of ground truth records.
-        path: Optional path override.
-    """
-    if path is None:
-        path = get_path('data/test/real_ground_truth_fixture.json')
-    save_json_file(data, path)
+def save_ground_truth_fixture(data: List[Dict[str, Any]], file_path: Union[str, Path]) -> None:
+    """Save a ground truth fixture file."""
+    save_json_file(data, file_path)
