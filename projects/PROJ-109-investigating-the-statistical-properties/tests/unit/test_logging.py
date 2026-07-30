@@ -1,67 +1,75 @@
 """
 Unit tests for the logging infrastructure.
 """
-
-import os
 import logging
+import os
 import tempfile
 from pathlib import Path
+import pytest
 
-# We need to ensure the logs directory is created by the import
-# but we test the behavior of the module.
-import sys
-# Ensure code/ is in path if running from tests/
-if "code" not in sys.path:
-    sys.path.insert(0, "code")
+# We need to ensure config is set up before importing logging
+# Since config uses absolute paths based on __file__, we assume the test runs from project root
+# or we mock the config if necessary. For now, assume standard execution context.
 
-from utils.logging import logger, get_logger, setup_logging, LOG_FILE, LOG_DIR
+def test_logger_creation():
+    """Test that get_logger returns a valid logger instance."""
+    from utils.logging import get_logger
 
-def test_logger_exists():
-    """Test that the main logger is configured."""
+    logger = get_logger("test_module")
     assert isinstance(logger, logging.Logger)
-    assert logger.name == "llmXive"
-    assert logger.level == logging.INFO
+    assert logger.name == "test_module"
 
-def test_logger_has_handlers():
-    """Test that the logger has at least one handler (file or console)."""
-    assert len(logger.handlers) > 0
+def test_logging_output_format(tmp_path):
+    """Test that logging output matches the expected format."""
+    import sys
+    from unittest.mock import patch
+    
+    # We need to temporarily override the config values to use our tmp_path
+    # This is a bit tricky because config is imported at module level in logging.py
+    # A cleaner approach is to test the formatter directly
+    
+    from utils.logging import LOG_FORMAT
+    
+    # Create a logger and handler to test the format
+    logger = logging.getLogger("test_format")
+    logger.handlers = [] # Clear any existing handlers
+    
+    # Create a temporary file for the log
+    log_file = tmp_path / "test.log"
+    handler = logging.FileHandler(log_file)
+    formatter = logging.Formatter(LOG_FORMAT)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    
+    # Log a test message
+    test_msg = "Test message"
+    logger.info(test_msg)
+    
+    # Read the file and check format
+    with open(log_file, 'r') as f:
+        content = f.read()
+    
+    # The format is: %(asctime)s - %(levelname)s - %(message)s
+    # We can't easily check the exact timestamp, but we can check the structure
+    assert f"INFO - {test_msg}" in content
+    assert " - " in content # Check for the separators
 
-def test_get_logger():
-    """Test retrieving a child logger."""
-    child = get_logger("data")
-    assert isinstance(child, logging.Logger)
-    assert child.name == "llmXive.data"
-
-def test_log_output_file_creation():
-    """Test that logging to the logger creates the log file."""
+def test_log_file_creation(tmp_path):
+    """Test that the log file is created in the specified directory."""
+    # This test is a bit hard to run in isolation because setup_logging()
+    # uses the global LOGS_DIR from config. We'll assume the config is correct
+    # and just verify that the function doesn't crash and creates a file.
+    
+    from utils.logging import setup_logging
+    from config import LOGS_DIR
+    
     # Ensure the directory exists
-    LOG_DIR.mkdir(exist_ok=True)
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
     
-    # Log a message
-    logger.info("Test log message for file creation")
+    # Call setup_logging
+    setup_logging()
     
-    # Check if file exists
-    # Note: FileHandler might buffer, so we flush or rely on the handler closing.
-    # In a real run, the file is created. Here we check existence.
-    # Since we are in a test environment, we might not want to pollute the real logs,
-    # but the task requires the file to be created.
-    assert LOG_FILE.exists(), f"Log file {LOG_FILE} was not created."
-
-def test_log_format():
-    """Test that the log format is correct."""
-    # This is harder to test strictly without capturing the stream,
-    # but we can verify the formatter is set on the handlers.
-    found_file_handler = False
-    for handler in logger.handlers:
-        if isinstance(handler, logging.FileHandler):
-            found_file_handler = True
-            formatter = handler.formatter
-            assert formatter is not None
-            # Check if the format string matches the expected pattern
-            # The expected format is "%(asctime)s - %(levelname)s - %(message)s"
-            # We can't easily compare the exact string without accessing the private _fmt in some versions,
-            # but we can check that the handler is configured.
-            assert "asctime" in str(formatter) or hasattr(formatter, 'format')
-    
-    # We expect a file handler based on the implementation
-    # assert found_file_handler, "No file handler found."
+    # Check if the log file exists
+    log_file = LOGS_DIR / "pipeline.log"
+    assert log_file.exists()

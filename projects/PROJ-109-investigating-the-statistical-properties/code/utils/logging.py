@@ -16,7 +16,7 @@ def setup_logging():
     logger = logging.getLogger()
     logger.setLevel(getattr(logging, LOG_LEVEL))
 
-    # Clear existing handlers
+    # Clear existing handlers to avoid duplicates on re-import
     logger.handlers = []
 
     # File handler

@@ -21,7 +21,7 @@ The implementation is constrained to CPU-only execution on free-tier CI (limited
 **Project Type**: Data analysis / scientific computing CLI.  
 **Performance Goals**: Complete pipeline execution within 6 hours on CPU cores; memory usage < 2 GB via **Chunked Streaming** and **Mass-Stratified Sampling**.  
 **Constraints**: No GPU; no large-LLM inference; strict adherence to verified dataset URLs (fallback to synthetic); all numerical operations must be deterministic (fixed seeds).  
-**Scale/Scope**: Processing ~10^5 halos (via stratified sampling); Several structural metrics; + hypothesis tests.
+**Scale/Scope**: Processing a statistically significant number of halos (via stratified sampling); Several structural metrics; + hypothesis tests.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase. The current phase focuses on validating the *methodology* using synthetic data with injected deviations.
 
