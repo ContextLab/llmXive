@@ -40,7 +40,7 @@
 
 - [X] T004 Setup deterministic logging and random seed management in `code/utils/logging.py`
 - [X] T005 [P] Create base data schemas and validation logic in `code/data/__init__.py`
-- [X] T006 Implement unit normalization utility (MPa conversion) in `code/utils/unit_utils.py`. **Scope**: This task creates a reusable function `normalize_to_mpa(value, unit)` available for the entire project. **Depends on T004**.
+- [X] T006 Implement unit normalization utility (MPa conversion) in `code/utils/unit_utils.py`. **Scope**: This task creates a reusable function `normalize_to_mpa(value, unit)` available for the entire project. **CRITICAL**: The function MUST explicitly handle: (1) Unit column present: convert GPa to MPa (multiply by 1000), (2) Unit column missing: assume MPa, (3) Invalid unit string: raise `ValueError`. **Depends on T004**.
 - [X] T007 Setup environment configuration management for verified dataset URLs in `code/utils/config.py`
 - [X] T029a [P] [Cross-Cutting] Implement plot disclaimer injector in `code/utils/plot_utils.py` to append "Associational analysis only; no causal inference" to all generated matplotlib/seaborn figures. **Depends on T004**.
 - [X] T029b [P] [Cross-Cutting] Implement report disclaimer injector in `code/utils/report_utils.py` to append the mandatory disclaimer to report markdown text. **Depends on T004**.
@@ -57,11 +57,13 @@
 
 ### Implementation for User Story 1
 
-- [X] T008 [P] [US1] Implement data downloader in `code/data/download.py` to fetch from `research.verified_datasets['hea_compositions']` in `research.md`. **CRITICAL Fallback Logic**: 
-  1. If verified URL exists in `research.md`, fetch it. 
-  2. If verified URL is MISSING, attempt to fetch from open repositories listed in FR-001 in this exact order: (1) Materials Project, (2) NIST HEA database, (3) Zenodo/figshare. 
-  3. If ALL sources fail, terminate immediately with error code `DATA_SOURCE_MISSING` and log the exact message: "ERROR: No verified URL found in research.md AND all fallback open repositories (Materials Project, NIST, Zenodo) failed. Cannot proceed." 
-  This satisfies FR-001's requirement to attempt open repositories while maintaining the Plan's preference for verified sources. **Depends on T005, T007**.
+- [X] T008 [P] [US1] Implement data downloader in `code/data/download.py` to fetch from `research.verified_datasets['hea_compositions']` in `research.md`. **CRITICAL Logic**: 
+  1. Attempt to fetch from verified URL in `research.md`.
+  2. If verified URL is MISSING or fails, attempt to fetch from open repositories listed in FR-001 in this exact order: (1) Materials Project, (2) NIST HEA database, (3) Zenodo/figshare.
+  3. If ALL sources fail, return status `NO_DATA` (do NOT terminate the process).
+  4. If data is found (N > 0), return status `SUCCESS`.
+  5. If data is found but N=0 (empty file), return status `NO_DATA`.
+  This satisfies FR-001's requirement to attempt open repositories and report N=0. **Depends on T005, T007**.
 
 - [X] T009 [P] [US1] Implement data preprocessor in `code/data/preprocess.py` to filter single-phase, room-temperature, and handle missing yield strength values. **Depends on T008**.
 
@@ -73,9 +75,13 @@
 
 - [X] T013 [US1] Implement composition filter in `code/data/descriptors.py` to exclude entries with missing elemental properties. **Depends on T012**.
 
-- [X] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download -> preprocess (filter) -> normalize -> descriptors -> filter_missing. **Depends on T008, T009, T010, T011, T012, T013**.
+- [X] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download -> preprocess (filter) -> normalize -> descriptors -> filter_missing. **CRITICAL**: This task MUST pass the status returned by T008 (`SUCCESS` or `NO_DATA`) to T015. **Depends on T008, T009, T010, T011, T012, T013**.
 
-- [X] T015 [US1] Generate `data/processed/hea_descriptors.csv` and write `output/data_status.json` at the exact relative path `output/data_status.json`. The JSON schema MUST be: `{ "count": int, "count_warning": bool (true if count < 500), "power_status": bool (true if count < 50), "timestamp": str }`. **CRITICAL**: This task MUST explicitly implement the "flagging" action required by FR-001: if count < 500, log a user-facing warning "DATA_LIMITATION_WARNING: Only N entries found. Statistical power may be reduced." to stdout/stderr AND ensure this warning flag (`count_warning`) is set to `true` in the JSON so the Report Generator (T028) can read and re-emit it. **CRITICAL**: The task description MUST explicitly state that this warning flag must be passed to the report generator (T028) to ensure it is included in the final report. **Depends on T014**.
+- [X] T015 [US1] Generate `data/processed/hea_descriptors.csv` and write `output/data_status.json` at the exact relative path `output/data_status.json`. The JSON schema MUST be: `{ "count": int, "count_warning": bool (true if count < 500), "power_status": bool (true if count < 50), "timestamp": str }`. **CRITICAL**: 
+  1. If status from T014 is `NO_DATA`: Set `count` = 0, `count_warning` = false, `power_status` = false. Log "DATA_LIMITATION_WARNING: No data found. Exiting with code 0." and exit with code 0.
+  2. If status is `SUCCESS` and count < 500: Set `count_warning` = true and log "DATA_LIMITATION_WARNING: Only N entries found. Statistical power may be reduced."
+  3. If status is `SUCCESS` and count < 50: Set `power_status` = true.
+  This task MUST explicitly implement the "flagging" action required by FR-001 and ensure the JSON artifact is written before any exit. **Depends on T014**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -83,7 +89,7 @@
 
 ## Phase 4: User Story 2 - Model Training and Predictive Performance Evaluation (Priority: P2)
 
-**Goal**: Train Random Forest and Gradient Boosting models (5-fold CV, hyperparameter tuning 100-200 trees for RF, 50-100 for GBM, depth ≤ 6), evaluate on hold-out test set, and compare against Linear Regression baseline.
+**Goal**: Train Random Forest and Gradient Boosting models (5-fold CV, hyperparameter tuning ≤50 trees, depth ≤10), evaluate on hold-out test set, and compare against Linear Regression baseline.
 
 **Independent Test**: Execute training script; verify `output/metrics.json` contains R², MAE, RMSE for all models; confirm runtime ≤ 3 hours on CPU.
 
@@ -93,15 +99,15 @@
 
 - [X] T017 [P] [US2] Implement Linear Regression baseline trainer in `code/models/train.py`. **Depends on T016**.
 
-- [X] T018 [P] [US2] Implement Random Forest trainer with 5-fold CV and grid search (trees: 100-200, depth ≤ 6) in `code/models/train.py`. **CRITICAL**: Grid search MUST cover the range 100 to 200 trees and max_depth <= 6. **Depends on T016**.
+- [X] T018 [P] [US2] Implement Random Forest trainer with 5-fold CV and grid search (trees: **10 to 50**, depth ≤ 10) in `code/models/train.py`. **CRITICAL**: Grid search MUST cover the range 10 to 50 trees and max_depth <= 10, strictly adhering to FR-004's ≤50 trees constraint. **Depends on T016**.
 
-- [X] T019 [P] [US2] Implement Gradient Boosting trainer with 5-fold CV and grid search (trees: 50-100, depth ≤ 6) in `code/models/train.py`. **CRITICAL**: Grid search MUST cover the range 50 to 100 trees and max_depth <= 6. **Depends on T016**.
+- [X] T019 [P] [US2] Implement Gradient Boosting trainer with 5-fold CV and grid search (trees: **10 to 50**, depth ≤ 10) in `code/models/train.py`. **CRITICAL**: Grid search MUST cover the range 10 to 50 trees and max_depth <= 10, strictly adhering to FR-004's ≤50 trees constraint. **Depends on T016**.
 
 - [X] T020 [US2] Implement evaluation runner in `code/models/evaluate.py` to compute R², MAE, RMSE on held-out test set AND generate plots. **Must use T029a for all generated plots**. **Depends on T017, T018, T019, T029a**.
 
 - [X] T021 [US2] Create `output/metrics.json` writer to record metrics for all models and select the best model. The JSON schema MUST be: `{ "rf": { "R2": float, "MAE": float, "RMSE": float }, "gb": {... }, "linear": {... }, "best_model": "rf|gb|linear" }`. **Depends on T020**.
 
-- [X] T022 [US2] Add runtime tracker in `code/models/train.py` to enforce ≤ 3 hour limit and log warnings if exceeded. **Depends on T018, T019**.
+- [X] T022 [US2] Add total pipeline runtime tracker in `code/main.py` (or `code/utils/runtime.py`) to measure the end-to-end duration (data acquisition + descriptors + training + validation). **CRITICAL**: This task MUST write `output/pipeline_runtime.json` with schema `{ "total_runtime_seconds": float, "limit_seconds": 21600, "status": "pass|fail" }` to satisfy SC-005 (6-hour limit). **Depends on T014, T018, T019, T026**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -117,22 +123,24 @@
 
 - [X] T030 [US3] Implement power analysis checker in `code/models/evaluate.py` to read `output/data_status.json` (from T015) and write `output/power_analysis.json` at the exact relative path `output/power_analysis.json`. **Schema**: `{ "n": int, "status": "sufficient" | "insufficient_power", "action": "run" | "skip" }`. If N < 50, set status to `insufficient_power` and action to `skip`. This artifact is the single source of truth for whether statistical tests should run. **Depends on T015**.
 
-- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline model ONLY** (`model_linear`). Calculate VIF for all descriptors in the linear model and flag any VIF > 10. **CRITICAL**: FR-009 specifies VIF "within the full multiple regression model". Random Forest and Gradient Boosting are non-linear ensemble methods that do not utilize a design matrix suitable for standard VIF calculation; therefore, VIF is **not** calculated for RF or GB. Write results to `output/vif_results.json`. **Depends on T017**.
+- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline model ONLY** (`model_linear`). Calculate VIF for all descriptors in the linear model and flag any VIF > 10. **CRITICAL**: FR-009 specifies VIF "within the full multiple regression model". Random Forest and Gradient Boosting are non-linear ensemble methods that do not utilize a design matrix suitable for standard VIF calculation; therefore, VIF is **not** calculated for RF or GB. Write results to `output/vif_results.json` with schema `{ "vif_values": { "descriptor": float }, "max_vif": float, "needs_remediation": bool }`. **Depends on T017**.
 
-- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (A sufficient number of permutations) to calculate p-values for all descriptors. **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/permutation_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power (satisfying the 'report results' requirement). If `action` is "run", it executes the test. **Depends on T015, T018, T019, T030**.
+- [X] T023b [US3] Implement VIF remediation in `code/models/evaluate.py`. **CRITICAL**: This task MUST read `output/vif_results.json`. If `needs_remediation` is true, apply PCA or L1-regularization **only** to the linear baseline model (`model_linear`) and re-train. Save the corrected model as `model_linear_corrected` and write `output/remediation_results.json` confirming the method used (PCA/L1). **Depends on T023**.
+
+- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (1000 permutations) to calculate p-values for all descriptors. **CRITICAL**: This task MUST check `output/power_analysis.json` (from T030). It must read the key `power_analysis['action']`. If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/permutation_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power. If `action` is "run", it executes the test. **Depends on T015, T018, T019, T030**.
 
 - [X] T025 [US3] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) in `code/models/evaluate.py`. **Depends on T024**.
 
-- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (A substantial number of resamples will be generated to ensure robust statistical inference.) for **BOTH** the Linear Regression baseline model (`model_linear`) AND the best performing tree-based model (selected after tuning) to calculate a confidence interval for R². **CRITICAL**: This task MUST satisfy FR-011's requirement for "full model" stability analysis. It must check `output/power_analysis.json` (from T030). If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/bootstrap_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power. If `action` is "run", it executes the test for both models. **Depends on T015, T017, T018, T019, T030**.
+- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (1000 resamples) for **BOTH** the Linear Regression baseline model (`model_linear`) AND the best performing tree-based model (selected after tuning) to calculate a confidence interval for R². **CRITICAL**: This task MUST use `model_linear_corrected` (from T023b) if remediation was applied (i.e., if `output/remediation_results.json` exists and indicates success), otherwise use `model_linear`. It must check `output/power_analysis.json` (from T030). If `action` is "skip" (N < 50), the task MUST skip execution and write a placeholder result in `output/bootstrap_results.json` with status "skipped_due_to_low_power", the actual N count, and a message explaining the reduced statistical power. If `action` is "run", it executes the test for both models. **Depends on T015, T017, T018, T019, T030, T023b**.
 
-- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}**. Calculate the count of significant descriptors and R² values for each threshold. **CRITICAL**: This task MUST also calculate and report a "headline R²" comparison metric (e.g., `delta_R2 = best_model_R2 - linear_baseline_R2`) for each threshold to satisfy SC-003. It must write a structured JSON artifact `output/sensitivity_results.json` containing the sweep results, the headline R² deltas, and the count of significant descriptors. **Depends on T024, T025**.
+- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}**. Calculate the count of significant descriptors and R² values for each threshold. **CRITICAL**: This task MUST explicitly record the **absolute headline R²** values for the best model and the linear baseline for each α threshold in `output/sensitivity_results.json`, in addition to the delta_R2, to satisfy SC-003. **Depends on T024, T025**.
 
 - [X] T028 [US3] Create statistical report generator in `output/report.md` including all p-values, CIs, VIF flags, and integrating disclaimers from T029a/T029b. The report MUST follow this template:
  1. Overview
  2. Model Performance (from T021)
  3. Statistical Validation (VIF, Permutation, Bootstrap)
  4. Sensitivity Analysis (from T027)
- 5. Conclusion (with disclaimer). **CRITICAL**: This task MUST include an explicit verification step: "Assert mandatory disclaimer string 'Associational analysis only; no causal inference' exists in the generated output/report.md". **CRITICAL**: This task MUST explicitly depend on T015 to read `output/data_status.json`. If `data_status['count_warning']` is true, the report MUST include a dedicated section titled "Data Limitation Warning" re-emitting the warning message from T015. **Depends on T015, T021, T023, T024, T025, T026, T027, T029a, T029b**.
+ 5. Conclusion (with disclaimer). **CRITICAL**: This task MUST include an explicit verification step: "Assert mandatory disclaimer string 'Associational analysis only; no causal inference' exists in the generated output/report.md". **CRITICAL**: This task MUST explicitly depend on T015 to read `output/data_status.json`. If `data_status['count_warning']` is true, the report MUST include a dedicated section titled "Data Limitation Warning" re-emitting the warning message from T015. **Depends on T015, T021, T023, T023b, T024, T025, T026, T027, T029a, T029b**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -156,11 +164,11 @@
 
 **Purpose**: Ensure the pipeline executes correctly with real data and produces verified results.
 
-- [ ] T037 [US1] Execute `code/data/pipeline.py` with a verified real dataset URL. **CRITICAL**: Execute using the URL defined in `research.md` under the "Verified datasets" section. If no URL is found, raise `DATA_SOURCE_MISSING` error as per T008 logic. **Depends on T008, T015**.
-- [ ] T038 [US2] Execute `code/models/train.py` and `code/models/evaluate.py` on the processed data from T037. **Depends on T037**.
-- [ ] T039 [US3] Execute `code/models/evaluate.py` for statistical validation (Permutation, Bootstrap, VIF, Sensitivity) based on the power analysis from T030. **Depends on T038**.
-- [ ] T040 [US3] Generate the final `output/report.md` and verify all disclaimers and metrics are present. **Depends on T039**.
-- [ ] T041 [Cross-Cutting] Validate the entire pipeline end-to-end by running `tests/integration/test_pipeline.py` in a clean environment. **Depends on T040**.
+- [ ] T037 [US1] Verify data acquisition: Execute `code/data/download.py` and confirm it returns `SUCCESS` or `NO_DATA` status without crashing. **Deliverable**: Log output showing status code and any attempted URLs. **Depends on T008**.
+- [ ] T038 [US1] Verify data processing: Execute `code/data/pipeline.py` and confirm `output/data_status.json` exists with valid schema (count, count_warning, power_status). **Deliverable**: `output/data_status.json` file. **Depends on T037**.
+- [ ] T039 [US2] Verify model training: Execute `code/models/train.py` and confirm `output/metrics.json` exists with R², MAE, RMSE for all models and `best_model` key. **Deliverable**: `output/metrics.json` file. **Depends on T038**.
+- [ ] T040 [US3] Verify statistical validation: Execute `code/models/evaluate.py` and confirm `output/vif_results.json`, `output/permutation_results.json`, `output/bootstrap_results.json`, and `output/sensitivity_results.json` exist with valid schemas. **Deliverable**: All four JSON files. **Depends on T039**.
+- [ ] T041 [Cross-Cutting] Verify final report: Execute report generation and confirm `output/report.md` exists, contains the mandatory disclaimer string, and includes the "Data Limitation Warning" section if `count_warning` is true. **Deliverable**: `output/report.md` file. **Depends on T040**.
 
 ---
 

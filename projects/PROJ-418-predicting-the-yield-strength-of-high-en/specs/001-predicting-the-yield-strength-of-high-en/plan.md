@@ -14,7 +14,7 @@ This feature implements a computational pipeline to predict the yield strength o
 **Primary Dependencies**: pandas, scikit-learn, numpy, datasets (HuggingFace), matplotlib, seaborn, scipy, pyyaml, shap  
 **Storage**: Local filesystem (CSV/Parquet) for intermediate data; JSON for metrics  
 **Testing**: pytest  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 cores, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: cores, ~7 GB RAM)  
 **Project Type**: data-pipeline / computational-science  
 **Performance Goals**: Total runtime ≤ 6 hours; Model training ≤ 3 hours; Memory ≤ 7 GB  
 **Constraints**: No local GPU; CPU-only execution for standard pipelines; All data must be open/programmatically downloadable from a verified source.  
@@ -35,7 +35,7 @@ This plan explicitly addresses every principle in `projects/<PROJ-ID>/.specify/m
 | **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/processed/` and `code/`. No hand-typed numbers. Data source is a specific, verified URL. |
 | **V. Versioning Discipline** | **PASS** | Content hashes tracked for artifacts. `updated_at` updated on change. |
 | **VI. Deterministic Descriptor Engineering** | **PASS** | Descriptor calculation module (`code/descriptors.py`) version-controlled. Reference elemental tables fixed in `contracts/elemental_properties.schema.yaml`. Output checksums recorded. |
-| **VII. Statistical Rigor** | **PASS** | 5-fold CV (or LOOCV if N<50), 1000 (or 200) bootstrap resamples, conditional permutation testing, and VIF diagnostics implemented as per spec. |
+| **VII. Statistical Rigor** | **PASS** | 5-fold CV (or LOOCV if N<50), A sufficient number of bootstrap resamples will be generated., conditional permutation testing, and VIF diagnostics implemented as per spec. |
 
 ## Project Structure
 
