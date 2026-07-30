@@ -104,11 +104,18 @@ T043:
     never loads a model, checks INT4 quantization, or writes `data/artifacts/quantization_verification.json`.
     The required JSON output file is missing, and the script lacks the logic to raise
     an error on failure. The task is therefore not fully implemented.
-T044:
+T067:
   c: false
-  h: 03a328c801be7001dcdf83c2be923e86ab00ce336fdbe38525f0e1d15513f2eb
-  r: "The required output file `data/derived/power_analysis_report.json` is absent,\
-    \ and the provided `power_analysis.py` does not clearly compute power for the\
-    \ mixed\u2011effects regression nor write the JSON report (the script is truncated\
-    \ and lacks a final write step). The task\u2019s core deliverable is therefore\
-    \ missing."
+  h: 6a3afaeb89f082bd7c97d9d79f84b9834eedd60634ec2e57e742f7457b298f11
+  r: "The script `code/04_analysis/calculate_effect_size.py` exists, but the required\
+    \ input `data/derived/results.csv` is missing, and the expected output `data/derived/effect_size_results.json`\
+    \ was not generated. Without the results CSV the effect\u2011size calculation\
+    \ cannot be performed, so the task is not fully satisfied."
+T068:
+  c: false
+  h: 4b132711abb1f8b8dc7d2bbf21a34ed66166327dcd68253db7086435c793fb79
+  r: "The repository contains `code/04_analysis/analyze_resource_correlation.py`,\
+    \ but the script is truncated and never writes `data/derived/resource_correlation_report.json`.\
+    \ Moreover, the expected output file `data/derived/resource_correlation_report.json`\
+    \ is absent from the project. The task\u2019s core deliverable \u2013 a generated\
+    \ correlation report \u2013 is therefore missing."

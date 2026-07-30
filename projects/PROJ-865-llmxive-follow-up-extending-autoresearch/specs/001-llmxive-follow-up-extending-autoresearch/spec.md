@@ -85,7 +85,7 @@ The researcher needs to perform mixed-effects logistic regression to determine t
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The difference in "Time-to-Pivot" between the distilled rule engine and the baseline agent is measured against the baseline's observed latency for each failure type using a paired t-test (or Wilcoxon signed-rank test if normality fails) with 95% confidence intervals (See US-2).
+- **SC-001**: The difference in "Time-to-Pivot" between the distilled rule engine and the baseline agent is measured against the baseline's observed latency for each failure type using a paired t-test (or Wilcoxon signed-rank test if normality fails) with standard confidence intervals. (See US-2).
 - **SC-002**: The "Success Rate of First Pivot" for the distilled engine is measured against the baseline agent's success rate, stratified by failure type to test the structural dichotomy hypothesis (See US-2).
 - **SC-003**: The statistical significance of the interaction term (Failure Type * Method) in the mixed-effects logistic regression is measured against a standard alpha threshold, where significance is determined if the p-value < 0.05, to determine if failure structure dictates method viability (See US-3).
 - **SC-004**: The proportion of failed pivots attributed to "Coverage Gap" vs. "Distillation Error" is measured against the total number of failures to determine the primary source of rule-engine limitations, using the ground-truth resolution as the arbiter (See US-3).

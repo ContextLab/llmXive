@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/claw-ai-lab/arc-bench/resolve/main/data/arc_bench_25_topics.parquet
   verified_at: '2026-07-25T00:25:36.269226Z'
-- artifact_hash: 82b16848334b0d7ff2bd809ebc6b447645ac8b1282cc7741c4384abc85f72fa1
+- artifact_hash: a07a3748cfceece11dc5342ebe620c7885ec99b2852c13a77bbd86c1844133e6
   artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,15 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-28T05:12:08.841313Z'
+  verified_at: '2026-07-30T00:06:33.211381Z'
+- artifact_hash: a07a3748cfceece11dc5342ebe620c7885ec99b2852c13a77bbd86c1844133e6
+  artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-07-30T00:06:33.211381Z'
