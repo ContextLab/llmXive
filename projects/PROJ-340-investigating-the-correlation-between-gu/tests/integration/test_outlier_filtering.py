@@ -1,118 +1,93 @@
 import os
+import sys
 import json
-import tempfile
-import shutil
-from pathlib import Path
 import pandas as pd
 import numpy as np
 import pytest
-import sys
+from pathlib import Path
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-from ingest import filter_outliers, save_outlier_report, save_filtered_data, detect_outliers_iqr
+from ingest import detect_outliers_iqr, filter_outliers, save_outlier_report, save_filtered_data
 
 class TestOutlierFiltering:
-    @pytest.fixture(autouse=True)
-    def setup(self, tmp_path):
-        self.tmp_path = tmp_path
-        self.data_dir = tmp_path / 'data' / 'processed'
-        self.results_dir = tmp_path / 'data' / 'results'
-        self.data_dir.mkdir(parents=True)
-        self.results_dir.mkdir(parents=True)
-        yield
+    @pytest.fixture
+    def sample_data(self):
+        """Create a sample dataframe with known outliers."""
+        np.random.seed(42)
+        n = 100
+        # Normal data
+        data = np.random.normal(loc=10, scale=1, size=(n, 2))
+        # Inject outliers
+        data[0, 0] = 50.0   # Extreme high outlier
+        data[1, 1] = -40.0  # Extreme low outlier
+        data[2, 0] = 10.5   # Normal
+        data[3, 1] = 9.8    # Normal
 
-    def test_detect_outliers_iqr_basic(self):
-        """Test basic IQR outlier detection."""
-        data = pd.DataFrame({
-            'values': [10, 11, 12, 13, 14, 100] # 100 is an outlier
-        })
-        indices = detect_outliers_iqr(data, 'values')
-        assert len(indices) == 1
-        assert indices[0] == 5
+        df = pd.DataFrame(data, columns=['col_A', 'col_B'])
+        return df
 
-    def test_filter_outliers_removes_points(self):
-        """Test that filter_outliers correctly removes flagged points."""
-        # Create data with known outliers
-        # Q1=11, Q3=13, IQR=2. Bounds: 8 to 16. 20 is outlier.
-        data = pd.DataFrame({
-            'subject_id': [1, 2, 3, 4, 5],
-            'metric': [11, 12, 13, 14, 20] 
-        })
-        
-        filtered_df, report = filter_outliers(data, ['metric'])
-        
-        assert len(filtered_df) == 4
-        assert report['count'] == 1
-        assert 4 in report['excluded_indices'] # Row index 4 (value 20)
-        assert 20 not in filtered_df['metric'].values
+    @pytest.fixture
+    def temp_output_dir(self, tmp_path):
+        """Create a temporary directory for output files."""
+        output_dir = tmp_path / "data" / "results"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        return output_dir
 
-    def test_filter_outliers_preserves_non_outliers(self):
-        """Test that non-outliers are preserved."""
-        data = pd.DataFrame({
-            'metric': [10, 11, 12, 13, 14]
-        })
+    def test_detect_outliers_iqr(self, sample_data):
+        """Test that IQR detection correctly identifies injected outliers."""
+        outlier_mask = detect_outliers_iqr(sample_data)
         
-        filtered_df, report = filter_outliers(data, ['metric'])
+        # Row 0 and Row 1 should be outliers
+        assert outlier_mask.iloc[0] is True, "Row 0 (extreme high) should be detected as outlier"
+        assert outlier_mask.iloc[1] is True, "Row 1 (extreme low) should be detected as outlier"
         
-        assert len(filtered_df) == 5
-        assert report['count'] == 0
-        assert len(report['excluded_indices']) == 0
+        # Row 2 and 3 should be normal
+        assert outlier_mask.iloc[2] is False, "Row 2 should not be an outlier"
+        assert outlier_mask.iloc[3] is False, "Row 3 should not be an outlier"
 
-    def test_save_outlier_report(self):
-        """Test saving the outlier report JSON."""
-        report = {
-            'count': 2,
-            'excluded_indices': [0, 5]
-        }
-        output_path = str(self.results_dir / 'outlier_report.json')
+    def test_filter_outliers(self, sample_data):
+        """Test that filtering removes only the outlier rows."""
+        outlier_mask = detect_outliers_iqr(sample_data)
+        filtered_df = filter_outliers(sample_data, outlier_mask)
         
-        save_outlier_report(report, output_path)
+        # Original length 100, 2 outliers -> 98
+        assert len(filtered_df) == len(sample_data) - 2, "Filtered dataframe should have 2 fewer rows"
         
-        assert os.path.exists(output_path)
+        # Check that indices 0 and 1 are not present
+        assert 0 not in filtered_df.index
+        assert 1 not in filtered_df.index
+
+    def test_save_outlier_report(self, sample_data, temp_output_dir):
+        """Test that the outlier report is saved correctly."""
+        outlier_mask = detect_outliers_iqr(sample_data)
+        output_path = str(temp_output_dir / "outlier_report.json")
+        
+        save_outlier_report(outlier_mask, output_path)
+        
+        assert os.path.exists(output_path), "Outlier report file should exist"
+        
         with open(output_path, 'r') as f:
-            loaded = json.load(f)
+            report = json.load(f)
         
-        assert loaded['count'] == 2
-        assert loaded['excluded_indices'] == [0, 5]
+        assert "count" in report
+        assert "excluded_indices" in report
+        assert report["count"] == 2
+        assert 0 in report["excluded_indices"]
+        assert 1 in report["excluded_indices"]
 
-    def test_save_filtered_data_parquet(self):
-        """Test saving filtered data to parquet."""
-        data = pd.DataFrame({
-            'id': [1, 2, 3],
-            'val': [10.0, 20.0, 30.0]
-        })
-        output_path = str(self.data_dir / 'filtered_data.parquet')
+    def test_save_filtered_data(self, sample_data, temp_output_dir):
+        """Test that filtered data is saved to parquet."""
+        outlier_mask = detect_outliers_iqr(sample_data)
+        filtered_df = filter_outliers(sample_data, outlier_mask)
+        output_path = str(temp_output_dir / "filtered_data.parquet")
         
-        save_filtered_data(data, output_path)
+        save_filtered_data(filtered_df, output_path)
         
-        assert os.path.exists(output_path)
-        loaded = pd.read_parquet(output_path)
-        assert loaded.shape == data.shape
-        assert list(loaded.columns) == list(data.columns)
-
-    def test_full_flow_integration(self):
-        """Integration test: detect, filter, and save."""
-        # Setup
-        data = pd.DataFrame({
-            'id': range(10),
-            'sleep_duration': [7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 15.0] # 15.0 is outlier
-        })
+        assert os.path.exists(output_path), "Filtered data file should exist"
         
-        # Filter
-        filtered_df, report = filter_outliers(data, ['sleep_duration'])
-        
-        # Save
-        save_outlier_report(report, str(self.results_dir / 'outlier_report.json'))
-        save_filtered_data(filtered_df, str(self.data_dir / 'filtered_data.parquet'))
-        
-        # Verify
-        assert report['count'] == 1
-        assert 9 in report['excluded_indices']
-        assert len(filtered_df) == 9
-        
-        # Verify file contents
-        loaded_df = pd.read_parquet(str(self.data_dir / 'filtered_data.parquet'))
-        assert len(loaded_df) == 9
-        assert 15.0 not in loaded_df['sleep_duration'].values
+        loaded_df = pd.read_parquet(output_path)
+        assert len(loaded_df) == len(filtered_df)
+        assert list(loaded_df.columns) == list(filtered_df.columns)

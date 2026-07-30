@@ -1,13 +1,17 @@
 status: none
-intent: Human Microbiome Project Sleep Heart Health Study combined metagenomic and
-  polysomnography dataset download python package dataset
+intent: UK Biobank microbiome shotgun sequencing sleep phenotypes dataset download
+  python package dataset
 required_fields:
 - subject_id
-- taxon_counts
+- taxon_name
+- taxon_count
 - relative_abundance
 - REM_duration
 - SWS_duration
-- Total_Sleep_Time
-cache_key: a2ac2c806ec2698c994655f30b739e9d64260424c50ca183f7110ef92207c168
-searched_at: '2026-07-28T01:11:17.762196+00:00'
+- total_sleep_time
+- sample_collection_date
+- sequencing_platform
+- sleep_measurement_method
+cache_key: 11aa63b6f775caa0dc4734660d3fe1af1ed544ad05017d64789f1f2fdea8f9c6
+searched_at: '2026-07-30T11:05:20.370677+00:00'
 retry_count: 1

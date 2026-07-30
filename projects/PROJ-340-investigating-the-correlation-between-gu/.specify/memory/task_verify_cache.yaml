@@ -16,19 +16,11 @@ T013:
     \ file is absent. Both the implementation and the dependent artifact are missing."
 T014b:
   c: false
-  h: bbbd6b309b5c5cf1589ac778441c818cf5e509c0da25f9328c458138292b18e8
-  r: "The repository lacks the required output artifacts \u2013 `data/processed/filtered_data.parquet`\
-    \ and `data/results/outlier_report.json` do not exist. Moreover, the provided\
-    \ `code/ingest.py` snippet is incomplete and shows no implementation of the outlier\u2011\
-    filtering step or the generation of the JSON report. The task\u2019s core requirements\
-    \ are therefore not met."
-T014c:
-  c: false
-  h: f5289838c5bfa7b03b138f87321860c4fad3df670c3caccd092f7207d139a759
-  r: The required file `data/processed/filtered_data.parquet` does not exist, so no
-    checksum could be computed, and the YAML file does not contain a checksum entry
-    for that path (only a hash for `code/data_generator.py`). Consequently the task
-    of registering the checksum is not fulfilled.
+  h: 0654652f237e77e825de5c1e76d34622652756664a5dde6c0e8ad288ba9f7ee8
+  r: "The repository lacks the required output artifacts (`data/processed/filtered_data.parquet`\
+    \ and `data/results/outlier_report.json`), and the provided `code/ingest.py` snippet\
+    \ shows no implementation of outlier filtering or file\u2011writing logic for\
+    \ those outputs. The task\u2019s core functionality is therefore not present."
 T021:
   c: false
   h: 4efe343b45daf5599db8dc008d7e2d5e86a7f660bbadafa55896000372b51757
