@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-07-30T10:04:24.975599+00:00",
+  "generated_at": "2026-07-30T09:55:50.381739+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -155063,114 +155063,6 @@
   "recent_activity": [
     {
       "agent": "implementer",
-      "duration_s": 2.61233,
-      "ended_at": "2026-07-30T09:55:51.463204Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:48.850874Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.34685,
-      "ended_at": "2026-07-30T09:55:48.789888Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:46.443038Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.888301,
-      "ended_at": "2026-07-30T09:55:46.381947Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:44.493646Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.499283,
-      "ended_at": "2026-07-30T09:55:44.431842Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:42.932559Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.22538,
-      "ended_at": "2026-07-30T09:55:42.871436Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:39.646056Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.795458,
-      "ended_at": "2026-07-30T09:55:39.584239Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:37.788781Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.006804,
-      "ended_at": "2026-07-30T09:55:37.618233Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:35.611429Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.760129,
-      "ended_at": "2026-07-30T09:55:35.547665Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:29.787536Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.128915,
-      "ended_at": "2026-07-30T09:55:33.818857Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:24.689942Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 2.928564,
       "ended_at": "2026-07-30T09:55:31.549609Z",
       "failure_reason": "",
@@ -155180,18 +155072,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-30T09:55:28.621045Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.762458,
-      "ended_at": "2026-07-30T09:55:29.724393Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:23.961935Z"
     },
     {
       "agent": "implementer",
@@ -155207,30 +155087,6 @@
     },
     {
       "agent": "implementer",
-      "duration_s": 1.931938,
-      "ended_at": "2026-07-30T09:55:24.619045Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:22.687107Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.193676,
-      "ended_at": "2026-07-30T09:55:23.893501Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-489-investigating-the-impact-of-network-cent",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:08.699825Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 12.053069,
       "ended_at": "2026-07-30T09:55:22.617490Z",
       "failure_reason": "",
@@ -155240,18 +155096,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-30T09:55:10.564421Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.432037,
-      "ended_at": "2026-07-30T09:55:22.616867Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:09.184830Z"
     },
     {
       "agent": "implementer",
@@ -155267,18 +155111,6 @@
     },
     {
       "agent": "implementer",
-      "duration_s": 2.757427,
-      "ended_at": "2026-07-30T09:55:09.114109Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:06.356682Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 4.361751,
       "ended_at": "2026-07-30T09:55:08.850892Z",
       "failure_reason": "",
@@ -155288,18 +155120,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-30T09:55:04.489141Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.627767,
-      "ended_at": "2026-07-30T09:55:06.286997Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:03.659230Z"
     },
     {
       "agent": "implementer",
@@ -155315,18 +155135,6 @@
     },
     {
       "agent": "implementer",
-      "duration_s": 2.621307,
-      "ended_at": "2026-07-30T09:55:03.588759Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:55:00.967452Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 4.418434,
       "ended_at": "2026-07-30T09:55:03.076796Z",
       "failure_reason": "",
@@ -155336,18 +155144,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-30T09:54:58.658362Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.953792,
-      "ended_at": "2026-07-30T09:55:00.826345Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:54:57.872553Z"
     },
     {
       "agent": "implementer",
@@ -155363,18 +155159,6 @@
     },
     {
       "agent": "implementer",
-      "duration_s": 4.436885,
-      "ended_at": "2026-07-30T09:54:57.801694Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:54:53.364809Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 4.842554,
       "ended_at": "2026-07-30T09:54:55.413935Z",
       "failure_reason": "",
@@ -155387,18 +155171,6 @@
     },
     {
       "agent": "implementer",
-      "duration_s": 5.932736,
-      "ended_at": "2026-07-30T09:54:53.291517Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:54:47.358781Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 7.260778,
       "ended_at": "2026-07-30T09:54:50.496805Z",
       "failure_reason": "",
@@ -155408,18 +155180,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-07-30T09:54:43.236027Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.252156,
-      "ended_at": "2026-07-30T09:54:47.281744Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-30T09:54:23.029588Z"
     },
     {
       "agent": "implementer",
@@ -161060,6 +160820,246 @@
       "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-07-30T01:12:13.228348Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 52.649481,
+      "ended_at": "2026-07-30T01:12:13.225814Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:11:20.576333Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 41.492485,
+      "ended_at": "2026-07-30T01:11:20.573832Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:10:39.081347Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 733.163266,
+      "ended_at": "2026-07-30T01:11:13.148085Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T00:58:59.984819Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 9.609281,
+      "ended_at": "2026-07-30T01:10:57.709028Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-266-machine-learning-prediction-of-fracture-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:10:48.099747Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 235.466021,
+      "ended_at": "2026-07-30T01:10:48.096251Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-266-machine-learning-prediction-of-fracture-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:06:52.630230Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 25.231772,
+      "ended_at": "2026-07-30T01:10:39.078762Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:10:13.846990Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 198.001719,
+      "ended_at": "2026-07-30T01:10:13.844461Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:06:55.842742Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 23.812417,
+      "ended_at": "2026-07-30T01:06:55.840206Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:06:32.027789Z"
+    },
+    {
+      "agent": "specifier",
+      "duration_s": 37.511056,
+      "ended_at": "2026-07-30T01:06:50.997828Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-150-detecting-statistical-power-drift-in-rep",
+      "project_stage": "specified",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:06:13.486772Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 29.771657,
+      "ended_at": "2026-07-30T01:06:32.025228Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:06:02.253571Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 103.127577,
+      "ended_at": "2026-07-30T01:06:08.412250Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-316-the-impact-of-subtle-linguistic-cues-on-",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:04:25.284673Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 36.860196,
+      "ended_at": "2026-07-30T01:06:02.251032Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:05:25.390836Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 47.020483,
+      "ended_at": "2026-07-30T01:05:25.388297Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:04:38.367814Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.169268,
+      "ended_at": "2026-07-30T01:04:25.280191Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-316-the-impact-of-subtle-linguistic-cues-on-",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T01:04:20.110923Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 470.258994,
+      "ended_at": "2026-07-30T01:04:20.107318Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-316-the-impact-of-subtle-linguistic-cues-on-",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T00:56:29.848324Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 810.987542,
+      "ended_at": "2026-07-30T01:04:01.042876Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T00:50:30.055334Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 35.248044,
+      "ended_at": "2026-07-30T00:58:59.982402Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T00:58:24.734358Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 100.944558,
+      "ended_at": "2026-07-30T00:58:24.731656Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T00:56:43.787098Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 400.611638,
+      "ended_at": "2026-07-30T00:56:33.999309Z",
+      "failure_reason": "",
+      "model": "google.gemma-3-27b-it",
+      "outcome": "success",
+      "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T00:49:53.387671Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 32.809256,
+      "ended_at": "2026-07-30T00:56:29.844721Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-316-the-impact-of-subtle-linguistic-cues-on-",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-30T00:55:57.035465Z"
     }
   ],
   "reviewed_preprints": [
