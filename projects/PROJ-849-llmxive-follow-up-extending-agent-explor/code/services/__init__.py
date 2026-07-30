@@ -1,1 +1,1 @@
-# Services module for llmXive diagnostic pipeline
+# services package

@@ -1,150 +1,183 @@
 """
-Unit tests for the data_integrity module.
+Tests for the data_integrity module.
 """
 import os
 import json
-import hashlib
 import tempfile
+import hashlib
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
 
-# Import the module under test
-# We need to mock the config imports if they rely on global state, 
-# but for this test we assume standard project structure or mock paths.
-import sys
-from io import StringIO
+from code.data_integrity import (
+    compute_file_sha256,
+    generate_checksums_for_raw_data,
+    save_checksums,
+    verify_checksums,
+    main
+)
 
-# Mock the config module to avoid dependency on full project setup during unit tests
-class MockConfig:
-    @staticmethod
-    def get_data_dir():
-        return Path(tempfile.gettempdir()) / "llmXive_test_data"
-    
-    @staticmethod
-    def get_output_dir():
-        return Path(tempfile.gettempdir()) / "llmXive_test_output"
+def create_temp_file(content: bytes, directory: Path, filename: str) -> Path:
+    """Helper to create a temporary file with specific content."""
+    file_path = directory / filename
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, "wb") as f:
+        f.write(content)
+    return file_path
 
-# Inject mock before importing data_integrity if necessary, 
-# but since we are testing logic that uses Path operations, 
-# we will patch the specific functions used.
+def test_compute_file_sha256():
+    """Test SHA-256 computation for a known string."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        content = b"Hello, World!"
+        expected_hash = hashlib.sha256(content).hexdigest()
+        
+        file_path = create_temp_file(content, tmp_path, "test.txt")
+        actual_hash = compute_file_sha256(file_path)
+        
+        assert actual_hash == expected_hash
 
-# We will import the module and patch the config functions directly in the module
-import importlib
-import data_integrity
+def test_compute_file_sha256_missing_file():
+    """Test that FileNotFoundError is raised for missing files."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        file_path = Path(tmp_dir) / "nonexistent.txt"
+        with pytest.raises(FileNotFoundError):
+            compute_file_sha256(file_path)
 
-@pytest.fixture
-def temp_data_structure():
-    """Create a temporary directory structure for testing."""
-    base = Path(tempfile.gettempdir()) / "llmXive_test_data"
-    raw_dir = base / "raw"
-    processed_dir = base / "processed"
-    
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Create a test file
-    test_file = raw_dir / "test_data.csv"
-    test_file.write_text("col1,col2\n1,2\n3,4")
-    
-    yield {
-        "base": base,
-        "raw": raw_dir,
-        "processed": processed_dir,
-        "test_file": test_file
-    }
-    
-    # Cleanup
-    import shutil
-    shutil.rmtree(base, ignore_errors=True)
+def test_generate_checksums_for_raw_data():
+    """Test generation of checksums for multiple files."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        
+        # Create test files
+        content1 = b"Data file 1"
+        content2 = b"Data file 2"
+        content3 = b"Nested data"
+        
+        create_temp_file(content1, tmp_path, "file1.csv")
+        create_temp_file(content2, tmp_path, "file2.csv")
+        create_temp_file(content3, tmp_path / "subdir", "file3.csv")
+        
+        checksums = generate_checksums_for_raw_data(tmp_path)
+        
+        assert len(checksums) == 3
+        assert "file1.csv" in checksums
+        assert "file2.csv" in checksums
+        assert "subdir/file3.csv" in checksums
+        
+        # Verify one hash manually
+        expected_hash1 = hashlib.sha256(content1).hexdigest()
+        assert checksums["file1.csv"] == expected_hash1
 
-def test_compute_file_sha256(temp_data_structure):
-    """Test SHA-256 computation on a known file."""
-    test_file = temp_data_structure["test_file"]
-    
-    # Calculate expected hash manually
-    expected_hash = hashlib.sha256(test_file.read_bytes()).hexdigest()
-    
-    # Call function
-    result = data_integrity.compute_file_sha256(test_file)
-    
-    assert result == expected_hash
-    assert len(result) == 64  # SHA-256 hex length
+def test_save_and_verify_checksums():
+    """Test saving checksums to JSON and verifying them."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        
+        # Create test file
+        content = b"Verify me"
+        file_path = create_temp_file(content, tmp_path, "verify.csv")
+        
+        # Generate and save checksums
+        checksums = generate_checksums_for_raw_data(tmp_path)
+        output_path = tmp_path / "checksums.json"
+        save_checksums(checksums, output_path)
+        
+        assert output_path.exists()
+        
+        # Verify checksums
+        results = verify_checksums(tmp_path, output_path)
+        
+        assert len(results) == 1
+        assert results["verify.csv"] is True
 
-def test_generate_checksums_for_raw_data(temp_data_structure):
-    """Test the full generation process."""
-    # Patch get_data_dir to return our temp dir
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        record = data_integrity.generate_checksums_for_raw_data()
-    
-    assert record["total_files"] == 1
-    assert len(record["files"]) == 1
-    assert record["files"][0]["filename"] == "test_data.csv"
-    assert "checksum" in record["files"][0]
-    assert len(record["files"][0]["checksum"]) == 64
+def test_verify_checksums_modified_file():
+    """Test that verification fails for a modified file."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        
+        # Create and save original file
+        original_content = b"Original content"
+        file_path = create_temp_file(original_content, tmp_path, "modified.csv")
+        
+        checksums = generate_checksums_for_raw_data(tmp_path)
+        output_path = tmp_path / "checksums.json"
+        save_checksums(checksums, output_path)
+        
+        # Modify the file
+        with open(file_path, "wb") as f:
+            f.write(b"Modified content")
+        
+        # Verify should fail
+        results = verify_checksums(tmp_path, output_path)
+        
+        assert results["modified.csv"] is False
 
-def test_save_checksums(temp_data_structure):
-    """Test saving checksums to JSON."""
-    test_record = {
-        "version": "1.0",
-        "files": [
-            {"filename": "test.csv", "checksum": "abc123"}
-        ]
-    }
-    
-    output_path = temp_data_structure["processed"] / "test_checksums.json"
-    
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        saved_path = data_integrity.save_checksums(test_record, output_path)
-    
-    assert saved_path.exists()
-    with open(saved_path, "r") as f:
-        loaded = json.load(f)
-    
-    assert loaded == test_record
+def test_verify_checksums_missing_file():
+    """Test that verification fails for a missing file."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        
+        # Create file and save checksums
+        content = b"Missing file test"
+        create_temp_file(content, tmp_path, "gone.csv")
+        
+        checksums = generate_checksums_for_raw_data(tmp_path)
+        output_path = tmp_path / "checksums.json"
+        save_checksums(checksums, output_path)
+        
+        # Delete the file
+        (tmp_path / "gone.csv").unlink()
+        
+        # Verify should fail
+        results = verify_checksums(tmp_path, output_path)
+        
+        assert results["gone.csv"] is False
 
-def test_verify_checksums_success(temp_data_structure):
-    """Test verification when files match."""
-    # Generate real checksums first
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        record = data_integrity.generate_checksums_for_raw_data()
-        data_integrity.save_checksums(record)
-    
-    # Verify
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        is_valid = data_integrity.verify_checksums()
-    
-    assert is_valid is True
+def test_generate_checksums_empty_directory():
+    """Test checksum generation on an empty directory."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        checksums = generate_checksums_for_raw_data(tmp_path)
+        assert checksums == {}
 
-def test_verify_checksums_failure(temp_data_structure):
-    """Test verification when file is modified."""
-    # Generate checksums
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        record = data_integrity.generate_checksums_for_raw_data()
-        data_integrity.save_checksums(record)
-    
-    # Modify file
-    temp_data_structure["test_file"].write_text("modified content")
-    
-    # Verify should fail
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        is_valid = data_integrity.verify_checksums()
-    
-    assert is_valid is False
+def test_main_generate(capsys):
+    """Test main function in generate mode."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        create_temp_file(b"Test data", tmp_path, "test.csv")
+        
+        output_json = tmp_path / "checksums.json"
+        
+        # Mock args for generate mode
+        import sys
+        original_argv = sys.argv
+        sys.argv = ["test", "--raw-dir", str(tmp_path), "--checksums-file", str(output_json)]
+        
+        try:
+            result = main()
+            assert result == 0
+            assert output_json.exists()
+        finally:
+            sys.argv = original_argv
 
-def test_missing_file_verification(temp_data_structure):
-    """Test verification when a file is deleted."""
-    # Generate checksums
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        record = data_integrity.generate_checksums_for_raw_data()
-        data_integrity.save_checksums(record)
-    
-    # Delete file
-    temp_data_structure["test_file"].unlink()
-    
-    # Verify should fail
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        is_valid = data_integrity.verify_checksums()
-    
-    assert is_valid is False
+def test_main_verify(capsys):
+    """Test main function in verify mode."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        create_temp_file(b"Test data", tmp_path, "test.csv")
+        
+        output_json = tmp_path / "checksums.json"
+        
+        # Generate first
+        import sys
+        original_argv = sys.argv
+        sys.argv = ["test", "--raw-dir", str(tmp_path), "--checksums-file", str(output_json)]
+        main()
+        
+        # Now verify
+        sys.argv = ["test", "--verify", "--raw-dir", str(tmp_path), "--checksums-file", str(output_json)]
+        try:
+            result = main()
+            assert result == 0
+        finally:
+            sys.argv = original_argv

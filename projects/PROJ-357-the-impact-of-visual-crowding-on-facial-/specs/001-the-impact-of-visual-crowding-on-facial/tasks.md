@@ -68,9 +68,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011a [P] [US1] **Verify RAVDESS Source**: Query the official HuggingFace API to validate the RAVDESS dataset URL. If `spec.md` FR-001 URL is empty, default to the verified canonical URL `parlance/RAVDESS` and document the resolution in `code/config.py`.
-- [ ] T011 [P] [US1] Implement `code/utils/download.py` to fetch RAVDESS dataset from the verified URL (from T011a) and cache in `data/raw`.
-- [ ] T012 [P] [US1] Implement `code/utils/frame_extractor.py` to extract frames from RAVDESS video files into `data/raw/frames`
+- [X] T011a [P] [US1] **Verify RAVDESS Source**: Query the official HuggingFace API to validate the RAVDESS dataset URL. If `spec.md` FR-001 URL is empty, default to the verified canonical URL `parlance/RAVDESS` and document the resolution in `code/config.py`.
+- [X] T011 [P] [US1] Implement `code/utils/download.py` to fetch RAVDESS dataset from the verified URL (from T011a) and cache in `data/raw`.
+- [X] T012 [P] [US1] Implement `code/utils/frame_extractor.py` to extract frames from RAVDESS video files into `data/raw/frames`
 - [X] T013 [US1] Implement `code/utils/stimulus_gen.py` to:
  - Load frames and filter by multiple emotion categories
  - **If an emotion category is missing from the dataset, log a warning, exclude it from generation, and proceed with available categories** (Edge Case)
@@ -83,7 +83,7 @@
  - **Reading `data/interim/generation_errors.log` (T013) to update 'status' fields for excluded items**
  - **Validating that every image in `data/interim/stimuli` has a corresponding entry with exact flanker count and eccentricity values**
  - Linking file paths to metadata (emotion, flanker count, eccentricity)
-- [~] T015 [US1] **Validate manifest completeness**: Verify that every image in `data/interim/stimuli` has a corresponding entry in `stimuli_manifest.json` with exact parameter values (Constitution Principle VI)
+- [ ] T015 [US1] **Validate manifest completeness**: Verify that every image in `data/interim/stimuli` has a corresponding entry in `stimuli_manifest.json` with exact parameter values (Constitution Principle VI)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -104,8 +104,8 @@
 ### Implementation for User Story 2
 
 - [X] T019 [US2] Implement `code/utils/clutter_metrics.py` to compute local contrast variance and spatial frequency energy for the flanker region of each stimulus **consuming `stimuli_manifest.json` (T014) and generated images from `data/interim/stimuli` (T013)**
-- [ ] T020 [US2] Implement chunked processing in `code/utils/clutter_metrics.py` to ensure memory usage stays < 7 GB (Constraint)
-- [ ] T021 [US2] **Implement sampling fallback mechanism**: Add logic to `code/utils/clutter_metrics.py` to automatically switch to dataset sampling if chunked processing still exceeds available memory capacity (Edge Case)
+- [X] T020 [US2] Implement chunked processing in `code/utils/clutter_metrics.py` to ensure memory usage stays < 7 GB (Constraint)
+- [X] T021 [US2] **Implement sampling fallback mechanism**: Add logic to `code/utils/clutter_metrics.py` to automatically switch to dataset sampling if chunked processing still exceeds available memory capacity (Edge Case)
 - [ ] T022 [US2] Generate `data/processed/clutter_metrics.csv` joining metrics to `stimuli_manifest.json` via file path
 
 ### Verification & Exploratory Analysis
@@ -125,8 +125,8 @@
 ### Implementation for User Story 4
 
 - [ ] T025 [US4] Implement `code/analysis/synthetic_data_generator.py` (headless, batch-mode) to generate synthetic recognition responses for the stimuli in `stimuli_manifest.json`. The generator must simulate ≥5 unique participant IDs and produce realistic accuracy distributions (e.g., 60-90% accuracy depending on crowding) for 8-category classification.
-- [ ] T026 [US4] Implement `code/analysis/pilot_runner.py` CLI script to orchestrate the synthetic pilot study, load `stimuli_manifest.json`, and manage the generation of raw response data.
-- [ ] T028 [US4] Implement `code/analysis/data_loader.py` to load and validate raw synthetic judgment CSVs (Participant ID, Stimulus ID, True Label, Response Label, Timestamp)
+- [X] T026 [US4] Implement `code/analysis/pilot_runner.py` CLI script to orchestrate the synthetic pilot study, load `stimuli_manifest.json`, and manage the generation of raw response data.
+- [X] T028 [US4] Implement `code/analysis/data_loader.py` to load and validate raw synthetic judgment CSVs (Participant ID, Stimulus ID, True Label, Response Label, Timestamp)
 - [ ] T029 [US4] Implement logic to compute `accuracy` (correct/incorrect) and aggregate by stimulus ID, emotion, and flanker count
 - [ ] T027 [US4] **Execute Synthetic Pilot**: Run `pilot_runner.py` (T026) with `synthetic_data_generator.py` (T025) to generate raw synthetic response data for the generated stimuli.
 - [ ] T030 [US4] Generate `data/processed/human_judgments.csv` with required fields: participant_id, stimulus_id, emotion_label, response_label, accuracy, flanker_count, eccentricity

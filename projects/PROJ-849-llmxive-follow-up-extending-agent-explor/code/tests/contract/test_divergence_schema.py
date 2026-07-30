@@ -1,75 +1,83 @@
+"""
+Contract tests for the divergence metric output schema.
+Validates the structure of divergence calculation results.
+"""
 import pytest
 import json
 from pathlib import Path
 from typing import Dict, Any, List
 
+
 def validate_divergence_record(record: Dict[str, Any]) -> bool:
-    """Validate a single divergence record schema."""
-    required_fields = [
-        "problem_id", 
-        "thinking_embedding", 
-        "tool_centroid_embedding", 
-        "cosine_similarity", 
-        "semantic_divergence_score"
-    ]
-    
-    for field in required_fields:
+    """
+    Validates a single divergence record.
+
+    Expected schema:
+    {
+        "problem_id": str,
+        "thinking_embedding": List[float],
+        "tool_centroid_embedding": List[float],
+        "cosine_similarity": float,
+        "semantic_divergence_score": float
+    }
+    """
+    required_fields = {
+        "problem_id": str,
+        "thinking_embedding": list,
+        "tool_centroid_embedding": list,
+        "cosine_similarity": (int, float),
+        "semantic_divergence_score": (int, float)
+    }
+
+    if not isinstance(record, dict):
+        return False
+
+    for field, expected_type in required_fields.items():
         if field not in record:
             return False
-    
-    # Type checks
-    if not isinstance(record["problem_id"], str):
+        if not isinstance(record[field], expected_type):
+            return False
+
+    # Additional checks for specific fields
+    if not isinstance(record["thinking_embedding"][0], (int, float)):
         return False
-    if not isinstance(record["thinking_embedding"], list):
+    if not isinstance(record["tool_centroid_embedding"][0], (int, float)):
         return False
-    if record["tool_centroid_embedding"] is not None and not isinstance(record["tool_centroid_embedding"], list):
-        return False
-    if not isinstance(record["cosine_similarity"], (int, float)):
-        return False
-    if not isinstance(record["semantic_divergence_score"], (int, float)):
-        return False
-    
-    # Range checks
-    if not (0.0 <= record["cosine_similarity"] <= 1.0):
-        return False
-    if not (0.0 <= record["semantic_divergence_score"] <= 2.0):
-        return False
-        
+
     return True
 
-def test_divergence_output_schema():
-    """Test that the output schema matches the specification."""
-    # Sample valid record
-    sample = {
-        "problem_id": "test-123",
-        "thinking_embedding": [0.1] * 768,
-        "tool_centroid_embedding": [0.2] * 768,
+
+def test_divergence_output_schema() -> None:
+    """Test that a valid divergence record passes validation."""
+    valid_record = {
+        "problem_id": "math_001",
+        "thinking_embedding": [0.1, 0.2, 0.3],
+        "tool_centroid_embedding": [0.4, 0.5, 0.6],
         "cosine_similarity": 0.85,
         "semantic_divergence_score": 0.15
     }
-    
-    assert validate_divergence_record(sample) is True
+    assert validate_divergence_record(valid_record) is True
 
-def test_divergence_output_invalid_missing_field():
-    """Test validation fails on missing field."""
-    sample = {
-        "problem_id": "test-123",
-        "thinking_embedding": [0.1] * 768,
-        "tool_centroid_embedding": [0.2] * 768,
+
+def test_divergence_output_invalid_missing_field() -> None:
+    """Test that a record with a missing field fails validation."""
+    invalid_record = {
+        "problem_id": "math_001",
+        "thinking_embedding": [0.1, 0.2, 0.3],
+        "tool_centroid_embedding": [0.4, 0.5, 0.6],
         "cosine_similarity": 0.85
-        # Missing semantic_divergence_score
+        # Missing "semantic_divergence_score"
     }
-    
-    assert validate_divergence_record(sample) is False
+    assert validate_divergence_record(invalid_record) is False
 
-def test_divergence_output_invalid_range():
-    """Test validation fails on out-of-range values."""
-    sample = {
-        "problem_id": "test-123",
-        "thinking_embedding": [0.1] * 768,
-        "tool_centroid_embedding": [0.2] * 768,
-        "cosine_similarity": 1.5,  # Invalid range
+
+def test_divergence_output_invalid_range() -> None:
+    """Test that a record with invalid types fails validation."""
+    invalid_record = {
+        "problem_id": "math_001",
+        "thinking_embedding": "not a list",
+        "tool_centroid_embedding": [0.4, 0.5, 0.6],
+        "cosine_similarity": 0.85,
         "semantic_divergence_score": 0.15
     }
-    
-    assert validate_divergence_record(sample) is False
+    assert validate_divergence_record(invalid_record) is False

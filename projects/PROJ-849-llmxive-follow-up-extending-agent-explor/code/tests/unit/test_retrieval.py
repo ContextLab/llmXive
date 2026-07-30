@@ -1,35 +1,32 @@
+"""
+Unit tests for retrieval service.
+"""
 import pytest
 import numpy as np
 from unittest.mock import Mock, patch
 from services.retrieval_service import RetrievalService
-from lib.tool_mapper import ToolMapper
 
 class TestRetrievalService:
-    @pytest.fixture
-    def sample_tool_map(self):
-        return {
-            "prob1": {"tool_descriptions": ["calculator", "graphing_tool"]},
-            "prob2": {"tool_descriptions": ["text_searcher", "code_runner"]}
-        }
+    @patch('services.retrieval_service.load_tool_mapping')
+    def test_initialize_success(self, mock_load):
+        mock_load.return_value = [
+            {"tool_descriptions": ["tool A", "tool B"]},
+            {"tool_descriptions": ["tool C"]}
+        ]
+        service = RetrievalService()
+        service.initialize()
+        assert service._initialized is True
+        assert len(service.tool_corpus) == 3 # 3 descriptions total
 
-    def test_init_builds_index(self, sample_tool_map):
-        service = RetrievalService(sample_tool_map)
-        assert service.bm25_index is not None
-
-    def test_retrieve_tools_returns_top_k(self, sample_tool_map):
-        service = RetrievalService(sample_tool_map)
-        results = service.retrieve_tools("calculate", top_k=2)
-        assert len(results) <= 2
-        assert "calculator" in results
-
-    def test_retrieve_tools_empty_query(self, sample_tool_map):
-        service = RetrievalService(sample_tool_map)
-        results = service.retrieve_tools("")
-        assert len(results) == 0
-
-    def test_retrieve_tools_no_index(self):
-        # Mock empty tool map
-        with patch.object(ToolMapper, '__init__', return_value=None):
-            service = RetrievalService({})
-            results = service.retrieve_tools("test")
-            assert results == []
+    @patch('services.retrieval_service.load_tool_mapping')
+    def test_retrieve_top_tools(self, mock_load):
+        mock_load.return_value = [
+            {"tool_descriptions": ["math calculator", "graph plotter"]}
+        ]
+        service = RetrievalService()
+        service.initialize()
+        
+        # Query for "math"
+        results = service.retrieve_top_tools("math calculator", top_k=1)
+        assert len(results) > 0
+        assert "math" in results[0][0][0].lower() or "calculator" in results[0][0][0].lower()

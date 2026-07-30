@@ -1,0 +1,29 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/`
+    directory or its subfolders (`code/`, `data/`, `tests/`, `artifacts/`, `state/projects/`)
+    is provided; the implementer did not supply any file or directory listings to
+    confirm their creation. The task remains undone.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data/interim/stimuli` image files or a `stimuli_manifest.json` file were
+    presented, and there is no evidence that a validation script was run to check
+    correspondence and exact parameter values. The required artifact (the manifest
+    and its verification) is missing.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of `pilot_runner.py` being executed with `synthetic_data_generator.py`\
+    \ is provided\u2014there are no generated raw synthetic response data files, logs,\
+    \ or output artifacts to confirm the pilot run was performed. The required synthetic\
+    \ response dataset is missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or data file was provided that computes per\u2011\
+    trial accuracy and aggregates it by stimulus ID, emotion, and flanker count. Without\
+    \ such an artifact, the requirement cannot be verified. The next implementer must\
+    \ supply the implementation (e.g., a function or script) and a sample output showing\
+    \ the aggregated accuracy table."

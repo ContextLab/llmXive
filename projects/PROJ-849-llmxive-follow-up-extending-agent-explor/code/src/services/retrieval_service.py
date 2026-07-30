@@ -1,211 +1,245 @@
 """
-Retrieval Service for Semantic Divergence Diagnostic.
+Retrieval Service for LLMXive.
 
-This module implements the BM25 retrieval logic to match thinking traces
-against a repository of tool descriptions. It builds an index from the
-loaded tool mappings and retrieves the top-k most relevant tool descriptions
-for a given query (thinking prefix).
+Implements BM25-based retrieval of tool descriptions based on thinking traces.
 """
-
 import os
 import re
 from typing import List, Dict, Any, Optional, Tuple
-
 from rank_bm25 import BM25Okapi
+import logging
+import numpy as np
 
-from src.lib.tool_loader import load_tool_mapping, ToolLoaderError
-from src.lib import config
+from src.lib.tool_mapper import extract_tool_descriptions, ToolMapperError
+from lib.config import DATA_ROOT
 
+logger = logging.getLogger(__name__)
 
 class RetrievalServiceError(Exception):
     """Custom exception for retrieval service errors."""
     pass
 
-
 class RetrievalService:
     """
-    Service class to handle BM25 index creation and retrieval operations.
-
-    This service loads the tool mapping, tokenizes the tool descriptions,
-    builds a BM25 index, and provides methods to retrieve top-ranked
-    tools based on a query string.
+    Service for building and querying BM25 index of tool descriptions.
     """
-
-    def __init__(self, tool_mapping: Dict[str, Any]):
+    
+    def __init__(self, tool_map_path: Optional[str] = None):
         """
-        Initialize the RetrievalService with a tool mapping.
-
+        Initialize the retrieval service.
+        
         Args:
-            tool_mapping: A dictionary containing tool definitions,
-                          expected to have a 'tools' key with a list of
-                          tool objects containing 'name' and 'description'.
-
-        Raises:
-            RetrievalServiceError: If the tool mapping is invalid or empty.
+            tool_map_path: Optional path to the tool mapping JSON.
         """
-        if not tool_mapping or 'tools' not in tool_mapping:
-            raise RetrievalServiceError(
-                "Invalid tool mapping: missing 'tools' key or empty mapping."
-            )
-
-        tools = tool_mapping['tools']
-        if not isinstance(tools, list) or len(tools) == 0:
-            raise RetrievalServiceError(
-                "Invalid tool mapping: 'tools' must be a non-empty list."
-            )
-
-        self.tool_mapping = tool_mapping
-        self.tools = tools
         self.bm25_index: Optional[BM25Okapi] = None
+        self.tool_descriptions: List[str] = []
         self.tokenized_corpus: List[List[str]] = []
-
-        self._build_index()
-
+        self.tool_map_path = tool_map_path
+        self._built = False
+        
+        logger.info("RetrievalService initialized")
+    
     def _tokenize(self, text: str) -> List[str]:
         """
-        Tokenize a text string into a list of lowercase words.
-
+        Simple tokenizer: lowercases and splits on non-alphanumeric characters.
+        
         Args:
-            text: The input text to tokenize.
-
-        Returns:
-            A list of lowercase alphanumeric tokens.
-        """
-        if not text:
-            return []
-        # Convert to lowercase and split by non-alphanumeric characters
-        tokens = re.findall(r'\w+', text.lower())
-        return tokens
-
-    def _build_index(self) -> None:
-        """
-        Build the BM25 index from the loaded tool descriptions.
-
-        This method iterates over the tools, extracts their descriptions,
-        tokenizes them, and creates a BM25Okapi index.
-
-        Raises:
-            RetrievalServiceError: If index building fails.
-        """
-        try:
-            self.tokenized_corpus = []
-            for tool in self.tools:
-                description = tool.get('description', '')
-                if not description:
-                    # Skip tools without descriptions but log a warning if needed
-                    continue
-                tokens = self._tokenize(description)
-                if tokens:
-                    self.tokenized_corpus.append(tokens)
-
-            if not self.tokenized_corpus:
-                raise RetrievalServiceError(
-                    "No valid tool descriptions found to build the BM25 index."
-                )
-
-            self.bm25_index = BM25Okapi(self.tokenized_corpus)
-
-        except Exception as e:
-            raise RetrievalServiceError(f"Failed to build BM25 index: {e}") from e
-
-    def retrieve_top_k(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """
-        Retrieve the top-k most relevant tools for a given query.
-
-        Args:
-            query: The search query (e.g., a thinking trace prefix).
-            k: The number of top results to return.
-
-        Returns:
-            A list of dictionaries containing tool details (name, description, score).
-
-        Raises:
-            RetrievalServiceError: If retrieval fails or index is not built.
-        """
-        if not self.bm25_index:
-            raise RetrievalServiceError("BM25 index is not built.")
-
-        if not query or not query.strip():
-            # Return empty list for empty query
-            return []
-
-        try:
-            query_tokens = self._tokenize(query)
-            if not query_tokens:
-                return []
-
-            # Get BM25 scores
-            scores = self.bm25_index.get_scores(query_tokens)
-
-            # Get indices of top-k scores
-            top_k_indices = scores.argsort()[::-1][:k]
-
-            results = []
-            # We need to map back to the original tools list.
-            # Since we might have skipped tools without descriptions,
-            # we need to track which tool corresponds to which tokenized entry.
-            # To do this robustly, we rebuild the mapping or filter tools first.
+            text: Input text to tokenize.
             
-            # Re-approach: Filter tools with descriptions first to align indices
-            valid_tools = [
-                tool for tool in self.tools
-                if tool.get('description') and self._tokenize(tool['description'])
-            ]
-
-            # Re-calculate scores for valid tools only (BM25 index was built on valid_tools)
-            # The index is already built on self.tokenized_corpus which corresponds to valid_tools
+        Returns:
+            List of token strings.
+        """
+        if not text or not isinstance(text, str):
+            return []
+        
+        # Convert to lowercase and split on non-alphanumeric
+        tokens = re.findall(r'\b\w+\b', text.lower())
+        return tokens
+    
+    def build_index(self, problems: List[Dict[str, Any]]) -> None:
+        """
+        Build the BM25 index from a list of problems.
+        
+        Args:
+            problems: List of problem dictionaries, each expected to have
+                     'tool_descriptions' key.
+                     
+        Raises:
+            RetrievalServiceError: If building the index fails.
+        """
+        if not problems:
+            raise RetrievalServiceError("Cannot build index with empty problems list")
+        
+        self.tool_descriptions = []
+        self.tokenized_corpus = []
+        
+        for i, problem in enumerate(problems):
+            try:
+                descs = extract_tool_descriptions(problem)
+                if not descs:
+                    continue
+                
+                # Store all descriptions for this problem
+                for desc in descs:
+                    self.tool_descriptions.append(desc)
+                    tokenized = self._tokenize(desc)
+                    if tokenized:
+                        self.tokenized_corpus.append(tokenized)
+                    else:
+                        logger.warning(f"Empty tokenization for description {len(self.tool_descriptions)}")
+                        
+            except ToolMapperError as e:
+                logger.warning(f"Skipping problem {i} due to tool mapping error: {e}")
+        
+        if not self.tokenized_corpus:
+            raise RetrievalServiceError(
+                "Failed to build index: No valid tool descriptions found in problems"
+            )
+        
+        try:
+            self.bm25_index = BM25Okapi(self.tokenized_corpus)
+            self._built = True
+            logger.info(f"BM25 index built successfully with {len(self.tokenized_corpus)} documents")
+        except Exception as e:
+            raise RetrievalServiceError(f"Failed to create BM25 index: {e}")
+    
+    def retrieve_top_k(
+        self,
+        thinking_trace: str,
+        k: int = 3
+    ) -> Tuple[List[str], List[float]]:
+        """
+        Retrieve top-k tool descriptions based on thinking trace.
+        
+        Args:
+            thinking_trace: The thinking trace text to search against.
+            k: Number of results to return.
+            
+        Returns:
+            Tuple of (list of tool descriptions, list of scores).
+            
+        Raises:
+            RetrievalServiceError: If the index is not built or retrieval fails.
+        """
+        if not self._built or self.bm25_index is None:
+            raise RetrievalServiceError(
+                "BM25 index not built. Call build_index() first."
+            )
+        
+        if not thinking_trace or not isinstance(thinking_trace, str):
+            # Handle empty or invalid thinking trace
+            logger.warning("Empty or invalid thinking trace provided")
+            return [], []
+        
+        try:
+            query_tokens = self._tokenize(thinking_trace)
+            
+            if not query_tokens:
+                logger.warning("Query tokenization resulted in empty list")
+                return [], []
+            
+            # Get BM25 scores
+            doc_scores = self.bm25_index.get_scores(query_tokens)
+            
+            # Handle edge case where scores might be NaN or inf
+            doc_scores = np.nan_to_num(doc_scores, nan=0.0, posinf=0.0, neginf=0.0)
+            
+            # Get top-k indices
+            if len(doc_scores) == 0:
+                return [], []
+            
+            top_k_indices = np.argsort(doc_scores)[::-1][:k]
+            
+            results = []
+            scores = []
             
             for idx in top_k_indices:
-                if idx < len(valid_tools):
-                    tool = valid_tools[idx]
-                    results.append({
-                        'name': tool.get('name', 'Unknown'),
-                        'description': tool.get('description', ''),
-                        'score': float(scores[idx])
-                    })
-
-            return results
-
+                if doc_scores[idx] > 0:  # Only include if score is positive
+                    results.append(self.tool_descriptions[idx])
+                    scores.append(float(doc_scores[idx]))
+            
+            logger.debug(f"Retrieved {len(results)} tools for query")
+            return results, scores
+            
         except Exception as e:
-            raise RetrievalServiceError(f"Retrieval failed: {e}") from e
+            raise RetrievalServiceError(f"Retrieval failed: {e}")
+    
+    def get_index_stats(self) -> Dict[str, Any]:
+        """
+        Get statistics about the built index.
+        
+        Returns:
+            Dictionary with index statistics.
+        """
+        return {
+            "built": self._built,
+            "num_documents": len(self.tool_descriptions),
+            "num_tokens_corpus": len(self.tokenized_corpus),
+            "avg_doc_length": (
+                np.mean([len(t) for t in self.tokenized_corpus])
+                if self.tokenized_corpus else 0.0
+            )
+        }
 
-
-def create_retrieval_service() -> RetrievalService:
+def create_retrieval_service(tool_map_path: Optional[str] = None) -> RetrievalService:
     """
     Factory function to create a RetrievalService instance.
-
-    Loads the tool mapping from the configured path and initializes the service.
-
-    Returns:
-        A configured RetrievalService instance.
-
-    Raises:
-        RetrievalServiceError: If tool mapping cannot be loaded or is invalid.
-    """
-    try:
-        tool_mapping = load_tool_mapping()
-        return RetrievalService(tool_mapping)
-    except ToolLoaderError as e:
-        raise RetrievalServiceError(f"Failed to load tool mapping: {e}") from e
-    except Exception as e:
-        raise RetrievalServiceError(f"Unexpected error creating retrieval service: {e}") from e
-
-
-def retrieve_top_tools(query: str, k: int = 5) -> List[Dict[str, Any]]:
-    """
-    Convenience function to retrieve top-k tools for a query.
-
-    Creates a service instance and performs retrieval in one step.
-
+    
     Args:
-        query: The search query.
-        k: Number of results to return.
-
+        tool_map_path: Optional path to the tool mapping JSON.
+        
     Returns:
-        List of top-k tools with scores.
-
-    Raises:
-        RetrievalServiceError: If service creation or retrieval fails.
+        Configured RetrievalService instance.
     """
-    service = create_retrieval_service()
-    return service.retrieve_top_k(query, k)
+    return RetrievalService(tool_map_path=tool_map_path)
+
+def retrieve_top_tools(
+    problems: List[Dict[str, Any]],
+    thinking_traces: List[str],
+    k: int = 3
+) -> List[Dict[str, Any]]:
+    """
+    Convenience function to retrieve top-k tools for multiple problems.
+    
+    Args:
+        problems: List of problem dictionaries.
+        thinking_traces: List of thinking traces corresponding to each problem.
+        k: Number of results per query.
+        
+    Returns:
+        List of dictionaries with problem_id, retrieved_tools, and scores.
+        
+    Raises:
+        RetrievalServiceError: If retrieval fails.
+    """
+    if len(problems) != len(thinking_traces):
+        raise RetrievalServiceError(
+            "problems and thinking_traces must have the same length"
+        )
+    
+    service = RetrievalService()
+    service.build_index(problems)
+    
+    results = []
+    for i, trace in enumerate(thinking_traces):
+        problem_id = problems[i].get('problem_id', f'problem_{i}')
+        
+        try:
+            tools, scores = service.retrieve_top_k(trace, k=k)
+            results.append({
+                'problem_id': problem_id,
+                'retrieved_tools': tools,
+                'tool_scores': scores,
+                'num_tools_retrieved': len(tools)
+            })
+        except RetrievalServiceError as e:
+            logger.error(f"Retrieval failed for problem {problem_id}: {e}")
+            results.append({
+                'problem_id': problem_id,
+                'retrieved_tools': [],
+                'tool_scores': [],
+                'num_tools_retrieved': 0,
+                'error': str(e)
+            })
+    
+    return results

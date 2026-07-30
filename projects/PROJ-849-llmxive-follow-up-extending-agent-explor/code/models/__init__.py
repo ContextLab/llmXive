@@ -1,1 +1,1 @@
-# Models module for llmXive diagnostic pipeline
+# models package

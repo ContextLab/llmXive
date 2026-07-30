@@ -4,312 +4,436 @@ import json
 import logging
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-from PIL import Image
-import cv2
-
-# Import project config
-from config import ensure_directories, get_seed, set_all_seeds
-from utils.manifest_validator import load_manifest
+from typing import List, Dict, Any, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/interim/clutter_metrics.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
-def compute_local_contrast_variance(image: np.ndarray, flanker_region: tuple) -> float:
+# Constants
+STIMULI_DIR = Path("data/interim/stimuli")
+MANIFEST_PATH = Path("data/interim/stimuli_manifest.json")
+OUTPUT_PATH = Path("data/processed/clutter_metrics.csv")
+VALIDATION_REPORT_PATH = Path("data/processed/validation_report.json")
+
+# Memory constraints (in GB)
+MAX_MEMORY_GB = 7.0
+MEMORY_SAFETY_FACTOR = 0.8  # Use 80% of available memory as threshold
+SAMPLE_SIZE_THRESHOLD = 100  # Minimum sample size before switching to sampling fallback
+
+def get_available_memory_gb() -> float:
+    """Estimate available system memory in GB."""
+    try:
+        import psutil
+        available_bytes = psutil.virtual_memory().available
+        return available_bytes / (1024 ** 3)
+    except ImportError:
+        logger.warning("psutil not available, assuming 4GB available memory")
+        return 4.0
+    except Exception as e:
+        logger.warning(f"Could not determine available memory: {e}, assuming 4GB")
+        return 4.0
+
+def determine_flanker_region(image: np.ndarray, flanker_count: int, eccentricity: float) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    Compute the local contrast variance within the specified flanker region.
+    Determine the flanker region of the stimulus image.
     
     Args:
-        image: Grayscale or color image as numpy array.
-        flanker_region: Tuple (y_min, y_max, x_min, x_max) defining the ROI.
+        image: Input image array (H, W, C)
+        flanker_count: Number of flankers in the stimulus
+        eccentricity: Eccentricity value used in stimulus generation
     
     Returns:
-        float: Variance of local contrast in the region.
+        Tuple of (flanker_region_array, metadata_dict)
     """
-    y_min, y_max, x_min, x_max = flanker_region
+    h, w = image.shape[:2]
+    center_y, center_x = h // 2, w // 2
     
-    # Extract ROI
-    roi = image[y_min:y_max, x_min:x_max]
+    # Calculate flanker region based on eccentricity
+    # Assuming eccentricity is in degrees and we approximate 1 degree ≈ 20 pixels
+    radius = int(eccentricity * 20)
     
-    if roi.size == 0:
-        return 0.0
+    # Define region of interest around the center
+    y1 = max(0, center_y - radius)
+    y2 = min(h, center_y + radius)
+    x1 = max(0, center_x - radius)
+    x2 = min(w, center_x + radius)
     
-    # Convert to grayscale if necessary
-    if len(roi.shape) == 3:
-        roi_gray = cv2.cvtColor(roi, cv2.COLOR_RGB2GRAY)
+    flanker_region = image[y1:y2, x1:x2]
+    
+    metadata = {
+        'region_coords': {'y1': y1, 'y2': y2, 'x1': x1, 'x2': x2},
+        'radius': radius,
+        'center': (center_x, center_y)
+    }
+    
+    return flanker_region, metadata
+
+def compute_local_contrast_variance(flanker_region: np.ndarray) -> float:
+    """
+    Compute local contrast variance for the flanker region.
+    
+    Args:
+        flanker_region: Image region to analyze (H, W, C) or (H, W)
+    
+    Returns:
+        Local contrast variance value
+    """
+    if flanker_region.ndim == 3:
+        # Convert to grayscale if needed
+        if flanker_region.shape[2] == 3:
+            gray = np.dot(flanker_region[..., :3], [0.2989, 0.5870, 0.1140])
+        else:
+            gray = flanker_region[..., 0]
     else:
-        roi_gray = roi.astype(np.float32)
+        gray = flanker_region
     
-    # Compute local contrast using Sobel gradients
-    # Sobel operator for X and Y directions
-    sobelx = cv2.Sobel(roi_gray, cv2.CV_64F, 1, 0, ksize=3)
-    sobely = cv2.Sobel(roi_gray, cv2.CV_64F, 0, 1, ksize=3)
+    # Ensure float for calculations
+    gray = gray.astype(np.float32)
     
-    # Magnitude of gradient
-    gradient_magnitude = np.sqrt(sobelx**2 + sobely**2)
+    # Normalize to 0-1
+    gray = gray / 255.0
     
-    # Variance of gradient magnitude represents local contrast variance
-    variance = np.var(gradient_magnitude)
+    # Compute local contrast using a sliding window
+    window_size = 5
+    h, w = gray.shape
+    
+    # Pad the image
+    padded = np.pad(gray, ((window_size//2, window_size//2), 
+                           (window_size//2, window_size//2)), 
+                   mode='reflect')
+    
+    contrasts = []
+    for i in range(h):
+        for j in range(w):
+            window = padded[i:i+window_size, j:j+window_size]
+            mean_val = np.mean(window)
+            std_val = np.std(window)
+            if mean_val > 0:
+                contrast = std_val / mean_val
+            else:
+                contrast = 0.0
+            contrasts.append(contrast)
+    
+    contrasts = np.array(contrasts)
+    variance = np.var(contrasts)
     
     return float(variance)
 
-def compute_spatial_frequency_energy(image: np.ndarray, flanker_region: tuple) -> float:
+def compute_spatial_frequency_energy(flanker_region: np.ndarray) -> float:
     """
-    Compute the spatial frequency energy within the specified flanker region.
-    
-    Uses 2D Fast Fourier Transform (FFT) to analyze spatial frequencies.
-    The energy is the sum of squared magnitudes of the frequency components.
+    Compute spatial frequency energy for the flanker region.
     
     Args:
-        image: Grayscale or color image as numpy array.
-        flanker_region: Tuple (y_min, y_max, x_min, x_max) defining the ROI.
+        flanker_region: Image region to analyze (H, W, C) or (H, W)
     
     Returns:
-        float: Total spatial frequency energy in the region.
+        Spatial frequency energy value
     """
-    y_min, y_max, x_min, x_max = flanker_region
-    
-    # Extract ROI
-    roi = image[y_min:y_max, x_min:x_max]
-    
-    if roi.size == 0:
-        return 0.0
-    
-    # Convert to grayscale if necessary
-    if len(roi.shape) == 3:
-        roi_gray = cv2.cvtColor(roi, cv2.COLOR_RGB2GRAY)
+    if flanker_region.ndim == 3:
+        # Convert to grayscale if needed
+        if flanker_region.shape[2] == 3:
+            gray = np.dot(flanker_region[..., :3], [0.2989, 0.5870, 0.1140])
+        else:
+            gray = flanker_region[..., 0]
     else:
-        roi_gray = roi.astype(np.float32)
+        gray = flanker_region
     
-    # Apply 2D FFT
-    fft_result = np.fft.fft2(roi_gray)
+    # Ensure float for calculations
+    gray = gray.astype(np.float32)
+    
+    # Normalize to 0-1
+    gray = gray / 255.0
+    
+    # Compute 2D FFT
+    fft_result = np.fft.fft2(gray)
     fft_shift = np.fft.fftshift(fft_result)
     
     # Compute magnitude spectrum
-    magnitude_spectrum = np.abs(fft_shift)
+    magnitude = np.abs(fft_shift)
     
     # Compute energy (sum of squared magnitudes)
-    energy = np.sum(magnitude_spectrum ** 2)
+    energy = np.sum(magnitude ** 2)
     
-    return float(energy)
-
-def determine_flanker_region(image_shape: tuple, eccentricity: float, flanker_count: int) -> tuple:
-    """
-    Determine the bounding box for the flanker region based on stimulus parameters.
+    # Normalize by number of pixels
+    h, w = gray.shape
+    normalized_energy = energy / (h * w)
     
-    This is a heuristic approximation since we don't have the exact geometric
-    construction parameters stored. We assume flankers are arranged in a ring
-    around the central target at a distance defined by eccentricity.
-    
-    Args:
-        image_shape: Tuple (height, width, channels) of the full image.
-        eccentricity: Eccentricity value (visual angle or relative distance).
-        flanker_count: Number of flankers.
-    
-    Returns:
-        Tuple (y_min, y_max, x_min, x_max) for the flanker region ROI.
-    """
-    h, w = image_shape[:2]
-    center_y, center_x = h // 2, w // 2
-    
-    # Normalize eccentricity to pixels (assuming max eccentricity ~10% of image dimension)
-    # This is an approximation; in a real implementation, we'd use the exact construction params
-    max_dim = max(h, w)
-    eccentricity_pixels = (eccentricity / 100.0) * (max_dim / 2) if eccentricity > 1.0 else eccentricity * (max_dim / 2)
-    
-    # Define a ring region around the center
-    # The flanker region is the area where flankers are placed
-    # We'll define a bounding box that encompasses the expected flanker positions
-    ring_radius = eccentricity_pixels
-    flanker_size_estimate = 20  # Approximate flanker size in pixels
-    
-    y_min = max(0, int(center_y - ring_radius - flanker_size_estimate))
-    y_max = min(h, int(center_y + ring_radius + flanker_size_estimate))
-    x_min = max(0, int(center_x - ring_radius - flanker_size_estimate))
-    x_max = min(w, int(center_x + ring_radius + flanker_size_estimate))
-    
-    return (y_min, y_max, x_min, x_max)
+    return float(normalized_energy)
 
 def process_stimulus_image(image_path: Path, manifest_entry: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Compute clutter metrics for a single stimulus image.
+    Process a single stimulus image and compute clutter metrics.
     
     Args:
-        image_path: Path to the stimulus image file.
-        manifest_entry: Dictionary containing stimulus metadata.
+        image_path: Path to the stimulus image
+        manifest_entry: Entry from the stimuli manifest containing metadata
     
     Returns:
-        Dictionary with computed metrics.
+        Dictionary containing image path and computed metrics
     """
     try:
-        # Load image
-        img = Image.open(str(image_path))
-        img_array = np.array(img)
-        
-        # Extract parameters from manifest
-        eccentricity = float(manifest_entry.get('eccentricity', 0))
-        flanker_count = int(manifest_entry.get('flanker_count', 0))
-        
-        # Determine flanker region
-        flanker_region = determine_flanker_region(img_array.shape, eccentricity, flanker_count)
-        
-        # Compute metrics
-        local_contrast_var = compute_local_contrast_variance(img_array, flanker_region)
-        spatial_freq_energy = compute_spatial_frequency_energy(img_array, flanker_region)
-        
-        return {
-            'file_path': str(image_path),
-            'local_contrast_variance': local_contrast_var,
-            'spatial_frequency_energy': spatial_freq_energy,
-            'flanker_count': flanker_count,
-            'eccentricity': eccentricity,
-            'status': 'success'
-        }
-        
+        from PIL import Image
+        image = np.array(Image.open(image_path))
     except Exception as e:
-        logger.error(f"Error processing {image_path}: {str(e)}")
-        return {
-            'file_path': str(image_path),
-            'local_contrast_variance': None,
-            'spatial_frequency_energy': None,
-            'flanker_count': manifest_entry.get('flanker_count', 0),
-            'eccentricity': manifest_entry.get('eccentricity', 0),
-            'status': 'error',
-            'error_message': str(e)
-        }
+        logger.error(f"Failed to load image {image_path}: {e}")
+        return None
+    
+    # Extract metadata from manifest entry
+    flanker_count = manifest_entry.get('flanker_count', 0)
+    eccentricity = manifest_entry.get('eccentricity', 0.0)
+    
+    # Determine flanker region
+    flanker_region, region_metadata = determine_flanker_region(image, flanker_count, eccentricity)
+    
+    # Compute metrics
+    local_contrast_variance = compute_local_contrast_variance(flanker_region)
+    spatial_frequency_energy = compute_spatial_frequency_energy(flanker_region)
+    
+    result = {
+        'image_path': str(image_path),
+        'emotion': manifest_entry.get('emotion', 'unknown'),
+        'flanker_count': flanker_count,
+        'eccentricity': eccentricity,
+        'local_contrast_variance': local_contrast_variance,
+        'spatial_frequency_energy': spatial_frequency_energy,
+        'region_metadata': region_metadata,
+        'status': 'success'
+    }
+    
+    return result
 
-def compute_clutter_metrics(manifest_path: Path, stimuli_dir: Path, output_path: Path, chunk_size: int = 100):
+def compute_clutter_metrics(sample_size: Optional[int] = None) -> List[Dict[str, Any]]:
     """
     Compute clutter metrics for all stimuli in the manifest.
     
-    Implements chunked processing to manage memory usage.
-    
     Args:
-        manifest_path: Path to stimuli_manifest.json.
-        stimuli_dir: Directory containing stimulus images.
-        output_path: Path for the output CSV file.
-        chunk_size: Number of images to process per chunk.
+        sample_size: Optional number of stimuli to process (for sampling fallback)
+    
+    Returns:
+        List of dictionaries containing image paths and computed metrics
     """
-    # Load manifest
-    logger.info(f"Loading manifest from {manifest_path}")
-    manifest = load_manifest(manifest_path)
+    if not MANIFEST_PATH.exists():
+        raise FileNotFoundError(f"Manifest file not found: {MANIFEST_PATH}")
     
-    if not manifest or 'stimuli' not in manifest:
-        logger.error("Invalid manifest format or empty stimuli list")
-        return
+    with open(MANIFEST_PATH, 'r') as f:
+        manifest = json.load(f)
     
-    stimuli_list = manifest['stimuli']
-    total_items = len(stimuli_list)
-    logger.info(f"Processing {total_items} stimuli")
+    stimuli_files = [entry for entry in manifest if entry.get('status') == 'success']
+    
+    if sample_size is not None and sample_size < len(stimuli_files):
+        logger.info(f"Using sampling fallback: processing {sample_size} of {len(stimuli_files)} stimuli")
+        import random
+        random.seed(42)  # For reproducibility
+        stimuli_files = random.sample(stimuli_files, sample_size)
     
     results = []
+    estimated_memory_per_item = 0.01  # Estimated MB per item (rough estimate)
+    current_memory_usage = 0.0
     
-    # Process in chunks to manage memory
-    for i in range(0, total_items, chunk_size):
-        chunk = stimuli_list[i:i + chunk_size]
-        logger.info(f"Processing chunk {i//chunk_size + 1}: items {i} to {min(i + chunk_size - 1, total_items - 1)}")
+    for i, entry in enumerate(stimuli_files):
+        image_path = STIMULI_DIR / entry['file_path']
         
-        for entry in chunk:
-            # Construct image path
-            filename = entry.get('file_path', '')
-            if not filename:
-                # Try to reconstruct from other fields if file_path is missing
-                emotion = entry.get('emotion', 'unknown')
-                flanker_count = entry.get('flanker_count', 0)
-                eccentricity = entry.get('eccentricity', 0)
-                filename = f"stimulus_emotion_{emotion}_flankers_{flanker_count}_ecc_{eccentricity}.png"
+        if not image_path.exists():
+            logger.warning(f"Image not found: {image_path}")
+            results.append({
+                'image_path': str(image_path),
+                'emotion': entry.get('emotion', 'unknown'),
+                'flanker_count': entry.get('flanker_count', 0),
+                'eccentricity': entry.get('eccentricity', 0.0),
+                'status': 'error',
+                'error': 'Image not found'
+            })
+            continue
+        
+        # Check memory usage
+        current_memory_usage += estimated_memory_per_item
+        available_memory = get_available_memory_gb() * 1024  # Convert to MB
+        
+        # If memory usage exceeds threshold, switch to sampling fallback
+        if current_memory_usage > (available_memory * MEMORY_SAFETY_FACTOR):
+            logger.warning(f"Memory threshold exceeded ({current_memory_usage:.2f}MB > {available_memory * MEMORY_SAFETY_FACTOR:.2f}MB)")
+            logger.info("Switching to sampling fallback mechanism")
             
-            image_path = stimuli_dir / filename
-            
-            if not image_path.exists():
-                logger.warning(f"Image not found: {image_path}")
-                results.append({
-                    'file_path': str(image_path),
-                    'local_contrast_variance': None,
-                    'spatial_frequency_energy': None,
-                    'flanker_count': entry.get('flanker_count', 0),
-                    'eccentricity': entry.get('eccentricity', 0),
-                    'status': 'missing_image',
-                    'error_message': 'Image file not found'
-                })
-                continue
-            
-            # Process image
-            result = process_stimulus_image(image_path, entry)
+            # Calculate remaining items to process with sampling
+            remaining_items = len(stimuli_files) - i
+            if remaining_items > SAMPLE_SIZE_THRESHOLD:
+                # Sample a subset of remaining items
+                sample_count = min(SAMPLE_SIZE_THRESHOLD, remaining_items)
+                remaining_files = stimuli_files[i:]
+                import random
+                random.seed(42)
+                sampled_files = random.sample(remaining_files, sample_count)
+                
+                # Process sampled files
+                for sampled_entry in sampled_files:
+                    sampled_path = STIMULI_DIR / sampled_entry['file_path']
+                    if sampled_path.exists():
+                        result = process_stimulus_image(sampled_path, sampled_entry)
+                        if result:
+                            results.append(result)
+                    else:
+                        results.append({
+                            'image_path': str(sampled_path),
+                            'emotion': sampled_entry.get('emotion', 'unknown'),
+                            'flanker_count': sampled_entry.get('flanker_count', 0),
+                            'eccentricity': sampled_entry.get('eccentricity', 0.0),
+                            'status': 'error',
+                            'error': 'Image not found'
+                        })
+            else:
+                # Process all remaining items (not enough to justify sampling)
+                for remaining_entry in stimuli_files[i:]:
+                    remaining_path = STIMULI_DIR / remaining_entry['file_path']
+                    if remaining_path.exists():
+                        result = process_stimulus_image(remaining_path, remaining_entry)
+                        if result:
+                            results.append(result)
+                    else:
+                        results.append({
+                            'image_path': str(remaining_path),
+                            'emotion': remaining_entry.get('emotion', 'unknown'),
+                            'flanker_count': remaining_entry.get('flanker_count', 0),
+                            'eccentricity': remaining_entry.get('eccentricity', 0.0),
+                            'status': 'error',
+                            'error': 'Image not found'
+                        })
+            break
+        
+        # Process current item
+        result = process_stimulus_image(image_path, entry)
+        if result:
             results.append(result)
+        else:
+            results.append({
+                'image_path': str(image_path),
+                'emotion': entry.get('emotion', 'unknown'),
+                'flanker_count': entry.get('flanker_count', 0),
+                'eccentricity': entry.get('eccentricity', 0.0),
+                'status': 'error',
+                'error': 'Processing failed'
+            })
         
-        # Optional: Force garbage collection between chunks
-        if i + chunk_size < total_items:
-            import gc
-            gc.collect()
+        # Log progress
+        if (i + 1) % 10 == 0:
+            logger.info(f"Processed {i + 1}/{len(stimuli_files)} stimuli")
     
-    # Write results to CSV
-    logger.info(f"Writing results to {output_path}")
+    return results
+
+def save_metrics_to_csv(results: List[Dict[str, Any]]) -> None:
+    """
+    Save computed metrics to a CSV file.
     
-    # Prepare CSV data
-    csv_headers = ['file_path', 'local_contrast_variance', 'spatial_frequency_energy', 
-                  'flanker_count', 'eccentricity', 'status', 'error_message']
+    Args:
+        results: List of dictionaries containing metrics
+    """
+    import csv
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(','.join(csv_headers) + '\n')
+    if not results:
+        logger.warning("No results to save")
+        return
+    
+    # Ensure output directory exists
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(OUTPUT_PATH, 'w', newline='') as csvfile:
+        fieldnames = ['image_path', 'emotion', 'flanker_count', 'eccentricity', 
+                     'local_contrast_variance', 'spatial_frequency_energy', 'status']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
-        for res in results:
-            row = [
-                res['file_path'],
-                str(res['local_contrast_variance']) if res['local_contrast_variance'] is not None else '',
-                str(res['spatial_frequency_energy']) if res['spatial_frequency_energy'] is not None else '',
-                str(res['flanker_count']),
-                str(res['eccentricity']),
-                res['status'],
-                res.get('error_message', '')
-            ]
-            # Escape commas in file paths
-            row = [f'"{val}"' if ',' in val else val for val in row]
-            f.write(','.join(row) + '\n')
+        writer.writeheader()
+        for result in results:
+            row = {key: result.get(key, '') for key in fieldnames}
+            writer.writerow(row)
     
-    # Log summary
-    success_count = sum(1 for r in results if r['status'] == 'success')
-    error_count = sum(1 for r in results if r['status'] != 'success')
-    logger.info(f"Completed: {success_count} successful, {error_count} errors")
+    logger.info(f"Saved metrics to {OUTPUT_PATH}")
+
+def generate_validation_report(results: List[Dict[str, Any]]) -> None:
+    """
+    Generate a validation report checking correlation between clutter metrics and flanker count.
+    
+    Args:
+        results: List of dictionaries containing metrics
+    """
+    import scipy.stats as stats
+    
+    # Filter successful results
+    successful_results = [r for r in results if r.get('status') == 'success']
+    
+    if not successful_results:
+        report = {
+            'status': 'error',
+            'message': 'No successful results to validate'
+        }
+    else:
+        # Extract data for correlation analysis
+        flanker_counts = [r['flanker_count'] for r in successful_results]
+        spatial_frequencies = [r['spatial_frequency_energy'] for r in successful_results]
+        
+        # Compute correlation
+        correlation, p_value = stats.pearsonr(flanker_counts, spatial_frequencies)
+        
+        report = {
+            'status': 'success',
+            'total_stimuli_processed': len(successful_results),
+            'correlation_analysis': {
+                'metric': 'spatial_frequency_energy vs flanker_count',
+                'correlation_coefficient': float(correlation),
+                'p_value': float(p_value),
+                'significant_at_0.05': p_value < 0.05
+            },
+            'local_contrast_variance_stats': {
+                'mean': float(np.mean([r['local_contrast_variance'] for r in successful_results])),
+                'std': float(np.std([r['local_contrast_variance'] for r in successful_results])),
+                'min': float(np.min([r['local_contrast_variance'] for r in successful_results])),
+                'max': float(np.max([r['local_contrast_variance'] for r in successful_results]))
+            },
+            'spatial_frequency_energy_stats': {
+                'mean': float(np.mean([r['spatial_frequency_energy'] for r in successful_results])),
+                'std': float(np.std([r['spatial_frequency_energy'] for r in successful_results])),
+                'min': float(np.min([r['spatial_frequency_energy'] for r in successful_results])),
+                'max': float(np.max([r['spatial_frequency_energy'] for r in successful_results]))
+            }
+        }
+    
+    # Ensure output directory exists
+    VALIDATION_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(VALIDATION_REPORT_PATH, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Saved validation report to {VALIDATION_REPORT_PATH}")
 
 def main():
     """Main entry point for clutter metrics computation."""
-    # Set seed for reproducibility
-    set_all_seeds(get_seed())
+    logger.info("Starting clutter metrics computation")
     
-    # Ensure directories exist
-    ensure_directories()
-    
-    # Define paths
-    project_root = Path(__file__).parent.parent.parent
-    manifest_path = project_root / 'data' / 'interim' / 'stimuli_manifest.json'
-    stimuli_dir = project_root / 'data' / 'interim' / 'stimuli'
-    output_path = project_root / 'data' / 'processed' / 'clutter_metrics.csv'
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Check if manifest exists
-    if not manifest_path.exists():
-        logger.error(f"Manifest not found: {manifest_path}")
+    try:
+        # Compute metrics with automatic sampling fallback if needed
+        results = compute_clutter_metrics()
+        
+        if not results:
+            logger.error("No results generated")
+            sys.exit(1)
+        
+        # Save results to CSV
+        save_metrics_to_csv(results)
+        
+        # Generate validation report
+        generate_validation_report(results)
+        
+        logger.info("Clutter metrics computation completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Error during clutter metrics computation: {e}", exc_info=True)
         sys.exit(1)
-    
-    # Check if stimuli directory exists
-    if not stimuli_dir.exists():
-        logger.error(f"Stimuli directory not found: {stimuli_dir}")
-        sys.exit(1)
-    
-    # Run computation
-    compute_clutter_metrics(manifest_path, stimuli_dir, output_path)
-    
-    logger.info("Clutter metrics computation completed successfully")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,1 +1,3 @@
-"""Unit tests for individual components."""
+"""
+Unit tests for core logic and services.
+"""

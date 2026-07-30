@@ -1,24 +1,22 @@
-# Ruff configuration for llmXive project
-# This file is an alias for pyproject.toml settings but allows specific overrides
-# if needed. Currently, we rely on pyproject.toml for the main configuration.
+# Ruff configuration file (alternative to pyproject.toml)
+# This file ensures ruff is explicitly configured even if pyproject.toml is ignored by some tools.
+line-length = 88
+target-version = "py311"
 
-extend = "pyproject.toml"
-
-# Specific overrides if necessary
-[lint]
-# Ensure we catch unused imports and variables
-select = ["ALL"]
-ignore = [
-    "D100", # Missing docstring in public module
-    "D104", # Missing docstring in public package
-    "D107", # Missing docstring in __init__
-    "ANN",  # flake8-annotations (optional for research code)
-    "S101", # Use of assert (allowed in tests)
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
 ]
 
-[format]
-# Black-compatible formatting
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[per-file-ignores]
+"tests/*" = ["S101"] # allow asserts in tests

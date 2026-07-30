@@ -14,6 +14,13 @@ T003:
     `.ruff.toml`, or Black settings). There is no evidence that ruff and black have
     been installed, configured, or integrated into the project, so the task requirement
     is unmet.
+T006:
+  c: false
+  h: b45288d8fec59fa6581253c11f9289eaf489f19941d7e1261f0a619e10b2b939
+  r: "The required file `src/lib/tool_mapper.py` does not exist, so the functionality\
+    \ to load the JSON, extract per\u2011problem `tool_descriptions`, and raise `ERR_TOOL_MAPPING_MISSING`\
+    \ cannot be verified. The missing artifact must be added and contain the described\
+    \ logic."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,3 +53,19 @@ T018:
     \ script, or test) that checks RAM usage, enforces the \u2264\u202F7\u202FGB limit,\
     \ or performs automatic down\u2011sampling when the limit is exceeded, so the\
     \ task is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation was provided showing that a sample\u2011size\
+    \ check (N\u202F\u2265\u202F30) was added to the correlation routine, nor that\
+    \ the system raises a \u201CStatistical Power Insufficient\u201D error when N\u202F\
+    <\u202F30. The required artifact (implementation and/or test confirming this behavior)\
+    \ is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation was provided that adds the required\
+    \ logic to detect and flag a \u201CSignificant Negative Correlation\u201D when\u202F\
+    p\u202F<\u202F0.05 and the correlation coefficient is negative. The claim lacks\
+    \ any concrete artifact (e.g., a function, module, or output file) demonstrating\
+    \ the implementation, so the task is not satisfied."

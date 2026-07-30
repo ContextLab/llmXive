@@ -1,9 +1,6 @@
 """
-Data Integrity Module for llmXive Project PROJ-263.
-
-Implements checksum generation for raw data upon creation (Per Principle III).
-Ensures data integrity by computing SHA-256 hashes of files in data/raw/
-and storing them in data/processed/checksums.json.
+Data Integrity Module for Project PROJ-263
+Implements checksum generation and verification for raw data (Principle III).
 """
 import os
 import json
@@ -12,163 +9,185 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 import logging
 
-# Import project configuration
-from config import get_data_dir, get_output_dir, load_config
-
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
-
 
 def compute_file_sha256(file_path: Path) -> str:
     """
-    Compute SHA-256 checksum for a single file.
-
+    Compute the SHA-256 checksum of a file.
+    
     Args:
         file_path: Path to the file to hash.
-
+        
     Returns:
         Hexadecimal string of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
     """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files without memory issues
+            # Read in chunks to handle large files efficiently
             for chunk in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Failed to compute hash for {file_path}: {e}")
+    except IOError as e:
+        logger.error(f"IO Error reading {file_path}: {e}")
         raise
 
-
-def generate_checksums_for_raw_data() -> Dict[str, Any]:
+def generate_checksums_for_raw_data(raw_data_dir: Path) -> Dict[str, str]:
     """
-    Scan data/raw/ directory, compute SHA-256 checksums for all files,
-    and return a structured record.
-
+    Generate checksums for all files in the raw data directory.
+    
+    Args:
+        raw_data_dir: Path to the directory containing raw data files.
+        
     Returns:
-        Dictionary containing metadata and checksums for all raw data files.
+        Dictionary mapping relative file paths to their SHA-256 checksums.
+        
+    Raises:
+        FileNotFoundError: If the directory does not exist.
     """
-    raw_dir = get_data_dir() / "raw"
-    processed_dir = get_data_dir() / "processed"
+    if not raw_data_dir.exists():
+        raise FileNotFoundError(f"Raw data directory not found: {raw_data_dir}")
+    
+    if not raw_data_dir.is_dir():
+        raise NotADirectoryError(f"Path is not a directory: {raw_data_dir}")
+    
+    checksums = {}
+    file_count = 0
+    
+    for file_path in raw_data_dir.rglob("*"):
+        if file_path.is_file():
+            # Use relative path from raw_data_dir for portability
+            relative_path = str(file_path.relative_to(raw_data_dir))
+            try:
+                checksum = compute_file_sha256(file_path)
+                checksums[relative_path] = checksum
+                file_count += 1
+                logger.info(f"Computed checksum for: {relative_path}")
+            except Exception as e:
+                logger.error(f"Failed to compute checksum for {relative_path}: {e}")
+    
+    logger.info(f"Generated checksums for {file_count} files.")
+    return checksums
 
-    if not raw_dir.exists():
-        logger.warning(f"Raw data directory {raw_dir} does not exist. Nothing to checksum.")
-        return {"status": "skipped", "reason": "raw_dir_missing", "files": []}
-
-    if not processed_dir.exists():
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created processed directory: {processed_dir}")
-
-    checksums_record: Dict[str, Any] = {
-        "version": "1.0",
+def save_checksums(checksums: Dict[str, str], output_path: Path) -> None:
+    """
+    Save checksums to a JSON file.
+    
+    Args:
+        checksums: Dictionary of file paths to checksums.
+        output_path: Path where the JSON file will be saved.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    metadata = {
         "algorithm": "sha256",
         "generated_at": None,  # Will be set by caller if needed
-        "source_directory": str(raw_dir),
-        "files": []
+        "checksums": checksums
     }
-
-    file_count = 0
-    for file_path in sorted(raw_dir.iterdir()):
-        if file_path.is_file():
-            file_checksum = compute_file_sha256(file_path)
-            record_entry = {
-                "filename": file_path.name,
-                "relative_path": str(file_path.relative_to(raw_dir)),
-                "size_bytes": file_path.stat().st_size,
-                "checksum": file_checksum
-            }
-            checksums_record["files"].append(record_entry)
-            file_count += 1
-            logger.info(f"Checksummed: {file_path.name} -> {file_checksum[:16]}...")
-
-    checksums_record["total_files"] = file_count
-    return checksums_record
-
-
-def save_checksums(checksums_record: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
-    """
-    Save the checksums record to a JSON file.
-
-    Args:
-        checksums_record: The dictionary containing checksum data.
-        output_path: Optional specific path to save to. Defaults to data/processed/checksums.json.
-
-    Returns:
-        Path to the saved file.
-    """
-    if output_path is None:
-        output_path = get_data_dir() / "processed" / "checksums.json"
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(checksums_record, f, indent=2)
-
+        json.dump(metadata, f, indent=2)
+    
     logger.info(f"Checksums saved to: {output_path}")
-    return output_path
 
-
-def verify_checksums() -> bool:
+def verify_checksums(raw_data_dir: Path, checksums_path: Path) -> Dict[str, bool]:
     """
-    Verify existing checksums against current files in data/raw/.
-
+    Verify file integrity against stored checksums.
+    
+    Args:
+        raw_data_dir: Path to the raw data directory.
+        checksums_path: Path to the JSON file containing checksums.
+        
     Returns:
-        True if all files match their recorded checksums, False otherwise.
+        Dictionary mapping file paths to verification status (True/False).
     """
-    checksums_path = get_data_dir() / "processed" / "checksums.json"
-
     if not checksums_path.exists():
-        logger.warning(f"Checksum file {checksums_path} not found. Cannot verify.")
-        return False
-
+        raise FileNotFoundError(f"Checksums file not found: {checksums_path}")
+    
     with open(checksums_path, "r", encoding="utf-8") as f:
-        record = json.load(f)
-
-    if not record.get("files"):
-        logger.warning("No files recorded in checksum file.")
-        return False
-
-    raw_dir = get_data_dir() / "raw"
-    all_valid = True
-
-    for file_entry in record["files"]:
-        file_path = raw_dir / file_entry["relative_path"]
+        stored_data = json.load(f)
+    
+    stored_checksums = stored_data.get("checksums", {})
+    results = {}
+    
+    for relative_path, expected_checksum in stored_checksums.items():
+        file_path = raw_data_dir / relative_path
         if not file_path.exists():
-            logger.error(f"File missing: {file_path}")
-            all_valid = False
+            results[relative_path] = False
+            logger.warning(f"File missing during verification: {relative_path}")
             continue
-
-        current_hash = compute_file_sha256(file_path)
-        recorded_hash = file_entry["checksum"]
-
-        if current_hash != recorded_hash:
-            logger.error(f"Checksum mismatch for {file_path.name}: "
-                         f"expected {recorded_hash[:16]}..., got {current_hash[:16]}...")
-            all_valid = False
-        else:
-            logger.debug(f"Verified: {file_path.name}")
-
-    return all_valid
-
+        
+        try:
+            actual_checksum = compute_file_sha256(file_path)
+            is_valid = actual_checksum == expected_checksum
+            results[relative_path] = is_valid
+            status = "VALID" if is_valid else "INVALID"
+            logger.info(f"Verification {status}: {relative_path}")
+        except Exception as e:
+            results[relative_path] = False
+            logger.error(f"Verification failed for {relative_path}: {e}")
+    
+    return results
 
 def main():
     """
-    Entry point for generating checksums for raw data.
+    Main entry point for checksum generation and verification workflow.
+    Expects environment variables or defaults to standard paths.
     """
-    logger.info("Starting checksum generation for raw data...")
-    record = generate_checksums_for_raw_data()
+    # Default paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    raw_data_dir = project_root / "data" / "raw"
+    checksums_output_path = project_root / "data" / "processed" / "data_checksums.json"
     
-    if record.get("total_files", 0) > 0:
-        output_path = save_checksums(record)
-        logger.info(f"Successfully processed {record['total_files']} files.")
-        logger.info(f"Output written to: {output_path}")
-    else:
-        logger.info("No files found to checksum.")
+    # Allow override via command line args (simple implementation)
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate or verify data checksums.")
+    parser.add_argument("--verify", action="store_true", help="Verify checksums instead of generating")
+    parser.add_argument("--raw-dir", type=str, help="Path to raw data directory")
+    parser.add_argument("--checksums-file", type=str, help="Path to checksums file (for verification)")
+    args = parser.parse_args()
     
-    return record
-
+    if args.raw_dir:
+        raw_data_dir = Path(args.raw_dir)
+    if args.checksums_file:
+        checksums_output_path = Path(args.checksums_file)
+    
+    try:
+        if args.verify:
+            logger.info("Starting checksum verification...")
+            results = verify_checksums(raw_data_dir, checksums_output_path)
+            all_valid = all(results.values())
+            if all_valid:
+                logger.info("All checksums verified successfully.")
+                return 0
+            else:
+                logger.error("Checksum verification failed for some files.")
+                return 1
+        else:
+            logger.info("Starting checksum generation for raw data...")
+            checksums = generate_checksums_for_raw_data(raw_data_dir)
+            if not checksums:
+                logger.warning("No files found to checksum in the raw data directory.")
+                return 0
+            save_checksums(checksums, checksums_output_path)
+            logger.info("Checksum generation completed successfully.")
+            return 0
+    except Exception as e:
+        logger.error(f"Workflow failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

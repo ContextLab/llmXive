@@ -1,18 +1,20 @@
-# Existing dependencies
-numpy
-pandas
-pillow
-torch
-torchvision
-transformers
-huggingface_hub
-scikit-learn
-scipy
-matplotlib
-seaborn
-pyyaml
-pytest
-pytest-cov
+# Core dependencies
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
+scikit-learn>=1.0.0
+matplotlib>=3.4.0
+seaborn>=0.11.0
+pyyaml>=5.4.0
+pillow>=8.0.0
+opencv-python-headless>=4.5.0
 
-# New dependencies (if any)
-# None added for T014 (uses standard library and existing deps)
+# HuggingFace datasets for RAVDESS
+datasets>=2.0.0
+
+# Statistical modeling
+statsmodels>=0.13.0
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=3.0.0

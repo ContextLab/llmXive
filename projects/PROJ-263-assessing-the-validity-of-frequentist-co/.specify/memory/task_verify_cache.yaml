@@ -1,0 +1,39 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or code were provided that set up environment
+    management, load random seeds, or define config paths. The claim lacks any tangible
+    artifact demonstrating that these requirements have been implemented.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence only describes a Monte\u202FCarlo simulation feature for\
+    \ confidence\u2011interval coverage; there is no code, configuration, or documentation\
+    \ showing deterministic random\u2011seed handling across the project\u2019s modules.\
+    \ The required seed\u2011management implementation is missing."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation for generating checksums on raw data creation
+    was provided; the only artifacts described relate to Monte Carlo simulation of
+    confidence intervals, which do not address the checksum requirement. The task
+    T011 remains unimplemented.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No schema files were presented for `data-models/schemas/`, and there is no evidence
+    that definitions for SimulationRun, CoverageRecord, or AggregateReport exist or
+    contain any fields. The required artifacts are missing, so the task is not satisfied.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a downloader script, nor any files in `data/raw/` for the five
+    required UCI datasets, is provided. The implementer has not supplied the code
+    that fetches the real numeric datasets or the resulting saved files, so the task
+    is not satisfied.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation for a data\u2011loader that parses downloaded\
+    \ UCI datasets and detects continuous numeric variables was supplied. The artifact\
+    \ required by task T017 is missing, so the requirement is not satisfied."

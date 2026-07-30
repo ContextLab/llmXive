@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 
 # Default RAVDESS configuration (resolved in T011a)
+# Verified canonical URL via HuggingFace API query in code/utils/verify_ravdess.py
 RAVDESS_DEFAULT_URL = "parlance/RAVDESS"
 RAVDESS_DATASET_NAME = "parlance/RAVDESS"
 

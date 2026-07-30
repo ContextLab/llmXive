@@ -89,8 +89,8 @@
 - [ ] T014 [US1] Implement `src/services/retrieval_service.py`: Build BM25 index from tool descriptions **using the loaded data from T006 (`src/lib/tool_mapper.py`)**, retrieve top-ranked, handle empty results (FR-002, FR-009)
 - [ ] T015 [US1] Implement `src/models/divergence_model.py`: Load DistilBERT, encode thinking prefix, calculate cosine similarity (FR-003, FR-004) <!-- FAILED: unspecified -->
 - [ ] T015-compute-centroid [US1] Implement logic to embed the retrieved tool descriptions (from T014) and compute the centroid vector using the SAME encoder as the thinking prefix; consume `retrieved_tool_descriptions` from T014 (FR-003)
-- [ ] T016-limit [US1] Implement logic in `src/lib/data_loader.py` or `src/cli/run_diagnostic.py` to limit the dataset to 500 records if the source contains more, as required by FR-001 (FR-001)
-- [ ] T016 [US1] Implement `src/cli/run_diagnostic.py` entry point: Orchestrate loading, retrieval, and scoring for the full dataset (FR-001)
+- [ ] T016-limit [US1] Implement logic in `src/lib/data_loader.py` or `src/cli/run_diagnostic.py` to limit the dataset to 500 records if the source contains more, as required by FR-001 (FR-001) <!-- ATOMIZE: requested -->
+- [ ] T016 [US1] Implement `src/cli/run_diagnostic.py` entry point: Orchestrate loading, retrieval, and scoring for the full dataset (FR-001) <!-- FAILED: unspecified -->
 - [ ] T017-n-check [US1] Add error handling for missing "thinking" prefix (skip record, log error code `ERR_MISSING_THINKING`) and enforce N ≥ 30 check with specific error message "Insufficient Sample Size for Power Analysis" raising a specific exception to halt execution (FR-010)
 - [ ] T018 [US1] Add logging for retrieval stats (number of tools retrieved per problem) and embedding dimensions
 
@@ -112,7 +112,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Extend `src/lib/simulation_runner.py` (referencing **T008-impl-axpo**) to generate or load `simulated_failure_rate` for the subset by calling `axpo_simulator.run()` or loading from `results/cached_simulations.json` using the **defined schema from T008-impl-schema** (FR-008, US-2) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T022 [P] [US2] Extend `src/lib/simulation_runner.py` (referencing **T008-impl-axpo**) to generate or load `simulated_failure_rate` for the subset by calling `axpo_simulator.run()` or loading from `results/cached_simulations.json` using the **defined schema from T008-impl-schema** (FR-008, US-2) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T023 [US2] Implement `src/services/analysis_service.py`: Merge divergence scores with failure rates, perform Pearson correlation test (FR-005)
 - [ ] T024 [US2] Add logic to check sample size N ≥ 30 before correlation; raise "Statistical Power Insufficient" if N < 30 (FR-010)
 - [ ] T025 [US2] Add logic to flag "Significant Negative Correlation" if p < 0.05 and correlation < 0 (SC-001)

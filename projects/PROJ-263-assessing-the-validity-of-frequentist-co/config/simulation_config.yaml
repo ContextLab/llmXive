@@ -1,0 +1,34 @@
+simulation:
+  random_seed: 42
+  confidence_levels:
+  - 0.9
+  - 0.95
+  - 0.99
+  sample_sizes:
+  - 10
+  - 20
+  - 30
+  n_replications: 1000
+  bootstrap_resamples: 1000
+datasets:
+  source_urls:
+    wine: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
+    wine_quality_red: https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv
+    wine_quality_white: https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv
+    ionosphere: https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data
+    heart_cleveland: https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data
+  variable_names:
+    wine: class,alcohol,mallic_acid,ash,alcalinity_of_ash,magnesium,total_phenols,flavanoids,nonflavanoid_phenols,proanthocyanins,color_intensity,hue,OD280/OD315_of_diluted_wines,proline
+    wine_quality_red: fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality
+    wine_quality_white: fixed acidity,volatile acidity,citric acid,residual sugar,chlorides,free sulfur dioxide,total sulfur dioxide,density,pH,sulphates,alcohol,quality
+    ionosphere: radar_returns
+    heart_cleveland: age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal
+paths:
+  data_dir: data
+  output_dir: outputs
+  raw_data_dir: data/raw
+  processed_data_dir: data/processed
+  figures_dir: figures
+logging:
+  level: INFO
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
