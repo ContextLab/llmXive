@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-990-llmxive-follow-up-extending-agenticsts-a",
-  "stage": "clarified",
-  "class": "permanent",
-  "fingerprint": "unreachable_reference",
-  "consecutive_count": 0,
-  "first_seen": "2026-07-12T00:19:28.005919+00:00",
-  "last_seen": "2026-07-20T12:09:11.216515+00:00",
-  "retry_after": null,
-  "last_error": "research.md reference is unreachable: 'https://huggingface.co/datasets/agentic-sts/trajectories-v1' (HTTP 401). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "evidence": "research.md reference is unreachable: 'https://huggingface.co/datasets/agentic-sts/trajectories-v1' (HTTP 401). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
-  "status": "cleared"
+  "stage": "planned",
+  "class": "transient",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-30T17:40:16.935912+00:00",
+  "last_seen": "2026-07-30T17:40:16.935912+00:00",
+  "retry_after": "2026-07-30T17:50:16.935912+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: no available server | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: no available server | local: transformers is not installed; required by local backend",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
 }
