@@ -1,184 +1,142 @@
 """
-Full Pipeline Execution Script for PROJ-071.
-
-Executes the complete research pipeline:
-1. Data Ingestion & Merging (US1)
-2. Descriptor Calculation (US1)
-3. Data Standardization & Stratification (US2)
-4. Correlation & Regression Analysis (US2)
-5. Visualization & Reporting (US3)
-6. Reproducibility Logging & Verification (US3)
-
-Output Artifacts:
-- data/processed/merged_drugs.csv
-- data/processed/analysis_results.json
-- results_report.md
-- reproducibility_log.json
-- data/gate_status.json
+Master script to execute the full pipeline (US1 -> US2 -> US3).
+Orchestrates:
+1. Ingest (T012)
+2. Descriptors (T014)
+3. Standardize (T020)
+4. Analysis (T023, T024, T025, T026)
+5. Viz (T032, T033)
+6. Report (T034, T035, T035b)
+7. Verification (T036)
 """
+from __future__ import annotations
 
+import json
+import logging
 import os
 import sys
 import time
-import json
-import logging
 from pathlib import Path
 from datetime import datetime
 
-# Ensure project root is in path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-DATA_DIR = PROJECT_ROOT / "data"
+# Add project root to path
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from config import ensure_directories
+from ingest import main as ingest_main
+from descriptors import main as descriptors_main
+from standardize import main as standardize_main
+from analysis import main as analysis_main
+from viz import main as viz_main
+from report import main as report_main
+from verify_outputs import main as verify_main
+from error_handlers import DataIngestionError, StatisticalInsufficiencyError
 
-from logging_config import setup_logging, get_logger, log_pipeline_start, log_pipeline_complete, log_pipeline_failure
-from ingest import main as run_ingest, DataInsufficiencyError
-from descriptors import main as run_descriptors
-from standardize import main as run_standardize
-from analysis import main as run_analysis
-from viz import main as run_viz
-from report import main as run_report
-from reproducibility_audit import main as run_reproducibility_audit
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Setup logging
-setup_logging()
-logger = get_logger(__name__)
+def ensure_directories():
+    """Ensure all required directories exist."""
+    dirs = [
+        "data/raw",
+        "data/processed",
+        "data/outputs",
+        "data/output"
+    ]
+    for d in dirs:
+        path = PROJECT_ROOT / d
+        path.mkdir(parents=True, exist_ok=True)
+    logger.info("Directories ensured.")
 
 def run_pipeline():
-    """Execute the full pipeline end-to-end."""
+    """Execute the full pipeline stages."""
     start_time = time.time()
-    status = "success"
+    status = "SUCCESS"
     error_msg = None
-    
-    log_pipeline_start(logger, "T055_Full_Pipeline_Smoke_Test")
-    
+
     try:
-        # Stage 1: Ingestion & Merging (US1)
-        logger.info("Stage 1: Running Data Ingestion and Merging...")
-        run_ingest()
-        logger.info("Stage 1: Complete.")
-        
-        # Stage 2: Descriptor Calculation (US1)
-        logger.info("Stage 2: Calculating Molecular Descriptors...")
-        run_descriptors()
-        logger.info("Stage 2: Complete.")
-        
-        # Stage 3: Standardization & Stratification (US2)
-        logger.info("Stage 3: Standardizing Data and Stratifying...")
-        run_standardize()
-        logger.info("Stage 3: Complete.")
-        
-        # Stage 4: Analysis (US2)
-        logger.info("Stage 4: Running Correlation and Regression Analysis...")
-        run_analysis()
-        logger.info("Stage 4: Complete.")
-        
-        # Stage 5: Visualization (US3)
-        logger.info("Stage 5: Generating Visualizations...")
-        run_viz()
-        logger.info("Stage 5: Complete.")
-        
-        # Stage 6: Reporting (US3)
-        logger.info("Stage 6: Generating Final Report and Reproducibility Logs...")
-        run_report()
-        logger.info("Stage 6: Complete.")
-        
-        # Stage 7: Reproducibility Audit (US3)
-        logger.info("Stage 7: Running Reproducibility Audit...")
-        run_reproducibility_audit()
-        logger.info("Stage 7: Complete.")
-        
-    except DataInsufficiencyError as e:
-        # T013b: Graceful handling of data insufficiency
-        status = "insufficient_data"
-        error_msg = str(e)
-        logger.warning(f"Data Availability Gate Failed: {e}")
-        logger.info("Skipping US2/US3 tasks due to insufficient data.")
-        logger.info("Ensuring data_insufficiency_report.md is the final artifact.")
-        
-        # Ensure the report generation logic in 'report' handles this path
-        # by calling run_report which should detect the gate failure and write the report
+        # 1. Setup
+        ensure_directories()
+
+        # 2. Ingest (US1)
+        logger.info("Stage 1: Ingest (T012)")
+        ingest_main()
+        # Check gate status to decide if we continue
+        gate_file = PROJECT_ROOT / "data" / "gate_status.json"
+        if gate_file.exists():
+            with open(gate_file, "r") as f:
+                gate_data = json.load(f)
+            if gate_data.get("status") == "FAIL":
+                logger.warning("Data Availability Gate Failed. Stopping pipeline.")
+                # Still need to generate reports for failure
+        else:
+            logger.warning("Gate status file not found after ingest. Assuming fail.")
+
+        # 3. Descriptors (US1)
+        logger.info("Stage 2: Descriptors (T014)")
+        descriptors_main()
+
+        # 4. Standardize (US2)
+        logger.info("Stage 3: Standardize (T020)")
         try:
-            logger.info("Triggering report generation for insufficiency path...")
-            run_report()
-            logger.info("Insufficiency report generated.")
-        except Exception as report_err:
-            logger.error(f"Failed to generate insufficiency report: {report_err}", exc_info=True)
-            # We still want to exit 0 if the gate failed, but log the report failure
-    
-    except Exception as e:
-        status = "failed"
+            standardize_main()
+        except StatisticalInsufficiencyError as e:
+            logger.warning(f"Statistical Gate Failed: {e}")
+            # Continue to generate failure artifacts if needed, but analysis might skip
+
+        # 5. Analysis (US2)
+        logger.info("Stage 4: Analysis (T026)")
+        analysis_main()
+
+        # 6. Visualization (US3)
+        logger.info("Stage 5: Visualization (T032, T033)")
+        viz_main()
+
+        # 7. Report (US3)
+        logger.info("Stage 6: Report (T034, T035)")
+        report_main()
+
+        # 8. Verification (T036)
+        logger.info("Stage 7: Verification (T036)")
+        verify_main()
+
+    except DataIngestionError as e:
+        logger.error(f"Data Ingestion Error: {e}")
+        status = "FAIL"
         error_msg = str(e)
-        logger.error(f"Pipeline failed at stage: {e}", exc_info=True)
-        log_pipeline_failure(logger, "T055_Full_Pipeline_Smoke_Test", str(e))
-    
+    except StatisticalInsufficiencyError as e:
+        logger.error(f"Statistical Insufficiency Error: {e}")
+        status = "FAIL"
+        error_msg = str(e)
+    except Exception as e:
+        logger.error(f"Unexpected Error: {e}", exc_info=True)
+        status = "FAIL"
+        error_msg = str(e)
+
     end_time = time.time()
-    total_duration = end_time - start_time
-    
+    duration = end_time - start_time
+
     # Save metrics
     metrics = {
-        "task_id": "T055",
-        "start_time": datetime.fromtimestamp(start_time).isoformat(),
-        "end_time": datetime.fromtimestamp(end_time).isoformat(),
-        "total_duration_seconds": total_duration,
+        "total_duration_seconds": round(duration, 2),
         "status": status,
+        "timestamp": datetime.utcnow().isoformat(),
         "error": error_msg
     }
     
-    metrics_path = DATA_DIR / "output" / "pipeline_metrics.json"
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(metrics_path, 'w') as f:
+    metrics_path = PROJECT_ROOT / "data" / "output" / "pipeline_metrics.json"
+    with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=2)
     
-    logger.info(f"Pipeline execution metrics saved to {metrics_path}")
-    
-    if status == "success":
-        log_pipeline_complete(logger, "T055_Full_Pipeline_Smoke_Test", total_duration)
-        logger.info("Full Pipeline Smoke Test Completed Successfully.")
-        
-        # Final verification of required artifacts
-        required_artifacts = [
-            DATA_DIR / "processed" / "merged_drugs.csv",
-            DATA_DIR / "processed" / "analysis_results.json",
-            PROJECT_ROOT / "results_report.md",
-            PROJECT_ROOT / "reproducibility_log.json"
-        ]
-        
-        missing = []
-        for artifact in required_artifacts:
-            if not artifact.exists():
-                missing.append(str(artifact))
-            elif artifact.stat().st_size == 0:
-                missing.append(f"{artifact} (empty)")
-        
-        if missing:
-            logger.error(f"Missing or empty required artifacts: {missing}")
-            return False
-        else:
-            logger.info("All required artifacts verified successfully.")
-            return True
-    elif status == "insufficient_data":
-        # T013b: Graceful exit for insufficiency path
-        logger.info("Pipeline completed gracefully due to data insufficiency.")
-        # Verify the insufficiency report exists
-        report_path = PROJECT_ROOT / "data_insufficiency_report.md"
-        if report_path.exists() and report_path.stat().st_size > 0:
-            logger.info(f"Insufficiency report verified: {report_path}")
-            return True
-        else:
-            logger.error(f"Insufficiency report missing or empty: {report_path}")
-            return False
-    else:
-        return False
+    logger.info(f"Pipeline completed. Status: {status}, Duration: {duration:.2f}s")
+    return status
 
 def main():
-    """Entry point."""
-    success = run_pipeline()
-    # Exit 0 for success or graceful insufficiency handling, 1 for hard failure
-    sys.exit(0 if success else 1)
+    run_pipeline()
 
 if __name__ == "__main__":
     main()

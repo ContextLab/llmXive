@@ -3,12 +3,12 @@
   "stage": "tasked",
   "class": "transient",
   "fingerprint": "backend_chain_failed",
-  "consecutive_count": 1,
+  "consecutive_count": 0,
   "first_seen": "2026-07-30T17:40:48.934568+00:00",
-  "last_seen": "2026-07-30T17:40:48.934568+00:00",
-  "retry_after": "2026-07-30T17:50:48.934568+00:00",
+  "last_seen": "2026-07-30T18:46:53.470604+00:00",
+  "retry_after": null,
   "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: no available server | local: transformers is not installed; required by local backend",
   "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: no available server | local: transformers is not installed; required by local backend",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "retry_scheduled"
+  "status": "cleared"
 }

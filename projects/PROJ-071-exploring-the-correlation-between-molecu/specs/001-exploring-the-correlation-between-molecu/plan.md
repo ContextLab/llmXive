@@ -15,7 +15,7 @@ This project investigates the correlation between quantitative molecular complex
 **Primary Dependencies**: `rdkit`, `pandas`, `scikit-learn`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `requests`, `datasets` (HuggingFace)  
 **Storage**: Local CSV/Parquet files in `data/` (no external DB)  
 **Testing**: `pytest` (unit tests for descriptor calculation, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, GB RAM)  
 **Project Type**: Data Science / Computational Chemistry Pipeline  
 **Performance Goals**: Complete full pipeline (ingest → analyze → report) within 6 hours; memory usage < 7GB.  
 **Constraints**: No GPU; no large-LLM inference; dataset must be sampled or streamed if >7GB; **NO synthetic data for validation**.  

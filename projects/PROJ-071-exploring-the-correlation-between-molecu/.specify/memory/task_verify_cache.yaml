@@ -1,45 +1,55 @@
-T012a:
-  c: true
-  h: 5915f7d4858e4f747da4de9003535abf8cfc84548ef3abccb27c8feb6d95afe6
-  r: 'The implementer provided `data/gate_status.json` with status `"FAIL"`, reason
-    `"No verified degradation source found"` and `N: 0`, which correctly reflects
-    the absence of `data/processed/structural_subset.csv` (and thus the required columns).
-    The required artifact exists and contains the expected content.'
-T015b:
+T010g:
   c: false
-  h: 9a7fe8f0fd7e0c3d75d117b26f5eb07402db26e82d338a594ae0390a887c34fc
-  r: "The provided `tests/test_descriptors.py` contains no test that checks for `data/processed/excluded_molecules.csv`\
-    \ or validates its schema, and the required CSV file is absent from the repository.\
-    \ Consequently the task\u2019s requirement is not satisfied."
-T021:
+  h: 4451299bb63330ac5bad4f0c39805f423af503897bab294b753a16dacd14736c
+  r: "The provided `tests/test_descriptors.py` only contains unit tests on aspirin\
+    \ and a partial RDKit version check; it never reads `data/gate_status.json`, performs\
+    \ the N=50 sampling, logs to `data/processed/dataset_metric_skip_log.json`, or\
+    \ validates metrics on the merged drug dataset. Moreover, the required `data/processed/merged_drugs.csv`\
+    \ and the skip\u2011log file are absent. The task\u2019s core functionality is\
+    \ therefore not implemented."
+T012:
   c: false
-  h: ed563d1db2cf248e16865ac47263709622bc513e59015ccfd366db5a7d81ab8e
-  r: 'The provided `code/standardize.py` is truncated and lacks the required logic:
-    it does not log the number of excluded records, does not raise a `ValueError`
-    when the standard subset has fewer than 3 rows, and never writes `standard_subset.csv`
-    to `data/processed/`. Moreover, the expected output file `data/processed/standard_subset.csv`
-    is missing. The task therefore remains unfinished.'
-T021c:
+  h: df7f3f077131c511bfaba5e1691df136994014ce92b32981c261e1e7475ebce0
+  r: "The repository contains a partially\u2011implemented `code/ingest.py` (truncated\
+    \ and never shows merging, counting, gate enforcement, report generation, or checksum\
+    \ creation). The required output files are missing or inconsistent: `data/processed/merged_drugs.csv`\
+    \ does not exist, `data_insufficiency_report.md` is absent, and the checksum file\
+    \ references a non\u2011existent CSV. Consequently the task\u2019s full requirements\
+    \ are not satisfied."
+T015:
   c: false
-  h: 396733d8780bb587f5f74c4389a053e03c444832c8d1096a7f8fc5cb594025fd
-  r: The required output file `data/processed/full_processed_state.csv` does not exist,
-    and the provided `code/standardize.py` snippet ends before any merging logic is
-    defined (it is truncated at `def generate_data_characteristics_`). No code is
-    shown that creates a combined CSV with the required `is_included` and `derivation_source`
-    columns. The task therefore remains unfinished.
-T022a:
+  h: 53b763f76add3977295bda8b0f54096a02dcc3042d877d44c19c4ff70e0011ac
+  r: "The repository lacks the required `data/processed/excluded_molecules.csv` file,\
+    \ and the provided `code/descriptors.py` does not show any call to `log_error_to_file`\
+    \ when a valence\u2011related exception occurs (the file is truncated before such\
+    \ logic could appear). Consequently, the error\u2011handling and logging behavior\
+    \ demanded by T015 is not implemented."
+T020:
   c: false
-  h: 3815d470e2ff0622423027cae5dde78b2b273706e418675a6477fa33c3d771a7
-  r: "The repository lacks the required `data/processed/analysis_log.txt` file, and\
-    \ `code/standardize.py` contains no logic that creates or writes such a log. Consequently,\
-    \ the task\u2019s output (a log documenting the Arrhenius exclusion) is not present."
-T036:
+  h: c6e5c227240f879397529f5edb857209367b4038c9b64048ac70cd192799ebaf
+  r: "The repository lacks the required output files (`standard_subset.csv`, `data_characteristics.csv`,\
+    \ `statistical_insufficiency_report.md`, `full_processed_state.csv`, `analysis_log.txt`)\
+    \ and the `code/standardize.py` implementation is truncated and does not contain\
+    \ the logic to perform the gate check, generate those files, or raise `StatisticalInsufficiencyError`.\
+    \ The task\u2019s specifications are therefore not met."
+T032:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No plot files (`scatter_tpsa_vs_half_life.png`, `residuals.png`, `qq_plot.png`)\
-    \ or the `results_report.md` were presented, nor any evidence (e.g., directory\
-    \ listings, file size checks) confirming their existence and non\u2011zero size.\
-    \ The implementer must provide the actual files or proof they were saved as required."
+  h: 9766e55a4e414fcaa6545aac1a3bde0c95ac3a6b8e10c32c98e6c1bd100ab638
+  r: "The repository contains a partially\u2011implemented `code/viz.py` (truncated\
+    \ and missing the final `generate_placeholder_plot` definition) and the required\
+    \ output image `data/outputs/scatter_tpsa_vs_half_life.png` does not exist. Consequently\
+    \ the task\u2019s core deliverable\u2014a scatter plot (or placeholder) saved\
+    \ at the specified path\u2014is not present. The implementation must be completed\
+    \ and the plot file generated."
+T033:
+  c: false
+  h: ba632ed0ee94c4ee68533100b21bf159d413d694e2937163f9449f53b8ca8211
+  r: "The repository lacks the required output files (`data/outputs/residuals.png`,\
+    \ `qq_plot.png`). Moreover, `code/viz.py` is truncated and does not contain any\
+    \ implementation that generates histogram, QQ\u2011plot, or residual\u2011vs\u2011\
+    fitted diagnostics; the residual\u2011loading function returns `None` and the\
+    \ residual\u2011plot logic is absent. Consequently the task\u2019s functional\
+    \ requirements are not met."
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

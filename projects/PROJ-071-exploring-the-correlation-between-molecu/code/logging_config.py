@@ -5,7 +5,7 @@ import functools
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional, Callable
 
 
 @dataclass
@@ -73,50 +73,68 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-# Compatibility wrappers for stdlib-like usage
-def setup_logging(*args: Any, **kwargs: Any) -> None:
-    """No-op for compatibility."""
-    pass
+def log_error(message: str, exception: Optional[Exception] = None) -> LogEntry:
+    """Log an error message and optional exception details."""
+    params = {"message": message}
+    if exception:
+        params["exception_type"] = type(exception).__name__
+        params["exception_message"] = str(exception)
+    return get_logger().log("error", **params)
 
 
-def log_error(*args: Any, **kwargs: Any) -> None:
-    """No-op for compatibility."""
-    pass
+def handle_pipeline_exception(logger: Optional[ReproducibilityLogger], operation: str, exception: Exception) -> None:
+    """Handle a pipeline exception by logging it."""
+    if logger is None:
+        logger = get_logger()
+    logger.log("handle_pipeline_exception", operation=operation, exception=str(exception))
 
 
-def handle_pipeline_exception(*args: Any, **kwargs: Any) -> None:
-    """No-op for compatibility."""
-    pass
+def log_pipeline_start(operation: str, logger: Optional[ReproducibilityLogger] = None) -> None:
+    """Log the start of a pipeline operation."""
+    if logger is None:
+        logger = get_logger()
+    logger.log("pipeline_start", operation=operation)
 
 
-def log_pipeline_start(*args: Any, **kwargs: Any) -> None:
-    """No-op for compatibility."""
-    pass
+def log_pipeline_complete(operation: str, logger: Optional[ReproducibilityLogger] = None) -> None:
+    """Log the completion of a pipeline operation."""
+    if logger is None:
+        logger = get_logger()
+    logger.log("pipeline_complete", operation=operation)
 
 
-def log_pipeline_complete(*args: Any, **kwargs: Any) -> None:
-    """No-op for compatibility."""
-    pass
+def log_pipeline_failure(operation: str, reason: Optional[str] = None, logger: Optional[ReproducibilityLogger] = None) -> None:
+    """Log a pipeline failure.
 
-
-def log_pipeline_failure(*args: Any, **kwargs: Any) -> None:
+    Tolerant of all call shapes:
+    - log_pipeline_failure("op", "reason")
+    - log_pipeline_failure("reason")
+    - log_pipeline_failure(str(e))
+    - log_pipeline_failure(logger, "op", "reason")
     """
-    Tolerant logging for pipeline failures.
-    Accepts:
-      - log_pipeline_failure("message")
-      - log_pipeline_failure(reason="message")
-      - log_pipeline_failure(logger, "op", "message")
-    """
-    # Extract message from various shapes
-    msg = None
-    if len(args) == 1 and isinstance(args[0], str):
-        msg = args[0]
-    elif len(args) == 3 and isinstance(args[2], str):
-        msg = args[2]
-    elif "reason" in kwargs:
-        msg = kwargs["reason"]
-    elif len(args) > 0 and isinstance(args[0], Exception):
-        msg = str(args[0])
-    
-    if msg:
-        get_logger().log("pipeline_failure", message=msg)
+    if logger is None:
+        logger = get_logger()
+
+    # Handle case where first arg is a logger instance
+    if isinstance(operation, ReproducibilityLogger):
+        logger = operation
+        operation = reason if reason else "unknown_failure"
+        reason = None
+
+    # If reason is not provided, operation might be the reason
+    if reason is None:
+        # Assume operation is the reason message
+        final_reason = str(operation)
+        final_operation = "pipeline_failure"
+    else:
+        final_reason = str(reason)
+        final_operation = str(operation)
+
+    logger.log("pipeline_failure", operation=final_operation, reason=final_reason)
+
+
+def log_error_to_file(message: str, filename: str = "error.log") -> None:
+    """Log an error message to a file."""
+    with open(filename, "a") as f:
+        timestamp = datetime.utcnow().isoformat()
+        f.write(f"[{timestamp}] {message}\n")
