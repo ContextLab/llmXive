@@ -1,182 +1,183 @@
-"""
-Unit tests for entropy calculation utilities.
-"""
-
 import pytest
 import numpy as np
 import sys
 import os
 import torch
 from src.utils.entropy_calc import (
+    calculate_entropy,
     compute_shannon_entropy,
     compute_batch_entropy,
-    compute_layer_wise_entropy,
-    calculate_entropy
+    compute_layer_wise_entropy
 )
 
 
 class TestCalculateEntropy:
-    """Tests for the calculate_entropy function (T004 primary API)."""
+    def test_basic_1d_uniform(self):
+        """Test 1D uniform distribution: H = log(n)"""
+        n = 4
+        probs = torch.ones(n) / n
+        entropy = calculate_entropy(probs)
+        expected = np.log(n)
+        assert abs(entropy - expected) < 1e-6
 
-    def test_basic_entropy_calculation(self):
-        """Test basic entropy calculation with uniform distribution."""
-        # Uniform distribution over 2 elements: entropy = log(2) ≈ 0.693
-        logits = np.array([0.0, 0.0])
-        entropy = calculate_entropy(logits)
-        assert abs(entropy - np.log(2)) < 1e-6
-
-    def test_torch_tensor_input(self):
-        """Test that torch tensors are handled correctly."""
-        logits = torch.tensor([1.0, 2.0, 3.0])
-        entropy = calculate_entropy(logits)
-        assert isinstance(entropy, float)
-        assert entropy > 0
-
-    def test_high_confidence_low_entropy(self):
-        """Test that high confidence (one dominant logit) yields low entropy."""
-        logits = np.array([10.0, 0.0, 0.0])
-        entropy = calculate_entropy(logits)
-        assert entropy < 0.1  # Very low entropy
+    def test_basic_2d_batch(self):
+        """Test 2D batch processing returns mean"""
+        batch_probs = torch.tensor([
+            [0.5, 0.5, 0.0, 0.0],
+            [0.0, 0.0, 0.5, 0.5]
+        ])
+        entropy = calculate_entropy(batch_probs)
+        # Both rows have same entropy: -2 * 0.5 * log(0.5) = -log(0.5) = log(2)
+        expected = np.log(2)
+        assert abs(entropy - expected) < 1e-6
 
     def test_clamp_prevents_log_zero(self):
         """
-        Test that the function returns a finite value for input logits 
-        resulting in p=0.0 (or effectively 0).
-        
-        This specifically tests the clamping logic required by T004:
-        probabilities < 1e-9 are clamped to 1e-9 BEFORE log, preventing
-        log(0) errors.
+        Semantic Test: The function MUST correctly handle near-zero probability inputs
+        by returning a finite value without crashing.
+        This test specifically asserts the function returns a finite value for input
+        probabilities resulting in p=0.0 (which would be clamped to 1e-9).
         """
-        # Create logits that result in extremely small probabilities
-        # e.g., [100, 0, 0] -> softmax([100, 0, 0]) ≈ [1, ~0, ~0]
-        # The ~0 values would be < 1e-9 and should be clamped
-        logits = np.array([100.0, 0.0, 0.0])
+        # Create a distribution with exact zeros
+        probs = torch.tensor([1.0, 0.0, 0.0, 0.0])
         
-        # This should NOT raise a log(0) error
-        entropy = calculate_entropy(logits)
+        # This should NOT raise an error and should return a finite value
+        entropy = calculate_entropy(probs)
         
-        # The result must be finite
+        # Verify the result is finite (not nan or inf)
         assert np.isfinite(entropy), f"Entropy should be finite, got {entropy}"
         
-        # Additionally, test with explicit extreme values
-        extreme_logits = np.array([1000.0, -1000.0, -1000.0])
-        entropy_extreme = calculate_entropy(extreme_logits)
-        assert np.isfinite(entropy_extreme), f"Entropy should be finite for extreme inputs, got {entropy_extreme}"
+        # Verify it's non-negative (entropy is always >= 0)
+        assert entropy >= 0.0, f"Entropy should be non-negative, got {entropy}"
 
-    def test_input_types(self):
-        """Test various input types."""
-        # Numpy array
-        logits_np = np.array([1.0, 2.0])
-        assert isinstance(calculate_entropy(logits_np), float)
-        
-        # Torch tensor
-        logits_torch = torch.tensor([1.0, 2.0])
-        assert isinstance(calculate_entropy(logits_torch), float)
+    def test_clamp_extreme_values(self):
+        """Test with extremely small probabilities"""
+        probs = torch.tensor([1.0 - 1e-15, 1e-15, 0.0, 0.0])
+        entropy = calculate_entropy(probs)
+        assert np.isfinite(entropy)
 
-    def test_dimensionality_check(self):
-        """Test that non-1D inputs raise an error."""
-        with pytest.raises(ValueError):
-            calculate_entropy(np.array([[1.0, 2.0], [3.0, 4.0]]))
-        
-        with pytest.raises(ValueError):
-            calculate_entropy(torch.tensor([[1.0, 2.0], [3.0, 4.0]]))
+    def test_gpu_tensor_raises_error(self):
+        """Test that GPU tensors raise ValueError"""
+        if torch.cuda.is_available():
+            probs_gpu = torch.tensor([0.5, 0.5]).cuda()
+            with pytest.raises(ValueError, match="must be on CPU"):
+                calculate_entropy(probs_gpu)
+        else:
+            pytest.skip("CUDA not available")
+
+    def test_empty_tensor_raises_error(self):
+        """Test that empty tensors raise ValueError"""
+        empty_probs = torch.tensor([])
+        with pytest.raises(ValueError, match="empty"):
+            calculate_entropy(empty_probs)
+
+    def test_invalid_type_raises_error(self):
+        """Test that invalid input types raise ValueError"""
+        with pytest.raises(ValueError, match="must be torch.Tensor or numpy.ndarray"):
+            calculate_entropy([0.5, 0.5])
+
+    def test_wrong_dimensions_raises_error(self):
+        """Test that 3D tensors raise ValueError"""
+        wrong_shape = torch.randn(2, 3, 4)
+        with pytest.raises(ValueError, match="must be 1D or 2D"):
+            calculate_entropy(wrong_shape)
+
+    def test_numpy_array_input(self):
+        """Test that numpy arrays are accepted"""
+        probs_np = np.array([0.5, 0.5])
+        entropy = calculate_entropy(probs_np)
+        assert np.isfinite(entropy)
+
+    def test_deterministic_output(self):
+        """Test that same input gives same output"""
+        probs = torch.tensor([0.3, 0.7])
+        e1 = calculate_entropy(probs)
+        e2 = calculate_entropy(probs)
+        assert e1 == e2
 
 
 class TestComputeShannonEntropy:
-    """Tests for the compute_shannon_entropy function."""
-
-    def test_uniform_distribution(self):
-        """Test entropy of uniform distribution."""
-        probs = np.array([0.25, 0.25, 0.25, 0.25])
-        entropy = compute_shannon_entropy(probs)
-        # H = -4 * (0.25 * log(0.25)) = -log(0.25) = log(4)
-        expected = -np.log(0.25)
-        assert abs(entropy - expected) < 1e-6
-
-    def test_deterministic_distribution(self):
-        """Test entropy of deterministic distribution (should be 0)."""
-        probs = np.array([1.0, 0.0, 0.0])
-        entropy = compute_shannon_entropy(probs)
-        # Due to clamping, p=0 becomes 1e-9, so entropy is very small but not exactly 0
-        assert entropy < 1e-5
-
-    def test_empty_input(self):
-        """Test that empty input returns 0.0."""
-        assert compute_shannon_entropy(np.array([])) == 0.0
-        assert compute_shannon_entropy([]) == 0.0
-
-    def test_negative_values_error(self):
-        """Test that negative probabilities raise an error."""
-        with pytest.raises(ValueError):
-            compute_shannon_entropy(np.array([0.5, -0.5]))
-
-    def test_type_error(self):
-        """Test that invalid types raise an error."""
-        with pytest.raises(TypeError):
-            compute_shannon_entropy("invalid")
-
-    def test_clamping_behavior(self):
-        """Test that values < 1e-9 are clamped before log."""
-        # Create a distribution with a very small probability
-        probs = np.array([0.9999999999, 1e-15])
-        entropy = compute_shannon_entropy(probs)
-        assert np.isfinite(entropy)
+    def test_alias_to_calculate_entropy(self):
+        """Test that compute_shannon_entropy is an alias"""
+        probs = torch.tensor([0.25, 0.75])
+        e1 = calculate_entropy(probs)
+        e2 = compute_shannon_entropy(probs)
+        assert e1 == e2
 
 
 class TestComputeBatchEntropy:
-    """Tests for the compute_batch_entropy function."""
-
-    def test_batch_calculation(self):
-        """Test entropy calculation for a batch of distributions."""
-        batch = [
+    def test_basic_batch(self):
+        """Test batch entropy calculation"""
+        batch_probs = torch.tensor([
             [0.5, 0.5],
-            [0.9, 0.1]
-        ]
-        entropies = compute_batch_entropy(batch)
+            [1.0, 0.0]
+        ])
+        entropies = compute_batch_entropy(batch_probs)
         
         assert len(entropies) == 2
-        assert isinstance(entropies, list)
-        assert all(isinstance(e, float) for e in entropies)
+        assert np.isfinite(entropies[0])
+        assert np.isfinite(entropies[1])
         
-        # First should be log(2)
-        assert abs(entropies[0] - np.log(2)) < 1e-6
+        # First item: uniform, entropy = log(2)
+        expected_0 = np.log(2)
+        assert abs(entropies[0] - expected_0) < 1e-6
+        
+        # Second item: deterministic, entropy = 0
+        assert abs(entropies[1] - 0.0) < 1e-6
 
-    def test_numpy_batch_input(self):
-        """Test with numpy array input."""
-        batch = np.array([[0.5, 0.5], [0.9, 0.1]])
-        entropies = compute_batch_entropy(batch)
-        assert len(entropies) == 2
-
-    def test_wrong_dimensions(self):
-        """Test that non-2D input raises an error."""
-        with pytest.raises(ValueError):
-            compute_batch_entropy(np.array([0.5, 0.5]))
+    def test_clamping_in_batch(self):
+        """Test that zeros are clamped in batch processing"""
+        batch_probs = torch.tensor([
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0]
+        ])
+        entropies = compute_batch_entropy(batch_probs)
+        
+        for e in entropies:
+            assert np.isfinite(e)
 
 
 class TestComputeLayerWiseEntropy:
-    """Tests for the compute_layer_wise_entropy function."""
-
-    def test_layer_wise_calculation(self):
-        """Test entropy calculation from raw logits."""
-        logits = np.array([
-            [2.0, 1.0, 0.0],
-            [0.0, 0.0, 0.0]
-        ])
-        entropies = compute_layer_wise_entropy(logits)
+    def test_basic_layer_wise(self):
+        """Test layer-wise entropy calculation"""
+        batch, layers, vocab = 2, 3, 4
+        logits = torch.randn(batch, layers, vocab)
         
-        assert len(entropies) == 2
-        assert all(isinstance(e, float) for e in entropies)
+        results = compute_layer_wise_entropy(logits)
         
-        # Second row is uniform, so entropy should be log(3)
-        assert abs(entropies[1] - np.log(3)) < 1e-6
+        assert len(results) == layers
+        for layer_idx, entropies in results.items():
+            assert len(entropies) == batch
+            for e in entropies:
+                assert np.isfinite(e)
 
-    def test_torch_layer_wise(self):
-        """Test with torch tensor input (converted internally)."""
-        logits = torch.tensor([[2.0, 1.0, 0.0]])
-        entropies = compute_layer_wise_entropy(logits)
-        assert len(entropies) == 1
+    def test_specific_layer_indices(self):
+        """Test with specific layer indices"""
+        logits = torch.randn(2, 5, 4)
+        results = compute_layer_wise_entropy(logits, layer_indices=[0, 2, 4])
+        
+        assert len(results) == 3
+        assert 0 in results
+        assert 2 in results
+        assert 4 in results
 
-    def test_wrong_dimensions(self):
-        """Test that non-2D input raises an error."""
-        with pytest.raises(ValueError):
-            compute_layer_wise_entropy(np.array([1.0, 2.0, 3.0]))
+    def test_invalid_layer_index(self):
+        """Test that invalid layer index raises error"""
+        logits = torch.randn(2, 3, 4)
+        with pytest.raises(ValueError, match="out of range"):
+            compute_layer_wise_entropy(logits, layer_indices=[5])
+
+    def test_gpu_logits_raises_error(self):
+        """Test that GPU logits raise ValueError"""
+        if torch.cuda.is_available():
+            logits_gpu = torch.randn(2, 3, 4).cuda()
+            with pytest.raises(ValueError, match="must be on CPU"):
+                compute_layer_wise_entropy(logits_gpu)
+        else:
+            pytest.skip("CUDA not available")
+
+    def test_wrong_logits_dimensions(self):
+        """Test that wrong dimensions raise error"""
+        wrong_logits = torch.randn(2, 3)  # 2D instead of 3D
+        with pytest.raises(ValueError, match="must be 3D"):
+            compute_layer_wise_entropy(wrong_logits)

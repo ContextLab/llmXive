@@ -1,77 +1,41 @@
-T001a:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `setup.sh` file was provided, and there is no evidence that a script containing\
-    \ the required `mkdir -p` commands for the listed directories exists. The implementer\
-    \ must supply a non\u2011empty `setup.sh` with explicit `mkdir -p` statements\
-    \ for all specified paths."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `setup.sh` file was provided, nor any evidence that it creates the required
-    `src/`, `tests/`, `data/`, `docs/`, `scripts/`, and `results/` subdirectories.
-    The implementer must supply a `setup.sh` script containing the appropriate `mkdir
-    -p` commands for these directories.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `project_structure.log` file was presented; the claim that `setup.sh` now
-    logs the created directory paths cannot be verified because the required log artifact
-    is missing. The next implementer must provide the actual `project_structure.log`
-    containing the JSON list of absolute paths.
-T002:
-  c: false
-  h: de5dac160f67e754bc9620f42e68d04a10681ca01c9e7fa29c15e811e1b7bdc3
-  r: "The required file `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/requirements.txt`\
-    \ does not exist, even though a `code/requirements.txt` with the correct packages\
-    \ is present elsewhere. The task\u2019s deliverable is missing at the specified\
-    \ path."
-T004:
-  c: false
-  h: 9642a0c829cf19182cba1106b7c1407231e6e78ae5138286d1ea67df6e5a2ca6
-  r: "The provided `entropy_calc.py` defines `compute_shannon_entropy` and related\
-    \ helpers, but does **not** implement a `calculate_entropy(logits)` function that\
-    \ takes raw torch logits, applies softmax, clamps probabilities, and returns a\
-    \ float. Moreover, the required unit test `tests/unit/test_entropy_calc.py::test_clamp_prevents_log_zero`\
-    \ is missing. The task\u2019s core deliverable is therefore not present."
-T005:
-  c: false
-  h: 987c8b183234c13e8ee25e17f8ea49006c804f1c35cc20c636e5f6271ef5bef2
-  r: 'The provided `validators.py` is either missing or incomplete: the file is truncated,
-    lacks the `EntropyProfile` implementation, and contains no actual validation functions
-    for the three schemas. The required `src/utils/validators.py` with full validation
-    logic is not present.'
+  r: "No `setup.sh` script or `project_structure.log` file was provided; without these\
+    \ artifacts we cannot verify that the required directory\u2011creation commands,\
+    \ existence checks, exit behavior, and JSON log of absolute paths were implemented.\
+    \ The implementer must supply both files with the specified functionality."
 T006:
   c: false
-  h: fd2a90e37ff10ea6f274df890f1ee1e66eb3644fb84bb144f6d830ad36873b71
-  r: "The provided `code/src/data/preprocessing.py` enforces a fixed batch size of\
-    \ exactly\u202F50 tokens (via `validate_batch_size`), yet the integration tests\
-    \ expect `validate_batch_size` to accept arbitrary sizes and only reject clearly\
-    \ invalid values (0, negative, >\u202F10000). Consequently, `test_validate_batch_size_valid`,\
-    \ `test_validate_batch_size_invalid`, and `test_stream_tokens_in_batches` would\
-    \ fail. Moreover, the truncated `stream_batch` implementation does not show the\
-    \ required merging of 50\u2011token chunks back into a single sequence or explicit\
-    \ handling of a `MemoryError`. The missing or incorrec"
+  h: 2cc722d658f4b941206041cc1dd82dbd28a0078cb49a16d77c7cd83a5493e187
+  r: "The repository contains a `code/src/data/preprocessing.py` but the required\
+    \ path `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/preprocessing.py`\
+    \ is missing, and the shown portion of `stream_batch` is truncated so we cannot\
+    \ verify the 500\u2011example batching, MemoryError backoff, or RuntimeError on\
+    \ minimal size. The integration test file does not include the specific `test_memory_backoff`\
+    \ verification (or it is not visible). These gaps must be filled for the task\
+    \ to be considered complete."
 T007:
   c: false
-  h: dee2fa44b8e77df83082d33a067629073efd55cd357a38cc594015ec0309f72e
-  r: The required file `src/data/download.py` does not exist (only a `code/src/data/download.py`
-    is present), and the shown snippet is truncated before confirming that MiniGrid
-    fetching is implemented. The deliverable path and full functionality are therefore
-    missing.
+  h: d9af6e56b0a50b747645870fc3e18e10660a31bae0922ad61094af8c1cd04f19
+  r: "The provided `code/src/data/download.py` is truncated and does not show a complete\
+    \ implementation (e.g., the MiniGrid download function is absent, and the end\
+    \ of the GSM8K function is cut off). Additionally, the expected `src/data/download.py`\
+    \ file is reported as missing. Consequently, the required script with full 500\u2011\
+    example capping and no synthetic fallbacks is not present."
+T008:
+  c: false
+  h: e57439f3958f64399d94995af86904689415106276846877c76559198d3ec0ed
+  r: The required `.env.example` file does not exist, and the provided `src/config.py`
+    is truncated (ends abruptly at `if model_path_s`), so it does not fully implement
+    loading of the three environment variables. Both artifacts need to be present
+    and complete.
 T009:
   c: false
   h: 8233450ba8cbd420a5cbf7ee6b1e2a43523fb6668409b7c7926a266325cf8f2b
   r: "The required file `code/tests/contract/test_dataset_schema.py` is missing from\
     \ the repository, so no contract test for the dataset schema exists. Without this\
     \ artifact, the task\u2019s deliverable is not satisfied."
-T011:
-  c: false
-  h: 1ae59ba635939140c514693d1e107b6b32bc71fe95c614c6fa8c2109237c2254
-  r: "The required `src/generation/generation.py` file is absent (the only file present\
-    \ is `code/src/generation/generation.py` and its contents are truncated, with\
-    \ no visible `generate_baseline` function). Consequently the deliverable\u2014\
-    a module containing a `generate_baseline` implementation\u2014is not provided."
 T012:
   c: false
   h: 1ae59ba635939140c514693d1e107b6b32bc71fe95c614c6fa8c2109237c2254
@@ -123,11 +87,3 @@ T031:
     \ output file `code/results/final_report.json` is absent, and the provided code\
     \ does not demonstrate that it writes a JSON report with AUC\u2011ROC, p\u2011\
     values, and the optimal threshold. The task therefore remains unfinished."
-T041:
-  c: false
-  h: d46000989533479f01766c17b0e41239458a1ef0bb55b36970ac234512e6a809
-  r: "The provided `code/src/generation/generation.py` contains logging and placeholder\
-    \ generation functions but lacks any use of `datasets.load_dataset(..., streaming=True)`,\
-    \ chunking of 500 rows, or hard\u2011stop enforcement for GSM8K and MiniGrid.\
-    \ Moreover, the required file `src/generation/generation.py` is missing entirely.\
-    \ The task\u2019s core streaming\u2011logic requirement is not satisfied."

@@ -1,36 +1,23 @@
 # Ruff configuration file
-# This file extends the settings in pyproject.toml for specific overrides if needed
-# or serves as the primary config if pyproject.toml is not detected by the tool.
-
-line-length = 88
-target-version = "py39"
+# This file extends the settings defined in pyproject.toml
+# Specific overrides for the project can be added here
 
 [lint]
+# Enable specific rules that might be too verbose in pyproject.toml
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "N",   # pep8-naming
-    "ARG", # flake8-unused-arguments
     "SIM", # flake8-simplify
+    "PT",  # flake8-pytest-style
+    "RUF", # Ruff-specific rules
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-    "ARG001", # unused arguments in tests are common
-    "ARG002", # unused arguments in tests are common
+    "SIM102", # collapsible-if (sometimes reduces readability)
 ]
 
-[lint.isort]
-known-first-party = ["src", "tests"]
-force-sort-within-sections = true
-combine-as-imports = true
+[lint.pydocstyle]
+convention = "google"
 
-[lint.per-file-ignores]
-"tests/**/*.py" = ["S101", "ARG001", "ARG002"] # assert statements and unused args in tests
-"scripts/**/*.py" = ["T201"] # print statements allowed in scripts
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

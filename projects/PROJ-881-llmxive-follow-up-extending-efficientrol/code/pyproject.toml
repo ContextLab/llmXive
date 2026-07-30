@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,23 +7,10 @@ name = "llmxive-follow-up"
 version = "0.1.0"
 description = "Entropy-Guided Validity Prediction in RL Rollouts"
 requires-python = ">=3.9"
-dependencies = [
-    "transformers",
-    "torch",
-    "datasets",
-    "scikit-learn",
-    "pandas",
-    "numpy",
-    "h5py",
-    "pytest",
-    "statsmodels",
-    "psutil",
-    "huggingface_hub",
-]
 
 [tool.black]
 line-length = 88
-target-version = ["py39", "py310", "py311"]
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -58,29 +45,15 @@ ignore = [
     "C901", # too complex
 ]
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
     ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
     ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
     "build",
     "dist",
-    "node_modules",
-    "venv",
+    "__pycache__",
 ]
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+"tests/*" = ["S101"] # assert allowed in tests
 
 [tool.ruff.isort]
 known-first-party = ["src", "tests"]

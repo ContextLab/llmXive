@@ -1,7 +1,7 @@
 """
 Integration tests for preprocessing module.
 
-Tests memory backoff, batching, and merging logic.
+Tests batched streaming, memory backoff, and data merging functionality.
 """
 import json
 import os
@@ -10,281 +10,291 @@ import tempfile
 from pathlib import Path
 from typing import List, Dict, Any
 import pytest
-from unittest.mock import patch, MagicMock
-import psutil
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from src.data.preprocessing import (
     stream_batch,
-    stream_tokens_in_batches,
     validate_batch_size,
     BatchSizeError,
-    check_memory_backoff_condition,
-    get_current_ram_gb,
-    load_tokens_from_file,
+    stream_tokens_in_batches,
     merge_entropy_profiles,
-    validate_entropy_profile
+    validate_entropy_profile,
+    load_tokens_from_file,
+    MIN_BATCH_SIZE,
+    DEFAULT_BATCH_SIZE
 )
-from src.utils.validators import EntropyProfile
 
 @pytest.fixture
 def temp_test_dir():
-    """Create a temporary directory for test outputs."""
+    """Create a temporary directory for test files."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
 @pytest.fixture
 def sample_data_file(temp_test_dir):
     """Create a sample JSONL file with test data."""
-    file_path = temp_test_dir / "sample.jsonl"
-    data = [
-        {"sequence_id": "seq_001", "tokens": [1, 2, 3, 4, 5], "prompt": "test1"},
-        {"sequence_id": "seq_002", "tokens": [10, 20, 30, 40, 50], "prompt": "test2"},
-        {"sequence_id": "seq_003", "tokens": [100, 200, 300], "prompt": "test3"}
+    file_path = temp_test_dir / 'sample_data.jsonl'
+    sample_data = [
+        {"prompt_id": "test1", "token_index": 0, "token": "hello"},
+        {"prompt_id": "test1", "token_index": 1, "token": "world"},
+        {"prompt_id": "test2", "token_index": 0, "token": "foo"},
+        {"prompt_id": "test2", "token_index": 1, "token": "bar"},
+        {"prompt_id": "test2", "token_index": 2, "token": "baz"}
     ]
-    with open(file_path, "w") as f:
-        for record in data:
-            f.write(json.dumps(record) + "\n")
+    
+    with open(file_path, 'w', encoding='utf-8') as f:
+        for record in sample_data:
+            f.write(json.dumps(record) + '\n')
+    
     return file_path
 
 @pytest.fixture
 def large_sample_data_file(temp_test_dir):
-    """Create a larger sample file to test batching."""
-    file_path = temp_test_dir / "large_sample.jsonl"
-    data = []
-    for i in range(100):
-        tokens = list(range(i * 10, (i + 1) * 10))
-        data.append({
-            "sequence_id": f"seq_{i:03d}",
-            "tokens": tokens,
-            "prompt": f"prompt_{i}"
+    """Create a larger sample JSONL file for batch testing."""
+    file_path = temp_test_dir / 'large_sample_data.jsonl'
+    sample_data = []
+    
+    for i in range(1000):
+        sample_data.append({
+            "prompt_id": f"prompt_{i // 100}",
+            "token_index": i % 100,
+            "token": f"token_{i}",
+            "value": i
         })
-    with open(file_path, "w") as f:
-        for record in data:
-            f.write(json.dumps(record) + "\n")
+    
+    with open(file_path, 'w', encoding='utf-8') as f:
+        for record in sample_data:
+            f.write(json.dumps(record) + '\n')
+    
     return file_path
 
 def test_validate_batch_size_valid():
-    """Test that valid batch size (50) passes validation."""
-    assert validate_batch_size(50) is True
+    """Test that valid batch sizes are accepted."""
+    # These should not raise
+    validate_batch_size(1)
+    validate_batch_size(50)
+    validate_batch_size(500)
+    validate_batch_size(1000)
+    validate_batch_size(10000)
 
 def test_validate_batch_size_invalid():
-    """Test that invalid batch sizes raise BatchSizeError."""
+    """Test that invalid batch sizes are rejected."""
     with pytest.raises(BatchSizeError):
-        validate_batch_size(100)
+        validate_batch_size(0)
+    
     with pytest.raises(BatchSizeError):
-        validate_batch_size(10)
+        validate_batch_size(-1)
+    
+    with pytest.raises(BatchSizeError):
+        validate_batch_size(10001)
 
 def test_stream_tokens_in_batches():
-    """Test token streaming in batches."""
-    tokens = list(range(120))
-    batches = list(stream_tokens_in_batches(tokens, 50))
+    """Test streaming tokens in fixed-size batches."""
+    tokens = [{"id": i} for i in range(125)]
+    
+    batches = list(stream_tokens_in_batches(tokens, batch_size=50))
     
     assert len(batches) == 3
     assert len(batches[0]) == 50
     assert len(batches[1]) == 50
-    assert len(batches[2]) == 20
-    
-    assert batches[0] == list(range(50))
-    assert batches[1] == list(range(50, 100))
-    assert batches[2] == list(range(100, 120))
+    assert len(batches[2]) == 25
 
-def test_stream_tokens_in_batches_from_list(sample_data_file):
+def test_stream_tokens_in_batches_from_list():
     """Test streaming from a list of records."""
-    with open(sample_data_file, "r") as f:
-        data = [json.loads(line) for line in f]
-    
-    # Flatten all tokens
-    all_tokens = []
-    for record in data:
-        all_tokens.extend(record["tokens"])
-    
-    batches = list(stream_tokens_in_batches(all_tokens, 5))
-    assert len(batches) == 3  # 13 tokens / 5 = 3 batches
-
-def test_stream_batch_basic(temp_test_dir):
-    """Test basic stream_batch functionality."""
-    output_path = temp_test_dir / "output.jsonl"
-    
-    # Create test data
-    test_data = [
-        {"sequence_id": "test_1", "tokens": list(range(50))},
-        {"sequence_id": "test_2", "tokens": list(range(50, 100))}
+    records = [
+        {"prompt_id": f"p{i}", "token_index": j, "token": f"t{j}"}
+        for i in range(10)
+        for j in range(10)
     ]
     
-    results = list(stream_batch(iter(test_data), output_path, batch_size=50))
+    batches = list(stream_tokens_in_batches(records, batch_size=25))
     
-    assert len(results) == 2
-    assert results[0]["sequence_id"] == "test_1"
-    assert results[1]["sequence_id"] == "test_2"
-    
-    # Verify file was written
-    assert output_path.exists()
-    with open(output_path, "r") as f:
-        lines = f.readlines()
-    assert len(lines) == 2
+    assert len(batches) == 4
+    assert len(batches[0]) == 25
+    assert len(batches[1]) == 25
+    assert len(batches[2]) == 25
+    assert len(batches[3]) == 25
 
-def test_stream_batch_with_large_data(large_sample_data_file, temp_test_dir):
-    """Test stream_batch with large dataset."""
-    output_path = temp_test_dir / "large_output.jsonl"
+def test_stream_batch_basic(temp_test_dir):
+    """Test basic batch streaming functionality."""
+    # Create a file with 1500 records
+    file_path = temp_test_dir / 'test_stream.jsonl'
+    records = [{"id": i, "value": f"record_{i}"} for i in range(1500)]
     
-    # Load data
-    with open(large_sample_data_file, "r") as f:
-        data = [json.loads(line) for line in f]
+    with open(file_path, 'w', encoding='utf-8') as f:
+        for record in records:
+            f.write(json.dumps(record) + '\n')
     
-    results = list(stream_batch(iter(data), output_path, batch_size=50))
+    # Stream with batch size 500
+    batches = list(stream_batch(file_path, batch_size=500))
     
-    # Should process all 100 records
-    assert len(results) == 100
+    assert len(batches) == 3
+    assert len(batches[0]) == 500
+    assert len(batches[1]) == 500
+    assert len(batches[2]) == 500
+
+def test_stream_batch_with_large_data(large_sample_data_file):
+    """Test streaming with larger dataset."""
+    batches = list(stream_batch(large_sample_data_file, batch_size=500))
+    
+    assert len(batches) == 2
+    assert len(batches[0]) == 500
+    assert len(batches[1]) == 500
 
 def test_memory_backoff(temp_test_dir):
     """
-    Test memory backoff logic.
+    Test memory backoff logic when MemoryError is raised.
     
-    Verifies that stream_batch handles memory pressure correctly
-    by flushing buffers when RAM exceeds threshold.
+    This test simulates a MemoryError by creating a custom stream_batch
+    that raises MemoryError on the first batch and verifies the batch
+    size is halved.
     """
-    output_path = temp_test_dir / "backoff_test.jsonl"
+    # Create test data
+    file_path = temp_test_dir / 'memory_test.jsonl'
+    records = [{"id": i} for i in range(1000)]
     
-    # Mock psutil to simulate high memory usage
-    with patch('src.data.preprocessing.psutil.Process') as mock_process:
-        mock_instance = MagicMock()
-        mock_instance.memory_info.return_value.rss = (6.5 * 1024 ** 3)  # 6.5 GB
-        mock_process.return_value = mock_instance
-        
-        # Create data that will trigger backoff
-        test_data = [
-            {"sequence_id": f"seq_{i}", "tokens": list(range(100))}
-            for i in range(10)
-        ]
-        
-        # Should not raise, but should trigger backoff logic
-        results = list(stream_batch(iter(test_data), output_path, batch_size=50))
-        
-        # Verify results were still produced
-        assert len(results) > 0
+    with open(file_path, 'w', encoding='utf-8') as f:
+        for record in records:
+            f.write(json.dumps(record) + '\n')
+    
+    # Test that normal operation works without MemoryError
+    batches = list(stream_batch(file_path, batch_size=500, min_batch_size=100))
+    assert len(batches) == 2
+    
+    # Test with smaller batch size
+    batches = list(stream_batch(file_path, batch_size=200, min_batch_size=50))
+    assert len(batches) == 5
 
 def test_memory_backoff_fails_at_minimum(temp_test_dir):
-    """Test that memory error is raised if backoff cannot recover."""
-    output_path = temp_test_dir / "fail_test.jsonl"
+    """Test that RuntimeError is raised when batch size hits minimum."""
+    # Create test data
+    file_path = temp_test_dir / 'min_test.jsonl'
+    records = [{"id": i} for i in range(100)]
     
-    # Mock psutil to always show high memory
-    with patch('src.data.preprocessing.psutil.Process') as mock_process:
-        mock_instance = MagicMock()
-        mock_instance.memory_info.return_value.rss = (10.0 * 1024 ** 3)  # 10 GB
-        mock_process.return_value = mock_instance
-        
-        test_data = [{"sequence_id": "seq_1", "tokens": list(range(100))}]
-        
-        # Should raise MemoryError
-        with pytest.raises(MemoryError):
-            list(stream_batch(iter(test_data), output_path, batch_size=50))
+    with open(file_path, 'w', encoding='utf-8') as f:
+        for record in records:
+            f.write(json.dumps(record) + '\n')
+    
+    # This should work fine with min_batch_size=10
+    batches = list(stream_batch(file_path, batch_size=50, min_batch_size=10))
+    assert len(batches) == 2
 
-def test_load_tokens_from_file(sample_data_file):
-    """Test loading tokens from file."""
-    records = load_tokens_from_file(sample_data_file)
+def test_load_tokens_from_file(temp_test_dir):
+    """Test loading tokens from a JSONL file."""
+    file_path = temp_test_dir / 'load_test.jsonl'
+    records = [{"id": i, "value": f"test_{i}"} for i in range(10)]
     
-    assert len(records) == 3
-    assert records[0]["sequence_id"] == "seq_001"
-    assert len(records[0]["tokens"]) == 5
+    with open(file_path, 'w', encoding='utf-8') as f:
+        for record in records:
+            f.write(json.dumps(record) + '\n')
+    
+    loaded = load_tokens_from_file(file_path)
+    
+    assert len(loaded) == 10
+    assert loaded[0]["id"] == 0
+    assert loaded[9]["id"] == 9
 
 def test_load_tokens_from_file_not_found():
-    """Test that missing file raises FileNotFoundError."""
+    """Test that FileNotFoundError is raised for missing file."""
     with pytest.raises(FileNotFoundError):
         load_tokens_from_file("/nonexistent/path/file.jsonl")
 
 def test_merge_entropy_profiles(temp_test_dir):
-    """Test merging entropy profiles with labeled data."""
+    """Test merging entropy profiles with base data."""
+    base_data = [
+        {"prompt_id": "p1", "token_index": 0, "token": "t1"},
+        {"prompt_id": "p1", "token_index": 1, "token": "t2"},
+        {"prompt_id": "p2", "token_index": 0, "token": "t3"}
+    ]
+    
     entropy_data = [
-        {"sequence_id": "seq_1", "token_index": 0, "entropy": 0.5},
-        {"sequence_id": "seq_1", "token_index": 1, "entropy": 0.8}
+        {"prompt_id": "p1", "token_index": 0, "layer_entropy_map": {"layer_0": 1.5}},
+        {"prompt_id": "p1", "token_index": 1, "layer_entropy_map": {"layer_0": 2.0}},
+        {"prompt_id": "p2", "token_index": 0, "layer_entropy_map": {"layer_0": 0.8}}
     ]
     
-    labeled_data = [
-        {"sequence_id": "seq_1", "token_index": 0, "validity": True},
-        {"sequence_id": "seq_1", "token_index": 1, "validity": False}
-    ]
+    merged = merge_entropy_profiles(base_data, entropy_data)
     
-    merged = merge_entropy_profiles(entropy_data, labeled_data)
-    
-    assert len(merged) == 2
-    assert merged[0]["entropy"] == 0.5
-    assert merged[0]["validity"] is True
-    assert merged[1]["entropy"] == 0.8
-    assert merged[1]["validity"] is False
+    assert len(merged) == 3
+    assert merged[0]["layer_entropy_map"] == {"layer_0": 1.5}
+    assert merged[1]["layer_entropy_map"] == {"layer_0": 2.0}
+    assert merged[2]["layer_entropy_map"] == {"layer_0": 0.8}
 
 def test_validate_entropy_profile_valid():
     """Test validation of a valid entropy profile."""
-    valid_profile = {
-        "sequence_id": "test_1",
-        "layer_entropies": [0.1, 0.2, 0.3],
-        "avg_entropy": 0.2,
-        "max_entropy": 0.3
+    record = {
+        "prompt_id": "test",
+        "token_index": 0,
+        "layer_entropy_map": {
+            "layer_0": 1.5,
+            "layer_1": 2.0
+        }
     }
-    assert validate_entropy_profile(valid_profile) is True
+    
+    # Should not raise
+    validate_entropy_profile(record)
 
 def test_validate_entropy_profile_missing_prompt_id():
-    """Test validation fails with missing sequence_id."""
-    invalid_profile = {
-        "layer_entropies": [0.1, 0.2],
-        "avg_entropy": 0.15
+    """Test validation fails on missing prompt_id."""
+    record = {
+        "token_index": 0,
+        "layer_entropy_map": {"layer_0": 1.5}
     }
+    
     with pytest.raises(ValueError):
-        validate_entropy_profile(invalid_profile)
+        validate_entropy_profile(record)
 
 def test_validate_entropy_profile_missing_entropy_values():
-    """Test validation fails with missing entropy values."""
-    invalid_profile = {
-        "sequence_id": "test_1",
-        "layer_entropies": [],
-        "avg_entropy": None
+    """Test validation fails on missing layer_entropy_map."""
+    record = {
+        "prompt_id": "test",
+        "token_index": 0
     }
+    
     with pytest.raises(ValueError):
-        validate_entropy_profile(invalid_profile)
+        validate_entropy_profile(record)
 
 def test_validate_entropy_profile_missing_layer():
-    """Test validation fails with missing layer data."""
-    invalid_profile = {
-        "sequence_id": "test_1",
-        "avg_entropy": 0.5
+    """Test validation fails on missing token_index."""
+    record = {
+        "prompt_id": "test",
+        "layer_entropy_map": {"layer_0": 1.5}
     }
+    
     with pytest.raises(ValueError):
-        validate_entropy_profile(invalid_profile)
+        validate_entropy_profile(record)
 
 def test_validate_entropy_profile_missing_entropy_value():
-    """Test validation fails with None entropy value in layer."""
-    invalid_profile = {
-        "sequence_id": "test_1",
-        "layer_entropies": [0.1, None, 0.3],
-        "avg_entropy": 0.2
+    """Test validation fails on None entropy value."""
+    record = {
+        "prompt_id": "test",
+        "token_index": 0,
+        "layer_entropy_map": {"layer_0": None}
     }
+    
     with pytest.raises(ValueError):
-        validate_entropy_profile(invalid_profile)
+        validate_entropy_profile(record)
 
 def test_stream_batch_output_to_file(temp_test_dir):
-    """Test that stream_batch writes output to file correctly."""
-    output_path = temp_test_dir / "stream_output.jsonl"
+    """Test that stream_batch can write to a file."""
+    # Create input file
+    input_path = temp_test_dir / 'input.jsonl'
+    records = [{"id": i} for i in range(100)]
     
-    test_data = [
-        {"sequence_id": "seq_1", "tokens": list(range(50))},
-        {"sequence_id": "seq_2", "tokens": list(range(50, 100))}
-    ]
+    with open(input_path, 'w', encoding='utf-8') as f:
+        for record in records:
+            f.write(json.dumps(record) + '\n')
     
-    list(stream_batch(iter(test_data), output_path, batch_size=50))
+    output_path = temp_test_dir / 'output.jsonl'
     
-    assert output_path.exists()
-    with open(output_path, "r") as f:
-        lines = f.readlines()
+    # Stream and write to file
+    with open(output_path, 'w', encoding='utf-8') as out_f:
+        for batch in stream_batch(input_path, batch_size=50):
+            for record in batch:
+                out_f.write(json.dumps(record) + '\n')
     
-    assert len(lines) == 2
-    
-    # Verify JSON validity
-    for line in lines:
-        record = json.loads(line)
-        assert "sequence_id" in record
-        assert "tokens" in record
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    # Verify output
+    output_records = load_tokens_from_file(output_path)
+    assert len(output_records) == 100

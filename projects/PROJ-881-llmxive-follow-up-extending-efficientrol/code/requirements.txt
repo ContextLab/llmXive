@@ -12,3 +12,7 @@ huggingface_hub==0.23.0
 pyyaml==6.0.1
 black==24.4.2
 ruff==0.4.4
+# CPU-compatible 1.5B parameter model (Qwen1.5-1.5B)
+# Note: The model itself is not a pip package; it is downloaded via HuggingFace
+# at runtime using the `transformers` library. This comment documents the
+# required model specification for FR-002.

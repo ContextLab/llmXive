@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T16:17:37.986817Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-881-llmxive-follow-up-extending-efficientrol
-last_run_id: 524132bb-f017-4a7f-aa7c-a9f349c6a3b9
+last_run_id: 77f1eb83-435f-4639-89e3-08fb0e634f63
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol
 title: 'llmXive follow-up: extending "EfficientRollout: System-Aware Self-Speculative
   Decoding for RL Rollou"'
-updated_at: '2026-07-29T11:38:11.547308Z'
+updated_at: '2026-07-30T21:20:24.903338Z'
