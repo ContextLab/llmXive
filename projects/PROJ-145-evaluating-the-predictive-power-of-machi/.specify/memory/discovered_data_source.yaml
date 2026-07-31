@@ -1,0 +1,14 @@
+status: none
+intent: Materials Project AFLOWlib high entropy alloy thermodynamic data python package
+  dataset
+required_fields:
+- material_id
+- formula
+- elements
+- num_elements
+- formation_energy_per_atom
+- mixing_enthalpy
+- source_database
+cache_key: 6b45ecc18969861af6b5fbfd642bdb5fd975a0c9493b68972a76fabfd0393f29
+searched_at: '2026-07-31T09:22:12.130754+00:00'
+retry_count: 1

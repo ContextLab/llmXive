@@ -1,0 +1,11 @@
+pymatgen
+scikit-learn
+pandas
+numpy
+scipy
+datasets
+matplotlib
+seaborn
+pytest
+ruff
+black

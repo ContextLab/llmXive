@@ -1,0 +1,269 @@
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Sample 5000 unique 5-element combinations with random seed 42
+  claim_id: c_5f31511c
+  context: Task T014 and T015 require sampling 5000 unique 5-element combinations
+    from the periodic table using a fixed random seed (42) for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample 5000 unique 5-element combinations from the periodic table using
+    a fixed random seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:45:35Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: 5-fold CV R2 calculated, pkl artifacts generated, execution under 6 hours
+    on CPU
+  claim_id: c_e21356a4
+  context: The Independent Test for User Story 2 requires verification of 5-fold cross-validation
+    R-squared calculation and a 6-hour execution limit on CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 5-fold CV R^2 is calculated, model artifacts (.pkl) are generated,
+    and execution completes within 6 hours on CPU without GPU errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:46:38Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Optimize streaming logic to ensure under 7GB RAM usage
+  claim_id: c_ffec5364
+  context: Task T038 requires profiling and optimizing the data ingestion script to
+    ensure memory usage remains below 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optimize_streaming_logic_to_ensure_under_7GB_RAM_usage
+  kind: entity_fact
+  raw_text: Profile code/data_ingestion.py and optimize streaming logic to ensure
+    <7GB RAM usage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:47:00Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Filter candidates where variance is less than or equal to 10th percentile
+    threshold
+  claim_id: c_a0faa0cb
+  context: Task T034 logic requires filtering candidates where variance is less than
+    or equal to the 10th percentile threshold before ranking.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_candidates_where_variance_is_less_than_or_equal_to_10
+  kind: magnitude
+  raw_text: Filter candidates where variance <= 10th percentile threshold.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:47:20Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Output top 100 novel candidates CSV with specific columns
+  claim_id: c_20456f9b
+  context: Task T034 specifies the output of a file named top_100_novel_candidates.csv
+    containing specific columns including composition_string and rank.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output data/processed/top_100_novel_candidates.csv with columns: composition_string,
+    predicted_energy, variance, convex_hull_distance, rank.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:47:38Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Clamp near-zero values to 1e-6
+  claim_id: c_3ded45c5
+  context: Task T022 and critical notes require implementing logic to clamp near-zero
+    values to 1e-6 to prevent numerical instability.
+  evidence:
+    asserted: 1e-06
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement numerical clamping logic (min threshold) in code/feature_engineering.py
+    to clamp near-zero values to 1e-6.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T09:47:38Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Verify filter for 5 or more element systems
+  claim_id: c_1c530c7e
+  context: Task T010 requires a unit test to verify the logic for filtering systems
+    with 5 or more elements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 5+ element filter in tests/unit/test_ingestion.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:48:12Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Source API for novelty verification is static hmao proxy dataset
+  claim_id: c_357f5ba8
+  context: The document states the Source API for novelty verification is defined
+    as the static hmao proxy dataset per Plan constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Source_API_for_novelty_verification_is_static_hmao_proxy_dat
+  kind: entity_fact
+  raw_text: The source API for novelty verification is the static hmao proxy dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:48:45Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: 5000 unique 5-element combinations sampled with seed 42
+  claim_id: c_f10c06b7
+  context: T014 [US1] Sample 5000 unique 5-element combinations from the periodic
+    table using a fixed random seed (42). Filter for those present in the hmao proxy
+    index but NOT in heas_train.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample 5000 unique 5-element combinations from the periodic table using
+    a fixed random seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:52:06Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: 5000 unique 5-element combinations sampled with seed 42
+  claim_id: c_c2c7c924
+  context: T015 [US1] Sample 5000 unique 5-element combinations from the periodic
+    table using a fixed random seed (42). Filter for those NOT present in heas_train.csv
+    AND NOT present in the hmao proxy index.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample 5000 unique 5-element combinations from the periodic table using
+    a fixed random seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:52:06Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Near-zero values clamped to 1e-6
+  claim_id: c_2c40ec8e
+  context: 'Critical: Ensure code/feature_engineering.py clamps near-zero values to
+    1e-6 to prevent numerical instability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Clamp near-zero values to 1e-6 to prevent numerical instability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:52:37Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Candidates filtered by 10th percentile variance threshold
+  claim_id: c_0e4e9cb0
+  context: 'Logic: Filter candidates where variance <= 10th percentile threshold (from
+    T035a''s data/processed/variance_threshold.json) BEFORE ranking.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Candidates_filtered_by_10th_percentile_variance_threshold
+  kind: magnitude
+  raw_text: Filter candidates where variance is less than or equal to the 10th percentile
+    threshold.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:52:46Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Top 100 novel candidates generated
+  claim_id: c_4e2754a4
+  context: 'Output: data/processed/top_100_novel_candidates.csv with columns: composition_string,
+    predicted_energy, variance, convex_hull_distance, rank.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate output file data/processed/top_100_novel_candidates.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:52:51Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Execution completes within 6 hours on CPU
+  claim_id: c_f3ac2096
+  context: 'Independent Test: Verify 5-fold CV R^2 is calculated, model artifacts
+    (.pkl) are generated, and execution completes within 6 hours on CPU without GPU
+    errors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution must complete within 6 hours on CPU without GPU errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:52:55Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Streaming logic optimized for under 7GB RAM usage
+  claim_id: c_3a4d7bed
+  context: T038 Profile code/data_ingestion.py and optimize streaming logic to ensure
+    <7GB RAM usage
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_logic_optimized_for_under_7GB_RAM_usage
+  kind: magnitude
+  raw_text: Optimize streaming logic to ensure less than 7GB RAM usage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:53:00Z'

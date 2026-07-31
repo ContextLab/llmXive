@@ -1,0 +1,35 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure is shown or listed in the provided evidence; the implementer
+    did not supply any proof that the required folders (`code/`, `data/raw/`, `data/processed/`,
+    `data/models/`, `tests/unit/`, `tests/integration/`, `specs/`) actually exist.
+    The task remains unfinished until those directories are created and demonstrated.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files were presented in the evidence; the implementer provided
+    no directory listings or file contents showing empty `__init__.py` files in the
+    new project directories. Without these artifacts, the requirement to create empty
+    package initializers is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` entries,\
+    \ `.ruff.toml`, `black.toml`, or a pre\u2011commit hook) were provided, nor any\
+    \ evidence that ruff and black have been set up in the repository. The required\
+    \ artifacts are missing."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no evidence of a `tests/` directory (with unit and integration
+    subfolders) in the repository; no files or structure were shown. Consequently
+    the required artifact is missing, so the task is not satisfied.
+T013:
+  c: false
+  h: 6d3180055800319a27c81c77e5e3865429ab1b1a366c534f3f34e86109845024
+  r: The repository contains `code/data_ingestion.py` with functions for loading,
+    filtering, and processing data, but the script never invokes them to produce an
+    output file, and the required `data/processed/heas_train.csv` is absent from the
+    project. Consequently the filtering logic is not demonstrated to have been executed
+    and the expected CSV export does not exist.
