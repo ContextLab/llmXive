@@ -1,55 +1,43 @@
-"""
-Project Structure Creator for llmXive Pipeline.
-
-This script creates the required directory structure for the project:
-projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
-
-Subdirectories:
-- data/raw
-- data/processed
-- code
-- tests
-- artifacts
-- artifacts/checkpoints
-- artifacts/results
-"""
-
 import os
 from pathlib import Path
 
-
 def create_structure():
     """
-    Create the full directory structure for the project.
-    Prints the created paths to stdout for verification.
-    """
-    # Define the project root relative to the current working directory
-    # The task specifies the path relative to the project root
-    project_root = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
+    Creates the directory structure for the PROJ-558 project.
     
-    # Define all required subdirectories
-    subdirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "tests",
-        "artifacts",
-        "artifacts/checkpoints",
-        "artifacts/results"
+    Creates the following hierarchy relative to the project root:
+    projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
+    ├── data/
+    │   ├── raw/
+    │   └── processed/
+    ├── code/
+    ├── tests/
+    └── artifacts/
+        ├── checkpoints/
+        └── results/
+    """
+    project_root = Path(__file__).parent.parent
+    base_dir = project_root / "projects" / "PROJ-558-consciousness-bootstrapping-self-aware-a"
+    
+    directories = [
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "code",
+        base_dir / "tests",
+        base_dir / "artifacts" / "checkpoints",
+        base_dir / "artifacts" / "results",
     ]
     
-    created_paths = []
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
     
-    for subdir in subdirs:
-        full_path = project_root / subdir
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_paths.append(str(full_path))
-        print(f"Created: {full_path}")
+    # Ensure the base directories exist for verification
+    (base_dir / "data").mkdir(parents=True, exist_ok=True)
+    (base_dir / "artifacts").mkdir(parents=True, exist_ok=True)
     
-    # Ensure the root project directory itself exists (mkdir with parents=True handles this)
-    print(f"\nProject structure created at: {project_root}")
-    return created_paths
-
+    print(f"Project structure created at: {base_dir}")
+    return base_dir
 
 if __name__ == "__main__":
     create_structure()

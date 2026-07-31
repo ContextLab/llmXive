@@ -1,3 +1,17 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or proof of the required `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/`\
+    \ hierarchy (with subfolders `data/raw`, `data/processed`, `code`, `tests`, `artifacts`,\
+    \ `artifacts/checkpoints`, `artifacts/results`) was provided. The implementer\
+    \ must supply evidence that these directories exist and are non\u2011empty (or\
+    \ at least created)."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files for the required directories (`code`, `code/models`, `code/training`,
+    `code/evaluation`, `code/analysis`, `code/utils`) are present in the provided
+    evidence; the implementer did not supply the actual files or their contents.
 T004b:
   c: false
   h: 0d6ae283c16684c17ac1a4309f3d841cb8fb4d8e09891f9a5d5745b929163979
@@ -5,6 +19,12 @@ T004b:
     \ and `data/manifest.json` contains placeholder checksums and zero sizes, indicating\
     \ the datasets were never fetched or saved. The implementation does not meet the\
     \ task\u2019s requirement."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `config.py` file or its contents were provided; thus we cannot confirm that
+    hyperparameters (seed, batch size, recursion depth=2, learning rate) are defined
+    nor that `token_limit` is set to `100000`. The required artifact is missing.
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,30 +32,6 @@ T006:
     \ `EvaluationResult` entities are present; the claim provides no actual code,\
     \ definitions, or serialized\u2011ready implementations, so the required artifacts\
     \ are missing."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `train.py` was provided\u2014there is no code showing\
-    \ validation of recursion depth, OOM detection, error logging, or a non\u2011\
-    zero exit on violation. The required artifact (the updated script implementing\
-    \ the hard\u2011fail behavior) is missing."
-T019a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `run_benchmarks.py` script or any related output files are present; thus there
-    is no evidence that the required benchmark generation (exactly 10 reasoning paths
-    per question with the specified sampling parameters on GSM8K and MMLU) has been
-    implemented. The implementer must provide the script and a demonstration (e.g.,
-    sample output or logs) showing it produces the correct number of paths with the
-    given settings.
-T019b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `run_benchmarks.py` file or any code snippet, test output, or documentation\
-    \ was provided to show that the script exists, is non\u2011empty, and actually\
-    \ runs single\u2011path inference on MMLU and GSM8K for an accuracy baseline.\
-    \ Without the script (or evidence of its execution/results), the task requirement\
-    \ is not satisfied."
 T025:
   c: false
   h: 87b85cdfbf4856064acab8650a3417ed879514dde6bac0ab9d5c872c8783a65b
@@ -50,3 +46,18 @@ T041:
   r: No validation output, log, or report for the `quickstart.md` check is provided;
     the implementer did not supply any artifact demonstrating that the quickstart
     validation was run or succeeded. The required evidence is missing.
+T070:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `research.md` file was provided, nor any excerpt showing the new\
+    \ \u201COperational Definitions\u201D section or the explicit operational hypothesis.\
+    \ Without the actual documentation changes, the requirement cannot be verified\
+    \ as satisfied. The implementer must supply the modified `research.md` containing\
+    \ the specified content."
+T071:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or its contents were supplied, so we cannot confirm that\
+    \ the analogy has been added or that the required explanation about fixed \u201C\
+    cards\u201D and dynamic \u201Cweaving\u201D is present. The task\u2019s documentation\
+    \ update is therefore missing."

@@ -1,6 +1,3 @@
 """
-Models package for recursive and base LLM implementations.
+Models package for recursive self-attention architectures and checkpointing.
 """
-from .base_llama import BaseLlamaWrapper
-from .checkpoint import ModelCheckpoint
-from .recursive_llama import RecursionState, TemporalRecursiveSelfAttention, RecursiveLlamaWrapper, create_recursive_model

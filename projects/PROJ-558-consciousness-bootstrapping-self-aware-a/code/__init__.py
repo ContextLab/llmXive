@@ -1,4 +1,3 @@
 """
-llmXive Consciousness Bootstrapping Project
-Core code package.
+Consciousness Bootstrapping Project - Code Module
 """

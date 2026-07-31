@@ -1,74 +1,102 @@
-"""
-Test suite for project structure creation.
-Verifies that T001a requirements are met.
-"""
 import os
 import pytest
 from pathlib import Path
 import shutil
 
-# Import the function under test
-# We assume the test runs from the repo root or code directory
-# Adjusting import path to be relative to the test location
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from create_project_structure import create_structure
-
-@pytest.fixture
-def cleanup():
-    """Clean up the created directories after test."""
-    yield
-    # Cleanup logic if needed (optional for CI)
-    # base = Path("projects") / "PROJ-558-consciousness-bootstrapping-self-aware-a"
-    # if base.exists():
-    #     shutil.rmtree(base)
-
-def test_create_structure_creates_directories(cleanup):
-    """Verify that all required directories are created."""
-    base_dir = Path("projects") / "PROJ-558-consciousness-bootstrapping-self-aware-a"
+class TestProjectStructure:
+    """Tests for the project directory structure creation (T001a)."""
     
-    # Ensure clean state
-    if base_dir.exists():
-        shutil.rmtree(base_dir)
+    BASE_DIR = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
     
-    # Run creation
-    created = create_structure()
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        """Ensure clean state before and after tests."""
+        # Clean up if exists
+        if self.BASE_DIR.exists():
+            shutil.rmtree(self.BASE_DIR)
+        
+        yield
+        
+        # Clean up after test
+        if self.BASE_DIR.exists():
+            shutil.rmtree(self.BASE_DIR)
     
-    # Verify base exists
-    assert base_dir.exists(), "Base project directory should exist"
-    assert base_dir.is_dir(), "Base project directory should be a directory"
+    def test_create_structure_executes(self):
+        """Verify that the create_structure function runs without error."""
+        from create_project_structure import create_structure
+        result = create_structure()
+        assert result is True
     
-    # Verify subdirectories
-    expected_dirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "tests",
-        "artifacts",
-        "artifacts/checkpoints",
-        "artifacts/results"
-    ]
+    def test_base_directory_exists(self):
+        """Verify the base project directory is created."""
+        from create_project_structure import create_structure
+        create_structure()
+        assert self.BASE_DIR.exists(), "Base project directory should exist"
+        assert self.BASE_DIR.is_dir(), "Base project directory should be a directory"
     
-    for rel_dir in expected_dirs:
-        full_path = base_dir / rel_dir
-        assert full_path.exists(), f"Directory {rel_dir} should exist"
-        assert full_path.is_dir(), f"{rel_dir} should be a directory"
+    def test_data_raw_exists(self):
+        """Verify data/raw directory exists."""
+        from create_project_structure import create_structure
+        create_structure()
+        data_raw = self.BASE_DIR / "data" / "raw"
+        assert data_raw.exists(), "data/raw should exist"
+        assert data_raw.is_dir(), "data/raw should be a directory"
     
-    # Verify count
-    assert len(created) == len(expected_dirs), f"Should create {len(expected_dirs)} directories"
-
-def test_create_structure_idempotent(cleanup):
-    """Verify that running create_structure twice does not fail."""
-    base_dir = Path("projects") / "PROJ-558-consciousness-bootstrapping-self-aware-a"
+    def test_data_processed_exists(self):
+        """Verify data/processed directory exists."""
+        from create_project_structure import create_structure
+        create_structure()
+        data_processed = self.BASE_DIR / "data" / "processed"
+        assert data_processed.exists(), "data/processed should exist"
+        assert data_processed.is_dir(), "data/processed should be a directory"
     
-    # First run
-    if base_dir.exists():
-        shutil.rmtree(base_dir)
-    create_structure()
+    def test_code_directory_exists(self):
+        """Verify code directory exists."""
+        from create_project_structure import create_structure
+        create_structure()
+        code_dir = self.BASE_DIR / "code"
+        assert code_dir.exists(), "code directory should exist"
+        assert code_dir.is_dir(), "code directory should be a directory"
     
-    # Second run (should not raise)
-    create_structure()
+    def test_tests_directory_exists(self):
+        """Verify tests directory exists."""
+        from create_project_structure import create_structure
+        create_structure()
+        tests_dir = self.BASE_DIR / "tests"
+        assert tests_dir.exists(), "tests directory should exist"
+        assert tests_dir.is_dir(), "tests directory should be a directory"
     
-    assert base_dir.exists(), "Base directory should still exist"
-    assert (base_dir / "code").exists(), "Code directory should still exist"
+    def test_artifacts_checkpoints_exists(self):
+        """Verify artifacts/checkpoints directory exists."""
+        from create_project_structure import create_structure
+        create_structure()
+        checkpoints_dir = self.BASE_DIR / "artifacts" / "checkpoints"
+        assert checkpoints_dir.exists(), "artifacts/checkpoints should exist"
+        assert checkpoints_dir.is_dir(), "artifacts/checkpoints should be a directory"
+    
+    def test_artifacts_results_exists(self):
+        """Verify artifacts/results directory exists."""
+        from create_project_structure import create_structure
+        create_structure()
+        results_dir = self.BASE_DIR / "artifacts" / "results"
+        assert results_dir.exists(), "artifacts/results should exist"
+        assert results_dir.is_dir(), "artifacts/results should be a directory"
+    
+    def test_all_required_directories_created(self):
+        """Verify all required directories from T001a are created."""
+        from create_project_structure import create_structure
+        create_structure()
+        
+        required_paths = [
+            "data/raw",
+            "data/processed",
+            "code",
+            "tests",
+            "artifacts/checkpoints",
+            "artifacts/results"
+        ]
+        
+        for rel_path in required_paths:
+            full_path = self.BASE_DIR / rel_path
+            assert full_path.exists(), f"Missing required directory: {full_path}"
+            assert full_path.is_dir(), f"Path is not a directory: {full_path}"

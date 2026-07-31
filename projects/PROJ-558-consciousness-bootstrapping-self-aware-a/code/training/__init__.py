@@ -1,2 +1,3 @@
-# Empty init file for training package
-pass
+"""
+Training pipeline for recursive and baseline models.
+"""

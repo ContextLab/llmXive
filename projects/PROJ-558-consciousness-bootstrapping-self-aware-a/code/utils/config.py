@@ -9,107 +9,104 @@ logger = get_logger(__name__)
 @dataclass
 class Config:
     """
-    Central configuration for the Consciousness Bootstrapping project.
-    Manages hyperparameters and critical constraints.
+    Configuration container for the Consciousness Bootstrapping project.
+    Manages hyperparameters and runtime settings.
     """
-    # Core Hyperparameters
+    # Randomness
     seed: int = 42
+    
+    # Training
     batch_size: int = 4
     learning_rate: float = 1e-4
-    recursion_depth: int = 2  # FR-001 constraint: max depth 2
-    epochs: int = 3
+    recursion_depth: int = 2  # FR-001: Temporal recursive self-attention depth
     
-    # Critical Constraint: Token Limit
-    # Must be exactly 100000 as per spec FR-002 and T005 requirements.
-    # No fallback allowed.
+    # Data & Limits
+    # Constitution Principle VII & FR-002: Token limit MUST be 100,000
     token_limit: int = 100000
     
-    # Model Specifics
+    # Model
     model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-    max_sequence_length: int = 2048
+    max_length: int = 2048
     
-    # Training Configuration
-    use_cpu: bool = True
-    gradient_accumulation_steps: int = 1
-    warmup_steps: int = 100
-    weight_decay: float = 0.01
-    
-    # Evaluation Configuration
-    evaluation_batch_size: int = 1
-    num_reasoning_paths: int = 10  # For self-consistency benchmark (N=10)
+    # Evaluation
+    num_workers: int = 0
     temperature: float = 0.7
     top_p: float = 0.9
     
     # Paths
     data_dir: str = "data"
-    output_dir: str = "artifacts/results"
-    checkpoint_dir: str = "artifacts/checkpoints"
+    output_dir: str = "artifacts"
+    
+    def __post_init__(self):
+        """Validate configuration after initialization."""
+        validate_config(self)
 
-# Global configuration instance
-_config: Optional[Config] = None
+_global_config: Optional[Config] = None
 
 def get_config() -> Config:
     """
     Returns the global configuration instance.
-    Initializes it if not already set.
+    Creates a default one if none exists.
     """
-    global _config
-    if _config is None:
-        _config = Config()
-        # Validate immediately upon first access
-        validate_config(_config)
-    return _config
+    global _global_config
+    if _global_config is None:
+        _global_config = Config()
+    return _global_config
 
-def set_config(new_config: Config) -> None:
+def set_config(config: Config) -> None:
     """
-    Updates the global configuration instance.
+    Sets the global configuration instance.
     """
-    global _config
-    _config = new_config
-    validate_config(_config)
+    global _global_config
+    _global_config = config
+    logger.info("Global configuration updated.")
 
 def validate_config(config: Config) -> None:
     """
-    Validates the configuration against critical project constraints.
+    Validates the configuration against project constraints.
     
     Raises:
-        ConfigurationError: If critical constraints (like token_limit) are violated.
+        ConfigurationError: If any constraint is violated.
     """
-    # CRITICAL: Token Limit Validation (T005 Requirement)
-    # Must be exactly 100000. No defaults, no "deferred", no None.
+    if config.token_limit is None or not isinstance(config.token_limit, int):
+        raise ConfigurationError(
+            f"token_limit must be an integer. Got {type(config.token_limit)}."
+        )
+    
+    # Constitution Principle VII: token_limit MUST be 100,000
     if config.token_limit != 100000:
         raise ConfigurationError(
-            f"CRITICAL CONFIGURATION ERROR: token_limit must be exactly 100000. "
-            f"Current value: {config.token_limit}. "
-            f"The pipeline cannot proceed without this specific limit as per Spec FR-002."
+            f"token_limit must be exactly 100000 (100k) as per Constitution Principle VII. "
+            f"Current value: {config.token_limit}"
         )
     
-    # Recursion Depth Validation
-    if config.recursion_depth > 2:
-        raise ConfigurationError(
-            f"CRITICAL CONFIGURATION ERROR: recursion_depth cannot exceed 2. "
-            f"Current value: {config.recursion_depth}."
-        )
+    if config.recursion_depth < 1:
+        raise ConfigurationError("recursion_depth must be at least 1.")
     
-    # Device Validation
-    if config.use_cpu and not torch.cuda.is_available():
-        logger.info("CUDA not available, forcing CPU mode.")
-        config.use_cpu = True
-    elif config.use_cpu and torch.cuda.is_available():
-        logger.warning("CUDA is available but use_cpu is forced to True.")
+    if config.batch_size < 1:
+        raise ConfigurationError("batch_size must be at least 1.")
+    
+    if config.learning_rate <= 0:
+        raise ConfigurationError("learning_rate must be positive.")
+    
+    logger.info("Configuration validation passed.")
 
 def main() -> None:
     """
     Entry point for testing configuration validation.
     """
     try:
-        cfg = get_config()
-        logger.info(f"Configuration loaded successfully. Token limit: {cfg.token_limit}")
-        logger.info(f"Recursion depth: {cfg.recursion_depth}")
-        logger.info(f"Seed: {cfg.seed}")
+        config = get_config()
+        validate_config(config)
+        print(f"Config loaded successfully:")
+        print(f"  Seed: {config.seed}")
+        print(f"  Batch Size: {config.batch_size}")
+        print(f"  Recursion Depth: {config.recursion_depth}")
+        print(f"  Learning Rate: {config.learning_rate}")
+        print(f"  Token Limit: {config.token_limit}")
     except ConfigurationError as e:
-        logger.critical(str(e))
-        raise
+        print(f"Configuration Error: {e}")
+        exit(1)
 
 if __name__ == "__main__":
     main()

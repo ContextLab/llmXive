@@ -1,36 +1,40 @@
-"""
-Benchmark execution script for Self-Aware AI Through Recursive Introspection.
-Implements standard MMLU/GSM8K inference (single path) for accuracy baseline.
-"""
 import os
 import sys
 import json
 import random
 import argparse
 import numpy as np
-from pathlib import Path
-from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
+from pathlib import Path
 
-import torch
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from transformers import LlamaForCausalLM, LlamaTokenizer
-from datasets import load_dataset
+import torch
+from dataclasses import dataclass
+from datetime import datetime
 
-# Project imports
-from config import get_config, validate_config
-from utils.logging import get_logger, log_evaluation_start, log_metric, EvaluationError
+from config import get_config
+from utils.logging import get_logger, EvaluationError
+from models.checkpoint import ModelCheckpoint
 from evaluation.results import EvaluationResult
-from evaluation.metrics import calculate_self_consistency, aggregate_metrics
+from data_loader import load_manifest, compute_checksum
 
 logger = get_logger(__name__)
 
-# Constants
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-ARTIFACTS_RESULTS_DIR = PROJECT_ROOT / "artifacts" / "results"
+@dataclass
+class BenchmarkConfig:
+    dataset_name: str
+    dataset_path: str
+    split: str
+    prompt_template: str
+    answer_key: str
+    num_shots: int = 0
+    max_tokens: int = 256
 
-def set_seed(seed: int) -> None:
+def set_seed(seed: int):
     """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
@@ -39,93 +43,103 @@ def set_seed(seed: int) -> None:
         torch.cuda.manual_seed_all(seed)
 
 def load_model_and_tokenizer(model_path: str) -> Tuple[LlamaForCausalLM, LlamaTokenizer]:
-    """Load model and tokenizer from checkpoint."""
+    """Load a pre-trained model and tokenizer from a checkpoint."""
     logger.info(f"Loading model from {model_path}")
+    
+    if not os.path.exists(model_path):
+        raise EvaluationError(f"Model checkpoint not found: {model_path}")
+    
     try:
         tokenizer = LlamaTokenizer.from_pretrained(model_path)
         model = LlamaForCausalLM.from_pretrained(
             model_path,
-            torch_dtype=torch.float32, # CPU constraint
-            device_map="cpu"
+            torch_dtype=torch.float32,
+            device_map="auto" if torch.cuda.is_available() else None
         )
         model.eval()
-        logger.info("Model loaded successfully")
+        logger.info(f"Model loaded successfully: {model_path}")
         return model, tokenizer
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
-        raise EvaluationError(f"Model loading failed: {e}")
+        raise EvaluationError(f"Failed to load model: {e}")
 
-def prepare_gsm8k_prompt(example: Dict[str, Any]) -> str:
-    """Prepare GSM8K prompt from dataset example."""
-    question = example['question']
-    # Standard GSM8K prompt format
-    prompt = f"Question: {question}\nAnswer:"
-    return prompt
+def prepare_gsm8k_prompt(question: str) -> str:
+    """Prepare a prompt for GSM8K dataset."""
+    return f"Question: {question}\nAnswer:"
 
-def prepare_mmlu_prompt(example: Dict[str, Any], subject: str) -> str:
-    """Prepare MMLU prompt from dataset example."""
-    question = example['question']
-    choices = example['choices']
-    # Format choices
-    choices_str = "\n".join([f"{chr(65+i)}. {choice}" for i, choice in enumerate(choices)])
-    prompt = f"Question: {question}\nOptions:\n{choices_str}\nAnswer:"
+def prepare_mmlu_prompt(question: str, choices: List[str]) -> str:
+    """Prepare a prompt for MMLU dataset."""
+    prompt = f"Question: {question}\n"
+    for i, choice in enumerate(choices):
+        prompt += f"{chr(65+i)}. {choice}\n"
+    prompt += "Answer:"
     return prompt
 
 def generate_reasoning_path(
     model: LlamaForCausalLM,
     tokenizer: LlamaTokenizer,
     prompt: str,
-    max_new_tokens: int = 256,
-    temperature: float = 0.0, # Single path baseline: greedy decoding
-    top_p: float = 1.0
+    max_tokens: int = 256
 ) -> str:
-    """Generate a single reasoning path (answer) for the given prompt."""
+    """Generate a single reasoning path for a given prompt."""
     inputs = tokenizer(prompt, return_tensors="pt")
-    input_ids = inputs['input_ids']
-    attention_mask = inputs['attention_mask']
-
+    
+    if torch.cuda.is_available():
+        inputs = {k: v.cuda() for k, v in inputs.items()}
+    
     with torch.no_grad():
         outputs = model.generate(
-            input_ids,
-            attention_mask=attention_mask,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            top_p=top_p,
-            do_sample=(temperature > 0),
+            **inputs,
+            max_new_tokens=max_tokens,
+            temperature=0.7,
+            top_p=0.9,
+            do_sample=True,
             pad_token_id=tokenizer.eos_token_id
         )
+    
+    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Extract only the generated part
+    generated_part = generated_text[len(prompt):]
+    return generated_part.strip()
 
-    # Decode output, removing the prompt
-    full_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    if full_output.startswith(prompt):
-        generated_text = full_output[len(prompt):]
-    else:
-        generated_text = full_output
-
-    return generated_text.strip()
-
-def parse_gsm8k_answer(generated_text: str) -> Optional[str]:
-    """Parse the final answer from GSM8K generation."""
-    # Look for "####" or "The answer is" pattern
-    if "####" in generated_text:
-        parts = generated_text.split("####")
-        if len(parts) > 1:
-            return parts[-1].strip()
-    # Fallback: try to extract last number
-    import re
-    numbers = re.findall(r'\d+\.?\d*', generated_text)
-    if numbers:
-        return numbers[-1]
+def parse_gsm8k_answer(generation: str) -> Optional[float]:
+    """Parse the answer from a GSM8K generation."""
+    # Look for the final answer in the format "#### <number>"
+    if "####" in generation:
+        try:
+            answer_str = generation.split("####")[-1].strip()
+            return float(answer_str.replace(",", ""))
+        except (ValueError, IndexError):
+            return None
     return None
 
-def parse_mmlu_answer(generated_text: str) -> Optional[str]:
-    """Parse the final answer (A, B, C, D) from MMLU generation."""
-    # Look for the first letter A-D
-    import re
-    match = re.search(r'\b([A-D])\b', generated_text)
-    if match:
-        return match.group(1)
+def parse_mmlu_answer(generation: str) -> Optional[str]:
+    """Parse the answer from an MMLU generation."""
+    # Look for A, B, C, or D in the generation
+    generation_upper = generation.upper()
+    for option in ["A", "B", "C", "D"]:
+        if option in generation_upper:
+            return option
     return None
+
+def load_gsm8k_dataset(data_path: str) -> List[Dict[str, Any]]:
+    """Load GSM8K dataset from JSON file."""
+    if not os.path.exists(data_path):
+        raise EvaluationError(f"GSM8K dataset not found: {data_path}")
+    
+    with open(data_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    return data
+
+def load_mmlu_dataset(data_path: str) -> List[Dict[str, Any]]:
+    """Load MMLU dataset from JSON file."""
+    if not os.path.exists(data_path):
+        raise EvaluationError(f"MMLU dataset not found: {data_path}")
+    
+    with open(data_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    return data
 
 def run_gsm8k_benchmark(
     model: LlamaForCausalLM,
@@ -134,174 +148,192 @@ def run_gsm8k_benchmark(
     max_samples: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """Run GSM8K benchmark with single-path inference."""
-    logger.info("Starting GSM8K benchmark (single path)...")
+    logger.info(f"Running GSM8K benchmark on {len(dataset)} samples")
+    
     results = []
-
-    for i, example in enumerate(dataset):
-        if max_samples and i >= max_samples:
-            break
-
-        prompt = prepare_gsm8k_prompt(example)
-        generated = generate_reasoning_path(model, tokenizer, prompt)
-        predicted = parse_gsm8k_answer(generated)
-        correct_answer = example['answer'] # Usually contains the final number after ####
-
-        # Extract correct answer for comparison
-        correct_val = parse_gsm8k_answer(correct_answer)
-
-        results.append({
-            "question_id": i,
-            "question": example['question'],
-            "prompt": prompt,
-            "generated_text": generated,
-            "predicted_answer": predicted,
-            "correct_answer": correct_val,
-            "is_correct": (predicted == correct_val) if predicted and correct_val else False
-        })
-
+    samples_to_process = dataset if max_samples is None else dataset[:max_samples]
+    
+    for i, item in enumerate(samples_to_process):
+        question = item.get('question', '')
+        expected_answer = item.get('answer', '')
+        
+        prompt = prepare_gsm8k_prompt(question)
+        generation = generate_reasoning_path(model, tokenizer, prompt)
+        predicted_answer = parse_gsm8k_answer(generation)
+        
+        # Parse expected answer (format: "#### <number>")
+        expected_parsed = None
+        if "####" in expected_answer:
+            try:
+                expected_parsed = float(expected_answer.split("####")[-1].strip().replace(",", ""))
+            except (ValueError, IndexError):
+                pass
+        
+        is_correct = (predicted_answer is not None and 
+                     expected_parsed is not None and 
+                     abs(predicted_answer - expected_parsed) < 1e-6)
+        
+        result = {
+            'question_id': i,
+            'question': question,
+            'expected_answer': expected_answer,
+            'predicted_answer': predicted_answer,
+            'generation': generation,
+            'is_correct': is_correct
+        }
+        results.append(result)
+        
         if (i + 1) % 10 == 0:
-            logger.info(f"Processed {i + 1}/{len(dataset)} GSM8K samples")
-
+            logger.info(f"Processed {i + 1}/{len(samples_to_process)} GSM8K samples")
+    
     return results
 
 def run_mmlu_benchmark(
     model: LlamaForCausalLM,
     tokenizer: LlamaTokenizer,
     dataset: List[Dict[str, Any]],
-    subject: str,
     max_samples: Optional[int] = None
 ) -> List[Dict[str, Any]]:
     """Run MMLU benchmark with single-path inference."""
-    logger.info(f"Starting MMLU benchmark for subject '{subject}' (single path)...")
+    logger.info(f"Running MMLU benchmark on {len(dataset)} samples")
+    
     results = []
-
-    for i, example in enumerate(dataset):
-        if max_samples and i >= max_samples:
-            break
-
-        prompt = prepare_mmlu_prompt(example, subject)
-        generated = generate_reasoning_path(model, tokenizer, prompt)
-        predicted = parse_mmlu_answer(generated)
-        correct_answer = example['answer'] # 0, 1, 2, 3 -> A, B, C, D
-
-        correct_letter = chr(65 + correct_answer)
-
-        results.append({
-            "question_id": i,
-            "question": example['question'],
-            "prompt": prompt,
-            "generated_text": generated,
-            "predicted_answer": predicted,
-            "correct_answer": correct_letter,
-            "is_correct": (predicted == correct_letter) if predicted else False
-        })
-
+    samples_to_process = dataset if max_samples is None else dataset[:max_samples]
+    
+    for i, item in enumerate(samples_to_process):
+        question = item.get('question', '')
+        choices = item.get('choices', [])
+        expected_answer_idx = item.get('answer', 0)
+        expected_answer = chr(65 + expected_answer_idx) if expected_answer_idx < 26 else None
+        
+        prompt = prepare_mmlu_prompt(question, choices)
+        generation = generate_reasoning_path(model, tokenizer, prompt)
+        predicted_answer = parse_mmlu_answer(generation)
+        
+        is_correct = (predicted_answer is not None and 
+                     predicted_answer.upper() == expected_answer.upper() if expected_answer else False)
+        
+        result = {
+            'question_id': i,
+            'question': question,
+            'choices': choices,
+            'expected_answer': expected_answer,
+            'predicted_answer': predicted_answer,
+            'generation': generation,
+            'is_correct': is_correct
+        }
+        results.append(result)
+        
         if (i + 1) % 10 == 0:
-            logger.info(f"Processed {i + 1}/{len(dataset)} MMLU {subject} samples")
-
+            logger.info(f"Processed {i + 1}/{len(samples_to_process)} MMLU samples")
+    
     return results
 
-def validate_evaluation_result_schema(result: Dict[str, Any]) -> bool:
-    """Validate that the result dictionary matches the expected schema."""
-    required_keys = ['accuracy', 'total_samples', 'correct_samples', 'results']
-    return all(key in result for key in required_keys)
+def calculate_accuracy(results: List[Dict[str, Any]]) -> float:
+    """Calculate accuracy from benchmark results."""
+    if not results:
+        return 0.0
+    
+    correct = sum(1 for r in results if r['is_correct'])
+    return correct / len(results)
+
+def save_benchmark_results(results: List[Dict[str, Any]], output_path: str, benchmark_type: str):
+    """Save benchmark results to a JSON file."""
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"Benchmark results saved to {output_path}")
+    
+    # Update manifest
+    checksum = compute_checksum(output_path)
+    manifest_path = os.path.join(os.path.dirname(output_dir), 'manifest.json')
+    
+    manifest = {}
+    if os.path.exists(manifest_path):
+        with open(manifest_path, 'r') as f:
+            manifest = json.load(f)
+    
+    manifest[output_path] = {
+        'checksum': checksum,
+        'benchmark_type': benchmark_type,
+        'timestamp': datetime.now().isoformat(),
+        'num_samples': len(results)
+    }
+    
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
 
 def main():
-    parser = argparse.ArgumentParser(description="Run standard MMLU/GSM8K inference for accuracy baseline.")
-    parser.add_argument("--model-path", type=str, required=True, help="Path to the model checkpoint.")
-    parser.add_argument("--dataset", type=str, choices=["gsm8k", "mmlu"], required=True, help="Dataset to evaluate.")
-    parser.add_argument("--mmlu-subject", type=str, default="all", help="MMLU subject (or 'all' for average).")
-    parser.add_argument("--max-samples", type=int, default=None, help="Maximum number of samples to process.")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
-    parser.add_argument("--output", type=str, default=None, help="Output JSON file path.")
+    """Main entry point for running MMLU/GSM8K benchmarks."""
+    parser = argparse.ArgumentParser(description="Run MMLU/GSM8K benchmarks for accuracy baseline")
+    parser.add_argument("--model_path", type=str, required=True, help="Path to model checkpoint")
+    parser.add_argument("--gsm8k_path", type=str, default="data/raw/gsm8k.json", help="Path to GSM8K dataset")
+    parser.add_argument("--mmlu_path", type=str, default="data/raw/mmlu.json", help="Path to MMLU dataset")
+    parser.add_argument("--gsm8k_output", type=str, default="data/processed/gsm8k_benchmark_results.json", help="Output path for GSM8K results")
+    parser.add_argument("--mmlu_output", type=str, default="data/processed/mmlu_benchmark_results.json", help="Output path for MMLU results")
+    parser.add_argument("--max_samples", type=int, default=None, help="Maximum number of samples to process (for testing)")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    
     args = parser.parse_args()
-
-    # Validate config
-    try:
-        config = get_config()
-        validate_config(config)
-    except Exception as e:
-        logger.critical(f"Configuration validation failed: {e}")
-        sys.exit(1)
-
+    
+    # Set seed
     set_seed(args.seed)
-    ARTIFACTS_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Load model
-    model, tokenizer = load_model_and_tokenizer(args.model_path)
-
-    # Load dataset
-    dataset_path = RAW_DATA_DIR / f"{args.dataset}.json"
-    if not dataset_path.exists():
-        logger.error(f"Dataset file not found: {dataset_path}")
-        logger.error("Please ensure T004b-GSM8K or T004b-MMLU has been completed to generate the data.")
-        sys.exit(1)
-
-    logger.info(f"Loading dataset from {dataset_path}")
-    with open(dataset_path, 'r') as f:
-        data = json.load(f)
-
-    if args.dataset == "gsm8k":
-        benchmark_results = run_gsm8k_benchmark(model, tokenizer, data, args.max_samples)
-        subject_name = "GSM8K"
-    elif args.dataset == "mmlu":
-        if args.mmlu_subject == "all":
-            # For 'all', we might need to aggregate multiple subjects if the JSON contains them
-            # Assuming the JSON structure has a 'subject' field if it's a mix, or we process the whole list as one subject
-            # If the file is a specific subject, we just run it.
-            # To be safe, we check if 'subject' exists in the first item.
-            if data and 'subject' in data[0]:
-                subjects = list(set(item['subject'] for item in data))
-                logger.warning(f"Dataset contains multiple subjects: {subjects}. Processing all sequentially.")
-                all_results = []
-                for subj in subjects:
-                    subj_data = [item for item in data if item['subject'] == subj]
-                    all_results.extend(run_mmlu_benchmark(model, tokenizer, subj_data, subj, args.max_samples))
-                benchmark_results = all_results
-            else:
-                # Assume single subject or no subject field, treat as generic
-                benchmark_results = run_mmlu_benchmark(model, tokenizer, data, "mixed", args.max_samples)
-        else:
-            # Filter by subject if specific
-            if data and 'subject' in data[0]:
-                filtered_data = [item for item in data if item['subject'] == args.mmlu_subject]
-                benchmark_results = run_mmlu_benchmark(model, tokenizer, filtered_data, args.mmlu_subject, args.max_samples)
-            else:
-                benchmark_results = run_mmlu_benchmark(model, tokenizer, data, args.mmlu_subject, args.max_samples)
-    else:
-        logger.error(f"Unsupported dataset: {args.dataset}")
-        sys.exit(1)
-
-    # Calculate metrics
-    total_samples = len(benchmark_results)
-    correct_samples = sum(1 for r in benchmark_results if r['is_correct'])
-    accuracy = correct_samples / total_samples if total_samples > 0 else 0.0
-
-    evaluation_result = {
-        "model_path": args.model_path,
-        "dataset": args.dataset,
-        "subject": args.mmlu_subject if args.dataset == "mmlu" else "N/A",
-        "timestamp": datetime.now().isoformat(),
-        "seed": args.seed,
-        "total_samples": total_samples,
-        "correct_samples": correct_samples,
-        "accuracy": accuracy,
-        "results": benchmark_results
-    }
-
-    # Validate schema
-    if not validate_evaluation_result_schema(evaluation_result):
-        logger.error("Evaluation result schema validation failed.")
-        sys.exit(1)
-
-    # Save output
-    output_path = args.output if args.output else ARTIFACTS_RESULTS_DIR / f"baseline_{args.dataset}_{args.seed}.json"
-    with open(output_path, 'w') as f:
-        json.dump(evaluation_result, f, indent=2)
-
-    logger.info(f"Results saved to {output_path}")
-    logger.info(f"Accuracy: {accuracy:.4f} ({correct_samples}/{total_samples})")
-    log_metric("accuracy", accuracy)
+    
+    try:
+        # Load model and tokenizer
+        model, tokenizer = load_model_and_tokenizer(args.model_path)
+        
+        # Load datasets
+        gsm8k_data = load_gsm8k_dataset(args.gsm8k_path)
+        mmlu_data = load_mmlu_dataset(args.mmlu_path)
+        
+        logger.info(f"Loaded {len(gsm8k_data)} GSM8K samples and {len(mmlu_data)} MMLU samples")
+        
+        # Run benchmarks
+        gsm8k_results = run_gsm8k_benchmark(model, tokenizer, gsm8k_data, args.max_samples)
+        mmlu_results = run_mmlu_benchmark(model, tokenizer, mmlu_data, args.max_samples)
+        
+        # Calculate and log accuracies
+        gsm8k_accuracy = calculate_accuracy(gsm8k_results)
+        mmlu_accuracy = calculate_accuracy(mmlu_results)
+        
+        logger.info(f"GSM8K Accuracy: {gsm8k_accuracy:.4f} ({gsm8k_accuracy*100:.2f}%)")
+        logger.info(f"MMLU Accuracy: {mmlu_accuracy:.4f} ({mmlu_accuracy*100:.2f}%)")
+        
+        # Save results
+        save_benchmark_results(gsm8k_results, args.gsm8k_output, "gsm8k_single_path")
+        save_benchmark_results(mmlu_results, args.mmlu_output, "mmlu_single_path")
+        
+        # Create evaluation result summary
+        eval_result = EvaluationResult(
+            model_path=args.model_path,
+            timestamp=datetime.now().isoformat(),
+            metrics={
+                'gsm8k_accuracy': gsm8k_accuracy,
+                'mmlu_accuracy': mmlu_accuracy,
+                'gsm8k_samples': len(gsm8k_results),
+                'mmlu_samples': len(mmlu_results)
+            },
+            raw_results_paths={
+                'gsm8k': args.gsm8k_output,
+                'mmlu': args.mmlu_output
+            }
+        )
+        
+        summary_path = args.gsm8k_output.replace('.json', '_summary.json')
+        with open(summary_path, 'w') as f:
+            json.dump(eval_result.to_dict(), f, indent=2)
+        
+        logger.info(f"Evaluation summary saved to {summary_path}")
+        logger.info("Benchmark execution completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Benchmark execution failed: {e}", exc_info=True)
+        raise EvaluationError(f"Failed to run benchmarks: {e}")
 
 if __name__ == "__main__":
     main()

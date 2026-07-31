@@ -68,7 +68,7 @@
 
 ### Data Loading & Configuration
 
-- [ ] T005 [P] **Implementation**: Implement `config.py` to manage hyperparameters (seed, batch size, recursion depth=2, learning rate). **Constraint**: `token_limit` MUST be initialized to the integer `100000` (100k) as per Constitution Principle VII and FR-002. **Dependency**: None.
+- [ ] T005 [P] **Implementation**: Implement config.py to manage hyperparameters (seed, batch size, recursion depth=2, learning rate). **Constraint**: `token_limit` MUST be initialized to the integer `100000` (100k) as per Constitution Principle VII and FR-002. **Dependency**: None.
 - [ ] T004-IMPL [P] [US1] **Implementation**: Implement `data_loader.py` to fetch the 'arXiv' subset of the Pile dataset via HuggingFace `datasets` API. **Logic**: Use `datasets.load_dataset("pile", split="train")` and filter for items where the text starts with 'arXiv' (or use the specific `arxiv` subset if available in the library version). **Constraint**: Truncate to `token_limit` (100k tokens). Save to `data/raw/pile_arxiv_truncated.json`. **Dependency**: Requires T005. **Note**: This task is parallel-safe relative to other data loaders.
 - [ ] T004b-GSM8K [P] [US2] **Implementation**: Implement `data_loader.py` (additional function) to fetch GSM8K dataset via HuggingFace `datasets` API. **Action**: Save to `data/raw/gsm8k.json` with checksum in `data/manifest.json`. **Dependency**: None. **Note**: This task is parallel-safe relative to T004-IMPL and T004b-MMLU.
 - [ ] T004b-MMLU [P] [US2] **Implementation**: Implement `data_loader.py` (additional function) to fetch MMLU dataset via HuggingFace `datasets` API. **Action**: Save to `data/raw/mmlu.json` with checksum in `data/manifest.json`. **Dependency**: None. **Note**: This task is parallel-safe relative to T004-IMPL and T004b-GSM8K.
@@ -100,7 +100,7 @@
 
 - [X] T011 [P] [US1] Implement `recursive_llama.py` with temporal recursive self-attention module (FR-001) in `code/models/recursive_llama.py`
 - [ ] T012-IMPL [US1] **Implementation**: Implement `loss_functions.py` with joint loss (cross-entropy + confidence-prediction). **Implementation Logic**: Define a function `compute_confidence_loss(model, batch, temperature=0.7, top_p=0.9, max_tokens=256, n_samples=5)` that: (1) Generates N=5 reasoning paths per training item using the current model state with the specified parameters; (2) Computes the majority vote of these paths to determine a binary 'proxy correctness' signal; (3) **Tie-Breaking Rule**: Define a deterministic tie-breaking rule (specifically: prefer the first generated path) to satisfy spec Edge Cases for handling ties or no-majority scenarios. (4) Compare the model's predicted confidence for the final answer against this proxy signal. **Note**: This is a self-referential training signal as per Spec Assumptions. The 'correctness' is defined by the model's own majority vote. **Dependency**: Requires T011 (base_llama.py). **Note**: This task defines the function logic; the actual generation occurs during the training loop in T013.
-- [ ] T013 [US1] Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`. **Dependency**: Requires T012-IMPL to be complete. **Note**: This task is NOT parallel-safe relative to T012-IMPL.
+- [X] T013 [US1] Implement `train.py` script to train both recursive and baseline models with fixed seeds (US-01) in `code/training/train.py`. **Dependency**: Requires T012-IMPL to be complete. **Note**: This task is NOT parallel-safe relative to T012-IMPL.
 - [ ] T014 [US1] Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement hard-fail: if OOM or depth violation occurs, log error and exit with non-zero code. **MUST NOT** automatically reduce depth.
 - [X] T015 [US1] Add logging for training progress and OOM detection in `code/training/train.py`
 
@@ -122,7 +122,7 @@
 ### Implementation for User Story 2
 
 - [X] T018 [P] [US2] Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score, and ECE (FR-003, FR-004) in `code/evaluation/metrics.py`. **CRITICAL**: Implement `calculate_error_detection_calibration` function internally to compute ECE. **Output Requirement**: MUST output the final computed metrics (Brier score, ECE, ROC-AUC) AND the raw binning data to `data/processed/ece_binning.json` to satisfy Constitution Principle IV (Single Source of Truth).
-- [ ] T019a [US2] Implement `run_benchmarks.py` to generate **multiple reasoning paths per question** for the **Self-Consistency Benchmark dataset** (FR-003) using temperature=0.7, top_p=0.9, and a fixed seed per run. **Dependency**: Requires T004c-SELFCONS to be complete. **Clarification**: This task implements the N=10 protocol strictly for the Self-Consistency benchmark dataset. **Action**: Implement tie-breaking rule (prefer first generated path) as per spec Edge Cases.
+- [ ] T019a [US2] Implement `run_benchmarks.py` to generate **multiple reasoning paths per question** for the **Self-Consistency Benchmark dataset** (FR-003) using temperature=0.7, top_p=0.9, and a fixed seed per run. **Dependency**: Requires T004c-SELFCONS to be complete. **Clarification**: This task implements the N=10 protocol strictly for the Self-Consistency benchmark dataset. **Action**: Implement tie-breaking rule (prefer first generated path) as per spec Edge Cases. <!-- FAILED: unspecified -->
 - [ ] T019b [US2] Implement `run_benchmarks.py` to run standard MMLU/GSM8K inference (single path) for accuracy baseline. **Dependency**: Requires T004b-GSM8K and T004b-MMLU to be complete.
 - [X] T020 [US2] Implement logic to produce 'shuffled-attention' control dataset for isolation of temporal recursion effects (US-02) in `code/evaluation/run_benchmarks.py`. **Dependency**: Requires T004b-GSM8K and T004b-MMLU.
 - [X] T021 [US2] Add contract validation to ensure output JSON matches `EvaluationResult` schema in `code/evaluation/run_benchmarks.py`
@@ -177,7 +177,7 @@
 *Reviewers concern: A system may describe itself elegantly without improving problem-solving capacity.*
 
 - [ ] T074 [P] [US3] **Implementation**: Add a "Behavioral Adaptation" metric to `stats.py`. **Logic**: Compare the performance of the Recursive Model vs. Baseline *specifically* on items where the internal proxy flagged high uncertainty. **Action**: If the Recursive Model improves on these "hard" items significantly more than the Baseline, it proves the self-model is driving adaptation, not just description.
-- [ ] T075 [P] [Research] **Documentation**: Update `research.md` to include a "Falsification Criterion" section. **Action**: Explicitly state: "The hypothesis is falsified if the Recursive Model shows no statistically significant improvement in accuracy on high-uncertainty items compared to the Baseline, despite showing improved confidence calibration."
+- [ ] T075 [P] [Research] **Documentation**: Update `research.md` to include a "Falsification Criterion" section. **Action**: Explicitly state: "The hypothesis is falsified if the Recursive Model shows no statistically significant improvement in accuracy on high-uncertainty items compared to the Baseline, despite showing improved confidence calibration. [UNRESOLVED-CLAIM: c_ca15f1c7 — status=not_enough_info]"
 
 ### Addressing "Thermodynamic Cost" (Krakauer, Wolfram)
 *Reviewers concern: Agency requires a cost; the system must pay a "metabolic" price for maintaining the self-model.*
@@ -185,6 +185,18 @@
 - [ ] T076 [P] [US1] **Implementation**: Add a "Computational Cost" metric to `train.py`. **Logic**: Measure the additional FLOPs and memory usage introduced by the recursive module (depth=2) vs. the baseline. **Action**: Log this to `artifacts/results/cost_analysis.json`.
 - [ ] T077 [P] [US3] **Implementation**: Update `stats.py` to calculate an "Efficiency Ratio". **Logic**: (Performance Gain) / (Computational Cost). **Action**: If the ratio is negative or negligible, the "bootstrapping" is not cost-effective. This addresses the "budget constraint" concern.
 - [ ] T078 [P] [Research] **Documentation**: Update `research.md` to frame the results in terms of "Computational Irreducibility" (Wolfram). **Action**: Discuss whether the recursive path reveals patterns that are not reducible to the baseline, effectively "just running it" to see what emerges.
+
+### Addressing "Simulation vs. Phenomenon" (Turing, Kahneman)
+*Reviewers concern: The system may simulate introspection without grounding it in external truth or penalizing false reports.*
+
+- [ ] T079 [P] [US2] **Implementation**: Implement a "Prediction Penalty" mechanism in `code/evaluation/metrics.py`. **Logic**: For each generated path, record the model's predicted confidence *before* generation. Compare this prediction against the *actual* correctness of the path (determined by external ground truth in GSM8K/MMLU). **Action**: Calculate a "Calibration Gap" metric (Brier score of the prediction vs. reality) and ensure the loss function in T012-IMPL explicitly penalizes divergence between predicted confidence and actual correctness, preventing the model from "lying" about its state.
+- [ ] T080 [P] [Research] **Documentation**: Update `research.md` to address the "System 1" bias (Kahneman). **Action**: Add a section "Post-Hoc Rationalization vs. Real-Time Monitoring" explaining how the internal proxy (N=5 majority vote) serves as an external benchmark for the model's own confidence, distinguishing between a coherent story and a verifiable mechanical procedure.
+
+### Addressing "Origin of Operations" (Lovelace, Socrates)
+*Reviewers concern: The engine executes orders but cannot originate the self-model; we must distinguish between executing a pattern and originating a new one.*
+
+- [ ] T081 [P] [US3] **Implementation**: Add a "Novelty Detection" metric to `stats.py`. **Logic**: Compare the distribution of "reasoning paths" generated by the Recursive Model vs. the Baseline. **Action**: If the Recursive Model produces a statistically significant higher variance in reasoning strategies (not just answers) on hard problems, it suggests the recursion is generating *novel combinations* rather than cycling through latent patterns. Output to `artifacts/results/novelty_analysis.json`.
+- [ ] T082 [P] [Research] **Documentation**: Update `research.md` to address the "Subject vs. Object" paradox (Socrates). **Action**: Explicitly state that the "Subject" in this experiment is the *gradient signal* derived from the self-consistency proxy, which acts as an external judge to the "Object" (the current weights). The "awareness" is the system's ability to minimize the error of this internal judge, effectively "knowing the good" by aligning with the proxy's majority vote.
 
 ---
 
@@ -296,3 +308,4 @@ With multiple developers:
 - **Manifest Note**: T039 clarifies that execution logs are not datasets and do not require checksumming in `data/manifest.json`.
 - **Philosophical Note**: Phase 7 tasks (T070-T071, T074-T078) are explicitly designed to operationalize the "Simulation vs. Origin" and "Intelligence vs. Description" debates into measurable metrics (Behavioral Adaptation, Efficiency Ratio) and documentation. This ensures the project addresses the core scientific questions raised by the reviewers without resorting to metaphysical speculation.
 - **Seed Note**: T027 enforces the constitutional requirement of 5 seeds by failing if the count drops below 5.
+- **New Review Tasks**: Tasks T079, T080, T081, T082 are added to specifically address the "Prediction Penalty" (Turing), "System 1 Bias" (Kahneman), "Novelty Detection" (Lovelace), and "Subject/Object Paradox" (Socrates) concerns raised in the prior research-stage reviews. These tasks ensure the project moves beyond mere simulation to measurable, falsifiable scientific claims.

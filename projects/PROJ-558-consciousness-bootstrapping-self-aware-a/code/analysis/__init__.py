@@ -1,3 +1,3 @@
 """
-Analysis package for statistical testing and reporting.
+Statistical analysis, sensitivity testing, and report generation.
 """

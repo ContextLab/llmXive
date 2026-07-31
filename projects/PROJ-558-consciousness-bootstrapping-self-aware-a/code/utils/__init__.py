@@ -1,2 +1,3 @@
-# Empty init file for utils package
-pass
+"""
+Utility modules: logging, configuration, memory profiling, and validation.
+"""
