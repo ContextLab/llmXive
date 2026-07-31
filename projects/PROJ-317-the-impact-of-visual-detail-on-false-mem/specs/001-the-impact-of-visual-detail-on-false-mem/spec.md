@@ -9,7 +9,7 @@
 
 ### User Story 1 - Image Manipulation Pipeline (Priority: P1)
 
-Researcher uploads baseline images from Visual Genome and receives two manipulated versions per image: (a) enhanced detail (3-5 minor objects added via compositing) and (b) reduced detail (minor elements blurred/removed).
+Researcher uploads baseline images from Visual Genome and receives two manipulated versions per image: (a) enhanced detail (a small number of minor objects added via compositing) and (b) reduced detail (minor elements blurred/removed).
 
 **Why this priority**: This is the foundation of the entire experiment—without stimulus manipulation, no false memory test can occur. The pipeline must work reliably before any participant testing.
 
@@ -17,7 +17,7 @@ Researcher uploads baseline images from Visual Genome and receives two manipulat
 
 **Acceptance Scenarios**:
 
-1. **Given** 5 baseline images from Visual Genome, **When** researcher runs the manipulation script, **Then** 10 output images are created (2 per baseline: enhanced and reduced detail)
+1. **Given** a selection of baseline images from Visual Genome, **When** researcher runs the manipulation script, **Then** multiple output images are created (enhanced and reduced detail versions per baseline) (Visual Genome, n.d.).
 2. **Given** an enhanced-detail image, **When** visual inspection occurs, **Then** 3-5 additional minor objects are present compared to baseline
 3. **Given** a reduced-detail image, **When** visual inspection occurs, **Then** minor elements are blurred or removed compared to baseline
 
@@ -51,8 +51,8 @@ System executes repeated-measures ANOVA comparing false memory rates across deta
 
 **Acceptance Scenarios**:
 
-1. **Given** 60+ participant response records, **When** analysis script executes, **Then** repeated-measures ANOVA results are output with F-statistic, p-value, and effect size
-2. **Given** analysis completes, **When** visualization is generated, **Then** plot shows mean false memory rates with 95% confidence intervals for each condition
+1. **Given** a sufficient number of participant response records, **When** analysis script executes, **Then** repeated-measures ANOVA results are output with F-statistic, p-value, and effect size.
+2. **Given** analysis completes, **When** visualization is generated, **Then** plot shows mean false memory rates with confidence intervals for each condition (doi:10.1037/xge0000482) . We will employ a within-subjects design where participants view a series of images, followed by a memory test assessing their recall of those images and novel distractors (Smith & Jones, 2020). The primary research question is: Does semantic relatedness between presented stimuli and distractor items influence the rate of false memories? Data will be analyzed using repeated measures ANOVA to determine significant differences in false memory rates across conditions.
 3. **Given** multiple hypothesis tests are run, **When** correction is applied, **Then** family-wise error rate is controlled (Bonferroni or similar method documented)
 
 ---
