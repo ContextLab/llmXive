@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.23477",
+  "judged_at": "2026-07-31T13:16:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scaling mixture-of-experts video pretraining for embodied intelligence\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (Mixture-of-Experts architectures) applied to the same domain (embodied intelligence/robotic manipulation) to address scalability and generalization, which are central to the user's follow-up on \"Scaling Mixture-of-Experts Video Pretraining for Embodied Intelligence.\" Although it focuses on diffusion policies rather than video pretraining specifically, it provides essential prior work on the MoE mechanism within",
+  "relevant": true
+}

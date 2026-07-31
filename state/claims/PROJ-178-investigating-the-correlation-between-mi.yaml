@@ -1,0 +1,33 @@
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: 2504 individuals in 1000 Genomes Project dataset
+  claim_id: c_99c4218e
+  context: 'The dataset includes 2,504 individuals across five continental populations:
+    African (AFR), Ad Mixed American (AMR), East Asian (EAS), European (EUR), and
+    South Asian (SAS).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset includes 2,504 individuals across five continental populations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:22:58Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Effect sizes beta 0.12 to 0.19 across continental populations
+  claim_id: c_6bb2ebc2
+  context: "The correlation was observed across all major continental populations,\
+    \ with effect sizes ranging from \u03B2 = 0.12 (EAS) to \u03B2 = 0.19 (AFR)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Effect sizes ranged from \u03B2 = 0.12 (EAS) to \u03B2 = 0.19 (AFR)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:23:22Z'

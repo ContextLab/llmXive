@@ -159,6 +159,10 @@
     "classified_at": "2026-07-11T16:10:39Z",
     "verdict": false
   },
+  "PROJ-1030-llmxive-follow-up-extending-scaling-mixt::1.6.0": {
+    "classified_at": "2026-07-31T13:15:38Z",
+    "verdict": false
+  },
   "PROJ-1031-llmxive-follow-up-extending-robodojo-a-u::1.6.0": {
     "classified_at": "2026-07-31T08:16:49Z",
     "verdict": false
@@ -1569,6 +1573,10 @@
   },
   "PROJ-930-llmxive-follow-up-extending-mobileforge::1.6.0": {
     "classified_at": "2026-07-19T10:04:00Z",
+    "verdict": false
+  },
+  "PROJ-934-llmxive-follow-up-extending-skillopt-exe::1.6.0": {
+    "classified_at": "2026-07-31T13:01:09Z",
     "verdict": false
   },
   "PROJ-935-llmxive-follow-up-extending-on-the-scali::1.6.0": {

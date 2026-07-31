@@ -2877,3 +2877,222 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T01:08:20Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Quantum ESPRESSO input file generation with explicit pseudopotentials,
+    k-mesh, and cutoff parameters
+  claim_id: c_5554e893
+  context: 'Phase 4: User Story 2 - Defect Energy and Barrier Calculations, Implementation
+    for User Story 2, T025'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantum_ESPRESSO_input_file_generation_with_explicit_pseudop
+  kind: entity_fact
+  raw_text: Implement `dft_runner.py` to generate Quantum ESPRESSO input files (.in)
+    with explicit parameters (pseudopotentials, k-mesh, cutoff) in `code/dft_runner.py`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:08:53Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Linear regression between defect energies and conductivity using scikit-learn
+  claim_id: c_50138e58
+  context: 'Phase 5: User Story 3 - Statistical Analysis and Correlation, Implementation
+    for User Story 3, T037'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_regression_between_defect_energies_and_conductivity_u
+  kind: entity_fact
+  raw_text: Implement `analysis.py` to perform linear regression between defect energies
+    and conductivity using scikit-learn in `code/analysis.py`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:09:22Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: semi-empirical defect energy calculation achieves n>=12
+  claim_id: c_d8bc7500
+  context: "Define and implement semi-empirical approximation method (Bond-Valence\
+    \ Sum model using parameters defined in Section 3.2 of spec.md) for remaining\
+    \ compositions to achieve n\u226512 in code/semi_empirical.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement the semi-empirical defect energy calculation for the low-fidelity\
+    \ subset to achieve n\u226512"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:11:36Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB method force convergence checks per system
+  claim_id: c_5de5b6bb
+  context: Implement NEB method for several representative defect configurations PER
+    SYSTEM with force convergence checks in code/dft_runner.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NEB_method_force_convergence_checks_per_system
+  kind: entity_fact
+  raw_text: Implement NEB method for several representative defect configurations
+    PER SYSTEM with force convergence checks
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:11:59Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: standard sensitivity range plus-minus 1 order of magnitude around mean
+  claim_id: c_d52de90e
+  context: "Mandatory execution per FR-008. If specific literature bounds are not\
+    \ found in T001, use a standard sensitivity range (e.g., \xB11 order of magnitude\
+    \ around the mean)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use a standard sensitivity range of \xB11 order of magnitude around the\
+    \ mean if specific literature bounds are not found"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:12:59Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: vectorized regression unit test 50% runtime reduction on n=1000
+  claim_id: c_63f8e84c
+  context: Replace explicit for loops over compositions with numpy matrix operations;
+    unit test tests/test_analysis_vectorized.py must verify identical results with
+    <50% runtime reduction on n=1000 synthetic data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test must verify identical results with <50% runtime reduction on
+    n=1000 synthetic data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:13:23Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: statistical power calculation alpha 0.05 effect size 0.1 power 0.8
+  claim_id: c_827178f6
+  context: "Implement statistical power calculation using statsmodels.stats.power\
+    \ as the Python-native replacement for the standalone G*Power application mentioned\
+    \ in SC-003 (\u03B1=0.05, effect size \u22650.1, target power \u22650.8) in code/analysis.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform statistical power calculation with alpha=0.05, effect size >=0.1,
+    and target power >=0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:13:43Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: data download success rate 93%
+  claim_id: c_9ec725ea
+  context: "Contract test for data download success rate (\u226593%) in tests/test_download.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement contract test for data download success rate of >=93%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:13:43Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: defect energy tolerance 0.5 eV against literature
+  claim_id: c_396a4f26
+  context: Can be fully tested by running the calculation module on 2-3 pre-selected
+    test systems and verifying output energy values match expected ranges from literature
+    (within 0.5 eV tolerance for defect energies).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output energy values match expected ranges from literature within
+    0.5 eV tolerance for defect energies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:14:10Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: BVS deviation filter 10% from ideal oxidation states
+  claim_id: c_09d001a1
+  context: Implement Bond-Valence Sum (BVS) validation in code/validate.py to filter
+    out structures where calculated BVS deviates >10% from ideal oxidation states
+    (as mandated by FR-002 and Section 3.2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter out structures where calculated BVS deviates >10% from ideal oxidation
+    states
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:14:11Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: minimum 2x2x2 conventional cells for high-fidelity subset
+  claim_id: c_faec7064
+  context: Implement supercell size validation in code/dft_runner.py to ensure minimum
+    2x2x2 conventional cells are used for the high-fidelity subset (as authorized
+    by spec.md FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_2x2x2_conventional_cells_for_high-fidelity_subset
+  kind: entity_fact
+  raw_text: Ensure minimum 2x2x2 conventional cells are used for the high-fidelity
+    subset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:14:32Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: CI workflow 7GB RAM 6h timeout
+  claim_id: c_ec41ac45
+  context: Setup GitHub Actions workflow template for CPU-only execution with a limited
+    core count and 7GB RAM with 6h timeout in .github/workflows/ci.yml
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_workflow_7GB_RAM_6h_timeout
+  kind: entity_fact
+  raw_text: Use a 7GB RAM limit with a 6h timeout for CPU-only execution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:15:06Z'

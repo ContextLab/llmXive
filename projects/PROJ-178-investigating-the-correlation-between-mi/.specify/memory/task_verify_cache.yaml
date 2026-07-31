@@ -14,11 +14,11 @@ T019:
     disk is empty, so the required exclusion logic cannot be verified.
 T024:
   c: false
-  h: 56399cb9d130e4fcbbd257944f19e97deb7a003829e7a622580bbd29139ecff9
-  r: "The `code/analysis/model.py` does not rank\u2011transform PC1 and PC2, never\
-    \ applies the Benjamini\u2011Hochberg correction, and never writes any output\
-    \ to `code/data/processed/model_results.csv` (the file is missing). Consequently\
-    \ the required regression, adjusted p\u2011values, and CSV export are not implemented."
+  h: 0986c34f5d5b51437853769b1c87a809991dab0fd3147d28a5b81988494f352b
+  r: "The provided `code/analysis/model.py` does not rank\u2011transform `PC1` and\
+    \ `PC2` as required, and it never writes the regression results (including adjusted\
+    \ p\u2011values) to `code/data/processed/model_results.csv` \u2013 the CSV file\
+    \ is absent. Consequently the task\u2019s specifications are not met."
 T027:
   c: false
   h: eca5992662b913324ddd32d3e787ba2792ddc04cb8727401f97deff5019c542f
@@ -39,3 +39,31 @@ T042:
     the implementer provided no code artifacts, diff patches, or documentation indicating
     that the cleanup was performed. Consequently the required output for task T042
     is missing.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (e.g., profiling logs, benchmark results, updated streaming code,\
+    \ or documentation) were provided to demonstrate that VCF streaming stays under\
+    \ the 7\u202FGB RAM limit. Without concrete evidence of memory usage measurements\
+    \ or code changes, the requirement cannot be confirmed."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No new test files are present in `code/tests/`; the claim of \u201Cadditional\
+    \ unit tests for edge cases (zero burden, missing haplogroup)\u201D cannot be\
+    \ verified because the required artifacts are missing. The next implementer must\
+    \ add concrete test cases covering these scenarios to the repository."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the `quickstart.md` validation run or any runtime logs is present;\
+    \ the required artifact (e.g., a log file or report showing total execution time\
+    \ \u2264\u202F6\u202Fhours on a 2\u2011CPU runner) is missing. The implementer\
+    \ has not provided any measurable output to verify the claim."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any files under `paper/figures/` was provided; the claim does\
+    \ not include the required final figures (linear fit plot and threshold\u2011\
+    sensitivity plot). The implementer must add the actual figure files in the specified\
+    \ directory."

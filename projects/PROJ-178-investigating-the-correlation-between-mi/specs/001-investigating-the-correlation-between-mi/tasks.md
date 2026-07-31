@@ -122,7 +122,7 @@
 - [X] T023 [P] [US2] Implement unadjusted Spearman correlation calculation in `code/analysis/model.py`
 - [ ] T024 [US2] Implement Rank-OLS regression: Rank-transform all continuous variables (`age`, `burden`, `depth`, `PC1`, `PC2`) then fit `rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)` in `code/analysis/model.py` and save coefficients, p-values, and adjusted p-values to `code/data/processed/model_results.csv`
 - [X] T025 [US2] Implement Benjamini-Hochberg correction for all generated p-values in `code/analysis/model.py`
-- [ ] T027 [US2] Record coefficients and p-values for the secondary OLS model (as per FR-004) in `code/logs/model_comparison.log`
+- [X] T027 [US2] Record coefficients and p-values for the secondary OLS model (as per FR-004) in `code/logs/model_comparison.log`
 - [ ] T028 [US2] Generate summary statistics (coefficient, p-value, adjusted p-value) for `code/data/processed/analysis_results.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -158,11 +158,11 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T041 [P] Documentation updates in `paper/draft.md` (include findings and limitations)
-- [ ] T042 Code cleanup and refactoring of `code/analysis/` scripts <!-- ATOMIZE: requested -->
-- [~] T043 Performance optimization: ensure VCF streaming does not exceed 7GB RAM
-- [~] T044 [P] Additional unit tests for edge cases (zero burden, missing haplogroup) in `code/tests/`
-- [~] T045 Run `quickstart.md` validation and verify total runtime ≤ 6 hours on 2 CPU runner
-- [~] T046 Generate final figures (linear fit, threshold sensitivity) in `paper/figures/`
+- [ ] T042 Code cleanup and refactoring of `code/analysis/` scripts <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T043 Performance optimization: ensure VCF streaming does not exceed 7GB RAM
+- [ ] T044 [P] Additional unit tests for edge cases (zero burden, missing haplogroup) in `code/tests/`
+- [ ] T045 Run `quickstart.md` validation and verify total runtime ≤ 6 hours on 2 CPU runner
+- [ ] T046 Generate final figures (linear fit, threshold sensitivity) in `paper/figures/`
 
 ---
 

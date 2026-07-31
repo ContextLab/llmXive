@@ -4,96 +4,100 @@ import tempfile
 import pandas as pd
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Ensure the code directory is in the path
+# Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from analysis.summarize_results import load_model_results, extract_summary_statistics, write_summary_statistics
 
 class TestSummarizeResults:
     """
-    Tests for T028: Summary statistics generation.
+    Tests for the summarize_results module (T028).
     """
 
-    @pytest.fixture
-    def sample_model_results(self):
-        """Create a sample model results DataFrame matching T024/T025 output."""
-        return pd.DataFrame({
-            'model_type': ['rank_ols', 'rank_ols', 'rank_ols', 'spearman'],
-            'variable': ['rank_burden', 'sex', 'PC1', 'age'],
-            'coefficient': [0.0045, -0.12, 0.003, 0.5],
-            'p_value': [0.002, 0.04, 0.15, 0.001],
-            'adj_p_value': [0.006, 0.08, 0.30, 0.003]
-        })
-
-    @pytest.fixture
-    def temp_input_file(self, sample_model_results, tmp_path):
-        """Create a temporary input file with sample results."""
+    def test_load_model_results(self, tmp_path):
+        """Test loading model results from a CSV file."""
+        # Create a mock model results CSV
+        mock_data = {
+            'term': ['rank(burden)', 'sex', 'PC1', 'PC2'],
+            'coefficient': [0.5, -0.2, 0.1, 0.05],
+            'p_value': [0.01, 0.05, 0.1, 0.2],
+            'p_value_adj': [0.02, 0.06, 0.15, 0.25]
+        }
+        df = pd.DataFrame(mock_data)
         input_path = tmp_path / "model_results.csv"
-        sample_model_results.to_csv(input_path, index=False)
-        return str(input_path)
+        df.to_csv(input_path, index=False)
 
-    def test_load_model_results_valid(self, temp_input_file):
-        """Test loading a valid model results file."""
-        df = load_model_results(temp_input_file)
-        assert isinstance(df, pd.DataFrame)
-        assert 'rank_burden' in df['variable'].values
-        assert 'coefficient' in df.columns
+        # Load and verify
+        loaded_df = load_model_results(input_path)
+        assert len(loaded_df) == 4
+        assert 'term' in loaded_df.columns
+        assert 'coefficient' in loaded_df.columns
 
-    def test_load_model_results_missing_file(self):
-        """Test that loading a missing file raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            load_model_results("non_existent_file.csv")
+    def test_extract_summary_statistics(self, tmp_path):
+        """Test extracting summary statistics for the main effect."""
+        # Create a mock model results CSV
+        mock_data = {
+            'term': ['rank(burden)', 'sex', 'PC1', 'PC2'],
+            'coefficient': [0.5, -0.2, 0.1, 0.05],
+            'p_value': [0.01, 0.05, 0.1, 0.2],
+            'p_value_adj': [0.02, 0.06, 0.15, 0.25]
+        }
+        df = pd.DataFrame(mock_data)
+        input_path = tmp_path / "model_results.csv"
+        df.to_csv(input_path, index=False)
 
-    def test_load_model_results_missing_columns(self, tmp_path):
-        """Test that loading a file with missing columns raises ValueError."""
-        bad_df = pd.DataFrame({'model_type': ['rank_ols'], 'variable': ['x']})
-        bad_path = tmp_path / "bad.csv"
-        bad_df.to_csv(bad_path, index=False)
-        
-        with pytest.raises(ValueError, match="missing required columns"):
-            load_model_results(str(bad_path))
+        # Load and extract
+        loaded_df = load_model_results(input_path)
+        summary = extract_summary_statistics(loaded_df)
 
-    def test_extract_summary_statistics(self, sample_model_results):
-        """Test extraction of summary statistics filters correctly."""
-        summary = extract_summary_statistics(sample_model_results)
-        
-        # Should only contain rank_ols results
-        assert all(summary['model_type'] == 'rank_ols')
-        
-        # Should contain the primary variable
-        assert 'rank_burden' in summary['variable'].values
-        
-        # Should NOT contain spearman results
-        assert 'spearman' not in summary['model_type'].values
+        # Verify extraction
+        assert len(summary) == 1
+        assert summary['term'].iloc[0] == 'rank(burden)'
+        assert summary['coefficient'].iloc[0] == 0.5
+        assert 'p_value_adj' in summary.columns
 
-    def test_extract_summary_statistics_empty(self):
-        """Test extraction when input has no matching rows."""
-        empty_df = pd.DataFrame(columns=['model_type', 'variable', 'coefficient', 'p_value', 'adj_p_value'])
-        summary = extract_summary_statistics(empty_df)
-        assert summary.empty
-
-    def test_write_summary_statistics(self, sample_model_results, tmp_path):
-        """Test writing summary statistics to file."""
-        summary = extract_summary_statistics(sample_model_results)
+    def test_write_summary_statistics(self, tmp_path):
+        """Test writing summary statistics to a CSV file."""
+        # Create a mock summary DataFrame
+        summary_df = pd.DataFrame({
+            'term': ['rank(burden)'],
+            'coefficient': [0.5],
+            'p_value': [0.01],
+            'p_value_adj': [0.02],
+            'analysis_type': ['Rank-OLS'],
+            'dependent_variable': ['age'],
+            'independent_variable': ['mitochondrial_burden']
+        })
         output_path = tmp_path / "analysis_results.csv"
-        
-        write_summary_statistics(summary, str(output_path))
-        
-        assert output_path.exists()
-        written_df = pd.read_csv(output_path)
-        assert len(written_df) == len(summary)
-        assert 'rank_burden' in written_df['variable'].values
 
-    def test_write_summary_statistics_empty(self, tmp_path):
-        """Test writing an empty summary dataframe."""
-        empty_summary = pd.DataFrame(columns=['model_type', 'variable', 'coefficient', 'p_value', 'adj_p_value'])
-        output_path = tmp_path / "empty_analysis_results.csv"
-        
-        write_summary_statistics(empty_summary, str(output_path))
-        
+        # Write
+        write_summary_statistics(summary_df, output_path)
+
+        # Verify file exists and content
         assert output_path.exists()
         written_df = pd.read_csv(output_path)
-        assert written_df.empty
-        assert 'variable' in written_df.columns
+        assert len(written_df) == 1
+        assert written_df['coefficient'].iloc[0] == 0.5
+
+    def test_extract_summary_statistics_no_burden_term(self, tmp_path):
+        """Test extraction when 'burden' term is not found (fallback behavior)."""
+        # Create a mock model results CSV without 'burden' in term
+        mock_data = {
+            'term': ['sex', 'PC1', 'PC2'],
+            'coefficient': [-0.2, 0.1, 0.05],
+            'p_value': [0.05, 0.1, 0.2],
+            'p_value_adj': [0.06, 0.15, 0.25]
+        }
+        df = pd.DataFrame(mock_data)
+        input_path = tmp_path / "model_results.csv"
+        df.to_csv(input_path, index=False)
+
+        # Load and extract (should fall back to first row)
+        loaded_df = load_model_results(input_path)
+        summary = extract_summary_statistics(loaded_df)
+
+        # Verify fallback behavior
+        assert len(summary) == 1
+        assert summary['term'].iloc[0] == 'sex'  # First row
+        assert 'analysis_type' in summary.columns

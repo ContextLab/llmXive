@@ -1,0 +1,47 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration artifact (e.g., a settings file, environment variable definitions,\
+    \ or code module) that defines and manages dataset URLs and entropy\u2011threshold\
+    \ values is present. The claim provides only the broader feature specification,\
+    \ but the required environment configuration management artifact is missing."
+T010:
+  c: false
+  h: 264bf9138e9199136cf30220c47db267e50898779e4807b8f95b564710cb7e99
+  r: "The repository contains `tests/contract/test_dataset_schema.py`, but the referenced\
+    \ `dataset.schema.yaml` file does not exist, so the test\u2019s schema fixture\
+    \ will skip instead of performing validation. The required schema artifact is\
+    \ missing, preventing the contract test from actually validating anything."
+T014:
+  c: false
+  h: 5a5aad98c092ce115f2544c083a6efc5556b943627ee9e0c36aa7ed636981ad1
+  r: "The repository lacks the required `data/processed/snr_metrics.json` file, and\
+    \ the SNR function in `code/02_preprocess_eeg.py` uses a placeholder (fixed 1\u202F\
+    % noise estimate and returns dB) rather than computing the median signal power\
+    \ in the 1\u201145\u202FHz band divided by the median residual noise power as\
+    \ specified. Both the correct calculation and the JSON output are missing."
+T015:
+  c: false
+  h: 5ec730d5c69bec296e35c23bf20cb0eadbccf3ddcdd55fd45d466426fab93526
+  r: "The repository contains a `code/compute_entropy.py` file, but it is truncated\
+    \ and never writes the computed entropy values to `data/processed/entropy_metrics.csv`.\
+    \ Moreover, the required output CSV file is absent from the project directory.\
+    \ The task\u2019s core deliverable \u2013 a CSV with both Sample and Approximate\
+    \ Entropy for all five bands \u2013 is therefore not present."
+T016:
+  c: false
+  h: 0f87948270eb2a0808f2678a990e508ca8bd20cf1a122941a6fb969ef83394cf
+  r: "The repository lacks the required `data/processed/snr_metrics.json` and the\
+    \ generated `data/processed/exclusion_log.csv`. Moreover, the SNR calculation\
+    \ in `code/02_preprocess_eeg.py` is a placeholder (\u201Csimple SNR estimation\u201D\
+    ) and does not implement the exact median\u2011SNR\u2011relative\u2011to\u2011\
+    1\u201145\u202FHz band\u2011power method specified in T014/SC\u2011001. The quality\u2011\
+    check logic is also incomplete (code is truncated). These missing/incorrect artifacts\
+    \ prevent the task from being genuinely fulfilled."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `logs/resource_usage.log` file or of added resource\u2011\
+    monitoring calls in `02_preprocess_eeg.py` and `03_compute_entropy.py` was provided;\
+    \ without these artifacts we cannot verify that RAM usage is limited to <7\u202F\
+    GB. The implementer must supply the modified scripts and the generated log file."

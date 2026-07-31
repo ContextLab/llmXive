@@ -75,17 +75,17 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Contract test for `dataset.schema.yaml` validation in `tests/contract/test_dataset_schema.py`
-- [ ] T011 [P] [US1] Unit test for entropy calculation stability (no NaN/Inf) in `tests/unit/test_entropy.py`
+- [X] T011 [P] [US1] Unit test for entropy calculation stability (no NaN/Inf) in `tests/unit/test_entropy.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/01_download_data.py`: Fetch OpenNeuro datasets (ds, ds003104). **Verify variable fit**: Check metadata for 'wcst_perseverative_errors' column and 'age >= 50'. **Input**: OpenNeuro API. **Output**: `data/raw/` parquet files with checksums. (FR-001, FR-010, FR-011)
+- [X] T012 [US1] Implement `code/01_download_data.py`: Fetch OpenNeuro datasets (ds, ds003104). **Verify variable fit**: Check metadata for 'wcst_perseverative_errors' column and 'age >= 50'. **Input**: OpenNeuro API. **Output**: `data/raw/` parquet files with checksums. (FR-001, FR-010, FR-011)
 - [ ] T012b [US1] Extract and convert behavioral scores from `data/raw/` parquet files to `data/processed/behavioral_scores.csv`. **Critical**: Must explicitly **verify WCST column existence** (referencing T012's variable-fit check) before extraction. **If missing, halt with 'DATASET_VARIABLE_MISMATCH' error**. **Input**: `data/raw/` (after T012 variable-fit check). **Output**: `data/processed/behavioral_scores.csv`. (Ordering Fix: T012b depends on T012 variable-fit check)
 - [ ] T013 [US1] Implement the preprocessing script for EEG data: Bandpass (1-45 Hz), Notch (50/60Hz), Bad channel interpolation, ICA artifact removal, 2s non-overlapping epochs. **Input**: `data/raw/`. **Output**: `data/processed/` epoched data. (FR-002, US-1)
-- [~] T014 [US1] Implement SNR calculation in `code/02_preprocess_eeg.py`: Calculate **Median SNR of preprocessed data relative to 1-45 Hz band power** (per SC-001). **Formula**: `median(signal_power_1-45Hz) / median(noise_power_residual)`. **Input**: `data/processed/` epoched data. **Output**: `data/processed/snr_metrics.json`. (SC-001, FR-002)
-- [~] T016 [US1] Add data quality checks to `code/02_preprocess_eeg.py`: Exclude participants with <60s valid EEG, >20% corrupted segments, **OR SNR < 5dB** (consuming T014 output). **Use the exact SNR calculation method from T014/SC-001 (median SNR relative to 1-45 Hz band power)**. **Input**: `data/raw/`, `data/processed/snr_metrics.json`. **Output**: `data/processed/exclusion_log.csv`. (Edge Cases, SC-001)
-- [~] T015 [US1] Implement `code/compute_entropy.py`: Compute **both** Sample Entropy and Approximate Entropy for Delta, Theta, Alpha, Beta, Gamma bands. **Include both in primary output**. **Input**: `data/processed/` epoched data. **Output**: `data/processed/entropy_metrics.csv`. (FR-003, FR-012)
-- [~] T017 [US1] Add resource monitoring calls in `02_preprocess_eeg.py` and `03_compute_entropy.py` to ensure <7GB RAM usage. **Input**: Running scripts. **Output**: `logs/resource_usage.log`. (FR-008)
+- [ ] T014 [US1] Implement SNR calculation in `code/02_preprocess_eeg.py`: Calculate **Median SNR of preprocessed data relative to 1-45 Hz band power** (per SC-001). **Formula**: `median(signal_power_1-45Hz) / median(noise_power_residual)`. **Input**: `data/processed/` epoched data. **Output**: `data/processed/snr_metrics.json`. (SC-001, FR-002)
+- [ ] T016 [US1] Add data quality checks to `code/02_preprocess_eeg.py`: Exclude participants with <60s valid EEG, >20% corrupted segments, **OR SNR < 5dB** (consuming T014 output). **Use the exact SNR calculation method from T014/SC-001 (median SNR relative to 1-45 Hz band power)**. **Input**: `data/raw/`, `data/processed/snr_metrics.json`. **Output**: `data/processed/exclusion_log.csv`. (Edge Cases, SC-001)
+- [ ] T015 [US1] Implement `code/compute_entropy.py`: Compute **both** Sample Entropy and Approximate Entropy for Delta, Theta, Alpha, Beta, Gamma bands. **Include both in primary output**. **Input**: `data/processed/` epoched data. **Output**: `data/processed/entropy_metrics.csv`. (FR-003, FR-012)
+- [ ] T017 [US1] Add resource monitoring calls in `02_preprocess_eeg.py` and `03_compute_entropy.py` to ensure <7GB RAM usage. **Input**: Running scripts. **Output**: `logs/resource_usage.log`. (FR-008)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
