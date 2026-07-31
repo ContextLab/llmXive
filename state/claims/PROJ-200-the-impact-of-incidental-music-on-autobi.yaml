@@ -234,23 +234,6 @@
   updated_at: '2026-07-26T06:38:56Z'
 - artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   attempts: 1
-  canonical: VIF threshold for multicollinearity is 5
-  claim_id: c_ddf23704
-  context: Implement code/modeling.py function check_collinearity to calculate Variance
-    Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Variance Inflation Factor (VIF) threshold for checking multicollinearity
-    is 5.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T06:39:07Z'
-- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
-  attempts: 1
   canonical: Levenshtein distance threshold for matching is 4
   claim_id: c_e4c4280d
   context: "Parse AMT free-text cues, match to MSD tracks via fuzzy string matching\
@@ -1452,3 +1435,2163 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T11:40:06Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Levenshtein distance threshold set to 4
+  claim_id: c_38a02e9b
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/config.py` with paths, thresholds (Levenshtein \u2264\
+    \ 4), seeds, and fallback flags"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:41:13Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Minimum listen threshold set to 3
+  claim_id: c_62266820
+  context: 'Phase 3: User Story 1 - T015'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data_ingestion.py` function `apply_frequency_threshold`
+    to filter user-track pairs where `total_listens` < 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:41:13Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching Levenshtein distance threshold set to 4
+  claim_id: c_b4db0e30
+  context: 'Phase 4: User Story 2 - T047'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/cue_matching.py` function `match_cues` to perform fuzzy\
+    \ matching with Levenshtein distance \u2264 4"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:41:13Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor (VIF) threshold set to 5
+  claim_id: c_722367e7
+  context: 'Phase 5: User Story 3 - T035'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: check for multicollinearity (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:41:15Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap performed for 1000 iterations
+  claim_id: c_ae0f51b8
+  context: 'Phase 5: User Story 3 - T045c-1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Call `run_bootstrap_iteration` (T045b) to generate statistics for each
+    iteration (1000 iterations)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:41:47Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Canonical URLs set to hf://brian/MSD and hf://brian/AMT
+  claim_id: c_3e342b99
+  context: 'Phase 7: Revision & Verification - T113'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Canonical_URLs_set_to_hf://brian/MSD_and_hf://brian/AMT
+  kind: entity_fact
+  raw_text: Set `MSD_URL = "hf://brian/MSD"` and `AMT_URL = "hf://brian/AMT"`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:42:54Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Unit test asserts exact match for manual Global Exposure calculation
+  claim_id: c_46224075
+  context: 'Phase 7: Revision & Verification - T104'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_asserts_exact_match_for_manual_Global_Exposure_cal
+  kind: entity_fact
+  raw_text: Add a unit test... that asserts the function's output matches this manual
+    calculation exactly
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:43:27Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Bootstrap convergence tolerance set to 0.01
+  claim_id: c_99dea4c7
+  context: 'Phase 7: Revision & Verification - T102'
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: "checks if the p-value estimate has stabilized within a tolerance (e.g.,\
+    \ \xB10.01)"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T12:43:27Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: VIF threshold for multicollinearity check is 5
+  claim_id: c_ae05420c
+  context: check for multicollinearity (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: experiments validates the theorem on a representative benchmark dataset,
+        UNSW-NB15. Four widely used families of models are
+      source_id: '2605.22529'
+      url: https://arxiv.org/abs/2605.22529
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) threshold for multicollinearity is
+    5.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T12:45:56Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: Canonical AMT dataset URL is hf://brian/AMT
+  claim_id: c_45fad82c
+  context: Set `MSD_URL = "hf://brian/MSD"` and `AMT_URL = "hf://brian/AMT"`.
+  evidence:
+    entailment_evidence: AMT dataset URL is hf://brian/AMT
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/AMT_dataset_URL_is_hf://brian/AMT
+  kind: entity_fact
+  raw_text: The canonical URL for the AMT dataset is 'hf://brian/AMT'.
+  resolved_value: AMT dataset URL is hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T12:45:58Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Pipeline end-to-end execution time limit is 6 hours
+  claim_id: c_1e31cd1c
+  context: Run `quickstart.md` validation to ensure pipeline runs end-to-end within
+    6 hours (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run end-to-end within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:46:17Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Levenshtein distance threshold for cue matching is 4
+  claim_id: c_155d912c
+  context: "Perform fuzzy matching with Levenshtein distance \u2264 4 and log unmatched\
+    \ cues"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Levenshtein distance threshold for fuzzy matching is 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:46:37Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Minimum total_listens threshold is 3
+  claim_id: c_7f8a953e
+  context: filter user-track pairs where `total_listens` < 3. ... This threshold matches
+    FR-009 exactly.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum listen threshold for filtering user-track pairs is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:46:59Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap test runs 1000 iterations
+  claim_id: c_8cc34b0a
+  context: Call `run_bootstrap_iteration` (T045b) to generate statistics for each
+    iteration (1000 iterations).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The parametric bootstrap test runs for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:47:22Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Global Exposure fallback triggered if missing birth years exceed 50%
+  claim_id: c_de32eb9b
+  context: 'If `missing_pct > 0.5`: SET FLAG: Set `global_exposure_mode = True`...
+    WARNING: ''FR-008 Fallback Triggered (>50% missing birth years)'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Global_Exposure_fallback_triggered_if_missing_birth_years_ex
+  kind: magnitude
+  raw_text: The fallback trigger for Global Exposure occurs when more than 50% of
+    birth years are missing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:47:49Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Canonical MSD dataset URL is hf://brian/MSD
+  claim_id: c_9a90b2d9
+  context: Set `MSD_URL = "hf://brian/MSD"` and `AMT_URL = "hf://brian/AMT"`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Canonical_MSD_dataset_URL_is_hf://brian/MSD
+  kind: entity_fact
+  raw_text: The canonical URL for the MSD dataset is 'hf://brian/MSD'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:48:08Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: VIF threshold for multicollinearity is greater than 5
+  claim_id: c_ed598a47
+  context: Phase 5 Implementation for User Story 3, Task T035
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_for_multicollinearity_is_greater_than_5
+  kind: magnitude
+  raw_text: Implement `code/modeling.py` function `check_collinearity` to calculate
+    Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529,
+    https://arxiv.org/abs/2605.22529))
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:52:53Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap uses 1000 iterations
+  claim_id: c_961592a0
+  context: Phase 5 Implementation for User Story 3, Task T045c-1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/modeling.py` function `run_bootstrap_test` to orchestrate
+    the bootstrap test. Procedure: ... Call `run_bootstrap_iteration` (T045b) to generate
+    statistics for each iteration (1000 iterations).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:53:09Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Minimum listen threshold is 3
+  claim_id: c_9fe3d973
+  context: Phase 3 Implementation for User Story 1, Task T015
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data_ingestion.py` function `apply_frequency_threshold`
+    to filter user-track pairs where `total_listens` < 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:53:09Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching uses Levenshtein distance less than or equal to 4
+  claim_id: c_af4a6088
+  context: Phase 4 Implementation for User Story 2, Task T047
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fuzzy_matching_uses_Levenshtein_distance_less_than_or_equal
+  kind: magnitude
+  raw_text: "Implement `code/cue_matching.py` function `match_cues` to perform fuzzy\
+    \ matching with Levenshtein distance \u2264 4 and log unmatched cues"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:53:33Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: VIF threshold for multicollinearity is greater than 5
+  claim_id: c_ac1b2dda
+  context: 'Phase 5: User Story 3 - Statistical Modeling and Hypothesis Testing. Task
+    T035 implementation details.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_for_multicollinearity_is_greater_than_5
+  kind: magnitude
+  raw_text: Implement code/modeling.py function check_collinearity to calculate Variance
+    Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:53:59Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap test runs 1000 iterations
+  claim_id: c_558d6283
+  context: 'Phase 5: User Story 3. Task T045c-1 implementation procedure for run_bootstrap_test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Call run_bootstrap_iteration (T045b) to generate statistics for each iteration
+    (1000 iterations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:53:59Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap setup pins random seed from config
+  claim_id: c_915c2a21
+  context: 'Phase 5: User Story 3. Task T045a implementation logic.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Parametric_bootstrap_setup_pins_random_seed_from_config
+  kind: entity_fact
+  raw_text: 'Implement code/modeling.py helper function run_bootstrap_setup to prepare
+    the Parametric Bootstrap. LOGIC: Pin the random seed (from config.py).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:54:20Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: 'Mixed model formula: mean_vividness ~ adolescent_exposure_ratio + popularity
+    + (1|user_id)'
+  claim_id: c_e423ec3d
+  context: 'Phase 5: User Story 3. Task T033 implementation details.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: user_id)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Mixed_model_formula:_mean_vividness_~_adolescent_exposure_ra
+    source_value: https://en.wikipedia.org/wiki/Mixed_model_formula:_mean_vividness_~_adolescent_exposure_ra
+    subject: 'Mixed model formula: mean_vividness ~ adolescent_exposure_ratio + popularity
+      + (1'
+  kind: relational
+  raw_text: 'Implement code/modeling.py function fit_mixed_model to fit statsmodels
+    MixedLM: mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)
+    on User-Track pairs.'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:54:40Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Frequency threshold filters user-track pairs with total listens less
+    than 3
+  claim_id: c_4e3733e3
+  context: 'Phase 3: User Story 1. Task T015 implementation details.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Frequency_threshold_filters_user-track_pairs_with_total_list
+  kind: magnitude
+  raw_text: Filter user-track pairs where total_listens < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:55:00Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fallback to global exposure mode triggered if missing birth year percentage
+    exceeds 50%
+  claim_id: c_0ba4a220
+  context: 'Phase 3: User Story 1. Task T023a implementation logic for check_fallback_trigger.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing_pct > 0.5: SET FLAG: Set global_exposure_mode = True.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:55:01Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching uses Levenshtein distance less than or equal to 4
+  claim_id: c_87114bb3
+  context: 'Phase 4: User Story 2. Task T047 implementation details.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fuzzy_matching_uses_Levenshtein_distance_less_than_or_equal
+  kind: magnitude
+  raw_text: "Match fuzzy cues with Levenshtein distance \u2264 4."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:55:19Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: MSD URL is hf://brian/MSD and AMT URL is hf://brian/AMT
+  claim_id: c_83dedb2c
+  context: 'Phase 7: Revision & Verification. Task T113 implementation specifics.'
+  evidence:
+    entailment_evidence: MSD URL is hf://brian/MSD and AMT URL is hf://brian/AMT
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/MSD_URL_is_hf://brian/MSD_and_AMT_URL_is_hf://brian/AMT
+  kind: entity_fact
+  raw_text: 'Specifics: Set MSD_URL = ''hf://brian/MSD'' and AMT_URL = ''hf://brian/AMT''.'
+  resolved_value: MSD URL is hf://brian/MSD and AMT URL is hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T12:55:21Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Levenshtein distance threshold less than or equal to 4
+  claim_id: c_d3454942
+  context: "Phase 4: User Story 2 - Goal: Parse AMT free-text cues, match to MSD tracks\
+    \ via fuzzy string matching (Levenshtein distance \u2264 4)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Levenshtein_distance_threshold_less_than_or_equal_to_4
+  kind: magnitude
+  raw_text: "The Levenshtein distance threshold for fuzzy string matching is set to\
+    \ \u2264 4."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:58:00Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: minimum listen threshold of 3
+  claim_id: c_2564da22
+  context: 'Phase 3: User Story 1 - Task T015: Implement code/data_ingestion.py function
+    apply_frequency_threshold to filter user-track pairs where total_listens < 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum listen threshold for filtering user-track pairs is 3 total
+    listens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:58:00Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5
+  claim_id: c_6fdc39a3
+  context: 'Phase 5: User Story 3 - Task T035: Implement code/modeling.py function
+    check_collinearity to calculate Variance Inflation Factor (VIF) and check for
+    multicollinearity (VIF > 5).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: experiments validates the theorem on a representative benchmark dataset,
+        UNSW-NB15. Four widely used families of models are
+      source_id: '2605.22529'
+      url: https://arxiv.org/abs/2605.22529
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) threshold for checking multicollinearity
+    is 5.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T12:58:16Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: parametric bootstrap 1000 iterations
+  claim_id: c_0fbc308d
+  context: 'Phase 5: User Story 3 - Task T045c-1: Call run_bootstrap_iteration to
+    generate statistics for each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The parametric bootstrap test runs for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:58:16Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: fallback trigger threshold of 50 percent missing birth years
+  claim_id: c_d704ef46
+  context: 'Phase 3: User Story 1 - Task T023a: If missing_pct > 0.5: SET FLAG: Set
+    global_exposure_mode = True...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_trigger_threshold_of_50_percent_missing_birth_years
+  kind: magnitude
+  raw_text: The fallback trigger for Global Exposure metric is activated when more
+    than 50% of birth years are missing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:58:41Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: MSD URL hf://brian/MSD
+  claim_id: c_28b8cb31
+  context: 'Phase 7: Revision & Verification - Task T113: Set MSD_URL = ''hf://brian/MSD''
+    and AMT_URL = ''hf://brian/AMT''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MSD_URL_hf://brian/MSD
+  kind: entity_fact
+  raw_text: The canonical URL for the MSD dataset is set to hf://brian/MSD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T12:58:56Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: AMT URL hf://brian/AMT
+  claim_id: c_27937c61
+  context: 'Phase 7: Revision & Verification - Task T113: Set MSD_URL = ''hf://brian/MSD''
+    and AMT_URL = ''hf://brian/AMT''.'
+  evidence:
+    entailment_evidence: AMT URL hf://brian/AMT
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/AMT_URL_hf://brian/AMT
+  kind: entity_fact
+  raw_text: The canonical URL for the AMT dataset is set to hf://brian/AMT.
+  resolved_value: AMT URL hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T12:58:57Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Frequency threshold for user-track pairs is 3 listens
+  claim_id: c_aa2f97ce
+  context: 'T015 [US1] Implement code/data_ingestion.py function apply_frequency_threshold
+    to filter user-track pairs where total_listens < 3. DEPENDS ON: T023a, T013a.
+    MUST run after T013a to prevent false fallback triggers (EC-001). Relies on the
+    state set by T013a, not a re-run of ingestion. NOTE: This threshold matches FR-009
+    exactly.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter user-track pairs where total_listens < 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:02:41Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap uses 1000 iterations
+  claim_id: c_36ab29c1
+  context: 'T045c-1 [US3] Implement code/modeling.py function run_bootstrap_test to
+    orchestrate the bootstrap test. Procedure: 1. Call run_bootstrap_setup (T045a)
+    to prepare residuals. 2. Call run_bootstrap_iteration (T045b) to generate statistics
+    for each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform the parametric bootstrap for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:03:00Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Levenshtein distance threshold for fuzzy matching is 4
+  claim_id: c_02351c15
+  context: "Goal: Parse AMT free-text cues, match to MSD tracks via fuzzy string matching\
+    \ (Levenshtein distance \u2264 4), and aggregate vividness/valence per User-Track\
+    \ pair."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Levenshtein distance \u2264 4"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:03:01Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Global exposure fallback triggered when more than 50% of birth years
+    are missing
+  claim_id: c_9a7d2082
+  context: 'T023a [US1] Implement code/data_ingestion.py function check_fallback_trigger
+    for FR-008 (Global Exposure metric) check. LOGIC: 1. Calculate missing_pct = count(missing_birth_year)
+    / count(total_raw_records). 2. If missing_pct > 0.5: SET FLAG: Set global_exposure_mode
+    = True in config.py or a global state variable.'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Global_exposure_fallback_triggered_when_more_than_50%25_of_bir
+  kind: magnitude
+  raw_text: 'If missing_pct > 0.5: SET FLAG: Set global_exposure_mode = True in config.py
+    or a global state variable.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-31T13:03:46Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Adolescent exposure ratio ranges from 0.0 to 1.0
+  claim_id: c_c4615233
+  context: 'Independent Test: Run ingestion on a small synthetic subset; verify output
+    CSV has adolescent_exposure_ratio (0.0-1.0), excludes records without birth_year
+    (unless fallback), and applies the minimum listen threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: adolescent_exposure_ratio (0.0-1.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:04:14Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Canonical URLs for MSD and AMT datasets are hf://brian/MSD and hf://brian/AMT
+  claim_id: c_29f5ba46
+  context: 'T113 [US1] Verify Data Source URLs: Update code/config.py to explicitly
+    define the canonical, verified URLs for MSD and AMT datasets. Constraint: If the
+    execution environment injects a specific verified source, this task must update
+    the config to use only that injected source and remove any other fallback URLs
+    for the primary data sources. CRITICAL: This task must NOT remove or disable the
+    FR-008 fallback mechanism (Global Exposure) which is independent of the primary
+    data source URLs. The fallback mechanism must remain active and functional. Specifics:
+    Set MSD_URL = "hf://brian/MSD" and AMT_URL = "hf://brian/AMT".'
+  evidence:
+    entailment_evidence: Canonical URLs for MSD and AMT datasets are hf://brian/MSD
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Canonical_URLs_for_MSD_and_AMT_datasets_are_hf://brian/MSD_a
+  kind: entity_fact
+  raw_text: Set MSD_URL = "hf://brian/MSD" and AMT_URL = "hf://brian/AMT"
+  resolved_value: Canonical URLs for MSD and AMT datasets are hf://brian/MSD and hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:04:17Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: Canonical data source URLs are hf://brian/MSD and hf://brian/AMT
+  claim_id: c_f9afdf04
+  context: 'T113 [US1] Verify Data Source URLs: Update code/config.py to explicitly
+    define the canonical, verified URLs for MSD and AMT datasets. ... Specifics: Set
+    MSD_URL = ''hf://brian/MSD'' and AMT_URL = ''hf://brian/AMT''.'
+  evidence:
+    entailment_evidence: Canonical URLs for MSD and AMT datasets are hf://brian/MSD
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Canonical_URLs_for_MSD_and_AMT_datasets_are_hf://brian/MSD_a
+  kind: entity_fact
+  raw_text: Set MSD_URL = 'hf://brian/MSD' and AMT_URL = 'hf://brian/AMT'.
+  resolved_value: Canonical URLs for MSD and AMT datasets are hf://brian/MSD and hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:04:59Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Bootstrap test runs 1000 iterations
+  claim_id: c_c638e4d2
+  context: 'T045c-1 [US3] Implement code/modeling.py function run_bootstrap_test to
+    orchestrate the bootstrap test. Procedure: ... 2. Call run_bootstrap_iteration
+    (T045b) to generate statistics for each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform the sensitivity analysis with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:05:23Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Frequency threshold filter is less than 3 listens
+  claim_id: c_2b627896
+  context: 'T015 [US1] Implement code/data_ingestion.py function apply_frequency_threshold
+    to filter user-track pairs where total_listens < 3. DEPENDS ON: T023a, T013a.
+    MUST run after T013a to prevent false fallback triggers (EC-001). Relies on the
+    state set by T013a, not a re-run of ingestion. NOTE: This threshold matches FR-009
+    exactly.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Frequency_threshold_filter_is_less_than_3_listens
+  kind: magnitude
+  raw_text: Filter user-track pairs where total_listens < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:05:24Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Multicollinearity check triggers if VIF is greater than 5
+  claim_id: c_1fadee4f
+  context: T035 [US3] Implement code/modeling.py function check_collinearity to calculate
+    Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529,
+    https://arxiv.org/abs/2605.22529))
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Multicollinearity_check_triggers_if_VIF_is_greater_than_5
+  kind: magnitude
+  raw_text: Calculate Variance Inflation Factor (VIF) and check for multicollinearity
+    (VIF > 5).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:05:39Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Records without birth year are excluded unless global exposure mode is
+    active
+  claim_id: c_3499cadf
+  context: 'Phase 3: User Story 1 - Data Ingestion and Cohort Exposure Scoring (Priority:
+    P1) MVP. Goal: Ingest MSD and AMT data, filter for valid birth years, and compute
+    the adolescent_exposure_ratio (raw) and handle fallbacks. Independent Test: ...
+    verify output CSV has adolescent_exposure_ratio (0.0-1.0), excludes records without
+    birth_year (unless fallback)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Records_without_birth_year_are_excluded_unless_global_exposu
+  kind: entity_fact
+  raw_text: Exclude records without birth_year unless fallback is triggered.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:06:00Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Global exposure fallback triggered if missing birth years are greater
+    than 50%
+  claim_id: c_568b4385
+  context: 'T023a [US1] Implement code/data_ingestion.py function check_fallback_trigger
+    for FR-008 (Global Exposure metric) check. ... LOGIC: 1. Calculate missing_pct
+    = count(missing_birth_year) / count(total_raw_records). 2. If missing_pct > 0.5:
+    SET FLAG: Set global_exposure_mode = True...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Global_exposure_fallback_triggered_if_missing_birth_years_ar
+  kind: magnitude
+  raw_text: Trigger fallback mode if missing birth years exceed 50%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:06:24Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy string matching threshold is Levenshtein distance 4 or less
+  claim_id: c_8afb52ab
+  context: "Phase 4: User Story 2 - Cue Matching and Memory Attribute Aggregation\
+    \ (Priority: P2). Goal: Parse AMT free-text cues, match to MSD tracks via fuzzy\
+    \ string matching (Levenshtein distance \u2264 4), and aggregate vividness/valence\
+    \ per User-Track pair."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fuzzy matching uses Levenshtein distance \u2264 4."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:06:25Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Pipeline end-to-end execution time limit is 6 hours
+  claim_id: c_aa0950cf
+  context: 'T046 [P] Run quickstart.md validation to ensure pipeline runs end-to-end
+    within 6 hours (SC-005). DEPENDS ON: T052.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline must run end-to-end within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:06:25Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: MSD and AMT dataset URLs are set to hf://brian/MSD and hf://brian/AMT
+  claim_id: c_52b60478
+  context: 'T113 [US1] **Verify Data Source URLs**: Update `code/config.py` to explicitly
+    define the canonical, verified URLs for MSD and AMT datasets. **Constraint**:
+    If the execution environment injects a specific verified source, this task must
+    update the config to use **only** that injected source and remove any other fallback
+    URLs for the *primary* data sources. **CRITICAL**: This task must **NOT** remove
+    or disable the FR-008 fallback mechanism (Global Exposure) which is independent
+    of the primary data source URLs. The fallback mechanism must remain active and
+    functional. **Specifics**: Set `MSD_URL = "hf://brian/MSD"` and `AMT_URL = "hf://brian/AMT"`.'
+  evidence:
+    entailment_evidence: Canonical URLs for MSD and AMT datasets are hf://brian/MSD
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Canonical_URLs_for_MSD_and_AMT_datasets_are_hf://brian/MSD_a
+  kind: entity_fact
+  raw_text: Set MSD_URL = "hf://brian/MSD" and AMT_URL = "hf://brian/AMT"
+  resolved_value: Canonical URLs for MSD and AMT datasets are hf://brian/MSD and hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:06:58Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: VIF threshold for multicollinearity is 5
+  claim_id: c_0cc71419
+  context: T035 [US3] Implement code/modeling.py function check_collinearity to calculate
+    Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529,
+    https://arxiv.org/abs/2605.22529))
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Implement code/modeling.py function check_collinearity to calculate Variance
+    Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:06:59Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap runs 1000 iterations
+  claim_id: c_2e7d43e8
+  context: 'T045c-1 [US3] Implement code/modeling.py function run_bootstrap_test to
+    orchestrate the bootstrap test. Procedure: 1. Call run_bootstrap_setup (T045a)
+    to prepare residuals. 2. Call run_bootstrap_iteration (T045b) to generate statistics
+    for each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Call run_bootstrap_iteration (T045b) to generate statistics for each iteration
+    (1000 iterations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:07:00Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Frequency threshold filters user-track pairs with total_listens less
+    than 3
+  claim_id: c_f69f526d
+  context: 'T015 [US1] Implement `code/data_ingestion.py` function `apply_frequency_threshold`
+    to filter user-track pairs where `total_listens` < 3. **DEPENDS ON**: T023a, T013a.
+    **MUST run after T013a** to prevent false fallback triggers (EC-001). Relies on
+    the state set by T013a, not a re-run of ingestion. **NOTE**: This threshold matches
+    FR-009 exactly.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Frequency_threshold_filters_user-track_pairs_with_total_list
+  kind: magnitude
+  raw_text: Implement `code/data_ingestion.py` function `apply_frequency_threshold`
+    to filter user-track pairs where `total_listens` < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:07:16Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching uses Levenshtein distance threshold of 4
+  claim_id: c_ee3c5533
+  context: "T047 [US2] Implement `code/cue_matching.py` function `match_cues` to perform\
+    \ fuzzy matching with Levenshtein distance \u2264 4 and log unmatched cues"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement fuzzy matching with Levenshtein distance \u2264 4"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:07:16Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Configuration includes Levenshtein distance threshold of 4
+  claim_id: c_e717f989
+  context: "T006 [P] Implement `code/config.py` with paths, thresholds (Levenshtein\
+    \ \u2264 4), seeds, and fallback flags"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/config.py` with paths, thresholds (Levenshtein \u2264\
+    \ 4)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:07:17Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for multicollinearity is 5
+  claim_id: c_2409f0ef
+  context: Implement code/modeling.py function check_collinearity to calculate Variance
+    Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Calculate Variance Inflation Factor (VIF) and check for multicollinearity
+    (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:08:47Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap test runs 1000 iterations
+  claim_id: c_9f7ac99b
+  context: 'Implement code/modeling.py function run_bootstrap_test to orchestrate
+    the bootstrap test. Procedure: 1. Call run_bootstrap_setup (T045a) to prepare
+    residuals. 2. Call run_bootstrap_iteration (T045b) to generate statistics for
+    each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Call run_bootstrap_iteration (T045b) to generate statistics for each iteration
+    (1000 iterations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:08:47Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Frequency threshold for user-track pairs is 3 total listens
+  claim_id: c_a4599ca7
+  context: 'T015 [US1] Implement code/data_ingestion.py function apply_frequency_threshold
+    to filter user-track pairs where total_listens < 3. DEPENDS ON: T023a, T013a.
+    MUST run after T013a to prevent false fallback triggers (EC-001). Relies on the
+    state set by T013a, not a re-run of ingestion. NOTE: This threshold matches FR-009
+    exactly.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_ingestion.py function apply_frequency_threshold to
+    filter user-track pairs where total_listens < 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:08:47Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Global exposure mode triggered if missing birth years exceed 50%
+  claim_id: c_e144d491
+  context: 'T023a [US1] Implement code/data_ingestion.py function check_fallback_trigger...
+    LOGIC: 1. Calculate missing_pct = count(missing_birth_year) / count(total_raw_records).
+    2. If missing_pct > 0.5: SET FLAG: Set global_exposure_mode = True in config.py
+    or a global state variable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing_pct > 0.5: SET FLAG: Set global_exposure_mode = True'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:08:48Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: MSD and AMT datasets downloaded from canonical URLs
+  claim_id: c_4bd23f6b
+  context: T013 [US1] Implement code/data_ingestion.py function download_datasets
+    to download/verify MSD and AMT datasets from canonical URLs defined in config.MSD_URL
+    and config.AMT_URL.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MSD_and_AMT_datasets_downloaded_from_canonical_URLs
+  kind: entity_fact
+  raw_text: Implement `code/data_ingestion.py` function `download_datasets` to download/verify
+    MSD and AMT datasets from canonical URLs defined in `config.MSD_URL` and `config.AMT_URL`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:09:04Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: calculate mean adolescent_exposure_ratio for tracks in MSD birth decade
+    via streaming generator
+  claim_id: c_ecaa87a7
+  context: 'Implement Global Exposure Calculation: Implement code/data_ingestion.py
+    function calculate_global_exposure for FR-008. LOGIC: INPUT: Triggered only if
+    global_exposure_mode is True (from T023a). STREAMING: Stream the full MSD population
+    for the user''s birth decade (e.g., 1980-1999 for 1990 birth) using datasets.load_dataset(...,
+    streaming=True).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_mean_adolescent_exposure_ratio_for_tracks_in_MSD_b
+  kind: entity_fact
+  raw_text: Calculate the mean adolescent_exposure_ratio for all tracks in the MSD
+    for that decade by iterating via a generator and accumulating the sum and count
+    on-the-fly.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:10:23Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: filter user-track pairs where total_listens is less than 3
+  claim_id: c_76d19cca
+  context: 'Implement code/data_ingestion.py function apply_frequency_threshold to
+    filter user-track pairs where total_listens < 3. DEPENDS ON: T023a, T013a. MUST
+    run after T013a to prevent false fallback triggers (EC-001). Relies on the state
+    set by T013a, not a re-run of ingestion. NOTE: This threshold matches FR-009 exactly.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_user-track_pairs_where_total_listens_is_less_than_3
+  kind: magnitude
+  raw_text: Filter user-track pairs where total_listens < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:10:25Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: match AMT cues to MSD tracks with Levenshtein distance less than or equal
+    to 4
+  claim_id: c_fec05c5a
+  context: "Goal: Parse AMT free-text cues, match to MSD tracks via fuzzy string matching\
+    \ (Levenshtein distance \u2264 4), and aggregate vividness/valence per User-Track\
+    \ pair."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Match_AMT_cues_to_MSD_tracks_with_Levenshtein_distance_less
+  kind: magnitude
+  raw_text: "Match AMT free-text cues to MSD tracks via fuzzy string matching with\
+    \ Levenshtein distance \u2264 4."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:10:54Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: check multicollinearity using VIF with threshold greater than 5
+  claim_id: c_f9df57e0
+  context: Implement code/modeling.py function check_collinearity to calculate Variance
+    Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_multicollinearity_using_VIF_with_threshold_greater_tha
+  kind: magnitude
+  raw_text: Check for multicollinearity using Variance Inflation Factor (VIF) with
+    a threshold of VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:11:34Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: run parametric bootstrap for 1000 iterations
+  claim_id: c_38156976
+  context: 'Implement code/modeling.py function run_bootstrap_test to orchestrate
+    the bootstrap test. Procedure: 1. Call run_bootstrap_setup (T045a) to prepare
+    residuals. 2. Call run_bootstrap_iteration (T045b) to generate statistics for
+    each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the parametric bootstrap for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:11:54Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: pipeline fails loudly if MSD AMT unreachable no fallback to synthetic
+    data
+  claim_id: c_618f8a3d
+  context: 'Critical Constraint: The pipeline must fail loudly if real data sources
+    (MSD/AMT) are unreachable; never implement a try/except block that falls back
+    to synthetic/mock data generation (except for FR-008 Global Exposure).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_loudly_if_MSD_AMT_unreachable_no_fallback_to
+  kind: entity_fact
+  raw_text: The pipeline must fail loudly if real data sources (MSD/AMT) are unreachable
+    and never implement a try/except block that falls back to synthetic/mock data
+    generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:12:17Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: implement chunked iteration for large datasets to avoid exceeding RAM
+    limits
+  claim_id: c_21912545
+  context: 'Critical Constraint: For large datasets, implement chunked iteration to
+    process data in chunks, ensuring the full dataset contributes to results without
+    exceeding RAM limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_chunked_iteration_for_large_datasets_to_avoid_exce
+  kind: entity_fact
+  raw_text: For large datasets, implement chunked iteration to process data in chunks,
+    ensuring the full dataset contributes to results without exceeding RAM limits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:12:42Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: set MSD URL to hf://brian/MSD and AMT URL to hf://brian/AMT
+  claim_id: c_a56ddd96
+  context: 'Update code/config.py to explicitly define the canonical, verified URLs
+    for MSD and AMT datasets. Constraint: If the execution environment injects a specific
+    verified source, this task must update the config to use only that injected source
+    and remove any other fallback URLs for the primary data sources. Specifics: Set
+    MSD_URL = ''hf://brian/MSD'' and AMT_URL = ''hf://brian/AMT''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Set_MSD_URL_to_hf://brian/MSD_and_AMT_URL_to_hf://brian/AMT
+  kind: entity_fact
+  raw_text: Set MSD_URL to 'hf://brian/MSD' and AMT_URL to 'hf://brian/AMT' in code/config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:13:01Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: VIF threshold for multicollinearity is 5
+  claim_id: c_b91c467b
+  context: 'Phase 5: User Story 3 - T035 [US3] ... check for multicollinearity (VIF
+    > 5 (2605.22529, https://arxiv.org/abs/2605.22529))'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: experiments validates the theorem on a representative benchmark dataset,
+        UNSW-NB15. Four widely used families of models are
+      source_id: '2605.22529'
+      url: https://arxiv.org/abs/2605.22529
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) threshold for multicollinearity is
+    5.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:13:38Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: AMT dataset URL is hf://brian/AMT
+  claim_id: c_bdcf9897
+  context: 'Phase 7: Revision & Verification - T113 [US1] ... and `AMT_URL = "hf://brian/AMT"`.'
+  evidence:
+    entailment_evidence: AMT dataset URL is hf://brian/AMT
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/AMT_dataset_URL_is_hf://brian/AMT
+  kind: entity_fact
+  raw_text: The canonical URL for the AMT dataset is hf://brian/AMT.
+  resolved_value: AMT dataset URL is hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:13:39Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: pipeline runs end-to-end within 6 hours
+  claim_id: c_894103b2
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T046 [P] Run `quickstart.md`
+    validation to ensure pipeline runs end-to-end within 6 hours (SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run end-to-end within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:13:40Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: match rate threshold defaults to 80% if config is [deferred]
+  claim_id: c_fb396f95
+  context: 'Phase 4: User Story 2 - T036 [US2] ... IF the value is the string ''[deferred]'':
+    DEFAULT TO 0.80 as per SC-004.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The match rate threshold defaults to 80% if the config value is '[deferred]'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:13:41Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: minimum listen threshold is 3
+  claim_id: c_f43b8a1b
+  context: 'Phase 3: User Story 1 - T015 [US1] ... filter user-track pairs where `total_listens`
+    < 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum listen threshold for filtering user-track pairs is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:13:41Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: parametric bootstrap runs for 1000 iterations
+  claim_id: c_8e4888b0
+  context: 'Phase 5: User Story 3 - T045c-1 [US3] ... Call `run_bootstrap_iteration`
+    (T045b) to generate statistics for each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The parametric bootstrap test runs for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:13:42Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: global exposure fallback triggered if >50% missing birth years
+  claim_id: c_6ce12e68
+  context: 'Phase 3: User Story 1 - T023a [US1] ... If `missing_pct > 0.5`: SET FLAG:
+    Set `global_exposure_mode = True`...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/global_exposure_fallback_triggered_if_%3E50%25_missing_birth_yea
+  kind: magnitude
+  raw_text: Users with more than 50% missing birth years trigger the global exposure
+    fallback mode.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:14:10Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: MSD dataset URL is hf://brian/MSD
+  claim_id: c_48173f52
+  context: 'Phase 7: Revision & Verification - T113 [US1] ... Set `MSD_URL = "hf://brian/MSD"`...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MSD_dataset_URL_is_hf://brian/MSD
+  kind: entity_fact
+  raw_text: The canonical URL for the MSD dataset is hf://brian/MSD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:14:11Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: adolescent window is birth year to birth year + 15
+  claim_id: c_1ae88963
+  context: 'Phase 3: User Story 1 - T013a [US1] ... calculate adolescent window (birth_year
+    to birth_year +).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adolescent_window_is_birth_year_to_birth_year_%2B_15
+  kind: entity_fact
+  raw_text: The adolescent window is defined as birth_year to birth_year + 15.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:14:55Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: MSD and AMT dataset URLs set to hf://brian/MSD and hf://brian/AMT
+  claim_id: c_eca8933d
+  context: 'T113 [US1] Specifics: Set MSD_URL = ''hf://brian/MSD'' and AMT_URL = ''hf://brian/AMT''.'
+  evidence:
+    entailment_evidence: Canonical URLs for MSD and AMT datasets are hf://brian/MSD
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Canonical_URLs_for_MSD_and_AMT_datasets_are_hf://brian/MSD_a
+  kind: entity_fact
+  raw_text: Set MSD_URL = 'hf://brian/MSD' and AMT_URL = 'hf://brian/AMT'.
+  resolved_value: Canonical URLs for MSD and AMT datasets are hf://brian/MSD and hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:15:38Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Global exposure mode triggers when missing birth year percentage exceeds
+    50%
+  claim_id: c_0a764ba9
+  context: 'Logic for T023a check_fallback_trigger: Calculate missing_pct = count(missing_birth_year)
+    / count(total_raw_records). If missing_pct > 0.5: SET FLAG: Set global_exposure_mode
+    = True.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing_pct > 0.5: SET FLAG: Set global_exposure_mode = True in config.py
+    or a global state variable.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:15:40Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching uses Levenshtein distance less than or equal to 4
+  claim_id: c_de6e341d
+  context: "Goal: Parse AMT free-text cues, match to MSD tracks via fuzzy string matching\
+    \ (Levenshtein distance \u2264 4), and aggregate vividness/valence per User-Track\
+    \ pair."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fuzzy_matching_uses_Levenshtein_distance_less_than_or_equal
+  kind: magnitude
+  raw_text: "Match fuzzy string matching with Levenshtein distance \u2264 4."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:16:07Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 2
+  canonical: Variance Inflation Factor threshold for multicollinearity is 5
+  claim_id: c_5551e81b
+  context: T035 [US3] Implement code/modeling.py function check_collinearity to calculate
+    Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529,
+    https://arxiv.org/abs/2605.22529))
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Calculate Variance Inflation Factor (VIF) and check for multicollinearity
+    (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:16:08Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap runs for 1000 iterations
+  claim_id: c_ad251b1d
+  context: 'T045c-1 [US3] Procedure: Call run_bootstrap_iteration (T045b) to generate
+    statistics for each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Call run_bootstrap_iteration (T045b) to generate statistics for each iteration
+    (1000 iterations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:16:08Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Data processing runs on CPU-only CI
+  claim_id: c_6889d4a0
+  context: 'Constraint: All data processing must run on CPU-only CI (no GPU, no low-precision
+    models)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_processing_runs_on_CPU-only_CI
+  kind: entity_fact
+  raw_text: All data processing must run on CPU-only CI (no GPU, no low-precision
+    models).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:16:36Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fallback trigger calculates missing birth year percentage from raw ingested
+    data
+  claim_id: c_bb0a15ec
+  context: 'T023a [US1] Logic: Calculate missing_pct = count(missing_birth_year) /
+    count(total_raw_records).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_trigger_calculates_missing_birth_year_percentage_fr
+  kind: entity_fact
+  raw_text: T023a calculates the percentage of missing birth years from the raw ingested
+    data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:17:01Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Bootstrap p-value computed by comparing observed statistic to null distribution
+  claim_id: c_4faeb3a4
+  context: 'T045c-1 [US3] Procedure: Calculate P-Value: Compute the p-value by comparing
+    the observed statistic (from T033) against the null distribution of bootstrap
+    statistics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T045c-1 computes the p-value by comparing the observed statistic against
+    the null distribution of bootstrap statistics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:17:27Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: Canonical data source URLs are hf://brian/MSD and hf://brian/AMT
+  claim_id: c_1483b221
+  context: 'Specifics: Set MSD_URL = ''hf://brian/MSD'' and AMT_URL = ''hf://brian/AMT''.
+    ADD: A validation step to check if AMT_URL is reachable before execution.'
+  evidence:
+    entailment_evidence: Canonical URLs for MSD and AMT datasets are hf://brian/MSD
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Canonical_URLs_for_MSD_and_AMT_datasets_are_hf://brian/MSD_a
+  kind: entity_fact
+  raw_text: Set MSD_URL = 'hf://brian/MSD' and AMT_URL = 'hf://brian/AMT'.
+  resolved_value: Canonical URLs for MSD and AMT datasets are hf://brian/MSD and hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:18:23Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Null hypothesis model for parametric bootstrap is mean_vividness ~ popularity
+    + (1|user_id)
+  claim_id: c_11161605
+  context: 'LOGIC: 1. Pin the random seed (from config.py). 2. Fit Null Model: Fit
+    the model under the null hypothesis (e.g., mean_vividness ~ popularity + (1|user_id))
+    to get residuals. 3. Extract Residuals: Store the residuals for resampling.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: user_id)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_model_for_parametric_bootstrap_is_mean_vivid
+    source_value: https://en.wikipedia.org/wiki/Null_hypothesis_model_for_parametric_bootstrap_is_mean_vivid
+    subject: Null hypothesis model for parametric bootstrap is mean_vividness ~ popularity
+      + (1
+  kind: relational
+  raw_text: Fit the model under the null hypothesis (e.g., mean_vividness ~ popularity
+    + (1|user_id)) to get residuals.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:19:33Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap test runs 1000 iterations
+  claim_id: c_23f4b889
+  context: 'Procedure: 1. Call run_bootstrap_setup (T045a) to prepare residuals. 2.
+    Call run_bootstrap_iteration (T045b) to generate statistics for each iteration
+    (1000 iterations). 3. Calculate P-Value: Compute the p-value by comparing the
+    observed statistic (from T033) against the null distribution of bootstrap statistics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Call run_bootstrap_iteration (T045b) to generate statistics for each iteration
+    (1000 iterations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:19:33Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: VIF threshold for multicollinearity is 5
+  claim_id: c_ddf23704
+  context: Implement code/modeling.py function check_collinearity to calculate Variance
+    Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529, https://arxiv.org/abs/2605.22529))
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: experiments validates the theorem on a representative benchmark dataset,
+        UNSW-NB15. Four widely used families of models are
+      source_id: '2605.22529'
+      url: https://arxiv.org/abs/2605.22529
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) threshold for checking multicollinearity
+    is 5.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:19:34Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Frequency threshold filters user-track pairs with total_listens less
+    than 3
+  claim_id: c_55e1ed98
+  context: 'Implement code/data_ingestion.py function apply_frequency_threshold to
+    filter user-track pairs where total_listens < 3. DEPENDS ON: T023a, T013a. MUST
+    run after T013a to prevent false fallback triggers (EC-001). Relies on the state
+    set by T013a, not a re-run of ingestion. NOTE: This threshold matches FR-009 exactly.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Frequency_threshold_filters_user-track_pairs_with_total_list
+  kind: magnitude
+  raw_text: Filter user-track pairs where total_listens < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:19:36Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Global exposure fallback triggers when missing birth years exceed 50%
+  claim_id: c_7117ce53
+  context: 'LOGIC: 1. Calculate missing_pct = count(missing_birth_year) / count(total_raw_records).
+    2. If missing_pct > 0.5: SET FLAG: Set global_exposure_mode = True in config.py
+    or a global state variable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing_pct > 0.5: SET FLAG: Set global_exposure_mode = True in config.py
+    or a global state variable.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:19:36Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching uses Levenshtein distance threshold of 4
+  claim_id: c_30af4143
+  context: "Implement code/cue_matching.py function match_cues to perform fuzzy matching\
+    \ with Levenshtein distance \u2264 4 and log unmatched cues"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform fuzzy matching with Levenshtein distance \u2264 4."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:19:37Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Frequency filter removes tracks with fewer than 3 total listens
+  claim_id: c_646fc8cb
+  context: 'Implement code/data_ingestion.py function apply_frequency_threshold to
+    filter user-track pairs where total_listens < 3. DEPENDS ON: T023a, T013a. MUST
+    run after T013a to prevent false fallback triggers (EC-001). Relies on the state
+    set by T013a, not a re-run of ingestion. NOTE: This threshold matches FR-009 exactly.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Frequency_filter_removes_tracks_with_fewer_than_3_total_list
+  kind: magnitude
+  raw_text: Filter out tracks with total_listens < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:20:00Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: VIF threshold for multicollinearity is greater than 5
+  claim_id: c_1419c059
+  context: Implementation for User Story 3 - Statistical Modeling and Hypothesis Testing
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_for_multicollinearity_is_greater_than_5
+  kind: magnitude
+  raw_text: Implement `code/modeling.py` function `check_collinearity` to calculate
+    Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529,
+    https://arxiv.org/abs/2605.22529))
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:20:41Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap test uses 1000 iterations
+  claim_id: c_e05120df
+  context: Implementation for User Story 3 - Statistical Modeling and Hypothesis Testing
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/modeling.py` function `run_bootstrap_test` to orchestrate
+    the bootstrap test... Call `run_bootstrap_iteration` (T045b) to generate statistics
+    for each iteration (1000 iterations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:21:09Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Frequency threshold filters user-track pairs with total listens less
+    than 3
+  claim_id: c_6c487484
+  context: Implementation for User Story 1 - Data Ingestion and Cohort Exposure Scoring
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Frequency_threshold_filters_user-track_pairs_with_total_list
+  kind: magnitude
+  raw_text: Implement `code/data_ingestion.py` function `apply_frequency_threshold`
+    to filter user-track pairs where `total_listens` < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:21:14Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching uses Levenshtein distance less than or equal to 4
+  claim_id: c_40026a1b
+  context: Implementation for User Story 2 - Cue Matching and Memory Attribute Aggregation
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fuzzy_matching_uses_Levenshtein_distance_less_than_or_equal
+  kind: magnitude
+  raw_text: "Implement `code/cue_matching.py` function `match_cues` to perform fuzzy\
+    \ matching with Levenshtein distance \u2264 4"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:21:30Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Dataset ingestion uses streaming mode to process large datasets in chunks
+  claim_id: c_4585a0e6
+  context: Implementation for User Story 1 - Data Ingestion and Cohort Exposure Scoring
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ingestion_uses_streaming_mode_to_process_large_datas
+  kind: entity_fact
+  raw_text: Implement `code/data_ingestion.py` function `download_datasets`... Must
+    process large datasets in chunks (streaming) to stay within RAM limits; **MUST
+    use `datasets.load_dataset(..., streaming=True)`**
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:21:49Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for multicollinearity is greater
+    than 5
+  claim_id: c_d7a7a741
+  context: T035 [US3] Implement code/modeling.py function check_collinearity to calculate
+    Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529,
+    https://arxiv.org/abs/2605.22529))
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Inflation_Factor_threshold_for_multicollinearity_is
+  kind: magnitude
+  raw_text: Implement code/modeling.py function check_collinearity to calculate Variance
+    Inflation Factor (VIF) and check for multicollinearity (VIF > 5)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:24:08Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Minimum listen threshold for filtering user-track pairs is 3
+  claim_id: c_822a4e10
+  context: 'T015 [US1] Implement code/data_ingestion.py function apply_frequency_threshold
+    to filter user-track pairs where total_listens < 3. NOTE: This threshold matches
+    FR-009 exactly.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter user-track pairs where total_listens < 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:24:08Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap uses 1000 iterations
+  claim_id: c_8bd946c3
+  context: 'T045c-1 [US3] Implement code/modeling.py function run_bootstrap_test to
+    orchestrate the bootstrap test. Procedure: Call run_bootstrap_iteration (T045b)
+    to generate statistics for each iteration (1000 iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a sufficient number of iterations (1000 iterations) to ensure
+    convergence and robustness of the results
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:24:31Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Pipeline end-to-end execution time limit is 6 hours
+  claim_id: c_c1566fcb
+  context: T046 [P] Run quickstart.md validation to ensure pipeline runs end-to-end
+    within 6 hours (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run end-to-end within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:24:31Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Global exposure fallback triggered when missing birth years percentage
+    exceeds 50
+  claim_id: c_150354e7
+  context: 'T023a [US1] Implement code/data_ingestion.py function check_fallback_trigger...
+    LOGIC: Calculate missing_pct = count(missing_birth_year) / count(total_raw_records).
+    If missing_pct > 0.5: SET FLAG: Set global_exposure_mode = True'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fallback trigger occurs when missing birth years exceed 50% of raw records
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:24:32Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Levenshtein distance threshold for cue matching is 4
+  claim_id: c_35ad975b
+  context: "Phase 4: User Story 2 - Cue Matching and Memory Attribute Aggregation...\
+    \ match to MSD tracks via fuzzy string matching (Levenshtein distance \u2264 4)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fuzzy matching uses Levenshtein distance threshold of 4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:24:49Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for multicollinearity is greater
+    than 5
+  claim_id: c_bf6998f0
+  context: 'Phase 5: User Story 3 - Statistical Modeling and Hypothesis Testing (Priority:
+    P3) - Implementation for User Story 3'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_Inflation_Factor_threshold_for_multicollinearity_is
+  kind: magnitude
+  raw_text: Implement `code/modeling.py` function `check_collinearity` to calculate
+    Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529,
+    https://arxiv.org/abs/2605.22529))
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:25:41Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap test performs 1000 iterations
+  claim_id: c_d2c57190
+  context: 'Phase 5: User Story 3 - Statistical Modeling and Hypothesis Testing (Priority:
+    P3) - Implementation for User Story 3 - T045c-1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/modeling.py` function `run_bootstrap_test` to orchestrate
+    the bootstrap test... Call `run_bootstrap_iteration` (T045b) to generate statistics
+    for each iteration (1000 iterations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:25:41Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Frequency threshold filters user-track pairs with fewer than 3 total
+    listens
+  claim_id: c_4a724146
+  context: 'Phase 3: User Story 1 - Data Ingestion and Cohort Exposure Scoring (Priority:
+    P1) - Implementation for User Story 1 - T015'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Frequency_threshold_filters_user-track_pairs_with_fewer_than
+  kind: magnitude
+  raw_text: Implement `code/data_ingestion.py` function `apply_frequency_threshold`
+    to filter user-track pairs where `total_listens` < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:25:43Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching uses Levenshtein distance less than or equal to 4
+  claim_id: c_27b611b8
+  context: 'Phase 4: User Story 2 - Cue Matching and Memory Attribute Aggregation
+    (Priority: P2) - Implementation for User Story 2 - T047'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fuzzy_matching_uses_Levenshtein_distance_less_than_or_equal
+  kind: magnitude
+  raw_text: "Implement `code/cue_matching.py` function `match_cues` to perform fuzzy\
+    \ matching with Levenshtein distance \u2264 4"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:25:44Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: MSD dataset URL is hf://brian/MSD and AMT dataset URL is hf://brian/AMT
+  claim_id: c_672850cc
+  context: 'Phase 7: Revision & Verification (Addressing Review Concerns) - Implementation
+    for Revision Concerns - T113'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: 'https://en.wikipedia.org/wiki/MSD_dataset_URL_is_hf://brian/MSD_and_AMT_dataset_URL_is_hf:'
+  kind: entity_fact
+  raw_text: Update `code/config.py` to explicitly define the canonical, verified URLs
+    for MSD and AMT datasets... Set `MSD_URL = "hf://brian/MSD"` and `AMT_URL = "hf://brian/AMT"`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:26:03Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 0
+  canonical: MSD and AMT URLs set to hf://brian/MSD and hf://brian/AMT
+  claim_id: c_a926aa2a
+  context: 'Specifics: Set MSD_URL = ''hf://brian/MSD'' and AMT_URL = ''hf://brian/AMT''.'
+  evidence:
+    entailment_evidence: Canonical URLs for MSD and AMT datasets are hf://brian/MSD
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Canonical_URLs_for_MSD_and_AMT_datasets_are_hf://brian/MSD_a
+  kind: entity_fact
+  raw_text: Set MSD_URL = 'hf://brian/MSD' and AMT_URL = 'hf://brian/AMT'.
+  resolved_value: Canonical URLs for MSD and AMT datasets are hf://brian/MSD and hf://brian/AMT
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:26:35Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap runs for 1000 iterations
+  claim_id: c_275c9964
+  context: 2. Call run_bootstrap_iteration (T045b) to generate statistics for each
+    iteration (1000 iterations).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat for 1000 iterations to ensure convergence and robustness of the
+    results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:27:08Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 2
+  canonical: Filter user-track pairs with total listens less than 3
+  claim_id: c_f41b96a2
+  context: T015 [US1] Implement code/data_ingestion.py function apply_frequency_threshold
+    to filter user-track pairs where total_listens < 3.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_user-track_pairs_with_total_listens_less_than_3
+  kind: magnitude
+  raw_text: Filter user-track pairs where total_listens < 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:27:10Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Multicollinearity check uses VIF threshold greater than 5
+  claim_id: c_ee42f9c0
+  context: T035 [US3] Implement code/modeling.py function check_collinearity to calculate
+    Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5 (2605.22529,
+    https://arxiv.org/abs/2605.22529))
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Multicollinearity_check_uses_VIF_threshold_greater_than_5
+  kind: magnitude
+  raw_text: Check for multicollinearity using Variance Inflation Factor (VIF) with
+    a threshold of VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:27:13Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Records without birth year excluded unless fallback applies
+  claim_id: c_ce290bd4
+  context: 'Independent Test: Run ingestion on a small synthetic subset; verify output
+    CSV has adolescent_exposure_ratio (0.0-1.0), excludes records without birth_year
+    (unless fallback), and applies the minimum listen threshold.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Records_without_birth_year_excluded_unless_fallback_applies
+  kind: entity_fact
+  raw_text: Exclude records without birth_year (unless fallback) and apply the minimum
+    listen threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:27:28Z'
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
+  attempts: 1
+  canonical: Adolescent exposure ratio output range is 0.0 to 1.0
+  claim_id: c_59690d5d
+  context: 'Independent Test: Run ingestion on a small synthetic subset; verify output
+    CSV has adolescent_exposure_ratio (0.0-1.0), excludes records without birth_year
+    (unless fallback), and applies the minimum listen threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV must have adolescent_exposure_ratio between 0.0 and 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:28:05Z'

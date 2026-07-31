@@ -22,3 +22,35 @@ T050:
     \ `data/final/bootstrap_results.csv`, and `state.yaml`) are absent, so no existence\
     \ or checksum verification could be performed. The task\u2019s core requirement\
     \ is therefore unmet."
+T121:
+  c: true
+  h: 083a3377fef577e0a4d30729a449b0153aab72dd8d1a47aa0d17ef36268b82d2
+  r: "The `code/utils.py` file contains a full, non\u2011placeholder implementation\
+    \ of `compute_sha256` that reads a file in binary chunks and returns its SHA\u2011\
+    256 hex digest, satisfying the task\u2019s requirement. The missing `data/processed/ingested_cohort.parquet`\
+    \ is an input, not an output artifact, so its absence does not invalidate the\
+    \ implementation."
+T122:
+  c: false
+  h: 451a15e7444e6e3ca8b3c4b4cf593bbd6371764b2a16f1423af248c7c7358f5d
+  r: "The `update_state_yaml` function in `code/utils.py` is cut off mid\u2011implementation\
+    \ (ends with \u201Cst\u201D) and does not contain the logic to write the updated\
+    \ data back to `state.yaml`. Additionally, the required `state.yaml` file is absent\
+    \ from the repository. Both the implementation and the target artifact are missing,\
+    \ so the task is not satisfied."
+T123:
+  c: false
+  h: d68ecc0ba63746c0e6c540d4338ba8e78b672fdaca50caa118543fa8e67212fc
+  r: "The repository contains a `write_parquet` implementation, but the required output\
+    \ file `data/processed/user_track_pairs.parquet` is not present. Without the actual\
+    \ Parquet file being generated, the task\u2019s primary deliverable is missing.\
+    \ The next implementer must ensure the function is invoked (or hard\u2011coded)\
+    \ to create that file and verify its existence."
+T124:
+  c: true
+  h: d68ecc0ba63746c0e6c540d4338ba8e78b672fdaca50caa118543fa8e67212fc
+  r: "The `code/utils.py` file exists and contains a full, non\u2011placeholder implementation\
+    \ of `compute_sha256` that reads a file, checks existence, and returns its SHA\u2011\
+    256 hash. This satisfies the task\u2019s requirement to implement the checksum\
+    \ function. (The missing `data/processed/user_track_pairs.parquet` file is not\
+    \ part of the required artifact for this task.)"

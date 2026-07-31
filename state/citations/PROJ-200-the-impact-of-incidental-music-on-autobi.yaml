@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive
   verified_at: '2026-07-23T13:31:29.065024Z'
-- artifact_hash: 1f85460aae00c2b3d2ae916f1c88a82cbe0deb7c056303ecdadbb09537433649
+- artifact_hash: 7c39f39a3106f54170a77feeba5c4e9d70032dd8ddf4d941e94ee87fdae0853c
   artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,4 +20,4 @@
   value: https://arxiv.org/abs/2605.22529
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2605.22529
-  verified_at: '2026-07-31T11:40:43.558908Z'
+  verified_at: '2026-07-31T13:26:18.164969Z'
