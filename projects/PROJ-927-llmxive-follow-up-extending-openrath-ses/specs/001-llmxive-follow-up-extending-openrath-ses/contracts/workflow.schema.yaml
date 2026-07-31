@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Workflow Ground Truth"
+description: "Immutable record of a synthetic multi-agent workflow and its expected final state."
+type: "object"
+properties:
+  workflow_id:
+    type: "string"
+    description: "Unique identifier for the workflow (UUID)."
+  seed:
+    type: "integer"
+    description: "Random seed used for deterministic generation."
+  decision_tree:
+    type: "object"
+    description: "Nested structure representing the logic flow and tool calls."
+    properties:
+      nodes:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            node_id:
+              type: "string"
+            action:
+              type: "string"
+            dependencies:
+              type: "array"
+              items:
+                type: "string"
+  final_state:
+    type: "object"
+    description: "The expected final state variables."
+  tool_outputs:
+    type: "array"
+    description: "List of expected outputs from each tool call."
+    items:
+      type: "object"
+      properties:
+        tool_id:
+          type: "string"
+        output_hash:
+          type: "string"
+          description: "SHA256 of the expected output."
+  hash:
+    type: "string"
+    description: "SHA256 checksum of the file content."
+required:
+  - workflow_id
+  - seed
+  - decision_tree
+  - final_state
+  - tool_outputs
+  - hash
+additionalProperties: false

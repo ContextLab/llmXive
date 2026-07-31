@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reconstruction Result"
+description: "Output of the reconstruction engine, including success status and latency."
+type: "object"
+properties:
+  workflow_id:
+    type: "string"
+    description: "Reference to the workflow."
+  architecture:
+    type: "string"
+    enum:
+      - "event_log"
+      - "session_first"
+    description: "The architecture model used."
+  status:
+    type: "string"
+    enum:
+      - "Success"
+      - "Partial"
+      - "Unrecoverable"
+    description: "Reconstruction outcome."
+  reconstructed_state:
+    type: "object"
+    description: "The state rebuilt from logs."
+  latency_seconds:
+    type: "number"
+    description: "Time taken to reconstruct in seconds."
+  unrecoverable_reason:
+    type: "string"
+    description: "Explanation if status is 'Unrecoverable'."
+  match_hash:
+    type: "string"
+    description: "SHA256 of the reconstructed state."
+  is_exact_match:
+    type: "boolean"
+    description: "True if reconstructed state matches ground truth exactly."
+  is_total_resilience_success:
+    type: "boolean"
+    description: "True if status is 'Success', False otherwise (for Total Resilience metric)."
+required:
+  - workflow_id
+  - architecture
+  - status
+  - latency_seconds
+  - match_hash
+  - is_exact_match
+  - is_total_resilience_success
+additionalProperties: false

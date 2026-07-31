@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Corruption Log"
+description: "Records of which log entries were corrupted and the resulting content."
+type: "object"
+properties:
+  workflow_id:
+    type: "string"
+    description: "Reference to the ground truth workflow."
+  architecture:
+    type: "string"
+    enum:
+      - "event_log"
+      - "session_first"
+    description: "The architecture model used."
+  corruption_rate:
+    type: "number"
+    description: "The rate of corruption applied (e.g., 0.10)."
+  corruption_map:
+    type: "array"
+    description: "Mapping of log IDs to their corruption status."
+    items:
+      type: "object"
+      properties:
+        log_id:
+          type: "string"
+        status:
+          type: "string"
+          enum:
+            - "deleted"
+            - "modified"
+            - "intact"
+      required:
+        - log_id
+        - status
+  corrupted_content:
+    type: "array"
+    description: "List of modified log entries (if status is 'modified')."
+    items:
+      type: "object"
+  hash:
+    type: "string"
+    description: "SHA256 checksum of the file content."
+required:
+  - workflow_id
+  - architecture
+  - corruption_rate
+  - corruption_map
+  - hash
+additionalProperties: false

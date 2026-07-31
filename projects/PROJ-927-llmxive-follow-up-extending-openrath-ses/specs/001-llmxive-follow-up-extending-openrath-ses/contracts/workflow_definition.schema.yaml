@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Workflow Definition"
+description: "Defines a single synthetic multi-agent debugging workflow."
+type: object
+required:
+  - workflow_id
+  - seed
+  - agent_roles
+  - decision_tree
+  - ground_truth_hash
+properties:
+  workflow_id:
+    type: string
+    description: "Unique identifier for the workflow (e.g., 'wf_000001')."
+  seed:
+    type: integer
+    description: "The random seed used to generate this workflow."
+  agent_roles:
+    type: array
+    description: "List of agent roles involved in the workflow."
+    items:
+      type: string
+      enum:
+        - "debugger"
+        - "validator"
+        - "coder"
+        - "reviewer"
+  decision_tree:
+    type: object
+    description: "The DAG of tasks and dependencies."
+    properties:
+      nodes:
+        type: array
+        items:
+          type: object
+          required:
+            - node_id
+            - task_type
+            - dependencies
+          properties:
+            node_id:
+              type: string
+            task_type:
+              type: string
+              enum:
+                - "parse_code"
+                - "identify_bug"
+                - "apply_fix"
+                - "verify_fix"
+            dependencies:
+              type: array
+              items:
+                type: string
+  ground_truth_hash:
+    type: string
+    description: "SHA-256 hash of the corresponding ground_truth.json file."
+    pattern: "^[a-f0-9]{64}$"
+additionalProperties: false
