@@ -1,1 +1,1 @@
-# Model runners package
+# Model inference runners module

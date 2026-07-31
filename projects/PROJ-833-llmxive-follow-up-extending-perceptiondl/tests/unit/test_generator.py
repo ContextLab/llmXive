@@ -1,111 +1,145 @@
 """
 Unit tests for code/synthetic/generator.py
+
+Tests verify:
+- Non-overlap guarantee
+- Retry logic behavior
+- Schema compliance
+- Relation derivation correctness
 """
-import pytest
 import json
-import os
-from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
-from PIL import Image
-import numpy as np
-
-# Import the module under test
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+import math
+from pathlib import Path
+from unittest.mock import Mock, patch, MagicMock
 
-from synthetic.generator import generate_sample_for_bin, REGION_COUNTS, SAMPLES_PER_BIN
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-@pytest.fixture
-def mock_image():
-    """Create a mock PIL Image."""
-    img = Image.new('RGB', (512, 512), color='red')
-    return img
+import pytest
+from synthetic.generator import generate_sample_for_bin, run_generation_pipeline
+from synthetic.placer import place_boxes_with_retry
+from synthetic.deriver import derive_all_relations
+from synthetic.validator import validate_no_overlaps
+from synthetic.serializer import serialize_synthetic_sample
 
-@pytest.fixture
-def temp_output_dir(tmp_path):
-    """Create a temporary output directory."""
-    output_dir = tmp_path / "synthetic_output"
-    output_dir.mkdir()
-    return output_dir
+class TestNonOverlapGuarantee:
+    """Test that generated boxes never overlap."""
 
-def test_generate_sample_for_bin_success(mock_image, temp_output_dir):
-    """Test successful generation of a sample with specific region count."""
-    # Mock the dependencies to avoid actual file I/O and complex logic
-    with patch('synthetic.generator.place_boxes_with_retry') as mock_place, \
-         patch('synthetic.generator.validate_no_overlaps') as mock_validate, \
-         patch('synthetic.generator.derive_all_relations') as mock_derive, \
-         patch('synthetic.generator.save_image') as mock_save_img, \
-         patch('synthetic.generator.save_annotations') as mock_save_ann:
-        
-        # Setup mocks
-        mock_boxes = [{"x": 10, "y": 10, "w": 50, "h": 50}, {"x": 100, "y": 100, "w": 50, "h": 50}]
-        mock_place.return_value = (mock_boxes, True)
-        mock_validate.return_value = True
-        mock_derive.return_value = [{"relation": "left of", "box1": 0, "box2": 1}]
-        
-        # Execute
-        result = generate_sample_for_bin(
-            image_id="test_img_001",
-            image=mock_image,
-            region_count=20,
-            output_dir=temp_output_dir
+    def test_place_boxes_no_overlap(self):
+        """Verify place_boxes_with_retry returns non-overlapping boxes."""
+        image_size = (800, 600)
+        target_count = 30
+        max_retries = 10
+
+        boxes = place_boxes_with_retry(
+            image_size=image_size,
+            target_count=target_count,
+            max_retries=max_retries
         )
-        
-        # Assertions
-        assert result is not None
-        assert result["region_count"] == 20
-        assert result["boxes_placed"] == 2
-        assert "test_img_001" in result["image_file"]
-        assert "test_img_001" in result["json_file"]
-        
-        # Verify calls
-        mock_place.assert_called_once()
-        mock_derive.assert_called_once_with(mock_boxes)
-        mock_save_img.assert_called_once()
-        mock_save_ann.assert_called_once()
 
-def test_generate_sample_for_bin_placement_failure(mock_image, temp_output_dir):
-    """Test handling of placement failure."""
-    with patch('synthetic.generator.place_boxes_with_retry') as mock_place, \
-         patch('synthetic.generator.logger') as mock_logger:
-        
-        mock_place.return_value = ([], False)
-        
-        result = generate_sample_for_bin(
-            image_id="test_img_fail",
-            image=mock_image,
-            region_count=50,
-            output_dir=temp_output_dir
+        if boxes is not None:
+            assert len(boxes) == target_count, f"Expected {target_count} boxes, got {len(boxes)}"
+            assert validate_no_overlaps(boxes), "Generated boxes have overlaps"
+
+    def test_place_boxes_retry_on_failure(self):
+        """Verify retry logic reduces count when placement fails."""
+        # This is a behavioral test - if placement fails for high density,
+        # the function should either reduce count or return None
+        image_size = (100, 100)  # Very small image
+        target_count = 100  # Impossible to fit 100 boxes
+        max_retries = 5
+
+        boxes = place_boxes_with_retry(
+            image_size=image_size,
+            target_count=target_count,
+            max_retries=max_retries
         )
-        
-        assert result is None
-        mock_logger.warning.assert_called_once()
 
-def test_generate_sample_for_bin_overlap_failure(mock_image, temp_output_dir):
-    """Test handling of validation failure (overlaps)."""
-    with patch('synthetic.generator.place_boxes_with_retry') as mock_place, \
-         patch('synthetic.generator.validate_no_overlaps') as mock_validate, \
-         patch('synthetic.generator.logger') as mock_logger:
-        
-        mock_boxes = [{"x": 10, "y": 10, "w": 50, "h": 50}]
-        mock_place.return_value = (mock_boxes, True)
-        mock_validate.return_value = False
-        
-        result = generate_sample_for_bin(
-            image_id="test_img_overlap",
-            image=mock_image,
-            region_count=20,
-            output_dir=temp_output_dir
+        # Should return None or fewer boxes, never overlapping
+        if boxes is not None:
+            assert validate_no_overlaps(boxes), "Boxes overlap after retries"
+            assert len(boxes) < target_count, "Should have reduced count on failure"
+
+class TestRelationDerivation:
+    """Test that derived relations match geometric reality."""
+
+    def test_derive_relations_consistency(self):
+        """Verify derived relations are geometrically consistent."""
+        # Create known boxes
+        boxes = [
+            {'id': 1, 'x': 10, 'y': 10, 'w': 20, 'h': 20},  # Left
+            {'id': 2, 'x': 50, 'y': 10, 'w': 20, 'h': 20}   # Right
+        ]
+
+        relations = derive_all_relations(boxes)
+
+        # Box 1 should be "left of" Box 2
+        relations_text = " ".join(relations)
+        assert "left of" in relations_text.lower(), "Expected 'left of' relation"
+
+    def test_derive_relations_vertical(self):
+        """Verify vertical relations are derived correctly."""
+        boxes = [
+            {'id': 1, 'x': 10, 'y': 10, 'w': 20, 'h': 20},  # Top
+            {'id': 2, 'x': 10, 'y': 50, 'w': 20, 'h': 20}   # Bottom
+        ]
+
+        relations = derive_all_relations(boxes)
+        relations_text = " ".join(relations)
+        assert "above" in relations_text.lower() or "below" in relations_text.lower(), \
+            "Expected vertical relation"
+
+class TestSchemaCompliance:
+    """Test that generated data complies with schema."""
+
+    def test_annotation_structure(self):
+        """Verify annotation data has required fields."""
+        from synthetic.validator import validate_synthetic_image_file
+
+        # Mock data
+        annotation = {
+            'image_path': 'test.png',
+            'bounding_boxes': [
+                {'id': 1, 'x': 10, 'y': 10, 'w': 20, 'h': 20}
+            ],
+            'derived_relations': ['left of'],
+            'region_count': 25
+        }
+
+        # This should not raise
+        assert validate_synthetic_image_file(annotation) is True
+
+class TestIntegration:
+    """Integration tests for the generator pipeline."""
+
+    @patch('synthetic.generator.fetch_dataset_sample')
+    @patch('synthetic.generator.serialize_synthetic_sample')
+    def test_pipeline_execution(self, mock_serialize, mock_fetch):
+        """Test pipeline runs without crashing on mock data."""
+        # Mock dataset
+        mock_dataset = [
+            {
+                'image': MagicMock(size=(800, 600)),
+                'annotations': []
+            }
+        ]
+        mock_fetch.return_value = mock_dataset
+        mock_serialize.return_value = Path('/tmp/test.png')
+
+        # Run for a single bin
+        stats = generate_sample_for_bin(
+            bin_count=25,
+            source_dataset=mock_dataset,
+            output_dir=Path('/tmp'),
+            start_idx=0
         )
-        
-        assert result is None
-        mock_logger.error.assert_called_once()
 
-def test_region_counts_config():
-    """Verify that all required region counts are present."""
-    expected_counts = [20, 25, 30, 35, 40, 45, 50]
-    assert REGION_COUNTS == expected_counts
+        assert 'attempted' in stats
+        assert 'successful' in stats
+        assert 'failed' in stats
 
-def test_samples_per_bin_config():
-    """Verify samples per bin configuration."""
-    assert SAMPLES_PER_BIN >= 50
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

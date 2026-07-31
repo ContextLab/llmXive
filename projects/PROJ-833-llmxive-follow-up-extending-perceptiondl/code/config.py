@@ -1,61 +1,52 @@
+"""
+code/config.py
+
+Configuration module defining paths, random seeds, and hyperparameters.
+"""
+
 import os
+import random
 from pathlib import Path
+from typing import List, Dict, Any
 
-# Project root is assumed to be the parent of the 'code' directory
-# If running as script, we try to infer from __file__, otherwise default to current dir
-_project_root = Path(__file__).resolve().parent.parent
-if not (_project_root / "code").exists():
-    _project_root = Path.cwd()
+# Project Root
+# Assuming the script is run from the project root or code directory
+# We calculate relative to this file
+_PROJECT_ROOT = Path(__file__).parent.parent
+_DATA_ROOT = _PROJECT_ROOT / "data"
+_STATE_ROOT = _PROJECT_ROOT / "state"
+_CODE_ROOT = _PROJECT_ROOT / "code"
 
-DATA_DIR = _project_root / "data"
-RAW_DIR = DATA_DIR / "raw"
-SYNTHETIC_DIR = DATA_DIR / "synthetic"
-PROCESSED_DIR = DATA_DIR / "processed"
+# Region Counts
+REGION_COUNTS: List[int] = [25, 30, 35, 40, 45, 50]
 
-def get_data_path(subdir: str = "raw") -> Path:
-    """
-    Get the path to a specific data subdirectory.
-    
-    Args:
-        subdir: Subdirectory name ('raw', 'synthetic', 'processed')
-        
-    Returns:
-        Path object for the requested directory
-        
-    Raises:
-        ValueError: If subdir is not one of the valid options
-    """
-    valid_subdirs = {"raw": RAW_DIR, "synthetic": SYNTHETIC_DIR, "processed": PROCESSED_DIR}
-    if subdir not in valid_subdirs:
-        raise ValueError(f"Invalid subdir '{subdir}'. Must be one of {list(valid_subdirs.keys())}")
-    return valid_subdirs[subdir]
+# Random Seed
+RANDOM_SEED: int = 42
 
-def ensure_directories():
-    """
-    Create the required data directory structure if they don't exist.
-    
-    Creates:
-        data/raw/
-        data/synthetic/
-        data/processed/
-        
-    Raises:
-        OSError: If directories cannot be created
-    """
-    dirs_to_create = [RAW_DIR, SYNTHETIC_DIR, PROCESSED_DIR]
-    
-    for dir_path in dirs_to_create:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        
-    # Verify creation
-    for dir_path in dirs_to_create:
-        if not dir_path.exists():
-            raise OSError(f"Failed to create directory: {dir_path}")
+# Thresholds
+TIPPING_POINT_THRESHOLD: float = 0.9
+
+def get_data_path() -> Path:
+    """Return the data root path."""
+    return _DATA_ROOT
+
+def get_state_path() -> Path:
+    """Return the state root path."""
+    return _STATE_ROOT
+
+def get_random_state() -> int:
+    """Return the configured random seed."""
+    return RANDOM_SEED
+
+def ensure_directories(paths: List[Path]):
+    """Ensure all given paths exist as directories."""
+    for p in paths:
+        p.mkdir(parents=True, exist_ok=True)
+
+def main():
+    """Test config."""
+    print(f"Data root: {get_data_path()}")
+    print(f"Random seed: {get_random_state()}")
 
 if __name__ == "__main__":
-    # Simple test when run directly
-    ensure_directories()
-    print(f"Created directories in: {_project_root}")
-    print(f"  - {RAW_DIR}")
-    print(f"  - {SYNTHETIC_DIR}")
-    print(f"  - {PROCESSED_DIR}")
+    main()

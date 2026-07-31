@@ -1,1 +1,1 @@
-# Synthetic data generation package
+# Synthetic data generation module

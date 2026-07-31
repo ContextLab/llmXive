@@ -1,1 +1,1 @@
-# Analysis and visualization package
+# Analysis and plotting module

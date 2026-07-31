@@ -1,49 +1,22 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-follow-up-extending-perceptiondl"
-version = "0.1.0"
-description = "Extending PerceptionDLM Parallel Region Perception"
-requires-python = ">=3.11"
-dependencies = [
-    "torch",
-    "transformers",
-    "diffusers",
-    "spacy",
-    "pandas",
-    "scikit-learn",
-    "matplotlib",
-    "datasets",
-    "huggingface_hub",
-    "psutil",
-    "flake8",
-    "black",
-    "jsonschema",
-    "pyyaml",
-    "pillow",
-    "numpy",
-]
-
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 88
+[tool.flake8]
+max-line-length = 88
+extend-ignore = 'E203'
+exclude = ['.git', '__pycache__', 'build', 'dist', '.venv']

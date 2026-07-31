@@ -1,302 +1,142 @@
 """
-Core algorithm for placing non-overlapping bounding boxes on images.
+code/synthetic/placer.py
+
+Implements the core algorithm for placing non-overlapping bounding boxes.
 Includes retry logic to reduce region count or skip images if placement fails.
 """
+
 import random
 import math
 from typing import List, Tuple, Dict, Any, Optional
 from pathlib import Path
 
-# Box format: (x_min, y_min, x_max, y_max)
-Box = Tuple[int, int, int, int]
+def calculate_iou(box1: Dict[str, Any], box2: Dict[str, Any]) -> float:
+    """Calculate Intersection over Union."""
+    x1_min, y1_min, x1_max, y1_max = box1['x'], box1['y'], box1['x'] + box1['w'], box1['y'] + box1['h']
+    x2_min, y2_min, x2_max, y2_max = box2['x'], box2['y'], box2['x'] + box2['w'], box2['y'] + box2['h']
 
+    xi1 = max(x1_min, x2_min)
+    yi1 = max(y1_min, y2_min)
+    xi2 = min(x1_max, x2_max)
+    yi2 = min(y1_max, y2_max)
 
-def _get_box_center(box: Box) -> Tuple[float, float]:
-    """Calculate the center point of a bounding box."""
-    x_min, y_min, x_max, y_max = box
-    return ((x_min + x_max) / 2.0, (y_min + y_max) / 2.0)
+    inter_area = max(0, xi2 - xi1) * max(0, yi2 - yi1)
+    area1 = (x1_max - x1_min) * (y1_max - y1_min)
+    area2 = (x2_max - x2_min) * (y2_max - y2_min)
+    union_area = area1 + area2 - inter_area
 
+    if union_area == 0:
+        return 0.0
+    return inter_area / union_area
 
-def _boxes_overlap(box1: Box, box2: Box, padding: int = 0) -> bool:
-    """
-    Check if two bounding boxes overlap.
-    Args:
-        box1: First box (x_min, y_min, x_max, y_max)
-        box2: Second box (x_min, y_min, x_max, y_max)
-        padding: Minimum gap required between boxes
-    Returns:
-        True if boxes overlap or are too close, False otherwise
-    """
-    x1_min, y1_min, x1_max, y1_max = box1
-    x2_min, y2_min, x2_max, y2_max = box2
+def is_within_bounds(box: Dict[str, Any], image_size: Tuple[int, int]) -> bool:
+    """Check if a box is within image bounds."""
+    w, h = image_size
+    return (box['x'] >= 0 and box['y'] >= 0 and
+            box['x'] + box['w'] <= w and box['y'] + box['h'] <= h)
 
-    # Check for separation with padding
-    if x1_max + padding < x2_min or x2_max + padding < x1_min:
-        return False
-    if y1_max + padding < y2_min or y2_max + padding < y1_min:
-        return False
+def boxes_overlap(box1: Dict[str, Any], box2: Dict[str, Any], threshold: float = 0.05) -> bool:
+    """Check if two boxes overlap significantly."""
+    return calculate_iou(box1, box2) > threshold
 
-    return True
+def place_single_box(
+    image_size: Tuple[int, int],
+    existing_boxes: List[Dict[str, Any]],
+    rng: random.Random,
+    min_size: int = 50,
+    max_size: int = 150
+) -> Optional[Dict[str, Any]]:
+    """Attempt to place a single non-overlapping box."""
+    w, h = image_size
+    attempts = 0
+    max_attempts = 500
 
+    while attempts < max_attempts:
+        size = rng.randint(min_size, max_size)
+        x = rng.randint(0, w - size)
+        y = rng.randint(0, h - size)
 
-def _check_no_overlaps(boxes: List[Box], padding: int = 0) -> bool:
-    """
-    Verify that no boxes in the list overlap.
-    Args:
-        boxes: List of bounding boxes
-        padding: Minimum gap required between boxes
-    Returns:
-        True if no overlaps, False otherwise
-    """
-    for i in range(len(boxes)):
-        for j in range(i + 1, len(boxes)):
-            if _boxes_overlap(boxes[i], boxes[j], padding):
-                return False
-    return True
+        candidate = {'x': x, 'y': y, 'w': size, 'h': size, 'id': len(existing_boxes)}
 
+        if not is_within_bounds(candidate, image_size):
+            continue
 
-def _generate_random_box(
-    image_width: int,
-    image_height: int,
-    min_size: int = 20,
-    max_size: int = 100,
-    margin: int = 5
-) -> Optional[Box]:
-    """
-    Generate a random bounding box within image bounds.
-    Args:
-        image_width: Width of the image
-        image_height: Height of the image
-        min_size: Minimum dimension (width/height) of the box
-        max_size: Maximum dimension of the box
-        margin: Minimum margin from image edges
-    Returns:
-        A random box (x_min, y_min, x_max, y_max) or None if generation fails
-    """
-    # Ensure min_size doesn't exceed available space
-    max_possible = min(image_width, image_height) - 2 * margin
-    if min_size > max_possible:
-        return None
+        overlap = False
+        for existing in existing_boxes:
+            if boxes_overlap(candidate, existing):
+                overlap = True
+                break
 
-    size_max = min(max_size, max_possible)
-    size_min = min(min_size, size_max)
+        if not overlap:
+            return candidate
 
-    width = random.randint(size_min, size_max)
-    height = random.randint(size_min, size_max)
+        attempts += 1
 
-    # Ensure box fits within image with margin
-    x_max = image_width - margin
-    y_max = image_height - margin
-    x_min = margin
-    y_min = margin
-
-    if width > x_max - x_min or height > y_max - y_min:
-        return None
-
-    x_min = random.randint(margin, x_max - width)
-    y_min = random.randint(margin, y_max - height)
-    x_max = x_min + width
-    y_max = y_min + height
-
-    return (x_min, y_min, x_max, y_max)
-
+    return None
 
 def place_boxes(
-    image_width: int,
-    image_height: int,
-    target_count: int,
-    min_size: int = 20,
-    max_size: int = 100,
-    max_attempts_per_box: int = 50,
-    max_total_attempts: int = 5000,
-    padding: int = 5
-) -> Tuple[List[Box], bool]:
+    image_size: Tuple[int, int],
+    num_boxes: int,
+    rng: random.Random
+) -> Tuple[List[Dict[str, Any]], bool]:
     """
-    Place non-overlapping bounding boxes on an image.
-    
-    Implements retry logic: if placement fails to reach target count,
-    it returns the boxes successfully placed (which may be fewer than target).
-    
-    Args:
-        image_width: Width of the image
-        image_height: Height of the image
-        target_count: Desired number of boxes to place
-        min_size: Minimum dimension for boxes
-        max_size: Maximum dimension for boxes
-        max_attempts_per_box: Max attempts to place a single box
-        max_total_attempts: Max total attempts before giving up
-        padding: Minimum gap between boxes
-        
-    Returns:
-        Tuple of (list of placed boxes, success_flag)
-        success_flag is True if target_count was reached, False otherwise
+    Attempt to place a specific number of boxes.
+    Returns (list of boxes, success_flag).
     """
-    if target_count <= 0:
-        return [], True
+    boxes = []
+    target = num_boxes
+    attempts = 0
+    max_total_attempts = num_boxes * 1000
 
-    placed_boxes: List[Box] = []
-    total_attempts = 0
+    while len(boxes) < target and attempts < max_total_attempts:
+        box = place_single_box(image_size, boxes, rng)
+        if box:
+            boxes.append(box)
+        attempts += 1
 
-    for _ in range(target_count):
-        if total_attempts >= max_total_attempts:
-            # Exceeded total attempts, stop trying
-            return placed_boxes, False
+    if len(boxes) < target:
+        # We failed to place all requested boxes
+        return boxes, False
 
-        box_placed = False
-        attempts = 0
-
-        while attempts < max_attempts_per_box:
-            if total_attempts >= max_total_attempts:
-                break
-
-            candidate = _generate_random_box(
-                image_width, image_height, min_size, max_size, padding
-            )
-
-            if candidate is None:
-                # Image too small for requested box sizes
-                return placed_boxes, False
-
-            # Check overlap with all placed boxes
-            overlaps = False
-            for existing_box in placed_boxes:
-                if _boxes_overlap(candidate, existing_box, padding):
-                    overlaps = True
-                    break
-
-            if not overlaps:
-                placed_boxes.append(candidate)
-                box_placed = True
-                break
-
-            attempts += 1
-            total_attempts += 1
-
-        if not box_placed:
-            # Could not place this box after max attempts
-            # Return what we have so far
-            return placed_boxes, False
-
-    return placed_boxes, True
-
+    return boxes, True
 
 def place_boxes_with_retry(
-    image_width: int,
-    image_height: int,
-    target_count: int,
-    min_size: int = 20,
-    max_size: int = 100,
-    max_attempts_per_box: int = 50,
-    max_total_attempts: int = 5000,
-    padding: int = 5,
-    min_acceptable_count: int = 1
-) -> Dict[str, Any]:
+    image_size: Tuple[int, int],
+    num_boxes: int,
+    rng: random.Random,
+    max_attempts: int = 10
+) -> Tuple[List[Dict[str, Any]], bool]:
     """
-    Attempt to place boxes with retry logic to reduce region count if needed.
-    
-    If the initial placement fails to reach target_count, this function
-    will retry with a reduced count until either:
-    1. A successful placement is found (>= min_acceptable_count boxes)
-    2. The count drops below min_acceptable_count (then skip image)
-    
-    Args:
-        image_width: Width of the image
-        image_height: Height of the image
-        target_count: Desired number of boxes
-        min_size: Minimum dimension for boxes
-        max_size: Maximum dimension for boxes
-        max_attempts_per_box: Max attempts per box placement
-        max_total_attempts: Max total attempts per placement attempt
-        padding: Minimum gap between boxes
-        min_acceptable_count: Minimum boxes required to consider placement successful
+    Place boxes with retry logic.
+    If placement fails for the full count, it retries with reduced counts.
+    Returns (list of boxes, success_flag).
+    If success is False, it means we couldn't even place a reasonable amount.
+    """
+    current_target = num_boxes
+    attempt = 0
+
+    while attempt < max_attempts:
+        boxes, success = place_boxes(image_size, current_target, rng)
+        if success:
+            return boxes, True
         
-    Returns:
-        Dictionary with:
-            - 'boxes': List of placed boxes (empty if skipped)
-            - 'count': Number of boxes placed
-            - 'skipped': Boolean indicating if image was skipped
-            - 'final_target': The count that was successfully placed (or 0 if skipped)
-            - 'reason': Explanation of outcome
-    """
-    current_target = target_count
-    max_retries = target_count - min_acceptable_count + 1
+        # If we failed, try with fewer boxes
+        # Reduce by 10% or 5 boxes, whichever is larger, but not below 10
+        reduction = max(5, int(current_target * 0.1))
+        current_target = max(10, current_target - reduction)
+        attempt += 1
 
-    for retry in range(max_retries + 1):
-        boxes, success = place_boxes(
-            image_width=image_width,
-            image_height=image_height,
-            target_count=current_target,
-            min_size=min_size,
-            max_size=max_size,
-            max_attempts_per_box=max_attempts_per_box,
-            max_total_attempts=max_total_attempts,
-            padding=padding
-        )
-
-        if len(boxes) >= min_acceptable_count:
-            return {
-                'boxes': boxes,
-                'count': len(boxes),
-                'skipped': False,
-                'final_target': len(boxes),
-                'reason': f"Successfully placed {len(boxes)} boxes (target was {target_count})"
-            }
-
-        # If we reached the minimum acceptable count but it's less than target,
-        # and we can't reduce further, we skip
-        if current_target <= min_acceptable_count:
-            return {
-                'boxes': [],
-                'count': 0,
-                'skipped': True,
-                'final_target': 0,
-                'reason': f"Could not place even {min_acceptable_count} boxes; skipping image"
-            }
-
-        # Reduce target count and retry
-        current_target -= 1
-
-    # Should not reach here, but handle gracefully
-    return {
-        'boxes': [],
-        'count': 0,
-        'skipped': True,
-        'final_target': 0,
-        'reason': "Placement failed after all retries"
-    }
-
+    # Final attempt with the last reduced count
+    boxes, success = place_boxes(image_size, current_target, rng)
+    return boxes, success
 
 def main():
-    """
-    Standalone test function for the placer module.
-    Demonstrates placement logic with various configurations.
-    """
-    # Test with a sample image size
-    width, height = 512, 512
-    target = 30
-
-    print(f"Attempting to place {target} boxes on {width}x{height} image...")
-    
-    result = place_boxes_with_retry(
-        image_width=width,
-        image_height=height,
-        target_count=target,
-        min_size=20,
-        max_size=80,
-        padding=5
-    )
-
-    print(f"Result: {result['reason']}")
-    print(f"Boxes placed: {result['count']}")
-    print(f"Skipped: {result['skipped']}")
-
-    # Validate no overlaps
-    if result['boxes']:
-        has_overlap = not _check_no_overlaps(result['boxes'], padding=5)
-        print(f"Overlap check: {'FAIL' if has_overlap else 'PASS'}")
-
-    return result
-
+    """Test placer."""
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    rng = random.Random(42)
+    boxes, success = place_boxes_with_retry((1024, 1024), 50, rng)
+    print(f"Placed {len(boxes)} boxes. Success: {success}")
 
 if __name__ == "__main__":
     main()

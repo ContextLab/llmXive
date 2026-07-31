@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/` or any of its expected sub‑folders/files (e.g., `src/`, `data/`, `scripts/`, `README.md`) was provided. The claim only contains a feature specification, not the actual project structure required by the task.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings, or CI scripts invoking flake8/black) are present in the indicated project directory, nor any evidence that these tools have been set up. The required artifacts are missing, so the task is not satisfied.
+- `T042` (rejected 1x): The required schema files `contracts/synthetic_image.schema.yaml` and `contracts/regression_result.schema.yaml` are missing (no `schema.yaml` present), so the task’s deliverables are not provided. The implementer must create these two YAML schema files with the specified properties.
 
 ## Required change
 

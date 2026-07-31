@@ -1,167 +1,31 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Regression Result Schema
-description: >
-  Defines the structure for analysis results containing regression metrics,
-  statistical tests, and performance data for parallel vs sequential inference.
+title: Regression Result
+description: Schema for regression analysis results comparing parallel vs sequential inference performance.
 type: object
 required:
-  - experiment_metadata
-  - results
-  - statistical_analysis
+  - region_count
+  - parallel_score
+  - sequential_score
+  - inference_time
+  - corrected_p_value
+  - is_significant
 properties:
-  experiment_metadata:
-    type: object
-    required:
-      - experiment_id
-      - model_name
-      - inference_methods
-      - region_counts
-      - timestamp
-    properties:
-      experiment_id:
-        type: string
-        description: Unique identifier for the experiment run
-      model_name:
-        type: string
-        description: Name of the model used (e.g., "PerceptionDLM")
-      inference_methods:
-        type: array
-        items:
-          type: string
-        description: List of methods tested (e.g., ["parallel", "sequential"])
-      region_counts:
-        type: array
-        items:
-          type: integer
-        description: List of region counts tested
-      timestamp:
-        type: string
-        format: date-time
-      config_path:
-        type: string
-        description: Path to the configuration file used
-  results:
-    type: array
-    description: Per-region-count results for each inference method
-    items:
-      type: object
-      required:
-        - region_count
-        - method
-        - metrics
-      properties:
-        region_count:
-          type: integer
-          description: Number of regions in the test sample
-        method:
-          type: string
-          enum:
-            - parallel
-            - sequential
-          description: Inference method used
-        metrics:
-          type: object
-          required:
-            - semantic_coherence_score
-            - bleu_score
-            - inference_time
-          properties:
-            semantic_coherence_score:
-              type: number
-              minimum: 0.0
-              maximum: 1.0
-              description: Geometric consistency score (0-1)
-            bleu_score:
-              type: number
-              minimum: 0.0
-              maximum: 1.0
-              description: BLEU-4 score
-            inference_time:
-              type: number
-              minimum: 0.0
-              description: Wall-clock inference time in seconds
-            sample_size:
-              type: integer
-              minimum: 1
-              description: Number of samples used for this measurement
-        memory_peak_rss:
-          type: integer
-          description: Peak memory usage in bytes
-  statistical_analysis:
-    type: object
-    required:
-      - regression_coefficients
-      - p_values
-      - bonferroni_corrected
-    properties:
-      regression_coefficients:
-        type: object
-        description: Coefficients from linear regression of score vs region count
-        properties:
-          parallel:
-            type: object
-            properties:
-              slope:
-                type: number
-              intercept:
-                type: number
-              r_squared:
-                type: number
-                minimum: 0.0
-                maximum: 1.0
-          sequential:
-            type: object
-            properties:
-              slope:
-                type: number
-              intercept:
-                type: number
-              r_squared:
-                type: number
-                minimum: 0.0
-                maximum: 1.0
-      p_values:
-        type: object
-        description: P-values for slope significance
-        properties:
-          parallel:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-          sequential:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-      bonferroni_corrected:
-        type: object
-        description: Bonferroni-corrected p-values
-        properties:
-          parallel:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-          sequential:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-          alpha:
-            type: number
-            description: Original alpha level used
-          comparisons:
-            type: integer
-            description: Number of comparisons made
-      tipping_point:
-        type: object
-        description: Identified tipping point where parallel performance degrades
-        properties:
-          region_count:
-            type: integer
-          coherence_drop_threshold:
-            type: number
-          confidence_interval:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
+  region_count:
+    type: integer
+    description: Number of regions (objects) in the synthetic image.
+  parallel_score:
+    type: number
+    description: Semantic coherence score obtained from parallel inference.
+  sequential_score:
+    type: number
+    description: Semantic coherence score obtained from sequential inference (baseline).
+  inference_time:
+    type: number
+    description: Wall-clock inference time in seconds.
+  corrected_p_value:
+    type: number
+    description: Bonferroni-corrected p-value for the statistical test.
+  is_significant:
+    type: boolean
+    description: Indicates whether the difference between parallel and sequential scores is statistically significant.
 additionalProperties: false

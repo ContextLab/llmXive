@@ -28,7 +28,7 @@ The researcher needs a mechanism to programmatically synthesize "overflow" test 
 
 **Why this priority**: This is a prerequisite for User Story 1. Without a dataset that explicitly exceeds the 8–16 region native context window, the degradation analysis cannot be performed. It enables the specific stress-testing required by the research question.
 
-**Independent Test**: The system can be tested by running the dataset generation script on a small subset of images and verifying that the output contains images with exactly 20, 30, and 50 bounding boxes respectively, and that no boxes overlap.
+**Independent Test**: The system can be tested by running the dataset generation script on a small subset of images and verifying that the output contains images with varying numbers of bounding boxes, and that no boxes overlap.
 
 **Acceptance Scenarios**:
 

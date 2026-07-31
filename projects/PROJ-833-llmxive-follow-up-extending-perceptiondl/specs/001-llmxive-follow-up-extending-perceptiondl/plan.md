@@ -17,7 +17,7 @@ This feature implements a computational research pipeline to quantify the "struc
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: Complete regression analysis (n≥50 images per bin) within 6 hours; Peak RSS < 7 GB.  
 **Constraints**: No GPU/CUDA; no 8-bit quantization; strict memory limits; synthetic data generation must guarantee non-overlapping bounding boxes.  
-**Scale/Scope**: A variable number of region-count bins (e.g., 30, 50 regions), A representative number of images per bin (total synthetic samples).
+**Scale/Scope**: A variable number of region-count bins (e.g., a small to moderate number of regions), A representative number of images per bin (total synthetic samples).
 
 ## Constitution Check
 

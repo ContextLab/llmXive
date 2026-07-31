@@ -1,1 +1,1 @@
-# Test suite initialization
+# Tests module initialization

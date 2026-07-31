@@ -1,7 +1,59 @@
-T005:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided information contains no evidence that the required directories\
-    \ (`data/raw/`, `data/synthetic/`, `data/processed/`) actually exist or contain\
-    \ any files; the implementer\u2019s claim is not substantiated with tangible artifacts.\
-    \ The task remains incomplete until those directories are created and verified."
+  r: "No directory listings, `tree` output, or other proof that the required folders\
+    \ under `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/` were actually\
+    \ created. The implementer must provide concrete evidence (e.g., command output,\
+    \ file system snapshot) showing that all specified sub\u2011directories exist\
+    \ and are non\u2011empty."
+T002:
+  c: false
+  h: f37ef5fcbc7601994bcc3762015eb62dd4c0d313ec3b54752e96daad0f300ed4
+  r: "The required `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/code/requirements.txt`\
+    \ file does not exist, and there is no evidence that a Python 3.11 virtual environment\
+    \ was created or that `pip install -r code/requirements.txt` ran successfully.\
+    \ The task\u2019s core deliverable is therefore missing."
+T015:
+  c: false
+  h: fc029a6c22e9b2c921a30a4e3841af0944ccbaa8a94773ee59841ec21a620fa0
+  r: The required module `code/metrics/consistency.py` does not exist, and the provided
+    `tests/unit/test_metrics.py` only contains partial tests for functions in `synthetic.deriver`
+    (and is truncated), not for `code/metrics/consistency.py`. Hence the unit test
+    for the specified file is missing.
+T019:
+  c: false
+  h: f8bb137819bf48863bb20768555cbb48ddf49866e5e3731d54e4bfcc131aa209
+  r: The provided `code/main.py` does not contain any calls to `code/models/parallel_runner.py`
+    nor logic that writes a JSON file with the required schema, and the expected output
+    file `data/processed/parallel_results.json` is absent from the repository. Consequently
+    the required parallel inference implementation and result saving are not present.
+T020:
+  c: false
+  h: ff1a86f3a77bcbdfc0fedc327367c504f3c2e3e08c899c4b77449b1b6debef8c
+  r: "The repository lacks the required `data/processed/sequential_results.json` file,\
+    \ and the shown portion of `code/main.py` does not contain any logic that calls\
+    \ `run_sequential_pipeline` and writes a JSON with the fields `captions`, `region_count`,\
+    \ `inference_time`, and `region_ids`. The implementation of the sequential inference\
+    \ and result\u2011saving step is therefore missing."
+T029a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script execution log, output file, or verification report is present showing
+    that the geometric relations were recomputed from `data/synthetic/*.json` and
+    compared to the stored `derived_relations`. Without such evidence, the required
+    validation has not been demonstrated.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No checksum files, schema validation reports, or failure\u2011count logs were\
+    \ presented. The claim that the generated dataset\u2019s integrity was verified\
+    \ is unsupported because the required artifacts (e.g., a script or output showing\
+    \ computed checksums, schema compliance results, and a log of any failures) are\
+    \ missing."
+T048a:
+  c: false
+  h: 0a3db8ed6210cd197996e441e19a04badfa1a2ae35a9c9244e3dc25a47a72e35
+  r: "The required unit\u2011test file `tests/unit/test_deriver.py` does not exist\
+    \ in the repository, so no test verifies that `derive_spatial_relation` (or related\
+    \ functions) matches the geometric reality of bounding\u2011box centroids. The\
+    \ task is therefore not fulfilled."
