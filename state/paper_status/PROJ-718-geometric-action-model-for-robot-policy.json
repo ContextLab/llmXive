@@ -11,12 +11,12 @@
         "page": 28
       }
     ],
-    "audited_at": "2026-07-31T10:16:35.498427+00:00"
+    "audited_at": "2026-07-31T11:16:30.973232+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-718-geometric-action-model-for-robot-policy",
-  "updated_at": "2026-07-31T10:16:35.498443+00:00"
+  "updated_at": "2026-07-31T11:16:30.973246+00:00"
 }
