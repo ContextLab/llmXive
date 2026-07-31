@@ -1,181 +1,136 @@
+"""
+Data Generator for ALE Execution Traces.
+
+This module orchestrates the generation of the full dataset by importing
+logic from generator_logic.py and writing the output to data/raw/golden_fixture.json.
+
+It implements the strict mapping rules for generating synthetic traces
+representing "State Persistence Error" and "Reasoning Deficit" scenarios.
+"""
 import json
 import os
-import random
+import argparse
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
-from dataclasses import dataclass, asdict
-import argparse
-import sys
+from typing import List, Dict, Any, Optional
+import random
 
-# Import from project utilities
-from utils.seeds import verify_pairing, set_seed
+# Import from sibling module
+from code.data.generator_logic import (
+    generate_trace,
+    generate_task_description,
+    StepState,
+    ExecutionTrace,
+    FailureType
+)
+from code.utils.seeds import set_seed, get_seed_state
 
-@dataclass
-class FileState:
-    path: str
-    content: str
-    deleted: bool
+# Constants for the 10 scenarios (5 State Persistence, 5 Reasoning Deficit)
+# These map scenario indices to their specific types and descriptions
+SCENARIOS = [
+    {"id": 0, "type": "state_persistence", "description": "Editing deleted file A"},
+    {"id": 1, "type": "state_persistence", "description": "Editing deleted file B"},
+    {"id": 2, "type": "state_persistence", "description": "Reading non-existent file C"},
+    {"id": 3, "type": "state_persistence", "description": "Writing to read-only file D"},
+    {"id": 4, "type": "state_persistence", "description": "Overwriting locked file E"},
+    {"id": 5, "type": "reasoning_deficit", "description": "Logical error in loop condition"},
+    {"id": 6, "type": "reasoning_deficit", "description": "Incorrect variable initialization"},
+    {"id": 7, "type": "reasoning_deficit", "description": "Off-by-one error in array access"},
+    {"id": 8, "type": "reasoning_deficit", "description": "Missing null check before dereference"},
+    {"id": 9, "type": "reasoning_deficit", "description": "Incorrect type casting logic"},
+]
 
-@dataclass
-class VariableState:
-    name: str
-    value: str
-    type: str
-
-@dataclass
-class StepState:
-    files: List[Dict[str, Any]]
-    variables: List[Dict[str, Any]]
-
-@dataclass
-class ExecutionTrace:
-    trace_id: str
-    ground_truth_label: str
-    step_state: Dict[str, Any]
-    task_description: str
-
-class FailureType:
-    STATE_PERSISTENCE = "State Persistence Error"
-    REASONING_DEFICIT = "Reasoning Deficit"
-
-def generate_task_description(seed: int, idx: int) -> str:
-    """Generate a deterministic task description."""
-    set_seed(seed + idx)
-    templates = [
-        "Create a file at {path} with content '{content}'. Do not delete {other_path}.",
-        "Read {path}, modify variable {var} to {val}, then write to {out_path}.",
-        "Ensure {file_a} exists and {file_b} does not. Update {var} to {val}.",
-    ]
-    template = templates[idx % len(templates)]
+def generate_golden_fixture(seed_base: int = 42, num_tasks: int = 10, output_path: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    Generate the golden fixture dataset containing 10 traces with ground truth labels.
     
-    # Deterministic generation based on seed
-    path = f"task_{idx}/data.txt"
-    content = f"Data for task {idx}"
-    other_path = f"task_{idx}/temp.txt"
-    var = f"counter_{idx}"
-    val = str(42 + idx)
-    out_path = f"task_{idx}/output.txt"
-    file_a = f"task_{idx}/main.py"
-    file_b = f"task_{idx}/backup.py"
-
-    try:
-        return template.format(
-            path=path, content=content, other_path=other_path,
-            var=var, val=val, out_path=out_path,
-            file_a=file_a, file_b=file_b
-        )
-    except KeyError:
-        return f"Generic task {idx} with seed {seed}"
-
-def generate_step_state(seed: int, idx: int, failure_type: str) -> Dict[str, Any]:
-    """Generate a step state that aligns with the failure type."""
-    set_seed(seed + idx + 1000)
-    
-    files = []
-    variables = []
-
-    if failure_type == FailureType.STATE_PERSISTENCE:
-        # Scenario: File exists in state but action implies it doesn't (or vice versa)
-        # e.g., Agent tries to delete a file that doesn't exist, or reads a deleted file
-        files.append({
-            "path": f"task_{idx}/nonexistent.txt",
-            "content": "",
-            "deleted": True  # Marked deleted in state
-        })
-        # Variable state
-        variables.append({
-            "name": f"state_flag_{idx}",
-            "value": "false",
-            "type": "boolean"
-        })
-    elif failure_type == FailureType.REASONING_DEFICIT:
-        # Scenario: Logical error, e.g., opening wrong file or invalid math
-        files.append({
-            "path": f"task_{idx}/wrong_file.txt",
-            "content": "wrong data",
-            "deleted": False
-        })
-        variables.append({
-            "name": f"calc_result_{idx}",
-            "value": "NaN",
-            "type": "float"
-        })
-    else:
-        # Default valid state
-        files.append({
-            "path": f"task_{idx}/valid.txt",
-            "content": "valid content",
-            "deleted": False
-        })
-        variables.append({
-            "name": f"var_{idx}",
-            "value": "100",
-            "type": "int"
-        })
-
-    return {
-        "files": files,
-        "variables": variables
-    }
-
-def generate_trace(seed: int, idx: int) -> ExecutionTrace:
-    """Generate a single execution trace with known ground truth."""
-    # Alternate failure types for deterministic variety
-    if idx % 2 == 0:
-        label = FailureType.STATE_PERSISTENCE
-    else:
-        label = FailureType.REASONING_DEFICIT
-
-    trace_id = hashlib.sha256(f"{seed}-{idx}".encode()).hexdigest()[:16]
-    task_desc = generate_task_description(seed, idx)
-    step_state = generate_step_state(seed, idx, label)
-
-    return ExecutionTrace(
-        trace_id=trace_id,
-        ground_truth_label=label,
-        step_state=step_state,
-        task_description=task_desc
-    )
-
-def main():
-    parser = argparse.ArgumentParser(description="Generate synthetic ALE execution traces")
-    parser.add_argument("--seed", type=int, required=True, help="Random seed for reproducibility")
-    parser.add_argument("--num-tasks", type=int, default=10, help="Number of traces to generate")
-    parser.add_argument("--output", type=str, default="data/raw/golden_subset.json", help="Output file path")
-    args = parser.parse_args()
-
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Verify pairing capability (FR-008 precondition)
-    # This ensures the seed state can be verified against the generated data
-    try:
-        # Generate a dummy pairing check to ensure the function works
-        dummy_id = "pairing-check"
-        dummy_seed = args.seed
-        is_valid = verify_pairing(dummy_id, dummy_seed)
-        if not is_valid:
-            # verify_pairing might return False if state doesn't match, 
-            # but we just need to ensure it runs without error.
-            # If it raises, we catch it.
-            pass
-    except Exception as e:
-        print(f"Warning: verify_pairing check encountered issue: {e}")
-        # We continue anyway as the core task is generation, 
-        # but in a strict pipeline this might be a blocker.
+    Args:
+        seed_base: The base seed for the first task. Subsequent tasks use seed_base + i.
+        num_tasks: Number of tasks to generate (default 10).
+        output_path: Optional path to write the JSON file. If None, returns data only.
+        
+    Returns:
+        List of dictionaries representing the execution traces with ground truth labels.
+    """
+    if num_tasks != 10:
+        # Enforce the specific requirement for T015c to generate exactly 10 tasks
+        # as defined by the 10 scenarios in SCENARIOS
+        print(f"Warning: num_tasks requested as {num_tasks}, but standard fixture requires 10. Adjusting to 10.")
+        num_tasks = 10
 
     traces = []
-    for i in range(args.num_tasks):
-        trace = generate_trace(args.seed, i)
-        traces.append(asdict(trace))
+    
+    # Ensure output directory exists
+    if output_path:
+        output_dir = Path(output_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Write to JSON
-    with open(output_path, 'w') as f:
-        json.dump(traces, f, indent=2)
+    for i in range(num_tasks):
+        # Calculate seed for this specific task instance
+        current_seed = seed_base + i
+        
+        # Select the scenario for this task index
+        scenario = SCENARIOS[i]
+        
+        # Set seed for reproducibility
+        set_seed(current_seed)
+        
+        # Generate the trace using the logic module
+        # We pass the scenario type and description to guide generation
+        trace = generate_trace(
+            scenario_type=scenario["type"],
+            scenario_description=scenario["description"],
+            seed=current_seed
+        )
+        
+        # Add ground truth label based on the scenario
+        trace_with_label = {
+            "task_id": f"task_{i:02d}",
+            "seed": current_seed,
+            "scenario_id": scenario["id"],
+            "ground_truth_label": scenario["type"],
+            "description": scenario["description"],
+            "trace": trace
+        }
+        
+        traces.append(trace_with_label)
+    
+    # Write to file if path provided
+    if output_path:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(traces, f, indent=2, ensure_ascii=False)
+        print(f"Generated golden fixture with {len(traces)} traces at {output_path}")
+        
+        # Verify file exists and is non-empty
+        if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+            print("Verification: File exists and is non-empty.")
+            # Calculate checksum for verification
+            with open(output_path, 'rb') as f:
+                checksum = hashlib.sha256(f.read()).hexdigest()
+            print(f"Checksum (SHA256): {checksum}")
+        else:
+            raise RuntimeError("Verification failed: File is missing or empty.")
+    
+    return traces
 
-    print(f"Generated {len(traces)} traces to {output_path}")
+def main():
+    """CLI entry point for generating the golden fixture."""
+    parser = argparse.ArgumentParser(description="Generate synthetic ALE execution traces for the golden fixture.")
+    parser.add_argument("--seed", type=int, default=42, help="Base seed for generation (default: 42)")
+    parser.add_argument("--num-tasks", type=int, default=10, help="Number of tasks to generate (default: 10)")
+    parser.add_argument("--output", type=str, default="data/raw/golden_fixture.json", help="Output path for the JSON file")
+    
+    args = parser.parse_args()
+    
+    try:
+        generate_golden_fixture(
+            seed_base=args.seed,
+            num_tasks=args.num_tasks,
+            output_path=args.output
+        )
+    except Exception as e:
+        print(f"Error generating golden fixture: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

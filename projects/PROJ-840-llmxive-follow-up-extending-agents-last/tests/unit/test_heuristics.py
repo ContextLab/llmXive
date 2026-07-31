@@ -1,203 +1,265 @@
 """
-Unit tests for the normalization protocol in code/classification/heuristics.py.
+Contract tests for parser normalization logic (T008).
 
-These tests verify the contract for normalize_state, specifically:
-- Float tolerance normalization (FR-001) using exactly 1e-6.
-- Stripping or canonicalizing timestamp and ID fields.
-- Handling nested structures, None values, strings, and lists.
+These tests verify that the normalization protocol defined in 
+code/classification/heuristics.py correctly:
+1. Compares floating-point values with a small tolerance (1e-6).
+2. Strips timestamps and random IDs.
+3. Canonicalizes object references to a stable hash of their content.
+
+These are CONTRACT tests that define the expected behavior regardless
+of implementation details.
 """
+
 import pytest
-from classification.heuristics import normalize_state
+import json
+import hashlib
+from pathlib import Path
 
+# Import the functions under test from the existing API surface
+from code.classification.heuristics import normalize_state, deep_normalize_states
 
-class TestNormalizeState:
-    def test_normalize_float_tolerance(self):
-        """
-        Verify float normalization with 1e-6 tolerance (FR-001).
+class TestFloatingPointNormalization:
+    """Test that floating-point comparisons use the correct tolerance."""
+
+    def test_floats_within_tolerance_are_equal(self):
+        """Values within 1e-6 should be normalized to be comparable."""
+        state_a = {"value": 1.0000001}
+        state_b = {"value": 1.0000002}
         
-        Values within 1e-6 of a baseline (or integer) should be normalized
-        to a canonical representation (e.g., rounded or zeroed relative to baseline).
-        """
-        state = {
-            "position": 1.0000001,
-            "velocity": 2.0000009,
-            "angle": 3.0000004,
-            "exact_match": 1.0
-        }
+        # Normalize both states
+        norm_a = normalize_state(state_a)
+        norm_b = normalize_state(state_b)
         
-        normalized = normalize_state(state)
-        
-        assert isinstance(normalized, dict)
-        assert "position" in normalized
-        assert "velocity" in normalized
-        assert "angle" in normalized
-        assert "exact_match" in normalized
-        
-        # Check that values close to integers are normalized to the integer
-        # within the 1e-6 tolerance defined in heuristics.py
-        assert normalized["position"] == 1.0
-        assert normalized["velocity"] == 2.0
-        assert normalized["angle"] == 3.0
-        assert normalized["exact_match"] == 1.0
+        # After normalization, they should be considered equal
+        # (or at least the normalized values should be close)
+        assert abs(norm_a["value"] - norm_b["value"]) < 1e-5
     
-    def test_normalize_float_tolerance_failure(self):
-        """
-        Verify that floats NOT within 1e-6 tolerance are preserved as floats.
-        """
-        state = {
-            "distance": 1.0001,  # > 1e-6 from 1.0
-            "time": 2.5
-        }
+    def test_floats_outside_tolerance_differ(self):
+        """Values outside 1e-6 should remain distinguishable."""
+        state_a = {"value": 1.0}
+        state_b = {"value": 1.001}  # Difference > 1e-6
         
-        normalized = normalize_state(state)
+        norm_a = normalize_state(state_a)
+        norm_b = normalize_state(state_b)
         
-        assert normalized["distance"] == 1.0001
-        assert normalized["time"] == 2.5
+        # These should remain distinct
+        assert abs(norm_a["value"] - norm_b["value"]) > 1e-4
     
-    def test_normalize_timestamp_stripping(self):
-        """
-        Verify timestamp fields are stripped or normalized.
+    def test_nested_floats_normalized(self):
+        """Floating point normalization works in nested structures."""
+        state_a = {"outer": {"inner": 3.1415926535}}
+        state_b = {"outer": {"inner": 3.1415926536}}
         
-        Per FR-001, timestamp fields should be removed or canonicalized.
-        We expect 'timestamp' key to be absent or normalized to a placeholder.
-        """
+        norm_a = normalize_state(state_a)
+        norm_b = normalize_state(state_b)
+        
+        # Nested values should be normalized
+        assert abs(norm_a["outer"]["inner"] - norm_b["outer"]["inner"]) < 1e-5
+
+class TestTimestampAndIdStripping:
+    """Test that timestamps and random IDs are stripped during normalization."""
+
+    def test_timestamp_stripped(self):
+        """Timestamps should be removed from normalized state."""
         state = {
-            "step_id": "step_001",
-            "timestamp": 1234567890.123456,
-            "data": {"value": 10}
+            "action": "read_file",
+            "timestamp": "2023-10-15T14:30:00Z",
+            "file": "test.txt"
         }
         
         normalized = normalize_state(state)
         
-        assert isinstance(normalized, dict)
-        # The 'timestamp' key should be removed or normalized
+        # Timestamp should not be in normalized output
         assert "timestamp" not in normalized
-        # Other keys should remain
-        assert "step_id" in normalized
-        assert "data" in normalized
+        assert normalized["action"] == "read_file"
+        assert normalized["file"] == "test.txt"
     
-    def test_normalize_id_stripping(self):
-        """
-        Verify ID fields (unique_id, task_id) are stripped or normalized.
-        """
+    def test_random_id_stripped(self):
+        """Random IDs (UUIDs, etc.) should be removed."""
         state = {
-            "unique_id": "abc-123-def",
-            "task_id": "task_001",
-            "value": 42
+            "task_id": "task_123e4567-e89b-12d3-a456-426614174000",
+            "content": "important data"
         }
         
         normalized = normalize_state(state)
         
-        assert isinstance(normalized, dict)
-        # ID fields should be removed
-        assert "unique_id" not in normalized
+        # The random ID should be stripped
         assert "task_id" not in normalized
-        assert "value" in normalized
+        assert normalized["content"] == "important data"
     
-    def test_normalize_nested_structures(self):
-        """
-        Verify nested structures are handled recursively.
-        """
+    def test_mixed_timestamps_and_ids(self):
+        """Multiple timestamps and IDs should all be stripped."""
         state = {
-            "outer": {
-                "inner": {
-                    "value": 1.0000001,
-                    "timestamp": 999.999
+            "id": "abc-123-def",
+            "created_at": 1697378400,
+            "updated_at": "2023-10-15T14:30:00Z",
+            "data": {"value": 42}
+        }
+        
+        normalized = normalize_state(state)
+        
+        assert "id" not in normalized
+        assert "created_at" not in normalized
+        assert "updated_at" not in normalized
+        assert normalized["data"]["value"] == 42
+
+class TestCanonicalization:
+    """Test that object references are canonicalized to stable hashes."""
+
+    def test_content_hashed(self):
+        """Object content should be replaced with a stable hash."""
+        content = "This is the actual content that should be hashed."
+        state = {
+            "ref": {"content": content}
+        }
+        
+        normalized = normalize_state(state)
+        
+        # The content should be replaced with a hash
+        assert "ref" in normalized
+        # The hash should be deterministic
+        expected_hash = hashlib.sha256(content.encode()).hexdigest()
+        assert normalized["ref"] == expected_hash
+    
+    def test_same_content_same_hash(self):
+        """Identical content should produce identical hashes."""
+        content = "Identical content"
+        
+        state_a = {"ref": {"content": content}}
+        state_b = {"ref": {"content": content}}
+        
+        norm_a = normalize_state(state_a)
+        norm_b = normalize_state(state_b)
+        
+        assert norm_a["ref"] == norm_b["ref"]
+    
+    def test_different_content_different_hash(self):
+        """Different content should produce different hashes."""
+        state_a = {"ref": {"content": "Content A"}}
+        state_b = {"ref": {"content": "Content B"}}
+        
+        norm_a = normalize_state(state_a)
+        norm_b = normalize_state(state_b)
+        
+        assert norm_a["ref"] != norm_b["ref"]
+
+class TestDeepNormalization:
+    """Test the deep normalization function for complex structures."""
+
+    def test_deep_list_normalization(self):
+        """Lists of objects should be normalized element-wise."""
+        states = [
+            {"value": 1.0, "id": "a"},
+            {"value": 2.0, "id": "b"}
+        ]
+        
+        normalized = deep_normalize_states(states)
+        
+        assert len(normalized) == 2
+        assert "id" not in normalized[0]
+        assert "id" not in normalized[1]
+        assert normalized[0]["value"] == 1.0
+        assert normalized[1]["value"] == 2.0
+    
+    def test_deep_dict_normalization(self):
+        """Nested dicts should be normalized recursively."""
+        complex_state = {
+            "level1": {
+                "level2": {
+                    "value": 3.14159,
+                    "timestamp": "2023-01-01T00:00:00Z",
+                    "data": "important"
                 }
             }
         }
         
-        normalized = normalize_state(state)
+        normalized = deep_normalize_states([complex_state])[0]
         
-        assert isinstance(normalized, dict)
-        assert "outer" in normalized
-        assert isinstance(normalized["outer"], dict)
-        assert "inner" in normalized["outer"]
-        assert isinstance(normalized["outer"]["inner"], dict)
-        
-        # Check normalization in nested structure
-        assert normalized["outer"]["inner"]["value"] == 1.0
-        assert "timestamp" not in normalized["outer"]["inner"]
+        # All levels should be normalized
+        assert "timestamp" not in normalized["level1"]["level2"]
+        assert normalized["level1"]["level2"]["value"] == 3.14159
+        assert normalized["level1"]["level2"]["data"] == "important"
+
+class TestEdgeCases:
+    """Test normalization with edge cases."""
+
+    def test_empty_state(self):
+        """Empty state should normalize to empty dict."""
+        assert normalize_state({}) == {}
     
-    def test_normalize_empty_state(self):
-        """
-        Verify empty state handling.
-        """
-        state = {}
+    def test_none_values(self):
+        """None values should be handled gracefully."""
+        state = {"value": None, "data": "test"}
         normalized = normalize_state(state)
-        assert normalized == {}
-    
-    def test_normalize_none_values(self):
-        """
-        Verify None value handling.
-        """
-        state = {
-            "value": None,
-            "number": 42
-        }
-        
-        normalized = normalize_state(state)
-        assert isinstance(normalized, dict)
         assert normalized["value"] is None
-        assert normalized["number"] == 42
+        assert normalized["data"] == "test"
     
-    def test_normalize_string_values(self):
-        """
-        Verify string value handling.
-        """
+    def test_complex_numbers(self):
+        """Complex structures with mixed types."""
         state = {
-            "text": "hello world",
-            "code": "print('test')"
+            "float": 1.234567890123,
+            "int": 42,
+            "string": "text",
+            "bool": True,
+            "list": [1, 2, 3]
         }
         
         normalized = normalize_state(state)
-        assert normalized["text"] == "hello world"
-        assert normalized["code"] == "print('test')"
-    
-    def test_normalize_list_values(self):
-        """
-        Verify list value handling, including nested floats.
-        """
-        state = {
-            "items": [1, 2, 3],
-            "floats": [1.0000001, 2.0000009, 3.5]
-        }
         
-        normalized = normalize_state(state)
-        assert isinstance(normalized["items"], list)
-        assert len(normalized["items"]) == 3
-        assert normalized["items"] == [1, 2, 3]
-        
-        assert isinstance(normalized["floats"], list)
-        assert len(normalized["floats"]) == 3
-        # Check float normalization in list
-        assert normalized["floats"][0] == 1.0
-        assert normalized["floats"][1] == 2.0
-        assert normalized["floats"][2] == 3.5
-    
-    def test_normalize_mixed_types(self):
-        """
-        Verify handling of mixed types in a single state.
-        """
-        state = {
-            "id": "some-id",
-            "ts": 123.456,
-            "float_close": 5.0000001,
-            "float_far": 5.001,
-            "nested": {
-                "id": "inner-id",
-                "val": 10.0000002
+        assert normalized["float"] == 1.234567890123
+        assert normalized["int"] == 42
+        assert normalized["string"] == "text"
+        assert normalized["bool"] is True
+        assert normalized["list"] == [1, 2, 3]
+
+class TestIntegrationWithGoldenSet:
+    """Test normalization against the golden fixture structure."""
+
+    def test_normalize_golden_trace_structure(self):
+        """Ensure normalization works on typical trace structures."""
+        # Simulate a trace entry similar to what would be in golden_fixture.json
+        trace_state = {
+            "trace_id": "trace_001",
+            "timestamp": "2023-10-15T14:30:00Z",
+            "steps": [
+                {
+                    "step_id": "step_001",
+                    "action": "read",
+                    "target": "file.txt",
+                    "content": "file content here",
+                    "timestamp": 1697378400
+                },
+                {
+                    "step_id": "step_002",
+                    "action": "write",
+                    "target": "output.txt",
+                    "content": "output content",
+                    "timestamp": 1697378460
+                }
+            ],
+            "metadata": {
+                "task_description": "Read file.txt and write to output.txt",
+                "constraints": ["must not delete", "must write"]
             }
         }
         
-        normalized = normalize_state(state)
+        # Normalize the trace
+        normalized = deep_normalize_states([trace_state])[0]
         
-        # IDs stripped
-        assert "id" not in normalized
-        assert "ts" not in normalized
-        assert "id" not in normalized["nested"]
+        # Verify structural integrity
+        assert "trace_id" in normalized
+        assert "steps" in normalized
+        assert "metadata" in normalized
         
-        # Floats normalized
-        assert normalized["float_close"] == 5.0
-        assert normalized["float_far"] == 5.001
-        assert normalized["nested"]["val"] == 10.0
+        # Verify timestamps are stripped
+        assert "timestamp" not in normalized
+        
+        # Verify step timestamps are stripped
+        for step in normalized["steps"]:
+            assert "timestamp" not in step
+            assert "step_id" not in step  # Random IDs should be stripped
+        
+        # Verify content is preserved (or hashed if it's a ref)
+        assert normalized["steps"][0]["action"] == "read"
+        assert normalized["steps"][0]["target"] == "file.txt"

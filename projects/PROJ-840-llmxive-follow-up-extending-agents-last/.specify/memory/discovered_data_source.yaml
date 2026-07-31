@@ -1,16 +1,14 @@
 status: none
-intent: Arcade Learning Environment (ALE) execution trace logs failure annotations
-  OpenAI Gym Atari python package dataset
+intent: downloadable ALE execution trace logs with failure annotations python package
+  dataset
 required_fields:
 - trace_id
-- step_index
-- action
-- observation_state
-- environment_snapshot
-- claimed_context
-- normalized_observation
-- failure_mode_label
-- timestamp
-cache_key: 704d0cb2c5bee58ad24c789225873228a41a89d56a8e6823a01c0f4b375ce835
-searched_at: '2026-07-24T18:17:01.722480+00:00'
+- step_number
+- raw_log_entry
+- environment_state_snapshot
+- agent_action
+- failure_label
+- normalized_comparison_metrics
+cache_key: f40a046df668009c54a1098452e607cbf9731d2b9682f5901f9af94576f48953
+searched_at: '2026-07-30T23:27:48.544414+00:00'
 retry_count: 1

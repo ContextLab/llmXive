@@ -35,7 +35,7 @@ The research question remains: How does scaling model size affect performance on
 | **IV. Single Source of Truth** | ✅ Pass | All statistics in `paper/` trace to `data/processed/` via `code/analysis/`. No hand-typed numbers. |
 | **V. Versioning Discipline** | ✅ Pass | Artifacts hashed; state YAML updated on change. |
 | **VI. Execution Trace Granularity** | ✅ Pass | `code/classification/heuristics.py` implements the **Normalization Protocol** (float tolerance set to a sufficiently small threshold to ensure numerical stability., timestamp stripping) and `code/classification/semantic_classifier.py` uses a local LLM to classify failures based on intent vs. state. |
-| **VII. Resource-Constrained Checkpointing** | ✅ Pass | Checkpointing wrapper is lightweight text injection. Large language model runs on CPU via GGUF Q_K_M (with memory footprint within the available hardware limit), ensuring strict adherence to 7GB limit. |
+| **VII. Resource-Constrained Checkpointing** | ✅ Pass | Checkpointing wrapper is lightweight text injection. Large language model runs on CPU via GGUF Q_K_M (with memory footprint within the available hardware limit), ensuring strict adherence to the system's memory constraints. |
 
 ## Project Structure
 

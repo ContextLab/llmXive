@@ -71,6 +71,12 @@ class RunnerConfig:
         """No-op for logging compatibility."""
         pass
 
+    def __getattr__(self, name):
+        """Permissive fallback for any unknown logger-style attributes."""
+        def _noop(*args, **kwargs):
+            return None
+        return _noop
+
 @dataclass
 class PipelineConfig:
     model: ModelConfig = field(default_factory=ModelConfig)
@@ -98,19 +104,57 @@ def load_config(config_path: str = "code/utils/config.yaml") -> PipelineConfig:
     
     config = PipelineConfig()
     if 'model' in data:
-        config.model = ModelConfig(**data['model'])
+        # Map schema keys to dataclass keys
+        model_data = data['model']
+        config.model = ModelConfig(
+            model_path=model_data.get('path', model_data.get('model_path', "")),
+            quantization=model_data.get('quantization', "Q4_K_M"),
+            context_window=model_data.get('max_context_length', model_data.get('context_window', 4096)),
+            max_tokens=model_data.get('max_tokens', 512)
+        )
     if 'checkpoint' in data:
-        config.checkpoint = CheckpointConfig(**data['checkpoint'])
+        ckpt_data = data['checkpoint']
+        config.checkpoint = CheckpointConfig(
+            interval=ckpt_data.get('interval_n', ckpt_data.get('interval', 3)),
+            compression=ckpt_data.get('compression_method', ckpt_data.get('compression', "truncation")),
+            max_size=ckpt_data.get('max_size', 1024)
+        )
     if 'logging' in data:
-        config.logging = LoggingConfig(**data['logging'])
-    if 'paths' in data:
-        config.paths = DataPathsConfig(**data['paths'])
+        log_data = data['logging']
+        config.logging = LoggingConfig(
+            level=log_data.get('level', "INFO"),
+            file=log_data.get('file'),
+            format=log_data.get('format', "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
+    if 'data_paths' in data:
+        paths_data = data['data_paths']
+        config.paths = DataPathsConfig(
+            raw_data=paths_data.get('raw', paths_data.get('raw_data', "data/raw")),
+            processed_data=paths_data.get('processed', paths_data.get('processed_data', "data/processed")),
+            figures=paths_data.get('figures', "figures")
+        )
     if 'normalization' in data:
-        config.normalization = NormalizationConfig(**data['normalization'])
+        norm_data = data['normalization']
+        config.normalization = NormalizationConfig(
+            tolerance=norm_data.get('float_tolerance', norm_data.get('tolerance', 1e-6)),
+            strip_timestamps=norm_data.get('timestamp_stripping', norm_data.get('strip_timestamps', True)),
+            canonicalize_ids=norm_data.get('id_canonicalization', norm_data.get('canonicalize_ids', True))
+        )
     if 'stats' in data:
-        config.stats = StatsConfig(**data['stats'])
+        stats_data = data['stats']
+        config.stats = StatsConfig(
+            test=stats_data.get('test', "mcnemar"),
+            alpha=stats_data.get('alpha', 0.05),
+            correction=stats_data.get('correction', "bonferroni")
+        )
     if 'runner' in data:
-        config.runner = RunnerConfig(**data['runner'])
+        runner_data = data['runner']
+        config.runner = RunnerConfig(
+            checkpoint_interval=runner_data.get('checkpoint_interval', 0),
+            memory_limit=runner_data.get('max_memory_gb', runner_data.get('memory_limit', 7)) * 1000,
+            timeout=runner_data.get('timeout_hours', runner_data.get('timeout', 6)) * 3600,
+            model_path=runner_data.get('model_path', "")
+        )
     
     return config
 
