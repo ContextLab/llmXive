@@ -1,12 +1,13 @@
 status: none
-intent: download AdaPlanBench dataset python package or direct zip from repository
-  python package dataset
+intent: AdaPlanBench household tasks progressive constraints download python package
+  dataset
 required_fields:
 - task_id
 - task_description
-- constraints
 - constraint_count
+- constraints
+- progressive_constraint_order
 - metadata
-cache_key: edffe1935f099f3d7d5d946277d4df4664355b70acb4f71fcbba033f9489be39
-searched_at: '2026-07-23T08:59:33.896408+00:00'
+cache_key: 9ba633548f1495cdbc7b1ac13db0b7972f10e8d4a00415bbefb6ab678f71f039
+searched_at: '2026-07-31T21:30:23.069557+00:00'
 retry_count: 1

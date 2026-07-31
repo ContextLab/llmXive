@@ -3,68 +3,74 @@
 ## Prerequisites
 
 - Python 3.11+
-- Access to a GitHub Actions runner (or local machine with sufficient RAM and CPU cores).
-- HuggingFace CLI (if downloading models).
+- Git
+- Access to HuggingFace Hub (for dataset download, optional if using proxy)
+- GB+ RAM available
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory.
+1. **Clone the repository**:
    ```bash
+   git clone <repo-url>
    cd projects/PROJ-901-llmxive-follow-up-extending-adaplanbench
    ```
 
-2. **Create a virtual environment** and install dependencies.
+2. **Create a virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
    ```
 
-3. **Verify Dataset Availability**.
-   - Check if the AdaPlanBench dataset is accessible.
-   - *Note*: As per the research plan, if the dataset is not found, the script will halt.
+3. **Install dependencies**:
    ```bash
-   python code/dataset/loader.py --verify-only
+   pip install -r requirements.txt
    ```
 
 ## Running the Pipeline
 
-### 1. Data Preparation
-Filter the dataset to include only tasks with ≥5 constraints and generate distribution summary.
+### 1. Data Fetch and Filter
+Fetches the AdaPlanBench dataset (or generates a synthetic proxy) and filters for tasks with ≥5 constraints.
 ```bash
-python code/dataset/loader.py --filter-min-constraints 5 --output data/processed/filtered_tasks.csv
+python code/dataset/loader.py --filter-constraints 5
 ```
-*Output*: `filtered_tasks.csv` and `distribution_summary.json`.
+*Output*: `data/processed/filtered_tasks.csv`, `data/raw/validation_report.json`
 
 ### 2. Power Analysis
-Run the power analysis to confirm sample size sufficiency.
+Runs a power analysis to confirm sample size sufficiency.
 ```bash
 python code/analysis/power.py --input data/processed/filtered_tasks.csv
 ```
-*Output*: A report indicating if the current sample size is sufficient for the target effect size ($f^ \ge 0.15$).
+*Output*: `data/processed/power_report.json`
 
 ### 3. Agent Execution
-Run both the Monolithic and Dual-Track agents.
+Runs both Dual-Track and Monolithic architectures on the filtered dataset.
 ```bash
-python code/main.py --mode full --model phi-3-mini --output data/processed/execution_logs.csv
+python code/main.py --mode execution
 ```
-*Note*: This script includes resource monitoring. If RAM usage exceeds a predefined threshold, it will log a warning and attempt to reduce batch size.
+*Outputs*: `data/processed/dual_track_logs.json`, `data/processed/monolithic_logs.json`, `data/processed/resource_logs.json`
 
-### 4. Statistical Analysis
-Fit the GLMM and generate results.
+### 4. Human Annotation Sampling
+Generates a stratified sample for manual review.
 ```bash
-python code/analysis/glmm.py --input data/processed/execution_logs.csv --output data/processed/results.json
+python code/dataset/annotator.py --sample-size 50
 ```
+*Output*: `data/annotations/annotation_sample.csv`
 
-### 5. Human Validation (Optional)
-Run the annotation script (requires manual review). The sample size is dynamically calculated based on desired precision.
+### 5. Statistical Analysis
+Fits the GLMM and generates the final results.
 ```bash
-python code/dataset/annotator.py --input data/processed/execution_logs.csv --target-kappa-precision 0.10
+python code/analysis/glmm.py --input data/processed/execution_traces.csv
 ```
+*Output*: `data/processed/statistical_results.json`, `data/processed/agreement_rate_report.json`
+
+## Verification
+
+- **Check Data**: Verify `data/processed/filtered_tasks.csv` exists and has the expected number of rows.
+- **Check Logs**: Ensure `data/processed/resource_logs.json` shows no `threshold_exceeded: true` events.
+- **Check Stats**: Confirm `data/processed/statistical_results.json` contains a p-value for the interaction term.
 
 ## Troubleshooting
 
-- **OOM Error**: If you encounter "Out of Memory", ensure no other heavy processes are running. Try reducing the `--batch-size` in `main.py` or switching to a smaller model (e.g., `SmolLM-135M`).
-- **Dataset Not Found**: If the loader fails to find AdaPlanBench (ID: `adaplanbench/adaplanbench`), check the `code/config.py` for the correct source URL. If no verified source exists, the project cannot proceed.
-- **GLMM Convergence**: If the model fails to converge, check `data/processed/results.json` for the `convergence_status` flag. You may need to increase the `max_iter` parameter in `glmm.py`.
-- **Static Constraints**: If the dataset lacks progressive constraints, the script will halt with a "Data Incompatibility" error.
+- **Dataset Fetch Failed**: If `loader.py` fails to fetch AdaPlanBench, it will automatically generate a synthetic proxy. Check `data/raw/validation_report.json` for details.
+- **Memory Error**: If RAM exceeds available system limits, reduce the batch size in `code/main.py` or use streaming mode.
+- **GLMM Convergence**: If the model fails to converge, check for sparse data in high constraint bins. The pipeline will attempt to use Firth's penalized likelihood.

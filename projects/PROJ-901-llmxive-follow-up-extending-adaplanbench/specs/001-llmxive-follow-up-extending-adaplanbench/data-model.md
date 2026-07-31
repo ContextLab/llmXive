@@ -1,91 +1,82 @@
 # Data Model: llmXive follow-up: extending "AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Age"
 
-## 1. Overview
+## Overview
 
-This document defines the data schemas for the project. All data artifacts are stored in `data/processed/` and must conform to these schemas. The data model supports the Dual-Track architecture, logging, and statistical analysis.
+This document defines the data schemas for the project, ensuring strict adherence to the "Single Source of Truth" (Constitution IV) and "Data Hygiene" (Constitution III) principles. All data artifacts are stored in `data/` and validated against the schemas in `contracts/`.
 
-## 2. Entity Definitions
+## Entities
 
-### 2.1 Task Instance
-A single household task from the filtered AdaPlanBench dataset.
-- **ID**: Unique identifier (string).
-- **Prompt**: The initial task description.
-- **Constraints**: List of constraints (strings) revealed progressively (time-ordered).
-- **Constraint Count**: Integer (≥5).
-- **Ground Truth**: The reference solution.
-
-### 2.2 Execution Trace
-A record of the agent's attempt to solve a task.
-- **Task ID**: Reference to Task Instance.
-- **Architecture**: "dual_track" or "monolithic".
-- **Seed ID**: The random seed used for generation.
-- **Steps**: List of generated steps.
-- **Initial Violation**: Binary (0/1) indicating if the *raw* output violated a constraint (evaluated by Independent Oracle).
-- **Final Adherence**: Binary (0/1) indicating if the *final* output (post-correction) adhered to constraints.
-- **Resolution Status**: "passed", "failed", "unverified", "implicit_unverified", "parsing_failure".
-- **Resource Logs**: CPU/RAM usage during execution.
-
-### 2.3 Human Annotation
-Manual validation of a subset of execution traces.
-- **Task ID**: Reference to Task Instance.
-- **Annotation ID**: Unique ID.
-- **Human Verdict**: "violation", "no_violation", "ambiguous".
-- **Notes**: Free text explanation.
-
-## 3. File Schemas
-
-### 3.1 `data/processed/filtered_tasks.csv`
-The filtered subset of AdaPlanBench tasks (≥5 constraints).
-
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `task_id` | string | Unique task identifier. |
-| `prompt` | string | The initial task prompt. |
-| `constraints` | string | JSON-encoded list of constraints (time-ordered). |
-| `constraint_count` | int | Number of constraints (≥5). |
-| `ground_truth` | string | Reference solution. |
-
-### 3.2 `data/processed/execution_logs.csv`
-The primary output of the agent execution.
-
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `log_id` | string | Unique log identifier. |
-| `task_id` | string | Reference to `filtered_tasks`. |
-| `architecture` | string | "dual_track" or "monolithic". |
-| `seed_id` | int | Random seed used for generation. |
-| `step_index` | int | Step number in the plan. |
-| `action` | string | The generated action. |
-| `initial_violation` | bool | True if Independent Oracle detected a violation in raw output. |
-| `final_adherence` | bool | True if final output (post-correction) adhered to constraints. |
-| `resolution_type` | string | "none", "forced_revision", "accepted". |
-| `status` | string | "passed", "failed", "implicit_unverified", "parsing_failure". |
-| `cpu_usage` | float | CPU usage % during step. |
-| `memory_mb` | float | Memory usage in MB during step. |
-
-### 3.3 `data/processed/human_annotations.csv`
-Human validation data.
-
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `annotation_id` | string | Unique annotation ID. |
-| `log_id` | string | Reference to `execution_logs`. |
-| `human_verdict` | string | "violation", "no_violation", "ambiguous". |
-| `notes` | string | Optional notes. |
-
-### 3.4 `data/processed/distribution_summary.json`
-Descriptive statistics for the filtered dataset.
+### 1. Task Instance
+**Source**: `data/raw/adaplanbench.jsonl` (filtered)  
+**Description**: A single household task from AdaPlanBench containing the prompt and progressive constraints.
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| `total_tasks` | int | Total number of tasks in the filtered subset. |
-| `constraint_count_distribution` | object | Map of constraint counts to task frequencies. |
-| `min_count` | int | Minimum constraint count. |
-| `max_count` | int | Maximum constraint count. |
+| `task_id` | string | Unique identifier for the task. |
+| `raw_prompt` | string | The initial task description. |
+| `progressive_constraints` | list[string] | List of constraints revealed over time. |
+| `constraint_count` | integer | Number of constraints in `progressive_constraints`. |
+| `ground_truth_solution` | string | (Optional) The correct solution path. |
 
-## 4. Data Flow
+### 2. Execution Trace
+**Source**: `data/processed/execution_traces.csv`  
+**Description**: Aggregated results of agent execution (Dual-Track and Monolithic) for a specific task.
 
-1. **Ingestion**: `code/dataset/loader.py` fetches raw data -> filters for `constraint_count >= 5` -> writes `filtered_tasks.csv` and `distribution_summary.json`.
-2. **Execution**: `code/main.py` runs agents -> writes `execution_logs.csv`.
-3. **Annotation**: `code/dataset/annotator.py` (stratified sampling) -> writes `human_annotations.csv`.
-4. **Analysis**: `code/analysis/glmm.py` reads `execution_logs.csv` -> outputs statistical results.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `task_id` | string | Reference to Task Instance. |
+| `architecture` | string | "dual_track" or "monolithic". |
+| `constraint_count` | integer | Number of constraints active. |
+| `initial_violation_detected` | boolean | True if the SLM initially generated a violation (before any correction). For Monolithic, this is the final state. |
+| `final_adherence` | boolean | True if the final output (post-correction for Dual-Track) adhered to constraints. |
+| `violation_type` | string | "explicit", "implicit_unverified", "false_negative", "none". |
+| `final_plan` | string | The final generated plan (after corrections if dual-track). |
+| `success` | boolean | True if the plan adhered to all explicit constraints. |
+
+### 3. Constraint Log
+**Source**: `data/processed/dual_track_logs.json`  
+**Description**: Detailed log of constraint checks and revisions during Dual-Track execution.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `task_id` | string | Reference to Task Instance. |
+| `step` | integer | Step number in the execution loop. |
+| `proposed_action` | string | Action proposed by the SLM. |
+| `active_constraints` | list[string] | Constraints active at this step. |
+| `violation_status` | string | "pass", "violation", "implicit_unverified". |
+| `correction_applied` | boolean | True if the resolver forced a revision. |
+| `revised_action` | string | (Optional) The revised action. |
+
+### 4. Resource Log
+**Source**: `data/processed/resource_logs.json`  
+**Description**: CPU and RAM usage metrics during execution.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `timestamp` | string | ISO 8601 timestamp. |
+| `task_id` | string | Current task being executed (or null). |
+| `cpu_percent` | float | CPU usage percentage. |
+| `ram_gb` | float | RAM usage in GB. |
+| `threshold_exceeded` | boolean | True if limits (2 vCPU, 7GB) were breached. |
+| `limit_breach_details` | string | Specific details of the breach (e.g., "RAM: 7.1GB"). |
+
+### 5. Human Annotation Sample
+**Source**: `data/annotations/annotation_sample.csv`  
+**Description**: Subset of tasks manually annotated for validation.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `task_id` | string | Reference to Task Instance. |
+| `raw_prompt` | string | Task prompt. |
+| `constraint_list` | string | JSON string of constraints. |
+| `human_violation_label` | string | "yes", "no", "ambiguous". |
+| `annotator_id` | string | ID of the human annotator. |
+
+## Data Flow
+
+1. **Fetch**: `loader.py` downloads AdaPlanBench (or generates proxy) -> `data/raw/`.
+2. **Filter**: `loader.py` filters for `constraint_count >= 5` -> `data/processed/filtered_tasks.csv`.
+3. **Execute**: `runner.py` generates `dual_track_logs.json` and `monolithic_logs.json`.
+4. **Merge**: `analysis/glmm.py` merges logs -> `data/processed/execution_traces.csv`.
+5. **Annotate**: `annotator.py` samples -> `data/annotations/annotation_sample.csv`.
+6. **Analyze**: `analysis/glmm.py` produces `statistical_results.json`.

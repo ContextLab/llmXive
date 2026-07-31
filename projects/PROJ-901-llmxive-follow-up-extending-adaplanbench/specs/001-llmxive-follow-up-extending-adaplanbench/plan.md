@@ -1,23 +1,25 @@
 # Implementation Plan: llmXive follow-up: extending "AdaPlanBench: Evaluating Adaptive Planning in Large Language Model Age"
 
-**Branch**: `001-gene-regulation` | **Date**: 2026-07-14 | **Spec**: `specs/001-gene-regulation/spec.md`
-**Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-07-14 | **Spec**: `specs/001-llmxive-follow-up-extending-adaplanbench/spec.md`
+**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-adaplanbench/spec.md`
 
 ## Summary
 
-This feature extends the AdaPlanBench evaluation by implementing a **Dual-Track Agent Architecture** to test the hypothesis that explicit, deterministic constraint tracking mitigates performance degradation in Large Language Models (LLMs) under high constraint loads. The plan covers the implementation of a rule-based conflict resolution module, a filtered dataset subset (≥5 constraints), and a Generalized Linear Mixed Model (GLMM) analysis to quantify the interaction between constraint count and architecture type on *initial* violation rates. All execution is constrained to a CPU-only, GB RAM environment.
+This project extends the AdaPlanBench evaluation by isolating tasks with progressive constraint accumulation (≥5 constraints) to test a "dual-track" architecture. The dual-track approach pairs a Small Language Model (SLM) generator with a deterministic, rule-based constraint store. The primary goal is to determine if explicit constraint tracking significantly mitigates violation rates compared to a monolithic SLM baseline as constraint complexity increases, using a Generalized Linear Mixed Model (GLMM) for statistical validation.
+
+**Critical Implementation Note**: To satisfy the CI resource constraints (limited vCPU, 7GB RAM, no external API), the "Monolithic Baseline" is implemented as a local Phi-3-mini instance running *without* the resolver. The comparison tests the architectural intervention (resolver) on the *same* generative model, controlling for model capability. Evaluation of external models (GPT-4, Llama-3-70b) is out of scope for this CI run.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers` (CPU-optimized), `datasets`, `pandas`, `statsmodels`, `scikit-learn`, `pytest`  
-**Storage**: Local file system (CSV/Parquet) for intermediate logs and final artifacts; no external database.  
-**Testing**: `pytest` (unit tests for constraint logic, integration tests for agent execution, statistical sanity checks).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: limited vCPU, moderate RAM, no GPU).  
-**Project Type**: Computational Research / Data Analysis Pipeline  
-**Performance Goals**: Complete full execution (filtering, dual-track/monolithic inference, logging, GLMM) within 6 hours; memory usage < 6.5GB to allow headroom for OS overhead.  
-**Constraints**: No GPU acceleration; no 8-bit/4-bit quantization requiring CUDA; no external API calls for inference (local SLM only); strict adherence to dataset filtering rules (≥5 constraints).  
-**Scale/Scope**: Subset of AdaPlanBench household tasks; a sample size of tasks for human annotation validation.
+**Primary Dependencies**: `pandas`, `datasets` (HuggingFace), `statsmodels`, `scikit-learn`, `transformers` (CPU-only, 4-bit quantized), `pyyaml`, `pytest`  
+**Storage**: Local file system (`data/`), JSON/CSV logs  
+**Testing**: `pytest` (unit, integration, contract validation)  
+**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, 7GB RAM)  
+**Project Type**: Research/Computational Experiment  
+**Performance Goals**: Execute on CPU within 6 hours; memory < 7GB; no GPU dependency for core logic.  
+**Constraints**: No external API calls; strict adherence to data hygiene (checksums); explicit handling of "implicit" constraints as unverified; synthetic proxy generation if real dataset is unavailable.  
+**Scale/Scope**: Subset of AdaPlanBench (tasks with ≥5 constraints) or synthetic proxy; A set of human-annotated samples for validation.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,73 +27,134 @@ This feature extends the AdaPlanBench evaluation by implementing a **Dual-Track 
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Detail |
+| Principle | Status | Action / Reference |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. Dataset fetch logic uses canonical sources. `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | **PASS (Conditional)** | All dataset citations in `research.md` strictly adhere to the "Verified datasets" block. The project is **BLOCKED** if the AdaPlanBench dataset (ID: `adaplanbench/adaplanbench`) is unreachable or lacks the `progressive_constraints` field. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/`. Filtered data written to `data/processed/` with checksums recorded in state file. |
-| **IV. Single Source of Truth** | **PASS** | All statistics in the final paper will be derived from `data/processed/` and `code/` outputs, not hand-typed. |
-| **V. Versioning Discipline** | **PASS** | A `hash_artifacts.py` script (mandated in `code/`) computes SHA-256 hashes for all files in `data/` and updates the project state YAML upon any change. This script is executed as part of the CI pipeline. |
-| **VI. Dual-Track Architecture Integrity** | **PASS** | Code structure enforces separation: `services/generator.py` (SLM) and `services/constraint_store.py` (Deterministic). Logs distinguish between "model error" and "rule-based correction". |
-| **VII. Resource-Constrained Execution** | **PASS** | `code/` includes a resource monitor wrapper that logs CPU/RAM usage per task. Execution will fail fast if limits are exceeded. |
+| **I. Reproducibility** | PASS | `requirements.txt` pins versions; random seeds fixed in `code/`; dataset fetch script uses canonical HuggingFace ID or synthetic proxy. |
+| **II. Verified Accuracy** | PASS | All citations in `research.md` verified against primary sources; no fabricated URLs. |
+| **III. Data Hygiene** | PASS | `data/` files checksummed; raw data preserved; derivations written to new files. Synthetic proxy generation is deterministic and logged. |
+| **IV. Single Source of Truth** | PASS | All statistics in `paper/` will trace to `data/processed/*.csv` and `code/analysis/`. |
+| **V. Versioning Discipline** | PASS | Content hashes tracked in `state/`; artifact updates trigger timestamp refreshes. |
+| **VI. Dual-Track Integrity** | PASS | Code paths for `generator` (`code/agent/generator.py`) and `resolver` (`code/agent/resolver.py`) are strictly separated. |
+| **VII. Resource Constraints** | PASS | `code/main.py` includes `ResourceMonitor` logging CPU/RAM; fails fast if limits exceeded. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-gene-regulation/
+specs/001-llmxive-follow-up-extending-adaplanbench/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── execution-log.schema.yaml
-│   ├── filtered-task.schema.yaml
-│   └── human-annotation.schema.yaml
+│   ├── dataset.schema.yaml
+│   ├── execution_log.schema.yaml
+│   └── resource_log.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/
-├── data/
-│   ├── raw/                  # Original AdaPlanBench dump (if accessible)
-│   └── processed/            # Filtered subset (≥5 constraints), logs, and analysis results
-├── code/
-│   ├── __init__.py
-│   ├── config.py             # Paths, seeds, resource limits
-│   ├── dataset/
-│   │   ├── loader.py         # AdaPlanBench fetcher & filter logic
-│   │   └── annotator.py      # Human annotation interface (CLI)
-│   ├── agent/
-│   │   ├── base.py           # Abstract agent interface
-│   │   ├── monolithic.py     # Baseline: Direct SLM prompt
-│   │   ├── dual_track.py     # Generator + Constraint Store + Resolver
-│   │   └── resolver.py       # Rule-based conflict detection (FR-007, FR-008, FR-009)
-│   ├── analysis/
-│   │   ├── power.py          # Power analysis script (FR-011)
-│   │   └── glmm.py           # GLMM fitting and diagnostics (FR-005)
-│   ├── hash_artifacts.py     # Versioning script for Constitution Principle V
-│   └── main.py               # Orchestration script
-├── tests/
-│   ├── unit/
-│   │   ├── test_resolver.py
-│   │   └── test_filter.py
-│   └── integration/
-│       └── test_agent_flow.py
-├── requirements.txt
-└── README.md
+code/
+├── main.py              # Entry point, resource monitoring, orchestration
+├── dataset/
+│   ├── loader.py        # Fetch and filter AdaPlanBench (or generate proxy)
+│   └── annotator.py     # Sampling for human annotation
+├── agent/
+│   ├── generator.py     # SLM (Phi-3-mini) interface
+│   ├── resolver.py      # Deterministic constraint store & conflict logic
+│   └── runner.py        # Execution loop for dual-track and monolithic
+├── analysis/
+│   ├── power.py         # Power analysis script
+│   └── glmm.py          # GLMM fitting and interaction effect testing
+├── utils/
+│   └── logging.py       # Resource monitoring and structured logging
+└── tests/
+    ├── unit/
+    ├── integration/
+    └── contract/
+
+data/
+├── raw/
+├── processed/
+└── annotations/
+
+contracts/
+├── dataset.schema.yaml
+├── execution_log.schema.yaml
+└── resource_log.schema.yaml
 ```
 
-**Structure Decision**: The single-project structure is chosen to minimize overhead and ensure all components (data loading, agent execution, analysis) are tightly coupled for reproducibility. The separation of `agent/` into `monolithic` and `dual_track` ensures the "Dual-Track Architecture Integrity" principle is enforced at the code level.
+**Structure Decision**: Single-project structure selected to minimize overhead. The separation of `agent/` into `generator` and `resolver` enforces the Dual-Track Integrity principle (Constitution VI). `analysis/` is isolated to ensure statistical rigor (Constitution I).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Dual-Track vs. Monolithic** | Required to isolate the effect of explicit memory. | A single "smart" prompt cannot distinguish between model failure and memory failure. |
-| **Rule-based Resolver** | Required for deterministic constraint checking (FR-007). | Using an LLM to check constraints introduces the same failure mode we are trying to measure. |
-| **GLMM Analysis** | Required for binary repeated measures (FR-005). | Simple t-tests or ANOVA ignore the nested structure of tasks and varying constraint counts. |
-| **Human Annotation Sample** | Required to validate the rule-based logic (FR-010). | Automated metrics alone cannot verify "implicit" constraint handling or false negatives. |
+| :--- | :--- | :--- |
+| **Dual-Track Architecture** | Required by Spec FR-002/FR-003 to test explicit memory vs. stochastic generation. | A monolithic baseline alone cannot isolate the "memory" effect from "reasoning" capability. |
+| **Explicit Constraint Store** | Required to detect violations deterministically (FR-007) and handle implicit cases (FR-009). | Keyword-only matching in the generator leads to false negatives on complex constraints. |
+| **GLMM Analysis** | Required by Spec FR-005 to handle repeated measures (multiple constraints per task) and binary outcomes. The model tests the interaction effect (Architecture * Constraint_Count) with a binomial link function. | Simple t-tests ignore task-level variance and constraint count as a covariate. |
+
+## Phases and Tasks
+
+### Phase 0: Data Acquisition and Validation
+- **T001**: Fetch and Validate Dataset.
+  - **Input**: None.
+  - **Action**: Attempt to fetch AdaPlanBench from HuggingFace. If fetch fails or `progressive_constraints` field is missing, generate a deterministic synthetic proxy dataset with the required structure.
+  - **Output**: `data/raw/adaplanbench.jsonl` (or `data/raw/synthetic_proxy.jsonl`), `data/processed/validation_report.json`.
+  - **Verification**: Checksum verification; `validation_report.json` confirms dataset structure.
+
+### Phase 1: Data Preparation
+- **T013**: Filter and Prepare Tasks.
+  - **Input**: `data/raw/adaplanbench.jsonl` (or proxy).
+  - **Action**: Filter for tasks with `len(progressive_constraints) >= 5`.
+  - **Output**: `data/processed/filtered_tasks.csv`.
+  - **Verification**: `pytest tests/unit/test_filter.py::test_constraint_count_calculation`; verify row count matches expected N.
+
+### Phase 2: Agent Implementation
+- **T022**: Implement Resolver.
+  - **Action**: Implement `code/agent/resolver.py` with logic for explicit constraint checking and `implicit_unverified` logging.
+  - **Output**: `code/agent/resolver.py`.
+- **T024**: Implement Implicit Constraint Logging.
+  - **Action**: Ensure `resolver.py` logs `implicit_unverified` events and flags them for exclusion from primary violation rate.
+  - **Output**: Updated `code/agent/resolver.py`.
+- **T026a**: Implement Monolithic Runner.
+  - **Action**: Implement `code/agent/monolithic_runner.py` to run Phi-3-mini *without* the resolver.
+  - **Output**: `data/processed/monolithic_logs.json`.
+  - **Verification**: `pytest tests/integration/test_monolithic_execution.py`.
+- **T026b**: Implement Dual-Track Runner.
+  - **Action**: Implement `code/agent/dual_track_runner.py` to run Phi-3-mini *with* the resolver.
+  - **Output**: `data/processed/dual_track_logs.json`.
+  - **Verification**: `pytest tests/integration/test_dual_track_execution.py`.
+
+### Phase 3: Execution and Logging
+- **T026f**: Merge and Validate Logs.
+  - **Action**: Combine `monolithic_logs.json` and `dual_track_logs.json` into `data/processed/execution_traces.csv`.
+  - **Output**: `data/processed/execution_traces.csv`.
+  - **Verification**: `pytest tests/contract/test_execution_trace_schema.py`.
+- **T030**: Power Analysis.
+  - **Action**: Run power analysis on `filtered_tasks.csv`.
+  - **Output**: `data/processed/power_report.json`.
+  - **Verification**: Verify `power_report.json` contains power >= 0.80 for effect size >= 0.15.
+
+### Phase 4: Human Annotation and Validation
+- **T033**: Annotate Sample.
+  - **Action**: Stratified random sampling of a representative set of tasks from `filtered_tasks.csv`.
+  - **Output**: `data/annotations/annotation_sample.csv`.
+  - **Verification**: `pytest tests/unit/test_stratified_sampling.py`.
+- **T034b**: Validate Exclusion Logic.
+  - **Action**: Compare `implicit_unverified` labels from `dual_track_logs.json` against human annotations in `annotation_sample.csv`.
+  - **Output**: `data/processed/exclusion_validation_report.json`.
+  - **Verification**: Verify agreement rate >= 90% for exclusion decisions.
+
+### Phase 5: Statistical Analysis
+- **T034**: Compare Architectures.
+  - **Action**: Run GLMM on `execution_traces.csv` to test interaction effect.
+  - **Output**: `data/processed/statistical_results.json`.
+  - **Verification**: `pytest tests/contract/test_statistical_results_schema.py`.
+- **T035**: Calculate Adherence Rate.
+  - **Action**: Calculate adherence rate for Dual-Track and compare to threshold.
+  - **Output**: `data/processed/adherence_verification.json`.
+  - **Verification**: Verify `adherence_verification.json` contains threshold_passed boolean.
