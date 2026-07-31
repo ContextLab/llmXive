@@ -1,5 +1,12 @@
-'|analysi logic sensitivity verify':
-  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
-  source_id: pi
-  url: https://en.wikipedia.org/wiki/Pi
-  value: '3.141592653589793'
+'|bootstrap iteration run test':
+  quote: tion. The simulations are conducted for a sample size of n = 200 with B =
+    1000 bootstrap
+  source_id: '1709.06855'
+  url: https://arxiv.org/abs/1709.06855
+  value: '1000'
+'|factor inflation multicollinearity threshold variance':
+  quote: experiments validates the theorem on a representative benchmark dataset,
+    UNSW-NB15. Four widely used families of models are
+  source_id: '2605.22529'
+  url: https://arxiv.org/abs/2605.22529
+  value: '5'

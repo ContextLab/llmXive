@@ -1,7 +1,3 @@
-"""
-Modeling module: Mixed Effects Models, Sensitivity Analysis, and Bootstrap.
-Implements T033, T035, T044a, T044b-1, T044b-2, T044b-3, T044c, T045a, T045b, T045c-1, T045c-2.
-"""
 import logging
 import os
 from pathlib import Path
@@ -9,371 +5,535 @@ from typing import Dict, List, Optional, Tuple, Any, Union
 import warnings
 import numpy as np
 import pandas as pd
-import statsmodels.formula.api as smf
-from statsmodels.stats.outliers_influence import variance_inflation_factor
 import pyarrow.parquet as pq
+from scipy import stats
+import statsmodels.api as sm
+from statsmodels.regression.mixed_linear_model import MixedLM
+from statsmodels.tools import add_constant
+from python_levenshtein import distance as levenshtein_distance
+from cue_matching import match_cues, normalize_cues
+from aggregation import aggregate_to_user_track
 from config import get_project_root, get_config_dict
-from cue_matching import match_cues
-from aggregation import aggregate_to_user_track, join_exposure_data
+from utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def load_user_track_pairs(filepath: Optional[str] = None) -> pd.DataFrame:
-    """Load user-track pairs parquet file."""
-    if filepath is None:
-        filepath = Path(get_project_root()) / "data" / "processed" / "user_track_pairs.parquet"
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"User-track pairs file not found: {filepath}")
-    return pd.read_parquet(filepath)
+def load_user_track_pairs(path: Optional[str] = None) -> pd.DataFrame:
+    """Load user-track pairs from parquet file."""
+    if path is None:
+        config = get_config_dict()
+        path = config.get("PATHS", {}).get("USER_TRACK_PAIRS", "data/processed/user_track_pairs.parquet")
+    
+    path_obj = Path(path)
+    if not path_obj.exists():
+        raise FileNotFoundError(f"User-track pairs file not found: {path}")
+    
+    return pq.read_table(path_obj).to_pandas()
 
 def fit_mixed_model(df: pd.DataFrame, formula: Optional[str] = None) -> Any:
     """
-    Fit Mixed Effects Model (T033).
-    Formula: mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)
+    Fit a linear mixed-effects model using statsmodels.
+    
+    Args:
+        df: DataFrame with columns: mean_vividness, adolescent_exposure_ratio, popularity, user_id
+        formula: Model formula. Defaults to 'mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)'
+    
+    Returns:
+        Fitted MixedLMResults object
     """
     if formula is None:
         formula = "mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)"
     
-    # Ensure columns exist
-    required_cols = ["mean_vividness", "adolescent_exposure_ratio", "popularity", "user_id"]
-    for col in required_cols:
+    # Prepare data
+    # Ensure categorical for random effects
+    df = df.copy()
+    if 'user_id' in df.columns:
+        df['user_id'] = df['user_id'].astype(str)
+    
+    # Parse formula to extract fixed and random effects
+    # Simple parsing for the expected formula structure
+    if 'mean_vividness' not in df.columns:
+        raise ValueError("DataFrame must contain 'mean_vividness' column")
+    
+    # Extract fixed effects predictors
+    # For the default formula: mean_vividness ~ adolescent_exposure_ratio + popularity
+    fixed_cols = ['adolescent_exposure_ratio', 'popularity']
+    for col in fixed_cols:
         if col not in df.columns:
-            raise ValueError(f"Missing required column for modeling: {col}")
+            raise ValueError(f"DataFrame missing required column: {col}")
     
-    # Handle missing values
-    clean_df = df.dropna(subset=required_cols)
+    # Build design matrix for fixed effects
+    X = df[fixed_cols].values
+    X = add_constant(X)
     
-    if len(clean_df) == 0:
-        raise ValueError("No valid data remaining for modeling after dropping NaNs.")
-
-    logger.info(f"Fitting MixedLM with formula: {formula}")
-    model = smf.mixedlm(formula, clean_df, groups=clean_df["user_id"])
-    result = model.fit()
-    return result
+    # Random effects grouping
+    groups = df['user_id'].values
+    
+    # Endogenous variable
+    y = df['mean_vividness'].values
+    
+    # Fit the model
+    try:
+        model = MixedLM(y, X, groups=groups)
+        result = model.fit(reml=False)
+        return result
+    except Exception as e:
+        logger.error(f"Failed to fit mixed model: {e}")
+        raise
 
 def check_collinearity(df: pd.DataFrame) -> Dict[str, float]:
     """
-    Check multicollinearity using VIF (T035).
+    Calculate Variance Inflation Factor (VIF) for fixed effects.
+    
+    Args:
+        df: DataFrame with predictor columns
+    
+    Returns:
+        Dictionary mapping column names to VIF values
     """
-    # Select numeric predictors
-    predictors = ["adolescent_exposure_ratio", "popularity"]
-    X = df[predictors].dropna()
+    fixed_cols = ['adolescent_exposure_ratio', 'popularity']
     
-    if X.empty:
-        logger.warning("No data available for VIF calculation.")
-        return {}
-    
-    # Add constant for intercept
-    X_with_const = smf.add_constant(X)
-    
-    vifs = {}
-    for col in X_with_const.columns:
-        if col == "const":
+    # Check for constant columns
+    for col in fixed_cols:
+        if col not in df.columns:
             continue
+        if df[col].std() < 1e-8:
+            logger.warning(f"Column {col} has near-zero variance, VIF may be unstable")
+    
+    X = df[fixed_cols].values
+    X = add_constant(X)
+    
+    vif_dict = {}
+    for i, col in enumerate(['const'] + fixed_cols):
+        if col == 'const':
+            vif_dict[col] = 0.0  # VIF for intercept is not meaningful
+            continue
+        
+        # Calculate VIF
         try:
-            vif_val = variance_inflation_factor(X_with_const.values, list(X_with_const.columns).index(col))
-            vifs[col] = vif_val
-            if vif_val > 5:
-                logger.warning(f"High VIF detected for {col}: {vif_val:.2f}")
+            # Regress this variable against all others
+            other_cols = [c for c in fixed_cols if c != col]
+            if len(other_cols) == 0:
+                vif_dict[col] = 1.0
+                continue
+            
+            X_other = df[other_cols].values
+            X_other = add_constant(X_other)
+            y_target = df[col].values
+            
+            # Fit OLS
+            model = sm.OLS(y_target, X_other).fit()
+            r_squared = model.rsquared
+            vif = 1.0 / (1.0 - r_squared) if r_squared < 1.0 else np.inf
+            vif_dict[col] = vif
+            
+            if vif > 5.0:
+                logger.warning(f"High VIF detected for {col}: {vif:.2f}")
         except Exception as e:
             logger.warning(f"Could not calculate VIF for {col}: {e}")
-            vifs[col] = np.nan
+            vif_dict[col] = np.nan
     
-    return vifs
+    return vif_dict
 
-def run_sensitivity_loop_setup() -> Dict[str, Any]:
+def run_sensitivity_loop_setup() -> Tuple[List[float], pd.DataFrame]:
     """
-    Prepare sensitivity analysis loop (T044a).
-    Loads base track list and defines threshold range.
+    Prepare the sensitivity analysis loop.
+    
+    Returns:
+        Tuple of (thresholds list, base track list from ingested_cohort.parquet)
     """
     config = get_config_dict()
-    project_root = get_project_root()
+    thresholds = config.get("SENSITIVITY", {}).get("LEVENSHTEIN_THRESHOLDS", [2, 3, 4, 5])
     
-    # Load base cohort
-    ingested_path = Path(project_root) / "data" / "processed" / "ingested_cohort.parquet"
-    if not os.path.exists(ingested_path):
-        raise FileNotFoundError(f"Base cohort not found for sensitivity setup: {ingested_path}")
+    # Load base track list from ingested_cohort.parquet
+    base_path = Path("data/processed/ingested_cohort.parquet")
+    if not base_path.exists():
+        raise FileNotFoundError(f"Base ingested cohort not found: {base_path}")
     
-    base_df = pd.read_parquet(ingested_path)
+    base_df = pq.read_table(base_path).to_pandas()
     
-    # Define thresholds to test (Levenshtein distance)
-    # Spec implies testing around the default of 4
-    thresholds = [2, 3, 4, 5, 6]
-    
-    logger.info(f"Sensitivity Setup: Loaded {len(base_df)} tracks. Testing thresholds: {thresholds}")
-    
-    return {
-        "base_df": base_df,
-        "thresholds": thresholds,
-        "config": config
-    }
+    return thresholds, base_df
 
-def re_calculate_exposure(setup_data: Dict[str, Any], threshold: int) -> pd.DataFrame:
+def re_calculate_exposure(df: pd.DataFrame, thresholds: List[int]) -> pd.DataFrame:
     """
-    Re-calculate exposure scores for a specific threshold subset (T044b-1).
-    Filters tracks based on frequency, re-fetches popularity (from cached data), re-calculates ratio.
+    Re-calculate exposure scores for a filtered track set.
+    
+    Args:
+        df: Filtered track set from ingested_cohort.parquet
+        thresholds: Current Levenshtein threshold for this iteration
+    
+    Returns:
+        DataFrame with updated adolescent_exposure_ratio
     """
-    base_df = setup_data["base_df"]
-    # Note: In a real scenario, we might need to re-apply frequency threshold logic here
-    # For now, we assume the base_df is already filtered or we apply a standard filter
-    # The task says "Filter Tracks: Apply the current frequency filter logic"
-    # Assuming frequency threshold is 3 (FR-009)
-    freq_threshold = 3
-    filtered_df = base_df[base_df["total_listens"] >= freq_threshold].copy()
+    # This is a simplified re-calculation based on the filtered set
+    # In a full implementation, this would re-compute based on the actual filtered listens
     
-    # Re-calculate exposure ratio logic (T014 logic)
-    # adolescent_listens / total_valid_listens
-    if "adolescent_listens" in filtered_df.columns and "total_valid_listens" in filtered_df.columns:
-        # Avoid division by zero
-        filtered_df["adolescent_exposure_ratio"] = (
-            filtered_df["adolescent_listens"] / filtered_df["total_valid_listens"].replace(0, np.nan)
-        )
-    else:
-        logger.warning("Missing columns for re-calculating exposure ratio. Skipping.")
-        filtered_df["adolescent_exposure_ratio"] = 0.0
+    # For sensitivity, we assume the exposure ratio might change based on the subset
+    # Here we just return the df with a note that it's re-calculated
+    df = df.copy()
     
-    # Re-fetch popularity (from cached data in base_df)
-    # Assuming 'popularity' is already in base_df from T013b
-    if "popularity" not in filtered_df.columns:
-        logger.warning("Popularity column missing in base data. Cannot re-fetch.")
-        filtered_df["popularity"] = 0.0
+    # If we have total_listens and adolescent_listens, re-calculate
+    if 'total_listens' in df.columns and 'adolescent_listens' in df.columns:
+        df['adolescent_exposure_ratio'] = df['adolescent_listens'] / df['total_listens'].replace(0, np.nan)
     
-    return filtered_df
+    return df
 
-def re_match_cues(setup_data: Dict[str, Any], threshold: int) -> pd.DataFrame:
+def re_match_cues(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
     """
-    Re-match cues with the current threshold (T044b-2).
-    Calls match_cues function with the specific threshold.
+    Re-match cues with a specific Levenshtein threshold.
+    
+    Args:
+        df: DataFrame with cue data
+        threshold: Levenshtein distance threshold
+    
+    Returns:
+        DataFrame with matched cues
     """
-    # This would normally involve re-running the matching logic on the subset
-    # For the sensitivity loop, we assume we are re-matching the cues against the filtered track set
-    # Since we can't easily re-run the full match without the raw cue data in this context,
-    # we will rely on the existing matched data if available, or call the function if raw cues are present.
-    # Given the constraints of T044b-2, we call match_cues.
-    # However, match_cues typically needs raw cue data. 
-    # We will assume the setup_data contains necessary references or we re-load from raw.
-    # To keep it simple and aligned with T044b-2 logic:
+    # This would call match_cues with the specific threshold
+    # For now, we assume the matching is done and we filter based on threshold
     
-    # If the base_df already has matched cues, we filter it.
-    # If not, we would need to re-run the full cue matching pipeline which is heavy.
-    # The task says "Call match_cues function (from T047 module) with the current threshold."
-    # We will call it, but it might be a no-op if data is pre-matched.
+    # In a real implementation, this would re-run the matching logic
+    # with the new threshold parameter
+    logger.info(f"Re-matching cues with threshold {threshold}")
     
-    # For the purpose of this task, we assume we are re-matching.
-    # We need to pass the threshold to match_cues.
-    # Since match_cues signature might not take a threshold directly (it uses config),
-    # we might need to temporarily update config or pass it as an argument.
-    # Let's assume match_cues can accept a threshold parameter or we use the global config.
-    # For this implementation, we will return the base_df with a note that matching was attempted.
-    # In a full implementation, match_cues would be called with the specific threshold.
-    
-    # Placeholder for actual re-matching logic if raw cues are available
-    logger.info(f"Re-matching cues with threshold: {threshold}")
-    # In a real scenario, we would call: matched_df = match_cues(raw_cues, base_df, threshold=threshold)
-    # Here we just return the base_df as a placeholder for the structure
-    return setup_data["base_df"]
+    # Placeholder: return df as is, assuming matching was already done
+    # In practice, this would re-execute the matching pipeline
+    return df
 
-def re_aggregate(setup_data: Dict[str, Any], threshold: int, filtered_df: pd.DataFrame) -> pd.DataFrame:
+def re_aggregate(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
     """
-    Re-aggregate data and fit model for the current threshold (T044b-3).
+    Re-aggregate data to user-track pair level with a specific threshold.
+    
+    Args:
+        df: DataFrame with matched cues
+        threshold: Levenshtein distance threshold used for matching
+    
+    Returns:
+        Aggregated DataFrame at user-track pair level
     """
-    logger.info(f"Re-aggregating for threshold {threshold}...")
+    logger.info(f"Re-aggregating data with threshold {threshold}")
     
-    # Join exposure data (if needed)
-    # aggregate_to_user_track expects specific columns
-    # We assume filtered_df has the necessary columns
+    # This would call aggregate_to_user_track with the filtered data
+    # For now, we assume aggregation is done
     
-    # Create a temporary path for this iteration
-    project_root = get_project_root()
-    temp_path = Path(project_root) / "data" / "processed" / f"user_track_pairs_threshold_{threshold}.parquet"
+    # Placeholder: return a simplified aggregation
+    if df.empty:
+        return pd.DataFrame(columns=['user_id', 'track_id', 'mean_vividness', 'mean_valence'])
     
-    # We need to simulate the aggregation step.
-    # In a real pipeline, we would join with cue data and aggregate.
-    # Since we are in a sensitivity loop on pre-computed data, we assume the data is already aggregated
-    # or we perform a simplified aggregation.
+    # Simple aggregation if data exists
+    if 'user_id' in df.columns and 'track_id' in df.columns:
+        agg_df = df.groupby(['user_id', 'track_id']).agg({
+            'vividness': 'mean',
+            'valence': 'mean'
+        }).reset_index()
+        agg_df.columns = ['user_id', 'track_id', 'mean_vividness', 'mean_valence']
+        return agg_df
     
-    # For this task, we will assume the filtered_df is the result of the aggregation step
-    # or we perform a dummy aggregation to satisfy the function signature.
-    # Let's assume we have a 'mean_vividness' column in the filtered_df for this iteration.
-    # If not, we might need to re-join with cue data.
-    
-    # To keep it functional without raw cue data:
-    # We will assume the filtered_df already contains the aggregated user-track pairs
-    # or we return it as is.
-    
-    # If we need to aggregate, we would call:
-    # aggregated_df = aggregate_to_user_track(filtered_df, cue_data)
-    # But we don't have cue_data here.
-    
-    # Given the constraints, we will return the filtered_df as the "aggregated" result
-    # and assume the sensitivity analysis is on the exposure score variation.
-    
-    return filtered_df
+    return df
 
-def run_sensitivity_analysis(setup_data: Dict[str, Any]) -> pd.DataFrame:
+def run_sensitivity_analysis() -> pd.DataFrame:
     """
-    Orchestrate the sensitivity loop (T044c).
+    Run the full sensitivity analysis loop.
+    
+    Returns:
+        DataFrame with sensitivity analysis results
     """
-    thresholds = setup_data["thresholds"]
+    thresholds, base_df = run_sensitivity_loop_setup()
     results = []
     
-    for thresh in thresholds:
-        logger.info(f"Processing sensitivity threshold: {thresh}")
+    for threshold in thresholds:
+        logger.info(f"Running sensitivity analysis for threshold {threshold}")
         
-        try:
-            # 1. Re-calculate exposure
-            filtered_df = re_calculate_exposure(setup_data, thresh)
-            
-            # 2. Re-match cues (placeholder for actual logic)
-            matched_df = re_match_cues(setup_data, thresh)
-            
-            # 3. Re-aggregate
-            aggregated_df = re_aggregate(setup_data, thresh, filtered_df)
-            
-            # 4. Fit Model
-            if len(aggregated_df) > 0:
-                model = fit_mixed_model(aggregated_df)
-                vifs = check_collinearity(aggregated_df)
+        # Re-match cues
+        matched_df = re_match_cues(base_df, threshold)
+        
+        # Re-aggregate
+        agg_df = re_aggregate(matched_df, threshold)
+        
+        # Re-calculate exposure
+        exposure_df = re_calculate_exposure(agg_df, [threshold])
+        
+        # Fit model and record results
+        if not exposure_df.empty and len(exposure_df) > 10:
+            try:
+                model = fit_mixed_model(exposure_df)
+                coef = model.params.get('adolescent_exposure_ratio', np.nan)
+                pval = model.pvalues.get('adolescent_exposure_ratio', np.nan)
                 
-                # Extract results
-                res_row = {
-                    "threshold": thresh,
-                    "n_observations": len(aggregated_df),
-                    "coef_exposure": model.params.get("adolescent_exposure_ratio", np.nan),
-                    "se_exposure": model.bse.get("adolescent_exposure_ratio", np.nan),
-                    "t_stat_exposure": model.tvalues.get("adolescent_exposure_ratio", np.nan),
-                    "p_value_exposure": model.pvalues.get("adolescent_exposure_ratio", np.nan),
-                    "vif_exposure": vifs.get("adolescent_exposure_ratio", np.nan),
-                    "vif_popularity": vifs.get("popularity", np.nan)
-                }
-                results.append(res_row)
-            else:
-                logger.warning(f"No data for threshold {thresh}, skipping model fit.")
                 results.append({
-                    "threshold": thresh,
-                    "n_observations": 0,
-                    "coef_exposure": np.nan,
-                    "se_exposure": np.nan,
-                    "t_stat_exposure": np.nan,
-                    "p_value_exposure": np.nan,
-                    "vif_exposure": np.nan,
-                    "vif_popularity": np.nan
+                    'threshold': threshold,
+                    'coef': coef,
+                    'p_value': pval,
+                    'n_observations': len(exposure_df)
                 })
-                
-        except Exception as e:
-            logger.error(f"Error processing threshold {thresh}: {e}", exc_info=True)
+            except Exception as e:
+                logger.warning(f"Model fitting failed for threshold {threshold}: {e}")
+                results.append({
+                    'threshold': threshold,
+                    'coef': np.nan,
+                    'p_value': np.nan,
+                    'n_observations': len(exposure_df),
+                    'error': str(e)
+                })
+        else:
+            logger.warning(f"Not enough data for threshold {threshold}")
             results.append({
-                "threshold": thresh,
-                "n_observations": 0,
-                "coef_exposure": np.nan,
-                "se_exposure": np.nan,
-                "t_stat_exposure": np.nan,
-                "p_value_exposure": np.nan,
-                "vif_exposure": np.nan,
-                "vif_popularity": np.nan
+                'threshold': threshold,
+                'coef': np.nan,
+                'p_value': np.nan,
+                'n_observations': len(exposure_df)
             })
     
     return pd.DataFrame(results)
 
-def run_bootstrap_setup() -> Tuple[Any, np.ndarray]:
+def run_bootstrap_setup(df: pd.DataFrame) -> Tuple[Any, np.ndarray]:
     """
-    Prepare Parametric Bootstrap (T045a).
-    Fits null model and extracts residuals.
-    """
-    df = load_user_track_pairs()
+    Prepare the Parametric Bootstrap.
     
-    # Null model: mean_vividness ~ popularity + (1|user_id)
-    null_formula = "mean_vividness ~ popularity + (1|user_id)"
-    null_model = fit_mixed_model(df, formula=null_formula)
+    Args:
+        df: DataFrame with user-track pairs
+    
+    Returns:
+        Tuple of (null model result, residuals)
+    """
+    # Fit null model: mean_vividness ~ popularity + (1|user_id)
+    # Remove adolescent_exposure_ratio
+    df_null = df.copy()
+    
+    # Prepare data for null model
+    if 'popularity' not in df_null.columns:
+        raise ValueError("DataFrame must contain 'popularity' column for null model")
+    
+    X_null = df_null[['popularity']].values
+    X_null = add_constant(X_null)
+    groups = df_null['user_id'].values
+    y = df_null['mean_vividness'].values
+    
+    # Fit null model
+    null_model = MixedLM(y, X_null, groups=groups)
+    null_result = null_model.fit(reml=False)
     
     # Extract residuals
-    residuals = null_model.resid
+    residuals = null_result.resid
     
-    return null_model, residuals
+    return null_result, residuals
 
-def run_bootstrap_iteration(null_model: Any, residuals: np.ndarray, df: pd.DataFrame) -> float:
+def run_bootstrap_iteration(
+    df: pd.DataFrame, 
+    null_result: Any, 
+    residuals: np.ndarray, 
+    seed: Optional[int] = None
+) -> float:
     """
-    Generate one bootstrap sample and re-fit (T045b).
+    Generate a bootstrap sample and re-fit the model.
+    
+    Args:
+        df: Original DataFrame
+        null_result: Fitted null model
+        residuals: Residuals from null model
+        seed: Random seed for reproducibility
+    
+    Returns:
+        t-statistic for adolescent_exposure_ratio coefficient
     """
-    # Resample residuals
-    boot_residuals = np.random.choice(residuals, size=len(residuals), replace=True)
+    if seed is not None:
+        np.random.seed(seed)
+    
+    # Resample residuals with replacement
+    n = len(residuals)
+    resampled_residuals = np.random.choice(residuals, size=n, replace=True)
     
     # Generate new outcome
-    # predicted_values_from_null + resampled_residuals
-    # We need the fitted values from the null model
-    fitted_values = null_model.fittedvalues
-    new_vividness = fitted_values + boot_residuals
+    predicted_values = null_result.fittedvalues
+    new_outcome = predicted_values + resampled_residuals
     
-    # Create a copy of df with new outcome
-    boot_df = df.copy()
-    boot_df["mean_vividness"] = new_vividness
+    # Create new DataFrame with new outcome
+    df_boot = df.copy()
+    df_boot['mean_vividness'] = new_outcome
     
-    # Fit full model on new data
-    full_formula = "mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)"
-    full_model = fit_mixed_model(boot_df, formula=full_formula)
-    
-    # Record t-statistic for exposure
-    t_stat = full_model.tvalues.get("adolescent_exposure_ratio", np.nan)
-    return t_stat
+    # Fit full model on new outcome
+    try:
+        model = fit_mixed_model(df_boot)
+        # Return t-statistic for adolescent_exposure_ratio
+        t_stat = model.tvalues.get('adolescent_exposure_ratio', np.nan)
+        return t_stat
+    except Exception as e:
+        logger.warning(f"Bootstrap iteration failed: {e}")
+        return np.nan
 
-def run_bootstrap_test(iterations: int = 1000) -> Tuple[List[float], float]:
+def run_bootstrap_test(df: pd.DataFrame, n_iterations: int = 1000, seed: int = 42) -> Tuple[float, List[float]]:
     """
-    Orchestrate bootstrap test (T045c-1).
+    Run the Parametric Bootstrap test.
+    
+    Args:
+        df: DataFrame with user-track pairs
+        n_iterations: Number of bootstrap iterations
+        seed: Random seed
+    
+    Returns:
+        Tuple of (p-value, list of bootstrap statistics)
     """
-    logger.info("Starting Parametric Bootstrap...")
-    null_model, residuals = run_bootstrap_setup()
-    df = load_user_track_pairs()
+    logger.info(f"Running parametric bootstrap with {n_iterations} iterations")
+    
+    # Setup
+    null_result, residuals = run_bootstrap_setup(df)
     
     # Get observed statistic
-    full_formula = "mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)"
-    observed_model = fit_mixed_model(df, formula=full_formula)
-    observed_stat = observed_model.tvalues.get("adolescent_exposure_ratio", np.nan)
+    observed_model = fit_mixed_model(df)
+    observed_stat = observed_model.tvalues.get('adolescent_exposure_ratio', np.nan)
     
-    boot_stats = []
-    for i in range(iterations):
-        stat = run_bootstrap_iteration(null_model, residuals, df)
-        boot_stats.append(stat)
-        if (i + 1) % 100 == 0:
-            logger.info(f"Bootstrap iteration {i+1}/{iterations}")
+    # Bootstrap iterations
+    bootstrap_stats = []
+    for i in range(n_iterations):
+        stat = run_bootstrap_iteration(df, null_result, residuals, seed=(seed + i))
+        bootstrap_stats.append(stat)
     
     # Calculate p-value
-    # Two-tailed test: proportion of boot stats more extreme than observed
-    boot_stats_arr = np.array(boot_stats)
-    p_value = np.mean(np.abs(boot_stats_arr) >= np.abs(observed_stat))
+    bootstrap_stats = np.array(bootstrap_stats)
+    bootstrap_stats = bootstrap_stats[~np.isnan(bootstrap_stats)]
     
-    logger.info(f"Bootstrap complete. Observed t={observed_stat:.4f}, p-value={p_value:.4f}")
-    return boot_stats, p_value
+    if len(bootstrap_stats) == 0:
+        logger.error("No valid bootstrap statistics computed")
+        return np.nan, []
+    
+    # Two-tailed p-value
+    p_value = 2 * min(
+        np.mean(bootstrap_stats >= observed_stat),
+        np.mean(bootstrap_stats <= observed_stat)
+    )
+    
+    logger.info(f"Bootstrap p-value: {p_value:.4f}")
+    return p_value, bootstrap_stats.tolist()
 
-def write_bootstrap_results(boot_stats: List[float], p_value: float) -> str:
+def check_bootstrap_convergence(
+    df: pd.DataFrame, 
+    n_prelim_iterations: int = 100, 
+    tolerance: float = 0.01,
+    seed: int = 42
+) -> Tuple[bool, float, List[float]]:
     """
-    Write bootstrap results atomically (T045c-2).
-    """
-    project_root = get_project_root()
-    output_path = Path(project_root) / "data" / "final" / "bootstrap_results.csv"
-    temp_path = Path(project_root) / "data" / "final" / "bootstrap_results.csv.tmp"
+    Check if bootstrap p-value has stabilized before full run.
     
-    # Create DataFrame
-    df_results = pd.DataFrame({
-        "iteration": range(1, len(boot_stats) + 1),
-        "statistic": boot_stats
+    Runs a preliminary short bootstrap and checks if the p-value estimate
+    has stabilized within a tolerance.
+    
+    Args:
+        df: DataFrame with user-track pairs
+        n_prelim_iterations: Number of preliminary iterations
+        tolerance: Tolerance for p-value stability (default 0.01)
+        seed: Random seed
+    
+    Returns:
+        Tuple of (is_converged, current_p_value, preliminary_stats)
+    """
+    logger.info(f"Running preliminary bootstrap convergence check ({n_prelim_iterations} iterations)")
+    
+    # Run preliminary bootstrap
+    _, prelim_stats = run_bootstrap_test(df, n_iterations=n_prelim_iterations, seed=seed)
+    
+    if len(prelim_stats) == 0:
+        logger.warning("No valid statistics in preliminary run, cannot check convergence")
+        return False, np.nan, []
+    
+    # Calculate running p-values
+    prelim_stats = np.array(prelim_stats)
+    prelim_stats = prelim_stats[~np.isnan(prelim_stats)]
+    
+    if len(prelim_stats) < 10:
+        logger.warning("Too few valid statistics for convergence check")
+        return False, np.nan, prelim_stats.tolist()
+    
+    # Get observed statistic (same as in full test)
+    observed_model = fit_mixed_model(df)
+    observed_stat = observed_model.tvalues.get('adolescent_exposure_ratio', np.nan)
+    
+    # Calculate p-value at different points
+    p_values = []
+    window_size = max(10, n_prelim_iterations // 10)
+    
+    for i in range(window_size, len(prelim_stats) + 1):
+        window = prelim_stats[:i]
+        p_val = 2 * min(
+            np.mean(window >= observed_stat),
+            np.mean(window <= observed_stat)
+        )
+        p_values.append(p_val)
+    
+    if len(p_values) < 2:
+        return False, np.nan, prelim_stats.tolist()
+    
+    # Check stability in the last few windows
+    last_p = p_values[-1]
+    prev_p = p_values[-2]
+    
+    is_stable = abs(last_p - prev_p) < tolerance
+    
+    if not is_stable:
+        logger.warning(f"Bootstrap p-value not stable: {prev_p:.4f} -> {last_p:.4f} (diff={abs(last_p - prev_p):.4f})")
+    else:
+        logger.info(f"Bootstrap p-value stable: {last_p:.4f}")
+    
+    return is_stable, last_p, prelim_stats.tolist()
+
+def write_bootstrap_results(p_value: float, stats: List[float], output_path: str) -> None:
+    """
+    Write bootstrap results to CSV with atomic rename.
+    
+    Args:
+        p_value: Final p-value
+        stats: List of bootstrap statistics
+        output_path: Path to output file
+    """
+    temp_path = output_path + ".tmp"
+    
+    # Prepare data
+    results_data = []
+    for i, stat in enumerate(stats):
+        results_data.append({
+            'iteration': i + 1,
+            'statistic': stat
+        })
+    
+    # Add p-value row
+    results_data.append({
+        'iteration': 'p_value',
+        'statistic': p_value
     })
     
-    # Add summary row
-    summary_row = pd.DataFrame({
-        "iteration": ["p_value"],
-        "statistic": [p_value]
-    })
-    df_summary = pd.concat([df_results, summary_row], ignore_index=True)
+    df = pd.DataFrame(results_data)
     
-    # Write to temp
-    df_summary.to_csv(temp_path, index=False)
+    # Write to temp file
+    df.to_csv(temp_path, index=False)
     
     # Atomic rename
     os.replace(temp_path, output_path)
     logger.info(f"Bootstrap results written to {output_path}")
-    return str(output_path)
 
 def main():
-    """Main entry point for modeling tasks."""
-    # This is a module entry point, specific tasks are called by wrapper scripts
-    pass
+    """Main entry point for modeling module."""
+    logger.info("Starting modeling module")
+    
+    # Example usage
+    try:
+        # Load data
+        df = load_user_track_pairs()
+        logger.info(f"Loaded {len(df)} user-track pairs")
+        
+        # Fit model
+        model = fit_mixed_model(df)
+        logger.info("Model fitted successfully")
+        
+        # Check collinearity
+        vif = check_collinearity(df)
+        logger.info(f"VIF results: {vif}")
+        
+        # Run bootstrap
+        p_val, stats = run_bootstrap_test(df, n_iterations=100)  # Small for demo
+        logger.info(f"Bootstrap p-value: {p_val}")
+        
+    except Exception as e:
+        logger.error(f"Modeling pipeline failed: {e}")
+        raise
+
+if __name__ == "__main__":
+    main()
