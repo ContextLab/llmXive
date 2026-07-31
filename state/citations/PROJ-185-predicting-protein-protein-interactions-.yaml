@@ -1,14 +1,3 @@
-- artifact_hash: ec3dde454486095203764637f7c43fd2f7b601598664c95489d894e49230878b
-  artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Help - STRING functional protein association networks
-  kind: url
-  value: https://string-db.org/cgi/help?subpage=api
-  verification_status: pending
-  verified_against_url: https://string-db.org/cgi/help?subpage=api
-  verified_at: '2026-07-25T15:57:41.926693Z'
 - artifact_hash: 16b74d168c3565583557eba6ca02d60fb588c5b3da34f2b891872ebcfa8d41f1
   artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/plan.md
   cite_id: c-001
@@ -75,3 +64,14 @@
   verification_status: pending
   verified_against_url: https://oeis.org/A331313
   verified_at: '2026-07-28T19:28:47.643937Z'
+- artifact_hash: a330fe35d268acee93be6a3343a8562973c69be858cc2484837d984b69292fa1
+  artifact_path: projects/PROJ-185-predicting-protein-protein-interactions-/specs/001-predicting-protein-protein-interactions/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Help - STRING functional protein association networks
+  kind: url
+  value: https://string-db.org/cgi/help?subpage=api
+  verification_status: pending
+  verified_against_url: https://string-db.org/cgi/help?subpage=api
+  verified_at: '2026-07-31T02:22:42.342559Z'

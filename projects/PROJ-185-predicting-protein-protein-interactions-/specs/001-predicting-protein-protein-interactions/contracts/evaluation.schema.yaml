@@ -1,30 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Evaluation Metrics"
-type: "object"
-description: "Aggregated AUROC, AUPRC, and baseline statistics for a species."
+type: object
 properties:
   species:
-    type: "string"
+    type: string
+    description: "Species identifier (e.g., arabidopsis_thaliana)"
   auroc:
-    type: "number"
+    type: number
     minimum: 0.0
     maximum: 1.0
+    description: "Area under the ROC curve for full imbalanced set"
   auprc:
-    type: "number"
+    type: number
     minimum: 0.0
     maximum: 1.0
+    description: "Area under the Precision‑Recall curve for full set"
   baseline_auroc:
-    type: "number"
+    type: number
     minimum: 0.0
     maximum: 1.0
+    description: "AUROC of degree‑preserving random‑graph baseline"
   baseline_auprc:
-    type: "number"
+    type: number
     minimum: 0.0
     maximum: 1.0
+    description: "AUPRC of degree‑preserving random‑graph baseline"
   baseline_p:
-    type: "number"
+    type: number
     minimum: 0.0
     maximum: 1.0
+    description: "p‑value comparing observed AUROC to baseline distribution"
 required:
   - species
   - auroc

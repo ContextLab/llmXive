@@ -1,15 +1,11 @@
 status: none
-intent: "plant RNA\u2011seq count matrices NCBI GEO bulk download python package dataset\
-  \ STRING interactions python package dataset"
+intent: NCBI GEO RNA-seq count matrices plant species STRING protein interactions
+  python package dataset
 required_fields:
 - gene_id
 - sample_id
 - raw_count
-- species
-- protein_id_A
-- protein_id_B
-- combined_score
-- evidence
-cache_key: 2ff80b65184bdba19e7d7ccc4bf743e725cfb90ea22c76cc686dcd211293623d
-searched_at: '2026-07-25T16:00:27.007411+00:00'
+- organism
+cache_key: 41b86e2b37e3733400e3e349fba59948b05c5cfbc4f89c4e393d604b6fccf012
+searched_at: '2026-07-31T02:01:49.797374+00:00'
 retry_count: 1

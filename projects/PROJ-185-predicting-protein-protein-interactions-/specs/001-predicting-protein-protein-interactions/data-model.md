@@ -1,53 +1,31 @@
 # Data Model: Predict Protein‑Protein Interactions from Co‑expression Networks
 
 ## Core Entities
-
 | Entity | Attributes | Description |
 |--------|------------|-------------|
-| **RNASeqSample** | `accession_id` (string), `species` (string), `raw_counts_path` (path), `metadata` (JSON) | One GEO series (after filtering for ≥ 30 samples). |
-| **Gene** | `gene_id` (TAIR or Ensembl), `cpm` (float), `variance` (float), `string_protein_id` (string, optional) | After CPM filtering and variance selection. |
-| **RawCorrelation** | `gene_id_1`, `gene_id_2`, `correlation` (float), `p_value` (float), `adjusted_p_value` (float) | Produced by block‑wise correlation; stored in `raw_correlations_<species>.tsv.gz`. |
-| **ProteinCorrelation** | `protein_id_1`, `protein_id_2`, `correlation` (float) | After identifier mapping; used for edge export. |
-| **PredictedEdge** | `protein_id_1`, `protein_id_2`, `correlation` (float) | Rows of `predicted_ppi_<species>.tsv`. |
-| **EvaluationMetric** | `species`, `auroc`, `auprc`, `baseline_auroc`, `baseline_auprc`, `baseline_p` (float) | Stored in `evaluation_metrics.json`. |
-| **GOEnrichmentRecord** | `go_id`, `description`, `raw_p`, `adjusted_p`, `gene_count` | Rows of `go_enrichment_<species>.tsv`. |
-| **ThresholdSensitivityRecord** | `threshold`, `edge_count`, `auroc`, `auprc` | Rows of `threshold_sensitivity_<species>.tsv`. |
-| **PipelineLogEntry** | `timestamp`, `level`, `message`, `schema_version`, `seed`, `command` | JSON‑Line entries in `pipeline.log`. |
+| **RNASeqSample** | `accession` (str), `species` (str), `raw_counts` (path to TSV), `metadata` (JSON) | One GEO series after download. |
+| **Gene** | `gene_id` (str, TAIR or Ensembl), `cpm` (float), `variance` (float), `string_protein_id` (str, optional) | Represents a transcript after filtering. |
+| **RawCorrelation** | `gene_id_1` (str), `gene_id_2` (str), `correlation` (float), `p_value` (float), `adjusted_p_value` (float) | Pairwise correlation before identifier mapping; stored in `raw_correlations_<species>.tsv.gz`. |
+| **ProteinCorrelation** | `protein_id_1` (str), `protein_id_2` (str), `correlation` (float) | After mapping via `string_protein_id`. |
+| **PredictedEdge** | `protein_id_1` (str), `protein_id_2` (str), `correlation` (float) | Row in `predicted_ppi_<species>.tsv`. |
+| **EvaluationMetric** | `species` (str), `auroc` (float), `auprc` (float), `baseline_auroc` (float), `baseline_auprc` (float), `baseline_p` (float) | Stored in `evaluation_metrics.json`. |
+| **GOEnrichmentRecord** | `go_id` (str), `description` (str), `raw_p` (float), `adj_p` (float), `gene_count` (int) | Row in `go_enrichment_<species>.tsv`. |
+| **ThresholdSensitivityRecord** | `threshold` (float), `edge_count` (int), `auroc` (float), `auprc` (float) | Row in `threshold_sensitivity_<species>.tsv`. |
+| **PipelineLogEntry** | `timestamp` (ISO‑8601), `level` (str), `message` (str), `schema_version` (str) | JSON‑Line entry in `pipeline.log`. |
 
 ## Relationships
+- `RNASeqSample` → many `Gene` (genes expressed in the sample).  
+- `Gene` ↔ `Gene` → `RawCorrelation` (undirected).  
+- `Gene` → `ProteinCorrelation` after mapping via `string_protein_id`.  
+- `ProteinCorrelation` filtered by threshold → `PredictedEdge`.  
+- `PredictedEdge` set evaluated against STRING high‑confidence edges → `EvaluationMetric`.  
+- Genes in `PredictedEdge` serve as background for `GOEnrichmentRecord`.  
 
-* Each **RNASeqSample** belongs to a **Species** (captured in `species.yaml`).  
-* **Gene** objects are derived from the union of all samples for a species after CPM filtering.  
-* **RawCorrelation** is computed for every unordered pair of retained **Gene** objects.  
-* **ProteinCorrelation** is a filtered view of **RawCorrelation** where both genes have a valid `string_protein_id`.  
-* **PredictedEdge** ⊆ **ProteinCorrelation** (edges satisfying the correlation threshold).  
-* **EvaluationMetric** consumes the full set of **ProteinCorrelation** scores plus the STRING positive/negative label sets.  
-* **GOEnrichmentRecord** is computed from the set of genes appearing in **PredictedEdge** against the background gene universe.  
+## Contracts (YAML schemas) – see `contracts/` directory.
 
-## Storage Layout (relative to project root)
-
-```
-data/
-├── raw/                # GEO series TSV/CSV files (unchanged)
-├── processed/
-│   ├── normalized/<species>.tsv
-│   ├── raw_correlations_<species>.tsv.gz
-│   ├── predicted_ppi_<species>.tsv
-│   ├── go_enrichment_<species>.tsv
-│   └── threshold_sensitivity_<species>.tsv
-├── external/
-│   └── string_highconf.parquet   # verified STRING dataset (see research.md)
-└── checksums.yaml                # SHA‑256 hashes for all raw files
-logs/
-└── pipeline.log
-results/
-├── evaluation_metrics.json
-├── summary_<species>.txt
-└── final_report.txt
-state/
-└── artifact_hashes.yaml
-```
-
-All TSV files are UTF‑8, tab‑delimited, with a header row. Gzipped files are streamed with `gzip.open(..., 'rt')`.
+**Note**: Success Criterion SC‑002 mandates that each GO enrichment report contain at least one term with an adjusted p‑value < 0.05; this is reflected in the `GOEnrichmentRecord` usage.
 
 ---
+
+
+

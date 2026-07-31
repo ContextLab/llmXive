@@ -32,7 +32,7 @@ additionalProperties: false
 example:
   protein_id_1: "AT1G01010"
   protein_id_2: "AT2G02020"
-  correlation:
+  correlation: strong positive
   method: "pearson"
-  bootstrap_ci_lower: a relatively high lower bound
-  bootstrap_ci_upper: a high confidence interval upper bound
+  bootstrap_ci_lower: a substantial lower bound
+  bootstrap_ci_upper: a high confidence bound (e.g., near the upper end of the interval)

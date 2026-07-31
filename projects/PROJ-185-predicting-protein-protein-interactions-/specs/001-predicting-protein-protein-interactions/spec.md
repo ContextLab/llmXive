@@ -15,7 +15,7 @@ A researcher wants to run the pipeline on a fresh GitHub Actions runner and obta
 
 **Traceability**:
 - Functional Requirements: FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023, FR-024, FR-025, FR-026, FR-028, FR-030, FR-032, FR-034, FR-035, FR-045, FR-047, FR-048 (See US-1)
-- Success Criteria: SC-001, SC-003, SC-004, SC-005, SC-006 (See US-1)
+- Success Criteria: SC-001, SC-002, SC-003, SC-004, SC-005, SC-006 (See US-1)
 
 **Independent Test**: Execute the `make all` target on a fresh runner and verify that for each species a file `predicted_ppi_<species>.tsv` is created and contains ≥ 10 000 edges (or an empty file if no edges meet the threshold).
 
@@ -33,7 +33,7 @@ A researcher wants to know how well the co‑expression‑derived predictions re
 
 **Traceability**:
 - Functional Requirements: FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023, FR-024, FR-025, FR-026, FR-028, FR-030, FR-032, FR-034, FR-035, FR-045, FR-047, FR-048 (See US-2)
-- Success Criteria: SC-001, SC-003, SC-004, SC-005, SC-006 (See US-2)
+- Success Criteria: SC-001, SC-002, SC-003, SC-004, SC-005, SC-006 (See US-2)
 
 **Independent Test**: Run the `make evaluate` target and check that `evaluation_metrics.json` contains AUROC, AUPRC, and `baseline_p` values for each species, and that the file validates against `contracts/evaluation.schema.yaml`.
 
@@ -51,7 +51,7 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 
 **Traceability**:
 - Functional Requirements: FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022, FR-023, FR-024, FR-025, FR-026, FR-028, FR-030, FR-032, FR-034, FR-035, FR-045, FR-047, FR-048 (See US-3)
-- Success Criteria: SC-002, SC-003, SC-004, SC-005, SC-006 (See US-3)
+- Success Criteria: SC-001, SC-002, SC-003, SC-004, SC-005, SC-006 (See US-3)
 
 **Independent Test**: Run the `make enrich` target and verify that `go_enrichment_<species>.tsv` lists GO terms with adjusted p‑values for each species.
 
@@ -76,11 +76,11 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST download bulk RNA‑seq count matrices for each target plant species from NCBI GEO using a configurable accession list per species (default: `Arabidopsis thaliana → GSEXXXXX`; other species may be added via the configuration file). The system MUST ensure that, after discarding individual GEO series with < 30 samples, the **total number of samples per species is ≥ 50**; otherwise it aborts with a clear error indicating insufficient statistical power. (See US-1)
+- **FR-001**: The system MUST download bulk RNA‑seq count matrices for each target plant species from NCBI GEO using a configurable accession list per species (default: `Arabidopsis thaliana → GSE152416`; other species may be added via the configuration file). The system MUST ensure that, after discarding individual GEO series with < 30 samples, the **total number of samples per species is ≥ 50**; otherwise it aborts with a clear error indicating insufficient statistical power. (See US-1)
 
 - **FR-002**: The system MUST normalize raw counts using either DESeq2’s variance‑stabilizing transformation (default) **or** TPM (optional). When TPM is selected, downstream correlation MUST be computed with Spearman’s ρ to respect the compositional nature of TPM values. (See US-1)
 
-- **FR-003**: The system MUST filter out genes with CPM < 1 in > 80 % of samples before correlation calculation **and retain at most the [deferred] genes with highest variance among the remaining genes**. (See US-1)
+- **FR-003**: The system MUST filter out genes with CPM < 1 in > 80 % of samples before correlation calculation **and retain at most 5,000 genes (i.e., ≤ 5,000) with highest variance among the remaining genes**. (See US-1)
 
 - **FR-004**: The system MUST compute pairwise Pearson correlation for all retained genes **or** Spearman correlation when TPM is used; it MUST retain edges with correlation coefficient *r* ≥ **0.80** (default) and MUST never allow the threshold to be set below **0.75**. (See US-1)
 
@@ -92,7 +92,7 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 
 - **FR-008**: The system MUST perform GO enrichment on the union of genes participating in predicted PPIs for each species, using GOATOOLS, and report adjusted p‑values (FDR ≤ 0.05) in `go_enrichment_<species>.tsv`. **The background gene set is the filtered‑gene universe that passed the CPM filter and was successfully mapped to STRING IDs**. (See US-1)
 
-- **FR-009**: The system MUST orchestrate all steps via a Makefile with targets `all`, `evaluate`, `enrich`, `summary`, and optionally `clean`. The `all` target runs the full pipeline and must complete within **≤ 6 hours** wall‑clock on a GitHub Actions runner (2 CPU, 7 GB RAM). With the gene‑set limit of [deferred] this runtime is feasible given block‑wise streaming. (See US-1)
+- **FR-009**: The system MUST orchestrate all steps via a Makefile with targets `all`, `evaluate`, `enrich`, `summary`, and `clean`. The `all` target runs the full pipeline and must complete within **≤ 6 hours** wall‑clock on a GitHub Actions runner (2 CPU, 7 GB RAM). (See US-1)
 
 - **FR-010**: The system MUST log all major actions, warnings, and errors to `pipeline.log` in **JSON‑Line** format, each entry containing `timestamp`, `level`, `message`, and `schema_version`. The log must also record the exact command‑line invocation, software versions, and the random seed (see FR‑035). (See US-1)
 
@@ -122,7 +122,7 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 
 - **FR-024**: The system MUST save raw correlation scores for all gene‑pair candidates to `raw_correlations_<species>.tsv.gz` before any thresholding; this file is required for unbiased AUROC/AUPRC computation. (See US-1)
 
-- **FR-025**: The system MUST perform a correlation‑threshold sensitivity analysis for thresholds ranging from a low value up to 0.90 (e.g., the low‑threshold case, 0.80, 0.85, 0.90). For each threshold it must record the number of predicted edges, AUROC, and AUPRC, and write the results to `threshold_sensitivity_<species>.tsv`. The analysis uses the global random seed for reproducibility. (See US-1)
+- **FR-025**: The system MUST perform a correlation‑threshold sensitivity analysis for thresholds **0.60**, **0.70**, **0.80**, **0.85**, and **0.90**. For each threshold it must record the number of predicted edges, AUROC, and AUPRC, and write the results to `threshold_sensitivity_<species>.tsv`. The analysis uses the global random seed for reproducibility. (See US-1)
 
 - **FR-026**: The system MUST provide a construct‑validity justification by citing literature that demonstrates high‑threshold co‑expression predicts physical interactions in plants (e.g., Zhang et al., Nat Commun. 2020; Lee et al., Plant Cell 2021) **and** by reporting the pilot‑validation results from FR‑048 (precision ≥ 0.60, recall ≥ 0.40 for the default 0.80 threshold). This justification is written into the per‑species summary report (`summary_<species>.txt`). (See US-1)
 
@@ -158,9 +158,9 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 - **Phase 2 – Normalization & Filtering**: FR-002, FR-003, FR-004, FR-014
 - **Phase 3 – Correlation Computation**: FR-004, FR-020, FR-025, FR-045
 - **Phase 4 – Identifier Mapping**: FR-005
-- **Phase 5 – Edge Selection & Thresholding**: FR-004, FR-045, FR-011, FR-013, FR-012
-- **Phase 6 – Evaluation**: FR-006, FR-007, FR-016, FR-032, FR-018, FR-019, FR-012, FR-048
-- **Phase 7 – Functional Enrichment**: FR-008, FR-023, FR-024, FR-022
+- **Phase 5 – Edge Selection & Thresholding**: FR-004, FR-045, FR-011, FR-013, FR-012, FR-009
+- **Phase 6 – Evaluation**: FR-006, FR-007, FR-016, FR-032, FR-018, FR-019, FR-012, FR-048, FR-017
+- **Phase 7 – Functional Enrichment**: FR-008, FR-023, FR-024, FR-022, SC-002
 - **Phase 8 – Reporting & Summary**: FR-021, FR-028, FR-030, FR-034, FR-035, FR-010, FR-026
 
 ## Success Criteria *(mandatory)*
@@ -178,7 +178,7 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 
 - Public GEO series listed in the configuration contain **≥ 50 RNA‑seq samples** (after discarding any series with < 30 samples) for each species, providing **≥ 80 % power** to detect a true Pearson correlation of 0.8 at α = 0.05 (Cohen, 1992). The pipeline enforces this total‑sample minimum via FR‑001.
 - After CPM filtering and variance‑based sub‑selection, the pipeline retains **≤ 5,000 genes** per species, reducing pairwise tests to ≤ 12.5 M, which is tractable on a GitHub Actions runner within the 6‑hour budget using block‑wise streaming.
-- The latest STRING release (`protein.links.v11.5.txt.gz`) is accessible via the URL provided on the STRING download page and contains high‑confidence scores ≥ 700. The evaluation uses the subset that **excludes any co‑expression or transcriptomics‑derived evidence channels** (see STRING API documentation: https://string-db.org/cgi/help?subpage=api).
+- The latest STRING release (`protein.links.v11.5.txt.gz`) is accessed directly from the official STRING download page and contains high‑confidence scores ≥ 700. The evaluation uses the subset that **excludes any co‑expression or transcriptomics‑derived evidence channels** (see STRING API documentation: https://string-db.org/cgi/help?subpage=api).
 - The compute environment provides Python ≥ 3.10, R ≥ 4.2, and the necessary libraries (NumPy, Pandas, NetworkX, GOATOOLS, DESeq2, Bioconductor `org.At.tair.db`, limma/ComBat, sva).
 - Internet connectivity is stable enough to download GEO and STRING files within the 6‑hour runtime budget.
 - The correlation threshold is configurable via a CLI flag but **must not be set below a high positive value**; the default is **0.80**.
@@ -186,4 +186,5 @@ A researcher wants to know whether the predicted PPIs are biologically coherent 
 - Batch‑effect correction (FR‑014) is applied only when more than one GEO series contributes to a species; otherwise it is a no‑op. When metadata are incomplete, surrogate variable analysis (SVA) is applied as a fallback, and expression‑level & gene‑length confounds are regressed out prior to correlation.
 - Raw correlation scores are saved to compressed, block‑wise TSV files (`raw_correlations_<species>.tsv.gz`) to enable streaming computation within memory limits.
 - The sensitivity analysis of the correlation threshold (FR‑025) and construct‑validity justification (FR‑026) are performed as part of the pipeline to substantiate the use of co‑expression as a proxy for physical interaction.
-- Multiple‑testing correction is enforced via FR‑045 (adjusted p‑values recorded) and FR‑045’s downstream use is limited to reporting, not edge selection.
+- Multiple‑testing correction is enforced via FR‑045 (adjusted p‑values are recorded) and FR‑045’s downstream use is limited to reporting, not edge selection.
+- The pipeline records the random seed and software versions to satisfy reproducibility obligations (FR‑035).
