@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StudentModel"
+description: "Schema for a compressed student model variant."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model variant."
+  teacher_id:
+    type: "string"
+    description: "ID of the teacher model used for distillation."
+  bit_width:
+    type: "integer"
+    description: "Quantization bit-width (32, 8, or 4)."
+    enum: [32, 8, 4]
+  pruning_ratio:
+    type: "number"
+    description: "Fraction of parameters pruned (0.0 to 1.0)."
+    minimum: 0
+    maximum: 1
+  param_count:
+    type: "integer"
+    description: "Total number of parameters after compression."
+    minimum: 0
+  checkpoint_path:
+    type: "string"
+    description: "Relative path to the saved model weights."
+  compression_method:
+    type: "string"
+    description: "Method used for compression."
+    enum: ["quantization", "pruning", "distillation", "hybrid"]
+required:
+  - model_id
+  - teacher_id
+  - bit_width
+  - pruning_ratio
+  - param_count
+  - checkpoint_path
+  - compression_method
+additionalProperties: false

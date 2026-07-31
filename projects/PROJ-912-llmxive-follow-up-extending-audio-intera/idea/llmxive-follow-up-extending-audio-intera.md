@@ -9,47 +9,45 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can the proactive intervention capabilities of the Audio Interaction Model paradigm be effectively distilled into a lightweight, CPU-tractable architecture that maintains low-latency responsiveness (<200ms) and high precision in resource-constrained edge environments without cloud dependency?
+Which acoustic features of subtle environmental cues (e.g., high-frequency transients, low-amplitude patterns) are most robust to information loss in neural representations, and how does this robustness vary across different architectural components of audio-language models?
 
 ## Motivation
 
-The original Audio Interaction Model (AIM) establishes a new paradigm for real-time, streaming audio agents but relies on heavy computational resources that preclude deployment on ubiquitous IoT devices. Demonstrating that the core "decide-respond" logic can be compressed into a sub-100M parameter model runnable on standard CPUs would validate the practical viability of the AIM paradigm for always-on ambient intelligence, bridging the gap between high-performance research models and real-world edge deployment.
+Proactive audio agents for safety-critical interventions (e.g., detecting faint gas leaks or distress calls) must operate on resource-constrained edge devices, necessitating aggressive model compression. However, it is currently unknown whether specific acoustic features essential for these tasks survive quantization and pruning, or if compression uniformly degrades the model's ability to perceive subtle cues. This research addresses the gap between general compression benchmarks and the specific reliability requirements of safety-critical audio sensing.
 
 ## Related work
 
-- [Acoustic Prompt Tuning: Empowering Large Language Models with Audition Capabilities](https://arxiv.org/abs/2312.00249) — Establishes the foundational approach of adapting LLMs for auditory tasks, providing context for the teacher-student alignment strategy proposed here.
-- [From Alignment to Advancement: Bootstrapping Audio-Language Alignment with Synthetic Data](https://arxiv.org/abs/2505.20166) — Highlights recent strides in audio-language alignment and the use of synthetic data, relevant for generating the soft labels needed in the distillation pipeline.
-- [DeSTA2.5-Audio: Toward General-Purpose Large Audio Language Model with Self-Generated Cross-Modal Alignment](https://arxiv.org/abs/2507.02768) — Discusses general-purpose Large Audio Language Models (LALMs) and instruction-following, offering architectural precedents for the student model design.
-- [Sparks of Large Audio Models: A Survey and Outlook](https://arxiv.org/abs/2308.12792) — Provides a comprehensive overview of challenges in applying LLMs to audio processing, specifically noting the computational constraints that motivate this edge-focused distillation.
-
-*(Note: "A Survey on Multimodal Large Language Models" was omitted as it focuses on visual-text modalities and lacks specific relevance to audio-specific distillation or latency constraints.)*
+- [From Alignment to Advancement: Bootstrapping Audio-Language Alignment with Synthetic Data](https://arxiv.org/abs/2505.20166) — Establishes the current baseline for adapting text-based LLMs to audio, providing the architectural context for the "teacher" models used in the proposed distillation and compression study.
+- [Acoustic Prompt Tuning: Empowering Large Language Models with Audition Capabilities](https://arxiv.org/abs/2312.00249) — Details the mechanisms for integrating auditory inputs into LLMs, offering a reference for the specific "decide-respond" logic and attention mechanisms that will be targeted for pruning.
+- [DeSTA2.5-Audio: Toward General-Purpose Large Audio Language Model with Self-Generated Cross-Modal Alignment](https://arxiv.org/abs/2507.02768) — Demonstrates the capabilities of general-purpose Large Audio Language Models (LALMs) in instruction-following, serving as the target capability set that compressed models must retain to be viable.
+- [Sparks of Large Audio Models: A Survey and Outlook](https://arxiv.org/abs/2308.12792) — Outlines the specific computational challenges and limitations of applying large models to audio signal processing, directly motivating the need to identify which components survive extreme compression.
 
 ## Expected results
 
-The distilled student model is expected to achieve a Time-to-Intervention under 200ms with a False Trigger Rate below 5% on a standard CPU, proving that proactive decision-making can be compressed without significant performance degradation. Success would be confirmed if the CPU-based student matches at least 85% of the teacher model's intervention accuracy on the Proactive-Sound-Bench subset while reducing inference memory footprint by an order of magnitude.
+The study expects to reveal that high-frequency transient features are disproportionately degraded by low-bit quantization compared to low-frequency spectral patterns, and that early attention layers are more critical for preserving these cues than later feed-forward layers. Success is defined by mapping a "robustness curve" that identifies the specific architectural and precision thresholds where subtle cue detection fails, providing a concrete boundary for safe edge deployment.
 
 ## Methodology sketch
 
-- **Data Curation**: Extract the 28 sub-tasks involving "proactive intervention" and "environmental sound monitoring" from the StreamAudio-2M dataset to create a focused training corpus.
-- **Teacher Inference**: Run the original Audio-Interaction model (teacher) on the curated subset to generate soft probability distributions (logits) for intervention timing and response selection.
-- **Student Architecture**: Initialize a lightweight transformer-based student model (e.g., quantized TinyLlama adapted for audio embeddings) with parameters <100M to fit within 7GB RAM constraints.
-- **Distillation Training**: Train the student model using a knowledge distillation loss function that combines cross-entropy with the teacher's soft labels, optimized via ONNX Runtime on a CPU-only environment.
-- **Latency Optimization**: Apply quantization-aware training and pruning techniques to minimize the model's memory footprint and inference latency on the target hardware.
-- **Evaluation Setup**: Deploy the final model on a standard Intel i7 laptop CPU (simulating edge constraints) without GPU acceleration.
-- **Metric Measurement**: Measure "Time-to-Intervention" (latency from audio trigger to response generation) and "False Trigger Rate" (incorrect interventions per hour) on a modified Proactive-Sound-Bench.
-- **Statistical Analysis**: Perform a paired t-test comparing the latency and accuracy of the distilled student against the teacher model and a non-distilled baseline to determine statistical significance of the trade-off.
-- **Resource Profiling**: Log peak memory usage and CPU utilization during inference to verify compliance with the 7GB RAM and 2-core constraints.
+- **Dataset Curation**: Download the ESC-50 or AudioSet subset from HuggingFace Datasets, filtering specifically for classes containing high-frequency transients or low-amplitude events (e.g., "glass breaking," "alarm," "whisper") to create the "subtle cue" testbed.
+- **Teacher Initialization**: Load a pre-trained, full-precision Audio-Language Model (e.g., DeSTA2.5-Audio or a compatible open-weight variant) as the ground-truth teacher using the HuggingFace `transformers` library.
+- **Student Construction & Compression**: Instantiate student models with progressively reduced parameter counts (<100M) and apply systematic quantization (FP32, INT8, INT4) and structured pruning using `bitsandbytes` and `torch.nn.utils.prune`.
+- **Knowledge Distillation**: Train student models on the curated dataset using a distillation loss function that aligns the student's output distribution with the teacher's, focusing on the "decide-respond" logic for subtle events.
+- **Feature Robustness Isolation**: Perform ablation studies by selectively freezing or pruning specific architectural components (e.g., early attention heads vs. late projection layers) to isolate their contribution to feature retention.
+- **Independent Evaluation**: Calculate the Area Under the Curve (AUC) of the Receiver Operating Characteristic (ROC) for each model variant on the held-out "subtle cue" subset, using the original dataset annotations as the independent ground truth (ensuring no circular dependency on model outputs).
+- **Resource Profiling**: Measure inference latency (ms) and peak RAM usage (GB) for each variant on a 2-core CPU environment to simulate GitHub Actions free-tier constraints using `time` and `psutil`.
+- **Statistical Analysis**: Perform a regression analysis to correlate the degree of compression (bits/parameters) and architectural modifications with the drop in AUC, identifying the inflection point where detection sensitivity collapses.
+- **Validation Independence Check**: Verify that the evaluation metric (AUC) relies solely on the external dataset labels and the model's final classification output, ensuring the validation target is mathematically independent of the internal weights or features being pruned.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: llmXive follow-up: extending "Audio Interaction Model" (current seed).
-- Closest match: None identified in the provided corpus; the specific focus on *CPU-tractable distillation for proactive intervention* is distinct from general multimodal surveys.
+- Closest match: None identified in the provided corpus; the specific focus on *identifying the breaking point of compression for subtle cue detection* is distinct from general efficiency surveys.
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-10T00:53:29Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-31T16:38:29Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "Audio Interaction Model" computer science
 **Verified citation count**: 5
@@ -58,32 +56,12 @@ The distilled student model is expected to achieve a Time-to-Intervention under 
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Audio Interaction Model" computer science | 0 |
-| 1 | multimodal large language models for audio | 5 |
-| 2 | speech-to-text large language model integration | 0 |
-| 3 | conversational AI with audio input and output | 0 |
-| 4 | end-to-end audio understanding with transformers | 0 |
-| 5 | voice-enabled large language models | 0 |
-| 6 | auditory interaction models in NLP | 0 |
-| 7 | speech recognition augmented by LLMs | 0 |
-| 8 | text-to-speech generation using large language models | 0 |
-| 9 | multimodal dialogue systems with audio modalities | 0 |
-| 10 | audio event detection with transformer-based models | 0 |
-| 11 | natural language processing for spoken language | 0 |
-| 12 | real-time audio interaction with generative AI | 0 |
-| 13 | cross-modal alignment of audio and text representations | 0 |
-| 14 | speech-language pretraining for interactive agents | 0 |
-| 15 | voice assistant architecture using foundation models | 0 |
-| 16 | acoustic modeling with large language models | 0 |
-| 17 | spoken language understanding in conversational AI | 0 |
-| 18 | generative audio models conditioned on text prompts | 0 |
-| 19 | human-computer interaction via voice and language models | 0 |
-| 20 | unified audio-text representation learning | 0 |
+| 0 (initial) | llmXive follow-up: extending "Audio Interaction Model" computer science | 5 |
 
 ### Verified citations
 
-1. **Acoustic Prompt Tuning: Empowering Large Language Models with Audition Capabilities** (2023). Jinhua Liang, Xubo Liu, Wenwu Wang, Mark D. Plumbley, Huy Phan, et al.. arXiv. [2312.00249](https://arxiv.org/abs/2312.00249). PDF-sampled: No.
-2. **From Alignment to Advancement: Bootstrapping Audio-Language Alignment with Synthetic Data** (2025). Chun-Yi Kuan, Hung-yi Lee. arXiv. [2505.20166](https://arxiv.org/abs/2505.20166). PDF-sampled: No.
-3. **A Survey on Multimodal Large Language Models** (2023). Shukang Yin, Chaoyou Fu, Sirui Zhao, Ke Li, Xing Sun, et al.. arXiv. [2306.13549](https://arxiv.org/abs/2306.13549). PDF-sampled: No.
+1. **From Alignment to Advancement: Bootstrapping Audio-Language Alignment with Synthetic Data** (2025). Chun-Yi Kuan, Hung-yi Lee. arXiv. [2505.20166](https://arxiv.org/abs/2505.20166). PDF-sampled: No.
+2. **A Survey on Multimodal Large Language Models** (2023). Shukang Yin, Chaoyou Fu, Sirui Zhao, Ke Li, Xing Sun, et al.. arXiv. [2306.13549](https://arxiv.org/abs/2306.13549). PDF-sampled: No.
+3. **Acoustic Prompt Tuning: Empowering Large Language Models with Audition Capabilities** (2023). Jinhua Liang, Xubo Liu, Wenwu Wang, Mark D. Plumbley, Huy Phan, et al.. arXiv. [2312.00249](https://arxiv.org/abs/2312.00249). PDF-sampled: No.
 4. **DeSTA2.5-Audio: Toward General-Purpose Large Audio Language Model with Self-Generated Cross-Modal Alignment** (2025). Ke-Han Lu, Zhehuai Chen, Szu-Wei Fu, Chao-Han Huck Yang, Sung-Feng Huang, et al.. arXiv. [2507.02768](https://arxiv.org/abs/2507.02768). PDF-sampled: No.
 5. **Sparks of Large Audio Models: A Survey and Outlook** (2023). Siddique Latif, Moazzam Shoukat, Fahad Shamshad, Muhammad Usama, Yi Ren, et al.. arXiv. [2308.12792](https://arxiv.org/abs/2308.12792). PDF-sampled: No.
