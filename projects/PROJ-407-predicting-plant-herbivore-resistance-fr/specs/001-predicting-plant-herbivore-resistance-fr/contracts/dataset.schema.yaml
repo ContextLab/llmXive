@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProcessedSampleSchema"
+description: "Schema for the processed metabolomic dataset used in modeling."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample."
+  genotype_id:
+    type: "string"
+    description: "Identifier for the plant genotype."
+  resistance_score:
+    type: "number"
+    description: "Numeric resistance score (normalized)."
+  metabolite_abundances:
+    type: "object"
+    description: "Map of metabolite names to normalized abundance values."
+    additionalProperties:
+      type: "number"
+  imputation_flag:
+    type: "boolean"
+    description: "True if any metabolite value was imputed."
+  batch_id:
+    type: ["string", "null"]
+    description: "Batch identifier if present in metadata."
+  herbivore_density:
+    type: ["number", "null"]
+    description: "Herbivore density if available, else null."
+required:
+  - sample_id
+  - genotype_id
+  - resistance_score
+  - metabolite_abundances
+  - imputation_flag
+additionalProperties: false

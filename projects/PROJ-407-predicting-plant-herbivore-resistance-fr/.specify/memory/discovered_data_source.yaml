@@ -1,0 +1,14 @@
+status: none
+intent: GEOparse python package NCBI GEO plant metabolomics herbivore resistance python
+  package dataset
+required_fields:
+- genotype_id
+- resistance_score
+- metabolite_1
+- metabolite_2
+- metabolite_3
+- metabolite_4
+- metabolite_5
+cache_key: 67252aedf732458cbacf2c8a9c9792b96a26f90185db1518e9c45a6701e07bce
+searched_at: '2026-07-31T00:34:01.846322+00:00'
+retry_count: 1

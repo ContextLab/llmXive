@@ -1,0 +1,38 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or file\u2011system snapshot was provided showing that\
+    \ the `projects/PROJ-407-predicting-herbivore-resistance-fr/` folder contains\
+    \ the required sub\u2011directories (`code`, `data/raw`, `data/interim`, `data/processed`,\
+    \ `data/results`, `tests/unit`, `tests/integration`, `tests/contract`). Without\
+    \ concrete evidence of these folders existing, the task requirement is not satisfied.\
+    \ The implementer must supply a view of the project tree (e.g., output of `tree`\
+    \ or `ls -R`) confirming the structure."
+T005:
+  c: false
+  h: 776e65fb7c51be75d6e31c6fb2858ce78ced3ab0eaf27061d867aaa31e6d363f
+  r: The `code/versioning.py` file is truncated (the `main` function ends with an
+    unfinished call `update_state_file(pr`), so it cannot run or correctly update
+    the YAML. Additionally, the required state file `state/projects/PROJ-407-predicting-plant-herbivore-resistance-fr.yaml`
+    does not exist. Both the implementation and the output artifact are missing/incomplete.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory structure (`code/`, `data/raw/`, `data/interim/`,\
+    \ `data/processed/`, `tests/`) is presented; the implementer did not provide any\
+    \ listing, screenshots, or file\u2011system output showing these folders exist.\
+    \ The task remains unfinished until the directories are created and verified."
+T012:
+  c: false
+  h: 646ba76935a26c326981efdded4b71eab77a90820ed66c98a7d136ca98cdc450
+  r: "The required `data/interim/ordinal_mapping.log` file does not exist, so the\
+    \ mapping dictionary is never logged as mandated. Consequently the task\u2019\
+    s core requirement (logging the exact mapping) is unmet."
+T020:
+  c: false
+  h: 51c7e43f0db8ccb4f9f80cd65a7aed4b00c2d3b13de60f6740f454a614251012
+  r: "The required output file `data/processed/pca_reduced.csv` is absent, and the\
+    \ shown portion of `code/preprocess.py` does not contain the conditional PCA logic\
+    \ or any code that writes a reduced matrix to that path. The task\u2019s core\
+    \ requirement\u2014applying PCA when features exceed samples and saving the result\u2014\
+    is therefore not satisfied."

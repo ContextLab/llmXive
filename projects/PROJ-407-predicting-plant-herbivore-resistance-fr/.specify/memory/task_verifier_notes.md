@@ -1,0 +1,13 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No directory listing or file‑system snapshot was provided showing that the `projects/PROJ-407-predicting-herbivore-resistance-fr/` folder contains the required sub‑directories (`code`, `data/raw`, `data/interim`, `data/processed`, `data/results`, `tests/unit`, `tests/integration`, `tests/contract`). Without concrete evidence of these folders existing, the task requirement is not satisfied. The implementer must supply a view of the project tree (e.g., output of `tree` or `ls -R`) confirming the structure.
+- **T003** — declared artifact(s) missing/empty/invalid: pre-commit-config.yaml
+- **T005** — The `code/versioning.py` file is truncated (the `main` function ends with an unfinished call `update_state_file(pr`), so it cannot run or correctly update the YAML. Additionally, the required state file `state/projects/PROJ-407-predicting-plant-herbivore-resistance-fr.yaml` does not exist. Both the implementation and the output artifact are missing/incomplete.
+- **T006** — No evidence of the required directory structure (`code/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) is presented; the implementer did not provide any listing, screenshots, or file‑system output showing these folders exist. The task remains unfinished until the directories are created and verified.
+- **T009** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T012** — The required `data/interim/ordinal_mapping.log` file does not exist, so the mapping dictionary is never logged as mandated. Consequently the task’s core requirement (logging the exact mapping) is unmet.
+- **T014** — declared artifact(s) missing/empty/invalid: data/raw/raw_dataset.csv, data/raw/raw_dataset.csv.sha256
+- **T015** — declared artifact(s) missing/empty/invalid: data/interim/harmonized.csv
+- **T020** — The required output file `data/processed/pca_reduced.csv` is absent, and the shown portion of `code/preprocess.py` does not contain the conditional PCA logic or any code that writes a reduced matrix to that path. The task’s core requirement—applying PCA when features exceed samples and saving the result—is therefore not satisfied.

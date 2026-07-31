@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ValidationResultSchema"
+description: "Schema for statistical validation results (permutation and BH correction)."
+type: "object"
+properties:
+  permutation_p_value:
+    type: "number"
+    description: "P-value from permutation testing."
+  is_significant:
+    type: "boolean"
+    description: "True if p < 0.05."
+  adjusted_q_values:
+    type: "object"
+    description: "Map of metabolite names to Benjamini-Hochberg adjusted q-values."
+    additionalProperties:
+      type: "number"
+  significant_metabolites:
+    type: "array"
+    description: "Metabolites with q < 0.10."
+    items:
+      type: "string"
+  null_distribution_summary:
+    type: "object"
+    description: "Summary of the null distribution."
+    properties:
+      mean_null_r2:
+        type: "number"
+      std_null_r2:
+        type: "number"
+required:
+  - permutation_p_value
+  - is_significant
+  - adjusted_q_values
+  - significant_metabolites
+additionalProperties: false
