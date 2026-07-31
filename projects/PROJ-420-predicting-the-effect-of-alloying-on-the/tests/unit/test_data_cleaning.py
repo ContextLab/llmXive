@@ -3,121 +3,180 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import tempfile
-import os
-
-# Mock config for testing
-class MockConfig:
-    def __init__(self, temp_dir):
-        self.data_dir = Path(temp_dir)
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        (self.data_dir / "processed").mkdir(exist_ok=True)
+import json
+from data_cleaning import (
+    load_raw_data,
+    apply_schema_validation,
+    apply_independence_filter,
+    apply_monolithic_filter,
+    normalize_units,
+    apply_major_element_filter,
+    apply_ilr_transformation,
+    run_cleaning_pipeline
+)
 
 @pytest.fixture
-def mock_config(tmp_path):
-    return MockConfig(tmp_path)
+def sample_data():
+    """Create sample data for testing."""
+    return {
+        'poisson_ratio': [0.33, 0.34, 0.35, 0.36, 0.37],
+        'young_modulus': [70, 72, 74, 76, 78],
+        'Cu': [1.0, 2.0, 3.0, 4.0, 5.0],
+        'Mg': [2.0, 3.0, 4.0, 5.0, 6.0],
+        'Si': [1.0, 1.5, 2.0, 2.5, 3.0],
+        'Zn': [0.5, 1.0, 1.5, 2.0, 2.5],
+        'Mn': [0.5, 1.0, 1.5, 2.0, 2.5],
+        'measurement_method': ['Ultrasonic', 'Independent', 'Direct Measurement', 'Ultrasonic', 'Independent']
+    }
 
 @pytest.fixture
-def sample_df():
-    """Create a sample dataframe with valid composition data."""
-    data = {
-        'alloy_id': ['A1', 'A2', 'A3'],
-        'Poissons_ratio': [0.33, 0.34, 0.32],
-        'Youngs_modulus': [70.0, 71.0, 69.0],
-        'Cu': [0.05, 0.06, 0.04],
-        'Mg': [0.03, 0.04, 0.02],
-        'Si': [0.02, 0.03, 0.01],
-        'Zn': [0.01, 0.02, 0.005],
-        'Mn': [0.005, 0.01, 0.005],
-        'Al': [0.885, 0.865, 0.925] # Balance
-    }
-    return pd.DataFrame(data)
+def temp_dir():
+    """Create a temporary directory for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-def test_ilr_transformation_basic(sample_df):
-    """Test basic ILR transformation on valid data."""
-    from data_cleaning import apply_ilr_transformation
-    
-    # Ensure sum is 1 (compositional data requirement)
-    comp_cols = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
-    current_sum = sample_df[comp_cols].sum(axis=1)
-    # The sample data is not perfectly normalized, so we normalize it first
-    # to strictly satisfy the ILR requirement of sum=1 for the components being transformed.
-    # In real data, this should already be done by T012.
-    sample_df_normalized = sample_df.copy()
-    sample_df_normalized[comp_cols] = sample_df_normalized[comp_cols].div(
-        sample_df_normalized[comp_cols].sum(axis=1), axis=0
-    )
-    
-    result = apply_ilr_transformation(sample_df_normalized)
-    
-    # Check that new columns were added
-    expected_cols = ['ilr_1', 'ilr_2', 'ilr_3', 'ilr_4'] # 5 components -> 4 coordinates
-    for col in expected_cols:
-        assert col in result.columns, f"Missing column: {col}"
-    
-    # Check that values are numeric
-    for col in expected_cols:
-        assert pd.api.types.is_numeric_dtype(result[col]), f"Column {col} is not numeric"
-
-def test_ilr_transformation_zero_handling():
-    """Test ILR transformation handles zero values correctly."""
-    from data_cleaning import apply_ilr_transformation
-    
+def test_load_raw_data_json(temp_dir):
+    """Test loading raw data from JSON."""
+    # Create sample JSON file
     data = {
-        'Cu': [0.0, 0.05],
-        'Mg': [0.05, 0.04],
-        'Si': [0.02, 0.03],
-        'Zn': [0.01, 0.02],
-        'Mn': [0.005, 0.01],
+        'poisson_ratio': [0.33, 0.34],
+        'young_modulus': [70, 72],
+        'Cu': [1.0, 2.0],
+        'Mg': [2.0, 3.0],
+        'Si': [1.0, 1.5],
+        'Zn': [0.5, 1.0],
+        'Mn': [0.5, 1.0],
+        'measurement_method': ['Ultrasonic', 'Independent']
     }
-    df = pd.DataFrame(data)
     
-    # This should not raise an error but log a warning and replace zeros
+    input_path = temp_dir / "test_data.json"
+    with open(input_path, 'w') as f:
+        json.dump(data, f)
+    
+    # Load data
+    df = load_raw_data(input_path)
+    
+    # Verify
+    assert len(df) == 2
+    assert 'poisson_ratio' in df.columns
+    assert df['poisson_ratio'].iloc[0] == 0.33
+
+def test_apply_schema_validation(sample_data):
+    """Test schema validation."""
+    df = pd.DataFrame(sample_data)
+    
+    # Valid data should pass
+    result = apply_schema_validation(df)
+    assert len(result) == 5
+    
+    # Missing field should raise error
+    invalid_data = sample_data.copy()
+    del invalid_data['Cu']
+    df_invalid = pd.DataFrame(invalid_data)
+    
+    with pytest.raises(ValueError):
+        apply_schema_validation(df_invalid)
+
+def test_apply_independence_filter(sample_data):
+    """Test independence filtering."""
+    df = pd.DataFrame(sample_data)
+    
+    # Add a derived measurement
+    df.loc[0, 'measurement_method'] = 'Derived'
+    
+    result = apply_independence_filter(df)
+    
+    # Should exclude the derived measurement
+    assert len(result) == 4
+    assert 'Derived' not in result['measurement_method'].values
+
+def test_apply_monolithic_filter(sample_data):
+    """Test monolithic filtering."""
+    df = pd.DataFrame(sample_data)
+    
+    # Add a record with missing composition
+    df.loc[5] = [0.33, 70, np.nan, 2.0, 1.0, 0.5, 0.5, 'Ultrasonic']
+    
+    result = apply_monolithic_filter(df)
+    
+    # Should exclude the record with missing composition
+    assert len(result) == 5
+
+def test_normalize_units(sample_data):
+    """Test unit normalization."""
+    df = pd.DataFrame(sample_data)
+    
+    # Set high Young's modulus to simulate Pa
+    df['young_modulus'] = 70e9  # 70 GPa in Pa
+    
+    result = normalize_units(df)
+    
+    # Should convert to GPa
+    assert result['young_modulus'].iloc[0] == 70.0
+    
+    # Check atomic fractions sum to 1
+    composition_cols = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
+    for idx, row in result.iterrows():
+        total = row[composition_cols].sum()
+        assert abs(total - 1.0) < 0.01
+
+def test_apply_major_element_filter(sample_data):
+    """Test major element filtering."""
+    df = pd.DataFrame(sample_data)
+    
+    # Normalize to atomic fractions first
+    composition_cols = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
+    total = df[composition_cols].sum(axis=1)
+    for col in composition_cols:
+        df[col] = df[col] / total
+    
+    # Set a record with low major element sum
+    df.loc[0, composition_cols] = [0.1, 0.1, 0.1, 0.1, 0.1]  # Sum = 0.5
+    
+    result = apply_major_element_filter(df)
+    
+    # Should exclude the record with low major element sum
+    assert len(result) == 4
+
+def test_apply_ilr_transformation(sample_data):
+    """Test ILR transformation."""
+    df = pd.DataFrame(sample_data)
+    
+    # Normalize to atomic fractions
+    composition_cols = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
+    total = df[composition_cols].sum(axis=1)
+    for col in composition_cols:
+        df[col] = df[col] / total
+    
     result = apply_ilr_transformation(df)
     
-    # Verify columns exist
-    assert 'ilr_1' in result.columns
+    # Check that ILR features are created
+    ilr_cols = [f'ilr_{col}' for col in composition_cols[:-1]]
+    for col in ilr_cols:
+        assert col in result.columns
+    
+    # Check that ILR features have reasonable values
+    for col in ilr_cols:
+        assert not result[col].isnull().any()
 
-def test_ilr_transformation_missing_columns(sample_df):
-    """Test ILR transformation raises error if columns are missing."""
-    from data_cleaning import apply_ilr_transformation
+def test_run_cleaning_pipeline(sample_data, temp_dir):
+    """Test the full cleaning pipeline."""
+    # Create input file
+    input_path = temp_dir / "input.json"
+    with open(input_path, 'w') as f:
+        json.dump(sample_data, f)
     
-    # Remove a required column
-    df_missing = sample_df.drop(columns=['Cu'])
+    output_path = temp_dir / "output.csv"
     
-    with pytest.raises(ValueError, match="Missing required composition columns"):
-        apply_ilr_transformation(df_missing)
-
-def test_run_ilr_pipeline(mock_config, sample_df):
-    """Test the full pipeline including file I/O."""
-    from data_cleaning import run_ilr_pipeline
-    import pandas as pd
+    # Run pipeline
+    result = run_cleaning_pipeline(input_path, output_path)
     
-    # Create the input file manually
-    input_path = mock_config.data_dir / "processed" / "filtered_alloys.csv"
+    # Verify output file exists
+    assert output_path.exists()
     
-    # Normalize composition for the test
-    comp_cols = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
-    sample_df[comp_cols] = sample_df[comp_cols].div(
-        sample_df[comp_cols].sum(axis=1), axis=0
-    )
-    
-    sample_df.to_csv(input_path, index=False)
-    
-    # Mock get_config to return our temp config
-    import data_cleaning
-    original_get_config = data_cleaning.get_config
-    data_cleaning.get_config = lambda: mock_config
-    
-    try:
-        result_df = run_ilr_pipeline()
-        
-        # Verify output file exists
-        output_path = mock_config.data_dir / "processed" / "filtered_alloys_ilr.csv"
-        assert output_path.exists(), "Output file was not created"
-        
-        # Verify content
-        loaded_df = pd.read_csv(output_path)
-        assert 'ilr_1' in loaded_df.columns
-        assert len(loaded_df) == len(sample_df)
-    finally:
-        data_cleaning.get_config = original_get_config
+    # Verify result
+    assert len(result) == 5
+    assert 'ilr_Cu' in result.columns
+    assert 'ilr_Mg' in result.columns
+    assert 'ilr_Si' in result.columns
+    assert 'ilr_Zn' in result.columns

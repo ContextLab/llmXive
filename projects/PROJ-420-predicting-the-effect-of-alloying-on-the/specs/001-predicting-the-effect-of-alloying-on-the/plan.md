@@ -29,7 +29,7 @@ This project implements a machine learning pipeline to predict the Poisson's rat
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: Plan mandates pinned `requirements.txt` and random seeds in `code/`. External datasets are fetched via the verified `openml` library (ID 42347), ensuring identical sources on every run. No authentication keys are required, ensuring reproducibility on fresh runners.
+- **I. Reproducibility**: Plan mandates pinned `requirements.txt` and random seeds in `code/`. External datasets are fetched via the verified `openml` library., ensuring identical sources on every run. No authentication keys are required, ensuring reproducibility on fresh runners.
 - **II. Verified Accuracy**: The plan uses OpenML, a verified, programmatic source for Aluminum Alloy properties. No fabricated URLs are used.
 - **III. Data Hygiene**: Raw data will be checksummed upon download. All transformations (filtering, unit normalization, ILR) will write new files to `data/` without modifying raw inputs.
 - **IV. Single Source of Truth**: The pipeline will generate `data/processed/alloys_clean.parquet` and `results/metrics.json`. The paper will only reference these artifacts. No hand-typed numbers.

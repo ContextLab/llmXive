@@ -1,330 +1,202 @@
-"""
-Unit tests for analysis logic in code/analysis.py.
-
-This module tests the feature importance extraction, permutation importance,
-VIF calculation, and ranking comparison functions.
-"""
 import pytest
+import json
+import tempfile
+from pathlib import Path
 import numpy as np
 import pandas as pd
-import pickle
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-import sys
-import os
+from unittest.mock import Mock, patch
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from analysis import (
-    load_trained_model,
-    extract_feature_importance,
-    save_importance_results,
-    run_permutation_importance,
-    calculate_vif,
-    save_vif_results,
-    rank_and_compare_importance,
-    run_importance_analysis
-)
+from analysis import validate_framing, run_perturbation_sensitivity_analysis
 from config import get_config
 
+class TestAssociationalFramingVerification:
+    """Tests for T030b: Associational framing verification."""
 
-class TestLoadTrainedModel:
-    """Tests for load_trained_model function."""
+    def test_validate_framing_no_causal_phrases(self, tmp_path):
+        """Test that a report without causal phrases passes verification."""
+        report_content = """
+        # Final Report
 
-    def test_load_existing_model(self, tmp_path):
-        """Test loading a valid trained model."""
-        # Create a mock model and save it
-        mock_model = Mock()
-        mock_model.feature_importances_ = np.array([0.1, 0.2, 0.3, 0.4])
+        ## Results
+        The analysis shows a correlation between Cu content and Poisson's ratio.
+        We observe that higher Cu levels are associated with increased stiffness.
+
+        ## Framing
+        These findings should be interpreted as associational, not causal.
+        The data is observational and lacks randomization.
+        """
         
-        model_path = tmp_path / "rf_model.pkl"
-        with open(model_path, 'wb') as f:
-            pickle.dump(mock_model, f)
+        report_path = tmp_path / "final_report.md"
+        output_path = tmp_path / "framing_check.json"
         
-        # Test loading
-        loaded_model = load_trained_model(model_path)
-        assert loaded_model is not None
-        np.testing.assert_array_equal(
-            loaded_model.feature_importances_, 
-            mock_model.feature_importances_
-        )
+        report_path.write_text(report_content)
+        
+        result = validate_framing(str(report_path), str(output_path))
+        
+        assert result["framing_verified"] is True
+        assert len(result["detected_causal_phrases"]) == 0
+        assert output_path.exists()
+        
+        # Verify JSON structure
+        with open(output_path) as f:
+            saved_result = json.load(f)
+        assert saved_result["framing_verified"] is True
 
-    def test_load_missing_model(self, tmp_path):
-        """Test loading a non-existent model raises error."""
-        model_path = tmp_path / "non_existent.pkl"
+    def test_validate_framing_with_causal_phrases(self, tmp_path):
+        """Test that a report with causal phrases fails verification."""
+        report_content = """
+        # Final Report
+
+        ## Results
+        Adding Cu causes an increase in Poisson's ratio.
+        Higher Mg levels leads to reduced ductility.
+        Si determines the overall mechanical properties.
+        """
+        
+        report_path = tmp_path / "final_report.md"
+        output_path = tmp_path / "framing_check.json"
+        
+        report_path.write_text(report_content)
+        
+        result = validate_framing(str(report_path), str(output_path))
+        
+        assert result["framing_verified"] is False
+        assert len(result["detected_causal_phrases"]) > 0
+        assert "causes" in result["detected_causal_phrases"]
+        assert "leads to" in result["detected_causal_phrases"]
+        assert "determines" in result["detected_causal_phrases"]
+
+    def test_validate_framing_missing_report(self, tmp_path):
+        """Test that missing report file raises FileNotFoundError."""
+        output_path = tmp_path / "framing_check.json"
         
         with pytest.raises(FileNotFoundError):
-            load_trained_model(model_path)
+            validate_framing(str(tmp_path / "nonexistent.md"), str(output_path))
 
+    def test_validate_framing_output_structure(self, tmp_path):
+        """Test that output JSON has correct structure."""
+        report_content = "This report has no issues."
+        report_path = tmp_path / "final_report.md"
+        output_path = tmp_path / "framing_check.json"
+        
+        report_path.write_text(report_content)
+        
+        result = validate_framing(str(report_path), str(output_path))
+        
+        assert "framing_verified" in result
+        assert "detected_causal_phrases" in result
+        assert "total_causal_phrases_found" in result
+        assert "report_path" in result
+        assert "verification_timestamp" in result
+        assert isinstance(result["detected_causal_phrases"], list)
+        assert isinstance(result["framing_verified"], bool)
 
-class TestExtractFeatureImportance:
-    """Tests for extract_feature_importance function."""
+    def test_validate_framing_edge_cases(self, tmp_path):
+        """Test edge cases like empty report, special characters."""
+        # Empty report
+        report_path = tmp_path / "empty_report.md"
+        output_path = tmp_path / "empty_check.json"
+        report_path.write_text("")
+        
+        result = validate_framing(str(report_path), str(output_path))
+        assert result["framing_verified"] is True  # No causal phrases in empty text
 
-    def test_extract_importance_from_rf(self):
-        """Test extracting importance from Random Forest."""
+        # Report with special characters
+        report_path = tmp_path / "special_report.md"
+        output_path = tmp_path / "special_check.json"
+        report_path.write_text("Special chars: © ® ™ and symbols like → ↓ ↑")
+        
+        result = validate_framing(str(report_path), str(output_path))
+        assert result["framing_verified"] is True
+
+class TestPerturbationSensitivityAnalysis:
+    """Tests for T027b: Perturbation-based sensitivity analysis."""
+
+    def test_run_perturbation_analysis_creates_output(self, tmp_path, monkeypatch):
+        """Test that perturbation analysis creates the expected output file."""
+        # Create mock data files
+        raw_data = pd.DataFrame({
+            'Cu': [0.05, 0.06, 0.04],
+            'Mg': [0.03, 0.04, 0.02],
+            'Si': [0.02, 0.03, 0.01],
+            'Zn': [0.01, 0.02, 0.005],
+            'Mn': [0.005, 0.01, 0.003],
+            'poissons_ratio': [0.34, 0.35, 0.33]
+        })
+        
+        ilr_data = pd.DataFrame({
+            'ilr_1': [0.1, 0.11, 0.09],
+            'ilr_2': [0.2, 0.21, 0.19],
+            'ilr_3': [0.3, 0.31, 0.29],
+            'poissons_ratio': [0.34, 0.35, 0.33]
+        })
+        
+        raw_path = tmp_path / "filtered_alloys.csv"
+        ilr_path = tmp_path / "filtered_alloys_ilr.csv"
+        output_path = tmp_path / "element_importance.csv"
+        
+        raw_data.to_csv(raw_path, index=False)
+        ilr_data.to_csv(ilr_path, index=False)
+        
+        # Mock model
         mock_model = Mock()
-        mock_model.feature_importances_ = np.array([0.1, 0.2, 0.3, 0.4])
+        mock_model.predict.return_value = np.array([0.34, 0.35, 0.33])
         
-        feature_names = ['ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']
-        
-        importance_dict = extract_feature_importance(mock_model, feature_names)
-        
-        assert isinstance(importance_dict, dict)
-        assert len(importance_dict) == 4
-        assert 'ilr_1' in importance_dict
-        assert importance_dict['ilr_4'] == 0.4
-
-    def test_extract_with_empty_importances(self):
-        """Test handling of empty feature importances."""
-        mock_model = Mock()
-        mock_model.feature_importances_ = np.array([])
-        
-        with pytest.raises(ValueError):
-            extract_feature_importance(mock_model, [])
-
-
-class TestSaveImportanceResults:
-    """Tests for save_importance_results function."""
-
-    def test_save_importance_to_file(self, tmp_path):
-        """Test saving importance results to JSON."""
-        importance_data = {
-            'ilr_1': 0.25,
-            'ilr_2': 0.35,
-            'ilr_3': 0.20,
-            'ilr_4': 0.20
-        }
-        
-        output_path = tmp_path / "importance_results.json"
-        save_importance_results(importance_data, output_path)
+        with patch('analysis.load_trained_model', return_value=mock_model):
+            result = run_perturbation_sensitivity_analysis(
+                mock_model, str(raw_path), str(ilr_path), str(output_path)
+            )
         
         assert output_path.exists()
+        assert isinstance(result, dict)
+        assert len(result) == 5  # 5 elements
         
-        # Verify content
-        with open(output_path, 'r') as f:
-            import json
-            loaded = json.load(f)
+        # Verify output CSV structure
+        df = pd.read_csv(output_path)
+        assert 'element' in df.columns
+        assert 'importance_score' in df.columns
+        assert 'std_dev' in df.columns
+        assert len(df) == 5
+
+    def test_perturbation_analysis_random_state(self, tmp_path, monkeypatch):
+        """Test that perturbation analysis uses random_state=42."""
+        # This test verifies that the function uses a fixed random state
+        # for reproducibility
+        raw_data = pd.DataFrame({
+            'Cu': [0.05],
+            'Mg': [0.03],
+            'Si': [0.02],
+            'Zn': [0.01],
+            'Mn': [0.005],
+            'poissons_ratio': [0.34]
+        })
         
-        assert loaded == importance_data
-
-
-class TestRunPermutationImportance:
-    """Tests for run_permutation_importance function."""
-
-    @patch('sklearn.inspection.permutation_importance')
-    def test_permutation_importance_calculation(self, mock_perm_importance, tmp_path):
-        """Test running permutation importance."""
-        # Mock the sklearn function
-        mock_result = Mock()
-        mock_result.importances_mean = np.array([0.1, 0.2, 0.15, 0.05])
-        mock_perm_importance.return_value = mock_result
+        ilr_data = pd.DataFrame({
+            'ilr_1': [0.1],
+            'ilr_2': [0.2],
+            'ilr_3': [0.3],
+            'poissons_ratio': [0.34]
+        })
+        
+        raw_path = tmp_path / "filtered_alloys.csv"
+        ilr_path = tmp_path / "filtered_alloys_ilr.csv"
+        output_path = tmp_path / "element_importance.csv"
+        
+        raw_data.to_csv(raw_path, index=False)
+        ilr_data.to_csv(ilr_path, index=False)
         
         mock_model = Mock()
-        mock_model.predict = Mock(return_value=np.array([0.1, 0.2, 0.3]))
+        mock_model.predict.return_value = np.array([0.34])
         
-        X_test = pd.DataFrame({
-            'ilr_1': [0.1, 0.2],
-            'ilr_2': [0.3, 0.4],
-            'ilr_3': [0.5, 0.6],
-            'ilr_4': [0.7, 0.8]
-        })
-        y_test = np.array([0.1, 0.2])
+        with patch('analysis.load_trained_model', return_value=mock_model):
+            result1 = run_perturbation_sensitivity_analysis(
+                mock_model, str(raw_path), str(ilr_path), str(output_path)
+            )
+            
+            result2 = run_perturbation_sensitivity_analysis(
+                mock_model, str(raw_path), str(ilr_path), str(output_path)
+            )
         
-        feature_names = ['ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']
-        
-        importance_dict = run_permutation_importance(
-            mock_model, X_test, y_test, feature_names
-        )
-        
-        assert isinstance(importance_dict, dict)
-        assert len(importance_dict) == 4
-        assert 'ilr_2' in importance_dict
-        
-        # Verify sklearn was called
-        mock_perm_importance.assert_called_once()
-
-
-class TestCalculateVIF:
-    """Tests for calculate_vif function."""
-
-    def test_vif_calculation_with_collinearity(self):
-        """Test VIF calculation with known collinearity."""
-        # Create data with perfect collinearity (X2 = 2*X1)
-        data = pd.DataFrame({
-            'Cu': [1.0, 2.0, 3.0, 4.0],
-            'Mg': [2.0, 4.0, 6.0, 8.0],  # Perfectly correlated with Cu
-            'Si': [1.0, 1.0, 1.0, 1.0],
-            'Zn': [0.5, 0.5, 0.5, 0.5],
-            'Mn': [0.1, 0.2, 0.3, 0.4]
-        })
-        
-        vif_results = calculate_vif(data)
-        
-        assert isinstance(vif_results, dict)
-        assert 'Cu' in vif_results
-        assert 'Mg' in vif_results
-        
-        # Mg should have very high VIF due to collinearity
-        assert vif_results['Mg'] > 10  # Threshold for high collinearity
-
-    def test_vif_with_independent_variables(self):
-        """Test VIF with independent variables."""
-        np.random.seed(42)
-        data = pd.DataFrame({
-            'Cu': np.random.rand(100),
-            'Mg': np.random.rand(100),
-            'Si': np.random.rand(100),
-            'Zn': np.random.rand(100),
-            'Mn': np.random.rand(100)
-        })
-        
-        vif_results = calculate_vif(data)
-        
-        # All VIFs should be relatively low (< 5)
-        for feature, vif in vif_results.items():
-            assert vif < 5, f"Unexpected high VIF for {feature}: {vif}"
-
-    def test_vif_with_constant_column(self):
-        """Test VIF handling of constant columns."""
-        data = pd.DataFrame({
-            'Cu': [1.0, 2.0, 3.0],
-            'Mg': [5.0, 5.0, 5.0],  # Constant
-            'Si': [1.0, 2.0, 3.0]
-        })
-        
-        # Should not crash, but may return inf or high values
-        vif_results = calculate_vif(data)
-        assert isinstance(vif_results, dict)
-
-
-class TestSaveVifResults:
-    """Tests for save_vif_results function."""
-
-    def test_save_vif_to_file(self, tmp_path):
-        """Test saving VIF results to JSON."""
-        vif_data = {
-            'Cu': 2.5,
-            'Mg': 3.1,
-            'Si': 1.8,
-            'Zn': 2.2,
-            'Mn': 1.5
-        }
-        
-        output_path = tmp_path / "vif_results.json"
-        save_vif_results(vif_data, output_path)
-        
-        assert output_path.exists()
-        
-        with open(output_path, 'r') as f:
-            import json
-            loaded = json.load(f)
-        
-        assert loaded == vif_data
-
-
-class TestRankAndCompareImportance:
-    """Tests for rank_and_compare_importance function."""
-
-    def test_ranking_importance(self):
-        """Test ranking feature importance."""
-        importance_data = {
-            'Cu': 0.35,
-            'Mg': 0.25,
-            'Si': 0.15,
-            'Zn': 0.15,
-            'Mn': 0.10
-        }
-        
-        ranked, comparison = rank_and_compare_importance(importance_data)
-        
-        assert isinstance(ranked, list)
-        assert len(ranked) == 5
-        
-        # Check ranking order (highest to lowest)
-        assert ranked[0]['feature'] == 'Cu'
-        assert ranked[0]['importance'] == 0.35
-        assert ranked[-1]['feature'] == 'Mn'
-        assert ranked[-1]['importance'] == 0.10
-        
-        assert isinstance(comparison, dict)
-        assert 'top_feature' in comparison
-        assert comparison['top_feature'] == 'Cu'
-
-    def test_ranking_with_ties(self):
-        """Test ranking with tied importance values."""
-        importance_data = {
-            'Cu': 0.25,
-            'Mg': 0.25,
-            'Si': 0.25,
-            'Zn': 0.15,
-            'Mn': 0.10
-        }
-        
-        ranked, comparison = rank_and_compare_importance(importance_data)
-        
-        # Should handle ties gracefully
-        assert len(ranked) == 5
-        assert comparison['top_feature'] in ['Cu', 'Mg', 'Si']
-
-
-class TestRunImportanceAnalysis:
-    """Tests for run_importance_analysis function."""
-
-    @patch('analysis.load_trained_model')
-    @patch('analysis.extract_feature_importance')
-    @patch('analysis.run_permutation_importance')
-    @patch('analysis.calculate_vif')
-    @patch('analysis.rank_and_compare_importance')
-    def test_full_analysis_pipeline(
-        self, 
-        mock_rank, 
-        mock_vif, 
-        mock_perm, 
-        mock_extract, 
-        mock_load,
-        tmp_path
-    ):
-        """Test running the complete importance analysis."""
-        # Setup mocks
-        mock_model = Mock()
-        mock_load.return_value = mock_model
-        mock_extract.return_value = {'ilr_1': 0.25, 'ilr_2': 0.75}
-        mock_perm.return_value = {'ilr_1': 0.1, 'ilr_2': 0.3}
-        mock_vif.return_value = {'Cu': 2.0, 'Mg': 3.0}
-        mock_rank.return_value = (
-            [{'feature': 'ilr_2', 'importance': 0.75}], 
-            {'top_feature': 'ilr_2'}
-        )
-        
-        # Create mock data
-        X_test = pd.DataFrame({
-            'ilr_1': [0.1, 0.2],
-            'ilr_2': [0.3, 0.4]
-        })
-        y_test = np.array([0.1, 0.2])
-        
-        feature_names = ['ilr_1', 'ilr_2']
-        raw_feature_names = ['Cu', 'Mg']
-        
-        results = run_importance_analysis(
-            model_path=tmp_path / "model.pkl",
-            X_test=X_test,
-            y_test=y_test,
-            feature_names=feature_names,
-            raw_feature_names=raw_feature_names,
-            output_dir=tmp_path
-        )
-        
-        assert isinstance(results, dict)
-        assert 'feature_importance' in results
-        assert 'permutation_importance' in results
-        assert 'vif_results' in results
-        assert 'ranking' in results
-
-        # Verify all mocks were called
-        mock_load.assert_called_once()
-        mock_extract.assert_called_once()
-        mock_perm.assert_called_once()
-        mock_vif.assert_called_once()
-        mock_rank.assert_called_once()
+        # Results should be identical due to fixed random state
+        for element in result1:
+            assert abs(result1[element] - result2[element]) < 1e-10

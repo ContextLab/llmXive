@@ -10,6 +10,7 @@ statsmodels
 openml
 materialsproject
 pydantic
+jsonschema
 psutil
 ruff
 black

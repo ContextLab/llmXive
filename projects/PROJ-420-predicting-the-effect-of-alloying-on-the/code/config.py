@@ -1,7 +1,3 @@
-"""
-Configuration management module.
-Loads paths, seeds, and other settings.
-"""
 import os
 import json
 from pathlib import Path
@@ -11,38 +7,57 @@ from logging_config import get_logger
 logger = get_logger(__name__)
 
 class Config:
-    """Configuration container."""
-    def __init__(self, data_dir: str = "data", models_dir: str = "models", results_dir: str = "results", random_seed: int = 42):
-        self.data_dir = Path(data_dir)
-        self.models_dir = Path(models_dir)
-        self.results_dir = Path(results_dir)
-        self.random_seed = random_seed
+    """Configuration manager for the project."""
+    
+    def __init__(self):
+        # Project root
+        self.project_root = Path(__file__).parent.parent
         
-        # Ensure directories exist
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.models_dir.mkdir(parents=True, exist_ok=True)
-        self.results_dir.mkdir(parents=True, exist_ok=True)
-        (self.data_dir / "raw").mkdir(parents=True, exist_ok=True)
-        (self.data_dir / "processed").mkdir(parents=True, exist_ok=True)
-        (self.data_dir / "logs").mkdir(parents=True, exist_ok=True)
-
-_config: Optional[Config] = None
+        # Directory paths
+        self.data_raw_dir = self.project_root / "data" / "raw"
+        self.data_processed_dir = self.project_root / "data" / "processed"
+        self.models_dir = self.project_root / "models"
+        self.results_dir = self.project_root / "results"
+        self.figures_dir = self.project_root / "figures"
+        self.logs_dir = self.project_root / "data" / "logs"
+        
+        # Create directories if they don't exist
+        for dir_path in [self.data_raw_dir, self.data_processed_dir, self.models_dir, 
+                        self.results_dir, self.figures_dir, self.logs_dir]:
+            dir_path.mkdir(parents=True, exist_ok=True)
+        
+        # Random seed
+        self.random_seed = 42
+        
+        # API keys and tokens
+        self.materials_project_api_key = os.getenv("MP_API_KEY", "")
+        self.nist_api_key = os.getenv("NIST_API_KEY", "")
+        
+        logger.info("Configuration initialized")
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert configuration to dictionary."""
+        return {
+            "project_root": str(self.project_root),
+            "data_raw_dir": str(self.data_raw_dir),
+            "data_processed_dir": str(self.data_processed_dir),
+            "models_dir": str(self.models_dir),
+            "results_dir": str(self.results_dir),
+            "figures_dir": str(self.figures_dir),
+            "logs_dir": str(self.logs_dir),
+            "random_seed": self.random_seed
+        }
 
 def get_config() -> Config:
-    """
-    Gets the global configuration instance.
-    """
-    global _config
-    if _config is None:
-        _config = Config()
-    return _config
+    """Get or create configuration instance."""
+    if not hasattr(get_config, '_instance'):
+        get_config._instance = Config()
+    return get_config._instance
 
 def main():
-    """CLI entry point for testing config."""
-    cfg = get_config()
-    logger.info(f"Data dir: {cfg.data_dir}")
-    logger.info(f"Models dir: {cfg.models_dir}")
-    logger.info(f"Results dir: {cfg.results_dir}")
+    """Main entry point for configuration."""
+    config = get_config()
+    print(json.dumps(config.to_dict(), indent=2))
 
 if __name__ == "__main__":
     main()
