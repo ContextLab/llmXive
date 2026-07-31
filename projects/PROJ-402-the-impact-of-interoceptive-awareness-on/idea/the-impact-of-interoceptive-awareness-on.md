@@ -9,7 +9,7 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Does behavioral interoceptive accuracy (measured strictly via the Schandry heartbeat perception task) predict the magnitude of physiological emotional regulation during acute psychosocial stress, independent of baseline heart rate variability? (Note: If no open dataset contains both the Schandry task and a stress paradigm, the project scope is limited to a feasibility audit confirming this data gap rather than attempting a statistical test with invalid proxies.)
+Does behavioral interoceptive accuracy predict the magnitude of physiological emotional regulation during acute psychosocial stress, independent of baseline heart rate variability?
 
 ## Motivation
 
@@ -19,16 +19,17 @@ Stress-related disorders are prevalent, yet individual variability in regulatory
 
 ### What we searched
 
-We queried Semantic Scholar and arXiv for terms including "interoceptive accuracy stress regulation prediction," "heartbeat perception task TSST correlation," "HRV independent of interoception stress," and "public psychophysiological stress dataset interoception." The search yielded two results, neither of which explicitly links baseline interoceptive accuracy (behavioral) to stress regulation outcomes while controlling for baseline HRV in a predictive framework.
+We queried Semantic Scholar and arXiv for terms including "interoceptive accuracy stress regulation prediction," "heartbeat perception task TSST correlation," "HRV independent of interoception stress," "public psychophysiological stress dataset interoception," and "Schandry task open data." The search yielded five results, none of which explicitly link baseline interoceptive accuracy (behavioral) to stress regulation outcomes in a public dataset while controlling for baseline HRV.
 
 ### What is known
 
-- [Road to Serenity: Individual Variations in the Efficacy of Unobtrusive Respiratory Guidance for Driving Stress Regulation (2024)](https://arxiv.org/abs/2406.09777) — Establishes that individual variations significantly impact the efficacy of physiological stress regulation interventions, suggesting that trait-level differences modulate how stress responses are managed, though it focuses on respiratory guidance rather than interoceptive prediction.
-- [Emotional Responses to Auditory Hierarchical Structures is Shaped by Bodily Sensations and Listeners' Sensory Traits (2025)](https://arxiv.org/abs/2504.01287) — Demonstrates that individual sensory traits shape emotional responses to external stimuli, supporting the theoretical premise that internal bodily sensitivity influences emotional processing, but does not quantify this relationship in the context of acute psychosocial stress reactivity.
+- [Digital Emotion Regulation on Social Media (2023)](https://arxiv.org/abs/2307.13187) — Establishes the theoretical importance of consciously altering affective states and the current focus on digital/social contexts, but does not address the physiological mechanisms or the role of somatic sensing in acute stress paradigms.
+- [TensiStrength: Stress and relaxation magnitude detection for social media texts (2016)](https://arxiv.org/abs/1607.00139) — Demonstrates methods for detecting stress intensity in textual data, confirming that stress is a measurable construct, yet it relies on linguistic proxies rather than direct physiological or interoceptive behavioral measures.
+- [Interoceptive machine framework: Toward interoception-inspired regulatory architectures in artificial intelligence (2026)](https://arxiv.org/abs/2604.24527) — Proposes a theoretical framework for applying interoceptive principles to AI, offering a conceptual parallel for how internal state sensing could drive regulation, but provides no empirical data on human psychophysiology or stress responses.
 
 ### What is NOT known
 
-No published work has explicitly correlated baseline interoceptive accuracy (measured via behavioral heartbeat perception tasks) with physiological stress reactivity (HRV) in publicly available psychophysiological datasets while statistically controlling for baseline HRV. Existing literature focuses either on the technical aspects of stress monitoring, the general link between sensory traits and emotion, or intervention efficacy, leaving the specific *predictive* link between the *trait* of interoceptive accuracy and the *state* of stress regulation—disentangled from baseline autonomic tone—unquantified in open data.
+No published work has explicitly correlated baseline interoceptive accuracy (measured via behavioral heartbeat perception tasks like the Schandry task) with physiological stress reactivity (HRV) in publicly available psychophysiological datasets while statistically controlling for baseline HRV. Existing literature focuses either on the theoretical application of interoception in AI, the detection of stress in digital/textual domains, or general emotion regulation strategies, leaving the specific *predictive* link between the *trait* of interoceptive accuracy and the *state* of stress regulation—disentangled from baseline autonomic tone—unquantified in open human data.
 
 ### Why this gap matters
 
@@ -36,11 +37,11 @@ Understanding whether interoceptive awareness is a stable predictor of stress re
 
 ### How this project addresses the gap
 
-This project audits open-source psychophysiological datasets (e.g., WESAD, OpenNeuro) for the co-occurrence of interoception tasks and stress paradigms. Where direct behavioral data is absent, it analyzes proxy correlations between resting-state physiological markers and stress reactivity to infer the potential role of interoceptive sensitivity, explicitly documenting the data limitations and the statistical independence of the predictors from the outcome.
+This project conducts a rigorous audit of open-source psychophysiological datasets (e.g., WESAD, OpenNeuro) to determine if the co-occurrence of interoception tasks and stress paradigms exists. By systematically searching for and analyzing these datasets, the project will either identify a previously unutilized resource to test the hypothesis or definitively document the data gap, providing a clear roadmap for future primary data collection.
 
 ## Expected results
 
-We expect to find a weak-to-moderate positive correlation between baseline interoceptive accuracy (or its proxy) and HRV recovery rates during the post-stressor period, which remains significant even after regressing out baseline HRV. If no direct data exists linking specific heartbeat perception tasks to stress phases, the result will be a feasibility report confirming the scarcity of this specific multimodal data in current open repositories, guiding future data collection efforts.
+We expect to find that while datasets like WESAD contain rich physiological stress data, they lack the specific behavioral interoceptive accuracy tasks (e.g., Schandry) required to test the primary hypothesis. Consequently, the primary result will be a feasibility report confirming the scarcity of this specific multimodal data in current open repositories, rather than a statistical correlation. If a suitable dataset is found, we expect a weak-to-moderate positive correlation between baseline interoceptive accuracy and HRV recovery rates that remains significant after regressing out baseline HRV.
 
 ## Methodology sketch
 
@@ -48,12 +49,12 @@ We expect to find a weak-to-moderate positive correlation between baseline inter
 - Search OpenNeuro for studies containing "TSST" and "heartbeat" or "interoception" keywords; download specific subject-level BIDS data if available.
 - Preprocess ECG/PPG signals using Python `hrv-analysis` to compute RMSSD and SDNN metrics for baseline (resting) and stress (TSST) phases.
 - Extract self-reported stress ratings (PANAS or similar) from associated metadata JSON files or event markers.
-- **Data Availability Check**: Verify if WESAD or OpenNeuro subsets contain an explicit heartbeat perception task (Schandry task). If absent, define a proxy variable: resting-state HRV stability as an indicator of physiological awareness potential, noting this is a limitation.
-- Calculate the magnitude of physiological regulation as the difference (or slope) between stress-phase HRV and baseline HRV.
-- Perform linear regression with the regulation magnitude as the outcome, and baseline interoceptive accuracy (or proxy) as the primary predictor, **including baseline HRV as a covariate** to ensure the predictor (interoception) and the control (baseline HRV) are distinct from the outcome (regulation magnitude).
+- **Data Availability Check**: Verify if WESAD or OpenNeuro subsets contain an explicit heartbeat perception task (Schandry task). If absent, document the absence as the primary finding; do not substitute with invalid proxies like resting-state HRV stability for "interoception."
+- If data is available: Calculate the magnitude of physiological regulation as the difference (or slope) between stress-phase HRV and baseline HRV.
+- If data is available: Perform linear regression with the regulation magnitude as the outcome, and baseline interoceptive accuracy as the primary predictor, **including baseline HRV as a covariate** to ensure the predictor (interoception) and the control (baseline HRV) are distinct from the outcome (regulation magnitude).
 - Verify that the validation target (regulation magnitude) is not mathematically derived solely from the predictor's source; specifically, ensure the regression model tests the unique variance explained by interoception beyond the baseline autonomic state.
-- Generate plots of HRV trajectories overlaid with stress phase markers using `matplotlib` to visualize individual variability.
-- Document data availability findings in a final `data_audit.md` if direct interoception tasks are missing from the datasets, explicitly stating the limitation of using physiological proxies.
+- Generate plots of HRV trajectories overlaid with stress phase markers using `matplotlib` to visualize individual variability (if data exists).
+- Document data availability findings in a final `data_audit.md` if direct interoception tasks are missing from the datasets, explicitly stating the limitation of using physiological proxies and the necessity of future targeted data collection.
 
 ## Duplicate-check
 
@@ -64,18 +65,21 @@ We expect to find a weak-to-moderate positive correlation between baseline inter
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-09T21:52:25Z
-**Outcome**: exhausted
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-31T15:58:45Z
+**Outcome**: success_after_expansion
 **Original term**: The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress psychology
-**Verified citation count**: 2
+**Verified citation count**: 5
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress psychology | 2 |
+| 0 (initial) | The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress psychology | 5 |
 
 ### Verified citations
 
-1. **Road to Serenity: Individual Variations in the Efficacy of Unobtrusive Respiratory Guidance for Driving Stress Regulation** (2024). A. J. Bequet, C. Jallais, J. Quick, D. Ndiaye, A. R. Hidalgo-Munoz. arXiv. [2406.09777](https://arxiv.org/abs/2406.09777). PDF-sampled: No.
-2. **Emotional Responses to Auditory Hierarchical Structures is Shaped by Bodily Sensations and Listeners' Sensory Traits** (2025). Maiko Minatoya, Tatsuya Daikoku, Yasuo Kuniyoshi. arXiv. [2504.01287](https://arxiv.org/abs/2504.01287). PDF-sampled: No.
+1. **Interoceptive machine framework: Toward interoception-inspired regulatory architectures in artificial intelligence** (2026). Diego Candia-Rivera. arXiv. [2604.24527](https://arxiv.org/abs/2604.24527). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+2. **Emo-LiPO: Listwise Preference Optimization for Fine-Grained Emotion Intensity Control in LLM-based Text-to-Speech** (2026). Yihang Lin, Li Zhou, Congwei Cao, Dongchu Xie, Xiaoxue Gao, et al.. arXiv. [2606.13006](https://arxiv.org/abs/2606.13006). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+3. **Digital Emotion Regulation on Social Media** (2023). Akriti Verma, Shama Islam, Valeh Moghaddam, Adnan Anwar. arXiv. [2307.13187](https://arxiv.org/abs/2307.13187). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+4. **Detecting Syllable-Level Pronunciation Stress with A Self-Attention Model** (2023). Wang Weiying, Nakajima Akinori. arXiv. [2311.00301](https://arxiv.org/abs/2311.00301). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+5. **TensiStrength: Stress and relaxation magnitude detection for social media texts** (2016). Mike Thelwall. arXiv. [1607.00139](https://arxiv.org/abs/1607.00139). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*

@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HRV Metrics Output"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+  phase:
+    type: "string"
+    enum:
+      - "baseline"
+      - "stress"
+  metric_name:
+    type: "string"
+    enum:
+      - "RMSSD"
+      - "SDNN"
+  value:
+    type: "number"
+    minimum: 0
+    description: "HRV value in milliseconds"
+  artifact_flag:
+    type: "string"
+    enum:
+      - "clean"
+      - "noisy"
+      - "insufficient_data"
+required:
+  - subject_id
+  - phase
+  - metric_name
+  - value
+  - artifact_flag

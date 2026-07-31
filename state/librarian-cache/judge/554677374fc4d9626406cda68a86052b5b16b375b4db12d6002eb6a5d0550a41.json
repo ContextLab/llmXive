@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.13187",
+  "judged_at": "2026-07-31T15:58:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "The paper focuses on \"digital emotion regulation\" via social media applications, which is an off-domain construct compared to the user's specific question about the biological mechanism of \"interoceptive awareness\" during \"simulated stress.\" While both papers mention \"emotion regulation,\" they address distinct independent variables (digital tool usage vs. internal bodily awareness) and different experimental contexts, failing to satisfy the criteria for same-mechanism evidence or shared empirica",
+  "relevant": false
+}

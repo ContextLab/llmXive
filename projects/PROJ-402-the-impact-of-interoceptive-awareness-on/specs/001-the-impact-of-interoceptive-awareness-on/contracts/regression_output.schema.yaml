@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression or MDES Output"
+type: "object"
+properties:
+  analysis_type:
+    type: "string"
+    enum:
+      - "linear_regression"
+      - "mdes_calculation"
+    description: "Type of analysis performed based on data availability"
+  outcome_variable:
+    type: "string"
+    description: "The dependent variable (e.g., 'Stress_HRV_RMSSD')"
+  predictor_variable:
+    type: "string"
+    description: "The primary independent variable (e.g., 'Interoception_Accuracy')"
+  covariate:
+    type: "string"
+    description: "Control variable (e.g., 'Baseline_HRV_RMSSD')"
+  sample_size:
+    type: "integer"
+    minimum: 0
+  result:
+    type: "object"
+    oneOf:
+      - type: "object"
+        properties:
+          coefficient:
+            type: "number"
+          p_value:
+            type: "number"
+          r_squared:
+            type: "number"
+        required:
+          - coefficient
+          - p_value
+          - r_squared
+        description: "Output for linear regression"
+      - type: "object"
+        properties:
+          mdes_value:
+            type: "number"
+          assumed_r_squared:
+            type: "number"
+          confidence_level:
+            type: "number"
+          description: "Output for MDES calculation (based on total outcome variance + hypothetical R²)"
+        required:
+          - mdes_value
+          - assumed_r_squared
+          - confidence_level
+required:
+  - analysis_type
+  - outcome_variable
+  - predictor_variable
+  - covariate
+  - sample_size
+  - result
