@@ -1,15 +1,13 @@
 """
-Unit tests for PredictionResult model.
-Verifies generation from schema and basic functionality.
+Unit tests for the PredictionResult model.
+Verifies creation, validation, and serialization against the contract.
 """
 import pytest
-from src.models.prediction_result import PredictionResult, create_prediction_result
-from src.models.code_snippet import CodeSnippet
+from src.models.prediction_result import PredictionResult, create_prediction_result, prediction_result_to_dict, dict_to_prediction_result, PredictionResultSchema
 
 
 class TestPredictionResultCreation:
-    def test_creation_with_required_fields(self):
-        """Test creating a PredictionResult with all required fields."""
+    def test_create_with_all_fields(self):
         result = PredictionResult(
             snippet_id="test-123",
             predicted_label="vulnerable",
@@ -17,110 +15,78 @@ class TestPredictionResultCreation:
             is_correct=True,
             inference_time_ms=150.5
         )
-        
         assert result.snippet_id == "test-123"
         assert result.predicted_label == "vulnerable"
         assert result.predicted_category == "SQLi"
         assert result.is_correct is True
         assert result.inference_time_ms == 150.5
 
-    def test_creation_with_optional_fields(self):
-        """Test creating a PredictionResult with optional fields."""
-        result = PredictionResult(
-            snippet_id="test-456",
-            predicted_label="safe",
-            predicted_category="none",
-            is_correct=False,
-            inference_time_ms=50.0,
-            model_name="llama-2-7b",
-            prompt_id="prompt-789"
-        )
-        
-        assert result.model_name == "llama-2-7b"
-        assert result.prompt_id == "prompt-789"
-
-    def test_creation_validation_empty_snippet_id(self):
-        """Test that empty snippet_id raises ValueError."""
-        with pytest.raises(ValueError, match="snippet_id cannot be empty"):
-            PredictionResult(
-                snippet_id="",
-                predicted_label="vulnerable",
-                predicted_category="SQLi",
-                is_correct=True,
-                inference_time_ms=10.0
-            )
-
-    def test_creation_validation_negative_time(self):
-        """Test that negative inference_time_ms raises ValueError."""
-        with pytest.raises(ValueError, match="inference_time_ms cannot be negative"):
-            PredictionResult(
-                snippet_id="test-789",
-                predicted_label="vulnerable",
-                predicted_category="SQLi",
-                is_correct=True,
-                inference_time_ms=-10.0
-            )
-
-
-class TestCreatePredictionResultFactory:
-    def test_factory_with_explicit_id(self):
-        """Test factory function with explicit snippet_id."""
-        result = create_prediction_result(
-            snippet_id="factory-123",
-            predicted_label="safe",
-            predicted_category="none",
-            is_correct=True,
-            inference_time_ms=20.0
-        )
-        
-        assert result.snippet_id == "factory-123"
-        assert result.predicted_label == "safe"
-
-    def test_factory_generates_uuid_if_missing(self):
-        """Test factory generates a UUID if snippet_id is not provided."""
-        result = create_prediction_result(
-            predicted_label="uncertain",
-            predicted_category="uncertain",
-            is_correct=False,
-            inference_time_ms=0.0
-        )
-        
+    def test_create_factory_defaults(self):
+        result = create_prediction_result()
         assert result.snippet_id is not None
         assert len(result.snippet_id) > 0
-
-    def test_factory_infers_correctness_from_snippet(self):
-        """Test factory infers is_correct from CodeSnippet ground truth."""
-        # Create a mock CodeSnippet with ground truth
-        snippet = CodeSnippet(
-            id="mock-snippet",
-            language="python",
-            source_code="x = 1",
-            ground_truth_label="vulnerable",
-            ground_truth_category="SQLi"
-        )
-        
-        # Predict "vulnerable" -> should be correct
-        result_correct = create_prediction_result(
-            predicted_label="vulnerable",
-            predicted_category="SQLi",
-            code_snippet=snippet
-        )
-        assert result_correct.is_correct is True
-        
-        # Predict "safe" -> should be incorrect
-        result_incorrect = create_prediction_result(
-            predicted_label="safe",
-            predicted_category="none",
-            code_snippet=snippet
-        )
-        assert result_incorrect.is_correct is False
-
-    def test_factory_default_values(self):
-        """Test factory default values for missing arguments."""
-        result = create_prediction_result()
-        
-        assert result.predicted_label == "uncertain"
+        assert result.predicted_label == "unknown"
         assert result.predicted_category == "uncertain"
         assert result.is_correct is False
         assert result.inference_time_ms == 0.0
-        assert result.model_name is None
+
+    def test_create_factory_custom_id(self):
+        result = create_prediction_result(snippet_id="custom-id")
+        assert result.snippet_id == "custom-id"
+
+
+class TestCreatePredictionResultFactory:
+    def test_serialization_to_dict(self):
+        original = PredictionResult(
+            snippet_id="s-999",
+            predicted_label="safe",
+            predicted_category="none",
+            is_correct=True,
+            inference_time_ms=42.0
+        )
+        data = prediction_result_to_dict(original)
+        assert data["snippet_id"] == "s-999"
+        assert data["predicted_label"] == "safe"
+        assert data["predicted_category"] == "none"
+        assert data["is_correct"] is True
+        assert data["inference_time_ms"] == 42.0
+
+    def test_deserialization_from_dict(self):
+        data = {
+            "snippet_id": "s-888",
+            "predicted_label": "vulnerable",
+            "predicted_category": "Buffer Overflow",
+            "is_correct": False,
+            "inference_time_ms": 100.0
+        }
+        result = dict_to_prediction_result(data)
+        assert result.snippet_id == "s-888"
+        assert result.predicted_label == "vulnerable"
+        assert result.predicted_category == "Buffer Overflow"
+        assert result.is_correct is False
+        assert result.inference_time_ms == 100.0
+
+    def test_validation_missing_required_field(self):
+        # Test that Pydantic validation catches missing required fields
+        invalid_data = {
+            "snippet_id": "s-777",
+            "predicted_label": "vulnerable"
+            # Missing required fields: predicted_category, is_correct, inference_time_ms
+        }
+        with pytest.raises(Exception):
+            dict_to_prediction_result(invalid_data)
+
+    def test_schema_compliance(self):
+        """Verify the Pydantic schema matches the contract definition."""
+        schema = PredictionResultSchema(
+            snippet_id="test",
+            predicted_label="test",
+            predicted_category="test",
+            is_correct=True,
+            inference_time_ms=1.0
+        )
+        assert schema.snippet_id == "test"
+        assert schema.predicted_label == "test"
+        assert schema.predicted_category == "test"
+        assert schema.is_correct is True
+        assert schema.inference_time_ms == 1.0

@@ -1,117 +1,137 @@
 """
-Unit tests for the model_selector module (T004a).
+Unit tests for src.utils.model_selector
 """
 import pytest
-import json
 import os
+import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 from src.utils.model_selector import (
+    get_compatible_models,
     select_model,
-    _check_language_compatibility,
-    _load_model_compatibility_matrix,
-    REQUIRED_LANGUAGES,
-    SELECTION_SEED
+    select_model_with_seed,
+    MODEL_LANGUAGE_COMPATIBILITY,
+    SUPPORTED_LANGUAGES
 )
-from src.utils.config import get_candidate_models, reset_config
+from src.utils.config import get_config, reset_config, set_seed
 
 class TestModelSelector:
-    """Tests for deterministic model selection logic."""
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        """Reset config before each test."""
+        reset_config()
+        # Ensure a valid config state
+        set_seed(42)
 
-    def test_load_compatibility_matrix(self):
-        """Test that the compatibility matrix loads correctly."""
-        matrix = _load_model_compatibility_matrix()
-        assert isinstance(matrix, dict)
-        assert "codellama/CodeLlama-7b-Instruct-hf" in matrix
-        assert "python" in matrix["codellama/CodeLlama-7b-Instruct-hf"]
-
-    def test_check_language_compatibility_true(self):
-        """Test compatibility check returns True when model supports all languages."""
-        model = "codellama/CodeLlama-7b-Instruct-hf"
-        # This model supports all required languages by definition in the matrix
-        assert _check_language_compatibility(model, REQUIRED_LANGUAGES) is True
-
-    def test_check_language_compatibility_false(self):
-        """Test compatibility check returns False when model misses a language."""
-        # Phi-2 is defined as having limited C/C++ support in our matrix
-        model = "microsoft/phi-2"
-        # REQUIRED_LANGUAGES includes 'c' and 'cpp'
-        assert _check_language_compatibility(model, REQUIRED_LANGUAGES) is False
+    def test_supported_languages_constant(self):
+        """Test that SUPPORTED_LANGUAGES contains the required languages."""
+        assert "Python" in SUPPORTED_LANGUAGES
+        assert "C" in SUPPORTED_LANGUAGES
+        assert "JavaScript" in SUPPORTED_LANGUAGES
 
     @patch('src.utils.model_selector.get_candidate_models')
-    @patch('src.utils.model_selector.get_project_root')
-    def test_select_model_success(self, mock_root, mock_candidates):
-        """Test successful model selection."""
-        # Setup mocks
-        mock_root.return_value = Path("/fake/project")
-        mock_candidates.return_value = [
-            "microsoft/phi-2", # Not compatible
-            "codellama/CodeLlama-7b-Instruct-hf" # Compatible
+    def test_get_compatible_models_filters_correctly(self, mock_get_candidates):
+        """Test that only models supporting all languages are returned."""
+        # Mock candidate list with some incompatible models
+        mock_get_candidates.return_value = [
+            "microsoft/Phi-3-mini-4k-instruct", # Compatible
+            "some/unknown-model",               # Not in map
+            "incompatible/model"                # Not in map
         ]
 
-        # Create a temporary directory for logs
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "model_selection.log"
-            
-            # Mock the open function to avoid file system issues in test
-            with patch('src.utils.model_selector.open', create=True) as mock_open:
-                mock_open.return_value.__enter__ = lambda s: s
-                mock_open.return_value.__exit__ = lambda s, *args: None
-
-                selected = select_model(log_path=log_path)
-                
-                assert selected == "codellama/CodeLlama-7b-Instruct-hf"
-                # Verify log was written (mocked)
-                assert mock_open.called
+        result = get_compatible_models()
+        
+        # Should only return the one in the compatibility map that supports all
+        assert "microsoft/Phi-3-mini-4k-instruct" in result
+        assert "some/unknown-model" not in result
+        assert "incompatible/model" not in result
 
     @patch('src.utils.model_selector.get_candidate_models')
-    @patch('src.utils.model_selector.get_project_root')
-    def test_select_model_no_compatible(self, mock_root, mock_candidates):
-        """Test that selection fails loudly if no compatible model is found."""
-        mock_root.return_value = Path("/fake/project")
-        # All candidates are incompatible
-        mock_candidates.return_value = [
-            "microsoft/phi-2", 
-            "some/other-small-model"
+    def test_select_model_deterministic(self, mock_get_candidates):
+        """Test that selection is deterministic (sorted first)."""
+        mock_get_candidates.return_value = [
+            "z-model",
+            "a-model",
+            "microsoft/Phi-3-mini-4k-instruct"
         ]
 
-        # Mock compatibility check to always return False for these
-        with patch('src.utils.model_selector._check_language_compatibility', return_value=False):
-            with tempfile.TemporaryDirectory() as tmpdir:
-                log_path = Path(tmpdir) / "model_selection.log"
-                with patch('src.utils.model_selector.open', create=True) as mock_open:
-                    mock_open.return_value.__enter__ = lambda s: s
-                    mock_open.return_value.__exit__ = lambda s, *args: None
-                    
-                    with pytest.raises(ValueError) as excinfo:
-                        select_model(log_path=log_path)
-                    
-                    assert "No compatible model found" in str(excinfo.value)
+        # Run twice
+        model1 = select_model()
+        model2 = select_model()
 
-    def test_seed_is_fixed(self):
-        """Verify the selection seed is a constant."""
-        assert SELECTION_SEED == 42
+        # Should pick the first in sorted order: "microsoft/..." or "a-model"?
+        # Let's check the actual logic: sorted list -> index 0.
+        # Sorted: ["microsoft/Phi-3-mini-4k-instruct", "a-model", "z-model"] (alphabetical)
+        # Wait, "a-model" comes before "microsoft..." alphabetically?
+        # 'a' < 'm'. So "a-model" is first.
+        # But "a-model" is not in the compatibility map, so it won't be in the result of get_compatible_models.
+        # So result of get_compatible_models is ["microsoft/Phi-3-mini-4k-instruct"]
+        # Sorted: ["microsoft/Phi-3-mini-4k-instruct"]
+        # Selected: "microsoft/Phi-3-mini-4k-instruct"
+
+        # Let's adjust the mock to be more realistic
+        mock_get_candidates.return_value = [
+            "microsoft/Phi-3-mini-4k-instruct",
+            "codellama/CodeLlama-7b-Instruct-hf"
+        ]
+        
+        model1 = select_model()
+        model2 = select_model()
+
+        assert model1 == model2
+        # Should be the first one alphabetically among compatible ones
+        # "codellama..." < "microsoft..."
+        # So it should be "codellama/CodeLlama-7b-Instruct-hf"
+        assert model1 == "codellama/CodeLlama-7b-Instruct-hf"
 
     @patch('src.utils.model_selector.get_candidate_models')
-    @patch('src.utils.model_selector.get_project_root')
-    def test_selection_is_deterministic(self, mock_root, mock_candidates):
-        """Test that selection is deterministic across multiple calls."""
-        mock_root.return_value = Path("/fake/project")
-        mock_candidates.return_value = [
+    def test_select_model_with_seed_reproducible(self, mock_get_candidates):
+        """Test that selection with seed is reproducible."""
+        mock_get_candidates.return_value = [
+            "microsoft/Phi-3-mini-4k-instruct",
             "codellama/CodeLlama-7b-Instruct-hf",
-            "bigcode/starcoder2-3b"
+            "mistralai/Mistral-7B-Instruct-v0.2"
         ]
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "model_selection.log"
-            with patch('src.utils.model_selector.open', create=True) as mock_open:
-                mock_open.return_value.__enter__ = lambda s: s
-                mock_open.return_value.__exit__ = lambda s, *args: None
+        model1 = select_model_with_seed(123)
+        model2 = select_model_with_seed(123)
 
-                result1 = select_model(log_path=log_path)
-                result2 = select_model(log_path=log_path)
+        assert model1 == model2
 
-                assert result1 == result2
-                assert result1 == "codellama/CodeLlama-7b-Instruct-hf"
+    @patch('src.utils.model_selector.get_candidate_models')
+    def test_select_model_with_seed_different(self, mock_get_candidates):
+        """Test that different seeds can yield different results (if random)."""
+        mock_get_candidates.return_value = [
+            "microsoft/Phi-3-mini-4k-instruct",
+            "codellama/CodeLlama-7b-Instruct-hf",
+            "mistralai/Mistral-7B-Instruct-v0.2"
+        ]
+
+        model1 = select_model_with_seed(123)
+        model2 = select_model_with_seed(456)
+        
+        # Note: It's possible they are the same by chance, but unlikely with 3 items.
+        # We just verify the function runs without error.
+        assert isinstance(model1, str)
+        assert isinstance(model2, str)
+
+    @patch('src.utils.model_selector.get_candidate_models')
+    def test_no_compatible_models_raises(self, mock_get_candidates):
+        """Test that an empty compatible list raises an error."""
+        mock_get_candidates.return_value = [
+            "unknown/model-1",
+            "unknown/model-2"
+        ]
+
+        with pytest.raises(ValueError, match="No compatible models available"):
+            select_model()
+
+    @patch('src.utils.model_selector.get_candidate_models')
+    def test_empty_candidate_list_raises(self, mock_get_candidates):
+        """Test that an empty candidate list raises an error."""
+        mock_get_candidates.return_value = []
+
+        with pytest.raises(ValueError, match="No compatible models available"):
+            select_model()

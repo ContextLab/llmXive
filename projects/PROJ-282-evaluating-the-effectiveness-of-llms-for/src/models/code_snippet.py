@@ -1,106 +1,101 @@
 """
 CodeSnippet model generated from contracts/dataset.schema.yaml.
-
-This file is auto-generated to prevent schema drift.
-Source: contracts/dataset.schema.yaml
+This file is auto-generated to prevent schema drift (Constitution IV).
 """
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import uuid
 import json
 from pathlib import Path
-from typing import List, Dict, Any
+from pydantic import BaseModel, Field, field_validator
+import yaml
+
+# Schema definition loaded from contract
+SCHEMA_PATH = Path(__file__).parent.parent.parent / "contracts" / "dataset.schema.yaml"
+
+def load_schema() -> Dict[str, Any]:
+    if not SCHEMA_PATH.exists():
+        raise FileNotFoundError(f"Schema contract not found at {SCHEMA_PATH}. "
+                              "Please ensure T007a has been completed.")
+    with open(SCHEMA_PATH, 'r') as f:
+        return yaml.safe_load(f)
+
+class CodeSnippetSchema(BaseModel):
+    """Pydantic model representing the schema contract for CodeSnippet."""
+    type: str
+    properties: Dict[str, Any]
+    required: List[str]
+
+class CodeSnippet(BaseModel):
+    """
+    Data model for a single code snippet.
+    Generated from contracts/dataset.schema.yaml.
+    """
+    id: str = Field(..., description="Unique identifier for the snippet")
+    language: str = Field(..., description="Programming language", pattern="^(C|Python|JavaScript)$")
+    source_code: str = Field(..., description="The actual source code content")
+    ground_truth_label: str = Field(..., description="Ground truth vulnerability label")
+    ground_truth_category: str = Field(..., description="Ground truth vulnerability category")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "snip_001",
+                "language": "Python",
+                "source_code": "import os\nos.system(input())",
+                "ground_truth_label": "vulnerable",
+                "ground_truth_category": "Command Injection"
+            }
+        }
 
 @dataclass
-class CodeSnippet:
+class CodeSnippetDataclass:
     """
-    Represents a code snippet with ground truth labels.
-    
-    Generated from: contracts/dataset.schema.yaml
-    Fields:
-        id: Unique identifier (UUID)
-        language: Programming language
-        source_code: Raw code content
-        ground_truth_label: 'vulnerable', 'safe', or None
-        ground_truth_category: Specific category or None
+    Dataclass version for internal processing if needed,
+    but Pydantic CodeSnippet is the primary interface.
     """
     id: str
     language: str
     source_code: str
-    ground_truth_label: Optional[str]
-    ground_truth_category: Optional[str]
+    ground_truth_label: str
+    ground_truth_category: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
-        """Validate required fields and types."""
-        if not self.id:
-            raise ValueError("id cannot be empty")
-        if not self.language:
-            raise ValueError("language cannot be empty")
-        if self.source_code is None:
-            raise ValueError("source_code cannot be None")
-        
-        # Validate label enum if present
-        valid_labels = ['vulnerable', 'safe', None]
-        if self.ground_truth_label not in valid_labels:
-            raise ValueError(f"ground_truth_label must be one of {valid_labels}, got {self.ground_truth_label}")
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary representation."""
-        return {
-            "id": self.id,
-            "language": self.language,
-            "source_code": self.source_code,
-            "ground_truth_label": self.ground_truth_label,
-            "ground_truth_category": self.ground_truth_category
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CodeSnippet":
-        """Create instance from dictionary."""
-        return cls(
-            id=data["id"],
-            language=data["language"],
-            source_code=data["source_code"],
-            ground_truth_label=data.get("ground_truth_label"),
-            ground_truth_category=data.get("ground_truth_category")
-        )
-
-    def to_json(self) -> str:
-        """Serialize to JSON string."""
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> "CodeSnippet":
-        """Deserialize from JSON string."""
-        return cls.from_dict(json.loads(json_str))
-
-def create_snippet(
-    language: str,
-    source_code: str,
-    ground_truth_label: Optional[str] = None,
-    ground_truth_category: Optional[str] = None,
-    snippet_id: Optional[str] = None
-) -> CodeSnippet:
+def create_snippet(data: Dict[str, Any]) -> CodeSnippet:
     """
-    Factory function to create a CodeSnippet instance.
-    
-    Args:
-        language: Programming language
-        source_code: Raw code content
-        ground_truth_label: Optional label ('vulnerable' or 'safe')
-        ground_truth_category: Optional vulnerability category
-        snippet_id: Optional UUID, generated if not provided
-    
-    Returns:
-        CodeSnippet instance
+    Factory function to create a validated CodeSnippet from a dictionary.
+    Ensures data conforms to the schema contract.
     """
-    if snippet_id is None:
-        snippet_id = str(uuid.uuid4())
-    
-    return CodeSnippet(
-        id=snippet_id,
-        language=language,
-        source_code=source_code,
-        ground_truth_label=ground_truth_label,
-        ground_truth_category=ground_truth_category
-    )
+    return CodeSnippet(**data)
+
+def snippet_to_dict(snippet: CodeSnippet) -> Dict[str, Any]:
+    """Convert a CodeSnippet instance to a dictionary."""
+    return snippet.model_dump()
+
+def snippet_to_json(snippet: CodeSnippet) -> str:
+    """Convert a CodeSnippet instance to a JSON string."""
+    return snippet.model_dump_json()
+
+def validate_contract() -> bool:
+    """
+    Validates that the current schema file exists and is loadable.
+    Returns True if valid, raises error otherwise.
+    """
+    try:
+        schema = load_schema()
+        # Basic validation of structure
+        if 'properties' not in schema:
+            raise ValueError("Schema missing 'properties' key")
+        if 'required' not in schema:
+            raise ValueError("Schema missing 'required' key")
+        return True
+    except Exception as e:
+        raise RuntimeError(f"Schema validation failed: {e}")
+
+# Run validation on import to ensure contract integrity
+if __name__ != "__main__":
+    try:
+        validate_contract()
+    except FileNotFoundError:
+        # Allow import in test environments where contract might be mocked or missing
+        pass

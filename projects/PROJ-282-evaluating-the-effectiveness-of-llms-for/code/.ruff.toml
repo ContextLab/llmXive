@@ -1,29 +1,26 @@
-# Standalone Ruff configuration for CLI usage
-# This file is redundant with pyproject.toml but ensures CLI tools pick up settings
-# even if run from subdirectories without pyproject discovery.
-
-line-length = 100
-target-version = "py310"
-
+[lint]
 select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "S",  # flake8-bandit (security)
 ]
 ignore = [
-    "E501",
-    "B008",
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+    "S101", # use of assert (allowed in tests/scripts)
 ]
 
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    "venv",
-    ".venv",
-]
+[lint.isort]
+known-first-party = ["src", "tests", "setup_project_structure"]
+force-sort-within-sections = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

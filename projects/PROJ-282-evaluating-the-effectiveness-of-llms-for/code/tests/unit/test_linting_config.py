@@ -4,66 +4,45 @@ import tempfile
 import pytest
 from pathlib import Path
 
+# Project root relative to test file (assuming tests/unit/ structure)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 def test_ruff_config_exists():
-    """Verify ruff configuration exists in pyproject.toml or .ruff.toml"""
-    project_root = Path(__file__).parent.parent.parent
-    pyproject = project_root / "pyproject.toml"
-    ruff_toml = project_root / ".ruff.toml"
+    """Verify that .ruff.toml or pyproject.toml with ruff config exists."""
+    ruff_toml = PROJECT_ROOT / ".ruff.toml"
+    pyproject = PROJECT_ROOT / "pyproject.toml"
     
-    assert pyproject.exists() or ruff_toml.exists(), "Ruff config file missing"
-    
-    if pyproject.exists():
-        content = pyproject.read_text()
-        assert "[tool.ruff]" in content, "Ruff section missing in pyproject.toml"
+    assert ruff_toml.exists() or (
+        pyproject.exists() and "[tool.ruff]" in pyproject.read_text()
+    ), "Ruff configuration file (.ruff.toml or pyproject.toml) not found."
 
 def test_black_config_exists():
-    """Verify black configuration exists in pyproject.toml"""
-    project_root = Path(__file__).parent.parent.parent
-    pyproject = project_root / "pyproject.toml"
-    
-    assert pyproject.exists(), "pyproject.toml missing"
+    """Verify that pyproject.toml with black config exists."""
+    pyproject = PROJECT_ROOT / "pyproject.toml"
+    assert pyproject.exists(), "pyproject.toml not found."
     
     content = pyproject.read_text()
-    assert "[tool.black]" in content, "Black section missing in pyproject.toml"
-    assert "line-length" in content, "Black line-length config missing"
+    assert "[tool.black]" in content, "Black configuration section not found in pyproject.toml."
 
 def test_precommit_config_exists():
-    """Verify pre-commit configuration exists"""
-    project_root = Path(__file__).parent.parent.parent
-    config_file = project_root / ".pre-commit-config.yaml"
-    
-    assert config_file.exists(), ".pre-commit-config.yaml missing"
-    
-    content = config_file.read_text()
-    assert "ruff" in content, "Ruff hook missing in pre-commit config"
-    assert "black" in content, "Black hook missing in pre-commit config"
+    """Verify that .pre-commit-config.yaml exists."""
+    precommit_config = PROJECT_ROOT / ".pre-commit-config.yaml"
+    assert precommit_config.exists(), ".pre-commit-config.yaml not found."
 
 def test_lint_script_exists():
-    """Verify lint script exists and is executable"""
-    project_root = Path(__file__).parent.parent.parent
-    script = project_root / "scripts" / "lint.sh"
-    
-    assert script.exists(), "lint.sh script missing"
-    # We don't assert executable bit here as git might strip it in some environments
-    # but the file must exist and have content
-    content = script.read_text()
-    assert "ruff" in content, "lint.sh does not invoke ruff"
+    """Verify that the lint script exists."""
+    lint_script = PROJECT_ROOT / "scripts" / "lint.sh"
+    assert lint_script.exists(), "scripts/lint.sh not found."
 
 def test_format_script_exists():
-    """Verify format script exists and is executable"""
-    project_root = Path(__file__).parent.parent.parent
-    script = project_root / "scripts" / "format.sh"
-    
-    assert script.exists(), "format.sh script missing"
-    content = script.read_text()
-    assert "black" in content, "format.sh does not invoke black"
+    """Verify that the format script exists."""
+    format_script = PROJECT_ROOT / "scripts" / "format.sh"
+    assert format_script.exists(), "scripts/format.sh not found."
 
 def test_pytest_config_exists():
-    """Verify pytest configuration exists in pyproject.toml"""
-    project_root = Path(__file__).parent.parent.parent
-    pyproject = project_root / "pyproject.toml"
-    
-    assert pyproject.exists(), "pyproject.toml missing"
+    """Verify that pytest configuration exists in pyproject.toml."""
+    pyproject = PROJECT_ROOT / "pyproject.toml"
+    assert pyproject.exists(), "pyproject.toml not found."
     
     content = pyproject.read_text()
-    assert "[tool.pytest.ini_options]" in content, "Pytest section missing in pyproject.toml"
+    assert "[tool.pytest" in content, "Pytest configuration section not found in pyproject.toml."

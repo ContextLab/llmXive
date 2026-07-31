@@ -2,6 +2,9 @@ transformers
 scikit-learn
 pandas
 tree-sitter
+tree-sitter-c
+tree-sitter-python
+tree-sitter-javascript
 networkx
 requests
 pyyaml
@@ -11,5 +14,5 @@ pytest
 radon
 statsmodels
 pydantic
-black
 ruff
+black

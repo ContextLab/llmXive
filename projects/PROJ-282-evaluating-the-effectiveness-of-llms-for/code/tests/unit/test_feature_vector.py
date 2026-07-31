@@ -1,229 +1,156 @@
 """
-Unit tests for FeatureVector dataclass.
-
-Tests verify schema compliance, factory function behavior, and serialization.
+Unit tests for FeatureVector model.
+Verifies creation, validation, and serialization against the schema contract.
 """
 import pytest
 import json
-from src.models.feature_vector import FeatureVector, create_feature_vector
+from src.models.feature_vector import FeatureVector, create_feature_vector, FeatureVectorSchema
 
 
 class TestFeatureVectorCreation:
-    """Test basic FeatureVector instantiation."""
-
-    def test_feature_vector_creation(self):
-        """Test creating a FeatureVector with required fields."""
-        fv = FeatureVector(
-            vector_id="test-uuid-123",
-            snippet_id="snippet-456",
-            language="python"
-        )
-        
-        assert fv.vector_id == "test-uuid-123"
-        assert fv.snippet_id == "snippet-456"
-        assert fv.language == "python"
-        assert fv.ast_depth is None
-        assert fv.taint_api_count == 0
-        assert fv.has_sanitization is False
-
-    def test_feature_vector_with_all_fields(self):
-        """Test creating a FeatureVector with all optional fields."""
-        fv = FeatureVector(
-            vector_id="test-uuid-789",
-            snippet_id="snippet-012",
-            language="c",
+    def test_create_valid_vector(self):
+        """Test creation of a valid FeatureVector."""
+        fv = create_feature_vector(
             ast_depth=5,
-            ast_node_count=150,
-            cyclomatic_complexity=8,
-            taint_api_count=3,
-            has_sanitization=True,
-            embedding_similarity_score=0.85,
-            embedding_vector=[0.1, 0.2, 0.3],
-            lines_of_code=42,
-            num_functions=3,
-            num_imports=5
+            cyclomatic_complexity=3,
+            node_count=100,
+            taint_api_count=1,
+            sanitization_present=True,
+            embedding_similarity_score=0.75
         )
-        
         assert fv.ast_depth == 5
-        assert fv.ast_node_count == 150
-        assert fv.cyclomatic_complexity == 8
-        assert fv.taint_api_count == 3
-        assert fv.has_sanitization is True
-        assert fv.embedding_similarity_score == 0.85
-        assert fv.embedding_vector == [0.1, 0.2, 0.3]
-        assert fv.lines_of_code == 42
-        assert fv.num_functions == 3
-        assert fv.num_imports == 5
+        assert fv.cyclomatic_complexity == 3
+        assert fv.node_count == 100
+        assert fv.taint_api_count == 1
+        assert fv.sanitization_present is True
+        assert abs(fv.embedding_similarity_score - 0.75) < 1e-6
+        assert fv.snippet_id is not None
+
+    def test_create_vector_with_custom_id(self):
+        """Test creation with a custom snippet ID."""
+        custom_id = "test-snippet-123"
+        fv = create_feature_vector(
+            ast_depth=2,
+            cyclomatic_complexity=1,
+            node_count=20,
+            taint_api_count=0,
+            sanitization_present=False,
+            embedding_similarity_score=0.1,
+            snippet_id=custom_id
+        )
+        assert fv.snippet_id == custom_id
 
 
 class TestCreateFeatureVectorFactory:
-    """Test the create_feature_vector factory function."""
-
-    def test_create_feature_vector_factory(self):
-        """Test factory function creates valid FeatureVector."""
+    def test_factory_returns_instance(self):
+        """Test that the factory function returns a FeatureVector instance."""
         fv = create_feature_vector(
-            snippet_id="factory-snippet",
-            language="javascript",
-            ast_depth=3,
-            cyclomatic_complexity=5
+            ast_depth=1,
+            cyclomatic_complexity=1,
+            node_count=1,
+            taint_api_count=0,
+            sanitization_present=False,
+            embedding_similarity_score=0.0
         )
-        
-        assert fv.snippet_id == "factory-snippet"
-        assert fv.language == "javascript"
-        assert fv.ast_depth == 3
-        assert fv.cyclomatic_complexity == 5
-        assert fv.vector_id != ""  # Auto-generated
-        assert fv.extraction_timestamp is not None
-
-    def test_feature_vector_defaults(self):
-        """Test that factory sets correct defaults for optional fields."""
-        fv = create_feature_vector(
-            snippet_id="defaults-test",
-            language="python"
-        )
-        
-        assert fv.ast_depth is None
-        assert fv.ast_node_count is None
-        assert fv.cyclomatic_complexity is None
-        assert fv.taint_api_count == 0
-        assert fv.has_sanitization is False
-        assert fv.embedding_similarity_score is None
-        assert fv.embedding_vector is None
-        assert fv.lines_of_code is None
-        assert fv.num_functions is None
-        assert fv.num_imports is None
-        assert fv.extraction_error is None
+        assert isinstance(fv, FeatureVector)
 
 
 class TestFeatureVectorUniqueness:
-    """Test UUID generation and uniqueness."""
-
-    def test_feature_vector_uniqueness(self):
-        """Test that each FeatureVector gets a unique ID."""
-        fv1 = create_feature_vector(snippet_id="s1", language="python")
-        fv2 = create_feature_vector(snippet_id="s2", language="python")
-        
-        assert fv1.vector_id != fv2.vector_id
-        assert len(fv1.vector_id) == 36  # Standard UUID format
+    def test_unique_ids_generated(self):
+        """Test that unique IDs are generated by default."""
+        fv1 = create_feature_vector(1, 1, 1, 0, False, 0.0)
+        fv2 = create_feature_vector(1, 1, 1, 0, False, 0.0)
+        assert fv1.snippet_id != fv2.snippet_id
 
 
 class TestFeatureVectorSerialization:
-    """Test serialization and deserialization."""
-
     def test_to_dict(self):
-        """Test dictionary conversion."""
+        """Test serialization to dictionary."""
         fv = create_feature_vector(
-            snippet_id="dict-test",
-            language="java",
-            ast_depth=4
+            ast_depth=10,
+            cyclomatic_complexity=5,
+            node_count=150,
+            taint_api_count=2,
+            sanitization_present=True,
+            embedding_similarity_score=0.85
         )
-        fv_dict = fv.to_dict()
-        
-        assert "vector_id" in fv_dict
-        assert "snippet_id" in fv_dict
-        assert "language" in fv_dict
-        assert "ast_depth" in fv_dict
-        assert fv_dict["snippet_id"] == "dict-test"
-        assert fv_dict["language"] == "java"
-        assert fv_dict["ast_depth"] == 4
+        data = fv.to_dict()
+        assert "snippet_id" in data
+        assert data["ast_depth"] == 10
+        assert data["cyclomatic_complexity"] == 5
+        assert data["node_count"] == 150
+        assert data["taint_api_count"] == 2
+        assert data["sanitization_present"] is True
+        assert abs(data["embedding_similarity_score"] - 0.85) < 1e-6
+        assert "created_at" in data
 
     def test_from_dict(self):
-        """Test dictionary reconstruction."""
-        data = {
-            "vector_id": "manual-uuid",
-            "snippet_id": "from-dict",
-            "language": "cpp",
-            "ast_depth": 6,
-            "taint_api_count": 2
+        """Test deserialization from dictionary."""
+        input_data = {
+            "snippet_id": "test-456",
+            "ast_depth": 3,
+            "cyclomatic_complexity": 2,
+            "node_count": 50,
+            "taint_api_count": 1,
+            "sanitization_present": False,
+            "embedding_similarity_score": 0.5
         }
-        fv = FeatureVector.from_dict(data)
-        
-        assert fv.vector_id == "manual-uuid"
-        assert fv.snippet_id == "from-dict"
-        assert fv.language == "cpp"
-        assert fv.ast_depth == 6
-        assert fv.taint_api_count == 2
-
-    def test_to_json(self):
-        """Test JSON serialization."""
-        fv = create_feature_vector(
-            snippet_id="json-test",
-            language="python",
-            ast_depth=2
-        )
-        json_str = fv.to_json()
-        
-        assert isinstance(json_str, str)
-        assert "json-test" in json_str
-        assert "python" in json_str
-
-    def test_from_json(self):
-        """Test JSON deserialization."""
-        json_str = '{"vector_id": "json-uuid", "snippet_id": "from-json", "language": "rust", "ast_depth": 3}'
-        fv = FeatureVector.from_json(json_str)
-        
-        assert fv.vector_id == "json-uuid"
-        assert fv.snippet_id == "from-json"
-        assert fv.language == "rust"
+        fv = FeatureVector.from_dict(input_data)
+        assert fv.snippet_id == "test-456"
         assert fv.ast_depth == 3
+        assert fv.cyclomatic_complexity == 2
+        assert fv.node_count == 50
+        assert fv.taint_api_count == 1
+        assert fv.sanitization_present is False
+        assert abs(fv.embedding_similarity_score - 0.5) < 1e-6
 
-    def test_round_trip_serialization(self):
-        """Test that serialization and deserialization preserve data."""
+    def test_round_trip(self):
+        """Test that to_dict -> from_dict preserves data."""
         original = create_feature_vector(
-            snippet_id="round-trip",
-            language="go",
-            ast_depth=5,
-            cyclomatic_complexity=10,
-            taint_api_count=4,
-            has_sanitization=True,
-            embedding_similarity_score=0.92,
-            embedding_vector=[0.5, 0.5, 0.5],
-            lines_of_code=100,
-            num_functions=5,
-            num_imports=10
+            ast_depth=7,
+            cyclomatic_complexity=4,
+            node_count=80,
+            taint_api_count=3,
+            sanitization_present=True,
+            embedding_similarity_score=0.92
         )
+        data = original.to_dict()
+        restored = FeatureVector.from_dict(data)
         
-        # Dict round trip
-        fv_dict = FeatureVector.from_dict(original.to_dict())
-        assert fv_dict.snippet_id == original.snippet_id
-        assert fv_dict.language == original.language
-        assert fv_dict.ast_depth == original.ast_depth
-        
-        # JSON round trip
-        fv_json = FeatureVector.from_json(original.to_json())
-        assert fv_json.snippet_id == original.snippet_id
-        assert fv_json.language == original.language
-        assert fv_json.cyclomatic_complexity == original.cyclomatic_complexity
+        assert restored.snippet_id == original.snippet_id
+        assert restored.ast_depth == original.ast_depth
+        assert restored.cyclomatic_complexity == original.cyclomatic_complexity
+        assert restored.node_count == original.node_count
+        assert restored.taint_api_count == original.taint_api_count
+        assert restored.sanitization_present == original.sanitization_present
+        assert abs(restored.embedding_similarity_score - original.embedding_similarity_score) < 1e-6
 
 
 class TestFeatureVectorValidation:
-    """Test validation and error handling."""
-
-    def test_feature_vector_invalid_embedding_type(self):
-        """Test that embedding_vector must be a list of floats."""
-        # This test verifies the type hint is respected at runtime
-        # (Python dataclasses don't enforce types by default, but the contract is documented)
+    def test_validate_from_schema_success(self):
+        """Test validation against Pydantic schema for valid data."""
         fv = create_feature_vector(
-            snippet_id="type-test",
-            language="python",
-            embedding_vector=[1.0, 2.0, 3.0]
+            ast_depth=5,
+            cyclomatic_complexity=3,
+            node_count=100,
+            taint_api_count=1,
+            sanitization_present=True,
+            embedding_similarity_score=0.75
         )
-        assert isinstance(fv.embedding_vector, list)
-        assert all(isinstance(x, float) for x in fv.embedding_vector)
+        assert fv.validate_from_schema() is True
 
-    def test_extraction_error_field(self):
-        """Test that extraction_error can store error messages."""
+    def test_validate_from_schema_failure(self):
+        """Test validation against Pydantic schema for invalid data."""
+        # Create an instance with a type mismatch (simulating schema drift or bad input)
+        # Note: Dataclasses don't enforce types strictly at runtime, so we simulate the check
         fv = create_feature_vector(
-            snippet_id="error-test",
-            language="python",
-            extraction_error="AST parsing failed: syntax error"
+            ast_depth=5,
+            cyclomatic_complexity=3,
+            node_count=100,
+            taint_api_count=1,
+            sanitization_present=True,
+            embedding_similarity_score=0.75
         )
-        
-        assert fv.extraction_error == "AST parsing failed: syntax error"
-        
-        # Test with no error
-        fv_no_error = create_feature_vector(
-            snippet_id="no-error-test",
-            language="python"
-        )
-        assert fv_no_error.extraction_error is None
+        # Manually corrupt a field to test validation
+        fv.ast_depth = "not_an_int" 
+        assert fv.validate_from_schema() is False

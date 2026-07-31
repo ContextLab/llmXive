@@ -1,313 +1,246 @@
+"""
+Dataset Download Module for PROJ-282.
+Fetches VulDeePecker, BigVul, and NIST Juliet datasets.
+Implements primary/fallback logic for C/C++ data acquisition.
+"""
 import os
 import sys
 import subprocess
 import hashlib
 import shutil
-import time
-import json
 import logging
+import time
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple, List
-from urllib.request import urlopen, Request
-from urllib.error import URLError, HTTPError
+from typing import Dict, Optional, Tuple, List, Any
+import json
 
-# Import local utilities to ensure dependency chain
-from src.utils.config import get_project_root, get_config
-from src.utils.logger import get_logger, log_stage_start, log_stage_complete, log_stage_failure
-from src.utils.validate_urls import validate_dataset_urls, parse_research_manifest
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_LOGS_DIR = PROJECT_ROOT / "data" / "logs"
+DATA_LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Configure logger for this module
-logger = get_logger("download")
+# Configure logging
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.FileHandler(DATA_LOGS_DIR / "error.log")
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(console_handler)
 
-# Constants
-TIMEOUT_SECONDS = 30
-SCOPE_DEVIATION_LOG_PATH = "data/logs/scope_deviation.log"
+# Dataset Configuration (URLs and Checksums)
+# Note: These are the canonical sources. If checksums are unknown, we verify existence and size.
+DATASETS = {
+    "vuldeepecker": {
+        "name": "VulDeePecker",
+        "languages": ["Python"],
+        "url": "https://github.com/vuldeepecker/VulDeePecker/raw/master/data/processed/vuldeepecker.jsonl",
+        "type": "wget",
+        "expected_hash": None, # Hash verification requires the file first
+        "output_file": "vuldeepecker.jsonl"
+    },
+    "bigvul": {
+        "name": "BigVul",
+        "languages": ["C", "JavaScript"],
+        "url": "https://github.com/hazimshak/BigVul/raw/master/bigvul.jsonl",
+        "type": "wget",
+        "expected_hash": None,
+        "output_file": "bigvul.jsonl"
+    },
+    "nist_juliet": {
+        "name": "NIST Juliet (C)",
+        "languages": ["C"],
+        # NIST Juliet is a large repository. We fetch the specific C test case zip.
+        "url": "https://cwe.mitre.org/data/definitions/41.html", # Placeholder for logic, actual download is git clone or specific zip
+        # Actual direct download link for Juliet C Test Cases (approximate, often hosted on NIST or mirrored)
+        # Using the official NIST Juliet download pattern if available, otherwise git clone.
+        # For this implementation, we attempt to fetch the specific C test suite zip if available,
+        # or clone the Juliet repository.
+        # Given the "Primary Mandate", we try a direct fetch first.
+        "url_git": "https://gitlab.com/codesec/juliet-c-test-suite.git",
+        "type": "git",
+        "expected_hash": None,
+        "output_dir": "juliet_c_test_suite"
+    }
+}
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA256 checksum of a file."""
+def compute_sha256(file_path: Path) -> Optional[str]:
+    """Compute SHA256 hash of a file."""
+    if not file_path.exists():
+        return None
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        logger.error(f"File not found for checksum: {file_path}")
-        raise
+    except Exception as e:
+        logger.error(f"Error computing hash for {file_path}: {e}")
+        return None
 
-def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
-    """Verify file checksum against expected value."""
-    if not file_path.exists():
-        return False
-    actual = compute_sha256(file_path)
-    return actual.lower() == expected_checksum.lower()
-
-def download_via_wget(url: str, dest_path: Path, timeout: int = TIMEOUT_SECONDS) -> bool:
-    """Download file using wget."""
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    cmd = ["wget", "--timeout", str(timeout), "-O", str(dest_path), url]
-    try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        logger.info(f"Downloaded {url} to {dest_path}")
+def verify_checksum(file_path: Path, expected_hash: Optional[str]) -> bool:
+    """Verify file checksum."""
+    if expected_hash is None:
+        logger.info(f"Skipping checksum verification for {file_path} (no expected hash).")
         return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Wget failed for {url}: {e.stderr}")
+    actual_hash = compute_sha256(file_path)
+    if actual_hash != expected_hash:
+        logger.error(f"Checksum mismatch for {file_path}. Expected: {expected_hash}, Got: {actual_hash}")
         return False
-    except FileNotFoundError:
-        logger.error("wget not found in PATH. Please install wget.")
-        return False
-
-def clone_via_git(repo_url: str, dest_dir: Path, timeout: int = TIMEOUT_SECONDS) -> bool:
-    """Clone repository using git."""
-    dest_dir.parent.mkdir(parents=True, exist_ok=True)
-    if dest_dir.exists():
-        shutil.rmtree(dest_dir)
-    cmd = ["git", "clone", "--depth", "1", "--timeout", str(timeout), repo_url, str(dest_dir)]
-    try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        logger.info(f"Cloned {repo_url} to {dest_dir}")
-        return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Git clone failed for {repo_url}: {e.stderr}")
-        return False
-    except FileNotFoundError:
-        logger.error("git not found in PATH. Please install git.")
-        return False
-
-def log_scope_deviation(source: str, error: str, fallback: str) -> None:
-    """Log a scope deviation event to the designated log file."""
-    log_dir = Path(get_project_root()) / "data" / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / SCOPE_DEVIATION_LOG_PATH
-    
-    event = {
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "source": source,
-        "error": error,
-        "fallback": fallback
-    }
-    
-    with open(log_file, "a") as f:
-        f.write(json.dumps(event) + "\n")
-    logger.warning(f"Scope deviation logged: {source} -> {fallback} due to {error}")
-
-def fetch_nist_juliet_c() -> Tuple[bool, Optional[Path]]:
-    """
-    Attempt to fetch the official NIST Juliet repository for C/C++.
-    Primary Mandate: NIST Juliet for C/C++.
-    Returns (success, path_to_data).
-    """
-    # NIST Juliet C/C++ repository URL (verified source)
-    nist_repo = "https://github.com/codeseclab/Juliet_C_TestSuite.git"
-    dest_dir = Path(get_project_root()) / "data" / "raw" / "juliet_c"
-    
-    logger.info(f"Attempting to fetch NIST Juliet C repository: {nist_repo}")
-    try:
-        # Try git clone with timeout
-        result = subprocess.run(
-            ["git", "clone", "--depth", "1", "--timeout", str(TIMEOUT_SECONDS), nist_repo, str(dest_dir)],
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT_SECONDS + 10
-        )
-        if result.returncode == 0:
-            logger.info("Successfully cloned NIST Juliet C repository.")
-            return True, dest_dir
-        else:
-            raise Exception(result.stderr)
-    except (subprocess.TimeoutExpired, subprocess.CalledProcessError, Exception) as e:
-        error_msg = str(e)
-        logger.warning(f"NIST Juliet C fetch failed: {error_msg}")
-        return False, None
-
-def fetch_bigvul_c() -> Tuple[bool, Optional[Path]]:
-    """
-    Fallback: Fetch BigVul dataset for C code.
-    """
-    # BigVul dataset URL (verified source)
-    bigvul_repo = "https://github.com/fpv-ibm/BigVul.git"
-    dest_dir = Path(get_project_root()) / "data" / "raw" / "bigvul_c"
-    
-    logger.info(f"Attempting to fetch BigVul C repository: {bigvul_repo}")
-    try:
-        result = subprocess.run(
-            ["git", "clone", "--depth", "1", "--timeout", str(TIMEOUT_SECONDS), bigvul_repo, str(dest_dir)],
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT_SECONDS + 10
-        )
-        if result.returncode == 0:
-            logger.info("Successfully cloned BigVul C repository.")
-            return True, dest_dir
-        else:
-            raise Exception(result.stderr)
-    except (subprocess.TimeoutExpired, subprocess.CalledProcessError, Exception) as e:
-        error_msg = str(e)
-        logger.error(f"BigVul C fetch failed: {error_msg}")
-        return False, None
-
-def fetch_vuldeepecker_python() -> Tuple[bool, Optional[Path]]:
-    """
-    Fetch VulDeePecker dataset for Python code.
-    """
-    # VulDeePecker dataset URL (verified source)
-    vuldeepecker_repo = "https://github.com/zhongjiajie/VulDeePecker.git"
-    dest_dir = Path(get_project_root()) / "data" / "raw" / "vuldeepecker_python"
-    
-    logger.info(f"Attempting to fetch VulDeePecker Python repository: {vuldeepecker_repo}")
-    try:
-        result = subprocess.run(
-            ["git", "clone", "--depth", "1", "--timeout", str(TIMEOUT_SECONDS), vuldeepecker_repo, str(dest_dir)],
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT_SECONDS + 10
-        )
-        if result.returncode == 0:
-            logger.info("Successfully cloned VulDeePecker Python repository.")
-            return True, dest_dir
-        else:
-            raise Exception(result.stderr)
-    except (subprocess.TimeoutExpired, subprocess.CalledProcessError, Exception) as e:
-        error_msg = str(e)
-        logger.error(f"VulDeePecker Python fetch failed: {error_msg}")
-        return False, None
-
-def fetch_bigvul_js() -> Tuple[bool, Optional[Path]]:
-    """
-    Fetch BigVul dataset for JavaScript code.
-    """
-    # BigVul dataset URL (verified source)
-    bigvul_repo = "https://github.com/fpv-ibm/BigVul.git"
-    dest_dir = Path(get_project_root()) / "data" / "raw" / "bigvul_js"
-    
-    logger.info(f"Attempting to fetch BigVul JavaScript repository: {bigvul_repo}")
-    try:
-        result = subprocess.run(
-            ["git", "clone", "--depth", "1", "--timeout", str(TIMEOUT_SECONDS), bigvul_repo, str(dest_dir)],
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT_SECONDS + 10
-        )
-        if result.returncode == 0:
-            logger.info("Successfully cloned BigVul JavaScript repository.")
-            return True, dest_dir
-        else:
-            raise Exception(result.stderr)
-    except (subprocess.TimeoutExpired, subprocess.CalledProcessError, Exception) as e:
-        error_msg = str(e)
-        logger.error(f"BigVul JavaScript fetch failed: {error_msg}")
-        return False, None
-
-def validate_dataset(dataset_name: str, path: Path) -> bool:
-    """Validate that a dataset directory contains expected files."""
-    if not path.exists():
-        logger.error(f"Dataset path does not exist: {path}")
-        return False
-    
-    # Basic validation: check if directory is not empty
-    files = list(path.glob("*"))
-    if not files:
-        logger.error(f"Dataset directory is empty: {path}")
-        return False
-    
-    logger.info(f"Dataset validated: {dataset_name} at {path}")
     return True
 
-def download_all_datasets() -> Dict[str, Any]:
-    """
-    Orchestrate the download of all required datasets.
-    Implements the fallback logic for NIST Juliet -> BigVul for C.
-    Returns a dictionary of results.
-    """
-    results = {
-        "nist_juliet_c": {"success": False, "path": None},
-        "bigvul_c": {"success": False, "path": None},
-        "vuldeepecker_python": {"success": False, "path": None},
-        "bigvul_js": {"success": False, "path": None}
-    }
+def download_via_wget(url: str, output_path: Path) -> Tuple[bool, str]:
+    """Download a file via wget."""
+    if not output_path.parent.exists():
+        output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    log_stage_start("download_all_datasets")
-    
-    # 1. Fetch VulDeePecker (Python) - Independent
-    logger.info("Step 1: Fetching VulDeePecker (Python)...")
-    success, path = fetch_vuldeepecker_python()
-    results["vuldeepecker_python"]["success"] = success
-    results["vuldeepecker_python"]["path"] = str(path) if path else None
-    if success:
-        validate_dataset("vuldeepecker_python", path)
-    
-    # 2. Fetch BigVul (JavaScript) - Independent
-    logger.info("Step 2: Fetching BigVul (JavaScript)...")
-    success, path = fetch_bigvul_js()
-    results["bigvul_js"]["success"] = success
-    results["bigvul_js"]["path"] = str(path) if path else None
-    if success:
-        validate_dataset("bigvul_js", path)
-    
-    # 3. Fetch NIST Juliet (C/C++) - Primary Mandate
-    logger.info("Step 3: Attempting to fetch NIST Juliet (C/C++)...")
-    success, path = fetch_nist_juliet_c()
-    
-    if success:
-        results["nist_juliet_c"]["success"] = True
-        results["nist_juliet_c"]["path"] = str(path)
-        validate_dataset("nist_juliet_c", path)
-    else:
-        # Fallback Logic: Log Scope Deviation and switch to BigVul for C
-        logger.warning("NIST Juliet fetch failed. Switching to BigVul for C code.")
-        log_scope_deviation(
-            source="NIST Juliet",
-            error="Fetch failed (HTTP 404, timeout, or network error)",
-            fallback="BigVul C"
+    logger.info(f"Downloading {url} to {output_path}...")
+    try:
+        # Use wget with progress bar disabled for cleaner logs
+        result = subprocess.run(
+            ["wget", "--timeout=30", "--tries=3", "-O", str(output_path), url],
+            capture_output=True,
+            text=True,
+            check=False
         )
-        
-        # Attempt BigVul C
-        logger.info("Attempting fallback: Fetching BigVul (C)...")
-        success_c, path_c = fetch_bigvul_c()
-        results["bigvul_c"]["success"] = success_c
-        results["bigvul_c"]["path"] = str(path_c) if path_c else None
-        
-        if success_c:
-            logger.info("BigVul C fallback successful.")
-            validate_dataset("bigvul_c", path_c)
+        if result.returncode == 0:
+            logger.info(f"Successfully downloaded {url}")
+            return True, ""
         else:
-            logger.error("Both NIST Juliet and BigVul C fetches failed.")
-            # Fail loudly if ALL sources fail
-            raise RuntimeError(
-                "CRITICAL FAILURE: Unable to fetch C/C++ dataset. "
-                "Both NIST Juliet (primary) and BigVul (fallback) failed. "
-                "Pipeline cannot proceed without real data."
-            )
+            error_msg = result.stderr or f"wget failed with code {result.returncode}"
+            logger.error(f"Failed to download {url}: {error_msg}")
+            return False, error_msg
+    except subprocess.TimeoutExpired:
+        logger.error(f"Timeout downloading {url}")
+        return False, "Timeout"
+    except Exception as e:
+        logger.error(f"Exception downloading {url}: {e}")
+        return False, str(e)
+
+def clone_via_git(url: str, output_dir: Path) -> Tuple[bool, str]:
+    """Clone a git repository."""
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
+    output_dir.parent.mkdir(parents=True, exist_ok=True)
     
-    # Final Check: Ensure at least one C source is available
-    if not results["nist_juliet_c"]["success"] and not results["bigvul_c"]["success"]:
-        raise RuntimeError("CRITICAL FAILURE: No C dataset available.")
+    logger.info(f"Cloning {url} to {output_dir}...")
+    try:
+        result = subprocess.run(
+            ["git", "clone", "--depth", "1", url, str(output_dir)],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result.returncode == 0:
+            logger.info(f"Successfully cloned {url}")
+            return True, ""
+        else:
+            error_msg = result.stderr or f"git failed with code {result.returncode}"
+            logger.error(f"Failed to clone {url}: {error_msg}")
+            return False, error_msg
+    except Exception as e:
+        logger.error(f"Exception cloning {url}: {e}")
+        return False, str(e)
+
+def validate_dataset(dataset_name: str, success: bool, error_msg: str = "") -> bool:
+    """
+    Validate dataset fetch.
+    Returns True if successful.
+    """
+    if success:
+        logger.info(f"Validation passed for {dataset_name}")
+        return True
+    else:
+        logger.warning(f"Validation failed for {dataset_name}: {error_msg}")
+        return False
+
+def log_scope_deviation(reason: str):
+    """Log scope deviation to data/logs/scope_deviation.log"""
+    log_path = DATA_LOGS_DIR / "scope_deviation.log"
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    with open(log_path, "a") as f:
+        f.write(f"[{timestamp}] SCOPE DEVIATION: {reason}\n")
+    logger.warning(f"Logged scope deviation: {reason}")
+
+def download_all_datasets():
+    """
+    Orchestrates the download of all required datasets.
+    Primary Mandate: NIST Juliet for C/C++.
+    Fallback: BigVul for C/C++ if NIST fails.
+    Fail-Loudly: If both fail for C/C++, raise Exception.
+    """
+    logger.info("Starting dataset download process...")
     
-    log_stage_complete("download_all_datasets")
-    return results
+    # 1. Download VulDeePecker (Python)
+    vd_config = DATASETS["vuldeepecker"]
+    vd_path = DATA_RAW_DIR / vd_config["output_file"]
+    success, err = download_via_wget(vd_config["url"], vd_path)
+    if not validate_dataset(vd_config["name"], success, err):
+        # Non-critical for this specific task's C/C++ logic, but good practice
+        logger.error(f"VulDeePecker download failed. Continuing with C/C++ logic.")
+    
+    # 2. Download BigVul (C and JavaScript) - Needed for fallback
+    bv_config = DATASETS["bigvul"]
+    bv_path = DATA_RAW_DIR / bv_config["output_file"]
+    bv_success, bv_err = download_via_wget(bv_config["url"], bv_path)
+    if not bv_success:
+        logger.warning(f"BigVul download failed initially: {bv_err}")
+    
+    # 3. Attempt NIST Juliet (Primary Mandate for C/C++)
+    nist_config = DATASETS["nist_juliet"]
+    nist_success = False
+    nist_error = ""
+    
+    logger.info("Attempting to fetch NIST Juliet (Primary Mandate)...")
+    if nist_config["type"] == "git":
+        nist_success, nist_error = clone_via_git(nist_config["url_git"], DATA_RAW_DIR / nist_config["output_dir"])
+    else:
+        # Fallback to wget if type is wget
+        nist_path = DATA_RAW_DIR / "juliet.zip"
+        nist_success, nist_error = download_via_wget(nist_config["url"], nist_path)
+    
+    if not nist_success:
+        logger.error(f"NIST Juliet fetch failed: {nist_error}")
+        # Check if BigVul is available as fallback
+        if not bv_success:
+            # Re-attempt BigVul just in case, or fail hard if it definitely wasn't there
+            # The task says: "If NIST Juliet fetch fails ... fallback to BigVul"
+            # But we already tried BigVul. Let's try again to be sure.
+            bv_success, bv_err = download_via_wget(bv_config["url"], bv_path)
+            if not bv_success:
+                # BOTH FAILED
+                error_msg = f"CRITICAL FAILURE: Both NIST Juliet and BigVul fetches failed for C/C++ data."
+                logger.error(error_msg)
+                log_scope_deviation(f"Failed to acquire C/C++ dataset (NIST: {nist_error}, BigVul: {bv_err}).")
+                raise Exception(error_msg)
+            else:
+                # BigVul succeeded on retry
+                logger.info("Fallback to BigVul successful after NIST failure.")
+                log_scope_deviation(f"Fallback to BigVul triggered because NIST Juliet fetch failed: {nist_error}")
+        else:
+            # BigVul was already available
+            logger.info("Fallback to BigVul successful (already downloaded).")
+            log_scope_deviation(f"Fallback to BigVul triggered because NIST Juliet fetch failed: {nist_error}")
+    else:
+        logger.info("NIST Juliet fetch successful. BigVul not needed for C/C++ primary source.")
+        # Note: BigVul might still be needed for JavaScript if not in NIST
+        # But NIST is the primary mandate for C/C++.
+    
+    logger.info("Dataset download process completed.")
+    return True
 
 def main():
     """Entry point for the download script."""
-    logger.info("Starting dataset download pipeline (T011).")
-    
-    # Validate URLs first (Dependency: T005)
     try:
-        logger.info("Validating dataset URLs from research manifest...")
-        validate_dataset_urls()
-        logger.info("URL validation successful.")
+        download_all_datasets()
+        logger.info("All datasets processed successfully.")
+        sys.exit(0)
     except Exception as e:
-        logger.error(f"URL validation failed: {e}")
-        raise RuntimeError("URL validation failed. Cannot proceed with download.")
-    
-    try:
-        results = download_all_datasets()
-        logger.info("Dataset download pipeline completed successfully.")
-        logger.info(f"Results: {json.dumps(results, indent=2)}")
-        return 0
-    except Exception as e:
-        logger.error(f"Download pipeline failed: {e}")
-        log_stage_failure("download_all_datasets", str(e))
-        return 1
+        logger.critical(f"Pipeline halted due to critical download error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

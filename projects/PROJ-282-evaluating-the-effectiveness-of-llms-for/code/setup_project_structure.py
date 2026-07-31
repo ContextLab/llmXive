@@ -1,72 +1,71 @@
-"""
-Setup project structure for llmXive research pipeline.
-Creates required directories: src/, tests/, data/, data/raw/, data/processed/, data/results/, state/
-"""
 import os
 import sys
 from pathlib import Path
 
-def create_structure(project_root: Path = None):
+def create_structure():
     """
-    Creates the standard project directory structure.
+    Creates the project directory structure as defined in tasks.md T001.
+    Directories created:
+    - src/
+    - tests/
+    - data/
+    - data/raw/
+    - data/processed/
+    - data/results/
+    - state/
     
-    Args:
-        project_root: Path to the project root. Defaults to current directory.
+    Also creates __init__.py files to ensure Python package recognition.
     """
-    if project_root is None:
-        project_root = Path.cwd()
+    # Define the project root (current working directory or explicit path)
+    # Assuming this script runs from the project root
+    project_root = Path.cwd()
     
-    # Define required directories
+    # Define the relative paths to create
     directories = [
         "src",
-        "src/utils",
-        "src/data",
-        "src/models",
-        "src/services",
-        "src/analysis",
         "tests",
-        "tests/unit",
         "data",
         "data/raw",
         "data/processed",
         "data/results",
-        "data/logs",
-        "data/human_review",
+        "data/logs",  # Added based on usage in download.py and T013
         "state",
-        "state/projects",
-        "contracts",
-        "figures"
+        "contracts",  # Required for schema contracts (T007a, T008a, etc.)
+        "figures",    # Required for output plots (T032)
     ]
     
-    created_count = 0
-    for dir_name in directories:
-        dir_path = project_root / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory exists: {dir_path}")
+    created_dirs = []
+    skipped_dirs = []
     
-    print(f"\nProject structure setup complete. Created {created_count} new directories.")
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(full_path))
+            
+            # Create __init__.py for Python packages
+            if dir_path.startswith("src") or dir_path.startswith("tests"):
+                init_file = full_path / "__init__.py"
+                if not init_file.exists():
+                    init_file.write_text("# Auto-generated init file\n")
+        except Exception as e:
+            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
     
-    # Create placeholder __init__.py files
-    init_files = [
-        project_root / "src" / "__init__.py",
-        project_root / "src" / "utils" / "__init__.py",
-        project_root / "src" / "data" / "__init__.py",
-        project_root / "src" / "models" / "__init__.py",
-        project_root / "src" / "services" / "__init__.py",
-        project_root / "src" / "analysis" / "__init__.py",
-        project_root / "tests" / "__init__.py",
-        project_root / "tests" / "unit" / "__init__.py",
-    ]
+    # Create .gitkeep files for empty data directories to ensure they are tracked by git
+    data_dirs = ["data/raw", "data/processed", "data/results", "data/logs"]
+    for dir_path in data_dirs:
+        full_path = project_root / dir_path
+        keep_file = full_path / ".gitkeep"
+        if not keep_file.exists():
+            keep_file.write_text("")
+            if str(full_path) not in created_dirs:
+                created_dirs.append(str(full_path))
     
-    for init_file in init_files:
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created __init__.py: {init_file}")
-    
+    print(f"Project structure created successfully at: {project_root}")
+    print(f"Directories created: {len(created_dirs)}")
+    for d in created_dirs:
+        print(f"  - {d}")
+        
     return True
 
 if __name__ == "__main__":

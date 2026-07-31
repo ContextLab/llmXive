@@ -1,28 +1,8 @@
-# Contract for PredictionResult
-# Auto-generated schema for T009a/T009b
-# This file defines the structure of the PredictionResult dataclass
-# to prevent schema drift.
 type: object
 properties:
-  snippet_id:
-    type: string
-    description: Unique identifier for the code snippet
-  predicted_label:
-    type: string
-    description: The label predicted by the model (e.g., 'vulnerable', 'safe')
-  predicted_category:
-    type: string
-    description: The specific vulnerability category predicted (e.g., 'SQLi', 'Buffer Overflow', 'none', 'uncertain')
-  is_correct:
-    type: boolean
-    description: Boolean flag indicating if the prediction matches the ground truth
-  inference_time_ms:
-    type: number
-    description: Time taken for inference in milliseconds
-required:
-  - snippet_id
-  - predicted_label
-  - predicted_category
-  - is_correct
-  - inference_time_ms
-additionalProperties: false
+  snippet_id: {type: string}
+  predicted_label: {type: string}
+  predicted_category: {type: string}
+  is_correct: {type: boolean}
+  inference_time_ms: {type: number}
+required: [snippet_id, predicted_label, predicted_category, is_correct, inference_time_ms]

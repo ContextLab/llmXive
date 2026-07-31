@@ -1,33 +1,8 @@
-# Contract for PredictionResult data structure
-# Generated artifact for T009a - T009b depends on this
 type: object
-title: PredictionResult
-description: Result of LLM or Static Analyzer prediction
 properties:
-  snippet_id:
-    type: string
-    description: Reference to the CodeSnippet id
-  predicted_label:
-    type: string
-    description: Predicted vulnerability label
-    enum:
-      - vulnerable
-      - safe
-      - uncertain
-  predicted_category:
-    type: string
-    description: Predicted vulnerability category
-    nullable: true
-  is_correct:
-    type: boolean
-    description: Whether the prediction matches ground truth
-    nullable: true
-  inference_time_ms:
-    type: number
-    format: float
-    description: Time taken for inference in milliseconds
-    nullable: true
-required:
-  - snippet_id
-  - predicted_label
-  - is_correct
+  snippet_id: {type: string}
+  predicted_label: {type: string}
+  predicted_category: {type: string}
+  is_correct: {type: boolean}
+  inference_time_ms: {type: number}
+required: [snippet_id, predicted_label, predicted_category, is_correct, inference_time_ms]

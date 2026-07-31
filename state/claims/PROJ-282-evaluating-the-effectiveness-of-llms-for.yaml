@@ -1,0 +1,499 @@
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: fetch VulDeePecker BigVul and NIST Juliet datasets
+  claim_id: c_7858b37b
+  context: T011 [US1] Implement src/data/download.py to fetch VulDeePecker (Python),
+    BigVul (C and JavaScript), and official NIST Juliet repository for C/C++.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_VulDeePecker_BigVul_and_NIST_Juliet_datasets
+  kind: entity_fact
+  raw_text: Implement src/data/download.py to fetch VulDeePecker (Python), BigVul
+    (C and JavaScript), and official NIST Juliet repository for C/C++.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:11:38Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: initialize project with transformers scikit-learn pandas tree-sitter
+    networkx requests pyyaml bitsandbytes sentence-transformers pytest radon statsmodels
+  claim_id: c_4d2dbcde
+  context: T002 Initialize Python project with requirements.txt (transformers, scikit-learn,
+    pandas, tree-sitter, networkx, requests, pyyaml, bitsandbytes, sentence-transformers,
+    pytest, radon, statsmodels)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Initialize_project_with_transformers_scikit-learn_pandas_tre
+  kind: entity_fact
+  raw_text: Initialize Python project with requirements.txt (transformers, scikit-learn,
+    pandas, tree-sitter, networkx, requests, pyyaml, bitsandbytes, sentence-transformers,
+    pytest, radon, statsmodels).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:12:21Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: model selection must be deterministic based on fixed seed or static configuration
+  claim_id: c_a91e2c72
+  context: 'T004a Implement src/utils/model_selector.py to implement a deterministic
+    model selection strategy based on the candidate list in T004. Logic: The selection
+    must be deterministic (e.g., based on a fixed seed or a static configuration)
+    and logged.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_selection_must_be_deterministic_based_on_fixed_seed_or
+  kind: entity_fact
+  raw_text: The selection must be deterministic (e.g., based on a fixed seed or a
+    static configuration) and logged.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:12:45Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: report adjusted p-value for every test using Bonferroni correction
+  claim_id: c_319fe985
+  context: 'T029 [US3] Output Requirement: The output file MUST explicitly distinguish
+    the correction method used (Bonferroni) and report the adjusted p-value for every
+    test in the family.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_adjusted_p-value_for_every_test_using_Bonferroni_corr
+  kind: entity_fact
+  raw_text: The output file MUST explicitly distinguish the correction method used
+    (Bonferroni) and report the adjusted p-value for every test in the family.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:13:12Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: perform Binary Logistic Regression using statsmodels including language
+    as categorical predictor
+  claim_id: c_1d839da6
+  context: T030 [US3] Implement Binary Logistic Regression (GLM) fitting in src/analysis/regression.py
+    using statsmodels to predict per-sample binary is_correct from features, including
+    'language' as a categorical predictor to control for confounding.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Binary_Logistic_Regression_using_statsmodels_includi
+  kind: entity_fact
+  raw_text: Perform Binary Logistic Regression (GLM) fitting in src/analysis/regression.py
+    using statsmodels to predict per-sample binary is_correct from features, including
+    'language' as a categorical predictor to control for confounding.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:13:47Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: "report McFadden's Pseudo R\xB2 with key mcfadden_pseudo_r2"
+  claim_id: c_fbe629a5
+  context: "T030 [US3] Deliverable: data/results/regression_summary.json MUST contain\
+    \ coefficients for the 'language' variable and report McFadden's Pseudo R\xB2\
+    \ with the key mcfadden_pseudo_r2."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_McFadden%27s_Pseudo_R%C2%B2_with_key_mcfadden_pseudo_r2
+  kind: entity_fact
+  raw_text: "The output JSON must contain coefficients for the 'language' variable\
+    \ and report McFadden's Pseudo R\xB2 with the key mcfadden_pseudo_r2."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:14:45Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: implement McNemar's test using exact binomial method
+  claim_id: c_48274ffd
+  context: T031 [US3] Implement McNemar's test in src/analysis/regression.py using
+    statsmodels.stats.contingency.mcnemar (exact binomial method) to compare LLM vs.
+    Static Analyzer predictions on the same samples.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_McNemar%27s_test_using_exact_binomial_method
+  kind: entity_fact
+  raw_text: Implement McNemar's test in src/analysis/regression.py using statsmodels.stats.contingency.mcnemar
+    (exact binomial method) to compare LLM vs. Static Analyzer predictions on the
+    same samples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:15:04Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: select random subset of 100 samples for manual review
+  claim_id: c_d80c8efb
+  context: T035 [P] Implement src/analysis/sensitivity.py to select a random subset
+    of n=100 samples and export them to data/human_review/export.csv for manual review.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of n=100 samples and export them to data/human_review/export.csv
+    for manual review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:15:26Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: inject deterministic noise by flipping labels with fixed seed
+  claim_id: c_fc522d05
+  context: 'T036b [P] Logic: If data/human_review/verified_labels.csv is missing,
+    the system MUST NOT generate synthetic labels. Instead, it MUST inject deterministic
+    noise (e.g., flip [deferred] of labels randomly with a fixed seed) into a copy
+    of the original labels to simulate noise.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inject_deterministic_noise_by_flipping_labels_with_fixed_see
+  kind: entity_fact
+  raw_text: Inject deterministic noise (e.g., flip [deferred] of labels randomly with
+    a fixed seed) into a copy of the original labels to simulate noise.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:15:52Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: pipeline must complete within 6 hours
+  claim_id: c_52d7b104
+  context: 'Notes: Time Constraint: The entire pipeline must complete within 6 hours;
+    optimize batch sizes and parallelization where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entire pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:16:13Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: NIST Juliet is the primary dataset for C/C++ vulnerability detection
+  claim_id: c_302a29c2
+  context: 'T011 [US1] Implement src/data/download.py to fetch VulDeePecker (Python),
+    BigVul (C and JavaScript), and official NIST Juliet repository for C/C++. CRITICAL:
+    Primary Mandate: NIST Juliet for C/C++.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_Juliet_is_the_primary_dataset_for_C/C++_vulnerability_d
+  kind: entity_fact
+  raw_text: The script MUST attempt to fetch NIST Juliet for C/C++ first.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:17:53Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: BigVul is the fallback dataset for C/C++ if NIST Juliet is unavailable
+  claim_id: c_efd94884
+  context: 'Fallback Logic: If NIST Juliet fetch fails (HTTP 404, network timeout,
+    checksum mismatch), the script MUST automatically fallback to fetching BigVul
+    for C/C++ analysis as explicitly required by plan.md ''Dataset Substitution''
+    and spec.md FR-001.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BigVul_is_the_fallback_dataset_for_C/C++_if_NIST_Juliet_is_u
+  kind: entity_fact
+  raw_text: If NIST Juliet fetch fails, the script MUST automatically fallback to
+    fetching BigVul for C/C++ analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:18:25Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if both NIST Juliet and BigVul fetches fail for C/C++
+  claim_id: c_9e2b3760
+  context: 'Fail-Loudly Policy: ONLY if BOTH NIST Juliet AND BigVul fetches fail for
+    C/C++, the script MUST raise an exception and halt execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_both_NIST_Juliet_and_BigVul_fetches_fail_f
+  kind: entity_fact
+  raw_text: ONLY if BOTH NIST Juliet AND BigVul fetches fail for C/C++, the script
+    MUST raise an exception and halt execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:18:56Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit is 6 hours
+  claim_id: c_ab493034
+  context: 'Time Constraint: The entire pipeline must complete within 6 hours; optimize
+    batch sizes and parallelization where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:19:14Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Human review sample size is 100
+  claim_id: c_7f82412c
+  context: T035 [P] Implement src/analysis/sensitivity.py to select a random subset
+    of n=100 samples and export them to data/human_review/export.csv for manual review.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A random subset of n=100 samples will be selected for human review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:20:04Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: NIST Juliet fetch priority for C/C++
+  claim_id: c_a2c609d9
+  context: T011 [US1] Implement src/data/download.py to fetch VulDeePecker (Python),
+    BigVul (C and JavaScript), and official NIST Juliet repository for C/C++.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_Juliet_fetch_priority_for_C/C++
+  kind: entity_fact
+  raw_text: The script MUST attempt to fetch NIST Juliet for C/C++ first.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:21:42Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Fallback to BigVul for C/C++ if NIST Juliet fails
+  claim_id: c_455956c4
+  context: 'Fallback Logic: If NIST Juliet fetch fails (HTTP 404, network timeout,
+    checksum mismatch), the script MUST automatically fallback to fetching BigVul
+    for C/C++ analysis as explicitly required by plan.md ''Dataset Substitution''
+    and spec.md FR-001.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_BigVul_for_C/C++_if_NIST_Juliet_fails
+  kind: entity_fact
+  raw_text: If NIST Juliet fetch fails, the script MUST automatically fallback to
+    fetching BigVul for C/C++ analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:21:43Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Halt execution if both NIST Juliet and BigVul fetches fail
+  claim_id: c_0c94caf6
+  context: 'Fail-Loudly Policy: ONLY if BOTH NIST Juliet AND BigVul fetches fail for
+    C/C++, the script MUST raise an exception and halt execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_both_NIST_Juliet_and_BigVul_fetches_fail
+  kind: entity_fact
+  raw_text: ONLY if BOTH NIST Juliet AND BigVul fetches fail for C/C++, the script
+    MUST raise an exception and halt execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:21:45Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Deterministic noise injection with fixed seed if human review missing
+  claim_id: c_3d0c232a
+  context: If data/human_review/verified_labels.csv is missing, the system MUST NOT
+    generate synthetic labels. Instead, it MUST inject deterministic noise (e.g. flip
+    [deferred] of labels randomly with a fixed seed) into a copy of the original labels
+    to simulate noise.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deterministic_noise_injection_with_fixed_seed_if_human_revie
+  kind: entity_fact
+  raw_text: The system MUST inject deterministic noise by flipping labels randomly
+    with a fixed seed if human review is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:22:05Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Pipeline completion time limit of 6 hours
+  claim_id: c_8da5b1cd
+  context: 'Time Constraint: The entire pipeline must complete within 6 hours; optimize
+    batch sizes and parallelization where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:22:05Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Random subset of 100 samples for manual review
+  claim_id: c_30031b85
+  context: Implement src/analysis/sensitivity.py to select a random subset of n=100
+    samples and export them to data/human_review/export.csv for manual review.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A random subset of n=100 samples must be selected for manual review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:22:30Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Output CSV must include language column
+  claim_id: c_b027300a
+  context: 'EXPLICIT REQUIREMENT: The output CSV MUST include the language column
+    to support regression analysis in T030.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_must_include_language_column
+  kind: entity_fact
+  raw_text: The output CSV MUST include the language column to support regression
+    analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:23:03Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Report adjusted p-values with Bonferroni correction method
+  claim_id: c_e296ab64
+  context: 'Output Requirement: The output file MUST explicitly distinguish the correction
+    method used (Bonferroni) and report the adjusted p-value for every test in the
+    family.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_adjusted_p-values_with_Bonferroni_correction_method
+  kind: entity_fact
+  raw_text: The output file MUST explicitly distinguish the correction method used
+    (Bonferroni) and report the adjusted p-value for every test in the family.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:23:05Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: "Regression summary must contain language coefficients and McFadden's\
+    \ Pseudo R\xB2"
+  claim_id: c_5f7da6c1
+  context: "Deliverable: data/results/regression_summary.json MUST contain coefficients\
+    \ for the 'language' variable and report McFadden's Pseudo R\xB2 with the key\
+    \ mcfadden_pseudo_r2."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_summary_must_contain_language_coefficients_and_Mc
+  kind: entity_fact
+  raw_text: "The regression summary MUST contain coefficients for the language variable\
+    \ and report McFadden's Pseudo R\xB2."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:23:39Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 for embedding vectors
+  claim_id: c_75cc16a5
+  context: 'Embed: Initialize the pre-trained code encoder sentence-transformers/all-MiniLM-L6-v2,
+    load data/canonical_patterns.json, and compute embedding vectors for these patterns.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_embedding_vec
+  kind: entity_fact
+  raw_text: The pre-trained code encoder sentence-transformers/all-MiniLM-L6-v2 must
+    be used to compute embedding vectors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T14:24:01Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Log error to data/logs/error.log and exit with non-zero code on failure
+  claim_id: c_dbef59b6
+  context: Log the error to data/logs/error.log and exit with a non-zero code.
+  evidence:
+    entailment_evidence: Log error to data/logs/error.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Log_error_to_data/logs/error.log_and_exit_with_non-zero_code
+  kind: entity_fact
+  raw_text: The script MUST log the error to data/logs/error.log and exit with a non-zero
+    code if fetches fail.
+  resolved_value: Log error to data/logs/error.log and exit with non-zero code on
+    failure
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T14:24:02Z'

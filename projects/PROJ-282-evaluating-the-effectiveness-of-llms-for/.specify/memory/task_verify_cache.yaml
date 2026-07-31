@@ -1,33 +1,41 @@
-T007b:
+T001:
   c: false
-  h: 80385268fd2cd354da90b2f54bfc7f3422527d792087a2e01d369a71b0d2ea49
-  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so the\
-    \ code could not have been generated from it. Moreover, `src/models/code_snippet.py`\
-    \ contains a hand\u2011written `@dataclass` rather than a Pydantic model or clearly\
-    \ auto\u2011generated code, violating the \u201Cdo not manually implement fields\u201D\
-    \ constraint. The task therefore remains unfinished."
-T008b:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure was presented in the evidence; the required folders (`src/`,
+    `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `state/`)
+    are not shown to exist or contain any files. The implementer must create and provide
+    this project hierarchy.
+T003:
   c: false
-  h: f2e266b078bdaecee29b82dc62822b14ff3c0a8188c1e4af3d9a72446c3aab6f
-  r: "The `src/models/feature_vector.py` file exists, but the required source contract\
-    \ `contracts/feature.schema.yaml` is missing, so there is no evidence the dataclass\
-    \ was generated from it. Moreover, the file uses a hand\u2011written dataclass\
-    \ rather than a clear pydantic model or generated code, violating the \u201Cdo\
-    \ not manually implement fields\u201D constraint. The task therefore remains unfinished."
-T009b:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml`) or any evidence of ruff/black setup were provided;
+    the claim lacks the required artifacts.
+T009d:
   c: false
-  h: 3c3397ec30248e855d0265b82cbd388b76f3c047b805cdc565e0e84bc0b6f62a
-  r: "The `src/models/prediction_result.py` file is a hand\u2011written dataclass\
-    \ (with custom validation and factory functions) rather than a pydantic model\
-    \ generated from a schema, and the required `contracts/prediction.schema.yaml`\
-    \ file is missing, so the code cannot have been generated from the contract as\
-    \ mandated."
+  h: c7c5fe08d75e1a6b63d6a964d935e7d43659ca6fc8229fff390f0b6f0901e668
+  r: "The required contract file `contracts/analysis_metric.schema.yaml` is missing,\
+    \ so the model could not be generated from it, and the fields in `src/models/analysis_metric.py`\
+    \ appear manually written rather than auto\u2011generated. The task\u2019s core\
+    \ requirement\u2014producing a dataclass derived from the schema to prevent drift\u2014\
+    is therefore not met."
 T011:
   c: false
-  h: 712c47d2837a57133588a8e8ec672f7674f582dacce156ade384d8656e639954
-  r: "The provided `src/data/download.py` is truncated and shows no implementation\
-    \ of the required dataset fetches, the NIST\u2011Juliet fallback logic, or the\
-    \ JSON logging to `data/logs/scope_deviation.log`. Moreover, the log file itself\
-    \ does not exist in the repository. Without visible code that validates URLs (T005),\
-    \ attempts the NIST fetch, logs a scope\u2011deviation event on 404/timeout, and\
-    \ switches to BigVul, the task requirements are not satisfied."
+  h: fd6e526b7cb520a271b9db33f868e84729b8098ba2b58e3f55bce8cb66e608d7
+  r: "The provided `src/data/download.py` is truncated and does not show any implementation\
+    \ of the required fetch\u2011and\u2011fallback logic, URL validation, checksum\
+    \ handling, or raising a non\u2011zero exit on double failure. Moreover, the NIST\
+    \ Juliet URL is a placeholder rather than a real download link, and there is no\
+    \ evidence that the script logs errors to `data/logs/error.log` or exits with\
+    \ a non\u2011zero code. The artifact therefore does not satisfy the task\u2019\
+    s specifications."
+T015:
+  c: false
+  h: ba9e8abba09e732308e52ceded9a0431f505e62e03e37e30fea302e9dfebacf7
+  r: "The repository contains `src/data/ingest_pipeline.py`, but the file is truncated\
+    \ and does not show a complete orchestration (e.g., a `main` that runs T011, T012,\
+    \ T013 sequentially) nor full validation of the `PredictionResult` schema. Moreover,\
+    \ the required output `data/processed/predictions.csv` is absent, so the pipeline\u2019\
+    s end\u2011to\u2011end behavior cannot be verified. The next implementer should\
+    \ provide the full script (including a runnable entry point) and ensure that running\
+    \ it produces a `predictions.csv` that conforms to the schema."

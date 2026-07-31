@@ -1,28 +1,8 @@
-# Contract for CodeSnippet
-# Auto-generated schema for T007a/T007b
-# This file defines the structure of the CodeSnippet dataclass
-# to prevent schema drift.
 type: object
 properties:
-  id:
-    type: string
-    description: Unique identifier for the code snippet
-  language:
-    type: string
-    description: Programming language of the code (e.g., 'python', 'c', 'java')
-  source_code:
-    type: string
-    description: The actual source code content
-  ground_truth_label:
-    type: string
-    description: Ground truth label (e.g., 'vulnerable', 'safe')
-  ground_truth_category:
-    type: string
-    description: Specific vulnerability category (e.g., 'SQLi', 'Buffer Overflow')
-required:
-  - id
-  - language
-  - source_code
-  - ground_truth_label
-  - ground_truth_category
-additionalProperties: false
+  id: {type: string}
+  language: {type: string, enum: [C, Python, JavaScript]}
+  source_code: {type: string}
+  ground_truth_label: {type: string}
+  ground_truth_category: {type: string}
+required: [id, language, source_code, ground_truth_label, ground_truth_category]

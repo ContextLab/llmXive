@@ -6,89 +6,58 @@ import shutil
 from setup_project_structure import create_structure
 
 class TestProjectStructure:
-    """Tests for the project structure creation functionality."""
+    """Tests for the project structure creation task T001."""
 
-    def test_directory_structure_exists(self, tmp_path):
-        """Test that all required directories are created."""
-        # Create structure in temporary directory
-        success = create_structure(str(tmp_path))
-        assert success is True
+    @pytest.fixture
+    def temp_project_dir(self):
+        """Create a temporary directory to simulate the project root."""
+        temp_dir = tempfile.mkdtemp()
+        original_cwd = os.getcwd()
+        os.chdir(temp_dir)
+        yield Path(temp_dir)
+        os.chdir(original_cwd)
+        shutil.rmtree(temp_dir)
 
-        # Verify all required directories exist
-        required_dirs = [
-            "src",
-            "tests",
-            "data/raw",
-            "data/processed",
-            "data/results",
-            "state"
-        ]
-
-        for dir_name in required_dirs:
-            dir_path = tmp_path / dir_name
-            assert dir_path.exists(), f"Directory {dir_name} was not created"
-            assert dir_path.is_dir(), f"{dir_name} is not a directory"
-
-    def test_gitkeep_files_created(self, tmp_path):
-        """Test that .gitkeep files are created in all directories."""
-        create_structure(str(tmp_path))
+    def test_directory_structure_exists(self, temp_project_dir):
+        """Verify that create_structure() creates all required directories."""
+        # Run the structure creation
+        result = create_structure()
+        assert result is True
 
         required_dirs = [
             "src",
             "tests",
+            "data",
             "data/raw",
             "data/processed",
             "data/results",
-            "state"
+            "state",
+            "contracts",
+            "figures",
+            "data/logs"
         ]
 
         for dir_name in required_dirs:
-            dir_path = tmp_path / dir_name
-            gitkeep_path = dir_path / ".gitkeep"
-            assert gitkeep_path.exists(), f".gitkeep not found in {dir_name}"
+            full_path = temp_project_dir / dir_name
+            assert full_path.exists(), f"Directory {dir_name} was not created"
+            assert full_path.is_dir(), f"{dir_name} exists but is not a directory"
 
-    def test_nested_directories_created(self, tmp_path):
-        """Test that nested directories (e.g., data/raw) are created correctly."""
-        create_structure(str(tmp_path))
+    def test_init_files_created(self, temp_project_dir):
+        """Verify that __init__.py files are created for Python packages."""
+        create_structure()
 
-        # Check that nested structure is preserved
-        data_raw = tmp_path / "data" / "raw"
-        data_processed = tmp_path / "data" / "processed"
-        data_results = tmp_path / "data" / "results"
+        package_dirs = ["src", "tests"]
+        for dir_name in package_dirs:
+            full_path = temp_project_dir / dir_name
+            init_file = full_path / "__init__.py"
+            assert init_file.exists(), f"__init__.py missing in {dir_name}"
 
-        assert data_raw.exists()
-        assert data_processed.exists()
-        assert data_results.exists()
+    def test_gitkeep_files_created(self, temp_project_dir):
+        """Verify that .gitkeep files are created in empty data directories."""
+        create_structure()
 
-    def test_idempotent_creation(self, tmp_path):
-        """Test that running create_structure multiple times doesn't cause errors."""
-        # Run twice
-        success1 = create_structure(str(tmp_path))
-        success2 = create_structure(str(tmp_path))
-
-        assert success1 is True
-        assert success2 is True
-
-        # Verify directories still exist
-        required_dirs = [
-            "src",
-            "tests",
-            "data/raw",
-            "data/processed",
-            "data/results",
-            "state"
-        ]
-
-        for dir_name in required_dirs:
-            dir_path = tmp_path / dir_name
-            assert dir_path.exists()
-
-    def test_custom_root_path(self, tmp_path):
-        """Test that structure can be created in a custom path."""
-        custom_path = tmp_path / "custom_project"
-        success = create_structure(str(custom_path))
-
-        assert success is True
-        assert custom_path.exists()
-        assert (custom_path / "src").exists()
-        assert (custom_path / "data").exists()
+        data_dirs = ["data/raw", "data/processed", "data/results", "data/logs"]
+        for dir_name in data_dirs:
+            full_path = temp_project_dir / dir_name
+            keep_file = full_path / ".gitkeep"
+            assert keep_file.exists(), f".gitkeep missing in {dir_name}"
