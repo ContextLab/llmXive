@@ -1,23 +1,80 @@
-T011:
+T011a:
   c: false
-  h: 7c8c3747d20cf3a0a8067ee11a1cbbe828dbff768e69576881d0f0f23b02ec6f
-  r: "The provided `code/data_loader.py` contains only part of the dataset\u2011fetching\
-    \ logic and does not include any implementation that builds a graph, injects random\
-    \ edges at a specified density with seed\u202F42, or writes the result to `data/processed/graphs/graph_noise_42.json`\
-    \ (the file is absent). Consequently the required synthetic noisy graph generation\
-    \ and output artifact are missing, so the task is not satisfied."
-T013:
+  h: c9d22d26d7de2b322cf56fd04854cd64676d5fd63cfb8119abdd77ef84389300
+  r: "The repository contains a `code/data_loader.py` script, but the required output\
+    \ file `data/raw/locomo.csv` is absent, and the provided code snippet is truncated\
+    \ before any CSV\u2011writing logic is shown. Consequently the task\u2019s core\
+    \ deliverable\u2014downloading the dataset and saving it as `locomo.csv`\u2014\
+    has not been demonstrated. The missing CSV (and likely incomplete implementation)\
+    \ must be added."
+T011c:
   c: false
-  h: d610150bd68c0f7f7a2a5e692b88c51d89b41fa5e5bac6f5113aea1f084a0dbf
-  r: The required output file `data/processed/baseline_results.csv` does not exist,
-    and the provided `code/runner.py` snippet shows no implementation that logs `task_id`,
-    `accuracy`, `nodes_visited`, and `latency_ms` to such a CSV. The runner lacks
-    the necessary logic to produce the specified baseline results file.
-T020:
+  h: a6e3c5ba47e069a52914a7f71c66a9b81769ed609a5fa8b71895475e2190ebd4
+  r: "The required output file `data/processed/graphs/graph_noise_42.json` does not\
+    \ exist, and the provided `code/data_loader.py` snippet is incomplete (truncated)\
+    \ with no visible call to `inject_noise` or logic that writes the noisy graph\
+    \ to the specified path. The task\u2019s core requirement\u2014generating and\
+    \ saving the noisy graph dataset\u2014is therefore unmet."
+T013b:
   c: false
-  h: 07f7ca7632beab66902cb9d80fd6749dd5dba6c3e30276e1e5b76f3d7a472ec1
-  r: "The required `data/processed/sweep_results.csv` file does not exist, and the\
-    \ `lazy.py` implementation only defines the `LazyTraversal` class with a fixed\
-    \ `evidence_threshold` (default 0.8) and contains no code that performs a sensitivity\u2011\
-    analysis sweep over the thresholds (including 0.7 and 0.9) nor writes results\
-    \ to the specified CSV. The task\u2019s core requirement is therefore unmet."
+  h: 5d9d5e938d79c436a93c4d29ef03527760a16058a284646135aeb48433bb3933
+  r: "The required synthetic graph file `data/processed/graphs/graph_noise_42.json`\
+    \ is absent, and the expected results CSV `data/processed/noisy_baseline_results.csv`\
+    \ was not generated. Moreover, `code/runner.py` only contains generic task\u2011\
+    running utilities and does not implement the noisy\u2011baseline execution or\
+    \ logging of the specified fields. The task\u2019s core functionality and output\
+    \ artifacts are missing."
+T019a:
+  c: false
+  h: 636a1dd91d5d6d11a4466a44e658a9cd82352bbe7556e3608e328de7c330eb9c
+  r: "The provided `code/runner.py` contains generic task\u2011running utilities but\
+    \ does not implement the Lazy strategy, does not apply the required evidence threshold,\
+    \ and does not write results to `data/processed/lazy_results.csv` with the specified\
+    \ schema. Moreover, the `lazy_results.csv` file is missing entirely."
+T019b:
+  c: false
+  h: 173df7a2044809048b632eebe39e211d6007448aef7eb50251920b33ee576348
+  r: "The provided `code/runner.py` contains generic task\u2011running utilities but\
+    \ no implementation of the Greedy strategy, no handling of a default top\u2011\
+    k\u202F=\u202F3, and no code that writes results to `data/processed/greedy_results.csv`.\
+    \ Moreover, the required CSV file does not exist. The task\u2019s required artifact\
+    \ and behavior are therefore missing."
+T019c:
+  c: false
+  h: 443e60fbe80e0468d72661e5cb66765ab392bf946cba33ae031ef115ba5c1c05
+  r: "The required synthetic graph file `data/processed/graphs/graph_noise_42.json`\
+    \ is absent, and the expected results CSV `data/processed/noisy_lazy_results.csv`\
+    \ was not generated. Moreover, `code/runner.py` only contains generic task\u2011\
+    running utilities and does not implement the Lazy strategy runner or produce the\
+    \ specified output schema. The task therefore remains unfinished."
+T019d:
+  c: false
+  h: 71bedf566b2256fd8a84ad48c8e455c58bc7ac57c4f6572e528494993212018b
+  r: "The required synthetic noisy graph file `data/processed/graphs/graph_noise_42.json`\
+    \ is absent, and the expected results CSV `data/processed/noisy_greedy_results.csv`\
+    \ was not generated. Moreover, `code/runner.py` only contains generic task\u2011\
+    running utilities and does not implement the Greedy strategy execution or produce\
+    \ the specified output schema. These missing artifacts prevent the task from being\
+    \ considered complete."
+T024a:
+  c: false
+  h: 0ff57d6f1d069d79493e9c4b40ef79c17074ffc12b23f127a1b2c32599c7c950
+  r: "The claimed script does not contain any implementation of Shapiro\u2011Wilk\
+    \ testing, paired t\u2011test or Wilcoxon analysis, nor does it generate the required\
+    \ `stats_report.json`. Moreover, the `stats_report.json` file is missing entirely,\
+    \ and the provided `stats.py` is truncated before any statistical logic. The task\u2019\
+    s core output and behavior are therefore not present."
+T024b:
+  c: false
+  h: c5b24e456478d53ec5e70daf266894fcbb7c7b2d4e630eb4593642feb1acc1a5
+  r: "The required input CSVs (`noisy_baseline_results.csv`, `noisy_lazy_results.csv`,\
+    \ `noisy_greedy_results.csv`) and the output JSON report (`noisy_stats_report.json`)\
+    \ are absent, and the provided `stats.py` does not contain the Shapiro\u2011Wilk\
+    \ test, paired t\u2011test/Wilcoxon logic, or code to write the JSON report. The\
+    \ task\u2019s core functionality is therefore not implemented."
+T027a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `power_analysis.json` file or accompanying script is present in the provided\
+    \ evidence, so the required MDES and power calculations have not been delivered.\
+    \ The task\u2019s deliverable is missing entirely."

@@ -855,3 +855,1055 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T10:49:39Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: streaming mode triggered if dataset size exceeds 6GB RAM limit with 1000
+    task chunks
+  claim_id: c_352b97b4
+  context: 'T036 [P] [US1, US2, US3] Implement Streaming for Large Datasets: Refactor
+    code/data_loader.py to support streaming mode for the LoCoMo dataset if the full
+    download exceeds RAM limits (e.g., load_dataset(..., streaming=True)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system processes tasks in chunks of 1000 tasks without loading the
+    entire dataset into memory, ensuring compliance with the ~6GB RAM limit (trigger
+    streaming if estimated dataset size > 6GB).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:07:41Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: noise injection replaces edges with random pairs using seed 42
+  claim_id: c_05c7d0ef
+  context: 'T011b [US1] Implement Noise Injection Logic: Implement the core function
+    inject_noise(graph, ratio, seed) in code/graph_utils.py that replaces a proportion
+    of edges in the input graph with random edges using random node pair selection
+    with a fixed seed 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The noise injection logic replaces a proportion of edges in the input
+    graph with random edges using a fixed seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:07:59Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: noise injection verification tolerance 1% Chi-square test
+  claim_id: c_77ae7a11
+  context: "T011d [US1] [FR-001, US1, US2, US3] Verify noise injection logic: Implement\
+    \ a unit test... that checks edge replacement ratio... Tolerance: \xB11%; Test:\
+    \ Chi-square test for randomness."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The noise injection logic verification uses a tolerance of \xB11% and\
+    \ a Chi-square test for randomness."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:08:00Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Lazy strategy default evidence threshold 0.7
+  claim_id: c_4e9defc5
+  context: 'T019a [US2] Implement execution runner for Lazy strategy... Parameters:
+    Lazy uses default evidence threshold 0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lazy traversal heuristic uses a default evidence threshold of 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:08:17Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Greedy strategy default top-k 3
+  claim_id: c_648c2ac2
+  context: 'T019b [US2] Implement execution runner for Greedy strategy... Parameters:
+    Greedy uses default top-k 3.'
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The Greedy traversal heuristic uses a default top-k value of 3.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T19:08:18Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Lazy sensitivity analysis thresholds 0.5 0.7 0.9
+  claim_id: c_b19d810e
+  context: T020 [US2] Implement sensitivity analysis sweep for Lazy heuristic evidence
+    threshold (values 0.5, 0.7, 0.9)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis for the Lazy heuristic evaluates evidence threshold
+    values of 0.5, 0.7, and 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:09:00Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: statistical analysis uses 95% confidence interval
+  claim_id: c_d352d813
+  context: T024a [US3] Implement statistical analysis script... outputting p-values,
+    test statistics, and 95% Confidence Intervals...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis script uses a 95% Confidence Interval for results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:09:00Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: threshold analysis bin merging requires minimum 3 tasks per bin
+  claim_id: c_74a7a886
+  context: "T027 [US3]... iteratively merge adjacent bins until every bin has at least\
+    \ 3 tasks (n \u2265 3)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_analysis_bin_merging_requires_minimum_3_tasks_per
+  kind: magnitude
+  raw_text: "The threshold analysis algorithm iteratively merges bins until every\
+    \ bin has at least 3 tasks (n \u2265 3)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:09:31Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: full.py optimization reduces latency by 15%
+  claim_id: c_b06d1ee1
+  context: T030 [P] Profile graph traversal loops... and implement optimizations to
+    reduce average task latency by at least 15% in the full.py traversal loop.
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 15.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Full.py_optimization_reduces_latency_by_15%25
+  kind: magnitude
+  raw_text: The optimization goal for the full.py traversal loop is to reduce average
+    task latency by at least 15%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-31T19:09:36Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: default model TheBloke/Llama-2-7B-Chat-GGUF Q4_K_M
+  claim_id: c_359272b3
+  context: 'T005 [P] Implement core LLM inference engine wrapper... Default Model:
+    MUST allow configuration via config.py; if no path provided, default to TheBloke/Llama-2-7B-Chat-GGUF
+    (Q4_K_M quantization)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default model for real inference is TheBloke/Llama-2-7B-Chat-GGUF
+    (Q4_K_M quantization).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:09:38Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: process tasks in chunks of 1000 to comply with 6GB RAM limit
+  claim_id: c_dec26a99
+  context: Refactor code/data_loader.py to support streaming mode for the LoCoMo dataset
+    if the full download exceeds RAM limits. Implement an iterator-based processing
+    loop in code/runner.py that processes tasks in chunks of 1000 tasks without loading
+    the entire dataset into memory, ensuring compliance with the ~6GB RAM limit (trigger
+    streaming if estimated dataset size > 6GB).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement an iterator-based processing loop in code/runner.py that processes
+    tasks in chunks of 1000 tasks without loading the entire dataset into memory,
+    ensuring compliance with the ~6GB RAM limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:11:36Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: inject noise with fixed seed 42 replacing edges
+  claim_id: c_ba9a948a
+  context: Implement the core function inject_noise(graph, ratio, seed) in code/graph_utils.py
+    that replaces a proportion of edges in the input graph with random edges using
+    random node pair selection with a fixed seed 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Replace a proportion of edges in the input graph with random edges using
+    random node pair selection with a fixed seed 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:11:38Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: verify noise injection with 1% tolerance using Chi-square test
+  claim_id: c_ca4eee2c
+  context: "Implement a unit test in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_graph_utils.py\
+    \ that checks edge replacement ratio (not injection/addition) and randomness against\
+    \ FR-001 definition (replacing edges), ensuring the synthetic noisy graphs are\
+    \ valid before strategy execution. Tolerance: \xB11%; Test: Chi-square test for\
+    \ randomness."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify noise injection logic with a tolerance of \xB11% using a Chi-square\
+    \ test for randomness"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:11:39Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: log evidence threshold > 0.7 for Lazy strategy
+  claim_id: c_31053ac8
+  context: 'Implement ''Lazy'' traversal heuristic (defer edge expansion until threshold)
+    in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py.
+    Requirement: Log the specific evidence threshold value used for each task execution
+    (e.g., confidence score > 0.7) in the execution log.'
+  evidence:
+    asserted: '0.7'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Log the specific evidence threshold value used for each task execution
+    (e.g., confidence score > 0.7) in the execution log for the Lazy strategy
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T19:11:39Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: default Lazy evidence threshold 0.7
+  claim_id: c_63940a95
+  context: 'Implement execution runner for Lazy strategy using code/runner.py logging
+    to data/processed/lazy_results.csv. Parameters: Lazy uses default evidence threshold
+    0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use default evidence threshold 0.7 for the Lazy strategy execution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:11:43Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: default Greedy top-k 3
+  claim_id: c_1dab78cc
+  context: 'Implement execution runner for Greedy strategy using code/runner.py logging
+    to data/processed/greedy_results.csv. Parameters: Greedy uses default top-k 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use default top-k value 3 for the Greedy strategy execution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:11:48Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis for Lazy threshold 0.5 0.7 0.9
+  claim_id: c_ca69b679
+  context: Implement sensitivity analysis sweep for Lazy heuristic evidence threshold
+    (values 0.5, 0.7, 0.9) and output results to data/processed/sweep_results.csv
+    in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity analysis sweep for Lazy heuristic evidence threshold
+    using values 0.5, 0.7, and 0.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:11:50Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: output 95% confidence intervals
+  claim_id: c_44c89a67
+  context: Implement statistical analysis script (paired t-test/Wilcoxon) comparing
+    heuristic vs. baseline accuracy on the primary LoCoMo benchmark dataset, outputting
+    p-values, test statistics, and 95% Confidence Intervals to data/processed/stats_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output 95% Confidence Intervals in the statistical report
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:11:50Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: inflection point at 95% of baseline accuracy
+  claim_id: c_52adf82a
+  context: 'Implement logic to identify the specific complexity threshold where accuracy
+    drops below 95% of the baseline (reference: mean accuracy calculated from data/processed/baseline_results.csv
+    within the script) by binning the full dataset of nodes_visited and success flags
+    into bins.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify the first bin with mean accuracy < 95% of the baseline as the
+    inflection point
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:11:50Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: merge bins until n >= 3
+  claim_id: c_3930e95c
+  context: "Algorithm: Start with equal-width bins, then iteratively merge adjacent\
+    \ bins until every bin has at least 3 tasks (n \u2265 3). Identify the first bin\
+    \ with mean accuracy < 95% of baseline as the inflection point ONLY IF the trend\
+    \ is statistically significant (p < 0.05)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/merge_bins_until_n_%3E=_3
+  kind: magnitude
+  raw_text: "Iteratively merge adjacent bins until every bin has at least 3 tasks\
+    \ (n \u2265 3)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:11:58Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: reduce full.py latency by 15%
+  claim_id: c_872a15ba
+  context: Profile graph traversal loops in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py
+    using cProfile, identify the top hotspots, and implement optimizations to reduce
+    average task latency by at least 15% in the full.py traversal loop.
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 15.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Reduce_full.py_latency_by_15%25
+  kind: magnitude
+  raw_text: Implement optimizations to reduce average task latency by at least 15%
+    in the full.py traversal loop
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-31T19:12:03Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 0
+  canonical: greedy traversal default top-k 3
+  claim_id: c_07105c3b
+  context: 'Parameters: Greedy uses default top-k 3'
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The Greedy traversal heuristic uses a default top-k value of 3.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T19:12:49Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: process tasks in chunks of 1000 without full dataset load
+  claim_id: c_021c75e3
+  context: Implement an iterator-based processing loop in code/runner.py that processes
+    tasks in chunks of 1000 tasks without loading the entire dataset into memory,
+    ensuring compliance with the ~6GB RAM limit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system processes tasks in chunks of 1000 tasks without loading the
+    entire dataset into memory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:13:22Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: trigger streaming if dataset size > 6GB
+  claim_id: c_c0080722
+  context: ensuring compliance with the ~6GB RAM limit (trigger streaming if estimated
+    dataset size > 6GB)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/trigger_streaming_if_dataset_size_%3E_6GB
+  kind: entity_fact
+  raw_text: The system triggers streaming mode if the estimated dataset size exceeds
+    6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:13:26Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: noise injection fixed seed 42
+  claim_id: c_e126a470
+  context: replaces a proportion of edges in the input graph with random edges using
+    random node pair selection with a fixed seed 42
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The noise injection process uses a fixed seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:13:30Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: noise injection edge replacement tolerance 1%
+  claim_id: c_b3e8d8e5
+  context: "checks edge replacement ratio (not injection/addition) and randomness\
+    \ against FR-001 definition (replacing edges), ensuring the synthetic noisy graphs\
+    \ are valid before strategy execution. Tolerance: \xB11%"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The noise injection logic has a tolerance of \xB11% for edge replacement\
+    \ ratio."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:13:30Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: lazy traversal default evidence threshold 0.7
+  claim_id: c_a35238fa
+  context: 'Parameters: Lazy uses default evidence threshold 0.7'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lazy traversal heuristic uses a default evidence threshold of 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:13:31Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 0.5 0.7 0.9
+  claim_id: c_fb69a1bd
+  context: Implement sensitivity analysis sweep for Lazy heuristic evidence threshold
+    (values 0.5, 0.7, 0.9)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis for the Lazy heuristic tests evidence threshold
+    values of 0.5, 0.7, and 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:13:32Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: statistical significance p < 0.05
+  claim_id: c_e83de853
+  context: ONLY IF the trend is statistically significant (p < 0.05), validated by
+    the power analysis in T027a
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
+        which he called "tests of significance", in his publication Statistical Methods
+        for Research Workers. Fisher suggested a probability of one in twenty (0.05)
+        as a convenient cutoff level to reject the null hypothesis. In a 1933 paper,
+        Jerzy Neyman and Egon Pearson called this cutoff the significance level, which
+        they named
+      source_id: Statistical significance
+      url: https://en.wikipedia.org/wiki/Statistical_significance
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: Statistical significance is determined using a p-value threshold of less
+    than 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T19:13:41Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: accuracy drop threshold < 95% baseline
+  claim_id: c_a41043ed
+  context: identify the specific complexity threshold where accuracy drops below 95%
+    of the baseline
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/accuracy_drop_threshold_%3C_95%25_baseline
+  kind: entity_fact
+  raw_text: The accuracy drop threshold is defined as below 95% of the baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:13:54Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: bin minimum tasks 3
+  claim_id: c_98554a9b
+  context: "iteratively merge adjacent bins until every bin has at least 3 tasks (n\
+    \ \u2265 3)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bin_minimum_tasks_3
+  kind: magnitude
+  raw_text: Each bin in the threshold analysis must contain at least 3 tasks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:14:02Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: reduce average task latency by 15%
+  claim_id: c_64eddb39
+  context: implement optimizations to reduce average task latency by at least 15%
+    in the full.py traversal loop
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_average_task_latency_by_15%25
+  kind: magnitude
+  raw_text: The optimization goal is to reduce average task latency by at least 15%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:14:07Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Default LLM model is TheBloke/Llama-2-7B-Chat-GGUF Q4_K_M quantization
+  claim_id: c_fa43191f
+  context: Implement core LLM inference engine wrapper using llama-cpp-python (CPU
+    only) that accepts a configurable model path (via config.py) for real inference
+    (NO mocks) and logging token counts and latency as primary metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Default Model: MUST allow configuration via config.py; if no path provided,
+    default to TheBloke/Llama-2-7B-Chat-GGUF (Q4_K_M quantization) via huggingface_hub.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:15:54Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Process tasks in chunks of 1000 to comply with 6GB RAM limit
+  claim_id: c_4ebfc69b
+  context: Refactor code/data_loader.py to support streaming mode for the LoCoMo dataset
+    if the full download exceeds RAM limits (e.g., load_dataset(..., streaming=True)).
+    Implement an iterator-based processing loop in code/runner.py that processes tasks
+    in chunks of 1000 tasks without loading the entire dataset into memory, ensuring
+    compliance with the ~6GB RAM limit (trigger streaming if estimated dataset size
+    > 6GB).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement an iterator-based processing loop in code/runner.py that processes
+    tasks in chunks of 1000 tasks without loading the entire dataset into memory,
+    ensuring compliance with the ~6GB RAM limit (trigger streaming if estimated dataset
+    size > 6GB).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:15:54Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Noise injection uses fixed seed 42 for edge replacement
+  claim_id: c_43ffa9f1
+  context: Implement the core function inject_noise(graph, ratio, seed) in code/graph_utils.py
+    that replaces a proportion of edges in the input graph with random edges using
+    random node pair selection with a fixed seed 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the core function inject_noise(graph, ratio, seed) in code/graph_utils.py
+    that replaces a proportion of edges in the input graph with random edges using
+    random node pair selection with a fixed seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:16:14Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Noise injection tolerance is 1% verified by Chi-square test
+  claim_id: c_7e7f1e93
+  context: "Implement a unit test in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_graph_utils.py\
+    \ that checks edge replacement ratio (not injection/addition) and randomness against\
+    \ FR-001 definition (replacing edges), ensuring the synthetic noisy graphs are\
+    \ valid before strategy execution. Tolerance: \xB11%; Test: Chi-square test for\
+    \ randomness."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Tolerance: \xB11%; Test: Chi-square test for randomness."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:16:14Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Noisy graph dataset output file is data/processed/graphs/graph_noise_42.json
+  claim_id: c_ad54bcab
+  context: 'Implement a script in code/data_loader.py that calls inject_noise (T011b)
+    on the LoCoMo graph structure to generate the synthetic noisy graph dataset by
+    replacing edges. Output: data/processed/graphs/graph_noise_42.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Noisy_graph_dataset_output_file_is_data/processed/graphs/gra
+  kind: entity_fact
+  raw_text: 'Output file: data/processed/graphs/graph_noise_42.json.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:16:36Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Lazy traversal default evidence threshold is 0.7
+  claim_id: c_9f1a3452
+  context: 'Implement execution runner for Lazy strategy using code/runner.py logging
+    to data/processed/lazy_results.csv. Parameters: Lazy uses default evidence threshold
+    0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Parameters: Lazy uses default evidence threshold 0.7.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:16:53Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Greedy traversal default top-k is 3
+  claim_id: c_875dd00d
+  context: 'Implement execution runner for Greedy strategy using code/runner.py logging
+    to data/processed/greedy_results.csv. Parameters: Greedy uses default top-k 3.'
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: 'Parameters: Greedy uses default top-k 3.'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T19:16:54Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep for Lazy threshold uses values 0.5, 0.7, and
+    0.9
+  claim_id: c_f5dfd692
+  context: Implement sensitivity analysis sweep for Lazy heuristic evidence threshold
+    (values 0.5, 0.7, 0.9) and output results to data/processed/sweep_results.csv
+    in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity analysis sweep for Lazy heuristic evidence threshold
+    (values 0.5, 0.7, 0.9) and output results to data/processed/sweep_results.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:17:10Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Correlation analysis output includes 95% Confidence Intervals
+  claim_id: c_dac4d150
+  context: 'Implement correlation analysis script (Point-Biserial) between nodes_visited
+    and reasoning success rate across all tasks in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py.
+    Output: Correlation coefficient and 95% Confidence Intervals.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: Correlation coefficient and 95% Confidence Intervals.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:17:10Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Binning algorithm merges until bin size >= 3
+  claim_id: c_65d4206d
+  context: "Identify the specific complexity threshold where accuracy drops below\
+    \ 95% of the baseline (reference: mean accuracy calculated from data/processed/baseline_results.csv\
+    \ within the script) by binning the full dataset of nodes_visited and success\
+    \ flags (from all primary and noisy result CSVs) into bins. Algorithm: Start with\
+    \ equal-width bins, then iteratively merge adjacent bins until every bin has at\
+    \ least 3 tasks (n \u2265 3)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Binning_algorithm_merges_until_bin_size_%3E=_3
+  kind: magnitude
+  raw_text: "Algorithm: Start with equal-width bins, then iteratively merge adjacent\
+    \ bins until every bin has at least 3 tasks (n \u2265 3)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:17:57Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Optimization target is 15% reduction in average task latency
+  claim_id: c_61887df9
+  context: Profile graph traversal loops in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py
+    using cProfile, identify the top hotspots, and implement optimizations to reduce
+    average task latency by at least 15% in the full.py traversal loop. Verify improvement
+    with a benchmark script.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimization_target_is_15%25_reduction_in_average_task_latency
+  kind: magnitude
+  raw_text: Implement optimizations to reduce average task latency by at least 15%
+    in the full.py traversal loop.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:17:59Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: process tasks in chunks of 1000
+  claim_id: c_bf308e22
+  context: Implement an iterator-based processing loop in code/runner.py that processes
+    tasks in chunks of 1000 tasks without loading the entire dataset into memory,
+    ensuring compliance with the ~6GB RAM limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system processes tasks in chunks of 1000 tasks without loading the
+    entire dataset into memory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:19:06Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: trigger streaming if dataset size > 6GB
+  claim_id: c_b62e2959
+  context: Implement an iterator-based processing loop in code/runner.py that processes
+    tasks in chunks of 1000 tasks without loading the entire dataset into memory,
+    ensuring compliance with the ~6GB RAM limit (trigger streaming if estimated dataset
+    size > 6GB).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/trigger_streaming_if_dataset_size_%3E_6GB
+  kind: entity_fact
+  raw_text: The system triggers streaming mode if the estimated dataset size exceeds
+    6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:19:06Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: noise injection seed 42
+  claim_id: c_69a24d3f
+  context: Implement the core function inject_noise(graph, ratio, seed) in code/graph_utils.py
+    that replaces a proportion of edges in the input graph with random edges using
+    random node pair selection with a fixed seed 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The noise injection process uses a fixed seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:19:06Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: "edge replacement ratio tolerance \xB11%"
+  claim_id: c_2d6c25c1
+  context: "Implement a unit test in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_graph_utils.py\
+    \ that checks edge replacement ratio (not injection/addition) and randomness against\
+    \ FR-001 definition (replacing edges), ensuring the synthetic noisy graphs are\
+    \ valid before strategy execution. Tolerance: \xB11%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The tolerance for edge replacement ratio verification is \xB11%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:19:07Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Lazy strategy default evidence threshold 0.7
+  claim_id: c_3cecc5b2
+  context: 'Implement execution runner for Lazy strategy using code/runner.py logging
+    to data/processed/lazy_results.csv. Parameters: Lazy uses default evidence threshold
+    0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default evidence threshold for the Lazy strategy is 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:19:36Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Greedy strategy default top-k 3
+  claim_id: c_71a23276
+  context: 'Implement execution runner for Greedy strategy using code/runner.py logging
+    to data/processed/greedy_results.csv. Parameters: Greedy uses default top-k 3.'
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The default top-k value for the Greedy strategy is 3.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T19:19:36Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Lazy heuristic sweep thresholds 0.5 0.7 0.9
+  claim_id: c_4d0efcdd
+  context: Implement sensitivity analysis sweep for Lazy heuristic evidence threshold
+    (values 0.5, 0.7, 0.9) and output results to data/processed/sweep_results.csv
+    in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep for the Lazy heuristic includes evidence
+    threshold values of 0.5, 0.7, and 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:19:51Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: statistical analysis 95% confidence interval
+  claim_id: c_3904d321
+  context: Implement statistical analysis script (paired t-test/Wilcoxon) comparing
+    heuristic vs. baseline accuracy on the primary LoCoMo benchmark dataset, outputting
+    p-values, test statistics, and 95% Confidence Intervals to data/processed/stats_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses a 95% Confidence Interval.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:19:51Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: identify threshold where accuracy < 95% of baseline
+  claim_id: c_bc04e656
+  context: 'Identify the specific complexity threshold where accuracy drops below
+    95% of the baseline (reference: mean accuracy calculated from data/processed/baseline_results.csv
+    within the script) by binning the full dataset of nodes_visited and success flags.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis identifies the complexity threshold where accuracy
+    drops below 95% of the baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:19:51Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: bin size at least 3 tasks
+  claim_id: c_a3101ed1
+  context: "Algorithm: Start with equal-width bins, then iteratively merge adjacent\
+    \ bins until every bin has at least 3 tasks (n \u2265 3)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bin_size_at_least_3_tasks
+  kind: magnitude
+  raw_text: Each bin in the sensitivity analysis must contain at least 3 tasks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:20:18Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: reduce average task latency by 15%
+  claim_id: c_68f9c641
+  context: Profile graph traversal loops in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py
+    using cProfile, identify the top hotspots, and implement optimizations to reduce
+    average task latency by at least 15% in the full.py traversal loop.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_average_task_latency_by_15%25
+  kind: magnitude
+  raw_text: The optimization goal is to reduce average task latency by at least 15%
+    in the full.py traversal loop.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:20:19Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: default model TheBloke/Llama-2-7B-Chat-GGUF Q4_K_M
+  claim_id: c_54276cdf
+  context: 'Implement core LLM inference engine wrapper using llama-cpp-python (CPU
+    only) that accepts a configurable model path (via config.py) for real inference
+    (NO mocks) and logging token counts and latency as primary metrics. Default Model:
+    MUST allow configuration via config.py; if no path provided, default to TheBloke/Llama-2-7B-Chat-GGUF
+    (Q4_K_M quantization) via huggingface_hub.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default model for real inference is TheBloke/Llama-2-7B-Chat-GGUF
+    (Q4_K_M quantization).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:20:20Z'

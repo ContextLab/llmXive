@@ -48,20 +48,29 @@ def inject_noise(graph: nx.Graph, noise_ratio: float = 0.1, seed: int = 42) -> n
     """
     Inject noise into a graph by replacing some edges with random distractor edges.
     
+    This function REPLACES a proportion of existing edges with random edges between
+    non-connected node pairs. It does NOT add edges on top of existing ones.
+    
     Args:
         graph: Original graph.
-        noise_ratio: Proportion of edges to replace.
-        seed: Random seed for reproducibility.
+        noise_ratio: Proportion of edges to replace (0.0 to 1.0).
+        seed: Random seed for reproducibility (default 42).
     
     Returns:
-        Noisy graph.
+        Noisy graph with replaced edges.
+    
+    Raises:
+        ValueError: If noise_ratio is outside [0.0, 1.0].
     """
+    if not 0.0 <= noise_ratio <= 1.0:
+        raise ValueError(f"noise_ratio must be between 0.0 and 1.0, got {noise_ratio}")
+    
     np.random.seed(seed)
     
-    # Create a copy
+    # Create a copy to avoid modifying the original
     noisy_graph = graph.copy()
     
-    # Get all edges
+    # Get all edges as a list
     edges = list(noisy_graph.edges())
     num_edges = len(edges)
     
@@ -69,26 +78,50 @@ def inject_noise(graph: nx.Graph, noise_ratio: float = 0.1, seed: int = 42) -> n
         logger.warning("Graph has no edges to inject noise into")
         return noisy_graph
     
-    # Select edges to replace
+    # Calculate number of edges to replace
     num_noise = int(num_edges * noise_ratio)
+    
+    if num_noise == 0:
+        logger.info("Noise ratio results in 0 edges to replace")
+        return noisy_graph
+    
+    # Select indices of edges to replace
     noise_indices = np.random.choice(num_edges, size=min(num_noise, num_edges), replace=False)
     
-    # Replace edges
+    nodes = list(noisy_graph.nodes())
+    num_nodes = len(nodes)
+    
+    if num_nodes < 2:
+        logger.warning("Graph has fewer than 2 nodes; cannot create random edges")
+        # Just remove the selected edges if we can't add replacements
+        for idx in noise_indices:
+            u, v = edges[idx]
+            noisy_graph.remove_edge(u, v)
+        return noisy_graph
+    
+    # Track removed edges to avoid re-adding them
+    removed_edges = set()
+    
     for idx in noise_indices:
         u, v = edges[idx]
         noisy_graph.remove_edge(u, v)
-        
-        # Add random edge between non-connected nodes
-        nodes = list(noisy_graph.nodes())
-        if len(nodes) > 1:
-            while True:
-                random_u = np.random.choice(nodes)
-                random_v = np.random.choice(nodes)
-                if random_u != random_v and not noisy_graph.has_edge(random_u, random_v):
-                    noisy_graph.add_edge(random_u, random_v, type="noise")
-                    break
+        removed_edges.add((u, v))
     
-    logger.info(f"Injected noise: replaced {num_noise} edges")
+    # Add random edges to replace the removed ones
+    for idx in noise_indices:
+        while True:
+            random_u = np.random.choice(nodes)
+            random_v = np.random.choice(nodes)
+            
+            # Ensure it's a valid edge (different nodes, no existing edge, not a removed edge)
+            if (random_u != random_v and 
+                not noisy_graph.has_edge(random_u, random_v) and
+                (random_u, random_v) not in removed_edges and
+                (random_v, random_u) not in removed_edges):
+                noisy_graph.add_edge(random_u, random_v, type="noise")
+                break
+    
+    logger.info(f"Injected noise: replaced {num_noise} edges with random distractor edges (seed={seed})")
     return noisy_graph
 
 def validate_graph(graph: nx.Graph) -> bool:

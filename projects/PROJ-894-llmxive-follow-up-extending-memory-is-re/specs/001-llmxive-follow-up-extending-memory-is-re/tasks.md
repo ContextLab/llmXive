@@ -41,12 +41,10 @@
 - [X] T006 [P] Implement hard timeout enforcement logic (fixed duration per task) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/runner.py` that logs the timeout event and **proceeds to the next task without hanging**
 - [X] T007 Create base data structures for Task, Memory Graph, and Execution Log in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/__init__.py`
 - [X] T008 [P] Setup unit test framework (`pytest`) and configure `tests/` directory structure
-- [ ] T033 [P] Implement schema validation script to verify all result CSVs (`baseline_results.csv`, `lazy_results.csv`, `greedy_results.csv`, `noisy_baseline_results.csv`, `noisy_lazy_results.csv`, `noisy_greedy_results.csv`) strictly adhere to `contracts/results.schema.yaml` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/utils/validate_results.py`. **Dependency**: Must complete before T024a, T024b, T027.
-- [X] T035 [P] [US1, US2, US3] **Enforce Strict Data Fetching**: Modify `code/data_loader.py` to **remove any `try/except` blocks that fall back to synthetic data generation** when the real LoCoMo dataset fetch fails. If `datasets.load_dataset` or the HuggingFace Hub download fails, the script must **raise an explicit exception** and halt execution to prevent silent fabrication. Add a unit test in `tests/unit/test_data_loader.py` that verifies the script raises an error when provided with an invalid dataset ID.
+- [X] T035 **Enforce Strict Data Fetching**: Modify `code/data_loader.py` to **remove any `try/except` blocks that fall back to synthetic data generation** when the real LoCoMo dataset fetch fails. If `datasets.load_dataset` or the HuggingFace Hub download fails, the script must **raise an explicit exception** and halt execution to prevent silent fabrication. **Explicitly distinguish between 'injecting noise into real data' (required) and 'generating fake data to replace missing real data' (forbidden)**. Add a unit test in `tests/unit/test_data_loader.py` that verifies the script raises an error when provided with an invalid dataset ID. **(Note: T035 must be completed before T011a and T011c to avoid merge conflicts; remove [P] tag)**
 - [X] T036 [P] [US1, US2, US3] **Implement Streaming for Large Datasets**: Refactor `code/data_loader.py` to support **streaming mode** for the LoCoMo dataset if the full download exceeds RAM limits (e.g., `load_dataset(..., streaming=True)`). Implement an iterator-based processing loop in `code/runner.py` that processes tasks in **chunks of 1000 tasks** without loading the entire dataset into memory, ensuring compliance with the **~6GB RAM limit** (trigger streaming if estimated dataset size > 6GB).
 - [X] T037 [P] [US1, US2, US3] **Enhance Degenerate Graph Handling**: Add explicit logic in `code/graph_utils.py` to detect and handle **disconnected components** and **single-node graphs** before traversal. Ensure the `full.py` and `lazy.py` strategies explicitly check for graph connectivity and log a "DEGENERATE" flag rather than attempting traversal that might cause infinite loops or division-by-zero errors.
-- [X] T039 [P] **Add Deterministic Seed Verification**: Add a script `code/utils/verify_seeds.py` that re-runs the noise injection process (T011) with the fixed seed and compares the output hash against the stored artifact hash to ensure **reproducibility** of the synthetic noisy graph dataset. **Applies to US1, US2, and US3** to fulfill Constitution Principle I.
-- [X] T011b [P] [FR-001, US1, US2, US3] **Verify noise injection logic**: Implement a validation script in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_graph_utils.py` that checks **edge injection ratio** (not replacement) and randomness against FR-001 definition (adding random edges), ensuring the synthetic noisy graphs are valid before strategy execution. **Tolerance**: ±1%; **Test**: Chi-square test for randomness.
+- [X] T039 [P] **Add Deterministic Seed Verification**: Add a script `code/utils/verify_seeds.py` that re-runs the noise injection process (T011c) with the fixed seed and compares the output hash against the stored artifact hash to ensure **reproducibility** of the synthetic noisy graph dataset. **Applies to US1, US2, and US3** to fulfill Constitution Principle I.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,18 +56,15 @@
 
 **Independent Test**: The system runs the baseline algorithm on a fixed subset of LoCoMo tasks and outputs a CSV containing `task_id`, `accuracy`, `nodes_visited`, and `inference_time_seconds`.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T009 [P] [US1] Unit test for "Full" traversal logic on a synthetic small graph in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_strategies.py`
-- [X] T010 [P] [US1] Integration test for baseline execution pipeline with timeout handling in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/integration/test_pipeline.py`
-
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement data download script to fetch LoCoMo benchmark subset from HuggingFace dataset `locomo/locomo-benchmark` (split: `test`, columns: `question`, `context`, `answer`) and **generate synthetic noisy graph dataset** via **noise injection** (adding a proportion of random edges at **[deferred] density** using **random node pair selection** with a fixed seed `42`) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py`. **Output**: `data/processed/graphs/graph_noise_42.json`. **Dependency**: T011b must be complete to ensure noise injection logic is verified before generation.
+- [X] T011a [US1] **Download LoCoMo Benchmark**: Implement a script in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py` to download the LoCoMo benchmark subset from HuggingFace dataset `locomo/locomo-benchmark` (split: `test`, columns: `question`, `context`, `answer`). **Output**: `data/raw/locomo.csv`. **CRITICAL**: This task MUST also include the logic to **parse context strings into a directed graph using NER/Rule-Based extraction** to produce the initial graph structure required for T011c. If the dataset fetch fails, the script must raise an exception (per T035). **Dependency**: T035.
+- [X] T011b [US1] **Implement Noise Injection Logic**: Implement the core function `inject_noise(graph, ratio, seed)` in `code/graph_utils.py` that **replaces** a proportion of edges in the input graph with random edges using random node pair selection with a fixed seed. **Output**: Function in `code/graph_utils.py`. **Unit Test**: `tests/unit/test_graph_utils.py::test_inject_noise_replaces_edges`. **Dependency**: T004.
+- [X] T011c [US1] **Generate Noisy Graph Dataset**: Implement a script in `code/data_loader.py` that calls `inject_noise` (T011b) on the **graph structure generated in T011a** to generate the synthetic noisy graph dataset by **replacing** edges. **Output**: `data/processed/graphs/graph_noise_42.json`. **Dependency**: T011a, T011b.
+- [X] T011d [US1] [FR-001, US1, US2, US3] **Verify noise injection logic**: Implement a unit test in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/tests/unit/test_graph_utils.py` that checks **edge replacement ratio** (not injection/addition) and randomness against FR-001 definition (replacing edges), ensuring the synthetic noisy graphs are valid before strategy execution. **Tolerance**: ±1%; **Test**: Chi-square test for randomness. **Dependency**: T011b.
 - [X] T012 [US1] Implement "Full" active reconstruction algorithm (traverse entire relevant subgraph) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py`
-- [ ] T013 [US1] Implement baseline execution runner using `code/runner.py` that logs `task_id`, `accuracy`, `nodes_visited`, `latency_ms` to `data/processed/baseline_results.csv`
-- [ ] T013b [US1] Implement noisy baseline execution runner using `code/runner.py` on the **synthetic noisy graphs** (generated in T011, output file: `data/processed/graphs/graph_noise_42.json`) that logs `task_id`, `accuracy`, `nodes_visited`, `latency_ms` to `data/processed/noisy_baseline_results.csv`
-- [X] T014 [US1] Add robust error handling for disconnected graphs and degenerate inputs in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py`
+- [X] T013 [US1] Implement baseline execution runner using `code/runner.py` that logs `task_id`, `accuracy` (normalized exact string match: lowercasing, stripping punctuation), `nodes_visited`, `latency_ms`, and `status` (values: 'completed', 'timeout', 'degenerate', 'unresolved') to `data/processed/baseline_results.csv`. **Output Schema**: `task_id` (str), `accuracy` (float), `nodes_visited` (int), `latency_ms` (float), `status` (str). **Dependency**: T011a, T012, T006.
+- [X] T013b [US1] Implement noisy baseline execution runner using `code/runner.py` on the **synthetic noisy graphs** (generated in T011c, output file: `data/processed/graphs/graph_noise_42.json`) that logs `task_id`, `accuracy` (normalized exact string match), `nodes_visited`, `latency_ms`, and `status` to `data/processed/noisy_baseline_results.csv`. **Output Schema**: `task_id` (str), `accuracy` (float), `nodes_visited` (int), `latency_ms` (float), `status` (str). **Dependency**: T011a, T011c, T012, T004, T006.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -88,14 +83,29 @@
 
 ### Implementation for User Story 2
 
-- [X] T017 [US2] Implement "Lazy" traversal heuristic (defer edge expansion until threshold) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`. **Requirement**: Log the **specific evidence threshold value used** for each run (e.g., confidence score > 0.7) in the execution log.
+- [X] T017 [US2] Implement "Lazy" traversal heuristic (defer edge expansion until threshold) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`. **Requirement**: Log the **specific evidence threshold value used for each task execution** (e.g., confidence score > 0.7) in the execution log.
 - [X] T018 [US2] Implement "Greedy" traversal heuristic (select top-k confidence edges) in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/greedy.py`
-- [ ] T019 [US2] Implement execution runners for Lazy and Greedy strategies using `code/runner.py` logging to `data/processed/lazy_results.csv` and `data/processed/greedy_results.csv`
-- [ ] T019b [US2] Implement noisy execution runners for Lazy and Greedy strategies using `code/runner.py` on the **synthetic noisy graphs** (generated in T011, output file: `data/processed/graphs/graph_noise_42.json`) logging to `data/processed/noisy_lazy_results.csv` and `data/processed/noisy_greedy_results.csv`
-- [ ] T020 [US2] Implement sensitivity analysis sweep for **Lazy heuristic evidence threshold** (values ``, `0.7`, `0.9`) and output results to `data/processed/sweep_results.csv` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`. **Output Format**: CSV with columns `threshold`, `accuracy`, `nodes_visited`, `latency_ms`.
-- [X] T021 [US2] Add logic to handle "unreachable target" cases by defaulting to full traversal or flagging "unresolved" in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`
+- [X] T019a [US2] Implement execution runner for **Lazy** strategy using `code/runner.py` logging to `data/processed/lazy_results.csv`. **Parameters**: Lazy uses default evidence threshold `0.7`. **Output Schema**: `task_id` (str), `accuracy` (float), `nodes_visited` (int), `latency_ms` (float), `status` (str). **Dependency**: T011a, T012, T017, T006.
+- [X] T019b [US2] Implement execution runner for **Greedy** strategy using `code/runner.py` logging to `data/processed/greedy_results.csv`. **Parameters**: Greedy uses default top-k `3`. **Output Schema**: `task_id` (str), `accuracy` (float), `nodes_visited` (int), `latency_ms` (float), `status` (str). **Dependency**: T011a, T012, T018, T006. **(Note: Removed dependency on T019a to allow parallel execution)**
+- [X] T019c [US2] Implement noisy execution runner for **Lazy** strategy using `code/runner.py` on the **synthetic noisy graphs** (generated in T011c, output file: `data/processed/graphs/graph_noise_42.json`) logging to `data/processed/noisy_lazy_results.csv`. **Output Schema**: `task_id` (str), `accuracy` (float), `nodes_visited` (int), `latency_ms` (float), `status` (str). **Dependency**: T011a, T011c, T017, T006. **(Note: Removed dependency on T019a to allow parallel execution)**
+- [X] T019d [US2] Implement noisy execution runner for **Greedy** strategy using `code/runner.py` on the **synthetic noisy graphs** (generated in T011c, output file: `data/processed/graphs/graph_noise_42.json`) logging to `data/processed/noisy_greedy_results.csv`. **Output Schema**: `task_id` (str), `accuracy` (float), `nodes_visited` (int), `latency_ms` (float), `status` (str). **Dependency**: T011a, T011c, T018, T006. **(Note: Removed dependency on T019b to allow parallel execution)**
+- [X] T020 [US2] Implement sensitivity analysis sweep for **Lazy heuristic evidence threshold** (values ``, `0.7`, `0.9`) and output results to `data/processed/sweep_results.csv` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/lazy.py`. **Output Schema**: `threshold` (float), `accuracy` (float, mean), `nodes_visited` (int, mean), `latency_ms` (float, mean). **Dependency**: T019a.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+
+---
+
+## Phase 4b: User Story 4 - System Robustness (Priority: P1)
+
+**Goal**: Ensure system robustness and error handling for edge cases, timeouts, and degenerate inputs.
+
+**Independent Test**: The system is run against a dataset containing known edge cases and logs all errors.
+
+### Implementation for User Story 4
+
+- [X] T034 [US4] **Implement timeout aggregation script**: Count tasks that timed out versus completed from **results CSVs** (T013, T019a, T019b, T019c, T019d) by filtering rows where `status` == 'timeout'. Aggregate into `stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`, fulfilling SC-005 requirement. **Dependency**: T006, T013, T019a, T019b, T019c, T019d.
+
+**Checkpoint**: System robustness verified
 
 ---
 
@@ -112,12 +122,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024a [US3] Implement statistical analysis script (paired t-test/Wilcoxon) comparing heuristic vs. baseline accuracy on the **primary LoCoMo benchmark dataset** (inputs: `baseline_results.csv`, `lazy_results.csv`, `greedy_results.csv` produced by T013 and T019), outputting p-values and test statistics to `data/processed/stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`. **Method Selection**: Run Shapiro-Wilk test; if p < 0.05, use Wilcoxon; otherwise, use paired t-test. **Dependency**: T033 must complete first.
-- [ ] T024b [US3] Implement robustness check script to compare heuristic vs. baseline accuracy on the **synthetic noisy graph dataset** (inputs: `data/processed/noisy_baseline_results.csv`, `data/processed/noisy_lazy_results.csv`, `data/processed/noisy_greedy_results.csv` produced by T013b and T019b), calculating **paired t-test/Wilcoxon statistical tests (p-value and test statistic required)** and accuracy deltas to `data/processed/noisy_stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`. **Method Selection**: Run Shapiro-Wilk test; if p < 0.05, use Wilcoxon; otherwise, use paired t-test. **Dependency**: T033 must complete first.
-- [X] T025 [US3] Implement correlation analysis script (Point-Biserial) between `nodes_visited` and reasoning success rate across all tasks in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`
-- [ ] T027 [US3] Implement logic to: (1) perform sensitivity analysis using data from `sweep_results.csv` (produced by T020), AND (2) identify the specific complexity threshold where **accuracy drops below % of the baseline** (reference: mean accuracy of `baseline_results.csv`) by **binning the full dataset** of `nodes_visited` and `success` flags (from all primary and noisy result CSVs) into **bins**. **Algorithm**: Start with equal-width bins, then iteratively merge adjacent bins until every bin has **at least 3 tasks (n ≥ 3)**. Identify the **first bin** with mean accuracy < 95% of baseline as the inflection point. Output threshold to `data/processed/stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`. **Dependency**: T020 must complete first.
-- [ ] T034 [US4] **Implement timeout aggregation script**: Count tasks that timed out versus completed from runner logs by searching for **TIMEOUT or TimeoutError strings** in logs and aggregate into `stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`, fulfilling SC-005 requirement.
-- [ ] T026 [US3] Implement report generator to **auto-generate** `docs/results.md` strictly from `data/processed/stats_report.json` (no hand-typed numbers) using a Jinja2 template at `code/analysis/templates/results.md.j2` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/report_generator.py`. **Dependency**: T024a, T024b, T027, T034 must complete first.
+- [X] T033a [US3] **Create JSON Schema**: Create `contracts/results.schema.yaml` (JSON Schema format) defining the required columns for all result CSVs: `task_id` (string), `accuracy` (number), `nodes_visited` (integer), `latency_ms` (number), `status` (string). **Dependency**: None.
+- [X] T033 [US3] **Implement schema validation script**: Implement a script in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/utils/validate_results.py` to verify all result CSVs strictly adhere to the schema defined in T033a. **Dependency**: T033a.
+- [X] T024a [US3] Implement statistical analysis script (paired t-test/Wilcoxon) comparing heuristic vs. baseline accuracy on the **primary LoCoMo benchmark dataset** (inputs: `baseline_results.csv`, `lazy_results.csv`, `greedy_results.csv` produced by T013 and T019a/T019b), outputting p-values, test statistics, and **confidence intervals** to `data/processed/stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`. **Method Selection**: Run Shapiro-Wilk test; if p < 0.05, use Wilcoxon; otherwise, use paired t-test. **Dependency**: T033.
+- [X] T024b [US3] Implement robustness check script to compare heuristic vs. baseline accuracy on the **synthetic noisy graph dataset** (inputs: `data/processed/noisy_baseline_results.csv`, `data/processed/noisy_lazy_results.csv`, `data/processed/noisy_greedy_results.csv` produced by T013b and T019c/T019d), calculating **paired t-test/Wilcoxon statistical tests (p-value, test statistic, and confidence intervals)** and accuracy deltas to `data/processed/noisy_stats_report.json` in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`. **Method Selection**: Run Shapiro-Wilk test; if p < 0.05, use Wilcoxon; otherwise, use paired t-test. **Dependency**: T033, T013b, T019c, T019d.
+- [X] T025 [US3] Implement correlation analysis script (Point-Biserial) between `nodes_visited` and reasoning success rate across all tasks in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/stats.py`. **Output**: Correlation coefficient and **95% Confidence Intervals**.
+- [X] T027a [US3] **Perform Power Analysis**: Implement a script to calculate the Minimum Detectable Effect Size (MDES) and statistical power for the planned sample size (LoCoMo subset). Output `power_analysis.json` with MDES and power values. **Dependency**: T024a.
+- [X] T027b [US3] **Implement Threshold Analysis Logic**: Implement the binning algorithm to identify the **inflection point** where accuracy drops below a high-performance threshold relative to the baseline. **Algorithm**: (1) Bin all tasks by `nodes_visited` count (initial binning: unique node counts or deciles if sparse); (2) Iteratively merge adjacent bins until every bin contains **at least 3 tasks (n ≥ 3)**; (3) Calculate mean accuracy per bin; (4) Identify the **first bin** with mean accuracy < 95% of the baseline mean (computed from `baseline_results.csv`); (5) **Only report** this threshold if the overall trend is statistically significant (p < 0.05) as determined by T024a (not T027a); otherwise report "None" and the overall trend. **Output**: Append `inflection_point` and `threshold_significance` fields to `data/processed/stats_report.json`. **Dependency**: T024a, T024b. **(Note: Removed dependency on T027a; significance is determined by T024a's p-value)**
+- [X] T026a [US3] **Create Jinja2 template**: Create the Jinja2 template at `code/analysis/templates/results.md.j2` defining the structure for `docs/results.md`, including placeholders for p-values, confidence intervals, correlation coefficients, and inflection points.
+- [X] T026b [US3] **Implement report generator**: Implement a script to **auto-generate** `docs/results.md` strictly from `data/processed/stats_report.json` (no hand-typed numbers) using the Jinja2 template created in T026a in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/analysis/report_generator.py`. **Output**: `docs/results.md`. **Dependency**: T024a, T024b, T027b, T034, T026a.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -128,7 +141,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T028a [P] Update `README.md` with execution instructions and environment setup in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`
-- [ ] T028b [P] Generate `docs/results.md` from `stats_report.json` using the Jinja2 template at `code/analysis/templates/results.md.j2` and finalize documentation in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`. **Dependency**: T026 must complete first.
+- [X] T028b [P] **Review and finalize** `docs/results.md` generated by T026b and ensure documentation is complete in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/`. **Dependency**: T026b.
 - [X] T029a [P] Refactor strategy modules (`full.py`, `lazy.py`, `greedy.py`) to inherit from a common base class in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/`
 - [X] T030 [P] Profile graph traversal loops in `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py` using `cProfile`, identify the top hotspots, and implement optimizations to reduce average task latency by at least 15% in the `full.py` traversal loop. Verify improvement with a benchmark script.
 - [X] T031 [P] Additional unit tests for edge cases (zero edges, single node) in `tests/unit/`
@@ -144,18 +157,19 @@
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+ - Or sequentially in priority order (P1 → P2 → US4 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 4 (P1)**: Can start after Foundational (Phase 2) - Depends on T006, T013, T019
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2/US4 but should be independently testable
 
 ### Within Each User Story
 
-- **Ordering Note**: T011b (Verify noise) MUST complete before T011 (Data Download). T011 must also complete before T013b and T019b (noisy runners). T033 (schema validation) MUST complete before T024a, T024b, and T027. T020 (sweep) MUST complete before T027. T026 (report generator) MUST complete before T028b.
+- **Ordering Note**: T011a (Download) and T011b (Logic) MUST complete before T011c (Generation). T011c must also complete before T013b, T019c, and T019d (noisy runners). T033a (Schema) MUST complete before T033 (Validation). T033 MUST complete before T024a, T024b, and T027b. T020 (sweep) MUST complete before T027b. T027a (Power Analysis) MUST complete before T027b. T026a (template) MUST complete before T026b (generator). T026b MUST complete before T028b.
 - Tests (if included) MUST be written and FAIL before implementation
 - Models before services
 - Services before endpoints
@@ -171,6 +185,8 @@
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 - Foundational tasks (T035-T039) can be implemented in parallel with ongoing development if the specific modules are ready.
+
+**Note on Parallel Coordination**: While T035, T036, T037, T039 are marked [P] and modify different files, developers must coordinate to avoid merge conflicts on shared dependencies (e.g., `data_loader.py`). T035 must be completed before T011a and T011c.
 
 ---
 
@@ -202,8 +218,9 @@ Task: "Implement 'Full' active reconstruction algorithm (traverse entire relevan
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+4. Add User Story 4 → Test independently → Deploy/Demo
+5. Add User Story 3 → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -228,7 +245,4 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: T035 is mandatory to prevent data fabrication; T036 ensures scalability; T037-T039 ensure scientific rigor.
-
-<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T040 Reconcile run-book vs implementation for `code/analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T041 Reconcile run-book vs implementation for `code/utils/hash_artifacts.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/hash_artifacts.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- **Critical**: T011a includes graph construction; T011b/T011d use edge replacement (not addition); T013/T013b use normalized exact string match; T019a/b/c/d are independent; T027b depends on T024a for significance.
