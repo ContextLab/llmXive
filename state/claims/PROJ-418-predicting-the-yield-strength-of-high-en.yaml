@@ -330,3 +330,54 @@
   source_type: external
   status: refuted
   updated_at: '2026-07-20T19:35:25Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: training script runtime less than or equal to 3 hours on CPU
+  claim_id: c_baeceb05
+  context: "Phase 4: Model Training and Predictive Performance Evaluation \u2013 Independent\
+    \ Test requires the training script to complete within three hours on a CPU."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_script_runtime_less_than_or_equal_to_3_hours_on_CPU
+  kind: magnitude
+  raw_text: "Execute training script; verify runtime \u2264 3 hours on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:10:28Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime must not exceed 21600 seconds (6 hours)
+  claim_id: c_3c2d5884
+  context: 'Phase 4: Total pipeline runtime tracker must write output/pipeline_runtime.json
+    and assert failure if runtime exceeds 21600 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_runtime_seconds > 21600, raise an AssertionError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:10:28Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: permutation importance must run 1000 permutations
+  claim_id: c_17642f52
+  context: "Phase 5a and Phase 5 updates specify that a large number of permutations,\
+    \ concretely 1000, must be performed for all permutation\u2011importance tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "implementation must always run 1000 permutations for permutation\u2011\
+    importance testing."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:11:11Z'

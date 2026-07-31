@@ -1,108 +1,60 @@
-# Implementation Plan: Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
+# Plan for Predicting the Yield Strength of High‑Entropy Alloys
 
-**Branch**: `001-predict-hea-yield-strength` | **Date**: 2024-01-15 | **Spec**: `specs/001-predict-hea-yield-strength/spec.md`
-**Input**: Feature specification from `/specs/001-predict-hea-yield-strength/spec.md`
+## Overview
 
-## Summary
-This project implements a reproducible machine learning pipeline to predict the yield strength of single-phase High-Entropy Alloys (HEAs) using five compositional descriptors: atomic size mismatch (δ), electronegativity variance (Δχ), valence electron concentration (VEC), mixing entropy, and melting temperature variance. The pipeline adheres to strict statistical rigor, performing permutation testing, bootstrap resampling, and collinearity diagnostics (VIF) while explicitly framing all results as associational. The implementation targets execution on GitHub Actions free-tier (CPU-only).
+This document outlines the methodological plan for acquiring data, engineering compositional descriptors, training predictive models, and performing statistical validation for the yield strength of high‑entropy alloys (HEAs). It aligns with the functional requirements (FR‑001 … FR‑012) and serves as the guiding reference for implementation tasks throughout the project.
 
-This feature implements a computational pipeline to predict the yield strength of High-Entropy Alloys (HEAs) using five compositional descriptors: atomic size mismatch (δ), electronegativity variance (Δχ), valence electron concentration (VEC), mixing entropy, and melting temperature variance. The system ingests data from the **HEA-Yield-Strength** dataset hosted on HuggingFace (`materialsproject/hea-yield-strength`), calculates descriptors using reference tables defined in `contracts/elemental_properties.schema.yaml`, filters for single-phase room-temperature alloys, and trains Random Forest and Gradient Boosting models against a linear regression baseline. The pipeline includes rigorous statistical validation (permutation testing, bootstrap resampling, VIF diagnostics) and strict adherence to compute constraints (CPU-first on GitHub Actions).
+## Data Acquisition & Descriptor Engineering
 
-## Technical Context
+* **Data Sources** – Primary verified dataset URL is defined in `research.md`. If unavailable, fallback sources are attempted in the order specified (Materials Project, NIST HEA Database, Zenodo).
+* **Descriptor Set** – For each composition we compute:
+ - Atomic size mismatch (δ)
+ - Electronegativity difference (Δχ)
+ - Valence electron concentration (VEC)
+ - Mixing entropy (S<sub>mix</sub>)
+ - Melting‑temperature variance (σ<sub>Tm</sub>)
+* **Filtering** – Only single‑phase, room‑temperature alloys with complete elemental property data are retained.
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: pandas, scikit-learn, numpy, datasets (HuggingFace), matplotlib, seaborn, scipy, pyyaml, shap  
-**Storage**: Local filesystem (CSV/Parquet) for intermediate data; JSON for metrics  
-**Testing**: pytest  
-**Target Platform**: Linux (GitHub Actions free-tier: cores, ~7 GB RAM)  
-**Project Type**: data-pipeline / computational-science  
-**Performance Goals**: Total runtime ≤ 6 hours; Model training ≤ 3 hours; Memory ≤ 7 GB  
-**Constraints**: No local GPU; CPU-only execution for standard pipelines; All data must be open/programmatically downloadable from a verified source.  
-**Scale/Scope**: Dataset size variable (N < 50 flagged for LOOCV); Model hyperparameter grid limited (≤50 trees, depth ≤10).  
-**Data Source**: `materialsproject/hea-yield-strength` (HuggingFace) - **Verified**.
+## Model Training
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+* **Data Split** – A stratified 80/20 split based on elemental ratios (seed = 42).
+* **Algorithms** – Linear Regression baseline, Random Forest, and Gradient Boosting, each with 5‑fold cross‑validation and hyper‑parameter grids constrained to ≤ 50 trees and depth ≤ 10.
+* **Evaluation** – R², MAE, RMSE are computed on the held‑out test set; the best model is selected for downstream statistical analysis.
 
-## Constitution Check
+## Statistical Validation
 
-This plan explicitly addresses every principle in `projects/<PROJ-ID>/.specify/memory/constitution.md`:
+### Permutation‑Importance Testing
 
-| Principle | Status | Reference / Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`. External datasets fetched from canonical HuggingFace source (`materialsproject/hea-yield-strength`). `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` restricted to the verified dataset block. The dataset `materialsproject/hea-yield-strength` is reachable and verified via HuggingFace API. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw/`. Derivations written to `data/processed/`. Checksums recorded in state file. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/processed/` and `code/`. No hand-typed numbers. Data source is a specific, verified URL. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked for artifacts. `updated_at` updated on change. |
-| **VI. Deterministic Descriptor Engineering** | **PASS** | Descriptor calculation module (`code/descriptors.py`) version-controlled. Reference elemental tables fixed in `contracts/elemental_properties.schema.yaml`. Output checksums recorded. |
-| **VII. Statistical Rigor** | **PASS** | 5-fold CV (or LOOCV if N<50), A sufficient number of bootstrap resamples will be generated., conditional permutation testing, and VIF diagnostics implemented as per spec. |
+* **Fixed Permutation Count** – All permutation‑importance analyses must use a **large, fixed number of permutations** (currently set to **1 000 permutations**) to ensure statistical robustness.
+* **Adaptive Logic Removed** – Any previously described adaptive permutation‑count logic (e.g., reducing the number of permutations for small datasets) has been **removed** from this plan. The same 1 000 permutations are applied regardless of dataset size, satisfying FR‑006.
+* **Implementation** – The permutation routine is invoked in `code/models/evaluate.py` via `run_permutation_importance`, which now respects the fixed count. A warning will be logged if the dataset is extremely small, but the full permutation set will still be executed.
 
-## Project Structure
+### Multiple‑Comparison Correction
 
-### Documentation
-```text
-specs/001-predicting-the-yield-strength-of-high-en/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   ├── elemental_properties.schema.yaml
-│   ├── hea_schema.schema.yaml
-│   ├── metrics_schema.schema.yaml
-│   ├── model_metrics.schema.yaml
-│   ├── output.schema.yaml
-│   └── processed_data.schema.yaml
-└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
-```
+* Both Bonferroni and Benjamini‑Hochberg corrections are applied to the permutation‑derived p‑values.
 
-### Source Code
-```text
-projects/PROJ-418-predicting-the-yield-strength-of-high-en/
-├── code/
-│   ├── __init__.py
-│   ├── data_acquisition.py      # Downloads and filters raw data (FR-001, FR-003)
-│   ├── descriptors.py           # Calculates δ, Δχ, VEC, entropy, ΔTm (FR-002)
-│   ├── models.py                # Trains RF, GB, Linear (FR-004, FR-005)
-│   ├── validation.py            # Permutation, Bootstrap, VIF, Sensitivity (FR-006..FR-012)
-│   └── main.py                  # Orchestrates pipeline
-├── data/
-│   ├── raw/                     # Downloaded parquet/csv (immutable)
-│   └── processed/               # Filtered, descriptor-enriched data
-├── output/
-│   ├── metrics.json             # R2, MAE, RMSE (FR-005)
-│   ├── plots/                   # Figures with disclaimer (FR-010)
-│   └── reports/                 # Statistical summary
-├── tests/
-│   ├── __init__.py
-│   ├── contract/                # Schema validation tests
-│   ├── integration/             # End-to-end pipeline test
-│   └── unit/                    # Descriptor calculation tests
-├── docs/
-│   └── quickstart.md            # Step-by-step guide (T031b)
-└── requirements.txt             # Pinned dependencies
-```
+### Bootstrap Resampling
 
-**Structure Decision**: Single project structure selected. `code/` contains modular scripts for data, descriptors, models, and validation. `data/` separates raw (immutable) from processed. `output/` stores results. This aligns with the computational science workflow and ensures reproducibility.
+* A sufficient number of bootstrap resamples (e.g., 1 000) are generated for the linear baseline (or its corrected version) and the best tree‑based model to derive confidence intervals for R².
 
-## Complexity Tracking
+### Sensitivity Analysis
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| None | N/A | N/A |
+* The analysis sweeps α ∈ {0.01, 0.05, 0.1} and records significant descriptor counts and absolute R² values for each threshold.
 
-## Phase Execution Order
+## Reporting
 
-1.  **Data Acquisition**: Download raw HEA data from `materialsproject/hea-yield-strength` (FR-001). Verify availability.
-2.  **Descriptor Engineering**: Calculate δ, Δχ, VEC, etc., and filter for single-phase RT (FR-002, FR-003). **Strictly use reference tables from `contracts/elemental_properties.schema.yaml`**.
-3.  **Model Training**: Train RF, GB, Linear with 5-fold CV (or LOOCV if N<50) (FR-004).
-4.  **Evaluation**: Evaluate on hold-out set (Stratified by Elemental Ratios, seed=42) (FR-005).
-5.  **Statistical Validation**: Permutation tests (1000 if N≥200, 200 if N<200), Bootstrap, VIF, Sensitivity (FR-006..FR-012).
-6.  **Reporting**: Generate plots with disclaimer, save metrics (FR-010).
+* The final report (`output/report.md`) includes:
+ - Model performance metrics
+ - All statistical validation results (VIF, permutation importance, bootstrap CIs, sensitivity analysis)
+ - Mandatory disclaimer **“Associational analysis only; no causal inference”** injected via `utils.report_utils`
+ - A **Data Limitation Warning** section when the processed dataset contains fewer than 500 entries (as flagged in `output/data_status.json`).
 
-## Spec-Plan Mismatch Note
+## Runtime & Power Considerations
 
-- **FR-006 (Spec)**: Mandates 1000 permutations. **Plan**: Uses adaptive count (1000/200) for feasibility. Spec update required.
-- **User Story 2 (Spec)**: Mandates "disjoint elemental sets". **Plan**: Uses "Stratified by Elemental Ratios" as disjoint sets are infeasible for small N and cause extrapolation. Spec update required.
-- **Assumptions (Spec)**: Assumes N≥500. **Plan**: Uses adaptive logic for N<50. Spec update required.
+* Total pipeline runtime is tracked and must not exceed 6 hours (21 600 seconds).
+* Power analysis (`output/power_analysis.json`) flags low‑power situations (N < 50) but does not halt downstream analyses.
+
+## Documentation Updates
+
+* `spec.md` has been updated (see T048) to reflect the stratified split approach.
+* This `plan.md` now explicitly states the fixed permutation count, fulfilling FR‑006.
