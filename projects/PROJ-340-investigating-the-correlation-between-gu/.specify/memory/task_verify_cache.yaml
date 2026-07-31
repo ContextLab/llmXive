@@ -79,11 +79,26 @@ T021:
     \ the mandatory compositionality flag file. Moreover, `data/metadata/compositionality_flag.json`\
     \ is missing, so the function cannot satisfy the requirement to read it and apply\
     \ the fallback logic when T022a fails. The task therefore remains unfinished."
-T025:
+T081:
   c: false
-  h: d99580ab6a4f5378971b72b071bc7f8c3282ce43a3e130e07821622690d9ed89
-  r: "The repository lacks the required `data/results/correlation_matrix.json` file,\
-    \ and the provided `code/analysis.py` excerpt does not contain any implementation\
-    \ of Benjamini\u2011Hochberg FDR correction or logic to write the full correlation\
-    \ matrix to that JSON file. Both the output artifact and the necessary code are\
-    \ missing."
+  h: df456417a66e081edf93066b759d9133f8d8fd0fac11ab6155728dff74595b27
+  r: "The provided `code/ingest.py` snippet never defines a `fetch_real_data()` function\
+    \ (the file is truncated before any such implementation) and does not show removal\
+    \ of any synthetic\u2011fallback logic. Moreover, the required output file `data/raw/real_data.csv`\
+    \ does not exist. Both the core function and its expected output are missing,\
+    \ so the task is not satisfied."
+T082:
+  c: false
+  h: 1d4c1349d7eb74e4ed0f36ec240a9944fb8f15ec5f5eeee545a120d106760cf0
+  r: The provided `code/main.py` excerpt shows no logic that checks for `data/raw/real_data.csv`
+    or aborts with the required error message; the file is missing, and there is no
+    evidence the script halts instead of falling back to synthetic generation. The
+    implementer must add an explicit existence check and raise the exact error message
+    before any further processing.
+T085:
+  c: false
+  h: e9c287b77e5ea58a63e507aa820469542c105f155faa539c85a5c420feb2fd0d
+  r: "The required `data/raw/real_data.csv` file is absent, so there is nothing to\
+    \ scan for a DOI, and no script or task implementation is provided that performs\
+    \ the citation\u2011verification logic and halts on failure. Both the input data\
+    \ and the verification code are missing, so the task is not fulfilled."

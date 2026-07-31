@@ -1,14 +1,10 @@
 # Core Data Processing
 pandas>=2.0.0
 numpy>=1.24.0
-pyarrow>=12.0.0
-
-# Statistical Analysis
 scipy>=1.11.0
-statsmodels>=0.14.0
 scikit-learn>=1.3.0
-
-# Microbiome Specific
+statsmodels>=0.14.0
+pyyaml>=6.0
 scikit-bio>=0.5.9
 
 # Visualization
@@ -21,11 +17,6 @@ python-dotenv>=1.0.0
 
 # Testing
 pytest>=7.4.0
-
-# Optional: For Zero-Inflated models if statsmodels fallback fails
-# statsmodels is sufficient for ZINB via GLM, but explicit deps if needed:
-# zeroinfl>=0.2.0
-
-# CI/Build
-flake8>=6.1.0
-black>=23.7.0
+spiec-easi
+sparcc
+pyarrow>=12.0.0

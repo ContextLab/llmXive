@@ -1,3 +1,7 @@
+"""
+Main pipeline orchestration script for the Gut Microbiome - Sleep Architecture study.
+Coordinates ingestion, validation, analysis, and diagnostics.
+"""
 import sys
 import os
 import json
@@ -5,287 +9,263 @@ import time
 import argparse
 from pathlib import Path
 
-# Import from sibling modules as defined in API surface
-from config import get_config, load_config
+# Importing from sibling modules as per API surface
 from ingest import (
-    load_schema,
-    load_required_variables,
-    validate_variables,
-    save_variable_metrics,
-    load_data,
-    detect_outliers_iqr,
-    filter_outliers,
-    save_outlier_report,
-    save_filtered_data,
-    main as ingest_main
+    setup_logging, 
+    load_schema, 
+    load_required_variables, 
+    validate_variables, 
+    save_variable_metrics, 
+    fetch_real_data, 
+    load_data, 
+    detect_outliers_iqr, 
+    save_outlier_report, 
+    filter_outliers, 
+    save_filtered_data, 
+    record_checksum,
+    RealDataFetchError
 )
 from analysis import (
-    set_analysis_seed,
-    select_correlation_method,
-    run_correlation_analysis,
-    benjamini_hochberg_fdr,
+    set_analysis_seed, 
+    select_correlation_method, 
+    run_correlation_analysis, 
+    benjamini_hochberg_fdr, 
     main as analysis_main
 )
 from diagnostics import (
-    set_diagnostics_seed,
-    calculate_vif,
-    detect_perfect_multicollinearity,
-    run_sensitivity_analysis,
-    calculate_power,
-    run_collinearity_diagnostics,
+    set_diagnostics_seed, 
+    calculate_vif, 
+    detect_perfect_multicollinearity, 
+    run_sensitivity_analysis, 
+    calculate_power, 
+    run_collinearity_diagnostics, 
     generate_diagnostics_report,
     main as diagnostics_main
 )
-from reference_validator import (
-    VerificationStatus,
-    CitationSchema,
-    VerificationResult,
-    ReferenceValidator,
-    create_sample_schema,
-    main as validator_main
-)
-from constitution_checker import (
-    ConstitutionCheckResult,
-    calculate_file_checksum,
-    load_schema as load_const_schema,
-    validate_manifest_against_schema,
-    validate_checksum_recording,
-    update_state_with_checksum,
-    run_constitution_check,
-    main as constitution_main
-)
-from generate_large_proxy import main as generate_proxy_main
-from run_stress_test import run_6_hour_stress_test as stress_test_runner
-from data_generator import main as data_gen_main
+from config import load_config, get_config
+from constitution_checker import run_constitution_check
+from reference_validator import ReferenceValidator
+from report import generate_report, main as report_main
 
-# Constants
-MAX_EXECUTION_TIME_HOURS = 6.0
-MAX_EXECUTION_TIME_SECONDS = MAX_EXECUTION_TIME_HOURS * 3600
-TIMING_EVIDENCE_PATH = "data/results/timing_evidence.json"
+def setup_paths(base_dir=None):
+    """Ensure all necessary directories exist."""
+    base = Path(base_dir) if base_dir else Path.cwd()
+    dirs = [
+        base / "data" / "raw",
+        base / "data" / "processed",
+        base / "data" / "results",
+        base / "data" / "logs",
+        base / "data" / "metadata",
+        base / "data" / "config",
+        base / "state" / "projects",
+        base / "specs"
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    return base
 
-def setup_paths(project_root: str = None):
-    """Initialize project paths."""
-    if project_root is None:
-        project_root = Path(__file__).resolve().parent.parent
-    else:
-        project_root = Path(project_root)
-    
-    paths = {
-        "root": project_root,
-        "code": project_root / "code",
-        "data": project_root / "data",
-        "data_raw": project_root / "data" / "raw",
-        "data_processed": project_root / "data" / "processed",
-        "data_results": project_root / "data" / "results",
-        "data_metadata": project_root / "data" / "metadata",
-        "specs": project_root / "specs" / "001-gut-microbiome-sleep-architecture",
-        "state": project_root / "state" / "projects"
-    }
-    
-    # Ensure directories exist
-    for path in paths.values():
-        path.mkdir(parents=True, exist_ok=True)
-    
-    return paths
+def estimate_ram_usage(df_shape):
+    """Rough estimate of RAM usage based on dataframe shape."""
+    # Assume float64 (8 bytes) per value
+    bytes_needed = df_shape[0] * df_shape[1] * 8
+    return bytes_needed / (1024 ** 3)  # Convert to GB
 
-def estimate_ram_usage(df_shape, avg_row_bytes=1024, scaling_factor=1.1):
-    """
-    Estimate RAM usage based on dataframe shape.
-    Formula: estimated_gb = (num_rows * avg_row_bytes * scaling_factor) / (1024^3)
-    """
-    num_rows = df_shape[0]
-    estimated_bytes = num_rows * avg_row_bytes * scaling_factor
-    estimated_gb = estimated_bytes / (1024 ** 3)
-    return estimated_gb
+def determine_compute_strategy(ram_gb):
+    """Determine if we need streaming or can load fully."""
+    if ram_gb > 7.0:  # Threshold for safe CPU execution
+        return "streaming"
+    return "full_load"
 
-def determine_compute_strategy(estimated_gb, threshold_gb=7.0):
-    """
-    Determine compute strategy based on estimated RAM usage.
-    Returns: 'OK', 'STREAM', or 'FAIL'
-    """
-    if estimated_gb < threshold_gb:
-        return "OK"
-    elif estimated_gb < threshold_gb * 2: # Arbitrary upper bound for streaming
-        return "STREAM"
-    else:
-        return "FAIL"
-
-def save_compute_strategy(strategy, paths):
-    """Save compute strategy decision to artifact."""
-    output_path = paths["data_results"] / "compute_strategy.json"
-    data = {
-        "strategy": strategy,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "estimated_gb": strategy.get("estimated_gb", 0) if isinstance(strategy, dict) else 0
-    }
+def save_compute_strategy(strategy, output_path):
+    """Save the computed strategy to a JSON file."""
     with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
-    return output_path
+        json.dump({"strategy": strategy}, f, indent=2)
 
-def run_ingestion_and_validation(paths, input_file=None, mode="synthetic"):
-    """Run data ingestion and validation steps."""
-    logging.info("Starting ingestion and validation...")
-    
-    # If mode is synthetic and no input file provided, generate synthetic data
-    if mode == "synthetic" and input_file is None:
-        logging.info("Generating synthetic data...")
-        # We call the generator directly here to ensure data exists
-        # In a real scenario, this might be a separate step in the pipeline
-        # For now, we assume the generator creates data at data/raw/synthetic_data.csv
-        # We need to ensure the generator is called correctly
-        # The API surface shows data_generator has a main function
-        # We will simulate the call to ensure data is created
-        # Note: In a real pipeline, this would be a separate command
-        # For this implementation, we assume the file exists or is generated by a prior step
-        pass
-    
-    # Validate variables
-    required_vars_path = paths["data"] / "config" / "required_variables.yaml"
-    if not required_vars_path.exists():
-        logging.error(f"Required variables file not found: {required_vars_path}")
+def run_ingestion_and_validation(config):
+    """
+    Execute ingestion and validation steps.
+    Implements T082: Real-Data Gate in Orchestration.
+    """
+    logger = setup_logging()
+    logger.info("Starting ingestion and validation phase.")
+
+    # T082: REAL-DATA GATE IN ORCHESTRATION
+    # Check for the existence of data/raw/real_data.csv before proceeding.
+    # If missing, HALT with a clear error message.
+    real_data_path = config.get("real_data_path", "data/raw/real_data.csv")
+    if not os.path.exists(real_data_path):
+        error_msg = "Real data not found. Aborting pipeline. Please provide a verified real dataset."
+        logger.error(error_msg)
+        # Halt execution immediately as per T082 requirements
         sys.exit(1)
-    
-    # Run validation logic
-    # We need to call the functions from ingest.py
-    # validate_variables() should check for required predictors and outcomes
-    # and save the metrics to data/results/variable_load_metrics.json
-    
-    # Since we are implementing the orchestration, we assume the data is already loaded
-    # or we call the ingestion script
-    
-    # For this implementation, we will call the ingest_main function if needed
-    # But since we are in main.py, we should call the functions directly
-    
-    # We need to load the data first
-    # This is a simplified version - in reality, we would load the actual data
-    # and then validate it
-    
-    # For now, we assume the data is loaded and validated
-    # We will create a placeholder for the validation metrics
-    # This is a simplification - in a real pipeline, this would be more complex
-    
-    logging.info("Ingestion and validation completed.")
 
-def run_analysis(paths):
-    """Run correlation analysis."""
-    logging.info("Starting analysis...")
-    
-    # Run analysis logic
-    # This will call the analysis functions
-    # We assume the data is already loaded and validated
-    
-    # For now, we assume the analysis is completed
-    logging.info("Analysis completed.")
+    # Load required variables schema
+    required_vars_path = config.get("required_variables_path", "data/config/required_variables.yaml")
+    if not os.path.exists(required_vars_path):
+        logger.error(f"Required variables file not found: {required_vars_path}")
+        sys.exit(1)
 
-def run_diagnostics(paths):
-    """Run diagnostics."""
-    logging.info("Starting diagnostics...")
+    required_vars = load_required_variables(required_vars_path)
     
-    # Run diagnostics logic
-    # This will call the diagnostics functions
+    # Validate variables in the real data
+    validation_result = validate_variables(real_data_path, required_vars)
+    save_variable_metrics(validation_result, "data/results/variable_load_metrics.json")
+
+    if validation_result["status"] == "FAIL":
+        missing = ", ".join(validation_result["missing_variables"])
+        logger.error(f"Validation failed. Missing variables: {missing}")
+        sys.exit(1)
+
+    logger.info("Variable validation passed.")
+
+    # Load the data
+    data = load_data(real_data_path)
+    logger.info(f"Data loaded successfully. Shape: {data.shape}")
+
+    # T014: Outlier detection
+    outliers = detect_outliers_iqr(data)
+    save_outlier_report(outliers, "data/results/outlier_report.json")
+
+    # T014b: Filter outliers
+    filtered_data = filter_outliers(data, outliers)
+    save_filtered_data(filtered_data, "data/processed/filtered_data.parquet")
+    logger.info("Outlier filtering complete.")
+
+    # T014c: Record checksum
+    record_checksum("data/processed/filtered_data.parquet", "state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml")
+
+    return filtered_data
+
+def run_analysis(data, config):
+    """Execute the correlation analysis pipeline."""
+    logger = setup_logging()
+    logger.info("Starting analysis phase.")
+
+    # Set seed for reproducibility
+    set_analysis_seed(config.get("analysis_seed", 42))
+
+    # T020: Check distribution
+    # T020a: Compositionality check (assuming flag exists from previous run or logic)
+    comp_flag_path = "data/metadata/compositionality_flag.json"
+    compositionality = False
+    if os.path.exists(comp_flag_path):
+        with open(comp_flag_path, 'r') as f:
+            compositionality = json.load(f).get("is_compositional", False)
     
-    logging.info("Diagnostics completed.")
+    # T021: Select method
+    method = select_correlation_method(data, compositionality)
+    logger.info(f"Selected correlation method: {method}")
+
+    # T022: Transform if necessary (CLR)
+    # Assuming transform logic is inside analysis or handled by method selection
+    
+    # T023/T024: Run correlation
+    results = run_correlation_analysis(data, method)
+    
+    # T025: FDR Correction
+    corrected_results = benjamini_hochberg_fdr(results)
+    
+    # Save results
+    output_path = "data/results/correlation_matrix.json"
+    with open(output_path, 'w') as f:
+        json.dump(corrected_results, f, indent=2, default=str)
+    
+    logger.info(f"Analysis complete. Results saved to {output_path}")
+    return corrected_results
+
+def run_diagnostics(data, config):
+    """Execute diagnostics: Sensitivity, VIF, Power."""
+    logger = setup_logging()
+    logger.info("Starting diagnostics phase.")
+
+    # T021f_new: Collinearity detection
+    collinearity_map_path = "data/metadata/static_collinearity_map.json"
+    collinearity_map = {}
+    if os.path.exists(collinearity_map_path):
+        with open(collinearity_map_path, 'r') as f:
+            collinearity_map = json.load(f)
+
+    # T079: VIF Calculation
+    vif_report = calculate_vif(data, collinearity_map)
+    with open("data/results/vif_report.json", 'w') as f:
+        json.dump(vif_report, f, indent=2, default=str)
+
+    # T078: Sensitivity Analysis
+    sensitivity_results = run_sensitivity_analysis("data/results/correlation_matrix.json")
+    with open("data/results/sensitivity_analysis.json", 'w') as f:
+        json.dump(sensitivity_results, f, indent=2)
+
+    # T084: Power Analysis
+    power_results = calculate_power(data, config.get("effect_size", 0.3), config.get("power", 0.8))
+    with open("data/results/power_analysis.json", 'w') as f:
+        json.dump(power_results, f, indent=2)
+
+    logger.info("Diagnostics complete.")
+    return {
+        "vif": vif_report,
+        "sensitivity": sensitivity_results,
+        "power": power_results
+    }
 
 def main():
-    """Main entry point for the pipeline."""
-    parser = argparse.ArgumentParser(description="Gut Microbiome and Sleep Architecture Analysis Pipeline")
-    parser.add_argument("--project_root", type=str, default=None, help="Project root directory")
-    parser.add_argument("--mode", type=str, choices=["synthetic", "real"], default="synthetic", help="Data mode")
-    parser.add_argument("--input", type=str, default=None, help="Input data file path")
-    parser.add_argument("--n_subjects", type=int, default=100, help="Number of subjects for synthetic data")
-    parser.add_argument("--n_taxa", type=int, default=50, help="Number of taxa for synthetic data")
-    
+    parser = argparse.ArgumentParser(description="Gut Microbiome - Sleep Architecture Analysis Pipeline")
+    parser.add_argument("--config", type=str, default="data/config/pipeline_config.yaml", help="Path to config file")
+    parser.add_argument("--input", type=str, help="Optional input data path (overrides config)")
+    parser.add_argument("--output", type=str, help="Optional output directory (overrides config)")
     args = parser.parse_args()
-    
-    # Setup logging
-    import logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
+
     # Setup paths
-    paths = setup_paths(args.project_root)
+    base_dir = setup_paths()
     
-    # Record start time
+    # Load config
+    config = load_config(args.config)
+    if args.input:
+        config["real_data_path"] = args.input
+    if args.output:
+        config["output_dir"] = args.output
+
+    # T015: Orchestration Start
     start_time = time.time()
-    start_timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(start_time))
     
-    logging.info(f"Pipeline started at {start_timestamp}")
-    
-    # Check if we need to generate synthetic data
-    if args.mode == "synthetic" and args.input is None:
-        logging.info("Generating synthetic data...")
-        # Call the data generator
-        # We need to ensure the data is generated before proceeding
-        # We will call the generate_large_proxy or data_generator
-        # For now, we assume the data is generated by a separate step
-        # We will create a placeholder for the synthetic data
-        # In a real pipeline, this would be a separate command
-        pass
-    
-    # Run ingestion and validation
-    run_ingestion_and_validation(paths, args.input, args.mode)
-    
-    # Run compute feasibility check (T058)
-    # We need to estimate RAM usage
-    # For now, we assume a default value
-    estimated_gb = 0.5 # Placeholder
-    strategy = determine_compute_strategy(estimated_gb)
-    save_compute_strategy({"strategy": strategy, "estimated_gb": estimated_gb}, paths)
-    
-    # If strategy is FAIL, halt
-    if strategy == "FAIL":
-        logging.error("Compute strategy failed. Halting pipeline.")
-        sys.exit(1)
-    
-    # Run analysis
-    run_analysis(paths)
-    
-    # Run diagnostics
-    run_diagnostics(paths)
-    
-    # Record end time
-    end_time = time.time()
-    end_timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(end_time))
-    execution_time_seconds = end_time - start_time
-    execution_time_hours = execution_time_seconds / 3600
-    
-    logging.info(f"Pipeline completed at {end_timestamp}")
-    logging.info(f"Total execution time: {execution_time_hours:.2f} hours")
-    
-    # Check execution time
-    if execution_time_seconds > MAX_EXECUTION_TIME_SECONDS:
-        logging.error(f"TIMEOUT: Execution time ({execution_time_hours:.2f} hours) exceeded limit ({MAX_EXECUTION_TIME_HOURS} hours).")
-        # Generate timing evidence with failure status
+    try:
+        # 1. Ingestion & Validation (Includes T082 Gate)
+        data = run_ingestion_and_validation(config)
+
+        # 2. Analysis
+        analysis_results = run_analysis(data, config)
+
+        # 3. Diagnostics
+        diag_results = run_diagnostics(data, config)
+
+        # 4. Timing Evidence (T016)
+        end_time = time.time()
+        duration = end_time - start_time
         timing_evidence = {
-            "status": "TIMEOUT",
-            "start_time": start_timestamp,
-            "end_time": end_timestamp,
-            "execution_time_seconds": execution_time_seconds,
-            "execution_time_hours": execution_time_hours,
-            "limit_hours": MAX_EXECUTION_TIME_HOURS,
-            "message": f"Execution time exceeded limit. Required: < {MAX_EXECUTION_TIME_HOURS}h, Actual: {execution_time_hours:.2f}h"
+            "start_time": start_time,
+            "end_time": end_time,
+            "duration_seconds": duration,
+            "duration_hours": duration / 3600,
+            "status": "SUCCESS" if duration < 21600 else "TIMEOUT" # 6 hours = 21600s
         }
-        with open(paths["data_results"] / TIMING_EVIDENCE_PATH, 'w') as f:
+        with open("data/results/timing_evidence.json", 'w') as f:
             json.dump(timing_evidence, f, indent=2)
+
+        if timing_evidence["status"] == "TIMEOUT":
+            logger = setup_logging()
+            logger.error("Pipeline execution exceeded 6-hour limit.")
+            sys.exit(1)
+
+        # 5. Report Generation
+        generate_report()
+
+        logger.info("Pipeline completed successfully.")
+
+    except RealDataFetchError as e:
+        logger.error(f"Real data fetch error: {e}")
         sys.exit(1)
-    
-    # Generate timing evidence artifact
-    timing_evidence = {
-        "status": "PASS",
-        "start_time": start_timestamp,
-        "end_time": end_timestamp,
-        "execution_time_seconds": execution_time_seconds,
-        "execution_time_hours": execution_time_hours,
-        "limit_hours": MAX_EXECUTION_TIME_HOURS,
-        "message": "Pipeline completed within time limit."
-    }
-    
-    timing_evidence_path = paths["data_results"] / TIMING_EVIDENCE_PATH
-    with open(timing_evidence_path, 'w') as f:
-        json.dump(timing_evidence, f, indent=2)
-    
-    logging.info(f"Timing evidence written to {timing_evidence_path}")
-    
-    return 0
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
