@@ -1,75 +1,65 @@
-# Quickstart: Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
+# Quickstart: Predicting Yield Strength of High‑Entropy Alloys
 
-This guide walks you through the end-to-end execution of the HEA yield strength prediction pipeline.
+Follow these steps to reproduce the full analysis on a fresh GitHub Actions runner (or locally on Linux/macOS).
 
-## Prerequisites
-
-- Python 3.11+
-- Git
-- Access to GitHub Actions (for CI) or a local Linux environment with ~7 GB RAM.
-
-## Step 1: Environment Setup
-
-1.  Clone the repository and navigate to the project directory:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-418-predicting-the-yield-strength-of-high-en
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Data Setup
-
-The pipeline attempts to download data from the verified source: `materialsproject/hea-yield-strength` on HuggingFace.
-
-1.  **Download Data**:
-    ```bash
-    python code/data_acquisition.py
-    ```
-    *Output*: `data/raw/hea_data.parquet` (if available) or a log indicating N=0 if the dataset is unreachable.
-
-2.  **Verify Data**:
-    Check `data/raw/` for the downloaded file. Ensure it contains `composition`, `yield_strength`, and `phase` columns.
-
-## Running the Pipeline
-
-Execute the full pipeline (acquisition, descriptors, training, validation):
-
+## 1. Clone the Repository
 ```bash
-python code/main.py --stage fetch
+git clone https://github.com/your-org/PROJ-418-predicting-the-yield-strength-of-high-en.git
+cd PROJ-418-predicting-the-yield-strength-of-high-en
 ```
 
-### What happens?
-1.  **Acquisition**: Downloads and filters data from `materialsproject/hea-yield-strength` (FR-001, FR-003).
-2.  **Descriptors**: Calculates δ, Δχ, VEC, etc. using `contracts/elemental_properties.schema.yaml` (FR-002).
-3.  **Training**: Trains RF, GB, Linear models (FR-004).
-4.  **Validation**: Runs permutation tests, bootstrap, VIF (FR-006..FR-012).
-5.  **Output**: Saves `output/metrics.json` and `output/plots/`.
+## 2. Set Up the Python Environment
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r code/requirements.txt
+```
 
-## Expected Outputs
+## 3. Verify Dataset Availability
+The pipeline will attempt to download the open HEA yield‑strength dataset (see `research.md`). **If a verified dataset cannot be fetched**, the script will abort with a clear error and the rest of the pipeline will not run. No manual download is required beyond this step.
 
-- **`output/metrics.json`**: Contains R², MAE, RMSE for all models.
-- **`output/plots/`**: Feature importance plots, residual plots (with disclaimer).
-- **`output/reports/statistical_summary.md`**: Detailed statistical validation results.
+## 4. Run the Full Pipeline
+```bash
+python code/run_pipeline.py
+```
+`run_pipeline.py` orchestrates the following stages (see `plan.md` for mapping):
+1. `download_data.py` – downloads **and validates** the raw dataset against `contracts/dataset.schema.yaml`.  
+2. `compute_descriptors.py` – computes descriptors, validates elemental properties (`contracts/elemental_properties.schema.yaml`), and validates the merged composition (`contracts/hea_composition.schema.yaml`).  
+3. `train_model.py` – performs hyper‑parameter grid search and fits the final RandomForest.  
+4. `validate_cv.py` – outer k‑fold cross‑validation.  
+5. `bootstrap_ci.py` – bootstrap confidence intervals.  
+6. `perm_importance.py` – permutation importance with exactly 1000 permutations and Benjamini‑Hochberg FDR correction.  
+7. `shap_analysis.py` – Kernel SHAP on a representative set of samples (≤ 200).  
+8. `generate_report.py` – assembles `reports/report.md` with all metrics, CI, importance plots, and the conditional “Data Limitation Warning”.
 
-## Troubleshooting
+All intermediate artefacts are stored under `data/` and checksummed automatically.
 
-- **N=0 Error**: If the pipeline exits with "N=0", the verified dataset `materialsproject/hea-yield-strength` was unreachable or empty. This is a data limitation, not a code error.
-- **Memory Error**: Ensure you are on a machine with ≥7 GB RAM. If running on GitHub Actions, the default runner provides this.
-- **Missing Dependencies**: Re-run `pip install -r requirements.txt`.
+## 5. Inspect the Results
+- The final report is at `reports/report.md`.  
+- Figures are in `data/figures/` (permutation importance, SHAP summary).  
+- Checksums are listed in `state/projects/PROJ-418-predicting-the-yield-strength-of-high-en.yaml`.
 
-## Validation
+## 6. Run the Test Suite
+```bash
+pytest -q
+```
+The suite validates:
+- Schema compliance for all contracts (including the newly added elemental and HEA‑composition schemas).  
+- Reproducibility (fixed seeds, deterministic outputs).  
+- Success criteria (R² ≥ 0.6, CI width ≤ 0.1, etc.).
 
-To verify the pipeline:
-1.  Run `pytest tests/` to ensure all unit and integration tests pass.
-2.  Check `output/metrics.json` for valid float values (no NaN).
-3.  Verify that all plots contain the disclaimer: "Associational analysis only; no causal inference".
+## 7. (Optional) Re‑run with a Subsample
+If you wish to execute faster (e.g., for debugging), set `MAX_SAMPLES` in `code/config.yaml` to a lower number; the pipeline will respect this limit while still using 1000 permutations for importance.
+
+## 8. Clean Up
+```bash
+deactivate
+rm -rf .venv
+```
+
+All steps are fully automated; no manual intervention is required after cloning the repository.
+
+---
+
+
+

@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output"
+description: "Predictions, residuals, and performance metrics for the HEA yield‑strength model."
+type: object
+properties:
+  predictions:
+    type: array
+    items:
+      type: number
+    description: "Predicted yield strength values (same order as input)."
+  actual:
+    type: array
+    items:
+      type: number
+    description: "Measured yield strength values."
+  residuals:
+    type: array
+    items:
+      type: number
+    description: "Actual minus predicted."
+  r2_score:
+    type: number
+    description: "Mean cross‑validated R²."
+  r2_ci_95:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "Lower and upper bounds of a bootstrap confidence interval for R² at a conventional confidence level."
+  permutation_importance:
+    type: object
+    description: "Feature importance values and p‑values."
+    additionalProperties:
+      type: object
+      properties:
+        importance:
+          type: number
+        p_value:
+          type: number
+      required:
+        - importance
+        - p_value
+required:
+  - predictions
+  - actual
+  - residuals
+  - r2_score
+  - r2_ci_95
+  - permutation_importance
+additionalProperties: false

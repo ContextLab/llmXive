@@ -29,7 +29,7 @@ properties:
           properties:
             bootstrap_n:
               type: integer
-              description: "Number of bootstrap resamples (1000)."
+              description: "Number of bootstrap resamples (a sufficiently large number to ensure stable estimates)."
             r2_ci_lower:
               type: number
             r2_ci_upper:

@@ -381,3 +381,99 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T01:11:11Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/plan.md
+  attempts: 1
+  canonical: fixed count of 1000 permutations for permutation importance tests
+  claim_id: c_7270e2e2
+  context: "The previously contemplated adaptive permutation\u2011count logic has\
+    \ been removed, and all permutation\u2011importance evaluations will now use a\
+    \ fixed count of 1,000 permutations regardless of the number of samples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All permutation\u2011importance evaluations will now use a fixed count\
+    \ of 1,000 permutations regardless of the number of samples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:54:39Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/plan.md
+  attempts: 1
+  canonical: figures include disclaimer associational analysis only no causal inference
+  claim_id: c_f203b1d5
+  context: "All generated figures will have the disclaimer \u201CAssociational analysis\
+    \ only; no causal inference\u201D injected via utils.plot_utils.inject_disclaimer."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Figures_include_disclaimer_associational_analysis_only_no_ca
+  kind: entity_fact
+  raw_text: "All generated figures will have the disclaimer \u2018Associational analysis\
+    \ only; no causal inference\u2019 injected via utils.plot_utils.inject_disclaimer."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:55:40Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/plan.md
+  attempts: 1
+  canonical: final report includes disclaimer associational analysis only no causal
+    inference
+  claim_id: c_1c7ff240
+  context: The final markdown report (output/report.md) will include the same disclaimer
+    through utils.report_utils.inject_disclaimer.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_includes_disclaimer_associational_analysis_only
+  kind: entity_fact
+  raw_text: The final markdown report will include the same disclaimer through utils.report_utils.inject_disclaimer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:56:27Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: figures include disclaimer 'Associational analysis only; no causal inference'
+  claim_id: c_015ae064
+  context: T029a implements plot disclaimer injector in code/utils/plot_utils.py to
+    append 'Associational analysis only; no causal inference' to all generated matplotlib/seaborn
+    figures.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Figures_include_disclaimer_%27Associational_analysis_only;_no
+  kind: entity_fact
+  raw_text: All generated matplotlib/seaborn figures must have the disclaimer 'Associational
+    analysis only; no causal inference' appended.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:58:00Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: report includes disclaimer 'Associational analysis only; no causal inference'
+  claim_id: c_56683e72
+  context: 'T028 creates statistical report generator and includes an explicit verification
+    step: assert mandatory disclaimer string ''Associational analysis only; no causal
+    inference'' exists in the generated output/report.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_disclaimer_%27Associational_analysis_only;_no
+  kind: entity_fact
+  raw_text: The generated report (output/report.md) must contain the mandatory disclaimer
+    string 'Associational analysis only; no causal inference'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:58:51Z'

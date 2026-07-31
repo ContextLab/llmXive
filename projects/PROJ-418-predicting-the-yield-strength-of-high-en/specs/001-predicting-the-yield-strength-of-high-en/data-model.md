@@ -1,53 +1,134 @@
-# Data Model: Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
+# Data Model: Predicting the Yield Strength of High‑Entropy Alloys
 
-## Entity Definitions
+## Overview
+The project manipulates three primary data artefacts:
 
-This document defines the data structures, schemas, and transformations for the HEA yield strength prediction pipeline. All data flows from `data/raw/` (immutable) to `data/processed/` (derived) and finally to `output/`.
+1. **Raw Dataset** – original HEA yield‑strength CSV (composition, measured yield strength, phase, testing temperature).  
+2. **Descriptor Table** – deterministic compositional descriptors derived from the raw dataset, plus covariates `phase` and `testing_temperature`.  
+3. **Model Output** – predictions, residuals, and performance metrics.
 
-## Entity Definitions
+All artefacts are version‑controlled, checksum‑recorded, and validated against JSON‑Schema contracts located in `contracts/`.
 
-### HEA Composition
-Represents a single high-entropy alloy entry.
-- **Attributes**:
-  - `composition`: Dict mapping element symbols to atomic fractions (e.g., `{"Cr": 0.2, "Fe": 0.2, ...}`).
-  - `yield_strength_mpa`: Float (normalized to MPa).
-  - `phase`: String (e.g., "BCC", "FCC", "Single-phase").
-  - `testing_temp_c`: Float (must be 20-25°C).
-  - `source`: String (dataset origin).
+## Schema: `contracts/descriptor.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Descriptor Table"
+description: "Row‑wise deterministic descriptors for each alloy composition."
+type: object
+properties:
+  composition:
+    type: string
+    description: "Alloy composition formula (e.g., 'CoCrFeMnNi')."
+  mixing_entropy:
+    type: number
+    description: "Configurational mixing entropy (J mol⁻¹ K⁻¹)."
+  atomic_size_mismatch:
+    type: number
+    description: "δ, atomic size mismatch (dimensionless)."
+  electronegativity_variance:
+    type: number
+    description: "Δχ, variance of Pauling electronegativities."
+  vec:
+    type: number
+    description: "Valence electron concentration (electrons per atom)."
+  tm_variance:
+    type: number
+    description: "Variance of melting temperatures of constituent elements."
+  phase:
+    type: string
+    description: "Phase structure (e.g., 'Single‑phase', 'BCC')."
+  testing_temperature:
+    type: number
+    description: "Testing temperature in Celsius."
+required:
+  - composition
+  - mixing_entropy
+  - atomic_size_mismatch
+  - electronegativity_variance
+  - vec
+  - tm_variance
+  - phase
+  - testing_temperature
+additionalProperties: false
+```
 
-### Descriptor Set
-Computed features per alloy.
-- **Attributes**:
-  - `delta`: Float (Atomic size mismatch).
-  - `delta_chi`: Float (Electronegativity variance).
-  - `vec`: Float (Valence electron concentration).
-  - `mixing_entropy`: Float.
-  - `delta_tm`: Float (Melting temperature variance).
-  - `yield_strength_mpa`: Float (Target).
+## Schema: `contracts/model_output.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output"
+description: "Predictions, residuals, and performance metrics for the HEA yield‑strength model."
+type: object
+properties:
+  predictions:
+    type: array
+    items:
+      type: number
+    description: "Predicted yield strength values (same order as input)."
+  actual:
+    type: array
+    items:
+      type: number
+    description: "Measured yield strength values."
+  residuals:
+    type: array
+    items:
+      type: number
+    description: "Actual minus predicted."
+  r2_score:
+    type: number
+    description: "Mean cross‑validated R²."
+  r2_ci_95:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "Lower and upper bounds of the 95 % bootstrap confidence interval for R² at a conventional confidence level."
+  permutation_importance:
+    type: object
+    description: "Feature importance values and p‑values."
+    additionalProperties:
+      type: object
+      properties:
+        importance:
+          type: number
+        p_value:
+          type: number
+      required:
+        - importance
+        - p_value
+required:
+  - predictions
+  - actual
+  - residuals
+  - r2_score
+  - r2_ci_95
+  - permutation_importance
+additionalProperties: false
+```
 
-## Data Flow
+## Checksum Recording
+Every artefact stored under `data/` will have its SHA‑256 checksum recorded in `state/projects/PROJ-418-predicting-the-yield-strength-of-high-en.yaml` under the `artifact_hashes` map. The `code/utils/checksums.py` module provides `record_checksum(path)` and `verify_checksum(path, expected)` utilities used throughout the pipeline.
 
-1.  **Raw Input**: Downloaded Parquet/CSV from open repository.
-2.  **Cleaning**:
-    - Filter: `phase == "Single-phase"` AND `20 <= testing_temp_c <= 25`.
-    - Filter: Remove rows with missing `yield_strength_mpa` or missing elemental properties.
-    - Normalize: Convert all yield strength to MPa.
-3.  **Transformation**:
-    - Calculate descriptors (δ, Δχ, VEC, etc.) using fixed elemental tables.
-    - Handle missing elemental properties: Exclude composition.
-4.  **Output**:
-    - `data/processed/final_dataset.csv`: Cleaned data with descriptors.
-    - `output/metrics.json`: Model performance results.
+## Derivation Traceability
+- **Raw → Descriptor**: `compute_descriptors.py` reads `data/raw/hea_yield_strength.csv` and writes `data/derived/descriptors.csv`. The output checksum is stored and linked to the input checksum.
+- **Descriptor → Model**: `train_model.py` consumes `descriptors.csv` and writes `data/derived/model_artifact.pkl`. Both input and output checksums are recorded.
+- **Model → Report**: `generate_report.py` pulls `model_artifact.pkl` and `descriptors.csv` to compute metrics and embed figures; the final `reports/report.md` checksum is also stored.
 
-## Schema Constraints
+## Contract Validation Steps (added)
+- **Raw Dataset Validation**: After download, `code/download_data.py` validates the raw CSV against `contracts/dataset.schema.yaml`.  
+- **Elemental Property Table Validation**: `code/compute_descriptors.py` validates `data/element_properties.csv` against `contracts/elemental_properties.schema.yaml`.  
+- **HEA Composition Validation**: The merged composition object is validated against `contracts/hea_composition.schema.yaml`.  
+- **Processed Data Validation**: The final processed dataset (including descriptors and covariates) is validated against `contracts/processed_data.schema.yaml`.  
+- **Model Output Validation**: After training and evaluation, `code/generate_report.py` validates the JSON output against `contracts/model_output.schema.yaml`.  
+- **Metrics Validation**: Bootstrap CI, permutation importance, and VIF results are validated against `contracts/metrics.schema.yaml` and `contracts/model_metrics.schema.yaml`.  
 
-- **Yield Strength**: Must be > 0.
-- **Composition**: Sum of atomic fractions must be ≈ 1.0 (within tolerance 1e-5).
-- **Descriptors**: Must be finite (no NaN/Inf).
-- **Phase**: Must be "Single-phase" for the final analysis set.
+All validations are performed before any downstream analysis, satisfying **Principle III (Data Hygiene)** and **Principle IV (Single Source of Truth)**.
 
-## Error Handling
+## Data Hygiene & Single Source of Truth
+- No in‑place modifications; each transformation writes a new file with a documented derivation step.  
+- Every figure, statistic, or interpretation in the paper traces back to a single row in `data/` and a single block in `code/`.
 
-- **Missing Data**: If N=0 after filtering, exit with code 0 and report N=0.
-- **Unit Mismatch**: Log conversion factor if non-MPa units detected.
-- **Collinearity**: If VIF > 10, flag descriptor and apply regularization (linear only).
+---
+
+

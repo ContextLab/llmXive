@@ -24,13 +24,13 @@ properties:
         description: "P-values for feature importance from permutation testing."
       bootstrap_ci:
         type: "object"
-        description: "95% confidence intervals from bootstrap resampling."
+        description: "Confidence intervals at a conventional confidence level derived from bootstrap resampling."
       vif_scores:
         type: "object"
         description: "Variance Inflation Factors for linear model descriptors."
       sensitivity_analysis:
         type: "array"
-        description: "Results for alpha sweeps (0.01, 0.05, 0.1)."
+        description: "Results for alpha sweeps (a small alpha setting, 0.05, 0.1)."
     required:
       - permutation_p_values
       - bootstrap_ci

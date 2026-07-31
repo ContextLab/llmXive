@@ -1,12 +1,8 @@
 status: none
-intent: Materials Project NIST HEA database Zenodo yield strength dataset python package
-  dataset
+intent: Materials Project HEA yield strength dataset download python package dataset
 required_fields:
-- alloy_composition
+- composition
 - yield_strength
-- phase_label
-- measurement_temperature
-- element_fractions
-cache_key: f70048d097e5f571937e45a587a47d78b872b0acb8b47c5b06a9c8a646dc66e2
-searched_at: '2026-07-28T19:19:51.699815+00:00'
+cache_key: a3d7ef4ad1a69d308c3c54bd4c04a746f421f94e95ee680285dd00f0a6e8feb1
+searched_at: '2026-07-31T02:09:42.413360+00:00'
 retry_count: 1
