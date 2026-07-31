@@ -1,10 +1,57 @@
 T008a:
   c: true
-  h: e2efd0cf8774694721d64e1252e289f16ded1f2f1f65f11988018f10fc602181
-  r: "The repository contains `code/logger.py` defining a `NumericalLogger` class\
-    \ with the required `log_residual(norm, flag)` and `log_convergence(metric)` methods,\
-    \ and the implementation writes JSON\u2011line entries to a file under `data/metadata/residuals.json`\
-    \ (via the configured metadata directory). No further artifacts are needed."
+  h: 8bd4ad9fd0035f635ae786ca140586b344481769cc9299ea9f28305896fa40d9
+  r: "The repository includes a `code/logger.py` defining a `NumericalLogger` with\
+    \ `log_residual` (accepting norm and flag) and `log_convergence` methods that\
+    \ append JSON\u2011line entries to `data/metadata/residuals.json`. The `data/metadata/residuals.json`\
+    \ file exists and contains non\u2011empty JSON lines matching the expected format."
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files or code modifications are provided showing a `NumericalLogger` class,\
+    \ error\u2011handling wrappers, or any changes to `generate_hamiltonian.py` and\
+    \ `analyze_pr.py`. Without these artifacts, the required logging infrastructure\
+    \ cannot be verified as present. The implementer must add the logger implementation\
+    \ and integrate it into the two scripts."
+T011:
+  c: false
+  h: 7a515fbbb0a64f9e5957e450e5d01c3921b8c0d58ece6b5fb7e2eebccea3b0b2
+  r: "The repository contains the integration test `tests/integration/test_pr_scaling.py`,\
+    \ but the required file `data/processed/scaling_fits.json` does not exist, causing\
+    \ the test\u2019s existence assertion to fail. The missing JSON file must be generated\
+    \ (or added) for the task to be satisfied."
+T013a:
+  c: false
+  h: 882f6e3396ef2b9dab58941cd67450e91e792632806be9d9197419bbfafa2052
+  r: "The JSON file `data/processed/scaling_fits.json` is present and contains the\
+    \ required fields, but the diagnostic plot `data/processed/pr_scaling_plot.png`\
+    \ is only a placeholder text (91\u202Fbytes) rather than an actual PNG image showing\
+    \ PR vs\u202FL with fit lines and confidence bands. A real image file must be\
+    \ generated and saved at the specified path."
+T015a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim that `plan.md` was edited cannot be verified because no version of\
+    \ `plan.md` (or a diff showing the change) is provided. Without the file content,\
+    \ we cannot confirm that the phrase \u201CBonferroni correction for pairwise comparisons\
+    \ only\u201D was replaced with \u201CBonferroni correction for the full family\
+    \ of disorder widths\u201D. The required artifact is missing."
+T017a:
+  c: true
+  h: 8bd4ad9fd0035f635ae786ca140586b344481769cc9299ea9f28305896fa40d9
+  r: "The repository contains a non\u2011empty `code/logger.py` implementing a `NumericalLogger`\
+    \ that writes JSON entries to `data/metadata/residuals.json`, and the `residuals.json`\
+    \ file exists with correctly structured records, satisfying the required output\
+    \ schema."
+T017b:
+  c: false
+  h: 71c0bf5b656e8e1fcbc273fe3b151849d766fe99c7a7de5fc0cc691a918d5ddd
+  r: "The `compute_eigenstates` function only creates a dummy residual log entry and\
+    \ never uses `NumericalLogger`, nor does it read `data/metadata/residuals.json`\
+    \ or filter out realizations based on `converged` or `residual_norm`. Consequently\
+    \ the required exclusion logic and proper logging of real residuals are missing,\
+    \ even though a `residuals.json` file is present. The task\u2019s core requirements\
+    \ are not satisfied."
 T023:
   c: false
   h: 03f8709ee28c97c91d94bd6f98582314b07cca90ef57ec219e676ce34882b99e

@@ -1,61 +1,52 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/hamiltonian_schema.json",
-  "title": "1D Tight-Binding Hamiltonian Metadata",
-  "description": "Schema for storing metadata of a generated 1D disordered Hamiltonian matrix. This schema captures the structural parameters and the random seed used for reproducibility, but does not store the full matrix data (which is stored in HDF5).",
+  "title": "Hamiltonian Schema",
+  "description": "Schema for 1D tight-binding Hamiltonian matrix and metadata",
   "type": "object",
   "required": [
-    "system_size",
-    "disorder_strength",
-    "hopping_parameter",
-    "random_seed",
-    "realization_index",
-    "diagonal_distribution",
-    "generated_at"
+    "L",
+    "W",
+    "eigenvalues",
+    "eigenvectors"
   ],
   "properties": {
-    "system_size": {
+    "L": {
       "type": "integer",
-      "description": "The dimension L of the L x L Hamiltonian matrix.",
-      "minimum": 1,
-      "examples": [100, 400, 1600]
+      "description": "System size (number of sites in the chain)"
     },
-    "disorder_strength": {
+    "W": {
       "type": "number",
-      "description": "The disorder width W. On-site potentials are drawn from U(-W/2, W/2).",
-      "minimum": 0,
-      "examples": [0.0, 1.0, 5.0, 10.0]
+      "description": "Disorder strength (uniform distribution width)"
     },
-    "hopping_parameter": {
-      "type": "number",
-      "description": "The nearest-neighbor hopping amplitude t. Fixed at 1.0 in this study.",
-      "const": 1.0
+    "eigenvalues": {
+      "type": "array",
+      "description": "Sorted eigenvalues of the Hamiltonian",
+      "items": {
+        "type": "number"
+      }
     },
-    "random_seed": {
-      "type": "integer",
-      "description": "The random seed used to initialize the NumPy RNG for this specific realization.",
-      "minimum": 0
+    "eigenvectors": {
+      "type": "array",
+      "description": "Eigenvectors of the Hamiltonian as column vectors",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      }
     },
     "realization_index": {
       "type": "integer",
-      "description": "The 0-based index of this realization within the batch for the given (W, L).",
-      "minimum": 0
+      "description": "Unique identifier for this disorder realization"
     },
-    "diagonal_distribution": {
-      "type": "string",
-      "description": "The distribution used for on-site energies.",
-      "const": "Uniform(-W/2, W/2)"
+    "seed": {
+      "type": "integer",
+      "description": "Random seed used for reproducibility"
     },
-    "generated_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "ISO 8601 timestamp of when this Hamiltonian was generated."
-    },
-    "checksum": {
-      "type": "string",
-      "description": "SHA-256 checksum of the flattened Hamiltonian matrix data (used for integrity verification).",
-      "pattern": "^[a-f0-9]{64}$"
+    "hopping": {
+      "type": "number",
+      "description": "Hopping parameter t (default 1.0)",
+      "default": 1.0
     }
-  },
-  "additionalProperties": false
+  }
 }

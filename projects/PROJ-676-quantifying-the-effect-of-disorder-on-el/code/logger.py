@@ -1,3 +1,7 @@
+"""
+Numerical logging infrastructure for Constitution Principle VI.
+Captures numerical residuals and convergence flags for eigenvalue problems.
+"""
 import json
 import os
 from datetime import datetime
@@ -5,38 +9,64 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import logging
 
-from code.config import get_config
+# Configure logger
+logger = logging.getLogger(__name__)
 
 class NumericalLogger:
     """
-    Logs numerical residuals and convergence flags.
-    Outputs JSON lines to data/metadata/residuals.json.
+    Logger for numerical stability metrics (residuals, convergence).
+    Writes JSON lines to data/metadata/residuals.json.
     """
+    def __init__(self, output_path: Optional[str] = None):
+        self.output_path = output_path or "data/metadata/residuals.json"
+        self._ensure_directory()
 
-    def __init__(self):
-        self.log_file = Path(get_config().data_dir) / "residuals.json"
-        logging.basicConfig(filename=str(self.log_file), level=logging.INFO, format='%(message)s')
+    def _ensure_directory(self):
+        """Ensure the output directory exists."""
+        Path(self.output_path).parent.mkdir(parents=True, exist_ok=True)
 
-
-    def log_residual(self, task: str, converged: bool, L: int, W: float, realization_index: int, residual_norm: float):
+    def log_residual(self, norm: float, flag: bool, task: str = "eigh", **kwargs):
         """
-        Logs the residual norm after eigenvalue decomposition.
+        Log a residual norm and convergence flag.
+
+        Args:
+            norm: The residual norm (float).
+            flag: Convergence flag (True if converged, False otherwise).
+            task: The task name (e.g., 'eigh', 'tm').
+            **kwargs: Additional context (L, W, realization_index, seed, etc.).
         """
-        log_entry = {
+        entry = {
+            "timestamp": datetime.utcnow().isoformat(),
             "task": task,
-            "L": L,
-            "W": W,
-            "realization_index": realization_index,
-            "residual_norm": residual_norm,
-            "converged": converged
+            "residual_norm": norm,
+            "converged": flag,
+            **kwargs
         }
+        self._append_entry(entry)
 
-        with open(self.log_file, "a") as f:
-            json.dump(log_entry, f)
-            f.write('\n') # Ensure each entry is a separate JSON line
+    def log_convergence(self, metric: Dict[str, Any]):
+        """
+        Log convergence metrics for iterative solvers.
 
-def get_logger():
-    """
-    Returns an instance of the NumericalLogger.
-    """
-    return NumericalLogger()
+        Args:
+            metric: Dictionary containing convergence details (iterations, history, etc.).
+        """
+        entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "type": "convergence_metric",
+            "metric": metric
+        }
+        self._append_entry(entry)
+
+    def _append_entry(self, entry: Dict[str, Any]):
+        """Append a JSON line entry to the output file."""
+        try:
+            with open(self.output_path, "a") as f:
+                f.write(json.dumps(entry) + "\n")
+        except Exception as e:
+            logger.error(f"Failed to write log entry: {e}")
+            raise
+
+def get_logger(output_path: Optional[str] = None) -> NumericalLogger:
+    """Factory function to get a NumericalLogger instance."""
+    return NumericalLogger(output_path)

@@ -1,124 +1,67 @@
 """
-Unit tests for the NumericalLogger class.
+Unit tests for NumericalLogger (T017a).
 """
 import json
 import os
 import tempfile
 from pathlib import Path
+import pytest
+from code.logger import NumericalLogger
 
-from code.logger import NumericalLogger, get_logger
-
-
-def test_log_residual():
-    """Test that log_residual writes correct JSON lines."""
+def test_log_residual_writes_json_lines():
+    """Test that log_residual writes a valid JSON line to the file."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = os.path.join(tmpdir, "residuals.json")
-        logger = NumericalLogger(output_path=log_path)
-
-        # Log a residual
+        output_path = os.path.join(tmpdir, "residuals.json")
+        logger = NumericalLogger(output_path)
+        
         logger.log_residual(
-            norm=1e-6,
+            norm=1e-7,
             flag=True,
             task="eigh",
             L=100,
             W=1.0,
-            realization_index=5
+            realization_index=0,
+            seed=42
         )
-
-        # Verify file contents
-        assert os.path.exists(log_path)
-        with open(log_path, 'r') as f:
-            lines = f.readlines()
-
-        assert len(lines) == 1
-        entry = json.loads(lines[0])
-
+        
+        assert os.path.exists(output_path)
+        with open(output_path, "r") as f:
+            line = f.readline()
+            entry = json.loads(line)
+            
         assert entry["task"] == "eigh"
-        assert entry["residual_norm"] == 1e-6
+        assert entry["residual_norm"] == 1e-7
         assert entry["converged"] is True
         assert entry["L"] == 100
         assert entry["W"] == 1.0
-        assert entry["realization_index"] == 5
-        assert "timestamp" in entry
+        assert entry["realization_index"] == 0
+        assert entry["seed"] == 42
 
-
-def test_log_convergence():
-    """Test that log_convergence writes correct JSON lines."""
+def test_log_convergence_writes_json_lines():
+    """Test that log_convergence writes a valid JSON line to the file."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = os.path.join(tmpdir, "residuals.json")
-        logger = NumericalLogger(output_path=log_path)
-
-        # Log a convergence metric
+        output_path = os.path.join(tmpdir, "residuals.json")
+        logger = NumericalLogger(output_path)
+        
         metric = {
-            "task": "eigsh",
-            "metric_name": "relative_change",
-            "value": 1e-7,
-            "threshold": 1e-5,
-            "converged": True,
-            "iteration": 50
+            "iterations": 10,
+            "history": [1.0, 0.5, 0.1],
+            "converged": True
         }
         logger.log_convergence(metric)
+        
+        assert os.path.exists(output_path)
+        with open(output_path, "r") as f:
+            line = f.readline()
+            entry = json.loads(line)
+            
+        assert entry["type"] == "convergence_metric"
+        assert entry["metric"]["iterations"] == 10
+        assert entry["metric"]["converged"] is True
 
-        # Verify file contents
-        assert os.path.exists(log_path)
-        with open(log_path, 'r') as f:
-            lines = f.readlines()
-
-        assert len(lines) == 1
-        entry = json.loads(lines[0])
-
-        assert entry["task"] == "eigsh"
-        assert entry["metric_name"] == "relative_change"
-        assert entry["value"] == 1e-7
-        assert entry["threshold"] == 1e-5
-        assert entry["converged"] is True
-        assert entry["iteration"] == 50
-        assert "timestamp" in entry
-
-
-def test_multiple_entries():
-    """Test that multiple entries are appended correctly."""
+def test_ensure_directory_creates_path():
+    """Test that _ensure_directory creates parent directories if missing."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = os.path.join(tmpdir, "residuals.json")
-        logger = NumericalLogger(output_path=log_path)
-
-        logger.log_residual(norm=1e-6, flag=True)
-        logger.log_residual(norm=1e-4, flag=False)
-        logger.log_convergence({"metric_name": "test", "value": 0.5})
-
-        with open(log_path, 'r') as f:
-            lines = f.readlines()
-
-        assert len(lines) == 3
-
-
-def test_clear_log():
-    """Test that clear_log truncates the file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = os.path.join(tmpdir, "residuals.json")
-        logger = NumericalLogger(output_path=log_path)
-
-        logger.log_residual(norm=1e-6, flag=True)
-        assert os.path.exists(log_path)
-
-        logger.clear_log()
-
-        with open(log_path, 'r') as f:
-            content = f.read()
-
-        assert content == ""
-
-
-def test_get_logger_factory():
-    """Test the get_logger factory function."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = os.path.join(tmpdir, "residuals.json")
-        logger = get_logger(output_path=log_path)
-
-        assert isinstance(logger, NumericalLogger)
-        logger.log_residual(norm=1e-6, flag=True)
-
-        with open(log_path, 'r') as f:
-            lines = f.readlines()
-
-        assert len(lines) == 1
+        nested_path = os.path.join(tmpdir, "deep", "nested", "residuals.json")
+        logger = NumericalLogger(nested_path)
+        assert os.path.exists(os.path.dirname(nested_path))

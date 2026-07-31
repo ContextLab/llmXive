@@ -773,3 +773,304 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T22:49:47Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/physical_interpretation.md
+  attempts: 1
+  canonical: Localization center site index 102 for W=2.0 in L=200 chain
+  claim_id: c_1e57bbd4
+  context: In the weak-to-moderate disorder regime (W=2.0), the electron exhibits
+    localized behavior. The site with the maximum probability density |psi_i|^2 was
+    identified at site index 102 (in a chain of length L=200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The site with the maximum probability density was identified at site index
+    102 (in a chain of length L=200).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T15:49:11Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/physical_interpretation.md
+  attempts: 1
+  canonical: Half-amplitude site index 114 for W=2.0
+  claim_id: c_df4b6325
+  context: Using linear interpolation on the logarithm of the probability density,
+    the amplitude drops to half its maximum value at site index 114.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The amplitude drops to half its maximum value at site index 114.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T15:49:59Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/physical_interpretation.md
+  attempts: 1
+  canonical: Trapping distance 12 lattice units for W=2.0
+  claim_id: c_36508a68
+  context: The distance from the localization center to the half-amplitude point is
+    12 lattice units.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The distance from the localization center to the half-amplitude point
+    is 12 lattice units.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T15:50:22Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/physical_interpretation.md
+  attempts: 1
+  canonical: Decay length 17.3 lattice units for W=2.0
+  claim_id: c_16a5d6d1
+  context: The fitted decay length xi is approximately 17.3 lattice units.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fitted decay length xi is approximately 17.3 lattice units.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T15:50:35Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/physical_interpretation.md
+  attempts: 1
+  canonical: Localization center site index 87 for W=5.0 in L=200 chain
+  claim_id: c_1727527d
+  context: In the strong disorder limit (W=5.0), the electron is tightly confined
+    to a single lattice site. The site with the maximum probability density |psi_i|^2
+    was identified at site index 87 (in a chain of length L=200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The site with the maximum probability density was identified at site index
+    87 (in a chain of length L=200).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T15:50:53Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/physical_interpretation.md
+  attempts: 1
+  canonical: Trapping distance 2 lattice units for W=5.0
+  claim_id: c_eb25ff23
+  context: The distance to the nearest site where |psi_i|^2 < 0.01 x max(|psi|^2)
+    is 2 lattice units.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The distance to the nearest site where |psi_i|^2 < 0.01 x max(|psi|^2)
+    is 2 lattice units.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T15:50:53Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/docs/physical_interpretation.md
+  attempts: 1
+  canonical: Decay length 2.1 lattice units for W=5.0
+  claim_id: c_a3c38a2e
+  context: The fitted decay length xi is approximately 2.1 lattice units.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fitted decay length xi is approximately 2.1 lattice units.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T15:50:53Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: PR decreases with increasing W for L=400 at |E|<0.1
+  claim_id: c_f119afe6
+  context: 'Independent Test for User Story 1: Run on a single realization (L=400,
+    W=1.0), compute eigenstates, extract PR for $|E|<0.1$, and verify PR decreases
+    with increasing W.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: <0.1
+    relation: E
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/PR_decreases_with_increasing_W_for_L=400_at_E_%3C0.1
+    source_value: https://en.wikipedia.org/wiki/PR_decreases_with_increasing_W_for_L=400_at_E_<0.1
+    subject: PR decreases with increasing W for L=400 at
+  kind: relational
+  raw_text: Verify that PR decreases with increasing W for a single realization (L=400,
+    W=1.0) within the range |E|<0.1.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:03:18Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: TM and PR localization lengths agree within 10% for L >= 400
+  claim_id: c_d7ec3336
+  context: 'Independent Test for User Story 2: Run TM on same realizations as PR,
+    compute Lyapunov exponents, and verify $\xi_{TM} \approx \xi_{PR}$ within 10%
+    for $L \ge 400$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that $\xi_{TM} \approx \xi_{PR}$ within 10% for $L \ge 400$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:03:18Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: PR scales linearly with L for W=0
+  claim_id: c_cabcc66e
+  context: 'Task T033a: The code must detect W=0 and verify that PR scales extensively
+    with system size (PR ~ L) rather than saturating.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that PR scales extensively with system size (PR ~ L) for W=0 cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:03:40Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: TM convergence at L=800 with relative change <= 5% between L=400 and
+    L=800
+  claim_id: c_9e3ff6e7
+  context: 'Task T020b: Stopping Criterion: Stop when $|\gamma_{new} - \gamma_{old}|/\gamma_{old}
+    < 1e-5$ (solver convergence) OR when $L=800$ and relative change between $L=400$
+    and $L=800$ is $\le 5\%$ (physical acceptance criterion per SC-002).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The transfer matrix method stops when $L=800$ and relative change between
+    $L=400$ and $L=800$ is $\le 5\%$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:03:58Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: TM and PR localization lengths agree within 10% for L >= 400 in 80% of
+    realizations
+  claim_id: c_05bcc6c5
+  context: "Task T023: Implement `code/compare_methods.py` to verify $\\xi_{TM}$ vs\
+    \ $\\xi_{PR}$ agreement within 10% for **L \u2265 400** and **\u2265 80% of config.NUM_REALIZATIONS\
+    \ realizations**."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify $\\xi_{TM}$ vs $\\xi_{PR}$ agreement within 10% for L \u2265 400\
+    \ and \u2265 80% of realizations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:03:58Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: 100 realizations provide >= 80% power to detect slope deviation from
+    -2 at alpha=0.05
+  claim_id: c_b9e5bed3
+  context: "Task T015b: Perform a priori power analysis to verify 100 realizations\
+    \ provide \u226580% power to detect slope deviation from -2 at \u03B1=0.05 (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform a priori power analysis to verify 100 realizations provide \u2265\
+    80% power to detect slope deviation from -2 at \u03B1=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:04:34Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: 1000 realizations complete within 6 hours with n_jobs=2 and loky backend
+  claim_id: c_06f7922e
+  context: 'Task T032: Tune `joblib` parallelization to ensure 1000 realizations complete
+    within 6 hours on CPU cores. **Test parameters**: `n_jobs=2`, `backend=''loky''`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure 1000 realizations complete within 6 hours on CPU cores with n_jobs=2
+    and backend='loky'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:04:56Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Slope -2 validation restricted to W < 1.0
+  claim_id: c_ff2c4090
+  context: 'Task T014: MUST restrict the regression for slope -2 validation (SC-001)
+    to the subset where $W < \text{config.WEAK_DISORDER_CUTOFF}$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The weak disorder cutoff for slope -2 validation is W < 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:05:09Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: System sizes L in {100, 200, 400, 800, 1600}
+  claim_id: c_f1704c87
+  context: 'Note: Ta explicitly lists required system sizes $L \in \{100, 200, 400,
+    800, 1600\}$ and disorder widths $W \in [0.1, 0.2, \dots, 2.0]$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Required system sizes are L \u2208 {100, 200, 400, 800, 1600}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:05:54Z'
+- artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
+  attempts: 1
+  canonical: Disorder widths W in range 0.1 to 2.0
+  claim_id: c_6dd64d5a
+  context: 'Note: Ta explicitly lists required system sizes $L \in \{100, 200, 400,
+    800, 1600\}$ and disorder widths $W \in [0.1, 0.2, \dots, 2.0]$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Required disorder widths are W \u2208 [0.1, 0.2, ..., 2.0]."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:06:14Z'

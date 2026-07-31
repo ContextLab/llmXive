@@ -1,139 +1,91 @@
-"""
-Project Initialization Script for PROJ-676.
-
-This script creates the required directory structure and initializes the
-provenance schema file for the project.
-
-Directories created:
-- code/
-- data/raw/
-- data/processed/
-- data/metadata/
-- tests/
-- docs/
-- specs/
-
-Files created:
-- data/metadata/provenance.json (schema definition)
-"""
 import os
 import json
 from pathlib import Path
+from typing import List
 
-def main():
-    # Define the project root based on the task description
-    # The task specifies paths relative to the project root:
-    # projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/
-    # We assume this script runs from that root.
-    project_root = Path(".")
-    
-    # Define the required directories
-    directories = [
+def create_directories(root_dir: Path) -> List[Path]:
+    """Create the standard project directory structure."""
+    dirs = [
+        root_dir / "code",
+        root_dir / "data" / "raw",
+        root_dir / "data" / "processed",
+        root_dir / "data" / "metadata",
+        root_dir / "tests",
+        root_dir / "docs",
+        root_dir / "specs" / "001-quantifying-disorder-effect" / "contracts",
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    return dirs
+
+def create_gitkeep_files(root_dir: Path) -> List[Path]:
+    """Create .gitkeep files in data and docs directories to ensure they are tracked."""
+    target_dirs = [
+        root_dir / "data" / "raw",
+        root_dir / "data" / "processed",
+        root_dir / "data" / "metadata",
+        root_dir / "docs",
+        root_dir / "specs" / "001-quantifying-disorder-effect" / "contracts",
+    ]
+    created_files = []
+    for d in target_dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        gitkeep = d / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
+            created_files.append(gitkeep)
+    return created_files
+
+def verify_structure(root_dir: Path) -> bool:
+    """Verify that all required directories and .gitkeep files exist."""
+    required_dirs = [
         "code",
         "data/raw",
         "data/processed",
         "data/metadata",
         "tests",
         "docs",
-        "specs"
+        "specs/001-quantifying-disorder-effect/contracts",
     ]
+    for rel_path in required_dirs:
+        if not (root_dir / rel_path).exists():
+            print(f"Missing directory: {root_dir / rel_path}")
+            return False
+
+    required_gitkeeps = [
+        "data/raw/.gitkeep",
+        "data/processed/.gitkeep",
+        "data/metadata/.gitkeep",
+        "docs/.gitkeep",
+        "specs/001-quantifying-disorder-effect/contracts/.gitkeep",
+    ]
+    for rel_path in required_gitkeeps:
+        if not (root_dir / rel_path).exists():
+            print(f"Missing .gitkeep: {root_dir / rel_path}")
+            return False
+
+    return True
+
+def main():
+    root_dir = Path(__file__).resolve().parent.parent
+    print(f"Setting up project structure in: {root_dir}")
     
-    created_dirs = []
+    dirs = create_directories(root_dir)
+    print(f"Created directories: {[str(d) for d in dirs]}")
     
-    print(f"Initializing project structure at: {project_root.absolute()}")
-    
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(dir_path)
-            print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
-    
-    # Create the provenance schema file
-    provenance_path = project_root / "data" / "metadata" / "provenance.json"
-    
-    if not provenance_path.exists():
-        # Define the schema structure for provenance tracking
-        # This aligns with T006b requirements for logging
-        schema = {
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "title": "Project Provenance Log",
-            "description": "Tracks data generation, processing steps, and execution metadata for reproducibility.",
-            "type": "object",
-            "properties": {
-                "project_id": {
-                    "type": "string",
-                    "description": "Unique identifier for the project",
-                    "const": "PROJ-676-quantifying-the-effect-of-disorder-on-el"
-                },
-                "created_at": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "ISO 8601 timestamp of log creation"
-                },
-                "entries": {
-                    "type": "array",
-                    "description": "List of provenance entries for data artifacts",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "timestamp": {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            "task_id": {
-                                "type": "string",
-                                "description": "ID of the task that generated this entry"
-                            },
-                            "action": {
-                                "type": "string",
-                                "enum": ["generated", "processed", "analyzed", "stored"]
-                            },
-                            "input_files": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "Relative paths to input files"
-                            },
-                            "output_files": {
-                                "type": "array",
-                                "items": {"type": "string"},
-                                "description": "Relative paths to output files"
-                            },
-                            "parameters": {
-                                "type": "object",
-                                "description": "Key parameters used in the operation"
-                            },
-                            "checksums": {
-                                "type": "object",
-                                "description": "SHA-256 checksums for output files"
-                            },
-                            "status": {
-                                "type": "string",
-                                "enum": ["success", "failed", "partial"]
-                            }
-                        },
-                        "required": ["timestamp", "action", "status"]
-                    }
-                }
-            },
-            "required": ["project_id", "created_at", "entries"]
-        }
-        
-        # Initialize with current timestamp
-        from datetime import datetime
-        schema["created_at"] = datetime.utcnow().isoformat() + "Z"
-        
-        with open(provenance_path, "w") as f:
-            json.dump(schema, f, indent=2)
-        
-        print(f"Created provenance schema: {provenance_path}")
+    gitkeeps = create_gitkeep_files(root_dir)
+    if gitkeeps:
+        print(f"Created .gitkeep files: {[str(g) for g in gitkeeps]}")
     else:
-        print(f"Provenance schema already exists: {provenance_path}")
+        print("All .gitkeep files already exist.")
     
-    print("\nProject structure initialization complete.")
-    print(f"Created {len(created_dirs)} new directories.")
+    if verify_structure(root_dir):
+        print("Project structure verification: PASSED")
+    else:
+        print("Project structure verification: FAILED")
+        return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

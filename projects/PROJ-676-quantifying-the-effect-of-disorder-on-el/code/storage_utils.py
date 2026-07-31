@@ -1,273 +1,211 @@
-"""
-Storage utilities for the disorder transport project.
-
-Handles HDF5 storage with SHA-256 checksum generation and logging to
-data/metadata/provenance.json.
-"""
 import hashlib
 import json
 import os
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, Any, List, Optional
 
 import h5py
 import numpy as np
 
 from code.config import get_config
 
+def _compute_sha256(file_path: Path) -> str:
+    """Compute SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def _get_provenance_path() -> Path:
-    """Return the path to the provenance JSON file."""
+def log_provenance_entry(entry: Dict[str, Any]):
+    """Log a provenance entry to data/metadata/provenance.json as JSONL.
+    
+    MUST log `realization_index`, `seed`, `W`, `L` for every generated instance.
+    """
     config = get_config()
-    return Path(config.DATA_METADATA_DIR) / "provenance.json"
+    output_path = Path(config['PROJECT_ROOT']) / 'data' / 'metadata' / 'provenance.json'
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    entry['timestamp'] = datetime.now().isoformat()
+    
+    # Ensure required fields are present
+    required_fields = ['realization_index', 'seed', 'W', 'L']
+    for field in required_fields:
+        if field not in entry:
+            raise ValueError(f"Provenance entry missing required field: {field}")
+    
+    # Append as JSONL line
+    with open(output_path, 'a') as f:
+        f.write(json.dumps(entry) + '\n')
 
+def save_hamiltonian_to_hdf5(H: np.ndarray, W: float, L: int, realization_index: int, seed: int) -> str:
+    """Save Hamiltonian to HDF5 with metadata and return checksum.
+    
+    Args:
+        H: Hamiltonian matrix (L x L)
+        W: Disorder strength
+        L: System size
+        realization_index: Index of this realization
+        seed: Random seed used
+        
+    Returns:
+        Path to the saved HDF5 file
+    """
+    config = get_config()
+    output_dir = Path(config['PROJECT_ROOT']) / 'data' / 'raw' / 'hamiltonians'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    filename = f"H_W{W:.1f}_L{L}_idx{realization_index}.h5"
+    file_path = output_dir / filename
+    
+    with h5py.File(file_path, 'w') as f:
+        f.create_dataset('hamiltonian', data=H)
+        f.attrs['W'] = W
+        f.attrs['L'] = L
+        f.attrs['realization_index'] = realization_index
+        f.attrs['seed'] = seed
+        f.attrs['timestamp'] = datetime.now().isoformat()
+    
+    # Compute and log checksum
+    checksum = _compute_sha256(file_path)
+    
+    # Log provenance
+    log_provenance_entry({
+        'task_id': 'T007',
+        'action': 'stored',
+        'input_files': [],
+        'output_files': [str(file_path.relative_to(config['PROJECT_ROOT']))],
+        'parameters': {'W': W, 'L': L, 'realization_index': realization_index, 'seed': seed},
+        'checksums': {str(filename): checksum},
+        'status': 'success'
+    })
+    
+    return str(file_path)
 
-def _load_provenance() -> Dict[str, Any]:
-    """Load the existing provenance file or return a fresh schema."""
-    path = _get_provenance_path()
-    if not path.exists():
-        return {
-            "schema_version": "1.0.0",
-            "description": "Provenance log for all generated data artifacts in the disorder transport project.",
-            "entries": []
+def load_hamiltonian_from_hdf5(file_path: str) -> Dict[str, Any]:
+    """Load Hamiltonian from HDF5.
+    
+    Args:
+        file_path: Path to HDF5 file
+        
+    Returns:
+        Dict with 'hamiltonian' (np.ndarray) and metadata
+    """
+    with h5py.File(file_path, 'r') as f:
+        H = np.array(f['hamiltonian'])
+        metadata = {
+            'W': f.attrs['W'],
+            'L': f.attrs['L'],
+            'realization_index': f.attrs['realization_index'],
+            'seed': f.attrs['seed']
         }
+    return {'hamiltonian': H, **metadata}
 
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def _save_provenance(data: Dict[str, Any]) -> None:
-    """Save the provenance data to disk."""
-    path = _get_provenance_path()
-    # Ensure directory exists
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-
-def _compute_sha256(data: Union[np.ndarray, bytes]) -> str:
-    """Compute SHA-256 hash of the provided data."""
-    if isinstance(data, np.ndarray):
-        # Serialize numpy array to bytes
-        raw_bytes = data.tobytes()
-    elif isinstance(data, bytes):
-        raw_bytes = data
-    else:
-        raise TypeError(f"Unsupported data type for hashing: {type(data)}")
-
-    return hashlib.sha256(raw_bytes).hexdigest()
-
-
-def log_provenance_entry(
-    artifact_path: str,
-    artifact_type: str,
-    checksum: str,
-    metadata: Optional[Dict[str, Any]] = None
-) -> None:
-    """
-    Log a new entry to the provenance file.
-
+def save_eigenstates_to_hdf5(eigenvalues: np.ndarray, eigenvectors: np.ndarray, 
+                             W: float, L: int, realization_index: int, seed: int,
+                             residual_norm: float, converged: bool) -> str:
+    """Save eigenstates to HDF5 with metadata and return checksum.
+    
     Args:
-        artifact_path: Relative path to the artifact from project root.
-        artifact_type: Type of artifact (e.g., 'hamiltonian', 'eigenstate').
-        checksum: SHA-256 checksum of the artifact data.
-        metadata: Optional additional metadata (e.g., W, L, seed).
+        eigenvalues: Array of eigenvalues
+        eigenvectors: Matrix of eigenvectors (columns)
+        W: Disorder strength
+        L: System size
+        realization_index: Index of this realization
+        seed: Random seed used
+        residual_norm: Numerical residual from eigenvalue solver
+        converged: Whether solver converged
+        
+    Returns:
+        Path to the saved HDF5 file
     """
     config = get_config()
-    entry = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "artifact_path": artifact_path,
-        "artifact_type": artifact_type,
-        "checksum": checksum,
-        "metadata": metadata or {},
-        "config_snapshot": {
-            "random_seed": config.RANDOM_SEED,
-            "num_realizations": config.NUM_REALIZATIONS,
-        }
-    }
+    output_dir = Path(config['PROJECT_ROOT']) / 'data' / 'raw' / 'eigenstates'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    filename = f"eigenstates_W{W:.1f}_L{L}_idx{realization_index}.h5"
+    file_path = output_dir / filename
+    
+    with h5py.File(file_path, 'w') as f:
+        f.create_dataset('eigenvalues', data=eigenvalues)
+        f.create_dataset('eigenvectors', data=eigenvectors)
+        f.attrs['W'] = W
+        f.attrs['L'] = L
+        f.attrs['realization_index'] = realization_index
+        f.attrs['seed'] = seed
+        f.attrs['residual_norm'] = residual_norm
+        f.attrs['converged'] = converged
+        f.attrs['timestamp'] = datetime.now().isoformat()
+    
+    # Compute and log checksum
+    checksum = _compute_sha256(file_path)
+    
+    # Log provenance
+    log_provenance_entry({
+        'task_id': 'T007',
+        'action': 'stored',
+        'input_files': [],
+        'output_files': [str(file_path.relative_to(config['PROJECT_ROOT']))],
+        'parameters': {'W': W, 'L': L, 'realization_index': realization_index, 'seed': seed, 
+                     'residual_norm': residual_norm, 'converged': converged},
+        'checksums': {str(filename): checksum},
+        'status': 'success' if converged else 'partial'
+    })
+    
+    return str(file_path)
 
-    provenance = _load_provenance()
-    provenance["entries"].append(entry)
-    _save_provenance(provenance)
-
-
-def save_hamiltonian_to_hdf5(
-    hamiltonian: np.ndarray,
-    disorder_params: Dict[str, Any],
-    realization_index: int,
-    output_dir: Optional[str] = None
-) -> str:
-    """
-    Save a Hamiltonian matrix to HDF5 and log to provenance.
-
+def save_localization_length(xi: float, W: float, L: int, realization_index: int, 
+                             seed: int, fit_params: Dict[str, Any]) -> str:
+    """Save localization length result to HDF5 and log provenance.
+    
     Args:
-        hamiltonian: The L x L Hamiltonian matrix.
-        disorder_params: Dictionary with keys 'W' (disorder strength) and 'L' (system size).
-        realization_index: Index of this disorder realization.
-        output_dir: Optional override for output directory. Defaults to config.DATA_RAW_DIR.
-
+        xi: Localization length
+        W: Disorder strength
+        L: System size
+        realization_index: Index of this realization
+        seed: Random seed used
+        fit_params: Dictionary of fit parameters
+        
     Returns:
-        Relative path to the saved HDF5 file.
+        Path to the saved HDF5 file
     """
     config = get_config()
-    if output_dir is None:
-        output_dir = config.DATA_RAW_DIR
-
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    filename = f"ham_L{disorder_params['L']}_W{disorder_params['W']}_idx{realization_index}.h5"
-    file_path = output_path / filename
-    relative_path = str(Path("data/raw") / filename)
-
-    # Compute checksum of the raw numpy data
-    checksum = _compute_sha256(hamiltonian)
-
-    with h5py.File(file_path, "w") as hf:
-        hf.create_dataset("H", data=hamiltonian, compression="gzip", compression_opts=4)
-        hf.attrs["W"] = disorder_params["W"]
-        hf.attrs["L"] = disorder_params["L"]
-        hf.attrs["realization_index"] = realization_index
-        hf.attrs["timestamp"] = datetime.utcnow().isoformat() + "Z"
-        hf.attrs["checksum"] = checksum
-
-    log_provenance_entry(
-        artifact_path=relative_path,
-        artifact_type="hamiltonian",
-        checksum=checksum,
-        metadata=disorder_params
-    )
-
-    return relative_path
-
-
-def load_hamiltonian_from_hdf5(file_path: str) -> np.ndarray:
-    """
-    Load a Hamiltonian from an HDF5 file.
-
-    Args:
-        file_path: Path to the HDF5 file.
-
-    Returns:
-        The Hamiltonian matrix as a numpy array.
-    """
-    with h5py.File(file_path, "r") as hf:
-        return np.array(hf["H"])
-
-
-def save_eigenstates_to_hdf5(
-    eigenvalues: np.ndarray,
-    eigenstates: np.ndarray,
-    disorder_params: Dict[str, Any],
-    realization_index: int,
-    output_dir: Optional[str] = None
-) -> str:
-    """
-    Save eigenvalues and eigenstates to HDF5 and log to provenance.
-
-    Args:
-        eigenvalues: 1D array of eigenvalues.
-        eigenstates: 2D array where columns are eigenstates.
-        disorder_params: Dictionary with keys 'W', 'L'.
-        realization_index: Index of this disorder realization.
-        output_dir: Optional override for output directory. Defaults to config.DATA_PROCESSED_DIR.
-
-    Returns:
-        Relative path to the saved HDF5 file.
-    """
-    config = get_config()
-    if output_dir is None:
-        output_dir = config.DATA_PROCESSED_DIR
-
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    filename = f"eigen_L{disorder_params['L']}_W{disorder_params['W']}_idx{realization_index}.h5"
-    file_path = output_path / filename
-    relative_path = str(Path("data/processed") / filename)
-
-    # Compute checksums
-    ev_checksum = _compute_sha256(eigenvalues)
-    es_checksum = _compute_sha256(eigenstates)
-    combined_checksum = hashlib.sha256((ev_checksum + es_checksum).encode()).hexdigest()
-
-    with h5py.File(file_path, "w") as hf:
-        hf.create_dataset("eigenvalues", data=eigenvalues, compression="gzip", compression_opts=4)
-        hf.create_dataset("eigenstates", data=eigenstates, compression="gzip", compression_opts=4)
-        hf.attrs["W"] = disorder_params["W"]
-        hf.attrs["L"] = disorder_params["L"]
-        hf.attrs["realization_index"] = realization_index
-        hf.attrs["timestamp"] = datetime.utcnow().isoformat() + "Z"
-        hf.attrs["checksum"] = combined_checksum
-
-    log_provenance_entry(
-        artifact_path=relative_path,
-        artifact_type="eigenstates",
-        checksum=combined_checksum,
-        metadata=disorder_params
-    )
-
-    return relative_path
-
-
-def save_localization_length(
-    localization_length: float,
-    uncertainty: float,
-    fit_params: Dict[str, Any],
-    disorder_params: Dict[str, Any],
-    realization_indices: List[int],
-    output_dir: Optional[str] = None
-) -> str:
-    """
-    Save localization length results to JSON and log to provenance.
-
-    Args:
-        localization_length: The computed localization length xi.
-        uncertainty: Uncertainty in xi.
-        fit_params: Parameters from the finite-size scaling fit.
-        disorder_params: Dictionary with 'W' and 'L' (representative L).
-        realization_indices: List of realization indices included in this average.
-        output_dir: Optional override. Defaults to config.DATA_PROCESSED_DIR.
-
-    Returns:
-        Relative path to the saved JSON file.
-    """
-    config = get_config()
-    if output_dir is None:
-        output_dir = config.DATA_PROCESSED_DIR
-
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    filename = f"xi_W{disorder_params['W']}.json"
-    file_path = output_path / filename
-    relative_path = str(Path("data/processed") / filename)
-
-    data = {
-        "xi": localization_length,
-        "uncertainty": uncertainty,
-        "fit_params": fit_params,
-        "W": disorder_params["W"],
-        "L_range": [min(disorder_params.get("L_range", [])), max(disorder_params.get("L_range", []))],
-        "num_realizations": len(realization_indices),
-        "realization_indices": realization_indices,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "checksum": hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
-    }
-
-    # Compute checksum of the content
-    checksum = data.pop("checksum")
-
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-    log_provenance_entry(
-        artifact_path=relative_path,
-        artifact_type="localization_length",
-        checksum=checksum,
-        metadata={"W": disorder_params["W"]}
-    )
-
-    return relative_path
+    output_dir = Path(config['PROJECT_ROOT']) / 'data' / 'processed' / 'localization_lengths'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    filename = f"xi_W{W:.1f}_L{L}_idx{realization_index}.h5"
+    file_path = output_dir / filename
+    
+    with h5py.File(file_path, 'w') as f:
+        f.attrs['xi'] = xi
+        f.attrs['W'] = W
+        f.attrs['L'] = L
+        f.attrs['realization_index'] = realization_index
+        f.attrs['seed'] = seed
+        f.attrs['timestamp'] = datetime.now().isoformat()
+        
+        # Store fit parameters
+        fit_group = f.create_group('fit_params')
+        for key, value in fit_params.items():
+            if isinstance(value, (int, float)):
+                fit_group.attrs[key] = value
+            elif isinstance(value, str):
+                fit_group.attrs[key] = value
+    
+    # Compute and log checksum
+    checksum = _compute_sha256(file_path)
+    
+    # Log provenance
+    log_provenance_entry({
+        'task_id': 'T007',
+        'action': 'processed',
+        'input_files': [],
+        'output_files': [str(file_path.relative_to(config['PROJECT_ROOT']))],
+        'parameters': {'W': W, 'L': L, 'realization_index': realization_index, 'seed': seed, 'xi': xi},
+        'checksums': {str(filename): checksum},
+        'status': 'success'
+    })
+    
+    return str(file_path)

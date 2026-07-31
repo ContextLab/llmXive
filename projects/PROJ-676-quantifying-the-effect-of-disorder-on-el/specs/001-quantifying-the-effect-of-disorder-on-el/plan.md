@@ -11,14 +11,14 @@ Crucially, the plan corrects the methodology to avoid circular definitions: $\xi
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `numpy`, `scipy`, `matplotlib`, `pandas`, `h5py`, `pytest`, `joblib`  
 **Storage**: Local file system (`data/`), HDF5 for large matrix/eigenstate dumps. No external database.  
 **Testing**: `pytest` with contract tests against schema definitions.  
 **Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM, no GPU).  
 **Performance Goals**: Complete 1000 realizations (10 widths × 100 samples) within 6 h on CPU; peak RAM < 7 GB.  
 **Constraints**: No GPU usage; strict double‑precision arithmetic; open boundary conditions only.  
-**Scale/Scope**: System sizes $L \in \{100, 200, 400, 800, 1600\}$; Disorder widths $W \in \{0.1, 0.2, …, 2.0\}$ (≈10 values); Multiple realizations per width.
+**Scale/Scope**: System sizes $L$ ranging from small to large scales.; Disorder widths $W \in \{, 0.2, …, 2.0\}$ (≈10 values); Multiple realizations per width.
 
 > Domain‑specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -101,9 +101,9 @@ projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/
 | **FR-009** | Log-accumulation for TM | QR-based accumulation in `analyze_tm.py` |
 | **FR-010** | Bonferroni correction | Applied to pairwise width comparisons in `stats.py` |
 | **FR-011** | Parallelize realizations | `joblib` in `main.py` |
-| **SC-001** | Slope $\approx -2$ | Regression on weak-disorder subset ($W<1.0$) |
+| **SC-001** | Slope is negative and substantial, consistent with theoretical expectations for inverse power-law relationships. | Regression on weak-disorder subset ($W<1.0$) |
 | **SC-002** | Method agreement $\le$[deferred] | Compare $\xi_{PR}$ vs $\xi_{TM}$ |
 | **SC-003** | Power $\ge$[deferred] | A priori power analysis documented |
 | **SC-004** | Visual decay match | Compare fitted decay length to $\xi$ |
-| **SC-005** | FWER $\le$0.05 | Bonferroni on pairwise tests |
+| **SC-005** | FWER is controlled at a conventional significance level. | Bonferroni on pairwise tests |
 | **SC-006** | Compute feasibility | Parallel execution, sparse fallback |
