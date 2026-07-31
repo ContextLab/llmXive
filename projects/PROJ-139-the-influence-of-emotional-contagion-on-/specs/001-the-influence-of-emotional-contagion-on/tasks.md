@@ -587,7 +587,7 @@ With multiple developers:
 
 **Purpose**: Address specific concerns raised by `/speckit.analyze` regarding data flow, statistical rigor, and documentation completeness.
 
-- [ ] T059 [S] **Review Fix**: Correct the data flow dependency in T015a to ensure it reads from the *filtered* dataset (threads with ≥3 seed posts) rather than the raw dataset, preventing the inclusion of threads that should have been excluded by T010.
+- [ ] T059 [S] **Review Fix**: Correct the data flow dependency in T015a to ensure it reads from the *filtered* dataset (threads with ≥3 seed posts) rather than the raw dataset, preventing the inclusion of threads that should have been excluded by T010. <!-- ATOMIZE: requested -->
  **Action**: Update `code/data/metrics.py` in T015a to explicitly load `data/processed/threads_with_seeds.csv` (output of T009) as the primary input, rather than `data/raw/reddit_threads.jsonl`.
  **Constraint**: This task must run after T009 and before T015b.
 
@@ -599,7 +599,7 @@ With multiple developers:
  **Action**: Modify `data/processed/sensitivity_analysis.csv` to include a `thread_count` column for each grid cell.
  **Constraint**: This task must run after T023b.
 
-- [ ] T062 [S] **Review Fix**: Add a task to validate that the VADER sentiment analysis in T013 correctly handles multi-lingual content, as the dataset may contain non-English threads, and VADER is primarily optimized for English.
+- [ ] T062 [S] **Review Fix**: Add a task to validate that the VADER sentiment analysis in T013 correctly handles multi-lingual content, as the dataset may contain non-English threads, and VADER is primarily optimized for English. <!-- FAILED: unspecified -->
  **Action**: Implement a language detection step (using `langdetect` or similar) in `code/data/sentiment.py` to flag non-English threads and exclude them from the primary analysis or handle them separately.
  **Constraint**: This task must run after T013 and before T015b.
 
@@ -611,19 +611,19 @@ With multiple developers:
  **Action**: Generate a PNG heatmap of predictor correlations in `docs/` and reference it in `docs/paper.md`.
  **Constraint**: This task must run after T030.
 
-- [ ] T065 [S] **Review Fix**: Validate that the "fail-loud" policy in T031 is correctly triggered during the execution gate (T036) by simulating a complete data source failure and confirming the pipeline halts with a clear error message.
+- [~] T065 [S] **Review Fix**: Validate that the "fail-loud" policy in T031 is correctly triggered during the execution gate (T036) by simulating a complete data source failure and confirming the pipeline halts with a clear error message.
  **Action**: Add a specific test case in `code/tests/test_fail_loud.py` that mocks all data sources to return errors and verifies the `RuntimeError` is raised.
  **Constraint**: This task must run after T031 and before T036.
 
-- [ ] T066 [S] **Review Fix**: Ensure the streaming rules in T032 are explicitly documented in the `docs/quickstart.md` to inform users of the memory constraints and the streaming strategy used.
+- [X] T066 [S] **Review Fix**: Ensure the streaming rules in T032 are explicitly documented in the `docs/quickstart.md` to inform users of the memory constraints and the streaming strategy used.
  **Action**: Add a "Memory and Streaming" section to `docs/quickstart.md` detailing the chunking strategy and memory limits.
  **Constraint**: This task must run after T032 and before T029.
 
-- [ ] T067 [S] **Review Fix**: Add a task to verify that the ground truth classification in T019 correctly handles threads with multiple accepted answers (if any exist in the dataset) and logs them as ambiguous.
+- [~] T067 [S] **Review Fix**: Add a task to verify that the ground truth classification in T019 correctly handles threads with multiple accepted answers (if any exist in the dataset) and logs them as ambiguous.
  **Action**: Update `code/data/validation.py` to check for multiple `accepted_answer_id` values and log them to `data/processed/ambiguous_ground_truth.log`.
  **Constraint**: This task must run after T019.
 
-- [ ] T068 [S] **Review Fix**: Ensure the GLMM model in T020 includes a check for model convergence and logs any non-convergent models with diagnostic information (e.g., number of iterations, Hessian status).
+- [~] T068 [S] **Review Fix**: Ensure the GLMM model in T020 includes a check for model convergence and logs any non-convergent models with diagnostic information (e.g., number of iterations, Hessian status).
  **Action**: Add convergence checks in `code/data/modeling.py` and log warnings to `data/processed/model_convergence.log`.
  **Constraint**: This task must run after T020.
 

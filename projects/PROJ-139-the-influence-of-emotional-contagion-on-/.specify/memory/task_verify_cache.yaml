@@ -73,3 +73,44 @@ T050:
     \ there is no `validation_details` map listing pass/fail status and reasons for\
     \ SC\u2011001 through SC\u2011006. The required artifact is missing, so the task\
     \ is not satisfied."
+T059:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, diff, test output, or documentation was provided to demonstrate that\
+    \ T015a was modified to read from the filtered dataset (threads with \u22653 seed\
+    \ posts) instead of the raw dataset. Evidence such as the updated script, a commit\
+    \ hash, or a test confirming that threads excluded by T010 are no longer processed\
+    \ is missing."
+T060:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation was provided that adds a post\u2011\
+    hoc power calculation with `statsmodels.stats.power`; the repository contains\
+    \ no artifact demonstrating the enhanced power analysis, so the requirement is\
+    \ not met."
+T061:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact was supplied that demonstrates the sensitivity analysis now includes
+    a column or field reporting the number of threads contributing to each grid cell;
+    the claim is unsubstantiated. The required updated output/report is missing.
+T062:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a new validation task, test script, documentation, or test\
+    \ data) was provided; the claim contains only a textual description with no concrete\
+    \ implementation or evidence that a multilingual validation for VADER has been\
+    \ added. The required task to validate VADER on non\u2011English content is missing."
+T063:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact of the final report (T026) was provided, and there is no evidence\
+    \ that a \u201CLimitations\u201D subsection addressing the bias from excluding\
+    \ threads with\u202F<5\u202Freplies was added. The implementer\u2019s claim cannot\
+    \ be verified without the updated report."
+T064:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No visualization (e.g., correlation heatmap) or updated final report containing
+    the collinearity diagnostics is present in the provided evidence; the artifact
+    required by the task is missing.

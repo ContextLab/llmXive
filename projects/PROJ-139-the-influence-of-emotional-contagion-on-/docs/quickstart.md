@@ -1,134 +1,133 @@
-# Quickstart Guide: Emotional Contagion Analysis Pipeline
+# Quickstart Guide: The Influence of Emotional Contagion on Collective Decision-Making
+
+This guide provides instructions for setting up and running the full analysis pipeline for the emotional contagion study.
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip package manager
-- Internet connectivity (for data download)
-- (Optional) Reddit API credentials for higher rate limits
+- **Python**: Version 3.11 or higher is required.
+- **System**: Linux/macOS environment recommended.
+- **Dependencies**: See `requirements.txt`.
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory:
+1. **Clone the repository** and navigate to the project root:
  ```bash
- cd projects/PROJ-139-the-influence-of-emotional-contagion-on-
+ cd PROJ-139-the-influence-of-emotional-contagion-on-
  ```
 
-2. Install dependencies:
+2. **Install dependencies**:
  ```bash
  pip install -r code/requirements.txt
  ```
 
-3. (Optional) Set Reddit API credentials as environment variables:
- ```bash
- export REDDIT_CLIENT_ID="your_client_id"
- export REDDIT_CLIENT_SECRET="your_client_secret"
- export REDDIT_USER_AGENT="your_user_agent"
- ```
+3. **Configure Environment Variables** (optional, for API access):
+ Create a `.env` file in the project root or set the following environment variables:
+ - `REDDIT_CLIENT_ID`: Your Reddit API client ID.
+ - `REDDIT_CLIENT_SECRET`: Your Reddit API client secret.
+ - `REDDIT_USER_AGENT`: A unique user agent string (e.g., `research:emotional_contagion:v1 (by /u/yourusername)`).
 
-## Running the Pipeline
+## Memory and Streaming Strategy
 
-### Step 1: Download Data
+The pipeline is designed to handle large datasets by employing a **streaming and chunking strategy** to stay within the memory constraints of the target runner (approx. 7 GB RAM, 14 GB disk).
 
-The download script supports multiple sources with automatic fallback:
-- Primary: Pushshift API
-- Fallback 1: Reddit Official API (requires credentials)
-- Fallback 2: HuggingFace archives
+### Streaming Rules
 
-**Command:**
-```bash
-python code/data/download.py --subreddits AskScience FDR --limit 500
-```
+- **Data Download**: The `code/data/download.py` script fetches data in batches. It does not load the entire raw dataset into memory at once. Instead, it writes data incrementally to `data/raw/reddit_threads.jsonl`.
+- **Processing**: Downstream scripts (e.g., `code/data/metrics.py`, `code/data/validation.py`) read from `data/raw/reddit_threads.jsonl` or intermediate CSV files in chunks where possible.
+- **Sampling**: If the dataset exceeds the operational limits (e.g., >500 threads for the performance check), the pipeline automatically reduces the sample size. The exact sample size and strategy are logged in `data/processed/sampling_strategy_log.json`.
+- **Memory Limits**: The pipeline monitors memory usage. If usage approaches the limit, it may trigger a retry with a smaller sample size or fail loudly if the data cannot be processed within the constraints.
 
-**Arguments:**
-- `--subreddits`: Space-separated list of subreddit names (default: AskScience FDR)
-- `--limit`: Maximum threads per source (default: 500)
-- `--output`: Custom output path (default: data/raw/reddit_threads.jsonl)
+### Limitations
 
-**Note:** The script implements a strict "fail-loud" policy. If all data sources fail, it raises a `RuntimeError` instead of generating synthetic data.
+- **Representativeness**: If a sample is taken due to size constraints, the results are based on that specific sample. The `sampling_strategy_log.json` documents the sample size and any limitations.
+- **Memory**: Ensure sufficient RAM is available. If running locally, close other memory-intensive applications.
 
-### Step 2: Run Full Pipeline
+## Execution
 
-Execute the complete analysis pipeline:
+The full pipeline can be executed via the main entry point script.
+
+### Running the Pipeline
+
+To run the entire pipeline end-to-end (Data Download -> Extraction -> Sentiment -> Modeling -> Reporting):
+
 ```bash
 python code/analysis/run_pipeline.py
 ```
 
-This will:
-1. Extract seed posts from downloaded data
-2. Validate ground truth availability
-3. Apply VADER sentiment analysis
-4. Compute emotional contagion indices
-5. Fit GLMM models
-6. Perform sensitivity analysis
-7. Generate final reports
+**Note**: This command will:
+1. Fetch data from the primary source (Pushshift) or fallbacks.
+2. Extract seed posts and validate ground truth.
+3. Perform sentiment analysis and compute contagion indices.
+4. Fit statistical models and perform sensitivity analysis.
+5. Generate final reports (`docs/paper.md`, `docs/analysis_summary.md`).
 
-## Expected Outputs
+### Running Individual Stages
 
-After successful execution, the following artifacts will be generated:
+If you wish to run specific stages independently (e.g., for debugging):
 
-### Data Files (`data/processed/`)
-- `reddit_threads.jsonl`: Raw downloaded data
-- `threads_with_seeds.csv`: Extracted threads with seed posts
-- `all_threads_classified.csv`: Thread classification (valid/valid_no_gt/invalid)
-- `valid_threads.csv`: Threads with ground truth
-- `thread_metrics.csv`: Sentiment and contagion metrics
-- `sensitivity_analysis.csv`: Threshold sensitivity results
-- `ground_truth_stats.json`: Ground truth availability statistics
-- `collinearity_diagnostics.json`: VIF scores for predictors
-- `external_validation_correlation.csv`: Correlation with external validation
+- **Download Data**:
+ ```bash
+ python code/data/download.py
+ ```
+ *Optional arguments*:
+ - `--subreddits`: Specify subreddits (e.g., `--subreddits AskScience fdr`).
+ - `--limit`: Limit the number of threads to download.
 
-### State Files (`state/`)
-- `projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml`: Project state and checksums
-- `sc_006_compliance_report.json`: Ground truth threshold compliance
-- `reproducibility_report.json`: Reproducibility verification results
-- `final_validation.json`: Final success criteria validation
+- **Extraction & Validation**:
+ ```bash
+ python code/data/extract.py
+ python code/data/validation.py
+ ```
+
+- **Sentiment & Metrics**:
+ ```bash
+ python code/data/sentiment.py
+ python code/data/metrics.py
+ ```
+
+- **Modeling**:
+ ```bash
+ python code/data/modeling.py
+ ```
+
+## Output Artifacts
+
+Upon successful completion, the following artifacts will be generated:
+
+### Data (`data/processed/`)
+- `all_threads_classified.csv`: All threads with ground truth classification.
+- `valid_threads.csv`: Threads with valid ground truth.
+- `threads_with_seeds.csv`: Threads with extracted seed posts.
+- `thread_metrics.csv`: Contagion index and confidence intervals.
+- `sensitivity_analysis.csv`: Results of the threshold sensitivity analysis.
+- `collinearity_diagnostics.json`: VIF scores and correlation diagnostics.
+- `external_validation_correlation.csv`: Correlation between external validation and metrics.
+- `ground_truth_stats.json`: Statistics on ground truth coverage.
+- `vader_validation_report.json`: VADER tool validation results.
+
+### State (`state/`)
+- `final_validation.json`: Compliance report for all Success Criteria (SC-001 to SC-006).
+- `reproducibility_report.json`: Verification of artifact checksums.
+- `performance_log.json`: Runtime and resource usage metrics.
+- `artifact_hashes.yaml`: Map of file paths to SHA-256 hashes.
 
 ### Documentation (`docs/`)
-- `paper.md`: Final research paper
-- `analysis_summary.md`: Analysis summary with limitations
-- `quickstart.md`: This guide
-
-## Data Sources
-
-The pipeline fetches data from the following sources in order:
-
-1. **Pushshift API**: `
- - Free, no authentication required
- - May have rate limits or availability issues
-
-2. **Reddit Official API**: Requires OAuth credentials
- - More reliable but requires registration
- - Set via environment variables or CLI flags
-
-3. **HuggingFace Archives**: `cardiffnlp/reddit-tweet-sentiment`
- - Pre-processed Reddit sentiment dataset
- - Used as last resort fallback
+- `paper.md`: Final research paper draft.
+- `analysis_summary.md`: Detailed analysis summary including power analysis.
+- `quickstart.md`: This guide.
 
 ## Troubleshooting
 
-### Data Download Fails
-If you see `RuntimeError: All data sources failed`, check:
-- Internet connectivity
-- Pushshift API availability (may be down temporarily)
-- Reddit API credentials (if using)
-- HuggingFace dataset accessibility
+- **Data Source Failure**: If the pipeline fails to download data from all sources, it will raise a `RuntimeError`. Ensure your internet connection is stable and API keys (if used) are correct.
+- **Memory Errors**: If you encounter memory errors, check the `data/processed/sampling_strategy_log.json` to see if the sample size was reduced. You may also need to increase system RAM or reduce the `--limit` flag when downloading.
+- **Missing Artifacts**: If a specific output file is missing, check the logs in `state/` or `data/processed/` for error messages indicating which stage failed.
 
-### Pipeline Execution Errors
-- Ensure all dependencies are installed: `pip install -r code/requirements.txt`
-- Check that `data/raw/reddit_threads.jsonl` exists before running the full pipeline
-- Verify sufficient disk space (minimum 14 GB recommended)
+## Data Sources
 
-### Performance Issues
-- The pipeline is optimized for CPU-only execution
-- Default thread limit is 500; reduce for faster testing
-- Runtime should complete within 6 hours on standard hardware
+The pipeline attempts to fetch data from the following sources in order:
+1. **Pushshift API** (Primary)
+2. **Reddit Official API** (Fallback 1)
+3. **HuggingFace Archives** (Fallback 2)
+4. **Internet Archive / Common Crawl** (Fallback 3)
 
-## Verification
-
-After running, verify success:
-```bash
-python code/analysis/final_validation.py
-```
-
-This checks all success criteria (SC-001 to SC-006) and reports compliance status.
+If all sources fail, the pipeline will halt with an error. No synthetic data is generated.
