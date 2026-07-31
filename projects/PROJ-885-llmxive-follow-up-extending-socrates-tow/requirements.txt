@@ -1,12 +1,10 @@
 # Core dependencies
 scikit-learn
 pandas
-transformers
+transformers (CPU-only)
 datasets
 pytest
-
-# Linting and Formatting (CPU-only, no GPU acceleration)
-# Note: bitsandbytes and flash-attn are explicitly excluded to satisfy FR-004 (CPU-only constraint)
-ruff
-black
-pre-commit
+statsmodels
+numpy
+torch
+# Note: bitsandbytes, flash-attn, and GPU-accelerated libraries are explicitly excluded.

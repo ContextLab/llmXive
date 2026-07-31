@@ -64,513 +64,518 @@
   updated_at: '2026-07-22T08:07:13Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: classifier label derived solely from metadata tags excluding evaluator
-    ideal resolution tokens
-  claim_id: c_84f9b341
-  context: 'T048 [US1] Implement a strict data separation check in code/data/generator.py.
-    Requirement: Before saving classifier_training_data.json, the script must verify
-    that the label field is derived solely from the trajectory''s metadata tags (e.g.,
-    emotional_reactivity, cultural_identity) and that the turn_text content does not
-    contain any tokens or phrases that are unique to the ideal resolution text used
-    in the evaluator.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Classifier_label_derived_solely_from_metadata_tags_excluding
-  kind: entity_fact
-  raw_text: The script must verify that the label field is derived solely from the
-    trajectory's metadata tags (e.g., emotional_reactivity, cultural_identity) and
-    that the turn_text content does not contain any tokens or phrases that are unique
-    to the ideal resolution text used in the evaluator.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T12:03:03Z'
-- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
-  attempts: 1
-  canonical: compute minimum N for medium effect size Cohen's d 0.5 power 0.80 alpha
-    0.05 paired t-test
-  claim_id: c_4b79dca5
-  context: 'T049 [US1] Implement code/analysis/power_analysis.py to calculate the
-    required sample size. Requirement: Using statsmodels.stats.power.tt_solve_power,
-    compute the minimum N required to detect a medium effect size (Cohen''s d = 0.5)
-    with power=0.80 and alpha=0.05 for a paired t-test.'
+  canonical: Target LLM list contains eight models
+  claim_id: c_2f5825c4
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T053 [US2] Define Target
+    LLMs.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Using statsmodels.stats.power.tt_solve_power, compute the minimum N required
-    to detect a medium effect size (Cohen's d = 0.5) with power=0.80 and alpha=0.05
-    for a paired t-test.
+  raw_text: Implement code/config.py to explicitly list the eight target LLMs (e.g.,
+    ['llama-3-8b', 'mistral-7b', ...]) in a constant TARGET_MODELS.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:03:46Z'
+  updated_at: '2026-07-31T13:13:07Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: Holm-Bonferroni correction factor calculated as 1 divided by length of
-    active_llms not fixed constant 8
-  claim_id: c_664a3096
-  context: 'Review Concern: Multiple Comparison Correction Scope - The Holm-Bonferroni
-    correction must be applied only to the set of LLMs that were actually executed
-    and passed memory checks, not the theoretical set of 8 LLMs. T038A [US3] (Updated)
-    The Holm-Bonferroni correction factor must be calculated as 1 / len(active_llms)
-    (or equivalent logic for the specific method chosen), NOT a fixed constant based
-    on 8.'
+  canonical: Models exceeding 7GB RAM usage are excluded
+  claim_id: c_6aec39de
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T009.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Models_exceeding_7GB_RAM_usage_are_excluded
+  kind: entity_fact
+  raw_text: 'Implement code/experiments/model_loader.py with a pre-flight memory check
+    function that estimates model size. Logic: If a model''s estimated RAM usage >
+    7GB, log a warning, skip loading it, and record this exclusion in data/results/scope_adjustments.json.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:13:26Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  attempts: 1
+  canonical: Generator produces exactly 500 trajectories
+  claim_id: c_1c47000d
+  context: 'Phase 3: User Story 1 - Task T015.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The Holm-Bonferroni correction factor must be calculated as 1 / len(active_llms)
-    (or equivalent logic for the specific method chosen), NOT a fixed constant based
-    on 8.
+  raw_text: Update code/data/generator.py to explicitly generate exactly 500 trajectories
+    (or a multiple thereof for repeated measures) to satisfy the Repeated Measures
+    Design constraint.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:03:58Z'
+  updated_at: '2026-07-31T13:13:50Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: generate quickstart_validation_report.json containing timestamp exit_code
-    log_file_path success_flag and error_message
-  claim_id: c_e2844d93
-  context: 'T044A [P] Implement scripts/validate_quickstart.py to run the full pipeline
-    as described in quickstart.md. Requirement: The script must generate data/results/quickstart_validation_report.json
-    containing: timestamp, exit_code, log_file_path, success_flag (boolean), and error_message
-    (if any).'
+  canonical: Sliding windows of 3 turns used for training data
+  claim_id: c_3eed968d
+  context: 'Phase 3: User Story 1 - Task T019.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic to split the full trajectory history into sliding windows
+    of N=3 turns (use config.TURN_WINDOW_SIZE) to create turn_text and label pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:14:54Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  attempts: 1
+  canonical: Power analysis for effect size 0.5 power 0.8 alpha 0.05
+  claim_id: c_fec84c6d
+  context: 'Phase 3: User Story 1 - Task T049.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "The issue of power in PLS-SEM In the design of quantitative studies,\
+        \ researchers must always consider the sample size needed to achieve sufficient\
+        \ statistical power for the hypothesised effect size. In this respect, one\
+        \ of the most convenient features of PLS-SEM is that the model structural\
+        \ complexity does not have a critical impact on the determination of the minimum\
+        \ sample size required (Hair et al., 2021, Chapter 1). Moreover, compared\
+        \ with CB-SEM, PLS-SEM has higher statistical power in scenarios with complex\
+        \ model structures and small sample sizes. As described by Hair and colleagues\
+        \ (2021), these convenient features led to the misconception that sample size\
+        \ computation has no relevance in PLS-SEM. This misconception has been fueled\
+        \ by the very common \u201810-times rule\u2019 (Barclay et al., 1995), i.e.,\
+        \ a heuristic often used to determine the minimum sample size required for\
+        \ a study (Hair et al., 2011). According to this rule, the sample size \u201C\
+        should be equal to 10 times the number of independent variables in the most\
+        \ complex regression in the PLS path model (i.e., considering both measurement\
+        \ and structural models). This rule of thumb is equivalent to saying the minimum\
+        \ sample size should be 10 times the maximum number of arrowheads pointing\
+        \ at a latent variable anywhere in the PLS path mode.\u201D (Hair et al.,\
+        \ 2021, p. 16). This approach has the undeniable merit of being simple and\
+        \ easy to apply, which has contributed to its widespread use. There are nevertheless\
+        \ numerous problems (Goodhue et al., 2012). First, the rule is overly simplistic;\
+        \ it does not account for other critical factors that influence statistical\
+        \ power, such as the effect size, significance level (\U0001D6FC), and the\
+        \ desired statistical power (1\u2212\u03B2). The fact that this strategy is\
+        \ not sensitive to the effect size, in particular, is problematic. The basic\
+        \ underlying principle behind every power analysis, regardless of the specific\
+        \ technique at hand, is precisely that the sample size must vary based on\
+        \ the magnitude of the hypothesised effect. As a result, the 10-times rule\
+        \ may underestimate the required sample size, thus resulting in underpowered\
+        \ studies. As a second point, the 10-times rule lacks a solid statistical\
+        \ foundation. It relies on informal and universal guidelines rather than rigorous\
+        \ mathematical derivations, thus limiting its reliability and applicability\
+        \ across a broad range of research scenarios. The Minimum R-squared method\
+        \ (Hair et al., 2014) represents an alternative approach to sample size calculation.\
+        \ Using the smallest R-squared value anticipated in the model, this method\
+        \ computes the required sample size in PLS-SEM. By calculating the minimum\
+        \ R-squared, the corresponding sample size needed to achieve statistical power\
+        \ at a given significance level (\u03B1) is determined using either a lookup\
+        \ table or a formula. Despite being simpler, accounting for the strength of\
+        \ relationships in the model, and having stronger statistical foundations,\
+        \ this approach has a number of theoretical and practical limitations. On\
+        \ the theoretical side, the R2 is a measure of the model\u2019s explanatory\
+        \ power (Shmueli & Koppius, 2011), more correctly referred to as in-sample\
+        \ predictive power (Rigdon, 2012, but see also Hair et al., 2021, chapter\
+        \ 6). However, the predictive endeavour is hardly the main aim in the social\
+        \ sciences (Ozili, 2023), wherein the ultimate goal is unbiased causal inference.\
+        \ Moreover, despite the existence of some commonly used thresholds for acceptable\
+        \ R2 values (Hair et al., 2011), they are not entirely agreed upon in the\
+        \ literature, and it has been shown convincingly that models with R2 values\
+        \ as low as 0.10 can be entirely satisfactory in certain scientific contexts\
+        \ (Raithel et al., 2012). Furthermore, the idea that high predictive power\
+        \ directly translates into explanatory power and more legitimate causality\
+        \ claims is a false belief (McElreath, 2020, p. 225; Hill et al., 2018). On\
+        \ the practical side, the Minimum R-squared method assumes that researchers\
+        \ have a rough idea of, or can even quite"
+      source_id: '2511.14546'
+      url: https://arxiv.org/abs/2511.14546
+      value: '25'
+    filled: true
+  kind: numeric
+  raw_text: Compute the minimum N required to detect a medium effect size (Cohen's
+    d = 0.5) with power=0.80 and alpha=0.05 for a paired t-test.
+  resolved_value: '25'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:15:24Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  attempts: 1
+  canonical: Classifier triggered every 3 turns
+  claim_id: c_88566d19
+  context: 'Phase 4B: Execution - Task T024.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a stateful accumulator that appends dialogue turns and triggers
+    the classifier every N=3 turns (using config.TURN_WINDOW_SIZE).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:15:59Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  attempts: 1
+  canonical: Mean consensus gap variance below tolerance for reproducibility
+  claim_id: c_cd015f69
+  context: 'Phase 4B: Execution - Task T047A.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Generate_quickstart_validation_report.json_containing_timest
+    source_url: https://en.wikipedia.org/wiki/Mean_consensus_gap_variance_below_tolerance_for_reproducibil
   kind: entity_fact
-  raw_text: 'The script must generate data/results/quickstart_validation_report.json
-    containing: timestamp, exit_code, log_file_path, success_flag (boolean), and error_message
-    (if any).'
+  raw_text: 'Run the experiment twice with the same seed and trajectory subset, and
+    assert that the resulting experiment_logs.json files show statistical reproducibility:
+    specifically, the mean consensus gap variance between the two runs must be < config.STATISTICAL_VARIANCE_TOLERANCE.'
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:04:27Z'
+  updated_at: '2026-07-31T13:16:48Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: scope_adjustments.json must be valid JSON list with keys model_name reason
-    and estimated_ram_gb
-  claim_id: c_03d5681a
-  context: 'T009 [P] Create code/experiments/model_loader.py with a pre-flight memory
-    check function that estimates model size. Logic: If a model''s estimated RAM usage
-    > 7GB, log a warning, skip loading it, and record this exclusion in data/results/scope_adjustments.json.
-    Schema Requirement: The scope_adjustments.json file MUST be a valid JSON list
-    of objects with keys model_name, reason, and estimated_ram_gb to ensure machine-readability
-    for downstream statistical tasks (T038A).'
+  canonical: Normality test determines statistical test type at p-value 0.05
+  claim_id: c_6a413f08
+  context: 'Phase 5: User Story 3 - Task T038C.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Perform Shapiro-Wilk normality test on difference scores. Conditional
+    Logic: IF p-value < 0.05, THEN execute Wilcoxon signed-rank test; ELSE execute
+    paired t-test.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:16:48Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction applied to actual number of LLMs
+  claim_id: c_b9d36064
+  context: 'Phase 5: User Story 3 - Task T038C.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Scope_adjustments.json_must_be_valid_JSON_list_with_keys_mod
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_applied_to_actual_number_of_LLMs
   kind: entity_fact
-  raw_text: The scope_adjustments.json file MUST be a valid JSON list of objects with
-    keys model_name, reason, and estimated_ram_gb to ensure machine-readability for
-    downstream statistical tasks (T038A).
+  raw_text: Apply Holm-Bonferroni correction for multiple comparisons across the actual
+    N_actual LLMs (defining the 'family' as the set of per-LLM p-values).
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:04:46Z'
+  updated_at: '2026-07-31T13:17:06Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: Adapter condition log entry must include confidence_score and injected_state
-  claim_id: c_382d303e
-  context: 'T028 [US2] Save experiment logs to data/processed/experiment_logs.json
-    containing trajectory ID, condition (Adapter/Static), injected state (if any),
-    and LLM output. Mandatory: For the Adapter condition, the log entry for each turn
-    MUST include confidence_score (float) and injected_state (string or null).'
+  canonical: Deterministic runner seeds numpy random and torch
+  claim_id: c_dd2f1237
+  context: 'Phase 4B: Execution - Task T047A.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Adapter_condition_log_entry_must_include_confidence_score_an
+    source_url: https://en.wikipedia.org/wiki/Deterministic_runner_seeds_numpy_random_and_torch
   kind: entity_fact
-  raw_text: For the Adapter condition, the log entry for each turn MUST include confidence_score
-    (float) and injected_state (string or null).
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T12:04:59Z'
-- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
-  attempts: 1
-  canonical: low confidence injected_state must be set to neutral-monitoring string
-    literal
-  claim_id: c_4f4f6b08
-  context: 'T028 [US2] Save experiment logs to data/processed/experiment_logs.json.
-    Edge Case Handling: If the Adapter condition triggers but the classifier confidence
-    is below threshold, injected_state MUST be set to the exact string literal neutral-monitoring
-    (lowercase, hyphenated) to distinguish this fallback from the Static baseline.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Low_confidence_injected_state_must_be_set_to_neutral-monitor
-  kind: entity_fact
-  raw_text: If the Adapter condition triggers but the classifier confidence is below
-    threshold, injected_state MUST be set to the exact string literal neutral-monitoring
-    (lowercase, hyphenated) to distinguish this fallback from the Static baseline.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T12:05:24Z'
-- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
-  attempts: 1
-  canonical: script must accept seed argument seeding numpy random and torch CPU
-  claim_id: c_bacd5b7c
-  context: 'T047A [US2] Implement a deterministic experiment runner wrapper in code/experiments/runner.py.
+  raw_text: 'Implement a deterministic experiment runner wrapper in code/experiments/runner.py.
     Requirement: The script must accept a --seed argument that seeds numpy, random,
     and torch (CPU) at the start of execution.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Script_must_accept_seed_argument_seeding_numpy_random_and_to
-  kind: entity_fact
-  raw_text: The script must accept a --seed argument that seeds numpy, random, and
-    torch (CPU) at the start of execution.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:05:58Z'
+  updated_at: '2026-07-31T13:17:24Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: mean consensus gap variance between two runs must be less than STATISTICAL_VARIANCE_TOLERANCE
-  claim_id: c_62463e52
-  context: 'T047A [US2] Implement a deterministic experiment runner wrapper in code/experiments/runner.py.
-    Verification: Run the experiment twice with the same seed and trajectory subset,
-    and assert that the resulting experiment_logs.json files show statistical reproducibility:
-    specifically, the mean consensus gap variance between the two runs must be < config.STATISTICAL_VARIANCE_TOLERANCE.'
+  canonical: list of 8 target LLMs defined in config.py
+  claim_id: c_a7297b17
+  context: 'Phase 1: Setup (Shared Infrastructure), T053'
   evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Mean_consensus_gap_variance_between_two_runs_must_be_less_th
-  kind: magnitude
-  raw_text: The mean consensus gap variance between the two runs must be < config.STATISTICAL_VARIANCE_TOLERANCE.
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/config.py to explicitly list the eight target LLMs (e.g.,
+    ['llama-3-8b', 'mistral-7b',...]) in a constant TARGET_MODELS.
   resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:06:03Z'
+  updated_at: '2026-07-31T13:22:19Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: log warning GPU drivers detected but CPU execution enforced if cuda available
-  claim_id: c_3a685594
-  context: 'T027 [US2] Implement CPU-only inference loop in code/experiments/runner.py
-    using transformers with device=''cpu''. Verification: Explicitly map the model
-    to CPU. Constraint: If torch.cuda.is_available() returns True, the script MUST
-    Log a warning stating GPU drivers detected but CPU execution enforced; ensuring
-    device=''cpu''. and proceed with CPU execution.'
+  canonical: models with RAM usage > 7GB excluded and recorded
+  claim_id: c_10753867
+  context: 'Phase 2: Foundational (Blocking Prerequisites), T009'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Log_warning_GPU_drivers_detected_but_CPU_execution_enforced
+    source_url: https://en.wikipedia.org/wiki/models_with_RAM_usage_%3E_7GB_excluded_and_recorded
   kind: entity_fact
-  raw_text: If torch.cuda.is_available() returns True, the script MUST Log a warning
-    stating GPU drivers detected but CPU execution enforced; ensuring device='cpu'.
-    and proceed with CPU execution.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T12:06:09Z'
-- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
-  attempts: 1
-  canonical: skip loading model if estimated RAM usage greater than 7GB
-  claim_id: c_303dcc14
-  context: 'T009 [P] Create code/experiments/model_loader.py with a pre-flight memory
-    check function that estimates model size. Logic: If a model''s estimated RAM usage
-    > 7GB, log a warning, skip loading it, and record this exclusion in data/results/scope_adjustments.json.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Skip_loading_model_if_estimated_RAM_usage_greater_than_7GB
-  kind: magnitude
   raw_text: If a model's estimated RAM usage > 7GB, log a warning, skip loading it,
     and record this exclusion in data/results/scope_adjustments.json.
   resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T12:06:14Z'
-- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
-  attempts: 1
-  canonical: generate exclusion_citation_audit.json containing citation_found boolean
-    and text excerpt
-  claim_id: c_d07ec564
-  context: 'T057 [US3] Implement code/analysis/verify_exclusion_citations.py to parse
-    docs/research_draft.md (T051) and verify that the Methods section explicitly cites
-    the exclusion criteria from T009 and T041. Output: Generate data/results/exclusion_citation_audit.json
-    containing a boolean citation_found and the specific text excerpt found.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Generate_exclusion_citation_audit.json_containing_citation_f
-  kind: entity_fact
-  raw_text: The script must generate data/results/exclusion_citation_audit.json containing
-    a boolean citation_found and the specific text excerpt found.
-  resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:06:20Z'
+  updated_at: '2026-07-31T13:22:57Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: generate correction_verification.json containing expected_factor actual_factor
-    and match boolean
-  claim_id: c_c4297f98
-  context: 'T058 [US3] Implement code/analysis/verify_correction.py to parse data/results/stats_report.json
-    (T038D), calculate the expected Holm-Bonferroni factor from N_actual (derived
-    from T038A), and assert equality. Output: Generate data/results/correction_verification.json
-    containing expected_factor, actual_factor, and match boolean.'
+  canonical: oversampling target > 40% of samples
+  claim_id: c_163b7b07
+  context: 'Phase 3: User Story 1, Independent Test'
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Generate_correction_verification.json_containing_expected_fa
-  kind: entity_fact
-  raw_text: The script must generate data/results/correction_verification.json containing
-    expected_factor, actual_factor, and match boolean.
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the data generation script and verify the output JSON summary shows
+    >40% of samples in the target categories.
   resolved_value: null
-  resolver: resolve_entity_fact
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:06:25Z'
+  updated_at: '2026-07-31T13:22:57Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: generate dry_run_report.json containing exit_code duration and generated_files
-    list
-  claim_id: c_aa5335f8
-  context: 'T059 [US3] Implement scripts/e2e_dry_run.sh to execute the full pipeline
-    on a small subset (N=5 trajectories) to confirm the sequence T014 -> T019 -> T049
-    -> T020 -> T024 -> T028 -> T034 -> T038C executes without error. Output: Generate
-    data/results/dry_run_report.json containing exit_code, duration, and generated_files
-    list.'
+  canonical: oversampling logic ensures >= 40% trajectories in target categories
+  claim_id: c_83b09db4
+  context: 'Phase 3: User Story 1, T013'
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Generate_dry_run_report.json_containing_exit_code_duration_a
-  kind: entity_fact
-  raw_text: The script must generate data/results/dry_run_report.json containing exit_code,
-    duration, and generated_files list.
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement oversampling logic in code/data/generator.py to ensure \u2265\
+    40% of trajectories fall into 'high emotional reactivity' or 'diverse cultural\
+    \ identity' categories."
   resolved_value: null
-  resolver: resolve_entity_fact
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:06:30Z'
+  updated_at: '2026-07-31T13:22:57Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: generate schema_validation_report.json containing schema_valid boolean
-    and errors list
-  claim_id: c_61f9f8e0
-  context: 'T060 [US1] Implement scripts/validate_schemas.py to load data/processed/classifier_training_data.json
-    (T019) and data/processed/experiment_logs.json (T028) against their respective
-    JSON schemas. Output: Generate data/results/schema_validation_report.json containing
-    schema_valid boolean and errors list if any.'
+  canonical: generator explicitly produces 500 trajectories
+  claim_id: c_23e22eb0
+  context: 'Phase 3: User Story 1, T015'
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Generate_schema_validation_report.json_containing_schema_val
-  kind: entity_fact
-  raw_text: The script must generate data/results/schema_validation_report.json containing
-    schema_valid boolean and errors list if any.
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Update code/data/generator.py to explicitly generate exactly 500 trajectories
+    (or a multiple thereof for repeated measures) to satisfy the Repeated Measures
+    Design constraint.
   resolved_value: null
-  resolver: resolve_entity_fact
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:06:37Z'
+  updated_at: '2026-07-31T13:22:57Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: generate neutral_filter_verification.json containing neutral_count excluded_from_stats
-    boolean and validation_passed
-  claim_id: c_0ea8cba7
-  context: 'T061 [US2] Implement code/analysis/verify_neutral_filter.py to parse data/processed/experiment_logs.json,
-    filter for injected_state = neutral-monitoring, and assert they are correctly
-    excluded from the input data for T034/T038C. Output: Generate data/results/neutral_filter_verification.json
-    containing neutral_count, excluded_from_stats boolean, and validation_passed.'
+  canonical: trajectories.json contains 500 unique IDs
+  claim_id: c_24a97a61
+  context: 'Phase 3: User Story 1, T015'
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Generate_neutral_filter_verification.json_containing_neutral
-  kind: entity_fact
-  raw_text: The script must generate data/results/neutral_filter_verification.json
-    containing neutral_count, excluded_from_stats boolean, and validation_passed.
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output data/processed/trajectories.json must contain exactly 500 unique
+    trajectory IDs.
   resolved_value: null
-  resolver: resolve_entity_fact
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:06:43Z'
+  updated_at: '2026-07-31T13:23:19Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: power analysis for paired t-test with Cohen's d=0.5, power=0.80, alpha=0.05
-  claim_id: c_6fbc224f
-  context: 'Task T049: Implement code/analysis/power_analysis.py to calculate the
-    required sample size. Requirement: Using statsmodels.stats.power.tt_solve_power...'
+  canonical: sliding windows of 3 turns for training pairs
+  claim_id: c_c9723885
+  context: 'Phase 3: User Story 1, T019'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic to split the full trajectory history into sliding windows
+    of N=3 turns to create turn_text and label pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:23:20Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  attempts: 1
+  canonical: power analysis for effect size 0.5, power 0.80, alpha 25
+  claim_id: c_a0372444
+  context: 'Phase 3: User Story 1, T049'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
   raw_text: Using statsmodels.stats.power.tt_solve_power, compute the minimum N required
-    to detect a medium effect size (Cohen's d = 0.5) with power=0.80 and alpha=0.05
+    to detect a medium effect size (Cohen's d = 0.5) with power=0.80 and alpha=25
     for a paired t-test.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:08:43Z'
+  updated_at: '2026-07-31T13:23:35Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: 'power analysis script behavior on underpowered study: log warning and
-    do not exit with code 1'
-  claim_id: c_7e3977f8
-  context: 'Task T049: Constraint: If is_sufficient is false, the script MUST log
-    a warning...'
+  canonical: classifier triggers every 3 turns
+  claim_id: c_8fbab172
+  context: 'Phase 4: User Story 2, Phase 4B, T024'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: If is_sufficient is false, the script MUST log a warning stating the study
-    is underpowered, generate the report with the is_sufficient flag set to false,
-    and NOT exit with code 1.
+  raw_text: Implement a stateful accumulator that appends dialogue turns and triggers
+    the classifier every N=3 turns (using config.TURN_WINDOW_SIZE).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:09:17Z'
+  updated_at: '2026-07-31T13:23:35Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: Holm-Bonferroni correction factor calculated based on actual number of
-    active LLMs
-  claim_id: c_c018e848
-  context: 'Review Concern: Multiple Comparison Correction Scope. The Holm-Bonferroni
-    correction must be applied only to the set of LLMs that were actually executed...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Holm-Bonferroni correction factor must be calculated as 1 / len(active_llms)
-    rather than a fixed constant based on 8.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T12:09:20Z'
-- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
-  attempts: 1
-  canonical: injected_state set to 'neutral-monitoring' for low confidence adapter
-    condition
-  claim_id: c_4c3ecdea
-  context: 'Task T028: Edge Case Handling: If the Adapter condition triggers but the
-    classifier confidence is below threshold...'
+  canonical: low confidence injected_state set to neutral-monitoring
+  claim_id: c_f7539cf4
+  context: 'Phase 4: User Story 2, Phase 4B, T028'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Injected_state_set_to_%27neutral-monitoring%27_for_low_confidenc
+    source_url: https://en.wikipedia.org/wiki/Low_confidence_injected_state_set_to_neutral-monitoring
   kind: entity_fact
   raw_text: If the Adapter condition triggers but the classifier confidence is below
-    threshold, injected_state MUST be set to the exact string literal neutral-monitoring.
+    threshold, injected_state MUST be set to the string 'neutral-monitoring'.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:09:26Z'
+  updated_at: '2026-07-31T13:23:52Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: mean consensus gap variance between deterministic runs must be below
-    statistical variance tolerance
-  claim_id: c_2b4cc14b
-  context: 'Task T047A: Verification: Run the experiment twice with the same seed...
-    specifically, the mean consensus gap variance between the two runs must be < config.STATISTICAL_VARIANCE_TOLERANCE.'
+  canonical: warning if throughput < 40 or latency > 45
+  claim_id: c_a873e475
+  context: 'Phase 4: User Story 2, Phase 4B, T042'
   evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Mean_consensus_gap_variance_between_deterministic_runs_must
-  kind: magnitude
-  raw_text: The script must verify that the mean consensus gap variance between two
-    runs with the same seed must be less than config.STATISTICAL_VARIANCE_TOLERANCE.
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a step that logs a warning if throughput < 40 or latency > 45.
   resolved_value: null
-  resolver: resolve_superlative
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:09:30Z'
+  updated_at: '2026-07-31T13:23:52Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: performance warning triggered if throughput < 40 trajectories/hour or
-    latency > 45 s/trajectory
-  claim_id: c_3cd4a24c
-  context: 'Task T042: Verification: Add a step that logs a warning if throughput
-    < 40 or latency > 45.'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/performance_warning_triggered_if_throughput_%3C_40_trajectorie
-  kind: magnitude
-  raw_text: The script must log a warning if throughput is less than 40 trajectories/hour
-    or latency is greater than 45 seconds/trajectory.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T12:09:35Z'
-- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
-  attempts: 1
-  canonical: models exceeding RAM threshold are excluded from experiment run with
-    warning
-  claim_id: c_80f782ab
-  context: 'Task T041: Constraint: The script MUST log a warning if any model exceeds
-    a predefined RAM usage threshold, exclude that model from the experiment run...'
+  canonical: consensus gap variance < STATISTICAL_VARIANCE_TOLERANCE
+  claim_id: c_5024d3e6
+  context: 'Phase 4: User Story 2, Phase 4B, T047A'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Models_exceeding_RAM_threshold_are_excluded_from_experiment
+    source_url: https://en.wikipedia.org/wiki/consensus_gap_variance_%3C_STATISTICAL_VARIANCE_TOLERANCE
   kind: entity_fact
-  raw_text: The script must log a warning if any model exceeds a predefined RAM usage
-    threshold and exclude that model from the experiment run.
+  raw_text: Verify that the mean consensus gap variance between the two runs must
+    be < config.STATISTICAL_VARIANCE_TOLERANCE.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:09:44Z'
+  updated_at: '2026-07-31T13:24:23Z'
 - artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   attempts: 1
-  canonical: classifier training data schema requires confidence_score and threshold_used
-    fields
-  claim_id: c_04448dac
-  context: 'Task T019: Schema Requirement: The output data/processed/classifier_training_data.json
-    MUST include confidence_score (float) and threshold_used (float) fields...'
+  canonical: STATISTICAL_VARIANCE_TOLERANCE set to 0.01
+  claim_id: c_97bcc915
+  context: 'Phase 2: Foundational (Blocking Prerequisites), T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly define STATISTICAL_VARIANCE_TOLERANCE = 0.01 for reproducibility
+    checks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:24:42Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction based on actual N models
+  claim_id: c_5e0022bc
+  context: 'Phase 5: User Story 3, T038A'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 6.02214076e+23 (scipy.constants.N_A (CODATA 2018, exact by SI definition))
+      source_id: avogadro
+      url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+      value: '6.02214076e+23'
+    filled: true
+  kind: numeric
+  raw_text: The calculated N_actual MUST be passed to the statistical testing function
+    in T038C to ensure the Holm-Bonferroni correction factor is derived from the actual
+    set of models, not the theoretical 8.
+  resolved_value: '6.02214076e+23'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T13:24:45Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction applied to actual N models
+  claim_id: c_01c7f515
+  context: 'Phase 5: User Story 3, T038C'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Classifier_training_data_schema_requires_confidence_score_an
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_applied_to_actual_N_models
   kind: entity_fact
-  raw_text: The output classifier_training_data.json MUST include confidence_score
-    (float) and threshold_used (float) fields in every record to support downstream
-    sensitivity analysis.
+  raw_text: Apply Holm-Bonferroni correction for multiple comparisons across the actual
+    N_actual LLMs.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-31T12:09:50Z'
+  updated_at: '2026-07-31T13:24:49Z'
+- artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps confidence thresholds
+  claim_id: c_afb6fa57
+  context: 'Phase 5: User Story 3, T039'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_confidence_thresholds
+  kind: entity_fact
+  raw_text: Implement `code/analysis/sensitivity.py` to sweep classifier confidence
+    thresholds (e.g., a range of values).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:25:02Z'

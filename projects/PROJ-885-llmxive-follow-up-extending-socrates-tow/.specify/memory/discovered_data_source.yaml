@@ -1,11 +1,15 @@
 status: none
-intent: conflict dialogue dataset speaker turns emotional tags resolution python package
-  dataset
+intent: SoCRATES conflict dialogue generation dataset with emotional reactivity cultural
+  identity python package
 required_fields:
-- ground_truth_score (float 0.0-10.0)
-- categorical_tags (list of strings)
-- speaker_turns (ordered list of utterance texts)
-- "resolution_text (ground\u2011truth resolution description)"
-cache_key: 50655338908eeb5aad46a655c9f652293d30a58e32ef953cee8bc589e33e40ac
-searched_at: '2026-07-30T01:38:57.465366+00:00'
+- trajectory_id
+- dialogue_turns
+- speaker_id
+- utterance_text
+- emotional_reactivity_label
+- cultural_identity_label
+- conflict_intensity_score
+- timestamp
+cache_key: 02c6b4070061a9c413c8b0c69bc483bda54a11a635ae97ab204ffc387271af2a
+searched_at: '2026-07-31T13:10:53.924674+00:00'
 retry_count: 1
