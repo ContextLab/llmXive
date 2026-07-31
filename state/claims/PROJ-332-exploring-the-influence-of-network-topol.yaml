@@ -15394,3 +15394,670 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T00:47:04Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si 149, CNT 3500, Ag 429, Au 318\
+    \ W/(m\xB7K)"
+  claim_id: c_5d7faea8
+  context: T004b Implement code/material_db.py with NIST defaults for thermal conductivity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/material_db.py with NIST defaults for thermal conductivity\
+    \ (Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K))."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:49:39Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Fuchs-Sondheimer size-correction applied for wire diameter < 100nm
+  claim_id: c_6ca9ed1d
+  context: T012 Implement Fuchs-Sondheimer size-correction factor logic in code/thermal_solver.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fuchs-Sondheimer_size-correction_applied_for_wire_diameter_%3C
+  kind: entity_fact
+  raw_text: Implement Fuchs-Sondheimer size-correction factor logic with explicit
+    conditional check for wire diameter d < 100nm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:50:00Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Fuchs-Sondheimer formula: k_eff = k_bulk * (1 - 3/8 * lambda/d * (1-p))'
+  claim_id: c_5e496653
+  context: T012 Implement Fuchs-Sondheimer size-correction factor logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Formula: k_eff = k_bulk * (1 - 3/8 * lambda/d * (1-p)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:50:23Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff solver residual threshold 1e-6
+  claim_id: c_251fff33
+  context: T013 Implement Kirchhoff heat-flow solver in code/thermal_solver.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Kirchhoff heat-flow solver using SciPy sparse linear algebra\
+    \ with residual \u2264 1e-6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:50:25Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Graph generation degree tolerance \xB15%"
+  claim_id: c_b4b0d8fa
+  context: "Independent Test: Run the generator for a single target degree and Verify\
+    \ degree within \xB15%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify degree within \xB15%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:50:28Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Scaling exponent consistency check H0: t=1.3'
+  claim_id: c_29035283
+  context: T028 Implement conditional reporting of statistically significant scaling
+    exponent.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Report deviation |t_fitted - 1.3| and p-value for H0: t=1.3 as a consistency
+    check.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:51:11Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Pilot study sample size N=10
+  claim_id: c_34bc07dd
+  context: T042 Implement pilot study runner in code/regression_analysis.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement pilot study runner that executes N=10 simulations at a specified
+    connectivity level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:51:35Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Dynamic sample size adjustment: variance > 0.1 triggers doubling, capped
+    at 200'
+  claim_id: c_c6ff2238
+  context: T043 Implement dynamic sample size calculator.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Logic MUST check: If sample variance (in W\xB2/(m\xB2\xB7K\xB2)) > 0.1,\
+    \ set N_final = 2 * current_grid_size (capped at 200)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:52:12Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Sample size formula parameters: delta 0.13, alpha 0.05, beta 0.2'
+  claim_id: c_9d864f23
+  context: T043 Implement dynamic sample size calculator using the formula.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use the formula N_req = (Z_{alpha/2} + Z_{beta})^2 * sigma^2 / delta^2
+    with delta=0.13, alpha=0.05, beta=0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:54:04Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Junction resistance sweep: 10 steps'
+  claim_id: c_9fceda92
+  context: T049 Implement specific junction resistance sweep function.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vary R_junction from a lower bound to an upper bound in 10 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:54:25Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis variation tolerance \xB110%"
+  claim_id: c_d8dafbf5
+  context: "Independent Test: Run sensitivity sweep and verify Reported variations\
+    \ in sensitivity analysis must stay within \xB110%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Reported variations in sensitivity analysis must stay within \xB1\
+    10%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:54:28Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Runtime timeout threshold 6 hours
+  claim_id: c_1e7c2dd5
+  context: T016 Implement runtime timeout check in code/main.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement runtime timeout check in code/main.py to abort if > 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:54:30Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 2
+  canonical: 'Dependency versions: networkx 3.2.1, scipy 1.13.1, numpy 1.26.4, pyyaml
+    6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_b5a4dec6
+  context: T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain exactly: networkx==3.2.1, scipy==1.13.1, numpy==1.26.4,
+    pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:55:42Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si=149, CNT=3500, Ag=429, Au=429\
+    \ W/(m\xB7K)"
+  claim_id: c_fb82ef2b
+  context: T004b [P] Implement code/material_db.py with NIST defaults for thermal
+    conductivity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/material_db.py` with NIST defaults for thermal conductivity\
+    \ (Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:55:45Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Fuchs-Sondheimer size-correction applies when wire diameter < 100nm
+  claim_id: c_36c7f00f
+  context: T012 [US1] Implement Fuchs-Sondheimer size-correction factor logic in code/thermal_solver.py
+    with explicit conditional check for wire diameter d < 100nm.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fuchs-Sondheimer_size-correction_applies_when_wire_diameter
+  kind: entity_fact
+  raw_text: Implement Fuchs-Sondheimer size-correction factor logic with explicit
+    conditional check for wire diameter d < 100nm
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:55:49Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Kirchhoff heat-flow solver residual threshold: 1e-6'
+  claim_id: c_18f5b935
+  context: "T013 [US1] Implement Kirchhoff heat-flow solver in code/thermal_solver.py\
+    \ using SciPy sparse linear algebra with residual \u2264 1e-6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Kirchhoff heat-flow solver... with residual \u2264 1e-6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:55:51Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Graph generation target degree verification tolerance: \xB15%"
+  claim_id: c_7b0e5d53
+  context: "Independent Test: Run the generator for a single target degree (e.g.,\
+    \ 4) and Verify degree within \xB15%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run the generator for a single target degree (e.g., 4) and Verify degree\
+    \ within \xB15%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:56:12Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Simulation runtime timeout threshold: 6 hours'
+  claim_id: c_f887ee23
+  context: T016 [US1] Implement runtime timeout check in code/main.py to abort if
+    > 6 hours. (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement runtime timeout check in code/main.py to abort if > 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:56:14Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Scaling exponent consistency check: H0 t=1.3'
+  claim_id: c_932c52a7
+  context: 'T028 [US2] Implement conditional reporting... Report deviation |t_fitted
+    - 1.3| and p-value for H0: t=1.3 as a consistency check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Report deviation |t_fitted - 1.3| and p-value for H0: t=1.3 as a consistency
+    check'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:56:17Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis variation tolerance: \xB110%"
+  claim_id: c_5e98c22b
+  context: "Independent Test: Run sensitivity sweep... and verify Reported variations\
+    \ in sensitivity analysis must stay within \xB110%..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Reported variations in sensitivity analysis must stay within \xB1\
+    10%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:56:19Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Pilot study sample size: 10 simulations'
+  claim_id: c_52f47ec0
+  context: T042 [US2] Implement pilot study runner in code/regression_analysis.py
+    that executes N=10 simulations at a specified connectivity level.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement pilot study runner... that executes N=10 simulations at a specified
+    connectivity level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:56:22Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Dynamic sample size adjustment: variance > 0.1 triggers doubling, max
+    200'
+  claim_id: c_737ac43e
+  context: 'T043 [US2] Implement dynamic sample size calculator... Logic MUST check:
+    If sample variance > 0.1, set N_final = 2 * current_grid_size (capped at 200).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Logic MUST check: If sample variance (in W\xB2/(m\xB2\xB7K\xB2)) > 0.1,\
+    \ set `N_final = 2 * current_grid_size` (capped at 200)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:56:24Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Junction resistance sweep: 10 steps'
+  claim_id: c_c8c96d5f
+  context: T049 [US3] Implement specific junction resistance sweep function in code/sensitivity_analysis.py
+    that varies R_junction from a lower bound to an upper bound in 10 steps.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement specific junction resistance sweep function... that varies R_junction
+    from a lower bound to an upper bound in 10 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:56:54Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: State update uses SHA-256 hash of simulation_results.csv
+  claim_id: c_1201b983
+  context: T038 [P] Implement code/update_state.py to calculate SHA-256 of simulation_results.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate SHA-256 of simulation_results.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:57:09Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 'Python dependencies versions: networkx 3.2.1, scipy 1.13.1, numpy 1.26.4,
+    pyyaml 6.0.1, pytest 8.2.2, statsmodels 0.14.2'
+  claim_id: c_dfa70edb
+  context: 'T002 Initialize a Python project with dependencies in projects/PROJ-332-exploring-the-influence-of-network-topol/code/requirements.txt.
+    The file MUST contain exactly:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file requirements.txt MUST contain exactly: networkx==3.2.1, scipy==1.13.1,
+    numpy==1.26.4, pyyaml==6.0.1, pytest==8.2.2, statsmodels==0.14.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:58:59Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "NIST thermal conductivity defaults: Si 149, CNT 3500, Ag 429, Au 318\
+    \ W/(m\xB7K)"
+  claim_id: c_ee80b9af
+  context: "T004b Implement code/material_db.py with NIST defaults for thermal conductivity\
+    \ (Si=149, CNT=3500, Ag=429, Au=318 W/(m\xB7K)) and validation logic per FR-010."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NIST defaults for thermal conductivity are Si=149, CNT=3500, Ag=429,\
+    \ Au=318 W/(m\xB7K)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:59:18Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Default junction resistance 1e-9 K/W
+  claim_id: c_380ef676
+  context: T005 Create code/config.py to load environment variables for simulation
+    parameters (N, p, d, l, seed) and define DEFAULT_JUNCTION_RESISTANCE = 1e-9 (K/W)
+    for FR-012.
+  evidence:
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The default junction resistance is 1e-9 K/W
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T09:59:21Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Fuchs-Sondheimer formula k_eff = k_bulk * (1 - 3/8 * lambda/d * (1-p))
+  claim_id: c_2731c7a1
+  context: 'T012 Implement Fuchs-Sondheimer size-correction factor logic in code/thermal_solver.py
+    with explicit conditional check for wire diameter d < 100nm as required by FR-011
+    (FR-011). Formula: k_eff = k_bulk * (1 - 3/8 * lambda/d * (1-p)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Fuchs-Sondheimer size-correction formula is k_eff = k_bulk * (1 -
+    3/8 * lambda/d * (1-p))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T09:59:34Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Default lambda 40nm, p 0.5 for Fuchs-Sondheimer
+  claim_id: c_40586d6f
+  context: Use default lambda=40nm, p=0.5 if not specified.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default wavelength lambda is 40nm and p is 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:00:14Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Kirchhoff solver residual threshold 1e-6
+  claim_id: c_1f6aadeb
+  context: T013 Implement Kirchhoff heat-flow solver in code/thermal_solver.py using
+    SciPy sparse linear algebra with residual <= 1e-6, including logic to detect disconnected
+    graphs and return zero conductivity while logging 'Graph disconnected; conductivity
+    set to 0.0' (FR-003, Edge Cases).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Kirchhoff heat-flow solver must use a residual threshold of <= 1e-6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:00:37Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Runtime timeout 6 hours
+  claim_id: c_c26ec6de
+  context: T016 Implement runtime timeout check in code/main.py to abort if > 6 hours.
+    (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime timeout check must abort if execution exceeds 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:01:04Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Percolation threshold P(connected) 0.50
+  claim_id: c_39875bd8
+  context: T027 Implement percolation threshold detection logic in code/regression_analysis.py
+    using inflection point analysis of the giant component size curve to find the
+    degree where P(connected) = 0.50 (FR-017, SC-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Percolation_threshold_P(connected)_0.50
+  kind: entity_fact
+  raw_text: The percolation threshold is defined as the degree where P(connected)
+    = 0.50
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:01:39Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Consistency check H0 t=1.3 deviation |t_fitted - 1.3|
+  claim_id: c_58378613
+  context: 'Report deviation |t_fitted - 1.3| and p-value for H0: t=1.3 as a consistency
+    check, not a new hypothesis test.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Consistency_check_H0_t=1.3_deviation_%7Ct_fitted_-_1.3%7C
+    source_value: https://en.wikipedia.org/wiki/Consistency_check_H0_t=1.3_deviation_|t_fitted_-_1.3|
+    subject: Consistency check H0 t=1.3 deviation |t_fitted - 1.3|
+  kind: relational
+  raw_text: 'The consistency check reports deviation |t_fitted - 1.3| and p-value
+    for H0: t=1.3'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:01:42Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis variation limit +/- 10%
+  claim_id: c_47ec9493
+  context: 'Independent Test: Run sensitivity sweep over a range of values centered
+    around the baseline and verify Reported variations in sensitivity analysis must
+    stay within +/- 10%...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reported variations in sensitivity analysis must stay within +/- 10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:01:44Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Pilot study sample size N=10
+  claim_id: c_ebb8e6a7
+  context: T042 Implement pilot study runner in code/regression_analysis.py that executes
+    N=10 simulations at a specified connectivity level and calculates the sample variance
+    of k_eff (FR-018).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study executes N=10 simulations at a specified connectivity
+    level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:02:05Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Sample size formula delta 0.13 alpha 0.05 beta 0.2
+  claim_id: c_4485fff9
+  context: Implement dynamic sample size calculator in code/regression_analysis.py
+    using the formula N_req = (Z_alpha/2 + Z_beta)^2 sigma^2 / delta^2 with delta=0.13,
+    alpha=0.05, beta=0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required sample size formula uses delta=0.13, alpha=0.05, beta=0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:02:43Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Dynamic sample size trigger variance > 0.1 doubles size
+  claim_id: c_76eb3305
+  context: "Logic MUST check: If sample variance (in W\xB2/(m\xB2\xB7K\xB2)) > 0.1,\
+    \ set N_final = 2 * current_grid_size (capped at 200)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If sample variance > 0.1, set N_final = 2 * current_grid_size
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:03:04Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Maximum sample size cap 200
+  claim_id: c_9b16a293
+  context: set N_final = 2 * current_grid_size (capped at 200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum sample size is capped at 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:03:40Z'
+- artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Junction resistance sweep 10 steps
+  claim_id: c_daef418d
+  context: T049 Implement specific junction resistance sweep function in code/sensitivity_analysis.py
+    that varies R_junction from a lower bound to an upper bound in 10 steps while
+    holding other parameters constant (FR-012).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The junction resistance sweep varies R_junction in 10 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T10:04:11Z'

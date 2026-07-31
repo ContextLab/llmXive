@@ -33,11 +33,20 @@ def get_material_conductivity(
     Raises:
         ValueError: If material not found and no override provided
     """
-    # Handle config object case
+    # Handle config object case (e.g., from cli.py --material-override parsing)
     if hasattr(material_name, 'material'):
-        # It's a config object
-        name = material_name.material
+        # It's a config-like object (e.g., argparse Namespace or dict-like)
+        name = getattr(material_name, 'material', None)
+        if name is None and isinstance(material_name, dict):
+            name = material_name.get('material')
+        
+        if name is None:
+            raise ValueError("Config object missing 'material' attribute/key.")
+            
         override = getattr(material_name, 'bulk_conductivity', None)
+        if override is None and isinstance(material_name, dict):
+            override = material_name.get('bulk_conductivity')
+        
         if bulk_conductivity is None and override is not None:
             bulk_conductivity = override
     elif isinstance(material_name, str):
@@ -45,7 +54,7 @@ def get_material_conductivity(
     else:
         raise ValueError(f"Invalid material argument type: {type(material_name)}")
     
-    # If override provided, use it
+    # If override provided (via CLI --material-override), use it
     if bulk_conductivity is not None:
         logger.debug(f"Using provided conductivity {bulk_conductivity} for {name}")
         return float(bulk_conductivity)
@@ -56,7 +65,7 @@ def get_material_conductivity(
         logger.debug(f"Using NIST default {val} for {name}")
         return val
     
-    # Not found
+    # Not found - raise clear error as per FR-010
     raise ValueError(f"Material {name} not found in local store or NIST defaults; please provide value in W/(m·K).")
 
 def list_available_materials() -> List[str]:

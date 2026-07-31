@@ -1,82 +1,70 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "SimulationResult"
-description: "Schema for a single row in data/processed/simulation_results.csv (includes global stats)"
-type: "object"
+# Schema for simulation_results.csv output
+# Generated for PROJ-332: Influence of Network Topology on Thermal Conductivity
+# This schema defines the exact columns and types expected in data/processed/simulation_results.csv
+
+type: object
+description: "Schema for a single row of simulation results from the nanowire network thermal conductivity study"
 properties:
   seed:
     type: integer
-    description: "Random seed used for generation"
+    description: "Random seed used for the simulation run"
   N:
     type: integer
-    description: "Number of nodes in the graph"
-    const: 1000
+    description: "Number of nodes in the generated network"
   p:
     type: number
-    description: "Connection probability"
-    minimum: 0.0
-    maximum: 1.0
-  target_degree:
-    type: number
-    description: "Target average degree specified by user"
+    format: float
+    description: "Connection probability (edge probability) used in graph generation"
   avg_degree:
     type: number
-    description: "Actual average degree of the generated graph (mapped from measured_degree to satisfy FR-009)"
-  percolation_status:
-    type: boolean
-    description: "True if source-sink path exists"
-  k_eff:
+    format: float
+    description: "Calculated average degree of the generated network"
+  conductivity:
     type: number
+    format: float
     description: "Effective thermal conductivity in W/(m·K)"
-    minimum: 0.0
-  avg_path_length:
+  connectivity_probability:
     type: number
-    description: "Average shortest path length (Infinity if disconnected)"
-    minimum: 0.0
-  clustering_coeff:
-    type: number
-    description: "Global clustering coefficient"
-    minimum: 0.0
-    maximum: 1.0
-  convergence_rate:
-    type: number
-    description: "L2 residual norm of the solver"
-    minimum: 0.0
-  total_runtime:
-    type: number
-    description: "Execution time in seconds"
-    minimum: 0.0
-  material_name:
-    type: string
-    description: "Name of the material used (e.g., Si, CNT)"
+    format: float
+    description: "Fraction of generated graphs that were connected (batch metric)"
   percolation_threshold:
     type: number
-    description: "Global percolation threshold (k_c_80) estimated via FR-017"
-  scaling_exponent_t:
+    format: float
+    description: "Calculated percolation threshold (degree at which P(connected)=0.50)"
+  convergence_rate:
     type: number
-    description: "Global scaling exponent t from power-law fit"
-  p_value:
+    format: float
+    description: "Rate at which the solver converged (iterations or residual metric)"
+  pilot_variance:
     type: number
-    description: "Global p-value from regression (test H0: t=0)"
-  R_squared:
-    type: number
-    description: "Goodness-of-fit metric (R^2)"
-    minimum: 0.0
-    maximum: 1.0
+    format: float
+    description: "Variance of conductivity from the pilot study (N=10) in W²/(m²·K²)"
+  required_sample_size:
+    type: integer
+    description: "Calculated required sample size based on pilot variance and power analysis"
+  final_sample_size:
+    type: integer
+    description: "Actual number of simulations run for this batch (may be adjusted)"
+  adjustment_triggered:
+    type: boolean
+    description: "Whether dynamic sample size adjustment was triggered"
+  adjustment_reason:
+    type: string
+    description: "Text explanation for any sample size adjustment (e.g., 'High pilot variance detected')"
+
 required:
   - seed
   - N
   - p
-  - target_degree
   - avg_degree
-  - percolation_status
-  - k_eff
-  - avg_path_length
-  - clustering_coeff
-  - convergence_rate
-  - total_runtime
-  - material_name
+  - conductivity
+  - connectivity_probability
   - percolation_threshold
-  - scaling_exponent_t
-  - p_value
-  - R_squared
+  - convergence_rate
+  - pilot_variance
+  - required_sample_size
+  - final_sample_size
+  - adjustment_triggered
+  - adjustment_reason
+
 additionalProperties: false

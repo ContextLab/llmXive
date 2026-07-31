@@ -1,14 +1,3 @@
-- artifact_hash: 4d9220050386af71143c79001b557bc866f273256b49bdbd5987fe284b5a717d
-  artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Pi - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Pi
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-07-16T00:47:07.178076Z'
 - artifact_hash: a310658d85537b5584bd3373bd682e96040ad9dcb0d414fa23db92978689c9b5
   artifact_path: projects/PROJ-332-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/spec.md
   cite_id: c-001

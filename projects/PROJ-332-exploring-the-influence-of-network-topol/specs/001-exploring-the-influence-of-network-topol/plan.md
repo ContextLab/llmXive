@@ -13,7 +13,7 @@ This feature implements a computational pipeline to investigate how the connecti
 **Primary Dependencies**: `numpy`, `scipy`, `networkx`, `pandas`, `matplotlib`, `pytest`, `scikit-learn`, `statsmodels`
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`)
 **Testing**: `pytest` (unit, integration, contract tests)
-**Target Platform**: Linux (GitHub Actions CPU runner: 2 vCPU, 7GB RAM)
+**Target Platform**: Linux (GitHub Actions CPU runner: vCPU, 7GB RAM)
 **Project Type**: Scientific CLI / Simulation Library
 **Performance Goals**: Complete 1000 simulations (10 levels x 100 runs) within 6 hours; solver convergence < 1s per graph.
 **Constraints**: No GPU; memory < 7GB; strict timeout enforcement; double-precision arithmetic only.
@@ -116,7 +116,7 @@ requirements.txt
 | **SC-005** (6h Runtime) | CI Workflow: `timeout-minutes:` |
 | **SC-006** (Variance Report) | `analysis.py`: log variance adjustment decision |
 
-**Spec Note on FR-012**: The source spec text for FR-012 is malformed ("...as established in prior studies (). This research question... (default)."). The plan assumes a default junction resistance of $10^{-9}$ K/W based on standard high-performance thermal interface literature and implements the sensitivity sweep over $\pm 10\%$ of this value. This discrepancy is flagged for a future spec amendment (kickback).
+**Spec Note on FR-012**: The source spec text for FR-012 is malformed ("...as established in prior studies (). This research question... (default)."). The plan assumes a default junction resistance on the order of nanokelvin per watt based on standard high-performance thermal interface literature and implements the sensitivity sweep over a range of this value. This discrepancy is flagged for a future spec amendment (kickback).
 
 ## Constitution Check (Detailed)
 
@@ -155,9 +155,9 @@ The pilot study logic is implemented as follows:
 
 Two distinct sensitivity sweeps are performed:
 1.  **General Scaling**: Sweep global resistance scaling factor $\alpha \in \{0.9, 1.0, 1.1\}$.
-2.  **Junction Resistance**: Sweep $R_{junction}$ by $\pm 10\%$ around the nominal $10^{-9}$ K/W.
+2.  **Junction Resistance**: Sweep $R_{junction}$ by a small percentage around the nominal $10^{-9}$ K/W.
 Both sweeps report the resulting range of $k_{eff}$ values.
 
 ### Theoretical Comparison (SC-003)
 
-The implementation explicitly calculates the deviation $|t_{fitted} - 1.3|$ and reports the p-value for the hypothesis $H_0: t = 1.3$ using bootstrapped standard errors. This comparison is framed as a consistency check for the RGG model in the finite-size regime (N=1000), acknowledging that finite-size effects may cause deviations from the asymptotic $t \approx 1.3$.
+The implementation explicitly calculates the deviation $|t_{fitted} - 1.3|$ and reports the p-value for the hypothesis $H_0: t = 1.3$ using bootstrapped standard errors. This comparison is framed as a consistency check for the RGG model in the finite-size regime (N=1000), acknowledging that finite-size effects may cause deviations from the asymptotic $t \approx $.
