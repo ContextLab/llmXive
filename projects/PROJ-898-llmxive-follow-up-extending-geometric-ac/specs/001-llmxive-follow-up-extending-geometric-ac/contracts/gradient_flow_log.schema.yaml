@@ -1,20 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-type: object
+title: "Gradient Flow Log Schema"
+type: "object"
 properties:
-  solver_params:
-    type: array
+  verification_run_id:
+    type: "string"
+  timestamp:
+    type: "string"
+    format: "date-time"
+  results:
+    type: "array"
     items:
-      type: number
-    description: "Values of solver parameters"
-  decoder_gradients:
-    type: array
-    items:
-      type: number
-    description: "Gradients flowing through the decoder"
-  constraint_loss:
-    type: number
-    description: "Value of constraint violation loss"
-  valid_path:
-    type: boolean
-    description: "True if gradients successfully flowed through decoder"
-required: ["solver_params", "decoder_gradients", "constraint_loss", "valid_path"]
+      type: "object"
+      properties:
+        topology_id:
+          type: "string"
+        gradient_norm:
+          type: "number"
+          description: "Norm of the gradient from constraint loss to solver params"
+        is_differentiable:
+          type: "boolean"
+          description: "True if gradient norm > 0 and finite"
+        error_message:
+          type: "string"
+          nullable: true
+      required:
+        - topology_id
+        - gradient_norm
+        - is_differentiable
+required:
+  - verification_run_id
+  - results
+additionalProperties: false

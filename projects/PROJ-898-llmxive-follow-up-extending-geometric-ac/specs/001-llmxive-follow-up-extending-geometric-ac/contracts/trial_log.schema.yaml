@@ -1,36 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-type: object
+title: "Trial Log Schema"
+type: "object"
 properties:
   trial_id:
-    type: string
-    description: "Unique trial identifier"
-  condition:
-    type: string
-    enum: ["symbolic", "baseline"]
-    description: "Experimental condition"
+    type: "string"
+    description: "Unique identifier for the trial"
   topology_id:
-    type: string
-    description: "Reference to topology in metadata"
+    type: "string"
+    description: "Reference to the topology used"
+  method:
+    type: "string"
+    enum: ["symbolic", "baseline"]
+    description: "The approach used (Symbolic Solver or Baseline GAM)"
   success:
-    type: integer
+    type: "integer"
     enum: [0, 1]
-    description: "Binary success (1) or failure (0)"
+    description: "1 if task completed successfully, 0 otherwise"
   latency_ms:
-    type: number
+    type: "number"
     description: "Inference latency in milliseconds"
   timeout:
-    type: integer
-    enum: [0, 1]
-    description: "Flag for timeout failure"
-  drift_flag:
-    type: integer
-    enum: [0, 1]
-    description: "Flag for latent drift (Mahalanobis distance > threshold)"
-  failure_reason:
-    type: string
-    enum: ["none", "timeout", "infeasible", "collision", "drift"]
-    description: "Reason for failure if success is 0"
-  error_message:
-    type: string
-    description: "Optional error message if failed"
-required: ["trial_id", "condition", "topology_id", "success", "latency_ms", "timeout", "drift_flag", "failure_reason"]
+    type: "boolean"
+    description: "True if the solver exceeded the time limit"
+  timeout_reason:
+    type: "string"
+    enum: ["step_limit", "infeasible", "collision", "none"]
+    description: "Reason for timeout or failure (distinguishes computational vs physical failure)"
+  ood_flag:
+    type: "boolean"
+    description: "True if latent drift exceeded threshold"
+  seed:
+    type: "integer"
+    description: "Random seed used for this trial"
+required:
+  - trial_id
+  - topology_id
+  - method
+  - success
+  - latency_ms
+  - timeout
+  - timeout_reason
+  - seed
+additionalProperties: false

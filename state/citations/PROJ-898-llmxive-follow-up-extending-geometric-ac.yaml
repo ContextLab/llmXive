@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Omnibus_test
   verified_at: '2026-07-21T07:31:39.584547Z'
-- artifact_hash: d1425d909cd4858887ab0a22f82c9ebf8e4ceb99f851c74c3fbe09021f151d53
+- artifact_hash: eb59e2dfde64ca91267bfae4173b5da8cc5ca3045b78099bb33c1e5bfb8e62f5
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/data-model.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-29T02:31:27.655371Z'
+  verified_at: '2026-07-31T09:01:18.962858Z'

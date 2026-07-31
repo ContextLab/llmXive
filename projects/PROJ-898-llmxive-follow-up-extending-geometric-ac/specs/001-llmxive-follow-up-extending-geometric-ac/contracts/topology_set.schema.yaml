@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Novel Topology Set Schema"
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      generated_at:
+        type: "string"
+        format: "date-time"
+      seed:
+        type: "integer"
+      total_count:
+        type: "integer"
+        minimum: 50
+      checksum:
+        type: "string"
+        description: "SHA-256 hash of the topology definitions to verify uniqueness"
+  topologies:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        topology_id:
+          type: "string"
+          description: "Unique identifier for this topology"
+        type:
+          type: "string"
+          enum: ["kinematic_chain", "deformable_rope", "deformable_cloth"]
+        parameters:
+          type: "object"
+          description: "Physical parameters (link counts, hinge angles, mesh density)"
+        initial_state:
+          type: "object"
+          description: "Initial positions and velocities for simulation"
+        hash:
+          type: "string"
+          description: "Hash of parameters to verify non-overlap with training set"
+      required:
+        - topology_id
+        - type
+        - parameters
+        - hash
+required:
+  - metadata
+  - topologies
+additionalProperties: false
