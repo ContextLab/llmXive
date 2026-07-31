@@ -55,6 +55,33 @@ def test_claim_is_idempotent_on_reinvocation(repo):
     assert len(_events(repo)) == 1
 
 
+def test_a_replayed_claim_returns_successfully_while_someone_else_owns_the_lane(repo):
+    """A successful ``cas_claim`` call does NOT imply the caller currently owns the lane.
+
+    The idempotency branch keys on "did THIS event already land", not "do I hold the claim
+    now". So a replay that arrives after the claim was released and the lane re-granted
+    short-circuits the precondition and returns NORMALLY — no ``LaneRevisionConflict`` —
+    even though the caller owns nothing. Callers MUST check the returned projection;
+    "it did not raise" is not an ownership signal. Pinned because the FR-035 reclaim
+    (``ClaimExpired``) makes re-granting a routine event rather than a rarity, so this
+    replay window stops being hypothetical.
+    """
+    cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    cas_release(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+    cas_claim(repo, problem_id="P2", attempt_id="A2", actor="d", timestamp=TS)
+
+    # P1/A1's ORIGINAL claim call is retried (lost acknowledgement, crash-retry, replay).
+    late = cas_claim(repo, problem_id="P1", attempt_id="A1", actor="d", timestamp=TS)
+
+    # It returned without raising -- and P1/A1 does not own the lane.
+    assert (late.active_problem_id, late.active_attempt_id) == ("P2", "A2")
+    # The projection is NOT "the same projection" the original call saw, either.
+    assert late.active_attempt_id != "A1"
+    # No duplicate claim record: the replay is inert, it just is not an ownership grant.
+    assert len(_events(repo)) == 3
+    assert sum(1 for e in _events(repo) if e.event_type == "ClaimAcquired") == 2
+
+
 def test_a_release_from_a_non_owner_cannot_clear_the_active_claim(repo):
     # The F6 guard: a caller that believes it holds the lane must not be able to evict the
     # Attempt that actually does.

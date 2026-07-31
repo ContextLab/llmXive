@@ -427,6 +427,58 @@ the boilerplate. Dropped the uppercase path; kept the detailed guide. **Diagnose
 before restoring it** — `git checkout` here would have looked like it worked and fixed
 nothing.
 
+### Rev 21 — the delayed-worker impossibility, and two consequences of fixing it
+
+**Observation is asymmetric, and rev 20 leaned on the half that does not hold.** I wrote that
+intent reconciliation is "deterministic and terminating, because every side effect is keyed."
+True for a POSITIVE observation: seeing the effect present is conclusive. Seeing it ABSENT is
+not — it cannot distinguish "never landed" from "not landed YET" while a stale worker's call
+is still in flight. A reclaimer treating absence as proof closes the intent as not-landed,
+reclaims, and then the delayed call lands against a lane that recorded the opposite. No
+amount of care on OUR side resolves it, because the missing information lives in the network.
+
+Two mechanisms, in preference order. **(a) Externally enforced preconditions** — the real
+fix, because it moves enforcement to the party that can actually enforce it. Generation-scoped
+branch namespaces (`…/<attempt-id>/g<generation>`) mean a delayed worker can only ever write
+inside its own dead generation, which the new owner never touches — that needs no external
+cooperation at all, it just makes the two actors' namespaces disjoint. Plus non-forced ref
+updates and expected-`head_sha` merges, which GitHub rejects on its own. **(b) Quarantine**
+where no enforceable precondition exists: mark the intent `ambiguous`, block reclaim, leave
+the Attempt honestly unresolved. The forbidden move is declaring "did not land" on an
+inference the lane cannot support.
+
+**Extending the claim through `promoting`/`promotion_requested` forced a naming fix.** The
+claim is held until `PromotionObserved` clears the slot, so heartbeats and expiry must span
+those states too. But then `ClaimExpired` could not terminate at `review_aborted` — misnamed
+where no review runs, and it would re-introduce the `claimed` mislabeling rev 18 removed —
+and `impl_failed` would be worse, since counting an abandonment lets a crashed runner eat a
+Problem's quality budget, exactly what FR-001 forbids. Hence `attempt_abandoned`: operational,
+uncounted, valid from every claim-holding state. **A terminal state's NAME is part of its
+contract; reusing a near-fit one silently misreports why the Attempt ended.**
+
+**FR-036: every new bound turned out to be a clock comparison.** Heartbeats, `claim_expiry`,
+`max_claim_hold_time`, `streak_started_at`, `cooldown_until` — all durations, all measured on
+independent runners. `seq` stays the SOLE ordering authority (timestamps never order events);
+skew is caught ONCE at append (reject > `max_clock_skew` ahead of the writer, or behind the
+ref's latest) rather than defended at every read; and every safety-critical comparison pads by
+the skew in the direction that avoids the worse error — reclaim needs
+`elapsed ≥ claim_expiry + max_clock_skew`, never less.
+
+### `cas_claim` success ≠ ownership (pinned, not changed)
+
+`cas_claim`'s idempotency branch asks "did THIS event already land", not "do I own the claim
+now". So a replay arriving after the claim was released and the lane re-granted returns
+NORMALLY while another Attempt owns the lane. `cas_release` already documented exactly this
+caveat; `cas_claim` claimed the opposite ("returns the same projection"), which is false —
+the projection shows the NEW owner.
+
+Added the missing negative test and verified it load-bearing by temporarily hardening
+`cas_claim` to check ownership in the idempotent branch: the test then fails. Behavior left
+AS IS (the user asked to prove the property, not change it) and the docstring corrected to
+match `cas_release`'s honesty. **Open question for the lifecycle slice:** whether to harden
+`cas_claim` so the replay raises instead. FR-035 makes re-granting routine rather than rare,
+so "it did not raise" becoming an ownership signal is a live footgun, not a theoretical one.
+
 ## Carried forward to whichever slice owns lifecycle reconciliation
 
 Maintainer reminder at 1A sign-off (2026-07-27): **production reconciliation must compute
@@ -451,6 +503,23 @@ findings ... ready for the next implementation phase."
 Next is the **Attempt-lifecycle slice**, which owns the seam 1B deliberately left open (the
 Attempt-level abort record, round-17 F5). Blocked on a spec amendment first — see
 "Spec gap found before the lifecycle slice" below.
+
+### The six persistent untracked artifacts — classified (2026-07-30)
+
+Verified against what git already tracks, so the branch can be published without guessing:
+
+| Artifact | Count | Category | Action |
+|-|-|-|-|
+| `state/run-log/2026-07/local-*.jsonl` | 3 | TRACKED category — 12,382 files tracked under `2026-07/`, 18 `local-*` tracked repo-wide; `.gitignore` excludes only `in-progress/` and `.invalid/` | Leave for the cron's own commit to main |
+| `state/convergence-cache/*.json` | 2 | TRACKED category — thousands already committed | Leave for the cron's own commit to main |
+| `notes/2026-07-15-issue-1139-audit-T+7min.md` | 1 | User's unrelated work, untracked at session start | Never commit |
+
+The five state files are legitimate pipeline output of a kind git already tracks, so
+`.gitignore`-ing them would be wrong — it would stop the pipeline committing real state.
+They are simply not THIS branch's content, and untracked files are not published with a
+branch, so they do not block the PR. The actual risk is accidental sweeping (which is
+exactly what happened once, in `8097c5b183`), and the guard against that is committing with
+explicit paths — `git commit -o <path> …` — never `git add -A` / `git commit -a`.
 
 **Do not re-commit `notes/2026-07-15-issue-1139-audit-T+7min.md`.** It is unrelated user
 work that was untracked at session start; `8097c5b183` swept it in and `git rm --cached`

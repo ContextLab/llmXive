@@ -110,9 +110,19 @@ def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str, times
 
     Re-invoking with the same pair is idempotent: the event id is derived from
     ``("claim", problem_id, attempt_id)``, so a retry after a lost acknowledgement finds
-    its own record and returns the same projection instead of appending a second claim.
-    That rests on Attempt ids being single-use, which spec 025 guarantees — a crashed
-    Attempt is a FAILED Attempt and its successor gets a new id."""
+    its own record and does not append a second claim. That rests on Attempt ids being
+    single-use, which spec 025 guarantees — a crashed Attempt is a FAILED Attempt and its
+    successor gets a new id.
+
+    **Returning successfully does NOT mean you hold the lane.** The idempotency branch
+    asks "did THIS event already land", not "do I own the claim now", so a replay arriving
+    after the claim was released and the lane re-granted returns NORMALLY while another
+    Attempt owns it — the returned projection then shows THAT owner, not the caller. It is
+    the same honest caveat :func:`cas_release` documents. Callers MUST check the returned
+    projection (``active_problem_id``/``active_attempt_id``); "it did not raise" is not an
+    ownership signal. Pinned by
+    ``test_a_replayed_claim_returns_successfully_while_someone_else_owns_the_lane``, and
+    load-bearing under spec 025 FR-035, where ``ClaimExpired`` makes re-granting routine."""
     events = read(repo, COORDINATOR_STREAM, config=config)
     revision = project_coordinator(events).lane_revision
     event = _coord_event("ClaimAcquired", ("claim", problem_id, attempt_id),
