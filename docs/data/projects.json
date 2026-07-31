@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-07-31T01:45:59.801443+00:00",
+  "generated_at": "2026-07-31T01:38:46.311632+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -121831,7 +121831,7 @@
       },
       "authors": [
         {
-          "contributions": 3674,
+          "contributions": 3684,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -121891,83 +121891,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.709506,
-          "ended_at": "2026-07-31T00:29:23.486221Z",
+          "duration_s": 2.938765,
+          "ended_at": "2026-07-31T01:38:28.338562Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:22.776715Z"
+          "started_at": "2026-07-31T01:38:25.399797Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.837921,
-          "ended_at": "2026-07-31T00:29:22.704497Z",
+          "duration_s": 1.951621,
+          "ended_at": "2026-07-31T01:38:25.330512Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:21.866576Z"
+          "started_at": "2026-07-31T01:38:23.378891Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.778141,
-          "ended_at": "2026-07-31T00:29:21.795800Z",
+          "duration_s": 1.276609,
+          "ended_at": "2026-07-31T01:38:23.308496Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:21.017659Z"
+          "started_at": "2026-07-31T01:38:22.031887Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.752569,
-          "ended_at": "2026-07-31T00:29:20.947270Z",
+          "duration_s": 7.303005,
+          "ended_at": "2026-07-31T01:38:21.961225Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:20.194701Z"
+          "started_at": "2026-07-31T01:38:14.658220Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.753361,
-          "ended_at": "2026-07-31T00:29:20.124962Z",
+          "duration_s": 2.28653,
+          "ended_at": "2026-07-31T01:38:14.588398Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:19.371601Z"
+          "started_at": "2026-07-31T01:38:12.301868Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.696119,
-          "ended_at": "2026-07-31T00:29:19.301679Z",
+          "duration_s": 1.755801,
+          "ended_at": "2026-07-31T01:38:12.232168Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:18.605560Z"
+          "started_at": "2026-07-31T01:38:10.476367Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.844326,
-          "ended_at": "2026-07-31T00:29:18.452583Z",
+          "duration_s": 2.241096,
+          "ended_at": "2026-07-31T01:38:10.333668Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:17.608257Z"
+          "started_at": "2026-07-31T01:38:08.092572Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.790036,
-          "ended_at": "2026-07-31T00:29:17.538689Z",
+          "duration_s": 1.913743,
+          "ended_at": "2026-07-31T01:38:08.022512Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:16.748653Z"
+          "started_at": "2026-07-31T01:38:06.108769Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.892117,
-          "ended_at": "2026-07-31T00:29:16.676920Z",
+          "duration_s": 1.023729,
+          "ended_at": "2026-07-31T01:38:06.039307Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:15.784803Z"
+          "started_at": "2026-07-31T01:38:05.015578Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 7.409915,
-          "ended_at": "2026-07-31T00:29:15.691250Z",
+          "duration_s": 7.045684,
+          "ended_at": "2026-07-31T01:38:04.939596Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-07-31T00:29:08.281335Z"
+          "started_at": "2026-07-31T01:37:57.893912Z"
         }
       ],
       "paper_status": null,
@@ -155176,6 +155176,126 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 2.938765,
+      "ended_at": "2026-07-31T01:38:28.338562Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:38:25.399797Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.951621,
+      "ended_at": "2026-07-31T01:38:25.330512Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:38:23.378891Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.276609,
+      "ended_at": "2026-07-31T01:38:23.308496Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:38:22.031887Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.303005,
+      "ended_at": "2026-07-31T01:38:21.961225Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:38:14.658220Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.28653,
+      "ended_at": "2026-07-31T01:38:14.588398Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:38:12.301868Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.755801,
+      "ended_at": "2026-07-31T01:38:12.232168Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:38:10.476367Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.241096,
+      "ended_at": "2026-07-31T01:38:10.333668Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:38:08.092572Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.913743,
+      "ended_at": "2026-07-31T01:38:08.022512Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:38:06.108769Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.023729,
+      "ended_at": "2026-07-31T01:38:06.039307Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:38:05.015578Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.045684,
+      "ended_at": "2026-07-31T01:38:04.939596Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T01:37:57.893912Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 300.5434,
       "ended_at": "2026-07-31T01:11:11.252035Z",
       "failure_reason": "",
@@ -161053,126 +161173,6 @@
       "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-07-30T18:55:54.985450Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.539374,
-      "ended_at": "2026-07-30T18:55:54.983211Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-071-exploring-the-correlation-between-molecu",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:55:51.443837Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 29.709762,
-      "ended_at": "2026-07-30T18:55:51.441614Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-071-exploring-the-correlation-between-molecu",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:55:21.731852Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 73.72524,
-      "ended_at": "2026-07-30T18:55:21.729610Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-071-exploring-the-correlation-between-molecu",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:54:08.004370Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.455729,
-      "ended_at": "2026-07-30T18:54:08.002108Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-071-exploring-the-correlation-between-molecu",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:54:03.546379Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 59.084823,
-      "ended_at": "2026-07-30T18:54:03.544048Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-071-exploring-the-correlation-between-molecu",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:53:04.459225Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 76.822012,
-      "ended_at": "2026-07-30T18:53:12.182432Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-283-statistical-analysis-of-publicly-availab",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:51:55.360420Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.142521,
-      "ended_at": "2026-07-30T18:53:04.457090Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-071-exploring-the-correlation-between-molecu",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:53:00.314569Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 74.775662,
-      "ended_at": "2026-07-30T18:53:00.312492Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-071-exploring-the-correlation-between-molecu",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:51:45.536830Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.923221,
-      "ended_at": "2026-07-30T18:51:55.357543Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-283-statistical-analysis-of-publicly-availab",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:51:52.434322Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 32.604109,
-      "ended_at": "2026-07-30T18:51:52.431458Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-283-statistical-analysis-of-publicly-availab",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-07-30T18:51:19.827349Z"
     }
   ],
   "reviewed_preprints": [
