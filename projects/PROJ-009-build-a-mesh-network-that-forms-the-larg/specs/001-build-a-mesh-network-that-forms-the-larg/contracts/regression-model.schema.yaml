@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModel Schema"
+description: "Schema for statistical regression model output"
+type: object
+properties:
+  coefficients:
+    type: object
+    description: "Model coefficients (key: variable name, value: coefficient)"
+    additionalProperties:
+      type: number
+  p_values:
+    type: object
+    description: "P-values for each coefficient"
+    additionalProperties:
+      type: number
+  r_squared:
+    type: number
+    description: "Coefficient of determination"
+  residuals:
+    type: array
+    description: "List of residual errors"
+    items:
+      type: number
+  theoretical_bound_deviation:
+    type: number
+    description: "Ratio of empirical throughput to theoretical bound"
+required:
+  - coefficients
+  - p_values
+  - r_squared
+  - residuals
+  - theoretical_bound_deviation
+additionalProperties: false

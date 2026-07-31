@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PhysicalNode Schema"
+description: "Schema for physical node metadata and baseline/runtime metrics"
+type: object
+properties:
+  ip_address:
+    type: string
+    format: ipv4
+    description: "Unique IP address of the node"
+  hardware_spec:
+    type: string
+    description: "CPU model and RAM capacity"
+  baseline_bandwidth_Mbps:
+    type: number
+    description: "Baseline network bandwidth measured before load (Mbps)"
+  baseline_snr_db:
+    type: number
+    description: "Baseline signal-to-noise ratio measured before load (dB)"
+  current_latency:
+    type: number
+    description: "Measured network latency in milliseconds"
+  packet_loss_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Packet loss rate as a fraction (0.0 to 1.0)"
+  cpu_utilization:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "CPU utilization percentage"
+required:
+  - ip_address
+  - hardware_spec
+  - baseline_bandwidth_Mbps
+  - baseline_snr_db
+  - current_latency
+  - packet_loss_rate
+  - cpu_utilization
+additionalProperties: false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1004.3566",
+  "judged_at": "2026-07-31T13:42:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mesh network supercomputer using pooled idle computing resources computer science",
+  "rationale": "This paper satisfies criterion (b) by addressing the core domain of pooling idle computing resources (Grid Computing) and the specific mechanism of resource management and scheduling, which are fundamental to the user's question about building a supercomputer from such resources, even though it focuses on economic optimization rather than the specific \"mesh network\" topology.",
+  "relevant": true
+}

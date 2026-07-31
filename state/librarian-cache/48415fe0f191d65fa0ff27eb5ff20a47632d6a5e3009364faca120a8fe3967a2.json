@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-09T18:48:35Z",
+  "fetched_at": "2026-07-31T13:42:01Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,104 @@
       "idea_body_excerpt": "Mesh Network Supercomputer Using Pooled Idle Computing Resources",
       "target_n": 5
     },
-    "duration_seconds": 44.811,
-    "ended_at": "2026-07-09T18:48:35Z",
-    "expansion": null,
+    "duration_seconds": 38.834,
+    "ended_at": "2026-07-31T13:42:01Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Volatile grid computing architectures"
+        ],
+        [
+          2,
+          "Peer-to-peer distributed supercomputing"
+        ],
+        [
+          3,
+          "Idle resource aggregation for high-performance computing"
+        ],
+        [
+          4,
+          "Decentralized cluster computing using mesh topology"
+        ],
+        [
+          5,
+          "Opportunistic computing resource pooling"
+        ],
+        [
+          6,
+          "Volunteer computing networks with mesh protocols"
+        ],
+        [
+          7,
+          "Dynamic resource scheduling in ad-hoc computing grids"
+        ],
+        [
+          8,
+          "Heterogeneous idle CPU/GPU utilization for parallel processing"
+        ],
+        [
+          9,
+          "Self-organizing supercomputing topologies"
+        ],
+        [
+          10,
+          "Distributed hash table based resource discovery for compute grids"
+        ],
+        [
+          11,
+          "Fault-tolerant mesh network computation"
+        ],
+        [
+          12,
+          "Edge computing resource pooling for scientific workloads"
+        ],
+        [
+          13,
+          "Decentralized cloud bursting using local idle nodes"
+        ],
+        [
+          14,
+          "Asynchronous task distribution in peer-to-peer networks"
+        ],
+        [
+          15,
+          "Low-latency inter-node communication in distributed clusters"
+        ],
+        [
+          16,
+          "Social computing resource sharing for large-scale simulation"
+        ],
+        [
+          17,
+          "Dynamic mesh formation for on-demand supercomputing"
+        ],
+        [
+          18,
+          "Energy-efficient distributed computing via idle resource harvesting"
+        ],
+        [
+          19,
+          "Overlay network protocols for compute grid management"
+        ],
+        [
+          20,
+          "Scalable consensus mechanisms for resource allocation in mesh grids"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Mesh Network Supercomputer Using Pooled Idle Computing Resources computer science": 0,
+        "Volatile grid computing architectures": 3
+      },
+      "total_queries_issued": 1
+    },
     "extracted_queries": [
-      "volunteer computing grid middleware",
-      "BOINC distributed resource pooling",
-      "edge computing fog orchestration",
-      "latency tolerance job scheduling",
-      "distributed consensus idle resource aggregation"
+      "volunteer computing distributed task scheduling",
+      "BOINC grid computing idle cycles",
+      "decentralized cloud resource pooling",
+      "latency fault tolerance mesh topology",
+      "aggregate throughput heterogeneity scaling"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -26,30 +115,36 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success",
+    "outcome": "exhausted",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "q-bio/0611054"
+        "1004.3566"
       ]
     },
     "per_query_hit_count": {
-      "BOINC distributed resource pooling": 3,
+      "BOINC grid computing idle cycles": 3,
       "Mesh Network Supercomputer Using Pooled Idle Computing Resources computer science": 3,
-      "distributed consensus idle resource aggregation": 3,
-      "edge computing fog orchestration": 3,
-      "latency tolerance job scheduling": 3,
-      "volunteer computing grid middleware": 3
+      "aggregate throughput heterogeneity scaling": 3,
+      "decentralized cloud resource pooling": 3,
+      "latency fault tolerance mesh topology": 3,
+      "volunteer computing distributed task scheduling": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 0,
-      "rejections": []
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "0901.0131",
+          "rationale": "The paper focuses on comparing Cloud and Grid computing paradigms generally, which is an off-domain distinction from the user's specific question about \"Mesh Network\" architectures for pooling idle resources. While it mentions \"distributed systems,\" it does not address the specific mechanism of mesh networking or the aggregation of idle resources in the way the user's question implies, failing to meet the criteria for same-mechanism evidence or domain overlap.",
+          "title": "Cloud Computing and Grid Computing 360-Degree Compared"
+        }
+      ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-09T18:47:50Z",
+    "started_at": "2026-07-31T13:41:22Z",
     "term_input": {
       "normalized": "mesh network supercomputer using pooled idle computing resources computer science",
       "raw": "Mesh Network Supercomputer Using Pooled Idle Computing Resources computer science"
@@ -70,225 +165,260 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-09T18:48:21Z",
+        "failed_at": "2026-07-31T13:41:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Grid computing has made substantial advances during the last decade. Grid middleware such as Globus has contributed greatly in making this possible. There are, however, significant barriers to the adoption of Grid computing in other fields, most notably day-to-day user computing environments. We will demonstrate in this paper that this is primarily due to the limitations of the existing Grid middleware which does not take into account the needs of everyday scientific and business users. In this paper we will formally advocate a Grid Operating System and propose an architecture to migrate Grid computing into a Grid operating system which we believe would help remove most of the technical barriers to the adoption of Grid computing and make it relevant to the day-to-day user. We believe this proposed transition to a Grid operating system will drive more pervasive Grid computing research and application development and deployment in future.",
+          "claimed_abstract": "The paper concerns the hype idea of \"Citizen Science\" and the related paradigm shift: to go from the passive \"volunteer computing\" to other volunteer actions like \"volunteer measurements\" under guidance of scientists. They can be carried out by ordinary people with standard computing gadgets (smartphone, tablet, etc.) and the various standard sensors in them. Here the special attention is paid to the system of volunteer scientific measurements to study air showers caused by cosmic rays. The technical implementation is based on integration of data about registered night flashes (by radiometric software) in shielded camera chip, synchronized time and GPS-data in ordinary gadgets: to identify night \"air showers\" of elementary particles; to analyze the frequency and to map the distribution of \"air showers\" in the densely populated cities. The project currently includes the students of the National Technical University of Ukraine \"KPI\", which are compactly located in Kyiv city and contribute their volunteer measurements. The technology would be very effective for other applications also, especially if it will be automated (e.g., on the basis of XtremWeb or/and BOINC technologies for distributed computing) and used in some small area with many volunteers, e.g. in local communities (Corporative/Community Crowd Computing).",
           "claimed_authors": [
-            "Arshad Ali",
-            "Richard McClatchey",
-            "Ashiq Anjum",
-            "Irfan Habib",
-            "Kamran Soomro",
-            "Mohammed Asif",
-            "Ali Adil",
-            "Athar Mohsin"
+            "Nikita Gordienko",
+            "Oleg Lodygensky",
+            "Gilles Fedak",
+            "Yuri Gordienko"
           ],
-          "claimed_title": "From Grid Middleware to a Grid Operating System",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2006,
-          "primary_pointer": "cs/0608046"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='From Grid Middleware to a Grid Operating System')",
-        "failed_at": "2026-07-09T18:48:21Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Middleware technologies is a very big field, containing a strong already done research as well as the currently running research to confirm already done research's results and the to have some new solution by theoretical as well as the experimental (practical) way. This document has been produced by Zeeshan Ahmed (Student: Connectivity Software Technologies Blekinge Institute of Technologies). This describes the research already done in the field of middleware technologies including Web Services, Grid Computing, Grid Services and Open Grid Service Infrastructure & Architecture. This document concludes with the overview of Web (Grid) Service, Chain of Web (Grid) Services and the necessary security issue.",
-          "claimed_authors": [
-            "Zeeshan Ahmed"
-          ],
-          "claimed_title": "A Middleware road towards Web (Grid) Services",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1009.4048"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='A Middleware road towards Web (Grid) Services')",
-        "failed_at": "2026-07-09T18:48:22Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In the framework of convolutional neural networks, downsampling is often performed with an average-pooling, where all the activations are treated equally, or with a max-pooling operation that only retains an element with maximum activation while discarding the others. Both of these operations are restrictive and have previously been shown to be sub-optimal. To address this issue, a novel pooling scheme, named\\emph{ ordinal pooling}, is introduced in this work. Ordinal pooling rearranges all the elements of a pooling region in a sequence and assigns a different weight to each element based upon its order in the sequence. These weights are used to compute the pooling operation as a weighted sum of the rearranged elements of the pooling region. They are learned via a standard gradient-based training, allowing to learn a behavior anywhere in the spectrum of average-pooling to max-pooling in a differentiable manner. Our experiments suggest that it is advantageous for the networks to perform different types of pooling operations within a pooling layer and that a hybrid behavior between average- and max-pooling is often beneficial. More importantly, they also demonstrate that ordinal pooling leads to consistent improvements in the accuracy over average- or max-pooling operations while speeding up the training and alleviating the issue of the choice of the pooling operations and activation functions to be used in the networks. In particular, ordinal pooling mainly helps on lightweight or quantized deep learning architectures, as typically considered e.g. for embedded applications.",
-          "claimed_authors": [
-            "Adrien Deliège",
-            "Maxime Istasse",
-            "Ashwani Kumar",
-            "Christophe De Vleeschouwer",
-            "Marc Van Droogenbroeck"
-          ],
-          "claimed_title": "Ordinal Pooling",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2109.01561"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Ordinal Pooling')",
-        "failed_at": "2026-07-09T18:48:22Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper proposes a simple and scalable web-based model for grid resource discovery for the Internet. The resource discovery model contains the metadata and resource finder web services. The information of resource finder web services is kept in the repositories that are distributed in the application layer of Internet. The resource finder web services will be discovered by sending queries to the repositories in a similar way as the DNS protocol. The underlying technology for implementation of the two architectures of this model is introduced. These architectures are: Direct and Centralized Web-Based Grid Resource Discovery. The resource discovery time is computed after simulating each of these models in GridSim. By performing scalability tests, we found that when increasing the load on the grid with more users and resources, the cost of our model in comparison to the grid resource discovery time is marginal.",
-          "claimed_authors": [
-            "Fouad Butt",
-            "Syed Saadat Bokhari",
-            "Abdolreza Abhari",
-            "Alexander Ferworn"
-          ],
-          "claimed_title": "Scalable Grid Resource Discovery through Distributed Search",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1110.1685"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Scalable Grid Resource Discovery through Distributed Search')",
-        "failed_at": "2026-07-09T18:48:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Network slicing allows network operators to build multiple isolated virtual networks on a shared physical network to accommodate a wide variety of services and applications. With network slicing, service providers can provide a cost-efficient solution towards meeting diverse performance requirements of deployed applications and services. Despite slicing benefits, End-to-End orchestration and management of network slices is a challenging and complicated task. In this chapter, we intend to survey all the relevant aspects of network slicing, with the focus on networking technologies such as Software-defined networking (SDN) and Network Function Virtualization (NFV) in 5G, Fog/Edge and Cloud Computing platforms. To build the required background, this chapter begins with a brief overview of 5G, Fog/Edge and Cloud computing, and their interplay. Then we cover the 5G vision for network slicing and extend it to the Fog and Cloud computing through surveying the state-of-the-art slicing approaches in these platforms. We conclude the chapter by discussing future directions, analyzing gaps and trends towards the network slicing realization.",
-          "claimed_authors": [
-            "Adel Nadjaran Toosi",
-            "Redowan Mahmud",
-            "Qinghua Chi",
-            "Rajkumar Buyya"
-          ],
-          "claimed_title": "Management and Orchestration of Network Slices in 5G, Fog, Edge and Clouds",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1812.00593"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Management and Orchestration of Network Slices in 5G, Fog, Edge and Clouds')",
-        "failed_at": "2026-07-09T18:48:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Despite constant improvements in efficiency, today's data centers and networks consume enormous amounts of energy and this demand is expected to rise even further. An important research question is whether and how fog computing can curb this trend. As real-life deployments of fog infrastructure are still rare, a significant part of research relies on simulations. However, existing power models usually only target particular components such as compute nodes or battery-constrained edge devices.\n  Combining analytical and discrete-event modeling, we develop a holistic but granular energy consumption model that can determine the power usage of compute nodes as well as network traffic and applications over time. Simulations can incorporate thousands of devices that execute complex application graphs on a distributed, heterogeneous, and resource-constrained infrastructure. We evaluated our publicly available prototype LEAF within a smart city traffic scenario, demonstrating that it enables research on energy-conserving fog computing architectures and can be used to assess dynamic task placement strategies and other energy-saving mechanisms.",
-          "claimed_authors": [
-            "Philipp Wiesner",
-            "Lauritz Thamsen"
-          ],
-          "claimed_title": "LEAF: Simulating Large Energy-Aware Fog Computing Environments",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2103.01170"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='LEAF: Simulating Large Energy-Aware Fog Computing Environments')",
-        "failed_at": "2026-07-09T18:48:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The ever-increasing gap between compute and I/O performance in HPC platforms, together with the development of novel NVMe storage devices (NVRAM), led to the emergence of the burst buffer concept - an intermediate persistent storage layer logically positioned between random-access main memory and a parallel file system. Since the appearance of this technology, numerous supercomputers have been equipped with burst buffers exploring various architectures. Despite the development of real-world architectures as well as research concepts, Resource and Job Management Systems, such as Slurm, provide only marginal support for scheduling jobs with burst buffer requirements. This research is primarily motivated by the alerting observation that burst buffers are omitted from reservations in the procedure of backfilling in existing job schedulers. In this dissertation, we forge a detailed supercomputer simulator based on Batsim and SimGrid, which is capable of simulating I/O contention and I/O congestion effects. Due to the lack of publicly available workloads with burst buffer requests, we create a burst buffer request distribution model derived from Parallel Workload Archive logs. We investigate the impact of burst buffer reservations on the overall efficiency of online job scheduling for canonical algorithms: First-Come-First-Served (FCFS) and Shortest-Job-First (SJF) EASY-backfilling. Our results indicate that the lack of burst buffer reservations in backfilling may significantly deteriorate the performance of scheduling. [...] Furthermore, this lack of reservations may cause the starvation of medium-size and wide jobs. Finally, we propose a burst-buffer-aware plan-based scheduling algorithm with simulated annealing optimisation, which improves the mean waiting time by over 20% and mean bounded slowdown by 27% compared to the SJF EASY-backfilling.",
-          "claimed_authors": [
-            "Jan Kopanski"
-          ],
-          "claimed_title": "Optimisation of job scheduling for supercomputers with burst buffers",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2111.10200"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Optimisation of job scheduling for supercomputers with burst buffers')",
-        "failed_at": "2026-07-09T18:48:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The Job Shop Schedule Problem (JSSP) refers to the ability of an agent to allocate tasks that should be executed in a specified time in a machine from a cluster. The task allocation can be achieved from several methods, however, this report it is explored the ability of the Ant Colony Optimization to generate feasible solutions for several JSSP instances. This proposal models the JSSP as a complete graph since disjunct models can prevent the ACO from exploring all the search space. Several instances of the JSSP were used to evaluate the proposal. Results suggest that the algorithm can reach optimum solutions for easy and harder instances with a selection of parameters.",
-          "claimed_authors": [
-            "Alysson Ribeiro da Silva"
-          ],
-          "claimed_title": "Solving the Job Shop Scheduling Problem with Ant Colony Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2209.05284"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Solving the Job Shop Scheduling Problem with Ant Colony Optimization')",
-        "failed_at": "2026-07-09T18:48:23Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We study the problem of non-preemptively scheduling $n$ jobs, each job $j$ with a release time $t_j$, a deadline $d_j$, and a processing time $p_j$, on $m$ parallel identical machines. Cieliebak et al. (2004) considered the two constraints $|d_j-t_j|\\leq λp_j$ and $|d_j-t_j|\\leq p_j +σ$ and showed the problem to be NP-hard for any $λ>1$ and for any $σ\\geq 2$. We complement their results by parameterized complexity studies: we show that, for any $λ>1$, the problem remains weakly NP-hard even for $m=2$ and strongly W[1]-hard parameterized by $m$. We present a pseudo-polynomial-time algorithm for constant $m$ and $λ$ and a fixed-parameter tractability result for the parameter $m$ combined with $σ$.",
-          "claimed_authors": [
-            "René van Bevern",
-            "Rolf Niedermeier",
-            "Ondřej Suchý"
-          ],
-          "claimed_title": "A parameterized complexity view on non-preemptively scheduling interval-constrained jobs: few machines, small looseness, and small slack",
+          "claimed_title": "Synergy of Volunteer Measurements and Volunteer Computing for Effective Data Collecting, Processing, Simulating and Analyzing on a Worldwide Scale",
           "claimed_venue": "arXiv",
           "claimed_year": 2015,
-          "primary_pointer": "1508.01657"
+          "primary_pointer": "1504.00806"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='A parameterized complexity view on non-preemptively scheduling interval-constrained jobs: few machines, small looseness, and small slack')",
-        "failed_at": "2026-07-09T18:48:23Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Synergy of Volunteer Measurements and Volunteer Computing for Effective Data Collecting, Processing, Simulating and Analyzing on a Worldwide Scale')",
+        "failed_at": "2026-07-31T13:41:50Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this paper, we address the average consensus problem of multi-agent systems over wireless networks. We propose a distributed average consensus algorithm by invoking the concept of over-the-air aggregation, which exploits the signal superposition property of wireless multiple-access channels. The proposed algorithm deploys a modified version of the well-known Ratio Consensus algorithm with an additional normalization step for compensating for the arbitrary channel coefficients. We show that, when the noise level at the receivers is negligible, the algorithm converges asymptotically to the average for time-invariant and time-varying channels. Numerical simulations corroborate the validity of our results.",
+          "claimed_abstract": "Volunteer computing is an Internet-based distributed computing system in which volunteers share their extra available resources to manage large-scale tasks. However, computing devices in a Volunteer Computing System (VCS) are highly dynamic and heterogeneous in terms of their processing power, monetary cost, and data transferring latency. To ensure both the high Quality of Service (QoS) and low cost for different requests, all of the available computing resources must be used efficiently. Task scheduling is an NP-hard problem that is considered one of the main critical challenges in a heterogeneous VCS. Due to this, in this paper, we design two task scheduling algorithms for VCSs, named Min-CCV and Min-V. The main goal of the proposed algorithms is jointly minimizing the computation, communication and delay violation cost for the Internet of Things (IoT) requests. Our extensive simulation results show that proposed algorithms are able to allocate tasks to volunteer fog/cloud resources more efficiently than the state-of-the-art. Specifically, our algorithms improve the deadline satisfaction task rates by around 99.5% and decrease the total cost between 15 to 53% in comparison with the genetic-based algorithm.",
           "claimed_authors": [
-            "Themistoklis Charalambous",
-            "Zheng Chen",
-            "Christoforos N. Hadjicostis"
+            "Farooq Hoseiny",
+            "Sadoon Azizi",
+            "Mohammad Shojafar",
+            "Rahim Tafazolli"
           ],
-          "claimed_title": "Distributed Average Consensus in Wireless Multi-Agent Systems with Over-the-Air Aggregation",
+          "claimed_title": "Joint QoS-aware and Cost-efficient Task Scheduling for Fog-Cloud Resources in a Volunteer Computing System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.13974"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Joint QoS-aware and Cost-efficient Task Scheduling for Fog-Cloud Resources in a Volunteer Computing System')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Emerging distributed computing paradigms, such as the computing continuum, are inherently heterogeneous, stochastic, and complex. Efficiently and effectively utilizing all available resources across the continuum demands a unified formal model of the system. To address this gap, we propose a general framework for modeling distributed computing systems as a generative Markov model, factorized over a structured system state. In our model, the state decomposes into high-dimensional variables, each further factorized over its elements, reflecting the sparse dependency structure inherent to distributed systems. This yields a tractable model enabling simulation, inference, and policy learning over otherwise intractable system states, bridging distributed computing with Markov chain theory and reinforcement learning (RL). We demonstrate our framework through a case study of collaborative AI inference, in which a dedicated server combines resources with those volunteered by service users. Our results show that centralized scheduling becomes a bottleneck at scale, while distributing computation across user devices reduces both latency and server resource consumption. These findings highlight the value of adaptive decision-making in distributed computing systems and demonstrate the framework's utility for modeling, simulation, and optimization.",
+          "claimed_authors": [
+            "Alfreds Lapkovskis",
+            "Ali Beikmohammadi",
+            "Sindri Magnússon",
+            "Praveen Kumar Donta"
+          ],
+          "claimed_title": "Brief Announcement: Generative Markov Model for Distributed Computing Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.03061"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Brief Announcement: Generative Markov Model for Distributed Computing Systems')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cloud Computing has become another buzzword after Web 2.0. However, there are dozens of different definitions for Cloud Computing and there seems to be no consensus on what a Cloud is. On the other hand, Cloud Computing is not a completely new concept; it has intricate connection to the relatively new but thirteen-year established Grid Computing paradigm, and other relevant technologies such as utility computing, cluster computing, and distributed systems in general. This paper strives to compare and contrast Cloud Computing with Grid Computing from various angles and give insights into the essential characteristics of both.",
+          "claimed_authors": [
+            "Ian Foster",
+            "Yong Zhao",
+            "Ioan Raicu",
+            "Shiyong Lu"
+          ],
+          "claimed_title": "Cloud Computing and Grid Computing 360-Degree Compared",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0901.0131"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Cloud Computing and Grid Computing 360-Degree Compared')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this introductory chapter, we lay the groundwork for the rest of the book by providing a more detailed picture of the expected purpose, shape, and architecture of future grid systems. We structure the chapter in terms of six questions that we believe are central to this discussion: Why do we need computational grids? What types of applications will grids be used for? Who will use grids? How will grids be used? What is involved in building a grid? And, what problems must be solved to make grids commonplace? We provide an overview of each of these issues here, referring to subsequent chapters for more detailed discussion.",
+          "claimed_authors": [
+            "Ian Foster",
+            "Carl Kesselman"
+          ],
+          "claimed_title": "Computational Grids",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2507.22648"
+          "primary_pointer": "2501.01316"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Distributed Average Consensus in Wireless Multi-Agent Systems with Over-the-Air Aggregation')",
-        "failed_at": "2026-07-09T18:48:23Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Computational Grids')",
+        "failed_at": "2026-07-31T13:41:50Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Low latency is highly desirable for cloud services. To achieve low response time, stringent timing requirements are needed for task scheduling in a large-scale server farm spanning thousands of servers. In this paper, we conduct an in-depth analysis for distributed Join-the-Idle-Queue (JIQ), a promising new approximation of an idealized task-scheduling algorithm. In particular, we derive semi-closed form expressions for the delay performance of distributed JIQ, and we propose a new variant of distributed JIQ that offers clear advantages over alternative algorithms for large systems.",
+          "claimed_abstract": "Recent satellite data have revealed a surprising correlation between galactic cosmic ray (GCR) intensity and the fraction of the Earth covered by clouds. If this correlation were to be established by a causal mechanism, it could provide a crucial step in understanding the long-sought mechanism connecting solar and climate variability. The Earth's climate seems to be remarkably sensitive to solar activity, but variations of the Sun's electromagnetic radiation appear to be too small to account for the observed climate variability. However, since the GCR intensity is strongly modulated by the solar wind, a GCR-cloud link may provide a sufficient amplifying mechanism. Moreover if this connection were to be confirmed, it could have profound consequences for our understanding of the solar contributions to the current global warming. The CLOUD (Cosmics Leaving OUtdoor Droplets) project proposes to test experimentally the existence a link between cosmic rays and cloud formation, and to understand the microphysical mechanism. CLOUD plans to perform detailed laboratory measurements in a particle beam at CERN, where all the parameters can be precisely controlled and measured. The beam will pass through an expansion cloud chamber and a reactor chamber where the atmosphere is to be duplicated by moist air charged with selected aerosols and trace condensable vapours. An array of external detectors and mass spectrometers is used to analyse the physical and chemical characteristics of the aerosols and trace gases during beam exposure. Where beam effects are found, the experiment will seek to evaluate their significance in the atmosphere by incorporating them into aerosol and cloud models.",
           "claimed_authors": [
-            "Chunpu Wang",
-            "Chen Feng",
-            "Julian Cheng"
+            " The Cloud Collaboration"
           ],
-          "claimed_title": "Distributed Join-the-Idle-Queue for Low Latency Cloud Services",
+          "claimed_title": "A study of the link between cosmic rays and clouds with a cloud chamber at the CERN PS",
           "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1709.10119"
+          "claimed_year": 2001,
+          "primary_pointer": "physics/0104048"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Distributed Join-the-Idle-Queue for Low Latency Cloud Services')",
-        "failed_at": "2026-07-09T18:48:23Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='A study of the link between cosmic rays and clouds with a cloud chamber at the CERN PS')",
+        "failed_at": "2026-07-31T13:41:50Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present a distributed average consensus protocol that preserves the privacy of agents' inputs. Unlike the differential privacy mechanisms, the presented protocol does not affect the accuracy of the output. It is shown that the protocol preserves the information-theoretic privacy of the agents' inputs against colluding passive adversarial (or honest-but-curious) agents in the network, if the adversarial agents do not constitute a vertex cut in the underlying communication network. This implies that we can guarantee information-theoretic privacy of all the honest agents' inputs against $t$ arbitrary colluding passive adversarial agents if the network is $(t+1)$-connected. The protocol is constructed by composing a distributed privacy mechanism that we propose with any (non-private) distributed average consensus algorithm.",
+          "claimed_abstract": "This report is the second of two addenda to the CLOUD proposal at CERN (physics/0104048), which aims to test experimentally the existence a link between cosmic rays and cloud formation, and to understand the microphysical mechanism. The document places CLOUD in the framework of a CERN facility for atmospheric research, and provides further details on the particle beam requirements.",
           "claimed_authors": [
-            "Nirupam Gupta",
-            "Jonathan Katz",
-            "Nikhil Chopra"
+            " The Cloud Collaboration"
           ],
-          "claimed_title": "Information-Theoretic Privacy in Distributed Average Consensus",
+          "claimed_title": "CLOUD: an atmospheric research facility at CERN",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "physics/0104076"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='CLOUD: an atmospheric research facility at CERN')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This report is the first of two addenda to the CLOUD proposal at CERN (physics/0104048), which aims to test experimentally the existence a link between cosmic rays and cloud formation, and to understand the microphysical mechanism. The document provides further details on the detector design, scientific motivation and experimental programme.",
+          "claimed_authors": [
+            " The Cloud Collaboration"
+          ],
+          "claimed_title": "Addendum to the CLOUD proposal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "physics/0104068"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Addendum to the CLOUD proposal')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In dynamic systems that adapt to users' needs and changing environments, dependability needs cannot be avoided. This paper proposes an orthogonal fault tolerance model as a means to manage and reason about multiple fault tolerance mechanisms that co-exist in dynamically adaptive systems. One of the key challenges associated with dynamically evolving fault tolerance needs is the feature interaction problem arising from the integration of fault tolerance features. The proposed approach provides a separation of fault tolerance concerns to study the effects of integrated fault tolerance on the system. This approach uses state machine and operational semantics to reason about these interactions and inconsistencies. The proposed approach is supported by the tool NuSMV to simulate and verify the state machines against logic statements.",
+          "claimed_authors": [
+            "Sobia K Khan"
+          ],
+          "claimed_title": "Orthogonal Fault Tolerance for Dynamically Adaptive Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.6830"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Orthogonal Fault Tolerance for Dynamically Adaptive Systems')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Among those faults Byzantine faults offers serious challenge to fault tolerance mechanism, because it often go undetected at the initial stage and it can easily propagate to other VMs before a detection is made. Consequently some of the mission critical application such as air traffic control, online baking etc still staying away from the cloud for such reasons. However if a Byzantine faults is not detected and tolerated at initial stage then applications such as big data analytics can go completely wrong in spite of hours of computations performed by the entire cloud. Therefore in the previous work a fool-proof Byzantine fault detection has been proposed, as a continuation this work designs a scheduling algorithm (WSSS) and checkpoint optimization algorithm (TCC) to tolerate and eliminate the Byzantine faults before it makes any impact. The WSSS algorithm keeps track of server performance which is part of Virtual Clusters to help allocate best performing server to mission critical application. WSSS therefore ranks the servers based on a counter which monitors every Virtual Nodes (VN) for time and performance failures. The TCC algorithm works to generalize the possible Byzantine error prone region through monitoring delay variation to start new VNs with previous checkpointing. Moreover it can stretch the state interval for performing and error free VNs in an effect to minimize the space, time and cost overheads caused by checkpointing. The analysis is performed with plotting state transition and CloudSim based simulation. The result shows TCC reduces fault tolerance overhead exponentially and the WSSS allots virtual resources effectively",
+          "claimed_authors": [
+            "Sathya Chinnathambi",
+            "Agilan Santhanam"
+          ],
+          "claimed_title": "Scheduling and Checkpointing optimization algorithm for Byzantine fault tolerance in Cloud Clusters",
           "claimed_venue": "arXiv",
           "claimed_year": 2018,
-          "primary_pointer": "1809.01794"
+          "primary_pointer": "1802.00951"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Information-Theoretic Privacy in Distributed Average Consensus')",
-        "failed_at": "2026-07-09T18:48:23Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Scheduling and Checkpointing optimization algorithm for Byzantine fault tolerance in Cloud Clusters')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fast, reliable logical operations are essential for realizing useful quantum computers. By redundantly encoding logical qubits into many physical qubits and using syndrome measurements to detect and correct errors, one can achieve low logical error rates. However, for many practical quantum error correcting (QEC) codes such as the surface code, due to syndrome measurement errors, standard constructions require multiple extraction rounds -- on the order of the code distance $d$ -- for fault-tolerant computation, particularly considering fault-tolerant state preparation. Here, we show that logical operations can be performed fault-tolerantly with only a constant number of extraction rounds for a broad class of QEC codes, including the surface code with magic state inputs and feed-forward, to achieve ``transversal algorithmic fault tolerance\". Through the combination of transversal operations and novel strategies for correlated decoding, despite only having access to partial syndrome information, we prove that the deviation from the ideal logical measurement distribution can be made exponentially small in the distance, even if the instantaneous quantum state cannot be made close to a logical codeword due to measurement errors. We supplement this proof with circuit-level simulations in a range of relevant settings, demonstrating the fault tolerance and competitive performance of our approach. Our work sheds new light on the theory of quantum fault tolerance and has the potential to reduce the space-time cost of practical fault-tolerant quantum computation by over an order of magnitude.",
+          "claimed_authors": [
+            "Hengyun Zhou",
+            "Chen Zhao",
+            "Madelyn Cain",
+            "Dolev Bluvstein",
+            "Nishad Maskara",
+            "Casey Duckering",
+            "Hong-Ye Hu",
+            "Sheng-Tao Wang",
+            "Aleksander Kubica",
+            "Mikhail D. Lukin"
+          ],
+          "claimed_title": "Low-Overhead Transversal Fault Tolerance for Universal Quantum Computation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.17653"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Low-Overhead Transversal Fault Tolerance for Universal Quantum Computation')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A robotic swarm may encounter traffic congestion when many robots simultaneously attempt to reach the same area. For solving that efficiently, robots must execute decentralised traffic control algorithms. In this work, we propose a measure for evaluating the access efficiency of a common target area as the number of robots in the swarm rises: the common target area throughput. We also employ here the target area asymptotic throughput -- that is, the throughput of a target region with a limited area as the time tends to infinity -- because it is always finite as the number of robots grows, opposed to the relation arrival time at the target per number of robots that tends to infinity. Using this measure, we can analytically compare the effectiveness of different algorithms. In particular, we propose and formally evaluate three different theoretical strategies for getting to a circular target area: (i) forming parallel queues towards the target area, (ii) forming a hexagonal packing through a corridor going to the target, and (iii) making multiple curved trajectories towards the boundary of the target area. We calculate the throughput for a fixed time and the asymptotic throughput for these strategies. Additionally, we corroborate these results by simulations, showing that when a strategy has higher throughput, its arrival time per number of robots is lower. Thus, we conclude that using throughput is well suited for comparing congestion algorithms for a common target area in robotic swarms even if we do not have their closed asymptotic equation.",
+          "claimed_authors": [
+            "Yuri Tavares dos Passos",
+            "Xavier Duquesne",
+            "Leandro Soriano Marcolino"
+          ],
+          "claimed_title": "On the throughput of the common target area for robotic swarm strategies -- extended version",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.09335"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='On the throughput of the common target area for robotic swarm strategies -- extended version')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wireless information-centric networks consider storage as one of the network primitives, and propose to cache data within the network in order to improve latency and reduce bandwidth consumption. We study the throughput capacity and delay in an information-centric network when the data cached in each node has a limited lifetime. The results show that with some fixed request and cache expiration rates, the order of the data access time does not change with network growth, and the maximum throughput order is inversely proportional to the square root and logarithm of the network size $n$ in cases of grid and random networks, respectively. Comparing these values with the corresponding throughput and latency with no cache capability (throughput inversely proportional to the network size, and latency of order $\\sqrt{n}$ and $\\sqrt{\\frac{n}{\\log n}}$ in grid and random networks, respectively), we can actually quantify the asymptotic advantage of caching. Moreover, we compare these scaling laws for different content discovery mechanisms and illustrate that not much gain is lost when a simple path search is used.",
+          "claimed_authors": [
+            "Bita Azimdoost",
+            "Cedric Westphal",
+            "Hamid R. Sadjadpour"
+          ],
+          "claimed_title": "Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.1185"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks')",
+        "failed_at": "2026-07-31T13:41:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LoRa networks are pivotally enabling Long Range connectivity to low-cost and power-constrained user equipments (UEs) in a wide area, whereas a critical issue is to effectively allocate wireless resources to support potentially massive UEs while resolving the prominent near-far fairness issue, which is challenging due to the lack of tractable analytical model and the practical requirement for low-complexity and low-overhead design. Leveraging on stochastic geometry, especially the Poisson rain model, we derive (semi-) closed-form formulas for the aggregate interference distribution, packet success probability and hence system throughput in both single-cell and multi-cell setups with frequency reuse, by accounting for channel fading, random UE distribution, partial packet overlapping, and/or multi-gateway packet reception. The analytical formulas require only average channel statistics and spatial UE distribution, which enable tractable network performance evaluation and incubate our proposed Iterative Balancing (IB) method that quickly yields high-level policies of joint spreading factor (SF) allocation, power control, and duty cycle adjustment for gauging the average max-min UE throughput or supported UE density with rate requirements. Numerical results validate the analytical formulas and the effectiveness of our proposed optimization scheme, which greatly alleviates the near-far fairness issue and reduces the spatial power consumption, while significantly improving the cell-edge throughput as well as the spatial (sum) throughput for the majority of UEs, by adapting to the UE/gateway densities.",
+          "claimed_authors": [
+            "Jiangbin Lyu",
+            "Dan Yu",
+            "Liqun Fu"
+          ],
+          "claimed_title": "Analysis and Optimization for Large-Scale LoRa Networks: Throughput Fairness and Scalability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.07438"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Mesh Network Supercomputer Using Pooled Idle Computing Resources computer scienc', candidate_title='Analysis and Optimization for Large-Scale LoRa Networks: Throughput Fairness and Scalability')",
+        "failed_at": "2026-07-31T13:41:50Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -315,7 +445,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-09T18:48:21Z"
+          "verified_at": "2026-07-31T13:41:49Z"
         }
       },
       {
@@ -341,7 +471,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-09T18:48:21Z"
+          "verified_at": "2026-07-31T13:41:49Z"
         }
       },
       {
@@ -368,7 +498,7 @@
         },
         "primary_pointer": "q-bio/0611054",
         "summary": "WISDOM is an international initiative to enable a virtual screening pipeline on a grid infrastructure. Its first attempt was to deploy large scale in silico docking on a public grid infrastructure. Protein-ligand docking is about computing the binding energy of a protein target to a library of potential drugs using a scoring algorithm. Previous deployments were either limited to one cluster, to grids of clusters in the tightly protected environment of a pharmaceutical laboratory or to pervasive grids. The first large scale docking experiment ran on the EGEE grid production service from 11 July 2005 to 19 August 2005 against targets relevant to research on malaria and saw over 41 million compounds docked for the equivalent of 80 years of CPU time. Up to 1,700 computers were simultaneously used in 15 countries around the world. Issues related to the deployment and the monitoring of the in silico docking experiment as well as experience with grid operation and services are reported in the paper. The main problem encountered for such a large scale deployment was the grid infrastructure stability. Although the overall success rate was above 80%, a lot of monitoring and supervision was still required at the application level to resubmit the jobs that failed. But the experiment demonstrated how grid infrastructures have a tremendous capacity to mobilize very large CPU resources for well targeted goals during a significant period of time. This success leads to a second computing challenge targeting Avian Flu neuraminidase N1.",
-        "summary_grounded_pdf": null,
+        "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/q-bio/0611054",
@@ -379,60 +509,33 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-09T18:48:21Z"
+          "verified_at": "2026-07-31T13:41:50Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Antonio Amorim",
-            "Jaime Villate",
-            "Pedro Andrade"
+            "G. Murugesan",
+            "C. Chellappan"
           ],
-          "title": "HEP@Home - A distributed computing system based on BOINC",
+          "title": "An Economic-based Resource Management and Scheduling for Grid Computing Applications",
           "venue": "arXiv",
-          "year": 2004
+          "year": 2010
         },
-        "primary_pointer": "cs/0410016",
-        "summary": "Project SETI@HOME has proven to be one of the biggest successes of distributed computing during the last years. With a quite simple approach SETI manages to process large volumes of data using a vast amount of distributed computer power.\n  To extend the generic usage of this kind of distributed computing tools, BOINC is being developed. In this paper we propose HEP@HOME, a BOINC version tailored to the specific requirements of the High Energy Physics (HEP) community.\n  The HEP@HOME will be able to process large amounts of data using virtually unlimited computing power, as BOINC does, and it should be able to work according to HEP specifications. In HEP the amounts of data to be analyzed or reconstructed are of central importance. Therefore, one of the design principles of this tool is to avoid data transfer. This will allow scientists to run their analysis applications and taking advantage of a large number of CPUs. This tool also satisfies other important requirements in HEP, namely, security, fault-tolerance and monitoring.",
+        "primary_pointer": "1004.3566",
+        "summary": "Resource management and scheduling plays a crucial role in achieving high utilization of resources in grid computing environments. Due to heterogeneity of resources, scheduling an application is significantly complicated and challenging task in grid system. Most of the researches in this area are mainly focused on to improve the performance of the grid system. There were some allocation model has been proposed based on divisible load theory with different type of workloads and a single originating processor. In this paper we introduce a new resource allocation model with multiple load originating processors as an economic model. Solutions for an optimal allocation of fraction of loads to nodes obtained to minimize the cost of the grid users via linear programming approach. It is found that the resource allocation model can efficiently and effectively allocate workloads to proper resources. Experimental results showed that the proposed model obtained the better solution in terms of cost and time.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/cs/0410016",
+          "final_url": "https://arxiv.org/abs/1004.3566",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3,
+          "pdf_sample_score": 0.2547,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-09T18:48:22Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Prateeksha Varshney",
-            "Yogesh Simmhan"
-          ],
-          "title": "Characterizing Application Scheduling on Edge, Fog and Cloud Computing Resources",
-          "venue": "arXiv",
-          "year": 2019
-        },
-        "primary_pointer": "1904.10125",
-        "summary": "Cloud computing has grown to become a popular distributed computing service offered by commercial providers. More recently, Edge and Fog computing resources have emerged on the wide-area network as part of Internet of Things (IoT) deployments. These three resource abstraction layers are complementary, and provide distinctive benefits. Scheduling applications on clouds has been an active area of research, with workflow and dataflow models serving as a flexible abstraction to specify applications for execution. However, the application programming and scheduling models for edge and fog are still maturing, and can benefit from learnings on cloud resources. At the same time, there is also value in using these resources cohesively for application execution. In this article, we present a taxonomy of concepts essential for specifying and solving the problem of scheduling applications on edge, for and cloud computing resources. We first characterize the resource capabilities and limitations of these infrastructure, and design a taxonomy of application models, Quality of Service (QoS) constraints and goals, and scheduling techniques, based on a literature review. We also tabulate key research prototypes and papers using this taxonomy. This survey benefits developers and researchers on these distributed resources in designing and categorizing their applications, selecting the relevant computing abstraction(s), and developing or selecting the appropriate scheduling algorithm. It also highlights gaps in literature where open problems remain.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1904.10125",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-09T18:48:23Z"
+          "verified_at": "2026-07-31T13:41:56Z"
         }
       }
     ]

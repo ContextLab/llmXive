@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExecutionRun Schema"
+description: "Schema for aggregated execution run metrics including baseline and runtime channel parameters"
+type: object
+properties:
+  node_count:
+    type: integer
+    description: "Number of active nodes in the run"
+  granularity_setting:
+    type: string
+    enum: ["fine", "medium", "coarse"]
+    description: "Task granularity setting"
+  injected_latency:
+    type: number
+    description: "Artificially injected latency in milliseconds"
+  total_throughput:
+    type: number
+    description: "Total tasks completed per second"
+  normalized_efficiency:
+    type: number
+    description: "Normalized efficiency (Throughput / Baseline Theoretical Max)"
+  coordination_overhead_ratio:
+    type: number
+    description: "Ratio of coordination time to total execution time"
+  straggler_count:
+    type: integer
+    description: "Number of straggler events detected"
+  baseline_bandwidth_Mbps:
+    type: number
+    description: "Average baseline bandwidth (pre-run) across nodes"
+  baseline_snr_db:
+    type: number
+    description: "Average baseline SNR (pre-run) across nodes"
+  runtime_bandwidth_Mbps:
+    type: number
+    description: "Average runtime bandwidth during the run"
+  runtime_snr_db:
+    type: number
+    description: "Average runtime SNR during the run"
+required:
+  - node_count
+  - granularity_setting
+  - injected_latency
+  - total_throughput
+  - normalized_efficiency
+  - coordination_overhead_ratio
+  - straggler_count
+  - baseline_bandwidth_Mbps
+  - baseline_snr_db
+additionalProperties: false

@@ -1,0 +1,14 @@
+status: none
+intent: download Google Cluster Data CPU utilization packet counts per node python
+  package dataset
+required_fields:
+- node_id
+- timestamp
+- cpu_utilization_percent
+- packet_sent
+- packet_received
+- task_id
+- task_chunk_id
+cache_key: b7fa6e1ca104afbb389c98ca1bf74eb42ca185e4213030381d96696259545220
+searched_at: '2026-07-31T13:49:53.265853+00:00'
+retry_count: 1
