@@ -2169,3 +2169,226 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T14:40:18Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: n=298 sufficient for effect size 0.2 at power 0.8
+  claim_id: c_a03ec82b
+  context: 'Phase 5: Performance & Validation (Optional/Advanced) - Task T044 Power
+    Analysis'
+  evidence:
+    asserted: '298.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Implement a power analysis calculation to verify that n=298 is sufficient
+    for the expected effect size (e.g. 0.2) at power=0.8.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T08:07:09Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: memory usage less than 7GB on 1GB file with streaming
+  claim_id: c_92d44d5a
+  context: 'Phase 5: Performance & Validation (Optional/Advanced) - Task T039 Memory
+    Usage Verification'
+  evidence:
+    candidates:
+    - - Please search for Memory usage less than
+      - 7.0
+    - - Memory usage less than 7GB on
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7GB_on_1GB_file_with_streaming
+  kind: magnitude
+  raw_text: Verify memory usage < 7GB with --stream on a 1GB file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-31T08:09:12Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 0
+  canonical: n=298 sufficient for effect size 0.2 at power 0.8
+  claim_id: c_f7c419bf
+  context: 'Phase 5: Performance & Validation (Optional/Advanced) - T044 [P] [US1]
+    Power Analysis.'
+  evidence:
+    asserted: '298.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Implement a power analysis calculation to verify that n=298 is sufficient
+    for the expected effect size (e.g., 0.2) at power=0.8.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T08:10:40Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: token budget set to 4096, min context 256, k random baseline 2
+  claim_id: c_9262ecb8
+  context: T004 Implement code/config.py for paths, seeds, and hyperparameters. Define
+    TOKEN_BUDGET=4096, MIN_CONTEXT=256, AND K_RANDOM_BASELINE=2 as explicit constants
+    loaded from config or env vars.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define TOKEN_BUDGET=4096, MIN_CONTEXT=256, AND K_RANDOM_BASELINE=2 as
+    explicit constants loaded from config or env vars.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T08:13:03Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: memory usage less than 7GB on 1GB file with stream
+  claim_id: c_34da2970
+  context: 'T039 [P] [US1] Memory Usage Verification. Logic: Verify memory usage <
+    7GB with --stream on a 1GB file. Action: Use psutil to monitor peak RSS memory.'
+  evidence:
+    candidates:
+    - - Please search for Memory usage less than
+      - 7.0
+    - - Memory usage less than 7GB on
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7GB_on_1GB_file_with_stream
+  kind: magnitude
+  raw_text: Verify memory usage < 7GB with --stream on a 1GB file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-31T08:13:06Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: continue mcnemar test if divergence less than 10 percent
+  claim_id: c_e4afee63
+  context: 'T050 [P] [US3] Divergence Check. Logic: If divergence (percentage of trajectories
+    where final state hash differs) is minimal (< 10%), continue with McNemar''s test.
+    Output: data/processed/divergence_report.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Continue_mcnemar_test_if_divergence_less_than_10_percent
+  kind: magnitude
+  raw_text: If divergence (percentage of trajectories where final state hash differs)
+    is minimal (< 10%), continue with McNemar's test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T08:13:20Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: 'Configuration constants: TOKEN_BUDGET=4096, MIN_CONTEXT=256, K_RANDOM_BASELINE=2'
+  claim_id: c_9d2f826d
+  context: Task T004 Implement code/config.py for paths, seeds, and hyperparameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define TOKEN_BUDGET=4096, MIN_CONTEXT=256, AND K_RANDOM_BASELINE=2 as
+    explicit constants loaded from config or env vars.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T08:14:20Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token budget 4096, minimum context 256, K random baseline 2
+  claim_id: c_048c63b6
+  context: T004 Implement `code/config.py` for paths, seeds, and hyperparameters.
+    Define `TOKEN_BUDGET=4096`, `MIN_CONTEXT=256`, AND `K_RANDOM_BASELINE=2` as explicit
+    constants loaded from config or env vars.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define TOKEN_BUDGET=4096, MIN_CONTEXT=256, AND K_RANDOM_BASELINE=2 as
+    explicit constants loaded from config or env vars.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T08:16:13Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 7GB with stream on 1GB file
+  claim_id: c_e816eecf
+  context: 'T039 [P] [US1] **Memory Usage Verification**. **Logic**: Verify memory
+    usage < 7GB with `--stream` on a 1GB file. **Action**: Use `psutil` to monitor
+    peak RSS memory.'
+  evidence:
+    candidates:
+    - - Log in Memory usage less than
+      - 7.0
+    - - Memory usage less than 7GB with stream on
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7GB_with_stream_on_1GB_file
+  kind: magnitude
+  raw_text: Verify memory usage < 7GB with `--stream` on a 1GB file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-31T08:16:15Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Refactor code if total runtime exceeds 6 hours
+  claim_id: c_2d014961
+  context: 'T031c [P] [US1] **Runtime Monitoring**. **Logic**: Monitor total runtime
+    of the simulation phase. **Action**: If `total_runtime` (in hours) > 6, refactor
+    code to enable streaming or reduce batch size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total runtime (in hours) > 6, refactor code to enable streaming or
+    reduce batch size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T08:16:15Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Continue McNemar's test if trajectory divergence is less than 10%
+  claim_id: c_a96539b7
+  context: 'T050 [P] [US3] **Divergence Check**. **Logic**: If divergence (percentage
+    of trajectories where final state hash differs) is minimal (< 10%), continue with
+    McNemar''s test.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Continue_McNemar's_test_if_trajectory_divergence_is_less_tha
+  kind: magnitude
+  raw_text: If divergence (percentage of trajectories where final state hash differs)
+    is minimal (< 10%), continue with McNemar's test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T08:16:17Z'

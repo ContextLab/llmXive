@@ -1,11 +1,1 @@
-- artifact_hash: 73d4040647f212d33791423b97dc556dac497071819b1b53bf7678389d59f9f9
-  artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/...`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/
-  verified_at: '2026-07-30T19:18:47.680980Z'
+[]

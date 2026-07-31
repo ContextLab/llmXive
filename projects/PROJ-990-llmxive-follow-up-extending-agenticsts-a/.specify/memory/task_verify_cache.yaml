@@ -1,92 +1,33 @@
-T005:
+T006a:
   c: false
-  h: cdf77a48cf1c6b5bd408a445bd82aa4e3ef20ba38f1bc1b08183c15741eb5d61
-  r: "The provided `code/entropy.py` defines entropy calculation functions but does\
-    \ not show any logic that reads `data/processed/metrics_with_moves.csv`, checks\
-    \ for its existence, or skips processing when it is absent. It also never logs\
-    \ the required warning message with the exact text to `data/processed/edge_case_warnings.log`,\
-    \ and that log file is missing. Consequently, the implementation does not satisfy\
-    \ the task\u2019s full requirements."
-T006:
+  h: 4365d5430890333d55c132270d2c4e011861fb269850a5437f7aef0314545fce
+  r: "The repository lacks the required `contracts/trajectory.schema.yaml` file, so\
+    \ `parser.py` cannot perform the mandated schema validation. Moreover, the produced\
+    \ `data/processed/metrics_with_moves.csv` contains only the header line and no\
+    \ extracted per\u2011turn metric rows, indicating that the parser does not actually\
+    \ generate the required output. Both the missing schema and the empty CSV must\
+    \ be addressed for the task to be considered complete."
+T006b:
   c: false
-  h: 95558369f803286a3a356df17eb05d007ce44c09f2b3673eba043450438491d6
-  r: "The repository lacks the required output file `data/processed/metrics_with_moves.csv`,\
-    \ and the referenced schema file `contracts/trajectory.schema.yaml` (or `schema.yaml`)\
-    \ is missing, so validation cannot be performed. Moreover, the provided `code/parser.py`\
-    \ snippet does not show any implementation of the per\u2011turn metric extraction,\
-    \ legal\u2011move entropy calculation, or CSV writing required by the task. These\
-    \ essential components must be added for the task to be considered complete."
-T007c:
+  h: ea8809f98852a14e4b6654bd8b5283bf1e19a84e445a93aa1571f4500e15267a
+  r: "The repository contains `code/entropy.py`, but the file only defines helper\
+    \ functions and never reads `data/processed/metrics_with_moves.csv` nor writes\
+    \ `data/processed/entropy_metrics.csv`. The required output file is absent, and\
+    \ the log shows no entropy\u2011related warnings. Consequently the task\u2019\
+    s core functionality and output artifact are missing."
+T014:
   c: false
-  h: 9929cbead68f48f3c97c61a5bfe2d4f49bbad5a63b790d0b290557c6f97e4ea7
-  r: The repository lacks the required input files (`metrics_with_moves.csv` and `validation_set_ids.json`)
-    and the expected output (`static_log_proxy.json`). Moreover, `code/proxy_extractor.py`
-    is truncated (e.g., `extract_static_proxy` has a typo and no implementation) and
-    does not actually perform the extraction or write the JSON file. The task is therefore
-    not fulfilled.
-T008:
-  c: false
-  h: 37b290f8767809deb230580c989c8166b2eedac75e360efc979fdf1dd8559fc5
-  r: "The required input file `data/processed/ablation_train_set.csv` does not exist\
-    \ (and thus cannot be validated as non\u2011empty), and the expected output `data/processed/ablation_labels_train.json`\
-    \ is also missing. Consequently the ablation script was never successfully run\
-    \ to produce the ground\u2011truth labels."
-T008b:
-  c: false
-  h: 3b2869678fbaf78c23c73333c33115905592ca6c796fc2f0e07c57837a58b4a2
-  r: "The required input `data/processed/validation_set.csv` does not exist, and the\
-    \ expected output `data/processed/ablation_labels_validation.json` is also missing.\
-    \ Consequently the validation step cannot run and the task\u2019s deliverable\
-    \ is absent."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a high\u2011level feature description and user\
+    \ stories; no code, tests, or other artifacts implementing the required \u201C\
+    proxy validation logic\u201D are present. Consequently there is no concrete implementation\
+    \ to verify against the task\u2019s specifications."
 T014a:
   c: false
-  h: 50f74a05e80113c31e90636455e5ae45aeb7524219b472624d61932160f0606c
-  r: The repository lacks the required input `data/processed/metrics_with_moves.csv`
-    and none of the expected output files (`train_set.csv`, `ablation_train_set.csv`,
-    `validation_set.csv`, `test_set.csv`, `validation_set_ids.json`) are present.
-    Consequently the splitter cannot be executed nor verified, so the task is not
-    fulfilled.
-T019:
-  c: false
-  h: 033c31af7351e253a1f1bd8e48dbd27e2572a8aea33f27ed9391c74f264bc8d4
-  r: "The required output file `data/processed/simulation_logs_static.json` does not\
-    \ exist, and there is no evidence in the provided `engine_runner.py` (or any shown\
-    \ supporting module) that the static baseline is actually run and writes that\
-    \ file. The implementation only contains a stub delegating to an undefined `baseline_static_runner`,\
-    \ so the task\u2019s output requirement is unmet."
-T020:
-  c: false
-  h: 4f02f54c5961421a4251449f1be74cd70e8136d96f1dbdf161703bc9dbe56380
-  r: "The required output file `data/processed/simulation_logs_random.json` does not\
-    \ exist, and the provided `engine_runner.py` is truncated before completing the\
-    \ random\u2011baseline logic (no evidence that it selects\u202Fk random layers\
-    \ per turn or writes the simulation results). The artifact is missing and the\
-    \ implementation is incomplete."
-T024a:
-  c: false
-  h: 9a6bc81f657a41ef216583d31b77f7212dbdb90cd370eae73193be62c7a7265f
-  r: "The `code/stats.py` contains only a placeholder `detect_divergence` that assumes\
-    \ a pre\u2011generated report and does not implement the required analysis of\
-    \ paired trajectories. Moreover, the expected output file `data/processed/divergence_report.json`\
-    \ is absent. Both the implementation and the required artifact are missing."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of updated `README.md` or `quickstart.md` files was provided; the\
-    \ claim lacks the required documentation artifacts, so the task\u2019s documentation\
-    \ update requirement is not satisfied."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, diff, or documentation showing that any cleanup or refactoring was\
-    \ performed is present; the only evidence is a feature specification unrelated\
-    \ to a code\u2011cleanup task. Without actual cleaned source files, commit history,\
-    \ or a report of refactoring changes, the requirement cannot be verified."
-T031:
-  c: false
-  h: 408e5fd29105d6b0a56e5162877563b757c6f801da031ba651d7459c428659ac
-  r: "The repository contains a `code/benchmark.py` file, but it does not show any\
-    \ code that writes a JSON file to `data/processed/benchmark_log.json`, nor does\
-    \ it compute a total runtime or produce the exact `{total_runtime, phase_timings:\
-    \ {...}}` schema. Moreover, the expected `benchmark_log.json` file is absent from\
-    \ the `data/processed` directory. The task\u2019s core output is missing."
+  h: 77096b5b21647707ca02789eff67b6bd3fd175c56d6d45ca835448454a0ed411
+  r: "The provided `code/splitter.py` is truncated, contains syntax errors, and lacks\
+    \ the required edge\u2011case warning and flag logic. The `edge_case_warnings.log`\
+    \ does not contain the \u201CStatistical power marginal (n < 300)\u201D warning,\
+    \ and the input CSV is empty, resulting in no generated `train_set.csv`, `ablation_train_set.csv`,\
+    \ `validation_set.csv`, or `test_set.csv`. The task\u2019s required outputs and\
+    \ behavior are missing."

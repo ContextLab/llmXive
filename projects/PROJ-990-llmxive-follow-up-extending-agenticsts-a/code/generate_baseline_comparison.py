@@ -1,19 +1,21 @@
 """
 Task T022: Generate summary CSV output for baseline comparison.
 
-Reads simulation logs from T017 (Dynamic), T019 (Static), and T020 (Random).
-Aggregates win_rate and token usage metrics per condition.
-Calculates standard deviation of token usage to satisfy SC-004.
-Output: data/processed/baseline_comparison.csv
+Logic:
+1. Load simulation logs from T017 (dynamic), T019 (static), T020 (random).
+2. Aggregate metrics per condition: win_rate, avg_tokens, std_dev_tokens.
+3. Calculate token_reduction_pct using formula: (static_tokens - dynamic_tokens) / static_tokens.
+4. Determine threshold_met: True if token_reduction_pct >= 0.30, else False.
+5. Write results to data/processed/baseline_comparison.csv.
+6. Update data/processed/build_status.json with threshold_met status (does not exit with code 1 if failed).
 """
-
 import os
 import sys
 import json
 import logging
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Any, Optional
 
 # Configure logging
 logging.basicConfig(
@@ -22,123 +24,186 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_simulation_data(file_path: str) -> pd.DataFrame:
-    """
-    Load simulation logs from a JSON file and return a DataFrame.
-    Expected schema in JSON: list of records with 'trajectory_id', 'win' (bool), 'tokens_used' (int).
-    """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Simulation log file not found: {file_path}")
+# Paths
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+OUTPUT_CSV = DATA_PROCESSED / "baseline_comparison.csv"
+BUILD_STATUS_FILE = DATA_PROCESSED / "build_status.json"
 
-    with open(file_path, 'r') as f:
-        data = json.load(f)
+# Simulation log inputs
+DYNAMIC_LOG = DATA_PROCESSED / "simulation_logs_dynamic.json"
+STATIC_LOG = DATA_PROCESSED / "simulation_logs_static.json"
+RANDOM_LOG = DATA_PROCESSED / "simulation_logs_random.json"
 
-    if not isinstance(data, list):
-        raise ValueError(f"Expected list of records in {file_path}, got {type(data)}")
+def load_simulation_data(log_path: Path) -> Optional[List[Dict[str, Any]]]:
+    """Load simulation logs from JSON file."""
+    if not log_path.exists():
+        logger.error(f"Simulation log not found: {log_path}")
+        return None
+    try:
+        with open(log_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        if isinstance(data, dict) and 'results' in data:
+            return data['results']
+        elif isinstance(data, list):
+            return data
+        else:
+            logger.error(f"Unexpected JSON structure in {log_path}")
+            return None
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON in {log_path}: {e}")
+        return None
 
-    df = pd.DataFrame(data)
+def calculate_tokens(row: Dict[str, Any]) -> int:
+    """Extract token count from a simulation result row."""
+    # Handle various possible structures
+    if 'total_tokens' in row:
+        return row['total_tokens']
+    elif 'tokens_used' in row:
+        return row['tokens_used']
+    elif 'context_size' in row:
+        return row['context_size']
+    elif 'prompt_tokens' in row:
+        return row['prompt_tokens']
+    else:
+        # Fallback: try to find any field with 'token' in name
+        for key, value in row.items():
+            if 'token' in key.lower() and isinstance(value, (int, float)):
+                return int(value)
+        logger.warning(f"Could not find token count in row: {row}")
+        return 0
 
-    # Ensure required columns exist
-    required_cols = ['trajectory_id', 'win', 'tokens_used']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
+def calculate_win(row: Dict[str, Any]) -> bool:
+    """Extract win/loss status from a simulation result row."""
+    if 'win' in row:
+        return bool(row['win'])
+    elif 'success' in row:
+        return bool(row['success'])
+    elif 'outcome' in row:
+        return str(row['outcome']).lower() in ['win', 'success', 'true', '1']
+    else:
+        logger.warning(f"Could not find win status in row: {row}")
+        return False
 
-    # Normalize win column to boolean if needed
-    if df['win'].dtype == object:
-        df['win'] = df['win'].astype(str).str.lower().map({'true': True, 'false': False, '1': True, '0': False})
+def aggregate_metrics(results: List[Dict[str, Any]], condition: str) -> Dict[str, Any]:
+    """Aggregate metrics for a given condition."""
+    if not results:
+        return {
+            'condition': condition,
+            'win_rate': 0.0,
+            'avg_tokens': 0.0,
+            'std_dev_tokens': 0.0,
+            'token_reduction_pct': 0.0,
+            'threshold_met': False
+        }
 
-    return df
+    token_counts = [calculate_tokens(r) for r in results]
+    wins = [calculate_win(r) for r in results]
 
-def generate_baseline_comparison(
-    dynamic_path: str,
-    static_path: str,
-    random_path: str,
-    output_path: str
-) -> None:
-    """
-    Aggregate results from Dynamic, Static, and Random baselines and write to CSV.
+    total_tokens = sum(token_counts)
+    avg_tokens = total_tokens / len(token_counts) if token_counts else 0.0
+    
+    if len(token_counts) > 1:
+        # Calculate standard deviation manually to avoid numpy dependency issues
+        variance = sum((t - avg_tokens) ** 2 for t in token_counts) / (len(token_counts) - 1)
+        std_dev_tokens = variance ** 0.5
+    else:
+        std_dev_tokens = 0.0
 
-    Schema: condition, win_rate, avg_tokens, std_dev_tokens
-    """
-    # Load data
-    logger.info(f"Loading dynamic simulation data from {dynamic_path}")
-    df_dynamic = load_simulation_data(dynamic_path)
-    df_dynamic['condition'] = 'dynamic'
+    win_rate = sum(wins) / len(wins) if wins else 0.0
 
-    logger.info(f"Loading static simulation data from {static_path}")
-    df_static = load_simulation_data(static_path)
-    df_static['condition'] = 'static'
-
-    logger.info(f"Loading random simulation data from {random_path}")
-    df_random = load_simulation_data(random_path)
-    df_random['condition'] = 'random'
-
-    # Combine all data
-    df_all = pd.concat([df_dynamic, df_static, df_random], ignore_index=True)
-
-    # Calculate metrics per condition
-    # win_rate: mean of boolean 'win' column
-    # avg_tokens: mean of 'tokens_used'
-    # std_dev_tokens: std of 'tokens_used'
-    aggregations = {
-        'win': 'mean',
-        'tokens_used': ['mean', 'std']
+    return {
+        'condition': condition,
+        'win_rate': win_rate,
+        'avg_tokens': avg_tokens,
+        'std_dev_tokens': std_dev_tokens,
+        'token_reduction_pct': 0.0,  # Will be calculated after all conditions
+        'threshold_met': False
     }
 
-    summary = df_all.groupby('condition').agg(aggregations)
+def generate_baseline_comparison() -> bool:
+    """Generate the baseline comparison CSV and update build status."""
+    logger.info("Starting baseline comparison generation (T022)...")
 
-    # Flatten column names
-    summary.columns = ['win_rate', 'avg_tokens', 'std_dev_tokens']
+    # Load simulation data
+    dynamic_data = load_simulation_data(DYNAMIC_LOG)
+    static_data = load_simulation_data(STATIC_LOG)
+    random_data = load_simulation_data(RANDOM_LOG)
 
-    # Reset index to make 'condition' a column
-    summary = summary.reset_index()
+    if not dynamic_data or not static_data:
+        logger.error("Missing required simulation logs (dynamic or static). Cannot proceed.")
+        return False
 
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Aggregate metrics
+    dynamic_metrics = aggregate_metrics(dynamic_data, "dynamic")
+    static_metrics = aggregate_metrics(static_data, "static")
+    random_metrics = aggregate_metrics(random_data, "random")
 
-    # Write to CSV
-    summary.to_csv(output_path, index=False)
+    # Calculate token reduction
+    # Formula: (static_tokens - dynamic_tokens) / static_tokens
+    if static_metrics['avg_tokens'] > 0:
+        reduction_dynamic = (static_metrics['avg_tokens'] - dynamic_metrics['avg_tokens']) / static_metrics['avg_tokens']
+        dynamic_metrics['token_reduction_pct'] = reduction_dynamic
+        dynamic_metrics['threshold_met'] = reduction_dynamic >= 0.30
+    else:
+        dynamic_metrics['token_reduction_pct'] = 0.0
+        dynamic_metrics['threshold_met'] = False
 
-    logger.info(f"Baseline comparison written to {output_path}")
-    logger.info(f"Summary:\n{summary.to_string()}")
+    # For random baseline, calculate reduction relative to static as well
+    if static_metrics['avg_tokens'] > 0:
+        reduction_random = (static_metrics['avg_tokens'] - random_metrics['avg_tokens']) / static_metrics['avg_tokens']
+        random_metrics['token_reduction_pct'] = reduction_random
+        random_metrics['threshold_met'] = reduction_random >= 0.30
+    else:
+        random_metrics['token_reduction_pct'] = 0.0
+        random_metrics['threshold_met'] = False
+
+    # Prepare DataFrame
+    df = pd.DataFrame([
+        dynamic_metrics,
+        static_metrics,
+        random_metrics
+    ])
+
+    # Ensure correct column order
+    df = df[['condition', 'win_rate', 'avg_tokens', 'std_dev_tokens', 'token_reduction_pct', 'threshold_met']]
+
+    # Write CSV
+    DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
+    df.to_csv(OUTPUT_CSV, index=False)
+    logger.info(f"Baseline comparison CSV written to {OUTPUT_CSV}")
+
+    # Update build_status.json
+    build_status = {
+        "pipeline_status": "completed",
+        "timestamp": pd.Timestamp.now().isoformat(),
+        "threshold_met": dynamic_metrics['threshold_met'],
+        "message": "Token reduction threshold met" if dynamic_metrics['threshold_met'] else "Token reduction threshold NOT met (< 30%)",
+        "details": {
+            "dynamic_token_reduction_pct": dynamic_metrics['token_reduction_pct'],
+            "static_avg_tokens": static_metrics['avg_tokens'],
+            "dynamic_avg_tokens": dynamic_metrics['avg_tokens']
+        }
+    }
+
+    with open(BUILD_STATUS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(build_status, f, indent=2)
+    logger.info(f"Build status updated at {BUILD_STATUS_FILE}")
+
+    # Log threshold result (do not exit with error)
+    if not dynamic_metrics['threshold_met']:
+        logger.warning(f"Token reduction threshold NOT met: {dynamic_metrics['token_reduction_pct']:.2%} < 30%")
+        logger.info("Pipeline continues to generate statistical evidence as per spec.")
+
+    return True
 
 def main():
-    """Main entry point for T022."""
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent
-    processed_dir = project_root / "data" / "processed"
-
-    dynamic_path = processed_dir / "simulation_logs_dynamic.json"
-    static_path = processed_dir / "simulation_logs_static.json"
-    random_path = processed_dir / "simulation_logs_random.json"
-    output_path = processed_dir / "baseline_comparison.csv"
-
-    # Check if input files exist
-    missing_inputs = []
-    for path in [dynamic_path, static_path, random_path]:
-        if not path.exists():
-            missing_inputs.append(path)
-
-    if missing_inputs:
-        logger.error("Missing required input files:")
-        for p in missing_inputs:
-            logger.error(f"  - {p}")
-        logger.error("Please ensure T017, T019, and T020 have completed successfully.")
+    """Main entry point."""
+    success = generate_baseline_comparison()
+    if not success:
+        logger.error("Failed to generate baseline comparison.")
         sys.exit(1)
-
-    try:
-        generate_baseline_comparison(
-            str(dynamic_path),
-            str(static_path),
-            str(random_path),
-            str(output_path)
-        )
-        logger.info("T022 completed successfully.")
-    except Exception as e:
-        logger.error(f"Error generating baseline comparison: {e}")
-        sys.exit(1)
+    logger.info("Baseline comparison generation completed successfully.")
 
 if __name__ == "__main__":
     main()

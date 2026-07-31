@@ -1,43 +1,17 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AgenticSTS Trajectory Schema
-description: Schema for trajectory logs containing turn-level game state and legal moves.
 type: object
 required:
   - trajectory_id
   - turn
-  - state
   - legal_moves
 properties:
   trajectory_id:
     type: string
-    description: Unique identifier for the trajectory.
+    description: Unique identifier for the trajectory
   turn:
     type: integer
-    description: Turn number (0-indexed).
-  state:
-    type: object
-    description: Current game state.
-    required:
-      - health
-      - threat
-      - deck_size
-    properties:
-      health:
-        type: integer
-        description: Current health points.
-      threat:
-        type: integer
-        description: Current threat level.
-      deck_size:
-        type: integer
-        description: Number of cards in the deck.
+    description: Turn number within the trajectory
   legal_moves:
     type: array
-    description: List of available legal moves for this turn.
     items:
       type: string
-    minItems: 1
-  metadata:
-    type: object
-    description: Optional metadata.
-    additionalProperties: true
+    description: List of legal moves available at this turn

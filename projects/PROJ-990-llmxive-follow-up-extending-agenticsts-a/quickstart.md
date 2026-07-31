@@ -1,138 +1,59 @@
-# Quickstart Guide: llmXive Follow-up (AgenticSTS Extension)
+# Quickstart Guide: AgenticSTS Follow-up Pipeline
 
-This guide provides the exact commands to run the full pipeline from a clean environment.
-All commands should be run from the project root directory.
+This guide outlines the steps to run the full analysis pipeline for the AgenticSTS follow-up project.
 
 ## Prerequisites
 
 - Python 3.11+
 - Dependencies installed: `pip install -r requirements.txt`
 
-## Step-by-Step Execution
+## Data Preparation
 
-### 1. Setup and Configuration
-```bash
-# Ensure project structure exists
-python code/config.py
-```
+1. **Ingest Real Data**: Ensure `data/raw/agenticsts_trajectories.jsonl` exists.
+ - Run `python code/t005b_ingest_real_data.py` if not present.
+2. **Verify Checksums**: Ensure `data/raw/manifest.json` exists and matches.
 
-### 2. Bootstrap Synthetic Data (If needed)
-```bash
-# T006a: Bootstrap synthetic data if data/raw/ is empty
-python code/bootstrap_data.py
-```
+## Pipeline Execution
 
-### 3. Parse Trajectories and Extract Metrics
-```bash
-# T006: Parse raw trajectories and extract metrics with move distributions
-python code/parser.py
-```
+Run the full pipeline in order:
 
-### 4. Generate No-Data Warning (If T006 was skipped)
-```bash
-# T005a: Generate warning log if no trajectory data exists
-python code/t005a_no_data_warning.py
-```
+1. **Parse Trajectories**:
+ `python code/parser.py`
+ - Output: `data/processed/metrics_with_moves.csv`
 
-### 5. Calculate Entropy
-```bash
-# T005: Calculate Shannon entropy of legal move distributions
-python code/entropy.py
-```
+2. **Calculate Entropy**:
+ `python code/entropy.py`
+ - Output: `data/processed/entropy_metrics.csv`
 
-### 6. Split Data
-```bash
-# T014a: Stratified split into Train, Ablation-Train, Validation, Test sets
-python code/splitter.py
-```
+3. **Split Data**:
+ `python code/splitter.py`
+ - Output: `data/processed/train_set.csv`, `validation_set.csv`, `test_set.csv`
 
-### 7. Extract Static Proxy
-```bash
-# T007c: Extract static-log-derived utility for validation set
-python code/proxy_extractor.py
-```
+4. **Train Classifier**:
+ `python code/classifier.py`
+ - Output: `models/layer_utility_classifier.pkl`
 
-### 8. Run Ablation Study
-```bash
-# T008: Generate ground truth labels for Ablation-Train set
-python code/ablation.py --dataset ablation_train_set
-# T008b: Generate ground truth labels for Validation set
-python code/ablation.py --dataset validation_set
-```
+5. **Run Simulations**:
+ - **Dynamic**: `python code/run_dynamic_simulation.py`
+ - Output: `data/processed/simulation_logs_dynamic.json`
+ - **Static**: `python code/baseline_static_runner.py`
+ - Output: `data/processed/simulation_logs_static.json`
+ - **Random**: `python code/run_random_baseline.py`
+ - Output: `data/processed/simulation_logs_random.json`
 
-### 9. Check Sample Size and Set Fallback Flag
-```bash
-# T008c: Check sample count and generate fallback flag
-python code/check_sample_size.py
-```
+6. **Generate Baseline Comparison**:
+ `python code/generate_baseline_comparison.py`
+ - Output: `data/processed/baseline_comparison.csv`
 
-### 10. Validate Proxy
-```bash
-# T014: Validate proxy correlation against ablation ground truth
-python code/classifier.py --mode validate_proxy
-```
+7. **Statistical Analysis**:
+ `python code/stats.py`
+ - Output: `data/processed/mcnemar_results.json`, `data/processed/ttest_results.json`, `data/processed/divergence_report.json`
 
-### 11. Train Classifier
-```bash
-# T009: Train lightweight classifier on ablation labels
-python code/classifier.py --mode train
-```
+8. **Validation & Reporting**:
+ `python code/quickstart_validator.py`
+ - Verifies all artifacts and generates `data/processed/build_status.json`.
 
-### 12. Run Simulations
-```bash
-# T017: Run dynamic simulation on test set
-python code/run_dynamic_simulation.py
-# T019: Run static baseline simulation
-python code/baseline_static_runner.py
-# T020: Run random baseline simulation
-python code/engine_runner.py --policy random
-```
+## Verification
 
-### 13. Aggregate and Analyze Results
-```bash
-# T021: Aggregate simulation results
-python code/generate_baseline_comparison.py
-# T022a: Verify token reduction
-python code/token_reduction_verifier.py
-# T024a: Detect trajectory divergence
-python code/stats.py --mode divergence
-# T025: Run statistical tests
-python code/stats.py --mode statistical_test
-# T028: Generate final statistical report
-python code/generate_statistical_report.py
-```
-
-### 14. Validation and Reporting
-```bash
-# T016a: Verify edge case warnings
-python code/quickstart_validator.py
-# T033: Run full quickstart validation
-python code/quickstart_runner.py
-# T031: Benchmark performance
-python code/benchmark.py
-```
-
-## Expected Outputs
-
-All processed data will be written to `data/processed/`:
-- `metrics_with_moves.csv`
-- `edge_case_warnings.log`
-- `train_set.csv`, `ablation_train_set.csv`, `validation_set.csv`, `test_set.csv`
-- `validation_set_ids.json`
-- `static_log_proxy.json`
-- `ablation_labels_train.json`, `ablation_labels_validation.json`
-- `fallback_flag.json`
-- `proxy_validation_report.json`
-- `simulation_logs_dynamic.json`, `simulation_logs_static.json`, `simulation_logs_random.json`
-- `baseline_comparison.csv`
-- `token_reduction_verification.json`
-- `divergence_report.json`
-- `statistical_results.json`
-- `analysis_config.json`
-
-## Troubleshooting
-
-- If `data/raw/` is empty, ensure T006a has run to bootstrap synthetic data.
-- If entropy calculation fails, check `data/processed/edge_case_warnings.log` for specific errors.
-- If validation set size < 20, the pipeline will raise a `ValueError` as per FR-006.
-- If token reduction verification fails, check `data/processed/verification_failed.json` for details.
+After running, check `data/processed/build_status.json` for success status.
+Review `data/processed/baseline_comparison.csv` for token reduction metrics.
