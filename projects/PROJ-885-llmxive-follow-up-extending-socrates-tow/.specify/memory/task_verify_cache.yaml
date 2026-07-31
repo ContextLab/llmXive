@@ -27,3 +27,11 @@ T034:
     \ is missing, so the module cannot be exercised to compute consensus gap closure\
     \ for every trajectory as specified. The absence of this dataset means the task\u2019\
     s core requirement is unmet."
+T057:
+  c: false
+  h: 51e60230594c0d19ab8c8c2174ab1da2b40a33ff9ee03aedf76e97d41737b5f3
+  r: The required `docs/research_draft.md` file does not exist, so the script cannot
+    parse the Methods section, and the expected `data/results/exclusion_citation_audit.json`
+    output file was not generated. Additionally, the provided script is incomplete
+    (truncated) and does not show the JSON writing step. The task therefore remains
+    unfinished.
