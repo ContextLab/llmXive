@@ -1,18 +1,16 @@
 {
   "project_id": "PROJ-676-quantifying-the-effect-of-disorder-on-el",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/residual_logger.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026the residual logger.     Generates synthetic residual entries to veri\u2026\u201d; 3 command(s) failed: python code/main.py  --mode generate_and_analyze  --Llist 100 200 400 800 1600  --Wlist 0.5 1.0 2.0  --realizations 100  --seed 42 (rc=1); python code/main.py  --mode scaling_analysis  --output data/processed/scaling_results.csv (rc=1); python code/main.py  --mode visualize  --L 200  --W 2.0  --realization 5  --output figures/eigenstate_decay.png (rc=1); 1 declared deliverable(s) absent: data/metadata/residuals.json",
-  "artifacts": [],
-  "failures": [
-    "python code/main.py  --mode generate_and_analyze  --Llist 100 200 400 800 1600  --Wlist 0.5 1.0 2.0  --realizations 100  --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/code/main.py\", line 14, in <module>\n    import joblib\nModuleNotFoundError: No module named 'joblib'",
-    "python code/main.py  --mode scaling_analysis  --output data/processed/scaling_results.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/code/main.py\", line 14, in <module>\n    import joblib\nModuleNotFoundError: No module named 'joblib'",
-    "python code/main.py  --mode visualize  --L 200  --W 2.0  --realization 5  --output figures/eigenstate_decay.png -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/code/main.py\", line 14, in <module>\n    import joblib\nModuleNotFoundError: No module named 'joblib'"
+  "reason": "every produced artifact is gitignored (data/processed/scaling_fits.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 declared deliverable(s) absent: data/metadata/residuals.json; data/processed/bonferroni_results.json",
+  "artifacts": [
+    "data/processed/scaling_fits.json"
   ],
-  "fix_rounds": 1,
+  "failures": [],
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-29T12:06:18Z"
+  "updated_at": "2026-07-31T01:42:44Z"
 }

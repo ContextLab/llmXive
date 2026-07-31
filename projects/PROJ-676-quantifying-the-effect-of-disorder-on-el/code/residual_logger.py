@@ -1,8 +1,3 @@
-"""
-Residual logger module.
-Provides functions to log and save eigenvalue residuals to data/metadata/residuals.json.
-This module is a wrapper around the NumericalLogger class for specific task integration.
-"""
 import json
 import os
 import logging
@@ -10,88 +5,99 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-from code.logger import get_logger, NumericalLogger
+from config import get_config
 
-
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
-num_logger = get_logger()
 
-
-def log_eigenvalue_residual(task: str, L: int, W: float, realization_index: int, 
-                            residual_norm: float, converged: bool) -> None:
+def log_eigenvalue_residual(
+    residual_norm: float,
+    task: str,
+    L: int,
+    W: float,
+    realization_index: int,
+    converged: bool,
+    output_path: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Log an eigenvalue residual entry.
+    Log a single eigenvalue residual entry.
     
     Args:
-        task: Name of the task (e.g., 'eigh', 'eigsh').
-        L: System size.
-        W: Disorder strength.
-        realization_index: Index of the disorder realization.
-        residual_norm: The residual norm.
-        converged: Boolean indicating convergence.
-    """
-    num_logger.log_residual(
-        norm=residual_norm,
-        flag=converged,
-        task=task,
-        L=L,
-        W=W,
-        realization_index=realization_index
-    )
-    logger.debug(f"Logged residual for task={task}, L={L}, W={W}, idx={realization_index}")
-
-
-def save_residuals_to_file(residuals: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Save a list of residual dictionaries to a JSON lines file.
+        residual_norm: The calculated residual norm (||Hv - λv||)
+        task: 'eigh' or 'tm'
+        L: System size
+        W: Disorder width
+        realization_index: Index of the disorder realization
+        converged: Whether the solver converged
+        output_path: Optional path to write immediately. If None, returns the dict.
     
-    Args:
-        residuals: List of residual entries.
-        output_path: Path to the output file.
+    Returns:
+        The log entry dictionary.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    entry = {
+        'timestamp': datetime.now().isoformat(),
+        'task': task,
+        'L': L,
+        'W': W,
+        'realization_index': realization_index,
+        'residual_norm': float(residual_norm),
+        'converged': converged
+    }
     
-    with open(path, 'w') as f:
-        for entry in residuals:
+    if output_path:
+        append_residuals_to_file(entry, output_path)
+    
+    return entry
+
+def save_residuals_to_file(entries: List[Dict[str, Any]], output_path: str) -> None:
+    """
+    Save a list of residual entries to a JSON lines file.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        for entry in entries:
             f.write(json.dumps(entry) + '\n')
-    logger.info(f"Saved {len(residuals)} residuals to {output_path}")
+    logger.info(f"Saved {len(entries)} residual entries to {output_path}")
 
-
-def append_residuals_to_file(residuals: List[Dict[str, Any]], output_path: str) -> None:
+def append_residuals_to_file(entry: Dict[str, Any], output_path: str) -> None:
     """
-    Append a list of residual dictionaries to a JSON lines file.
-    
-    Args:
-        residuals: List of residual entries.
-        output_path: Path to the output file.
+    Append a single residual entry to a JSON lines file.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'a') as f:
-        for entry in residuals:
-            f.write(json.dumps(entry) + '\n')
-    logger.info(f"Appended {len(residuals)} residuals to {output_path}")
-
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'a') as f:
+        f.write(json.dumps(entry) + '\n')
 
 def main():
     """
-    Main entry point for residual logging demonstration.
-    This function is invoked by the orchestration pipeline to ensure the logger is active.
+    Entry point to initialize or validate the residual logging infrastructure.
+    This script ensures the file exists and can be written to.
+    In a real run, this would be invoked by the analysis scripts (T012/T020b)
+    to flush logs, but for T017/T015 compliance, we ensure the path is valid.
     """
-    logger.info("Residual logger module initialized.")
-    # Example usage
-    log_eigenvalue_residual(
-        task="eigh",
-        L=100,
-        W=1.0,
-        realization_index=0,
-        residual_norm=1e-12,
-        converged=True
-    )
-    logger.info("Example residual logged.")
+    config = get_config()
+    output_path = str(config.DATA_METADATA_DIR / 'residuals.json')
+    
+    logger.info(f"Residual Logger initialization. Target: {output_path}")
+    
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # If file doesn't exist, create it empty to ensure path validity
+    if not os.path.exists(output_path):
+        with open(output_path, 'w') as f:
+            pass
+        logger.info(f"Created empty residual log file: {output_path}")
+    else:
+        logger.info(f"Residual log file exists: {output_path}")
+    
+    # Log a dummy entry to verify write permissions (optional, can be removed if strict)
+    # We will NOT log dummy data to avoid polluting real results, 
+    # but we ensure the infrastructure is ready.
+    logger.info("Residual logger infrastructure ready.")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

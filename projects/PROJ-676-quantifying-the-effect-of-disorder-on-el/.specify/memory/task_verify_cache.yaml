@@ -1,35 +1,10 @@
-T007a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the three required JSON schema files (`hamiltonian_schema.json`,
-    `eigenstate_schema.json`, `localization_length_schema.json`) in the path `specs/001-quantifying-disorder-effect/contracts/`
-    was provided; the claim lacks any artifact to verify. The task therefore remains
-    unfinished.
-T007b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `disorder_realization_schema.json` file was presented in the evidence, nor
-    any excerpt of its contents showing the required fields (W, L, realization_index).
-    Without the actual artifact, we cannot confirm that the file exists or meets the
-    specification. The implementer must add the JSON schema file at the indicated
-    path with the correct schema definition.
 T008a:
   c: true
-  h: e3300deb02656874f4708cf2c54fc2ef8b840f01eee0e3813691ad3635882d71
-  r: "The repository contains a non\u2011empty `code/logger.py` defining a `NumericalLogger`\
-    \ with the required `log_residual` and `log_convergence` methods that write JSON\u2011\
-    line entries (residuals to the configured path, convergence to a separate file).\
-    \ The implementation meets the specification; the absence of a pre\u2011existing\
-    \ `data/metadata/residuals.json` is acceptable because the logger creates it on\
-    \ first use."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact containing the required `dict` with keys `xi`, `uncertainty`, and\
-    \ `fit_params` was provided; the evidence consists only of task and specification\
-    \ text, with no code, data, or output showing a finite\u2011size scaling fit.\
-    \ The implementer must supply the actual dictionary result (or code that generates\
-    \ it) for the task to be considered complete."
+  h: e2efd0cf8774694721d64e1252e289f16ded1f2f1f65f11988018f10fc602181
+  r: "The repository contains `code/logger.py` defining a `NumericalLogger` class\
+    \ with the required `log_residual(norm, flag)` and `log_convergence(metric)` methods,\
+    \ and the implementation writes JSON\u2011line entries to a file under `data/metadata/residuals.json`\
+    \ (via the configured metadata directory). No further artifacts are needed."
 T023:
   c: false
   h: 03f8709ee28c97c91d94bd6f98582314b07cca90ef57ec219e676ce34882b99e
