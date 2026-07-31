@@ -1,41 +1,51 @@
-"""
-Utility script to verify pytest framework setup and directory structure.
-Run this to ensure the test environment is correctly initialized.
-"""
 import os
 import sys
 from pathlib import Path
+from utils import get_logger
 
 def verify_test_structure():
-    """Verify that the pytest directory structure exists."""
-    project_root = Path(__file__).parent.parent
-    tests_dir = project_root / "tests"
-    unit_dir = tests_dir / "unit"
-    integration_dir = tests_dir / "integration"
-    conftest = tests_dir / "conftest.py"
-    pytest_ini = project_root / "pytest.ini"
+    """Verify that the pytest directory structure is correctly set up."""
+    logger = get_logger(__name__)
+    root = Path(__file__).parent.parent
 
-    checks = [
-        (tests_dir.exists(), "tests/ directory exists"),
-        (unit_dir.exists(), "tests/unit/ directory exists"),
-        (integration_dir.exists(), "tests/integration/ directory exists"),
-        (conftest.exists(), "tests/conftest.py exists"),
-        (pytest_ini.exists(), "pytest.ini exists"),
+    required_dirs = [
+        root / "tests",
+        root / "tests" / "unit",
+        root / "tests" / "integration",
     ]
 
-    all_passed = True
-    for passed, message in checks:
-        status = "✓" if passed else "✗"
-        print(f"{status} {message}")
-        if not passed:
-            all_passed = False
+    all_ok = True
+    for dir_path in required_dirs:
+        if not dir_path.exists():
+            logger.error(f"Missing directory: {dir_path}")
+            all_ok = False
+        else:
+            logger.info(f"Found directory: {dir_path}")
 
-    if all_passed:
-        print("\n✓ Pytest framework and directory structure are correctly set up.")
-        return 0
+    # Check for conftest.py
+    conftest = root / "tests" / "conftest.py"
+    if not conftest.exists():
+        logger.error(f"Missing conftest.py: {conftest}")
+        all_ok = False
     else:
-        print("\n✗ Verification failed. Please check the directory structure.")
-        return 1
+        logger.info(f"Found conftest.py: {conftest}")
+
+    # Check for pytest.ini
+    pytest_ini = root / "tests" / "pytest.ini"
+    if not pytest_ini.exists():
+        logger.error(f"Missing pytest.ini: {pytest_ini}")
+        all_ok = False
+    else:
+        logger.info(f"Found pytest.ini: {pytest_ini}")
+
+    if all_ok:
+        logger.info("Test structure verification passed.")
+    else:
+        logger.error("Test structure verification failed.")
+        sys.exit(1)
+
+def main():
+    verify_test_structure()
 
 if __name__ == "__main__":
-    sys.exit(verify_test_structure())
+    main()

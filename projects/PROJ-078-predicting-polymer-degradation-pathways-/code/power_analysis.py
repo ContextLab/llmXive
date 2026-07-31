@@ -1,208 +1,228 @@
+"""
+Statistical power analysis for the polymer degradation dataset.
+Reads the processed graph dataset, counts records, and determines
+if data augmentation is required based on sample size thresholds.
+"""
 import logging
 import os
 import json
 import math
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
 import pandas as pd
-import numpy as np
 
 from utils import get_logger, get_project_paths
 
-# Constants
-LARGE_THRESHOLD = 150
-SMALL_THRESHOLD = 50
-POWER_WARNING_THRESHOLD = 150  # SC-004 triggers warning if n < 150
-STATE_DIR = "state"
-POWER_REPORT_PATH = "data/reports/power_analysis_report.json"
-AUGMENTATION_TRIGGER_PATH = "state/augmentation_trigger.json"
+# Constants for power analysis thresholds
+MIN_SAMPLE_SIZE = 50
+MAX_SAMPLE_SIZE = 150
 
 def calculate_cohen_d(group1: List[float], group2: List[float]) -> float:
-    """Calculate Cohen's d effect size between two groups."""
+    """
+    Calculate Cohen's d effect size between two groups.
+    Returns a float representing the effect size.
+    """
     n1, n2 = len(group1), len(group2)
     if n1 < 2 or n2 < 2:
         return 0.0
     
-    mean1, mean2 = np.mean(group1), np.mean(group2)
-    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
+    mean1 = sum(group1) / n1
+    mean2 = sum(group2) / n2
     
-    if var1 == 0 and var2 == 0:
-        return 0.0
+    var1 = sum((x - mean1) ** 2 for x in group1) / (n1 - 1)
+    var2 = sum((x - mean2) ** 2 for x in group2) / (n2 - 1)
     
     pooled_std = math.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    
     if pooled_std == 0:
         return 0.0
     
     return (mean1 - mean2) / pooled_std
 
-def interpret_effect_size(cohen_d: float) -> str:
-    """Interpret Cohen's d effect size."""
-    abs_d = abs(cohen_d)
+def interpret_effect_size(d: float) -> str:
+    """
+    Interpret the magnitude of Cohen's d.
+    Returns a string description: 'negligible', 'small', 'medium', 'large', 'very large'.
+    """
+    abs_d = abs(d)
     if abs_d < 0.2:
         return "negligible"
     elif abs_d < 0.5:
         return "small"
     elif abs_d < 0.8:
         return "medium"
-    else:
+    elif abs_d < 1.2:
         return "large"
+    else:
+        return "very large"
 
-def check_dataset_power(n: int, alpha: float = 0.05, power: float = 0.8) -> Tuple[bool, float]:
+def check_dataset_power(n: int) -> Dict[str, Any]:
     """
-    Check if dataset size is sufficient for statistical power.
-    Returns (is_sufficient, required_n).
-    Simplified approximation for t-test power analysis.
-    """
-    # Approximation: for medium effect size (d=0.5), alpha=0.05, power=0.8
-    # Required n per group ≈ 64, total ≈ 128
-    # We use a simplified heuristic based on total n
-    
-    # For a rough estimate, we assume we need at least 128 samples for adequate power
-    # with medium effect size. This is a conservative estimate.
-    required_n = 128  # Standard rule of thumb for t-test with medium effect
-    
-    is_sufficient = n >= required_n
-    return is_sufficient, required_n
-
-def run_power_analysis_from_csv(
-    csv_path: str,
-    label_column: str = "degradation_label",
-    feature_columns: Optional[List[str]] = None
-) -> Dict[str, Any]:
-    """
-    Perform statistical power analysis on the filtered dataset.
+    Determine the required action based on dataset size n.
     
     Logic:
-    - If n > 150: Trigger T018 (Subsampling) by writing augmentation_trigger.json with action="subsampling"
-    - If 50 <= n <= 150: Write augmentation_trigger.json with action="augment"
-    - If n < 50: Trigger T018 (Subsampling) and generate power_analysis_report.json with power_warning=true
+    - If n > 150: action = "none"
+    - If 50 <= n <= 150: action = "augment"
+    - If n < 50: action = "augment_aggressive"
     
-    Returns a dictionary with analysis results.
+    Returns a dictionary with the analysis result.
+    """
+    if n > MAX_SAMPLE_SIZE:
+        return {
+            "n": n,
+            "action": "none",
+            "power_warning": False,
+            "message": f"Dataset size ({n}) is sufficient. No augmentation needed."
+        }
+    elif n >= MIN_SAMPLE_SIZE:
+        return {
+            "n": n,
+            "action": "augment",
+            "power_warning": True,
+            "message": f"Dataset size ({n}) is moderate. Augmentation recommended."
+        }
+    else:
+        return {
+            "n": n,
+            "action": "augment_aggressive",
+            "power_warning": True,
+            "message": f"Dataset size ({n}) is critically small. Aggressive augmentation required."
+        }
+
+def run_power_analysis_from_csv(
+    input_path: str,
+    trigger_path: str,
+    report_path: str,
+    warning_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Perform statistical power analysis on the processed graph dataset.
+    
+    Args:
+        input_path: Path to the input CSV file (data/processed/processed_graph_dataset.csv)
+        trigger_path: Path to write the augmentation trigger JSON
+        report_path: Path to write the power analysis report JSON
+        warning_path: Optional path to write a human-readable warning text
+    
+    Returns:
+        A dictionary containing the analysis results.
+    
+    Raises:
+        FileNotFoundError: If the input CSV does not exist.
+        ValueError: If the input file is empty or malformed.
+    """
+    logger = get_logger(__name__)
+    logger.info(f"Starting power analysis on {input_path}")
+    
+    # Verify input file exists
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    # Load the dataset
+    try:
+        df = pd.read_csv(input_path)
+    except Exception as e:
+        raise ValueError(f"Failed to load CSV: {e}")
+    
+    if df.empty:
+        raise ValueError("Input dataset is empty.")
+    
+    n = len(df)
+    logger.info(f"Loaded {n} records from dataset.")
+    
+    # Perform power analysis
+    result = check_dataset_power(n)
+    
+    # Prepare report content
+    report_content = {
+        "n": result["n"],
+        "action": result["action"],
+        "power_warning": result["power_warning"],
+        "message": result["message"]
+    }
+    
+    if result["action"] == "augment_aggressive":
+        report_content["power_warning"] = True
+    
+    # Ensure output directories exist
+    Path(trigger_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(report_path).parent.mkdir(parents=True, exist_ok=True)
+    if warning_path:
+        Path(warning_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write trigger file
+    with open(trigger_path, 'w') as f:
+        json.dump({"n": result["n"], "action": result["action"]}, f, indent=2)
+    logger.info(f"Written trigger file: {trigger_path}")
+    
+    # Write report file
+    with open(report_path, 'w') as f:
+        json.dump(report_content, f, indent=2)
+    logger.info(f"Written report file: {report_path}")
+    
+    # Write warning file if applicable
+    if result["power_warning"]:
+        warning_text = (
+            f"POWER ANALYSIS WARNING\n"
+            f"======================\n"
+            f"Dataset size: {n} records\n"
+            f"Action required: {result['action']}\n"
+            f"Message: {result['message']}\n"
+        )
+        if result["action"] == "augment_aggressive":
+            warning_text += (
+                f"\nCRITICAL: Dataset is too small (< 50 records).\n"
+                f"The pipeline will proceed with aggressive augmentation,\n"
+                f"but manual intervention or dataset expansion is strongly recommended.\n"
+            )
+        
+        if warning_path:
+            with open(warning_path, 'w') as f:
+                f.write(warning_text)
+            logger.info(f"Written warning file: {warning_path}")
+    
+    logger.info(f"Power analysis complete. Action: {result['action']}")
+    return result
+
+def main():
+    """
+    Main entry point for the power analysis script.
     """
     logger = get_logger(__name__)
     paths = get_project_paths()
     
-    # Read dataset
-    df = pd.read_csv(csv_path)
-    n = len(df)
-    
-    logger.info(f"Loaded dataset with {n} records from {csv_path}")
-    
-    result = {
-        "n": n,
-        "path": csv_path,
-        "action": None,
-        "power_warning": False,
-        "details": {}
-    }
-    
-    # Determine action based on n
-    if n > LARGE_THRESHOLD:
-        result["action"] = "subsampling"
-        result["details"]["reason"] = f"Dataset size ({n}) exceeds threshold ({LARGE_THRESHOLD}). Triggering subsampling."
-        logger.info(f"Dataset size ({n}) exceeds threshold ({LARGE_THRESHOLD}). Triggering subsampling (T018).")
-        
-        # Write trigger file for subsampling
-        trigger_data = {
-            "n": n,
-            "action": "subsampling",
-            "threshold": LARGE_THRESHOLD,
-            "target_size": LARGE_THRESHOLD
-        }
-        trigger_path = paths.root / AUGMENTATION_TRIGGER_PATH
-        trigger_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(trigger_path, 'w') as f:
-            json.dump(trigger_data, f, indent=2)
-        logger.info(f"Wrote subsampling trigger to {trigger_path}")
-        
-    elif SMALL_THRESHOLD <= n <= LARGE_THRESHOLD:
-        result["action"] = "augment"
-        result["details"]["reason"] = f"Dataset size ({n}) is within acceptable range ({SMALL_THRESHOLD}-{LARGE_THRESHOLD}). Triggering augmentation."
-        logger.info(f"Dataset size ({n}) is within acceptable range. Triggering augmentation (T025).")
-        
-        # Write trigger file for augmentation
-        trigger_data = {
-            "n": n,
-            "action": "augment",
-            "lower_threshold": SMALL_THRESHOLD,
-            "upper_threshold": LARGE_THRESHOLD
-        }
-        trigger_path = paths.root / AUGMENTATION_TRIGGER_PATH
-        trigger_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(trigger_path, 'w') as f:
-            json.dump(trigger_data, f, indent=2)
-        logger.info(f"Wrote augmentation trigger to {trigger_path}")
-        
-    else:  # n < 50
-        result["action"] = "subsampling"
-        result["power_warning"] = True
-        result["details"]["reason"] = f"Dataset size ({n}) is critically small (< {SMALL_THRESHOLD}). Triggering subsampling and generating warning report."
-        logger.warning(f"CRITICAL: Dataset size ({n}) is critically small (< {SMALL_THRESHOLD}). Generating power warning report.")
-        
-        # Generate power analysis report with warning
-        report_data = {
-            "n": n,
-            "power_warning": True,
-            "threshold": SMALL_THRESHOLD,
-            "message": f"Dataset size ({n}) is below minimum threshold ({SMALL_THRESHOLD}). Statistical power is insufficient.",
-            "recommendation": "Consider data augmentation or collecting more data.",
-            "triggered_action": "subsampling"
-        }
-        
-        report_path = paths.root / POWER_REPORT_PATH
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(report_path, 'w') as f:
-            json.dump(report_data, f, indent=2)
-        logger.info(f"Generated power analysis report with warning to {report_path}")
-        
-        # Write trigger file for subsampling
-        trigger_data = {
-            "n": n,
-            "action": "subsampling",
-            "reason": "critical_small",
-            "target_size": n if n < LARGE_THRESHOLD else LARGE_THRESHOLD
-        }
-        trigger_path = paths.root / AUGMENTATION_TRIGGER_PATH
-        trigger_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(trigger_path, 'w') as f:
-            json.dump(trigger_data, f, indent=2)
-        logger.info(f"Wrote subsampling trigger to {trigger_path}")
-    
-    return result
-
-def main():
-    """Main entry point for power analysis task T017."""
-    logger = setup_logging()
-    paths = get_project_paths()
-    
-    input_file = paths.root / "data/processed/processed_graph_dataset.csv"
-    
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
-        raise FileNotFoundError(f"Input file not found: {input_file}")
-    
-    logger.info(f"Starting power analysis on {input_file}")
+    input_file = paths["data_processed"] / "processed_graph_dataset.csv"
+    trigger_file = paths["state"] / "augmentation_trigger.json"
+    report_file = paths["data_reports"] / "power_analysis_report.json"
+    warning_file = paths["data_reports"] / "power_analysis_warning.txt"
     
     try:
-        result = run_power_analysis_from_csv(str(input_file))
+        result = run_power_analysis_from_csv(
+            input_path=str(input_file),
+            trigger_path=str(trigger_file),
+            report_path=str(report_file),
+            warning_path=str(warning_file)
+        )
         
-        # Save summary result to state
-        state_dir = paths.root / STATE_DIR
-        state_dir.mkdir(parents=True, exist_ok=True)
-        summary_path = state_dir / "power_analysis_summary.json"
-        
-        with open(summary_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        
-        logger.info(f"Power analysis complete. Summary saved to {summary_path}")
-        logger.info(f"Action determined: {result['action']}")
-        
-        if result.get('power_warning'):
-            logger.warning("Power warning generated due to small dataset size.")
-        
+        # If action is augment_aggressive, log a critical message
+        # but do not exit here; the pipeline logic (or a wrapper) 
+        # should handle the exit code if needed.
+        if result["action"] == "augment_aggressive":
+            logger.critical("CRITICAL: Dataset size is too small. Aggressive augmentation triggered.")
+            # Note: The task description says "HALT the pipeline (exit code 1)".
+            # However, typically the script itself might exit, or the orchestrator handles it.
+            # To be safe and strictly follow "HALT the pipeline", we exit with code 1.
+            import sys
+            sys.exit(1)
+            
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Power analysis failed: {e}", exc_info=True)
+        logger.error(f"Unexpected error during power analysis: {e}")
         raise
 
 if __name__ == "__main__":

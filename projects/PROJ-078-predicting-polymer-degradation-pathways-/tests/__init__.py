@@ -1,3 +1,2 @@
-"""
-Test package for llmXive Polymer Degradation Pipeline.
-"""
+"""Test package initialization."""
+pass

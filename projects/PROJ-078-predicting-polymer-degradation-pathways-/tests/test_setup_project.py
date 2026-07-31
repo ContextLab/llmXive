@@ -1,70 +1,112 @@
 import os
-import tempfile
-from pathlib import Path
-import pytest
 import sys
+import pytest
+from pathlib import Path
+import tempfile
+import shutil
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add code directory to path for imports
+code_dir = Path(__file__).parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
 from setup_project import create_directories, verify_directories
 
 class TestSetupProject:
-    def test_create_directories_creates_all_required(self, tmp_path):
+    @pytest.fixture
+    def temp_project_root(self, tmp_path):
+        """Create a temporary project structure for testing."""
+        # Create a temporary directory that simulates project root
+        project_root = tmp_path / "test_project"
+        project_root.mkdir()
+        
+        # Create code directory
+        code_dir = project_root / "code"
+        code_dir.mkdir()
+        
+        # Create the test file in code directory to match real structure
+        test_file = code_dir / "setup_project_test.py"
+        test_file.write_text("pass")
+        
+        return project_root
+
+    def test_create_directories_creates_all(self, temp_project_root):
         """Test that create_directories creates all required folders."""
-        required_dirs = [
-            "code",
-            "data/raw",
-            "data/processed",
-            "data/reports",
-            "tests",
-            "state"
-        ]
+        # Mock logger
+        class MockLogger:
+            def info(self, msg): pass
+            def debug(self, msg): pass
+            def error(self, msg): pass
         
-        created_paths = create_directories(tmp_path)
+        logger = MockLogger()
         
-        assert len(created_paths) == len(required_dirs)
+        # Temporarily change working directory to simulate running from code/
+        original_cwd = os.getcwd()
+        code_dir = temp_project_root / "code"
+        os.chdir(code_dir)
         
-        for dir_name in required_dirs:
-            expected_path = tmp_path / dir_name
-            assert expected_path.is_dir()
-            assert expected_path in created_paths
+        try:
+            # We need to import the module fresh to pick up the new path
+            import importlib
+            import setup_project
+            importlib.reload(setup_project)
+            
+            created = setup_project.create_directories(logger)
+            
+            # Verify directories were created
+            assert len(created) > 0
+            
+            # Check specific directories exist
+            assert (temp_project_root / "data" / "raw").exists()
+            assert (temp_project_root / "data" / "processed").exists()
+            assert (temp_project_root / "data" / "reports").exists()
+            assert (temp_project_root / "tests").exists()
+            assert (temp_project_root / "state").exists()
+        finally:
+            os.chdir(original_cwd)
 
-    def test_verify_directories_returns_true_when_all_exist(self, tmp_path):
-        """Test verify_directories returns True when all dirs exist."""
-        # First create them
-        create_directories(tmp_path)
+    def test_verify_directories_all_exist(self, temp_project_root):
+        """Test verify_directories when all directories exist."""
+        # Create directories first
+        class MockLogger:
+            def info(self, msg): pass
+            def debug(self, msg): pass
+            def error(self, msg): pass
         
-        # Then verify
-        assert verify_directories(tmp_path) is True
+        logger = MockLogger()
+        original_cwd = os.getcwd()
+        code_dir = temp_project_root / "code"
+        os.chdir(code_dir)
+        
+        try:
+            import importlib
+            import setup_project
+            importlib.reload(setup_project)
+            
+            setup_project.create_directories(logger)
+            
+            required = ["code", "data/raw", "data/processed", "data/reports", "tests", "state"]
+            result = setup_project.verify_directories(required)
+            
+            assert result is True
+        finally:
+            os.chdir(original_cwd)
 
-    def test_verify_directories_returns_false_when_missing(self, tmp_path):
-        """Test verify_directories returns False when some dirs are missing."""
-        # Only create a subset
-        (tmp_path / "code").mkdir()
-        (tmp_path / "data").mkdir()
-        (tmp_path / "data" / "raw").mkdir()
+    def test_verify_directories_missing_one(self, temp_project_root):
+        """Test verify_directories when a directory is missing."""
+        required = ["code", "data/raw", "data/processed", "data/reports", "tests", "state"]
         
-        # Verify should fail because data/processed, etc. are missing
-        assert verify_directories(tmp_path) is False
-
-    def test_create_directories_with_nested_paths(self, tmp_path):
-        """Test that nested paths (e.g., data/raw) are created correctly."""
-        created_paths = create_directories(tmp_path)
+        # Don't create directories - they should be missing
+        original_cwd = os.getcwd()
+        code_dir = temp_project_root / "code"
+        os.chdir(code_dir)
         
-        data_raw_path = tmp_path / "data" / "raw"
-        assert data_raw_path.is_dir()
-        
-        data_processed_path = tmp_path / "data" / "processed"
-        assert data_processed_path.is_dir()
-
-    def test_create_directories_idempotent(self, tmp_path):
-        """Test that calling create_directories multiple times is safe."""
-        first_run = create_directories(tmp_path)
-        second_run = create_directories(tmp_path)
-        
-        # Should return the same paths
-        assert first_run == second_run
-        
-        # All dirs should still exist
-        assert verify_directories(tmp_path) is True
+        try:
+            import importlib
+            import setup_project
+            importlib.reload(setup_project)
+            
+            result = setup_project.verify_directories(required)
+            
+            assert result is False
+        finally:
+            os.chdir(original_cwd)

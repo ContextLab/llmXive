@@ -4,20 +4,16 @@ from pathlib import Path
 from typing import List, Optional
 from utils import get_logger
 
-def create_directories(base_path: Optional[Path] = None) -> List[Path]:
+def create_directories(root_dir: Optional[Path] = None) -> List[Path]:
     """
-    Creates the required project directory structure.
+    Create the required project directory structure.
     
-    Args:
-        base_path: Optional base path. Defaults to current working directory.
-        
-    Returns:
-        List of created Path objects.
+    Returns a list of created paths for verification.
     """
-    if base_path is None:
-        base_path = Path.cwd()
+    if root_dir is None:
+        root_dir = Path.cwd()
     
-    # Define the required directories relative to the base path
+    # Define the required directory structure relative to root
     directories = [
         "code",
         "data/raw",
@@ -28,32 +24,27 @@ def create_directories(base_path: Optional[Path] = None) -> List[Path]:
     ]
     
     created_paths = []
-    logger = get_logger("setup_project")
+    logger = get_logger(__name__)
     
-    for dir_name in directories:
-        full_path = base_path / dir_name
-        try:
+    for dir_str in directories:
+        full_path = root_dir / dir_str
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             created_paths.append(full_path)
             logger.info(f"Created directory: {full_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            raise
+        else:
+            logger.debug(f"Directory already exists: {full_path}")
     
     return created_paths
 
-def verify_directories(base_path: Optional[Path] = None) -> bool:
+def verify_directories(root_dir: Optional[Path] = None) -> bool:
     """
-    Verifies that all required directories exist.
+    Verify that all required directories exist.
     
-    Args:
-        base_path: Optional base path. Defaults to current working directory.
-        
-    Returns:
-        True if all directories exist, False otherwise.
+    Returns True if all directories exist, False otherwise.
     """
-    if base_path is None:
-        base_path = Path.cwd()
+    if root_dir is None:
+        root_dir = Path.cwd()
     
     required_dirs = [
         "code",
@@ -64,13 +55,13 @@ def verify_directories(base_path: Optional[Path] = None) -> bool:
         "state"
     ]
     
-    logger = get_logger("setup_project")
     all_exist = True
+    logger = get_logger(__name__)
     
-    for dir_name in required_dirs:
-        full_path = base_path / dir_name
-        if not full_path.is_dir():
-            logger.warning(f"Missing directory: {full_path}")
+    for dir_str in required_dirs:
+        full_path = root_dir / dir_str
+        if not full_path.exists() or not full_path.is_dir():
+            logger.error(f"Missing required directory: {full_path}")
             all_exist = False
         else:
             logger.debug(f"Verified directory: {full_path}")
@@ -79,21 +70,22 @@ def verify_directories(base_path: Optional[Path] = None) -> bool:
 
 def main():
     """Main entry point for project setup."""
-    logger = get_logger("setup_project")
+    logger = get_logger(__name__)
     logger.info("Starting project directory setup...")
     
-    try:
-        created = create_directories()
-        logger.info(f"Successfully created {len(created)} directories.")
-        
-        if verify_directories():
-            logger.info("Verification successful: All required directories exist.")
-            return 0
-        else:
-            logger.error("Verification failed: Some directories are missing.")
-            return 1
-    except Exception as e:
-        logger.exception(f"Setup failed with error: {e}")
+    root = Path.cwd()
+    created = create_directories(root)
+    
+    if created:
+        logger.info(f"Successfully created {len(created)} new directories.")
+    else:
+        logger.info("All required directories already exist.")
+    
+    if verify_directories(root):
+        logger.info("Project directory structure verification: PASSED")
+        return 0
+    else:
+        logger.error("Project directory structure verification: FAILED")
         return 1
 
 if __name__ == "__main__":

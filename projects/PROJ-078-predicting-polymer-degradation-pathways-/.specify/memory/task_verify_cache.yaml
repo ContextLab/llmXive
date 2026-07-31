@@ -1,10 +1,10 @@
-T001a:
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings, screenshots, or file\u2011tree output were provided to\
-    \ demonstrate that the required folders (`code/`, `data/raw/`, `data/processed/`,\
-    \ `data/reports/`, `tests/`, `state/`) actually exist; without such evidence the\
-    \ claim cannot be verified."
+  r: No artifact showing that a git repository was initialized (e.g., a `.git` folder,
+    `git init` command output, or a script) or that file permissions were set is present.
+    The claim lacks any concrete evidence of the required permissions changes or repository
+    setup, so the task is not satisfied.
 T003:
   c: true
   h: 56622f8f9f3bdf7152fcf252035075b3ce09841be9b398d9fadfc5d8887fa275
@@ -12,13 +12,6 @@ T003:
     \ linting settings and a `[format]` section aligning with Black\u2019s defaults,\
     \ fulfilling the requirement to configure linting/formatting in the specified\
     \ location."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides only the task description and feature specifications; there
-    is no evidence of a `tests/` directory, nor any `tests/unit` or `tests/integration`
-    subfolders, nor any pytest configuration or test files. The required pytest framework
-    and directory structure are missing.
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,13 +19,6 @@ T012:
     \ the required artifact implementing the NIST/Materials Project download with\
     \ rate\u2011limit backoff. The task cannot be verified as completed without the\
     \ actual script (and its behavior)."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `ingest.py` script (or any code) was presented; the evidence contains only
-    the task description and project specifications, with no actual implementation
-    that validates and excludes records lacking explicit degradation pathway labels.
-    The required artifact is missing, so the task is not satisfied.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,28 +26,6 @@ T014:
     of the required functionality without the actual script, so the required artifact
     is missing. The task cannot be considered completed until a concrete implementation
     that converts SMILES to RDKit molecular graphs and handles valid records is present.
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `preprocess.py` script or any code implementing SMILES\u2011based polyester\
-    \ detection was provided, nor any example input/output showing that non\u2011\
-    polyester records are filtered out. Without the actual artifact, the requirement\
-    \ cannot be verified."
-T017:
-  c: false
-  h: 2bc0adcf7691c564c230557599375c9252e39ec6737afc64ac7a944130947db1
-  r: "The required input file `data/processed/processed_graph_dataset.csv` is missing,\
-    \ so no statistical power analysis could be performed and no output artifact (e.g.,\
-    \ report or results) is present. The task\u2019s core requirement is therefore\
-    \ unmet."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `preprocess.py` file or any code that performs the saving of the final processed
-    dataset was provided. Without the actual script (or evidence of its existence
-    and functionality), the requirement to implement data saving cannot be confirmed.
-    The next implementer must add a concrete `preprocess.py` that writes the processed
-    dataset to disk (e.g., CSV, Parquet, or similar) and include the file in the repository.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
