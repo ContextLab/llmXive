@@ -1,144 +1,65 @@
 """
-Contract tests to validate the data schema of generated and processed datasets
-against the requirements in data-model.md and the task specifications.
+Contract tests for data schema validation.
 
-This test suite ensures that the output CSV files from the data generation
-and preprocessing pipelines adhere to the strict schema contract defined
-for the 'Influence of Simulated Social Status' project.
+Verifies that generated and processed data files strictly adhere to the
+schema defined in `data-model.md` and the project's data contracts.
 """
+import os
 import pytest
 import pandas as pd
 from pathlib import Path
-import sys
-import os
 
-# Ensure code is importable
-@pytest.fixture(autouse=True)
-def setup_path():
-    root = Path(__file__).parent.parent.parent
-    code_path = str(root / "code")
-    if code_path not in sys.path:
-        sys.path.insert(0, code_path)
-    yield
+# Import project utilities if needed for validation
+# from utils import load_json
 
-# Constants defined from data-model.md and task requirements
-REQUIRED_COLUMNS = {
+REQUIRED_COLUMNS = [
+    "participant_id",
     "status_level",
     "observed_behavior",
-    "risk_taking_score",
-    "participant_id"
-}
+    "risk_taking_score"
+]
 
 VALID_STATUS_LEVELS = {"High", "Low"}
 VALID_BEHAVIORS = {"Risky", "Conservative"}
 
-# Expected file paths relative to project root
-PROCESSED_DATA_PATH = "data/processed/synthetic_dataset.csv"
-RAW_DATA_PATH = "data/raw/synthetic_dataset_raw.csv"
+def test_raw_data_schema(raw_data_path):
+    """
+    Verify that the raw synthetic data CSV contains all required columns
+    and correct data types.
+    """
+    assert os.path.exists(raw_data_path), f"Raw data file not found at {raw_data_path}"
+    
+    df = pd.read_csv(raw_data_path)
+    
+    # Check columns
+    missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
+    assert not missing_cols, f"Missing required columns in raw data: {missing_cols}"
+    
+    # Check participant_id uniqueness (between-subjects design)
+    assert df["participant_id"].is_unique, "Participant IDs must be unique in between-subjects design"
+    
+    # Check basic types (pandas usually infers these correctly, but we verify)
+    assert df["risk_taking_score"].dtype in ["float64", "int64"], "Risk score should be numeric"
 
-def _get_processed_dataframe() -> pd.DataFrame:
+def test_processed_data_schema(processed_data_path):
     """
-    Helper to load the processed dataset.
-    Raises FileNotFoundError if the file does not exist,
-    allowing the test to fail loudly rather than pass on missing data.
+    Verify that the processed data CSV maintains required columns and
+    correctly maps categorical factors.
     """
-    root = Path(__file__).parent.parent.parent
-    file_path = root / PROCESSED_DATA_PATH
+    assert os.path.exists(processed_data_path), f"Processed data file not found at {processed_data_path}"
     
-    if not file_path.exists():
-        # Fallback to raw data if processed doesn't exist yet, 
-        # but note this in the test logic if needed.
-        # For strict contract testing, we expect the processed file.
-        if (root / RAW_DATA_PATH).exists():
-            return pd.read_csv(root / RAW_DATA_PATH)
-        raise FileNotFoundError(
-            f"Contract test failed: Expected data file not found at "
-            f"{file_path} or {root / RAW_DATA_PATH}. "
-            f"Please run the data generation pipeline first."
-        )
+    df = pd.read_csv(processed_data_path)
     
-    return pd.read_csv(file_path)
-
-def test_required_columns_exist():
-    """
-    Test that the processed data file contains the required columns:
-    status_level, observed_behavior, risk_taking_score, participant_id.
-    """
-    df = _get_processed_dataframe()
-    actual_columns = set(df.columns)
+    # Check columns
+    missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
+    assert not missing_cols, f"Missing required columns in processed data: {missing_cols}"
     
-    missing = REQUIRED_COLUMNS - actual_columns
-    assert not missing, (
-        f"Schema violation: Missing required columns {missing}. "
-        f"Found: {actual_columns}"
-    )
-
-def test_categorical_values_valid():
-    """
-    Test that categorical columns have only expected values.
-    status_level must be 'High' or 'Low'.
-    observed_behavior must be 'Risky' or 'Conservative'.
-    """
-    df = _get_processed_dataframe()
+    # Verify categorical integrity
+    unique_status = set(df["status_level"].unique())
+    assert unique_status.issubset(VALID_STATUS_LEVELS), f"Invalid status levels found: {unique_status - VALID_STATUS_LEVELS}"
     
-    # Check status_level
-    unique_status = set(df['status_level'].astype(str).unique())
-    invalid_status = unique_status - VALID_STATUS_LEVELS
-    assert not invalid_status, (
-        f"Invalid values found in 'status_level': {invalid_status}. "
-        f"Allowed: {VALID_STATUS_LEVELS}"
-    )
+    unique_behavior = set(df["observed_behavior"].unique())
+    assert unique_behavior.issubset(VALID_BEHAVIORS), f"Invalid behaviors found: {unique_behavior - VALID_BEHAVIORS}"
     
-    # Check observed_behavior
-    unique_behavior = set(df['observed_behavior'].astype(str).unique())
-    invalid_behavior = unique_behavior - VALID_BEHAVIORS
-    assert not invalid_behavior, (
-        f"Invalid values found in 'observed_behavior': {invalid_behavior}. "
-        f"Allowed: {VALID_BEHAVIORS}"
-    )
-
-def test_data_types():
-    """
-    Test expected data types for columns.
-    - participant_id: int or str
-    - risk_taking_score: float or int
-    - status_level: object or category
-    - observed_behavior: object or category
-    """
-    df = _get_processed_dataframe()
-    
-    # Check participant_id
-    pid_dtype = df['participant_id'].dtype
-    assert pid_dtype in ['int64', 'int32', 'object', 'str', 'float64'], (
-        f"Unexpected dtype for 'participant_id': {pid_dtype}"
-    )
-    
-    # Check risk_taking_score
-    score_dtype = df['risk_taking_score'].dtype
-    assert pd.api.types.is_numeric_dtype(score_dtype), (
-        f"'risk_taking_score' must be numeric. Found: {score_dtype}"
-    )
-    
-    # Check categorical columns (object or category are acceptable in pandas)
-    for col in ['status_level', 'observed_behavior']:
-        col_dtype = df[col].dtype
-        assert col_dtype in ['object', 'category', 'str'], (
-            f"'{col}' should be object or category. Found: {col_dtype}"
-        )
-
-def test_participant_id_uniqueness():
-    """
-    Test that participant_id is unique (between-subjects design).
-    This validates the experimental design constraint.
-    """
-    df = _get_processed_dataframe()
-    if 'participant_id' not in df.columns:
-        pytest.skip("participant_id column missing")
-        
-    unique_ids = df['participant_id'].nunique()
-    total_ids = len(df)
-    
-    assert unique_ids == total_ids, (
-        f"Design violation: Duplicate participant_ids detected. "
-        f"Expected {total_ids} unique IDs for {total_ids} rows (between-subjects)."
-    )
+    # Check N count (should be same as raw if no dropping, or less if imputation/exclusion)
+    assert len(df) > 0, "Processed dataframe is empty"

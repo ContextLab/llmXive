@@ -649,25 +649,6 @@
   updated_at: '2026-07-14T06:22:07Z'
 - artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   attempts: 1
-  canonical: output CSV contains at least 5000 compounds
-  claim_id: c_5ddc6d83
-  context: Execute the data retrieval script and verify that the output CSV contains
-    at least 5,000 compounds with non-null values for melting point, latent heat (where
-    available), and computed feature columns, fitting within 7 GB RAM.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
-  kind: magnitude
-  raw_text: output CSV contains at least 5,000 compounds
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:24:04Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 1
   canonical: NIST overlap less than 500 compounds triggers fallback
   claim_id: c_6a6234af
   context: 'Implement fallback logic in code/data/load_external_validation.py (or
@@ -1128,24 +1109,6 @@
   updated_at: '2026-07-14T06:36:50Z'
 - artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   attempts: 2
-  canonical: performance drop less than or equal to 10 percent compared to test set
-  claim_id: c_4f57c314
-  context: "Apply derived rules to an external set of literature PCMs and performance\
-    \ drop \u2264 10% compared to test set; generate sensitivity analysis report."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
-  kind: magnitude
-  raw_text: "performance drop \u2264 10% compared to test set"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:36:52Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 2
   canonical: greater than or equal to 60 percent accuracy on top N PCMs
   claim_id: c_d5d21f8e
   context: "Verify success criterion: \u2265 60% accuracy on top N (SC-003)"
@@ -1161,24 +1124,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T06:36:53Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 2
-  canonical: 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
-  claim_id: c_42443d82
-  context: 'Implement code/data/load_external_validation.py to fetch or load the 50
-    literature PCMs (DOI: 10.1016/j.matt.2024.01.001) for later validation.'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'fetch or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:37:26Z'
 - artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   attempts: 1
   canonical: 5000 compounds with non-null melting point and latent heat
@@ -1232,22 +1177,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T06:37:28Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 1
-  canonical: symbolic regression terminates within 4 hours
-  claim_id: c_71b421e1
-  context: "Run the training pipeline and verify that models achieve R\xB2 > 0.0 on\
-    \ the validation set and that symbolic regression terminates within 4 hours."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: symbolic regression terminates within 4 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:37:29Z'
 - artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   attempts: 1
   canonical: performance drop less than or equal to 10% compared to test set
@@ -1718,25 +1647,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T06:44:43Z'
 - artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 3
-  canonical: performance drop less than or equal to 10 percent compared to test set
-  claim_id: c_22232466
-  context: "Independent Test: Apply derived rules to an external set of literature\
-    \ PCMs and performance drop \u2264 10% compared to test set; generate sensitivity\
-    \ analysis report."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
-  kind: magnitude
-  raw_text: "performance drop \u2264 10% compared to test set"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:44:46Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   attempts: 1
   canonical: accuracy greater than or equal to 60 percent on top N PCMs
   claim_id: c_c3b38155
@@ -1815,23 +1725,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T06:46:36Z'
 - artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 3
-  canonical: symbolic regression terminates within 4 hours
-  claim_id: c_8e6705e4
-  context: "Independent Test: Run the training pipeline and verify that models achieve\
-    \ R\xB2 > 0.0 on the validation set and that symbolic regression terminates within\
-    \ 4 hours."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: symbolic regression terminates within 4 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:46:36Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   attempts: 1
   canonical: performance drop less than or equal to 10% compared to test set
   claim_id: c_98964d0e
@@ -1893,3 +1786,376 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T06:50:04Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 3
+  canonical: 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_42443d82
+  context: 'Implement code/data/load_external_validation.py to fetch or load the 50
+    literature PCMs (DOI: 10.1016/j.matt.2024.01.001) for later validation.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:26:18Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_5ddc6d83
+  context: Execute the data retrieval script and verify that the output CSV contains
+    at least 5,000 compounds with non-null values for melting point, latent heat (where
+    available), and computed feature columns, fitting within 7 GB RAM.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:27:10Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: dataset fits within 7 GB RAM
+  claim_id: c_4afee255
+  context: Execute the data retrieval script and verify that the output CSV contains
+    at least 5,000 compounds with non-null values for melting point, latent heat (where
+    available), and computed feature columns, fitting within 7 GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:27:42Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: NIST overlap threshold of 500 compounds
+  claim_id: c_8cd9c640
+  context: 'Implement fallback logic in code/data/load_external_validation.py to handle
+    failure case: if the NIST overlap (training data proxy validation) is < 500 compounds,
+    switch target to melting point.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if the NIST overlap (training data proxy validation) is < 500 compounds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:27:42Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: symbolic regression termination time of 4 hours
+  claim_id: c_d24ef602
+  context: "Run the training pipeline and verify that models achieve R\xB2 > 0.0 on\
+    \ the validation set and that symbolic regression terminates within 4 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: symbolic regression terminates within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:28:31Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: performance drop less than or equal to 10 percent
+  claim_id: c_43fc1eeb
+  context: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set; generate sensitivity analysis report."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:29:06Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: accuracy success criterion of 60 percent on top N
+  claim_id: c_ba818856
+  context: "Calculate ranking accuracy on the top N PCMs (resolving SC-003) ... Verify\
+    \ success criterion: \u2265 60% accuracy on top N (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify success criterion: \u2265 60% accuracy on top N"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:29:07Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 50 literature phase-change materials loaded from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_495e48d5
+  context: 'Implement code/data/load_external_validation.py to fetch or load the 50
+    literature PCMs (DOI: 10.1016/j.matt.2024.01.001) for later validation.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:30:29Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5,000 compounds
+  claim_id: c_b8405932
+  context: Execute the data retrieval script and verify that the output CSV contains
+    at least 5,000 compounds (where available), and computed feature columns, fitting
+    within 7 GB RAM.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5,000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:30:33Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: switch target to melting point if NIST overlap is less than 500 compounds
+  claim_id: c_f413c3a8
+  context: if the NIST overlap (training data proxy validation) is < 500 compounds,
+    switch target to melting_point and flag the limitation as per Spec US-1 Acceptance
+    Scenario 3.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_target_to_melting_point_if_NIST_overlap_is_less_than
+  kind: magnitude
+  raw_text: if the NIST overlap (training data proxy validation) is < 500 compounds,
+    switch target to melting_point
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:31:46Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: symbolic regression terminates within 4 hours
+  claim_id: c_71b421e1
+  context: "Run the training pipeline and verify that models achieve R\xB2 > 0.0 on\
+    \ the validation set and that symbolic regression terminates within 4 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: symbolic regression terminates within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:31:46Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 3
+  canonical: performance drop less than or equal to 10 percent compared to test set
+  claim_id: c_4f57c314
+  context: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set; generate sensitivity analysis report."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:31:51Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 50 literature PCMs retrieved from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_3d6b64b8
+  context: 'T013 [P] [US1] Implement code/data/load_external_validation.py to fetch
+    or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001) for later validation.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:33:20Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: NIST overlap less than 500 compounds
+  claim_id: c_ea2b2f95
+  context: T013b [US1] Implement fallback logic... if the NIST overlap (training data
+    proxy validation) is < 500 compounds, switch target to melting_point.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NIST_overlap_less_than_500_compounds
+  kind: magnitude
+  raw_text: if the NIST overlap (training data proxy validation) is < 500 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:34:29Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_02c1fa71
+  context: 'T013 [P] [US1] Implement `code/data/load_external_validation.py` to fetch
+    or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001) for later validation.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:35:19Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: NIST overlap threshold of 500 compounds triggers switch to melting point
+    target
+  claim_id: c_447fe15d
+  context: 'T013b [US1] Implement fallback logic... to handle failure case: if the
+    NIST overlap (training data proxy validation) is < 500 compounds, switch target
+    to `melting_point`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if the NIST overlap (training data proxy validation) is < 500 compounds,
+    switch target to `melting_point`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:35:20Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: dataset contains at least 5,000 compounds
+  claim_id: c_77ddf1f7
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds (where available), and computed feature
+    columns, fitting within 7 GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_5,000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:35:25Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: dataset fits within 7 GB RAM
+  claim_id: c_4bb9f33d
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds (where available), and computed feature
+    columns, fitting within 7 GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:35:26Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 5
+  canonical: symbolic regression terminates within 4 hours
+  claim_id: c_8e6705e4
+  context: "Independent Test: Run the training pipeline and verify that models achieve\
+    \ R\xB2 > 0.0 on the validation set and that symbolic regression terminates within\
+    \ 4 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: symbolic regression terminates within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:35:26Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 5
+  canonical: performance drop less than or equal to 10 percent compared to test set
+  claim_id: c_22232466
+  context: "Independent Test: Apply derived rules to an external set of literature\
+    \ PCMs and performance drop \u2264 10% compared to test set; generate sensitivity\
+    \ analysis report."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:35:29Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 60 percent accuracy on top N PCMs
+  claim_id: c_c12f8f3b
+  context: "T023 [US3] ... Verify success criterion: \u2265 60% accuracy on top N\
+    \ (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u2265 60% accuracy on top N"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:35:29Z'

@@ -14,9 +14,3 @@ T008:
     \ mode differs, and does not compute or record the SHA\u2011256 checksum. Moreover,\
     \ those output files are absent from the repository. The task\u2019s required\
     \ artifacts are therefore missing."
-T009b:
-  c: false
-  h: 350097d4169fb6b34bab72a2419a866b77b7e57d0332416279a051b0a236a128
-  r: The required output file `assets/templates/TEMPLATE-001-v1.0.md` does not exist,
-    so the fetched and normalized template was never saved as specified. The task
-    therefore remains unfinished.

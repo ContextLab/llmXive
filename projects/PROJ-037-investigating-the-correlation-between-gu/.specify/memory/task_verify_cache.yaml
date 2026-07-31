@@ -1,0 +1,37 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-037-investigating-the-correlation-between-gu/`
+    directory or its subfolders (`data/raw/`, `data/processed/`, `data/outputs/`,
+    `code/`, `tests/`, `docs/`) is present. The implementer must create and show this
+    directory tree.
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `venv` directory or any indication that a virtual environment was created,
+    nor any record (e.g., `requirements.txt` installed packages, activation script,
+    or logs) showing that the requirements were installed in the `code/` context.
+    The artifact required by the task is missing.
+T006a:
+  c: false
+  h: 8fb5ee906629462ce2e0e25eddbf3f69dac82ed379af7bba7569d806969fc2d9
+  r: "The `code/schemas.py` file is present but is truncated and contains a broken\
+    \ `get_required_columns` function (returns undefined `REQU`). Moreover, the required\
+    \ `contracts/dataset.schema.yaml` file is missing, so the schema cannot be verified\
+    \ as matching the contract. The task\u2019s requirement is therefore not fully\
+    \ satisfied."
+T026:
+  c: false
+  h: 8fd04376f122303b12dfacc2d6820b9cc41c570ca38d36916dc702062ffd60f1
+  r: "The `data/outputs/heatmap.png` file does not exist, and the `code/viz.py` source\
+    \ is truncated and lacks a complete implementation that actually creates and saves\
+    \ a heatmap of taxa\u2011sleep associations. Consequently, the required artifact\
+    \ and functionality are missing."
+T027:
+  c: false
+  h: fb6007a43e71af8a02cffab3786b151d7a6715447a56c154eff70c600f5c52e4
+  r: The repository contains a `code/viz.py` file, but it is truncated and does not
+    include a complete implementation that generates a PCoA ordination plot colored
+    by sleep quality or writes the image to `data/outputs/pcoa_sleep_quality.png`.
+    Moreover, the expected output file `data/outputs/pcoa_sleep_quality.png` is absent
+    from the project. Both the required code and the resulting plot are missing.

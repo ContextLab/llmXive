@@ -1,215 +1,356 @@
+"""
+Stability checks for data quality and resource monitoring.
+
+This module provides utilities for:
+- NaN/Inf validation in dataframes and arrays
+- Memory usage monitoring and thresholds
+- Feature validation for model inputs
+"""
 import numpy as np
 import psutil
 import os
 import pandas as pd
 from typing import Any, Dict, List, Union, Optional
 from code.utils.logger import get_pipeline_logger
-from code.utils.error_handling import DataProcessingError
 
-def check_nan_inf(data: Union[np.ndarray, List, pd.DataFrame], context: str = "Data") -> bool:
+logger = get_pipeline_logger(__name__)
+
+
+def check_nan_inf(data: Union[np.ndarray, pd.DataFrame, List[float]], 
+                 column_names: Optional[List[str]] = None) -> Dict[str, Any]:
     """
-    Check for NaN or Inf values in data.
+    Check for NaN and Inf values in data structures.
     
     Args:
-        data: Numpy array, list, or pandas DataFrame to check
-        context: Context description for logging
+        data: Input data (numpy array, pandas DataFrame, or list)
+        column_names: Optional list of column names if data is a list/array
         
     Returns:
-        True if no NaN/Inf found (or non-numeric data), False otherwise
+        Dictionary with check results:
+        - 'has_nan': bool
+        - 'has_inf': bool
+        - 'nan_count': int
+        - 'inf_count': int
+        - 'nan_indices': list of indices/columns with NaN
+        - 'inf_indices': list of indices/columns with Inf
     """
-    logger = get_pipeline_logger()
+    result = {
+        'has_nan': False,
+        'has_inf': False,
+        'nan_count': 0,
+        'inf_count': 0,
+        'nan_indices': [],
+        'inf_indices': []
+    }
     
     if isinstance(data, pd.DataFrame):
-        # Handle DataFrame case
-        numeric_cols = data.select_dtypes(include=[np.number]).columns
-        has_issues = False
+        # Check DataFrame
+        nan_mask = data.isna()
+        inf_mask = np.isinf(data.select_dtypes(include=[np.number]).values)
         
-        for col in numeric_cols:
-            arr = data[col].values
-            if np.issubdtype(arr.dtype, np.floating):
-                nan_mask = np.isnan(arr)
-                inf_mask = np.isinf(arr)
-                
-                if np.any(nan_mask):
-                    nan_count = np.sum(nan_mask)
-                    logger.warning(f"{context} column '{col}' contains {nan_count} NaN values")
-                    has_issues = True
-                
-                if np.any(inf_mask):
-                    inf_count = np.sum(inf_mask)
-                    logger.warning(f"{context} column '{col}' contains {inf_count} Inf values")
-                    has_issues = True
+        result['nan_count'] = int(nan_mask.sum().sum())
+        result['inf_count'] = int(np.sum(inf_mask))
         
-        return not has_issues
-    
+        if result['nan_count'] > 0:
+            result['has_nan'] = True
+            # Get column names with NaN
+            nan_cols = nan_mask.any(axis=0)
+            result['nan_indices'] = list(data.columns[nan_cols])
+            logger.warning(f"Found {result['nan_count']} NaN values in columns: {result['nan_indices']}")
+        
+        if result['inf_count'] > 0:
+            result['has_inf'] = True
+            # Get column names with Inf
+            numeric_cols = data.select_dtypes(include=[np.number]).columns
+            inf_cols = pd.Series(inf_mask.any(axis=0), index=numeric_cols)
+            result['inf_indices'] = list(inf_cols[inf_cols].index)
+            logger.warning(f"Found {result['inf_count']} Inf values in columns: {result['inf_indices']}")
+            
+    elif isinstance(data, np.ndarray):
+        # Check numpy array
+        nan_mask = np.isnan(data)
+        inf_mask = np.isinf(data)
+        
+        result['nan_count'] = int(np.sum(nan_mask))
+        result['inf_count'] = int(np.sum(inf_mask))
+        
+        if result['nan_count'] > 0:
+            result['has_nan'] = True
+            result['nan_indices'] = list(np.argwhere(nan_mask))
+            logger.warning(f"Found {result['nan_count']} NaN values in array")
+        
+        if result['inf_count'] > 0:
+            result['has_inf'] = True
+            result['inf_indices'] = list(np.argwhere(inf_mask))
+            logger.warning(f"Found {result['inf_count']} Inf values in array")
+            
     elif isinstance(data, list):
+        # Check list
         try:
-            data = np.array(data)
-        except Exception as e:
-            logger.error(f"{context}: Failed to convert list to numpy array: {e}")
-            return False
-    
-    if isinstance(data, np.ndarray):
-        if np.issubdtype(data.dtype, np.floating):
-            has_nan = np.any(np.isnan(data))
-            has_inf = np.any(np.isinf(data))
-            
-            if has_nan:
-                nan_count = np.sum(np.isnan(data))
-                logger.warning(f"{context} contains {nan_count} NaN values")
-            if has_inf:
-                inf_count = np.sum(np.isinf(data))
-                logger.warning(f"{context} contains {inf_count} Inf values")
-            
-            return not (has_nan or has_inf)
-    
-    # For non-floating types, assume valid
-    return True
+            arr = np.array(data)
+            return check_nan_inf(arr, column_names)
+        except (ValueError, TypeError):
+            # Handle nested lists or mixed types
+            for i, item in enumerate(data):
+                try:
+                    val = float(item)
+                    if np.isnan(val):
+                        result['has_nan'] = True
+                        result['nan_count'] += 1
+                        result['nan_indices'].append(i)
+                    elif np.isinf(val):
+                        result['has_inf'] = True
+                        result['inf_count'] += 1
+                        result['inf_indices'].append(i)
+                except (ValueError, TypeError):
+                    pass
+                
+            if result['nan_count'] > 0:
+                logger.warning(f"Found {result['nan_count']} NaN values in list")
+            if result['inf_count'] > 0:
+                logger.warning(f"Found {result['inf_count']} Inf values in list")
+                
+    else:
+        logger.warning(f"Unsupported data type for NaN/Inf check: {type(data)}")
+        
+    return result
 
-def check_memory_usage(max_gb: float = 7.0) -> bool:
+
+def get_memory_stats() -> Dict[str, Any]:
     """
-    Check current process memory usage against a limit.
+    Get current memory usage statistics.
+    
+    Returns:
+        Dictionary with memory stats:
+        - 'process_memory_mb': Current process memory usage in MB
+        - 'total_memory_mb': Total system memory in MB
+        - 'available_memory_mb': Available system memory in MB
+        - 'percent_used': Percentage of total memory used by process
+    """
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    system_mem = psutil.virtual_memory()
+    
+    return {
+        'process_memory_mb': mem_info.rss / (1024 * 1024),
+        'total_memory_mb': system_mem.total / (1024 * 1024),
+        'available_memory_mb': system_mem.available / (1024 * 1024),
+        'percent_used': (mem_info.rss / system_mem.total) * 100
+    }
+
+
+def check_memory_usage(max_memory_mb: float = 6000.0) -> Dict[str, Any]:
+    """
+    Check if current memory usage is within acceptable limits.
     
     Args:
-        max_gb: Maximum allowed memory in GB
+        max_memory_mb: Maximum allowed memory usage in MB (default 6000MB for 7GB limit)
         
     Returns:
-        True if usage is within limits, False otherwise
+        Dictionary with check results:
+        - 'within_limit': bool
+        - 'current_usage_mb': Current memory usage
+        - 'max_allowed_mb': Maximum allowed memory
+        - 'margin_mb': Remaining memory margin
+        - 'warning': str (warning message if approaching limit)
     """
-    logger = get_pipeline_logger()
-    try:
-        process = psutil.Process(os.getpid())
-        memory_mb = process.memory_info().rss / 1024 / 1024
-        memory_gb = memory_mb / 1024
+    stats = get_memory_stats()
+    current_usage = stats['process_memory_mb']
+    
+    result = {
+        'within_limit': current_usage < max_memory_mb,
+        'current_usage_mb': current_usage,
+        'max_allowed_mb': max_memory_mb,
+        'margin_mb': max_memory_mb - current_usage,
+        'warning': None
+    }
+    
+    if current_usage > max_memory_mb:
+        result['warning'] = f"CRITICAL: Memory usage ({current_usage:.1f} MB) exceeds limit ({max_memory_mb:.1f} MB)"
+        logger.error(result['warning'])
+    elif current_usage > max_memory_mb * 0.9:
+        result['warning'] = f"WARNING: Memory usage ({current_usage:.1f} MB) is above 90% of limit ({max_memory_mb:.1f} MB)"
+        logger.warning(result['warning'])
+    elif current_usage > max_memory_mb * 0.8:
+        result['warning'] = f"INFO: Memory usage ({current_usage:.1f} MB) is above 80% of limit ({max_memory_mb:.1f} MB)"
+        logger.info(result['warning'])
         
-        logger.debug(f"Current memory usage: {memory_gb:.2f} GB / {max_gb:.2f} GB limit")
-        
-        if memory_gb > max_gb:
-            logger.error(f"Memory usage ({memory_gb:.2f} GB) exceeds limit ({max_gb:.2f} GB)")
-            return False
-        
-        return True
-    except Exception as e:
-        logger.error(f"Failed to check memory usage: {e}")
-        # Fail safe: assume OK if we can't check, but log the error
-        return True
+    return result
 
-def validate_dataframe(df: pd.DataFrame, name: str = "DataFrame", strict: bool = False) -> bool:
+
+def validate_dataframe(df: pd.DataFrame, 
+                     required_columns: Optional[List[str]] = None,
+                     max_memory_mb: float = 6000.0,
+                     allow_nan: bool = False,
+                     allow_inf: bool = False) -> Dict[str, Any]:
     """
-    Validate a DataFrame for common issues (NaN, Inf, empty, None).
+    Comprehensive validation of a DataFrame for pipeline readiness.
     
     Args:
-        df: pandas DataFrame to validate
-        name: Name of the DataFrame for logging
-        strict: If True, return False on any warning (NaN/Inf); otherwise just log
+        df: Input DataFrame to validate
+        required_columns: Optional list of columns that must be present
+        max_memory_mb: Maximum allowed memory usage
+        allow_nan: Whether NaN values are allowed
+        allow_inf: Whether Inf values are allowed
         
     Returns:
-        True if valid, False otherwise
+        Dictionary with validation results:
+        - 'valid': bool (True if all checks pass)
+        - 'checks': dict with individual check results
+        - 'errors': list of error messages
+        - 'warnings': list of warning messages
     """
-    logger = get_pipeline_logger()
-    is_valid = True
+    result = {
+        'valid': True,
+        'checks': {},
+        'errors': [],
+        'warnings': []
+    }
     
-    if df is None:
-        logger.error(f"{name} is None")
-        return False
-    
-    if not isinstance(df, pd.DataFrame):
-        logger.error(f"{name} is not a DataFrame (got {type(df).__name__})")
-        return False
-    
-    if df.empty:
-        logger.warning(f"{name} is empty")
-        if strict:
-            return False
-    
-    # Check for NaN values
-    nan_counts = df.isna().sum()
-    if nan_counts.any():
-        cols_with_nan = nan_counts[nan_counts > 0]
-        logger.warning(f"{name} has NaN values in columns: {cols_with_nan.to_dict()}")
-        if strict:
-            is_valid = False
-    
-    # Check for infinite values in numeric columns
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
-    for col in numeric_cols:
-        # Convert to float to safely check inf (integers can't be inf)
-        if df[col].dtype in [np.float32, np.float64]:
-            inf_count = np.isinf(df[col]).sum()
-            if inf_count > 0:
-                logger.warning(f"{name} column '{col}' has {inf_count} infinite values")
-                if strict:
-                    is_valid = False
-    
-    return is_valid
-
-def get_memory_stats() -> Dict[str, float]:
-    """
-    Get detailed memory statistics for the current process.
-    
-    Returns:
-        Dictionary with memory stats in GB
-    """
-    logger = get_pipeline_logger()
-    try:
-        process = psutil.Process(os.getpid())
-        mem_info = process.memory_info()
-        
-        return {
-            "rss_gb": mem_info.rss / 1024 / 1024 / 1024,
-            "vms_gb": mem_info.vms / 1024 / 1024 / 1024,
-            "percent": process.memory_percent()
-        }
-    except Exception as e:
-        logger.error(f"Failed to get memory stats: {e}")
-        return {"rss_gb": 0.0, "vms_gb": 0.0, "percent": 0.0}
-
-def validate_features(X: np.ndarray, y: Optional[np.ndarray] = None, name: str = "Features") -> bool:
-    """
-    Validate feature matrix and optional target vector for ML readiness.
-    
-    Args:
-        X: Feature matrix (2D array or DataFrame)
-        y: Optional target vector
-        name: Name for logging
-        
-    Returns:
-        True if valid, False otherwise
-    """
-    logger = get_pipeline_logger()
-    is_valid = True
-    
-    # Check X
-    if isinstance(X, pd.DataFrame):
-        if not check_nan_inf(X, f"{name} (X)"):
-            is_valid = False
-        if X.shape[0] == 0:
-            logger.error(f"{name} (X) has no samples")
-            return False
-    elif isinstance(X, np.ndarray):
-        if not check_nan_inf(X, f"{name} (X)"):
-            is_valid = False
-        if X.size == 0:
-            logger.error(f"{name} (X) is empty")
-            return False
-        if X.ndim != 2:
-            logger.warning(f"{name} (X) is not 2D (shape: {X.shape})")
-    
-    # Check y if provided
-    if y is not None:
-        if isinstance(y, pd.Series):
-            if not check_nan_inf(y.values, f"{name} (y)"):
-                is_valid = False
-        elif isinstance(y, np.ndarray):
-            if not check_nan_inf(y, f"{name} (y)"):
-                is_valid = False
+    # Check 1: Required columns
+    if required_columns:
+        missing_cols = [col for col in required_columns if col not in df.columns]
+        if missing_cols:
+            result['valid'] = False
+            error_msg = f"Missing required columns: {missing_cols}"
+            result['errors'].append(error_msg)
+            logger.error(error_msg)
         else:
-            try:
-                y_arr = np.array(y)
-                if not check_nan_inf(y_arr, f"{name} (y)"):
-                    is_valid = False
-            except Exception as e:
-                logger.error(f"Failed to validate target vector: {e}")
-                is_valid = False
+            result['checks']['required_columns'] = True
+            logger.debug("All required columns present")
+            
+    # Check 2: NaN/Inf values
+    nan_inf_result = check_nan_inf(df)
+    result['checks']['nan_inf'] = nan_inf_result
     
-    return is_valid
+    if not allow_nan and nan_inf_result['has_nan']:
+        result['valid'] = False
+        error_msg = f"DataFrame contains {nan_inf_result['nan_count']} NaN values"
+        result['errors'].append(error_msg)
+        logger.error(error_msg)
+        
+    if not allow_inf and nan_inf_result['has_inf']:
+        result['valid'] = False
+        error_msg = f"DataFrame contains {nan_inf_result['inf_count']} Inf values"
+        result['errors'].append(error_msg)
+        logger.error(error_msg)
+        
+    # Check 3: Memory usage
+    memory_result = check_memory_usage(max_memory_mb)
+    result['checks']['memory'] = memory_result
+    
+    if not memory_result['within_limit']:
+        result['valid'] = False
+        error_msg = f"Memory usage exceeds limit: {memory_result['current_usage_mb']:.1f} MB > {max_memory_mb:.1f} MB"
+        result['errors'].append(error_msg)
+        logger.error(error_msg)
+        
+    # Check 4: Empty DataFrame
+    if df.empty:
+        result['valid'] = False
+        error_msg = "DataFrame is empty"
+        result['errors'].append(error_msg)
+        logger.error(error_msg)
+        
+    # Check 5: Data types (ensure numeric columns for modeling)
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    non_numeric_cols = df.select_dtypes(exclude=[np.number]).columns.tolist()
+    
+    if len(numeric_cols) == 0:
+        result['warnings'].append("No numeric columns found in DataFrame")
+        logger.warning("No numeric columns found in DataFrame")
+        
+    result['checks']['data_types'] = {
+        'numeric_columns': len(numeric_cols),
+        'non_numeric_columns': len(non_numeric_cols)
+    }
+    
+    return result
+
+
+def validate_features(X: Union[np.ndarray, pd.DataFrame], 
+                    feature_names: Optional[List[str]] = None,
+                    min_samples: int = 100,
+                    max_memory_mb: float = 6000.0) -> Dict[str, Any]:
+    """
+    Validate feature matrix for model training.
+    
+    Args:
+        X: Feature matrix (numpy array or DataFrame)
+        feature_names: Optional list of feature names
+        min_samples: Minimum number of samples required
+        max_memory_mb: Maximum allowed memory usage
+        
+    Returns:
+        Dictionary with validation results:
+        - 'valid': bool
+        - 'checks': dict with individual check results
+        - 'errors': list of error messages
+        - 'warnings': list of warning messages
+    """
+    result = {
+        'valid': True,
+        'checks': {},
+        'errors': [],
+        'warnings': []
+    }
+    
+    # Convert to DataFrame if numpy array
+    if isinstance(X, np.ndarray):
+        if feature_names is None:
+            feature_names = [f"feature_{i}" for i in range(X.shape[1])]
+        X_df = pd.DataFrame(X, columns=feature_names)
+    elif isinstance(X, pd.DataFrame):
+        X_df = X
+        if feature_names is None:
+            feature_names = X_df.columns.tolist()
+    else:
+        result['valid'] = False
+        error_msg = f"Unsupported feature type: {type(X)}"
+        result['errors'].append(error_msg)
+        logger.error(error_msg)
+        return result
+        
+    # Check 1: NaN/Inf
+    nan_inf_result = check_nan_inf(X_df)
+    result['checks']['nan_inf'] = nan_inf_result
+    
+    if nan_inf_result['has_nan']:
+        result['warnings'].append(f"Features contain {nan_inf_result['nan_count']} NaN values")
+        
+    if nan_inf_result['has_inf']:
+        result['warnings'].append(f"Features contain {nan_inf_result['inf_count']} Inf values")
+        
+    # Check 2: Sample count
+    n_samples = X_df.shape[0]
+    if n_samples < min_samples:
+        result['valid'] = False
+        error_msg = f"Insufficient samples: {n_samples} < {min_samples}"
+        result['errors'].append(error_msg)
+        logger.error(error_msg)
+    else:
+        result['checks']['sample_count'] = n_samples
+        logger.debug(f"Sample count OK: {n_samples}")
+        
+    # Check 3: Feature count
+    n_features = X_df.shape[1]
+    if n_features == 0:
+        result['valid'] = False
+        error_msg = "No features found in feature matrix"
+        result['errors'].append(error_msg)
+        logger.error(error_msg)
+    else:
+        result['checks']['feature_count'] = n_features
+        logger.debug(f"Feature count OK: {n_features}")
+        
+    # Check 4: Memory usage
+    memory_result = check_memory_usage(max_memory_mb)
+    result['checks']['memory'] = memory_result
+    
+    if not memory_result['within_limit']:
+        result['valid'] = False
+        error_msg = f"Feature matrix memory usage exceeds limit"
+        result['errors'].append(error_msg)
+        logger.error(error_msg)
+        
+    return result

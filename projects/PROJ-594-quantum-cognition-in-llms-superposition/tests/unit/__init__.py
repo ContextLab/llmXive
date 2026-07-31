@@ -1,1 +1,2 @@
-# Unit tests for PROJ-594
+# Unit tests package
+# Tests for individual components (complex ops, adapters, etc.)

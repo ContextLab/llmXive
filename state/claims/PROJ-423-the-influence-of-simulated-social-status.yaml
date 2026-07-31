@@ -408,3 +408,68 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T04:32:44Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: synthetic dataset size is 800 with between-subjects design
+  claim_id: c_9b2aa91c
+  context: 'Phase 3, Task T010b: Implement code/generate_data.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic data generator using parameters from T010a, ensuring N=800 and
+    between-subjects design.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:45:23Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for flagging is 5.0
+  claim_id: c_0c14f1c3
+  context: 'Phase 4, Task T022: Implement code/analysis.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Variance Inflation Factors (VIF) for all predictors and flag
+    if > 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:45:23Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: forest plot displays 95 percent confidence intervals
+  claim_id: c_22efc5ad
+  context: 'Phase 5, Task T032: Implement code/report.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate forest plot of condition means with 95% Confidence Intervals
+    using matplotlib/seaborn.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:45:24Z'
+- artifact_path: projects/PROJ-423-the-influence-of-simulated-social-status/specs/001-the-influence-of-simulated-social-status/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime must be less than 6 hours
+  claim_id: c_c0dac4be
+  context: 'Phase N, Task T042: Performance optimization'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_must_be_less_than_6_hours
+  kind: magnitude
+  raw_text: Ensure < 6h runtime for performance optimization across all scripts.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:46:11Z'

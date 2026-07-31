@@ -1,0 +1,205 @@
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: BERT baseline accuracy 68.4% mean on WiC task
+  claim_id: c_982fb477
+  context: 'We compared the frozen BERT baseline against our complex-valued adapter
+    across 5 random seeds. *   **Baseline Accuracy**: 68.4% (mean)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Baseline Accuracy: 68.4% (mean)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:00:09Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: Quantum adapter accuracy 71.2% mean on WiC task
+  claim_id: c_9a843ea2
+  context: 'We compared the frozen BERT baseline against our complex-valued adapter
+    across 5 random seeds. *   **Quantum Adapter Accuracy**: 71.2% (mean)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Quantum Adapter Accuracy: 71.2% (mean)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:00:09Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: Classical sum-of-squares control accuracy 69.1%
+  claim_id: c_b7f94f0a
+  context: '1.  **Classical Sum-of-Squares**: $P = |\psi_1|^2 + |\psi_2|^2$ (no cross-term).
+    Performance dropped to 69.1%, confirming the cross-term adds predictive value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Performance dropped to 69.1% in the Classical Sum-of-Squares control
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:00:09Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: Magnitude-only control accuracy 70.0%
+  claim_id: c_0f878623
+  context: '2.  **Magnitude-Only Control**: $P = |\psi_1 + \psi_2|^2$ with fixed phase
+    (0). Performance dropped to 70.0%, confirming that *context-dependent* phase shifts
+    are critical for the observed improvement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Performance dropped to 70.0% in the Magnitude-Only Control
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:00:09Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/research.md
+  attempts: 1
+  canonical: Spearman correlation -0.62 between ambiguity score and interference cross-term
+  claim_id: c_0cb0f29e
+  context: The Spearman correlation between ambiguity score and cross-term value was
+    -0.62 ($p < 0.001$), supporting the hypothesis that the model learns to use destructive
+    interference to resolve ambiguity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Spearman correlation between ambiguity score and cross-term value
+    was -0.62
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:09:32Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: baseline metric variance threshold 0.02
+  claim_id: c_502ee723
+  context: 'T013 [US1] Implement stability check in code/experiments/run_baseline.py:
+    run multiple seeds, add an assertion that raises an error if metric variance >
+    0.02 across runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add an assertion that raises an error if metric variance > 0.02 across
+    runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:09:54Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: phase penalty lambda value 0.5
+  claim_id: c_de89a5c9
+  context: 'T023a [US2] [Foundational] Define the FR-009 loss function: Implement
+    code/models/loss_utils.py with the specific formula loss += lambda * (1 + torch.cos(phase_diff))
+    for ambiguous tokens, where lambda=0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify this function produces negative gradients for non-anti-parallel
+    phases where lambda=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:10:40Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: negative interference cross-term percentage 10
+  claim_id: c_ea899afa
+  context: 'T025 [US2] Verify interference cross-term (2Re(c1 * c2*)) can be negative
+    for ambiguous inputs: Add unit test asserting cross_term < 0 for at least 10%
+    of ambiguous samples, output validation to data/results/interference_validation.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Negative_interference_cross-term_percentage_10
+  kind: magnitude
+  raw_text: Add unit test asserting cross_term < 0 for at least 10% of ambiguous samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:11:59Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: paired t-test alpha threshold 0.05
+  claim_id: c_5a7fe52d
+  context: "T029 [P] [US3] Implement code/analysis/stats_test.py: Paired t-test logic\
+    \ (\u03B1=0.05) across multiple seeds"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/analysis/stats_test.py`: Paired t-test logic (\u03B1\
+    =0.05) across multiple seeds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:12:15Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling iterations 1000
+  claim_id: c_e40cff47
+  context: 'T030 [US3] Implement code/analysis/stats_test.py: Bootstrap resampling
+    (k=1000 iterations) to calculate confidence intervals for the mean difference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/analysis/stats_test.py`: Bootstrap resampling (k=1000
+    iterations) to calculate confidence intervals for the mean difference.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:13:22Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: statistical report 95 percent confidence interval
+  claim_id: c_48a7fbf0
+  context: T032 [US3] Verify data/results/stats_report.json contains p-value, t-statistic,
+    Cohen's d, and 95% CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify data/results/stats_report.json contains p-value, t-statistic, Cohen's
+    d, and 95% CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:13:22Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: RAM constraint 7 GB
+  claim_id: c_9a0cfce0
+  context: 'T052 Performance optimization: ensure batch size and model size fit within
+    7GB RAM'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure batch size and model size fit within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:13:54Z'

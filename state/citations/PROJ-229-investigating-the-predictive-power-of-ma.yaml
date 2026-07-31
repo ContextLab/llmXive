@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1016/j.matt.2024.01.001
   verified_at: '2026-07-13T17:58:14.348731Z'
-- artifact_hash: db3af6e912bdff887130b04851a68856a3b4a90099e23e2f90573f6629992307
+- artifact_hash: f11787139fea6b213a05079272bd61c18d0173f871ac5f9d17b2de2cfe8a8c9b
   artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -39,10 +39,10 @@
   fetched_title: Nist - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q37499364
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q37499364
-  verified_at: '2026-07-14T06:48:53.445778Z'
-- artifact_hash: db3af6e912bdff887130b04851a68856a3b4a90099e23e2f90573f6629992307
+  verified_at: '2026-07-31T01:35:30.145406Z'
+- artifact_hash: f11787139fea6b213a05079272bd61c18d0173f871ac5f9d17b2de2cfe8a8c9b
   artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -50,6 +50,6 @@
   fetched_title: The curiosity-creativity element in HI-AI materials discovery
   kind: doi
   value: 10.1016/j.matt.2024.01.001
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.matt.2024.01.001
-  verified_at: '2026-07-14T06:48:53.445778Z'
+  verified_at: '2026-07-31T01:35:30.145406Z'

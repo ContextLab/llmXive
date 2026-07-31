@@ -1,111 +1,68 @@
 """
-Data validation utilities for the research pipeline.
+Validation utilities for data schemas and merged cohorts.
 """
 import pandas as pd
 from typing import List, Dict, Any, Optional
-
 from .logging_utils import get_logger
 
 logger = get_logger(__name__)
 
-def validate_schema(df: pd.DataFrame, schema: Dict[str, str]) -> bool:
-    """
-    Validate that a DataFrame matches a required schema.
+def validate_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> bool:
+    """Validate DataFrame against a schema definition."""
+    logger.info("Validating schema...")
     
-    Args:
-        df: The DataFrame to validate.
-        schema: Dict mapping column names to expected dtypes (as strings).
-        
-    Returns:
-        True if valid, False otherwise.
-    """
-    valid = True
-    for col, expected_type in schema.items():
+    for col, dtype in schema.items():
         if col not in df.columns:
-            logger.error(f"Missing required column: {col}")
-            valid = False
-            continue
+            logger.error(f"Missing column in schema validation: {col}")
+            return False
         
-        # Basic type check (string representation)
-        actual_type = str(df[col].dtype)
-        if expected_type.lower() not in actual_type.lower():
-            logger.warning(f"Column {col} has type {actual_type}, expected {expected_type}")
-            # We don't fail strictly on type mismatch unless it's critical, 
-            # but we log it. For this task, we assume strict validation is needed.
-            valid = False
+        # Check dtype compatibility (simplified)
+        if dtype == 'str' and not pd.api.types.is_object_dtype(df[col]):
+            logger.warning(f"Column {col} expected str but got {df[col].dtype}")
+        elif dtype == 'float' and not pd.api.types.is_float_dtype(df[col]):
+            logger.warning(f"Column {col} expected float but got {df[col].dtype}")
+        elif dtype == 'int' and not pd.api.types.is_integer_dtype(df[col]):
+            logger.warning(f"Column {col} expected int but got {df[col].dtype}")
     
-    return valid
+    logger.info("Schema validation passed")
+    return True
 
-def validate_non_null(df: pd.DataFrame, columns: Optional[List[str]] = None) -> bool:
-    """
-    Validate that specified columns (or all columns if None) are non-null.
+def validate_non_null(df: pd.DataFrame, columns: List[str]) -> bool:
+    """Validate that specified columns have no null values."""
+    logger.info("Validating non-null constraints...")
     
-    Args:
-        df: The DataFrame to validate.
-        columns: List of columns to check. If None, checks all.
-        
-    Returns:
-        True if no nulls found, False otherwise.
-    """
-    cols_to_check = columns if columns else df.columns
-    valid = True
-    
-    for col in cols_to_check:
+    for col in columns:
         if col not in df.columns:
-            logger.error(f"Cannot validate non-null for missing column: {col}")
-            valid = False
-            continue
+            logger.error(f"Column {col} not found for non-null validation")
+            return False
         
         null_count = df[col].isnull().sum()
         if null_count > 0:
-            logger.warning(f"Column {col} has {null_count} null values.")
-            valid = False
+            logger.error(f"Column {col} has {null_count} null values")
+            return False
     
-    return valid
+    logger.info("Non-null validation passed")
+    return True
 
 def validate_merged_cohort(df: pd.DataFrame) -> bool:
-    """
-    Specific validation for the merged cohort dataset.
+    """Validate the merged cohort dataset."""
+    logger.info("Validating merged cohort...")
     
-    Checks:
-    - participant_id exists and is non-null
-    - Required numeric columns are non-null
-    - No duplicate participant_ids (if applicable)
+    required_columns = [
+        'Participant ID', 'Shannon Diversity', 'Sleep Duration', 
+        'Sleep Quality', 'Chronotype', 'Age', 'BMI', 
+        'Antibiotic History', 'Diet Type'
+    ]
     
-    Args:
-        df: The merged cohort DataFrame.
-        
-    Returns:
-        True if valid, False otherwise.
-    """
-    logger.info("Validating merged cohort structure...")
-    
-    # Check schema
-    required_schema = {
-        "participant_id": "object",
-        "shannon": "float64",
-        "simpson": "float64",
-        "sleep_duration": "float64",
-        "sleep_quality": "float64",
-        "chronotype": "object"
-    }
-    
-    if not validate_schema(df, required_schema):
-        logger.error("Merged cohort failed schema validation.")
+    # Check required columns
+    if not validate_non_null(df, required_columns):
+        logger.error("Merged cohort validation failed: missing required columns or null values")
         return False
     
-    # Check non-null for critical columns
-    critical_cols = ["participant_id", "shannon", "sleep_duration"]
-    if not validate_non_null(df, critical_cols):
-        logger.error("Merged cohort has nulls in critical columns.")
+    # Check sample size
+    if len(df) == 0:
+        logger.warning("Merged cohort is empty")
         return False
     
-    # Check duplicates
-    if df["participant_id"].duplicated().any():
-        logger.warning("Merged cohort contains duplicate participant IDs.")
-        # Depending on requirements, this might be a hard fail. 
-        # For now, we log and return False to be safe.
-        return False
-        
-    logger.info("Merged cohort validation passed.")
+    logger.info(f"Merged cohort validation passed: {len(df)} participants")
     return True

@@ -78,7 +78,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T010b [P] [US1] Implement `code/generate_data.py`: Synthetic data generator using parameters from T010a, ensuring N=800 and between-subjects design.
+- [X] T010b [P] [US1] Implement `code/generate_data.py`: Synthetic data generator using parameters from T010a, ensuring N=800 and between-subjects design. [UNRESOLVED-CLAIM: c_9b2aa91c — status=not_enough_info]
 - [X] T011 [US1] Implement `code/generate_data.py`: Add a validation function that raises a `ValueError` with the message "Error: status_level has no variance. Experimental condition integrity violated." if the generated data lacks variance, and exit with code 1.
 - [X] T012 [US1] Implement `code/preprocess.py`: Load raw synthetic data, map `status_level` and `observed_behavior` to categorical factors (High/Low, Risky/Conservative).
 - [X] T012b [US1] Implement `code/preprocess.py`: Implement the specific binning strategy (e.g., High vs Low/Medium) for input data with >2 levels, OR implement logic to flag ambiguity for manual review as required by FR-002.
@@ -103,17 +103,17 @@
 
 ### Implementation for User Story 2
 
-- [~] T020a [US2] Implement `code/analysis.py`: Validate data structure (between vs within) based on `participant_id` repetition and write the result to `data/processed/structure_config.json` with schema `{"type": "between|within", "n_subjects": int}`.
+- [ ] T020a [US2] Implement `code/analysis.py`: Validate data structure (between vs within) based on `participant_id` repetition and write the result to `data/processed/structure_config.json` with schema `{"type": "between|within", "n_subjects": int}`.
 - [X] T020b [US2] Implement `code/analysis.py`: Consume `family_type` flag from T014b and configure the regression family (Binomial vs Gaussian) for the model.
 - [X] T021a [US2] **Must run after T020a**: Implement `code/analysis.py`: Function `fit_mixed_effects` that fits a Mixed-Effects model using `statsmodels` with formula `risk_taking ~ status_level * observed_behavior + (1|participant_id)` IF `structure_config` is 'within-subjects'.
 - [X] T021b [US2] **Must run after T020a**: Implement `code/analysis.py`: Function `fit_fixed_effects` that fits a Fixed-Effects model (OLS/GLM) using `statsmodels` with formula `risk_taking ~ status_level * observed_behavior` IF `structure_config` is 'between-subjects'.
-- [ ] T021c [US2] **Must run after T014b**: Implement `code/analysis.py`: Logic to select between `fit_mixed_effects` and `fit_fixed_effects` based on `structure_config` and `family_type`, ensuring adaptive behavior per FR-003.
-- [ ] T022 [US2] Implement `code/analysis.py`: Calculate Variance Inflation Factors (VIF) for all predictors and flag if > 5.0.
-- [ ] T023 [US2] Implement `code/analysis.py`: Extract fixed effects coefficients, standard errors, and p-values for the interaction term.
-- [ ] T023b [US2] Implement `code/analysis.py`: Explicitly calculate and report p-values for the interaction term against the null hypothesis (coefficient = 0) to satisfy SC-001 (p < 0.05).
-- [ ] T024 [US2] Implement `code/analysis.py`: Add fallback logic to use asymptotic standard errors if bootstrap resampling fails (memory constraints).
+- [X] T021c [US2] **Must run after T014b**: Implement `code/analysis.py`: Logic to select between `fit_mixed_effects` and `fit_fixed_effects` based on `structure_config` and `family_type`, ensuring adaptive behavior per FR-003.
+- [X] T022 [US2] Implement `code/analysis.py`: Calculate Variance Inflation Factors (VIF) for all predictors and flag if > 5.0. [UNRESOLVED-CLAIM: c_0c14f1c3 — status=not_enough_info]
+- [X] T023 [US2] Implement `code/analysis.py`: Extract fixed effects coefficients, standard errors, and p-values for the interaction term.
+- [X] T023b [US2] Implement `code/analysis.py`: Explicitly calculate and report p-values for the interaction term against the null hypothesis (coefficient = 0) to satisfy SC-001 (p < 0.05).
+- [X] T024 [US2] Implement `code/analysis.py`: Add fallback logic to use asymptotic standard errors if bootstrap resampling fails (memory constraints).
 - [ ] T025 [P] [US2] Write `tests/contract/test_model_output.py` to validate model output schema (coefficients, p-values, VIF) against `contracts/model_output.schema.yaml`.
-- [ ] T026 [P] [US2] Write `tests/unit/test_analysis.py` to verify parameter recovery (estimated vs. injected effect size) and correct family selection.
+- [X] T026 [P] [US2] Write `tests/unit/test_analysis.py` to verify parameter recovery (estimated vs. injected effect size) and correct family selection.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,9 +127,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] **Must run after T023**: Implement `code/analysis.py`: Sensitivity analysis module to sweep outlier exclusion threshold over a range of standard deviations, explicitly calculating deviations relative to the *cell mean* within each of the experimental conditions (High/Risky, High/Conservative, Low/Risky, Low/Conservative).
-- [ ] T031 [US3] Implement `code/analysis.py`: Perform post-hoc pairwise comparisons with Bonferroni correction for all condition combinations, executing this logic UNCONDITIONALLY regardless of the primary interaction significance (per FR-006).
-- [ ] T032 [P] [US3] Implement `code/report.py`: Generate forest plot of condition means with 95% Confidence Intervals using `matplotlib/seaborn`.
+- [X] T030 [US3] **Must run after T023**: Implement `code/analysis.py`: Sensitivity analysis module to sweep outlier exclusion threshold over a range of standard deviations, explicitly calculating deviations relative to the *cell mean* within each of the experimental conditions (High/Risky, High/Conservative, Low/Risky, Low/Conservative).
+- [X] T031 [US3] Implement `code/analysis.py`: Perform post-hoc pairwise comparisons with Bonferroni correction for all condition combinations, executing this logic UNCONDITIONALLY regardless of the primary interaction significance (per FR-006).
+- [X] T032 [P] [US3] Implement `code/report.py`: Generate forest plot of condition means with 95% Confidence Intervals using `matplotlib/seaborn`.
 - [ ] T033 [US3] Implement `code/report.py`: Generate PDF/HTML summary containing model coefficients, VIF table, sensitivity sweep results, and forest plot, saving to `reports/analysis_report.html`.
 - [ ] T034 [P] [US3] Write `tests/unit/test_sensitivity.py` to verify that changing the threshold in config updates the sensitivity table.
 - [ ] T035 [P] [US3] Write `tests/contract/test_report_schema.py` to validate the generated report structure against `contracts/model_output.schema.yaml`.

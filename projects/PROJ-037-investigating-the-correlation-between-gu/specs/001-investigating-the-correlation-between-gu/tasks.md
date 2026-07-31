@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create project directory structure: `projects/PROJ-037-investigating-the-correlation-between-gu/`, `data/raw/`, `data/processed/`, `data/outputs/`, `code/`, `tests/`, `docs/`
-- [ ] T001b [P] Create empty `README.md`, `.gitignore`, and `requirements.txt` placeholder files
+- [X] T001b [P] Create empty `README.md`, `.gitignore`, and `requirements.txt` placeholder files
 
 ---
 
@@ -54,14 +54,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002a [P] Create `requirements.txt` at `projects/PROJ-037-investigating-the-correlation-between-gu/` with dependencies: `pandas`, `scikit-learn`, `scipy`, `statsmodels`, `biom-format`, `skbio`, `numpy`, `matplotlib`, `seaborn`, `requests`, `biopython`. **Note**: Do NOT use `american-gut` package; use `biom-format` and `skbio` with manual download scripts as defined in plan.md.
+- [X] T002a [P] Create `requirements.txt` at `projects/PROJ-037-investigating-the-correlation-between-gu/` with dependencies: `pandas`, `scikit-learn`, `scipy`, `statsmodels`, `biom-format`, `skbio`, `numpy`, `matplotlib`, `seaborn`, `requests`, `biopython`. **Note**: Do NOT use `american-gut` package; use `biom-format` and `skbio` with manual download scripts as defined in plan.md.
 - [ ] T002b [P] Create virtual environment (`python -m venv venv`) and install requirements in `code/` context <!-- FAILED: unspecified -->
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `setup.cfg` or `pyproject.toml`
-- [ ] T004 [P] Create `code/__init__.py` and utility modules for configuration and logging in `code/utils/`
-- [~] T006a [P] Define data validation schema in `code/schemas.py` matching `contracts/dataset.schema.yaml` (specify column types: participant_id=str, shannon=float, etc.)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `setup.cfg` or `pyproject.toml`
+- [X] T004 [P] Create `code/__init__.py` and utility modules for configuration and logging in `code/utils/`
+- [ ] T006a [P] Define data validation schema in `code/schemas.py` matching `contracts/dataset.schema.yaml` (specify column types: participant_id=str, shannon=float, etc.)
 - [X] T006b [P] Implement validation logic in `code/utils/validators.py` to check non-null constraints and data types for the merged cohort
 - [X] T007 [P] Setup random seed management for reproducibility in `code/utils/seeding.py`
-- [ ] T008 [P] Create base configuration loader for environment variables in `code/config.py`
+- [X] T008 [P] Create base configuration loader for environment variables in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -88,7 +88,7 @@
 - [X] T014 [US1] Implement outlier capping for sleep duration (<2h or >16h) at 1st/99th percentiles in `code/ingestion.py`
 - [X] T015 [US1] Implement covariate imputation (median/mode) for BMI, age, antibiotic history in `code/ingestion.py`
 - [X] T016 [US1] Generate summary report in `code/ingestion.py` listing the **exact retained participant count (N)** and distribution of key covariates (age, BMI, antibiotic use)
-- [ ] T017 [US1] Save final merged cohort to `data/processed/cohort_merged.csv`
+- [X] T017 [US1] Save final merged cohort to `data/processed/cohort_merged.csv`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,10 +113,10 @@
 - [X] T023 [US2] Implement distance-based redundancy analysis (dbRDA) in `code/analysis.py` for non-linear screening of sleep vs. beta diversity
 - [X] T024 [US2] Implement Generalized Linear Model (GLM) in `code/analysis.py` adjusting for confounders (age, BMI, diet type, medication, antibiotic history); **Note**: Explicitly flag that "diet timing" (required by FR-004) is unavailable in AGP and "diet type" is used as a substitute per plan mitigation; document this requirement deviation in the output report.
 - [X] T025 [US2] Implement PERMANOVA in `code/analysis.py` strictly for categorical sleep variables (not continuous); use dbRDA for continuous variables as per plan mitigation.
-- [~] T026 [US2] Generate heatmap of taxa-sleep associations in `code/viz.py` and save to `data/outputs/heatmap.png`
-- [~] T027 [US2] Generate PCoA ordination plot colored by sleep quality scores in `code/viz.py` and save to `data/outputs/pcoa_sleep_quality.png`
+- [ ] T026 [US2] Generate heatmap of taxa-sleep associations in `code/viz.py` and save to `data/outputs/heatmap.png`
+- [ ] T027 [US2] Generate PCoA ordination plot colored by sleep quality scores in `code/viz.py` and save to `data/outputs/pcoa_sleep_quality.png`
 - [ ] T028 [US2] Generate final results table in `data/outputs/correlation_results.csv` including effect sizes, p-values, and FDR-corrected p-values
-- [ ] T029 [US2] Implement logic in `code/report.py` to ensure the **entire report** (headers, captions, text) explicitly frames all findings as "associational" and avoids causal language, verifying FR-008 compliance.
+- [X] T029 [US2] Implement logic in `code/report.py` to ensure the **entire report** (headers, captions, text) explicitly frames all findings as "associational" and avoids causal language, verifying FR-008 compliance.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,11 +135,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Implement bootstrap resampling (1000 iterations) in `code/validation.py` to estimate 95% confidence intervals for top 5 correlations; **Note**: Explicitly implement logic where confidence intervals including zero are treated as valid negative results (correcting the spec's SC-002 flaw), and report these as such.
-- [ ] T033 [US3] Implement logic in `code/validation.py` to skip resampling if N < 40; write status to `data/outputs/validation_status.json` with field `resampling_skipped: true` and reason "Insufficient sample size"
-- [ ] T034 [US3] Implement sensitivity analysis in `code/validation.py` sweeping significance threshold over the specific set of values: `[0.01, 0.05, 0.1]` as defined in spec SC-003.
-- [ ] T035 [US3] Generate sensitivity report in `data/outputs/sensitivity_report.csv` showing variation in significant taxa counts
-- [ ] T036 [US3] Update `code/report.py` to include a section detailing bootstrap stability (CIs) and sensitivity sweep results, explicitly framing all findings as associational
+- [X] T032 [P] [US3] Implement bootstrap resampling (1000 iterations) in `code/validation.py` to estimate 95% confidence intervals for top 5 correlations; **Note**: Explicitly implement logic where confidence intervals including zero are treated as valid negative results (correcting the spec's SC-002 flaw), and report these as such.
+- [X] T033 [US3] Implement logic in `code/validation.py` to skip resampling if N < 40; write status to `data/outputs/validation_status.json` with field `resampling_skipped: true` and reason "Insufficient sample size"
+- [X] T034 [US3] Implement sensitivity analysis in `code/validation.py` sweeping significance threshold over the specific set of values: `[0.01, 0.05, 0.1]` as defined in spec SC-003.
+- [X] T035 [US3] Generate sensitivity report in `data/outputs/sensitivity_report.csv` showing variation in significant taxa counts
+- [X] T036 [US3] Update `code/report.py` to include a section detailing bootstrap stability (CIs) and sensitivity sweep results, explicitly framing all findings as associational
 
 **Checkpoint**: All user stories should now be independently functional
 

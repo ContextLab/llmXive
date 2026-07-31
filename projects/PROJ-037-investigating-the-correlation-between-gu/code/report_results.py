@@ -1,123 +1,150 @@
-"""
-Generate the final results table for the gut microbiome and circadian rhythm study.
-
-This module loads correlation results (including effect sizes, p-values, and FDR-corrected p-values)
-from the analysis module and saves them to a CSV file in the data/outputs directory.
-"""
 import os
 import logging
 import argparse
 from pathlib import Path
 from typing import Optional, List, Dict, Any
-
 import pandas as pd
 
-# Import from sibling modules based on the provided API surface
-from analysis import load_processed_cohort, load_biom_table, load_metadata, calculate_alpha_diversity, calculate_beta_diversity, calculate_correlations, apply_fdr_correction, run_all_correlations, save_results
+from config import get_config
 from utils.logging_utils import setup_logging, get_logger
-from utils.config import get_config
 
 logger = get_logger(__name__)
 
-def load_correlation_results() -> pd.DataFrame:
+def load_correlation_results(input_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Load correlation results from the analysis module.
-    
-    Returns:
-        pd.DataFrame: DataFrame containing correlation results with effect sizes, p-values, and FDR-corrected p-values.
-    """
-    # Re-run the full analysis pipeline to ensure we have the latest results
-    # This matches the approach used in other modules
-    config = get_config()
-    cohort_path = Path(config.get('paths.cohort', 'data/processed/cohort_merged.csv'))
-    
-    if not cohort_path.exists():
-        raise FileNotFoundError(f"Cohort file not found at {cohort_path}")
-    
-    logger.info(f"Loading cohort from {cohort_path}")
-    cohort = load_processed_cohort(cohort_path)
-    
-    # Calculate diversity metrics
-    logger.info("Calculating alpha diversity metrics")
-    alpha_div = calculate_alpha_diversity(cohort)
-    
-    logger.info("Calculating beta diversity metrics")
-    beta_div = calculate_beta_diversity(cohort)
-    
-    # Run all correlations
-    logger.info("Running all correlation analyses")
-    results = run_all_correlations(cohort, alpha_div, beta_div)
-    
-    return results
-
-def generate_results_table(results: pd.DataFrame, output_path: Path) -> None:
-    """
-    Generate and save the final results table.
+    Load the correlation results from the analysis module.
     
     Args:
-        results: DataFrame containing correlation results.
-        output_path: Path where the results CSV will be saved.
+        input_path: Optional path to the results CSV. If None, uses config default.
+        
+    Returns:
+        DataFrame containing correlation results.
     """
-    if results.empty:
-        logger.warning("No correlation results to save. Creating empty results file.")
-        # Create a minimal header-only file to indicate completion
-        empty_df = pd.DataFrame(columns=['variable_type', 'variable_name', 'sleep_variable', 'correlation_type', 'effect_size', 'p_value', 'fdr_corrected_p_value', 'sample_size'])
-        empty_df.to_csv(output_path, index=False)
-        return
+    config = get_config()
+    if input_path is None:
+        input_path = str(config.OUTPUTS_DIR / "correlation_results_raw.csv")
     
-    # Ensure the output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Correlation results file not found: {input_path}")
     
-    # Sort results by FDR-corrected p-value for easier interpretation
-    if 'fdr_corrected_p_value' in results.columns:
-        results = results.sort_values('fdr_corrected_p_value')
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} correlation results from {input_path}")
+    return df
+
+def generate_results_table(df: pd.DataFrame, output_path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Generate the final results table with effect sizes, p-values, and FDR-corrected p-values.
+    
+    This function ensures the output table contains all required columns for the final report:
+    - Variable 1 (e.g., Shannon Diversity)
+    - Variable 2 (e.g., Sleep Duration)
+    - Correlation Coefficient (effect size)
+    - P-value (raw)
+    - P-value (FDR corrected)
+    - Method (Spearman/Pearson)
+    - N (sample size)
+    
+    Args:
+        df: Input DataFrame with correlation results.
+        output_path: Optional path to save the final CSV. If None, uses config default.
+        
+    Returns:
+        DataFrame with the finalized results table.
+    """
+    config = get_config()
+    if output_path is None:
+        output_path = str(config.OUTPUTS_DIR / "correlation_results.csv")
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Standardize column names if they differ slightly
+    column_mapping = {
+        'var1': 'variable_1',
+        'var2': 'variable_2',
+        'correlation': 'correlation_coefficient',
+        'p_value': 'p_value_raw',
+        'p_value_fdr': 'p_value_fdr_corrected',
+        'method': 'statistical_method',
+        'n': 'sample_size'
+    }
+    
+    # Rename columns if they exist in the input
+    for old, new in column_mapping.items():
+        if old in df.columns and new not in df.columns:
+            df = df.rename(columns={old: new})
+    
+    # Ensure required columns exist
+    required_columns = [
+        'variable_1', 
+        'variable_2', 
+        'correlation_coefficient', 
+        'p_value_raw', 
+        'p_value_fdr_corrected',
+        'statistical_method'
+    ]
+    
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in input data: {missing_cols}")
+    
+    # Sort by FDR-corrected p-value for readability
+    if 'p_value_fdr_corrected' in df.columns:
+        df = df.sort_values(by='p_value_fdr_corrected', ascending=True)
+    
+    # Round numerical values for presentation
+    numerical_cols = ['correlation_coefficient', 'p_value_raw', 'p_value_fdr_corrected']
+    for col in numerical_cols:
+        if col in df.columns:
+            df[col] = df[col].round(6)
     
     # Save to CSV
-    results.to_csv(output_path, index=False)
-    logger.info(f"Results table saved to {output_path}")
-    logger.info(f"Total correlations tested: {len(results)}")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved final results table to {output_path} with {len(df)} rows")
     
-    # Log summary statistics
-    if 'p_value' in results.columns:
-        significant_at_005 = (results['p_value'] < 0.05).sum()
-        logger.info(f"Significant correlations at p < 0.05: {significant_at_005}")
-    
-    if 'fdr_corrected_p_value' in results.columns:
-        significant_at_fdr = (results['fdr_corrected_p_value'] < 0.05).sum()
-        logger.info(f"Significant correlations at FDR < 0.05: {significant_at_fdr}")
+    return df
 
 def main():
-    """Main entry point for generating the results table."""
-    # Setup logging
-    setup_logging()
-    
-    parser = argparse.ArgumentParser(description='Generate final results table for gut microbiome and circadian rhythm study')
-    parser.add_argument('--output', type=str, default='data/outputs/correlation_results.csv',
-                      help='Path to save the results CSV file')
-    parser.add_argument('--log-level', type=str, default='INFO',
-                      choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                      help='Logging level')
+    """
+    Main entry point for generating the final results table.
+    """
+    parser = argparse.ArgumentParser(description="Generate final correlation results table")
+    parser.add_argument("--input", type=str, default=None, help="Path to raw correlation results CSV")
+    parser.add_argument("--output", type=str, default=None, help="Path to save final results CSV")
+    parser.add_argument("--log-level", type=str, default="INFO", help="Logging level")
     
     args = parser.parse_args()
     
-    # Set log level
-    logger.setLevel(getattr(logging, args.log_level))
+    # Setup logging
+    setup_logging(level=args.log_level)
     
     try:
-        # Load correlation results
-        logger.info("Loading correlation results from analysis pipeline")
-        results = load_correlation_results()
+        # Load raw results
+        raw_df = load_correlation_results(args.input)
         
-        # Generate and save results table
-        output_path = Path(args.output)
-        logger.info(f"Generating results table at {output_path}")
-        generate_results_table(results, output_path)
+        # Generate final table
+        final_df = generate_results_table(raw_df, args.output)
         
-        logger.info("Results table generation completed successfully")
+        # Print summary
+        logger.info("--- Results Summary ---")
+        logger.info(f"Total correlations tested: {len(final_df)}")
+        
+        if 'p_value_fdr_corrected' in final_df.columns:
+            significant = final_df[final_df['p_value_fdr_corrected'] < 0.05]
+            logger.info(f"Significant correlations (FDR < 0.05): {len(significant)}")
+            
+            if len(significant) > 0:
+                logger.info("Top 5 significant results:")
+                for _, row in significant.head().iterrows():
+                    logger.info(f"  {row['variable_1']} vs {row['variable_2']}: "
+                              f"r={row['correlation_coefficient']:.3f}, "
+                              f"p(FDR)={row['p_value_fdr_corrected']:.4f}")
+        
+        logger.info("Results table generation complete.")
         
     except Exception as e:
-        logger.error(f"Error generating results table: {str(e)}", exc_info=True)
+        logger.error(f"Error generating results table: {e}", exc_info=True)
         raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

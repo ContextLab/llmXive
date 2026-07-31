@@ -1,240 +1,269 @@
+"""
+Ingestion module for American Gut Project and Open Humans data.
+Handles downloading, parsing, merging, filtering, and saving the final cohort.
+"""
 import os
 import hashlib
 import logging
 import tempfile
 from pathlib import Path
 from typing import Dict, Tuple, Optional, List
-
 import pandas as pd
-import numpy as np
+import requests
+import biom
+import skbio
+from skbio.stats.diversity import alpha_diversity
+from skbio.diversity import beta_diversity
 
-from utils.config import get_config
+from config import get_config
 from utils.logging_utils import setup_logging, get_logger
 from utils.validators import validate_merged_cohort
-from schemas import get_required_columns, get_optional_columns
+from utils.seeding import set_seed
 
-# Initialize logger
+# Setup logging
 logger = get_logger(__name__)
 
-def download_file(url: str, dest_path: str, chunk_size: int = 8192) -> str:
-    """
-    Download a file from a URL to a destination path.
-    Returns the path to the downloaded file.
-    """
-    import requests
+def download_file(url: str, dest_path: Path, checksum: Optional[str] = None) -> bool:
+    """Download a file from a URL and verify its checksum if provided."""
     logger.info(f"Downloading {url} to {dest_path}")
-    response = requests.get(url, stream=True)
-    response.raise_for_status()
-    with open(dest_path, 'wb') as f:
-        for chunk in response.iter_content(chunk_size=chunk_size):
-            if chunk:
-                f.write(chunk)
-    return dest_path
-
-def parse_biom_table(biom_path: str) -> pd.DataFrame:
-    """
-    Parse a BIOM format file into a pandas DataFrame.
-    Expected columns: SampleID, FeatureID, count (or similar structure flattened).
-    For this task, we assume a pre-processed or simplified BIOM structure
-    or use biom-format library if available. Here we simulate the logic
-    assuming a TSV/CSV representation of the BIOM table for demonstration
-    if the actual library isn't strictly enforced in the environment,
-    but per task T002a, biom-format is a dependency.
-    
-    We will use biom-format if available, otherwise fallback to simple parsing.
-    """
     try:
-        import biom
-        table = biom.load_table(biom_path)
-        # Convert to observation table (FeatureID x SampleID)
-        df = table.to_dataframe()
-        # Transpose so rows are samples (participants)
-        df = df.T
-        df.index.name = 'SampleID'
-        return df.reset_index()
-    except ImportError:
-        logger.warning("biom-format not installed. Attempting generic CSV/TSV parse.")
-        # Fallback for demo if library missing, though T002a ensures it's there
-        return pd.read_csv(biom_path, sep='\t', index_col=0).T.reset_index()
-
-def ingest_agp_metadata(metadata_path: str) -> pd.DataFrame:
-    """
-    Ingest American Gut Project metadata.
-    Expected columns: participant_id, age, bmi, antibiotic_use, diet_type, ...
-    """
-    logger.info(f"Ingesting AGP metadata from {metadata_path}")
-    df = pd.read_csv(metadata_path)
-    # Standardize column names if necessary
-    if 'participant_id' not in df.columns:
-        # Try common variations
-        for col in ['ParticipantID', 'sample_id', 'id']:
-            if col in df.columns:
-                df = df.rename(columns={col: 'participant_id'})
-                break
-    return df
-
-def ingest_sleep_metadata(metadata_path: str) -> pd.DataFrame:
-    """
-    Ingest Open Humans sleep metadata.
-    Expected columns: participant_id, sleep_duration, sleep_quality, chronotype, ...
-    """
-    logger.info(f"Ingesting sleep metadata from {metadata_path}")
-    df = pd.read_csv(metadata_path)
-    if 'participant_id' not in df.columns:
-        for col in ['ParticipantID', 'sample_id', 'id']:
-            if col in df.columns:
-                df = df.rename(columns={col: 'participant_id'})
-                break
-    return df
-
-def verify_integrity(df: pd.DataFrame, expected_cols: List[str]) -> bool:
-    """
-    Verify data integrity against expected columns.
-    """
-    missing = set(expected_cols) - set(df.columns)
-    if missing:
-        logger.error(f"Missing required columns: {missing}")
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        
+        with open(dest_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        
+        if checksum:
+            with open(dest_path, 'rb') as f:
+                file_hash = hashlib.md5(f.read()).hexdigest()
+                if file_hash != checksum:
+                    logger.error(f"Checksum mismatch for {dest_path}: expected {checksum}, got {file_hash}")
+                    return False
+        
+        logger.info(f"Successfully downloaded {dest_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to download {url}: {e}")
         return False
-    return True
 
-def filter_missing_data(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
-    """
-    Remove rows with missing data in specified columns.
-    """
-    logger.info(f"Filtering missing data for columns: {cols}")
-    initial_count = len(df)
-    df_clean = df.dropna(subset=cols)
-    dropped = initial_count - len(df_clean)
-    logger.info(f"Dropped {dropped} rows due to missing data. Remaining: {len(df_clean)}")
-    return df_clean
+def parse_biom_table(biom_path: Path) -> skbio.Table:
+    """Parse a BIOM format file into a skbio Table."""
+    logger.info(f"Parsing BIOM table from {biom_path}")
+    try:
+        with open(biom_path, 'rb') as f:
+            table = biom.load_table(f)
+        logger.info(f"Loaded BIOM table with {table.shape[0]} features and {table.shape[1]} samples")
+        return table
+    except Exception as e:
+        logger.error(f"Failed to parse BIOM table: {e}")
+        raise
 
-def cap_outliers(df: pd.DataFrame, col: str, lower_pct: float = 1, upper_pct: float = 99) -> pd.DataFrame:
-    """
-    Cap outliers at specified percentiles.
-    """
-    logger.info(f"Capping outliers for {col} at {lower_pct}th and {upper_pct}th percentiles")
-    lower_bound = np.percentile(df[col], lower_pct)
-    upper_bound = np.percentile(df[col], upper_pct)
-    df[col] = df[col].clip(lower=lower_bound, upper=upper_bound)
+def ingest_agp_metadata(metadata_path: Path) -> pd.DataFrame:
+    """Ingest American Gut Project metadata."""
+    logger.info(f"Ingesting AGP metadata from {metadata_path}")
+    try:
+        df = pd.read_csv(metadata_path, sep='\t', low_memory=False)
+        logger.info(f"Loaded AGP metadata with {len(df)} rows")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to ingest AGP metadata: {e}")
+        raise
+
+def ingest_sleep_metadata(metadata_path: Path) -> pd.DataFrame:
+    """Ingest Open Humans sleep metadata."""
+    logger.info(f"Ingesting sleep metadata from {metadata_path}")
+    try:
+        df = pd.read_csv(metadata_path, sep=',', low_memory=False)
+        logger.info(f"Loaded sleep metadata with {len(df)} rows")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to ingest sleep metadata: {e}")
+        raise
+
+def verify_integrity(agp_df: pd.DataFrame, sleep_df: pd.DataFrame) -> Tuple[int, int]:
+    """Verify data integrity and return sample counts."""
+    agp_count = len(agp_df)
+    sleep_count = len(sleep_df)
+    logger.info(f"Data integrity check: AGP={agp_count}, Sleep={sleep_count}")
+    return agp_count, sleep_count
+
+def filter_missing_data(agp_df: pd.DataFrame, sleep_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Filter out rows with missing critical data."""
+    logger.info("Filtering missing data...")
+    
+    # Critical columns for AGP
+    agp_critical_cols = ['Participant ID', 'Shannon Diversity']
+    agp_df = agp_df.dropna(subset=agp_critical_cols)
+    
+    # Critical columns for Sleep
+    sleep_critical_cols = ['Participant ID', 'Sleep Duration', 'Sleep Quality']
+    sleep_df = sleep_df.dropna(subset=sleep_critical_cols)
+    
+    logger.info(f"After filtering missing data: AGP={len(agp_df)}, Sleep={len(sleep_df)}")
+    return agp_df, sleep_df
+
+def cap_outliers(sleep_df: pd.DataFrame) -> pd.DataFrame:
+    """Cap sleep duration outliers at 1st and 99th percentiles."""
+    logger.info("Capping sleep duration outliers...")
+    
+    sleep_col = 'Sleep Duration'
+    if sleep_col not in sleep_df.columns:
+        logger.warning(f"Column {sleep_col} not found, skipping outlier capping")
+        return sleep_df
+    
+    lower_bound = sleep_df[sleep_col].quantile(0.01)
+    upper_bound = sleep_df[sleep_col].quantile(0.99)
+    
+    logger.info(f"Capping {sleep_col} between {lower_bound:.2f} and {upper_bound:.2f}")
+    sleep_df[sleep_col] = sleep_df[sleep_col].clip(lower=lower_bound, upper=upper_bound)
+    
+    return sleep_df
+
+def impute_covariates(df: pd.DataFrame) -> pd.DataFrame:
+    """Impute missing covariates using median (numeric) or mode (categorical)."""
+    logger.info("Imputing covariates...")
+    
+    numeric_cols = ['Age', 'BMI']
+    categorical_cols = ['Antibiotic History', 'Diet Type']
+    
+    for col in numeric_cols:
+        if col in df.columns:
+            median_val = df[col].median()
+            df[col] = df[col].fillna(median_val)
+            logger.info(f"Imputed {col} with median {median_val:.2f}")
+    
+    for col in categorical_cols:
+        if col in df.columns:
+            mode_val = df[col].mode()[0] if not df[col].mode().empty else 'Unknown'
+            df[col] = df[col].fillna(mode_val)
+            logger.info(f"Imputed {col} with mode {mode_val}")
+    
     return df
 
-def impute_covariates(df: pd.DataFrame, numeric_cols: List[str], categorical_cols: List[str]) -> pd.DataFrame:
-    """
-    Impute missing values: median for numeric, mode for categorical.
-    """
-    logger.info(f"Imputing covariates. Numeric: {numeric_cols}, Categorical: {categorical_cols}")
-    df_imp = df.copy()
-    for col in numeric_cols:
-        if col in df_imp.columns:
-            median_val = df_imp[col].median()
-            df_imp[col] = df_imp[col].fillna(median_val)
-    for col in categorical_cols:
-        if col in df_imp.columns:
-            mode_val = df_imp[col].mode()
-            if len(mode_val) > 0:
-                df_imp[col] = df_imp[col].fillna(mode_val[0])
-    return df_imp
-
-def generate_summary_report(df: pd.DataFrame, output_path: str) -> None:
-    """
-    Generate a summary report of the cohort.
-    """
-    logger.info(f"Generating summary report to {output_path}")
-    report_lines = []
-    report_lines.append(f"Total retained participants (N): {len(df)}")
-    report_lines.append("-" * 40)
+def generate_summary_report(merged_df: pd.DataFrame, output_path: Path) -> None:
+    """Generate a summary report of the merged cohort."""
+    logger.info("Generating summary report...")
     
-    key_cols = ['age', 'bmi', 'antibiotic_use', 'sleep_duration', 'sleep_quality']
-    for col in key_cols:
-        if col in df.columns:
-            if df[col].dtype in ['int64', 'float64']:
-                report_lines.append(f"{col}: Mean={df[col].mean():.2f}, Std={df[col].std():.2f}")
-            else:
-                report_lines.append(f"{col}: {df[col].value_counts().to_dict()}")
+    report_lines = [
+        "=== Cohort Merging Summary Report ===",
+        f"Total Retained Participants (N): {len(merged_df)}",
+        "",
+        "=== Key Covariate Distributions ===",
+    ]
+    
+    # Age distribution
+    if 'Age' in merged_df.columns:
+        age_stats = merged_df['Age'].describe()
+        report_lines.append(f"Age - Mean: {age_stats['mean']:.2f}, Std: {age_stats['std']:.2f}, Min: {age_stats['min']:.2f}, Max: {age_stats['max']:.2f}")
+    
+    # BMI distribution
+    if 'BMI' in merged_df.columns:
+        bmi_stats = merged_df['BMI'].describe()
+        report_lines.append(f"BMI - Mean: {bmi_stats['mean']:.2f}, Std: {bmi_stats['std']:.2f}, Min: {bmi_stats['min']:.2f}, Max: {bmi_stats['max']:.2f}")
+    
+    # Antibiotic use
+    if 'Antibiotic History' in merged_df.columns:
+        antibiotic_counts = merged_df['Antibiotic History'].value_counts()
+        report_lines.append(f"Antibiotic History:\n{antibiotic_counts.to_string()}")
+    
+    report_content = "\n".join(report_lines)
     
     with open(output_path, 'w') as f:
-        f.write('\n'.join(report_lines))
-    logger.info("Summary report generated.")
+        f.write(report_content)
+    
+    logger.info(f"Summary report saved to {output_path}")
+    print(report_content)
 
-def save_cohort(df: pd.DataFrame, output_path: str) -> None:
-    """
-    Save the final merged cohort to CSV.
-    """
-    logger.info(f"Saving final merged cohort to {output_path}")
-    df.to_csv(output_path, index=False)
-    logger.info(f"Cohort saved successfully. Rows: {len(df)}, Columns: {len(df.columns)}")
+def save_cohort(merged_df: pd.DataFrame, output_path: Path) -> None:
+    """Save the final merged cohort to a CSV file."""
+    logger.info(f"Saving merged cohort to {output_path}")
+    
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save to CSV
+    merged_df.to_csv(output_path, index=False)
+    
+    logger.info(f"Successfully saved {len(merged_df)} rows to {output_path}")
+    print(f"Cohort saved: {len(merged_df)} participants to {output_path}")
 
 def main():
-    """
-    Main pipeline execution for T017: Save final merged cohort.
-    This function orchestrates the ingestion, cleaning, and saving of the cohort.
-    """
-    config = get_config()
+    """Main function to run the ingestion pipeline."""
     setup_logging()
+    config = get_config()
+    set_seed(config.random_seed)
     
-    # Paths (assuming relative to project root or defined in config)
-    # For this implementation, we assume the data files exist in data/raw/
-    # based on previous tasks (T011-T016).
-    base_dir = Path(config.get('data_dir', 'data'))
-    raw_dir = base_dir / 'raw'
-    processed_dir = base_dir / 'processed'
+    # Define paths
+    data_dir = Path(config.data_dir)
+    raw_dir = data_dir / 'raw'
+    processed_dir = data_dir / 'processed'
+    
+    # Ensure directories exist
+    raw_dir.mkdir(parents=True, exist_ok=True)
     processed_dir.mkdir(parents=True, exist_ok=True)
     
-    agp_path = raw_dir / 'agp_metadata.csv'
-    sleep_path = raw_dir / 'sleep_metadata.csv'
-    output_path = processed_dir / 'cohort_merged.csv'
+    # Download AGP data (example URLs - replace with actual canonical URLs)
+    agp_biom_url = "https://s3.amazonaws.com/americangutproject/biom/16S_otu_table.biom"
+    agp_metadata_url = "https://s3.amazonaws.com/americangutproject/metadata/AGP_metadata.tsv"
+    sleep_metadata_url = "https://raw.githubusercontent.com/openhumans/sleep-data/main/sleep_metadata.csv"
     
-    # 1. Ingest Data
-    try:
-        df_agp = ingest_agp_metadata(agp_path)
-        df_sleep = ingest_sleep_metadata(sleep_path)
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        # If files don't exist, we cannot proceed with real data.
-        # However, per task constraints, we must implement the logic.
-        # We raise to indicate failure in a real run.
-        raise e
-
-    # 2. Merge
-    logger.info("Merging datasets on participant_id")
-    df_merged = pd.merge(df_agp, df_sleep, on='participant_id', how='inner')
-    logger.info(f"Merged dataset size: {len(df_merged)}")
-
-    if len(df_merged) == 0:
-        logger.warning("No matching participants found; proceeding with available sample size (which is 0).")
-        # Even if 0, we save the empty frame with correct schema if possible
-        # or just save it.
+    agp_biom_path = raw_dir / '16S_otu_table.biom'
+    agp_metadata_path = raw_dir / 'AGP_metadata.tsv'
+    sleep_metadata_path = raw_dir / 'sleep_metadata.csv'
     
-    # 3. Filter Missing Data
-    required_cols = get_required_columns()
-    df_clean = filter_missing_data(df_merged, required_cols)
-
-    # 4. Cap Outliers (Sleep Duration)
-    if 'sleep_duration' in df_clean.columns:
-        df_clean = cap_outliers(df_clean, 'sleep_duration', lower_pct=1, upper_pct=99)
-
-    # 5. Impute Covariates
-    numeric_cols = ['age', 'bmi']
-    categorical_cols = ['antibiotic_use', 'diet_type']
-    # Filter to only existing columns
-    numeric_cols = [c for c in numeric_cols if c in df_clean.columns]
-    categorical_cols = [c for c in categorical_cols if c in df_clean.columns]
+    # Download files
+    if not agp_biom_path.exists():
+        download_file(agp_biom_url, agp_biom_path)
+    if not agp_metadata_path.exists():
+        download_file(agp_metadata_url, agp_metadata_path)
+    if not sleep_metadata_path.exists():
+        download_file(sleep_metadata_url, sleep_metadata_path)
     
-    if numeric_cols or categorical_cols:
-        df_clean = impute_covariates(df_clean, numeric_cols, categorical_cols)
-
-    # 6. Validate
-    if not validate_merged_cohort(df_clean):
-        logger.warning("Validation warnings issued, but proceeding to save.")
-
-    # 7. Generate Summary Report (T016)
+    # Parse data
+    biom_table = parse_biom_table(agp_biom_path)
+    agp_df = ingest_agp_metadata(agp_metadata_path)
+    sleep_df = ingest_sleep_metadata(sleep_metadata_path)
+    
+    # Verify integrity
+    verify_integrity(agp_df, sleep_df)
+    
+    # Filter missing data
+    agp_df, sleep_df = filter_missing_data(agp_df, sleep_df)
+    
+    # Cap outliers
+    sleep_df = cap_outliers(sleep_df)
+    
+    # Merge datasets on Participant ID
+    logger.info("Merging datasets on Participant ID...")
+    merged_df = pd.merge(
+        agp_df,
+        sleep_df,
+        on='Participant ID',
+        how='inner'
+    )
+    
+    if len(merged_df) == 0:
+        logger.warning("No matching participants found; proceeding with available sample size")
+        # Log warning but continue
+    else:
+        logger.info(f"Successfully merged {len(merged_df)} participants")
+    
+    # Impute covariates
+    merged_df = impute_covariates(merged_df)
+    
+    # Validate merged cohort
+    validate_merged_cohort(merged_df)
+    
+    # Generate summary report
     report_path = processed_dir / 'cohort_summary.txt'
-    generate_summary_report(df_clean, report_path)
+    generate_summary_report(merged_df, report_path)
+    
+    # Save final merged cohort
+    output_path = processed_dir / 'cohort_merged.csv'
+    save_cohort(merged_df, output_path)
+    
+    logger.info("Ingestion pipeline completed successfully")
 
-    # 8. Save Final Cohort (T017)
-    save_cohort(df_clean, output_path)
-
-    logger.info("Pipeline completed successfully.")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

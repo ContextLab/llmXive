@@ -1,1 +1,3 @@
-# Results data directory - gitkeep ensures directory exists
+# This directory stores experiment results (JSON metrics, CSV logs, figures).
+# Git tracks this directory via this .gitkeep file.
+# Do not commit large binary files here; use .gitignore for raw data or large models.

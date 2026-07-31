@@ -1,17 +1,22 @@
-# Python bytecode and cache
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
+*.py[cod]
+*$py.class
 
-# Environment and secrets
+# Environment variables
 .env
-.env.local
-.env.*.local
 
-# Data exclusion (checksummed only)
+# Raw data (checksummed only)
 data/raw/*.csv
+
+# Generated data and processed files
+data/processed/*.csv
+data/processed/*.json
+data/figures/
+
+# Logs
+*.log
+logs/
 
 # IDE and editor files
 .idea/
@@ -20,18 +25,11 @@ data/raw/*.csv
 *.swo
 *~
 
-# OS generated files
+# OS files
 .DS_Store
 Thumbs.db
 
-# Logs and temporary files
-*.log
-.cache/
-tmp/
-build/
-dist/
-
-# Testing and coverage
-.pytest_cache/
-.coverage
+# Test coverage
 htmlcov/
+.coverage
+coverage.xml

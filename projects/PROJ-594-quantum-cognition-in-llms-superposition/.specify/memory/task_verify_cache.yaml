@@ -1,41 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory `projects/PROJ-594-quantum-cognition-in-llms-superposition/code/`
-    or `__init__.py` file was presented in the evidence; without these artifacts the
-    claim that the task is completed cannot be verified.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory or `.gitkeep` file was presented in the provided evidence; the claim
-    that `projects/PROJ-594-quantum-cognition-in-llms-superposition/data/raw/` exists
-    with a `.gitkeep` cannot be verified. The required artifact is missing.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-594-quantum-cognition-in-llms-superposition/data/results/`
-    directory or a `.gitkeep` file was provided; without confirming these artifacts
-    exist, the task cannot be considered fulfilled.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that the directory `projects/PROJ-594-quantum-cognition-in-llms-superposition/tests/unit/`\
-    \ exists or that it contains a non\u2011empty `__init__.py` file. The implementer\u2019\
-    s claim cannot be verified without the actual file system artifacts."
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-594-quantum-cognition-in-llms-superposition/tests/contract/`\
-    \ directory or an `__init__.py` file within it was presented. The implementer\
-    \ must create the specified directory and add a non\u2011empty `__init__.py` file\
-    \ to satisfy the task."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
-    \ with Black settings, or a pre\u2011commit hook) are present in the provided\
-    \ evidence, and the claim does not include any such artifacts. Consequently the\
-    \ requirement to configure flake/black linting tools is not satisfied."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -60,11 +22,11 @@ T015:
     \ is missing, so the task\u2019s requirement is not demonstrably satisfied."
 T024:
   c: false
-  h: ae5d40209f2cf3b3366adf4f0ab1890d52c2f1b3e6c5ba08a644facca5d84f05
-  r: "The provided `run_quantum.py` is truncated (e.g., `num_epochs = c` is undefined)\
-    \ and does not contain code that writes a JSON file to `data/results/quantum_metrics.json`.\
-    \ Moreover, the expected output file is missing from the repository. The task\u2019\
-    s requirements are therefore not met."
+  h: 7d6b34c51a86acd186ad88e0de3a846be642b8736bc1fa1b11af6818ebc5ef66
+  r: "The provided `run_quantum.py` is truncated and does not contain a runnable script\
+    \ that loops over a limited number of epochs, nor does it write the required `data/results/quantum_metrics.json`\
+    \ (the file is missing). Consequently the task\u2019s core requirements are not\
+    \ satisfied."
 T031:
   c: false
   h: f7832f67b29e4aec9bf9ffe67dca613493818ab4bc4b76988e771989e059b5ff
@@ -79,3 +41,26 @@ T032:
     no evidence that it contains the p-value, t-statistic, Cohen's d, and 95% confidence
     interval. The artifact must be created and populated with the specified statistical
     fields.
+T036:
+  c: false
+  h: 2c68ac864e7ea77f325607e8ef3906d203ffd632db56ba49ed4d32d1c64df561
+  r: "The script `code/analysis/interference_check.py` is present but its `main` function\
+    \ is truncated (e.g., `parser = a`), so it never runs the analysis or writes the\
+    \ required `data/results/interference_correlation.json`. Moreover, the expected\
+    \ output file does not exist. The implementation must be completed and produce\
+    \ the JSON with the correlation coefficient and p\u2011value."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides only the task description and specifications; there\
+    \ is no accompanying code, data, analysis notebook, or result file showing the\
+    \ ablation study or confirming that interference cross\u2011term values are negative\
+    \ for ambiguous cases. Without such artifacts, the requirement to verify the assumption\
+    \ is not met."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `research.md` file was presented; the claim lacks any visible artifact\
+    \ showing the required explicit definitions of \u201Cmeasurement\u201D (token\
+    \ selection) and \u201Cobservable\u201D (ambiguity resolution) that address Einstein/Von\u202F\
+    Neumann concerns. The task is therefore not satisfied."

@@ -1,0 +1,16 @@
+T020a:
+  c: false
+  h: 4fc386cdc19da2aba9e4ebc1844fdf8dab6a4fa2e2aae1c18f3a431cd91132f6
+  r: "The repository contains `code/analysis.py` with a `validate_data_structure`\
+    \ function, but the required output file `data/processed/structure_config.json`\
+    \ is missing, and the JSON written by the function includes an extra `n_observations`\
+    \ field that does not match the specified schema of only `\"type\"` and `\"n_subjects\"\
+    `. The task\u2019s output artifact is therefore absent or incorrect."
+T025:
+  c: false
+  h: d6bd87abc9657f1c25ad5c32ee0fb268306cd5c4d4958eeaee2f1d2813d46a07
+  r: The provided `tests/contract/test_model_output.py` is truncated and contains
+    a syntax error (unterminated string in the last assert), and it does not actually
+    load or validate against the required `contracts/model_output.schema.yaml` which
+    is missing from the repository. Both the test file and the referenced schema are
+    incomplete, so the task is not satisfied.

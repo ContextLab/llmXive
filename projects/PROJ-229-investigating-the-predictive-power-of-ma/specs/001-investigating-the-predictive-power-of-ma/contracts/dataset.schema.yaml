@@ -1,114 +1,56 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Phase Change Materials Dataset Schema
-description: |
-  Schema for the processed Materials Project dataset used for training and validation.
-  Includes elemental descriptors, structural features, and target properties.
+# Dataset Schema Definition
+# Defines the structure of processed datasets used for training and validation
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
-required:
-  - metadata
-  - columns
-  - data_types
-  - sample_records
 properties:
   metadata:
     type: object
-    required:
-      - version
-      - source
-      - created_at
-      - row_count
-      - feature_count
     properties:
+      dataset_name:
+        type: string
       version:
         type: string
-        description: Schema version (e.g., "1.0.0")
-      source:
-        type: string
-        description: Origin of the data (e.g., "Materials Project API")
       created_at:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of dataset creation
-      row_count:
+      source:
+        type: string
+      total_compounds:
         type: integer
         minimum: 0
-        description: Total number of compounds in the dataset
-      feature_count:
-        type: integer
-        minimum: 0
-        description: Total number of feature columns
-  columns:
+      target_column:
+        type: string
+      features:
+        type: array
+        items:
+          type: string
+    required:
+      - dataset_name
+      - version
+      - created_at
+      - source
+      - total_compounds
+      - target_column
+      - features
+  data:
     type: array
-    description: List of column definitions in the dataset
     items:
       type: object
-      required:
-        - name
-        - description
-        - unit
       properties:
-        name:
+        material_id:
           type: string
-          description: Column name (snake_case)
-        description:
+        formula:
           type: string
-          description: Human-readable description
-        unit:
-          type: string
-          nullable: true
-          description: Physical unit (e.g., "K", "J/g", "None" for dimensionless)
-        category:
-          type: string
-          enum:
-            - identifier
-            - target
-            - elemental_descriptor
-            - structural_feature
-            - derived_feature
-          description: Functional category of the feature
-  data_types:
-    type: object
-    description: Expected data types for each column
-    additionalProperties:
-      type: string
-      enum:
-        - integer
-        - float
-        - string
-        - boolean
-        - object
-  sample_records:
-    type: array
-    description: Example records to validate schema compliance
-    minItems: 1
-    items:
-      type: object
-      description: A single record matching the schema
-examples:
-  - metadata:
-      version: "1.0.0"
-      source: "Materials Project API"
-      created_at: "2023-10-27T10:00:00Z"
-      row_count: 5000
-      feature_count: 25
-    columns:
-      - name: mp_id
-        description: Materials Project ID
-        unit: None
-        category: identifier
-      - name: melting_point
-        description: Melting point temperature
-        unit: K
-        category: target
-      - name: mean_electronegativity
-        description: Mean electronegativity of elements
-        unit: None
-        category: elemental_descriptor
-    data_types:
-      mp_id: string
-      melting_point: float
-      mean_electronegativity: float
-    sample_records:
-      - mp_id: "mp-12345"
-        melting_point: 1200.5
-        mean_electronegativity: 1.85
+        target_value:
+          type: number
+        features:
+          type: object
+          additionalProperties: true
+      required:
+        - material_id
+        - formula
+        - target_value
+        - features
+required:
+  - metadata
+  - data

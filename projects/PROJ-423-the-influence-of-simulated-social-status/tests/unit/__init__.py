@@ -1,3 +1,3 @@
 """
-Unit tests for specific functions and modules.
+Unit tests for individual components and functions.
 """

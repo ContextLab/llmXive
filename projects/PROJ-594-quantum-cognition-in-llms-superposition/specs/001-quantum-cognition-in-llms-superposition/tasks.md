@@ -142,7 +142,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T029 [P] [US3] Implement `code/analysis/stats_test.py`: Paired t-test logic (α=0.05) across multiple seeds
 - [X] T029a [US3] [SC-004] Implement runtime measurement: Add logging in `code/analysis/stats_test.py` to record wall-clock time and peak RAM usage for the full 5-seed run, verifying SC-004 (≤6h, ≤7GB).
 - [X] T029b [US3] [Driver] Implement `code/experiments/run_seed_driver.py` to orchestrate the 5-seed loop for both baseline and complex models, aggregating results into a single JSON for the t-test.
-- [X] T030 [US3] Implement `code/analysis/stats_test.py`: Bootstrap resampling (k=1000 iterations) to calculate confidence intervals for the mean difference.
+- [X] T030 [US3] Implement `code/analysis/stats_test.py`: Bootstrap resampling (k=1000 iterations) to calculate confidence intervals for the mean difference. [UNRESOLVED-CLAIM: c_e40cff47 — status=not_enough_info]
 - [ ] T031 [US3] Implement `code/experiments/run_stats.py` to aggregate `baseline_metrics.json` and `quantum_metrics.json` and output `data/results/stats_report.json`
 - [X] T031b [US3] Implement FR-006 framing in `code/analysis/stats_test.py`: Ensure all generated text in `stats_report.json` explicitly frames results as "associational improvements" and avoids causal claims.
 - [ ] T032 [US3] Verify `data/results/stats_report.json` contains p-value, t-statistic, Cohen's d, and 95% CI
@@ -160,7 +160,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T034 [P] [Ablation] Implement `code/experiments/run_classical_baseline.py` for Classical Sum-of-Squares baseline ($P = \|c_1\|^2 + \|c_2\|^2$). This task implements the classical probability sum without interference cross-term, serving as the primary ablation condition.
 - [X] T035 [P] [Ablation] Implement `code/experiments/run_magnitude_control.py` for Magnitude-Only control ($P = \|c_1\|^2 + \|c_2\|^2$ without phase shifts). This task serves as the control condition to isolate the interference cross-term in the Quantum model by removing phase interactions entirely.
-- [~] T036 [Ablation] Implement `code/analysis/interference_check.py` to validate graded negative cross-term correlation with ambiguity. Input: list of (ambiguity_score, cross_term_value) pairs. Test: Spearman rank correlation. Output: `data/results/interference_correlation.json` containing correlation coefficient and p-value.
+- [ ] T036 [Ablation] Implement `code/analysis/interference_check.py` to validate graded negative cross-term correlation with ambiguity. Input: list of (ambiguity_score, cross_term_value) pairs. Test: Spearman rank correlation. Output: `data/results/interference_correlation.json` containing correlation coefficient and p-value.
 - [ ] T037 [Ablation] Generate `data/results/ablation_metrics.json` comparing Quantum vs. Classical vs. Magnitude-Only
 - [ ] T038 [Ablation] Verify that interference cross-term assumption (negative values for ambiguity) holds in ablation results
 

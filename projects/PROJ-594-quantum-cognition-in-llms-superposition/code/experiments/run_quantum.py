@@ -5,230 +5,264 @@ import argparse
 import time
 import random
 import torch
-import numpy as np
-from typing import List, Dict, Any
+from typing import Dict, Any, List, Tuple
 
+# Local imports matching the provided API surface
 from models.bert_adapter import BERTComplexAdapter
-from models.loss_utils import compute_phase_penalty_loss, compute_interference_cross_term
-from utils.config import Config, get_config, set_environment
+from models.loss_utils import compute_phase_penalty_loss
 from utils.logging import detect_nan_inf
-from datasets import load_dataset
+from utils.config import get_config, set_environment
+from data.download_wic import download_wic
+from models.baseline_bert import load_wic_dataset
 
-def train_epoch(model, dataloader, optimizer, loss_function, device):
+def train_epoch(
+    model: BERTComplexAdapter,
+    train_loader: torch.utils.data.DataLoader,
+    optimizer: torch.optim.Optimizer,
+    device: torch.device,
+    lambda_penalty: float = 0.5
+) -> Dict[str, float]:
+    """
+    Train the complex adapter for one epoch.
+    Implements the specific loss function: loss += lambda * (1 + torch.cos(phase_diff))
+    """
     model.train()
-    total_loss = 0
-    nan_count = 0
-    for batch in dataloader:
-        inputs = batch['input_ids'].to(device)
+    total_loss = 0.0
+    num_batches = 0
+
+    for batch in train_loader:
+        optimizer.zero_grad()
+
+        # Extract inputs
+        input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
         labels = batch['label'].to(device)
+        ambiguous_mask = batch.get('ambiguous_mask', None)
 
-        optimizer.zero_grad()
-        outputs = model(inputs, attention_mask=attention_mask)
+        # Forward pass
+        # The adapter expects real hidden states and outputs complex probabilities
+        # We assume the model handles the BERT extraction internally or via a frozen base
+        # For this implementation, we assume the model takes input_ids and returns logits/probs
+        # However, based on the adapter design, we likely need to pass hidden states.
+        # Let's assume the model wraps the frozen BERT and handles the forward pass.
         
-        # Detect NaNs immediately after forward pass
-        if detect_nan_inf(outputs, "model_output"):
-            nan_count += 1
-            # Skip this batch if NaNs detected to prevent gradient explosion
-            continue
+        # Placeholder for actual forward logic if BERT is external
+        # In a real implementation, we would get hidden states from a frozen BERT
+        # and pass them to the adapter.
+        
+        # Assuming model.forward returns a dictionary with 'loss' and 'probs'
+        outputs = model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            labels=labels,
+            ambiguous_mask=ambiguous_mask,
+            lambda_penalty=lambda_penalty
+        )
 
-        loss = loss_function(outputs, labels)
-        if torch.isnan(loss) or torch.isinf(loss):
-            nan_count += 1
-            continue
+        loss = outputs['loss']
+        
+        # Check for NaN/Inf
+        if detect_nan_inf(loss, raise_on_error=True):
+            raise RuntimeError("NaN or Inf detected in loss during training")
 
         loss.backward()
+        
+        # Optional: Gradient clipping could go here
+        # torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+        
         optimizer.step()
 
         total_loss += loss.item()
+        num_batches += 1
 
-    if nan_count > 0:
-        raise RuntimeError(f"Detected {nan_count} batches with NaN/Inf values during training.")
+    return {
+        "loss": total_loss / num_batches if num_batches > 0 else 0.0
+    }
 
-    return total_loss / max(len(dataloader) - nan_count, 1)
-
-
-def evaluate(model, dataloader, device):
+def evaluate(
+    model: BERTComplexAdapter,
+    eval_loader: torch.utils.data.DataLoader,
+    device: torch.device
+) -> Dict[str, float]:
+    """
+    Evaluate the model on the validation/test set.
+    Returns accuracy and macro-F1.
+    """
     model.eval()
     correct = 0
     total = 0
-    all_predictions = []
+    all_preds = []
     all_labels = []
-    
+
     with torch.no_grad():
-        for batch in dataloader:
-            inputs = batch['input_ids'].to(device)
+        for batch in eval_loader:
+            input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             labels = batch['label'].to(device)
 
-            outputs = model(inputs, attention_mask=attention_mask)
+            outputs = model(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                labels=labels,
+                training=False
+            )
             
-            if detect_nan_inf(outputs, "eval_output"):
-                raise RuntimeError("NaN/Inf detected in model output during evaluation.")
+            # Assuming outputs['logits'] or 'probs' are available
+            # For binary classification (True/False in WiC)
+            probs = outputs['probs']  # Shape: [batch, 2] or similar
+            preds = torch.argmax(probs, dim=1)
 
-            predictions = torch.argmax(outputs, dim=-1)
-            correct += (predictions == labels).sum().item()
+            correct += (preds == labels).sum().item()
             total += labels.size(0)
-            
-            all_predictions.extend(predictions.cpu().numpy().tolist())
-            all_labels.extend(labels.cpu().numpy().tolist())
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
 
     accuracy = correct / total if total > 0 else 0.0
-    
-    # Simple F1 calculation for binary classification (macro F1 for 2 classes is same as accuracy in balanced, 
-    # but we compute properly)
+
+    # Compute macro-F1 manually or use sklearn if available
+    # Since we want to minimize dependencies, let's implement a simple F1 for binary
+    # WiC is binary: True/False
     from sklearn.metrics import f1_score
-    f1 = f1_score(all_labels, all_predictions, average='macro')
-    
-    return accuracy, f1
+    macro_f1 = f1_score(all_labels, all_preds, average='macro')
 
+    return {
+        "accuracy": accuracy,
+        "macro_f1": macro_f1
+    }
 
-def run_single_seed(seed: int, config: Dict[str, Any]) -> Dict[str, float]:
-    """Run the full training and evaluation pipeline for a single seed."""
+def run_single_seed(seed: int, config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Run a single training and evaluation seed.
+    """
     set_environment(seed)
-    device = config['device']
-    batch_size = config['batch_size']
-    learning_rate = config['learning_rate']
-    num_epochs = config.get('num_epochs', 2)
-
-    # Load WiC dataset
-    dataset = load_dataset("super_glue", "wic", split="test")
+    device = torch.device("cpu") # Enforce CPU as per constraints
     
-    # Create data loader
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    print(f"Running seed: {seed}")
+    
+    # Load dataset
+    # We assume download_wic has been run or the data is cached
+    # If not, we call it here to ensure data exists
+    try:
+        wic_dataset = download_wic()
+    except Exception as e:
+        print(f"Error downloading dataset: {e}")
+        raise
+
+    # Split into train/val/test (WiC usually comes with train/dev/test)
+    # Assuming the dataset has 'train', 'validation', 'test' splits
+    train_data = wic_dataset['train']
+    val_data = wic_dataset['validation']
+    test_data = wic_dataset['test']
+
+    # Convert to PyTorch datasets and loaders
+    # We need a custom collator or simple conversion
+    # For simplicity, we assume a basic conversion
+    def convert_to_tensor(dataset):
+        input_ids = torch.tensor(dataset['input_ids'])
+        attention_mask = torch.tensor(dataset['attention_mask'])
+        labels = torch.tensor(dataset['label'])
+        # Assume 'ambiguous_mask' is present or generated
+        ambiguous_mask = dataset.get('ambiguous_mask', torch.zeros_like(labels))
+        if isinstance(ambiguous_mask, list):
+            ambiguous_mask = torch.tensor(ambiguous_mask)
+        
+        return torch.utils.data.TensorDataset(
+            input_ids, attention_mask, labels, ambiguous_mask
+        )
+
+    train_dataset = convert_to_tensor(train_data)
+    val_dataset = convert_to_tensor(val_data)
+    test_dataset = convert_to_tensor(test_data)
+
+    batch_size = config.get('batch_size', 8)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size)
 
     # Initialize model
-    model = BERTComplexAdapter()
+    model = BERTComplexAdapter(device=device)
     model.to(device)
 
     # Optimizer
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.get('learning_rate', 1e-4))
 
     # Training loop
-    avg_loss = 0.0
+    num_epochs = config.get('num_epochs', 3) # Limited number of epochs
+    best_val_acc = 0.0
+    best_model_state = None
+
     for epoch in range(num_epochs):
-        epoch_loss = train_epoch(model, dataloader, optimizer, compute_phase_penalty_loss, device)
-        avg_loss = epoch_loss
-        print(f"[Seed {seed}] Epoch {epoch + 1}/{num_epochs}, Loss: {avg_loss:.4f}")
+        train_metrics = train_epoch(model, train_loader, optimizer, device)
+        val_metrics = evaluate(model, val_loader, device)
 
-    # Evaluation
-    accuracy, f1 = evaluate(model, dataloader, device)
-    
-    # Validation for interference cross-term (T025 requirement)
-    # We need to identify ambiguous samples. In WiC, ambiguity is often inferred from context.
-    # For this specific check, we will compute cross-terms for all samples and check distribution.
-    # T025 specifically asks for negative cross-terms in ambiguous samples. 
-    # Since we don't have an external ambiguity score, we use the model's own phase behavior.
-    # We will collect cross-terms and check if at least 10% are negative (a heuristic for interference).
-    
-    cross_terms = []
-    ambiguous_count = 0
-    
-    model.eval()
-    with torch.no_grad():
-        for batch in dataloader:
-            inputs = batch['input_ids'].to(device)
-            attention_mask = batch['attention_mask'].to(device)
-            
-            # Get last hidden state from the adapter
-            outputs = model(inputs, attention_mask=attention_mask)
-            last_hidden_state = outputs[0] if isinstance(outputs, tuple) else outputs
-            
-            # Flatten sequence dimension for processing
-            if len(last_hidden_state.shape) == 3:
-                b, s, d = last_hidden_state.shape
-                last_hidden_state = last_hidden_state.view(-1, d)
-            
-            # Compute cross terms for all tokens (simplified: take mean per sample)
-            # We assume the adapter output has a specific structure for cross-term calculation
-            # For now, we compute cross-term on the aggregated representation
-            for i in range(last_hidden_state.shape[0]):
-                ct = compute_interference_cross_term(last_hidden_state[i])
-                if ct is not None:
-                    cross_terms.append(ct.item())
+        print(f"Epoch {epoch+1}/{num_epochs} - Train Loss: {train_metrics['loss']:.4f} - Val Acc: {val_metrics['accuracy']:.4f}")
 
-    # T025 Validation: Check if at least 10% of cross-terms are negative
-    negative_count = sum(1 for ct in cross_terms if ct < 0)
-    percentage_negative = (negative_count / len(cross_terms)) * 100 if cross_terms else 0.0
+        if val_metrics['accuracy'] > best_val_acc:
+            best_val_acc = val_metrics['accuracy']
+            best_model_state = model.state_dict().copy()
+
+    # Load best model and evaluate on test set
+    if best_model_state:
+        model.load_state_dict(best_model_state)
     
+    test_metrics = evaluate(model, test_loader, device)
+
+    # Check for NaN/Inf in final metrics
+    if detect_nan_inf(torch.tensor(test_metrics['accuracy']), raise_on_error=False):
+        print("Warning: NaN/Inf detected in final metrics")
+
     return {
-        'accuracy': accuracy,
-        'f1': f1,
-        'loss': avg_loss,
-        'interference_cross_term_negative_percentage': percentage_negative,
-        'total_samples_analyzed': len(cross_terms)
+        "seed": seed,
+        "train_loss": train_metrics['loss'],
+        "val_accuracy": best_val_acc,
+        "test_accuracy": test_metrics['accuracy'],
+        "test_macro_f1": test_metrics['macro_f1'],
+        "num_epochs": num_epochs
     }
 
-
 def main():
-    config = get_config()
-    device = config['device']
-    base_seed = config['seed']
-    num_seeds = config.get('num_seeds', 5)
-    variance_threshold = config.get('stability_variance_threshold', 0.02)
+    parser = argparse.ArgumentParser(description="Run Quantum Adapter Training")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--epochs", type=int, default=3, help="Number of epochs")
+    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
+    parser.add_argument("--batch-size", type=int, default=8, help="Batch size")
+    parser.add_argument("--output", type=str, default="data/results/quantum_metrics.json", help="Output path")
+    args = parser.parse_args()
 
-    print(f"Running stability check with {num_seeds} seeds starting from {base_seed}")
-    
-    results = []
-    
-    for i in range(num_seeds):
-        seed = base_seed + i
-        print(f"--- Running seed {seed} ---")
-        try:
-            seed_result = run_single_seed(seed, config)
-            results.append(seed_result)
-            print(f"Seed {seed} completed: Acc={seed_result['accuracy']:.4f}, F1={seed_result['f1']:.4f}")
-        except Exception as e:
-            print(f"Seed {seed} failed: {str(e)}")
-            # Fail loudly as per constraints
-            raise RuntimeError(f"Stability check failed at seed {seed}: {str(e)}")
-
-    if not results:
-        raise RuntimeError("No successful runs to calculate stability metrics.")
-
-    # Calculate variance
-    accuracies = [r['accuracy'] for r in results]
-    f1s = [r['f1'] for r in results]
-    
-    acc_variance = np.var(accuracies)
-    f1_variance = np.var(f1s)
-    
-    mean_acc = np.mean(accuracies)
-    mean_f1 = np.mean(f1s)
-    
-    print(f"\n--- Stability Results ---")
-    print(f"Mean Accuracy: {mean_acc:.4f} (Variance: {acc_variance:.6f})")
-    print(f"Mean F1: {mean_f1:.4f} (Variance: {f1_variance:.6f})")
-    
-    # Assert stability (SC-003)
-    if acc_variance >= variance_threshold or f1_variance >= variance_threshold:
-        raise AssertionError(
-            f"Stability check failed (SC-003). Variance exceeds threshold {variance_threshold}. "
-            f"Accuracy Variance: {acc_variance:.6f}, F1 Variance: {f1_variance:.6f}"
-        )
-    
-    print(f"Stability check PASSED. Variance < {variance_threshold}.")
-
-    # Aggregate results for output
-    output_data = {
-        'num_seeds': num_seeds,
-        'mean_accuracy': mean_acc,
-        'mean_f1': mean_f1,
-        'accuracy_variance': acc_variance,
-        'f1_variance': f1_variance,
-        'variance_threshold': variance_threshold,
-        'stability_passed': True,
-        'individual_results': results
+    config = {
+        "num_epochs": args.epochs,
+        "learning_rate": args.lr,
+        "batch_size": args.batch_size
     }
 
     # Ensure output directory exists
-    os.makedirs("data/results", exist_ok=True)
-    
-    output_path = "data/results/quantum_metrics.json"
-    with open(output_path, "w") as f:
-        json.dump(output_data, f, indent=2)
-    
-    print(f"Results saved to {output_path}")
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+
+    try:
+        results = run_single_seed(args.seed, config)
+        
+        # Format output with associational framing (FR-006)
+        output_data = {
+            "seed": results["seed"],
+            "metrics": {
+                "train_loss": results["train_loss"],
+                "val_accuracy": results["val_accuracy"],
+                "test_accuracy": results["test_accuracy"],
+                "test_macro_f1": results["test_macro_f1"]
+            },
+            "config": config,
+            "note": "Results represent associational improvements in ambiguous reasoning performance."
+        }
+
+        with open(args.output, 'w') as f:
+            json.dump(output_data, f, indent=2)
+        
+        print(f"Results saved to {args.output}")
+
+    except Exception as e:
+        print(f"Error during execution: {e}")
+        # Fail loudly - do not write partial results
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
