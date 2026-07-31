@@ -9,8 +9,8 @@ This project implements a computational investigation into whether recursive sel
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only, pinned to 2.1.0+), `transformers` (4.40+), `datasets` (2.18+), `scikit-learn`, `numpy`, `pandas`, `pytest`, `jsonschema`  
+**Language/Version**: Python  
+**Primary Dependencies**: `torch` (CPU-only, pinned to.0+), `transformers` (4.40+), `datasets` (2.18+), `scikit-learn`, `numpy`, `pandas`, `pytest`, `jsonschema`  
 **Storage**: Local filesystem (`data/` for datasets, `artifacts/` for checkpoints and evaluation results).  
 **Testing**: `pytest` for unit tests; `GitHub Actions` for end-to-end integration and reproducibility.  
 **Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPU cores, ~7 GB RAM, ~14 GB disk, no GPU).  

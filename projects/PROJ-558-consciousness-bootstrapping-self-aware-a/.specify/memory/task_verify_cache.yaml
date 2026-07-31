@@ -1,20 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/`\
-    \ directory tree (with `data/raw`, `data/processed`, `code`, `tests`, `artifacts`,\
-    \ `artifacts/checkpoints`, `artifacts/results`) is provided; without a listing\
-    \ or screenshot of these folders, we cannot confirm they exist or are non\u2011\
-    empty. The implementer must supply proof that the full directory structure has\
-    \ been created."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `__init__.py` files in `code`, `code/models`, `code/training`,\
-    \ `code/evaluation`, `code/analysis`, or `code/utils` was presented; without file\
-    \ listings or contents we cannot confirm they exist or are non\u2011empty. The\
-    \ implementer must provide the actual files (or a directory tree showing them)\
-    \ to satisfy the task."
 T004b:
   c: false
   h: 0d6ae283c16684c17ac1a4309f3d841cb8fb4d8e09891f9a5d5745b929163979
@@ -22,13 +5,6 @@ T004b:
     \ and `data/manifest.json` contains placeholder checksums and zero sizes, indicating\
     \ the datasets were never fetched or saved. The implementation does not meet the\
     \ task\u2019s requirement."
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `config.py` file or its contents were provided; without the actual module\
-    \ we cannot confirm that the required hyperparameters are defined or that CPU\u2011\
-    only execution constraints are enforced. The implementer must supply a non\u2011\
-    empty `config.py` implementing the specified settings."
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,6 +12,13 @@ T006:
     \ `EvaluationResult` entities are present; the claim provides no actual code,\
     \ definitions, or serialized\u2011ready implementations, so the required artifacts\
     \ are missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `train.py` was provided\u2014there is no code showing\
+    \ validation of recursion depth, OOM detection, error logging, or a non\u2011\
+    zero exit on violation. The required artifact (the updated script implementing\
+    \ the hard\u2011fail behavior) is missing."
 T019a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -61,17 +44,9 @@ T025:
     \ but no function that sweeps the thresholds {0.4,\u202F0.5,\u202F0.6}, computes\
     \ false\u2011positive/false\u2011negative rates, or writes the specified CSV columns.\
     \ The task\u2019s core functionality is therefore missing."
-T037:
+T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` directory or updated documentation files were provided; therefore
-    we cannot confirm the presence of the new statistical report format, metric definitions,
-    or philosophical operationalization section required by task T037. The implementer
-    must add the documentation files in `docs/` with the specified content.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No CI configuration, linting scripts, or test results are provided to show that
-    `ruff check` and `black --check` are run on the `code/` directory and that the
-    CI pipeline fails on any lint/format errors. The required artifact (evidence of
-    the lint/format checks and failing CI) is missing.
+  r: No validation output, log, or report for the `quickstart.md` check is provided;
+    the implementer did not supply any artifact demonstrating that the quickstart
+    validation was run or succeeded. The required evidence is missing.

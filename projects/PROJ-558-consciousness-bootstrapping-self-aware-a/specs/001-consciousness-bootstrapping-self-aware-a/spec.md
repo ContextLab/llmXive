@@ -33,7 +33,7 @@ As a researcher, I need to run the trained models (recursive and shuffled-attent
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained model checkpoint and a benchmark dataset (e.g., GSM8K), **When** the evaluation script runs the "generate 10 reasoning paths" logic, **Then** it produces multiple distinct output sequences per question and calculates the majority-vote self-consistency score.
+1. **Given** a trained model checkpoint and a benchmark dataset (e.g., GSM8K), **When** the evaluation script runs the "generate multiple reasoning paths" logic, **Then** it produces multiple distinct output sequences per question and calculates the majority-vote self-consistency score.
 2. **Given** the model's output confidence scores and ground truth labels, **When** the error detection metric is calculated, **Then** the system computes the ROC-AUC value correctly based on the binary classification of correctness.
 3. **Given** the set of predicted probabilities and ground truths, **When** the uncertainty calibration is calculated, **Then** the system outputs both the Brier score and the Expected Calibration Error (ECE) for the model.
 4. **Given** the 'shuffled-attention' baseline, **When** the same metrics are calculated, **Then** the system produces a control dataset to isolate the effect of temporal recursion from stochastic sampling.
@@ -58,7 +58,7 @@ As a researcher, I need to perform paired t-tests across multiple random seeds a
 
 ### Edge Cases
 
-- **What happens when** the recursion depth causes the model to exceed the 7 GB RAM limit during the forward pass?
+- **What happens when** the recursion depth causes the model to exceed the available RAM limit during the forward pass?
   - The system MUST fail the run, log the OOM error, and exit with a non-zero code. It MUST NOT automatically reduce the recursion depth, as this would violate FR-001.
 - **How does the system handle** a scenario where the majority vote in self-consistency results in a tie (e.g., 5 correct vs. 5 incorrect)?
   - The system MUST define a deterministic tie-breaking rule (e.g., prefer the first generated path) and document this in the analysis report.
@@ -69,12 +69,12 @@ As a researcher, I need to perform paired t-tests across multiple random seeds a
 
 ### Functional Requirements
 
-- **FR-001**: System MUST implement a recursive self-attention module that attends to the confidence distribution of the previous generation step (temporal recursion) for a maximum recursion depth of 2 (See US-01).
+- **FR-001**: System MUST implement a recursive self-attention module that attends to the confidence distribution of the previous generation step (temporal recursion) for a The research will investigate how varying the maximum recursion depth influences system behavior. The method involves systematically adjusting the maximum recursion depth to a moderate level to observe its impact on performance and stability. References: [Insert DOI/arXiv/author-year here]. (See US-01).
 - **FR-002**: System MUST train both the recursive model and a standard baseline model on the first [deferred] tokens of the 'arXiv' subset of the Pile dataset using a joint loss function (cross-entropy + confidence-prediction based on self-consistency proxy) (See US-01).
 - **FR-003**: System MUST generate exactly 10 reasoning paths per question for the Self-Consistency benchmark evaluation using temperature=0.7, top_p=0.9, and a fixed seed per run (See US-02).
 - **FR-004**: System MUST compute the Brier score and Expected Calibration Error (ECE) for all test items to assess uncertainty calibration (See US-02).
-- **FR-005**: System MUST perform paired t-tests across 5 random seeds to compare the recursive model against the baseline, reporting p-values and effect sizes (See US-03).
-- **FR-006**: System MUST execute a sensitivity analysis on the error detection confidence threshold by sweeping values across {0.4, 0.5, 0.6} and reporting the resulting variation in error rates (See US-03).
+- **FR-005**: System MUST perform paired t-tests across random seeds to compare the recursive model against the baseline, reporting p-values and effect sizes (See US-03).
+- **FR-006**: System MUST execute a sensitivity analysis on the error detection confidence threshold by sweeping values across a range of moderate thresholds and reporting the resulting variation in error rates (See US-03).
 - **FR-007**: System MUST apply a multiple-comparison correction (e.g., Bonferroni) to the p-values of the three primary metrics to control family-wise error rate (See US-03).
 
 ### Key Entities
@@ -90,7 +90,7 @@ As a researcher, I need to perform paired t-tests across multiple random seeds a
 - **SC-001**: The system MUST calculate the percentage difference in self-consistency scores between the recursive and baseline models (See US-03).
 - **SC-002**: The Brier score and Expected Calibration Error (ECE) are measured against the baseline to assess if uncertainty calibration is statistically significantly lower (See US-02).
 - **SC-003**: The ROC-AUC for error detection is measured against the baseline to determine if the model can distinguish correct from incorrect answers more effectively (See US-02).
-- **SC-004**: The statistical significance of the differences in metrics is measured against an alpha level of 0.05, with adjustments for multiple comparisons (See US-03).
+- **SC-004**: The statistical significance of the differences in metrics is measured against an alpha level set to the conventional threshold for statistical significance, with adjustments for multiple comparisons (See US-03).
 - **SC-005**: The sensitivity analysis results are measured to ensure that the headline error rates (false-positive/false-negative) are reported for at least three distinct threshold values (See US-03).
 
 ## Assumptions

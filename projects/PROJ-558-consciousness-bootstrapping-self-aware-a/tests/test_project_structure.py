@@ -1,67 +1,46 @@
 """
-Tests to verify the project directory structure is created correctly.
+Test suite for project structure creation.
+Verifies that T001a requirements are met.
 """
 import os
-import tempfile
-import shutil
-from pathlib import Path
 import pytest
+from pathlib import Path
+import shutil
 
-# We need to import the function from the code directory
-# Since we are running tests, we assume the code is in the project root or code/
-# For this test, we will create a temporary structure and verify it
-# But since the task is to CREATE the structure, we test the creation logic
+# Import the function under test
+# We assume the test runs from the repo root or code directory
+# Adjusting import path to be relative to the test location
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_structure_creation_logic():
-    """Test that the structure creation logic works."""
-    from code.create_project_structure import create_structure
+from create_project_structure import create_structure
+
+@pytest.fixture
+def cleanup():
+    """Clean up the created directories after test."""
+    yield
+    # Cleanup logic if needed (optional for CI)
+    # base = Path("projects") / "PROJ-558-consciousness-bootstrapping-self-aware-a"
+    # if base.exists():
+    #     shutil.rmtree(base)
+
+def test_create_structure_creates_directories(cleanup):
+    """Verify that all required directories are created."""
+    base_dir = Path("projects") / "PROJ-558-consciousness-bootstrapping-self-aware-a"
     
-    # We can't easily test the actual file creation in a CI environment
-    # without modifying the filesystem, so we test the logic by mocking
-    # or by creating a temporary directory.
+    # Ensure clean state
+    if base_dir.exists():
+        shutil.rmtree(base_dir)
     
-    # Let's create a temporary directory to simulate the project root
-    with tempfile.TemporaryDirectory() as tmpdir:
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmpdir)
-            # The script expects to run from the project root
-            # We will verify the paths it tries to create
-            base_dir = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
-            
-            # Manually check the logic without actually creating (to avoid side effects in test)
-            subdirs = [
-                "data/raw",
-                "data/processed",
-                "code",
-                "tests",
-                "artifacts",
-                "artifacts/checkpoints",
-                "artifacts/results"
-            ]
-            
-            for subdir in subdirs:
-                expected_path = base_dir / subdir
-                # We don't create it here, just verify the path construction
-                assert str(expected_path).startswith("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
-                assert subdir in str(expected_path)
-            
-            # Now actually run the function to ensure it doesn't crash
-            # We are in a temp dir, so it's safe
-            result = create_structure()
-            
-            # Verify directories were created
-            for subdir in subdirs:
-                assert (base_dir / subdir).exists()
-            
-            assert len(result) == len(subdirs)
-            
-        finally:
-            os.chdir(original_cwd)
-
-def test_required_subdirs_exist():
-    """Verify that the required subdirectories are defined in the creation logic."""
-    subdirs = [
+    # Run creation
+    created = create_structure()
+    
+    # Verify base exists
+    assert base_dir.exists(), "Base project directory should exist"
+    assert base_dir.is_dir(), "Base project directory should be a directory"
+    
+    # Verify subdirectories
+    expected_dirs = [
         "data/raw",
         "data/processed",
         "code",
@@ -70,12 +49,26 @@ def test_required_subdirs_exist():
         "artifacts/checkpoints",
         "artifacts/results"
     ]
-    # This is a sanity check that the list is complete
-    assert len(subdirs) == 7
-    assert "data/raw" in subdirs
-    assert "data/processed" in subdirs
-    assert "code" in subdirs
-    assert "tests" in subdirs
-    assert "artifacts" in subdirs
-    assert "artifacts/checkpoints" in subdirs
-    assert "artifacts/results" in subdirs
+    
+    for rel_dir in expected_dirs:
+        full_path = base_dir / rel_dir
+        assert full_path.exists(), f"Directory {rel_dir} should exist"
+        assert full_path.is_dir(), f"{rel_dir} should be a directory"
+    
+    # Verify count
+    assert len(created) == len(expected_dirs), f"Should create {len(expected_dirs)} directories"
+
+def test_create_structure_idempotent(cleanup):
+    """Verify that running create_structure twice does not fail."""
+    base_dir = Path("projects") / "PROJ-558-consciousness-bootstrapping-self-aware-a"
+    
+    # First run
+    if base_dir.exists():
+        shutil.rmtree(base_dir)
+    create_structure()
+    
+    # Second run (should not raise)
+    create_structure()
+    
+    assert base_dir.exists(), "Base directory should still exist"
+    assert (base_dir / "code").exists(), "Code directory should still exist"

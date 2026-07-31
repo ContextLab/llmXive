@@ -1,9 +1,8 @@
 """
-Lint and formatting check utilities for the Consciousness Bootstrapping project.
+Linting and formatting verification utilities for the Consciousness Bootstrapping project.
 
-This module provides functions to run ruff and black checks on the codebase
-and report any violations. It is designed to be used in CI pipelines to ensure
-code quality.
+This module provides functions to run `ruff check` and `black --check`
+on the project's codebase, ensuring adherence to style and linting standards.
 """
 
 import subprocess
@@ -14,105 +13,128 @@ from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def run_command(command: list, check: bool = True) -> tuple:
+
+def run_command(command: list[str], cwd: Path | None = None) -> tuple[int, str, str]:
     """
-    Run a shell command and return the result.
-    
+    Execute a shell command and return its exit code, stdout, and stderr.
+
     Args:
-        command: List of command arguments
-        check: If True, raise CalledProcessError on non-zero exit
-        
+        command: List of command arguments.
+        cwd: Working directory for the command.
+
     Returns:
-        Tuple of (return_code, stdout, stderr)
+        Tuple of (exit_code, stdout, stderr).
     """
     try:
-        logger.info(f"Running command: {' '.join(command)}")
         result = subprocess.run(
             command,
+            cwd=cwd,
             capture_output=True,
             text=True,
-            check=check
+            check=False
         )
         return result.returncode, result.stdout, result.stderr
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Command failed with return code {e.returncode}")
-        logger.error(f"stdout: {e.stdout}")
-        logger.error(f"stderr: {e.stderr}")
-        return e.returncode, e.stdout, e.stderr
+    except FileNotFoundError:
+        logger.error(f"Command not found: {command[0]}")
+        return 127, "", f"Command not found: {command[0]}"
+    except Exception as e:
+        logger.error(f"Error executing command: {e}")
+        return 1, "", str(e)
+
 
 def check_ruff(code_dir: Path) -> bool:
     """
-    Run ruff check on the specified directory.
-    
+    Run `ruff check` on the specified directory.
+
     Args:
-        code_dir: Path to the code directory to check
-        
+        code_dir: Path to the directory to check.
+
     Returns:
-        True if no lint errors found, False otherwise
+        True if the check passes (no errors), False otherwise.
     """
+    logger.info(f"Running ruff check on {code_dir}...")
     command = ["ruff", "check", str(code_dir)]
-    returncode, stdout, stderr = run_command(command, check=False)
-    
-    if returncode == 0:
-        logger.info("Ruff check passed: No lint errors found")
+    exit_code, stdout, stderr = run_command(command)
+
+    if exit_code == 0:
+        logger.info("ruff check passed successfully.")
         return True
     else:
-        logger.error("Ruff check failed:")
-        logger.error(stdout)
+        logger.error("ruff check failed.")
+        if stdout:
+            logger.error(f"stdout:\n{stdout}")
         if stderr:
-            logger.error(stderr)
+            logger.error(f"stderr:\n{stderr}")
         return False
+
 
 def check_black(code_dir: Path) -> bool:
     """
-    Run black --check on the specified directory.
-    
+    Run `black --check` on the specified directory.
+
     Args:
-        code_dir: Path to the code directory to check
-        
+        code_dir: Path to the directory to check.
+
     Returns:
-        True if formatting is correct, False otherwise
+        True if the check passes (no formatting issues), False otherwise.
     """
+    logger.info(f"Running black --check on {code_dir}...")
     command = ["black", "--check", str(code_dir)]
-    returncode, stdout, stderr = run_command(command, check=False)
-    
-    if returncode == 0:
-        logger.info("Black check passed: Code is properly formatted")
+    exit_code, stdout, stderr = run_command(command)
+
+    if exit_code == 0:
+        logger.info("black --check passed successfully.")
         return True
     else:
-        logger.error("Black check failed:")
-        logger.error(stdout)
+        logger.error("black --check failed.")
+        if stdout:
+            logger.error(f"stdout:\n{stdout}")
         if stderr:
-            logger.error(stderr)
+            logger.error(f"stderr:\n{stderr}")
         return False
+
 
 def main() -> int:
     """
-    Main entry point for lint and format checking.
-    
-    Runs both ruff and black checks on the code/ directory.
-    Exits with non-zero code if any check fails.
+    Main entry point for the lint check script.
+
+    Runs both ruff and black checks on the 'code' directory relative to the
+    project root. Exits with code 1 if any check fails, 0 otherwise.
+
+    Returns:
+        Exit code (0 for success, 1 for failure).
     """
-    # Determine the project root (parent of the code directory)
+    # Determine project root (assumed to be the directory containing this script's parent)
+    # The script is at code/utils/lint_check.py, so project root is 3 levels up?
+    # Actually, tasks.md says "code/" is at repository root.
+    # Let's assume the script is run from the project root or we find the 'code' dir.
+    # A robust way: look for 'code' directory relative to this file's location.
     script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
+    # Assuming structure: project_root/code/utils/lint_check.py
+    project_root = script_path.parent.parent.parent
     code_dir = project_root / "code"
-    
+
     if not code_dir.exists():
         logger.error(f"Code directory not found: {code_dir}")
-        sys.exit(1)
-    
-    logger.info(f"Checking code in directory: {code_dir}")
-    
-    ruff_passed = check_ruff(code_dir)
-    black_passed = check_black(code_dir)
-    
-    if ruff_passed and black_passed:
-        logger.info("All lint and format checks passed!")
-        sys.exit(0)
+        return 1
+
+    logger.info(f"Project root: {project_root}")
+    logger.info(f"Checking code directory: {code_dir}")
+
+    ruff_ok = check_ruff(code_dir)
+    black_ok = check_black(code_dir)
+
+    if ruff_ok and black_ok:
+        logger.info("All linting and formatting checks passed.")
+        return 0
     else:
-        logger.error("One or more checks failed. Please fix the issues above.")
-        sys.exit(1)
+        logger.error("One or more linting/formatting checks failed.")
+        if not ruff_ok:
+            logger.error("  - ruff check failed")
+        if not black_ok:
+            logger.error("  - black check failed")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

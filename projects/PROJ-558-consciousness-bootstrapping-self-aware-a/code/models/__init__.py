@@ -1,6 +1,5 @@
 """
-Models package for the Consciousness Bootstrapping project.
-Contains base and recursive Llama implementations, checkpoint entities, and model wrappers.
+Models package for recursive and base LLM implementations.
 """
 from .base_llama import BaseLlamaWrapper
 from .checkpoint import ModelCheckpoint

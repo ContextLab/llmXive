@@ -803,3 +803,549 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T09:49:06Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: execution scripts fail if config.py token limit is missing or deferred
+  claim_id: c_4c5885af
+  context: 'Critical Prerequisites: Spec Consistency. The spec.md artifact contains
+    [deferred] for the token limit in FR-002.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execution_scripts_fail_if_config.py_token_limit_is_missing_o
+  kind: entity_fact
+  raw_text: The implementation tasks will use the value from config.py ([deferred]
+    tokens). If config.py contains deferred or is missing a value, the execution scripts
+    will fail with a clear error.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:15:27Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: plan.md references Teacher-Student Distillation inconsistent with spec.md
+    internal self-consistency proxy
+  claim_id: c_3380059f
+  context: 'Critical Prerequisites: Plan Consistency. Implementation tasks will strictly
+    follow spec.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan.md_references_Teacher-Student_Distillation_inconsistent
+  kind: entity_fact
+  raw_text: The plan.md artifact references Teacher-Student Distillation, which is
+    inconsistent with spec.md Assumptions mandating an internal self-consistency proxy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:15:49Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: token_limit validation requires integer value of 100000
+  claim_id: c_1fe733b9
+  context: 'Prerequisite Validation: Logic to verify token_limit is an integer equal
+    to 100000. If missing or invalid, log CRITICAL error and exit with code 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Token_limit_validation_requires_integer_value_of_100000
+  kind: entity_fact
+  raw_text: The validation script checks code/utils/config.py to verify token_limit
+    is an integer equal to 100000.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:16:05Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: validation script fails if plan.md contains Teacher-Student Distillation
+  claim_id: c_e0080c00
+  context: 'Prerequisite Validation: Logic to check plan.md for Teacher-Student Distillation.
+    If found, log CRITICAL error and exit with code 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_script_fails_if_plan.md_contains_Teacher-Student
+  kind: entity_fact
+  raw_text: The validation script checks plan.md for the string Teacher-Student Distillation
+    and logs a CRITICAL error if found.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:16:24Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: config.py token_limit set to 100000
+  claim_id: c_db004a57
+  context: 'Data Loading & Configuration: Constraint token_limit MUST be set to exactly
+    100000. Do NOT use a default fallback if the value is missing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The config.py implementation sets token_limit to exactly 100000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:16:37Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: data_loader fetches arXiv subset of Pile dataset via HuggingFace
+  claim_id: c_6639abff
+  context: 'T004-IMPL: Implementation to fetch the ''arXiv'' subset of the Pile dataset
+    via HuggingFace datasets API.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_fetches_arXiv_subset_of_Pile_dataset_via_Hugging
+  kind: entity_fact
+  raw_text: The data_loader.py script fetches the arXiv subset of the Pile dataset
+    via HuggingFace datasets API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:17:03Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: truncated Pile dataset saved to data/raw/pile_arxiv_truncated.json
+  claim_id: c_55585ae1
+  context: 'T004-IMPL: Action Concatenate tokens and truncate to a fixed maximum sequence
+    length. Save to data/raw/pile_arxiv_truncated.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Truncated_Pile_dataset_saved_to_data/raw/pile_arxiv_truncate
+  kind: entity_fact
+  raw_text: The data_loader.py script saves the truncated Pile dataset to data/raw/pile_arxiv_truncated.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:17:17Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: data_loader fetches GSM8K dataset via HuggingFace
+  claim_id: c_c7203e3a
+  context: 'T004b-GSM8K: Implementation to fetch GSM8K dataset via HuggingFace datasets
+    API.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_fetches_GSM8K_dataset_via_HuggingFace
+  kind: entity_fact
+  raw_text: The data_loader.py script fetches the GSM8K dataset via HuggingFace datasets
+    API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:17:45Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset saved to data/raw/gsm8k.json
+  claim_id: c_492967a5
+  context: 'T004b-GSM8K: Action Save to data/raw/gsm8k.json with checksum in data/manifest.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_saved_to_data/raw/gsm8k.json
+  kind: entity_fact
+  raw_text: The data_loader.py script saves the GSM8K dataset to data/raw/gsm8k.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:18:01Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: data_loader fetches MMLU dataset via HuggingFace
+  claim_id: c_1793e7f8
+  context: 'T004b-MMLU: Action Save to data/raw/mmlu.json with checksum in data/manifest.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_fetches_MMLU_dataset_via_HuggingFace
+  kind: entity_fact
+  raw_text: The data_loader.py script fetches the MMLU dataset via HuggingFace datasets
+    API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:18:38Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: base_llama wrapper for transformer under 300M parameters
+  claim_id: c_0429790b
+  context: 'T007: Implement base_llama.py wrapper for a small transformer (<300M params)
+    in code/models/base_llama.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Base_llama_wrapper_for_transformer_under_300M_parameters
+  kind: magnitude
+  raw_text: The base_llama.py wrapper is implemented for a small transformer with
+    fewer than 300M parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:18:59Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training pipeline completes within 120 minutes on GitHub Actions CPU
+    runner
+  claim_id: c_1d618357
+  context: 'Independent Test: The training pipeline executes on GitHub Actions CPU
+    runner, produces two checkpoints, and completes within 120 minutes without OOM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline executes on GitHub Actions CPU runner and completes
+    within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:19:15Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: internal self-consistency proxy derived from 5 model generations
+  claim_id: c_bd9be743
+  context: 'NOTE on Spec vs Plan Divergence: The task strictly implements the spec.md
+    requirement for an internal self-consistency proxy (derived from N=5 model generations)
+    to avoid tautology.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The internal self-consistency proxy is derived from N=5 model generations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:20:16Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: confidence loss proxy derived from 5 reasoning paths per item
+  claim_id: c_a3f894d5
+  context: 'T012-IMPL: Implementation Logic The confidence-prediction loss must use
+    a proxy derived from internal generation on the training batch: (1) Generate N=5
+    reasoning paths per training item using the current model state.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence-prediction loss uses a proxy derived from generating N=5
+    reasoning paths per training item.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:21:17Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: tie-breaking rule prefers first generated path
+  claim_id: c_53e6b0ac
+  context: 'T012-IMPL: Implementation Logic (3) Tie-Breaking Rule: Define a deterministic
+    tie-breaking rule (specifically: prefer the first generated path) to satisfy spec
+    Edge Cases for handling ties or no-majority scenarios.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tie-breaking_rule_prefers_first_generated_path
+  kind: entity_fact
+  raw_text: The tie-breaking rule for the confidence proxy prefers the first generated
+    path.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:21:43Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: run_benchmarks generates 10 reasoning paths per question for Self-Consistency
+    benchmark
+  claim_id: c_48a98602
+  context: 'T019a: Implement run_benchmarks.py to generate exactly 10 reasoning paths
+    per question for the Self-Consistency benchmark subset (FR-003) using temperature=0.7,
+    top_p=0.9, and a fixed seed per run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The run_benchmarks.py script generates exactly 10 reasoning paths per
+    question for the Self-Consistency benchmark subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:21:56Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Self-Consistency benchmark uses temperature 0.7 and top_p 0.9
+  claim_id: c_4814ebce
+  context: 'T019a: Implement run_benchmarks.py to generate exactly 10 reasoning paths
+    per question for the Self-Consistency benchmark subset (FR-003) using temperature=0.7,
+    top_p=0.9, and a fixed seed per run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The run_benchmarks.py script uses temperature 0.7 and top_p 0.9 for the
+    Self-Consistency benchmark.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:22:10Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: metrics.py calculates self-consistency, ROC-AUC, Brier score, and ECE
+  claim_id: c_5559a2c0
+  context: 'T018: Implement metrics.py to calculate self-consistency, ROC-AUC, Brier
+    score, and ECE (FR-003, FR-004) in code/evaluation/metrics.py.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metrics.py_calculates_self-consistency,_ROC-AUC,_Brier_score
+  kind: entity_fact
+  raw_text: The metrics.py implementation calculates self-consistency, ROC-AUC, Brier
+    score, and ECE.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:22:29Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps thresholds 0.4, 0.5, 0.6
+  claim_id: c_82e1b8e1
+  context: 'T025: Implement sensitivity analysis sweep for confidence thresholds across
+    a specific discrete set of values {0.4, 0.5, 0.6} (FR-006) and output results
+    to artifacts/results/sensitivity_analysis.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps confidence thresholds across the discrete
+    set {0.4, 0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:22:51Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: statistical report includes percentage difference in self-consistency
+    scores
+  claim_id: c_1c4341ce
+  context: 'T024: Must include Logic to calculate the percentage difference in self-consistency
+    scores between recursive and baseline models (SC-001) and output to artifacts/results/statistical_report.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_report_includes_percentage_difference_in_self-co
+  kind: entity_fact
+  raw_text: The statistical report includes the percentage difference in self-consistency
+    scores between recursive and baseline models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:23:10Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training script verifies peak RSS under 7GB
+  claim_id: c_bfdc8a26
+  context: 'T039: Run memory profiling on the training script (train.py) with max
+    batch size; verify peak RSS < 7GB and log result to artifacts/results/memory_profile.log.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_script_verifies_peak_RSS_under_7GB
+  kind: magnitude
+  raw_text: The training script verifies peak RSS is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:24:22Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: plan.md references Teacher-Student Distillation inconsistent with spec.md
+  claim_id: c_d90ba762
+  context: 'Notes: The ''Teacher-Student Distillation'' and ''Pre-computed Teacher
+    Labels'' mentioned in plan.md are inconsistent with spec.md Assumptions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan.md_references_Teacher-Student_Distillation_inconsistent
+  kind: entity_fact
+  raw_text: The plan.md references Teacher-Student Distillation which is inconsistent
+    with spec.md Assumptions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:24:44Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Token limit value sourced from config.py
+  claim_id: c_2ae127ec
+  context: Critical Prerequisites section discussing spec consistency and token limit
+    configuration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Token_limit_value_sourced_from_config.py
+  kind: entity_fact
+  raw_text: The implementation tasks will use the value from config.py ([deferred]
+    tokens).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:30:16Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Token limit validation requires integer value of 100000
+  claim_id: c_9ae125ef
+  context: T002-CHK task description for the validation script checking code/utils/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Token_limit_validation_requires_integer_value_of_100000
+  kind: entity_fact
+  raw_text: Verify token_limit is an integer equal to 100000.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:30:34Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Base Llama wrapper uses transformer with fewer than 300M parameters
+  claim_id: c_78b10256
+  context: T007 task description for implementing the base model wrapper.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Base_Llama_wrapper_uses_transformer_with_fewer_than_300M_par
+  kind: magnitude
+  raw_text: Implement base_llama.py wrapper for a small transformer (<300M params).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:31:17Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline completes in 120 minutes on GitHub Actions CPU runner
+    without OOM
+  claim_id: c_7b68881a
+  context: Independent Test section for User Story 1 describing performance constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline executes on GitHub Actions CPU runner, produces
+    two checkpoints, and completes within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:31:33Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Confidence proxy uses N=5 generated reasoning paths per training item
+  claim_id: c_49afe14f
+  context: T012-IMPL task description detailing the implementation logic for loss_functions.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The confidence-prediction loss must use a proxy derived from internal
+    generation on the training batch: Generate N=5 reasoning paths per training item
+    using the current model state.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:31:49Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Self-Consistency benchmark generates 10 reasoning paths with temperature
+    0.7 and top_p 0.9
+  claim_id: c_d0b53249
+  context: T019a task description for implementing the benchmark runner for US2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement run_benchmarks.py to generate exactly 10 reasoning paths per
+    question for the Self-Consistency benchmark subset using temperature=0.7, top_p=0.9,
+    and a fixed seed per run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:32:03Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps confidence thresholds 0.4, 0.5, and 0.6
+  claim_id: c_1dc50d0c
+  context: T025 task description for implementing sensitivity analysis in stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity analysis sweep for confidence thresholds across a
+    specific discrete set of values {0.4, 0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:32:20Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Memory profiling requires peak RSS less than 7GB
+  claim_id: c_464aad9e
+  context: T039 task description for running memory profiling on the training script.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_profiling_requires_peak_RSS_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak RSS < 7GB and log result to artifacts/results/memory_profile.log.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:32:45Z'
