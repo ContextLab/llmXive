@@ -209,3 +209,150 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T04:33:31Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Exclude participants with mean Framewise Displacement greater than 0.5mm
+    or more than 20% volumes exceeding 0.5mm
+  claim_id: c_14419f6e
+  context: Implement Framewise Displacement (FD) calculation. Exclude participants
+    with mean FD > 0.5mm or >20% volumes > 0.5mm; log exclusions to data/analysis/qc_log.json.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_mean_Framewise_Displacement_greate
+  kind: magnitude
+  raw_text: Exclude participants with mean FD > 0.5mm or >20% volumes > 0.5mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T07:41:21Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Verify usable participant sample size is at least 85
+  claim_id: c_66dc7d87
+  context: "Calculate the number of usable participants (post-QC exclusions). Verify\
+    \ sample size \u2265 85. Abort with clear error message if usable count < 85."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_usable_participant_sample_size_is_at_least_85
+  kind: magnitude
+  raw_text: "Verify sample size \u2265 85"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T07:42:40Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Fit 9 separate linear models for centrality metric and cognitive domain
+    pairs
+  claim_id: c_76551b14
+  context: "Fit separate linear models for each (Centrality Metric \xD7 Cognitive\
+    \ Domain) pair (3\xD73=9 models). Control for covariates. Calculate \u03B2, SE,\
+    \ p-values, partial-r, and VIF."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fit separate linear models for each (Centrality Metric \xD7 Cognitive\
+    \ Domain) pair (3\xD73=9 models)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T07:43:20Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Flag Variance Inflation Factor values greater than 5
+  claim_id: c_7cc7f794
+  context: 'Check assumptions: Linearity, Normality (Shapiro-Wilk), Homoscedasticity
+    (Breusch-Pagan), Independence. Flag VIF > 5 and assumption violations (warnings
+    only, do not halt).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_Variance_Inflation_Factor_values_greater_than_5
+  kind: magnitude
+  raw_text: Flag VIF > 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T07:43:52Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Ensure generated PDF report file size is at most 5 MB
+  claim_id: c_41641d5b
+  context: "Assemble plots and tables into a PDF using reportlab or matplotlib + PIL.\
+    \ Include QC summary (exclusions, sample size). Ensure file size \u2264 5 MB (SC-004)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_generated_PDF_report_file_size_is_at_most_5_MB
+  kind: magnitude
+  raw_text: "Ensure file size \u2264 5 MB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T07:44:21Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Reduce cyclomatic complexity of fMRI_pipeline.py to less than 10
+  claim_id: c_a53d6c4f
+  context: Refactor code/preprocess/fMRI_pipeline.py to reduce cyclomatic complexity
+    to < 10.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_cyclomatic_complexity_of_fMRI_pipeline.py_to_less_tha
+  kind: magnitude
+  raw_text: Refactor code/preprocess/fMRI_pipeline.py to reduce cyclomatic complexity
+    to < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T07:44:41Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Run integration test on 20 participants and verify runtime is under 4
+    hours
+  claim_id: c_530fe642
+  context: Optimize connectivity matrix calculation to use chunked processing for
+    memory efficiency. Run integration test on N=20 and record runtime in outputs/perf_metrics.json
+    to verify < 4 hour constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run integration test on N=20 and record runtime to verify < 4 hour constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T07:45:18Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Generate mock NIfTI files for 5 participants
+  claim_id: c_e44bba96
+  context: 'CI/Simulation Path: Generate mock NIfTI files in data/processed/ for N=5
+    participants that simulate the output of the full preprocessing pipeline (including
+    motion correction logic) to ensure schema compatibility with downstream steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate mock NIfTI files in data/processed/ for N=5 participants
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T07:45:52Z'

@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-network-centrality"
+name = "adni-network-centrality"
 version = "0.1.0"
 description = "Assessing the Impact of Network Centrality on Age-Related Cognitive Decline"
 requires-python = ">=3.10"
@@ -19,21 +19,12 @@ dependencies = [
     "reportlab",
     "python-dotenv",
     "requests",
+    "tqdm",
 ]
-optional-dependencies = { dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest",
-    "pytest-cov",
-] }
-
-[tool.ruff]
-line-length = 88
-target-version = "py310"
 
 [tool.black]
 line-length = 88
-target-version = ["py310"]
+target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -48,3 +39,36 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+src = ["code", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in CLI)
+    "C901", # too complex (handled by separate complexity checks if needed)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"] # Allow unused imports in init files for exports
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"

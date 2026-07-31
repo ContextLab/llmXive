@@ -1,99 +1,85 @@
-"""
-Environment configuration management for the llmXive ADNI project.
-
-This module handles loading, validating, and accessing environment variables,
-specifically ADNI credentials and project paths.
-"""
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 from dotenv.main import DotEnv
 
-
-# Define the project root relative to this file (assuming code/config/env_config.py)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Define the project root relative to this file
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 ENV_FILE_PATH = PROJECT_ROOT / ".env"
 
+# Required keys for ADNI authentication
+REQUIRED_ADNI_KEYS = {
+    "ADNI_USERNAME",
+    "ADNI_PASSWORD",
+    "ADNI_IDGK_URL"
+}
 
 def load_environment() -> bool:
     """
-    Loads the .env file from the project root if it exists.
-
+    Loads environment variables from the .env file if it exists.
+    
     Returns:
-        bool: True if the file was loaded successfully or already loaded, False if not found.
+        bool: True if .env was found and loaded, False otherwise.
     """
     if ENV_FILE_PATH.exists():
         load_dotenv(dotenv_path=ENV_FILE_PATH)
         return True
     return False
 
-
 def validate_adni_credentials() -> Dict[str, Any]:
     """
     Validates the presence of required ADNI credentials in the environment.
-
-    Required keys:
-        - ADNI_USER: ADNI portal username
-        - ADNI_PASS: ADNI portal password
-        - ADNI_PROJECT_ID: (Optional but recommended) Project ID if applicable
-
+    
     Returns:
-        Dict[str, Any]: A dictionary containing the validated credentials if successful.
-
+        Dict[str, Any]: A dictionary containing:
+            - 'valid': bool indicating if all keys are present and non-empty
+            - 'missing': list of missing or empty key names
+            - 'values': dict of present values (masked for security)
+    
     Raises:
-        ValueError: If any required credential is missing or empty.
+        ValueError: If validation fails (missing keys).
     """
-    required_keys = ["ADNI_USER", "ADNI_PASS"]
     missing_keys = []
-
-    for key in required_keys:
-        value = os.getenv(key)
-        if not value:
+    values = {}
+    
+    for key in REQUIRED_ADNI_KEYS:
+        val = os.getenv(key)
+        if not val or not val.strip():
             missing_keys.append(key)
-
+        else:
+            # Mask the value for logging/debugging safety
+            values[key] = f"{val[:2]}***{val[-2:]}" if len(val) > 4 else "***"
+    
     if missing_keys:
         raise ValueError(
-            f"Missing required ADNI credentials in environment or .env file: {', '.join(missing_keys)}. "
-            f"Please ensure {ENV_FILE_PATH} exists and contains these keys."
+            f"Missing required ADNI environment variables: {', '.join(missing_keys)}. "
+            f"Please create a .env file at {ENV_FILE_PATH} with these keys."
         )
-
+    
     return {
-        "user": os.getenv("ADNI_USER"),
-        "password": os.getenv("ADNI_PASS"),
-        "project_id": os.getenv("ADNI_PROJECT_ID"),
+        "valid": True,
+        "missing": [],
+        "values": values
     }
 
-
-def get_config() -> Dict[str, Any]:
+def get_config(key: str, default: Optional[str] = None) -> Optional[str]:
     """
-    Loads environment variables and validates ADNI credentials.
-
+    Retrieves a configuration value from the environment.
+    
+    Args:
+        key: The environment variable key.
+        default: Optional default value if key is not found.
+    
     Returns:
-        Dict[str, Any]: A dictionary containing configuration including credentials.
+        The value or default.
     """
-    load_environment()
-    return validate_adni_credentials()
+    return os.getenv(key, default)
 
-
-# Convenience function for CLI usage or direct script execution
 def check_env() -> None:
     """
-    Checks the environment and prints the status.
+    Convenience function to load environment and validate ADNI credentials.
     Raises ValueError if validation fails.
     """
-    try:
-        creds = get_config()
-        print("Environment configuration valid.")
-        print(f"ADNI User: {creds['user']}")
-        # Mask password for security
-        print(f"ADNI Password: {'*' * len(creds['password'])}")
-        if creds['project_id']:
-            print(f"Project ID: {creds['project_id']}")
-    except ValueError as e:
-        print(f"Configuration Error: {e}")
-        raise
-
-
-if __name__ == "__main__":
-    check_env()
+    load_environment()
+    validate_adni_credentials()

@@ -159,6 +159,10 @@
     "classified_at": "2026-07-11T16:10:39Z",
     "verdict": false
   },
+  "PROJ-1031-llmxive-follow-up-extending-robodojo-a-u::1.6.0": {
+    "classified_at": "2026-07-31T08:16:49Z",
+    "verdict": false
+  },
   "PROJ-1032-llmxive-follow-up-extending-https-arxiv::1.6.0": {
     "classified_at": "2026-07-12T04:21:10Z",
     "verdict": false

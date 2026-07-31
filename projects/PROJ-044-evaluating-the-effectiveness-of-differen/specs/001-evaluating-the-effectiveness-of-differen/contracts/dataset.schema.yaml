@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FEMNIST Dataset Schema"
+description: "Schema for the raw FEMNIST parquet dataset used in the study."
+type: "object"
+properties:
+  image:
+    type: "array"
+    items:
+      type: "integer"
+      minimum: 0
+      maximum: 255
+    description: "Flattened 28x28 image pixels."
+  label:
+    type: "integer"
+    minimum: 0
+    maximum: 61
+    description: "Class label (0-61 for digits + letters)."
+  client_id:
+    type: "string"
+    description: "Original LEAF client identifier."
+required:
+  - image
+  - label
+  - client_id
+additionalProperties: false

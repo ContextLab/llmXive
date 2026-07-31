@@ -1,58 +1,94 @@
-# Data Model: Predicting Rate Constants of SN1 Reactions
+# Data Model: Predicting Rate Constants of SN1 Reactions from Molecular Structure
 
-## 1. Entity Definitions
+## Entity Relationship Diagram (Conceptual)
 
-### Molecule
-Represents a chemical substrate in the SN1 reaction context.
--   **smiles**: `string` - Canonical SMILES representation.
--   **substrate_class**: `enum` - One of `["secondary", "tertiary"]`. Derived from graph analysis.
--   **leaving_group**: `string` - e.g., "Cl", "Br", "I".
--   **steric_index**: `float` - Calculated steric hindrance metric (RDKit).
--   **gasteiger_charges**: `list[float]` - Partial charges for each atom.
--   **topological_indices**: `dict` - { "wiener": float, "zagreb": float, ... }.
+```mermaid
+erDiagram
+    Molecule ||--o{ ReactionRate : "has"
+    Molecule {
+        string smiles
+        string substrate_class "secondary|tertiary (if available)"
+        float steric_index "calculated, not used for hard filtering"
+        bool is_valid_graph
+    }
+    ReactionRate {
+        float rate_constant
+        float temperature
+        string solvent
+        string source_id
+    }
+    ModelRun ||--o{ HyperparameterConfig : "uses"
+    ModelRun {
+        string run_id
+        float r2_score
+        float mae
+        string best_config_path
+    }
+    HyperparameterConfig {
+        float learning_rate
+        int hidden_dim
+        float dropout
+        int layers
+    }
+```
 
-### ReactionRate
-Represents the experimental outcome.
--   **rate_constant**: `float` - Value in s⁻¹ (standardized).
--   **temperature**: `float` - Temperature in Kelvin.
--   **solvent**: `string` - Solvent name (optional, may be null).
--   **source_id**: `string` - ID from the source dataset (e.g., DTS-SN1 row ID).
+## Data Schemas
 
-### ModelConfiguration
-Represents a trained model instance.
--   **config_id**: `string` - Unique hash of hyperparameters.
--   **hyperparameters**: `dict` - { "learning_rate": float, "hidden_dim": int, "dropout": float, "layers": int }.
--   **metrics**: `dict` - { "train_r2": float, "val_r2": float, "test_r2": float, "test_mae": float }.
--   **training_time**: `float` - Seconds.
+### Input Schema (Raw)
+- **Source**: HuggingFace JSONL/Parquet
+- **Fields**: `smiles`, `rate` (or `rate_constant`), `temperature`, `solvent`, `substrate_class` (if available).
 
-## 2. Data Flow & Transformations
+### Intermediate Schema (Processed)
+- **File**: `data/processed/cleaned_dataset.csv`
+- **Columns**:
+  - `smiles`: Canonical SMILES string.
+  - `rate_log`: Natural log of rate constant (normalized).
+  - `substrate_class`: Derived or original (secondary/tertiary) if available. **Requirement**: Must be present in source; if missing, dataset is excluded.
+  - `steric_index`: Calculated proxy (LogP + Rotatable Bonds) for logging only (no hard filter).
+  - `gasteiger_charges`: Array of floats (atomic charges).
+  - `topological_indices`: Array of floats (Morgan fingerprints).
+  - `exclusion_reason`: String (if row was filtered).
 
-1.  **Raw Ingestion**:
-    -   Input: `merged-file.jsonl` (DTS-SN1).
-    -   Output: `raw_data.csv` (SMILES, rate, raw metadata).
-2.  **Cleaning & Filtering**:
-    -   Input: `raw_data.csv`.
-    -   Logic:
-        -   Parse SMILES.
-        -   Compute steric index.
-        -   Filter: `steric_index > 2.0` OR `substrate_class == "primary"`.
-        -   Filter: Missing rate constant.
-    -   Output: `cleaned_data.csv` + `exclusion_report.jsonl`.
-3.  **Descriptor Computation**:
-    -   Input: `cleaned_data.csv`.
-    -   Logic: Compute Gasteiger charges, Topological indices.
-    -   Output: `processed_data.csv` (includes all descriptors).
-4.  **Splitting**:
-    -   Input: `processed_data.csv`.
-    -   Logic: Stratified split (70/15/15) by `substrate_class`.
-    -   Output: `train.csv`, `val.csv`, `test.csv`.
-5.  **Model Training**:
-    -   Input: `train.csv`, `val.csv`.
-    -   Output: `model_weights.pt`, `metrics.json`.
+### Output Schema (Model)
+- **File**: `artifacts/metrics.json`
+- **Structure**:
+  ```json
+  {
+    "run_id": "uuid",
+    "timestamp": "ISO8601",
+    "dataset_size": 8000,
+    "model_type": "MPNN",
+    "hyperparameters": { ... },
+    "metrics": {
+      "train": { "r2": 0.0, "mae": 0.0 },
+      "validation": { "r2": 0.0, "mae": 0.0 },
+      "test": { "r2": 0.0, "mae": 0.0 }
+    },
+    "baselines": {
+      "random": { "r2": 0.0, "mae": 0.0 },
+      "linear": { "r2": 0.0, "mae": 0.0 },
+      "null": { "r2": 0.0, "mae": 0.0 }
+    },
+    "significance": {
+      "mpnn_vs_linear": { "p_value": 0.0, "significant": true, "corrected": true }
+    }
+  }
+  ```
 
-## 3. Schema Constraints
+## Data Flow
 
--   **SMILES**: Must be canonicalized. If canonicalization fails, row is excluded.
--   **Rate Constant**: Must be > 0. If 0 or negative, excluded (log error).
--   **Substrate Class**: Must be "secondary" or "tertiary". Any other value is excluded.
--   **Missing Values**: No missing values allowed in `train`, `val`, or `test` sets. Rows with missing descriptors are excluded.
+1. **Ingestion**: Raw JSONL/Parquet → `data/raw/`.
+2. **Cleaning**:
+   - Parse SMILES with RDKit.
+   - **Filter**: Remove rows with missing rate or unparseable SMILES.
+   - **Filter**: Remove rows if `substrate_class` is required but missing (if dataset lacks explicit labels, the dataset is excluded).
+   - **Log**: Exclusions to `data/processed/exclusion_report.csv`.
+   - **Note**: No hard filtering based on steric index > 2.0. The steric index is calculated and logged for distribution analysis.
+3. **Featurization**:
+   - Compute Gasteiger charges.
+   - Compute topological indices.
+   - Normalize features (Z-score).
+   - Output: `data/processed/cleaned_dataset.csv`.
+4. **Splitting**: Scaffold split with a majority training portion by Murcko Scaffolds. If `substrate_class` is available, stratify within scaffolds.
+5. **Training**: MPNN → `artifacts/model_weights.pt`.
+6. **Analysis**: SHAP, VIF, Sensitivity → `artifacts/reports/`.

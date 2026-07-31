@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 024dee2c9961a64517c057a39b11f7f657c1c70c1292ae8911b7197997ee6060
+  artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/flwrlabs/femnist/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/662256b8d721c7b9788a006f/a536b7cf9598162c23f1a5152dd80d7131e0e7bb27587b5900e75bd8eb7986b8?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1785489362&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYyMjU2YjhkNzIxYzdiOTc4OGEwMDZmL2E1MzZiN2NmOTU5ODE2MmMyM2YxYTUxNTJkZDgwZDcxMzFlMGU3YmIyNzU4N2I1OTAwZTc1YmQ4ZWI3OTg2YjhcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NTQ4OTM2Mn19fV19&Signature=MEUCIDld4LNU3hcw64vUuOwlHUHNZpniBpo71UdfrHfZg%7EG8AiEAymPp7ei3im4E8PbnnU5hwwveurI3oVru5GMbJi6IQAU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-07-31T08:16:02.673599Z'

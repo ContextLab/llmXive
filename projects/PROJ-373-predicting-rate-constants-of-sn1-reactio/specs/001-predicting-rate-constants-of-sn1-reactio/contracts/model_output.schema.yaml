@@ -1,29 +1,105 @@
-description: "Schema for model output metrics and metadata"
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Metrics Schema"
+description: "Schema for the final model performance metrics and analysis results."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of the run completion."
+  dataset_size:
+    type: "integer"
+    description: "Number of samples in the test set."
+  model_type:
+    type: "string"
+    enum: ["MPNN", "LinearRegression", "RandomBaseline", "NullModel"]
+    description: "Type of model evaluated."
+  hyperparameters:
+    type: "object"
+    properties:
+      learning_rate:
+        type: "number"
+      hidden_dim:
+        type: "integer"
+      dropout:
+        type: "number"
+      layers:
+        type: "integer"
+    required:
+      - learning_rate
+      - hidden_dim
+      - dropout
+      - layers
+  metrics:
+    type: "object"
+    properties:
+      train:
+        type: "object"
+        properties:
+          r2: { type: "number" }
+          mae: { type: "number" }
+        required: [r2, mae]
+      validation:
+        type: "object"
+        properties:
+          r2: { type: "number" }
+          mae: { type: "number" }
+        required: [r2, mae]
+      test:
+        type: "object"
+        properties:
+          r2: { type: "number" }
+          mae: { type: "number" }
+        required: [r2, mae]
+    required:
+      - train
+      - validation
+      - test
+  baselines:
+    type: "object"
+    properties:
+      random:
+        type: "object"
+        properties:
+          r2: { type: "number" }
+          mae: { type: "number" }
+        required: [r2, mae]
+      linear:
+        type: "object"
+        properties:
+          r2: { type: "number" }
+          mae: { type: "number" }
+        required: [r2, mae]
+      null:
+        type: "object"
+        properties:
+          r2: { type: "number" }
+          mae: { type: "number" }
+        required: [r2, mae]
+    required:
+      - random
+      - linear
+      - null
+  significance:
+    type: "object"
+    properties:
+      mpnn_vs_linear:
+        type: "object"
+        properties:
+          p_value: { type: "number" }
+          significant: { type: "boolean" }
+          corrected: { type: "boolean" }
+        required: [p_value, significant, corrected]
+    required: [mpnn_vs_linear]
 required:
-  - model_id
+  - run_id
+  - timestamp
+  - dataset_size
+  - model_type
   - hyperparameters
   - metrics
-  - weights_path
-properties:
-  model_id:
-    type: string
-    description: "Unique identifier for the model run"
-  hyperparameters:
-    type: object
-    description: "Dictionary of hyperparameters used for training"
-  metrics:
-    type: object
-    required:
-      - r2
-      - mae
-    properties:
-      r2:
-        type: number
-        description: "Coefficient of determination"
-      mae:
-        type: number
-        description: "Mean Absolute Error"
-  weights_path:
-    type: string
-    description: "Relative path to the saved model weights file"
+  - baselines
+  - significance

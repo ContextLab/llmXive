@@ -1,72 +1,105 @@
 """
-Project Configuration Module.
+Configuration module for the project.
 
-Manages environment variables, seed management, and critical parameters
-such as cold-rolling reduction levels.
+Handles environment variables, seed management, and reduction levels.
 """
+
 import os
 from typing import List, Optional
 from pathlib import Path
 
 class ConfigurationError(Exception):
-    """Raised when configuration is invalid or missing required fields."""
+    """Custom exception for configuration errors."""
     pass
 
-# Project Paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-CODE_DIR = PROJECT_ROOT / "code"
-
-# Seeds
-DEFAULT_SEED = 42
-
-def get_reductions() -> List[int]:
+def get_reductions() -> List[float]:
     """
-    Retrieves the list of cold-rolling reduction percentages.
-    Reads from environment variable REDUCTION_LEVELS or defaults to a standard set.
-    
-    Returns:
-        List of integers representing reduction percentages (e.g., [30, 50, 70])
-        
-    Raises:
-        ConfigurationError: If the environment variable is set but invalid.
+    Get the list of cold rolling reduction levels from configuration.
+
+    Returns
+    -------
+    List[float]
+        List of reduction percentages (e.g., [30, 50, 70]).
+
+    Raises
+    ------
+    ConfigurationError
+        If reduction levels are not defined in configuration.
     """
-    env_val = os.getenv("REDUCTION_LEVELS")
+    # Try to get from environment variable first
+    env_reductions = os.getenv("COLD_ROLLING_REDUCTIONS")
     
-    if env_val:
+    if env_reductions:
         try:
-            # Expect format: "30,50,70" or "[30, 50, 70]"
-            clean_val = env_val.strip("[]")
-            reductions = [int(x.strip()) for x in clean_val.split(",")]
+            reductions = [float(x.strip()) for x in env_reductions.split(",")]
             if not reductions:
-                raise ConfigurationError("REDUCTION_LEVELS is empty.")
-            if any(r < 0 or r > 99 for r in reductions):
-                raise ConfigurationError("Reduction levels must be between 0 and 99.")
+                raise ConfigurationError("COLD_ROLLING_REDUCTIONS is empty")
             return reductions
-        except ValueError:
-            raise ConfigurationError(f"Invalid REDUCTION_LEVELS format: '{env_val}'. Expected comma-separated integers.")
-    else:
-        # Default fallback if not set.
-        # Per T011b/T012 spec: "if values are missing, raise a ConfigurationError immediately"
-        # However, to allow the pipeline to run in a standard dev environment without 
-        # manual env setup, we provide a sensible default ONLY if the env var is completely absent.
-        # If the spec demands strict fail-fast on missing env vars, remove this default.
-        # Given the task description "Reduction levels MUST be read from code/config.py; 
-        # if values are missing, raise a ConfigurationError immediately", 
-        # we interpret "missing" as "not found in the config source".
-        # We will treat the default as the config source if env is unset.
-        # BUT, to be safe and compliant with "fail loudly", we will require the env var 
-        # OR a hardcoded default in this file for the fallback path.
-        
-        # Let's define a standard set for the project if not overridden.
-        # If the strict requirement is "must be defined by user", we would raise here.
-        # Assuming standard defaults are acceptable for the "missing" case in a dev environment:
-        default_reductions = [30, 50, 70]
+        except ValueError as e:
+            raise ConfigurationError(f"Invalid reduction values in environment: {e}")
+    
+    # Fallback to default if not set (for testing/development)
+    # In production, this should be explicitly configured
+    default_reductions = [30.0, 50.0, 70.0]
+    
+    # Check if we're in a test environment
+    if os.getenv("TESTING") == "true":
         return default_reductions
+    
+    # If not in test mode and not configured, raise error
+    # This ensures fail-fast behavior as required by FR-002
+    raise ConfigurationError(
+        "Cold rolling reduction levels not configured. "
+        "Set COLD_ROLLING_REDUCTIONS environment variable (e.g., '30,50,70') "
+        "or set TESTING=true for development."
+    )
 
 def get_seed() -> int:
-    """Retrieves the random seed from environment or defaults."""
+    """
+    Get the random seed for reproducibility.
+
+    Returns
+    -------
+    int
+        Random seed value.
+
+    Defaults to 42 if not specified.
+    """
+    seed_str = os.getenv("RANDOM_SEED", "42")
     try:
-        return int(os.getenv("RANDOM_SEED", DEFAULT_SEED))
+        return int(seed_str)
     except ValueError:
-        return DEFAULT_SEED
+        return 42  # Fallback to default
+
+def get_data_path() -> Path:
+    """
+    Get the base data directory path.
+
+    Returns
+    -------
+    Path
+        Path to the data directory.
+    """
+    data_path = os.getenv("DATA_PATH", "data")
+    return Path(data_path)
+
+def get_log_level() -> str:
+    """
+    Get the logging level from configuration.
+
+    Returns
+    -------
+    str
+        Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+    """
+    return os.getenv("LOG_LEVEL", "INFO")
+
+# Validate configuration on import if not in test mode
+if os.getenv("TESTING") != "true":
+    try:
+        _ = get_reductions()
+    except ConfigurationError:
+        # Log warning but don't fail import (import time validation)
+        import logging
+        logging.warning("Configuration warning: Reduction levels not set. "
+                      "Will fail on first use if not configured.")

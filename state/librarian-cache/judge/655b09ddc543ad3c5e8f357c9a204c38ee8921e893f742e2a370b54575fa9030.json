@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.04434",
+  "judged_at": "2026-07-31T08:16:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"robodojo: a unified sim-and-real benchmark for comprehensive evaluatio\" computer science",
+  "rationale": "The paper is the foundational source for the \"RoboDojo\" benchmark explicitly named in the user's follow-up question, satisfying category (d) as the canonical reference for the specific framework and evaluation protocol the user intends to extend.",
+  "relevant": true
+}

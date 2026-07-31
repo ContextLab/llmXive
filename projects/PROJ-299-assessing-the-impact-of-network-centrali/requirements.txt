@@ -8,3 +8,6 @@ matplotlib
 seaborn
 reportlab
 python-dotenv
+requests
+ruff
+black

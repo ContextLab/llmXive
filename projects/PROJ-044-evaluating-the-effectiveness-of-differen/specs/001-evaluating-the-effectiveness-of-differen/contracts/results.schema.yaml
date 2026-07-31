@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Results Schema"
+description: "Schema for the aggregated training results CSV."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  dataset:
+    type: "string"
+    enum:
+      - "FEMNIST"
+    description: "Dataset name."
+  alpha:
+    type: "number"
+    description: "Dirichlet concentration parameter."
+  epsilon:
+    type: "number"
+    description: "Privacy budget (ε)."
+  seed:
+    type: "integer"
+    description: "Random seed."
+  round:
+    type: "integer"
+    description: "Training round number."
+  global_accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Global test accuracy."
+  majority_accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Average accuracy of majority clients."
+  minority_accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Average accuracy of minority clients."
+  delta:
+    type: "number"
+    description: "Privacy parameter δ."
+  actual_epsilon:
+    type: "number"
+    description: "Calculated ε from Moments Accountant."
+  degradation:
+    type: "number"
+    description: "Accuracy_NonDP - Accuracy_DP."
+  is_time_limited:
+    type: "boolean"
+    description: "True if training was truncated due to time limit."
+required:
+  - run_id
+  - dataset
+  - alpha
+  - epsilon
+  - seed
+  - round
+  - global_accuracy
+  - majority_accuracy
+  - minority_accuracy
+  - delta
+  - actual_epsilon
+  - degradation
+  - is_time_limited
+additionalProperties: false

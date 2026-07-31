@@ -1,0 +1,4 @@
+# This file is a legacy configuration for ruff.
+# The primary configuration is now in pyproject.toml.
+# Keeping this file for backward compatibility if older tools scan for it.
+extend = "pyproject.toml"

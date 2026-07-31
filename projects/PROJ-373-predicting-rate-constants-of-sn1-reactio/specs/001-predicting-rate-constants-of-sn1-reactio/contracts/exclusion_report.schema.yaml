@@ -16,6 +16,7 @@ fields:
       - primary_substrate
       - missing_rate_constant
       - invalid_smiles
+      - missing_substrate_class
     required: true
   - name: original_smiles
     type: string

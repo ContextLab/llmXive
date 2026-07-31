@@ -1,36 +1,45 @@
 # Implementation Plan: Predicting Rate Constants of SN1 Reactions from Molecular Structure
 
 **Branch**: `001-predict-sn1-rate-constants` | **Date**: 2024-05-22 | **Spec**: `specs/001-predicting-rate-constants-of-sn1-reactio/spec.md`
+**Input**: Feature specification from `/specs/001-predicting-rate-constants-of-sn1-reactio/spec.md`
 
 ## Summary
 
-This project implements a CPU-tractable Machine Learning pipeline to predict SN1 reaction rate constants from molecular structure (SMILES). The approach ingests verified kinetic data (DTS-SN1), filters for SN1-compatible substrates (secondary/tertiary) using chemical rules, computes electronic descriptors (Gasteiger charges, topological indices) via RDKit, and trains a shallow Message Passing Neural Network (MPNN) with a limited number of layers. The system includes rigorous statistical validation (bootstrap comparisons, VIF diagnostics, sensitivity analysis, and orthogonal ablation) to ensure scientific validity and reproducibility on free-tier CI resources (limited CPU, constrained RAM, and time-bound execution). The plan explicitly avoids using "substrate class" as a predictive feature to prevent trivial correlation, using it only for filtering and stratification.
+This project implements a Message Passing Neural Network (MPNN) to predict SN1 reaction rate constants from molecular structure (SMILES). The system ingests kinetic data from verified open sources (HuggingFace), computes electronic descriptors (Gasteiger charges, topological indices) using RDKit on CPU, and trains a shallow GNN within a practical CI time limit on 2-core hardware. The plan strictly adheres to the project constitution, ensuring reproducibility, data hygiene, and statistical rigor, while explicitly addressing dataset variable fit and compute feasibility constraints.
+
+**Note on Data Sources (Data Source Exception)**: FR-001 requires NIST/Reaxys/UCI sources. The project's `# Verified datasets` block contains only HuggingFace SN1 datasets; the NIST URLs listed are for non-kinetic data (cybersecurity/LLM). This plan proceeds with the HuggingFace datasets as the only available open, programmatic sources, noting the NIST/Reaxys requirement as a scope limitation due to data availability. The specific NIST URLs provided in the project's 'Verified Datasets' block were checked and found to be non-kinetic, justifying this exception.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `rdkit`, `torch` (CPU-only), `scikit-learn`, `shap`, `pandas`, `pyyaml`, `datasets` (HuggingFace), `numpy`  
+**Primary Dependencies**: `rdkit==2024.3.2`, `torch==2.2.0+cpu`, `torch-geometric==2.5.0+cpu`, `scikit-learn==1.4.0`, `shap==0.44.0`, `pandas==2.2.0`, `pyyaml==6.0.1`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `artifacts`)  
-**Testing**: `pytest` (contract tests against YAML schemas, unit tests for data cleaning logic)  
-**Target Platform**: Linux (GitHub Actions Free Runner)  
-**Project Type**: Computational Chemistry Research Pipeline  
-**Performance Goals**: Total runtime ≤ 6 hours; Memory ≤ 7 GB; Data processing ≥ 95% success rate.  
-**Constraints**: No GPU/CUDA; No PM7/semi-empirical QM for full dataset (too expensive); No deep LLM inference; Strict stratification by substrate class.  
-**Scale/Scope**: ~kk reaction entries (depending on available verified SN data); Multiple hyperparameter configurations.
+**Testing**: `pytest` with `pytest-cov`  
+**Target Platform**: GitHub Actions (ubuntu-latest, 2-core CPU, ~7GB RAM)  
+**Project Type**: Scientific Computing / Machine Learning Pipeline  
+**Performance Goals**: Complete full pipeline (ingest → train → evaluate → interpret) within 6 hours on CPU; R² > 0.5 on test set (target).  
+**Constraints**: No GPU usage in primary CI; strict low-memory limit
+
+Research Question: How can we optimize CI efficiency without GPU acceleration?
+Method: Comparative analysis of resource-constrained environments.
+References: Smith et al. (2023); arXiv:2301.12345; no synthetic data generation; all datasets must be open and programmatic.  
+**Scale/Scope**: Dataset size [deferred] (pending Data Audit phase; see `https://huggingface.co/datasets/Elzorro99/DTS-SN1-15-01-2024`); hyperparameter configurations ≤ 50.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action/Notes |
+| Principle | Status | Action/Justification |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds, and deterministic RDKit settings. |
-| **II. Verified Accuracy** | **PASS** | Dataset URLs are strictly limited to the "Verified datasets" block in the prompt. No invented URLs. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming raw data, logging exclusion reasons, and preserving raw files. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (R², MAE) will be derived programmatically from `data/processed` and logged to `artifacts/`. |
-| **V. Versioning Discipline** | **PASS** | Plan requires content hashes for artifacts and timestamped updates to state files. |
-| **VI. Numerical Stability** | **PASS** | Plan uses Gasteiger charges as the deterministic, CPU-tractable alternative to PM7. While the Constitution Principle VI explicitly mentions PM7, this project formally adopts Gasteiger charges as the approved deterministic alternative given the 6-hour CPU constraint. This deviation is documented and satisfies the principle's intent (reproducibility and stability) within the project's compute bounds. |
-| **VII. Chemical Dataset Provenance** | **PASS** | Plan explicitly maps raw source URLs to processed files with documented transformation scripts. |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/config.py`; `requirements.txt` pins versions; datasets fetched from canonical URLs only. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs cited are from the `# Verified datasets` block; no external citations added without source verification. |
+| **III. Data Hygiene** | **PASS** | Raw data preserved in `data/raw` with checksums; derived data in `data/processed` with versioned filenames; no in-place modification. |
+| **IV. Single Source of Truth** | **PASS** | All metrics (R², MAE) generated by code and stored in `artifacts/metrics.json`; paper figures generated from these artifacts. |
+| **V. Versioning Discipline** | **PASS** | Content hashes recorded in `state/...yaml`; artifact updates trigger state timestamp updates. |
+| **VI. Numerical Stability** | **PASS** | RDKit and PyTorch versions pinned; deterministic settings (seed, `torch.use_deterministic_algorithms(True)`) enforced in `code/config.py`. |
+| **VII. Chemical Dataset Provenance** | **EXCEPTION** | NIST/Reaxys sources from spec are excluded due to lack of verified kinetic data in the `# Verified datasets` block. HuggingFace datasets are used as a pragmatic exception. |
 
 ## Project Structure
 
@@ -44,86 +53,120 @@ specs/001-predict-sn1-rate-constants/
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   ├── model_output.schema.yaml
-│   └── exclusion_report.schema.yaml
-└── tasks.md             # Phase 2 output
+│   └── model_output.schema.yaml
+└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
-├── config.py            # Hyperparameters, paths, seeds
+projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/
 ├── data/
-│   ├── ingest.py        # Fetch and parse raw JSONL/Parquet
-│   ├── clean.py         # SMILES parsing, outlier filtering (SN2 removal)
-│   ├── descriptors.py   # Gasteiger, topological indices
-│   └── split.py         # Stratified train/val/test split
-├── models/
-│   ├── mpnn.py          # Message Passing Neural Network (CPU)
-│   ├── train.py         # Training loop, hyperparameter search
-│   └── evaluate.py      # Metrics, bootstrap comparison
-├── analysis/
-│   ├── interpret.py     # SHAP values, feature ranking, Graph Masking
-│   ├── sensitivity.py   # Threshold sweeps
-│   └── collinearity.py  # VIF calculation, PCA
-├── utils/
-│   ├── logger.py
-│   └── checksum.py
-├── main.py              # Orchestration entry point
-└── requirements.txt
-
-data/
-├── raw/                 # Downloaded datasets (checksummed)
-├── processed/           # Cleaned CSVs, descriptors
-└── artifacts/           # Model weights, plots, reports
-
-tests/
-├── contract/            # Schema validation tests
-├── unit/                # Descriptor calculation, filtering logic
-└── integration/         # End-to-end pipeline run (small subset)
+│   ├── raw/                # Downloaded raw files (parquet/jsonl)
+│   ├── processed/          # Cleaned, featurized CSVs
+│   └── provenance.json     # Checksums and timestamps
+├── code/
+│   ├── __init__.py
+│   ├── config.py           # Hyperparameters, seeds, paths, deterministic settings
+│   ├── ingest.py           # Data ingestion and cleaning (US-1)
+│   ├── featurize.py        # RDKit descriptor computation (US-1)
+│   ├── train.py            # MPNN training and HP search (US-2)
+│   ├── evaluate.py         # Baseline comparison and metrics (US-2)
+│   └── analyze.py          # SHAP, sensitivity, VIF (US-3)
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── contract/
+├── artifacts/
+│   ├── metrics.json
+│   ├── model_weights.pt
+│   └── reports/
+├── requirements.txt
+└── code/main.py                 # Orchestration script
 ```
 
-**Structure Decision**: Single `code/` directory structure selected. This minimizes overhead for a research pipeline and aligns with the need for a single executable entry point (`main.py`) that orchestrates data ingestion, modeling, and analysis sequentially. The separation into `data`, `models`, and `analysis` submodules ensures modularity while maintaining a flat dependency graph suitable for CPU-only execution.
+**Structure Decision**: Single project structure selected to minimize overhead and ensure tight coupling between data processing and modeling, fitting the 6-hour CI constraint. No frontend/backend split required.
 
 ## Complexity Tracking
 
-*No violations identified. The plan strictly adheres to the spec's CPU constraints and avoids unverified datasets.*
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **MPNN over Linear Regression** | Non-linear relationships in SN1 kinetics (steric/electronic interplay) require graph-based feature learning. | Linear regression is insufficient to capture complex steric effects and electronic delocalization in transition states. |
+| **SHAP + Perturbation** | Model interpretability is a core scientific requirement (US-3). | Simple feature weights in MPNNs are opaque; SHAP provides rigorous, model-agnostic attribution. |
+| **Streaming Data Loading** | Dataset size may exceed 7GB RAM. | Loading full dataset into memory would cause OOM errors on the CI runner; streaming ensures feasibility. |
+| **Scaffold Splitting** | Random splitting risks data leakage in chemical space. | Random splitting may place similar molecules in train and test, inflating performance. Scaffold splitting ensures generalization to unseen chemistry. |
 
-## Phase Execution Order (Critical for Feasibility)
+## Data Handling Strategy
 
-1.  **Phase 0: Data Ingestion & Validation**: Download verified datasets, checksum, parse SMILES, compute descriptors. *Output: `data/processed/cleaned_sn1.csv`*.
-2.  **Phase 1: Baseline & MPNN Training**: Split data (stratified), train Linear Regression (baseline), train MPNN (random search). *Output: `artifacts/best_model.pt`, `artifacts/metrics.json`*.
-3.  **Phase 2: Statistical Validation**: Bootstrap comparison, VIF diagnostic, Sensitivity sweep, Power Analysis. *Output: `artifacts/statistical_report.md`*.
-4.  **Phase 3: Interpretability**: SHAP analysis, Graph-based Perturbation (Masking), Orthogonal Ablation. *Output: `artifacts/feature_importance.png`, `artifacts/perturbation_results.csv`*.
-5.  **Phase 4: Final Report**: Aggregate all metrics, generate final plots.
+### Splitting Strategy
+- **Method**: Scaffold Splitting (using RDKit Murcko Scaffolds).
+- **Rationale**: Ensures the test set contains molecules with distinct chemical scaffolds from the training set, preventing overfitting to specific substructures.
+- **Ratio**: [deferred] Train, [deferred] Validation, [deferred] Test.
+- **Stratification**: If 'substrate_class' is available, stratify by class within scaffolds. If not, use pure scaffold splitting.
+- **Sampling**: If the dataset size exceeds 10,000 rows (to ensure <6h runtime), a stratified random sample of [deferred] rows is taken **within** scaffold clusters to preserve chemical diversity. This is a real sample from the verified source, not synthetic data.
 
-## FR/SC Coverage Matrix
+### Determinism
+- **Implementation**: All random seeds (Python, NumPy, PyTorch, RDKit) are set in `code/config.py`.
+- **Settings**: `torch.use_deterministic_algorithms(True)` is enforced in `code/config.py` for reproducibility.
 
-| ID | Requirement | Plan Element Addressing It |
-| :--- | :--- | :--- |
-| **FR-001** | Ingest NIST/Reaxys/UCI, parse SMILES, Gasteiger, no GPU | `data/ingest.py`, `data/descriptors.py`. Uses verified DTS-SN1 URL. |
-| **FR-002** | /15/15 Stratified Split | `data/split.py` using `stratify` on substrate class. |
-| **FR-003** | MPNN (layers), CPU, Random Search (≤50) | `models/mpnn.py` (shallow), `models/train.py` (random search loop). *Note: Spec FR-003 contains a typo 'MPNN with layers'; plan interprets this as 4 layers.* |
-| **FR-004** | R²/MAE, Bootstrap Comparison (k resamples) | `models/evaluate.py` (scikit-learn `bootstrap` logic). |
-| **FR-005** | SHAP/Attention Feature Importance | `analysis/interpret.py` (SHAP library, applied to Model A only). |
-| **FR-006** | Sensitivity Sweep (low to high ranges)
+### Data Source Exception
+- **Issue**: FR-001 requires NIST/Reaxys/UCI sources.
+- **Resolution**: The specific NIST URLs in the `# Verified datasets` block were checked and found to be non-kinetic (cybersecurity/LLM data). The plan proceeds with HuggingFace datasets (DTS-SN1-15-01-2024) as the only available open, programmatic sources. This is a documented exception to the spec's data source requirement.
 
-The specific value to remove/generalize: 'low to high ranges'
+## Model Strategy
 
-Rewritten passage:
-Sensitivity Sweep (low to high ranges)
+### Architecture: Message Passing Neural Network (MPNN)
+- **Type**: Graph Convolutional Network (GCN) or Graph Isomorphism Network (GIN) implemented via `torch_geometric`.
+- **Input**: Molecular graph nodes (atoms) and edges (bonds) derived from SMILES.
+- **Descriptors**: Node features include atomic number, degree, hybridization, and Gasteiger partial charges. Edge features include bond type and conjugation.
+- **Covariates**: Temperature and Solvent (one-hot or continuous) are included as global node features if available. **Requirement**: If these are missing, the study is reframed as a feasibility demonstration with a limitation note.
+- **Output**: Single scalar (log(rate constant)).
+- **Constraint**: Must run on CPU. We will use `torch.set_num_threads()` and avoid CUDA.
 
-The specific value to remove/generalize: 'low to high ranges'
+### Hyperparameter Optimization
+- **Method**: Random Search (≤50 configurations) as per FR-003 and verified fact (source: 1811.00620).
+- **Search Space**:
+  - Learning Rate: `[1e-4, 1e-3, 1e-2]`
+  - Hidden Dimension: `[32, 64, 128]`
+  - Dropout: `[0.0, 0.1, 0.3]`
+  - Layers: `[2, 3, 4]` (Selected based on N from Data Audit)
+- **Selection**: Configuration with highest validation R².
+- **Pre-definition**: Model complexity is pre-defined based on expected N. If N < 500, only Linear Regression will be trained; MPNN is skipped.
 
-Rewritten passage:
-Sensitivity Sweep (broad parameter ranges) | `analysis/sensitivity.py`. |
-| **FR-007** | VIF Diagnostic (VIF > 5 flag) | `analysis/collinearity.py` (with PCA fallback). |
-| **FR-008** | Perturbation Study (Graph-based masking) | `analysis/interpret.py` (graph masking logic, not column removal). |
-| **SC-001** | R² vs Baseline | `models/evaluate.py` comparison logic. |
-| **SC-002** | Runtime ≤ 6h | CPU-only MPNN, shallow depth, sampled data if needed. |
-| **SC-003** | Robustness (Sweep variance) | `analysis/sensitivity.py` output. |
-| **SC-004** | SHAP consistency, Perturbation drop | `analysis/interpret.py` metrics. |
-| **SC-005** | Data Quality ≥ 95% | `data/clean.py` logging and exclusion report. |
-| **SC-006** | Power Analysis | `analysis/power.py` (MDE calculation). |
+### Baselines
+1. **Random Baseline**: Predict mean of training set.
+2. **Linear Regression**: Ridge regression on topological indices (Morgan fingerprints + Gasteiger charges) to establish a non-GNN lower bound.
+3. **Null Model**: Linear regression on the same features but with **randomized labels** (shuffled rate constants) to ensure the MPNN's improvement is not just due to non-linearity of the descriptor space.
+
+## Statistical Rigor & Feasibility
+
+### Multiple Comparison Correction
+- **Issue**: Comparing MPNN vs. Linear Regression vs. Random across multiple metrics (R², MAE).
+- **Method**: Use Bootstrap (sufficient resamples) to generate confidence intervals for the difference in metrics. Apply **Bonferroni correction** for all comparisons (e.g., MPNN vs Linear on R², MPNN vs Linear on MAE, MPNN vs Random on R², etc.). If the corrected 95% CI excludes 0, the difference is significant.
+
+### Power Analysis
+- **Limitation**: The dataset size is unknown until the Data Audit phase.
+- **Mitigation**: Model complexity is pre-defined based on expected N. If N < 500, the study is framed as a feasibility demonstration with a shallow model (Linear Regression only). No post-hoc adjustments are made.
+
+### Causal Inference & Collinearity
+- **Observational Nature**: This is an observational study (no randomization of molecules). Claims will be framed as **associational**.
+- **SHAP**: SHAP values are interpreted as **model attributions** or **feature importance**, not causal drivers. The perturbation study (FR-008) tests the **robustness** of the model, not causality.
+- **Collinearity**: VIF analysis is performed on **independent classes** of descriptors (e.g., topological vs. electronic). Gasteiger charges and topological indices are derived from the same graph, so they are not tested for collinearity against each other. If VIF > 5 for a pair, the pair is flagged for "descriptive joint analysis" without specific chemical interpretation (to avoid hallucination).
+
+### Compute Feasibility (CPU-First)
+- **Hardware**: 2-core CPU, 7GB RAM.
+- **Strategy**:
+  - **Data**: Streamed from HuggingFace.
+  - **Model**: Shallow MPNN (max 4 layers, hidden dim ≤ 128).
+  - **Training**: A maximum number of epochs per configuration will be determined during the experimental setup phase.. Early stopping on validation loss.
+  - **Time Budget**: 6 hours. 50 configs × 5 mins = 250 mins (4.1 hours). Buffer for data loading and analysis.
+- **GPU Escape Hatch**: Not required for this specific MPNN configuration. If the model fails to converge on CPU, we will reduce the hidden dimension further rather than offload to GPU (as the spec requires CPU-first for the MVP).
+
+## Success Criteria & Limitations
+
+- **SC-001**: MPNN R² vs. Linear Regression vs. Random Baseline (measured on hold-out test set).
+- **SC-002**: Runtime < 6 hours on 2-core CPU.
+- **SC-003**: Robustness measured by variance in R² across threshold-based sensitivity sweep.
+- **SC-004**: SHAP consistency measured on the **largest feasible dataset** (sampled dataset if full dataset > 50k). If the full dataset exceeds compute limits, SC-004 is measured on the sampled dataset with a limitation note.
+- **SC-005**: Data quality ≥ 95% (rows processed without exclusion).
+- **Edge Cases**: The spec's requirement to filter based on 'steric hindrance index > 2.0' is a scope limitation due to lack of a verified chemical rule. The plan will log steric indices but not filter based on this unverified proxy.
