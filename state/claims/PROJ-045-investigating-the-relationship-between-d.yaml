@@ -3096,3 +3096,158 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T13:15:06Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: data download success rate at least 93 percent
+  claim_id: c_9a94d882
+  context: "Tests for User Story 1 (OPTIONAL - only if tests requested) \u26A0\uFE0F\
+    \ ... - [X] T011 [P] [US1] Contract test for data download success rate (\u2265\
+    93%) in tests/test_download.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_download_success_rate_at_least_93_percent
+  kind: magnitude
+  raw_text: "Contract test for data download success rate (\u226593%) in tests/test_download.py"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:46:29Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB convergence criteria force less than or equal to 0.05 eV per angstrom
+  claim_id: c_1f79d63b
+  context: "Tests for User Story 2 (OPTIONAL - only if tests requested) \u26A0\uFE0F\
+    \ ... - [X] T022 [P] [US2] Integration test for NEB convergence criteria (force\
+    \ \u22640.05 eV/\xC5) in tests/test_dft_runner.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NEB_convergence_criteria_force_less_than_or_equal_to_0.05_eV
+  kind: magnitude
+  raw_text: "Integration test for NEB convergence criteria (force \u22640.05 eV/\xC5\
+    ) in tests/test_dft_runner.py"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:46:51Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: defect energy values match literature within 0.5 eV tolerance
+  claim_id: c_3b775cbc
+  context: 'Independent Test: Can be fully tested by running the calculation module
+    on 2-3 pre-selected test systems and verifying output energy values match expected
+    ranges from literature (within 0.5 eV tolerance for defect energies).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output energy values match expected ranges from literature (within
+    0.5 eV tolerance for defect energies)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:47:16Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Total Activation Energy equals defect formation energy plus migration
+    barrier
+  claim_id: c_05de962d
+  context: '- [ ] T036 [US3] Implement calculation of Total Activation Energy (Ea
+    = Ef + Em) for reporting purposes in code/analysis.py.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_Activation_Energy_equals_defect_formation_energy_plus
+  kind: entity_fact
+  raw_text: Implement calculation of Total Activation Energy (Ea = Ef + Em) for reporting
+    purposes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:47:47Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: statistical power calculation parameters alpha 0.05 effect size at least
+    0.1 target power at least 0.8
+  claim_id: c_58f6d2dd
+  context: "- [ ] T043 [US3] Implement statistical power calculation using statsmodels.stats.power\
+    \ as the Python-native replacement for the standalone G*Power application mentioned\
+    \ in SC-003 (\u03B1=0.05, effect size \u22650.1, target power \u22650.8) in code/analysis.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_calculation_parameters_alpha_0.05_effect_s
+  kind: magnitude
+  raw_text: "Implement statistical power calculation using statsmodels.stats.power\
+    \ ... (\u03B1=0.05, effect size \u22650.1, target power \u22650.8)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:48:15Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: refactor download script to use streaming for files larger than 100 MB
+  claim_id: c_9b2f282e
+  context: '- [ ] T048 [P] Code cleanup: Refactor code/download.py to use requests
+    streaming for files >100MB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/download.py to use requests streaming for files >100MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:48:15Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: vectorized regression unit test verify identical results with less than
+    50 percent runtime reduction on 1000 synthetic data
+  claim_id: c_38704921
+  context: '- [ ] T049 [P] Performance optimization: Vectorize the regression loop
+    in code/analysis.py using numpy broadcasting. Pass/Fail: Replace explicit for
+    loops over compositions with numpy matrix operations; unit test tests/test_analysis_vectorized.py
+    must verify identical results with <50% runtime reduction on n=1000 synthetic
+    data.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Vectorized_regression_unit_test_verify_identical_results_wit
+  kind: magnitude
+  raw_text: unit test tests/test_analysis_vectorized.py must verify identical results
+    with <50% runtime reduction on n=1000 synthetic data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:48:35Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: quickstart file must be less than 500 lines
+  claim_id: c_69a26e23
+  context: '- [ ] T047 [P] Documentation: Generate quickstart.md in docs/ containing
+    EXACTLY: ... File must be <500 lines.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quickstart_file_must_be_less_than_500_lines
+  kind: magnitude
+  raw_text: File must be <500 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:48:53Z'

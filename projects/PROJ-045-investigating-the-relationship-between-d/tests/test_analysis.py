@@ -1,264 +1,295 @@
+"""
+Contract tests for User Story 3 (Statistical Analysis and Correlation).
+
+These tests verify that the analysis module produces the required statistical
+outputs (R², p-values) with correct types and valid ranges, assuming the
+input data meets the quality constraints (BVS validation, defect density inclusion).
+
+Run with: pytest tests/test_analysis.py -v
+"""
+
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from typing import Dict, Any
 
-import numpy as np
-import pandas as pd
 import pytest
-from sklearn.linear_model import LinearRegression
+import numpy as np
 
-# Import the functions to test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root / "code"))
+
 from analysis import (
     load_processed_data,
-    calculate_activation_energy,
-    validate_data_quality,
     perform_regression_with_density,
     apply_multiple_comparison_correction,
     calculate_statistical_power,
-    generate_regression_plot,
-    run_full_analysis
+    run_full_analysis,
+    validate_data_quality
 )
+from models import AnalysisResult
 
-@pytest.fixture
-def sample_data():
-    """Create sample data for testing."""
-    np.random.seed(42)
-    n = 20
-    data = {
-        'defect_energy': np.random.uniform(0.5, 2.0, n),
-        'conductivity': np.random.uniform(1e-5, 1e-2, n),
-        'defect_density': np.random.uniform(1e-22, 1e-20, n),
-        'migration_barrier': np.random.uniform(0.3, 0.8, n)
+# Constants for test data generation
+N_SAMPLES = 50
+N_FEATURES = 3  # vacancy_energy, interstitial_energy, defect_density
+
+def generate_synthetic_regression_data(
+    n_samples: int = N_SAMPLES,
+    n_features: int = N_FEATURES,
+    noise_scale: float = 0.1
+) -> Dict[str, np.ndarray]:
+    """
+    Generate synthetic data for regression testing.
+    
+    Creates a dataset where:
+    - Features (X) are random values
+    - Target (y) has a linear relationship with the first feature + noise
+    - This ensures R² > 0 and p-value < 0.05 for the first feature.
+    
+    Returns:
+        Dictionary with keys: 'X' (features), 'y' (target), 'feature_names'
+    """
+    rng = np.random.default_rng(42)  # Fixed seed for reproducibility
+    
+    # Generate features
+    X = rng.standard_normal((n_samples, n_features))
+    feature_names = ['vacancy_energy', 'interstitial_energy', 'defect_density']
+    
+    # Generate target with known relationship: y = 2 * X[:,0] + 0.5 * X[:,2] + noise
+    # This ensures vacancy_energy and defect_density are significant predictors
+    true_coefs = [2.0, 0.0, 0.5]  # Second feature is irrelevant
+    y = X @ np.array(true_coefs) + rng.normal(0, noise_scale, n_samples)
+    
+    return {
+        'X': X,
+        'y': y,
+        'feature_names': feature_names
     }
-    return pd.DataFrame(data)
 
-@pytest.fixture
-def temp_output_dir():
-    """Create a temporary directory for output files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+def create_temp_processed_data_file(data: Dict[str, Any]) -> str:
+    """
+    Create a temporary JSON file containing processed analysis data.
+    
+    Args:
+        data: Dictionary containing 'X', 'y', 'feature_names', and 'composition_ids'
+    
+    Returns:
+        Path to the temporary JSON file
+    """
+    fd, path = tempfile.mkstemp(suffix='.json')
+    try:
+        with os.fdopen(fd, 'w') as tmp:
+            json.dump(data, tmp)
+    except Exception as e:
+        os.remove(path)
+        raise e
+    return path
 
-class TestLoadProcessedData:
-    def test_load_json_data(self, sample_data, temp_output_dir):
-        """Test loading data from JSON file."""
-        json_path = temp_output_dir / 'test_data.json'
-        with open(json_path, 'w') as f:
-            json.dump(sample_data.to_dict(orient='records'), f)
-        
-        loaded_df = load_processed_data(json_path)
-        assert len(loaded_df) == len(sample_data)
-        assert list(loaded_df.columns) == list(sample_data.columns)
+class TestRegressionOutputs:
+    """Contract tests for regression output validity."""
 
-    def test_load_csv_data(self, sample_data, temp_output_dir):
-        """Test loading data from CSV file."""
-        csv_path = temp_output_dir / 'test_data.csv'
-        sample_data.to_csv(csv_path, index=False)
+    def test_perform_regression_returns_required_metrics(self):
+        """
+        Contract test: perform_regression_with_density must return a dictionary
+        containing 'r_squared', 'p_values', 'coefficients', and 'model'.
+        """
+        data = generate_synthetic_regression_data()
         
-        loaded_df = load_processed_data(csv_path)
-        assert len(loaded_df) == len(sample_data)
+        result = perform_regression_with_density(
+            X=data['X'],
+            y=data['y'],
+            feature_names=data['feature_names']
+        )
+        
+        # Assert required keys exist
+        assert 'r_squared' in result, "Missing 'r_squared' in regression result"
+        assert 'p_values' in result, "Missing 'p_values' in regression result"
+        assert 'coefficients' in result, "Missing 'coefficients' in regression result"
+        assert 'model' in result, "Missing 'model' in regression result"
+        assert 'intercept' in result, "Missing 'intercept' in regression result"
 
-    def test_file_not_found(self, temp_output_dir):
-        """Test error handling for missing file."""
-        with pytest.raises(FileNotFoundError):
-            load_processed_data(temp_output_dir / 'nonexistent.json')
+    def test_r_squared_is_valid_range(self):
+        """
+        Contract test: R² must be between 0 and 1 (inclusive) for OLS regression.
+        """
+        data = generate_synthetic_regression_data()
+        
+        result = perform_regression_with_density(
+            X=data['X'],
+            y=data['y'],
+            feature_names=data['feature_names']
+        )
+        
+        r_sq = result['r_squared']
+        assert 0.0 <= r_sq <= 1.0, f"R² ({r_sq}) must be in range [0, 1]"
 
-class TestCalculateActivationEnergy:
-    def test_activation_energy_calculation(self):
-        """Test Ea = Ef + Em calculation."""
-        ef = 1.5  # eV
-        em = 0.5  # eV
-        expected_ea = 2.0  # eV
+    def test_p_values_are_valid_range(self):
+        """
+        Contract test: P-values must be between 0 and 1 (inclusive).
+        """
+        data = generate_synthetic_regression_data()
         
-        result = calculate_activation_energy(ef, em)
-        assert result == pytest.approx(expected_ea, rel=1e-6)
+        result = perform_regression_with_density(
+            X=data['X'],
+            y=data['y'],
+            feature_names=data['feature_names']
+        )
+        
+        p_vals = result['p_values']
+        assert isinstance(p_vals, (list, np.ndarray)), "p_values must be a list or array"
+        assert len(p_vals) == len(data['feature_names']), "p_values length mismatch"
+        
+        for p in p_vals:
+            assert 0.0 <= p <= 1.0, f"P-value ({p}) must be in range [0, 1]"
 
-    def test_different_values(self):
-        """Test with different energy values."""
-        assert calculate_activation_energy(0.8, 0.3) == pytest.approx(1.1, rel=1e-6)
-        assert calculate_activation_energy(2.0, 0.1) == pytest.approx(2.1, rel=1e-6)
+    def test_regression_significant_for_known_signal(self):
+        """
+        Contract test: With synthetic data designed to have a signal,
+        the first feature (vacancy_energy) should have a significant p-value (< 0.05).
+        """
+        # Use low noise to ensure signal is detectable
+        data = generate_synthetic_regression_data(noise_scale=0.05)
+        
+        result = perform_regression_with_density(
+            X=data['X'],
+            y=data['y'],
+            feature_names=data['feature_names']
+        )
+        
+        # The first feature was designed to be significant
+        p_val_first = result['p_values'][0]
+        assert p_val_first < 0.05, (
+            f"Expected p-value < 0.05 for first feature, got {p_val_first}. "
+            "The regression model is not detecting the known signal."
+        )
 
-class TestValidateDataQuality:
-    def test_valid_data(self, sample_data):
-        """Test validation with valid data."""
-        is_valid, issues = validate_data_quality(sample_data)
-        assert is_valid is True
-        assert len(issues) == 0
+class TestMultipleComparisonCorrection:
+    """Contract tests for multiple comparison correction."""
 
-    def test_missing_columns(self):
-        """Test validation with missing required columns."""
-        df = pd.DataFrame({'defect_energy': [1.0, 2.0]})
-        is_valid, issues = validate_data_quality(df)
-        assert is_valid is False
-        assert any('Missing required column' in issue for issue in issues)
+    def test_bonferroni_returns_corrected_pvalues(self):
+        """
+        Contract test: apply_multiple_comparison_correction must return
+        corrected p-values that are >= original p-values.
+        """
+        original_p_values = [0.01, 0.04, 0.08, 0.50]
+        
+        corrected = apply_multiple_comparison_correction(original_p_values, method='bonferroni')
+        
+        assert len(corrected) == len(original_p_values), "Length mismatch in corrected p-values"
+        for orig, corr in zip(original_p_values, corrected):
+            assert corr >= orig, f"Corrected p-value ({corr}) should be >= original ({orig})"
+            assert corr <= 1.0, f"Corrected p-value ({corr}) must be <= 1.0"
 
-    def test_nan_values(self):
-        """Test validation with NaN values."""
-        df = pd.DataFrame({
-            'defect_energy': [1.0, np.nan, 2.0],
-            'conductivity': [1e-5, 1e-4, 1e-3],
-            'defect_density': [1e-21, 1e-21, 1e-21],
-            'migration_barrier': [0.5, 0.5, 0.5]
-        })
-        is_valid, issues = validate_data_quality(df)
-        assert is_valid is False
-        assert any('NaN values' in issue for issue in issues)
+    def test_bh_correction_returns_corrected_pvalues(self):
+        """
+        Contract test: Benjamini-Hochberg correction returns valid values.
+        """
+        original_p_values = [0.01, 0.04, 0.08, 0.50]
+        
+        corrected = apply_multiple_comparison_correction(original_p_values, method='fdr_bh')
+        
+        assert len(corrected) == len(original_p_values), "Length mismatch in corrected p-values"
+        for corr in corrected:
+            assert 0.0 <= corr <= 1.0, f"Corrected p-value ({corr}) must be in [0, 1]"
 
-    def test_negative_defect_energy(self):
-        """Test validation with negative defect energy."""
-        df = pd.DataFrame({
-            'defect_energy': [-0.5, 1.0, 2.0],
-            'conductivity': [1e-5, 1e-4, 1e-3],
-            'defect_density': [1e-21, 1e-21, 1e-21],
-            'migration_barrier': [0.5, 0.5, 0.5]
-        })
-        is_valid, issues = validate_data_quality(df)
-        assert is_valid is False
-        assert any('Negative defect energies' in issue for issue in issues)
+class TestStatisticalPower:
+    """Contract tests for power analysis."""
 
-class TestPerformRegressionWithDensity:
-    def test_regression_outputs_r2_and_pvalues(self, sample_data):
-        """Contract test: verify R² and p-value outputs exist and are valid."""
-        results = perform_regression_with_density(sample_data)
+    def test_calculate_statistical_power_returns_valid_result(self):
+        """
+        Contract test: calculate_statistical_power must return a dictionary
+        with 'power', 'effect_size', 'sample_size', and 'alpha'.
+        """
+        # Typical parameters for power analysis
+        effect_size = 0.5
+        sample_size = 50
+        alpha = 0.05
         
-        # Check R² exists and is in valid range
-        assert 'r2' in results
-        assert 0.0 <= results['r2'] <= 1.0 or results['r2'] > 1.0  # R² can be negative for poor fits
+        result = calculate_statistical_power(
+            effect_size=effect_size,
+            sample_size=sample_size,
+            alpha=alpha
+        )
         
-        # Check p-values exist and are valid
-        assert 'p_values' in results
-        assert 'defect_energy' in results['p_values']
-        assert 'defect_density' in results['p_values']
-        assert 'migration_barrier' in results['p_values']
+        assert 'power' in result, "Missing 'power' in result"
+        assert 'effect_size' in result, "Missing 'effect_size' in result"
+        assert 'sample_size' in result, "Missing 'sample_size' in result"
+        assert 'alpha' in result, "Missing 'alpha' in result"
         
-        # P-values should be between 0 and 1
-        for var, p in results['p_values'].items():
-            assert 0.0 <= p <= 1.0, f"P-value for {var} ({p}) is not in [0, 1]"
+        # Power should be between 0 and 1
+        assert 0.0 <= result['power'] <= 1.0, f"Power ({result['power']}) must be in [0, 1]"
 
-    def test_regression_includes_defect_density(self, sample_data):
-        """Verify defect density is included as a predictor."""
-        results = perform_regression_with_density(sample_data)
-        
-        assert 'coefficients' in results
-        assert 'defect_density' in results['coefficients']
-        assert isinstance(results['coefficients']['defect_density'], float)
+class TestFullAnalysisIntegration:
+    """Integration tests for the full analysis pipeline."""
 
-    def test_regression_metrics(self, sample_data):
-        """Test that regression returns expected metrics."""
-        results = perform_regression_with_density(sample_data)
+    def test_run_full_analysis_produces_output_structure(self):
+        """
+        Contract test: run_full_analysis must return a dictionary with
+        'regression_results', 'power_analysis', 'vif_scores', and 'summary'.
+        """
+        data = generate_synthetic_regression_data()
         
-        assert 'rmse' in results
-        assert 'n_samples' in results
-        assert results['n_samples'] == len(sample_data)
-        assert 'degrees_of_freedom' in results
+        # Mock composition IDs for the test
+        composition_ids = [f"comp_{i}" for i in range(len(data['y']))]
+        
+        result = run_full_analysis(
+            X=data['X'],
+            y=data['y'],
+            feature_names=data['feature_names'],
+            composition_ids=composition_ids
+        )
+        
+        assert 'regression_results' in result, "Missing 'regression_results'"
+        assert 'power_analysis' in result, "Missing 'power_analysis'"
+        assert 'vif_scores' in result, "Missing 'vif_scores'"
+        assert 'summary' in result, "Missing 'summary'"
+        
+        # Verify regression results structure
+        reg_res = result['regression_results']
+        assert 'r_squared' in reg_res
+        assert 'p_values' in reg_res
 
-class TestApplyMultipleComparisonCorrection:
-    def test_bonferroni_correction(self, sample_data):
-        """Integration test: Bonferroni correction increases p-values."""
-        results = perform_regression_with_density(sample_data)
-        original_p = results['p_values']
-        
-        corrected = apply_multiple_comparison_correction(original_p, method='bonferroni')
-        
-        # Corrected p-values should be >= original
-        for var in original_p:
-            assert corrected[var] >= original_p[var]
-            assert corrected[var] <= 1.0
+class TestDataValidation:
+    """Tests for data validation before analysis."""
 
-    def test_bh_correction(self, sample_data):
-        """Integration test: Benjamini-Hochberg correction."""
-        results = perform_regression_with_density(sample_data)
-        original_p = results['p_values']
+    def test_validate_data_quality_rejects_invalid_input(self):
+        """
+        Contract test: validate_data_quality must raise ValueError for
+        mismatched dimensions or NaN inputs.
+        """
+        # Test 1: Mismatched dimensions
+        X_bad = np.random.rand(10, 3)
+        y_bad = np.random.rand(5)  # Mismatched length
         
-        corrected = apply_multiple_comparison_correction(original_p, method='bh')
-        
-        # Corrected p-values should be >= original
-        for var in original_p:
-            assert corrected[var] >= original_p[var]
-            assert corrected[var] <= 1.0
+        with pytest.raises(ValueError, match="dimension mismatch"):
+            validate_data_quality(X_bad, y_bad, ['f1', 'f2', 'f3'])
 
-    def test_invalid_method(self, sample_data):
-        """Test error handling for invalid correction method."""
-        results = perform_regression_with_density(sample_data)
+        # Test 2: NaN in X
+        X_nan = np.random.rand(10, 3)
+        X_nan[0, 0] = np.nan
+        y_clean = np.random.rand(10)
         
-        with pytest.raises(ValueError, match="Unknown correction method"):
-            apply_multiple_comparison_correction(results['p_values'], method='invalid')
+        with pytest.raises(ValueError, match="NaN"):
+            validate_data_quality(X_nan, y_clean, ['f1', 'f2', 'f3'])
 
-class TestCalculateStatisticalPower:
-    def test_power_calculation(self):
-        """Test statistical power calculation returns valid value."""
-        power = calculate_statistical_power(n_samples=30, effect_size=0.1, alpha=0.05)
+        # Test 3: NaN in y
+        X_clean = np.random.rand(10, 3)
+        y_nan = np.random.rand(10)
+        y_nan[2] = np.nan
         
-        assert isinstance(power, float)
-        assert 0.0 <= power <= 1.0
+        with pytest.raises(ValueError, match="NaN"):
+            validate_data_quality(X_clean, y_nan, ['f1', 'f2', 'f3'])
 
-    def test_power_increases_with_sample_size(self):
-        """Test that power increases with larger sample size."""
-        power_20 = calculate_statistical_power(n_samples=20, effect_size=0.1)
-        power_50 = calculate_statistical_power(n_samples=50, effect_size=0.1)
+    def test_validate_data_quality_accepts_valid_input(self):
+        """
+        Contract test: validate_data_quality returns True for clean,
+        correctly shaped data.
+        """
+        X = np.random.rand(20, 3)
+        y = np.random.rand(20)
+        names = ['f1', 'f2', 'f3']
         
-        assert power_50 > power_20
-
-class TestGenerateRegressionPlot:
-    def test_plot_generation(self, sample_data, temp_output_dir):
-        """Test that regression plot is generated successfully."""
-        results = perform_regression_with_density(sample_data)
-        plot_path = temp_output_dir / 'test_plot.png'
-        
-        generate_regression_plot(sample_data, results, plot_path)
-        
-        assert plot_path.exists()
-        assert plot_path.stat().st_size > 0
-
-class TestRunFullAnalysis:
-    def test_full_analysis_pipeline(self, sample_data, temp_output_dir):
-        """Test the complete analysis pipeline."""
-        # Save sample data
-        data_path = temp_output_dir / 'processed_data.json'
-        with open(data_path, 'w') as f:
-            json.dump(sample_data.to_dict(orient='records'), f)
-        
-        # Run full analysis
-        result = run_full_analysis(data_path, temp_output_dir)
-        
-        # Verify result object
-        assert result.r_squared is not None
-        assert result.rmse is not None
-        assert result.coefficients is not None
-        assert result.p_values is not None
-        assert result.corrected_p_values is not None
-        assert result.statistical_power is not None
-        assert result.n_samples == len(sample_data)
-        
-        # Verify output files
-        assert Path(result.plot_path).exists()
-        assert Path(result.results_path).exists()
-        
-        # Verify results file content
-        with open(result.results_path, 'r') as f:
-            saved_results = json.load(f)
-        
-        assert 'r2' in saved_results
-        assert 'coefficients' in saved_results
-        assert 'p_values' in saved_results
-
-    def test_full_analysis_with_insufficient_data(self, temp_output_dir):
-        """Test error handling with insufficient data."""
-        # Create data with only 2 samples
-        data = {
-            'defect_energy': [1.0, 2.0],
-            'conductivity': [1e-5, 1e-4],
-            'defect_density': [1e-21, 1e-21],
-            'migration_barrier': [0.5, 0.5]
-        }
-        df = pd.DataFrame(data)
-        
-        data_path = temp_output_dir / 'processed_data.json'
-        with open(data_path, 'w') as f:
-            json.dump(df.to_dict(orient='records'), f)
-        
-        with pytest.raises(ValueError, match="Insufficient valid data points"):
-            run_full_analysis(data_path, temp_output_dir)
+        assert validate_data_quality(X, y, names) is True

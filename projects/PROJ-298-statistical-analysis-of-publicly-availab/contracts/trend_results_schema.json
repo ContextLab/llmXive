@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Trend Results Schema",
+  "description": "Schema for the trend analysis results output (trend_results.json)",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "tag",
+      "classification",
+      "slope",
+      "p_value",
+      "power",
+      "m_des",
+      "n_observations"
+    ],
+    "properties": {
+      "tag": {
+        "type": "string",
+        "description": "Normalized tag name"
+      },
+      "classification": {
+        "type": "string",
+        "enum": ["Growth", "Decline", "Stable", "Insufficient Data"],
+        "description": "Trend classification based on p-value and power"
+      },
+      "slope": {
+        "type": "number",
+        "description": "Theil-Sen slope estimate"
+      },
+      "p_value": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Adjusted p-value from Modified Mann-Kendall test"
+      },
+      "power": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Statistical power of the test"
+      },
+      "m_des": {
+        "type": "number",
+        "description": "Minimum Detectable Effect size (if power < 0.8)"
+      },
+      "n_observations": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Number of monthly observations used"
+      },
+      "confidence_interval": {
+        "type": "object",
+        "properties": {
+          "lower": { "type": "number" },
+          "upper": { "type": "number" },
+          "confidence_level": { "type": "number" }
+        },
+        "required": ["lower", "upper", "confidence_level"]
+      },
+      "correlation_metrics": {
+        "type": "object",
+        "properties": {
+          "github_correlation": { "type": "number" },
+          "npm_correlation": { "type": "number" },
+          "github_mapped": { "type": "boolean" },
+          "npm_mapped": { "type": "boolean" }
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

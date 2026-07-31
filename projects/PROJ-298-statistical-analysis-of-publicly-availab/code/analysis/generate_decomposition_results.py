@@ -1,10 +1,3 @@
-"""
-Task T025: Generate decomposition_results.json with Ljung-Box and Rayleigh test results,
-calculate SHA-256 hashes, and update the state file.
-
-This script aggregates the outputs from the decomposition analysis (T022) into a final
-JSON artifact, computes integrity hashes, and updates the project state file per FR-012.
-"""
 import os
 import json
 import hashlib
@@ -12,120 +5,99 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Add project root to path to allow imports from sibling modules
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add parent to path to allow imports from code/
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from analysis.decomposition import run_decomposition_analysis
 from utils.state_manager import calculate_sha256, load_state, save_state, update_artifact_checksums
 
-# Constants
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-DECOMPOSITION_RESULTS_PATH = PROCESSED_DIR / "decomposition_results.json"
-STATE_FILE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-298-statistical-analysis-of-publicly-availab.yaml"
 
-def load_json_safe(path: Path) -> Dict[str, Any]:
-    """Load a JSON file safely, returning an empty dict if not found."""
+def load_json_safe(file_path: str) -> Optional[Dict[str, Any]]:
+    """Load a JSON file safely, returning None if it doesn't exist or is invalid."""
+    path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Required input file not found: {path}")
-    with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        return None
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"Warning: Could not load {file_path}: {e}")
+        return None
+
 
 def aggregate_decomposition_results() -> Dict[str, Any]:
     """
-    Aggregates results from the decomposition analysis.
-    In a full pipeline, this might merge multiple intermediate files.
-    For T022, we assume the results are available in a specific intermediate structure
-    or we reconstruct the summary based on the expected schema from T022.
-    
-    Since T022 (implementation) is marked as completed in the context but might not have
-    produced a separate intermediate file yet, we will attempt to load from a hypothetical
-    intermediate file `decomposition_intermediate.json` or construct the structure if the
-    analysis script `code/analysis/decomposition.py` was designed to output directly here.
-    
-    However, per T025 description: "Generate ... including Ljung-Box and Rayleigh test results".
-    We assume the `code/analysis/decomposition.py` main function (if run previously) 
-    might have written to a temporary location or we need to re-run the analysis logic 
-    to populate this file. 
-    
-    To be robust, we check for an intermediate output from T022. If not found, we raise
-    an error indicating the prerequisite analysis hasn't been run, as we cannot fabricate data.
+    Aggregate decomposition results from the analysis module.
+    This function orchestrates the full decomposition pipeline for all valid tags
+    and collects Ljung-Box and Rayleigh test results.
+
+    Returns:
+        A dictionary containing aggregated results for all tags.
     """
-    # Expected intermediate file from T022 logic
-    intermediate_path = PROCESSED_DIR / "decomposition_intermediate.json"
-    
-    if intermediate_path.exists():
-        with open(intermediate_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return data
-    else:
-        # If the intermediate file doesn't exist, we assume the T022 implementation 
-        # was expected to write directly to the final path or we need to re-run the analysis.
-        # Since T022 is marked completed, we assume the data exists in a standard location
-        # or we must run the analysis script to generate it.
-        # For this task, we will attempt to load from the final path if it already exists 
-        # (idempotent check) or error out if the pipeline hasn't run.
-        # However, to satisfy "Generate ...", we assume the script is meant to be run 
-        # AFTER T022 has populated the data.
-        # If T022 wrote to a different temp file, we would load that. 
-        # Let's assume T022 wrote to `decomposition_intermediate.json` or we need to run the analysis.
-        # Given the constraints, we will try to load from the final path if it exists 
-        # (re-generating hash) or fail if data is missing.
-        if DECOMPOSITION_RESULTS_PATH.exists():
-            with open(DECOMPOSITION_RESULTS_PATH, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        
+    print("Starting decomposition results aggregation...")
+
+    # Load processed data (prerequisite T013)
+    processed_data_path = "data/processed/tag_monthly_frequencies.json"
+    processed_data = load_json_safe(processed_data_path)
+
+    if not processed_data:
         raise FileNotFoundError(
-            "Decomposition results not found. Please ensure T022 (decomposition analysis) "
-            "has been run and generated the intermediate or final output file."
+            f"Processed data not found at {processed_data_path}. "
+            "Please ensure T013 (preprocess) has been completed successfully."
         )
 
+    # Run the full decomposition analysis which includes:
+    # - ADF test
+    # - Seasonality pre-test
+    # - STL/Hodrick-Prescott decomposition
+    # - Ljung-Box test (residual independence)
+    # - Rayleigh test (event alignment)
+    results = run_decomposition_analysis(processed_data)
+
+    print(f"Decomposition analysis complete. Processed {len(results)} tags.")
+    return results
+
+
 def main():
-    print(f"Starting T025: Generating decomposition_results.json and updating state...")
-    
+    """Main entry point for generating decomposition results."""
+    project_root = Path(__file__).resolve().parent.parent.parent
+    data_dir = project_root / "data" / "processed"
+    state_file = project_root / "state" / "projects" / "PROJ-298-statistical-analysis-of-publicly-availab.yaml"
+
     # Ensure output directory exists
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    output_file = data_dir / "decomposition_results.json"
+
     try:
-        # Load the analysis results (assumed to be generated by T022)
-        # In a real pipeline, T022 would write to an intermediate file or this function
-        # would trigger the analysis if not already done. Here we assume T022 ran.
+        # Aggregate results
         results = aggregate_decomposition_results()
-        
-        # Write the final results to the target file
-        with open(DECOMPOSITION_RESULTS_PATH, 'w', encoding='utf-8') as f:
-            json.dump(results, f, indent=2, sort_keys=True)
-        
-        print(f"Successfully wrote decomposition results to: {DECOMPOSITION_RESULTS_PATH}")
-        
-        # Calculate SHA-256 hash for the generated file
-        file_hash = calculate_sha256(DECOMPOSITION_RESULTS_PATH)
-        print(f"SHA-256 for decomposition_results.json: {file_hash}")
-        
-        # Update the state file
-        if not STATE_FILE_PATH.parent.exists():
-            STATE_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        
-        state = load_state(STATE_FILE_PATH)
-        
-        # Update artifact checksums
-        updated_state = update_artifact_checksums(
-            state, 
-            str(DECOMPOSITION_RESULTS_PATH.relative_to(PROJECT_ROOT)), 
-            file_hash
-        )
-        
-        save_state(updated_state, STATE_FILE_PATH)
-        print(f"State file updated: {STATE_FILE_PATH}")
-        
+
+        # Save results to JSON
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2, default=str)
+
+        print(f"Decomposition results saved to {output_file}")
+
+        # Calculate SHA-256 hash
+        file_hash = calculate_sha256(str(output_file))
+        print(f"SHA-256 hash of {output_file.name}: {file_hash}")
+
+        # Update state file
+        if state_file.exists():
+            state = load_state(str(state_file))
+            update_artifact_checksums(state, str(output_file), file_hash)
+            save_state(state, str(state_file))
+            print(f"State file updated: {state_file}")
+        else:
+            print(f"Warning: State file not found at {state_file}. Skipping update.")
+
         print("T025 completed successfully.")
-        
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
+
     except Exception as e:
-        print(f"Unexpected error during T025: {e}")
+        print(f"Error generating decomposition results: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,4 @@
+# Core dependencies for streaming processing
+# (Inherit from base requirements.txt, add streaming-specific if needed)
+# No additional dependencies required - uses only standard library
+# for memory-efficient streaming processing

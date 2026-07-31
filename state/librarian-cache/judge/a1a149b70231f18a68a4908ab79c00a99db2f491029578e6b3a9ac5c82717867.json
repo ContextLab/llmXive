@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.01523",
+  "judged_at": "2026-07-31T21:30:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"synthdocbench: controlled benchmark for long-context visual document u\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides the canonical empirical baseline and benchmark for the exact same mechanism (long-context visual document understanding) and domain (multi-modal LVLMs on lengthy PDFs) that the user's follow-up research targets. It establishes the necessary performance context and evaluation framework that any extension of \"SynthDocBench\" would need to cite and compare against.",
+  "relevant": true
+}

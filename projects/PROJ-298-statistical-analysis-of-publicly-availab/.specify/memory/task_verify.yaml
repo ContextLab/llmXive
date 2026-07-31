@@ -1,11 +1,11 @@
-T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory: 1
-'T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory <!-- ATOMIZE: requested -->': 1
-? 'T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root
-  directory <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
-: 2
-T004 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state file updates per FR-012: 1
-T006 [P] Create `code/viz/templates.py` to inject mandatory limitation headers/footers per FR-011: 1
-? T007 [P] Create `code/data/generate_taxonomies.py` to generate `data/events/reference_calendar.json`
-  and `data/taxonomy/survey_2023.json` per FR-008, validating taxonomy structure against
-  SO Survey 2023 source
-: 1
+T001a: 1
+T007: 1
+T008: 1
+T016: 1
+T018: 1
+T025: 1
+T030: 1
+T032: 1
+T033: 1
+T034: 1
+T035: 1

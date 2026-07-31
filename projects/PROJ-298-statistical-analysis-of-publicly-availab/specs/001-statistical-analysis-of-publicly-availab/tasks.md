@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T001b Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/code/` directory
 - [X] T001c Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/tests/` directory
 - [X] T001d Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/data/` directory
@@ -59,9 +59,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state file updates per FR-012
+- [X] T004 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state file updates per FR-012
 - [X] T005 [P] Create `code/utils/contract_validation.py` to enforce schema contracts in `contracts/` per Constitution Principle V
-- [ ] T006 [P] Create `code/viz/templates.py` to inject mandatory limitation headers/footers per FR-011
+- [X] T006 [P] Create `code/viz/templates.py` to inject mandatory limitation headers/footers per FR-011
 - [ ] T007 [P] Create `code/data/generate_taxonomies.py` to generate `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json` per FR-008, validating taxonomy structure against SO Survey 2023 source
 - [ ] T008 [P] Setup `data/` directory structure: `raw/`, `processed/`, `events/`, `taxonomy/` per `plan.md`, creating `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json`
 - [X] T009 [P] Initialize `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml` with initial checksums, calculating hashes for initial artifacts
@@ -80,7 +80,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for trend output schema in `tests/contract/test_trend_results.py`, validating Growth/Decline/Stable/Insufficient Data classifications
+- [X] T010 [P] [US1] Contract test for trend output schema in `tests/contract/test_trend_results.py`, validating Growth/Decline/Stable/Insufficient Data classifications
 - [X] T011 [P] [US1] Integration test for Mann-Kendall pipeline end-to-end in `tests/integration/test_trend_pipeline.py`, validating pre-whitening step
 
 ### Implementation for User Story 1
@@ -115,7 +115,7 @@
 - [X] T021 [US2] **requires T013, T041** Implement `code/analysis/decomposition.py` with mandatory pre-condition: perform Augmented Dickey-Fuller (ADF) test on *each* time series BEFORE decomposition. If non-stationary (p < 0.05), apply first-order differencing. Then apply STL (if seasonal) or Hodrick-Prescott (if non-seasonal) to the differenced series per FR-004, FR-009.
 - [X] T041 [US2] **requires T013** Implement seasonality pre-test (spectral analysis or autocorrelation check) in `code/analysis/decomposition.py`, outputting a boolean for method selection per FR-009.
 - [X] T022 [US2] **requires T021** Implement residual independence check (Ljung-Box lag=12) and event alignment (Rayleigh test) in `code/analysis/decomposition.py`, reporting results per FR-009, SC-003.
-- [ ] T023 [US2] **requires T022** Implement `code/viz/plots.py` to generate multi-panel decomposition plots with confidence intervals, using `code/viz/templates.py` to inject limitation headers per FR-011
+- [X] T023 [US2] **requires T022** Implement `code/viz/plots.py` to generate multi-panel decomposition plots with confidence intervals, using `code/viz/templates.py` to inject limitation headers per FR-011
 - [X] T024 [US2] Create `notebooks/03_decomposition.ipynb` demonstrating decomposition on specific tags (e.g., "react"), including all code and final visualization outputs per FR-006
 - [ ] T025 [US2] Generate `data/processed/decomposition_results.json` including Ljung-Box and Rayleigh test results, calculate SHA-256 hashes for decomposition_results.json, and update state file per FR-012.
 
@@ -138,7 +138,7 @@
 
 - [X] T028 [P] [US3] Implement `code/analysis/clustering.py` to compute Jaccard similarity matrix for all pairs of tags appearing on the same posts per FR-005
 - [X] T029 [US3] **requires T028** Implement hierarchical clustering and permutation test for cluster coherence validation in `code/analysis/clustering.py` per FR-005
-- [~] T030 [US3] **requires T029** Implement `code/analysis/clustering.py` logic for Cluster Label Alignment Score using fuzzy matching (Levenshtein distance ≤ 2) against `data/taxonomy/survey_2023.json` per FR-008, SC-004
+- [ ] T030 [US3] **requires T029** Implement `code/analysis/clustering.py` logic for Cluster Label Alignment Score using fuzzy matching (Levenshtein distance ≤ 2) against `data/taxonomy/survey_2023.json` per FR-008, SC-004
 - [X] T031 [US3] Create `notebooks/04_clustering.ipynb` visualizing dendrograms and cluster maps, including all code and final visualization outputs per FR-006
 - [ ] T032 [US3] Generate `data/processed/cluster_results.json` including Cluster Label Alignment Score and intra-cluster similarity coefficient, calculate SHA-256 hashes for cluster_results.json, and update state file per FR-012.
 
@@ -150,12 +150,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T033 [P] Documentation updates in `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md` and `quickstart.md`, ensuring notebooks are reproducible
-- [~] T034 Code cleanup and refactoring across `code/analysis/` modules, including linting checks
+- [ ] T033 [P] Documentation updates in `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md` and `quickstart.md`, ensuring notebooks are reproducible
+- [ ] T034 Code cleanup and refactoring across `code/analysis/` modules, including linting checks
 - [ ] T035 Performance optimization for streaming large data dumps to fit RAM constraint, ensuring notebooks are reproducible
-- [ ] T036 [P] Additional unit tests for statistical functions (Mann-Kendall, Jaccard, ADF) in `tests/unit/`, ensuring notebooks are reproducible
-- [ ] T037 Run `quickstart.md` validation to ensure all tasks execute successfully on CPU-only runner within 6 hours, ensuring notebooks are reproducible
-- [ ] T038 Final verification of all limitation disclosures (FR-011) in all generated reports and visualizations
+- [~] T036 [P] Additional unit tests for statistical functions (Mann-Kendall, Jaccard, ADF) in `tests/unit/`, ensuring notebooks are reproducible
+- [~] T037 Run `quickstart.md` validation to ensure all tasks execute successfully on CPU-only runner within 6 hours, ensuring notebooks are reproducible <!-- ATOMIZE: requested -->
+- [~] T038 Final verification of all limitation disclosures (FR-011) in all generated reports and visualizations
 
 ---
 
