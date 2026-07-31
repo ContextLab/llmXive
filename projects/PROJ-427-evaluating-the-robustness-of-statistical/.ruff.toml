@@ -1,6 +1,32 @@
-# Ruff configuration
-line-length = 88
-select = ["E", "F", "W", "C90"]
+# RUFF configuration
+#
+# This file configures the ruff linter for the project.
+# It selects a set of rule codes to enforce and sets
+# the maximum line length to match the Black formatter.
+#
+# For a full list of rule codes, see:
+# https://beta.ruff.rs/docs/rules/
+#
+# The configuration is deliberately minimal; additional
+# project‑specific rules can be added as needed.
+
+[tool.ruff]
+# Select default linting rules plus a few extra categories.
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "C90", # McCabe complexity
+    "N",   # pep8‑naming
+    "B",   # bugbear
+    "UP",  # pyupgrade
+]
+
+# No rules are ignored by default; add to this list if necessary.
 ignore = []
-exclude = ["__init__.py", "setup.py"]
-target-version = "py38"
+
+# Align line length with Black's default.
+line-length = 88
+
+# Enable autofix for a subset of rules where possible.
+fixable = ["E501", "W291", "W293", "W391"]

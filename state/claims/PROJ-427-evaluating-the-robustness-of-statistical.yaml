@@ -1,0 +1,155 @@
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: list length at least 5
+  claim_id: c_a94d3baf
+  context: "Create `config/datasets.yaml` listing 5\u201110 UCI dataset URLs with\
+    \ metadata tags and verify list length \u2265\u202F5."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:2505.02906v1 [astro-ph.HE] 5 May 2025
+      source_id: '2505.02906'
+      url: https://arxiv.org/abs/2505.02906
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: "Verify list length \u2265\u202F5."
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T04:44:24Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: at least 2 numerical-only and 2 categorical-only datasets
+  claim_id: c_5f0c5353
+  context: "Verify dataset diversity: count numerical\u2011only, categorical\u2011\
+    only, and mixed datasets; assert \u2265\u202F2 numerical\u2011only and \u2265\u202F\
+    2 categorical\u2011only datasets."
+  evidence:
+    entailment_evidence: At least 2 numerical-only and 2 categorical-only datasets
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/At_least_2_numerical-only_and_2_categorical-only_datasets
+  kind: magnitude
+  raw_text: "assert \u2265\u202F2 numerical\u2011only and \u2265\u202F2 categorical\u2011\
+    only datasets."
+  resolved_value: at least 2 numerical-only and 2 categorical-only datasets
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T04:44:28Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: peak memory usage less than 7 GB
+  claim_id: c_896737f9
+  context: "Add a CI test using `memory_profiler` that asserts peak memory usage <\u202F\
+    7\u202FGB when processing the largest dataset."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: "peak memory usage <\u202F7\u202FGB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:45:13Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: presence of datasets with ground_truth_type population_parameters and
+    permutation
+  claim_id: c_4e081852
+  context: 'Add a validation script `code/verify_ground_truth.py` that confirms `data/corrupted/synthetic_grid/`
+    contains datasets with `ground_truth_type: ''population_parameters''` and `data/corrupted/null_hypothesis/`
+    contains datasets with `ground_truth_type: ''permutation''`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Presence_of_datasets_with_ground_truth_type_population_param
+  kind: entity_fact
+  raw_text: 'datasets with `ground_truth_type: ''population_parameters''` and `ground_truth_type:
+    ''permutation''` are present in the respective directories.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:45:35Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2505.02906 exists
+  claim_id: c_3a6d1d0c
+  context: Task T019a includes a claim referencing arXiv identifier 2505.02906 and
+    URL https://arxiv.org/abs/2505.02906
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2505.02906, https://arxiv.org/abs/2505.02906
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T04:46:09Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: 5-10 UCI dataset URLs listed in config/datasets.yaml
+  claim_id: c_a7ea8bb1
+  context: In Phase 3, task T019a specifies creating a configuration file that lists
+    between five and ten UCI dataset URLs, each annotated with a type tag.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create `config/datasets.yaml` listing 5\u201110 UCI dataset URLs with\
+    \ metadata tags (`type: numerical|categorical|mixed`)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:50:59Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: at least 2 numerical-only and at least 2 categorical-only datasets
+  claim_id: c_1cd06c24
+  context: Task T019e requires the pipeline to ensure there are at least two datasets
+    of each pure type (numerical and categorical) among the downloaded UCI datasets.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_2_numerical-only_and_at_least_2_categorical-only_da
+  kind: magnitude
+  raw_text: "Verify dataset diversity: count numerical\u2011only, categorical\u2011\
+    only, and mixed datasets; assert \u2265\u202F2 numerical\u2011only and \u2265\u202F\
+    2 categorical\u2011only datasets."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:52:02Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: memory usage less than 7 GB for largest dataset
+  claim_id: c_b6859f5e
+  context: Task T041 includes a CI test that checks the pipeline's memory consumption
+    stays below seven gigabytes for the biggest dataset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7_GB_for_largest_dataset
+  kind: magnitude
+  raw_text: "Add a CI test using `memory_profiler` that asserts peak memory usage\
+    \ <\u202F7\u202FGB when processing the largest dataset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:52:54Z'

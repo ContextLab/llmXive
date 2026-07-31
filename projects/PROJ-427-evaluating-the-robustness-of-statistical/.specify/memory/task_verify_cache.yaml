@@ -1,0 +1,46 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree, files, or any filesystem artifacts were provided; there is
+    no evidence that `data/raw`, `data/corrupted`, `code`, `results`, and `tests`
+    directories exist, nor that empty `__init__.py` files were created in `code/`
+    and `tests/`. The required project structure is missing.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Python project initialization was provided\u2014there is no\
+    \ directory structure, no `pyproject.toml`, `requirements.txt`, `environment.yml`,\
+    \ or any other file listing the required dependencies (pandas, numpy, scipy, statsmodels,\
+    \ matplotlib, seaborn, pyyaml, pytest). Without such artifacts, the claim that\
+    \ the project has been set up with those packages cannot be verified."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) or setup scripts were presented. Without
+    such artifacts, the requirement to configure ruff/flake8 and Black is not satisfied.
+T005b:
+  c: false
+  h: abd78b1758a867a278f7036c219e0139fc5330b5169816dd5272ae83c54f0d5e
+  r: "The test file `tests/unit/test_schema_validation.py` exists and correctly checks\
+    \ that `error_rates` is a non\u2011empty list of numeric values, but it also asserts\
+    \ that `contracts/injection.schema.yaml` exists \u2013 that file is missing from\
+    \ the repository, so the test cannot actually load the schema and will fail. The\
+    \ required schema file must be present (or the test adjusted) for the task to\
+    \ be fulfilled."
+T014:
+  c: false
+  h: 30a2495b47082709038a6f2eeca2166cb418bd54651da2885b75888114fd7f79
+  r: "The repository lacks the required `contracts/result.schema.yaml` and `state/simulation_artifacts.yaml`\
+    \ files, and the provided `code/simulate.py` is truncated before any logic that\
+    \ validates synthetic/null\u2011hypothesis outputs, records SHA\u2011256 checksums,\
+    \ or writes status to the state file. Consequently the task\u2019s core requirements\
+    \ are not met."
+T019c:
+  c: false
+  h: 130b6526e229e41b49c2aa4bc6e31703ef9427388c7008510c349aefecbc0276
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so validation\
+    \ cannot be performed. Moreover, the provided `code/download.py` (truncated) does\
+    \ not show any implementation of schema validation, type coercion, or empty\u2011\
+    string\u2011to\u2011NaN replacement before writing cleaned files to `data/raw/cleaned/`.\
+    \ Both the schema and the cleaning logic are missing, so the task is not satisfied."

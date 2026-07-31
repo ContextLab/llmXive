@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/simulation`, `code/analysis`, `data/raw`, `data/processed`, `results`)
-- [ ] T002 Initialize Python project with `requirements.txt` containing `openmm`, `openmmtools`, `mdtraj`, `pandas`, `scipy`, `statsmodels`, `pyyaml`, `requests`, `pytest`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
+- [X] T002 Initialize Python project with `requirements.txt` containing `openmm`, `openmmtools`, `mdtraj`, `pandas`, `scipy`, `statsmodels`, `pyyaml`, `requests`, `pytest`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
 
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/utils/io.py` for SHA256 checksumming, file I/O, and state updates (Principle V)
-- [ ] T005 [P] Implement `code/utils/logger.py` for error handling, logging, and 300s timeout enforcement for 1.5ns runs
+- [X] T004 Implement `code/utils/io.py` for SHA256 checksumming, file I/O, and state updates (Principle V)
+- [X] T005 [P] Implement `code/utils/logger.py` for error handling, logging, and 300s timeout enforcement for 1.5ns runs
 - [ ] T006 [P] Create `code/simulation/config.py` defining parameter sets (ffSB, CHARMM36m; 0.5ns, 1.0ns, 1.5ns; 300K) and random seeds
-- [ ] T007 Create `code/analysis/load_data.py` to fetch PDBbind v2020 "refined" subset (≤2.0Å, ≤200 residues) from ` or a verified script <!-- ATOMIZE: requested -->
+- [ ] T007 Create `code/analysis/load_data.py` to fetch PDBbind v2020 "refined" subset (≤2.0Å, ≤200 residues) from ` or a verified script <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T007a [P] Implement subsampling logic in `code/analysis/load_data.py` to select a representative subset of high-quality complexes from the fetched dataset. and save to `data/raw/subsampled_complexes.json`
-- [ ] T008 Implement `code/simulation/setup.py` for system preparation: solvation (TIP3P), ion neutralization, and topology generation for a single PDB complex
+- [X] T008 Implement `code/simulation/setup.py` for system preparation: solvation (TIP3P), ion neutralization, and topology generation for a single PDB complex
 - [X] T009 [P] Implement `code/analysis/stats.py` skeleton with Linear Mixed-Effects Model (LMM) structure (Complex as random intercept; ForceField, Duration as fixed effects) and variance decomposition utilities
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -77,7 +77,7 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. T011 depends on T012 execution but is written per TDD principles.
 
-- [~] T010 [P] [US1] Unit test for `code/simulation/setup.py` solvation logic in `tests/unit/test_setup.py`
+- [X] T010 [P] [US1] Unit test for `code/simulation/setup.py` solvation logic in `tests/unit/test_setup.py`
 - [ ] T011 [US1] Integration test for full simulation pipeline (setup + run) on 1 complex in `tests/integration/test_simulation_run.py` (Depends on T012 execution; written per TDD principles) <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
@@ -132,7 +132,7 @@
 - [ ] T029 [US3] Implement `code/analysis/stats.py` logic to calculate variance components (percentage of total variance attributable to FF and Duration; note Temperature is constant and excluded)
 - [ ] T030 [US3] Implement `code/analysis/viz.py` to generate variance component plots (showing FF and Duration contributions) and save them to `results/`
 - [ ] T031 [US3] Implement final report generation in `code/main.py` to output a summary of fixed effect estimates, confidence intervals, and dominant uncertainty sources
-- [ ] T032 [US3] Add validation to ensure statistical findings are framed as associational (observational study) with wide confidence intervals due to N=10 [UNRESOLVED-CLAIM: c_a1db0d28 — status=not_enough_info]
+- [ ] T032 [US3] Add validation to ensure statistical findings are framed as associational (observational study) with wide confidence intervals due to N=10
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -156,10 +156,10 @@
 
 - [ ] T038 [US1] Add explicit logic in `code/simulation/setup.py` to detect and skip complexes with steric clashes or missing heavy atoms that would cause solvation failure, logging them to `data/raw/skipped_complexes.log`
 - [ ] T039 [US2] Implement a sanity check in `code/simulation/mm_pbsa.py` to reject binding energy estimates outside the physically plausible range, as established in prior literature (e.g., [Citation DOI/Author-Year]). and flag them as "failed analysis"
-- [ ] T040 [US2] Add a fallback mechanism in `code/analysis/load_data.py` to verify the PDBbind subset contains at least 10 valid complexes [UNRESOLVED-CLAIM: c_49770151 — status=not_enough_info]; if fewer are found, raise a `DataInsufficientError` with a clear message and halt execution
+- [ ] T040 [US2] Add a fallback mechanism in `code/analysis/load_data.py` to verify the PDBbind subset contains at least 10 valid complexes; if fewer are found, raise a `DataInsufficientError` with a clear message and halt execution
 - [ ] T041 [US3] Update `code/analysis/stats.py` to explicitly exclude Temperature as a factor in the LMM (since it is constant) and issue a warning in the final report that Temperature variance is zero by design
-- [ ] T042 [US3] Enhance `code/analysis/viz.py` to include confidence intervals on the variance component plot, acknowledging the low statistical power (N=10) [UNRESOLVED-CLAIM: c_4e6574d6 — status=not_enough_info] and wide confidence intervals
-- [ ] T043 [All] Add a resource monitoring wrapper in `code/main.py` that tracks peak RAM usage per simulation and automatically terminates the job if it exceeds 6GB to prevent CI runner crashes [UNRESOLVED-CLAIM: c_42c229c5 — status=not_enough_info]
+- [ ] T042 [US3] Enhance `code/analysis/viz.py` to include confidence intervals on the variance component plot, acknowledging the low statistical power (N=10) and wide confidence intervals
+- [ ] T043 [All] Add a resource monitoring wrapper in `code/main.py` that tracks peak RAM usage per simulation and automatically terminates the job if it exceeds 6GB to prevent CI runner crashes
 - [ ] T044 [All] Implement a "dry-run" mode in `code/main.py` that validates the entire parameter sweep configuration and dataset availability without executing simulations, ensuring the pipeline is ready before committing CI resources
 
 ---

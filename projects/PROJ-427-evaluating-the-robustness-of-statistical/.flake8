@@ -1,0 +1,28 @@
+# Flake8 configuration
+#
+# Flake8 combines pycodestyle, pyflakes, and McCabe complexity.
+# The settings below align its behavior with the project's
+# Black formatting and Ruff linting choices.
+
+[flake8]
+# Maximum allowed line length (matches Black and ruff).
+max-line-length = 88
+
+# Ignore rules that Black already handles or that are
+# intentionally disabled for this project.
+extend-ignore = [
+    # Black formats line breaks, so we ignore the line length
+    # warning from pycodestyle that conflicts with Black.
+    "E203",
+    # Whitespace before ':' is ignored by Black.
+    "E501",
+    # Allow line breaks before binary operators.
+    "W503",
+]
+
+# Enable McCabe complexity checking with a reasonable threshold.
+max-complexity = 10
+
+# Enable built‑in plugins and any third‑party plugins that are
+# installed in the development environment.
+enable-extensions = G

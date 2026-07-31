@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory is tracked by git
-# even if it is empty initially.
+# This directory is for raw data files.
+# T020 will populate this with checksums upon successful ingestion.

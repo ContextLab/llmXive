@@ -1,18 +1,22 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Tabular Dataset Schema
 description: |
-  Schema defining the structure of a valid tabular dataset.
-  A dataset is represented as an object with a required `columns`
-  field describing each column's name and data type. Optional
-  dataset‑level metadata may be provided.
+  Schema defining a valid tabular dataset representation.
+  A dataset is expressed as a mapping with two required keys:
+  - `columns`: a list describing each column (name, data type, optional nullability).
+  - `data`: a list of rows, where each row is an array of cell values.
+  This schema is intended for validation of CSV‑like data that has been
+  loaded into a structured in‑memory representation (e.g., a dict with
+  `columns` and `data` fields).
 type: object
 required:
   - columns
+  - data
 properties:
   columns:
     type: array
-    description: List of column specifications; at least one column required.
     minItems: 1
+    description: List of column specifications.
     items:
       type: object
       required:
@@ -21,31 +25,34 @@ properties:
       properties:
         name:
           type: string
-          description: Column name (must be a valid identifier).
-          pattern: "^[A-Za-z_][A-Za-z0-9_]*$"
+          description: Column name.
         dtype:
           type: string
           description: Data type of the column.
-          enum:
-            - integer
-            - float
-            - string
-            - boolean
-            - categorical
+          enum: [integer, number, string, boolean, categorical]
         nullable:
           type: boolean
-          description: Whether the column may contain missing values.
+          description: Whether the column may contain null/NaN values.
           default: false
-        categories:
-          type: array
-          description: |
-            Allowed category values when `dtype` is `categorical`.
-            Ignored for other dtypes.
-          items:
-            type: string
-          default: []
-      additionalProperties: false
-  metadata:
-    type: object
-    description: Optional free‑form metadata about the dataset.
+  data:
+    type: array
+    description: List of rows; each row is an array with values aligned to `columns`.
+    items:
+      type: array
+      description: One row of data.
+      # Individual cell validation is left to downstream processing; we only enforce array structure.
 additionalProperties: false
+examples:
+  - columns:
+      - name: "age"
+        dtype: "integer"
+        nullable: false
+      - name: "income"
+        dtype: "number"
+        nullable: true
+      - name: "gender"
+        dtype: "categorical"
+    data:
+      - [25, 54000.5, "female"]
+      - [30, null, "male"]
+      - [22, 32000, "female"]

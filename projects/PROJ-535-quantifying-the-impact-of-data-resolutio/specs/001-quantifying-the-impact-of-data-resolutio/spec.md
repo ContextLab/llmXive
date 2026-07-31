@@ -1,7 +1,7 @@
 # Feature Specification: Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence
 
 **Feature Branch**: `001-quantify-resolution-impact`  
-**Created**: 2023-10-27  
+**Created**: 2024-05-21  
 **Status**: Draft  
 **Input**: User description: "Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence"
 
@@ -13,7 +13,7 @@ As a turbulence researcher, I need to download high-resolution isotropic turbule
 
 **Why this priority**: This is the foundational step; without a valid ground truth and a reproducible method to create lower-resolution variants, no statistical comparison or bias quantification can occur. It establishes the experimental variable (resolution ratio).
 
-**Independent Test**: Can be fully tested by executing the download and downsampling pipeline on a single snapshot and verifying that the downsampled grid dimensions match the requested factors (, 4, 8, 16) and that the total energy decreases monotonically as resolution drops, consistent with spectral truncation theory.
+**Independent Test**: Can be fully tested by executing the download and downsampling pipeline on a single snapshot and verifying that the downsampled grid dimensions match the requested factors (2, 4, 8, 16) and that the total energy decreases monotonically as resolution drops, consistent with spectral truncation theory.
 
 **Acceptance Scenarios**:
 
@@ -49,7 +49,7 @@ As a researcher, I need the system to fit power-law scaling exponents to the str
 
 **Acceptance Scenarios**:
 
-1. **Given** the computed second-order structure function S_2(r) and energy spectrum E(k), **When** the system fits power laws in the inertial subrange, **Then** it outputs the scaling exponents and R² values, flagging if the theoretical values (/3 for E(k), 2/3 for S_2(r)) fall outside the 95% confidence interval derived from the spatial block bootstrap. The reference for "deviation" is the empirically fitted value from the 1024³ dataset, not the theoretical value.
+1. **Given** the computed second-order structure function S_2(r) and energy spectrum E(k), **When** the system fits power laws in the inertial subrange, **Then** it outputs the scaling exponents and R² values, flagging if the theoretical values (-5/3 for E(k), 2/3 for S_2(r)) fall outside the 95% confidence interval derived from the spatial block bootstrap. The reference for "deviation" is the empirically fitted value from the 1024³ dataset, not the theoretical value.
 2. **Given** a bias measurement at a specific wavenumber, **When** the system performs uncertainty estimation across the 3-5 independent snapshots, **Then** it outputs a confidence interval [lower, upper] calculated using the Standard Error of the Mean (SEM) and a t-distribution with degrees of freedom corresponding to the sample size minus one.
 3. **Given** the full set of results, **When** the system generates the final report, **Then** it includes a table listing the fitted exponents for all resolution levels and the corresponding confidence intervals, highlighting the resolution threshold where the exponent deviates significantly from the theoretical prediction.
 
@@ -57,21 +57,21 @@ As a researcher, I need the system to fit power-law scaling exponents to the str
 
 - What happens when the selected JHTDB snapshot has a Reynolds number so low that the inertial subrange is non-existent (no clear -5/3 region)? The system must detect this and flag the result as "Inertial Subrange Not Resolved" rather than fitting a spurious power law.
 - How does the system handle memory overflow if the user attempts to download a 2048³ dataset without enabling slice-by-slice processing? The system must abort the download with a clear error message suggesting a smaller grid or enabling chunked processing.
-- What if the Fourier truncation introduces aliasing artifacts that are not accounted for? The system must use a standard anti-aliasing filter (e.g., a fractional rule) during the truncation process and document this in the output metadata.
+- What if the Fourier truncation introduces aliasing artifacts that are not accounted for? The system must use a standard anti-aliasing filter (e.g., a 2/3 rule) during the truncation process and document this in the output metadata.
 - What if the input data is detected as placeholder, simulated, or hardcoded (e.g., all zeros or constant values)? The system MUST abort execution and report an error: "Invalid Input: Data appears to be synthetic or placeholder. Real JHTDB data required."
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download isotropic turbulence snapshots from JHTDB (e.g., 1024³ or 2048³) and store them in a format accessible for in-memory processing, ensuring total memory usage does not exceed a moderate threshold by processing data in spatial slices if necessary. Memory usage MUST be measured via the /proc/self/status RSS field (or equivalent OS memory accounting) to ensure verification. (See US-1)
+- **FR-001**: System MUST download isotropic turbulence snapshots from JHTDB (e.g., ³ or 2048³) and store them in a format accessible for in-memory processing, ensuring total memory usage does not exceed the 7 GB RAM limit of the CI runner by processing data in spatial slices if necessary. Memory usage MUST be measured via the /proc/self/status RSS field (or equivalent OS memory accounting) to ensure verification. (See US-1)
 - **FR-002**: System MUST implement Fourier-mode truncation to generate synthetic lower-resolution datasets at specific factors (2, 4, 8, 16) relative to the ground truth, ensuring high-wavenumber modes are strictly zeroed out within floating-point tolerance (max abs < 1e-12). (See US-1)
-- **FR-003**: System MUST compute the 3D energy spectrum E(k) and longitudinal velocity structure functions S_p(r) for p=2 and p=3 for every resolution level using FFT-based methods compatible with CPU-only execution. (See US-2)
-- **FR-004**: System MUST calculate the signed relative bias (percent error) between the ground truth statistics and the downsampled statistics across the full range of wavenumbers and separation scales. (See US-2)
+- **FR-003**: System MUST compute the 3D energy spectrum E(k) and longitudinal velocity structure functions S_p(r) for p=2 and p=3 for every resolution level using FFT-based methods compatible with CPU-only execution (no GPU/CUDA). (See US-2)
+- **FR-004**: System MUST calculate the signed relative bias (percent error) between the ground truth statistics and the downsampled statistics across the full range of wavenumbers and separation scales. The bias MUST be derived from actual computation on the downloaded JHTDB data. (See US-2)
 - **FR-005**: System MUST perform power-law fitting on the structure functions and energy spectra to extract scaling exponents and compare them against Kolmogorov theoretical values (-5/3 for E(k), 2/3 for S_2(r)). The comparison MUST distinguish between bias relative to the ground truth dataset (for resolution error) and bias relative to the theoretical value (for physical consistency). (See US-3)
 - **FR-006**: System MUST execute uncertainty estimation across the set of multiple independent snapshots to generate confidence intervals for all reported error metrics. This MUST use the Standard Error of the Mean (SEM) with a t-distribution (df=N-1) for cross-snapshot variance. Spatial block bootstrap MAY be used within a single snapshot to estimate variance if N is large, but the final cross-snapshot CI MUST use the t-distribution method. (See US-3)
-- **FR-007**: System MUST enforce a total runtime constraint of ≤ 6 hours for the analysis of a specific load profile: A small number of cases of 1024³ grids with Multiple resolution levels each, utilizing parallel processing where feasible on the -core runner. (See US-2, US-3)
-- **FR-008**: System MUST ensure all reported bias values, scaling exponents, and confidence intervals are derived from real computation on actual JHTDB data or synthetic data generated via the defined Fourier truncation process. The system MUST NOT output hardcoded, placeholder, or simulated metrics. (See US-2, US-3)
+- **FR-007**: System MUST enforce a total runtime constraint of ≤ 6 hours for the analysis of a specific load profile: A small number of cases of 1024³ grids with Multiple resolution levels each, utilizing parallel processing where feasible on the 2-core runner. (See US-2, US-3)
+- **FR-008**: System MUST ensure all reported bias values, scaling exponents, and confidence intervals are derived from real computation on actual JHTDB data or synthetic data generated via the defined Fourier truncation process. The system MUST NOT output hardcoded, placeholder, or simulated metrics. Any metric not resulting from the pipeline execution on real data MUST be flagged as "UNCOMPUTED". (See US-2, US-3)
 
 ### Key Entities
 
@@ -85,9 +85,9 @@ As a researcher, I need the system to fit power-law scaling exponents to the str
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The magnitude of bias in the energy spectrum at the highest resolvable wavenumber of the downsampled grid is measured against the ground truth value from the full-resolution dataset. The value MUST be the result of the pipeline execution, not a placeholder. (See US-2)
-- **SC-002**: The deviation of the fitted structure function scaling exponent from the ground truth exponent derived from the full-resolution dataset (highest available resolution reference) is measured against the ground truth exponent. The value MUST be the result of the pipeline execution, not a placeholder. (See US-3)
-- **SC-003**: The width of the 95% confidence interval for the bias estimate at the inertial subrange is measured against the bootstrap distribution generated from the 3-5 independent snapshots. The value MUST be the result of the pipeline execution, not a placeholder. (See US-3)
+- **SC-001**: The magnitude of bias in the energy spectrum at the highest resolvable wavenumber of the downsampled grid is measured against the ground truth value from the full-resolution dataset. The value MUST be the result of the pipeline execution on real JHTDB data, not a placeholder. (See US-2)
+- **SC-002**: The deviation of the fitted structure function scaling exponent from the ground truth exponent derived from the full-resolution dataset (highest available resolution reference) is measured against the ground truth exponent. The value MUST be the result of the pipeline execution on real JHTDB data, not a placeholder. (See US-3)
+- **SC-003**: The width of the confidence interval for the bias estimate at the inertial subrange is measured against the bootstrap distribution generated from the 3-5 independent snapshots. The value MUST be the result of the pipeline execution on real JHTDB data, not a placeholder. (See US-3)
 - **SC-004**: The total computational runtime for the full analysis pipeline (download, downsample, compute, bootstrap) is measured against the prescribed time limit of the GitHub Actions free-tier runner. (See US-2, US-3)
 - **SC-005**: The memory peak usage during the processing of the largest selected snapshot is measured against a constrained RAM limit of the runner environment. (See US-1)
 
@@ -98,5 +98,5 @@ As a researcher, I need the system to fit power-law scaling exponents to the str
 - The "ground truth" for the analysis is defined as the highest-resolution dataset available in the selected JHTDB case; any bias in the ground truth itself (e.g., numerical dissipation in the original simulation) is considered negligible or outside the scope of this study.
 - The project scope involves selecting a small number of cases from the available JHTDB datasets, but the runtime benchmark is defined on a representative set of cases of high-resolution grids.
 - The theoretical Kolmogorov scaling exponents (-5/3 for energy spectrum, 2/3 for second-order structure function) are valid references for the inertial subrange of the selected high-Reynolds-number datasets, though the ground truth dataset itself may exhibit finite-Reynolds-number deviations.
-- The bootstrap resampling of a sufficient number of iterations across the 3-5 independent snapshots will complete within the 6-hour time budget when applied to the computed statistics across all resolution levels.
+- The bootstrap resampling of a sufficient number of iterations across the independent snapshots will complete within the 6-hour time budget when applied to the computed statistics across all resolution levels.
 - All metrics reported in the final analysis are derived from actual computation on real data; no simulated, placeholder, or hardcoded values are used to represent scientific findings.

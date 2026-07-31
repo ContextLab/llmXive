@@ -1,136 +1,152 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Polymer Blend Dataset Schema
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Polymer Blend Dataset Schema"
 description: |
-  Schema for the harmonized polymer blend dataset.
-  Defines the structure for records ingested from NIST, Polymer Database, and Materials Project.
-  Enforces unit standardization (K for temperature, GPa for modulus) and weight fraction constraints.
+  Schema for the harmonized polymer blend dataset used in the structure-property
+  relationship analysis. This schema defines the expected structure, data types,
+  and constraints for records ingested from NIST, Polymer Database, and Materials Project.
 type: object
 required:
-  - meta
+  - metadata
   - records
 properties:
-  meta:
+  metadata:
     type: object
-    description: Metadata about the dataset generation
+    description: "Metadata about the dataset generation"
     required:
       - version
       - generated_at
       - source_files
-      - checksum
+      - total_records
+      - valid_records
+      - excluded_records
     properties:
       version:
         type: string
+        description: "Schema version (e.g., 1.0.0)"
         pattern: "^\\d+\\.\\d+\\.\\d+$"
-        description: Semantic version of the schema
       generated_at:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation
+        description: "ISO 8601 timestamp of generation"
+        pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
       source_files:
         type: array
+        description: "List of source file paths that contributed to this dataset"
         items:
           type: string
-        description: List of raw source file paths used
-      checksum:
-        type: string
-        pattern: "^[a-fA-F0-9]{64}$"
-        description: SHA-256 checksum of the raw data files
-      record_count:
+          pattern: "^data/raw/.*\\.(csv|json|parquet)$"
+      total_records:
         type: integer
+        description: "Total number of records attempted to process"
         minimum: 0
-        description: Total number of records in the dataset
-      excluded_count:
+      valid_records:
         type: integer
+        description: "Number of records that passed all validation checks"
         minimum: 0
-        description: Number of records excluded due to validation failures
+      excluded_records:
+        type: integer
+        description: "Number of records excluded due to validation failures"
+        minimum: 0
+      validation_summary:
+        type: object
+        description: "Summary of validation failures"
+        properties:
+          invalid_smiles:
+            type: integer
+            minimum: 0
+          invalid_composition:
+            type: integer
+            minimum: 0
+          invalid_units:
+            type: integer
+            minimum: 0
+          missing_fields:
+            type: integer
+            minimum: 0
+
   records:
     type: array
-    description: List of harmonized polymer blend records
+    description: "List of validated polymer blend records"
     items:
       type: object
       required:
-        - id
+        - record_id
         - source
-        - smiles_components
-        - composition
-        - tg_kelvin
-        - modulus_gpa
-        - weight_fractions
+        - smirks_component_a
+        - smirks_component_b
+        - weight_fraction_a
+        - weight_fraction_b
+        - Tg_measured_K
+        - modulus_GPa
       properties:
-        id:
+        record_id:
           type: string
-          pattern: "^[a-zA-Z0-9_-]+$"
-          description: Unique identifier for the record
+          description: "Unique identifier for the record"
+          pattern: "^REC-[0-9]{8}$"
         source:
           type: string
+          description: "Origin of the data (nist, polymer_db, materials_project)"
           enum:
-            - NIST
-            - PolymerDatabase
-            - MaterialsProject
-          description: Origin of the data
-        smiles_components:
-          type: array
-          items:
-            type: string
-            description: Valid SMILES string for each polymer component
-          minItems: 2
-          description: SMILES strings for all components in the blend
-        composition:
-          type: object
-          required:
-            - type
-            - value
-          properties:
-            type:
-              type: string
-              enum:
-                - weight_fraction
-                - volume_fraction
-                - mole_fraction
-              description: Type of composition metric
-            value:
-              type: array
-              items:
-                type: number
-                minimum: 0
-                maximum: 1
-              description: Composition values for each component
-        composition_normalized:
-          type: array
-          items:
-            type: number
-            minimum: 0
-            maximum: 1
-          description: Composition values normalized to sum to 1.0 (weight fraction)
-        tg_kelvin:
+            - nist
+            - polymer_db
+            - materials_project
+        smirks_component_a:
+          type: string
+          description: "SMILES/SMIRKS string for component A"
+          minLength: 1
+        smirks_component_b:
+          type: string
+          description: "SMILES/SMIRKS string for component B (may be same as A for blends)"
+          minLength: 1
+        weight_fraction_a:
           type: number
-          minimum: 100
-          maximum: 1000
-          description: Glass transition temperature in Kelvin (converted from Celsius if necessary)
-        modulus_gpa:
+          description: "Weight fraction of component A (0.0 to 1.0)"
+          minimum: 0.0
+          maximum: 1.0
+        weight_fraction_b:
           type: number
-          minimum: 0
-          maximum: 100
-          description: Young's modulus in GPa (converted from Pa if necessary)
-        weight_fractions:
-          type: array
-          items:
-            type: number
-            minimum: 0
-            maximum: 1
-          description: Weight fractions of each component, validated to sum to 1.0 (±0.02 tolerance)
+          description: "Weight fraction of component B (0.0 to 1.0)"
+          minimum: 0.0
+          maximum: 1.0
+        Tg_measured_K:
+          type: number
+          description: "Glass transition temperature in Kelvin"
+          minimum: 100.0
+          maximum: 1000.0
+        modulus_GPa:
+          type: number
+          description: "Young's modulus in GPa"
+          minimum: 0.0
+          maximum: 100.0
+        raw_Tg:
+          type: number
+          description: "Original Tg value before unit conversion"
+        raw_Tg_unit:
+          type: string
+          description: "Original unit of Tg (C, K, F)"
+          enum:
+            - C
+            - K
+            - F
+        raw_modulus:
+          type: number
+          description: "Original modulus value before unit conversion"
+        raw_modulus_unit:
+          type: string
+          description: "Original unit of modulus (Pa, kPa, MPa, GPa)"
+          enum:
+            - Pa
+            - kPa
+            - MPa
+            - GPa
         validation_flags:
           type: array
+          description: "List of validation flags applied to this record"
           items:
             type: string
-            enum:
-              - smiles_invalid
-              - composition_sum_error
-              - missing_property
-              - unit_conversion_failed
-          description: Flags indicating any validation issues encountered (record is excluded if any present)
-        raw_metadata:
-          type: object
-          description: Additional metadata from the source record
-          additionalProperties: true
-additionalProperties: false
+          default: []
+        confidence_score:
+          type: number
+          description: "Confidence score for the record (0.0 to 1.0)"
+          minimum: 0.0
+          maximum: 1.0
+          default: 1.0

@@ -1567,6 +1567,10 @@
     "classified_at": "2026-07-19T04:30:18Z",
     "verdict": false
   },
+  "PROJ-936-llmxive-follow-up-extending-a-matter-of::1.6.0": {
+    "classified_at": "2026-07-31T04:40:47Z",
+    "verdict": false
+  },
   "PROJ-937-llmxive-follow-up-extending-minimax-spar::1.6.0": {
     "classified_at": "2026-07-05T12:50:25Z",
     "verdict": false

@@ -1,8 +1,17 @@
+# Project configuration file
+#
+# This pyproject.toml provides configuration for Black (code formatting)
+# and also declares the project's optional development dependencies.
+# It can be extended later with tool‑specific sections (e.g., mypy,
+# isort) as the project evolves.
+
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
+# Black is the code formatter used throughout the repository.
+# The line length matches the settings in ruff and flake8.
 line-length = 88
 target-version = ["py38"]
 include = '\.pyi?$'
@@ -20,9 +29,16 @@ exclude = '''
 )/
 '''
 
-[tool.ruff]
-line-length = 88
-select = ["E", "F", "W", "C90"]
-ignore = []
-exclude = ["__init__.py", "setup.py"]
-target-version = "py38"
+# Optional: list development dependencies for linting/formatting.
+# These are not installed by default when the project is used as a
+# library but can be installed with `pip install -r requirements-dev.txt`.
+#
+# NOTE: The actual `requirements-dev.txt` file is not part of the
+# repository specification, but developers may create it based on
+# the versions listed here.
+[project.optional-dependencies]
+dev = [
+    "black==24.1.1",
+    "ruff==0.4.2",
+    "flake8==7.0.0",
+]

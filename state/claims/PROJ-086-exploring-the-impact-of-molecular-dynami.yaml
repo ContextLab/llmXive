@@ -213,3 +213,206 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T07:13:10Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: PDBbind v2020 refined subset filtered to resolution <= 2.0 Angstroms
+    and <= 200 residues
+  claim_id: c_e2cde9ce
+  context: "Create code/analysis/load_data.py to fetch PDBbind v2020 'refined' subset\
+    \ (\u22642.0\xC5, \u2264200 residues) from data source."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The PDBbind v2020 'refined' subset is filtered to complexes with resolution\
+    \ \u22642.0\xC5 and \u2264200 residues."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:29:53Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Statistical analysis sample size N equals 10 complexes
+  claim_id: c_ad256b91
+  context: Add validation to ensure statistical findings are framed as associational
+    (observational study) with wide confidence intervals due to N=10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses a sample size of N=10 complexes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:30:49Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Statistical analysis sample size N equals 10 complexes
+  claim_id: c_4aed7a80
+  context: Enhance code/analysis/viz.py to include confidence intervals on the variance
+    component plot, acknowledging the low statistical power (N=10) and wide confidence
+    intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses a sample size of N=10 complexes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:30:49Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Full simulation pipeline timeout set to 21600 seconds
+  claim_id: c_1546064d
+  context: Implement a timer wrapper in code/main.py that asserts total_time < 21600s
+    (6 hours) for the full run and logs the result.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full simulation pipeline is configured with a hard timeout of 6 hours
+    (21600s).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:31:46Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: CI runner RAM constraint is 7 GB
+  claim_id: c_2990717e
+  context: "All simulation tasks must run on CPU-only CI (cores, 7GB RAM) with \u2264\
+    6h total runtime."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner is constrained to 7GB of RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:32:11Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Simulation job terminated if peak RAM exceeds 6 GB
+  claim_id: c_75616ff9
+  context: Add a resource monitoring wrapper in code/main.py that tracks peak RAM
+    usage per simulation and automatically terminates the job if it exceeds 6GB to
+    prevent CI runner crashes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation job is terminated if peak RAM usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:32:43Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: MM-PBSA GBSA post-processing truncates to 20 frames
+  claim_id: c_3aa83509
+  context: "Implement code/simulation/mm_pbsa.py to perform MM-PBSA/GBSA post-processing\
+    \ on trajectory files from data/processed/ (truncating to \u226420 frames to save\
+    \ RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MM-PBSA/GBSA post-processing truncates trajectories to 20 frames to
+    save RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:33:11Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Simulation timeout for 1.5 ns runs is 300 seconds
+  claim_id: c_cf38aac3
+  context: Implement code/utils/logger.py for error handling, logging, and 300s timeout
+    enforcement for 1.5ns runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation timeout for 1.5ns runs is enforced at 300 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:33:38Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Simulation configuration includes 1.5 ns duration
+  claim_id: c_f8b71218
+  context: Create code/simulation/config.py defining parameter sets (ffSB, CHARMM36m;
+    0.5ns, 1.0ns, 1.5ns; 300K) and random seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation configuration includes a 1.5ns duration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:33:58Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Simulation configuration includes 1.0 ns duration
+  claim_id: c_ae577a62
+  context: Create code/simulation/config.py defining parameter sets (ffSB, CHARMM36m;
+    0.5ns, 1.0ns, 1.5ns; 300K) and random seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation configuration includes a 1.0ns duration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:34:12Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: Simulation configuration includes 0.5 ns duration
+  claim_id: c_47816f3c
+  context: Create code/simulation/config.py defining parameter sets (ffSB, CHARMM36m;
+    0.5ns, 1.0ns, 1.5ns; 300K) and random seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation configuration includes a 0.5ns duration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:34:12Z'
+- artifact_path: projects/PROJ-086-exploring-the-impact-of-molecular-dynami/specs/001-exploring-the-impact-of-molecular-dynami/tasks.md
+  attempts: 1
+  canonical: User Story 1 independent test requires completion in less than 7 minutes
+    on 2-core CPU
+  claim_id: c_ce8a0bf7
+  context: Run a single simulation (complex 1J22, ff14SB, 1.5ns, 300K) on a 2-core
+    CPU runner; verify .nc output exists and job completes < 7 mins.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/User_Story_1_independent_test_requires_completion_in_less_th
+  kind: magnitude
+  raw_text: The independent test for User Story 1 requires job completion in less
+    than 7 minutes on a 2-core CPU runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T04:35:11Z'

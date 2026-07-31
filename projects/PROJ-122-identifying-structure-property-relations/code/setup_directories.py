@@ -1,14 +1,15 @@
+"""
+Script to create the required project directory structure.
+This script ensures all necessary folders exist for the pipeline.
+"""
 import os
 from pathlib import Path
 
 def create_directories():
-    """
-    Create the required directory structure for the project.
-    This function ensures all necessary folders exist before data processing begins.
-    """
-    base_path = Path(__file__).resolve().parent.parent
+    """Create the required directory structure for the project."""
+    root = Path(".")
     
-    # Define the directory structure relative to the project root
+    # Define the required directories relative to the project root
     directories = [
         "code",
         "data/raw",
@@ -16,21 +17,24 @@ def create_directories():
         "data/features",
         "tests",
         "state/projects",
-        "specs/001-structure-property-relationships/contracts",
-        "figures",
-        "logs"
     ]
     
     created_count = 0
     for dir_path in directories:
-        full_path = base_path / dir_path
+        full_path = root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
-        # else: pass (directory already exists)
+        else:
+            print(f"Directory already exists: {full_path}")
     
+    print(f"\nDirectory setup complete. {created_count} new directories created.")
     return created_count
 
+def main():
+    """Entry point for the setup script."""
+    create_directories()
+
 if __name__ == "__main__":
-    count = create_directories()
-    print(f"Directory creation complete. Created {count} new directories.")
+    main()

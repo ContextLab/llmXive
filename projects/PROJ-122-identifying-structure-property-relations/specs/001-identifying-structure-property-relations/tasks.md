@@ -92,7 +92,7 @@
 - [X] T018 [US1] Implement data quality report generation (`data_quality_report.json`) in `code/01_ingest.py`
 - [X] T019 [US1] Implement "Data Verification Gate" in `code/01_ingest.py`: **Invoke Reference-Validator Agent** to verify existence and accessibility of specific dataset URLs containing SMILES, Composition, Tg, and Modulus before ingestion; halt with clear error if no verified source is found (FR-015, FR-019). <!-- ATOMIZE: requested -->
 - [X] T019b [US1] Implement weight-fraction tolerance sensitivity sweep in `code/01_ingest.py`: Run validation with thresholds defined in `config.py` (configurable list, not hardcoded) and log the impact on valid record counts and pass rate percentage per threshold to `tolerance_sensitivity_report.json` (FR-014).
-- [ ] T019c [US1] Implement "Join Success Rate Check & Fallback Trigger" in `code/01_ingest.py`: Calculate the percentage of records with a "perfect join" (SMILES + Composition + Tg + Modulus). If failure rate > 50%, trigger "Monomer-Level Fallback" mode immediately and halt the main blend pipeline, switching to `code/02b_fallback.py` (FR-013, Plan Gate 1).
+- [X] T019c [US1] Implement "Join Success Rate Check & Fallback Trigger" in `code/01_ingest.py`: Calculate the percentage of records with a "perfect join" (SMILES + Composition + Tg + Modulus). If failure rate > 50%, trigger "Monomer-Level Fallback" mode immediately and halt the main blend pipeline, switching to `code/02b_fallback.py` (FR-013, Plan Gate 1).
 - [ ] T020 [US1] Save raw data to `data/raw/` with SHA-256 checksums in `state/`
 - [X] T020b [US1] Update Single Source of Truth: Write final artifact hashes to `state/projects/PROJ-122-identifying-structure-property-relations.yaml` (FR-018, Constitution).
 - [X] T020c [US1] Implement "Source Tagging" in `code/01_ingest.py`: Tag all ingested records with their source origin to enable stratified splitting in downstream tasks (FR-016). (Note: The actual split logic is implemented in T033c). <!-- SKIPPED: non-mapping output -->
@@ -115,10 +115,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement molecular descriptor generation (≥15 features) using RDKit in `code/02_features.py`
-- [ ] T025 [US2] Implement weighted average descriptor calculation for blends in `code/02_features.py`
-- [ ] T026 [US2] Implement absolute difference calculation for component descriptors in `code/02_features.py`
-- [ ] T027a [US2] Implement Target Variable Derivation: Compute `Tg_residual` (Tg_measured - Tg_Fox) as the **target variable** for model training in `code/02_features.py`. Save the dataset with this target column to `data/processed/` (FR-004).
+- [X] T024 [US2] Implement molecular descriptor generation (≥15 features) using RDKit in `code/02_features.py`
+- [X] T025 [US2] Implement weighted average descriptor calculation for blends in `code/02_features.py`
+- [X] T026 [US2] Implement absolute difference calculation for component descriptors in `code/02_features.py`
+- [X] T027a [US2] Implement Target Variable Derivation: Compute `Tg_residual` (Tg_measured - Tg_Fox) as the **target variable** for model training in `code/02_features.py`. Save the dataset with this target column to `data/processed/` (FR-004).
 - [ ] T027b [US2] Implement Interaction Features: Compute Fox equation and Gordon-Taylor equation predicted values as **input features** (interaction features) to be added to the feature matrix in `code/02_features.py`. Save baseline metrics to `data/features/baseline_metrics.json` for later comparison (FR-004).
 - [ ] T028a [US2] Implement Variance Inflation Factor (VIF) **Diagnostics** in `code/02_features.py`: Compute VIF for all predictors. If VIF > 5.0, flag the predictor. Output VIF diagnostics to `data/features/vif_report.json`. (Note: Sensitivity analysis re-training logic is moved to T038d in Phase 5) (FR-008).
 - [ ] T029 [US2] Save feature matrix to `data/features/` with traceability metadata in `code/02_features.py`

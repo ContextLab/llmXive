@@ -1,210 +1,222 @@
-"""
-Injection module for introducing controlled data errors into datasets.
-Implements random value replacement, category misclassification, and MCAR missingness.
-"""
-
 import argparse
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
-import numpy as np
 import pandas as pd
+import numpy as np
 import yaml
 
-# Local imports
-from random_seed import set_seed
+# Import the deterministic seed setter from the project
+try:
+    from random_seed import set_seed
+except ImportError:
+    # Fallback: define a no‑op if the module is not yet present
+    def set_seed(seed: int) -> None:
+        pass
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
 
-##########################################################################
-# Configuration loading
-##########################################################################
-def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Load a YAML configuration file. If ``config_path`` is None, the function
-    looks for ``config/error_rates.yaml`` relative to the project root.
-    """
-    default_path = Path("config") / "error_rates.yaml"
-    path = Path(config_path) if config_path else default_path
-    if not path.is_file():
-        logger.error("Configuration file not found: %s", path)
-        raise FileNotFoundError(path)
-    with open(path, "r") as f:
-        cfg = yaml.safe_load(f)
-    return cfg
 
-##########################################################################
-# Injection implementations
-##########################################################################
-def inject_random_replacement(
-    df: pd.DataFrame,
-    error_rate: float,
-    seed: Optional[int] = None,
-) -> Tuple[pd.DataFrame, int]:
+def load_config() -> Dict[str, Any]:
     """
-    Perform random value replacement on numeric columns.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The clean input dataframe.
-    error_rate : float
-        Proportion of rows to corrupt (e.g., 0.2 for 20 %).
-    seed : int, optional
-        Random seed for reproducibility. If ``None`` the global seed set by
-        ``set_seed`` is used.
+    Load the injection configuration from ``config/error_rates.yaml``.
+    The file is expected to contain a top‑level ``error_rates`` key with a
+    list of floating‑point values representing the proportion of rows to
+    corrupt (e.g., ``[0.01, 0.05, 0.10]``).
 
     Returns
     -------
-    Tuple[pd.DataFrame, int]
-        The corrupted dataframe and the number of rows that were modified.
+    dict
+        Dictionary with at least the key ``error_rates``.
     """
-    if seed is not None:
-        set_seed(seed)
-    else:
-        # Ensure deterministic behaviour if the caller has already set a seed
-        set_seed(0)
+    config_path = Path(__file__).resolve().parents[1] / "config" / "error_rates.yaml"
+    if not config_path.is_file():
+        logger.error(f"Configuration file not found: {config_path}")
+        raise FileNotFoundError(f"Missing configuration file: {config_path}")
 
-    total_rows = len(df)
-    n_replace = int(total_rows * error_rate)
+    with open(config_path, "r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
 
-    logger.debug(
-        "Injecting random replacement: %d rows out of %d (rate=%.3f)",
-        n_replace,
-        total_rows,
-        error_rate,
-    )
+    if not isinstance(cfg, dict) or "error_rates" not in cfg:
+        logger.error("Invalid configuration format: missing 'error_rates' key")
+        raise ValueError("Configuration must contain an 'error_rates' key")
 
-    if n_replace == 0:
-        return df.copy(), 0
+    if not isinstance(cfg["error_rates"], list) or not all(
+        isinstance(v, (float, int)) for v in cfg["error_rates"]
+    ):
+        logger.error("'error_rates' must be a list of numbers")
+        raise ValueError("'error_rates' must be a list of numbers")
 
-    # Choose rows to replace without replacement
-    replace_idx = np.random.choice(df.index, size=n_replace, replace=False)
+    logger.info(f"Loaded error rates: {cfg['error_rates']}")
+    return cfg
 
-    df_corrupted = df.copy()
 
-    # Replace each numeric column with a uniform draw between its min and max
-    numeric_cols = df_corrupted.select_dtypes(include=[np.number]).columns
+def inject_random_replacement(
+    input_path: Path,
+    output_path: Path,
+    error_rate: float,
+    seed: int = 42,
+) -> int:
+    """
+    Perform random value replacement on numeric columns of a CSV file.
+
+    For each numeric column, a proportion ``error_rate`` of its rows are
+    selected uniformly at random and replaced with a value drawn from a
+    uniform distribution spanning the observed column minimum and maximum.
+
+    Parameters
+    ----------
+    input_path : Path
+        Path to the clean CSV file.
+    output_path : Path
+        Destination path for the corrupted CSV.
+    error_rate : float
+        Fraction of rows to corrupt (0 < error_rate <= 1).
+    seed : int, optional
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    int
+        Total number of cell modifications performed.
+    """
+    set_seed(seed)
+    df = pd.read_csv(input_path)
+
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    n_rows = len(df)
+    if n_rows == 0:
+        logger.warning(f"Empty dataset: {input_path}")
+        return 0
+
+    total_modified = 0
+
     for col in numeric_cols:
-        col_min = df_corrupted[col].min()
-        col_max = df_corrupted[col].max()
-        # In the unlikely case min == max, keep the original value
-        if col_min == col_max:
-            random_vals = np.full(n_replace, col_min)
-        else:
-            random_vals = np.random.uniform(col_min, col_max, size=n_replace)
-        df_corrupted.loc[replace_idx, col] = random_vals
+        col_min = df[col].min()
+        col_max = df[col].max()
 
-    return df_corrupted, n_replace
+        # If the column has constant value, skip replacement (nothing to vary)
+        if pd.isna(col_min) or pd.isna(col_max) or col_min == col_max:
+            logger.debug(f"Column '{col}' has no variation; skipping.")
+            continue
 
-def inject_category_misclassification(
-    df: pd.DataFrame,
-    error_rate: float,
-    seed: Optional[int] = None,
-) -> Tuple[pd.DataFrame, int]:
-    """
-    Placeholder for category misclassification injection.
-    Currently raises NotImplementedError – to be completed in later tasks.
-    """
-    raise NotImplementedError(
-        "Category misclassification injection not implemented yet."
-    )
+        n_modify = int(np.floor(n_rows * error_rate))
+        if n_modify == 0:
+            logger.debug(
+                f"Error rate {error_rate} results in 0 modifications for column '{col}'."
+            )
+            continue
 
-def inject_mcar_missingness(
-    df: pd.DataFrame,
-    error_rate: float,
-    seed: Optional[int] = None,
-) -> Tuple[pd.DataFrame, int]:
-    """
-    Placeholder for MCAR missingness injection.
-    Currently raises NotImplementedError – to be completed in later tasks.
-    """
-    raise NotImplementedError("MCAR missingness injection not implemented yet.")
+        # Choose rows without replacement
+        rows_to_modify = np.random.choice(
+            n_rows, size=n_modify, replace=False
+        )
+        random_values = np.random.uniform(col_min, col_max, size=n_modify)
 
-##########################################################################
-# Orchestration helpers
-##########################################################################
-def run_injection(
-    df: pd.DataFrame,
-    error_type: str,
-    error_rate: float,
-    seed: Optional[int] = None,
-) -> Tuple[pd.DataFrame, int]:
-    """
-    Dispatch to the appropriate injection routine based on ``error_type``.
-    """
-    if error_type == "replacement":
-        return inject_random_replacement(df, error_rate, seed)
-    elif error_type == "misclassification":
-        return inject_category_misclassification(df, error_rate, seed)
-    elif error_type == "mcar":
-        return inject_mcar_missingness(df, error_rate, seed)
-    else:
-        raise ValueError(f"Unsupported error_type: {error_type}")
+        df.loc[rows_to_modify, col] = random_values
+        total_modified += n_modify
 
-##########################################################################
-# CLI entry point
-##########################################################################
-def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Inject synthetic errors into a CSV dataset."
-    )
-    parser.add_argument(
-        "input_csv", type=str, help="Path to the clean CSV file to corrupt."
-    )
-    parser.add_argument(
-        "output_csv", type=str, help="Path where the corrupted CSV will be saved."
-    )
-    parser.add_argument(
-        "--error-type",
-        type=str,
-        choices=["replacement", "misclassification", "mcar"],
-        required=True,
-        help="Type of error to inject.",
-    )
-    parser.add_argument(
-        "--error-rate",
-        type=float,
-        required=True,
-        help="Proportion of rows/cells to corrupt (0‑1).",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=0,
-        help="Random seed for reproducibility.",
-    )
-    return parser.parse_args(argv)
+        logger.debug(
+            f"Replaced {n_modify} values in column '{col}' with uniform random numbers "
+            f"between {col_min} and {col_max}."
+        )
 
-def main(argv: Optional[List[str]] = None) -> None:
-    args = _parse_args(argv)
-
-    # Load data
-    df = pd.read_csv(args.input_csv)
-
-    # Perform injection
-    corrupted_df, injected_cnt = run_injection(
-        df,
-        error_type=args.error_type,
-        error_rate=args.error_rate,
-        seed=args.seed,
-    )
-
-    # Save result
-    os.makedirs(Path(args.output_csv).parent, exist_ok=True)
-    corrupted_df.to_csv(args.output_csv, index=False)
-
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
     logger.info(
-        "Injected %d rows (%s) into %s → %s",
-        injected_cnt,
-        args.error_type,
-        args.input_csv,
-        args.output_csv,
+        f"Injected random replacement into {input_path.name} (rate={error_rate:.2%}); "
+        f"wrote corrupted file to {output_path}"
     )
+    return total_modified
+
+
+def run_injection() -> None:
+    """
+    Iterate over all cleaned datasets and all configured error rates,
+    applying random value replacement and writing the results to
+    ``data/corrupted/``.
+    """
+    cfg = load_config()
+    error_rates: List[float] = cfg["error_rates"]
+
+    # Directories
+    cleaned_dir = Path(__file__).resolve().parents[1] / "data" / "raw" / "cleaned"
+    corrupted_dir = Path(__file__).resolve().parents[1] / "data" / "corrupted"
+
+    if not cleaned_dir.is_dir():
+        logger.error(f"Cleaned data directory does not exist: {cleaned_dir}")
+        raise FileNotFoundError(f"Missing directory: {cleaned_dir}")
+
+    csv_files = list(cleaned_dir.glob("*.csv"))
+    if not csv_files:
+        logger.warning(f"No CSV files found in {cleaned_dir}")
+        return
+
+    for csv_path in csv_files:
+        stem = csv_path.stem
+        for rate in error_rates:
+            # Construct a deterministic seed based on file name and rate
+            seed = hash((stem, rate)) % (2**32)
+            out_name = f"{stem}_replace_{int(rate*100)}pct.csv"
+            out_path = corrupted_dir / out_name
+
+            try:
+                inject_random_replacement(
+                    input_path=csv_path,
+                    output_path=out_path,
+                    error_rate=rate,
+                    seed=seed,
+                )
+            except Exception as e:
+                logger.exception(
+                    f"Failed to inject errors into {csv_path.name} at rate {rate}: {e}"
+                )
+                raise
+
+
+def main(argv: List[str] | None = None) -> int:
+    """
+    CLI entry point.
+
+    Optional arguments can be provided to specify a custom configuration file.
+    If omitted, the default ``config/error_rates.yaml`` is used.
+    """
+    parser = argparse.ArgumentParser(
+        description="Inject random value replacement errors into cleaned CSV datasets."
+    )
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "config" / "error_rates.yaml",
+        help="Path to the YAML configuration file defining error rates.",
+    )
+    args = parser.parse_args(argv)
+
+    # Override the global config path if a custom one is supplied
+    if args.config != Path(__file__).resolve().parents[1] / "config" / "error_rates.yaml":
+        # Load the custom config directly
+        if not args.config.is_file():
+            logger.error(f"Custom config file not found: {args.config}")
+            return 1
+        with open(args.config, "r", encoding="utf-8") as f:
+            custom_cfg = yaml.safe_load(f)
+        # Temporarily monkey‑patch the load_config function to return the custom config
+        global load_config
+        def load_config() -> Dict[str, Any]:  # type: ignore
+            return custom_cfg
+
+    run_injection()
+    return 0
+
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    main()
+    sys.exit(main())

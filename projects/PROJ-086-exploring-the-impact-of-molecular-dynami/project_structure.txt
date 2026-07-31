@@ -1,0 +1,33 @@
+Project Structure for PROJ-086:
+
+code/
+  simulation/
+    __init__.py
+    config.py
+    run.py
+    setup.py
+    mm_pbsa.py
+  analysis/
+    __init__.py
+    load_data.py
+    stats.py
+    viz.py
+  utils/
+    __init__.py
+    io.py
+    logger.py
+  main.py
+data/
+  raw/
+    .gitkeep
+  processed/
+    .gitkeep
+results/
+  .gitkeep
+tests/
+  unit/
+  integration/
+specs/
+  001-md-simulation-params/
+
+All required directories (code/simulation, code/analysis, data/raw, data/processed, results) have been created.
