@@ -1,0 +1,20 @@
+# Standalone ruff configuration for CLI usage
+target-version = "py311"
+line-length = 88
+exclude = [
+    ".git",
+    ".venv",
+    "data",
+    "results",
+    "build",
+    "dist"
+]
+
+[lint]
+select = ["E", "F", "I", "UP", "N", "W"]
+ignore = []
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = false
+lines-after-imports = 2

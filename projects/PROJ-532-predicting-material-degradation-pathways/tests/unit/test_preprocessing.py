@@ -1,111 +1,200 @@
-"""
-Unit tests for preprocessing module.
-"""
 import pytest
 import pandas as pd
 import numpy as np
-from code.preprocessing import map_elemental_composition_to_features, handle_missing_values
+from pathlib import Path
+import sys
+import os
 
-def test_map_elemental_composition_to_features_basic():
-    """Test basic mapping with known elements."""
-    data = {
-        'Fe': [70.0, 60.0],
-        'Cr': [20.0, 25.0],
-        'Ni': [10.0, 15.0],
-        'id': [1, 2]  # Non-elemental column
-    }
-    df = pd.DataFrame(data)
-    
-    result = map_elemental_composition_to_features(df)
-    
-    # Should only contain elemental columns
-    expected_cols = {'Cr', 'Fe', 'Ni'}
-    assert set(result.columns) == expected_cols
-    
-    # Should be normalized to sum to 1.0
-    assert np.isclose(result.sum(axis=1).iloc[0], 1.0, atol=1e-6)
-    assert np.isclose(result.sum(axis=1).iloc[1], 1.0, atol=1e-6)
-    
-    # Columns should be sorted
-    assert list(result.columns) == sorted(result.columns)
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-def test_map_elemental_composition_to_features_missing_elements():
-    """Test mapping when some standard elements are missing from input."""
-    data = {
-        'Fe': [100.0],
-        'Ni': [0.0]
-    }
-    df = pd.DataFrame(data)
-    
-    # Should not raise an error, just use available elements
-    result = map_elemental_composition_to_features(df)
-    
-    assert 'Fe' in result.columns
-    assert 'Ni' in result.columns
-    assert np.isclose(result['Fe'].iloc[0], 1.0)
-    assert np.isclose(result['Ni'].iloc[0], 0.0)
+from preprocessing import (
+    classify_alloy_family,
+    perform_ood_split,
+    handle_missing_values,
+    calculate_derived_atomic_properties
+)
 
-def test_map_elemental_composition_to_features_missing_values():
-    """Test mapping with missing values (NaN) in elemental columns."""
-    data = {
-        'Fe': [70.0, np.nan],
-        'Cr': [20.0, 20.0],
-        'Ni': [10.0, 80.0]
-    }
-    df = pd.DataFrame(data)
+class TestClassifyAlloyFamily:
+    """Tests for alloy family classification logic."""
     
-    result = map_elemental_composition_to_features(df)
+    def test_high_entropy_alloy(self):
+        """Test classification of high-entropy alloy."""
+        row = pd.Series({
+            'Fe': 0.20, 'Cr': 0.20, 'Ni': 0.20, 'Mn': 0.20, 'Co': 0.20,
+            'C': 0.001
+        })
+        assert classify_alloy_family(row) == "High-Entropy Alloys"
     
-    # Missing values should be treated as 0.0
-    # Row 1: 0 + 20 + 80 = 100 -> Fe=0, Cr=0.2, Ni=0.8
-    assert np.isclose(result['Fe'].iloc[1], 0.0)
-    assert np.isclose(result['Cr'].iloc[1], 0.2, atol=1e-6)
-    assert np.isclose(result['Ni'].iloc[1], 0.8, atol=1e-6)
+    def test_stainless_steel(self):
+        """Test classification of stainless steel."""
+        row = pd.Series({
+            'Fe': 0.70, 'Cr': 0.18, 'Ni': 0.10, 'C': 0.01
+        })
+        assert classify_alloy_family(row) == "Stainless Steels"
+    
+    def test_carbon_steel(self):
+        """Test classification of carbon steel."""
+        row = pd.Series({
+            'Fe': 0.98, 'C': 0.02
+        })
+        assert classify_alloy_family(row) == "Carbon Steels"
+    
+    def test_nickel_superalloy(self):
+        """Test classification of nickel-based superalloy."""
+        row = pd.Series({
+            'Ni': 0.60, 'Cr': 0.15, 'Co': 0.10, 'Fe': 0.10
+        })
+        assert classify_alloy_family(row) == "Nickel-Based Superalloys"
+    
+    def test_unknown_alloy(self):
+        """Test classification of unknown alloy."""
+        row = pd.Series({
+            'Fe': 0.50, 'Cu': 0.30, 'Zn': 0.20
+        })
+        assert classify_alloy_family(row) == "Unknown"
+    
+    def test_insufficient_elements_for_he(self):
+        """Test that alloy with 4 elements is not classified as HEA."""
+        row = pd.Series({
+            'Fe': 0.25, 'Cr': 0.25, 'Ni': 0.25, 'Mn': 0.25
+        })
+        assert classify_alloy_family(row) != "High-Entropy Alloys"
 
-def test_handle_missing_values_imputation():
-    """Test that missing values < 5% are imputed with median."""
-    data = {
-        'A': [1.0, 2.0, np.nan, 4.0, 5.0],  # 1/5 = 20% missing -> drop
-        'B': [1.0, 2.0, 3.0, 4.0, np.nan],  # 1/5 = 20% missing -> drop
-        'C': [1.0, 2.0, 3.0, 4.0, 5.0]      # 0% missing -> keep
-    }
-    # Actually, let's use a threshold of 0.3 (30%) to test imputation
-    df = pd.DataFrame(data)
-    cleaned, stats = handle_missing_values(df, threshold=0.3)
+class TestPerformOODSplit:
+    """Tests for OOD split logic."""
     
-    assert 'C' in cleaned.columns
-    assert stats['C']['action'] == 'kept'
+    def test_ood_split_with_multiple_families(self):
+        """Test OOD split with multiple alloy families."""
+        # Create a dataset with multiple families
+        data = {
+            'alloy_family': ['Stainless Steels'] * 50 + 
+                            ['Carbon Steels'] * 30 + 
+                            ['High-Entropy Alloys'] * 20,
+            'value': list(range(100))
+        }
+        df = pd.DataFrame(data)
+        
+        train_df, test_df, metadata = perform_ood_split(df)
+        
+        # Should use OOD split since we have multiple families
+        assert metadata['fallback_used'] == False
+        assert metadata['split_method'] == 'alloy_family_ood'
+        assert len(train_df) + len(test_df) == 100
+        assert len(test_df['alloy_family'].unique()) == 1  # Only one family in test
+        assert len(train_df['alloy_family'].unique()) > 1  # Multiple families in train
     
-    # A and B have 20% missing, which is < 30%, so they should be imputed
-    assert 'A' in cleaned.columns
-    assert stats['A']['action'] == 'imputed_median'
-    assert 'B' in cleaned.columns
-    assert stats['B']['action'] == 'imputed_median'
+    def test_fallback_to_stratified_split(self):
+        """Test fallback to stratified split when <2 families exist."""
+        # Create a dataset with only one family
+        data = {
+            'alloy_family': ['Stainless Steels'] * 100,
+            'label_pitting': [1] * 50 + [0] * 50,
+            'value': list(range(100))
+        }
+        df = pd.DataFrame(data)
+        
+        train_df, test_df, metadata = perform_ood_split(df)
+        
+        # Should fallback to stratified split
+        assert metadata['fallback_used'] == True
+        assert metadata['fallback_reason'] is not None
+        assert len(train_df) + len(test_df) == 100
+        assert abs(len(train_df) - 80) <= 5  # ~80% train
+        assert abs(len(test_df) - 20) <= 5   # ~20% test
+    
+    def test_minimum_test_set_size(self):
+        """Test that test set has minimum 5 records."""
+        # Create a dataset with a very small family
+        data = {
+            'alloy_family': ['Stainless Steels'] * 50 + 
+                            ['Carbon Steels'] * 100 +
+                            ['Unknown'] * 3,  # Very small family
+            'value': list(range(153))
+        }
+        df = pd.DataFrame(data)
+        
+        train_df, test_df, metadata = perform_ood_split(df)
+        
+        # Should not use the tiny family for test if possible
+        # (depends on implementation, but should have >=5 records in test)
+        assert len(test_df) >= 5
 
-def test_handle_missing_values_dropping():
-    """Test that missing values >= 5% cause column drop."""
-    data = {
-        'A': [1.0, np.nan, np.nan, np.nan, 5.0],  # 3/5 = 60% missing -> drop
-        'B': [1.0, 2.0, 3.0, 4.0, 5.0]            # 0% missing -> keep
-    }
-    df = pd.DataFrame(data)
-    cleaned, stats = handle_missing_values(df, threshold=0.05)
+class TestHandleMissingValues:
+    """Tests for missing value handling."""
     
-    assert 'B' in cleaned.columns
-    assert stats['B']['action'] == 'kept'
+    def test_median_imputation(self):
+        """Test median imputation for missing values."""
+        data = {
+            'Fe': [0.70, 0.72, np.nan, 0.68],
+            'Cr': [0.18, np.nan, 0.19, 0.17],
+            'Ni': [0.10, 0.11, 0.09, 0.10]
+        }
+        df = pd.DataFrame(data)
+        
+        df_clean = handle_missing_values(df)
+        
+        # No NaN values should remain
+        assert df_clean.isnull().sum().sum() == 0
+        
+        # Imputed values should be close to median
+        assert df_clean['Fe'].iloc[2] == df['Fe'].median()
+        assert df_clean['Cr'].iloc[1] == df['Cr'].median()
     
-    assert 'A' not in cleaned.columns
-    assert stats['A']['action'] == 'dropped'
+    def test_column_dropping(self):
+        """Test dropping columns with >=5% missing values."""
+        # Create data with 10% missing in one column
+        data = {
+            'Fe': [0.70, 0.72, 0.68, 0.69, 0.71],
+            'Cr': [0.18, 0.19, np.nan, np.nan, np.nan],  # 60% missing
+            'Ni': [0.10, 0.11, 0.09, 0.10, 0.10]
+        }
+        df = pd.DataFrame(data)
+        
+        df_clean = handle_missing_values(df)
+        
+        # Cr column should be dropped
+        assert 'Cr' not in df_clean.columns
+        assert 'Fe' in df_clean.columns
+        assert 'Ni' in df_clean.columns
 
-def test_no_standard_elements_found():
-    """Test error when no standard elements are found."""
-    data = {
-        'id': [1, 2],
-        'label': ['pitting', 'scc']
-    }
-    df = pd.DataFrame(data)
+class TestCalculateDerivedAtomicProperties:
+    """Tests for derived atomic properties calculation."""
     
-    with pytest.raises(ValueError) as excinfo:
-        map_elemental_composition_to_features(df)
+    def test_average_electronegativity(self):
+        """Test calculation of average electronegativity."""
+        data = {
+            'Fe': [0.70],
+            'Cr': [0.18],
+            'Ni': [0.10]
+        }
+        df = pd.DataFrame(data)
+        
+        derived_df = calculate_derived_atomic_properties(df)
+        
+        # Should have calculated properties
+        assert 'avg_electronegativity' in derived_df.columns
+        assert 'avg_atomic_radius' in derived_df.columns
+        assert 'num_elements' in derived_df.columns
+        
+        # Should have values
+        assert derived_df['avg_electronegativity'].iloc[0] > 0
+        assert derived_df['avg_atomic_radius'].iloc[0] > 0
+        assert derived_df['num_elements'].iloc[0] == 3
     
-    assert "No standard elemental columns found" in str(excinfo.value)
+    def test_num_elements_calculation(self):
+        """Test number of elements calculation."""
+        data = {
+            'Fe': [0.70, 0.50],
+            'Cr': [0.18, 0.00],  # Second row has no Cr
+            'Ni': [0.10, 0.30],
+            'C': [0.01, 0.01]
+        }
+        df = pd.DataFrame(data)
+        
+        derived_df = calculate_derived_atomic_properties(df)
+        
+        # First row: Fe, Cr, Ni, C (4 elements)
+        # Second row: Fe, Ni, C (3 elements, Cr is 0)
+        assert derived_df['num_elements'].iloc[0] == 4
+        assert derived_df['num_elements'].iloc[1] == 3

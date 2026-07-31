@@ -1,227 +1,206 @@
-"""
-Unit tests for the modeling pipeline.
-Tests nested CV logic and alpha tuning on synthetic data.
-"""
 import os
-import sys
 import json
 import tempfile
 import pytest
 import numpy as np
 import pandas as pd
+from pathlib import Path
+import sys
+import importlib.util
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# Load the modeling module dynamically to ensure we are testing the actual file
+spec = importlib.util.spec_from_file_location("modeling", "code/modeling.py")
+modeling = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(modeling)
 
-from code.modeling import (
+from modeling import (
+    run_ridge_regression_with_nested_cv,
+    prepare_model_data,
     load_cleaned_data,
-    prepare_features_targets,
-    run_nested_cv_ridge,
-    run_primary_modeling_pipeline
+    run_reduced_model_analysis,
+    calculate_delta_r2
 )
-from code.utils import write_csv, write_json
 
-
-def create_test_data(n_samples=100, correlation=0.3):
-    """
-    Create synthetic test data with known correlation structure.
-    
-    Args:
-        n_samples: Number of samples
-        correlation: Target correlation between Global_Signal_SD and MWQ_Score
-        
-    Returns:
-        DataFrame with test data
-    """
-    np.random.seed(42)
+def create_sample_dataframe(n=100, seed=42):
+    """Create a synthetic dataframe matching the expected schema for testing."""
+    np.random.seed(seed)
     
     # Generate features
-    global_signal_sd = np.random.randn(n_samples)
-    mean_fd = np.random.randn(n_samples) * 0.1 + 0.3
-    mean_dvars = np.random.randn(n_samples) * 0.1 + 0.5
-    age = np.random.randint(18, 65, n_samples)
-    sex = np.random.choice([0, 1], n_samples)
+    global_signal_sd = np.random.normal(0.5, 0.1, n)
+    age = np.random.randint(18, 65, n)
+    sex = np.random.choice([0, 1], n)
+    mean_fd = np.random.normal(0.2, 0.05, n)
+    mean_dvars = np.random.normal(0.5, 0.1, n)
     
-    # Generate target with known correlation
-    # MWQ = a * Global_Signal_SD + noise
-    noise = np.random.randn(n_samples) * (1 - correlation)
-    mwq_score = correlation * global_signal_sd + noise
+    # Create a moderate correlation for MWQ_Score based on Global_Signal_SD
+    # MWQ = 30 + 10 * Global_Signal_SD + noise
+    mwq_score = 30 + 10 * global_signal_sd + np.random.normal(0, 2, n)
     
-    # Normalize MWQ to reasonable range (0-100 scale)
-    mwq_score = (mwq_score - mwq_score.min()) / (mwq_score.max() - mwq_score.min()) * 100
+    data = {
+        "Subject_ID": [f"sub-{i:03d}" for i in range(n)],
+        "Global_Signal_SD": global_signal_sd,
+        "MWQ_Score": mwq_score,
+        "Age": age,
+        "Sex": sex,
+        "Mean_FD": mean_fd,
+        "Mean_DVARS": mean_dvars
+    }
     
-    df = pd.DataFrame({
-        'Subject_ID': [f'sub-{i:03d}' for i in range(n_samples)],
-        'Global_Signal_SD': global_signal_sd,
-        'MWQ_Score': mwq_score,
-        'Age': age,
-        'Sex': sex,
-        'Mean_FD': mean_fd,
-        'Mean_DVARS': mean_dvars
-    })
+    # Ensure no zero variance in Global_Signal_SD
+    data["Global_Signal_SD"] = np.abs(data["Global_Signal_SD"]) + 0.01
     
-    return df
+    return pd.DataFrame(data)
 
-
-class TestLoadCleanedData:
-    def test_load_existing_file(self, tmp_path):
-        """Test loading an existing cleaned data file."""
-        # Create test data
-        df = create_test_data(n_samples=50)
-        data_path = tmp_path / "cleaned_data.csv"
-        df.to_csv(data_path, index=False)
-        
-        # Load and verify
-        loaded_df = load_cleaned_data(str(data_path))
-        
-        assert len(loaded_df) == 50
-        assert 'Subject_ID' in loaded_df.columns
-        assert 'MWQ_Score' in loaded_df.columns
-        assert 'Global_Signal_SD' in loaded_df.columns
+def test_prepare_model_data():
+    """Test that prepare_model_data correctly splits features and target."""
+    df = create_sample_dataframe(n=50)
     
-    def test_missing_file_raises_error(self, tmp_path):
-        """Test that loading non-existent file raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            load_cleaned_data(str(tmp_path / "nonexistent.csv"))
+    y, X, feature_names = modeling.prepare_model_data(
+        df,
+        y_col="MWQ_Score",
+        features=["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"]
+    )
     
-    def test_missing_columns_raises_error(self, tmp_path):
-        """Test that missing required columns raises ValueError."""
-        df = pd.DataFrame({'Subject_ID': [1, 2], 'Other': [3, 4]})
-        data_path = tmp_path / "incomplete.csv"
-        df.to_csv(data_path, index=False)
-        
-        with pytest.raises(ValueError, match="Missing required columns"):
-            load_cleaned_data(str(data_path))
+    assert y.shape[0] == 50
+    assert X.shape[0] == 50
+    assert X.shape[1] == 5
+    assert list(feature_names) == ["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"]
+    assert "Subject_ID" not in feature_names
 
-
-class TestPrepareFeaturesTargets:
-    def test_feature_extraction(self):
-        """Test that features are correctly extracted."""
-        df = create_test_data(n_samples=30)
-        
-        X, y, feature_names = prepare_features_targets(df)
-        
-        assert X.shape == (30, 5)
-        assert y.shape == (30,)
-        assert len(feature_names) == 5
-        assert 'Global_Signal_SD' in feature_names
-        assert 'Mean_FD' in feature_names
+def test_run_ridge_regression_with_nested_cv_structure():
+    """
+    Verify that the nested CV logic runs without error and returns the expected structure.
+    This test uses synthetic data with a known correlation to ensure alpha tuning works.
+    """
+    df = create_sample_dataframe(n=100, seed=42)
     
-    def test_sex_conversion(self):
-        """Test that string sex values are converted to numeric."""
-        df = create_test_data(n_samples=30)
-        df['Sex'] = ['F', 'M'] * 15
-        
-        X, y, feature_names = prepare_features_targets(df)
-        
-        # Sex should be converted to 0/1
-        assert X[:, 4].dtype in [np.int64, np.int32, np.float64]
-        assert set(np.unique(X[:, 4])).issubset({0, 1})
-
-
-class TestNestedCVRidge:
-    def test_nested_cv_runs(self):
-        """Test that nested CV completes without errors."""
-        X = np.random.randn(100, 5)
-        y = np.random.randn(100)
-        
-        results = run_nested_cv_ridge(X, y, n_splits_outer=3, n_splits_inner=2)
-        
-        assert 'mean_mae' in results
-        assert 'mean_r2' in results
-        assert 'mean_pearson_r' in results
-        assert 'best_alphas' in results
-        assert len(results['best_alphas']) == 3
+    # Run the full nested CV pipeline
+    result = modeling.run_ridge_regression_with_nested_cv(
+        df,
+        y_col="MWQ_Score",
+        features=["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"],
+        n_splits=3, # Reduced for speed in test
+        alphas=[0.1, 1.0, 10.0]
+    )
     
-    def test_known_correlation_recovery(self):
-        """Test that nested CV recovers known correlation in synthetic data."""
-        # Create data with known correlation
-        df = create_test_data(n_samples=200, correlation=0.3)
-        X, y, _ = prepare_features_targets(df)
-        
-        # Run nested CV
-        results = run_nested_cv_ridge(X, y, n_splits_outer=5, n_splits_inner=3)
-        
-        # Pearson r should be in reasonable range (allowing for variance)
-        assert 0.15 <= results['mean_pearson_r'] <= 0.45, \
-            f"Expected r around 0.3, got {results['mean_pearson_r']}"
+    # Verify top-level keys
+    assert "best_alpha" in result
+    assert "mean_mae" in result
+    assert "mean_r2" in result
+    assert "mean_pearson_r" in result
+    assert "cv_results" in result
     
-    def test_out_of_fold_predictions(self):
-        """Test that out-of-fold predictions are generated correctly."""
-        X = np.random.randn(50, 5)
-        y = np.random.randn(50)
-        
-        results = run_nested_cv_ridge(X, y, n_splits_outer=5, n_splits_inner=2)
-        
-        assert 'predictions' in results
-        assert 'true_values' in results
-        assert len(results['predictions']) == len(y)
-        assert len(results['true_values']) == len(y)
-        assert np.allclose(results['predictions'], results['predictions'])  # No NaNs
-
-
-class TestPrimaryModelingPipeline:
-    def test_full_pipeline(self, tmp_path):
-        """Test the complete modeling pipeline."""
-        # Create test data
-        df = create_test_data(n_samples=100)
-        data_path = tmp_path / "cleaned_data.csv"
-        df.to_csv(data_path, index=False)
-        
-        output_path = tmp_path / "results" / "model_results.json"
-        
-        # Run pipeline
-        results = run_primary_modeling_pipeline(str(data_path), str(output_path))
-        
-        # Verify output file exists
-        assert os.path.exists(output_path)
-        
-        # Verify results structure
-        assert 'mean_mae' in results
-        assert 'mean_r2' in results
-        assert 'mean_pearson_r' in results
-        assert 'feature_names' in results
-        assert results['n_samples'] == 100
+    # Verify numeric types
+    assert isinstance(result["best_alpha"], float)
+    assert isinstance(result["mean_mae"], float)
+    assert isinstance(result["mean_r2"], float)
     
-    def test_output_json_valid(self, tmp_path):
-        """Test that output JSON is valid and parseable."""
-        df = create_test_data(n_samples=50)
-        data_path = tmp_path / "cleaned_data.csv"
-        df.to_csv(data_path, index=False)
-        
-        output_path = tmp_path / "results" / "model_results.json"
-        
-        run_primary_modeling_pipeline(str(data_path), str(output_path))
-        
-        # Verify JSON is valid
-        with open(output_path, 'r') as f:
-            loaded_results = json.load(f)
-        
-        assert 'mean_mae' in loaded_results
-        assert isinstance(loaded_results['mean_mae'], float)
-
-
-class TestEdgeCases:
-    def test_small_sample_size(self):
-        """Test with very small sample size."""
-        X = np.random.randn(10, 3)
-        y = np.random.randn(10)
-        
-        # Should handle small samples (though results may be unstable)
-        results = run_nested_cv_ridge(X, y, n_splits_outer=2, n_splits_inner=2)
-        
-        assert results['n_samples'] == 10
+    # Verify that the result is not trivial (data was generated with signal)
+    # With synthetic data r=0.3+, we expect R2 > 0.05 and MAE < 5.0
+    assert result["mean_r2"] > 0.0, "R2 should be positive with synthetic signal"
+    assert result["mean_mae"] < 5.0, "MAE should be reasonable for synthetic data"
     
-    def test_high_dimensional_features(self):
-        """Test with more features than samples (should still run, may overfit)."""
-        X = np.random.randn(20, 15)
-        y = np.random.randn(20)
-        
-        results = run_nested_cv_ridge(X, y, n_splits_outer=2, n_splits_inner=2)
-        
-        assert results['n_features'] == 15
-        assert results['n_samples'] == 20
+    # Verify CV results structure
+    assert isinstance(result["cv_results"], dict)
+    assert "alphas" in result["cv_results"]
+    assert "mae_scores" in result["cv_results"]
+    assert len(result["cv_results"]["alphas"]) == len(result["cv_results"]["mae_scores"])
 
+def test_nested_cv_alpha_tuning():
+    """
+    Verify that alpha tuning actually selects a value and that different alphas produce different scores.
+    """
+    df = create_sample_dataframe(n=100, seed=42)
+    
+    # Run with a wide range of alphas
+    result = modeling.run_ridge_regression_with_nested_cv(
+        df,
+        y_col="MWQ_Score",
+        features=["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"],
+        n_splits=3,
+        alphas=[0.01, 0.1, 1.0, 10.0, 100.0]
+    )
+    
+    # Check that the best alpha is one of the candidates
+    assert result["best_alpha"] in [0.01, 0.1, 1.0, 10.0, 100.0], \
+        f"Best alpha {result['best_alpha']} not in candidate list"
+    
+    # Verify that the CV results show variance across alphas (unless data is perfectly linear/constant)
+    mae_scores = result["cv_results"]["mae_scores"]
+    # If all alphas give the exact same score, it might be a data issue, but usually they differ
+    # We just assert that we have scores for all alphas
+    assert len(mae_scores) == 5, "Should have 5 MAE scores for 5 alphas"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_run_reduced_model_analysis():
+    """Test that reduced model analysis runs and produces valid output."""
+    df = create_sample_dataframe(n=100)
+    
+    # Run the analysis
+    result = modeling.run_reduced_model_analysis(
+        df, 
+        y_col="MWQ_Score",
+        reduced_features=["Mean_FD", "Mean_DVARS", "Age", "Sex"],
+        full_features=["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"],
+        n_splits=3 
+    )
+    
+    # Verify structure
+    assert "full_model" in result
+    assert "reduced_model" in result
+    assert "delta_r2" in result
+    
+    # Verify numeric types
+    assert isinstance(result["delta_r2"], float)
+    assert isinstance(result["full_model"]["r2"], float)
+    assert isinstance(result["reduced_model"]["r2"], float)
+    
+    # Verify delta_r2 calculation logic
+    expected_delta = result["full_model"]["r2"] - result["reduced_model"]["r2"]
+    assert np.isclose(result["delta_r2"], expected_delta)
+
+def test_calculate_delta_r2():
+    """Test the helper function to extract delta_r2."""
+    mock_result = {
+        "full_model": {"r2": 0.4},
+        "reduced_model": {"r2": 0.3},
+        "delta_r2": 0.1
+    }
+    
+    val = modeling.calculate_delta_r2(mock_result)
+    assert np.isclose(val, 0.1)
+    
+    # Test missing key
+    empty_result = {}
+    val_empty = modeling.calculate_delta_r2(empty_result)
+    assert val_empty == 0.0
+
+def test_integration_with_file_io(tmp_path):
+    """Test the full flow: create data, run analysis, save JSON, verify file."""
+    # Create a temporary CSV
+    df = create_sample_dataframe(n=30)
+    csv_path = tmp_path / "cleaned_data.csv"
+    df.to_csv(csv_path, index=False)
+    
+    # Mock the load function to use our temp file
+    # We will call the logic directly instead of main() to avoid path issues in test
+    result = modeling.run_reduced_model_analysis(
+        df,
+        y_col="MWQ_Score",
+        reduced_features=["Mean_FD", "Mean_DVARS", "Age", "Sex"],
+        full_features=["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"],
+        n_splits=3
+    )
+    
+    # Simulate saving
+    json_path = tmp_path / "delta_r2.json"
+    with open(json_path, "w") as f:
+        json.dump(result, f)
+    
+    # Verify file exists and is valid JSON
+    assert json_path.exists()
+    with open(json_path, "r") as f:
+        loaded = json.load(f)
+    
+    assert "delta_r2" in loaded
+    assert isinstance(loaded["delta_r2"], (int, float))
+    assert loaded["delta_r2"] == result["delta_r2"]

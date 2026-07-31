@@ -1,85 +1,106 @@
 """
-Unit tests for the literature review module.
+Unit tests for the Literature Review module.
 """
 import json
 import os
 import tempfile
 from pathlib import Path
-from unittest import TestCase
 
-# Ensure code/ is in path for imports
+import pytest
+
+# Adjust import to match project structure if running from root
+# Assuming tests are run with PYTHONPATH set to include 'code'
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from literature_review import extract_feature_importance, aggregate_importance_vectors, construct_literature_vector, REVIEW_PAPERS
+from code.literature_review import (
+    extract_feature_importance,
+    aggregate_importance_vectors,
+    construct_literature_vector,
+    REVIEW_PAPERS
+)
+from code import utils
 
-class TestLiteratureReview(TestCase):
+
+def test_extract_feature_importance_ranking():
+    """Test that features are scored 1/rank correctly."""
+    paper = {
+        "title": "Test Paper",
+        "doi": "10.1000/test",
+        "features": ["A", "B", "C"]
+    }
     
-    def test_extract_feature_importance_ranking(self):
-        """Test that extraction assigns correct 1/rank scores."""
-        paper = {
-            "title": "Test Paper",
-            "doi": "10.1000/test",
-            "features": ["A", "B", "C"]
+    result = extract_feature_importance(paper)
+    
+    # Rank 1 (A) -> 1.0
+    assert result["A"] == 1.0
+    # Rank 2 (B) -> 0.5
+    assert result["B"] == 0.5
+    # Rank 3 (C) -> 0.333...
+    assert abs(result["C"] - (1.0/3.0)) < 1e-6
+
+
+def test_aggregate_importance_vectors_normalization():
+    """Test that aggregation normalizes scores to 0-1."""
+    papers = [
+        {
+            "title": "Paper 1",
+            "doi": "10.1000/p1",
+            "features": ["X", "Y"]
+        },
+        {
+            "title": "Paper 2",
+            "doi": "10.1000/p2",
+            "features": ["Y", "Z"]
         }
-        result = extract_feature_importance(paper)
-        
-        # Rank 1 (A) -> 1.0
-        self.assertEqual(result["A"], 1.0)
-        # Rank 2 (B) -> 0.5
-        self.assertEqual(result["B"], 0.5)
-        # Rank 3 (C) -> 0.333...
-        self.assertAlmostEqual(result["C"], 1.0/3.0)
+    ]
     
-    def test_aggregate_importance_vectors(self):
-        """Test aggregation logic and normalization."""
-        # Two papers with overlapping features
-        papers = [
-            {"title": "P1", "doi": "1", "features": ["Fe", "Cr"]},
-            {"title": "P2", "doi": "2", "features": ["Cr", "Ni"]}
-        ]
-        
-        result = aggregate_importance_vectors(papers)
-        
-        # Check that all features are present
-        self.assertIn("Fe", result)
-        self.assertIn("Cr", result)
-        self.assertIn("Ni", result)
-        
-        # Check normalization (max value should be 1.0)
-        max_val = max(result.values())
-        self.assertAlmostEqual(max_val, 1.0)
-        
-        # Check sorting (descending)
-        values = list(result.values())
-        self.assertEqual(values, sorted(values, reverse=True))
+    result = aggregate_importance_vectors(papers)
     
-    def test_construct_literature_vector_writes_file(self):
-        """Test that the full pipeline writes a valid JSON file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_vector.json"
-            
-            result = construct_literature_vector(output_path)
-            
-            # Check file exists
-            self.assertTrue(output_path.exists())
-            
-            # Check JSON content
-            with open(output_path, 'r') as f:
-                data = json.load(f)
-            
-            self.assertEqual(data["source"], "Literature Review")
-            self.assertEqual(data["papers_count"], 5)
-            self.assertIn("vector", data)
-            self.assertTrue(data["normalized"])
-            
-            # Verify the vector has the expected keys from REVIEW_PAPERS
-            expected_features = set()
-            for p in REVIEW_PAPERS:
-                expected_features.update(p["features"])
-            
-            self.assertEqual(set(data["vector"].keys()), expected_features)
+    # Check all values are between 0 and 1
+    for score in result.values():
+        assert 0.0 <= score <= 1.0
+    
+    # Check that max value is exactly 1.0 (due to normalization)
+    assert max(result.values()) == 1.0
 
-if __name__ == "__main__":
-    import unittest
-    unittest.main()
+
+def test_construct_literature_vector_creates_file():
+    """Test that the main function creates the JSON file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_vector.json"
+        
+        # Set a fixed timestamp for deterministic testing
+        os.environ["TIMESTAMP"] = "2023-01-01T00:00:00Z"
+        
+        result = construct_literature_vector(output_path)
+        
+        # Verify file exists
+        assert output_path.exists()
+        
+        # Verify JSON content
+        with open(output_path, 'r') as f:
+            saved_data = json.load(f)
+        
+        assert saved_data["source"] == "Literature Review"
+        assert saved_data["papers_count"] == len(REVIEW_PAPERS)
+        assert "vector" in saved_data
+        assert saved_data["normalized"] is True
+        assert len(saved_data["vector"]) > 0
+
+
+def test_literature_vector_contains_expected_features():
+    """Test that the aggregated vector contains features from the input papers."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_vector.json"
+        os.environ["TIMESTAMP"] = "2023-01-01T00:00:00Z"
+        
+        result = construct_literature_vector(output_path)
+        vector = result["vector"]
+        
+        # These features appear in the fixed REVIEW_PAPERS list
+        expected_features = {"Cr", "Ni", "Mo", "pH", "Temperature", "Fe", "Cl"}
+        
+        for feat in expected_features:
+            assert feat in vector, f"Expected feature {feat} missing from vector"

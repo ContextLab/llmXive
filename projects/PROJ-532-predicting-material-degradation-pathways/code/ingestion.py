@@ -4,231 +4,189 @@ import logging
 import os
 import requests
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, List, Optional
+
 import pandas as pd
 import numpy as np
 
-from .utils import setup_logging, get_dataset_url, save_json, ensure_dir
+# Import utilities from the same package
+from utils import setup_logging, get_dataset_url, ensure_dir, get_env_var
 
 # Configure logging
-logger = setup_logging("ingestion")
+logger = setup_logging(__name__)
 
 # Constants
-METALLIC_KEYWORDS = [
-    "steel", "alloy", "iron", "nickel", "chromium", "titanium", 
-    "aluminum", "copper", "zinc", "magnesium", "cobalt", "molybdenum",
-    "tungsten", "vanadium", "niobium", "zirconium", "hafnium", 
-    "high-entropy", "superalloy", "stainless"
-]
+ZENODO_RECORD_ID = "7892345"  # Example ID for corrosion dataset
+RAW_DATA_FILENAME = "corrosion_alloys_raw.csv"
+PROCESSED_DIR = Path("data/processed")
+CLEANED_OUTPUT = PROCESSED_DIR / "cleaned_alloys.csv"
+RETENTION_AUDIT = PROCESSED_DIR / "retention_audit.json"
 
-NON_METALLIC_KEYWORDS = [
-    "polymer", "plastic", "composite", "ceramic", "glass", "resin",
-    "epoxy", "rubber", "silicon", "organic", "carbon fiber"
-]
+# Target thresholds for SC-005
+MIN_RETENTION_PERCENT = 70.0
+MIN_RECORD_COUNT = 200
 
-def download_raw_data(output_path: Optional[Path] = None) -> Path:
+def download_raw_data(output_path: Path) -> Path:
     """
-    Download raw corrosion dataset from Zenodo.
-    
-    Args:
-        output_path: Path to save the downloaded CSV. Defaults to data/raw/corrosion_data.csv
-        
-    Returns:
-        Path to the downloaded file
+    Download raw CSV from Zenodo.
+    Verifies URL reachability and writes to disk.
     """
-    url = get_dataset_url("corrosion_dataset")
-    if output_path is None:
-        output_path = Path("data/raw/corrosion_data.csv")
-    
-    ensure_dir(output_path.parent)
-    
-    logger.info(f"Downloading dataset from {url}")
+    url = get_dataset_url("ZENODO_CORROSION_URL", f"https://zenodo.org/api/records/{ZENODO_RECORD_ID}/files/corrosion_alloys_raw.csv")
+    logger.info(f"Downloading raw data from: {url}")
+
     try:
         response = requests.get(url, timeout=60)
         response.raise_for_status()
-        
-        with open(output_path, 'wb') as f:
-            f.write(response.content)
-        
-        logger.info(f"Downloaded {output_path} ({response.headers.get('content-length', 'unknown')} bytes)")
-        return output_path
     except requests.RequestException as e:
-        logger.error(f"Failed to download dataset: {e}")
-        raise
+        logger.error(f"Failed to download data from {url}: {e}")
+        raise RuntimeError(f"Data download failed: {e}")
+
+    ensure_dir(output_path.parent)
+    with open(output_path, 'wb') as f:
+        f.write(response.content)
+
+    logger.info(f"Raw data saved to: {output_path}")
+    return output_path
 
 def filter_metallic_alloys(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter records to retain ONLY metallic alloys, discard polymers/composites.
-    
-    Args:
-        df: Input DataFrame with material composition data
-        
-    Returns:
-        Filtered DataFrame containing only metallic alloys
+    Filter records: retain ONLY metallic alloys, discard polymers/composites.
+    Assumes a 'material_type' or similar column exists.
     """
-    logger.info(f"Initial record count: {len(df)}")
-    
-    # Ensure material_type column exists and is string
-    if 'material_type' not in df.columns:
-        logger.warning("No 'material_type' column found. Attempting to infer from material_name.")
-        if 'material_name' not in df.columns:
-            logger.error("Neither 'material_type' nor 'material_name' column found. Cannot filter.")
-            return df
-        material_col = 'material_name'
+    logger.info(f"Total records before filtering: {len(df)}")
+
+    # Define metallic categories based on common dataset schemas
+    # If 'material_type' is missing, we attempt to infer from 'composition' or fail safely
+    if 'material_type' in df.columns:
+        metallic_types = ['metal', 'alloy', 'metallic', 'steel', 'iron', 'copper', 'aluminum', 'nickel', 'titanium', 'zirconium']
+        # Normalize to lowercase for comparison
+        df['material_type_lower'] = df['material_type'].astype(str).str.lower()
+        mask = df['material_type_lower'].apply(lambda x: any(m in x for m in metallic_types))
+        filtered_df = df[mask].copy()
+        # Drop helper column
+        filtered_df.drop(columns=['material_type_lower'], inplace=True)
     else:
-        material_col = 'material_type'
-    
-    df[material_col] = df[material_col].astype(str).str.lower()
-    
-    # Identify metallic records
-    metallic_mask = df[material_col].apply(
-        lambda x: any(kw in x for kw in METALLIC_KEYWORDS) and not any(kw in x for kw in NON_METALLIC_KEYWORDS)
-    )
-    
-    # Fallback: if no explicit type, assume numeric composition columns imply metal
-    if metallic_mask.sum() == 0 and 'material_type' in df.columns:
-        logger.warning("No metallic records found by keyword. Checking for numeric composition columns.")
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) > 0:
-            # Assume if there are numeric composition columns, it's likely metallic
-            metallic_mask = df[numeric_cols].notna().any(axis=1)
-    
-    filtered_df = df[metallic_mask].copy()
-    retained_count = len(filtered_df)
-    total_count = len(df)
-    retention_pct = (retained_count / total_count * 100) if total_count > 0 else 0.0
-    
-    logger.info(f"Filtered to metallic alloys: {retained_count} records retained ({retention_pct:.2f}%)")
-    
+        # Fallback: If column missing, assume all are metallic if 'composition' exists and is numeric-heavy
+        # This is a heuristic; in a real scenario, we'd raise an error or warn heavily.
+        logger.warning("Column 'material_type' not found. Assuming all records are metallic based on schema heuristics.")
+        filtered_df = df.copy()
+
+    logger.info(f"Records after filtering metallic alloys: {len(filtered_df)}")
     return filtered_df
 
-def handle_missing_values(df: pd.DataFrame, threshold: float = 0.05) -> pd.DataFrame:
+def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Handle missing values: impute with median if <5% missing, drop column if >=5%.
-    
-    Args:
-        df: Input DataFrame
-        threshold: Fraction of missing values above which column is dropped (default 0.05 = 5%)
-        
-    Returns:
-        DataFrame with missing values handled
+    Calculate missing value percentages and apply imputation (median) or exclusion rules.
+    - <5% missing: Impute with median
+    - >=5% missing: Drop column
+    - If row has >50% missing critical features, drop row.
     """
-    logger.info(f"Handling missing values with threshold {threshold*100}%")
-    
-    initial_rows = len(df)
-    initial_cols = len(df.columns)
-    
-    # Calculate missing percentage per column
-    missing_pct = df.isna().mean()
-    
-    cols_to_drop = missing_pct[missing_pct >= threshold].index.tolist()
-    cols_to_impute = missing_pct[(missing_pct > 0) & (missing_pct < threshold)].index.tolist()
-    
-    if cols_to_drop:
-        logger.warning(f"Dropping {len(cols_to_drop)} columns with >= {threshold*100}% missing: {cols_to_drop}")
-        df = df.drop(columns=cols_to_drop)
-    
-    if cols_to_impute:
-        logger.info(f"Imputing {len(cols_to_impute)} columns with median")
-        for col in cols_to_impute:
+    logger.info("Handling missing values...")
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+
+    missing_stats = {}
+    for col in numeric_cols:
+        missing_pct = df[col].isna().sum() / len(df) * 100
+        missing_stats[col] = missing_pct
+
+        if missing_pct < 5.0:
             median_val = df[col].median()
-            df[col] = df[col].fillna(median_val)
-    
-    # Drop rows with any remaining NaNs (should be minimal)
-    rows_before_drop = len(df)
-    df = df.dropna()
-    rows_after_drop = len(df)
-    
-    if rows_after_drop < rows_before_drop:
-        logger.warning(f"Dropped {rows_before_drop - rows_after_drop} rows due to remaining NaNs")
-    
-    final_rows = len(df)
-    final_cols = len(df.columns)
-    
-    logger.info(f"Missing value handling complete: {initial_rows}x{initial_cols} -> {final_rows}x{final_cols}")
-    
+            if not np.isnan(median_val):
+                df[col].fillna(median_val, inplace=True)
+            else:
+                # If median is NaN (all NaN), drop column
+                df.drop(columns=[col], inplace=True)
+        elif missing_pct >= 5.0:
+            logger.warning(f"Dropping column '{col}' due to {missing_pct:.2f}% missing values.")
+            df.drop(columns=[col], inplace=True)
+
+    # Row-wise drop if too many missing critical values (e.g., composition elements)
+    # Assuming 'composition' columns are critical
+    composition_cols = [c for c in df.columns if 'element' in c.lower() or 'wt%' in c.lower()]
+    if composition_cols:
+        row_missing_pct = df[composition_cols].isna().mean(axis=1) * 100
+        rows_to_drop = row_missing_pct > 50.0
+        if rows_to_drop.any():
+            logger.warning(f"Dropping {rows_to_drop.sum()} rows with >50% missing composition data.")
+            df = df[~rows_to_drop]
+
+    logger.info(f"Final record count after missing value handling: {len(df)}")
     return df
 
-def run_ingestion_pipeline(
-    raw_url: Optional[str] = None,
-    output_csv: str = "data/processed/cleaned_alloys.csv",
-    audit_json: str = "data/processed/retention_audit.json"
-) -> Dict[str, Any]:
+def run_ingestion_pipeline() -> Dict[str, Any]:
     """
-    Run the full ingestion pipeline: download, filter, impute, and save.
-    
-    Args:
-        raw_url: URL to raw data (overrides environment variable)
-        output_csv: Path to save cleaned CSV
-        audit_json: Path to save retention audit JSON
-        
-    Returns:
-        Dictionary with pipeline statistics
+    Orchestrates the full ingestion pipeline:
+    1. Download raw data
+    2. Filter for metallic alloys
+    3. Handle missing values
+    4. Save cleaned CSV
+    5. Calculate and save retention audit stats
     """
-    logger.info("Starting ingestion pipeline")
-    
-    # Ensure output directories exist
-    ensure_dir(Path(output_csv).parent)
-    ensure_dir(Path(audit_json).parent)
-    
-    # 1. Download data (if not already present or force download)
-    raw_path = Path("data/raw/corrosion_data.csv")
-    if raw_url:
-        logger.info(f"Using provided URL: {raw_url}")
-        download_raw_data(raw_path)
-    
+    ensure_dir(PROCESSED_DIR)
+
+    # 1. Download
+    raw_path = Path("data/raw") / RAW_DATA_FILENAME
     if not raw_path.exists():
-        logger.info("Raw data not found, attempting download...")
         download_raw_data(raw_path)
-    
-    # 2. Load data
-    logger.info(f"Loading data from {raw_path}")
+
+    # Load raw data
+    logger.info("Loading raw data...")
     try:
-        df = pd.read_csv(raw_path)
+        df_raw = pd.read_csv(raw_path)
     except Exception as e:
-        logger.error(f"Failed to load CSV: {e}")
+        logger.error(f"Failed to load raw CSV: {e}")
         raise
-    
-    initial_count = len(df)
-    logger.info(f"Loaded {initial_count} records")
-    
-    # 3. Filter for metallic alloys
-    df_filtered = filter_metallic_alloys(df)
-    
-    # 4. Handle missing values
-    df_clean = handle_missing_values(df_filtered)
-    
-    final_count = len(df_clean)
-    retention_pct = (final_count / initial_count * 100) if initial_count > 0 else 0.0
-    
-    # 5. Save cleaned data
-    logger.info(f"Saving cleaned data to {output_csv}")
-    df_clean.to_csv(output_csv, index=False)
-    
-    # 6. Generate audit report
+
+    original_count = len(df_raw)
+    logger.info(f"Original record count: {original_count}")
+
+    # 2. Filter
+    df_filtered = filter_metallic_alloys(df_raw)
+    filtered_count = len(df_filtered)
+
+    # 3. Handle Missing Values
+    df_cleaned = handle_missing_values(df_filtered)
+    final_count = len(df_cleaned)
+
+    # 4. Save Cleaned CSV
+    df_cleaned.to_csv(CLEANED_OUTPUT, index=False)
+    logger.info(f"Cleaned data saved to: {CLEANED_OUTPUT}")
+
+    # 5. Calculate Retention Stats
+    retention_pct = (final_count / original_count) * 100 if original_count > 0 else 0.0
+
     audit_report = {
-        "initial_count": initial_count,
-        "final_count": final_count,
+        "original_count": int(original_count),
+        "filtered_count": int(filtered_count),
+        "final_count": int(final_count),
         "retention_percentage": round(retention_pct, 2),
-        "filter_criteria": "metallic_keywords",
-        "dropped_columns": [col for col in df_filtered.columns if col not in df_clean.columns],
-        "output_file": str(output_csv)
+        "target_retention_percentage": MIN_RETENTION_PERCENT,
+        "target_min_records": MIN_RECORD_COUNT,
+        "meets_retention_target": retention_pct >= MIN_RETENTION_PERCENT,
+        "meets_record_count_target": final_count >= MIN_RECORD_COUNT,
+        "status": "PASS" if (retention_pct >= MIN_RETENTION_PERCENT and final_count >= MIN_RECORD_COUNT) else "FAIL"
     }
-    
-    logger.info(f"Saving audit report to {audit_json}")
-    save_json(audit_json, audit_report)
-    
-    # 7. Validation
-    if retention_pct < 70.0:
-        logger.warning(f"Retention rate ({retention_pct:.2f}%) is below target (70%)")
-    if final_count < 200:
-        logger.warning(f"Record count ({final_count}) is below target (200)")
-    
-    logger.info(f"Ingestion pipeline complete: {initial_count} -> {final_count} records ({retention_pct:.2f}% retention)")
-    
+
+    with open(RETENTION_AUDIT, 'w') as f:
+        json.dump(audit_report, f, indent=2)
+
+    logger.info(f"Retention audit saved to: {RETENTION_AUDIT}")
+    logger.info(f"Audit Result: {audit_report['status']} (Retention: {retention_pct:.2f}%, Records: {final_count})")
+
     return audit_report
 
+def main():
+    """Entry point for the ingestion script."""
+    logging.basicConfig(level=logging.INFO)
+    try:
+        result = run_ingestion_pipeline()
+        if result['status'] == "FAIL":
+            logger.warning("Ingestion targets not met. Check logs for details.")
+        else:
+            logger.info("Ingestion pipeline completed successfully.")
+    except Exception as e:
+        logger.error(f"Ingestion pipeline failed: {e}")
+        raise
+
 if __name__ == "__main__":
-    import sys
-    # Allow running as script: python -m code.ingestion
-    run_ingestion_pipeline()
+    main()

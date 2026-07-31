@@ -129,6 +129,9 @@ def construct_literature_vector(output_path: Path) -> Dict[str, Any]:
     
     vector = aggregate_importance_vectors(REVIEW_PAPERS)
     
+    # Get timestamp from environment or use a default ISO format
+    timestamp = utils.get_env_var("TIMESTAMP", "2023-10-27T00:00:00Z")
+    
     result = {
         "source": "Literature Review",
         "papers_count": len(REVIEW_PAPERS),
@@ -136,7 +139,7 @@ def construct_literature_vector(output_path: Path) -> Dict[str, Any]:
         "vector": vector,
         "normalized": True,
         "method": "Citation-weighted average of ranked features (1/rank)",
-        "timestamp": utils.get_env_var("TIMESTAMP", "2023-10-27T00:00:00Z") # Placeholder or env var
+        "timestamp": timestamp
     }
     
     utils.ensure_dir(output_path.parent)

@@ -1,1 +1,2 @@
-.gitkeep
+# This directory stores processed, scored, and analyzed data artifacts.
+# Generated files: preprocessed_text.csv, scoring_results.csv, proxy_results.csv, etc.

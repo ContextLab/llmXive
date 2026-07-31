@@ -42,7 +42,7 @@
 - [X] T004a [P] Update spec.md SC-004 to explicitly define the -hour runtime threshold (or flag for spec revision if spec edit is out of scope for this task file)
 - [X] T005 [P] Setup `code/__init__.py` and `tests/__init__.py`
 - [X] T006 [P] Create `code/services/__init__.py`, `code/analysis/__init__.py`, `code/viz/__init__.py`
-- [ ] T007 Create `code/main.py` pipeline orchestrator skeleton
+- [X] T007 Create `code/main.py` pipeline orchestrator skeleton
 - [ ] T008 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
 - [ ] T009 [P] Configure `pytest` with `pytest-cov` in `tests/`
 
@@ -58,15 +58,15 @@
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Unit test for data ingestion in `tests/unit/test_data_ingestion.py` (use a fixed sample file for real-world constraints, or mock for logic only)
-- [ ] T011 [P] [US1] Unit test for anxiety scoring in `tests/unit/test_anxiety_scoring.py` (mock model output)
+- [X] T010 [P] [US1] Unit test for data ingestion in `tests/unit/test_data_ingestion.py` (use a fixed sample file for real-world constraints, or mock for logic only)
+- [X] T011 [P] [US1] Unit test for anxiety scoring in `tests/unit/test_anxiety_scoring.py` (mock model output)
 - [X] T012 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_validation.py` (runs on a sample of rows)
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/services/data_ingestion.py` to download dataset 'cardiffnlp/tweet_sentiment_extraction' (or verified public equivalent) from HuggingFace to `data/raw/social_media.csv` with checksum validation
-- [~] T014a [US1] [US1-AS3] Implement non-English/gibberish filtering logic in `code/services/anxiety_scoring.py` using `langdetect` library (threshold set at a high level) to produce `data/processed/preprocessed_text.csv` (integrate logic directly into pipeline)
-- [~] T015 [US1] Implement CPU-tractable anxiety model inference in `code/services/anxiety_scoring.py` (load 'cardiffnlp/twitter-roberta-base-emotion' in default float32 precision, NO 8-bit/4-bit quantization), reading from the artifact produced by T014a (`data/processed/preprocessed_text.csv`)
+- [X] T013 [US1] Implement `code/services/data_ingestion.py` to download dataset 'cardiffnlp/tweet_sentiment_extraction' (or verified public equivalent) from HuggingFace to `data/raw/social_media.csv` with checksum validation
+- [ ] T014a [US1] [US1-AS3] Implement non-English/gibberish filtering logic in `code/services/anxiety_scoring.py` using `langdetect` library (threshold set at a high level) to produce `data/processed/preprocessed_text.csv` (integrate logic directly into pipeline)
+- [ ] T015 [US1] Implement CPU-tractable anxiety model inference in `code/services/anxiety_scoring.py` (load 'cardiffnlp/twitter-roberta-base-emotion' in default float32 precision, NO 8-bit/4-bit quantization), reading from the artifact produced by T014a (`data/processed/preprocessed_text.csv`)
 - [X] T016 [US1] Implement confidence score filtering (threshold ≥ 0.6) in `code/services/anxiety_scoring.py` to exclude low-confidence predictions before saving
 - [ ] T017 [US1] Save scored and filtered data to `data/processed/scoring_results.csv` with columns: `text`, `anxiety_score`, `confidence_score`
 - [X] T018 [US1] Add error handling for empty datasets or download failures in `code/services/data_ingestion.py`
@@ -89,7 +89,7 @@
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `code/services/proxy_extractor.py` to read `data/raw/social_media.csv` (produced by T013)
+- [ ] T021 [US2] Implement `code/services/proxy_extractor.py` to read `data/raw/social_media.csv` (produced by T013)
 - [~] T022 [US2] Implement logic to calculate `filter_applied` contribution to `control_proxy` (e.g., +1.0 if flag present)
 - [X] T023 [US2] Implement logic to calculate `timestamp_regularity` metric per user in `code/services/proxy_extractor.py`
 - [~] T024 [US2] Ensure `control_proxy` calculation uses ONLY metadata fields (no text content access) to satisfy Constitution Principle VI

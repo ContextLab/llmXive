@@ -3,237 +3,212 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
+
 import numpy as np
-from sklearn.linear_model import RidgeCV, Ridge
-from sklearn.model_selection import KFold, cross_val_score
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import r2_score, mean_absolute_error
 import pandas as pd
-from config import ensure_directories
+from sklearn.linear_model import RidgeCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import KFold
 from utils import get_logger, read_csv, write_json
 
 logger = get_logger(__name__)
 
-def load_cleaned_data(data_path: str) -> pd.DataFrame:
-    """Load the cleaned data CSV."""
-    logger.info(f"Loading cleaned data from {data_path}")
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Cleaned data file not found: {data_path}")
-    df = pd.read_csv(data_path)
-    logger.info(f"Loaded {len(df)} subjects")
+def load_cleaned_data(filepath: str) -> pd.DataFrame:
+    """Load the cleaned dataset from CSV."""
+    path = Path(filepath)
+    if not path.exists():
+        raise FileNotFoundError(f"Cleaned data file not found: {filepath}")
+    df = pd.read_csv(path)
     return df
 
-def prepare_model_data(df: pd.DataFrame, target_col: str = "MWQ_Score") -> Tuple[np.ndarray, np.ndarray, List[str]]:
+def prepare_model_data(
+    df: pd.DataFrame,
+    y_col: str = "MWQ_Score",
+    x_cols: List[str] = None
+) -> Tuple[np.ndarray, np.ndarray, Dict[str, int]]:
     """
-    Prepare X (features) and y (target) from the dataframe.
-    Returns scaled features, target, and feature names.
+    Prepare X and y arrays.
+    Returns X, y, and a mapping of feature names to indices.
     """
-    feature_cols = ["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"]
-    # Ensure all required columns exist
-    missing_cols = [c for c in feature_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in data: {missing_cols}")
+    if x_cols is None:
+        # Default full model features
+        x_cols = ["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"]
+    
+    # Ensure columns exist
+    missing = [c for c in x_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing columns in data: {missing}")
+    
+    X = df[x_cols].to_numpy()
+    y = df[y_col].to_numpy()
+    
+    return X, y, {name: i for i, name in enumerate(x_cols)}
 
-    X = df[feature_cols].values
-    y = df[target_col].values
-    return X, y, feature_cols
-
-def run_ridge_regression_with_nested_cv(X: np.ndarray, y: np.ndarray, feature_names: List[str], alphas: Optional[List[float]] = None) -> Dict[str, Any]:
+def run_ridge_regression_with_nested_cv(
+    X: np.ndarray,
+    y: np.ndarray,
+    n_splits: int = 5,
+    alphas: Optional[np.ndarray] = None
+) -> Tuple[float, float, float, RidgeCV, Dict[str, float]]:
     """
-    Run Ridge regression with nested 5-fold CV for alpha tuning.
-    Returns metrics and best alpha.
+    Run Ridge Regression with nested 5-fold CV.
+    Returns: mean MAE, mean Pearson r, mean R2, best model, metrics dict.
     """
     if alphas is None:
-        alphas = [0.1, 1.0, 10.0, 100.0]
-
-    outer_cv = KFold(n_splits=5, shuffle=True, random_state=42)
-    inner_cv = KFold(n_splits=5, shuffle=True, random_state=42)
-
-    pipe = Pipeline([
-        ('scaler', StandardScaler()),
-        ('ridge', RidgeCV(alphas=alphas, cv=inner_cv))
-    ])
-
-    # Outer loop for evaluation
+        alphas = np.logspace(-3, 3, 50)
+    
+    n_samples = X.shape[0]
+    outer_cv = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+    
     mae_scores = []
+    r_scores = []
     r2_scores = []
-    y_pred_list = []
-    y_true_list = []
-
+    
+    # We need to scale X per fold to avoid leakage
+    scaler = StandardScaler()
+    
     for train_idx, test_idx in outer_cv.split(X):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
-
-        pipe.fit(X_train, y_train)
-        y_pred = pipe.predict(X_test)
-
-        mae_scores.append(mean_absolute_error(y_test, y_pred))
-        r2_scores.append(r2_score(y_test, y_pred))
-        y_pred_list.extend(y_pred)
-        y_true_list.extend(y_test)
-
-    return {
-        "mean_mae": float(np.mean(mae_scores)),
-        "std_mae": float(np.std(mae_scores)),
-        "mean_r2": float(np.mean(r2_scores)),
-        "std_r2": float(np.std(r2_scores)),
-        "pearson_r": float(np.corrcoef(y_true_list, y_pred_list)[0, 1]),
-        "best_alpha": float(pipe.named_steps['ridge'].alpha_),
-        "predictions": y_pred_list,
-        "actuals": y_true_list
-    }
-
-def run_null_distribution_analysis(X: np.ndarray, y: np.ndarray, feature_names: List[str], n_permutations: int = 1000, alphas: Optional[List[float]] = None) -> Dict[str, Any]:
-    """
-    Generate null distribution by permuting y and running the full pipeline.
-    """
-    if alphas is None:
-        alphas = [0.1, 1.0, 10.0, 100.0]
-
-    outer_cv = KFold(n_splits=5, shuffle=True, random_state=42)
-    inner_cv = KFold(n_splits=5, shuffle=True, random_state=42)
-    pipe = Pipeline([
-        ('scaler', StandardScaler()),
-        ('ridge', RidgeCV(alphas=alphas, cv=inner_cv))
-    ])
-
-    null_maes = []
-    logger.info(f"Running {n_permutations} permutations for null distribution...")
-
-    for i in range(n_permutations):
-        if (i + 1) % 100 == 0:
-            logger.info(f"Permutation {i + 1}/{n_permutations}")
         
-        y_perm = y.copy()
-        np.random.shuffle(y_perm)
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
         
-        maes = []
-        for train_idx, test_idx in outer_cv.split(X):
-            X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_perm_test = y_perm[train_idx], y_perm[test_idx]
-            
-            pipe.fit(X_train, y_train)
-            y_pred = pipe.predict(X_test)
-            maes.append(mean_absolute_error(y_perm_test, y_pred))
+        # Inner CV is handled by RidgeCV internally
+        model = RidgeCV(alphas=alphas, store_cv_values=True)
+        model.fit(X_train_scaled, y_train)
         
-        null_maes.append(np.mean(maes))
-
-    return {
-        "null_mean_mae": float(np.mean(null_maes)),
-        "null_std_mae": float(np.std(null_maes)),
-        "null_distribution": null_maes
-    }
-
-def run_reduced_model_analysis(X: np.ndarray, y: np.ndarray, feature_names: List[str], alphas: Optional[List[float]] = None) -> Dict[str, Any]:
-    """
-    Run Reduced Model: Y ~ FD + DVARS + Age + Sex (excluding Global_Signal_SD).
-    Returns metrics for the reduced model.
-    """
-    # Identify indices for covariates only (exclude Global_Signal_SD which is usually first)
-    # Based on prepare_model_data order: ["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"]
-    covariate_indices = [1, 2, 3, 4] # Mean_FD, Mean_DVARS, Age, Sex
+        y_pred = model.predict(X_test_scaled)
+        
+        # Metrics
+        mae = np.mean(np.abs(y_test - y_pred))
+        r = np.corrcoef(y_test, y_pred)[0, 1]
+        ss_res = np.sum((y_test - y_pred) ** 2)
+        ss_tot = np.sum((y_test - np.mean(y_test)) ** 2)
+        r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+        
+        mae_scores.append(mae)
+        r_scores.append(r)
+        r2_scores.append(r2)
     
-    if alphas is None:
-        alphas = [0.1, 1.0, 10.0, 100.0]
+    # Fit final model on full data for return
+    X_scaled = scaler.fit_transform(X)
+    final_model = RidgeCV(alphas=alphas, store_cv_values=True)
+    final_model.fit(X_scaled, y)
+    
+    return (
+        np.mean(mae_scores),
+        np.mean(r_scores),
+        np.mean(r2_scores),
+        final_model,
+        {
+            "mae": np.mean(mae_scores),
+            "r": np.mean(r_scores),
+            "r2": np.mean(r2_scores),
+            "std_mae": np.std(mae_scores),
+            "std_r": np.std(r_scores),
+            "std_r2": np.std(r2_scores)
+        }
+    )
 
-    X_reduced = X[:, covariate_indices]
-    reduced_feature_names = [feature_names[i] for i in covariate_indices]
-
-    outer_cv = KFold(n_splits=5, shuffle=True, random_state=42)
-    inner_cv = KFold(n_splits=5, shuffle=True, random_state=42)
-
-    pipe = Pipeline([
-        ('scaler', StandardScaler()),
-        ('ridge', RidgeCV(alphas=alphas, cv=inner_cv))
-    ])
-
-    mae_scores = []
-    r2_scores = []
-    y_pred_list = []
-    y_true_list = []
-
-    for train_idx, test_idx in outer_cv.split(X_reduced):
-        X_train, X_test = X_reduced[train_idx], X_reduced[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
-
-        pipe.fit(X_train, y_train)
-        y_pred = pipe.predict(X_test)
-
-        mae_scores.append(mean_absolute_error(y_test, y_pred))
-        r2_scores.append(r2_score(y_test, y_pred))
-        y_pred_list.extend(y_pred)
-        y_true_list.extend(y_test)
-
+def run_reduced_model_analysis(
+    df: pd.DataFrame,
+    y_col: str = "MWQ_Score",
+    reduced_features: List[str] = None,
+    full_features: List[str] = None,
+    n_splits: int = 5
+) -> Dict[str, Any]:
+    """
+    Run Reduced Model (Y ~ FD + DVARS + Age + Sex) and compare to Full Model.
+    Calculates Delta R2 = R2_full - R2_reduced.
+    """
+    if reduced_features is None:
+        reduced_features = ["Mean_FD", "Mean_DVARS", "Age", "Sex"]
+    
+    if full_features is None:
+        full_features = ["Global_Signal_SD", "Mean_FD", "Mean_DVARS", "Age", "Sex"]
+    
+    # Validate columns
+    for col in full_features + [y_col]:
+        if col not in df.columns:
+            raise ValueError(f"Required column missing for full model: {col}")
+    
+    X_full, y, _ = prepare_model_data(df, y_col=y_col, x_cols=full_features)
+    X_reduced, _, _ = prepare_model_data(df, y_col=y_col, x_cols=reduced_features)
+    
+    # Run full model
+    mae_full, r_full, r2_full, model_full, metrics_full = run_ridge_regression_with_nested_cv(
+        X_full, y, n_splits=n_splits
+    )
+    
+    # Run reduced model
+    mae_red, r_red, r2_red, model_red, metrics_red = run_ridge_regression_with_nested_cv(
+        X_reduced, y, n_splits=n_splits
+    )
+    
+    delta_r2 = r2_full - r2_red
+    
+    logger.info(f"Full Model R2: {r2_full:.4f}")
+    logger.info(f"Reduced Model R2: {r2_red:.4f}")
+    logger.info(f"Delta R2 (Full - Reduced): {delta_r2:.4f}")
+    
     return {
-        "mean_mae": float(np.mean(mae_scores)),
-        "std_mae": float(np.std(mae_scores)),
-        "mean_r2": float(np.mean(r2_scores)),
-        "std_r2": float(np.std(r2_scores)),
-        "pearson_r": float(np.corrcoef(y_true_list, y_pred_list)[0, 1]),
-        "best_alpha": float(pipe.named_steps['ridge'].alpha_),
-        "feature_names": reduced_feature_names,
-        "predictions": y_pred_list,
-        "actuals": y_true_list
+        "full_model": {
+            "r2": r2_full,
+            "mae": mae_full,
+            "r": r_full,
+            "features": full_features
+        },
+        "reduced_model": {
+            "r2": r2_red,
+            "mae": mae_red,
+            "r": r_red,
+            "features": reduced_features
+        },
+        "delta_r2": delta_r2,
+        "metrics": {
+            "full": metrics_full,
+            "reduced": metrics_red
+        }
     }
 
-def calculate_delta_r2(full_model_results: Dict, reduced_model_results: Dict) -> float:
-    """
-    Calculate Delta R² = R²_full - R²_reduced.
-    """
-    delta_r2 = full_model_results["mean_r2"] - reduced_model_results["mean_r2"]
-    return float(delta_r2)
+def calculate_delta_r2(result_dict: Dict[str, Any]) -> float:
+    """Extract Delta R2 from the result dictionary."""
+    return result_dict.get("delta_r2", 0.0)
 
 def main():
     """
-    Main entry point for T023: Reduced Model Analysis and Delta R² calculation.
+    Main entry point for T023: Reduced Model Analysis.
+    Reads cleaned data, runs reduced vs full model, saves delta_r2.json.
     """
-    ensure_directories()
-    
+    # Paths
     data_path = "data/processed/cleaned_data.csv"
-    results_dir = Path("data/results")
-    results_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = Path("data/results")
+    output_path = output_dir / "delta_r2.json"
     
-    output_path = results_dir / "delta_r2.json"
-
-    logger.info("Starting Reduced Model Analysis (T023)...")
-
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load data
+    logger.info(f"Loading data from {data_path}")
     try:
         df = load_cleaned_data(data_path)
-        X, y, feature_names = prepare_model_data(df)
-        
-        logger.info("Running Full Model (for reference)...")
-        full_results = run_ridge_regression_with_nested_cv(X, y, feature_names)
-        logger.info(f"Full Model R²: {full_results['mean_r2']:.4f}")
-
-        logger.info("Running Reduced Model (Y ~ FD + DVARS + Age + Sex)...")
-        reduced_results = run_reduced_model_analysis(X, y, feature_names)
-        logger.info(f"Reduced Model R²: {reduced_results['mean_r2']:.4f}")
-
-        delta_r2 = calculate_delta_r2(full_results, reduced_results)
-        logger.info(f"Delta R² (Full - Reduced): {delta_r2:.4f}")
-
-        result_output = {
-            "full_model_r2": full_results["mean_r2"],
-            "reduced_model_r2": reduced_results["mean_r2"],
-            "delta_r2": delta_r2,
-            "full_model_mae": full_results["mean_mae"],
-            "reduced_model_mae": reduced_results["mean_mae"],
-            "methodology": "Y ~ FD + DVARS + Age + Sex (excluding Global_Signal_SD)",
-            "covariates": reduced_results["feature_names"]
-        }
-
-        write_json(result_output, str(output_path))
-        logger.info(f"Results written to {output_path}")
-
     except FileNotFoundError as e:
-        logger.error(f"Data file error: {e}")
+        logger.error(f"Failed to load data: {e}")
         raise
-    except Exception as e:
-        logger.error(f"Error during analysis: {e}")
-        raise
-
-    return result_output
+    
+    logger.info(f"Loaded {len(df)} subjects")
+    
+    # Run analysis
+    logger.info("Running Reduced Model Analysis (T023)...")
+    results = run_reduced_model_analysis(df)
+    
+    # Save results
+    logger.info(f"Saving results to {output_path}")
+    write_json(output_path, results)
+    
+    logger.info("T023 Complete: delta_r2.json generated.")
+    return results
 
 if __name__ == "__main__":
     main()

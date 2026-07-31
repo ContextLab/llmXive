@@ -1,0 +1,574 @@
+{
+  "fetched_at": "2026-07-31T16:19:08Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of Modern Optimizers\"",
+      "target_n": 5
+    },
+    "duration_seconds": 54.855,
+    "ended_at": "2026-07-31T16:19:08Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "modern optimizer taxonomy and benchmarking"
+        ],
+        [
+          2,
+          "geometry of optimization landscapes in deep learning"
+        ],
+        [
+          3,
+          "comparative analysis of adaptive gradient methods"
+        ],
+        [
+          4,
+          "second-order optimization algorithms for neural networks"
+        ],
+        [
+          5,
+          "convergence properties of LLM training optimizers"
+        ],
+        [
+          6,
+          "geometric perspective on Adam and its variants"
+        ],
+        [
+          7,
+          "benchmarking suite for deep learning optimizers"
+        ],
+        [
+          8,
+          "optimizer selection for large-scale language models"
+        ],
+        [
+          9,
+          "Hessian-free optimization techniques in transformer training"
+        ],
+        [
+          10,
+          "stochastic gradient descent variants for foundation models"
+        ],
+        [
+          11,
+          "curvature-aware optimization in deep neural networks"
+        ],
+        [
+          12,
+          "systematic review of optimization algorithms for AI"
+        ],
+        [
+          13,
+          "performance evaluation of modern optimizers on LLMs"
+        ],
+        [
+          14,
+          "adaptive learning rate schedules and their geometric interpretation"
+        ],
+        [
+          15,
+          "optimization challenges in training billion-parameter models"
+        ],
+        [
+          16,
+          "taxonomy of gradient-based optimization methods"
+        ],
+        [
+          17,
+          "empirical study of optimizer robustness in NLP"
+        ],
+        [
+          18,
+          "momentum-based optimization strategies for large models"
+        ],
+        [
+          19,
+          "geometric analysis of loss surfaces in deep learning"
+        ],
+        [
+          20,
+          "state-of-the-art optimizers for computer vision and language models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "geometry of optimization landscapes in deep learning": 5,
+        "llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of Modern Optimizers\" computer science": 0,
+        "modern optimizer taxonomy and benchmarking": 1
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "optimizer taxonomy geometry benchmarking",
+      "LLMXive adaptive learning rate schedulers",
+      "loss landscape curvature saddle point escape",
+      "training dynamics convergence rate held-out loss",
+      "data contamination benchmarking optimizer performance"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2607.04033"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLMXive adaptive learning rate schedulers": 3,
+      "data contamination benchmarking optimizer performance": 3,
+      "llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of Modern Optimizers\" computer science": 3,
+      "loss landscape curvature saddle point escape": 3,
+      "optimizer taxonomy geometry benchmarking": 3,
+      "training dynamics convergence rate held-out loss": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2306.11113",
+          "rationale": "The paper focuses on \"evidential deep learning\" and uncertainty quantification via belief theory, which is a distinct research construct from the user's question about \"modern optimizers\" (algorithms for minimizing loss functions like Adam, SGD, Lion, etc.). While both fall under the broad umbrella of deep learning, the paper does not measure optimizer properties, benchmark optimization algorithms, or address the taxonomy of optimizers, failing to meet the criteria for same-mechanism evidence, v",
+          "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice"
+        },
+        {
+          "primary_pointer": "2301.00942",
+          "rationale": "The paper is a general educational resource connecting deep learning concepts to computational physics, but it does not address the specific mechanism of modern optimizers, their taxonomy, or their geometric properties as requested in the user's question about extending the \"OmniOpt\" benchmark. It fails to meet any inclusion criteria (a-f) because it lacks the specific empirical focus on optimizer performance, classification, or geometry required for a literature review on this specific topic.",
+          "title": "Deep Learning and Computational Physics (Lecture Notes)"
+        },
+        {
+          "primary_pointer": "2603.29261",
+          "rationale": "The paper focuses on applying deep learning to estimate price elasticity in retail economics, which is a distinct domain and construct from the user's question about benchmarking and taxonomy of modern optimization algorithms for Large Language Models (LLMs). It fails to address the mechanism (optimizer geometry/taxonomy), the domain (LLM training), or the variables (optimization performance) specified in the user's query, constituting an off-domain rejection.",
+          "title": "Monodense Deep Neural Model for Determining Item Price Elasticity"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-31T16:18:14Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"omniopt: taxonomy, geometry, and benchmarking of modern optimizers\" computer science",
+      "raw": "llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of Modern Optimizers\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that the spheres in Hilbert geometry have the same volume growth entropy as those in the Lobachevsky space. We give the asymptotic estimates for the ratio of the volume of metric ball to the area of the metric sphere in Hilbert geometry. Derived estimates agree with the well-known fact in the Lobachevsky space",
+          "claimed_authors": [
+            "Alexander A. Borisenko",
+            "Eugeny A. Olin"
+          ],
+          "claimed_title": "Asymptotic Properties of Hilbert Geometry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0711.0446"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Asymptotic Properties of Hilbert Geometry')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper is based on a talk presented by the first author at the Short Program on Riemannian Geometry that took place at the Centre de Recherche Mathématiques, Université de Montréal, during the period June 28-July 16, 2004. It is a report on our joint work with János Kollár concerning the existence of an abundance of Einstein metrics on odd dimensional spheres, including exotic spheres.",
+          "claimed_authors": [
+            "Charles P. Boyer",
+            "Krzysztof Galicki"
+          ],
+          "claimed_title": "Sasakian Geometry and Einstein Metrics on Spheres",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0505221"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Sasakian Geometry and Einstein Metrics on Spheres')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper establishes the basis of the quaternionic differential geometry ($\\mathbbm H$DG) initiated in a previous article. The usual concepts of curves and surfaces are generalized to quaternionic constraints, as well as the curvature and torsion concepts, differential forms, directional derivatives and the structural equations. The analogy between the quaternionic and the real geometries is obtained using a matrix representation of quaternions. The results evidences the quaternionic formalism as a suitable language to differential geometry that can be useful in various directions of future investigation.",
+          "claimed_authors": [
+            "Sergio Giardino"
+          ],
+          "claimed_title": "Differential geometry using quaternions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.03765"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Differential geometry using quaternions')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning rate schedules used in practice bear little resemblance to those recommended by theory. We close much of this theory/practice gap, and as a consequence are able to derive new problem-adaptive learning rate schedules. Our main technical contribution is a refined analysis of learning rate schedules for a wide class of optimization algorithms (including SGD). When considering only worst-case analysis, our theory predicts that the optimal choice is the linear decay schedule where the step-size is set proportional to 1 - t/T, where t is the current iteration and T is the total number of steps. To go beyond this worst-case analysis, we use the observed gradient norms to derive schedules refined for any particular task. These refined schedules exhibit learning rate warm-up and rapid learning rate annealing near the end of training. Ours is the first systematic approach to automatically yield both of these properties. We perform the most comprehensive evaluation of learning rate schedules to date, evaluating across 10 diverse deep learning problems, a series of LLMs, and a suite of logistic regression problems. We validate that overall, the linear-decay schedule outperforms all commonly used default schedules including cosine annealing. Our adaptive schedule refinement method gives further improvements.",
+          "claimed_authors": [
+            "Aaron Defazio",
+            "Ashok Cutkosky",
+            "Harsh Mehta",
+            "Konstantin Mishchenko"
+          ],
+          "claimed_title": "Optimal Linear Decay Learning Rate Schedules and Further Refinements",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.07831"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Optimal Linear Decay Learning Rate Schedules and Further Refinements')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The increasing complexity of deep learning architectures is resulting in training time requiring weeks or even months. This slow training is due in part to vanishing gradients, in which the gradients used by back-propagation are extremely large for weights connecting deep layers (layers near the output layer), and extremely small for shallow layers (near the input layer); this results in slow learning in the shallow layers. Additionally, it has also been shown that in highly non-convex problems, such as deep neural networks, there is a proliferation of high-error low curvature saddle points, which slows down learning dramatically. In this paper, we attempt to overcome the two above problems by proposing an optimization method for training deep neural networks which uses learning rates which are both specific to each layer in the network and adaptive to the curvature of the function, increasing the learning rate at low curvature points. This enables us to speed up learning in the shallow layers of the network and quickly escape high-error low curvature saddle points. We test our method on standard image classification datasets such as MNIST, CIFAR10 and ImageNet, and demonstrate that our method increases accuracy as well as reduces the required training time over standard algorithms.",
+          "claimed_authors": [
+            "Bharat Singh",
+            "Soham De",
+            "Yangmuzi Zhang",
+            "Thomas Goldstein",
+            "Gavin Taylor"
+          ],
+          "claimed_title": "Layer-Specific Adaptive Learning Rates for Deep Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1510.04609"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Layer-Specific Adaptive Learning Rates for Deep Networks')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Adaptive Moment Estimation (Adam), which combines Adaptive Learning Rate and Momentum, would be the most popular stochastic optimizer for accelerating the training of deep neural networks. However, it is empirically known that Adam often generalizes worse than Stochastic Gradient Descent (SGD). The purpose of this paper is to unveil the mystery of this behavior in the diffusion theoretical framework. Specifically, we disentangle the effects of Adaptive Learning Rate and Momentum of the Adam dynamics on saddle-point escaping and flat minima selection. We prove that Adaptive Learning Rate can escape saddle points efficiently, but cannot select flat minima as SGD does. In contrast, Momentum provides a drift effect to help the training process pass through saddle points, and almost does not affect flat minima selection. This partly explains why SGD (with Momentum) generalizes better, while Adam generalizes worse but converges faster. Furthermore, motivated by the analysis, we design a novel adaptive optimization framework named Adaptive Inertia, which uses parameter-wise adaptive inertia to accelerate the training and provably favors flat minima as well as SGD. Our extensive experiments demonstrate that the proposed adaptive inertia method can generalize significantly better than SGD and conventional adaptive gradient methods.",
+          "claimed_authors": [
+            "Zeke Xie",
+            "Xinrui Wang",
+            "Huishuai Zhang",
+            "Issei Sato",
+            "Masashi Sugiyama"
+          ],
+          "claimed_title": "Adaptive Inertia: Disentangling the Effects of Adaptive Learning Rate and Momentum",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.15815"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Adaptive Inertia: Disentangling the Effects of Adaptive Learning Rate and Momentum')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Real-world datasets exhibit imbalances of varying types and degrees. Several techniques based on re-weighting and margin adjustment of loss are often used to enhance the performance of neural networks, particularly on minority classes. In this work, we analyze the class-imbalanced learning problem by examining the loss landscape of neural networks trained with re-weighting and margin-based techniques. Specifically, we examine the spectral density of Hessian of class-wise loss, through which we observe that the network weights converge to a saddle point in the loss landscapes of minority classes. Following this observation, we also find that optimization methods designed to escape from saddle points can be effectively used to improve generalization on minority classes. We further theoretically and empirically demonstrate that Sharpness-Aware Minimization (SAM), a recent technique that encourages convergence to a flat minima, can be effectively used to escape saddle points for minority classes. Using SAM results in a 6.2\\% increase in accuracy on the minority classes over the state-of-the-art Vector Scaling Loss, leading to an overall average increase of 4\\% across imbalanced datasets. The code is available at: https://github.com/val-iisc/Saddle-LongTail.",
+          "claimed_authors": [
+            "Harsh Rangwani",
+            "Sumukh K Aithal",
+            "Mayank Mishra",
+            "R. Venkatesh Babu"
+          ],
+          "claimed_title": "Escaping Saddle Points for Effective Generalization on Class-Imbalanced Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.13827"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Escaping Saddle Points for Effective Generalization on Class-Imbalanced Data')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural network training relies on our ability to find \"good\" minimizers of highly non-convex loss functions. It is well-known that certain network architecture designs (e.g., skip connections) produce loss functions that train easier, and well-chosen training parameters (batch size, learning rate, optimizer) produce minimizers that generalize better. However, the reasons for these differences, and their effects on the underlying loss landscape, are not well understood. In this paper, we explore the structure of neural loss functions, and the effect of loss landscapes on generalization, using a range of visualization methods. First, we introduce a simple \"filter normalization\" method that helps us visualize loss function curvature and make meaningful side-by-side comparisons between loss functions. Then, using a variety of visualizations, we explore how network architecture affects the loss landscape, and how training parameters affect the shape of minimizers.",
+          "claimed_authors": [
+            "Hao Li",
+            "Zheng Xu",
+            "Gavin Taylor",
+            "Christoph Studer",
+            "Tom Goldstein"
+          ],
+          "claimed_title": "Visualizing the Loss Landscape of Neural Nets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.09913"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Visualizing the Loss Landscape of Neural Nets')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
+          "claimed_authors": [
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
+          ],
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we describe a phenomenon, which we named \"super-convergence\", where neural networks can be trained an order of magnitude faster than with standard training methods. The existence of super-convergence is relevant to understanding why deep networks generalize well. One of the key elements of super-convergence is training with one learning rate cycle and a large maximum learning rate. A primary insight that allows super-convergence training is that large learning rates regularize the training, hence requiring a reduction of all other forms of regularization in order to preserve an optimal regularization balance. We also derive a simplification of the Hessian Free optimization method to compute an estimate of the optimal learning rate. Experiments demonstrate super-convergence for Cifar-10/100, MNIST and Imagenet datasets, and resnet, wide-resnet, densenet, and inception architectures. In addition, we show that super-convergence provides a greater boost in performance relative to standard training when the amount of labeled training data is limited. The architectures and code to replicate the figures in this paper are available at github.com/lnsmith54/super-convergence. See http://www.fast.ai/2018/04/30/dawnbench-fastai/ for an application of super-convergence to win the DAWNBench challenge (see https://dawn.cs.stanford.edu/benchmark/).",
+          "claimed_authors": [
+            "Leslie N. Smith",
+            "Nicholay Topin"
+          ],
+          "claimed_title": "Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.07120"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniOpt: Taxonomy, Geometry, and Benchmarking of M', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-31T16:18:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Siyuan Li",
+            "Jiabao Pan",
+            "Yumou Liu",
+            "Zhuoli Ouyang",
+            "Xin Jin",
+            "Xinglong Xu",
+            "Jingxuan Wei",
+            "Shengye Pang",
+            "Jintao Che",
+            "Xuanhe Zhou",
+            "Conghui He",
+            "Cheng Tan"
+          ],
+          "title": "OmniOpt: Taxonomy, Geometry, and Benchmarking of Modern Optimizers",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.04033",
+        "summary": "Optimizer selection for large-scale model training has become a system-level design decision constrained jointly by compute, memory, tuning budget, and task diversity, yet the landscape of over one hundred methods remains fragmented. We therefore present OmniOpt, a unified survey and benchmark cookbook of optimizers for the research community. OmniOpt rests on four coupled components. First, we treat every optimizer update as a structured transformation through a five-stage meta-pipeline, and show that most methods engage only one or two of these stages. Second, we use norm-constrained linear minimization oracles (LMOs) to unify different optimizers. Third, these two views ground a dual-dimension taxonomy, one dimension assigning each method to a mechanism family and the other recording the measurable training objectives it aims to improve. Fourth, and at the core of this paper, we instantiate the full taxonomy in a unified cross-domain benchmark spanning representative optimizers, model scales, and training regimes from language model pretraining to image classification, systematically analyzing each method family across multiple effect objectives and laying out their trade-offs. OmniOpt thus supplies the research community with an operational coordinate system for selecting optimizers under explicit mechanism and objective assumptions, and charts a direction for the future development of the optimizer community.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.04033",
+          "http_status": 200,
+          "pdf_sample_score": 0.4217,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-31T16:18:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "title": "The Modern Mathematics of Deep Learning",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2105.04026",
+        "summary": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2105.04026",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-31T16:18:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "David Shulman"
+          ],
+          "title": "Optimization Methods in Deep Learning: A Comprehensive Overview",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.09566",
+        "summary": "In recent years, deep learning has achieved remarkable success in various fields such as image recognition, natural language processing, and speech recognition. The effectiveness of deep learning largely depends on the optimization methods used to train deep neural networks. In this paper, we provide an overview of first-order optimization methods such as Stochastic Gradient Descent, Adagrad, Adadelta, and RMSprop, as well as recent momentum-based and adaptive gradient methods such as Nesterov accelerated gradient, Adam, Nadam, AdaMax, and AMSGrad. We also discuss the challenges associated with optimization in deep learning and explore techniques for addressing these challenges, including weight initialization, batch normalization, and layer normalization. Finally, we provide recommendations for selecting optimization methods for different deep learning tasks and datasets. This paper serves as a comprehensive guide to optimization methods in deep learning and can be used as a reference for researchers and practitioners in the field.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.09566",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-31T16:18:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"omniopt: taxonomy, geometry, and benchmarking of modern optimizers\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

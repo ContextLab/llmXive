@@ -1,10 +1,11 @@
 T010:
   c: false
-  h: 49404b4419916e375e9576abdec0d1b65687cce9e3982f48e16665dc530302c6
+  h: ab439e4a53b64bff8095c5e0be7938a4e4ec38b50b646bcd2950690bce9c422f
   r: "The repository lacks the required `contracts/dataset.schema.yaml` file, and\
     \ `code/ingestion.py` contains no logic that reads a schema or aborts with \u201C\
-    FATAL: Dataset Mismatch\u201D when required columns (e.g., global_signal, global_signal_sd)\
-    \ are absent. The task\u2019s core verification requirement is therefore unmet."
+    FATAL: Dataset Mismatch\u201D when required columns are absent. The task\u2019\
+    s core requirement\u2014schema\u2011based verification and fatal exit\u2014is\
+    \ therefore not satisfied."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

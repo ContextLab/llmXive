@@ -112,8 +112,8 @@
 - [X] T024 [US2] Implement `code/training.py` to train a Random Forest multi-label classifier (CPU-only, default precision) using the pre-split `train_set.parquet` generated in T019.
 - [X] T025 [US2] Implement `code/evaluation.py` to generate a stratified random baseline preserving class distribution **and explicitly preserving the multi-label correlation structure during shuffling by shuffling the joint label vector**, as required by SC-001 for the permutation test.
 - [X] T026 [US2] Implement `code/evaluation.py` to perform permutation test (n=1,000, shuffle the joint label vector per sample) to validate p < 0.05
-- [ ] T027 [US2] Implement `code/evaluation.py` to calculate macro-F1 score and compare against baseline (Target: margin ≥ 0.05)
-- [ ] T028 [US2] Implement `code/evaluation.py` to generate confusion matrix identifying error modes (e.g., pitting vs. SCC)
+- [X] T027 [US2] Implement `code/evaluation.py` to calculate macro-F1 score and compare against baseline (Target: margin ≥ 0.05)
+- [X] T028 [US2] Implement `code/evaluation.py` to generate confusion matrix identifying error modes (e.g., pitting vs. SCC)
 - [ ] T029 [US2] Save trained `ModelArtifact` (model + metrics) to `results/artifacts/model.pkl` and `results/metrics/training_report.json`
 - [ ] T030 [US2] Verify execution time of full training/eval cycle is ≤ 6 hours on CPU runner
 
@@ -129,7 +129,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US3] Unit test for SHAP value calculation in `tests/unit/test_explainability.py`
+- [X] T031 [P] [US3] Unit test for SHAP value calculation in `tests/unit/test_explainability.py`
 - [ ] T032 [P] [US3] Unit test for threshold sensitivity sweep logic in `tests/unit/test_explainability.py`
 - [ ] T033 [P] [US3] Unit test for Spearman rank correlation calculation in `tests/unit/test_explainability.py`
 

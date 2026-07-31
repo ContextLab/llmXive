@@ -6,428 +6,463 @@ import os
 import json
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Import shared utilities from the project's utils module
+from utils import ensure_dir, save_json, setup_logging, get_env_var
 
-# Constants for alloy classification
-# These keywords are used to identify alloy families in the 'alloy_type' or 'composition' columns
-ALLOY_FAMILIES = {
-    "High-Entropy Alloys": ["high entropy", "healoy", "high-entropy", "hea"],
-    "Stainless Steels": ["stainless steel", "ss", "austenitic", "ferritic", "martensitic", "duplex"],
-    "Carbon Steels": ["carbon steel", "mild steel", "low alloy steel", "hss"],
-    "Nickel Alloys": ["nickel alloy", "inconel", "monel", "hastelloy", "nickel-based"],
-    "Aluminum Alloys": ["aluminum alloy", "alum alloy", "al alloy"],
-    "Titanium Alloys": ["titanium alloy", "ti alloy", "titanium-based"]
+# Configure logging
+logger = setup_logging(__name__)
+
+# Constants
+DATA_DIR = Path(get_env_var("DATA_DIR", "data"))
+PROCESSED_DIR = DATA_DIR / "processed"
+MIN_RECORDS_THRESHOLD = 200
+
+# Alloy Family Classification Rules
+# Based on typical elemental composition thresholds found in materials science literature
+ALLOY_FAMILY_RULES = {
+    "High-Entropy Alloys": {
+        "min_elements": 5,
+        "max_concentration": 0.35,  # No single element > 35%
+        "description": "Multi-principal element alloys with 5+ elements in equimolar or near-equimolar ratios"
+    },
+    "Stainless Steels": {
+        "min_chromium": 0.105,  # >10.5% Cr for passivation
+        "max_carbon": 0.02,     # Low carbon for most grades (varies by grade)
+        "description": "Iron-based alloys with >10.5% Chromium for corrosion resistance"
+    },
+    "Carbon Steels": {
+        "max_chromium": 0.005,  # <0.5% Cr (essentially no Cr)
+        "min_iron": 0.90,       # >90% Fe
+        "description": "Iron-carbon alloys with minimal alloying elements"
+    },
+    "Nickel-Based Superalloys": {
+        "min_nickel": 0.50,     # >50% Ni
+        "description": "Nickel-rich alloys for high-temperature applications"
+    },
+    "Titanium Alloys": {
+        "min_titanium": 0.50,   # >50% Ti
+        "description": "Titanium-based alloys with various alloying elements"
+    },
+    "Aluminum Alloys": {
+        "min_aluminum": 0.85,   # >85% Al
+        "description": "Aluminum-based alloys with various alloying elements"
+    }
 }
 
-def handle_missing_values(df: pd.DataFrame, threshold: float = 0.05) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def classify_alloy_family(row: pd.Series) -> str:
     """
-    Handle missing values in the dataframe.
-    - If a column has < 5% missing values, impute with median.
-    - If a column has >= 5% missing values, drop the column.
+    Classify a single alloy record into a family based on elemental composition.
     
     Args:
-        df: Input DataFrame
-        threshold: Percentage threshold for dropping columns (default 0.05)
-        
+        row: A pandas Series containing elemental weight percentages.
+    
     Returns:
-        Tuple of (cleaned DataFrame, stats dictionary)
+        A string label for the alloy family, or "Unknown" if no rules match.
     """
-    stats = {
-        "total_rows": len(df),
-        "dropped_columns": [],
-        "imputed_columns": [],
-        "missing_stats": {}
+    # Get all elemental columns (columns that look like element symbols)
+    element_cols = [col for col in row.index if col.isupper() and len(col) <= 2]
+    
+    # Calculate number of distinct elements with significant concentration (>0.1%)
+    significant_elements = [col for col in element_cols if row[col] > 0.001]
+    num_elements = len(significant_elements)
+    
+    # Check High-Entropy Alloys first (most specific)
+    if num_elements >= 5:
+        max_conc = max([row[col] for col in significant_elements])
+        if max_conc <= 0.35:
+            return "High-Entropy Alloys"
+    
+    # Check other families
+    if "Cr" in row.index and row["Cr"] > ALLOY_FAMILY_RULES["Stainless Steels"]["min_chromium"]:
+        # Check if it's stainless steel
+        if "C" in row.index:
+            carbon = row["C"] if pd.notna(row["C"]) else 0.0
+            if carbon <= ALLOY_FAMILY_RULES["Stainless Steels"]["max_carbon"]:
+                return "Stainless Steels"
+        else:
+            # If no carbon data, assume stainless if Cr is high
+            return "Stainless Steels"
+    
+    if "Fe" in row.index and row["Fe"] > ALLOY_FAMILY_RULES["Carbon Steels"]["min_iron"]:
+        if "Cr" not in row.index or row["Cr"] < ALLOY_FAMILY_RULES["Carbon Steels"]["max_chromium"]:
+            return "Carbon Steels"
+    
+    if "Ni" in row.index and row["Ni"] > ALLOY_FAMILY_RULES["Nickel-Based Superalloys"]["min_nickel"]:
+        return "Nickel-Based Superalloys"
+    
+    if "Ti" in row.index and row["Ti"] > ALLOY_FAMILY_RULES["Titanium Alloys"]["min_titanium"]:
+        return "Titanium Alloys"
+    
+    if "Al" in row.index and row["Al"] > ALLOY_FAMILY_RULES["Aluminum Alloys"]["min_aluminum"]:
+        return "Aluminum Alloys"
+    
+    return "Unknown"
+
+def perform_ood_split(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+    """
+    Perform Out-of-Distribution (OOD) test set split based on alloy class.
+    
+    This function identifies distinct alloy families in the dataset and holds out
+    one full family as the test set. If fewer than 2 distinct families exist,
+    it falls back to a stratified random split and flags this condition.
+    
+    Args:
+        df: Input DataFrame with alloy composition data and a 'alloy_family' column.
+    
+    Returns:
+        Tuple containing:
+            - train_set: Training set DataFrame
+            - test_set: Test set DataFrame (OOD split)
+            - split_metadata: Dictionary with split statistics and flags
+    """
+    logger.info(f"Performing OOD split on {len(df)} records")
+    
+    # Get unique alloy families
+    unique_families = df['alloy_family'].unique()
+    family_counts = df['alloy_family'].value_counts().to_dict()
+    
+    split_metadata = {
+        "method": "alloy_family_ood_split",
+        "total_records": len(df),
+        "unique_families": len(unique_families),
+        "family_distribution": family_counts,
+        "fallback_used": False,
+        "fallback_reason": None,
+        "train_records": 0,
+        "test_records": 0,
+        "train_families": [],
+        "test_families": []
     }
     
-    # Calculate missing percentages
-    missing_pct = df.isnull().mean()
-    stats["missing_stats"] = missing_pct.to_dict()
+    if len(unique_families) < 2:
+        # Fallback to stratified random split
+        logger.warning(f"Only {len(unique_families)} alloy families found. Falling back to stratified random split.")
+        split_metadata["fallback_used"] = True
+        split_metadata["fallback_reason"] = f"Insufficient alloy families ({len(unique_families)} < 2) for OOD split"
+        
+        # Stratified random split by degradation pathways (multi-label)
+        # Use the first degradation label column for stratification if available
+        label_cols = [col for col in df.columns if 'degradation' in col.lower() or col.startswith('label_')]
+        
+        if label_cols:
+            stratify_col = label_cols[0]
+            # Simple stratified split using sklearn's train_test_split
+            from sklearn.model_selection import train_test_split
+            train_df, test_df = train_test_split(
+                df, 
+                test_size=0.2, 
+                random_state=42, 
+                stratify=df[stratify_col]
+            )
+            split_metadata["split_method"] = "stratified_random"
+            split_metadata["stratify_column"] = stratify_col
+        else:
+            # Fallback to simple random split if no labels available
+            from sklearn.model_selection import train_test_split
+            train_df, test_df = train_test_split(
+                df, 
+                test_size=0.2, 
+                random_state=42
+            )
+            split_metadata["split_method"] = "random_split"
+        
+        split_metadata["train_records"] = len(train_df)
+        split_metadata["test_records"] = len(test_df)
+        split_metadata["train_families"] = list(train_df['alloy_family'].unique())
+        split_metadata["test_families"] = list(test_df['alloy_family'].unique())
+        
+        logger.info(f"Stratified split: {len(train_df)} train, {len(test_df)} test")
+    else:
+        # Perform OOD split: hold out one full family
+        # Choose the smallest family for the test set to maximize training data
+        # but ensure it has at least 5 records for meaningful evaluation
+        sorted_families = sorted(family_counts.items(), key=lambda x: x[1])
+        
+        test_family = None
+        for family, count in sorted_families:
+            if count >= 5:  # Minimum records for test set
+                test_family = family
+                break
+        
+        if test_family is None:
+            # If no family has >= 5 records, use the smallest family anyway
+            test_family = sorted_families[0][0]
+            logger.warning(f"Using family '{test_family}' with {family_counts[test_family]} records for test set (less than 5 records)")
+        
+        # Split data
+        test_df = df[df['alloy_family'] == test_family].copy()
+        train_df = df[df['alloy_family'] != test_family].copy()
+        
+        split_metadata["split_method"] = "alloy_family_ood"
+        split_metadata["test_family"] = test_family
+        split_metadata["train_families"] = [f for f in unique_families if f != test_family]
+        split_metadata["test_families"] = [test_family]
+        split_metadata["train_records"] = len(train_df)
+        split_metadata["test_records"] = len(test_df)
+        
+        logger.info(f"OOD split: {len(train_df)} train ({len(split_metadata['train_families'])} families), "
+                   f"{len(test_df)} test (family: {test_family})")
     
-    # Identify columns to drop vs impute
-    cols_to_drop = missing_pct[missing_pct >= threshold].index.tolist()
-    cols_to_impute = missing_pct[(missing_pct > 0) & (missing_pct < threshold)].index.tolist()
+    return train_df, test_df, split_metadata
+
+def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Handle missing values in the dataset using median imputation or exclusion.
+    
+    Args:
+        df: Input DataFrame with potential missing values.
+    
+    Returns:
+        DataFrame with missing values handled according to the rules.
+    """
+    logger.info(f"Handling missing values in {len(df)} records")
+    
+    # Calculate missing value percentages for each column
+    missing_percentages = df.isnull().mean() * 100
+    
+    # Identify columns to drop (>=5% missing)
+    drop_cols = missing_percentages[missing_percentages >= 5].index.tolist()
+    logger.info(f"Dropping {len(drop_cols)} columns with >=5% missing values: {drop_cols}")
     
     # Drop columns with high missingness
-    if cols_to_drop:
-        logger.info(f"Dropping {len(cols_to_drop)} columns with >= {threshold*100}% missing values: {cols_to_drop}")
-        df = df.drop(columns=cols_to_drop)
-        stats["dropped_columns"] = cols_to_drop
+    df_clean = df.drop(columns=drop_cols)
     
-    # Impute remaining missing values with median
-    if cols_to_impute:
-        logger.info(f"Imputing {len(cols_to_impute)} columns with median values")
-        for col in cols_to_impute:
-            median_val = df[col].median()
-            df[col] = df[col].fillna(median_val)
-        stats["imputed_columns"] = cols_to_impute
-        
-    stats["remaining_rows"] = len(df)
-    return df, stats
+    # Impute remaining missing values with median for numeric columns
+    numeric_cols = df_clean.select_dtypes(include=[np.number]).columns
+    for col in numeric_cols:
+        if df_clean[col].isnull().any():
+            median_val = df_clean[col].median()
+            df_clean[col] = df_clean[col].fillna(median_val)
+            logger.debug(f"Imputed {col} with median {median_val}")
+    
+    # Fill categorical columns with 'Unknown'
+    categorical_cols = df_clean.select_dtypes(include=['object']).columns
+    for col in categorical_cols:
+        if df_clean[col].isnull().any():
+            df_clean[col] = df_clean[col].fillna('Unknown')
+    
+    logger.info(f"Final dataset after missing value handling: {len(df_clean)} records, {len(df_clean.columns)} columns")
+    return df_clean
 
 def map_elemental_composition_to_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Map elemental weight percentages to feature vectors.
-    Assumes columns like 'Fe', 'Cr', 'Ni', 'C', etc. exist in the dataframe.
-    Non-elemental columns are preserved.
     
     Args:
-        df: Input DataFrame with elemental composition columns
-        
+        df: Input DataFrame with elemental composition data.
+    
     Returns:
-        DataFrame with feature vectors (numeric columns only, normalized if needed)
+        DataFrame with mapped feature vectors.
     """
-    # Identify elemental columns (assuming they are uppercase or mixed case chemical symbols)
-    # We'll assume any column that is all letters and has a known atomic mass is an element
-    # For simplicity, we'll just take all numeric columns that look like elements
-    # In a real scenario, we'd have a predefined list of elements
-    element_cols = [col for col in df.columns if col.isalpha() and col.isupper()]
+    logger.info(f"Mapping elemental composition to features for {len(df)} records")
     
-    # If no element columns found, try to find columns that might be elements (e.g. 'Fe', 'Cr')
-    if not element_cols:
-        # Heuristic: columns that are 1-2 letters and appear in a known element list
-        known_elements = {'Fe', 'Cr', 'Ni', 'C', 'Mn', 'Si', 'Mo', 'V', 'Ti', 'Al', 'Cu', 'Co', 'W', 'Nb', 'Ta', 'Re', 'Ru', 'Rh', 'Pd', 'Ag', 'Au', 'Pt', 'Ir', 'Os', 'Hf', 'Zr', 'V', 'Nb', 'Ta', 'Mo', 'W', 'Re', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn', 'Sb', 'Te', 'I', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn', 'Sb', 'Te', 'I', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr'}
-        element_cols = [col for col in df.columns if col in known_elements]
+    # Identify elemental columns (columns that look like element symbols)
+    element_cols = [col for col in df.columns if col.isupper() and len(col) <= 2]
     
     if not element_cols:
-        logger.warning("No elemental columns found. Returning original dataframe.")
+        logger.warning("No elemental columns found in the dataset")
         return df
     
-    # Extract elemental features
+    logger.info(f"Found {len(element_cols)} elemental columns: {element_cols}")
+    
+    # Ensure all elemental columns are numeric and fill NaN with 0
+    for col in element_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+    
+    # The feature vector is simply the elemental weight percentages
+    # Additional derived features can be added here if needed
     feature_df = df[element_cols].copy()
     
-    # Normalize features (optional, but good practice for ML)
-    # Here we just ensure they are numeric
-    feature_df = feature_df.apply(pd.to_numeric, errors='coerce')
+    # Add a constant feature for bias term if needed
+    feature_df['bias'] = 1.0
     
-    # Preserve non-elemental columns that are useful (e.g., alloy_type, environment, degradation_type)
-    non_element_cols = [col for col in df.columns if col not in element_cols]
-    metadata_df = df[non_element_cols].copy()
-    
-    # Combine
-    result_df = pd.concat([metadata_df, feature_df], axis=1)
-    
-    logger.info(f"Extracted {len(element_cols)} elemental features: {element_cols}")
-    return result_df
+    logger.info(f"Created feature matrix with {len(feature_df.columns)} features")
+    return feature_df
 
 def calculate_derived_atomic_properties(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate derived atomic properties (electronegativity, radius) for post-hoc analysis.
-    These are excluded from the training vector but added for analysis.
+    Calculate derived atomic properties for post-hoc analysis.
     
     Args:
-        df: Input DataFrame with elemental composition
-        
+        df: Input DataFrame with elemental composition data.
+    
     Returns:
-        DataFrame with added derived property columns
+        DataFrame with derived atomic properties (not included in training features).
     """
-    # Placeholder for atomic property data
-    # In a real implementation, this would come from a database or external file
-    atomic_properties = {
-        'Fe': {'electronegativity': 1.83, 'radius': 126},
-        'Cr': {'electronegativity': 1.66, 'radius': 128},
-        'Ni': {'electronegativity': 1.91, 'radius': 124},
-        'C': {'electronegativity': 2.55, 'radius': 77},
-        'Mn': {'electronegativity': 1.55, 'radius': 127},
-        'Si': {'electronegativity': 1.90, 'radius': 111},
-        'Mo': {'electronegativity': 2.16, 'radius': 139},
-        'V': {'electronegativity': 1.63, 'radius': 134},
-        'Ti': {'electronegativity': 1.54, 'radius': 147},
-        'Al': {'electronegativity': 1.61, 'radius': 143},
-        'Cu': {'electronegativity': 1.90, 'radius': 128},
-        'Co': {'electronegativity': 1.88, 'radius': 125},
-        'W': {'electronegativity': 2.36, 'radius': 139},
-        'Nb': {'electronegativity': 1.60, 'radius': 146},
-        'Ta': {'electronegativity': 1.50, 'radius': 146},
-        'Re': {'electronegativity': 1.90, 'radius': 137},
-        'Ru': {'electronegativity': 2.20, 'radius': 134},
-        'Rh': {'electronegativity': 2.28, 'radius': 134},
-        'Pd': {'electronegativity': 2.20, 'radius': 137},
-        'Ag': {'electronegativity': 1.93, 'radius': 144},
-        'Au': {'electronegativity': 2.54, 'radius': 144},
-        'Pt': {'electronegativity': 2.28, 'radius': 139},
-        'Ir': {'electronegativity': 2.20, 'radius': 136},
-        'Os': {'electronegativity': 2.20, 'radius': 135},
-        'Hf': {'electronegativity': 1.30, 'radius': 159},
-        'Zr': {'electronegativity': 1.33, 'radius': 160},
-        'Sc': {'electronegativity': 1.36, 'radius': 162},
-        'Y': {'electronegativity': 1.22, 'radius': 180},
-        'La': {'electronegativity': 1.10, 'radius': 187},
-        'Ce': {'electronegativity': 1.12, 'radius': 182},
-        'Pr': {'electronegativity': 1.13, 'radius': 182},
-        'Nd': {'electronegativity': 1.14, 'radius': 181},
-        'Sm': {'electronegativity': 1.17, 'radius': 180},
-        'Eu': {'electronegativity': 1.20, 'radius': 199},
-        'Gd': {'electronegativity': 1.20, 'radius': 179},
-        'Tb': {'electronegativity': 1.20, 'radius': 177},
-        'Dy': {'electronegativity': 1.22, 'radius': 177},
-        'Ho': {'electronegativity': 1.23, 'radius': 176},
-        'Er': {'electronegativity': 1.24, 'radius': 176},
-        'Tm': {'electronegativity': 1.25, 'radius': 175},
-        'Yb': {'electronegativity': 1.10, 'radius': 194},
-        'Lu': {'electronegativity': 1.27, 'radius': 174}
+    logger.info(f"Calculating derived atomic properties for {len(df)} records")
+    
+    # Electronegativity values (Pauling scale) for common elements
+    electronegativity = {
+        'H': 2.20, 'He': 0.00, 'Li': 0.98, 'Be': 1.57, 'B': 2.04, 'C': 2.55,
+        'N': 3.04, 'O': 3.44, 'F': 3.98, 'Ne': 0.00, 'Na': 0.93, 'Mg': 1.31,
+        'Al': 1.61, 'Si': 1.90, 'P': 2.19, 'S': 2.58, 'Cl': 3.16, 'Ar': 0.00,
+        'K': 0.82, 'Ca': 1.00, 'Sc': 1.36, 'Ti': 1.54, 'V': 1.63, 'Cr': 1.66,
+        'Mn': 1.55, 'Fe': 1.83, 'Co': 1.88, 'Ni': 1.91, 'Cu': 1.90, 'Zn': 1.65,
+        'Ga': 1.81, 'Ge': 2.01, 'As': 2.18, 'Se': 2.55, 'Br': 2.96, 'Kr': 0.00,
+        'Rb': 0.82, 'Sr': 0.95, 'Y': 1.22, 'Zr': 1.33, 'Nb': 1.60, 'Mo': 2.16,
+        'Tc': 1.90, 'Ru': 2.20, 'Rh': 2.28, 'Pd': 2.20, 'Ag': 1.93, 'Cd': 1.69,
+        'In': 1.78, 'Sn': 1.96, 'Sb': 2.05, 'Te': 2.10, 'I': 2.66, 'Xe': 0.00,
+        'Cs': 0.79, 'Ba': 0.89, 'La': 1.10, 'Ce': 1.12, 'Pr': 1.13, 'Nd': 1.14,
+        'Pm': 1.13, 'Sm': 1.17, 'Eu': 1.20, 'Gd': 1.20, 'Tb': 1.20, 'Dy': 1.22,
+        'Ho': 1.23, 'Er': 1.24, 'Tm': 1.25, 'Yb': 1.10, 'Lu': 1.27, 'Hf': 1.30,
+        'Ta': 1.50, 'W': 2.36, 'Re': 1.90, 'Os': 2.20, 'Ir': 2.20, 'Pt': 2.28,
+        'Au': 2.54, 'Hg': 2.00, 'Tl': 1.62, 'Pb': 2.33, 'Bi': 2.02, 'Po': 2.00,
+        'At': 2.20, 'Rn': 0.00
     }
     
-    # Calculate weighted average properties based on composition
-    element_cols = [col for col in df.columns if col in atomic_properties]
-    
-    if not element_cols:
-        logger.warning("No elemental columns found for derived properties calculation.")
-        return df
-    
-    # Initialize new columns
-    df['avg_electronegativity'] = 0.0
-    df['avg_radius'] = 0.0
-    
-    for _, row in df.iterrows():
-        total_weight = 0.0
-        weighted_electronegativity = 0.0
-        weighted_radius = 0.0
-        
-        for elem in element_cols:
-            weight = row.get(elem, 0.0)
-            if weight > 0 and elem in atomic_properties:
-                total_weight += weight
-                weighted_electronegativity += weight * atomic_properties[elem]['electronegativity']
-                weighted_radius += weight * atomic_properties[elem]['radius']
-        
-        if total_weight > 0:
-            df.loc[row.name, 'avg_electronegativity'] = weighted_electronegativity / total_weight
-            df.loc[row.name, 'avg_radius'] = weighted_radius / total_weight
-    
-    logger.info("Calculated derived atomic properties: avg_electronegativity, avg_radius")
-    return df
-
-def classify_alloy_family(row: pd.Series) -> str:
-    """
-    Classify an alloy row into a family based on its type or composition description.
-    
-    Args:
-        row: A row from the dataframe
-        
-    Returns:
-        String representing the alloy family
-    """
-    # Check 'alloy_type' or similar column
-    alloy_type = str(row.get('alloy_type', row.get('type', row.get('material_type', '')))).lower()
-    composition = str(row.get('composition', row.get('description', ''))).lower()
-    
-    combined_text = f"{alloy_type} {composition}"
-    
-    for family, keywords in ALLOY_FAMILIES.items():
-        for keyword in keywords:
-            if keyword in combined_text:
-                return family
-    
-    return "Unknown"
-
-def perform_ood_split(df: pd.DataFrame, output_dir: str = "data/processed", random_seed: int = 42) -> Dict[str, Any]:
-    """
-    Perform Out-of-Distribution (OOD) test set split based on alloy class.
-    
-    Identifies distinct alloy families (e.g., High-Entropy Alloys, Stainless Steels, Carbon Steels).
-    If <2 classes exist, falls back to a stratified random split and flags this condition.
-    Otherwise, holds out one full family as the test set.
-    
-    Args:
-        df: Input DataFrame with alloy data
-        output_dir: Directory to save output files
-        random_seed: Random seed for reproducibility
-        
-    Returns:
-        Dictionary with split statistics and file paths
-    """
-    import random
-    random.seed(random_seed)
-    np.random.seed(random_seed)
-    
-    logger.info("Starting OOD split based on alloy class...")
-    
-    # Classify alloy families
-    df['alloy_family'] = df.apply(classify_alloy_family, axis=1)
-    
-    # Count classes
-    family_counts = df['alloy_family'].value_counts()
-    num_classes = len(family_counts)
-    
-    logger.info(f"Identified {num_classes} alloy families: {list(family_counts.index)}")
-    
-    stats = {
-        "total_records": len(df),
-        "num_alloy_families": num_classes,
-        "family_distribution": family_counts.to_dict(),
-        "split_method": "alloy_family_holdout",
-        "fallback_used": False,
-        "train_size": 0,
-        "test_size": 0,
-        "train_path": "",
-        "test_path": ""
+    # Atomic radii (pm) for common elements
+    atomic_radii = {
+        'H': 37, 'He': 32, 'Li': 152, 'Be': 112, 'B': 85, 'C': 77,
+        'N': 75, 'O': 73, 'F': 72, 'Ne': 71, 'Na': 186, 'Mg': 160,
+        'Al': 143, 'Si': 117, 'P': 110, 'S': 104, 'Cl': 99, 'Ar': 97,
+        'K': 227, 'Ca': 197, 'Sc': 162, 'Ti': 147, 'V': 134, 'Cr': 128,
+        'Mn': 127, 'Fe': 126, 'Co': 125, 'Ni': 124, 'Cu': 128, 'Zn': 134,
+        'Ga': 135, 'Ge': 122, 'As': 121, 'Se': 117, 'Br': 114, 'Kr': 110,
+        'Rb': 248, 'Sr': 215, 'Y': 180, 'Zr': 160, 'Nb': 146, 'Mo': 139,
+        'Tc': 136, 'Ru': 134, 'Rh': 134, 'Pd': 137, 'Ag': 144, 'Cd': 151,
+        'In': 167, 'Sn': 140, 'Sb': 140, 'Te': 136, 'I': 133, 'Xe': 130,
+        'Cs': 265, 'Ba': 222, 'La': 187, 'Ce': 182, 'Pr': 182, 'Nd': 181,
+        'Pm': 183, 'Sm': 180, 'Eu': 199, 'Gd': 180, 'Tb': 177, 'Dy': 178,
+        'Ho': 176, 'Er': 176, 'Tm': 176, 'Yb': 194, 'Lu': 174, 'Hf': 159,
+        'Ta': 146, 'W': 139, 'Re': 137, 'Os': 135, 'Ir': 136, 'Pt': 139,
+        'Au': 144, 'Hg': 151, 'Tl': 171, 'Pb': 175, 'Bi': 156, 'Po': 167,
+        'At': 145, 'Rn': 145
     }
+    
+    # Identify elemental columns
+    element_cols = [col for col in df.columns if col.isupper() and len(col) <= 2]
+    
+    derived_features = {}
+    
+    # Calculate weighted average electronegativity
+    weighted_en = np.zeros(len(df))
+    weighted_radius = np.zeros(len(df))
+    element_count = np.zeros(len(df))
+    
+    for element in element_cols:
+        if element in electronegativity and element in atomic_radii:
+            if element in df.columns:
+                weight = df[element].values
+                weighted_en += weight * electronegativity[element]
+                weighted_radius += weight * atomic_radii[element]
+                element_count += weight
+    
+    # Normalize by total weight (should be ~100 for weight percentages)
+    mask = element_count > 0
+    derived_features['avg_electronegativity'] = np.where(mask, weighted_en / element_count, 0)
+    derived_features['avg_atomic_radius'] = np.where(mask, weighted_radius / element_count, 0)
+    
+    # Calculate number of distinct elements
+    derived_features['num_elements'] = (df[element_cols] > 0.001).sum(axis=1)
+    
+    # Add derived features to a new DataFrame
+    derived_df = pd.DataFrame(derived_features)
+    
+    logger.info(f"Calculated {len(derived_df.columns)} derived atomic properties")
+    return derived_df
+
+def train_test_split(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Simple train-test split function (wrapper around sklearn for compatibility).
+    
+    Args:
+        df: Input DataFrame.
+        test_size: Proportion of data to use for testing.
+        random_state: Random seed for reproducibility.
+    
+    Returns:
+        Tuple of (train_df, test_df).
+    """
+    from sklearn.model_selection import train_test_split as sklearn_split
+    return sklearn_split(df, test_size=test_size, random_state=random_state, stratify=None)
+
+def run_preprocessing_pipeline(input_file: str) -> Dict[str, Any]:
+    """
+    Run the complete preprocessing pipeline.
+    
+    Args:
+        input_file: Path to the cleaned alloys CSV file.
+    
+    Returns:
+        Dictionary with pipeline execution statistics.
+    """
+    logger.info(f"Starting preprocessing pipeline for {input_file}")
     
     # Ensure output directory exists
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    ensure_dir(PROCESSED_DIR)
     
-    if num_classes < 2:
-        logger.warning(f"Only {num_classes} alloy family found. Falling back to stratified random split.")
-        stats["split_method"] = "stratified_random_fallback"
-        stats["fallback_used"] = True
-        
-        # Stratified random split (80/20)
-        # Assuming 'degradation_type' or similar is the target for stratification
-        stratify_col = 'degradation_type' if 'degradation_type' in df.columns else df.columns[0]
-        
-        train_df, test_df = train_test_split(
-            df, 
-            test_size=0.2, 
-            random_state=random_seed, 
-            stratify=df[stratify_col] if stratify_col in df.columns else None
-        )
-        
-        # Remove the temporary 'alloy_family' column from output if it was only for classification
-        # But keep it in the data for reference
-        train_path = os.path.join(output_dir, "train_set.parquet")
-        test_path = os.path.join(output_dir, "test_ood_set.parquet")
-        
-    else:
-        # Select one family to hold out as test set (preferably the largest or a specific one)
-        # For this implementation, we'll hold out the family with the most records to ensure a robust test set
-        # Or we can hold out a specific "novel" family if known. Here we pick the last one alphabetically or the largest.
-        # Let's pick the family with the median size to ensure it's not too small or too large, or just the first one.
-        # A common strategy is to hold out a specific "rare" family. Here, we'll hold out the family with the smallest count
-        # that still has a reasonable number of samples, or just the first one if all are large.
-        # For simplicity, we'll hold out the family with the largest count to simulate a real-world scenario where a major class is held out.
-        # Actually, for OOD, it's often better to hold out a distinct class. Let's hold out the "High-Entropy Alloys" if present, else the largest.
-        
-        holdout_family = None
-        if "High-Entropy Alloys" in family_counts.index:
-            holdout_family = "High-Entropy Alloys"
-        else:
-            # Pick the largest family
-            holdout_family = family_counts.idxmax()
-        
-        logger.info(f"Holding out family '{holdout_family}' as test set.")
-        
-        test_df = df[df['alloy_family'] == holdout_family].copy()
-        train_df = df[df['alloy_family'] != holdout_family].copy()
-        
-        train_path = os.path.join(output_dir, "train_set.parquet")
-        test_path = os.path.join(output_dir, "test_ood_set.parquet")
+    # Load cleaned data
+    df = pd.read_csv(input_file)
+    logger.info(f"Loaded {len(df)} records from {input_file}")
     
-    # Save to parquet
+    # Handle missing values
+    df_clean = handle_missing_values(df)
+    
+    # Classify alloy families
+    df_clean['alloy_family'] = df_clean.apply(classify_alloy_family, axis=1)
+    logger.info(f"Classified alloy families: {df_clean['alloy_family'].value_counts().to_dict()}")
+    
+    # Perform OOD split
+    train_df, test_df, split_metadata = perform_ood_split(df_clean)
+    
+    # Save train and test sets
+    train_path = PROCESSED_DIR / "train_set.parquet"
+    test_path = PROCESSED_DIR / "test_ood_set.parquet"
+    
     train_df.to_parquet(train_path, index=False)
     test_df.to_parquet(test_path, index=False)
     
-    stats["train_size"] = len(train_df)
-    stats["test_size"] = len(test_df)
-    stats["train_path"] = train_path
-    stats["test_path"] = test_path
+    logger.info(f"Saved train set to {train_path} ({len(train_df)} records)")
+    logger.info(f"Saved test set to {test_path} ({len(test_df)} records)")
     
-    # Save split report
-    report_path = os.path.join(output_dir, "ood_split_report.json")
-    with open(report_path, 'w') as f:
-        json.dump(stats, f, indent=2)
+    # Save split metadata
+    metadata_path = PROCESSED_DIR / "split_metadata.json"
+    save_json(split_metadata, metadata_path)
+    logger.info(f"Saved split metadata to {metadata_path}")
     
-    logger.info(f"OOD split complete. Train: {len(train_df)}, Test: {len(test_df)}")
-    logger.info(f"Report saved to {report_path}")
+    # Calculate derived atomic properties (for post-hoc analysis, not training)
+    derived_df = calculate_derived_atomic_properties(train_df)
+    derived_df.to_csv(PROCESSED_DIR / "derived_atomic_properties.csv", index=False)
+    logger.info(f"Saved derived atomic properties to {PROCESSED_DIR / 'derived_atomic_properties.csv'}")
     
-    return stats
-
-def run_preprocessing_pipeline(input_path: str, output_dir: str = "data/processed") -> Dict[str, Any]:
-    """
-    Run the full preprocessing pipeline:
-    1. Load data
-    2. Handle missing values
-    3. Map elemental composition to features
-    4. Calculate derived atomic properties
-    5. Perform OOD split
-    
-    Args:
-        input_path: Path to the cleaned CSV from ingestion
-        output_dir: Directory to save output files
-        
-    Returns:
-        Dictionary with pipeline statistics
-    """
-    logger.info(f"Starting preprocessing pipeline from {input_path}")
-    
-    # Load data
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} records from {input_path}")
-    
-    # Handle missing values
-    df, missing_stats = handle_missing_values(df)
-    
-    # Map elemental composition to features
-    df = map_elemental_composition_to_features(df)
-    
-    # Calculate derived atomic properties
-    df = calculate_derived_atomic_properties(df)
-    
-    # Perform OOD split
-    ood_stats = perform_ood_split(df, output_dir)
-    
-    # Combine stats
-    pipeline_stats = {
-        "input_file": input_path,
-        "output_dir": output_dir,
-        "missing_value_stats": missing_stats,
-        "ood_split_stats": ood_stats
+    return {
+        "status": "success",
+        "input_records": len(df),
+        "cleaned_records": len(df_clean),
+        "train_records": len(train_df),
+        "test_records": len(test_df),
+        "split_metadata": split_metadata,
+        "output_files": [
+            str(train_path),
+            str(test_path),
+            str(metadata_path),
+            str(PROCESSED_DIR / "derived_atomic_properties.csv")
+        ]
     }
-    
-    # Save pipeline report
-    report_path = os.path.join(output_dir, "preprocessing_report.json")
-    with open(report_path, 'w') as f:
-        json.dump(pipeline_stats, f, indent=2)
-    
-    logger.info(f"Preprocessing pipeline complete. Report saved to {report_path}")
-    
-    return pipeline_stats
 
-# Helper function for stratified split (imported from sklearn if available, else implemented manually)
-def train_test_split(df, test_size=0.2, random_state=None, stratify=None):
-    """
-    Simple train/test split implementation.
-    If stratify is provided, it performs stratified sampling.
-    """
-    import random
-    if random_state is not None:
-        random.seed(random_state)
+def main():
+    """Main entry point for the preprocessing pipeline."""
+    # Default input file path
+    input_file = os.getenv("CLEANED_ALLOYS_FILE", "data/processed/cleaned_alloys.csv")
     
-    indices = list(df.index)
-    random.shuffle(indices)
+    if not os.path.exists(input_file):
+        logger.error(f"Input file not found: {input_file}")
+        logger.error("Please run the ingestion pipeline first to generate the cleaned data.")
+        return {"status": "error", "message": f"Input file not found: {input_file}"}
     
-    if stratify is not None:
-        # Stratified split
-        stratify_values = stratify.values
-        train_indices = []
-        test_indices = []
-        
-        unique_values = list(set(stratify_values))
-        for val in unique_values:
-            val_indices = [i for i in indices if stratify_values[i] == val]
-            num_test = int(len(val_indices) * test_size)
-            test_indices.extend(val_indices[:num_test])
-            train_indices.extend(val_indices[num_test:])
-        
-        train_df = df.loc[train_indices]
-        test_df = df.loc[test_indices]
+    result = run_preprocessing_pipeline(input_file)
+    
+    if result["status"] == "success":
+        logger.info("Preprocessing pipeline completed successfully")
+        logger.info(f"Train set: {result['train_records']} records")
+        logger.info(f"Test set: {result['test_records']} records")
+        if result["split_metadata"]["fallback_used"]:
+            logger.warning(f"Fallback used: {result['split_metadata']['fallback_reason']}")
     else:
-        # Simple split
-        num_test = int(len(indices) * test_size)
-        test_indices = indices[:num_test]
-        train_indices = indices[num_test:]
-        
-        train_df = df.loc[train_indices]
-        test_df = df.loc[test_indices]
+        logger.error(f"Preprocessing pipeline failed: {result.get('message', 'Unknown error')}")
     
-    return train_df, test_df
+    return result
 
-# Export public names
-__all__ = [
-    'handle_missing_values',
-    'map_elemental_composition_to_features',
-    'calculate_derived_atomic_properties',
-    'perform_ood_split',
-    'run_preprocessing_pipeline'
-]
+if __name__ == "__main__":
+    main()

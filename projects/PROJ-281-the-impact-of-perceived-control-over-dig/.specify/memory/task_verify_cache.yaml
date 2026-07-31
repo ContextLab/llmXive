@@ -1,0 +1,48 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `data/raw/` and `data/processed/` directories or their required
+    `.gitkeep` placeholder files is present; without these artifacts the task requirement
+    is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration files (e.g.,\u202Fpytest.ini, setup.cfg, or pyproject.toml)\
+    \ or test suite files that enable `pytest-cov` are present in the provided evidence,\
+    \ so the requirement to configure pytest with coverage in the `tests/` directory\
+    \ is not satisfied. The implementer must add the appropriate configuration and\
+    \ ensure it is non\u2011empty."
+T013:
+  c: true
+  h: c9bd7839247de717fbac9e63b535216e499e93890ea5b7054c8cc8373a124f05
+  r: "The repository contains a non\u2011empty `code/services/data_ingestion.py` (\u2248\
+    4.6\u202FKB) that defines `download_and_validate_dataset()` which loads the HuggingFace\
+    \ `cardiffnlp/tweet_sentiment_extraction` dataset, saves it to `data/raw/social_media.csv`,\
+    \ and writes a SHA\u2011256 checksum file, fulfilling the required download\u2011\
+    and\u2011checksum behavior. The absence of the CSV file on disk is expected before\
+    \ the function is executed and does not indicate an incomplete implementation."
+T014a:
+  c: false
+  h: a026b5e92323704f234a23ec38085b51410f349ab184322607ac71a3d1c01809
+  r: "The `filter_text_quality` function uses a regex/length heuristic instead of\
+    \ the `langdetect` library with a high\u2011confidence threshold, and the required\
+    \ output file `data/processed/preprocessed_text.csv` is not present in the repository.\
+    \ Both the implementation and the expected artifact are missing."
+T015:
+  c: false
+  h: a026b5e92323704f234a23ec38085b51410f349ab184322607ac71a3d1c01809
+  r: "The required input file `data/processed/preprocessed_text.csv` does not exist,\
+    \ so the service cannot read the pre\u2011processed texts as the task demands.\
+    \ Additionally, the provided `anxiety_scoring.py` is truncated and does not clearly\
+    \ show that it loads the exact model `'cardiffnlp/twitter-roberta-base-emotion'`\
+    \ with default float32 precision (it relies on `MODEL_NAME` from config, whose\
+    \ value is unknown). Both issues prevent the task from being genuinely fulfilled."
+T021:
+  c: false
+  h: b32d5b9594d924f740d3e17fdfb2cf5e611196cd2ee33501ad48a53a913701df
+  r: The provided `proxy_extractor.py` exists but the visible code contains only helper
+    functions and no logic that actually reads `data/raw/social_media.csv`; the file
+    is also truncated, so we cannot confirm it does so. Moreover, the required `data/raw/social_media.csv`
+    file is missing from the repository, making it impossible for the module to read
+    the intended input. The implementation must include code that loads the CSV and
+    the CSV file itself must be present.

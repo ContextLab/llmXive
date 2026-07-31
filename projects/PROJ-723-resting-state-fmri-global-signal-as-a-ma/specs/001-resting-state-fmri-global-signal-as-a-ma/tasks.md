@@ -83,7 +83,7 @@
 - [ ] T013 [US1] [Requires: T012] Implement subject validation logic to join fMRI and MWQ data, excluding unmatched pairs and logging counts (FR-009)
 - [ ] T014 [US1] [Requires: T013] Implement motion exclusion logic to filter subjects where **per-subject mean FD** > 0.5mm and log exclusion counts (FR-008)
 - [ ] T015 [US1] [Requires: T014] Implement zero-variance check to exclude subjects with `global_signal_sd == 0` and log warnings
-- [ ] T016 [US1] [Requires: T015] Generate `data/processed/cleaned_data.csv` containing Subject_ID, Global_Signal_SD, MWQ_Score, Age, Sex, Mean_FD, Mean_DVARS
+- [X] T016 [US1] [Requires: T015] Generate `data/processed/cleaned_data.csv` containing Subject_ID, Global_Signal_SD, MWQ_Score, Age, Sex, Mean_FD, Mean_DVARS
 - [X] T017 [P] [US1] Unit test: Verify global signal SD calculation matches manual calculation on sample data in `tests/test_ingestion.py`
 - [X] T018 [P] [US1] Unit test: Verify exclusion logic for missing pairs and high motion subjects in `tests/test_ingestion.py`
 
@@ -103,11 +103,11 @@
 - [X] T020 [US2] [Requires: T019] Implement model structure `Y ~ Global_Signal_SD + FD + DVARS + Age + Sex` in `code/modeling.py` (FR-003, FR-004)
 - [X] T021 [US2] [Requires: T016] Implement null distribution generation in `code/modeling.py` by training on **[deferred]** permuted MWQ vectors (Plan Phase 2 Step 3, Complexity Tracking). Verification: Assert permutation count is 1,000 in output logs/metadata. (FR-005, Plan Constraint)
 - [ ] T022 [US2] [Requires: T021] Implement empirical p-value calculation: proportion of null MAEs <= observed MAE (standard convention, SC-002). (FR-005)
-- [ ] T023 [US2] [Requires: T016] Implement Reduced Model (Y ~ FD + DVARS + Age + Sex) to isolate GSA effect (Plan Phase 2 Step 3). Output: `data/results/delta_r2.json` containing Delta R². Verification: Verify file exists and contains valid JSON with numeric Delta R². (Plan Methodology)
-- [ ] T024 [US2] [Requires: T016] Implement collinearity diagnostics (VIF, GSA-FD correlation) in `code/diagnostics.py`. Input: `data/processed/cleaned_data.csv`. Output: `data/results/diagnostics.json` with VIF values per predictor. Flag if VIF > 5 (log warning). (Plan Phase 1 Step 3)
+- [X] T023 [US2] [Requires: T016] Implement Reduced Model (Y ~ FD + DVARS + Age + Sex) to isolate GSA effect (Plan Phase 2 Step 3). Output: `data/results/delta_r2.json` containing Delta R². Verification: Verify file exists and contains valid JSON with numeric Delta R². (Plan Methodology)
+- [X] T024 [US2] [Requires: T016] Implement collinearity diagnostics (VIF, GSA-FD correlation) in `code/diagnostics.py`. Input: `data/processed/cleaned_data.csv`. Output: `data/results/diagnostics.json` with VIF values per predictor. Flag if VIF > 5 (log warning). (Plan Phase 1 Step 3)
 - [ ] T025 [US2] [Requires: T020, T021, T022] Generate `data/results/model_report.json` containing mean out-of-fold MAE, Pearson r, R², p-value, and null distribution stats
-- [ ] T026 [P] [US2] Unit test: Verify nested CV logic and alpha tuning on synthetic data in `tests/test_modeling.py`
-- [ ] T027 [P] [US2] Unit test: Verify null model performance is near zero on permuted data in `tests/test_modeling.py`
+- [X] T026 [P] [US2] Unit test: Verify nested CV logic and alpha tuning on synthetic data in `tests/test_modeling.py`
+- [X] T027 [P] [US2] Unit test: Verify null model performance is near zero on permuted data in `tests/test_modeling.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -121,7 +121,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] [Requires: T016, T019] Implement sensitivity analysis in `code/robustness.py` to sweep alpha over a range of small to large values and report MAE variation (FR-006)
+- [X] T028 [US3] [Requires: T016, T019] Implement sensitivity analysis in `code/robustness.py` to sweep alpha over a range of small to large values and report MAE variation (FR-006)
 - [ ] T029 [US3] [Requires: T016, T019] Implement alternative metric analysis in `code/robustness.py` using global-signal variance instead of SD and report Pearson r (FR-007)
 - [ ] T030 [US3] [Requires: T016, T019] Implement partial correlation analysis controlling for mean FD to verify independence of GSA effect. Verification: Assert p < 0.05 (SC-005). (FR-003, SC-005)
 - [ ] T031 [US3] [Requires: T028, T029, T030] Generate `data/results/robustness_report.json` containing alpha sweep results, variance metric correlation, and partial correlation stats

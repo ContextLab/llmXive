@@ -1,11 +1,3 @@
-"""
-Training utilities for the material degradation pathway prediction project.
-
-This module implements the training pipeline for a Random Forest multi-label
-classifier. It loads pre-split training data, trains the model on CPU,
-and saves the resulting model artifact and metrics.
-"""
-
 import os
 import json
 import logging
@@ -14,210 +6,198 @@ from pathlib import Path
 from typing import Tuple, Any, Dict
 
 import pandas as pd
-import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score, confusion_matrix, classification_report
-from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.metrics import classification_report, confusion_matrix, f1_score
+import numpy as np
 
-# Import project utilities
-from utils import setup_logging, save_json, load_json, get_env_var, ensure_dir, set_deterministic_seed
-from preprocessing import perform_ood_split
+# Import shared utilities
+from utils import setup_logging, save_json, ensure_dir, get_env_var
+from config_env import configure_environment
 
-# Configure logging
-logger = setup_logging("training")
+# Configure environment and logging
+configure_environment()
+logger = setup_logging(__name__)
 
 # Constants
-RANDOM_SEED_ENV = "RANDOM_SEED"
-DATA_PATH = Path("data/processed/train_set.parquet")
-OUTPUT_MODEL_PATH = Path("results/artifacts/model.pkl")
-OUTPUT_METRICS_PATH = Path("results/metrics/training_report.json")
-OUTPUT_DIR = Path("results/artifacts")
+TRAIN_DATA_PATH = Path("data/processed/train_set.parquet")
+MODEL_ARTIFACT_PATH = Path("results/artifacts/model.pkl")
+METRICS_REPORT_PATH = Path("results/metrics/training_report.json")
+RANDOM_SEED = int(get_env_var("RANDOM_SEED", "42"))
 
-def load_training_data(data_path: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_training_data() -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
     """
-    Load the pre-split training dataset.
-
-    Parameters
-    ----------
-    data_path : Path
-        Path to the parquet file containing the training set.
-
-    Returns
-    -------
-    X : pd.DataFrame
-        Feature matrix.
-    y : pd.DataFrame
-        Multi-label target matrix.
+    Load the pre-split training data from parquet.
+    Returns features (X), labels (y), and feature names.
     """
-    if not data_path.exists():
-        raise FileNotFoundError(f"Training data not found at {data_path}. "
-                                "Run T019 (preprocessing) to generate this file first.")
+    if not TRAIN_DATA_PATH.exists():
+        raise FileNotFoundError(
+            f"Training data not found at {TRAIN_DATA_PATH}. "
+            "Please run T019 (preprocessing) to generate train_set.parquet."
+        )
 
-    logger.info(f"Loading training data from {data_path}")
-    df = pd.read_parquet(data_path)
+    df = pd.read_parquet(TRAIN_DATA_PATH)
 
-    # Assume the dataframe has a 'features' column with list of features and 'labels' with list of labels
-    # Or flattened columns. Based on standard preprocessing, we expect:
-    # Features are numeric columns, Labels are binary columns or a list column.
-    # Let's assume the preprocessing task T019 outputs a clean DataFrame where:
-    # - Numeric columns (except 'id' or similar) are features
-    # - Columns starting with 'label_' or similar are targets, OR a 'labels' column exists.
-    # To be robust, we check for a 'labels' column containing lists of strings.
-    
-    if 'labels' in df.columns and isinstance(df['labels'].iloc[0], list):
-        # Multi-label format: list of strings per row
-        mlb = MultiLabelBinarizer()
-        y = mlb.fit_transform(df['labels'])
-        y_df = pd.DataFrame(y, columns=mlb.classes_, index=df.index)
-        X = df.drop(columns=['labels'])
-        # Ensure we drop non-feature columns if any (like 'id')
-        # For now, assume all other columns are features
-        X = X.select_dtypes(include=[np.number])
-    else:
-        # Assume standard format: numeric features and binary label columns
-        # Heuristic: identify label columns (e.g., containing 'pitting', 'scc', 'uniform' or starting with 'label_')
-        # If not specific, assume the last N columns are labels? 
-        # Let's assume the preprocessing output has clear separation or we rely on T019 output schema.
-        # Given T019 output `train_set.parquet`, let's assume standard schema:
-        # Features are all numeric columns, Labels are specific known columns or a 'labels' column.
-        # If 'labels' column doesn't exist, we might need to infer.
-        # Let's assume for T024 that the data has been prepared with a 'labels' column as a list of strings.
-        # If not, we fallback to assuming binary columns exist.
-        raise ValueError("Expected 'labels' column with list of strings in the training data. "
-                         "Please ensure T019 outputs the data in this format.")
-    
-    return X, y_df
+    # Assume columns starting with 'feat_' are features, 'label_' are targets
+    feature_cols = [c for c in df.columns if c.startswith("feat_")]
+    label_cols = [c for c in df.columns if c.startswith("label_")]
 
-def train_model(
-    X: pd.DataFrame, 
-    y: pd.DataFrame, 
-    random_state: int = 42,
-    n_estimators: int = 100
-) -> Tuple[RandomForestClassifier, Dict[str, Any]]:
+    if not feature_cols or not label_cols:
+        raise ValueError(
+            f"Invalid training data format. Found {len(feature_cols)} features "
+            f"and {len(label_cols)} labels. Expected at least one of each."
+        )
+
+    X = df[feature_cols].values
+    y = df[label_cols].values
+
+    logger.info(f"Loaded training data: {X.shape[0]} samples, {X.shape[1]} features, {y.shape[1]} labels")
+    return df, X, y, feature_cols, label_cols
+
+def train_model(X: np.ndarray, y: np.ndarray) -> RandomForestClassifier:
     """
-    Train a Random Forest multi-label classifier.
-
-    Parameters
-    ----------
-    X : pd.DataFrame
-        Feature matrix.
-    y : pd.DataFrame
-        Multi-label target matrix.
-    random_state : int, optional
-        Random seed for reproducibility.
-    n_estimators : int, optional
-        Number of trees in the forest.
-
-    Returns
-    -------
-    model : RandomForestClassifier
-        Trained model.
-    metrics : dict
-        Training metrics (macro-F1, etc.).
+    Train a Random Forest classifier on CPU.
+    Multi-label support is handled by sklearn's built-in MultiOutputClassifier logic
+    (RandomForestClassifier handles multi-output natively for regression, but for classification
+    with multi-output, sklearn usually requires MultiOutputClassifier wrapper.
+    However, if y is 2D with multi-label, we need to handle it.
+    Given the task is multi-label classification, we wrap RF in MultiOutputClassifier or
+    ensure y is handled correctly.
+    Standard RandomForestClassifier in sklearn expects 1D y for single-label.
+    For multi-label, we use sklearn.multioutput.MultiOutputClassifier.
     """
-    logger.info(f"Training Random Forest with {n_estimators} estimators (CPU-only)")
-    logger.info(f"Training set shape: X={X.shape}, y={y.shape}")
-
-    # Train a separate Random Forest for each label (One-vs-Rest strategy)
-    # sklearn's MultiOutputClassifier is the standard way to do this, 
-    # but for explicit control and metrics per label, we can loop or use MultiOutputClassifier.
-    # Let's use MultiOutputClassifier for cleaner API.
     from sklearn.multioutput import MultiOutputClassifier
 
+    logger.info("Training MultiOutput Random Forest model...")
+    
+    # Configure for CPU-only, deterministic results
     base_clf = RandomForestClassifier(
-        n_estimators=n_estimators,
-        random_state=random_state,
-        n_jobs=1,  # Force CPU single-threaded or controlled parallelism as per constraint
+        n_estimators=100,
         max_depth=None,
-        min_samples_split=2,
-        min_samples_leaf=1
+        random_state=RANDOM_SEED,
+        n_jobs=1, # Force single thread for CPU-only constraint
+        verbose=1
     )
 
-    model = MultiOutputClassifier(base_clf)
-    model.fit(X, y)
+    clf = MultiOutputClassifier(base_clf, n_jobs=1)
+    clf.fit(X, y)
 
-    # Calculate training metrics (macro-F1)
-    y_pred = model.predict(X)
+    logger.info("Model training completed.")
+    return clf
+
+def evaluate_model(clf: MultiOutputClassifier, X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
+    """
+    Evaluate the model on the training set (or validation split if available,
+    but T029 implies training report, so we evaluate on train for now or
+    assume T028 generated the metrics).
+    Since T028 is completed, we assume the metrics are calculated there.
+    However, T029 asks to save the artifact and the report.
+    We will re-calculate metrics on the training set to populate the report
+    as a "Training Performance" snapshot, or load the results from T028 if they exist.
     
-    # Calculate macro-F1 score
-    # Since it's multi-label, we calculate F1 per label and average
-    f1_scores = []
+    Given the flow: T024 (Train) -> T025-T028 (Eval) -> T029 (Save).
+    T028 generates the confusion matrix and metrics.
+    We should load the results from T028's execution if possible, 
+    or re-run the evaluation logic here to ensure the artifact is self-contained.
+    
+    To be safe and self-contained, we will perform the evaluation here using the
+    functions from evaluation.py if they are available, or replicate the logic.
+    Since evaluation.py is part of the API, we import from it.
+    """
+    from evaluation import calculate_macro_f1, generate_confusion_matrix
+
+    y_pred = clf.predict(X)
+
+    # Calculate Macro-F1
+    macro_f1 = calculate_macro_f1(y, y_pred)
+
+    # Generate confusion matrix (list of matrices for multi-label)
+    conf_matrices = generate_confusion_matrix(y, y_pred)
+
+    # Generate classification report per label
+    report = {}
+    feature_names = None # Will be passed if needed, but classification_report uses indices if no target_names
+    
     for i in range(y.shape[1]):
-        f1 = f1_score(y.iloc[:, i], y_pred[:, i], average='binary', zero_division=0)
-        f1_scores.append(f1)
-    
-    macro_f1 = np.mean(f1_scores)
-    
+        label_name = f"label_{i}"
+        # Extract single column for sklearn report
+        y_single = y[:, i]
+        y_pred_single = y_pred[:, i]
+        
+        report[label_name] = classification_report(
+            y_single, y_pred_single, output_dict=True
+        )
+
     metrics = {
-        "macro_f1_score": float(macro_f1),
-        "n_estimators": n_estimators,
-        "random_state": random_state,
-        "training_samples": X.shape[0],
-        "n_labels": y.shape[1],
-        "label_f1_scores": {y.columns[i]: float(f1) for i, f1 in enumerate(f1_scores)}
+        "macro_f1": macro_f1,
+        "confusion_matrices": conf_matrices,
+        "classification_report": report,
+        "model_params": clf[0].estimator[0].get_params(), # Accessing internal structure of MultiOutputClassifier
+        "n_samples": X.shape[0],
+        "n_features": X.shape[1],
+        "n_labels": y.shape[1]
     }
-
-    logger.info(f"Training completed. Macro-F1: {macro_f1:.4f}")
-    return model, metrics
-
-def save_artifacts(
-    model: Any, 
-    metrics: Dict[str, Any], 
-    output_model_path: Path, 
-    output_metrics_path: Path
-):
-    """
-    Save the trained model and metrics to disk.
-
-    Parameters
-    ----------
-    model : Any
-        Trained model object.
-    metrics : dict
-        Metrics dictionary.
-    output_model_path : Path
-        Path to save the model pickle.
-    output_metrics_path : Path
-        Path to save the metrics JSON.
-    """
-    ensure_dir(output_model_path.parent)
-    ensure_dir(output_metrics_path.parent)
-
-    # Save model
-    with open(output_model_path, 'wb') as f:
-        pickle.dump(model, f)
-    logger.info(f"Model saved to {output_model_path}")
-
-    # Save metrics
-    save_json(metrics, output_metrics_path)
-    logger.info(f"Metrics saved to {output_metrics_path}")
-
-def run_training_pipeline():
-    """
-    Main entry point to run the training pipeline.
-    """
-    # Get random seed from environment
-    seed_str = get_env_var(RANDOM_SEED_ENV, default="42")
-    try:
-        random_state = int(seed_str)
-    except ValueError:
-        logger.warning(f"Invalid RANDOM_SEED '{seed_str}', defaulting to 42")
-        random_state = 42
-    
-    set_deterministic_seed(random_state)
-    logger.info(f"Using random seed: {random_state}")
-
-    # Load data
-    X, y = load_training_data(DATA_PATH)
-
-    # Train model
-    model, metrics = train_model(X, y, random_state=random_state)
-
-    # Save artifacts
-    save_artifacts(model, metrics, OUTPUT_MODEL_PATH, OUTPUT_METRICS_PATH)
 
     return metrics
 
-if __name__ == "__main__":
+def save_artifacts(model: Any, metrics: Dict[str, Any], feature_cols: list, label_cols: list) -> None:
+    """
+    Save the trained model and metrics to disk.
+    """
+    # Ensure directories exist
+    ensure_dir(MODEL_ARTIFACT_PATH)
+    ensure_dir(METRICS_REPORT_PATH)
+
+    # Prepare model artifact dictionary
+    artifact = {
+        "model": model,
+        "feature_names": feature_cols,
+        "label_names": label_cols,
+        "training_seed": RANDOM_SEED
+    }
+
+    # Save model pickle
+    with open(MODEL_ARTIFACT_PATH, "wb") as f:
+        pickle.dump(artifact, f)
+    logger.info(f"Model artifact saved to {MODEL_ARTIFACT_PATH}")
+
+    # Save metrics report
+    # Convert numpy types to native Python for JSON serialization
+    def convert_numpy(obj):
+        if isinstance(obj, np.integer): return int(obj)
+        if isinstance(obj, np.floating): return float(obj)
+        if isinstance(obj, np.ndarray): return obj.tolist()
+        return obj
+
+    metrics_clean = json.loads(json.dumps(metrics, default=convert_numpy))
+    save_json(METRICS_REPORT_PATH, metrics_clean)
+    logger.info(f"Training report saved to {METRICS_REPORT_PATH}")
+
+def run_training_pipeline() -> None:
+    """
+    Orchestrates the full training and evaluation pipeline.
+    """
+    logger.info("Starting training pipeline...")
+
+    # 1. Load Data
+    df, X, y, feature_cols, label_cols = load_training_data()
+
+    # 2. Train Model
+    model = train_model(X, y)
+
+    # 3. Evaluate (Re-run evaluation to ensure report is current)
+    # Note: T028 might have already run, but T029 needs to save the final state.
+    # We trust the model state is the one from T024/T025/T026/T027/T028 flow.
+    # If T028 produced a separate metrics file, we might merge, but T029
+    # explicitly asks to save the report here.
+    metrics = evaluate_model(model, X, y)
+
+    # 4. Save Artifacts
+    save_artifacts(model, metrics, feature_cols, label_cols)
+
+    logger.info("Training pipeline completed successfully.")
+
+def main():
     run_training_pipeline()
+
+if __name__ == "__main__":
+    main()

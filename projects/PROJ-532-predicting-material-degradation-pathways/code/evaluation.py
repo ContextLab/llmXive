@@ -4,325 +4,300 @@ import logging
 import pickle
 from pathlib import Path
 from typing import Tuple, Any, Dict, List, Optional
-
 import numpy as np
 import pandas as pd
-from sklearn.metrics import f1_score, confusion_matrix
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, f1_score, classification_report
 from sklearn.utils import shuffle
 
+# Local imports
 from utils import setup_logging, save_json, load_json, ensure_dir, get_env_var
-from config_env import configure_environment
 
-# Configure environment and logging
-configure_environment()
-logger = setup_logging(__name__)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_SEED = 42
-DEFAULT_N_PERMUTATIONS = 1000
-DEFAULT_ALPHA = 0.05
+DATA_PROCESSED = Path("data/processed")
+RESULTS_METRICS = Path("results/metrics")
+RESULTS_PLOTS = Path("results/plots")
+RESULTS_ARTIFACTS = Path("results/artifacts")
 
-def generate_stratified_baseline(y_true: np.ndarray, random_state: int = DEFAULT_SEED) -> np.ndarray:
+# Ensure directories exist
+ensure_dir(DATA_PROCESSED)
+ensure_dir(RESULTS_METRICS)
+ensure_dir(RESULTS_PLOTS)
+ensure_dir(RESULTS_ARTIFACTS)
+
+def generate_stratified_baseline(y_true: np.ndarray, n_samples: Optional[int] = None) -> np.ndarray:
     """
-    Generate a stratified random baseline preserving the multi-label correlation structure.
-    
-    This function shuffles the joint label vector (all labels per sample) to preserve
-    the correlation structure between labels while breaking the relationship with features.
+    Generate a stratified random baseline preserving class distribution
+    and the multi-label correlation structure by shuffling the joint label vector.
     
     Args:
-        y_true: Array of shape (n_samples, n_labels) containing the true multi-label targets.
-        random_state: Random seed for reproducibility.
+        y_true: 2D array of shape (n_samples, n_labels) with binary labels.
+        n_samples: Number of samples to generate (defaults to len(y_true)).
         
     Returns:
-        y_shuffled: Array of shape (n_samples, n_labels) with shuffled joint labels.
+        2D array of shape (n_samples, n_labels) with shuffled labels.
     """
-    rng = np.random.RandomState(random_state)
-    # Shuffle rows of the joint label vector to preserve multi-label correlations
-    indices = rng.permutation(len(y_true))
-    return y_true[indices]
-
-def perform_permutation_test(
-    model: Any,
-    X: np.ndarray,
-    y_true: np.ndarray,
-    n_permutations: int = DEFAULT_N_PERMUTATIONS,
-    random_state: int = DEFAULT_SEED,
-    alpha: float = DEFAULT_ALPHA
-) -> Dict[str, Any]:
-    """
-    Perform a permutation test to validate model significance.
+    if n_samples is None:
+        n_samples = len(y_true)
     
-    This test shuffles the joint label vector n_permutations times and calculates
-    the macro-F1 score for each shuffled dataset. It then compares the actual
-    model performance against this null distribution to compute a p-value.
+    # Shuffle the joint label vector (row-wise) to preserve multi-label correlations
+    y_shuffled = shuffle(y_true, random_state=42)
+    
+    # If we need fewer samples, slice
+    if n_samples < len(y_shuffled):
+        y_shuffled = y_shuffled[:n_samples]
+        
+    return y_shuffled
+
+def perform_permutation_test(y_true: np.ndarray, y_pred: np.ndarray, n_permutations: int = 1000) -> float:
+    """
+    Perform a permutation test to validate p < 0.05.
     
     Args:
-        model: Trained sklearn classifier (e.g., RandomForestClassifier).
-        X: Feature matrix of shape (n_samples, n_features).
-        y_true: True labels of shape (n_samples, n_labels).
-        n_permutations: Number of permutations to perform (default: 1000).
-        random_state: Random seed for reproducibility.
-        alpha: Significance level threshold (default: 0.05).
+        y_true: True labels (2D array).
+        y_pred: Predicted labels (2D array).
+        n_permutations: Number of permutations (default 1000).
         
     Returns:
-        Dict containing:
-            - 'p_value': Calculated p-value from the permutation test.
-            - 'is_significant': Boolean indicating if p < alpha.
-            - 'observed_f1': Macro-F1 score of the actual model.
-            - 'null_distribution_f1': List of F1 scores from permuted labels.
-            - 'n_permutations': Number of permutations performed.
+        p-value from the permutation test.
     """
-    logger.info(f"Starting permutation test with n={n_permutations} permutations...")
-    
-    # Calculate observed performance
-    y_pred = model.predict(X)
-    observed_f1 = f1_score(y_true, y_pred, average='macro')
-    logger.info(f"Observed macro-F1: {observed_f1:.4f}")
+    # Calculate observed macro-F1
+    observed_f1 = f1_score(y_true, y_pred, average='macro', zero_division=0)
     
     # Generate null distribution
-    rng = np.random.RandomState(random_state)
     null_f1_scores = []
-    
     for i in range(n_permutations):
-        # Shuffle the joint label vector to preserve multi-label correlations
-        y_shuffled = generate_stratified_baseline(y_true, random_state=rng.randint(0, 2**31))
-        
-        # Train a new model on shuffled data (or evaluate if using a fixed model structure)
-        # For efficiency, we re-train a model with the same hyperparameters on shuffled data
-        # Note: In a full pipeline, we might use the same model instance if it's already trained
-        # but here we re-train to get a fair comparison of the learning algorithm's capability
-        # on random data.
-        
-        # Create a fresh model with same hyperparameters as original
-        # We assume the model passed in is a RandomForestClassifier or similar
-        # For permutation test, we need to re-train on shuffled data to get a fair baseline
-        # However, to save time, we can just predict with the original model on shuffled labels?
-        # No, that's not correct. We need to train a model on shuffled data.
-        
-        # Re-train model on shuffled data
-        # We'll use the same hyperparameters as the original model
-        # Since we don't have access to original hyperparameters, we use default RF
-        temp_model = RandomForestClassifier(
-            n_estimators=100, 
-            random_state=rng.randint(0, 2**31),
-            n_jobs=-1
-        )
-        temp_model.fit(X, y_shuffled)
-        
-        # Evaluate
-        y_pred_shuffled = temp_model.predict(X)
-        f1_shuffled = f1_score(y_shuffled, y_pred_shuffled, average='macro')
-        null_f1_scores.append(f1_shuffled)
-        
-        if (i + 1) % 100 == 0:
-            logger.info(f"Permutation {i + 1}/{n_permutations} completed")
+        y_shuffled = generate_stratified_baseline(y_true)
+        f1_null = f1_score(y_true, y_shuffled, average='macro', zero_division=0)
+        null_f1_scores.append(f1_null)
     
-    null_f1_scores = np.array(null_f1_scores)
+    # Calculate p-value
+    p_value = np.sum(null_f1_scores >= observed_f1) / n_permutations
+    logger.info(f"Permutation test: observed F1={observed_f1:.4f}, p-value={p_value:.4f}")
     
-    # Calculate p-value: proportion of null scores >= observed score
-    # If observed is better than random, p-value should be small
-    p_value = np.mean(null_f1_scores >= observed_f1)
-    
-    # Adjust for the fact that we might have perfect separation in some cases
-    # Add 1 to numerator and denominator for conservative estimate
-    p_value = (np.sum(null_f1_scores >= observed_f1) + 1) / (n_permutations + 1)
-    
-    is_significant = p_value < alpha
-    
-    logger.info(f"Permutation test complete: p-value = {p_value:.4f}, significant = {is_significant}")
-    
-    return {
-        'p_value': float(p_value),
-        'is_significant': bool(is_significant),
-        'observed_f1': float(observed_f1),
-        'null_distribution_f1': null_f1_scores.tolist(),
-        'n_permutations': n_permutations,
-        'alpha': alpha
-    }
+    return p_value
 
 def calculate_macro_f1(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate macro-averaged F1 score for multi-label classification."""
-    return float(f1_score(y_true, y_pred, average='macro'))
-
-def generate_confusion_matrix(y_true: np.ndarray, y_pred: np.ndarray, 
-                             label_names: Optional[List[str]] = None) -> Dict[str, Any]:
     """
-    Generate confusion matrix and identify error modes.
+    Calculate macro-F1 score for multi-label classification.
     
     Args:
-        y_true: True labels (n_samples, n_labels)
-        y_pred: Predicted labels (n_samples, n_labels)
-        label_names: Optional list of label names for interpretation
+        y_true: True labels (2D array).
+        y_pred: Predicted labels (2D array).
         
     Returns:
-        Dict with confusion matrix data and error mode analysis
+        Macro-F1 score.
     """
-    # For multi-label, we can generate per-label confusion matrices or a flattened one
-    # Here we generate per-label confusion matrices
-    cm_data = []
-    n_labels = y_true.shape[1]
-    
-    for i in range(n_labels):
-        cm = confusion_matrix(y_true[:, i], y_pred[:, i])
-        cm_entry = {
-            'label_index': i,
-            'label_name': label_names[i] if label_names and i < len(label_names) else f"label_{i}",
-            'confusion_matrix': cm.tolist(),
-            'tn': int(cm[0, 0]),
-            'fp': int(cm[0, 1]),
-            'fn': int(cm[1, 0]),
-            'tp': int(cm[1, 1])
-        }
-        cm_data.append(cm_entry)
-    
-    # Identify dominant error modes
-    total_fp = sum(entry['fp'] for entry in cm_data)
-    total_fn = sum(entry['fn'] for entry in cm_data)
-    
-    error_modes = {
-        'total_false_positives': total_fp,
-        'total_false_negatives': total_fn,
-        'fp_rate': total_fp / (total_fp + total_fn) if (total_fp + total_fn) > 0 else 0,
-        'per_label_errors': cm_data
-    }
-    
-    return error_modes
+    return f1_score(y_true, y_pred, average='macro', zero_division=0)
 
-def run_evaluation_pipeline(
-    model_path: str,
-    test_data_path: str,
-    output_dir: str,
-    n_permutations: int = DEFAULT_N_PERMUTATIONS,
-    random_state: int = DEFAULT_SEED
-) -> Dict[str, Any]:
+def generate_confusion_matrix(y_true: np.ndarray, y_pred: np.ndarray, 
+                              label_names: List[str], output_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Run the full evaluation pipeline including permutation test.
+    Generate confusion matrices for each degradation pathway and identify error modes.
     
     Args:
-        model_path: Path to the trained model pickle file.
-        test_data_path: Path to the test dataset (parquet or csv).
+        y_true: True labels (2D array).
+        y_pred: Predicted labels (2D array).
+        label_names: List of label names corresponding to columns in y_true/y_pred.
+        output_path: Optional path to save the confusion matrix data.
+        
+    Returns:
+        Dictionary containing confusion matrix data and error mode analysis.
+    """
+    n_labels = y_true.shape[1]
+    results = {
+        "per_label_confusion_matrices": {},
+        "error_modes": {},
+        "summary": {
+            "total_samples": len(y_true),
+            "n_labels": n_labels,
+            "label_names": label_names
+        }
+    }
+    
+    for i, label_name in enumerate(label_names):
+        # Extract binary labels for this specific pathway
+        y_true_binary = y_true[:, i]
+        y_pred_binary = y_pred[:, i]
+        
+        # Generate 2x2 confusion matrix: [[TN, FP], [FN, TP]]
+        cm = confusion_matrix(y_true_binary, y_pred_binary)
+        
+        tn, fp, fn, tp = cm.ravel()
+        
+        # Identify error modes
+        # False Positives: Predicted degradation but no actual degradation
+        # False Negatives: Actual degradation but predicted no degradation
+        error_mode = {
+            "true_negatives": int(tn),
+            "false_positives": int(fp),
+            "false_negatives": int(fn),
+            "true_positives": int(tp),
+            "total_errors": int(fp + fn),
+            "fp_rate": float(fp / (tn + fp)) if (tn + fp) > 0 else 0.0,
+            "fn_rate": float(fn / (fn + tp)) if (fn + tp) > 0 else 0.0,
+            "precision": float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0,
+            "recall": float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0
+        }
+        
+        results["per_label_confusion_matrices"][label_name] = {
+            "matrix": cm.tolist(),
+            "breakdown": {
+                "TN": int(tn),
+                "FP": int(fp),
+                "FN": int(fn),
+                "TP": int(tp)
+            }
+        }
+        results["error_modes"][label_name] = error_mode
+        
+        # Log specific error modes
+        if fp > 0:
+            logger.info(f"Error mode for {label_name}: {fp} False Positives (predicted degradation when none present)")
+        if fn > 0:
+            logger.info(f"Error mode for {label_name}: {fn} False Negatives (missed actual degradation)")
+    
+    # Overall summary
+    total_fp = sum(em["false_positives"] for em in results["error_modes"].values())
+    total_fn = sum(em["false_negatives"] for em in results["error_modes"].values())
+    results["summary"]["total_false_positives"] = total_fp
+    results["summary"]["total_false_negatives"] = total_fn
+    results["summary"]["overall_error_rate"] = (total_fp + total_fn) / (n_labels * len(y_true)) if n_labels > 0 else 0.0
+    
+    # Save to file if path provided
+    if output_path:
+        ensure_dir(output_path.parent)
+        save_json(results, output_path)
+        logger.info(f"Confusion matrix report saved to {output_path}")
+    
+    return results
+
+def run_evaluation_pipeline(model_path: Path, data_path: Path, output_dir: Path = RESULTS_METRICS) -> Dict[str, Any]:
+    """
+    Run the full evaluation pipeline: load model, predict, calculate metrics,
+    perform permutation test, and generate confusion matrices.
+    
+    Args:
+        model_path: Path to the trained model artifact (pkl).
+        data_path: Path to the test dataset (parquet).
         output_dir: Directory to save evaluation results.
-        n_permutations: Number of permutations for the test.
-        random_state: Random seed for reproducibility.
         
     Returns:
         Dictionary containing all evaluation results.
     """
-    logger.info(f"Starting evaluation pipeline")
-    logger.info(f"Model path: {model_path}")
-    logger.info(f"Test data path: {test_data_path}")
-    
-    # Ensure output directory exists
-    ensure_dir(output_dir)
+    logger.info(f"Starting evaluation pipeline with model: {model_path}, data: {data_path}")
     
     # Load model
     with open(model_path, 'rb') as f:
-        model = pickle.load(f)
-    logger.info("Model loaded successfully")
+        model_artifact = pickle.load(f)
+        
+    model = model_artifact['model']
+    label_names = model_artifact.get('label_names', [])
+    
+    if not label_names:
+        # Fallback: try to infer from data or use generic names
+        logger.warning("No label names found in model artifact. Attempting to infer from data.")
+        try:
+            df = pd.read_parquet(data_path)
+            # Assume columns ending with '_label' or similar pattern are labels
+            # This is a heuristic; adjust based on actual data schema
+            label_cols = [col for col in df.columns if 'label' in col.lower()]
+            if not label_cols:
+                # Fallback to last N columns if we know N
+                n_labels = model_artifact.get('n_labels', 5)
+                label_cols = df.columns[-n_labels:].tolist()
+            label_names = label_cols
+        except Exception as e:
+            logger.error(f"Failed to infer label names: {e}")
+            raise
     
     # Load test data
-    if test_data_path.endswith('.parquet'):
-        df = pd.read_parquet(test_data_path)
-    else:
-        df = pd.read_csv(test_data_path)
-    
-    logger.info(f"Loaded test data with {len(df)} samples")
+    df_test = pd.read_parquet(data_path)
     
     # Separate features and labels
-    # Assuming labels are columns starting with 'label_' or specific known columns
-    # For now, we assume the last columns are labels, or we need to know the schema
-    # In a real scenario, we'd use metadata or a schema definition
-    label_cols = [col for col in df.columns if col.startswith('label_')]
+    # Assume all columns except features are labels, or use a specific schema
+    # For this implementation, we'll assume the first N columns are features and rest are labels
+    # This should be adjusted based on the actual preprocessing output schema
+    feature_cols = [col for col in df_test.columns if not col.endswith('_label') and 'label' not in col.lower()]
+    label_cols = [col for col in df_test.columns if col.endswith('_label') or 'label' in col.lower()]
+    
     if not label_cols:
-        # Fallback: assume last N columns are labels (common convention)
-        n_labels = 3  # Example default
-        label_cols = df.columns[-n_labels:].tolist()
+        # Fallback: assume last 5 columns are labels
+        label_cols = df_test.columns[-5:].tolist()
+        label_names = label_cols
+        
+    X_test = df_test[feature_cols].values
+    y_true = df_test[label_cols].values
     
-    feature_cols = [col for col in df.columns if col not in label_cols]
+    # Make predictions
+    y_pred = model.predict(X_test)
     
-    X = df[feature_cols].values
-    y_true = df[label_cols].values
-    
-    logger.info(f"Features shape: {X.shape}, Labels shape: {y_true.shape}")
-    
-    # Calculate observed performance
-    y_pred = model.predict(X)
-    observed_f1 = calculate_macro_f1(y_true, y_pred)
-    logger.info(f"Observed macro-F1: {observed_f1:.4f}")
-    
-    # Generate stratified baseline
-    y_baseline = generate_stratified_baseline(y_true, random_state=random_state)
-    baseline_f1 = calculate_macro_f1(y_baseline, y_baseline)  # This will be ~0.5 for random
-    logger.info(f"Stratified baseline F1: {baseline_f1:.4f}")
+    # Calculate macro-F1
+    macro_f1 = calculate_macro_f1(y_true, y_pred)
+    logger.info(f"Macro-F1 Score: {macro_f1:.4f}")
     
     # Perform permutation test
-    perm_results = perform_permutation_test(
-        model, X, y_true, 
-        n_permutations=n_permutations, 
-        random_state=random_state
-    )
+    p_value = perform_permutation_test(y_true, y_pred, n_permutations=1000)
     
-    # Generate confusion matrix
-    cm_results = generate_confusion_matrix(y_true, y_pred, label_names=label_cols)
+    # Generate confusion matrices
+    cm_output_path = output_dir / "confusion_matrix_report.json"
+    cm_results = generate_confusion_matrix(y_true, y_pred, label_names, cm_output_path)
     
-    # Compile final report
+    # Compile full report
     report = {
-        'observed_f1': observed_f1,
-        'baseline_f1': baseline_f1,
-        'permutation_test': perm_results,
-        'confusion_matrix': cm_results,
-        'n_samples': len(df),
-        'n_features': X.shape[1],
-        'n_labels': y_true.shape[1],
-        'label_names': label_cols,
-        'random_state': random_state,
-        'n_permutations': n_permutations
+        "macro_f1": macro_f1,
+        "permutation_test": {
+            "n_permutations": 1000,
+            "p_value": p_value,
+            "significant": p_value < 0.05
+        },
+        "confusion_matrix_summary": cm_results["summary"],
+        "error_modes": cm_results["error_modes"],
+        "label_names": label_names,
+        "sample_count": len(y_true),
+        "feature_count": X_test.shape[1]
     }
     
-    # Save results
-    report_path = os.path.join(output_dir, 'evaluation_report.json')
+    # Save full report
+    report_path = output_dir / "evaluation_report.json"
     save_json(report, report_path)
     logger.info(f"Evaluation report saved to {report_path}")
-    
-    # Save null distribution for plotting
-    null_dist_path = os.path.join(output_dir, 'null_distribution_f1.json')
-    save_json({
-        'null_f1_scores': perm_results['null_distribution_f1'],
-        'observed_f1': perm_results['observed_f1'],
-        'p_value': perm_results['p_value']
-    }, null_dist_path)
-    logger.info(f"Null distribution saved to {null_dist_path}")
     
     return report
 
 def main():
     """Main entry point for evaluation script."""
-    # Load configuration from environment or defaults
-    model_path = get_env_var('MODEL_PATH', 'results/artifacts/model.pkl')
-    test_data_path = get_env_var('TEST_DATA_PATH', 'data/processed/test_ood_set.parquet')
-    output_dir = get_env_var('EVAL_OUTPUT_DIR', 'results/metrics')
-    n_permutations = int(get_env_var('N_PERMUTATIONS', str(DEFAULT_N_PERMUTATIONS)))
-    random_state = int(get_env_var('RANDOM_STATE', str(DEFAULT_SEED)))
+    # Default paths
+    model_path = Path("results/artifacts/model.pkl")
+    test_data_path = Path("data/processed/test_ood_set.parquet")
+    output_dir = RESULTS_METRICS
     
-    # Run pipeline
-    report = run_evaluation_pipeline(
-        model_path=model_path,
-        test_data_path=test_data_path,
-        output_dir=output_dir,
-        n_permutations=n_permutations,
-        random_state=random_state
-    )
+    # Check if files exist
+    if not model_path.exists():
+        logger.error(f"Model artifact not found at {model_path}")
+        logger.error("Please run training first (T024) to generate the model.")
+        return
+        
+    if not test_data_path.exists():
+        logger.error(f"Test data not found at {test_data_path}")
+        logger.error("Please run preprocessing first (T019) to generate the OOD split.")
+        return
+    
+    # Run evaluation
+    results = run_evaluation_pipeline(model_path, test_data_path, output_dir)
     
     # Print summary
-    print(f"\n=== Evaluation Summary ===")
-    print(f"Observed F1: {report['observed_f1']:.4f}")
-    print(f"Permutation Test p-value: {report['permutation_test']['p_value']:.4f}")
-    print(f"Significant (p < 0.05): {report['permutation_test']['is_significant']}")
-    print(f"Null Distribution Mean: {np.mean(report['permutation_test']['null_distribution_f1']):.4f}")
-    print(f"Null Distribution Std: {np.std(report['permutation_test']['null_distribution_f1']):.4f}")
-    
-    return report
+    print("\n=== Evaluation Summary ===")
+    print(f"Macro-F1 Score: {results['macro_f1']:.4f}")
+    print(f"Permutation Test p-value: {results['permutation_test']['p_value']:.4f} ({'Significant' if results['permutation_test']['significant'] else 'Not Significant'})")
+    print(f"Total Samples: {results['sample_count']}")
+    print(f"Total Features: {results['feature_count']}")
+    print(f"\nError Modes Identified:")
+    for label, modes in results['error_modes'].items():
+        print(f"  {label}: FP={modes['false_positives']}, FN={modes['false_negatives']}")
+    print("=========================\n")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

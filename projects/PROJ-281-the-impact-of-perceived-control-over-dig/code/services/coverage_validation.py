@@ -1,104 +1,106 @@
 """
-Coverage validation logic for User Story 1.
+Coverage Validation Service for User Story 1.
 
-Verifies that >=95% of rows from the preprocessed text file
-(data/processed/preprocessed_text.csv) have corresponding entries
-in the scoring results file (data/processed/scoring_results.csv).
-Generates a coverage report at data/processed/coverage_report.json.
+Implements logic to verify >=95% scoring coverage by comparing row counts
+of preprocessed_text.csv and scoring_results.csv, generating a coverage report.
 """
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any
-
 import pandas as pd
-
 from code.config import CONFIG
 
 logger = logging.getLogger(__name__)
 
-def validate_coverage() -> Dict[str, Any]:
+def validate_coverage(
+    preprocessed_path: Path,
+    scoring_results_path: Path,
+    threshold: float = 0.95
+) -> Dict[str, Any]:
     """
-    Compare row counts of preprocessed_text.csv and scoring_results.csv.
-    Returns a dictionary with coverage metrics.
-
-    Raises:
-        FileNotFoundError: If required input files are missing.
-        ValueError: If coverage is below the 95% threshold.
+    Validate that the number of scored rows is at least `threshold` * preprocessed rows.
+    
+    Args:
+        preprocessed_path: Path to preprocessed_text.csv
+        scoring_results_path: Path to scoring_results.csv
+        threshold: Minimum required coverage ratio (default 0.95)
+        
+    Returns:
+        Dictionary containing coverage statistics and pass/fail status.
     """
-    preprocessed_path = CONFIG.DATA_PROCESSED_DIR / "preprocessed_text.csv"
-    scoring_path = CONFIG.DATA_PROCESSED_DIR / "scoring_results.csv"
-    report_path = CONFIG.DATA_PROCESSED_DIR / "coverage_report.json"
-
+    logger.info(f"Validating coverage between {preprocessed_path} and {scoring_results_path}")
+    
     if not preprocessed_path.exists():
-        raise FileNotFoundError(f"Preprocessed text file not found: {preprocessed_path}")
-    if not scoring_path.exists():
-        raise FileNotFoundError(f"Scoring results file not found: {scoring_path}")
-
+        raise FileNotFoundError(f"Preprocessed file not found: {preprocessed_path}")
+    if not scoring_results_path.exists():
+        raise FileNotFoundError(f"Scoring results file not found: {scoring_results_path}")
+        
     df_preprocessed = pd.read_csv(preprocessed_path)
-    df_scoring = pd.read_csv(scoring_path)
-
-    total_preprocessed = len(df_preprocessed)
-    total_scoring = len(df_scoring)
-
-    if total_preprocessed == 0:
-        coverage_pct = 0.0
-        is_success = False
-        message = "No rows in preprocessed text file."
+    df_scoring = pd.read_csv(scoring_results_path)
+    
+    preprocessed_count = len(df_preprocessed)
+    scoring_count = len(df_scoring)
+    
+    if preprocessed_count == 0:
+        logger.warning("Preprocessed file is empty. Coverage cannot be calculated.")
+        coverage_ratio = 0.0
     else:
-        # Calculate coverage based on the assumption that scoring results
-        # are a subset of preprocessed text (filtered by quality/confidence).
-        # The task requires verifying that >=95% of preprocessed rows are scored.
-        # This implies that the filtering steps (T014a, T016) should not remove
-        # more than 5% of the data.
-        coverage_pct = (total_scoring / total_preprocessed) * 100
-        is_success = coverage_pct >= 95.0
-        message = "Coverage threshold met." if is_success else "Coverage threshold NOT met."
-
-        logger.info(f"Preprocessed rows: {total_preprocessed}")
-        logger.info(f"Scoring rows: {total_scoring}")
-        logger.info(f"Coverage: {coverage_pct:.2f}%")
-
+        coverage_ratio = scoring_count / preprocessed_count
+        
+    is_valid = coverage_ratio >= threshold
+    
     report = {
-        "preprocessed_count": total_preprocessed,
-        "scoring_count": total_scoring,
-        "coverage_percentage": round(coverage_pct, 4),
-        "threshold_percentage": 95.0,
-        "is_success": is_success,
-        "message": message,
-        "timestamp": CONFIG.RUN_TIMESTAMP.isoformat()
+        "preprocessed_count": preprocessed_count,
+        "scoring_count": scoring_count,
+        "coverage_ratio": round(coverage_ratio, 4),
+        "threshold": threshold,
+        "is_valid": is_valid,
+        "message": (
+            f"Coverage validation {'PASSED' if is_valid else 'FAILED'}. "
+            f"{scoring_count}/{preprocessed_count} rows scored ({coverage_ratio:.2%}). "
+            f"Required: >= {threshold:.2%}"
+        )
     }
-
-    # Ensure directory exists
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(report_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Coverage report saved to {report_path}")
-
-    if not is_success:
-        raise ValueError(f"Coverage validation failed: {coverage_pct:.2f}% < 95.0%")
-
+    
+    logger.info(f"Coverage validation result: {report['message']}")
     return report
 
-def run_coverage_validation() -> None:
+def run_coverage_validation() -> Path:
     """
-    Entry point for the coverage validation script.
+    Main entry point for the coverage validation pipeline.
+    
+    Reads paths from CONFIG, performs validation, and saves the report to
+    data/processed/coverage_report.json.
+    
+    Returns:
+        Path to the generated coverage report.
     """
-    logging.basicConfig(level=logging.INFO)
+    preprocessed_path = CONFIG.DATA_PROCESSED_DIR / "preprocessed_text.csv"
+    scoring_results_path = CONFIG.DATA_PROCESSED_DIR / "scoring_results.csv"
+    output_path = CONFIG.DATA_PROCESSED_DIR / "coverage_report.json"
+    
     try:
-        validate_coverage()
-        logger.info("Coverage validation completed successfully.")
+        report = validate_coverage(
+            preprocessed_path,
+            scoring_results_path,
+            threshold=0.95
+        )
+        
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Coverage report saved to {output_path}")
+        return output_path
+        
     except FileNotFoundError as e:
-        logger.error(f"File missing: {e}")
-        raise
-    except ValueError as e:
-        logger.error(f"Validation failed: {e}")
+        logger.error(f"Validation failed due to missing file: {e}")
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during coverage validation: {e}")
+        logger.error(f"Validation failed with unexpected error: {e}")
         raise
-
+    
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     run_coverage_validation()

@@ -131,6 +131,10 @@
     "classified_at": "2026-07-16T10:02:58Z",
     "verdict": false
   },
+  "PROJ-1010-llmxive-follow-up-extending-omniopt-taxo::1.6.0": {
+    "classified_at": "2026-07-31T16:18:42Z",
+    "verdict": false
+  },
   "PROJ-1011-llmxive-follow-up-extending-researchstud::1.6.0": {
     "classified_at": "2026-07-23T04:13:11Z",
     "verdict": false

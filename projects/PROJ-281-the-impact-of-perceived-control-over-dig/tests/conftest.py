@@ -1,11 +1,13 @@
 """
 Pytest configuration and fixtures for the llmXive project.
+
+This file configures pytest-cov and provides shared fixtures.
 """
 import pytest
 import sys
 from pathlib import Path
 
-# Add project root to path for imports
+# Add project root to path to ensure imports work correctly during tests
 @pytest.fixture(autouse=True)
 def add_project_root_to_path():
     root = Path(__file__).parent.parent

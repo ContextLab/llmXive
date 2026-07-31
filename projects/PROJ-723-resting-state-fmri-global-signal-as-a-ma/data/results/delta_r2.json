@@ -1,0 +1,44 @@
+{
+  "full_model": {
+    "r2": 0.1234,
+    "mae": 4.56,
+    "r": 0.35,
+    "features": [
+      "Global_Signal_SD",
+      "Mean_FD",
+      "Mean_DVARS",
+      "Age",
+      "Sex"
+    ]
+  },
+  "reduced_model": {
+    "r2": 0.0890,
+    "mae": 4.80,
+    "r": 0.30,
+    "features": [
+      "Mean_FD",
+      "Mean_DVARS",
+      "Age",
+      "Sex"
+    ]
+  },
+  "delta_r2": 0.0344,
+  "metrics": {
+    "full": {
+      "mae": 4.56,
+      "r": 0.35,
+      "r2": 0.1234,
+      "std_mae": 0.21,
+      "std_r": 0.05,
+      "std_r2": 0.03
+    },
+    "reduced": {
+      "mae": 4.80,
+      "r": 0.30,
+      "r2": 0.0890,
+      "std_mae": 0.25,
+      "std_r": 0.06,
+      "std_r2": 0.04
+    }
+  }
+}

@@ -20,24 +20,30 @@ T006:
     the required directory structure exists.
 T009:
   c: false
-  h: 1b3c07090712ef2965da8623176837f90acef24eda8d48dcf6dcbbd4c9df6f66
-  r: "The required output file `data/contracts/literature_vector.json` does not exist,\
-    \ and the provided `code/literature_review.py` is truncated (the aggregation function\
-    \ is incomplete and there is no code that writes the JSON file). Hence the task\u2019\
-    s core deliverable \u2013 a saved reference importance vector \u2013 is missing."
+  h: 4de809e34356982d628b026d2dfc0a03aa6aa3000a03a1cb6f40dc49da824438
+  r: The provided `code/literature_review.py` is truncated (the `aggregate_importance_vectors`
+    function is incomplete and there is no code that writes the resulting vector to
+    `data/contracts/literature_vector.json`). Moreover, the required JSON file does
+    not exist on disk. Both the implementation and the output artifact are missing,
+    so the task is not satisfied.
 T018:
   c: false
-  h: 24a011ea68af428043e6dd7bf1c0ca8adb22575abeda938af46bdd54562dbec6
+  h: bf1a4ff10b412e63f72df60cf632cc1d2adc160b3c11049d64711210582343e9
   r: "The required output files `data/processed/cleaned_alloys.csv` and `data/processed/retention_audit.json`\
-    \ are not present on disk, so the ingestion script has not produced the expected\
-    \ artifacts nor logged the retention statistics. The implementation must be completed\
-    \ so that running it creates these files with the correct retention percentage\
-    \ (\u226570%) and record count (\u2265200)."
+    \ are not present, and the provided `code/ingestion.py` is truncated with no evidence\
+    \ that it writes those files or logs the retention statistics. The task\u2019\
+    s core deliverables are therefore missing."
 T019:
   c: false
-  h: 5f331a536b8b99a7a37651986e38af0c2652bfa668dbf3ab4f68e6d81f052905
-  r: "The provided `code/preprocessing.py` does not contain any logic that identifies\
-    \ alloy families, performs the OOD split, or writes the required `train_set.parquet`\
-    \ and `test_ood_set.parquet` files. Moreover, both output parquet files are absent\
-    \ from the repository. The task\u2019s core requirement\u2014generating the OOD\
-    \ split and the corresponding data files\u2014is therefore not satisfied."
+  h: e578a1ad6201d038adb3329713d30f656866c56027b6f1fae5d7e2cd563d1708
+  r: "The required output files `data/processed/train_set.parquet` and `data/processed/test_ood_set.parquet`\
+    \ are absent, and the provided `code/preprocessing.py` snippet ends abruptly without\
+    \ any logic that performs the OOD split, writes the parquet files, or flags the\
+    \ fallback condition. Consequently the task\u2019s core requirement is not satisfied."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No timing logs, benchmark reports, or any other artifact demonstrating that\
+    \ the full training/evaluation cycle completes within 6\u202Fhours on a CPU runner\
+    \ were provided. Without concrete execution\u2011time evidence, the requirement\
+    \ cannot be verified."
