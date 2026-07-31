@@ -4782,3 +4782,829 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T01:07:31Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: synthetic regular ring lattice of N=500 nodes
+  claim_id: c_bb1d5b6c
+  context: 'Action: Check if FR-001 explicitly states synthetic regular ring lattice
+    of N=500 nodes. If NO: Rewrite FR-001 to: The system MUST generate a set of network
+    topologies based on a synthetic regular ring lattice of N=500 nodes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST generate a set of network topologies based on a synthetic
+    regular ring lattice of N=500 nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:39:19Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: synthetic regular ring lattice N=500 nodes k=2
+  claim_id: c_ee0cf4b1
+  context: The system MUST generate a set of network topologies based on a synthetic
+    regular ring lattice of N=500 nodes. The base graph MUST be a synthetic regular
+    ring lattice with N=500 nodes and nearest-neighbor connectivity k=2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base graph MUST be a synthetic regular ring lattice with N=500 nodes
+    and nearest-neighbor connectivity k=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:39:28Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: graphs saved as gpickle with N k p seed metadata
+  claim_id: c_e52de67f
+  context: Generated graphs MUST be saved as .gpickle files with metadata including
+    N, k, p, and the random seed used.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graphs_saved_as_gpickle_with_N_k_p_seed_metadata
+  kind: entity_fact
+  raw_text: Generated graphs MUST be saved as .gpickle files with metadata including
+    N, k, p, and the random seed used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:41:50Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: requirements networkx 3.2.0 scipy 1.12.0 numpy 1.26.0 pandas 2.2.0 pyyaml
+    6.0.0
+  claim_id: c_d2057ac4
+  context: 'Create code/requirements.txt containing pinned versions: networkx>=3.2.0,
+    scipy>=1.12.0, numpy>=1.26.0, pandas>=2.2.0, pyyaml>=6.0.0.'
+  evidence:
+    asserted: '3.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The requirements file must contain pinned versions: networkx>=3.2.0,
+    scipy>=1.12.0, numpy>=1.26.0, pandas>=2.2.0, pyyaml>=6.0.0.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-31T20:41:51Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: flake8 max-line-length 88 ignore E203 W503
+  claim_id: c_bcf61d79
+  context: Create .flake8 config with max-line-length=88, ignore=E203,W503 and pyproject.toml
+    for black with line-length=88.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The .flake8 config must have max-line-length=88 and ignore=E203,W503.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:42:04Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: black line-length 88
+  claim_id: c_a7958728
+  context: Create .flake8 config with max-line-length=88, ignore=E203,W503 and pyproject.toml
+    for black with line-length=88.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pyproject.toml for black must have line-length=88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:42:22Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: graph_metadata schema node_count avg_degree p seed checksum
+  claim_id: c_4f1de4e0
+  context: 'Define the graph_metadata.json schema in docs/data_model.md (or inline
+    comment) containing keys: node_count (int), avg_degree (float), p (float), seed
+    (int), checksum (string).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metadata_schema_node_count_avg_degree_p_seed_checksum
+  kind: entity_fact
+  raw_text: 'The graph_metadata.json schema must contain keys: node_count (int), avg_degree
+    (float), p (float), seed (int), checksum (string).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:42:49Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: binary search time_steps 1000 to 20000 fixed 50 topologies
+  claim_id: c_88d17933
+  context: 'Objective: Binary search for time_steps in range [1000, 20000] for a fixed
+    N=50 topologies.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility study performs a binary search for time_steps in range
+    [1000, 20000] for a fixed N=50 topologies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:43:34Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: minimum viable n_topologies 10
+  claim_id: c_0684adaa
+  context: 'If the calculated feasible n_topologies < 10, DO NOT halt. Log CRITICAL
+    WARNING: Insufficient compute for minimum scientific validity, set n_topologies
+    = 10 (minimum viable).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_viable_n_topologies_10
+  kind: magnitude
+  raw_text: If the calculated feasible n_topologies is less than 10, the system must
+    set n_topologies to 10 as the minimum viable count.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:44:01Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: config.json n_topologies >= 10 time_steps >= 1000
+  claim_id: c_08bbe4c6
+  context: 'Verification: Run python -c import json; d=json.load(open(''data/processed/config.json''));
+    assert (d[''n_topologies''] >= 10); assert (d[''time_steps''] >= 1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility study must produce a valid config.json with n_topologies
+    >= 10 and time_steps >= 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:44:17Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: synthetic ring lattice N=500 k=2
+  claim_id: c_37be715a
+  context: Implement synthetic ring lattice generator in code/generate_topology.py
+    (N=500, k=2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic ring lattice generator must use N=500 and k=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:46:05Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: batch generation p sweep 0.0 to 1.0 50 steps
+  claim_id: c_2acae895
+  context: Implement batch generation loop (p=0.0 to 1.0, 50 steps, N instances as
+    defined in data/processed/config.json) in code/generate_topology.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch generation loop must sweep p from 0.0 to 1.0 in 50 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:46:31Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: file naming pattern topology_id p seed gpickle
+  claim_id: c_6f31213f
+  context: 'File Naming: Must follow topology_{topology_id}_p{p:.2f}_seed_{seed}.gpickle.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/File_naming_pattern_topology_id_p_seed_gpickle
+  kind: entity_fact
+  raw_text: File naming for generated graphs must follow the pattern topology_{topology_id}_p{p:.2f}_seed_{seed}.gpickle.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:46:52Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: invariance absolute_difference < 1e-4
+  claim_id: c_a319d20b
+  context: 'Success Criterion: For all topologies, absolute_difference must be < 1e-4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The invariance verification success criterion requires absolute_difference
+    < 1e-4 for all topologies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:46:53Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: stability check sample variance R run_count 1000
+  claim_id: c_892956ba
+  context: 'Run Count: Read run_count from data/processed/config.json (default 1000,
+    adjusted by scope_reduction_factor if applicable). Calculate sample variance of
+    R.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability check must calculate sample variance of R for run_count
+    read from config.json (default 1000).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:47:11Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: variation metric thresholds 0.4 0.5 0.6
+  claim_id: c_fcb8ba9b
+  context: 'Definition: Calculate the Spearman correlation coefficient for each threshold
+    in {0.4, 0.5, 0.6} (from data/processed/sensitivity_analysis.json). Compute the
+    relative variation: (max(coef) - min(coef)) / mean(coef).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variation metric calculation uses the set {0.4, 0.5, 0.6} for thresholds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:48:24Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: synthetic regular ring lattice of 500 nodes
+  claim_id: c_570764cd
+  context: 'Action: Check if FR-001 explicitly states ''synthetic regular ring lattice
+    of N=500 nodes''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST generate a set of network topologies based on a synthetic
+    regular ring lattice of N=500 nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:51:55Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: synthetic regular ring lattice 500 nodes k=2
+  claim_id: c_12bca2c8
+  context: 'Rewrite FR-001 to: ''The system MUST generate a set of network topologies
+    based on a synthetic regular ring lattice of N=500 nodes. The base graph MUST
+    be a synthetic regular ring lattice with N=500 nodes and nearest-neighbor connectivity
+    k=2.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base graph MUST be a synthetic regular ring lattice with N=500 nodes
+    and nearest-neighbor connectivity k=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:51:56Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: feasibility 6 hours 2-core CPU
+  claim_id: c_a9e89302
+  context: Determine the maximum time steps, number of topologies, and run count feasible
+    within 6 hours on a 2-core CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility study must determine parameters feasible within 6 hours
+    on a 2-core CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:51:57Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: binary search time steps 1000 to 20000
+  claim_id: c_5fa53d96
+  context: Binary search for time_steps in range [1000, 20000] for a fixed N=50 topologies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility study binary search range for time steps is [1000, 20000].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:52:14Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: generated graphs 500 nodes
+  claim_id: c_8b465b86
+  context: 'Independent Test: The system can be tested by generating N network instances...
+    and verifying that each graph is connected, has the correct number of nodes (N=500)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generated graphs must have N=500 nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:53:06Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: invariance difference less than 1e-4
+  claim_id: c_8c4918a9
+  context: 'Success Criterion: For all topologies, absolute_difference must be < 1e-4.
+    This tolerance is derived from the integrator''s atol (absolute tolerance) setting
+    defined in SC-006...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Invariance_difference_less_than_1e-4
+  kind: magnitude
+  raw_text: The absolute difference between Kc in single oscillator frame and center-of-mass
+    frame must be less than 1e-4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:53:23Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: default run count 1000
+  claim_id: c_93cae086
+  context: 'Run Count: Read run_count from data/processed/config.json (default 1000,
+    adjusted by scope_reduction_factor if applicable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default run count for stability checks is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:53:42Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 0.4 0.5 0.6
+  claim_id: c_e45c16b5
+  context: Sweep over the set {0.4, 0.5, 0.6} as defined in SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the order parameter threshold over the
+    set {0.4, 0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:54:36Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: synthetic regular ring lattice of 500 nodes
+  claim_id: c_7f344da8
+  context: 'Rewrite FR-001 to: The system MUST generate a set of network topologies
+    based on a synthetic regular ring lattice of N=500 nodes. The base graph MUST
+    be a synthetic regular ring lattice with N=500 nodes and nearest-neighbor connectivity
+    k=2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST generate a set of network topologies based on a synthetic
+    regular ring lattice of N=500 nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:58:25Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: synthetic regular ring lattice 500 nodes k=2
+  claim_id: c_3d8d97fb
+  context: The system MUST generate a set of network topologies based on a synthetic
+    regular ring lattice of N=500 nodes. The base graph MUST be a synthetic regular
+    ring lattice with N=500 nodes and nearest-neighbor connectivity k=2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base graph MUST be a synthetic regular ring lattice with N=500 nodes
+    and nearest-neighbor connectivity k=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:58:26Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 2
+  canonical: Watts-Strogatz algorithm full spectrum of p
+  claim_id: c_2eca8844
+  context: The base graph MUST be a synthetic regular ring lattice with N=500 nodes
+    and nearest-neighbor connectivity k=2. The system MUST apply the Watts-Strogatz
+    algorithm with rewiring probabilities p ranging across the full spectrum of possibilities.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Watts-Strogatz_algorithm_full_spectrum_of_p
+  kind: entity_fact
+  raw_text: The system MUST apply the Watts-Strogatz algorithm with rewiring probabilities
+    p ranging across the full spectrum of possibilities.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:58:28Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 2
+  canonical: feasibility study 6 hours 2-core CPU
+  claim_id: c_299859c8
+  context: Determine the maximum time steps, number of topologies, and run count feasible
+    within 6 hours on a 2-core CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility study must determine parameters feasible within 6 hours
+    on a 2-core CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:58:29Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: binary search time steps 1000 to 20000 50 topologies
+  claim_id: c_a88a13dd
+  context: Binary search for time_steps in range [1000, 20000] for a fixed N=50 topologies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The binary search for time steps is performed in the range [1000, 20000]
+    for a fixed N=50 topologies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:58:50Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: minimum viable topologies 10
+  claim_id: c_bae1e456
+  context: If the calculated feasible n_topologies < 10, DO NOT halt. Log CRITICAL
+    WARNING, set n_topologies = 10 (minimum viable).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_viable_topologies_10
+  kind: magnitude
+  raw_text: If the calculated feasible number of topologies is less than 10, the system
+    sets n_topologies to 10 as the minimum viable count.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:59:07Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: fallback time_steps 1000 n_topologies 10 run_count 10
+  claim_id: c_db5593dc
+  context: If the binary search cannot be executed in the current environment, write
+    data/processed/config.json with time_steps=1000, n_topologies=10, run_count=10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback logic sets time_steps to 1000, n_topologies to 10, and run_count
+    to 10 if the binary search cannot be executed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T20:59:22Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: critical coupling difference less than 1e-4
+  claim_id: c_69ef0644
+  context: 'Success Criterion: For all topologies, absolute_difference must be < 1e-4.
+    This tolerance is derived from the integrator''s atol setting.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_coupling_difference_less_than_1e-4
+  kind: magnitude
+  raw_text: The critical coupling strength difference between reference frames must
+    be less than 1e-4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:00:16Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 2
+  canonical: sensitivity analysis thresholds 0.4 0.5 0.6
+  claim_id: c_ddff0f17
+  context: 'Scope: Sweep over the set {0.4, 0.5, 0.6} as defined in SC-004.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis must sweep the order parameter threshold over
+    the set {0.4, 0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:00:17Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: stability check default run count 1000
+  claim_id: c_8116c854
+  context: 'Run Count: Read run_count from data/processed/config.json (default 1000,
+    adjusted by scope_reduction_factor if applicable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability check defaults to a run count of 1000 per topology.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:03:59Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Synthetic regular ring lattice base graph with 500 nodes
+  claim_id: c_86ded546
+  context: 'Rewrite FR-001 to: The system MUST generate a set of network topologies
+    based on a synthetic regular ring lattice of N=500 nodes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST generate a set of network topologies based on a synthetic
+    regular ring lattice of N=500 nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:06:18Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Synthetic regular ring lattice with 500 nodes and k=2 connectivity
+  claim_id: c_6a40d71f
+  context: The base graph MUST be a synthetic regular ring lattice with N=500 nodes
+    and nearest-neighbor connectivity k=2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base graph MUST be a synthetic regular ring lattice with N=500 nodes
+    and nearest-neighbor connectivity k=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:06:19Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Feasibility study determines max time steps, topologies, and run count
+    within 6 hours on 2-core CPU
+  claim_id: c_b0e901f2
+  context: Determine the maximum time steps, number of topologies, and run count feasible
+    within 6 hours on a 2-core CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility study determines the maximum time steps, number of topologies,
+    and run count feasible within 6 hours on a 2-core CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:09:03Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Binary search for time steps in range 1000 to 20000 for 50 topologies
+  claim_id: c_330f468f
+  context: Binary search for time_steps in range [1000, 20000] for a fixed N=50 topologies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility study binary searches for time_steps in the range [1000,
+    20000] for a fixed N=50 topologies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:11:17Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Minimum viable topology count set to 10 if feasibility study yields less
+  claim_id: c_3bbc8f61
+  context: If the calculated feasible n_topologies < 10, DO NOT halt... set n_topologies
+    = 10 (minimum viable)...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_viable_topology_count_set_to_10_if_feasibility_study
+  kind: magnitude
+  raw_text: If the calculated feasible n_topologies is less than 10, the system sets
+    n_topologies to 10 as the minimum viable count.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:11:20Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Fallback config sets time_steps=1000, n_topologies=10, run_count=10
+  claim_id: c_b9b89d97
+  context: write data/processed/config.json with time_steps=1000, n_topologies=10,
+    run_count=10...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback logic writes config.json with time_steps=1000, n_topologies=10,
+    and run_count=10 if the binary search cannot be executed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:16:26Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Connectivity validation skips disconnected graphs and logs warnings
+  claim_id: c_9da7e339
+  context: Implement connectivity validation logic in code/generate_topology.py to
+    skip disconnected graphs and log warnings (FR-002 compliance).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Connectivity_validation_skips_disconnected_graphs_and_logs_w
+  kind: entity_fact
+  raw_text: The connectivity validation logic skips disconnected graphs and logs warnings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:16:45Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Batch generation of N topologies with 50 p-steps from 0.0 to 1.0
+  claim_id: c_e56a914a
+  context: Implement batch generation loop (p=0.0 to 1.0, 50 steps, N instances as
+    defined in data/processed/config.json)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch generation loop generates N instances with rewiring probabilities
+    ranging from 0.0 to 1.0 in 50 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:17:12Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Invariance verification requires absolute Kc difference less than 1e-4
+  claim_id: c_956ec0ec
+  context: 'Success Criterion: For all topologies, absolute_difference must be < 1e-4.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Invariance_verification_requires_absolute_Kc_difference_less
+  kind: magnitude
+  raw_text: The invariance verification requires the absolute difference between Kc
+    in single oscillator and center-of-mass frames to be less than 1e-4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:17:31Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Stability check calculates sample variance of R across multiple runs
+  claim_id: c_35f0e44d
+  context: Simulate Kuramoto dynamics multiple times per topology... Calculate sample
+    variance of R.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_check_calculates_sample_variance_of_R_across_multi
+  kind: entity_fact
+  raw_text: The stability check script calculates sample variance of the order parameter
+    R across multiple runs per topology.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:18:34Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.4, 0.5, and 0.6
+  claim_id: c_c1f23ae9
+  context: Sweep over the set {0.4, 0.5, 0.6} as defined in SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the order parameter threshold over the
+    set {0.4, 0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:18:36Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Sensitivity variation metric formula (max-min)/mean
+  claim_id: c_182872be
+  context: 'Compute the relative variation: (max(coef) - min(coef)) / mean(coef).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_variation_metric_formula_(max-min)/mean
+  kind: entity_fact
+  raw_text: The sensitivity analysis variation metric is calculated as (max(coef)
+    - min(coef)) / mean(coef).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:18:56Z'
+- artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
+  attempts: 1
+  canonical: Critical coupling strength Kc is observer-invariant
+  claim_id: c_329fd2db
+  context: This ensures the symbol Kc corresponds to an element of physical reality
+    independent of the observer's coordinate frame.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Critical_coupling_strength_Kc_is_observer-invariant
+  kind: entity_fact
+  raw_text: The critical coupling strength Kc is an observer-invariant property.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T21:19:15Z'

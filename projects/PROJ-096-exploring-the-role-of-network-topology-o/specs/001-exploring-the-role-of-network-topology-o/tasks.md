@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -48,7 +48,7 @@
 - [X] T000 [P] **Update Spec for Synthetic Base**: Verify `specs/001-exploring-the-role-of-network-topology-synchronization/spec.md` contains the synthetic regular ring lattice requirement.
  **Action**: Check if FR-001 explicitly states "synthetic regular ring lattice of N=500 nodes".
  - If YES: Log "Spec Verified: Synthetic Base", do nothing.
- - If NO: Rewrite FR-001 to: "The system MUST generate a set of network topologies based on a synthetic regular ring lattice of N=500 nodes. The base graph MUST be a synthetic regular ring lattice with N=500 nodes and nearest-neighbor connectivity k=2. The system MUST apply the Watts-Strogatz algorithm with rewiring probabilities p ranging across the full spectrum of possibilities. Generated graphs MUST be saved as .gpickle files with metadata including N, k, p, and the random seed used."
+ - If NO: Rewrite FR-001 to: "The system MUST generate a set of network topologies based on a synthetic regular ring lattice of N=500 nodes. [UNRESOLVED-CLAIM: c_86ded546 — status=not_enough_info] The base graph MUST be a synthetic regular ring lattice with N=500 nodes and nearest-neighbor connectivity k=2. [UNRESOLVED-CLAIM: c_6a40d71f — status=not_enough_info] The system MUST apply the Watts-Strogatz algorithm with rewiring probabilities p ranging across the full spectrum of possibilities. Generated graphs MUST be saved as.gpickle files with metadata including N, k, p, and the random seed used. "
  **Verification**: `grep -q "synthetic regular ring lattice of N=500 nodes" specs/001-exploring-the-role-of-network-topology-synchronization/spec.md && ! grep -q "ca-AstroPh" specs/001-exploring-the-role-of-network-topology-synchronization/spec.md && echo 'OK' || exit 1`.
 
 - [X] T000a [P] **Amend Constitution for Synthetic Base**: Rewrite `projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/constitution.md` to remove the 'ca-AstroPh' download requirement from the 'Reproducibility Requirements' section.
@@ -66,7 +66,7 @@
  **Verification**: `test -d code/.venv && code/.venv/bin/pip list | grep networkx && echo 'OK' || exit 1`.
 
 - [X] T003a [P] Create `.flake8` config with `max-line-length=88`, `ignore=E203,W503` and `pyproject.toml` for black with `line-length=88`.
- **Verification**: `test -f .flake8 && test -f pyproject.toml && grep -q "line-length" pyproject.toml && echo 'OK' || exit 1`.
+ **Verification**: `test -f.flake8 && test -f pyproject.toml && grep -q "line-length" pyproject.toml && echo 'OK' || exit 1`.
 
 - [X] T003b [P] **Verify Linting Configuration**: Create `code/__init__.py` if it does not exist. Run `black --check code/` and `flake8 code/` on the `code/` directory. Redirect output to `data/checksums.txt` (append).
  **Verification**: `test -f code/__init__.py && black --check code/ && flake8 code/ && echo 'OK' || exit 1`.
@@ -203,35 +203,35 @@
  **Verification**: `test -f data/processed/simulation_results.csv && echo 'OK' || exit 1`. Verify row count matches number of valid (connected) topologies in the reduced scope.
  **Constraint**: This task relies on T009's configuration; no fallback logic for time steps is allowed here.
 
-- [ ] T026a [US2] [FR-009] **Implement Rotational Invariance Verification Script**: Create `code/verify_invariance.py` to address reviewer `albert-einstein-simulated`'s concern regarding physical reality.
+- [X] T026a [US2] [FR-009] **Implement Rotational Invariance Verification Script**: Create `code/verify_invariance.py` to address reviewer `albert-einstein-simulated`'s concern regarding physical reality.
  **Logic**: Re-run the full binary search for $K_c$ on **every valid topology** using two distinct reference frames:
-  1. **Single Oscillator Frame**: Calculate relative phases $\theta_i(t) - \theta_0(t)$ where $\theta_0$ is the phase of oscillator 0.
-  2. **Center-of-Mass (COM) Frame**: Calculate relative phases $\theta_i(t) - \bar{\theta}(t)$ where $\bar{\theta}$ is the average phase of all oscillators.
+ 1. **Single Oscillator Frame**: Calculate relative phases $\theta_i(t) - \theta_0(t)$ where $\theta_0$ is the phase of oscillator 0.
+ 2. **Center-of-Mass (COM) Frame**: Calculate relative phases $\theta_i(t) - \bar{\theta}(t)$ where $\bar{\theta}$ is the average phase of all oscillators.
  **Note**: This task re-executes the simulation logic (T021) using the existing topology data, not just post-processing.
  **Output**: `data/processed/invariance_verification.json`.
  **Output Schema**:
  ```json
  [
-   {
-     "topology_id": "string",
-     "p": "float",
-     "kc_single_frame": "float",
-     "kc_com_frame": "float",
-     "absolute_difference": "float",
-     "relative_difference_pct": "float",
-     "status": "invariant|variant"
-   }
+ {
+ "topology_id": "string",
+ "p": "float",
+ "kc_single_frame": "float",
+ "kc_com_frame": "float",
+ "absolute_difference": "float",
+ "relative_difference_pct": "float",
+ "status": "invariant|variant"
+ }
  ]
  ```
  **Success Criterion**: For all topologies, `absolute_difference` must be < `1e-4`. This tolerance is derived from the integrator's `atol` (absolute tolerance) setting defined in SC-006 (Numerical Stability), ensuring the difference is negligible within the numerical precision of the simulation.
  **Dependency**: Requires `data/processed/simulation_results.csv` from T025.
  **Note**: This task is strictly ordered AFTER T025. It explicitly validates that the critical coupling is an observer-invariant property, satisfying the EPR criterion of physical reality raised in the review.
 
-- [ ] T026b [US2] [FR-009] **Run Invariance Verification**: Execute `code/verify_invariance.py` and verify results.
+- [X] T026b [US2] [FR-009] **Run Invariance Verification**: Execute `code/verify_invariance.py` and verify results.
  **Verification**: `test -f data/processed/invariance_verification.json && echo 'OK' || exit 1`.
  **Logic**: Parse `invariance_verification.json`. If any entry has `status: "variant"`, the task fails immediately with `PHYSICAL_INVARIANCE_FAILURE`. If all are "invariant", the task passes.
 
-- [ ] T027a [US2] [SC-001] Implement stability check script `code/check_stability.py`.
+- [X] T027a [US2] [SC-001] Implement stability check script `code/check_stability.py`.
  **Logic**: Simulate Kuramoto dynamics multiple times per topology for **ALL valid topologies**. **Run Count**: Read `run_count` from `data/processed/config.json` (default 1000, adjusted by `scope_reduction_factor` if applicable). Calculate sample variance of R.
  **Constraint**: If `run_count` < 1000 AND `SC_003_VIOLATION` is false, the task must log a warning and proceed, but the final report must explicitly state the deviation from SC-001. If `SC_003_VIOLATION` is true, the reduced `run_count` is accepted as a contingency.
  **Output**: `data/processed/stability_results.json`. **Schema**: `[{topology_id, variance, status: 'stable'|'unstable'}]`.
@@ -241,11 +241,11 @@
  **Constraint**: If the number of topologies with high variance exceeds a predefined threshold of the total, the script must set a `STABILITY_FAILURE` flag in the output JSON. If `run_count` is reduced below 1000 due to `SC_003_VIOLATION`, the script must log this reduction and proceed, but the final report must explicitly state the deviation from SC-001.
  **Note**: Strictly ordered AFTER T025.
 
-- [ ] T027b [US2] Run `code/check_stability.py` to check stability.
+- [X] T027b [US2] Run `code/check_stability.py` to check stability.
  **Verification**: `test -f data/processed/stability_results.json && echo 'OK' || exit 1`.
  **Logic**: If `STABILITY_FAILURE` flag is set, the pipeline must halt with a 'STABILITY_FAILURE' error. If <10% unstable, the pipeline continues with a 'Partial Stability' status.
 
-- [ ] T027c [US2] [FR-007] Implement sensitivity analysis script `code/sensitivity_analysis.py`.
+- [X] T027c [US2] [FR-007] Implement sensitivity analysis script `code/sensitivity_analysis.py`.
  **Logic**: Sweep the order parameter threshold over a range of representative values. For each threshold, re-calculate the Spearman correlation coefficient and p-value between rewiring probability and critical coupling strength.
  **Output**: `data/processed/sensitivity_analysis.json`. **Schema**: `[{threshold, correlation_coef, p_value}]`.
  **Verification**: Run `python -c "import json; d=json.load(open('data/processed/sensitivity_analysis.json')); assert len(d)==3; assert {row['threshold'] for row in d} == {0.4, 0.5, 0.6}; assert all('correlation_coef' in row for row in d)"`.
@@ -264,21 +264,21 @@
 
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T028 [P] [US3] Contract test for Spearman correlation calculation in `tests/test_analysis.py`
+- [X] T028 [P] [US3] Contract test for Spearman correlation calculation in `tests/test_analysis.py`
  **Description**: Verify `spearman_corr` function returns correct coefficient and p-value for known input arrays.
  **Verification**: Run `pytest tests/test_analysis.py::test_spearman_corr_contract`.
 
-- [ ] T029 [P] [US3] Integration test for sensitivity analysis sweep in `tests/test_analysis.py`
+- [X] T029 [P] [US3] Integration test for sensitivity analysis sweep in `tests/test_analysis.py`
  **Description**: Verify `sensitivity_analysis` script produces output with correct schema and expected threshold values.
  **Verification**: Run `pytest tests/test_analysis.py::test_sensitivity_analysis_integration`.
 
 ### Implementation for User Story 3
 
-- [ ] T008 [US3] **Define Statistical Model**: Create `data/processed/analysis_config.yaml` defining the statistical model (e.g., single regression, multiple comparison correction) before analysis begins.
+- [X] T008 [US3] **Define Statistical Model**: Create `data/processed/analysis_config.yaml` defining the statistical model (e.g., single regression, multiple comparison correction) before analysis begins.
  **Dependency**: Runs AFTER T009 (strictly, not parallel).
  **Verification**: `test -f data/processed/analysis_config.yaml && echo 'OK' || exit 1`.
 
-- [ ] T030 [P] [US3] Implement Spearman correlation and p-value calculation in `code/analyze_results.py`.
+- [X] T030 [P] [US3] Implement Spearman correlation and p-value calculation in `code/analyze_results.py`.
  **Input**: `data/processed/simulation_results.csv`.
  **Output**: `data/processed/correlation_results.json`.
  **Function Signature**: `def calculate_correlation(input_path: str, output_path: str) -> dict`.
@@ -332,8 +332,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Verification (Phase 4)**: Integrated into Phase 4 (US2) to ensure data flow
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -400,9 +400,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Topology)
-   - Developer B: User Story 2 (Simulation + Verification)
-   - Developer C: User Story 3 (Analysis)
+ - Developer A: User Story 1 (Topology)
+ - Developer B: User Story 2 (Simulation + Verification)
+ - Developer C: User Story 3 (Analysis)
 3. Stories complete and integrate independently
 
 ---

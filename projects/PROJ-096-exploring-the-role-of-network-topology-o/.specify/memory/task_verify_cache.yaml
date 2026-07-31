@@ -5,15 +5,6 @@ T009b:
     \ to trigger the contingency log cannot be verified; yet `compute_contingency.md`\
     \ was generated regardless. The task\u2019s prerequisite input is absent, meaning\
     \ the artifact was not produced under the specified condition."
-T016:
-  c: false
-  h: 3336e659328b0ce81b3d3d0470e1c15b0e1ae02819f9c8ee26a12013e7a0fe08
-  r: "The required `data/processed/config.json` file is missing, so the script cannot\
-    \ read the defined number of instances. Moreover, the provided excerpt of `code/generate_topology.py`\
-    \ shows only graph\u2011generation utilities and does not contain any loop that\
-    \ iterates rewiring probability `p` from 0.0 to 1.0 in 50 steps to generate a\
-    \ batch of graphs. Both the configuration source and the batch\u2011generation\
-    \ implementation are absent."
 T021:
   c: false
   h: e646a0b4e107444b0d2c084b1108635f85a776af5e4c717f937ef9ab9391fc26
@@ -21,3 +12,10 @@ T021:
     handling logic for the `SC_003_VIOLATION` flag is not implemented, and the dependent\
     \ file `data/processed/config.json` is missing, so the function cannot be exercised\
     \ as specified."
+T025:
+  c: false
+  h: d791a5b4117ee14eacf23990e932dc254cf1906f201f30b1c929cc842339fde6
+  r: "The required `data/processed/config.json` file is missing, so the time\u2011\
+    step parameters cannot be read, and there is no evidence of a simulation batch\
+    \ having been executed or results saved. The task\u2019s core requirement is therefore\
+    \ not satisfied."
