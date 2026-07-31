@@ -1,19 +1,30 @@
-# Core dependencies
+# llmXive Project Dependencies
+# Core data processing
 pandas>=2.0.0
 numpy>=1.24.0
-scipy>=1.11.0
+
+# Dataset handling
+datasets>=2.14.0
+
+# Visualization
 matplotlib>=3.7.0
+scipy>=1.10.0
+statsmodels>=0.14.0
+
+# Graph algorithms
+networkx>=3.1.0
+
+# ML/Stats
 scikit-learn>=1.3.0
+
+# Utilities
 requests>=2.31.0
-pyyaml>=6.0.0
-tqdm>=4.65.0
+pyyaml>=6.0
 
 # Linting and Type Checking
 ruff>=0.1.0
-mypy>=1.7.0
-types-requests>=2.31.0
-types-pyyaml>=6.0.0
-types-tqdm>=4.65.0
+mypy>=1.5.0
 
-# Dataset loading
-datasets>=2.14.0
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0

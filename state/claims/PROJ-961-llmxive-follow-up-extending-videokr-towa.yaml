@@ -193,25 +193,6 @@
   updated_at: '2026-07-21T06:49:44Z'
 - artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
   attempts: 1
-  canonical: pilot sample size of 1000 rows for chain_length distribution estimation
-  claim_id: c_5ebab02c
-  context: 'Unified Streaming & Sampling Strategy: Implement a strict Pilot -> Oversample
-    process as mandated by the Plan, using streaming for the pilot fetch: 1. Pilot
-    Phase: Run a pilot sample of exactly 1000 rows...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run a pilot sample of exactly 1000 rows using datasets.load_dataset(name,
-    split=..., streaming=True) and itertools.islice to estimate the distribution of
-    chain_length.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-30T11:07:56Z'
-- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
-  attempts: 1
   canonical: oversampling triggered if any bin has fewer than 50 samples in pilot
     phase
   claim_id: c_e4891e2c
@@ -436,3 +417,374 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T11:10:38Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Pilot sample of 1000 rows for chain_length distribution estimation
+  claim_id: c_bd67dad0
+  context: 'Unified Streaming & Sampling Strategy: Implement a strict Pilot -> Oversample
+    process... 1. Pilot Phase: Run a pilot sample of exactly 1000 rows...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot sample of exactly 1000 rows using datasets.load_dataset(name,
+    split=..., streaming=True) and itertools.islice to estimate the distribution of
+    chain_length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:47:53Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Oversampling triggered if pilot bin count is less than 50
+  claim_id: c_beeba0fd
+  context: '2. Oversampling Check: If any bin (especially ''3+'') has <50 samples
+    in the pilot, trigger an Oversampling step.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Oversampling_triggered_if_pilot_bin_count_is_less_than_50
+  kind: magnitude
+  raw_text: If any bin (especially '3+') has <50 samples in the pilot, trigger an
+    Oversampling step.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:48:23Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Stratified resampling to reach N >= 50 for rare bins
+  claim_id: c_f3f132d7
+  context: '3. Oversampling Logic: Use stratified resampling (with replacement) on
+    the pilot subset (which fits in memory) to reach N>=50 for rare bins.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use stratified resampling (with replacement) on the pilot subset to reach
+    N>=50 for rare bins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:48:47Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: 'Self-healing retry logic: max 2 retries with doubled pilot size'
+  claim_id: c_8f454eb1
+  context: 'Self-Healing Regeneration Logic: If the output file data/processed/annotated_videokr.csv
+    is empty, missing, or has <50 rows after the initial run, re-run the full annotation
+    pipeline with adjusted parameters (pilot size doubled, max 2 retries).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Re-run the full annotation pipeline with adjusted parameters (pilot size
+    doubled, max 2 retries) if the output file is empty, missing, or has <50 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:49:00Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Calculate exact integer shortest path hops
+  claim_id: c_0c5f8d7f
+  context: 'Calculate Exact Hops: Calculate the exact integer shortest path hops (1,
+    2, 3, 4, 5...) for each record. Output this as the column chain_length (integer
+    type).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the exact integer shortest path hops (1, 2, 3, 4, 5...) for
+    each record.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:49:20Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Write -1 to chain_length for unmapped or unresolvable records
+  claim_id: c_1fb06451
+  context: For both 'unmapped' and 'unresolvable' records, explicitly write -1 to
+    the chain_length column to ensure integer type consistency for downstream binning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For both 'unmapped' and 'unresolvable' records, explicitly write -1 to
+    the chain_length column.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:49:41Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Permutation Test with n=1000 for change-point detection
+  claim_id: c_952f5209
+  context: 'Methodology: Per Plan Complexity Tracking table, use a Permutation Test
+    (n=1000) for change-point detection to avoid inflated Type I errors from data-driven
+    knot selection.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a Permutation Test (n=1000) for change-point detection to avoid inflated
+    Type I errors from data-driven knot selection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:50:15Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Permutation test with 1000 random shuffles of correctness labels
+  claim_id: c_913a5303
+  context: 'Permutation Engine: Perform the permutation test by randomly shuffling
+    the correctness labels (n=1000 times) and recalculating the test statistic for
+    each shuffle to build the null distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform the permutation test by randomly shuffling the correctness labels
+    (n=1000 times) and recalculating the test statistic for each shuffle to build
+    the null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:50:19Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for multiple tests
+  claim_id: c_00e77689
+  context: 'Correction: Apply Bonferroni correction for the number of tests performed
+    (p_corrected = p_raw * num_tests).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_for_multiple_tests
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction for the number of tests performed (p_corrected
+    = p_raw * num_tests).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:50:28Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Log power warning if sample size < 1000 or bin < 50
+  claim_id: c_0d5f5600
+  context: 'Power Analysis: If total sample size < 1000 or smallest bin < 50, log
+    a warning to data/processed/power_analysis.json stating ''Insufficient power for
+    robust inference'' (do not attempt calculation without parameters).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_power_warning_if_sample_size_%3C_1000_or_bin_%3C_50
+  kind: magnitude
+  raw_text: If total sample size < 1000 or smallest bin < 50, log a warning to data/processed/power_analysis.json
+    stating 'Insufficient power for robust inference'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:50:32Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: Raise MemoryLimitError if initial memory > 6GB
+  claim_id: c_1f5c8d21
+  context: 'Pre-Execution Memory Check: Verify initial memory usage is within limits.
+    If > 6GB, raise MemoryLimitError immediately.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_MemoryLimitError_if_initial_memory_%3E_6GB
+  kind: entity_fact
+  raw_text: If initial memory usage is > 6GB, raise a MemoryLimitError immediately.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:50:35Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 2
+  canonical: pilot sample size of 1000 rows for chain_length distribution estimation
+  claim_id: c_5ebab02c
+  context: 'Unified Streaming & Sampling Strategy: Implement a strict Pilot -> Oversample
+    process as mandated by the Plan, using streaming for the pilot fetch: 1. Pilot
+    Phase: Run a pilot sample of exactly 1000 rows...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot sample of exactly 1000 rows using datasets.load_dataset(name,
+    split=..., streaming=True) and itertools.islice to estimate the distribution of
+    chain_length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:54:36Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: oversampling triggered if bin sample count is less than 50
+  claim_id: c_8aadd26a
+  context: 'Oversampling Check: If any bin (especially ''3+'') has <50 samples in
+    the pilot, trigger an Oversampling step.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Oversampling_triggered_if_bin_sample_count_is_less_than_50
+  kind: magnitude
+  raw_text: If any bin (especially '3+') has <50 samples in the pilot, trigger an
+    Oversampling step.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:54:38Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: stratified resampling target N greater than or equal to 50 for rare bins
+  claim_id: c_1a826bbc
+  context: 'Oversampling Logic: Use stratified resampling (with replacement) on the
+    pilot subset (which fits in memory) to reach N>=50 for rare bins.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_resampling_target_N_greater_than_or_equal_to_50_f
+  kind: magnitude
+  raw_text: Use stratified resampling (with replacement) on the pilot subset to reach
+    N>=50 for rare bins.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:54:39Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: self-healing retry with max 2 retries and doubled pilot size for output
+    under 50 rows
+  claim_id: c_1380a3a2
+  context: 'Self-Healing Regeneration Logic: If the output file data/processed/annotated_videokr.csv
+    is empty, missing, or has <50 rows after the initial run, re-run the full annotation
+    pipeline with adjusted parameters (pilot size doubled, max 2 retries).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Re-run the full annotation pipeline with adjusted parameters (pilot size
+    doubled, max 2 retries) if the output file is empty, missing, or has <50 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:54:39Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: calculate exact integer shortest path hops ranging from 1 to 5
+  claim_id: c_ffbb6b41
+  context: 'Calculate Exact Hops: Calculate the exact integer shortest path hops (1,
+    2, 3, 4, 5...) for each record. Output this as the column chain_length (integer
+    type).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the exact integer shortest path hops (1, 2, 3, 4, 5...) for
+    each record.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:54:40Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: permutation test with n equals 1000 for change-point detection
+  claim_id: c_d9e6a57f
+  context: 'Methodology: Per Plan Complexity Tracking table, use a Permutation Test
+    (n=1000) for change-point detection to avoid inflated Type I errors from data-driven
+    knot selection.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a Permutation Test (n=1000) for change-point detection to avoid inflated
+    Type I errors from data-driven knot selection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:54:40Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction for multiple tests
+  claim_id: c_9d61c795
+  context: 'Correction: Apply Bonferroni correction for the number of tests performed
+    (p_corrected = p_raw * num_tests).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_for_multiple_tests
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction for the number of tests performed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:54:41Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: log insufficient power warning if sample size less than 1000 or smallest
+    bin less than 50
+  claim_id: c_b0a7a36b
+  context: 'Power Analysis: If total sample size < 1000 or smallest bin < 50, log
+    a warning to data/processed/power_analysis.json stating ''Insufficient power for
+    robust inference'' (do not attempt calculation without parameters).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_insufficient_power_warning_if_sample_size_less_than_1000
+  kind: magnitude
+  raw_text: If total sample size < 1000 or smallest bin < 50, log a warning stating
+    'Insufficient power for robust inference'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:55:55Z'
+- artifact_path: projects/PROJ-961-llmxive-follow-up-extending-videokr-towa/specs/001-llmxive-follow-up-extending-videokr-towa/tasks.md
+  attempts: 1
+  canonical: raise MemoryLimitError if initial memory usage exceeds 6GB
+  claim_id: c_d675a6c5
+  context: 'Pre-Execution Memory Check: Verify initial memory usage is within limits.
+    If > 6GB, raise MemoryLimitError immediately.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_MemoryLimitError_if_initial_memory_usage_exceeds_6GB
+  kind: entity_fact
+  raw_text: Verify initial memory usage is within limits; if > 6GB, raise MemoryLimitError
+    immediately.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T18:56:09Z'

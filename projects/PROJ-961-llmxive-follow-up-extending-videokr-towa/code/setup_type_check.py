@@ -1,73 +1,141 @@
+"""
+Type Checking Utility for llmXive Project.
+
+This module provides functionality to run mypy type checking on the codebase
+and enforce strict type checking as a hard block for the 'Polish' phase.
+"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 import logging
 from typing import List, Optional, Dict, Any
+
 from utils.config import get_project_root, get_path, ensure_dir
 
-def run_mypy_check() -> bool:
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+def run_mypy_check() -> int:
     """
     Run mypy type checking on the code/ directory.
 
+    This function executes mypy with strict settings on the project's code directory.
+    If mypy returns a non-zero exit code (including type warnings), the function
+    writes the output to data/processed/type_log.txt and returns the exit code.
+
     Returns:
-        bool: True if mypy passes (exit code 0), False otherwise.
+        int: The exit code from mypy (0 for success, non-zero for failure)
     """
     project_root = get_project_root()
     code_dir = project_root / "code"
-    log_path = project_root / "data" / "processed" / "type_log.txt"
+    output_path = project_root / "data" / "processed" / "type_log.txt"
 
-    # Ensure log directory exists
-    ensure_dir(log_path.parent)
+    # Ensure output directory exists
+    ensure_dir(output_path.parent)
 
-    logging.info(f"Running mypy on {code_dir}...")
+    logger.info(f"Running mypy type check on {code_dir}...")
+    logger.info(f"Output will be written to {output_path}")
+
+    # Construct mypy command with strict settings
+    # --strict enables all strict flags
+    # --ignore-missing-imports to handle external libraries not having stubs
+    # --explicit-package-bases to handle package structure
+    cmd = [
+        sys.executable, "-m", "mypy",
+        str(code_dir),
+        "--strict",
+        "--ignore-missing-imports",
+        "--explicit-package-bases",
+        "--show-error-codes",
+        "--pretty"
+    ]
+
+    logger.info(f"Executing: {' '.join(cmd)}")
 
     try:
-        # Run mypy on the code directory
+        # Run mypy and capture output
         result = subprocess.run(
-            ["mypy", str(code_dir), "--ignore-missing-imports"],
+            cmd,
+            cwd=project_root,
             capture_output=True,
             text=True,
-            cwd=project_root
+            timeout=300  # 5 minute timeout
         )
 
         # Write output to log file
-        with open(log_path, "w", encoding="utf-8") as f:
-            f.write(result.stdout)
-            f.write(result.stderr)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write("=== MYPI TYPE CHECK LOG ===\n")
+            f.write(f"Command: {' '.join(cmd)}\n")
+            f.write(f"Return Code: {result.returncode}\n")
+            f.write("=" * 50 + "\n\n")
 
-        logging.info(f"Type check log written to {log_path}")
+            if result.stdout:
+                f.write("STDOUT:\n")
+                f.write(result.stdout)
+                f.write("\n")
 
-        if result.returncode == 0:
-            logging.info("Type checking passed successfully.")
-            return True
-        else:
-            logging.error(f"Type checking failed with exit code {result.returncode}")
-            logging.error(result.stdout)
-            logging.error(result.stderr)
-            return False
+            if result.stderr:
+                f.write("STDERR:\n")
+                f.write(result.stderr)
+                f.write("\n")
 
+            if result.returncode == 0:
+                f.write("\n=== TYPE CHECK PASSED ===\n")
+                logger.info("Type check passed successfully!")
+            else:
+                f.write("\n=== TYPE CHECK FAILED ===\n")
+                logger.error(f"Type check failed with return code {result.returncode}")
+
+        return result.returncode
+
+    except subprocess.TimeoutExpired:
+        logger.error("mypy check timed out after 300 seconds")
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write("=== MYPI TYPE CHECK LOG ===\n")
+            f.write("ERROR: Type check timed out after 300 seconds\n")
+        return 1
     except FileNotFoundError:
-        logging.error("mypy not found. Please install it via 'pip install mypy'.")
-        return False
+        logger.error("mypy not found. Please install it with: pip install mypy")
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write("=== MYPI TYPE CHECK LOG ===\n")
+            f.write("ERROR: mypy not found. Please install it with: pip install mypy\n")
+        return 1
     except Exception as e:
-        logging.error(f"Error running mypy: {e}")
-        return False
+        logger.error(f"Unexpected error during type check: {e}")
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write("=== MYPI TYPE CHECK LOG ===\n")
+            f.write(f"ERROR: Unexpected error - {e}\n")
+        return 1
+
 
 def main() -> int:
     """
-    Main entry point for the type check script.
+    Main entry point for the type checking utility.
+
+    This function runs the mypy type check and exits with the appropriate code.
+    If mypy returns a non-zero exit code, the pipeline MUST fail immediately.
 
     Returns:
-        int: Exit code (0 for success, 1 for failure).
+        int: The exit code from mypy (0 for success, non-zero for failure)
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
+    logger.info("Starting type check (T031b)...")
 
-    success = run_mypy_check()
-    return 0 if success else 1
+    exit_code = run_mypy_check()
+
+    if exit_code != 0:
+        logger.error("Type check failed. Pipeline must fail immediately.")
+        logger.error("Please fix all type errors and warnings before proceeding.")
+    else:
+        logger.info("Type check passed. Pipeline can proceed.")
+
+    return exit_code
+
 
 if __name__ == "__main__":
     sys.exit(main())
