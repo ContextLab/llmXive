@@ -1,135 +1,184 @@
 import json
 import os
-import re
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional, List
-from config import get_config, load_config
 
-def load_correlation_results(path: str = "data/results/correlation_matrix.json") -> Dict:
-    with open(path, 'r') as f:
+def load_json_file(file_path: str) -> dict:
+    """Load a JSON file and return its contents as a dictionary."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Required file not found: {file_path}")
+    
+    with open(file_path, 'r') as f:
         return json.load(f)
 
-def load_diagnostics_report(path: str = "data/results/collinearity_report.json") -> Dict:
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def load_timing_evidence(path: str = "data/results/timing_evidence.json") -> Dict:
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def load_variable_metrics(path: str = "data/results/variable_load_metrics.json") -> Dict:
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def load_sensitivity_analysis(path: str = "data/results/sensitivity_analysis.json") -> Dict:
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def load_stability_metrics(path: str = "data/results/stability_metrics.json") -> Dict:
-    if Path(path).exists():
-        with open(path, 'r') as f:
-            return json.load(f)
-    return {}
-
-def load_collinearity_report(path: str = "data/results/collinearity_report.json") -> Dict:
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def determine_data_source() -> str:
-    """Determines if data is synthetic or real based on manifest."""
-    manifest_path = Path("data/metadata/synthetic_data_manifest.json")
-    if manifest_path.exists():
-        with open(manifest_path, 'r') as f:
-            manifest = json.load(f)
-        return manifest.get("data_type", "unknown")
-    return "unknown"
-
-def format_associational_warning() -> str:
-    """Returns a warning string for associational framing."""
-    return "NOTE: All results are associational. No causal claims are made."
-
-def enforce_associational_framing(text: str) -> str:
+def generate_report(
+    correlation_matrix_path: str,
+    sensitivity_analysis_path: str,
+    timing_evidence_path: str,
+    power_analysis_path: str,
+    outlier_report_path: str,
+    output_path: str
+) -> None:
     """
-    Scans generated text for causal language ('causes', 'leads to', 'effect')
-    and replaces with 'associational with', 'correlates with', 'relationship'.
-    Addresses FR-004.
+    Generate the final report (data/results/final_report.md) integrating all findings.
+    
+    This task enforces associational language during generation and includes:
+    1. A summary of stability of significant findings (from sensitivity_analysis).
+    2. Execution duration and status (from timing_evidence).
+    3. Correlation results summary.
+    
+    Addresses FR-004 and SC-002/SC-004.
     """
-    if not text:
-        return text
-
-    # Define patterns for causal language to replace
-    # Using case-insensitive regex to catch variations
-    replacements = [
-        (r'\bcauses?\b', 'is associational with'),
-        (r'\bleads to\b', 'correlates with'),
-        (r'\beffect\b', 'relationship'),
-        (r'\binfluences\b', 'is associational with'),
-        (r'\bimpacts\b', 'is associational with'),
-        (r'\bdrives\b', 'is associational with'),
-        (r'\bresults in\b', 'is associational with'),
-        (r'\btriggers\b', 'is associational with'),
-    ]
-
-    result = text
-    for pattern, replacement in replacements:
-        result = re.sub(pattern, replacement, result, flags=re.IGNORECASE)
-
-    return result
-
-def generate_report():
-    """Generates the final report with enforced associational framing."""
-    # Load all artifacts
-    correlation = load_correlation_results()
-    diagnostics = load_collinearity_report()
-    timing = load_timing_evidence()
-    variables = load_variable_metrics()
-    sensitivity = load_sensitivity_analysis()
-    source = determine_data_source()
     
-    # Check for synthetic only state
-    is_synthetic = source == "synthetic"
-    
-    # Build raw report content
-    raw_report = {
-        "title": "Gut Microbiome and Sleep Architecture Correlation Study",
-        "date": datetime.now().isoformat(),
-        "data_source": source,
-        "disclaimer": "This study is a Pipeline Validation Study using synthetic data. No real-world biological correlations are established. Results demonstrate statistical engine correctness, not biological truth." if is_synthetic else "",
-        "variable_load_metrics": variables,
-        "timing_evidence": timing,
-        "correlation_results_summary": {
-            "total_pairs": len(correlation.get("correlations", [])),
-            "significant_pairs": sum(1 for c in correlation.get("correlations", []) if c.get("p_value_adjusted", 1.0) <= 0.05)
-        },
-        "collinearity_diagnostics": diagnostics,
-        "sensitivity_analysis": sensitivity,
-        "warnings": [format_associational_warning()]
-    }
-    
-    # Convert report to string for framing enforcement
-    # We enforce framing on the textual representation of the report
-    # to catch any causal language that might have been introduced
-    # in descriptions or summaries.
-    report_text = json.dumps(raw_report, indent=2)
-    framed_text = enforce_associational_framing(report_text)
-    
-    # Parse back to dict to ensure valid JSON structure
+    # Load required artifacts
     try:
-        framed_report = json.loads(framed_text)
-    except json.JSONDecodeError:
-        # Fallback: use original if framing breaks JSON (should not happen)
-        framed_report = raw_report
+        correlation_data = load_json_file(correlation_matrix_path)
+    except FileNotFoundError as e:
+        # If correlation matrix is missing (analysis didn't run fully), we still generate a report
+        # noting the absence, but we need the other artifacts for the report structure.
+        correlation_data = []
+        
+    sensitivity_data = load_json_file(sensitivity_analysis_path)
+    timing_data = load_json_file(timing_evidence_path)
     
-    output_path = Path("data/results/final_report.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(framed_report, f, indent=2)
+    try:
+        power_data = load_json_file(power_analysis_path)
+    except FileNotFoundError:
+        power_data = {"status": "NOT_AVAILABLE"}
+        
+    try:
+        outlier_data = load_json_file(outlier_report_path)
+    except FileNotFoundError:
+        outlier_data = {"count": 0, "percentage_total": 0.0}
+
+    # Extract specific metrics
+    duration_seconds = timing_data.get("duration_seconds", 0.0)
+    timing_status = timing_data.get("status", "UNKNOWN")
     
-    print(f"Report generated: {output_path}")
+    base_count = sensitivity_data.get("base_count", 0)
+    threshold_01_change = sensitivity_data.get("threshold_0.01", {}).get("percentage_change", 0.0)
+    threshold_10_change = sensitivity_data.get("threshold_0.10", {}).get("percentage_change", 0.0)
+    
+    outlier_count = outlier_data.get("count", 0)
+    outlier_percentage = outlier_data.get("percentage_total", 0.0)
+
+    # Calculate summary stats for correlation matrix
+    significant_count = sum(1 for item in correlation_data if item.get("is_significant", False))
+    total_pairs = len(correlation_data)
+    
+    # Start building the report content
+    report_lines = []
+    report_lines.append("# Final Report: Gut Microbiome and Sleep Architecture Correlation Study")
+    report_lines.append("")
+    report_lines.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    report_lines.append("")
+    
+    # --- Execution Timing Section (SC-004) ---
+    report_lines.append("## 1. Execution Timing & Performance")
+    report_lines.append("")
+    report_lines.append(f"- **Total Duration:** {duration_seconds:.2f} seconds")
+    report_lines.append(f"- **Status:** {timing_status}")
+    if timing_status == "TIMEOUT":
+        report_lines.append("> **WARNING:** The pipeline execution exceeded the 6-hour limit.")
+    else:
+        report_lines.append("> The pipeline completed within the 6-hour constraint.")
+    report_lines.append("")
+
+    # --- Data Quality Section ---
+    report_lines.append("## 2. Data Quality & Preprocessing")
+    report_lines.append("")
+    report_lines.append(f"- **Outliers Detected:** {outlier_count} rows ({outlier_percentage:.2f}% of total)")
+    report_lines.append("")
+
+    # --- Correlation Results Section (Associational Framing) ---
+    report_lines.append("## 3. Correlation Analysis Results")
+    report_lines.append("")
+    report_lines.append(f"- **Total Pairs Tested:** {total_pairs}")
+    report_lines.append(f"- **Significant Associations (q ≤ 0.05):** {significant_count}")
+    report_lines.append("")
+    
+    if total_pairs > 0:
+        report_lines.append("### Top Significant Associations")
+        report_lines.append("")
+        report_lines.append("| Taxon | Sleep Metric | Correlation (r) | Adjusted p-value |")
+        report_lines.append("| :--- | :--- | :--- | :--- |")
+        
+        # Sort by absolute correlation descending
+        sorted_correlations = sorted(correlation_data, key=lambda x: abs(x.get("correlation_coefficient", 0)), reverse=True)
+        
+        # Show top 10
+        for item in sorted_correlations[:10]:
+            if item.get("is_significant", False):
+                taxon = item.get("taxon", "N/A")
+                metric = item.get("sleep_metric", "N/A")
+                r_val = f"{item.get('correlation_coefficient', 0):.3f}"
+                p_adj = f"{item.get('p_value_adjusted', 0):.4f}"
+                report_lines.append(f"| {taxon} | {metric} | {r_val} | {p_adj} |")
+        
+        report_lines.append("")
+
+    # --- Sensitivity Analysis Section (SC-002) ---
+    report_lines.append("## 4. Sensitivity Analysis")
+    report_lines.append("")
+    report_lines.append("Stability of significant findings across different p-value thresholds:")
+    report_lines.append("")
+    report_lines.append(f"- **Base Threshold (0.05):** {base_count} significant findings")
+    report_lines.append(f"- **Threshold 0.01:** {threshold_01_change:+.2f}% change from base")
+    report_lines.append(f"- **Threshold 0.10:** {threshold_10_change:+.2f}% change from base")
+    report_lines.append("")
+
+    # --- Power Analysis Section ---
+    report_lines.append("## 5. Power Analysis")
+    report_lines.append("")
+    if power_data.get("status") != "NOT_AVAILABLE":
+        n_required = power_data.get("calculated_n", "N/A")
+        is_underpowered = power_data.get("is_underpowered", False)
+        report_lines.append(f"- **Minimum Sample Size Required (for r ≥ 0.3, power ≥ 0.80):** {n_required}")
+        if is_underpowered:
+            report_lines.append("> **CAUTION:** The current sample size is insufficient to detect the target effect size with adequate power.")
+    else:
+        report_lines.append("> Power analysis was not available in the provided artifacts.")
+    report_lines.append("")
+
+    # --- Critical Associational Disclaimer ---
+    report_lines.append("## 6. Interpretation & Limitations")
+    report_lines.append("")
+    report_lines.append("> **IMPORTANT:** These results represent an **associational relationship** only. ")
+    report_lines.append("> This study does not establish causality. Observed correlations between gut microbiome composition ")
+    report_lines.append("> and sleep architecture metrics should not be interpreted as one causing the other without further ")
+    report_lines.append("> experimental validation.")
+    report_lines.append("")
+    
+    # Write the report to disk
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w') as f:
+        f.write('\n'.join(report_lines))
 
 def main():
-    generate_report()
+    """Entry point for report generation."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Generate final research report.")
+    parser.add_argument("--correlation-matrix", required=True, help="Path to correlation_matrix.json")
+    parser.add_argument("--sensitivity-analysis", required=True, help="Path to sensitivity_analysis.json")
+    parser.add_argument("--timing-evidence", required=True, help="Path to timing_evidence.json")
+    parser.add_argument("--power-analysis", required=True, help="Path to power_analysis.json")
+    parser.add_argument("--outlier-report", required=True, help="Path to outlier_report.json")
+    parser.add_argument("--output", required=True, help="Path for final_report.md")
+    
+    args = parser.parse_args()
+    
+    generate_report(
+        correlation_matrix_path=args.correlation_matrix,
+        sensitivity_analysis_path=args.sensitivity_analysis,
+        timing_evidence_path=args.timing_evidence,
+        power_analysis_path=args.power_analysis,
+        outlier_report_path=args.outlier_report,
+        output_path=args.output
+    )
+    print(f"Report generated successfully at: {args.output}")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Environment and virtualenv
+venv/
+ENV/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific data (raw, processed, results)
+# Raw data is often large and should be ignored unless explicitly added
+data/raw/*.csv
+data/raw/*.tsv
+data/raw/*.parquet
+# Processed data
+data/processed/*.parquet
+data/processed/*.csv
+# Results
+data/results/*.json
+data/results/*.md
+data/results/*.csv
+# Metadata
+data/metadata/*.json
+data/metadata/*.yaml
+
+# State and configuration
+state/
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Temporary files
+tmp/
+temp/

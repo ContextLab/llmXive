@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-340-investigating-the-correlation-between-gu",
   "ok": false,
-  "reason": "45 fabricated/simulated-result signal(s) \u2014 results are not real measurements: data/results/harmonized_vs_synthetic_comparison.json: self-declared fabricated metric \u2014 \u201c\u2026ts detected. (Note: This is a placeholder result until the full pipeline is ex\u2026\u201d; code/data_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Deterministic Synthetic Data Generator for Pipeline V\u2026\u201d; code/data_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Validation.  This module generates synthetic metagenomic count data a\u2026\u201d; 2 command(s) failed: python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv (rc=1); python code/main.py --input data/raw/synthetic_data.csv --output data/results/ (rc=1); 7 declared deliverable(s) absent: data/processed/filtered_data.parquet; data/raw/large_proxy.csv; data/raw/real_data.csv",
+  "reason": "50 fabricated/simulated-result signal(s) \u2014 results are not real measurements: data/results/harmonized_vs_synthetic_comparison.json: self-declared fabricated metric \u2014 \u201c\u2026ts detected. (Note: This is a placeholder result until the full pipeline is ex\u2026\u201d; code/data_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Deterministic Synthetic Data Generator for Pipeline V\u2026\u201d; code/data_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Validation.  This module generates synthetic metagenomic count data a\u2026\u201d; 2 command(s) failed: python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv (rc=1); python code/main.py --input data/raw/synthetic_data.csv --output data/results/ (rc=1); 6 declared deliverable(s) absent: data/processed/filtered_data.parquet; data/raw/real_data.csv; data/results/correlation_matrix.json",
   "artifacts": [],
   "failures": [
-    "python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/ingest.py\", line 25, in <module>\n    logging.FileHandler('data/logs/ingest.log', mode='a')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__",
-    "python code/main.py --input data/raw/synthetic_data.csv --output data/results/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/main.py\", line 10, in <module>\n    from ingest import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/ingest.py\", line 25, in <module>\n    logging.FileHandler('data/logs/ingest.log', mode='a')\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    Str"
+    "python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv -> rc=1\n    2026-07-31 16:49:23,578 - ingest - INFO - Loaded 0 predictors and 0 outcomes from config.\n2026-07-31 16:49:23,578 - ingest - ERROR - No required variables loaded. Cannot proceed.",
+    "python code/main.py --input data/raw/synthetic_data.csv --output data/results/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/main.py\", line 58, in <module>\n    from run_stress_test import run_6_hour_stress_test as stress_test_runner\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-investigating-the-correlation-between-gu/code/run_stress_test.py\", line 26, in <module>\n    from main import main as run_pipeline_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-340-inves"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-30T11:05:00Z"
+  "updated_at": "2026-07-31T16:49:26Z"
 }

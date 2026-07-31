@@ -1,3 +1,46 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing a `code/` directory or an `__init__.py` file was provided;\
+    \ the evidence list is empty, so the required files cannot be confirmed to exist.\
+    \ The implementer must add the `code/` folder with a non\u2011empty `__init__.py`\
+    \ inside."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `tests/` directory or its required sub\u2011folders (`contract/`,\
+    \ `unit/`, `integration/`) was provided; the implementer\u2019s claim cannot be\
+    \ verified from the supplied artifacts. The missing directory structure must be\
+    \ added and shown."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data/` directory or its required subfolders (`raw/`, `processed/`,\
+    \ `results/`, `config/`) was provided; the implementer\u2019s claim is unsupported\
+    \ by any visible artifacts."
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file or virtual environment configuration (e.g., `requirements.txt`,\
+    \ `pyproject.toml`, or `venv/` setup script) was presented. Without these artifacts,\
+    \ the claim that the task \u201CCreate `.gitignore` and initialize virtualenv\
+    \ configuration\u201D is fulfilled cannot be verified. The next implementer must\
+    \ add a proper `.gitignore` file and provide the necessary virtual environment\
+    \ setup files."
+T004a:
+  c: false
+  h: 0ce1a30fb709057bb330bc4b5b914bd227efbb3d8828db88649c8c231ef6e304
+  r: The required `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml`
+    file is missing, and the runtime configuration file `data/config/research_design.yaml`
+    that should contain the list of taxa does not exist. Without these artifacts the
+    predictor schema is not defined and the required taxa list is not provided.
+T004b:
+  c: false
+  h: 0ce1a30fb709057bb330bc4b5b914bd227efbb3d8828db88649c8c231ef6e304
+  r: "The required files `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml`\
+    \ and `data/config/research_design.yaml` are missing from the repository, so no\
+    \ schema or runtime metric list is present. Without these artifacts the task\u2019\
+    s requirement is not satisfied."
 T012:
   c: false
   h: 0aa265bb6f42312ffe884fbded9f2a2750d1c3d3582a8613889921249f0c0e28
@@ -14,13 +57,20 @@ T013:
     \ logic to read `data/results/variable_load_metrics.json` or exit on a percentage\u202F\
     <\u202F100\u202F%. Additionally, the required `data/results/variable_load_metrics.json`\
     \ file is absent. Both the implementation and the dependent artifact are missing."
-T014b:
+T014c:
   c: false
-  h: 0654652f237e77e825de5c1e76d34622652756664a5dde6c0e8ad288ba9f7ee8
-  r: "The repository lacks the required output artifacts (`data/processed/filtered_data.parquet`\
-    \ and `data/results/outlier_report.json`), and the provided `code/ingest.py` snippet\
-    \ shows no implementation of outlier filtering or file\u2011writing logic for\
-    \ those outputs. The task\u2019s core functionality is therefore not present."
+  h: f5289838c5bfa7b03b138f87321860c4fad3df670c3caccd092f7207d139a759
+  r: The required file `data/processed/filtered_data.parquet` does not exist, so no
+    checksum can be computed. Moreover, the YAML file does not contain a checksum
+    entry for that parquet file (only a code file entry is present). Both the artifact
+    and its recorded checksum are missing.
+T016:
+  c: false
+  h: e77702cd0e9a97dc58ddc7d08be53d65090a00092ce6943410931c49a5eb3f15
+  r: "The repository lacks the required `data/results/timing_evidence.json` file,\
+    \ and the shown portion of `code/main.py` does not contain any execution\u2011\
+    timing logic (recording start/end, asserting <\u202F6\u202Fh, writing the JSON,\
+    \ or exiting on timeout). Both the artifact and the core functionality are missing."
 T021:
   c: false
   h: 4efe343b45daf5599db8dc008d7e2d5e86a7f660bbadafa55896000372b51757
@@ -29,3 +79,11 @@ T021:
     \ the mandatory compositionality flag file. Moreover, `data/metadata/compositionality_flag.json`\
     \ is missing, so the function cannot satisfy the requirement to read it and apply\
     \ the fallback logic when T022a fails. The task therefore remains unfinished."
+T025:
+  c: false
+  h: d99580ab6a4f5378971b72b071bc7f8c3282ce43a3e130e07821622690d9ed89
+  r: "The repository lacks the required `data/results/correlation_matrix.json` file,\
+    \ and the provided `code/analysis.py` excerpt does not contain any implementation\
+    \ of Benjamini\u2011Hochberg FDR correction or logic to write the full correlation\
+    \ matrix to that JSON file. Both the output artifact and the necessary code are\
+    \ missing."

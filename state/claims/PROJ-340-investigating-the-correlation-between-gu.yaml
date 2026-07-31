@@ -492,3 +492,62 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-27T01:04:46Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: pipeline completion time less than 6 hours on CPU-only CI
+  claim_id: c_22cc4d09
+  context: 'Independent Test: Run ingestion against a mock dataset missing ''SWS duration'';
+    verify system halts with specific error. Run dummy pipeline on CI; verify completion
+    < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_completion_time_less_than_6_hours_on_CPU-only_CI
+  kind: magnitude
+  raw_text: Run dummy pipeline on CI; verify completion < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:52:52Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied with q <= 0.05
+  claim_id: c_64592023
+  context: "T025 IMPLEMENT FDR CORRECTION AND OUTPUT: Implement Benjamini-Hochberg\
+    \ FDR correction in code/analysis.py to adjust p-values (q \u2264 0.05) and write\
+    \ the full correlation matrix to data/results/correlation_matrix.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Benjamini-Hochberg FDR correction in `code/analysis.py` to\
+    \ adjust p-values (q \u2264 0.05) and write the full correlation matrix to `data/results/correlation_matrix.json`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:52:52Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 3
+  canonical: adaptive subsampling triggered if N > 1000 or taxa > 500, keeping first
+    N=900 rows
+  claim_id: c_b7110305
+  context: 'T095 [US1] IMPLEMENT ADAPTIVE SUBSAMPLING FOR RAM LIMITS: Implement subset_to_fit_ram()
+    in code/ingest.py. Logic: If a dataset exceeds N > 1000 or taxa > 500 (violating
+    Assumption-001), automatically stream and subsample (keep first N=900 rows or
+    top taxa by abundance) to fit within RAM limits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `subset_to_fit_ram()` in `code/ingest.py`. Logic: If a dataset
+    exceeds N > 1000 or taxa > 500 (violating Assumption-001), automatically stream
+    and subsample (keep first N=900 rows or top taxa by abundance) to fit within RAM
+    limits.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T16:53:15Z'

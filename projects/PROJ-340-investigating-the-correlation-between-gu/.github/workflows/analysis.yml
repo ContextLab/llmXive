@@ -1,108 +1,71 @@
-name: Analysis Pipeline
+name: Analysis Pipeline CI
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
-env:
-  PYTHON_VERSION: '3.11'
+    branches: [ main, develop ]
 
 jobs:
-  analyze-cpu:
-    name: Analysis (CPU)
+  run-analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 360 # 6 hours limit
-    outputs:
-      gpu_required: ${{ steps.gpu_check.outputs.required }}
-      error_message: ${{ steps.gpu_check.outputs.message }}
+    
+    strategy:
+      matrix:
+        python-version: [3.9, "3.10"]
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
-      - name: Run Analysis Pipeline
-        id: run_pipeline
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          python code/main.py --real-data 2>&1 | tee pipeline_output.log
-          # Check for specific GPU error in logs to trigger re-run logic
-          if grep -q "GPURequiredError" pipeline_output.log; then
-            echo "GPU_REQUIRED=true" >> $GITHUB_OUTPUT
-            echo "GPU_ERROR_DETECTED=true" >> $GITHUB_OUTPUT
-          else
-            echo "GPU_REQUIRED=false" >> $GITHUB_OUTPUT
-          fi
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-      - name: Capture Error Details
-        id: gpu_check
-        if: steps.run_pipeline.outcome == 'failure' || steps.run_pipeline.outputs.gpu_error_detected == 'true'
-        run: |
-          # Extract the specific error message if available
-          if [ -f "pipeline_output.log" ]; then
-            ERROR_MSG=$(grep -A 5 "GPURequiredError" pipeline_output.log | head -n 1)
-            echo "required=true" >> $GITHUB_OUTPUT
-            echo "message=${ERROR_MSG}" >> $GITHUB_OUTPUT
-          else
-            echo "required=true" >> $GITHUB_OUTPUT
-            echo "message=GPURequiredError detected in logs" >> $GITHUB_OUTPUT
-          fi
+    - name: Verify directory structure
+      run: |
+        mkdir -p data/raw data/processed data/results data/config data/metadata
+        mkdir -p specs/001-gut-microbiome-sleep-architecture/contracts
 
-      - name: Upload Logs
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cpu-pipeline-logs
-          path: pipeline_output.log
+    - name: Run Reference Validator Gate
+      run: |
+        python code/reference_validator.py --check-only
+      continue-on-error: false
 
-  analyze-gpu:
-    name: Analysis (GPU Offload)
-    needs: analyze-cpu
-    if: needs.analyze-cpu.outputs.gpu_required == 'true'
-    runs-on: kaggle-gpu
-    timeout-minutes: 360 # 6 hours limit
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Run Ingestion and Validation
+      run: |
+        python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
+    - name: Run Full Analysis Pipeline
+      run: |
+        python code/main.py --input data/raw/synthetic_data.csv --output data/results/
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          # Ensure GPU-specific packages are available if needed
-          pip install torch --index-url https://download.pytorch.org/whl/cu118
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: analysis-results-${{ matrix.python-version }}
+        path: |
+          data/results/
+          data/processed/
+          data/metadata/
+          logs/
+        retention-days: 5
 
-      - name: Run Analysis Pipeline on GPU
-        run: |
-          echo "Re-running analysis on GPU runner due to GPURequiredError from CPU runner."
-          python code/main.py --real-data
-
-      - name: Upload Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: gpu-pipeline-results
-          path: data/
-
-      - name: Upload Logs
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gpu-pipeline-logs
-          path: data/logs/
+# Resource limits enforced by GitHub Actions runners (2 cores, 7GB RAM for ubuntu-latest)
+# If specific stricter limits are needed, they would be configured in the runner environment
+# or via self-hosted runners with specific hardware profiles.

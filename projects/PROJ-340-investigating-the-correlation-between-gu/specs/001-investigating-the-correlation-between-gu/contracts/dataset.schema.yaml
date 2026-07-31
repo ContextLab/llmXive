@@ -1,26 +1,78 @@
-predictors:
-  - Taxon_0
-  - Taxon_1
-  - Taxon_2
-  - Taxon_3
-  - Taxon_4
-  - Taxon_5
-  - Taxon_6
-  - Taxon_7
-  - Taxon_8
-  - Taxon_9
-  - Taxon_10
-  - Taxon_11
-  - Taxon_12
-  - Taxon_13
-  - Taxon_14
-  - Taxon_15
-  - Taxon_16
-  - Taxon_17
-  - Taxon_18
-  - Taxon_19
-outcomes:
-  - total_sleep_time
-  - sws_duration
-  - rem_duration
-  - sleep_efficiency
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Gut Microbiome and Sleep Architecture Dataset Schema"
+description: |
+  Schema defining the expected structure of the dataset used for investigating
+  the correlation between gut microbiome composition and sleep architecture.
+  This schema defines the structural requirements for predictors and outcomes.
+  The actual list of required variable names is provided at runtime in
+  data/config/research_design.yaml.
+type: object
+properties:
+  predictors:
+    type: object
+    description: |
+      Structure definition for gut microbiome predictor variables (taxa).
+      The actual taxa names are defined in data/config/research_design.yaml.
+    properties:
+      type:
+        type: string
+        const: "array"
+        description: "Predictors are defined as a list of strings (taxa names)."
+      items:
+        type: object
+        properties:
+          type:
+            type: string
+            const: "string"
+            description: "Each predictor is a taxon name string."
+        required:
+          - type
+      required:
+        - type
+        - items
+    required:
+      - type
+      - items
+    additionalProperties: false
+  outcomes:
+    type: object
+    description: |
+      Structure definition for sleep architecture outcome variables (metrics).
+      The actual metric names are defined in data/config/research_design.yaml.
+    properties:
+      type:
+        type: string
+        const: "array"
+        description: "Outcomes are defined as a list of strings (metric names)."
+      items:
+        type: object
+        properties:
+          type:
+            type: string
+            const: "string"
+            description: "Each outcome is a sleep metric name string."
+        required:
+          - type
+      required:
+        - type
+        - items
+    required:
+      - type
+      - items
+    additionalProperties: false
+  metadata:
+    type: object
+    description: "Optional metadata about the dataset structure."
+    properties:
+      version:
+        type: string
+        description: "Schema version."
+      description:
+        type: string
+        description: "Human-readable description of the schema."
+    required:
+      - version
+required:
+  - predictors
+  - outcomes
+additionalProperties: false
