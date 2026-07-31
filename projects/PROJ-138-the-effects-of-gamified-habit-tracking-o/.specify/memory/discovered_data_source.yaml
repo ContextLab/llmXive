@@ -1,15 +1,11 @@
 status: none
-intent: Habitica API user activity logs python package dataset
+intent: Habitica API habit tracking logs dataset download python package dataset
 required_fields:
-- user_id
-- app_id
-- app_tags
-- event_timestamp
-- daily_event_count
-- weekly_adherence_count
-- weekly_adherence_binary
-- gamified_status
-- personality_score
-cache_key: 3c41cdff97c6c1cc93d16d190079619449a2fc787be7aba6faea50b32f7c76c7
-searched_at: '2026-07-29T11:26:24.885860+00:00'
+- User_ID
+- Gamified_Status
+- Week_Number
+- Weekly_Adherence_Count
+- Activity_Flag
+cache_key: da4706a6dfc136754f0403724faf8cb630b11279f05ea8d87be582ce8bce6afd
+searched_at: '2026-07-31T20:52:59.348819+00:00'
 retry_count: 1

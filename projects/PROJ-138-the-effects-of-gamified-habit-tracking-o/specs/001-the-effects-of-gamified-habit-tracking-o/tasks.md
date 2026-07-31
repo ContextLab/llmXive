@@ -1,7 +1,3 @@
----
-description: "Task list template for feature implementation"
----
-
 # Tasks: The Effects of Gamified Habit Tracking on Long-Term Behavioral Change
 
 **Input**: Design documents from `/specs/001-gamification-effects/`
@@ -66,8 +62,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T006 [P] Setup `code/utils/logging.py` for structured logging of pipeline stages
 - [X] T007 [P] Implement classes `User`, `BehavioralLog`, and `WeeklyAggregation` in `code/data/models.py` with attributes: `user_id` (str), `gamification_status` (bool), `conscientiousness_score` (float), `date` (datetime), `event_type` (str), `week_number` (int), `adherence_flag` (int), matching the Key Entities in spec.md. **Verification**: Assert `import code.data.models` succeeds and class attributes match spec.
 - [X] T008 [P] Implement `code/utils/versioning.py` to calculate SHA-256 hashes of artifacts and update `state.yaml` (Constitution Principle V)
-- [X] T009 [P] [US1] Setup `contracts/dataset.schema.yaml` defining required columns (User_ID, Gamified, Adherence, Conscientiousness, Need_for_Achievement) and valid tag values for `gamified_app_usage` for validation. **Verification**: Assert file exists and is valid YAML. (FR-001a)
-
+- [X] T009 [Foundational] [FR-001a] Setup `contracts/dataset.schema.yaml` defining required columns (User_ID, Gamified, Adherence, Conscientiousness) and valid tag values for `gamified_app_usage`. **Explicitly mark `need_for_achievement` as OPTIONAL** in the schema to support conditional inclusion. **Verification**: Assert file exists, is valid YAML, and reflects optionality.
 - [X] T013a-0 [US1] [FR-010] Implement `code/data/validation.py` (Consent Artifact Generator):
  1. **Action**: Create a function `generate_simulation_consent()` that writes a fixed JSON artifact to `data/consent/simulation_consent_record.json`.
  2. **Content**: The JSON must contain `{"type": "simulation", "scope": "synthetic-only", "timestamp": "<ISO8601>", "note": "No human subjects involved. Data generated synthetically per Plan.md.", "audit_id": "SIM-001"}`.
@@ -77,13 +72,16 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T013a-1 [US1] [FR-001-Synthetic] Implement `code/data/synthetic_generator.py` (Data Generation Algorithm):
  1. **Algorithm**: Use `numpy.random.default_rng(seed=42)`.
- 2. **Traits**: Generate `conscientiousness_score` from N(3.5, 0.8).
- 3. **Conditional Variable Logic**: **Config-Driven Inclusion**: Check a fixed config flag `INCLUDE_ACHIEVEMENT_SCORE` (default True). If True, generate `need_for_achievement` ~ N(3.5, 0.8) with a target correlation of rho=0.4 using Cholesky decomposition. If False, omit the column. **Do NOT use seed-dependent logic (e.g., seed % 2)** to determine column presence, as this violates reproducibility.
- 4. **Gamification**: Set `gamified_status` = True if reported using gamified apps, False otherwise. Generate N=500 users total, ensuring 150 users are non-gamified. If initial random assignment fails, retry up to 5 times.
- 5. **Logs**: Generate **synthetic longitudinal event logs** (NOT cross-sectional survey data) simulating multiple weeks of daily logs per user. Each log must have `date`, `event_type`, `user_id`.
- 6. **Scope Note**: This task implements the "Simulation Study" scope authorized by Plan.md, providing a verified synthetic data source for this project iteration.
- 7. **Output**: Return a DataFrame of synthetic data. (FR-008, FR-011)
- **Verification**: Assert the DataFrame contains specified columns and, if config is set, `need_for_achievement` is present. Verify that the presence of `need_for_achievement` is deterministic based on the config flag, not the random seed.
+ 2. **Target N**: Generate **N=200 users** total (matching Plan.md target), ensuring at least 30 are non-gamified. Retry up to 5 times if the non-gamified floor is not met.
+ 3. **Traits**: Generate `conscientiousness_score` from N(3.5, 0.8).
+ 4. **Conditional Variable Logic**: **Config-Driven Inclusion**: Check a fixed config flag `INCLUDE_ACHIEVEMENT_SCORE` (default True). If True, generate `need_for_achievement` ~ N(3.5, 0.8) with a target correlation of rho=0.4 using Cholesky decomposition. If False, omit the column. **Do NOT use seed-dependent logic** to determine column presence.
+ 5. **Gamification**: Set `gamified_status` = True if reported using gamified apps, False otherwise.
+ 6. **Logs**: Generate **synthetic longitudinal event logs** (NOT cross-sectional survey data) simulating multiple weeks of daily logs per user.
+ 7. **Schema Definition**: Each log must have `user_id` (str), `date` (datetime), `event_type` (str), `value` (float).
+ 8. **Derivation Logic**: Explicitly define that `weekly_adherence_flag` is derived by counting events per week; flag = 1 if count > 0, else 0.
+ 9. **Scope Note**: This task implements the "Simulation Study" scope authorized by Plan.md.
+ 10. **Output**: Return a DataFrame of synthetic data. (FR-008, FR-011)
+ **Verification**: Assert the DataFrame contains specified columns and, if config is set, `need_for_achievement` is present. Verify that the presence of `need_for_achievement` is deterministic based on the config flag.
 
 - [X] T013a-2 [US1] Implement `code/data/synthetic_generator.py` (Write Artifacts):
  1. **Action**: Write the DataFrame from T013a-1 to `data/raw/synthetic_data.csv`.
@@ -97,13 +95,13 @@ Examples of foundational tasks (adjust based on your project):
  2. **Missing Column Logic**: If `need_for_achievement` is missing (as per config), log "Column 'need_for_achievement' omitted from source data." and ensure the pipeline is prepared to proceed with Conscientiousness only (FR-002).
  3. **Tiered Logic**:
  - If Total < 100: **HALT** with `sys.exit(1)` and log "CRITICAL: Data Insufficiency (< 100 records)." (FR-001).
- - If 100 <= Total < 500: Log "WARNING: Sample size < 500 (N=<actual>). Proceeding with caution."
- - If Total >= 500: Log "Success: Sample size target met."
- 4. **Retry Logic**: If < 30 non-gamified users, retry generation up to 5 times. If still < 30 after 5 attempts, raise a fatal error. **Verification**: Assert that the retry loop executes exactly 5 times before failing if the condition is not met.
+ - If 100 <= Total < 200: Log "WARNING: Sample size < 200 (N=<actual>). Proceeding with caution."
+ - If Total >= 200: Log "Success: Sample size target met."
+ 4. **Retry Logic**: If < 30 non-gamified users, retry generation (call T013a-1 logic) up to 5 times. If still < 30 after 5 attempts, raise a fatal error.
  5. **Verification**: Assert count of non-gamified users >= 30 and total records >= 100.
- **Dependency**: T013a-2
+ **Dependency**: T013a-1 (Direct dependency on generation logic for retry)
 
-- [X] T012a [US1] Implement `check_consent()` function in `code/data/validation.py`:
+- [X] T012a [US1] [FR-010] Implement `check_consent()` function in `code/data/validation.py`:
  1. **Check for Mode**: Check for the existence of `data/raw/synthetic_data_marker.json` **OR** a configuration flag `SIMULATION_MODE=true`.
  - **If Present (Synthetic Mode)**: **DO NOT SKIP**. Instead, call `generate_simulation_consent()` (from T013a-0) to ensure `data/consent/simulation_consent_record.json` exists. Verify the artifact contains `audit_id` and `scope: "synthetic-only"`. Log "Synthetic data detected. Consent artifact generated for audit compliance." (FR-010, Constitution VI, Plan: "Crucial Scope Note"). **The check passes only if the artifact exists and is valid.**
  - **If Absent (Real Data Mode)**: Check for `data/consent/` directory and original consent documentation.
@@ -112,14 +110,15 @@ Examples of foundational tasks (adjust based on your project):
  2. **Dependency**: Must run AFTER T013a-2 to ensure the marker exists if in synthetic mode.
  **Verification**: Assert that missing real consent causes exit code 1. Assert that synthetic mode generates the placeholder file with valid metadata and logs the specific scope note.
 
-- [X] T048 [US3] Implement `code/data/power_analysis.py`: Add a pre-flight calculation script that estimates statistical power for the planned N=500 simulation given the target interaction effect size.
+- [X] T048 [US3] Implement `code/data/power_analysis.py`: Add a pre-flight calculation script that estimates statistical power for the planned N=200 simulation given the target interaction effect size.
  1. **Logic**: Use `statsmodels.stats.power` to calculate power for a mixed-effects logistic regression approximation.
- 2. **Parameters**: Hardcode `effect_size_f2 = 0.15`, `alpha = 0.05`, `target_power = 0.80` in the script. **Note**: The Plan.md section "Power Analysis Justification" is marked "[deferred]"; this task overrides that with explicit parameters to ensure executability. Log a WARNING if these differ from any future Plan update.
+ 2. **Parameters**: Hardcode `effect_size_f2 = 0.15`, `alpha = 0.05`, `target_power = 0.80` in the script.
  3. **File Creation**: Ensure this script creates `code/data/power_analysis.py` with a `main()` entry point.
  4. **Output**: Write `data/processed/power_analysis_report.json` containing the estimated power, effect size, and sample size.
- 5. **Validation**: **HALT** the pipeline if power < 0.80. Log "CRITICAL: Statistical power < 0.80. Study cannot proceed with statistical validity." and exit with code 1. This resolves the logical deadlock caused by the '[deferred]' status in Plan.md and ensures rigorous validation. (Plan: "Power Analysis Justification")
+ 5. **Remediation**: If power < 0.80, **automatically increment N by 100** and regenerate data (up to N=1000) before halting. Log each iteration. If N=1000 is reached and power < 0.80, **HALT** with `sys.exit(1)`.
+ 6. **Validation**: **HALT** the pipeline if power < 0.80 after remediation. Log "CRITICAL: Statistical power < 0.80. Study cannot proceed with statistical validity." (Plan: "Power Analysis Justification")
  **Dependency**: Can run in parallel with T013a-1; its output is consumed by T032 for reporting.
- **Verification**: Assert the script runs successfully and halts the pipeline if power < 0.80.
+ **Verification**: Assert the script runs successfully, attempts remediation if needed, and halts only if power remains insufficient.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -199,6 +198,7 @@ Examples of foundational tasks (adjust based on your project):
  4. **Apply Drop**: If flagged, remove it from the model formula immediately.
  5. If column does not exist, log omission and proceed with Conscientiousness only.
  **Dependency**: Requires data from T017. **Must complete before T020b.**
+ **Note**: If `need_for_achievement` is missing (per T017 logic), skip VIF calculation for it and proceed with Conscientiousness only.
 
 - [X] T020b [US2] Implement `code/analysis/modeling.py` (Spec-Compliant Model):
  1. **Action**: Fit a mixed-effects logistic regression model with **random intercepts only**: `(1 | user_id)`.
@@ -231,8 +231,17 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T024 [US2] Implement `code/analysis/survival.py`: Count dropout events (consecutive weeks of non-adherence). If events < 10 per group, **generate a descriptive statistics report** and halt survival analysis (FR-009). If events ≥ 10, proceed to survival analysis.
  **Dependency**: Requires data from T017.
 
-- [X] T025 [US2] Implement Kaplan-Meier curves and Cox proportional hazards model in `code/analysis/survival.py`, stratified by Conscientiousness quartiles (FR-003).
- **Dependency**: Requires output from T024.
+- [X] T024a [US2] [FR-003] Implement `code/analysis/survival.py` (Stratification Logic):
+ 1. **Action**: Calculate Conscientiousness quartiles using `pd.qcut` on the `conscientiousness_score` column from the merged dataset.
+ 2. **Assignment**: Assign a new column `conscientiousness_quartile` (values 1, 2, 3, 4) to the dataset.
+ 3. **Validation**: Verify that each quartile has at least 5 users. If a quartile is empty, log a warning and merge with the adjacent quartile.
+ 4. **Output**: The dataset must now contain the `conscientiousness_quartile` column, ready for stratified analysis.
+ **Dependency**: Requires data from T017. **Must complete before T025.**
+
+- [X] T025 [US2] Implement Kaplan-Meier curves and Cox proportional hazards model in `code/analysis/survival.py`, **stratified by the `conscientiousness_quartile` column** (FR-003).
+ 1. **Action**: Use the `conscientiousness_quartile` column generated in T024a to stratify the survival analysis.
+ 2. **Output**: Generate Kaplan-Meier curves and Cox model results for each stratum.
+ **Dependency**: Requires output from T024a.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -254,8 +263,8 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T029 [US3] Implement `code/analysis/robustness.py`: Execute bootstrapping (sufficient iterations) to generate confidence interval for gamification effect size. **Logic**:
  1. Use `sklearn.model_selection.StratifiedShuffleSplit` to ensure the ratio of gamified to non-gamified users remains constant (within 5%) across all samples.
  2. **Report**: Report the coefficient variance across samples and the corresponding confidence interval.
- 3. **Robustness Status**: **DO NOT HALT** the pipeline if variance >= 0.01. Instead, calculate the variance, and if `variance >= 0.01`, set `robustness_status` to "failed" in `data/processed/robustness_report.json`. If `variance < 0.01`, set to "passed".
- 4. **Output**: Write `data/processed/robustness_report.json` with `variance`, `ci`, and `robustness_status`.
+ 3. **Robustness Status (Hard Gate)**: **HALT** the pipeline if variance >= 0.01. Log "CRITICAL: Bootstrap variance (>= 0.01) exceeded the robustness threshold (SC-004). Study cannot proceed." and exit with code 1. **DO NOT** continue with a "failed" status.
+ 4. **Output**: Write `data/processed/robustness_report.json` with `variance`, `ci`, and `robustness_status: "passed"`.
  5. **Verification**: Assert the report contains the variance value and the `robustness_status` flag. (FR-004, SC-004)
  **Dependency**: Requires output from T020b.
 
@@ -268,10 +277,9 @@ Examples of foundational tasks (adjust based on your project):
  3. **Data Binding**: Read `data/processed/psychometrics.json` (from T012c) and inject the Cronbach's Alpha value into the "Psychometric Validity" section. (FR-011)
  4. **Limitations**: Include a "Data Limitations" section explicitly stating: "Sample size (N=<actual>), synthetic nature of data, lack of external validation, and potential underpowering for interaction effects."
  - **Source of Truth**: Read the actual sample size `N` from `data/processed/merged_data.csv` (count of unique `User_ID` rows) to populate `<actual>`. Do not use hardcoded values or planned N.
- 5. **Methodology Limitations**: Append a "Methodology Limitations" subsection explicitly stating the "Simulation Study" nature, reliance on synthetic data with known ground truth, and the limitation of using a single random seed without multi-seed sensitivity analysis.
- 6. **Robustness Flag**: If `data/processed/robustness_report.json` contains `robustness_status: "failed"`, inject a specific warning: "WARNING: Bootstrap variance (>= 0.01) exceeded the robustness threshold. Results should be interpreted with caution." (SC-004).
- 7. **Multi-Seed Sensitivity Analysis**: **MANDATORY**: Execute the pipeline with **5 distinct random seeds** (e.g., 42, 123, 456, 789, 101112). Calculate the variance of the interaction coefficients across these 5 runs. Report this variance in the "Methodology Limitations" section as a quantitative measure of seed sensitivity. If variance > 0.05, inject a warning: "WARNING: High seed sensitivity detected. Results may be artifacts of the specific random seed." **This step verifies that the single-seed result is not an artifact.**
- 8. **Verification**: Assert file exists, contains the "Data Limitations" section with the actual N, the Cronbach's Alpha value, the disclaimer, the robustness flag (if applicable), the multi-seed variance analysis, and no causal language. (FR-005, FR-006, FR-011, SC-004)
+ 5. **Methodology Limitations**: Append a "Methodology Limitations" subsection explicitly stating the "Simulation Study" nature, reliance on synthetic data with known ground truth, and the limitation of using a single random seed. **Explicitly state that Multi-Seed Sensitivity Analysis is out of scope for this phase as the study focuses on Parameter Recovery Error against a known ground truth, not empirical stability across seeds.**
+ 6. **Robustness Flag**: If `data/processed/robustness_report.json` contains `robustness_status: "failed"` (should not happen due to T029 hard gate, but for safety), inject a specific warning.
+ 7. **Verification**: Assert file exists, contains the "Data Limitations" section with the actual N, the Cronbach's Alpha value, the disclaimer, and no causal language. (FR-005, FR-006, FR-011, SC-004)
  **Dependency**: Requires output from T029, T031, T012c.
 
 - [X] T033 [US3] Run `code/utils/versioning.py` to hash all final artifacts and update `state.yaml` (Constitution Principle V).
@@ -287,7 +295,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T034 [P] Documentation updates: Update `README.md` with project overview and `specs/001-gamification-effects/quickstart.md` with execution instructions. **Specifics**: Ensure `quickstart.md` includes steps for synthetic data generation and consent verification.
 - [X] T035 [P] Refactor `code/analysis/robustness.py` to use **chunked processing or generator-based iteration** to ensure peak memory usage remains under **4GB** during bootstrapping, verified by a **memory_profiler** test. **Verification**: Add `tests/test_memory.py::test_peak_memory_under_GB` and assert it passes.
 - [X] T036 [P] Optimize `code/analysis/robustness.py` by implementing **multiprocessing** for 1,000 bootstrap iterations to reduce runtime on **GitHub Actions free-tier (2 CPU, 7GB RAM)** to < 30 minutes. **Verification**: Assert runtime < 30 minutes in CI logs.
-- [X] T037 [P] Additional unit tests for edge cases: Implement `code/tests/test_edge_cases.py` with functions `test_vif_high_collinearity` (verifies VIF > 5 handling) and `test_low_event_count` (verifies survival halt logic).
+- [X] T037 [P] Additional unit tests for edge cases: Implement `code/tests/test_edge_cases.py` with functions `test_vif_high_collinearity` (verifies VIF > 5 handling), `test_low_event_count` (verifies survival halt logic), and `test_retry_logic` (verifies T013a-3 retry loop executes exactly 5 times before failing).
 - [X] T038 [US3] Run quickstart.md validation: Create `quickstart.sh` if it does not exist (copying steps from `quickstart.md`), make it executable, then run `bash quickstart.sh`. Assert exit code 0, verify `data/processed/merged_data.csv` exists, and run pre-flight dependency checks. **Pre-flight Check**: Assert that all dependency files (T009, T013a, T014) exist before execution. (FR-001b, Constitution V)
  **Verification**: Assert exit code 0 and `data/processed/merged_data.csv` exists.
 
@@ -303,7 +311,7 @@ Examples of foundational tasks (adjust based on your project):
  - `code.analysis.robustness.main()`
  - `code.reports.generate_report.main()`
  2. **Error Handling**: Implement try/except blocks to capture failures in any stage and write a structured error log to `logs/pipeline_error.log`.
- 3. **Dependency**: Must run after T051 (Run-book reconciliation) and after all US1/US2/US3 implementations.
+ 3. **Dependency**: Must run after T051 (Run-book reconciliation) and after all US1/US2/US3 implementations. **Note**: This task defines the flow for T048 and T013a-1 and should be implemented concurrently with components.
  4. **Verification**: Assert that running `python code/main.py` successfully produces `data/reports/final_analysis.html` without manual intervention. (Plan: "Orchestration script")
 
 **Checkpoint**: All user stories should now be independently functional
@@ -315,14 +323,21 @@ Examples of foundational tasks (adjust based on your project):
 **Purpose**: Address specific issues raised by `/speckit.analyze` regarding power analysis, edge case handling, and documentation completeness.
 
 - [X] T050 [US3] Update `code/reports/generate_report.py` to include a "Methodology Limitations" subsection.
- 1. **Content**: Explicitly state the "Simulation Study" nature of the work, the reliance on synthetic data with known ground truth, and the specific limitation of using a **single random seed (42)** without reporting sensitivity to seed variation. Acknowledge that multi-seed sensitivity analysis is now mandated by T032 and will be executed.
+ 1. **Content**: Explicitly state the "Simulation Study" nature of the work, the reliance on synthetic data with known ground truth, and the specific limitation of using a **single random seed (42)**. Acknowledge that multi-seed sensitivity analysis is not in scope for this phase.
  2. **Action**: Append this section to the final report after the "Data Limitations" section.
  3. **Verification**: Assert the report contains the phrase "Simulation Study", "known ground truth", and "single random seed" in the limitations section. (Plan: "Crucial Scope Note")
 
 - [X] T051 [US3] Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
  **Verification**: Assert `code/main.py` exists and is executable.
 
-- [X] T058 [US3] Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
- **Verification**: Assert `code/main.py` exists and is executable.
+- [X] T060 [US2] [Edge Case] Refine the "Zero Adherence" logic in `code/analysis/survival.py` (T049).
+ 1. **Clarification**: Ensure that users with `weekly_adherence_flag` = 0 for *all* weeks are censored at `week_number=0` (or `week_number=1` depending on 0-indexing) AND that this is explicitly logged as "Censored at baseline (no adherence events)".
+ 2. **Verification**: Add a unit test in `code/tests/test_edge_cases.py` (T037) that creates a synthetic user with zero adherence and asserts that the survival curve correctly marks this as a censoring event at the start, not as an "event" (dropout).
+ **Dependency**: Requires T049 to be implemented.
 
-**Checkpoint**: All user stories should now be independently functional
+- [X] T061 [US1] [FR-001a] Update `code/data/ingestion.py` (T013b) to explicitly handle the case where the synthetic data generator fails to produce the `need_for_achievement` column due to config settings.
+ 1. **Action**: Ensure the ingestion script checks the `contracts/dataset.schema.yaml` for *conditional* columns. If `need_for_achievement` is marked as "optional" in the schema (or missing from the generated CSV), the script must **not** raise a schema mismatch error, but instead log a warning and proceed with Conscientiousness only.
+ 2. **Verification**: Assert that running the pipeline with `INCLUDE_ACHIEVEMENT_SCORE=false` in `config.py` completes successfully without a "Schema Mismatch" error. (FR-002, FR-001a)
+ **Dependency**: Requires T013b and T009 (schema definition) to be updated to reflect conditional columns.
+
+- [X] T062 [US3] [FR-005] **REMOVED**: Task T062 (visual plot of seed sensitivity) has been removed as it depends on T059 (Multi-Seed Analysis), which is out of scope for this Simulation Study.
