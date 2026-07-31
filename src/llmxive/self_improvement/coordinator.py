@@ -37,6 +37,41 @@ class LaneCoordinator:
 EMPTY_COORDINATOR = LaneCoordinator(0, None, None, (), False, None, 0)
 
 
+@dataclass(frozen=True)
+class ClaimOutcome:
+    """What a claim/release call ACTUALLY tells you: who holds the lane now.
+
+    Returned instead of a bare projection because "the call did not raise" is not an
+    ownership signal (spec 025 rev 22): both CAS entry points short-circuit when their own
+    event already landed, so a replay that arrives after the lane was released and
+    re-granted returns NORMALLY while somebody else owns the claim. Handing back a
+    ``LaneCoordinator`` made every caller re-derive ownership by comparing projection
+    fields — exactly the reconstruction a safety-critical lifecycle should not repeat at
+    each call site, and exactly the misuse FR-035 makes routine by turning re-grants
+    (``ClaimExpired``) into an ordinary event rather than a rarity.
+
+    ``acquired`` answers the only question callers actually have: does the
+    ``(problem_id, attempt_id)`` I named hold the lane now? It is therefore False after a
+    successful release, and False for a superseded replay.
+
+    The FR-035 fencing token (``claim_generation``) belongs on this record and joins it
+    with that slice; it is deliberately absent rather than faked, because the coordinator
+    stream does not yet carry generations."""
+
+    acquired: bool
+    owner_problem_id: str | None
+    owner_attempt_id: str | None
+    coordinator: LaneCoordinator
+
+
+def _outcome(coordinator: LaneCoordinator, problem_id: str, attempt_id: str) -> ClaimOutcome:
+    owner = (coordinator.active_problem_id, coordinator.active_attempt_id)
+    return ClaimOutcome(
+        acquired=owner == (problem_id, attempt_id),
+        owner_problem_id=owner[0], owner_attempt_id=owner[1], coordinator=coordinator,
+    )
+
+
 def project_coordinator(events: list[Event]) -> LaneCoordinator:
     """Fold the coordinator stream, enforcing the LEGAL TRANSITION MATRIX. The projection
     is the recovery authority, so it fails closed on any illegal history — a
@@ -103,7 +138,7 @@ def _already_landed(events: list[Event], event_id: str) -> bool:
 
 
 def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str, timestamp: str,
-              config: LaneLogConfig | None = None) -> LaneCoordinator:
+              config: LaneLogConfig | None = None) -> ClaimOutcome:
     """Take the lane's singleton claim for ``(problem_id, attempt_id)``, or raise
     :class:`LaneRevisionConflict` if another Problem holds it (or the lane revision moved
     under us — the caller recomputes and retries or yields; it NEVER forces).
@@ -114,13 +149,12 @@ def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str, times
     single-use, which spec 025 guarantees — a crashed Attempt is a FAILED Attempt and its
     successor gets a new id.
 
-    **Returning successfully does NOT mean you hold the lane.** The idempotency branch
-    asks "did THIS event already land", not "do I own the claim now", so a replay arriving
-    after the claim was released and the lane re-granted returns NORMALLY while another
-    Attempt owns it — the returned projection then shows THAT owner, not the caller. It is
-    the same honest caveat :func:`cas_release` documents. Callers MUST check the returned
-    projection (``active_problem_id``/``active_attempt_id``); "it did not raise" is not an
-    ownership signal. Pinned by
+    **Returning without raising does NOT mean you hold the lane** — check
+    :attr:`ClaimOutcome.acquired`, which is the whole reason this returns an outcome rather
+    than a projection. The idempotency branch asks "did THIS event already land", not "do I
+    own the claim now", so a replay arriving after the claim was released and the lane
+    re-granted appends nothing and returns ``acquired=False`` with ``owner_*`` naming the
+    Attempt that actually holds it. Pinned by
     ``test_a_replayed_claim_returns_successfully_while_someone_else_owns_the_lane``, and
     load-bearing under spec 025 FR-035, where ``ClaimExpired`` makes re-granting routine."""
     events = read(repo, COORDINATOR_STREAM, config=config)
@@ -136,11 +170,12 @@ def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str, times
         return (active is None, "" if active is None else f"lane occupied by {active!r}")
 
     append(repo, event, expected_revision=revision, precondition=_idle_or_landed, config=config)
-    return project_coordinator(read(repo, COORDINATOR_STREAM, config=config))
+    return _outcome(project_coordinator(read(repo, COORDINATOR_STREAM, config=config)),
+                    problem_id, attempt_id)
 
 
 def cas_release(repo: Path, *, problem_id: str, attempt_id: str, actor: str, timestamp: str,
-                config: LaneLogConfig | None = None) -> LaneCoordinator:
+                config: LaneLogConfig | None = None) -> ClaimOutcome:
     """Release the lane's claim, or raise :class:`LaneRevisionConflict` if
     ``(problem_id, attempt_id)`` does not own it.
 
@@ -148,8 +183,12 @@ def cas_release(repo: Path, *, problem_id: str, attempt_id: str, actor: str, tim
     claim: a caller that still believes it holds the lane cannot evict the Attempt that
     actually does. A release whose own record already landed is idempotent — it is
     reporting a fact, not requesting a change, so it neither appends a second record nor
-    fails; the returned projection shows whoever holds the lane now, which may be another
-    Attempt."""
+    fails.
+
+    Returns the same :class:`ClaimOutcome` as :func:`cas_claim`, read the same way:
+    ``acquired`` is False once you have released (you no longer hold the lane), and
+    ``owner_*`` names whoever holds it now — which, after a delayed duplicate release, is
+    another Attempt entirely."""
     events = read(repo, COORDINATOR_STREAM, config=config)
     revision = project_coordinator(events).lane_revision
     event = _coord_event("ClaimReleased", ("release", problem_id, attempt_id),
@@ -166,11 +205,13 @@ def cas_release(repo: Path, *, problem_id: str, attempt_id: str, actor: str, tim
                 f"{c.active_attempt_id!r}, releasing {problem_id!r}/{attempt_id!r}")
 
     append(repo, event, expected_revision=revision, precondition=_owns_or_landed, config=config)
-    return project_coordinator(read(repo, COORDINATOR_STREAM, config=config))
+    return _outcome(project_coordinator(read(repo, COORDINATOR_STREAM, config=config)),
+                    problem_id, attempt_id)
 
 
 __all__ = [
     "EMPTY_COORDINATOR",
+    "ClaimOutcome",
     "LaneCoordinator",
     "cas_claim",
     "cas_release",

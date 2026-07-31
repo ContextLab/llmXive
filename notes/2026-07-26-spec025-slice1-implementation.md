@@ -437,15 +437,14 @@ is still in flight. A reclaimer treating absence as proof closes the intent as n
 reclaims, and then the delayed call lands against a lane that recorded the opposite. No
 amount of care on OUR side resolves it, because the missing information lives in the network.
 
-Two mechanisms, in preference order. **(a) Externally enforced preconditions** — the real
-fix, because it moves enforcement to the party that can actually enforce it. Generation-scoped
-branch namespaces (`…/<attempt-id>/g<generation>`) mean a delayed worker can only ever write
-inside its own dead generation, which the new owner never touches — that needs no external
-cooperation at all, it just makes the two actors' namespaces disjoint. Plus non-forced ref
-updates and expected-`head_sha` merges, which GitHub rejects on its own. **(b) Quarantine**
-where no enforceable precondition exists: mark the intent `ambiguous`, block reclaim, leave
-the Attempt honestly unresolved. The forbidden move is declaring "did not land" on an
-inference the lane cannot support.
+Two mechanisms, in preference order. **(a) Externally enforced preconditions** — generation-
+scoped branch namespaces (`…/<attempt-id>/g<generation>`) mean a delayed worker can only ever
+write inside its own dead generation, which the new owner never touches; that needs no external
+cooperation at all, it just makes the two actors' namespaces disjoint. **(b) Quarantine** where
+no enforceable precondition exists: mark the intent `ambiguous`, block reclaim, leave the
+Attempt honestly unresolved. The forbidden move is declaring "did not land" on an inference the
+lane cannot support. *(Rev 21 also listed expected-`head_sha` merges under (a) and treated the
+namespace as making absence decidable. Both were wrong — see rev 22 below.)*
 
 **Extending the claim through `promoting`/`promotion_requested` forced a naming fix.** The
 claim is held until `PromotionObserved` clears the slot, so heartbeats and expiry must span
@@ -458,26 +457,59 @@ contract; reusing a near-fit one silently misreports why the Attempt ended.**
 
 **FR-036: every new bound turned out to be a clock comparison.** Heartbeats, `claim_expiry`,
 `max_claim_hold_time`, `streak_started_at`, `cooldown_until` — all durations, all measured on
-independent runners. `seq` stays the SOLE ordering authority (timestamps never order events);
-skew is caught ONCE at append (reject > `max_clock_skew` ahead of the writer, or behind the
-ref's latest) rather than defended at every read; and every safety-critical comparison pads by
-the skew in the direction that avoids the worse error — reclaim needs
-`elapsed ≥ claim_expiry + max_clock_skew`, never less.
+independent runners. `seq` stays the SOLE ordering authority (timestamps never order events),
+and every safety-critical comparison pads by the skew in the direction that avoids the worse
+error — reclaim needs `elapsed ≥ claim_expiry + max_clock_skew`, never less. *(The rev-21
+validation rule this section described was withdrawn in rev 22 — see below.)*
 
-### `cas_claim` success ≠ ownership (pinned, not changed)
+### Rev 22 — two "resolutions" that resolved nothing
+
+**A precondition that constrains CONTENT is not a fence.** Rev 21 claimed expected-`head_sha`
+made a merge from a superseded generation fail at GitHub. GitHub's own docs say `sha` is "SHA
+that pull request head must match to allow merge" — it pins WHICH COMMIT merges, not WHICH
+ACTOR merges, and GitHub has never heard of `claim_generation`. A stale worker merging its own
+dead generation's PR passes the check (nobody touched that head) and lands in the shared
+target. **Ask of every "externally enforced" precondition: enforced against WHAT? If the answer
+is a property of the payload rather than of the caller, it is not fencing anything.** Merge and
+revert are now `ambiguous` → quarantined, with a stated bar any future escape must clear.
+
+**Containment is not decidability, and conflating them cost the whole argument.** Generation-
+scoped namespaces are genuinely good — a stale push can only ever write a dead namespace. But
+the push can still ARRIVE, arbitrarily late; it is contained, not absent. Rev 21 filed it under
+"absence becomes decidable", which is false. Reclaim is safe there because the landing is
+HARMLESS, not because it cannot happen — a different justification, and only writing it down
+correctly reveals which operations still lack one. Hence four dispositions (`landed`,
+`rejected`, `contained`, `ambiguous`); the two-way split is what produced both errors.
+
+**Validating a clock against itself.** Rev 21 rejected an append more than `max_clock_skew`
+"ahead of the appending process's own clock" — the same process that generated the timestamp,
+so the comparison is vacuous. Worse, its companion rule (reject anything trailing the ref's
+latest) meant one fast-skewed runner's FIRST event poisons the ref and then rejects every
+correctly-timed runner forever. **A validation rule needs an independent referent or it is
+decoration.** The authority is now GitHub's server clock, read from the `Date` header of a call
+the run already makes; no trusted offset ⇒ no lane work.
+
+**A budget that stops before the work does.** `max_claim_hold_time` still ended at evaluation
+even though rev 21 had just extended the claim through `promoting`/`promotion_requested` in the
+same revision. Two edits, one revision, contradicting each other. Fixed with explicit
+`promotion` and `intent_reconciliation` terms (3 h 40 min) — and `intent_reconciliation` was
+previously *inside* `overhead`, where nobody could see it was too small.
+
+### `cas_claim` now returns a typed outcome (rev 22 — changed, not just pinned)
 
 `cas_claim`'s idempotency branch asks "did THIS event already land", not "do I own the claim
 now". So a replay arriving after the claim was released and the lane re-granted returns
-NORMALLY while another Attempt owns the lane. `cas_release` already documented exactly this
-caveat; `cas_claim` claimed the opposite ("returns the same projection"), which is false —
-the projection shows the NEW owner.
+NORMALLY while another Attempt owns the lane. That call is legitimately not an error — nothing
+was written and nothing is wrong — so raising would be the wrong shape. What was wrong is
+making every caller re-derive ownership by comparing projection fields.
 
-Added the missing negative test and verified it load-bearing by temporarily hardening
-`cas_claim` to check ownership in the idempotent branch: the test then fails. Behavior left
-AS IS (the user asked to prove the property, not change it) and the docstring corrected to
-match `cas_release`'s honesty. **Open question for the lifecycle slice:** whether to harden
-`cas_claim` so the replay raises instead. FR-035 makes re-granting routine rather than rare,
-so "it did not raise" becoming an ownership signal is a live footgun, not a theoretical one.
+Both entry points now return `ClaimOutcome(acquired, owner_problem_id, owner_attempt_id,
+coordinator)`. `acquired` answers the only question a caller has: does the pair I named hold
+the lane NOW? False after a release, False for a superseded replay. **Done now, before
+lifecycle callers exist** — grep confirmed the only consumers were tests, so the change cost
+one afternoon instead of an audit of every call site. The FR-035 fencing token
+(`claim_generation`) belongs on this record and joins it with that slice; it is deliberately
+absent rather than faked, since the coordinator stream does not carry generations yet.
 
 ## Carried forward to whichever slice owns lifecycle reconciliation
 

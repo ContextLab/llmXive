@@ -4,7 +4,7 @@ import llmxive.self_improvement as si
 EXPECTED = [
     "Event", "derive_event_id", "validate_lane_event", "LANE_REF", "append", "read",
     "LaneRevisionConflict", "LaneContention", "LaneCoordinator", "project_coordinator",
-    "cas_claim", "cas_release", "AttemptCreditLedger", "AttemptConfig",
+    "cas_claim", "cas_release", "ClaimOutcome", "AttemptCreditLedger", "AttemptConfig",
     "AttemptConfigMismatch", "bind_attempt_config", "load_attempt_config",
     "require_attempt_config", "LaneCallLedger", "LaneCallCeilingExceeded",
     "derive_route_id", "project_call_claims", "EventStoreRouteAudit", "reconcile_unknown",
