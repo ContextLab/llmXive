@@ -1,1 +1,3 @@
-# Data processing package
+"""
+Data processing modules for molecular surface area prediction.
+"""

@@ -1,1 +1,3 @@
-"""Data processing module."""
+"""
+Data storage and management.
+"""

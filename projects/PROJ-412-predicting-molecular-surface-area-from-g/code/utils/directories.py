@@ -5,70 +5,106 @@ from typing import List
 from .config import get_project_root, get_results_dir
 from .logging import get_logger
 
-def create_results_directories(logger: logging.Logger) -> List[Path]:
+logger = get_logger(__name__)
+
+def create_results_directories() -> List[str]:
     """
-    Create the results directory structure.
-    
-    Creates:
-    - results/
+    Creates the results directory structure:
     - results/reports/
     - results/plots/
-    
-    Args:
-        logger: Logger instance for logging directory creation status.
-        
+
     Returns:
-        List of created Path objects.
+        List[str]: List of created directory paths.
     """
-    project_root = get_project_root()
-    results_dir = get_results_dir()
+    results_root = get_results_dir()
     
-    # Ensure base results directory exists
-    results_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Created or verified base directory: {results_dir}")
-    
-    # Define subdirectories
-    subdirs = [
-        results_dir / "reports",
-        results_dir / "plots"
+    directories = [
+        "reports",
+        "plots"
     ]
     
     created_paths = []
-    for subdir in subdirs:
-        subdir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created directory: {subdir}")
-        created_paths.append(subdir)
-        
+    
+    for subdir in directories:
+        dir_path = results_root / subdir
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+            created_paths.append(str(dir_path))
+        else:
+            logger.debug(f"Directory already exists: {dir_path}")
+            
     return created_paths
 
-def create_all_directories(logger: logging.Logger) -> List[Path]:
+def create_all_directories() -> List[str]:
     """
-    Create all project directories (results only for this task, 
-    but structured to allow future expansion if needed).
+    Creates all project directory structures including code, data, tests, and results.
+    This function orchestrates the creation of all required directories for the project.
     
-    Args:
-        logger: Logger instance.
-        
     Returns:
-        List of all created paths.
+        List[str]: List of all created directory paths.
     """
-    return create_results_directories(logger)
+    from .config import get_project_root
+    
+    project_root = get_project_root()
+    created_paths = []
+    
+    # Code directories
+    code_dirs = [
+        "code",
+        "code/data",
+        "code/models",
+        "code/eval",
+        "code/utils"
+    ]
+    
+    # Data directories
+    data_dirs = [
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/splits",
+        "data/schemas"
+    ]
+    
+    # Tests directories
+    tests_dirs = [
+        "tests",
+        "tests/contract",
+        "tests/unit",
+        "tests/integration"
+    ]
+    
+    # Results directories
+    results_dirs = [
+        "results",
+        "results/reports",
+        "results/plots"
+    ]
+    
+    all_dirs = code_dirs + data_dirs + tests_dirs + results_dirs
+    
+    for dir_path_str in all_dirs:
+        dir_path = project_root / dir_path_str
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+            created_paths.append(str(dir_path))
+        else:
+            logger.debug(f"Directory already exists: {dir_path}")
+            
+    return created_paths
 
 def main():
     """
-    Main entry point for creating results directory structure.
+    Main entry point for directory creation.
+    Creates the results directory structure and logs the outcome.
     """
-    logger = get_logger(__name__)
     logger.info("Starting results directory creation...")
-    
-    try:
-        created_paths = create_results_directories(logger)
-        logger.info(f"Successfully created {len(created_paths)} directories.")
-        for p in created_paths:
-            logger.info(f"  - {p}")
-    except Exception as e:
-        logger.error(f"Failed to create directories: {e}")
-        raise
+    created = create_results_directories()
+    logger.info(f"Successfully created {len(created)} directories.")
+    for path in created:
+        logger.info(f"  - {path}")
 
 if __name__ == "__main__":
     main()

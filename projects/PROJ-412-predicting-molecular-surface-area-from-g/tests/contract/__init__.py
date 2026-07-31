@@ -1,8 +1,3 @@
 """
-Contract tests package.
-
-This package contains contract tests that validate data schemas,
-model outputs, and other interface contracts defined in the project.
+Contract tests ensuring data and output schemas comply with specifications.
 """
-
-__all__ = []

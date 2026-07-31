@@ -672,3 +672,132 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T09:46:07Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Filter excludes molecules with more than 100 atoms
+  claim_id: c_53b90570
+  context: 'Add Max Atoms Filter: Implement a filter to exclude molecules with >100
+    atoms to prevent memory overflow, logging the count of excluded molecules.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_excludes_molecules_with_more_than_100_atoms
+  kind: magnitude
+  raw_text: The dataset contains molecules with >100 atoms which are excluded to prevent
+    memory overflow.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T06:23:06Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if conformer generation failure rate exceeds 10 percent
+  claim_id: c_7ee0d814
+  context: Implement 3D conformer generation (lowest energy) and SASA calculation
+    in code/data/preprocess.py with chunked processing; halt with critical error if
+    >10% of conformer generation fails.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline halts with a critical error if the conformer generation failure
+    rate exceeds 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T06:23:06Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: KS test p-value must be greater than 0.05 for molecular weight distribution
+  claim_id: c_e624c15f
+  context: 'Execute the Kolmogorov-Smirnov (KS) test comparing the molecular_weight
+    column of the training set vs the test set. Verification: Output data/splits/split_report.json
+    containing the key ks_p_value with a value > 0.05; if p <= 0.05, raise an error
+    and log the failure.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS_test_p-value_must_be_greater_than_0.05_for_molecular_weig
+  kind: magnitude
+  raw_text: The Kolmogorov-Smirnov test comparing molecular weight distributions of
+    training and test sets requires a p-value greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T06:24:14Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Training early stopping patience 5 and max 50 epochs
+  claim_id: c_07f5047e
+  context: Implement training loop with early stopping (patience=5, max 50 epochs)
+    in code/models/train.py, incorporating gradient accumulation logic from T050.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop uses early stopping with a patience of 5 and a maximum
+    of 50 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T06:24:50Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps absolute MAE thresholds 0.05 and 0.1 Angstrom
+    squared
+  claim_id: c_47585a22
+  context: "Implement sensitivity analysis script sweeping absolute MAE thresholds\
+    \ {, 0.05, 0.1} \xC5\xB2 (as mandated by FR-006) in code/eval/sensitivity.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis sweeps absolute MAE thresholds of 0.05 and 0.1\
+    \ \xC5\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T06:25:36Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction used if number of tests is 5 or fewer
+  claim_id: c_fbe28cd0
+  context: 'Method Selection: If n <= 5, use Bonferroni correction; if n > 5, use
+    False Discovery Rate (FDR) correction.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_used_if_number_of_tests_is_5_or_fewer
+  kind: magnitude
+  raw_text: Bonferroni correction is used for multiple-comparison correction if the
+    number of threshold tests is less than or equal to 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T06:26:09Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
+  attempts: 1
+  canonical: Pilot runtime measurement targets 4-hour full dataset execution
+  claim_id: c_10d2d450
+  context: Use this empirical measured value to determine the feasible sample size
+    for the full dataset within the Plan's '< 4 hours' goal.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot runtime measurement is used to determine a feasible sample size
+    for a full dataset execution within a 4-hour goal.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T06:26:45Z'

@@ -2,31 +2,42 @@ import os
 from pathlib import Path
 import yaml
 
-def get_project_root():
+def get_project_root() -> Path:
     """
-    Returns the root directory of the project.
-    Assumes the project root is two levels up from this file (code/utils/).
+    Get the project root directory.
+    Assumes the project root is the parent of the 'code' directory.
     """
-    return Path(__file__).resolve().parent.parent.parent
+    current_file = Path(__file__).resolve()
+    # Navigate up two levels: code/utils -> code -> project_root
+    return current_file.parent.parent
 
-def get_data_dir():
+def get_data_dir() -> Path:
     """
-    Returns the path to the data directory.
+    Get the data directory path.
     """
     return get_project_root() / "data"
 
-def get_results_dir():
+def get_results_dir() -> Path:
     """
-    Returns the path to the results directory.
+    Get the results directory path.
     """
     return get_project_root() / "results"
 
-def load_env_config():
+def load_env_config(config_path: str = None) -> dict:
     """
-    Loads configuration from a config.yaml file if it exists, otherwise returns defaults.
+    Load environment configuration from a YAML file.
+    
+    Args:
+        config_path: Path to the config file. If None, uses default location.
+        
+    Returns:
+        Dictionary containing configuration.
     """
-    config_path = get_project_root() / "config.yaml"
-    if config_path.exists():
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    return {}
+    if config_path is None:
+        config_path = get_project_root() / "config.yaml"
+    
+    if not Path(config_path).exists():
+        return {}
+    
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f) or {}

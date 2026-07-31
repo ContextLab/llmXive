@@ -1,5 +1,5 @@
 """
-Data model for a single molecule.
+Data model for molecular representation.
 """
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
@@ -10,22 +10,34 @@ import numpy as np
 @dataclass
 class Molecule:
     """
-    Represents a molecule with its SMILES string and associated metadata.
+    Represents a molecular entity with its core properties.
 
     Attributes:
         smiles: The SMILES string representation of the molecule.
-        molecule_id: Optional unique identifier for the molecule.
-        metadata: Dictionary for storing additional molecule-specific data.
+        molecular_weight: Calculated molecular weight (g/mol).
+        node_features: N x D array of node features (atom properties).
+        edge_index: 2 x E array representing edge connectivity.
+        edge_features: E x F array of edge features (bond properties).
+        sasa: Solvent Accessible Surface Area (Å²).
+        metadata: Additional arbitrary metadata.
     """
     smiles: str
-    molecule_id: Optional[str] = None
+    molecular_weight: float
+    node_features: np.ndarray
+    edge_index: np.ndarray
+    edge_features: np.ndarray
+    sasa: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the molecule to a dictionary representation."""
+        """Convert the molecule instance to a dictionary."""
         return {
             "smiles": self.smiles,
-            "molecule_id": self.molecule_id,
+            "molecular_weight": self.molecular_weight,
+            "node_features": self.node_features.tolist(),
+            "edge_index": self.edge_index.tolist(),
+            "edge_features": self.edge_features.tolist(),
+            "sasa": self.sasa,
             "metadata": self.metadata
         }
 
@@ -35,15 +47,18 @@ class Molecule:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Molecule":
-        """Create a Molecule instance from a dictionary."""
+        """Reconstruct a Molecule instance from a dictionary."""
         return cls(
             smiles=data["smiles"],
-            molecule_id=data.get("molecule_id"),
+            molecular_weight=data["molecular_weight"],
+            node_features=np.array(data["node_features"]),
+            edge_index=np.array(data["edge_index"]),
+            edge_features=np.array(data["edge_features"]),
+            sasa=data.get("sasa"),
             metadata=data.get("metadata", {})
         )
 
     @classmethod
     def from_json(cls, json_str: str) -> "Molecule":
-        """Create a Molecule instance from a JSON string."""
-        data = json.loads(json_str)
-        return cls.from_dict(data)
+        """Reconstruct a Molecule instance from a JSON string."""
+        return cls.from_dict(json.loads(json_str))

@@ -10,35 +10,40 @@ import json
 @dataclass
 class EvaluationResult:
     """
-    Represents the results of a model evaluation.
+    Stores the results of model evaluation on a dataset.
 
     Attributes:
-        model_name: Name of the evaluated model.
-        mae: Mean Absolute Error.
-        rmse: Root Mean Squared Error.
-        r2: R-squared coefficient.
-        predictions: List of predicted values.
-        targets: List of target values.
-        metrics: Additional metrics dictionary.
+        model_name: Name of the model evaluated.
+        dataset_name: Name of the dataset used.
+        metrics: Dictionary of metric names to values (e.g., {'mae': 0.5}).
+        predictions: Array of predicted values.
+        targets: Array of actual target values.
+        metadata: Additional context about the evaluation run.
     """
     model_name: str
-    mae: float
-    rmse: float
-    r2: float
-    predictions: List[float] = field(default_factory=list)
-    targets: List[float] = field(default_factory=list)
-    metrics: Dict[str, Any] = field(default_factory=dict)
+    dataset_name: str
+    metrics: Dict[str, float] = field(default_factory=dict)
+    predictions: Optional[np.ndarray] = None
+    targets: Optional[np.ndarray] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def add_metric(self, name: str, value: float) -> None:
+        """Add a single metric to the results."""
+        self.metrics[name] = value
+
+    def get_metric(self, name: str, default: Optional[float] = None) -> Optional[float]:
+        """Retrieve a metric value by name."""
+        return self.metrics.get(name, default)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the evaluation result to a dictionary representation."""
+        """Convert the result to a dictionary."""
         return {
             "model_name": self.model_name,
-            "mae": self.mae,
-            "rmse": self.rmse,
-            "r2": self.r2,
-            "predictions": self.predictions,
-            "targets": self.targets,
-            "metrics": self.metrics
+            "dataset_name": self.dataset_name,
+            "metrics": self.metrics,
+            "predictions": self.predictions.tolist() if self.predictions is not None else None,
+            "targets": self.targets.tolist() if self.targets is not None else None,
+            "metadata": self.metadata
         }
 
     def to_json(self) -> str:
@@ -47,19 +52,17 @@ class EvaluationResult:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "EvaluationResult":
-        """Create an EvaluationResult instance from a dictionary."""
+        """Reconstruct an EvaluationResult from a dictionary."""
         return cls(
             model_name=data["model_name"],
-            mae=data["mae"],
-            rmse=data["rmse"],
-            r2=data["r2"],
-            predictions=data.get("predictions", []),
-            targets=data.get("targets", []),
-            metrics=data.get("metrics", {})
+            dataset_name=data["dataset_name"],
+            metrics=data.get("metrics", {}),
+            predictions=np.array(data["predictions"]) if data.get("predictions") is not None else None,
+            targets=np.array(data["targets"]) if data.get("targets") is not None else None,
+            metadata=data.get("metadata", {})
         )
 
     @classmethod
     def from_json(cls, json_str: str) -> "EvaluationResult":
-        """Create an EvaluationResult instance from a JSON string."""
-        data = json.loads(json_str)
-        return cls.from_dict(data)
+        """Reconstruct an EvaluationResult from a JSON string."""
+        return cls.from_dict(json.loads(json_str))

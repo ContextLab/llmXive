@@ -1,1 +1,3 @@
-"""Data split indices storage."""
+"""
+Dataset split indices and reports.
+"""

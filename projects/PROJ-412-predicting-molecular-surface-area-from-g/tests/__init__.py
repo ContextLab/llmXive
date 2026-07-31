@@ -1,1 +1,3 @@
-"""Test package for the molecular surface area prediction project."""
+"""
+Test suite for the llmXive Molecular Surface Area Prediction project.
+"""

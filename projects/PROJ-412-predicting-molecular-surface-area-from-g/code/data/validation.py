@@ -1,301 +1,380 @@
+"""
+Validation and error handling module for molecular data processing.
+
+This module provides robust validation for SMILES strings and conformer generation,
+with failure rate monitoring and early termination logic.
+"""
+
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import dataclass, field
 
-# Import from project utils to ensure correct logging setup
+import rdkit
+from rdkit import Chem
+from rdkit.Chem import AllChem
+
 from code.utils.logging import get_logger
-from code.utils.config import get_project_root, get_data_dir
+from code.utils.config import get_data_dir
 
-# Import RDKit for SMILES validation
-try:
-    from rdkit import Chem
-    from rdkit.Chem import AllChem
-except ImportError:
-    raise ImportError("RDKit is required. Please install it via: pip install rdkit")
+# Import from preprocess module for conformer generation
+from code.data.preprocess import generate_conformers
 
-# Import functions from preprocess to handle the actual generation and counting
-# We need to ensure we are using the same logic as T014 for consistency
-from code.data.preprocess import generate_conformers, load_conformer_config
-
-logger = get_logger(__name__)
-
-FAILURE_THRESHOLD = 0.10  # 10% failure rate threshold
-
+@dataclass
 class ValidationStats:
-    """Container for validation statistics."""
-    def __init__(self):
-        self.total_processed: int = 0
-        self.valid_smiles: int = 0
-        self.invalid_smiles: int = 0
-        self.conformer_failures: int = 0
-        self.conformer_successes: int = 0
-        self.excluded_molecules: List[Dict[str, Any]] = []
-
-    def add_invalid_smiles(self, smiles: str, reason: str):
-        self.invalid_smiles += 1
-        self.excluded_molecules.append({
-            "smiles": smiles,
-            "type": "invalid_smiles",
-            "reason": reason
-        })
-
-    def add_conformer_failure(self, smiles: str, reason: str):
-        self.conformer_failures += 1
-        self.excluded_molecules.append({
-            "smiles": smiles,
-            "type": "conformer_failure",
-            "reason": reason
-        })
-
-    def add_success(self):
-        self.valid_smiles += 1
-        self.conformer_successes += 1
-
+    """Statistics for validation and processing failures."""
+    total_molecules: int = 0
+    valid_smiles: int = 0
+    invalid_smiles: int = 0
+    conformer_success: int = 0
+    conformer_failed: int = 0
+    excluded_atoms: int = 0
+    failed_molecules: List[Dict[str, Any]] = field(default_factory=list)
+    
     @property
-    def total_attempts(self) -> int:
-        return self.valid_smiles + self.invalid_smiles
-
-    @property
-    def total_conformer_attempts(self) -> int:
-        return self.conformer_successes + self.conformer_failures
-
-    @property
-    def invalid_rate(self) -> float:
-        if self.total_attempts == 0:
+    def smiles_validity_rate(self) -> float:
+        if self.total_molecules == 0:
             return 0.0
-        return self.invalid_smiles / self.total_attempts
-
+        return self.valid_smiles / self.total_molecules
+    
     @property
-    def conformer_failure_rate(self) -> float:
-        if self.total_conformer_attempts == 0:
+    def conformer_success_rate(self) -> float:
+        if self.valid_smiles == 0:
             return 0.0
-        return self.conformer_failures / self.total_conformer_attempts
-
-    def log_summary(self):
-        logger.info(f"Validation Summary:")
-        logger.info(f"  Total SMILES processed: {self.total_attempts}")
-        logger.info(f"  Valid SMILES: {self.valid_smiles}")
-        logger.info(f"  Invalid SMILES: {self.invalid_smiles} ({self.invalid_rate:.2%})")
-        logger.info(f"  Conformer Generation Successes: {self.conformer_successes}")
-        logger.info(f"  Conformer Generation Failures: {self.conformer_failures} ({self.conformer_failure_rate:.2%})")
-
-        # Check thresholds
-        if self.invalid_rate > FAILURE_THRESHOLD:
-            logger.critical(f"INVALID SMILES RATE ({self.invalid_rate:.2%}) exceeds threshold ({FAILURE_THRESHOLD:.2%}). HALTING.")
-            raise RuntimeError(f"Invalid SMILES rate {self.invalid_rate:.2%} exceeds threshold {FAILURE_THRESHOLD:.2%}")
-
-        if self.conformer_failure_rate > FAILURE_THRESHOLD:
-            logger.critical(f"CONFORMER FAILURE RATE ({self.conformer_failure_rate:.2%}) exceeds threshold ({FAILURE_THRESHOLD:.2%}). HALTING.")
-            raise RuntimeError(f"Conformer failure rate {self.conformer_failure_rate:.2%} exceeds threshold {FAILURE_THRESHOLD:.2%}")
-
-        logger.info("Validation thresholds passed.")
+        return self.conformer_success / self.valid_smiles
+    
+    @property
+    def overall_failure_rate(self) -> float:
+        """Calculate overall failure rate (invalid SMILES + failed conformers)."""
+        if self.total_molecules == 0:
+            return 0.0
+        failures = self.invalid_smiles + self.conformer_failed
+        return failures / self.total_molecules
+    
+    def log_summary(self, logger: logging.Logger) -> None:
+        """Log a summary of validation statistics."""
+        logger.info("=" * 60)
+        logger.info("VALIDATION STATISTICS SUMMARY")
+        logger.info("=" * 60)
+        logger.info(f"Total molecules processed: {self.total_molecules}")
+        logger.info(f"Valid SMILES: {self.valid_smiles} ({self.smiles_validity_rate:.2%})")
+        logger.info(f"Invalid SMILES: {self.invalid_smiles} ({1 - self.smiles_validity_rate:.2%})")
+        logger.info(f"Conformer generation successful: {self.conformer_success} ({self.conformer_success_rate:.2%})")
+        logger.info(f"Conformer generation failed: {self.conformer_failed} ({1 - self.conformer_success_rate:.2%})")
+        logger.info(f"Molecules excluded (too many atoms): {self.excluded_atoms}")
+        logger.info(f"Overall failure rate: {self.overall_failure_rate:.2%}")
+        logger.info("=" * 60)
+        
+        if self.failed_molecules:
+            logger.warning(f"First 5 failed molecules:")
+            for i, fail in enumerate(self.failed_molecules[:5]):
+                logger.warning(f"  {i+1}. SMILES: {fail.get('smiles', 'N/A')[:50]}...")
+                logger.warning(f"     Reason: {fail.get('reason', 'Unknown')}")
+                logger.warning(f"     Atom count: {fail.get('atom_count', 'N/A')}")
 
 def validate_smiles_syntax(smiles: str) -> Tuple[bool, Optional[str]]:
     """
-    Validates the syntax of a SMILES string using RDKit.
+    Validate SMILES string syntax using RDKit.
     
     Args:
-        smiles: The SMILES string to validate.
+        smiles: SMILES string to validate
         
     Returns:
-        Tuple of (is_valid, error_message). If valid, error_message is None.
+        Tuple of (is_valid, error_message)
     """
     if not smiles or not isinstance(smiles, str):
-        return False, "Empty or non-string input"
-    
+        return False, "Empty or invalid SMILES type"
+        
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return False, "RDKit failed to parse SMILES"
         
-        # Check for any issues with the molecule (e.g., valence errors)
-        # Note: MolFromSmiles can sometimes return a molecule with warnings
-        # We perform a basic sanity check
+        # Check for basic sanity
         if mol.GetNumAtoms() == 0:
             return False, "Molecule has no atoms"
             
+        # Check for explicit hydrogens that might indicate issues
+        if mol.GetNumExplicitHs() > mol.GetNumAtoms() * 4:
+            return False, "Suspicious number of explicit hydrogens"
+            
         return True, None
+        
     except Exception as e:
-        return False, f"RDKit parsing exception: {str(e)}"
+        return False, f"Exception during validation: {str(e)}"
 
-def process_single_molecule_with_validation(
-    smiles: str, 
-    stats: ValidationStats,
-    config: Optional[Dict[str, Any]] = None
-) -> Optional[Dict[str, Any]]:
+def check_atom_count(mol: Chem.Mol, max_atoms: int = 100) -> Tuple[bool, int]:
     """
-    Processes a single molecule: validates SMILES, attempts conformer generation.
-    Updates stats and returns molecule data if successful, None otherwise.
+    Check if molecule exceeds maximum atom count.
     
     Args:
-        smiles: The SMILES string.
-        stats: The ValidationStats object to update.
-        config: Optional conformer generation config.
+        mol: RDKit Mol object
+        max_atoms: Maximum allowed atoms
         
     Returns:
-        Dictionary with molecule data if successful, None if failed.
+        Tuple of (is_valid, atom_count)
     """
-    # 1. Validate SMILES
+    atom_count = mol.GetNumAtoms()
+    return atom_count <= max_atoms, atom_count
+
+def process_single_molecule_with_validation(
+    smiles: str,
+    max_atoms: int = 100,
+    logger: Optional[logging.Logger] = None
+) -> Tuple[Optional[Chem.Mol], Optional[Dict[str, Any]]]:
+    """
+    Process a single molecule with full validation and error tracking.
+    
+    Args:
+        smiles: SMILES string
+        max_atoms: Maximum allowed atoms
+        logger: Optional logger instance
+        
+    Returns:
+        Tuple of (mol_object, failure_info)
+        - mol_object: RDKit Mol if successful, None otherwise
+        - failure_info: Dict with failure details if failed, None otherwise
+    """
+    failure_info = None
+    
+    # Validate SMILES syntax
     is_valid, error_msg = validate_smiles_syntax(smiles)
     if not is_valid:
-        stats.add_invalid_smiles(smiles, error_msg)
-        return None
-    
-    # 2. Generate Conformer (simulating the logic from T014)
-    # We call the existing generate_conformers logic but wrap it to catch failures
-    # Since generate_conformers returns a list of conformers or raises/returns empty on failure
-    try:
-        # Re-create molecule object for conformer generation
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            # Should be caught by validate_smiles_syntax, but double check
-            stats.add_invalid_smiles(smiles, "MolFromSmiles returned None during processing")
-            return None
-        
-        # Add hydrogens
-        mol = Chem.AddHs(mol)
-        
-        # Generate conformers using the utility
-        # Note: generate_conformers in preprocess.py expects a Mol object and config
-        # We assume it returns a list of successful conformers or raises an exception
-        # If it returns an empty list, that counts as a failure
-        confs = generate_conformers(mol, config)
-        
-        if not confs or len(confs) == 0:
-            stats.add_conformer_failure(smiles, "No conformers generated")
-            return None
-        
-        # Success
-        stats.add_success()
-        
-        # Return minimal data structure for the pipeline (in real usage, this would be more complex)
-        # The actual graph conversion happens in the next step (preprocess.py)
-        return {
-            "smiles": smiles,
-            "mol": mol,
-            "conformers": confs
+        failure_info = {
+            'smiles': smiles,
+            'reason': f"Invalid SMILES: {error_msg}",
+            'stage': 'smiles_validation',
+            'atom_count': 0
         }
+        return None, failure_info
+    
+    # Convert to RDKit Mol
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        failure_info = {
+            'smiles': smiles,
+            'reason': 'Failed to convert to RDKit Mol',
+            'stage': 'rdkit_conversion',
+            'atom_count': 0
+        }
+        return None, failure_info
+    
+    # Check atom count
+    valid_atoms, atom_count = check_atom_count(mol, max_atoms)
+    if not valid_atoms:
+        failure_info = {
+            'smiles': smiles,
+            'reason': f'Too many atoms ({atom_count} > {max_atoms})',
+            'stage': 'atom_count_check',
+            'atom_count': atom_count
+        }
+        return None, failure_info
+    
+    # Try conformer generation
+    try:
+        # Add hydrogens for better conformer generation
+        mol_with_h = Chem.AddHs(mol)
+        
+        # Generate conformer
+        params = AllChem.ETKDGv3()
+        params.randomSeed = 42
+        params.maxAttempts = 50
+        params.numThreads = 1
+        
+        success = AllChem.EmbedMolecule(mol_with_h, params)
+        
+        if success == -1:
+            failure_info = {
+                'smiles': smiles,
+                'reason': 'Conformer generation failed (EmbedMolecule returned -1)',
+                'stage': 'conformer_generation',
+                'atom_count': atom_count
+            }
+            return None, failure_info
+        
+        # Energy minimization
+        try:
+            AllChem.UFFOptimizeMolecule(mol_with_h, maxIters=200)
+        except Exception as e:
+            # Optimization failure is not fatal, log but continue
+            if logger:
+                logger.warning(f"Energy minimization failed for {smiles[:50]}: {str(e)}")
+        
+        # Return without hydrogens for consistency
+        mol_no_h = Chem.RemoveHs(mol_with_h)
+        return mol_no_h, None
         
     except Exception as e:
-        stats.add_conformer_failure(smiles, f"Conformer generation exception: {str(e)}")
-        return None
+        failure_info = {
+            'smiles': smiles,
+            'reason': f'Conformer generation exception: {str(e)}',
+            'stage': 'conformer_generation',
+            'atom_count': atom_count
+        }
+        return None, failure_info
 
 def validate_and_process_dataset(
     input_file: str,
-    output_file: Optional[str] = None,
-    config_path: Optional[str] = None
-) -> ValidationStats:
+    output_file: str,
+    max_atoms: int = 100,
+    failure_rate_threshold: float = 0.10,
+    logger: Optional[logging.Logger] = None
+) -> bool:
     """
-    Main entry point for validating and processing a dataset of SMILES.
-    Reads input, validates each entry, attempts conformer generation,
-    logs failures, and halts if failure rate > 10%.
+    Validate and process a dataset with failure rate monitoring.
+    
+    This function processes molecules from a parquet file, validates SMILES,
+    generates conformers, and halts if the failure rate exceeds the threshold.
     
     Args:
-        input_file: Path to input file (CSV/JSON/TXT with SMILES).
-        output_file: Optional path to save valid processed data.
-        config_path: Path to conformer config JSON.
+        input_file: Path to input parquet file
+        output_file: Path to output parquet file
+        max_atoms: Maximum allowed atoms per molecule
+        failure_rate_threshold: Maximum acceptable failure rate (default 0.10 = 10%)
+        logger: Optional logger instance
         
     Returns:
-        ValidationStats object with full results.
+        True if processing completed successfully, False if halted due to failures
         
     Raises:
-        RuntimeError: If failure rate exceeds threshold.
+        RuntimeError: If failure rate exceeds threshold
     """
-    stats = ValidationStats()
+    import pandas as pd
     
-    # Load config
-    if config_path:
-        config = load_conformer_config(config_path)
-    else:
-        # Default config or load from standard location
-        project_root = get_project_root()
-        default_config_path = project_root / "code" / "utils" / "conformer_config.json"
-        if default_config_path.exists():
-            config = load_conformer_config(str(default_config_path))
-        else:
-            config = {} # Fallback to defaults inside generate_conformers
+    if logger is None:
+        logger = get_logger(__name__)
     
     logger.info(f"Starting validation and processing of {input_file}")
+    logger.info(f"Max atoms threshold: {max_atoms}")
+    logger.info(f"Failure rate threshold: {failure_rate_threshold:.1%}")
     
-    # Read input file
-    # Assuming simple format: one SMILES per line or CSV with 'smiles' column
-    smiles_list = []
+    # Load data
     try:
-        if input_file.endswith('.csv'):
-            import pandas as pd
-            df = pd.read_csv(input_file)
-            if 'smiles' in df.columns:
-                smiles_list = df['smiles'].dropna().tolist()
-            else:
-                logger.error(f"CSV file {input_file} does not contain 'smiles' column")
-                raise ValueError(f"Missing 'smiles' column in {input_file}")
-        elif input_file.endswith('.txt'):
-            with open(input_file, 'r') as f:
-                smiles_list = [line.strip() for line in f if line.strip()]
-        else:
-            # Fallback: try reading as lines
-            with open(input_file, 'r') as f:
-                smiles_list = [line.strip() for line in f if line.strip()]
+        df = pd.read_parquet(input_file)
     except Exception as e:
-        logger.error(f"Failed to read input file {input_file}: {e}")
-        raise
+        raise RuntimeError(f"Failed to load input file: {str(e)}")
     
-    logger.info(f"Loaded {len(smiles_list)} SMILES strings.")
+    logger.info(f"Loaded {len(df)} molecules from {input_file}")
     
-    # Process each molecule
-    valid_results = []
-    for i, smiles in enumerate(smiles_list):
-        if (i + 1) % 1000 == 0:
-            logger.info(f"Processed {i+1}/{len(smiles_list)} molecules...")
+    # Initialize statistics
+    stats = ValidationStats()
+    stats.total_molecules = len(df)
+    
+    # Process molecules
+    valid_records = []
+    failure_records = []
+    
+    for idx, row in df.iterrows():
+        smiles = row.get('smiles', '')
+        if not smiles:
+            continue
         
-        result = process_single_molecule_with_validation(smiles, stats, config)
-        if result:
-            valid_results.append(result)
+        mol, failure_info = process_single_molecule_with_validation(
+            smiles, max_atoms, logger
+        )
+        
+        if mol is not None:
+            stats.valid_smiles += 1
+            stats.conformer_success += 1
+            # Add molecule data to record
+            record = row.to_dict()
+            record['mol_obj'] = mol  # Store for downstream processing
+            valid_records.append(record)
+        else:
+            if failure_info:
+                stage = failure_info.get('stage', 'unknown')
+                if stage == 'smiles_validation':
+                    stats.invalid_smiles += 1
+                elif stage == 'conformer_generation':
+                    stats.conformer_failed += 1
+                elif stage == 'atom_count_check':
+                    stats.excluded_atoms += 1
+                
+                stats.failed_molecules.append(failure_info)
+                failure_records.append(failure_info)
     
-    # Log summary and check thresholds
-    stats.log_summary()
+    # Calculate failure rate
+    overall_failure_rate = stats.overall_failure_rate
+    logger.info(f"Processing complete. Overall failure rate: {overall_failure_rate:.2%}")
     
-    # If we reach here, thresholds were passed
-    if output_file:
-        # Save valid results
-        logger.info(f"Saving {len(valid_results)} valid molecules to {output_file}")
-        # In a real scenario, we would serialize the graph data or conformers here
-        # For now, we just save the SMILES that passed
-        # This is a placeholder for the actual data persistence logic
-        # The actual graph generation and SASA calculation would happen in a subsequent pipeline step
-        # or integrated here if the task required the full graph output.
-        # Given the task is specifically about validation and halting, we ensure the logic is sound.
-        # We will save a JSON of the valid SMILES for demonstration, 
-        # but in the full pipeline, this would feed into preprocess.py for graph conversion.
-        import json
-        with open(output_file, 'w') as f:
-            json.dump([r['smiles'] for r in valid_results], f)
+    # Log summary
+    stats.log_summary(logger)
     
-    return stats
+    # Check failure rate threshold
+    if overall_failure_rate > failure_rate_threshold:
+        error_msg = (
+            f"CRITICAL: Overall failure rate ({overall_failure_rate:.2%}) exceeds "
+            f"threshold ({failure_rate_threshold:.1%}). Halting pipeline."
+        )
+        logger.error(error_msg)
+        
+        # Save failure report before halting
+        if failure_records:
+            failure_df = pd.DataFrame(failure_records)
+            failure_report_path = str(Path(output_file).parent / "validation_failures.csv")
+            failure_df.to_csv(failure_report_path, index=False)
+            logger.info(f"Failure report saved to {failure_report_path}")
+        
+        raise RuntimeError(error_msg)
+    
+    # Save valid records
+    if valid_records:
+        # Create output dataframe
+        output_df = pd.DataFrame(valid_records)
+        
+        # Remove mol_obj before saving (not serializable to parquet)
+        # The mol_obj should be used in the next processing step
+        if 'mol_obj' in output_df.columns:
+            mol_objects = output_df.pop('mol_obj')
+            output_df.to_parquet(output_file, index=False)
+            # Return the mol_objects for further processing
+            return True, mol_objects
+        else:
+            output_df.to_parquet(output_file, index=False)
+            return True
+    else:
+        logger.warning("No valid molecules to save")
+        return False
 
 def main():
-    """Command line interface for validation script."""
+    """Main entry point for validation script."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Validate SMILES and conformer generation")
-    parser.add_argument("--input", type=str, required=True, help="Input SMILES file")
-    parser.add_argument("--output", type=str, help="Output file for valid SMILES")
-    parser.add_argument("--config", type=str, help="Path to conformer config JSON")
+    parser = argparse.ArgumentParser(description='Validate and process molecular dataset')
+    parser.add_argument('--input', type=str, required=True, help='Input parquet file')
+    parser.add_argument('--output', type=str, required=True, help='Output parquet file')
+    parser.add_argument('--max-atoms', type=int, default=100, help='Maximum atoms per molecule')
+    parser.add_argument('--failure-threshold', type=float, default=0.10, help='Maximum failure rate')
     
     args = parser.parse_args()
     
+    logger = get_logger(__name__)
+    
     try:
-        validate_and_process_dataset(args.input, args.output, args.config)
-        logger.info("Validation completed successfully.")
+        success = validate_and_process_dataset(
+            args.input,
+            args.output,
+            args.max_atoms,
+            args.failure_threshold,
+            logger
+        )
+        
+        if success:
+            logger.info("Validation and processing completed successfully")
+            sys.exit(0)
+        else:
+            logger.warning("Validation completed but no valid molecules found")
+            sys.exit(1)
+            
     except RuntimeError as e:
-        logger.error(f"Validation failed: {e}")
-        sys.exit(1)
+        logger.error(f"Pipeline halted: {str(e)}")
+        sys.exit(2)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+        logger.error(f"Unexpected error: {str(e)}")
+        sys.exit(3)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

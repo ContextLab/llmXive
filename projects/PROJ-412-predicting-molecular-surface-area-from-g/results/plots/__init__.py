@@ -1,1 +1,3 @@
-"""Generated plots storage."""
+"""
+Generated plots and visualizations.
+"""

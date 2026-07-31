@@ -1,5 +1,5 @@
 """
-Model definitions for the molecular surface area prediction pipeline.
+Models package for molecular data structures.
 """
 from .molecule import Molecule
 from .graph import Graph

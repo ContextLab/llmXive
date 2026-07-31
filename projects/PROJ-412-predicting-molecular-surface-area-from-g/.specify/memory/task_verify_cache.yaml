@@ -1,30 +1,10 @@
-T001a:
+T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `code/` directory hierarchy (or any of its subfolders)
-    is provided; the response contains no file listings, screenshots, or other proof
-    that the directories exist. The implementer must supply a concrete artifact (e.g.,
-    a directory tree listing) showing `code/`, `code/data/`, `code/models/`, `code/eval/`,
-    and `code/utils/` are present.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/` directory hierarchy (`data/raw/`, `data/processed/`,
-    `data/splits/`, `data/schemas/`) is provided; the response contains no file listings,
-    screenshots, or code that creates these folders. The task remains undone.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/` directory or its subfolders (`tests/contract/`, `tests/unit/`,
-    `tests/integration/`) is provided; the claim lacks any artifact showing the required
-    directory structure. The implementer must create and show these directories in
-    the repository.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `results/` directory or its subfolders (`results/reports/`,
-    `results/plots/`) is provided; the implementer did not supply any artifact confirming
-    the required directory structure was created.
+  h: 2ede21c97380a23ffb1d5532a02393271bece9fbcf088313100cd9217f7522c6
+  r: "The `pyproject.toml` file is present and contains Black configuration, but the\
+    \ required `.ruff.toml` file is missing entirely, so the linting tool configuration\
+    \ is not fully provided as the task specifies. The implementer must add a `.ruff.toml`\
+    \ (or equivalent ruff config) with the project\u2011specific rules."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,13 +13,6 @@ T007:
     that the base data models exist cannot be verified. The implementer must add the
     three model classes in the `code/models/` directory and ensure they contain the
     appropriate fields and methods.
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files or class definitions for `Molecule`, `Graph`, or `EvaluationResult`
-    were provided under `code/models/`; the evidence section contains no artifacts,
-    so the required data models are missing. The implementer must add the three model
-    classes in the specified directory with appropriate fields and functionality.
 T011:
   c: false
   h: 557089656345f3ce41fd9efdc1ef18286508a05e2a023ba839ebc4b187b87e33
@@ -47,22 +20,30 @@ T011:
     repository, so the integration test for the SMILES ingestion pipeline is missing.
     The task cannot be considered completed until this file is added with appropriate
     test code.
-T014:
+T015:
   c: false
-  h: 4a82a25cdc78bcf5ede9a904a07e4b77d332575c3c0a126fa95a316f0d5c849c
-  r: "The provided `preprocess.py` only shows utilities for 3\u2011D conformer generation\
-    \ and SASA calculation; there is no visible code that extracts 2\u2011D atom\u2011\
-    type, hybridization, or charge features, builds a descriptors table, or writes\
-    \ `data/processed/graphs_with_features.parquet`. Moreover, the required parquet\
-    \ file is absent from the repository. The task\u2019s core output is therefore\
-    \ missing."
+  h: 658fccdc89017f412591cded056527b6b62f137a5dfd958bcb4f2988353dde8d
+  r: "The repository lacks the required output files `data/processed/conformer_params.json`\
+    \ and `data/processed/failure_report.csv`, so the logging of RDKit parameters\
+    \ and the failure\u2011rate report are not implemented. Additionally, the shown\
+    \ portion of `code/data/preprocess.py` does not demonstrate chunked processing,\
+    \ SASA calculation, or the critical\u2011error halt on >10\u202F% failure, indicating\
+    \ the core task requirements are unmet."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or test output was provided showing that SMILES validation,\
+    \ conformer\u2011generation error handling, failure\u2011rate counting, and the\
+    \ \u201Chalt if >10\u202F% failure\u201D logic have been implemented. The required\
+    \ artifact (e.g., updated ingestion script with the described validation and logging)\
+    \ is missing, so the task is not satisfied."
 T018:
   c: false
-  h: 7210e8ac7a4e627744460e0ca9d6a6c70ff373edb743fd710bd34bb1c312c267
-  r: The provided `tests/contract/test_model_output.py` exists, but the required `model_schema.yaml`
-    file is missing, so the test cannot actually validate the model output against
-    the schema. The missing schema file must be added for the contract test to be
-    functional.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging implementation, log files, or code changes that record excluded molecules
+    or dataset statistics were provided. The claim lacks any artifact (e.g., updated
+    scripts, log output, or documentation) demonstrating that the required logging
+    behavior has been added.
 T026:
   c: false
   h: 1adedc87a47e6d40b5692eb897d44644a857a36cd57f967855668e46a9c965db

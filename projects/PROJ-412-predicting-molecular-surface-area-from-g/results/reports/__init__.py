@@ -1,1 +1,3 @@
-"""Generated reports storage."""
+"""
+Generated reports.
+"""

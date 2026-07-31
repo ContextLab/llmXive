@@ -1,5 +1,5 @@
 """
-Data model for a molecular graph representation.
+Data model for graph representation of molecules.
 """
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List
@@ -9,51 +9,47 @@ import numpy as np
 @dataclass
 class Graph:
     """
-    Represents a molecular graph with node and edge features.
+    Represents a molecular graph suitable for Graph Neural Networks.
 
     Attributes:
-        node_features: 2D numpy array of shape (num_nodes, num_node_features).
-        edge_index: 2D numpy array of shape (2, num_edges) containing edge indices.
-        edge_features: 2D numpy array of shape (num_edges, num_edge_features).
-        molecular_weight: Optional molecular weight of the molecule.
-        surface_area: Optional surface area (SASA) value.
-        metadata: Dictionary for storing additional graph-specific data.
+        node_features: N x D tensor/array of node features.
+        edge_index: 2 x E tensor/array of edge indices (source, target).
+        edge_features: E x F tensor/array of edge features.
+        y: Target value (e.g., SASA) for regression tasks.
+        metadata: Optional metadata dictionary.
     """
     node_features: np.ndarray
     edge_index: np.ndarray
-    edge_features: Optional[np.ndarray] = None
-    molecular_weight: Optional[float] = None
-    surface_area: Optional[float] = None
+    edge_features: np.ndarray
+    y: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
-        """Ensure numpy arrays are properly typed."""
-        if not isinstance(self.node_features, np.ndarray):
-            self.node_features = np.array(self.node_features)
-        if not isinstance(self.edge_index, np.ndarray):
-            self.edge_index = np.array(self.edge_index)
-        if self.edge_features is not None and not isinstance(self.edge_features, np.ndarray):
-            self.edge_features = np.array(self.edge_features)
-
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the graph to a dictionary representation."""
+        """Convert the graph to a dictionary."""
         return {
             "node_features": self.node_features.tolist(),
             "edge_index": self.edge_index.tolist(),
-            "edge_features": self.edge_features.tolist() if self.edge_features is not None else None,
-            "molecular_weight": self.molecular_weight,
-            "surface_area": self.surface_area,
+            "edge_features": self.edge_features.tolist(),
+            "y": self.y,
             "metadata": self.metadata
         }
 
+    def to_json(self) -> str:
+        """Serialize the graph to a JSON string."""
+        return json.dumps(self.to_dict())
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Graph":
-        """Create a Graph instance from a dictionary."""
+        """Reconstruct a Graph instance from a dictionary."""
         return cls(
             node_features=np.array(data["node_features"]),
             edge_index=np.array(data["edge_index"]),
-            edge_features=np.array(data["edge_features"]) if data.get("edge_features") is not None else None,
-            molecular_weight=data.get("molecular_weight"),
-            surface_area=data.get("surface_area"),
+            edge_features=np.array(data["edge_features"]),
+            y=data.get("y"),
             metadata=data.get("metadata", {})
         )
+
+    @classmethod
+    def from_json(cls, json_str: str) -> "Graph":
+        """Reconstruct a Graph instance from a JSON string."""
+        return cls.from_dict(json.loads(json_str))

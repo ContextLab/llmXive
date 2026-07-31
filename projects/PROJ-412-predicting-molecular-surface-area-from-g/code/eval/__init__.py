@@ -1,1 +1,3 @@
-# Evaluation package
+"""
+Evaluation metrics and analysis modules.
+"""
