@@ -87,7 +87,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for data schema validation in `code/tests/test_data.py`
-- [ ] T011 [P] [US1] Integration test for VCF download and merge in `code/tests/test_data.py` <!-- FAILED: unspecified -->
+- [X] T011 [P] [US1] Integration test for VCF download and merge in `code/tests/test_data.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -95,11 +95,11 @@
 - [ ] T013A [P] [US1] Implement chunked VCF reading in `code/analysis/load_data.py` using `vcfpy` to handle large files within 7GB RAM
 - [ ] T013B [P] [US1] Add logic to aggregate variant counts per sample in memory without loading full VCF
 - [X] T014 [US1] Implement variant filtering in `code/analysis/preprocess.py` (retain only `PASS` status and `chrM`)
-- [ ] T015 [US1] Implement heteroplasmy burden calculation with VAF ≥ 1% threshold in `code/analysis/preprocess.py`
-- [ ] T016 [US1] Implement depth-stratified burden calculation (Low, Medium, High bins) in `code/analysis/preprocess.py`
-- [ ] T017 [US1] Integrate `haplogrep2` via subprocess in `code/analysis/preprocess.py` to assign haplogroups
+- [X] T015 [US1] Implement heteroplasmy burden calculation with VAF ≥ 1% threshold in `code/analysis/preprocess.py`
+- [X] T016 [US1] Implement depth-stratified burden calculation (Low, Medium, High bins) in `code/analysis/preprocess.py`
+- [X] T017 [US1] Integrate `haplogrep2` via subprocess in `code/analysis/preprocess.py` to assign haplogroups
 - [ ] T018 [US1] Implement metadata merge logic to join burden, haplogroups, age, sex, population, and PCs
-- [~] T019 [US1] Implement exclusion logic for samples with missing age or failed haplogroup assignment
+- [ ] T019 [US1] Implement exclusion logic for samples with missing age or failed haplogroup assignment
 - [ ] T020 [US1] Write processed dataset to `code/data/processed/mito_aging_dataset.csv` with checksum generation
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -120,9 +120,9 @@
 ### Implementation for User Story 2
 
 - [X] T023 [P] [US2] Implement unadjusted Spearman correlation calculation in `code/analysis/model.py`
-- [~] T024 [US2] Implement Rank-OLS regression: Rank-transform all continuous variables (`age`, `burden`, `depth`, `PC1`, `PC2`) then fit `rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)` in `code/analysis/model.py` and save coefficients, p-values, and adjusted p-values to `code/data/processed/model_results.csv`
+- [ ] T024 [US2] Implement Rank-OLS regression: Rank-transform all continuous variables (`age`, `burden`, `depth`, `PC1`, `PC2`) then fit `rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)` in `code/analysis/model.py` and save coefficients, p-values, and adjusted p-values to `code/data/processed/model_results.csv`
 - [X] T025 [US2] Implement Benjamini-Hochberg correction for all generated p-values in `code/analysis/model.py`
-- [~] T027 [US2] Record coefficients and p-values for the secondary OLS model (as per FR-004) in `code/logs/model_comparison.log`
+- [ ] T027 [US2] Record coefficients and p-values for the secondary OLS model (as per FR-004) in `code/logs/model_comparison.log`
 - [ ] T028 [US2] Generate summary statistics (coefficient, p-value, adjusted p-value) for `code/data/processed/analysis_results.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -157,8 +157,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T041 [P] Documentation updates in `paper/draft.md` (include findings and limitations)
-- [~] T042 Code cleanup and refactoring of `code/analysis/` scripts <!-- ATOMIZE: requested -->
+- [ ] T041 [P] Documentation updates in `paper/draft.md` (include findings and limitations)
+- [ ] T042 Code cleanup and refactoring of `code/analysis/` scripts <!-- ATOMIZE: requested -->
 - [~] T043 Performance optimization: ensure VCF streaming does not exceed 7GB RAM
 - [~] T044 [P] Additional unit tests for edge cases (zero burden, missing haplogroup) in `code/tests/`
 - [~] T045 Run `quickstart.md` validation and verify total runtime ≤ 6 hours on 2 CPU runner

@@ -1,6 +1,8 @@
-T011 [P] [US1] Integration test for VCF download and merge in `code/tests/test_data.py`: 2
-'T011 [P] [US1] Integration test for VCF download and merge in `code/tests/test_data.py` <!-- FAILED: unspecified -->': 2
-"T015 [US1] Implement heteroplasmy burden calculation with VAF \u2265 1% threshold in `code/analysis/preprocess.py`": 2
-T016 [US1] Implement depth-stratified burden calculation (Low, Medium, High bins) in `code/analysis/preprocess.py`: 1
-T017 [US1] Integrate `haplogrep2` via subprocess in `code/analysis/preprocess.py` to assign haplogroups: 1
-T018 [US1] Implement metadata merge logic to join burden, haplogroups, age, sex, population, and PCs: 1
+T018: 1
+T019: 1
+T020: 1
+T024: 1
+T027: 1
+T028: 1
+T041: 1
+T042: 1

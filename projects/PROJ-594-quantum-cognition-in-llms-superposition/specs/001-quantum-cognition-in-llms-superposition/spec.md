@@ -17,7 +17,7 @@ The researcher needs to establish a rigorous performance baseline using a standa
 
 **Acceptance Scenarios**:
 
-1. **Given** the `bert-base-uncased` model is frozen and the WiC dataset is loaded, **When** the model processes the test split, **Then** the output JSON must contain `accuracy` and `macro_f` metrics with values within the expected range for frozen BERT (approx. 0.50–0.60 accuracy).
+1. **Given** the `bert-base-uncased` model is frozen and the WiC dataset is loaded, **When** the model processes the test split, **Then** the output JSON must contain `accuracy` and `macro_f` metrics with values within the expected range for frozen BERT (moderate accuracy).
 2. **Given** the baseline run is executed, **When** the random seed is changed to a different integer, **Then** the performance metrics must vary by no more than 0.02 across 5 runs, confirming stability.
 
 ---
@@ -34,7 +34,7 @@ The researcher needs to implement the core quantum-inspired adapter: mapping rea
 
 1. **Given** two input tokens with complex representations $c_1 = 1 + 0i$ and $c_2 = -1 + 0i$ (representing perfect phase opposition), **When** the interference operation (phase shift + superposition) is computed, **Then** the resulting probability must be zero, confirming destructive interference.
 2. **Given** two input tokens with $c_1 = 1 + 0i$ and $c_2 = 1 + 0i$ (representing phase alignment), **When** the interference operation is computed, **Then** the resulting probability must be normalized to unity after applying softmax normalization over the two binary output classes.
-3. **Given** a valid WiC training example, **When** the adapter is trained for 3 epochs, **Then** the loss at epoch 3 must be lower than the loss at epoch 1, and the final loss must be < 0.7.
+3. **Given** a valid WiC training example, **When** the adapter is trained for a limited number of epochs, **Then** the loss at epoch 3 must be lower than the loss at epoch 1, and the final loss must be < 0.7.
 
 ---
 
@@ -48,7 +48,7 @@ The researcher needs to execute a paired statistical test comparing the performa
 
 **Acceptance Scenarios**:
 
-1. **Given** performance scores from 5 paired runs (baseline vs. complex), **When** a paired t-test is executed, **Then** the output must include a p-value, a t-statistic, and a Cohen's d effect size.
+1. **Given** performance scores from paired runs (baseline vs. complex), **When** a paired t-test is executed, **Then** the output must include a p-value, a t-statistic, and a Cohen's d effect size.
 2. **Given** the complex model outperforms the baseline by ≥ 0.05 accuracy in all 5 runs, **When** the t-test is run, **Then** the p-value must be < 0.05.
 3. **Given** the performance difference is < 0.01 across runs, **When** the t-test is run, **Then** the p-value must be > 0.05, correctly indicating no significant difference.
 
@@ -102,6 +102,6 @@ The researcher needs to execute a paired statistical test comparing the performa
 - The "quantum-inspired" nature of the model is purely mathematical (complex vector arithmetic) and does not require actual quantum hardware or quantum simulation libraries; standard floating-point arithmetic is sufficient.
 - The interference operation defined as vector addition ($c_1 + c_2$) of *phase-shifted* vectors serves as a valid proxy for "superposition" in this specific cognitive modeling context. This is justified by Busemeyer et al. (2011), where the superposition state (vector sum) combined with context-dependent phase shifts models the dynamic, non-commutative nature of cognitive states. The phase shift $U_c$ encodes the dynamic context required to model order effects, and the resulting interference effect (probability modification) captures the ambiguity resolution.
 - The dataset variables (token contexts, sense labels) in the WiC benchmark are sufficient to test the hypothesis without needing external cognitive state measures (e.g., reaction times or eye-tracking), which are not available.
-- The sample size of 5 random seeds is sufficient to detect a medium-to-large effect size (Cohen's d ≥ 0.5) given the expected variance in LLM fine-tuning; power analysis is deferred to the implementation phase but acknowledged as a limitation.
+- The sample size of multiple random seeds is sufficient to detect a medium-to-large effect size (Cohen's d ≥ 0.5) given the expected variance in LLM fine-tuning; power analysis is deferred to the implementation phase but acknowledged as a limitation.
 - No GPU acceleration is available; all matrix operations must be performed on CPU using standard double-precision floating-point arithmetic to ensure reproducibility and avoid CUDA dependency.
 - The "Born rule" application here is interpreted as the squared L2 norm of the summed complex vector, normalized to [0, 1] for the binary classification task via softmax over the two classes, as no specific normalization constant is provided in the literature.

@@ -1,127 +1,166 @@
-"""
-Unit tests for the logging configuration module.
-"""
-
 import logging
 import os
 import tempfile
 import unittest
 from unittest.mock import patch, MagicMock
 from pathlib import Path
+import sys
+import json
 
-# Import the module under test
-from src.pipeline import logging_config
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
+from src.pipeline.logging_config import (
+    JSONFormatter, 
+    get_logger, 
+    handle_error, 
+    log_with_context, 
+    time_execution
+)
 
 class TestLoggingConfig(unittest.TestCase):
-    """Tests for logging configuration initialization and utilities."""
-
+    
     def setUp(self):
-        """Reset logging state before each test."""
-        # Remove the custom logger to force re-initialization
-        self.logger_name = logging_config.LOGGER_NAME
-        if self.logger_name in logging.Logger.manager.loggerDict:
-            del logging.Logger.manager.loggerDict[self.logger_name]
+        """Setup temporary log directory for tests."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_log_dir = "state/logs"
+        # Patch the LOG_DIR logic by temporarily modifying the module if needed,
+        # but primarily we test the formatter and logger creation logic.
+        # For this test, we assume the module uses the global LOG_DIR which we can't easily override
+        # without reloading, so we focus on the JSONFormatter and basic logger behavior.
         
-        # Ensure log directory exists for tests
-        logging_config.LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-    def tearDown(self):
-        """Clean up log files after tests."""
-        # Remove log files created during test
-        if logging_config.LOG_DIR.exists():
-            for f in logging_config.LOG_DIR.glob("*.log"):
-                f.unlink()
-            for f in logging_config.LOG_DIR.glob("*.json"):
-                f.unlink()
-
-    @patch('src.pipeline.logging_config.get_config')
-    def test_logger_initialization(self, mock_get_config):
-        """Test that get_logger returns a configured logger."""
-        mock_get_config.return_value = MagicMock(log_level="DEBUG")
-        
-        logger = logging_config.get_logger("test_sublogger")
-        
-        self.assertIsInstance(logger, logging.Logger)
-        self.assertEqual(logger.name, f"{logging_config.LOGGER_NAME}.test_sublogger")
-        self.assertTrue(logger.handlers) # Should have handlers
-
-    def test_handle_error(self):
-        """Test that handle_error logs the exception and re-raises it."""
-        logger = logging_config.get_logger("test_error")
-        test_exception = ValueError("Test error message")
-        
-        with self.assertRaises(ValueError) as context:
-            logging_config.handle_error(logger, test_exception, {"key": "value"})
-        
-        self.assertEqual(str(context.exception), "Test error message")
-
-    def test_time_execution_decorator(self):
-        """Test that time_execution decorator logs start and end times."""
-        logger = logging_config.get_logger("test_time")
-        
-        @logging_config.time_execution(logger, "dummy_task")
-        def dummy_func():
-            return 42
-        
-        result = dummy_func()
-        self.assertEqual(result, 42)
-
-    def test_json_formatter(self):
-        """Test that JSONFormatter produces valid JSON."""
-        formatter = logging_config.JSONFormatter()
+    def test_json_formatter_basic(self):
+        """Test that JSONFormatter produces valid JSON with required fields."""
+        formatter = JSONFormatter()
         record = logging.LogRecord(
-            name="test",
+            name="test_logger",
             level=logging.INFO,
             pathname="test.py",
-            lineno=1,
-            msg="Test message",
-            args=(),
+            lineno=10,
+            msg="Test message %s",
+            args=("arg1",),
             exc_info=None
         )
         
-        output = formatter.format(record)
-        import json
-        parsed = json.loads(output)
+        formatted = formatter.format(record)
+        parsed = json.loads(formatted)
         
-        self.assertEqual(parsed["message"], "Test message")
-        self.assertIn("timestamp", parsed)
         self.assertEqual(parsed["level"], "INFO")
+        self.assertEqual(parsed["message"], "Test message arg1")
+        self.assertIn("timestamp", parsed)
+        self.assertIn("logger", parsed)
+        self.assertIn("module", parsed)
 
-    @patch('src.pipeline.logging_config.get_config')
-    def test_log_level_from_config(self, mock_get_config):
-        """Test that log level is read from config."""
-        mock_get_config.return_value = MagicMock(log_level="WARNING")
+    def test_json_formatter_with_exception(self):
+        """Test that JSONFormatter includes exception traceback."""
+        formatter = JSONFormatter()
         
-        # Re-initialize to pick up new config
-        if self.logger_name in logging.Logger.manager.loggerDict:
-            del logging.Logger.manager.loggerDict[self.logger_name]
-        
-        logger = logging_config.get_logger()
-        
-        # The root logger level should be WARNING
-        self.assertEqual(logger.level, logging.WARNING)
+        try:
+            raise ValueError("Test error")
+        except ValueError:
+            import sys
+            exc_info = sys.exc_info()
+            record = logging.LogRecord(
+                name="test_logger",
+                level=logging.ERROR,
+                pathname="test.py",
+                lineno=20,
+                msg="Error occurred",
+                args=(),
+                exc_info=exc_info
+            )
+            
+            formatted = formatter.format(record)
+            parsed = json.loads(formatted)
+            
+            self.assertIn("exception", parsed)
+            self.assertEqual(parsed["exception"]["type"], "ValueError")
+            self.assertIn("traceback", parsed["exception"])
 
-    @patch('src.pipeline.logging_config.get_config')
-    def test_log_level_from_env(self, mock_get_config):
-        """Test that log level is read from environment variable."""
-        mock_get_config.return_value = MagicMock() # Config doesn't override
-        os.environ["LLMXIVE_LOG_LEVEL"] = "ERROR"
+    def test_get_logger_creates_handlers(self):
+        """Test that get_logger creates handlers and does not duplicate them on second call."""
+        logger_name = "test_unique_logger"
         
-        # Re-initialize
-        if self.logger_name in logging.Logger.manager.loggerDict:
-            del logging.Logger.manager.loggerDict[self.logger_name]
+        # Clear any existing handlers for this name if the module is cached
+        # In a real run, the registry check prevents this, but here we rely on the module logic
+        logger1 = get_logger(logger_name)
+        num_handlers = len(logger1.handlers)
         
-        logger = logging_config.get_logger()
+        # Call again
+        logger2 = get_logger(logger_name)
         
-        self.assertEqual(logger.level, logging.ERROR)
-        
-        # Cleanup
-        del os.environ["LLMXIVE_LOG_LEVEL"]
+        self.assertEqual(logger1, logger2)
+        self.assertEqual(len(logger2.handlers), num_handlers) # Should not increase
+        self.assertTrue(num_handlers > 0)
 
     def test_log_with_context(self):
-        """Test logging with additional context data."""
-        logger = logging_config.get_logger("test_context")
+        """Test logging with extra context data."""
+        with patch('src.pipeline.logging_config.get_logger') as mock_get_logger:
+            mock_logger = MagicMock()
+            mock_get_logger.return_value = mock_logger
+            
+            log_with_context("test_mod", "Hello", level=logging.WARNING, context={"key": "value"})
+            
+            mock_logger.warning.assert_called_once()
+            call_args = mock_logger.warning.call_args
+            # Check that extra context was passed
+            self.assertIn("extra", call_args.kwargs)
+            self.assertEqual(call_args.kwargs["extra"]["context"]["key"], "value")
+
+    def test_time_execution_decorator_success(self):
+        """Test time_execution decorator on a successful function."""
+        @time_execution
+        def dummy_func():
+            return "done"
         
-        # Just verify it doesn't crash
-        logging_config.log_with_context(logger, logging.INFO, "Test message", key="value")
+        with patch('src.pipeline.logging_config.get_logger') as mock_get_logger:
+            mock_logger = MagicMock()
+            mock_get_logger.return_value = mock_logger
+            
+            result = dummy_func()
+            self.assertEqual(result, "done")
+            
+            # Check for start and end logs
+            calls = mock_logger.info.call_args_list
+            self.assertGreaterEqual(len(calls), 2)
+            
+            # Verify one call mentions "Starting" and one mentions "Completed"
+            messages = [str(c) for c in calls]
+            self.assertTrue(any("Starting" in m for m in messages))
+            self.assertTrue(any("Completed" in m for m in messages))
+
+    def test_time_execution_decorator_failure(self):
+        """Test time_execution decorator on a failing function."""
+        @time_execution
+        def failing_func():
+            raise RuntimeError("Oops")
+        
+        with patch('src.pipeline.logging_config.get_logger') as mock_get_logger:
+            mock_logger = MagicMock()
+            mock_get_logger.return_value = mock_logger
+            
+            with self.assertRaises(RuntimeError):
+                failing_func()
+            
+            # Check for error log
+            mock_logger.error.assert_called()
+            # Verify context contains failure status
+            call_kwargs = mock_logger.error.call_args.kwargs
+            self.assertIn("extra", call_kwargs)
+            self.assertEqual(call_kwargs["extra"]["context"]["status"], "failed")
+
+    def test_handle_error_logs_and_raises(self):
+        """Test that handle_error logs the error and re-raises it."""
+        test_error = ValueError("Test handle error")
+        
+        with patch('src.pipeline.logging_config.get_logger') as mock_get_logger:
+            mock_logger = MagicMock()
+            mock_get_logger.return_value = mock_logger
+            
+            with self.assertRaises(ValueError):
+                handle_error(test_error, context={"step": "validation"})
+            
+            mock_logger.error.assert_called_once()
+            call_kwargs = mock_logger.error.call_args.kwargs
+            self.assertIn("extra", call_kwargs)
+            self.assertEqual(call_kwargs["extra"]["context"]["error_type"], "ValueError")

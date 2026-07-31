@@ -1,0 +1,13 @@
+pandas
+numpy
+scipy
+scikit-learn
+matplotlib
+seaborn
+requests
+pyyaml
+geopandas
+pytest
+datasets
+pyarrow
+fsspec

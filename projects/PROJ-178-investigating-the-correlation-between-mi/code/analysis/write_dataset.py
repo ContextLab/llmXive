@@ -1,9 +1,3 @@
-"""
-Task T020: Write processed dataset to code/data/processed/mito_aging_dataset.csv with checksum generation.
-
-This script takes the merged and cleaned dataset produced by previous steps (T018, T019),
-writes it to a CSV file, and generates a SHA-256 checksum for data integrity verification.
-"""
 import os
 import sys
 import logging
@@ -11,78 +5,119 @@ import hashlib
 import pandas as pd
 from pathlib import Path
 
-# Add parent directory to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from analysis.clean_dataset import clean_dataset, main as clean_main
-from analysis.merge_metadata import merge_datasets, main as merge_main
+# Import from existing API surface
+from config.environment import ensure_directories, get_local_paths
+from analysis.merge_metadata import main as merge_metadata_main
 
 logger = logging.getLogger(__name__)
 
-def calculate_file_checksum(filepath: str, algorithm: str = 'sha256') -> str:
-    """Calculate checksum of a file."""
-    hash_obj = hashlib.new(algorithm)
-    with open(filepath, 'rb') as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(4096), b''):
-            hash_obj.update(chunk)
-    return hash_obj.hexdigest()
-
-def write_processed_dataset(output_path: str) -> str:
+def calculate_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Write the processed dataset to CSV and generate checksum.
-
-    Args:
-        output_path: Path to the output CSV file.
-
-    Returns:
-        The SHA-256 checksum of the written file.
-    """
-    logger.info(f"Writing processed dataset to {output_path}")
-
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Load the merged dataset (this assumes previous steps have created the intermediate files)
-    # The merge_datasets function returns the merged DataFrame
-    merged_df = merge_datasets()
-
-    if merged_df is None or merged_df.empty:
-        raise ValueError("Merged dataset is empty or None. Previous steps may have failed.")
-
-    # Write to CSV
-    merged_df.to_csv(output_path, index=False)
-    logger.info(f"Wrote {len(merged_df)} rows to {output_path}")
-
-    # Calculate and write checksum
-    checksum = calculate_file_checksum(output_path)
-    checksum_path = str(output_path) + ".sha256"
-    with open(checksum_path, 'w') as f:
-        f.write(f"{checksum}  {os.path.basename(output_path)}\n")
+    Calculate the checksum of a file to ensure data integrity.
     
-    logger.info(f"Generated checksum: {checksum}")
-    logger.info(f"Checksum saved to {checksum_path}")
+    Args:
+        file_path: Path to the file to checksum
+        algorithm: Hash algorithm to use (default: sha256)
+        
+    Returns:
+        Hexadecimal string of the file checksum
+    """
+    hash_func = hashlib.new(algorithm)
+    with open(file_path, 'rb') as f:
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(8192), b""):
+            hash_func.update(chunk)
+    return hash_func.hexdigest()
 
-    return checksum
+def write_processed_dataset(df: pd.DataFrame, output_path: Path, checksum_path: Path = None) -> None:
+    """
+    Write the processed dataset to CSV and generate a checksum file.
+    
+    Args:
+        df: The processed DataFrame to write
+        output_path: Path where the CSV file will be saved
+        checksum_path: Optional path for the checksum file (defaults to output_path + '.sha256')
+    """
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write the dataset to CSV
+    logger.info(f"Writing processed dataset to {output_path}")
+    df.to_csv(output_path, index=False)
+    
+    # Calculate and write checksum
+    if checksum_path is None:
+        checksum_path = Path(str(output_path) + '.sha256')
+    
+    checksum = calculate_file_checksum(output_path)
+    logger.info(f"Generated checksum: {checksum}")
+    
+    with open(checksum_path, 'w') as f:
+        f.write(f"{checksum}  {output_path.name}\n")
+    
+    logger.info(f"Checksum written to {checksum_path}")
 
 def main():
-    """Main entry point for T020."""
+    """
+    Main entry point for writing the processed dataset.
+    
+    This function:
+    1. Loads the merged dataset (produced by merge_metadata.py)
+    2. Performs final validation (checks for missing values in critical columns)
+    3. Writes the dataset to code/data/processed/mito_aging_dataset.csv
+    4. Generates a SHA256 checksum file
+    """
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-
-    # Define output path as per task specification
-    output_path = str(Path(__file__).parent.parent / "data" / "processed" / "mito_aging_dataset.csv")
-
+    
+    # Ensure directories exist
+    ensure_directories()
+    
+    # Get paths from environment config
+    local_paths = get_local_paths()
+    processed_dir = local_paths['processed']
+    output_file = processed_dir / 'mito_aging_dataset.csv'
+    
+    # Load the merged dataset
+    # The merge_metadata module produces 'merged_dataset.csv' in the processed directory
+    merged_input = processed_dir / 'merged_dataset.csv'
+    
+    if not merged_input.exists():
+        logger.error(f"Input file not found: {merged_input}")
+        logger.error("Please ensure T018 (merge_metadata) has been run successfully.")
+        sys.exit(1)
+    
+    logger.info(f"Loading merged dataset from {merged_input}")
     try:
-        checksum = write_processed_dataset(output_path)
-        logger.info(f"Task T020 completed successfully. Dataset: {output_path}, Checksum: {checksum}")
-        return 0
+        df = pd.read_csv(merged_input)
     except Exception as e:
-        logger.error(f"Task T020 failed: {e}")
-        return 1
+        logger.error(f"Failed to load merged dataset: {e}")
+        sys.exit(1)
+    
+    # Final validation: check for missing values in critical columns
+    critical_columns = ['sample_id', 'burden', 'age', 'haplogroup', 'sex', 'population']
+    missing_cols = [col for col in critical_columns if col not in df.columns]
+    
+    if missing_cols:
+        logger.error(f"Missing critical columns in dataset: {missing_cols}")
+        sys.exit(1)
+    
+    # Check for missing values in critical columns
+    for col in critical_columns:
+        null_count = df[col].isna().sum()
+        if null_count > 0:
+            logger.error(f"Found {null_count} missing values in critical column '{col}'")
+            sys.exit(1)
+    
+    logger.info(f"Validation passed. Dataset shape: {df.shape}")
+    
+    # Write the processed dataset
+    write_processed_dataset(df, output_file)
+    
+    logger.info(f"Successfully wrote processed dataset to {output_file}")
+    logger.info(f"Checksum file created at {output_file}.sha256")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

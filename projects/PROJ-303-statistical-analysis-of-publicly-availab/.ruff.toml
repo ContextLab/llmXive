@@ -1,0 +1,2 @@
+# Explicit ruff configuration file for IDE compatibility
+extend = "pyproject.toml"

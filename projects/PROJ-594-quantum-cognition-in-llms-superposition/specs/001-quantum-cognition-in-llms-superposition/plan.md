@@ -33,7 +33,7 @@ This feature implements a "quantum-inspired" adapter for the `bert-base-uncased`
 | **IV. Single Source of Truth** | **PASS** | Metrics trace to `data/` artifacts and `code/` execution blocks; no hand-typed stats in final paper. |
 | **V. Versioning Discipline** | **PASS** | Artifact hashes tracked in state YAML; `updated_at` timestamps managed by Advancement-Evaluator. |
 | **VI. Complex-Valued Representation Integrity** | **PASS** | Plan explicitly isolates adapter (trainable) from frozen BERT; mandates `torch.complex64`/`complex128` usage; enforces interference cross-term calculation. See `data-model.md` (Complex Token Representation) and `contracts/interference.schema.yaml`. |
-| **VII. Statistical Significance of Interference Effects** | **PASS** | Plan mandates paired t-test (α=0.05) across 5 seeds + bootstrap resampling; requires reporting of p-value, t-statistic, Cohen's d, and 95% CI; null results reported with equal rigor. See `contracts/stats.schema.yaml` and `code/analysis/stats_test.py`. |
+| **VII. Statistical Significance of Interference Effects** | **PASS** | Plan mandates paired t-test (α=0.05) across 5 seeds + bootstrap resampling; requires reporting of p-value, t-statistic, Cohen's d, and a confidence interval; null results reported with equal rigor. See `contracts/stats.schema.yaml` and `code/analysis/stats_test.py`. |
 
 ## Project Structure
 

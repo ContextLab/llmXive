@@ -1,0 +1,639 @@
+{
+  "fetched_at": "2026-07-31T10:03:47Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Mem\"",
+      "target_n": 5
+    },
+    "duration_seconds": 50.442,
+    "ended_at": "2026-07-31T10:03:47Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "lifelong learning robotic operating systems"
+        ],
+        [
+          2,
+          "multi-modal memory architectures for embodied AI agents"
+        ],
+        [
+          3,
+          "general-purpose robot agent platforms with persistent memory"
+        ],
+        [
+          4,
+          "continuous learning frameworks for autonomous robotics"
+        ],
+        [
+          5,
+          "neural memory modules for long-horizon robotic tasks"
+        ],
+        [
+          6,
+          "multi-modal experience replay in robotic agents"
+        ],
+        [
+          7,
+          "scalable agent operating systems for heterogeneous robots"
+        ],
+        [
+          8,
+          "lifelong multi-modal representation learning in robotics"
+        ],
+        [
+          9,
+          "persistent knowledge graphs for robotic task planning"
+        ],
+        [
+          10,
+          "embodied AI systems with cumulative memory mechanisms"
+        ],
+        [
+          11,
+          "robotic agent architectures supporting lifelong adaptation"
+        ],
+        [
+          12,
+          "multi-modal fusion strategies for robotic lifelong learning"
+        ],
+        [
+          13,
+          "generalist robot OS designs for multi-task environments"
+        ],
+        [
+          14,
+          "dynamic memory allocation in autonomous robotic agents"
+        ],
+        [
+          15,
+          "lifelong skill acquisition in multi-modal robotic systems"
+        ],
+        [
+          16,
+          "hierarchical memory systems for long-term robot autonomy"
+        ],
+        [
+          17,
+          "cross-modal memory retrieval in embodied AI"
+        ],
+        [
+          18,
+          "continuous integration of multimodal data in robot operating systems"
+        ],
+        [
+          19,
+          "adaptive memory mechanisms for general robotic agents"
+        ],
+        [
+          20,
+          "lifelong multi-task learning in robotic agent OS frameworks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "lifelong learning robotic operating systems": 5,
+        "llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Mem\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "robotic agent operating system multi-modal lifelong learning",
+      "ABot-AgentOS robotic foundation models embodied AI",
+      "software agent architecture robot control stack integration",
+      "robotic skill transfer multi-modal perception-action loops",
+      "catastrophic forgetting robotic continual learning representation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2607.10350"
+      ]
+    },
+    "per_query_hit_count": {
+      "ABot-AgentOS robotic foundation models embodied AI": 3,
+      "catastrophic forgetting robotic continual learning representation": 3,
+      "llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Mem\" computer science": 3,
+      "robotic agent operating system multi-modal lifelong learning": 3,
+      "robotic skill transfer multi-modal perception-action loops": 2,
+      "software agent architecture robot control stack integration": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2207.10457",
+          "rationale": "The paper focuses on the specific domain of agricultural harvesting robotics (crop detection, grasping, navigation in fields), which is an off-domain application compared to the user's question about a general-purpose \"Agent OS\" with \"lifelong multi-modal memory\" for broader robotic agents. While both involve robotics, the candidate paper does not address the core mechanisms of lifelong learning, multi-modal memory architectures, or general agent operating systems, failing to meet the criteria f",
+          "title": "A Survey of Robotic Harvesting Systems and Enabling Technologies"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-31T10:02:57Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"abot-agentos: a general robotic agent os with lifelong multi-modal mem\" computer science",
+      "raw": "llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Mem\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This primer is an attempt to provide a detailed summary of the different facets of lifelong learning. We start with Chapter 2 which provides a high-level overview of lifelong learning systems. In this chapter, we discuss prominent scenarios in lifelong learning (Section 2.4), provide 8 Introduction a high-level organization of different lifelong learning approaches (Section 2.5), enumerate the desiderata for an ideal lifelong learning system (Section 2.6), discuss how lifelong learning is related to other learning paradigms (Section 2.7), describe common metrics used to evaluate lifelong learning systems (Section 2.8). This chapter is more useful for readers who are new to lifelong learning and want to get introduced to the field without focusing on specific approaches or benchmarks. The remaining chapters focus on specific aspects (either learning algorithms or benchmarks) and are more useful for readers who are looking for specific approaches or benchmarks. Chapter 3 focuses on regularization-based approaches that do not assume access to any data from previous tasks. Chapter 4 discusses memory-based approaches that typically use a replay buffer or an episodic memory to save subset of data across different tasks. Chapter 5 focuses on different architecture families (and their instantiations) that have been proposed for training lifelong learning systems. Following these different classes of learning algorithms, we discuss the commonly used evaluation benchmarks and metrics for lifelong learning (Chapter 6) and wrap up with a discussion of future challenges and important research directions in Chapter 7.",
+          "claimed_authors": [
+            "Shagun Sodhani",
+            "Mojtaba Faramarzi",
+            "Sanket Vaibhav Mehta",
+            "Pranshu Malviya",
+            "Mohamed Abdelsalam",
+            "Janarthanan Janarthanan",
+            "Sarath Chandar"
+          ],
+          "claimed_title": "An Introduction to Lifelong Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.04354"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='An Introduction to Lifelong Supervised Learning')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Creating artificial intelligence (AI) systems capable of demonstrating lifelong learning is a fundamental challenge, and many approaches and metrics have been proposed to analyze algorithmic properties. However, for existing lifelong learning metrics, algorithmic contributions are confounded by task and scenario structure. To mitigate this issue, we introduce an algorithm-agnostic explainable surrogate-modeling approach to estimate latent properties of lifelong learning algorithms. We validate the approach for estimating these properties via experiments on synthetic data. To validate the structure of the surrogate model, we analyze real performance data from a collection of popular lifelong learning approaches and baselines adapted for lifelong classification and lifelong reinforcement learning.",
+          "claimed_authors": [
+            "Corban Rivera",
+            "Chace Ashcraft",
+            "Alexander New",
+            "James Schmidt",
+            "Gautam Vallabha"
+          ],
+          "claimed_title": "Latent Properties of Lifelong Learning Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.14378"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Latent Properties of Lifelong Learning Systems')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inspired by the excellent performance of Mamba networks, we propose a novel Deep Mamba Multi-modal Learning (DMML). It can be used to achieve the fusion of multi-modal features. We apply DMML to the field of multimedia retrieval and propose an innovative Deep Mamba Multi-modal Hashing (DMMH) method. It combines the advantages of algorithm accuracy and inference speed. We validated the effectiveness of DMMH on three public datasets and achieved state-of-the-art results.",
+          "claimed_authors": [
+            "Jian Zhu",
+            "Xin Zou",
+            "Yu Cui",
+            "Zhangmin Huang",
+            "Chenshu Hu",
+            "Bo Lyu"
+          ],
+          "claimed_title": "Deep Mamba Multi-modal Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.18007"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Deep Mamba Multi-modal Learning')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied Artificial Intelligence (Embodied AI) is crucial for achieving Artificial General Intelligence (AGI) and serves as a foundation for various applications (e.g., intelligent mechatronics systems, smart manufacturing) that bridge cyberspace and the physical world. Recently, the emergence of Multi-modal Large Models (MLMs) and World Models (WMs) have attracted significant attention due to their remarkable perception, interaction, and reasoning capabilities, making them a promising architecture for embodied agents. In this survey, we give a comprehensive exploration of the latest advancements in Embodied AI. Our analysis firstly navigates through the forefront of representative works of embodied robots and simulators, to fully understand the research focuses and their limitations. Then, we analyze four main research targets: 1) embodied perception, 2) embodied interaction, 3) embodied agent, and 4) sim-to-real adaptation, covering state-of-the-art methods, essential paradigms, and comprehensive datasets. Additionally, we explore the complexities of MLMs in virtual and real embodied agents, highlighting their significance in facilitating interactions in digital and physical environments. Finally, we summarize the challenges and limitations of embodied AI and discuss potential future directions. We hope this survey will serve as a foundational reference for the research community. The associated project can be found at https://github.com/HCPLab-SYSU/Embodied_AI_Paper_List.",
+          "claimed_authors": [
+            "Yang Liu",
+            "Weixing Chen",
+            "Yongjie Bai",
+            "Xiaodan Liang",
+            "Guanbin Li",
+            "Wen Gao",
+            "Liang Lin"
+          ],
+          "claimed_title": "Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.06886"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of tabular foundation models (TFMs) has accelerated in recent years, showing strong potential to outperform traditional ML methods for structured data. A key finding is that TFMs can be pretrained entirely on synthetic datasets, opening opportunities to design data generators that encourage desirable model properties. Prior work has mainly focused on crafting high-quality priors over generators to improve overall pretraining performance. Our insight is that parameterizing the generator distribution enables an adversarial robustness perspective: during training, we can adapt the generator to emphasize datasets that are particularly challenging for the model. We formalize this by introducing an optimality gap measure, given by the difference between TFM performance and the best achievable performance as estimated by strong baselines such as XGBoost, CatBoost, and Random Forests. Building on this idea, we propose Robust Tabular Foundation Models (RTFM), a model-agnostic adversarial training framework. Applied to the TabPFN V2 classifier, RTFM improves benchmark performance, with up to a 6% increase in mean normalized AUC over the original TabPFN and other baseline algorithms, while requiring less than 100k additional synthetic datasets. These results highlight a promising new direction for targeted adversarial training and fine-tuning of TFMs using synthetic data alone.",
+          "claimed_authors": [
+            "Matthew Peroni",
+            "Franck Le",
+            "Vadim Sheinin"
+          ],
+          "claimed_title": "Robust Tabular Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.03307"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Robust Tabular Foundation Models')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The estimation and improvement of quality attributes in software architectures is a challenging and time-consuming activity. On modern software applications, a model-based representation is crucial to face the complexity of such activity. One main challenge is that the improvement of distinctive quality attributes may require contrasting refactoring actions on the architecture, for instance when looking for trade-off between performance and reliability (or other non-functional quality attributes). In such cases, multi-objective optimization can provide the designer with a more complete view on these trade-offs and, consequently, can lead to identify suitable refactoring actions that take into account independent or even competing objectives.\n  In this paper, we present open challenges and research directions to fill current gaps in the context of multi-objective software architecture optimization.",
+          "claimed_authors": [
+            "Daniele Di Pompeo",
+            "Michele Tucci"
+          ],
+          "claimed_title": "Quality Attributes Optimization of Software Architecture: Research Challenges and Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.07516"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Quality Attributes Optimization of Software Architecture: Research Challenges and Directions')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Architecture optimization is the process of automatically generating design options, typically to enhance software's quantifiable quality attributes, such as performance and reliability. Multi-objective optimization approaches have been used in this situation to assist the designer in selecting appropriate trade-offs between a number of non-functional features. Through automated refactoring, design alternatives can be produced in this process, and assessed using non-functional models.\n  This type of optimization tasks are hard and time- and resource-intensive, which frequently hampers their use in software engineering procedures.\n  In this paper, we present our optimization framework where we examined the performance of various genetic algorithms. We also exercised our framework with two case studies with various levels of size, complexity, and domain served as our test subjects.",
+          "claimed_authors": [
+            "Daniele Di Pompeo",
+            "Michele Tucci"
+          ],
+          "claimed_title": "Multi-objective Software Architecture Refactoring driven by Quality Attributes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.07500"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Multi-objective Software Architecture Refactoring driven by Quality Attributes')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Manually ensuring that the implementation of a software system is consistent with the software architecture is a laborious and error-prone task. Thus, a variety of approaches towards automated consistency checking have been developed to counteract architecture erosion. However, these approaches lack means to define and check architectural restrictions concerning plugin dependencies, which is required for plugin-based software systems. In this paper, we propose a domain-specific language called Dependency Constraint Language (DepCoL) to facilitate the definition of constraints concerning plugin dependencies. Using DepCoL, it is possible to define constraints affecting groups of plugins, reducing the required specification effort, to formulate constraints for specific plugins only and to refine constraints. Moreover, we provide an Eclipse plugin, which checks whether the software system under development is consistent with the modeled constraints. This enables a seamless integration into the development process to effortless check consistency during development of the software system. In this way, developers are informed about dependency violations immediately and this supports developers in counteracting architecture erosion.",
+          "claimed_authors": [
+            "Timo Greifenberg",
+            "Klaus Müller",
+            "Bernhard Rumpe"
+          ],
+          "claimed_title": "Architectural Consistency Checking in Plugin-Based Software Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1510.08510"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Architectural Consistency Checking in Plugin-Based Software Systems')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-modal representation learning has become a pivotal area in artificial intelligence, enabling the integration of diverse modalities such as vision, text, and audio to solve complex problems. However, existing approaches predominantly focus on bimodal interactions, such as image-text pairs, which limits their ability to fully exploit the richness of multi-modal data. Furthermore, the integration of modalities in equal-scale environments remains underexplored due to the challenges of constructing large-scale, balanced datasets. In this study, we propose Synergy-CLIP, a novel framework that extends the contrastive language-image pre-training (CLIP) architecture to enhance multi-modal representation learning by integrating visual, textual, and audio modalities. Unlike existing methods that focus on adapting individual modalities to vanilla-CLIP, Synergy-CLIP aligns and captures latent information across three modalities equally. To address the high cost of constructing large-scale multi-modal datasets, we introduce VGG-sound+, a triple-modal dataset designed to provide equal-scale representation of visual, textual, and audio data. Synergy-CLIP is validated on various downstream tasks, including zero-shot classification, where it outperforms existing baselines. Additionally, we introduce a missing modality reconstruction task, demonstrating Synergy-CLIP's ability to extract synergy among modalities in realistic application scenarios. These contributions provide a robust foundation for advancing multi-modal representation learning and exploring new research directions.",
+          "claimed_authors": [
+            "Sangyeon Cho",
+            "Jangyeong Jeon",
+            "Mingi Kim",
+            "Junyeong Kim"
+          ],
+          "claimed_title": "Synergy-CLIP: Extending CLIP with Multi-modal Integration for Robust Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.21375"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Synergy-CLIP: Extending CLIP with Multi-modal Integration for Robust Representation Learning')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As multi-modal models advance towards long-form video understanding, memory emerges as a critical capability. Despite substantial efforts in developing video datasets and benchmarks, existing works primarily focus on perception and reasoning, without systematically evaluating memory: what models retain, how faithfully information is preserved, and how robust memory remains under interference. To address this gap, we introduce M$^3$Eval, the first comprehensive evaluation framework and benchmark for probing different memory dimensions in multi-modal models. Grounded in cognitive psychology, our design features carefully constructed tasks that isolate key aspects of memory. Leveraging M$^3$Eval, we conduct extensive experiments across representative multi-modal models, revealing consistent weaknesses and distinctive behaviors. We find that models struggle to maintain disentangled representations when processing parallel video streams, exhibit interference patterns differing substantially from those observed in human memory, ground memory sources more reliably in the spatial domain than the temporal domain, and demonstrate limited symbolic memory. Collectively, our benchmark provides a valuable resource for future research, while our findings highlight memory as a fundamental yet underexplored capability and offer insights for designing more effective memory mechanisms in multi-modal models. Our code and dataset are available at https://pku-value-lab.github.io/m3eval-homepage.",
+          "claimed_authors": [
+            "Jie Huang",
+            "Ruixun Liu",
+            "Sirui Sun",
+            "Xinyi Yang",
+            "Yin Li",
+            "Yixin Zhu",
+            "Yiwu Zhong"
+          ],
+          "claimed_title": "M$^3$Eval: Multi-Modal Memory Evaluation through Cognitively-Grounded Video Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05008"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='M$^3$Eval: Multi-Modal Memory Evaluation through Cognitively-Grounded Video Tasks')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_authors": [
+            "Giang Nguyen"
+          ],
+          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual learning (CL) is a setting in which an agent has to learn from an incoming stream of data during its entire lifetime. Although major advances have been made in the field, one recurring problem which remains unsolved is that of Catastrophic Forgetting (CF). While the issue has been extensively studied empirically, little attention has been paid from a theoretical angle. In this paper, we show that the impact of CF increases as two tasks increasingly align. We introduce a measure of task similarity called the NTK overlap matrix which is at the core of CF. We analyze common projected gradient algorithms and demonstrate how they mitigate forgetting. Then, we propose a variant of Orthogonal Gradient Descent (OGD) which leverages structure of the data through Principal Component Analysis (PCA). Experiments support our theoretical findings and show how our method can help reduce CF on classical CL datasets.",
+          "claimed_authors": [
+            "Thang Doan",
+            "Mehdi Bennani",
+            "Bogdan Mazoure",
+            "Guillaume Rabusseau",
+            "Pierre Alquier"
+          ],
+          "claimed_title": "A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.04003"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A continual learning agent should be able to build on top of existing knowledge to learn on new data quickly while minimizing forgetting. Current intelligent systems based on neural network function approximators arguably do the opposite---they are highly prone to forgetting and rarely trained to facilitate future learning. One reason for this poor behavior is that they learn from a representation that is not explicitly trained for these two goals. In this paper, we propose OML, an objective that directly minimizes catastrophic interference by learning representations that accelerate future learning and are robust to forgetting under online updates in continual learning. We show that it is possible to learn naturally sparse representations that are more effective for online updating. Moreover, our algorithm is complementary to existing continual learning strategies, such as MER and GEM. Finally, we demonstrate that a basic online updating strategy on representations learned by OML is competitive with rehearsal based methods for continual learning. We release an implementation of our method at https://github.com/khurramjaved96/mrcl .",
+          "claimed_authors": [
+            "Khurram Javed",
+            "Martha White"
+          ],
+          "claimed_title": "Meta-Learning Representations for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.12588"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ABot-AgentOS: A General Robotic Agent OS with Life', candidate_title='Meta-Learning Representations for Continual Learning')",
+        "failed_at": "2026-07-31T10:03:27Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiayi Tian",
+            "Shiao Liu",
+            "Yuting Xu",
+            "Jia Lu",
+            "Zihao Guan",
+            "Honglin Han",
+            "Di Yang",
+            "Minqi Gu",
+            "Yifei Qian",
+            "Tianlin Zhang",
+            "Yanqing Zhu",
+            "Zeqian Ye",
+            "Menglin Yang",
+            "Fei Wang",
+            "Xu Hu",
+            "Xiuxian Li",
+            "Wei Zhang",
+            "Shihui Su",
+            "Yiyan Ji",
+            "Jingbo Wang",
+            "Ziteng Feng",
+            "Jiaheng Liu",
+            "Zhaoxiang Zhang",
+            "Xiaolong Wu",
+            "Zixiao Tang",
+            "Zhining Gu",
+            "Yang Cai",
+            "Linbo Zheng",
+            "Jingjing Ma",
+            "Mingyang Yin",
+            "Zedong Chu",
+            "Wenbin Tang",
+            "Mu Xu"
+          ],
+          "title": "ABot-AgentOS: A General Robotic Agent OS with Lifelong Multi-modal Memory",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.10350",
+        "summary": "Recent VLM and VLA systems have improved robotic perception and action prediction, yet long-horizon embodied agents still require a general runtime layer for reasoning, memory, tool use, verification, and cross-embodiment execution. We present ABot-AgentOS, a general robotic Agent Operating System that sits above low-level controllers and provides a deliberative agent layer for scene-conditioned planning, context-isolated skill execution, multi-stage verification, multi-modal memory, and edge-cloud collaboration. To evaluate such systems, we introduce EmbodiedWorldBench, an executable benchmark with 16 indoor, outdoor, and hybrid scenes, four difficulty levels, and over 200 tasks involving navigation, object search, NPC dialogue, dynamic events, and trace-grounded scoring. ABot-AgentOS further introduces Universal Multi-modal Graph Memory, a persistent source-grounded substrate that converts dialogue, visual observations, spatial context, temporal relations, and task traces into typed nodes and edges. A failure-driven self-evolution loop converts diagnosed memory failures into gated runtime evo-assets that are promoted only to later evaluation splits, preventing current-split ground-truth leakage while enabling continual improvement. On an initial EmbodiedWorldBench subset, ABot-AgentOS improves over a single-controller baseline in both task success and goal completion. Across memory benchmarks, ABot-AgentOS Static achieves 87.5 on LoCoMo, 59.9 on OpenEQA EM-EQA, 88.6 on Mem-Gallery, and 76.5 Acc@All on NExT-QA; self-evolution further improves LoCoMo to 88.7, OpenEQA to 60.4, and Mem-Gallery to 89.0. These results suggest that a general Agent OS layer can improve long-horizon embodied execution while providing persistent, auditable memory for continual interaction.",
+        "summary_grounded_pdf": true,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.10350",
+          "http_status": 200,
+          "pdf_sample_score": 0.7403,
+          "query_relevance_score": 0.6429,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-31T10:03:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shagun Sodhani",
+            "Mojtaba Faramarzi",
+            "Sanket Vaibhav Mehta",
+            "Pranshu Malviya",
+            "Mohamed Abdelsalam",
+            "Janarthanan Janarthanan",
+            "Sarath Chandar"
+          ],
+          "title": "An Introduction to Lifelong Supervised Learning",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2207.04354",
+        "summary": "This primer is an attempt to provide a detailed summary of the different facets of lifelong learning. We start with Chapter 2 which provides a high-level overview of lifelong learning systems. In this chapter, we discuss prominent scenarios in lifelong learning (Section 2.4), provide 8 Introduction a high-level organization of different lifelong learning approaches (Section 2.5), enumerate the desiderata for an ideal lifelong learning system (Section 2.6), discuss how lifelong learning is related to other learning paradigms (Section 2.7), describe common metrics used to evaluate lifelong learning systems (Section 2.8). This chapter is more useful for readers who are new to lifelong learning and want to get introduced to the field without focusing on specific approaches or benchmarks. The remaining chapters focus on specific aspects (either learning algorithms or benchmarks) and are more useful for readers who are looking for specific approaches or benchmarks. Chapter 3 focuses on regularization-based approaches that do not assume access to any data from previous tasks. Chapter 4 discusses memory-based approaches that typically use a replay buffer or an episodic memory to save subset of data across different tasks. Chapter 5 focuses on different architecture families (and their instantiations) that have been proposed for training lifelong learning systems. Following these different classes of learning algorithms, we discuss the commonly used evaluation benchmarks and metrics for lifelong learning (Chapter 6) and wrap up with a discussion of future challenges and important research directions in Chapter 7.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2207.04354",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-31T10:03:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Corban Rivera",
+            "Chace Ashcraft",
+            "Alexander New",
+            "James Schmidt",
+            "Gautam Vallabha"
+          ],
+          "title": "Latent Properties of Lifelong Learning Systems",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2207.14378",
+        "summary": "Creating artificial intelligence (AI) systems capable of demonstrating lifelong learning is a fundamental challenge, and many approaches and metrics have been proposed to analyze algorithmic properties. However, for existing lifelong learning metrics, algorithmic contributions are confounded by task and scenario structure. To mitigate this issue, we introduce an algorithm-agnostic explainable surrogate-modeling approach to estimate latent properties of lifelong learning algorithms. We validate the approach for estimating these properties via experiments on synthetic data. To validate the structure of the surrogate model, we analyze real performance data from a collection of popular lifelong learning approaches and baselines adapted for lifelong classification and lifelong reinforcement learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2207.14378",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-31T10:03:32Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aswin Raghavan",
+            "Jesse Hostetler",
+            "Indranil Sur",
+            "Abrar Rahman",
+            "Ajay Divakaran"
+          ],
+          "title": "Lifelong Learning using Eigentasks: Task Separation, Skill Acquisition, and Selective Transfer",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.06918",
+        "summary": "We introduce the eigentask framework for lifelong learning. An eigentask is a pairing of a skill that solves a set of related tasks, paired with a generative model that can sample from the skill's input space. The framework extends generative replay approaches, which have mainly been used to avoid catastrophic forgetting, to also address other lifelong learning goals such as forward knowledge transfer. We propose a wake-sleep cycle of alternating task learning and knowledge consolidation for learning in our framework, and instantiate it for lifelong supervised learning and lifelong RL. We achieve improved performance over the state-of-the-art in supervised continual learning, and show evidence of forward knowledge transfer in a lifelong RL application in the game Starcraft2.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2007.06918",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-31T10:03:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pranshu Malviya",
+            "Balaraman Ravindran",
+            "Sarath Chandar"
+          ],
+          "title": "TAG: Task-based Accumulated Gradients for Lifelong learning",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2105.05155",
+        "summary": "When an agent encounters a continual stream of new tasks in the lifelong learning setting, it leverages the knowledge it gained from the earlier tasks to help learn the new tasks better. In such a scenario, identifying an efficient knowledge representation becomes a challenging problem. Most research works propose to either store a subset of examples from the past tasks in a replay buffer, dedicate a separate set of parameters to each task or penalize excessive updates over parameters by introducing a regularization term. While existing methods employ the general task-agnostic stochastic gradient descent update rule, we propose a task-aware optimizer that adapts the learning rate based on the relatedness among tasks. We utilize the directions taken by the parameters during the updates by accumulating the gradients specific to each task. These task-based accumulated gradients act as a knowledge base that is maintained and updated throughout the stream. We empirically show that our proposed adaptive learning rate not only accounts for catastrophic forgetting but also allows positive backward transfer. We also show that our method performs better than several state-of-the-art methods in lifelong learning on complex datasets with a large number of tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2105.05155",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-31T10:03:33Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"abot-agentos: a general robotic agent os with lifelong multi-modal mem\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

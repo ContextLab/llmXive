@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: Execute `mkdir -p src/{data,models,evaluation,visualization,pipeline,scripts,cli} tests/{unit,integration,contract} data/{raw,processed} outputs/{plots,metrics} state`. Create empty `__init__.py` files in all `src` and `tests` directories. <!-- ATOMIZE: requested -->
-- [ ] T002 Initialize Python 3.11 project with requirements.txt (`pandas`, `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `seaborn`, `requests`, `pyyaml`, `geopandas`, `pytest`)
+- [X] T002 Initialize Python 3.11 project with requirements.txt (`pandas`, `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `seaborn`, `requests`, `pyyaml`, `geopandas`, `pytest`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -37,9 +37,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup `src/config.py` to load hyperparameters, paths, seeds, and the 6-hour compute limit
-- [ ] T005 [P] Implement `src/scripts/validate_citations.py` to verify NOAA GHCN-Daily URL availability before execution
+- [X] T005 [P] Implement `src/scripts/validate_citations.py` to verify NOAA GHCN-Daily URL availability before execution
 - [ ] T005-exec [P] Execute `src/scripts/validate_citations.py` as a blocking gate; HALT pipeline if validation fails (Depends on T005)
-- [ ] T006 Implement `src/scripts/hygiene_check.py` to compute SHA-256 hashes for raw data and write to `state/projects/...yaml` (Depends on T005-exec success to ensure valid data is hashed)
+- [X] T006 Implement `src/scripts/hygiene_check.py` to compute SHA-256 hashes for raw data and write to `state/projects/...yaml` (Depends on T005-exec success to ensure valid data is hashed)
 - [ ] T006-exec [P] Execute `src/scripts/hygiene_check.py` as a blocking gate; HALT pipeline if hash verification fails (Depends on T006)
 - [ ] T007 Create base `src/data/loaders.py` for HuggingFace/NOAA dataset fetching with checksum verification
 - [ ] T008 Configure error handling and logging infrastructure in `src/pipeline/logging_config.py`
@@ -57,12 +57,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `src/data/ingestion.py` to download NOAA GHCN-Daily CSVs for Northeast USA (2000–2020)
-- [ ] T011 [US1] Implement station filtering in `src/data/preprocessing.py`: exclude stations with >15% total missing OR >30 day contiguous gaps (Depends on T010)
-- [ ] T012 [US1] Implement linear interpolation for short gaps in `src/data/preprocessing.py` (Depends on T011)
-- [ ] T013 [US1] Calculate high percentile thresholds strictly on 2000–2015 training data in `src/data/preprocessing.py` (Depends on T012)
-- [ ] T013b [US1] Implement sensitivity analysis: Re-run the full model comparison (US-2) for thresholds {90th, 95th, 99th} and generate robustness report of predictive gain in `src/data/preprocessing.py` (Depends on T013 logic, runs in parallel with T014b)
-- [ ] T014 [US1] Implement extreme event flagging: mark days > threshold as exceedances with magnitude in `src/data/preprocessing.py` (Depends on T013)
+- [X] T010 [US1] Implement `src/data/ingestion.py` to download NOAA GHCN-Daily CSVs for Northeast USA (2000–2020)
+- [X] T011 [US1] Implement station filtering in `src/data/preprocessing.py`: exclude stations with >15% total missing OR >30 day contiguous gaps (Depends on T010)
+- [X] T012 [US1] Implement linear interpolation for short gaps in `src/data/preprocessing.py` (Depends on T011)
+- [X] T013 [US1] Calculate high percentile thresholds strictly on 2000–2015 training data in `src/data/preprocessing.py` (Depends on T012)
+- [X] T013b [US1] Implement sensitivity analysis: Re-run the full model comparison (US-2) for thresholds {90th, 95th, 99th} and generate robustness report of predictive gain in `src/data/preprocessing.py` (Depends on T013 logic, runs in parallel with T014b)
+- [X] T014 [US1] Implement extreme event flagging: mark days > threshold as exceedances with magnitude in `src/data/preprocessing.py` (Depends on T013)
 - [ ] T014b [US1] Implement `ExtremeEvent` entity mapping logic: Create function to map raw data to the `ExtremeEvent` schema (station_id, date, magnitude, threshold_value) defined in spec.md (Depends on T014)
 - [ ] T015 [US1] Generate `data/processed/extreme_events.parquet` containing station_id, date, magnitude, threshold_value (Depends on T014b)
 - [ ] T016 [US1] Add summary statistics reporter in `src/data/summary.py` (exceedance count per station, average magnitude, sensitivity report) (Depends on T015)

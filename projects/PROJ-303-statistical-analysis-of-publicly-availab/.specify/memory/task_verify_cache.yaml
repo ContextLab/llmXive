@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree, no `__init__.py` files, and no evidence of the `mkdir -p\
+    \ \u2026` command execution were provided. The required project structure and\
+    \ empty init files are missing, so the task is not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `ruff.toml`, pre\u2011commit hooks, or documentation)\
+    \ are present in the provided evidence, so the requirement to configure Ruff and\
+    \ Black is not satisfied. The implementer must add the appropriate configuration\
+    \ artifacts and verify they are functional."
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or function implementing the required `ExtremeEvent` entity\
+    \ mapping logic was provided. The task demands a concrete implementation that\
+    \ takes raw NOAA GHCN\u2011Daily records and outputs records with fields (station_id,\
+    \ date, magnitude, threshold_value); such an artifact is absent, so the requirement\
+    \ is not satisfied."
