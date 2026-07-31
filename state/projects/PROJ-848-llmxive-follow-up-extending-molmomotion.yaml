@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-848-llmxive-follow-up-extending-molmomotion
-last_run_id: a01d4c65-ae07-4b44-aba2-0faffeeccb9b
+last_run_id: 34fe9857-e23a-4641-90ae-7c1816bc6a42
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "MolmoMotion: Forecasting Point Trajectories
   in 3D with Language Instru"'
-updated_at: '2026-07-09T19:00:58.672316Z'
+updated_at: '2026-07-31T14:56:44.085549Z'

@@ -9,11 +9,11 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-How does the semantic granularity of language instructions (coarse natural language vs. precise kinematic parameters) affect the geometric fidelity of 3D trajectory forecasts when processed by a CPU-optimized, non-autoregressive model architecture?
+How does the required semantic precision of language instructions scale with the representational capacity of motion forecasting models to maintain trajectory fidelity, and does explicit kinematic parameterization effectively compensate for reduced capacity across diverse architectural simplifications?
 
 ## Motivation
 
-This inquiry addresses a critical gap in deploying motion forecasting on edge robotics where GPU resources are unavailable and natural language commands may be ambiguous. By isolating the contribution of linguistic precision under strict computational constraints, we can determine if explicit kinematic grounding is a necessary prerequisite for high-accuracy planning in resource-constrained environments, or if simplified models can robustly interpret "fuzzy" natural language.
+This inquiry addresses the fundamental trade-off between linguistic ambiguity and model expressivity in 3D motion forecasting. By quantifying the "information density" needed for accurate predictions across models of varying capacity, we determine whether resource-constrained systems require precise kinematic grounding or if they can tolerate natural language ambiguity without sacrificing geometric fidelity, thereby guiding interface design for edge robotics.
 
 ## Literature gap analysis
 
@@ -23,31 +23,32 @@ We queried Semantic Scholar, arXiv, and OpenAlex using the following search stra
 2.  **Broad Query:** "language guided trajectory prediction resource constrained edge robotics" to identify general trends in deploying LLM-based motion planners on non-GPU hardware.
 
 ### What is known
-- [Trajectory Prediction Meets Large Language Models: A Survey (2025)](https://arxiv.org/abs/2506.03408) — This survey establishes that integrating LLMs into trajectory prediction is a growing field, highlighting the potential of semantic reasoning but noting that most current approaches rely on heavy transformer architectures unsuited for edge deployment.
+- *No directly relevant primary sources were found in the verified literature block.* The available search results cover unrelated domains: Java code generation from natural language, historical natural language database interfaces, automated multiple-choice question generation, clinical NLP frameworks, and general NLP mechanistic modeling. None of these provide empirical evidence or theoretical frameworks regarding the interaction between language instruction granularity and 3D trajectory prediction accuracy in reduced-capacity models.
 
 ### What is NOT known
-There is currently no published work that specifically quantifies the trade-off between instruction semantic granularity (natural language vs. structured parameters) and geometric prediction error when the underlying model is stripped of autoregressive attention mechanisms and forced to run on a CPU. The existing literature focuses on maximizing accuracy via large-scale GPU training, leaving the performance envelope of "lightweight + explicit parameterization" unexplored.
+There is currently no published work that specifically quantifies the trade-off between instruction semantic granularity (natural language vs. structured parameters) and geometric prediction error when the underlying model is stripped of autoregressive attention mechanisms. The existing literature focuses on maximizing accuracy via large-scale GPU training or applies natural language processing to entirely different tasks (code generation, clinical records), leaving the performance envelope of "lightweight motion models + explicit parameterization" unexplored.
 
 ### Why this gap matters
-Robotics teams deploying on low-power hardware (e.g., embedded drones or mobile manipulators) need to know if they must engineer complex structured interfaces or if standard natural language APIs suffice. Filling this gap will provide a concrete guideline for the "minimum viable instruction format" required for safe, high-fidelity motion planning in edge scenarios.
+Robotics teams deploying on low-power hardware need to know if they must engineer complex structured interfaces or if standard natural language APIs suffice. Filling this gap will provide a concrete guideline for the "minimum viable instruction format" required for safe, high-fidelity motion planning in edge scenarios, preventing the deployment of systems that fail due to instruction-model capacity mismatches.
 
 ### How this project addresses the gap
-This project directly addresses the gap by constructing a controlled experiment using the MolmoMotion-1M dataset to compare natural language versus kinematic inputs on a distilled, CPU-only linear projection architecture. The resulting error metrics will provide the first empirical evidence on whether explicit parameterization is required to compensate for reduced model capacity in motion forecasting.
+This project directly addresses the gap by constructing a controlled experiment using the MolmoMotion-1M dataset to compare natural language versus kinematic inputs on a distilled, CPU-optimized linear projection architecture. The resulting error metrics will provide the first empirical evidence on whether explicit parameterization is required to compensate for reduced model capacity in motion forecasting, effectively mapping the boundary of the unknown.
 
 ## Expected results
 
-We expect to find that while natural language instructions perform adequately on diverse, unstructured motions with standard models, they suffer a significant drop in Euclidean trajectory error (ATE) under CPU-constrained, simplified architectures. Conversely, structured kinematic specifications are hypothesized to maintain high trajectory fidelity even with reduced model capacity, suggesting that explicit parameterization effectively compensates for the lack of complex attention mechanisms.
+We expect to find that while natural language instructions perform adequately on diverse, unstructured motions with standard models, they suffer a significant drop in Euclidean trajectory error (ATE) under reduced model capacity. Conversely, structured kinematic specifications are hypothesized to maintain high trajectory fidelity even with simplified architectures, suggesting that explicit parameterization effectively compensates for the lack of complex attention mechanisms, establishing a non-linear scaling relationship between instruction precision and model size.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the MolmoMotion-1M dataset (publicly available via the authors' repository) and subsample 5,000 instances.
+- **Data Acquisition**: Download the MolmoMotion-1M dataset (publicly available via the authors' repository) and subsample 5,000 instances to fit within the 7GB RAM limit.
 - **Instruction Synthesis**: For each instance, generate two parallel instruction sets: (A) Coarse natural language descriptions (e.g., "move left") and (B) Structured kinematic specifications (e.g., "velocity vector [-0.5, 0, 0], duration 2s") using a rule-based parser on the ground-truth trajectory metadata.
-- **Model Construction**: Implement a lightweight, CPU-optimized inference pipeline using PyTorch on CPU only; replace the original autoregressive transformer blocks with a non-autoregressive linear projection layer followed by a fixed-point kinematic solver.
-- **Inference Execution**: Run the model on the subsampled dataset using both instruction types, ensuring no GPU acceleration is used (force `torch.set_device('cpu')`).
+- **Model Construction**: Implement a lightweight, CPU-optimized inference pipeline using PyTorch on CPU only; replace the original autoregressive transformer blocks with a non-autoregressive linear projection layer followed by a fixed-point kinematic solver to simulate reduced capacity.
+- **Inference Execution**: Run the model on the subsampled dataset using both instruction types, ensuring no GPU acceleration is used (force `torch.set_device('cpu')`) to isolate capacity effects from hardware acceleration.
 - **Metric Calculation**: Compute the Average Trajectory Error (ATE) in meters for each prediction against the ground-truth 3D points.
 - **Adherence Scoring**: Calculate an "instruction adherence score" using the dot-product alignment between the predicted velocity vector and the intended vector defined in the instruction.
 - **Statistical Comparison**: Perform a paired t-test on the ATE distributions between the natural language and kinematic instruction groups to determine statistical significance.
 - **Resource Profiling**: Record inference latency and memory usage to confirm the pipeline operates within the 7GB RAM and 6-hour CPU time limits of standard CI runners.
+- **Validation Independence**: The evaluation metric (ATE) is derived strictly from the geometric difference between the predicted trajectory and the ground-truth trajectory (an independent measurement of physical reality), ensuring the validation target is not mathematically determined by the input instruction format itself.
 
 ## Duplicate-check
 
@@ -58,37 +59,21 @@ We expect to find that while natural language instructions perform adequately on
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-09T19:00:27Z
-**Outcome**: exhausted
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-31T14:56:26Z
+**Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "MolmoMotion: Forecasting Point Trajectories in 3D with Language Instru" computer science
-**Verified citation count**: 1
+**Verified citation count**: 5
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "MolmoMotion: Forecasting Point Trajectories in 3D with Language Instru" computer science | 0 |
-| 1 | language-conditioned 3D motion forecasting | 0 |
-| 2 | multimodal point trajectory prediction | 5 |
-| 3 | text-guided 3D motion generation | 0 |
-| 4 | large language models for 3D trajectory inference | 0 |
-| 5 | semantic 3D motion forecasting | 0 |
-| 6 | vision-language models for motion prediction | 0 |
-| 7 | 3D point cloud trajectory estimation with natural language | 0 |
-| 8 | language-instructed dynamic scene understanding | 0 |
-| 9 | multimodal forecasting of 3D object motion | 0 |
-| 10 | text-driven 3D kinematic prediction | 0 |
-| 11 | integrating LLMs with 3D motion models | 0 |
-| 12 | natural language interfaces for 3D motion synthesis | 0 |
-| 13 | semantic trajectory prediction in 3D environments | 0 |
-| 14 | language-embedded 3D motion forecasting | 0 |
-| 15 | multimodal point cloud motion analysis | 0 |
-| 16 | instruction-following 3D motion models | 0 |
-| 17 | cross-modal 3D motion forecasting | 0 |
-| 18 | language-conditioned point cloud dynamics | 0 |
-| 19 | text-to-motion 3D trajectory generation | 0 |
-| 20 | semantic 3D motion understanding with transformers | 0 |
+| 0 (initial) | llmXive follow-up: extending "MolmoMotion: Forecasting Point Trajectories in 3D with Language Instru" computer science | 5 |
 
 ### Verified citations
 
-1. **Trajectory Prediction Meets Large Language Models: A Survey** (2025). Yi Xu, Ruining Yang, Yitian Zhang, Jianglin Lu, Mingyuan Zhang, et al.. arXiv. [2506.03408](https://arxiv.org/abs/2506.03408). PDF-sampled: No.
+1. **A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text** (2023). Jessica López Espejel, Mahaman Sanoussi Yahaya Alassan, El Mehdi Chouham, Walid Dahhane, El Hassane Ettifouri. arXiv. [2306.06371](https://arxiv.org/abs/2306.06371). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+2. **Time, Tense and Aspect in Natural Language Database Interfaces** (1998). I. Androutsopoulos, G. D. Ritchie, P. Thanisch. arXiv. [cmp-lg/9803002](cmp-lg/9803002). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+3. **An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques** (2021). Chidinma A. Nwafor, Ikechukwu E. Onyenwe. arXiv. [2103.14757](https://arxiv.org/abs/2103.14757). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+4. **An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)** (2021). Sijia Liu, Andrew Wen, Liwei Wang, Huan He, Sunyang Fu, et al.. arXiv. [2110.10780](https://arxiv.org/abs/2110.10780). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+5. **Modular Mechanistic Networks: On Bridging Mechanistic and Phenomenological Models with Deep Neural Networks in Natural Language Processing** (2018). Simon Dobnik, John D. Kelleher. arXiv. [1807.09844](https://arxiv.org/abs/1807.09844). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
