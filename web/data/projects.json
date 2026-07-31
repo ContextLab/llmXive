@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-07-31T13:38:15.216914+00:00",
+  "generated_at": "2026-07-31T13:39:29.925206+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -155413,126 +155413,6 @@
   "recent_activity": [
     {
       "agent": "implementer",
-      "duration_s": 1.070189,
-      "ended_at": "2026-07-31T13:37:57.984684Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:56.914495Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.518547,
-      "ended_at": "2026-07-31T13:37:56.770151Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:56.251604Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.567938,
-      "ended_at": "2026-07-31T13:37:56.186974Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:55.619036Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.509322,
-      "ended_at": "2026-07-31T13:37:55.555038Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:55.045716Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.57413,
-      "ended_at": "2026-07-31T13:37:54.981709Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:54.407579Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.553574,
-      "ended_at": "2026-07-31T13:37:54.343941Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:53.790367Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.626971,
-      "ended_at": "2026-07-31T13:37:53.637249Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:53.010278Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.54887,
-      "ended_at": "2026-07-31T13:37:52.946698Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:52.397828Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.698981,
-      "ended_at": "2026-07-31T13:37:52.333988Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:51.635007Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.831919,
-      "ended_at": "2026-07-31T13:37:51.565648Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-07-31T13:37:48.733729Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 122.414888,
       "ended_at": "2026-07-31T13:28:06.462874Z",
       "failure_reason": "",
@@ -161410,6 +161290,126 @@
       "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-07-31T04:47:29.159050Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 23.238189,
+      "ended_at": "2026-07-31T04:48:01.611109Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-427-evaluating-the-robustness-of-statistical",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:47:38.372920Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 15.657866,
+      "ended_at": "2026-07-31T04:47:38.370920Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-427-evaluating-the-robustness-of-statistical",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:47:22.713054Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 47.670391,
+      "ended_at": "2026-07-31T04:47:29.156419Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-833-llmxive-follow-up-extending-perceptiondl",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:46:41.486028Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 13.498703,
+      "ended_at": "2026-07-31T04:47:22.711159Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-427-evaluating-the-robustness-of-statistical",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:47:09.212456Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 38.113318,
+      "ended_at": "2026-07-31T04:47:09.210598Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-427-evaluating-the-robustness-of-statistical",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:46:31.097280Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 27.7887,
+      "ended_at": "2026-07-31T04:46:41.483381Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-833-llmxive-follow-up-extending-perceptiondl",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:46:13.694681Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 21.783995,
+      "ended_at": "2026-07-31T04:46:31.095332Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-427-evaluating-the-robustness-of-statistical",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:46:09.311337Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 33.732983,
+      "ended_at": "2026-07-31T04:46:13.692060Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-833-llmxive-follow-up-extending-perceptiondl",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:45:39.959077Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 33.489304,
+      "ended_at": "2026-07-31T04:46:09.309546Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-427-evaluating-the-robustness-of-statistical",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:45:35.820242Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 31.518464,
+      "ended_at": "2026-07-31T04:45:39.956193Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-833-llmxive-follow-up-extending-perceptiondl",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-07-31T04:45:08.437729Z"
     }
   ],
   "reviewed_preprints": [
