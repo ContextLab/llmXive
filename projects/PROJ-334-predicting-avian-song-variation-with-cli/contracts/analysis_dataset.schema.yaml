@@ -1,133 +1,112 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: AnalysisDataset
 description: >
   Unified dataset merging SongRecord and ClimateSnapshot.
-  Contains song metrics, environmental predictors, and join metadata.
+  Used for exploratory analysis and modeling.
 type: object
 required:
   - recording_id
   - species_id
+  - species_name
   - latitude
   - longitude
-  - bio_1
-  - bio_12
-  - elevation
-  - match_source
+  - temperature_mean_annual
+  - precipitation_annual
+  - elevation_m
 properties:
+  # Song Record Fields
   recording_id:
     type: string
-    description: Unique identifier from Xeno-Canto
+    description: Unique identifier for the recording
   species_id:
     type: string
-    description: Xeno-Canto species ID
+    description: Xeno-Canto species code
   species_name:
     type: string
-    description: Scientific name of the species
+    description: Scientific name
   latitude:
     type: number
-    description: Latitude in decimal degrees (WGS84)
     minimum: -90
     maximum: 90
+    description: Latitude (WGS84)
   longitude:
     type: number
-    description: Longitude in decimal degrees (WGS84)
     minimum: -180
     maximum: 180
-  date_recorded:
-    type: ["string", "null"]
-    format: date
-    description: Date of recording
-  country:
-    type: ["string", "null"]
-    description: Country code or name
-  # Song Metrics (derived from audio analysis or provided by Xeno-Canto)
-  song_metric_1:
-    type: ["number", "null"]
-    description: Primary song metric (e.g., dominant frequency in kHz)
-    minimum: 0
-  song_metric_2:
-    type: ["number", "null"]
-    description: Secondary song metric (e.g., song duration in seconds)
-    minimum: 0
-  # Climate Variables (from WorldClim)
-  bio_1:
-    type: number
-    description: Annual Mean Temperature (°C * 10)
-  bio_2:
-    type: number
-    description: Mean Diurnal Range (°C * 10)
-  bio_3:
-    type: number
-    description: Isothermality
-  bio_4:
-    type: number
-    description: Temperature Seasonality
-  bio_5:
-    type: number
-    description: Max Temperature of Warmest Month (°C * 10)
-  bio_6:
-    type: number
-    description: Min Temperature of Coldest Month (°C * 10)
-  bio_7:
-    type: number
-    description: Temperature Annual Range (°C * 10)
-  bio_8:
-    type: number
-    description: Mean Temperature of Wettest Quarter (°C * 10)
-  bio_9:
-    type: number
-    description: Mean Temperature of Driest Quarter (°C * 10)
-  bio_10:
-    type: number
-    description: Mean Temperature of Warmest Quarter (°C * 10)
-  bio_11:
-    type: number
-    description: Mean Temperature of Coldest Quarter (°C * 10)
-  bio_12:
-    type: number
-    description: Annual Precipitation (mm * 10)
-  bio_13:
-    type: number
-    description: Precipitation of Wettest Month (mm * 10)
-  bio_14:
-    type: number
-    description: Precipitation of Driest Month (mm * 10)
-  bio_15:
-    type: number
-    description: Precipitation Seasonality
-  bio_16:
-    type: number
-    description: Precipitation of Wettest Quarter (mm * 10)
-  bio_17:
-    type: number
-    description: Precipitation of Driest Quarter (mm * 10)
-  bio_18:
-    type: number
-    description: Precipitation of Warmest Quarter (mm * 10)
-  bio_19:
-    type: number
-    description: Precipitation of Coldest Quarter (mm * 10)
-  elevation:
-    type: number
-    description: Elevation in meters
-  # Join Metadata
-  match_source:
+    description: Longitude (WGS84)
+  file_url:
     type: string
-    description: Method used for matching (e.g., "spatial_join_10km", "species_range_map")
-    enum:
-      - "spatial_join_10km"
-      - "species_range_map"
+    description: Audio file URL
+  date_recorded:
+    type: string
+    format: date
+    description: Recording date
+  duration_sec:
+    type: number
+    description: Recording duration
+  quality_score:
+    type: string
+    description: Quality rating
+  country:
+    type: string
+    description: Country
+  continent:
+    type: string
+    description: Continent
+
+  # Derived Song Metrics (Placeholder for computed fields from audio processing)
+  # Note: These fields are expected to be populated by downstream audio analysis
+  # or placeholder values for schema validation if audio processing is skipped.
+  song_frequency_median:
+    type: number
+    description: Median frequency of the song (Hz)
+  song_frequency_max:
+    type: number
+    description: Maximum frequency of the song (Hz)
+  song_duration_sec:
+    type: number
+    description: Duration of the song element (sec)
+  song_complexity_index:
+    type: number
+    description: A calculated complexity metric
+
+  # Climate Snapshot Fields
+  temperature_mean_annual:
+    type: number
+    description: Mean annual temperature (°C)
+  temperature_max_warmest:
+    type: number
+    description: Max temp of warmest month (°C)
+  temperature_min_coldest:
+    type: number
+    description: Min temp of coldest month (°C)
+  precipitation_annual:
+    type: number
+    description: Annual precipitation (mm)
+  precipitation_driest:
+    type: number
+    description: Precipitation of driest month (mm)
+  precipitation_wettest:
+    type: number
+    description: Precipitation of wettest month (mm)
+  elevation_m:
+    type: number
+    description: Elevation (m)
+  seasonality_temp:
+    type: number
+    description: Temperature seasonality
+  seasonality_precip:
+    type: number
+    description: Precipitation seasonality
+
+  # Join Metadata
   join_distance_km:
-    type: ["number", "null"]
-    description: Distance from song record to climate point in km (if spatial join)
-    minimum: 0
-  data_quality_flags:
-    type: array
-    items:
-      type: string
-    description: List of data quality flags (e.g., "low_quality_audio", "outlier_elevation")
-    default: []
-  notes:
-    type: ["string", "null"]
-    description: Additional notes about the record
+    type: number
+    description: Distance to nearest climate grid point (km)
+  species_range_match:
+    type: boolean
+    description: Whether species range matched the coordinate
+  data_source_climate:
+    type: string
+    description: Source of climate data (e.g., WorldClim v2.1)
 additionalProperties: true

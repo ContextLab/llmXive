@@ -1,56 +1,47 @@
-"""
-Setup script to create the directory structure for the avian song variation project.
-This script creates the necessary folders under the project root as defined in the plan.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Define the base directories relative to the current working directory (project root)
-    # The task specifies: projects/PROJ-334..., data/, code/, tests/
-    # We assume the script is run from the project root.
+    """
+    Create the required directory structure for the project.
+    This script ensures that the following directories exist:
+    - projects/PROJ-334-predicting-avian-song-variation-with-cli/
+    - data/
+    - code/
+    - tests/
     
-    base_dirs = [
-        "projects/PROJ-334-predicting-avian-song-variation-with-cli",
-        "data",
-        "code",
-        "tests"
+    It also creates subdirectories for data:
+    - data/raw/
+    - data/processed/
+    """
+    base_path = Path.cwd()
+    
+    # Define the required directories relative to the project root
+    required_dirs = [
+        base_path / "projects" / "PROJ-334-predicting-avian-song-variation-with-cli",
+        base_path / "data",
+        base_path / "code",
+        base_path / "tests",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "figures",
+        base_path / "specs",
+        base_path / "contracts",
     ]
-
-    # Also create the standard subdirectories for data as per Phase 2 (T004) anticipation
-    # and best practices, though strictly T001a asks for the top level.
-    # We will stick strictly to T001a requirements for the top level, 
-    # but ensure 'data' exists so subsequent tasks can run.
     
     created_count = 0
-    for dir_path in base_dirs:
-        path = Path(dir_path)
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {path}")
-
-    # Create specific subdirectories for data structure (data/raw, data/processed)
-    # as these are standard and often required immediately by ingestion tasks (T004 context)
-    data_subdirs = [
-        "data/raw",
-        "data/processed",
-        "data/external"
-    ]
+    existing_count = 0
     
-    for dir_path in data_subdirs:
-        path = Path(dir_path)
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {path}")
+    for dir_path in required_dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path.relative_to(base_path)}")
             created_count += 1
         else:
-            print(f"Directory already exists: {path}")
-
-    print(f"Setup complete. {created_count} new directories created.")
+            existing_count += 1
+    
+    print(f"Setup complete. Created {created_count} new directories, {existing_count} already existed.")
     return 0
 
 if __name__ == "__main__":

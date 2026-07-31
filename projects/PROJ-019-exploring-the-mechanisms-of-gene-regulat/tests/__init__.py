@@ -1,2 +1,3 @@
-# Tests package for llmXive gene regulation pipeline
-# Contains unit, integration, and contract tests
+"""
+Test suite for the llmXive gene regulation pipeline.
+"""

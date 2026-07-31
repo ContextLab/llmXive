@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No evidence of the required top‑level directories (`code/`, `data/`, `tests/`, `paper/`) is provided; the response contains only the specification text and no file‑system listing or files showing that the project structure has been created. The implementer must add the actual directory hierarchy (with at least placeholder files) to satisfy the task.
+- **T003** — No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`) or scripts showing that ruff linting and black formatting have been set up are present in the provided evidence. Without these artifacts, we cannot confirm that the linting/formatting tools are actually configured.
+- **T009** — No pytest configuration files, fixture definitions, or schema validation tests are present in the provided artifacts. The claim does not include any code or files that set up pytest with contract test fixtures, so the requirement is unmet.
+- **T013** — The required output file `data/raw/moral_machine_subset.csv` does not exist, and the provided `download.py` snippet does not show any implementation of the stratified sampling, subsetting to ≤50,000 rows, or saving to that CSV path. The task’s core functionality and resulting artifact are missing.

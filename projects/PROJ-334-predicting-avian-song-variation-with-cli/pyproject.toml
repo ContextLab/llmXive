@@ -1,29 +1,77 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proj-334-predicting-avian-song-variation-with-cli"
+version = "0.1.0"
+description = "Predicting Avian Song Variation with Climatic and Geographic Factors"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "statsmodels",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "requests",
+    "rasterio",
+    "geopandas",
+    "pyproj",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest",
+    "pytest-cov",
+]
+
 [tool.black]
 line-length = 88
-target-version = ['py311']
-skip-string-normalization = true
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
 exclude = '''
-    (
-        /(
-            \.eggs
-            | \.git
-            | \.hg
-            | \.mypy_cache
-            | \.tox
-            | \.venv
-            | _build
-            | buck-out
-            | build
-            | dist
-        )/
-        | /data/
-        | /output/
-        | /figures/
-    )
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
 '''
 
-[tool.flake8]
-max-line-length = 88
-extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist,.eggs,*.egg-info,data,output,figures
-per-file-ignores = __init__.py:F401
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.isort]
+known-first-party = ["config", "data_setup", "fetch_worldclim", "fetch_xeno_canto", "ingestion", "linting_config", "logging_config", "main", "schema_validator", "setup_dirs", "state_manager", "utils"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"tests/*" = ["S101"]

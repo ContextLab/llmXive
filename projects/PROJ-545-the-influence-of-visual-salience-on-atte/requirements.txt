@@ -1,0 +1,13 @@
+numpy
+scipy
+pandas
+opencv-python
+scikit-learn
+numba
+requests
+pydantic
+pytest
+ruff
+black
+matplotlib
+seaborn

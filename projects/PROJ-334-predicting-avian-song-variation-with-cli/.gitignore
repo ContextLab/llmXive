@@ -7,35 +7,47 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
+.Python
 build/
-bdist.*/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Virtual environments
+# Virtual Environments
 venv/
-.venv/
+ENV/
 env/
-.env/
+.venv/
 
 # IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
 Thumbs.db
 
 # Project specific
-data/raw/*
+data/raw/*.csv
+data/raw/*.zip
+data/raw/*.tar.gz
 !data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/checksums.txt
+data/processed/
 figures/
-data/models/
-*.log
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/

@@ -1,26 +1,16 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Virtual Environments
+# Distribution / packaging
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
 venv/
 ENV/
 env/
@@ -31,26 +21,22 @@ env/
 *.swp
 *.swo
 
-# Data (Raw and Processed)
+# Data artifacts (tracked via git-lfs or checksums if large)
 data/raw/*.csv
-data/raw/*.zip
-data/raw/*.tar.gz
 data/processed/*.csv
-data/processed/*.parquet
-data/processed/*.pkl
+data/processed/*.json
+data/fetched/*.zip
+data/fetched/*.tar.gz
 
-# Logs
-logs/*.log
-
-# Figures (Generated)
+# Figures and outputs
 figures/*.png
 figures/*.pdf
 figures/*.svg
 
+# Logs
+*.log
+logs/
+
 # OS
 .DS_Store
 Thumbs.db
-
-# Local config
-.env
-config_local.yaml

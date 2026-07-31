@@ -1,3 +1,3 @@
 """
-Analysis and comparison modules.
+Analysis and comparison logic.
 """

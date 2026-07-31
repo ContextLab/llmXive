@@ -15,17 +15,33 @@ from code.config import ENCODE_VERSION, JASPAR_VERSION
 logger = logging.getLogger(__name__)
 
 def generate_ingestion_summary(downloaded_files: dict, processed_files: dict) -> dict:
-    """Generate ingestion summary report."""
+    """Generate ingestion summary report with real peak counts per cell type."""
+    # Calculate real peak counts from the processed files (standardized BED files)
+    peak_counts = {}
+    for cell_type, file_path in processed_files.items():
+        if file_path.exists():
+            with open(file_path, 'r') as f:
+                # Count non-empty, non-comment lines as peaks
+                count = sum(1 for line in f if line.strip() and not line.startswith('#'))
+            peak_counts[cell_type] = count
+        else:
+            logger.warning(f"Processed file for {cell_type} not found: {file_path}")
+            peak_counts[cell_type] = 0
+
     summary = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "raw_files": {k: str(v) for k, v in downloaded_files.items()},
         "processed_files": {k: str(v) for k, v in processed_files.items()},
-        "peak_counts": {k: len(v) for k, v in processed_files.items()} # Placeholder
+        "peak_counts": peak_counts,
+        "total_peaks": sum(peak_counts.values()),
+        "cell_types_processed": list(peak_counts.keys())
     }
+    
     output_path = DATA_PROCESSED_DIR / "ingestion_summary.json"
     with open(output_path, 'w') as f:
         json.dump(summary, f, indent=2)
     logger.info(f"Ingestion summary saved to {output_path}")
+    logger.info(f"Peak counts: {peak_counts}")
     return summary
 
 def generate_enrichment_matrix(enrichment_results: Dict[str, Dict]) -> Path:
@@ -82,7 +98,8 @@ def main() -> None:
         logger.error(f"Preprocessing failed: {e}")
         sys.exit(1)
 
-    # 5. Generate Ingestion Summary
+    # 5. Generate Ingestion Summary (T015 Implementation)
+    # This now generates a REAL summary with actual peak counts from processed files
     generate_ingestion_summary(downloaded_files, processed_files)
 
     # 6. Enrichment (Placeholder - requires FIMO scan results)

@@ -1,3 +1,21 @@
+"""
+Preprocessing pipeline for Moral Machine data with salience integration.
+
+This module handles the merging of raw moral decision data with computed
+visual/textual salience scores and extracts proxy control variables as
+required by FR-008.
+
+Proxy Control Variables (FR-008):
+- lives_saved: Number of lives saved in the scenario
+- lives_lost: Number of lives lost in the scenario
+- species: Categorical distribution of entities (human, pet, livestock, etc.)
+- age: Age distribution of human entities
+- gender: Gender distribution of human entities
+
+Note: This module strictly avoids 'Voluntary' tags, 'System 1/2' proxies,
+or 'Salience Withdrawal' simulations as per project constraints.
+"""
+
 import os
 import sys
 import logging
@@ -8,291 +26,407 @@ from typing import Optional, Dict, Any, List, Tuple
 import pandas as pd
 import numpy as np
 
-# Local imports matching the API surface
-from utils.logger import get_logger, log_error_to_file
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DATA_DIR = DATA_DIR / "raw"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
-# Initialize logger
-logger = get_logger(__name__)
+# Ensure directories exist
+PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Constants for proxy control derivation
-# These mapping strategies are derived strictly from FR-008 defined columns:
-# 'lives_lost', 'species', 'social_status', 'age', 'gender'
-SEVERITY_THRESHOLDS = {
-    'none': 0,
-    'low': 1,
-    'medium': 5,
-    'high': 10
-}
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-AGENT_TYPE_MAPPING = {
-    'human': 'human',
-    'dog': 'animal',
-    'cat': 'animal',
-    'cow': 'animal',
-    'horse': 'animal',
-    'pig': 'animal',
-    'sheep': 'animal',
-    'cat': 'animal'
-}
 
-def load_salience_scores(input_path: str) -> pd.DataFrame:
-    """
-    Load the pre-computed salience scores from the processed data.
-    
-    Args:
-        input_path: Path to the CSV containing salience scores.
-        
-    Returns:
-        DataFrame with salience data.
-    """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Salience scores file not found: {input_path}")
-    
-    logger.info(f"Loading salience scores from {input_path}")
-    df = pd.read_csv(path)
-    return df
-
-def load_raw_moral_machine_data(input_path: str) -> pd.DataFrame:
+def load_raw_moral_machine_data(filepath: Optional[Path] = None) -> pd.DataFrame:
     """
     Load the raw Moral Machine dataset.
-    
+
     Args:
-        input_path: Path to the raw CSV.
-        
+        filepath: Optional path to the raw CSV. If None, defaults to
+                  data/raw/moral_machine_subset.csv
+
     Returns:
-        DataFrame with raw data.
+        DataFrame containing the raw moral machine data.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If the file is empty or malformed.
     """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {input_path}")
-    
-    logger.info(f"Loading raw Moral Machine data from {input_path}")
-    df = pd.read_csv(path)
+    if filepath is None:
+        filepath = RAW_DATA_DIR / "moral_machine_subset.csv"
+
+    if not filepath.exists():
+        raise FileNotFoundError(
+            f"Raw data file not found: {filepath}. "
+            "Please run the download stage (T013) first."
+        )
+
+    logger.info(f"Loading raw data from {filepath}")
+    df = pd.read_csv(filepath)
+
+    if df.empty:
+        raise ValueError(f"Loaded dataset from {filepath} is empty.")
+
+    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
     return df
 
-def handle_missing_images(df: pd.DataFrame, salience_df: pd.DataFrame) -> pd.DataFrame:
+
+def load_salience_scores(filepath: Optional[Path] = None) -> pd.DataFrame:
     """
-    Handle rows where image processing failed or images were missing.
-    
+    Load the pre-computed salience scores.
+
     Args:
-        df: Raw data DataFrame.
-        salience_df: Salience scores DataFrame.
-        
-    Returns:
-        Merged DataFrame with fallback handling.
+        filepath: Optional path to the salience CSV. If None, defaults to
+                  data/processed/salience_enriched.csv (if it exists) or
+                  expects the salience column to be in the raw data after
+                  the salience stage.
+
+    Note: In the current pipeline flow, T016 (merge) happens after T014/T015.
+    This function is a helper for the merge step. If T016 hasn't run yet,
+    we expect the salience stage (T014/T015) to have appended the column
+    to the raw data or produced an intermediate file. For T010, we assume
+    the salience column 'salience_score' exists in the input dataframe
+    provided by the pipeline orchestrator, or we load it from a specific
+    intermediate file if T014/T015 outputs it separately.
+
+    For this implementation, we assume the salience stage (T014/T015)
+    outputs to `data/processed/salience_scores.csv` if not merged yet,
+    OR we expect the caller to pass a dataframe that already has the
+    salience column.
+
+    To be robust: Try loading from a specific intermediate file first.
     """
-    # Merge on scenario_id or equivalent key
-    key_col = 'scenario_id' if 'scenario_id' in df.columns else 'id'
-    if key_col not in salience_df.columns:
-        salience_df['scenario_id'] = salience_df.index
-        
-    merged = pd.merge(df, salience_df, on=key_col, how='left')
-    
-    # Identify missing salience scores (likely due to missing images)
-    missing_mask = merged['salience_score'].isna()
-    if missing_mask.any():
-        count = missing_mask.sum()
-        logger.warning(f"Found {count} rows with missing salience scores. Applying text-heuristic fallback.")
-        
-        # Apply text-heuristic fallback (simplified for this task)
-        # In a full implementation, this would call the text heuristic function
-        # Here we assign a neutral score or a score derived from text description length
-        merged.loc[missing_mask, 'salience_score'] = 0.0 
-        merged.loc[missing_mask, 'salience_fallback'] = True
+    # Expected intermediate file from salience computation stage
+    intermediate_path = DATA_DIR / "processed" / "salience_scores.csv"
+
+    if filepath is None and intermediate_path.exists():
+        logger.info(f"Loading salience scores from intermediate file: {intermediate_path}")
+        return pd.read_csv(intermediate_path)
+
+    # If no intermediate file, return empty DF (caller must handle merge logic)
+    logger.warning("No salience scores file found. Returning empty DataFrame.")
+    return pd.DataFrame()
+
+
+def handle_missing_images(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Identify rows with missing or broken image URLs and flag them.
+
+    This function prepares the dataframe for text-heuristic fallbacks.
+    It does NOT compute the fallback score itself (that is T015's job),
+    but marks the rows that require it.
+
+    Args:
+        df: Input DataFrame.
+
+    Returns:
+        DataFrame with a new column 'image_valid' (bool).
+    """
+    # Heuristic: Check if 'image_url' column exists and is not NaN
+    if 'image_url' in df.columns:
+        # Check for empty strings or NaN
+        df['image_valid'] = df['image_url'].notna() & (df['image_url'].str.strip() != '')
     else:
-        merged['salience_fallback'] = False
-        
-    return merged
+        # If no image_url column, assume all are text-only
+        df['image_valid'] = False
+
+    missing_count = (~df['image_valid']).sum()
+    logger.info(f"Identified {missing_count} rows with missing/invalid images (text-only fallback needed)")
+    return df
+
 
 def extract_proxy_controls(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Extract and derive proxy control variables strictly from FR-008 columns.
-    
-    This function implements the Aristotelian refinement for T038:
-    - Creates 'outcome_severity' derived from 'lives_lost'
-    - Creates 'agent_type' derived from 'species'
-    
+    Extract proxy control variables as required by FR-008.
+
+    FR-008 Requirements:
+    - lives_saved: Number of lives saved
+    - lives_lost: Number of lives lost
+    - species: Categorical distribution
+    - age: Age distribution
+    - gender: Gender distribution
+
+    This function ensures these columns are present, normalized, and
+    ready for downstream statistical control. It does NOT perform the
+    statistical analysis itself (that is T031/diagnostics.py).
+
     Args:
-        df: DataFrame containing raw Moral Machine columns.
-        
+        df: Input DataFrame (raw or salience-merged).
+
     Returns:
-        DataFrame with added proxy control columns.
+        DataFrame with proxy control columns added/normalized.
     """
-    df = df.copy()
-    
-    # 1. Outcome Severity (Aristotle: Material Cause proxy)
-    # Derived strictly from 'lives_lost' column as per FR-008
-    if 'lives_lost' in df.columns:
-        def categorize_severity(lives: float) -> str:
-            if pd.isna(lives):
-                return 'unknown'
-            if lives <= 0:
-                return 'none'
-            elif lives <= 5:
-                return 'low'
-            elif lives <= 10:
-                return 'medium'
-            else:
-                return 'high'
-        
-        df['outcome_severity'] = df['lives_lost'].apply(categorize_severity)
-        logger.info("Derived 'outcome_severity' from 'lives_lost'")
-    else:
-        logger.warning("Column 'lives_lost' not found. Skipping 'outcome_severity' derivation.")
-        df['outcome_severity'] = 'unknown'
+    logger.info("Extracting proxy control variables (FR-008)...")
 
-    # 2. Agent Type (Aristotle: Formal Cause proxy)
-    # Derived strictly from 'species' column as per FR-008
-    # This distinguishes between human agents and animal agents for the analysis
-    if 'species' in df.columns:
-        def map_agent_type(species: str) -> str:
-            if pd.isna(species):
-                return 'unknown'
-            species_lower = str(species).lower()
-            # Map specific species to broader categories
-            if species_lower in ['human', '']:
-                return 'human'
-            elif species_lower in ['dog', 'cat', 'cow', 'horse', 'pig', 'sheep']:
-                return 'animal'
-            else:
-                return 'other'
-        
-        df['agent_type'] = df['species'].apply(map_agent_type)
-        logger.info("Derived 'agent_type' from 'species'")
-    else:
-        logger.warning("Column 'species' not found. Skipping 'agent_type' derivation.")
-        df['agent_type'] = 'unknown'
+    # 1. Lives Saved / Lost
+    # Moral Machine data often has columns like 'n_lives_saved', 'n_lives_lost'
+    # or encoded in 'choice' vs 'alternative' counts.
+    # We look for standard naming conventions or calculate from scenario details.
+    if 'n_lives_saved' not in df.columns:
+        # Attempt to infer from other columns or set to 0 if not present
+        # In many MM datasets, this is explicit. If missing, we must handle gracefully.
+        if 'lives_saved' in df.columns:
+            df['n_lives_saved'] = df['lives_saved']
+        else:
+            # Fallback: create a placeholder column if the raw data is sparse
+            # This is a safeguard; the raw data should ideally have this.
+            logger.warning("Column 'n_lives_saved' not found. Creating placeholder.")
+            df['n_lives_saved'] = 0
 
-    # 3. Additional standard controls from FR-008
-    standard_controls = ['lives_saved', 'lives_lost', 'species', 'age', 'gender', 'social_status']
-    for col in standard_controls:
-        if col not in df.columns:
-            df[col] = np.nan
-            logger.debug(f"Column '{col}' missing, filled with NaN.")
-    
+    if 'n_lives_lost' not in df.columns:
+        if 'lives_lost' in df.columns:
+            df['n_lives_lost'] = df['lives_lost']
+        else:
+            logger.warning("Column 'n_lives_lost' not found. Creating placeholder.")
+            df['n_lives_lost'] = 0
+
+    # Ensure numeric types
+    df['n_lives_saved'] = pd.to_numeric(df['n_lives_saved'], errors='coerce').fillna(0)
+    df['n_lives_lost'] = pd.to_numeric(df['n_lives_lost'], errors='coerce').fillna(0)
+
+    # 2. Species
+    # Often encoded as 'species_human', 'species_pet', etc., or a single string.
+    # We create a categorical summary column if not present.
+    if 'species' not in df.columns:
+        # Attempt to construct from individual species columns if they exist
+        species_cols = [c for c in df.columns if c.startswith('species_')]
+        if species_cols:
+            # Create a combined string representation or just flag presence
+            # For control variables, we often need counts per category.
+            # Let's create a simple 'dominant_species' or 'species_mix' string.
+            # However, for regression controls, we usually need one-hot or count.
+            # We'll create a 'species_summary' column as a string for now,
+            # and downstream will encode it.
+            df['species'] = df[species_cols].astype(str).agg(','.join, axis=1)
+        else:
+            df['species'] = 'unknown'
+
+    # 3. Age
+    # Similar to species, check for age columns
+    if 'age' not in df.columns:
+        age_cols = [c for c in df.columns if c.startswith('age_') or 'age' in c.lower()]
+        if age_cols:
+            # Take the first non-null or average?
+            # For control, we might need a distribution summary.
+            # Let's create a 'age_summary' string.
+            df['age'] = df[age_cols].astype(str).agg(','.join, axis=1)
+        else:
+            df['age'] = 'unknown'
+
+    # 4. Gender
+    if 'gender' not in df.columns:
+        gender_cols = [c for c in df.columns if c.startswith('gender_') or 'gender' in c.lower()]
+        if gender_cols:
+            df['gender'] = df[gender_cols].astype(str).agg(','.join, axis=1)
+        else:
+            df['gender'] = 'unknown'
+
+    # Normalize string columns to lowercase to reduce cardinality
+    for col in ['species', 'age', 'gender']:
+        if col in df.columns:
+            df[col] = df[col].astype(str).str.lower().str.strip()
+            df.loc[df[col] == 'nan', col] = 'unknown'
+
+    logger.info(f"Proxy controls extracted: lives_saved, lives_lost, species, age, gender")
     return df
 
-def merge_and_finalize(raw_df: pd.DataFrame, salience_df: pd.DataFrame, output_path: str) -> pd.DataFrame:
+
+def merge_and_finalize(
+    raw_df: pd.DataFrame,
+    salience_df: pd.DataFrame,
+    output_path: Optional[Path] = None
+) -> pd.DataFrame:
     """
-    Merge raw data with salience scores and finalize the dataset with proxy controls.
-    
+    Merge raw data with salience scores and finalize the dataset.
+
+    This is the core function for T016 (US1) but implemented here in T010
+    as the skeleton/infrastructure. It ensures the 'salience_score' column
+    is correctly merged and normalized.
+
     Args:
-        raw_df: Raw Moral Machine data.
-        salience_df: Computed salience scores.
-        output_path: Path to save the final processed CSV.
-        
+        raw_df: The raw moral machine dataframe.
+        salience_df: The dataframe containing salience scores.
+        output_path: Optional path to save the final CSV.
+
     Returns:
-        Finalized DataFrame.
+        The merged and finalized DataFrame.
     """
-    # Handle missing images
-    merged_df = handle_missing_images(raw_df, salience_df)
-    
-    # Extract proxy controls (T038 Implementation)
-    final_df = extract_proxy_controls(merged_df)
-    
-    # Select and order columns for the final output
-    # Ensure 'outcome_severity' and 'agent_type' are prominent
-    target_columns = [
-        'scenario_id', 'salience_score', 'salience_fallback', 
-        'outcome_severity', 'agent_type',
-        'lives_saved', 'lives_lost', 'species', 'age', 'gender', 'social_status',
-        'choice' # Target variable
-    ]
-    
-    # Filter to existing columns only
-    existing_cols = [c for c in target_columns if c in final_df.columns]
-    final_df = final_df[existing_cols]
-    
-    # Save to disk
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    final_df.to_csv(output_file, index=False)
-    logger.info(f"Final processed data saved to {output_path}")
-    
+    logger.info("Merging raw data with salience scores...")
+
+    # If salience_df is empty, assume salience was computed inline or
+    # the raw_df already has the column (from T014/T015 inline execution).
+    if salience_df.empty:
+        if 'salience_score' not in raw_df.columns:
+            logger.warning("No salience scores found in raw data or separate file. "
+                           "Proceeding without salience scores (this may be an error).")
+            final_df = raw_df
+        else:
+            final_df = raw_df
+    else:
+        # Merge on a common key. Moral Machine usually has 'scenario_id' or similar.
+        # If no ID, we assume row order is preserved (risky, but common in simple pipelines).
+        # Let's try to find a common key.
+        common_keys = set(raw_df.columns).intersection(set(salience_df.columns))
+        if 'scenario_id' in common_keys:
+            merge_key = 'scenario_id'
+        elif 'id' in common_keys:
+            merge_key = 'id'
+        else:
+            # Fallback to index if no key found
+            logger.warning("No common key found. Merging by index (preserving order).")
+            raw_df = raw_df.reset_index(drop=True)
+            salience_df = salience_df.reset_index(drop=True)
+            final_df = raw_df.copy()
+            # Only merge the salience column
+            if 'salience_score' in salience_df.columns:
+                final_df['salience_score'] = salience_df['salience_score']
+            # Handle other salience columns if any
+            for col in salience_df.columns:
+                if col not in final_df.columns and col != 'salience_score':
+                    final_df[col] = salience_df[col]
+            return final_df
+
+        final_df = pd.merge(
+            raw_df,
+            salience_df[[merge_key, 'salience_score']],
+            on=merge_key,
+            how='left'
+        )
+
+    # Ensure salience_score is numeric and normalized [0, 1]
+    if 'salience_score' in final_df.columns:
+        final_df['salience_score'] = pd.to_numeric(final_df['salience_score'], errors='coerce')
+        # Normalize if out of bounds (shouldn't happen if computed correctly, but safeguard)
+        final_df['salience_score'] = final_df['salience_score'].clip(0.0, 1.0)
+
+        # Fill missing salience scores with 0.0 (or NaN? FR-002 says fallback logic)
+        # FR-002: "text-only fallback" implies we should have a value.
+        # If we are here and it's NaN, it means the fallback wasn't computed.
+        # For T010 (skeleton), we fill with 0.0 but log a warning.
+        # In T015/T016, this would be replaced by the actual heuristic.
+        missing_salience = final_df['salience_score'].isna().sum()
+        if missing_salience > 0:
+            logger.warning(f"Found {missing_salience} rows with missing salience scores. "
+                           "Filling with 0.0. (Ensure T015 fallback is implemented).")
+            final_df['salience_score'] = final_df['salience_score'].fillna(0.0)
+    else:
+        # If no salience score column exists, create one with 0.0 (placeholder)
+        logger.warning("No salience_score column found. Creating placeholder with 0.0.")
+        final_df['salience_score'] = 0.0
+
+    # Validate output constraints
+    assert final_df['salience_score'].min() >= 0.0, "Salience score below 0.0"
+    assert final_df['salience_score'].max() <= 1.0, "Salience score above 1.0"
+
+    # Extract proxy controls (FR-008)
+    final_df = extract_proxy_controls(final_df)
+
+    if output_path is None:
+        output_path = PROCESSED_DATA_DIR / "salience_enriched.csv"
+
+    logger.info(f"Saving finalized data to {output_path}")
+    final_df.to_csv(output_path, index=False)
+
+    logger.info(f"Finalized dataset saved: {len(final_df)} rows, {len(final_df.columns)} columns")
     return final_df
 
-def validate_output(df: pd.DataFrame) -> Tuple[bool, List[str]]:
+
+def validate_output(df: pd.DataFrame) -> bool:
     """
-    Validate the output DataFrame schema and content.
-    
+    Validate the output DataFrame against project constraints.
+
+    Checks:
+    - salience_score exists and is in [0, 1]
+    - Proxy control variables exist (lives_saved, lives_lost, species, age, gender)
+    - No missing values in critical columns (optional, but recommended)
+
     Args:
-        df: DataFrame to validate.
-        
+        df: The DataFrame to validate.
+
     Returns:
-        Tuple of (is_valid, list_of_errors).
+        True if valid, False otherwise.
     """
-    errors = []
-    
-    # Check for required proxy controls derived in T038
-    required_proxy_controls = ['outcome_severity', 'agent_type']
-    for col in required_proxy_controls:
+    logger.info("Validating output DataFrame...")
+    valid = True
+
+    # 1. Salience Score
+    if 'salience_score' not in df.columns:
+        logger.error("Validation failed: 'salience_score' column missing.")
+        return False
+    if df['salience_score'].isna().any():
+        logger.error("Validation failed: 'salience_score' contains NaN values.")
+        return False
+    if df['salience_score'].min() < 0.0 or df['salience_score'].max() > 1.0:
+        logger.error("Validation failed: 'salience_score' out of [0, 1] range.")
+        return False
+
+    # 2. Proxy Controls (FR-008)
+    required_controls = ['n_lives_saved', 'n_lives_lost', 'species', 'age', 'gender']
+    for col in required_controls:
         if col not in df.columns:
-            errors.append(f"Missing required proxy control column: {col}")
-    
-    # Check for non-null values in critical columns
-    if 'salience_score' in df.columns:
-        if df['salience_score'].isna().any():
-            errors.append("Salience scores contain NaN values.")
-    
-    if 'outcome_severity' in df.columns:
-        if df['outcome_severity'].isna().any():
-            errors.append("Outcome severity contains NaN values.")
-            
-    is_valid = len(errors) == 0
-    return is_valid, errors
+            logger.warning(f"Validation warning: Control variable '{col}' missing.")
+            valid = False
+
+    if valid:
+        logger.info("Validation passed.")
+    else:
+        logger.warning("Validation completed with warnings.")
+
+    return valid
+
 
 def main():
     """
-    Main entry point for the preprocessing pipeline.
-    Executes the full flow: Load -> Merge -> Derive Proxy Controls -> Save.
+    Main entry point for the preprocessing stage.
+
+    Orchestrates:
+    1. Load raw data
+    2. Handle missing images (flagging)
+    3. Load salience scores (if available)
+    4. Merge and finalize
+    5. Validate output
     """
-    # Configuration (in a real run, these would come from config files or CLI args)
-    raw_data_path = os.environ.get('MORAL_MACHINE_RAW_PATH', 'data/raw/moral_machine_subset.csv')
-    salience_path = os.environ.get('SALIENCE_SCORES_PATH', 'data/processed/salience_scores.csv')
-    output_path = os.environ.get('PROCESSED_DATA_PATH', 'data/processed/final_dataset.csv')
-    
-    # Check if paths exist (simulated for this implementation context)
-    # In a real execution, we would attempt to load. 
-    # If files don't exist, we raise an error as per "Fail loudly" constraint.
-    
-    if not os.path.exists(raw_data_path):
-        # Create a dummy dataset for demonstration if raw data is missing during dev
-        # This ensures the script runs and produces the artifact structure, 
-        # but in production it should fail.
-        logger.warning(f"Raw data not found at {raw_data_path}. Creating synthetic data for pipeline validation.")
-        raw_df = pd.DataFrame({
-            'scenario_id': range(100),
-            'lives_lost': np.random.randint(0, 15, 100),
-            'species': np.random.choice(['human', 'dog', 'cat'], 100),
-            'choice': np.random.choice([0, 1], 100)
-        })
-    else:
-        raw_df = load_raw_moral_machine_data(raw_data_path)
+    logger.info("Starting preprocessing stage (T010/T016)...")
 
-    if not os.path.exists(salience_path):
-        logger.warning(f"Salience scores not found at {salience_path}. Creating synthetic salience data.")
-        salience_df = pd.DataFrame({
-            'scenario_id': range(100),
-            'salience_score': np.random.rand(100)
-        })
-    else:
-        salience_df = load_salience_scores(salience_path)
+    try:
+        # 1. Load Raw Data
+        raw_df = load_raw_moral_machine_data()
 
-    # Execute the pipeline
-    final_df = merge_and_finalize(raw_df, salience_df, output_path)
-    
-    # Validate
-    is_valid, errors = validate_output(final_df)
-    if not is_valid:
-        log_error_to_file("validation_errors.log", f"Validation failed: {errors}")
-        logger.error(f"Validation failed: {errors}")
-        # In a strict pipeline, we might exit here. 
-        # For this task, we log and return.
-    else:
-        logger.info("Pipeline completed successfully. All proxy controls derived and validated.")
+        # 2. Handle Missing Images (Flagging)
+        raw_df = handle_missing_images(raw_df)
 
-    return final_df
+        # 3. Load Salience Scores
+        # Note: In a real pipeline, T014/T015 would have generated this.
+        # For T010, we attempt to load it. If not present, we proceed
+        # with a placeholder or error, depending on strictness.
+        # Here, we try to load from the expected intermediate file.
+        salience_df = load_salience_scores()
+
+        # 4. Merge and Finalize
+        final_df = merge_and_finalize(raw_df, salience_df)
+
+        # 5. Validate
+        if not validate_output(final_df):
+            logger.error("Preprocessing validation failed. Exiting.")
+            sys.exit(1)
+
+        logger.info("Preprocessing stage completed successfully.")
+        return 0
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during preprocessing: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

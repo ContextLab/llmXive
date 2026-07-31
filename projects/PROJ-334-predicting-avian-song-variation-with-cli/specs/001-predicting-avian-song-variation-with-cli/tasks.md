@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create directory structure at `projects/PROJ-334-predicting-avian-song-variation-with-cli/`, `data/`, `code/`, `tests/`
-- [ ] T001b [P] Create `requirements.txt` and `.gitignore` per implementation plan
+- [X] T001b [P] Create `requirements.txt` and `.gitignore` per implementation plan
 
 ---
 
@@ -79,18 +79,18 @@
 
 - [ ] T011 [US1] Implement `fetch_xeno_canto.py` to download real metadata (species_id, lat, lon) from Xeno-Canto API (referencing T009 for URL/version), record SHA256 checksum immediately to `data/checksums.txt`, and abort on fetch failure
 - [ ] T012 [US1] Implement `fetch_worldclim.py` to download real climate variables (temp, precip, elev) from WorldClim v2.1 (referencing T009 for URL/version), record SHA256 checksum immediately to `data/checksums.txt`, and abort on fetch failure
-- [~] T013 [US1] Implement `code/ingestion.py` to load raw CSVs, validate against `contracts/*.schema.yaml` (using T008 utilities), and handle coordinate reprojection (WGS84) using T008a utilities
+- [ ] T013 [US1] Implement `code/ingestion.py` to load raw CSVs, validate against `contracts/*.schema.yaml` (using T008 utilities), and handle coordinate reprojection (WGS84) using T008a utilities
 - [X] T014 [US1] Implement spatial join logic in `code/ingestion.py` to merge `SongRecord` and `ClimateSnapshot` by performing a spatial join within a 10km radius of coordinates and applying species-range mapping (since WorldClim lacks species_id)
-- [ ] T014a [US1] Implement species-range mapping logic in `code/ingestion.py` to map species IDs to geographic regions for the join
-- [ ] T015 [US1] Calculate and log match rate (matched/total) and verify no duplicates in `code/ingestion.py`
-- [ ] T016 [US1] Implement exclusion logic for unmatched species and logging of warnings in `code/ingestion.py`
+- [X] T014a [US1] Implement species-range mapping logic in `code/ingestion.py` to map species IDs to geographic regions for the join
+- [X] T015 [US1] Calculate and log match rate (matched/total) and verify no duplicates in `code/ingestion.py`
+- [X] T016 [US1] Implement exclusion logic for unmatched species and logging of warnings in `code/ingestion.py`
 - [ ] T017 [US1] Save the unified `AnalysisDataset` to `data/processed/analysis_dataset.csv` and update `data/checksums.txt`
 
 ### Tests for User Story 1
 
-- [ ] T018 [P] [US1] Unit test for coordinate reprojection logic in `tests/test_ingestion.py` (depends on T013 implementation)
-- [ ] T019 [P] [US1] Unit test for schema validation and join logic in `tests/test_ingestion.py` (depends on T013/T014 implementation)
-- [ ] T020 [P] [US1] Integration test for full ingestion pipeline (fetch -> join -> save) in `tests/test_ingestion.py` (depends on T011-T017 implementation)
+- [X] T018 [P] [US1] Unit test for coordinate reprojection logic in `tests/test_ingestion.py` (depends on T013 implementation)
+- [X] T019 [P] [US1] Unit test for schema validation and join logic in `tests/test_ingestion.py` (depends on T013/T014 implementation)
+- [X] T020 [P] [US1] Integration test for full ingestion pipeline (fetch -> join -> save) in `tests/test_ingestion.py` (depends on T011-T017 implementation)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

@@ -34,9 +34,43 @@ T008:
     listings showing the required structure. The task therefore remains unfinished.
 T015:
   c: false
-  h: a8f1658006d34a104c476c5bf9826c7e3b697255f21f4fc8378d67b9e39264e9
-  r: "The repository contains a `code/main.py` but the `generate_ingestion_summary`\
-    \ function uses a placeholder for peak counts and the pipeline never actually\
-    \ creates `data/processed/ingestion_summary.json` (the file is missing). Consequently\
-    \ the required output file with real per\u2011cell\u2011type peak counts is not\
-    \ present."
+  h: 92a8a9d3bc8cb5220cc19fd05982105169ba92457d3a9cdcb26dcd72cb236e04
+  r: "The repository contains a non\u2011empty `code/main.py` that defines `generate_ingestion_summary`,\
+    \ but the required output file `data/processed/ingestion_summary.json` is absent,\
+    \ indicating the orchestration logic has not been executed (or is incomplete).\
+    \ The missing summary JSON means the task\u2019s core deliverable was not produced."
+T024:
+  c: false
+  h: 361a929a5e98ac7300249fdb0d29ff5419cbf8f3903afd832a0a20793e0614c9
+  r: "The repository contains an updated `code/main.py` with a `generate_enrichment_matrix`\
+    \ function, but the required output file `data/processed/enrichment_matrix.csv`\
+    \ is absent, and the shown `main` function is truncated so it\u2019s unclear whether\
+    \ the orchestration actually runs the scanning/enrichment steps and writes the\
+    \ CSV. The missing CSV means the task\u2019s primary deliverable is not present."
+T028:
+  c: false
+  h: 9210c5692bdcf1de0bbc7d90844eda05ced5a20617272c9788a6808d070a228a
+  r: "The required output file `data/processed/heatmap.png` does not exist, so the\
+    \ task\u2019s deliverable is missing. (Even though `code/visualize.py` is present,\
+    \ the heatmap image was never generated.)"
+T032:
+  c: false
+  h: 2ee9301a9d3fea023345997efd9f4e2bb76a34d8cc8bd0a78b3d3eac3cb9f780
+  r: "The repository contains a partially shown `code/main.py`, but the shown code\
+    \ does not include any logic that creates `data/processed/validation_report.json`\
+    \ or performs the required validation/overlap statistics. Moreover, the file `data/processed/validation_report.json`\
+    \ is absent from the disk. The task\u2019s core output is therefore missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No actual `README.md` or `specs/001-gene-regulation/quickstart.md` content was
+    provided; without seeing the updated files we cannot confirm that the required
+    documentation changes were made. The implementer must supply the modified files
+    (or their contents) showing the documentation updates.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, diff, or documentation showing that any cleanup or refactoring of the\
+    \ gene\u2011regulation pipeline was performed; the only provided information is\
+    \ the original feature specification, with no artifacts indicating changes, linting,\
+    \ modularization, or tests. Consequently the required deliverable is missing."

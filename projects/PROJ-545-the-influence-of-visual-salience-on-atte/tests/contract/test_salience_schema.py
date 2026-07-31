@@ -1,63 +1,125 @@
 """
-Contract tests for US1: Data Ingestion and Salience Computation.
+Contract test: Verify `salience_score` column exists and is numeric in the
+preprocessed output.
 
-Specifically validates the schema and range constraints for salience scores
-produced by the preprocessing pipeline.
+This test validates the schema contract for User Story 1 (US1). It ensures that
+the pipeline produces a `data/processed/salience_enriched.csv` file where the
+`salience_score` column exists and contains valid numeric values (floats) within
+the expected range [0.0, 1.0].
+
+This test is designed to fail if the preprocessing stage (T016) has not been
+completed or if the output schema is violated.
 """
+
+import os
+import sys
 import pytest
 import pandas as pd
 from pathlib import Path
-import sys
-import os
 
-# Ensure code/ is importable
-_code_root = Path(__file__).parent.parent.parent / "code"
-if str(_code_root) not in sys.path:
-    sys.path.insert(0, str(_code_root))
+# Ensure the project root is in the path for imports if running directly
+# though typically pytest is run from the root.
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data" / "processed"
+OUTPUT_FILE = DATA_DIR / "salience_enriched.csv"
 
-from data_models import Scenario
-from utils.logger import get_logger
+REQUIRED_COLUMNS = ["salience_score"]
+MIN_SCORE = 0.0
+MAX_SCORE = 1.0
 
-logger = get_logger(__name__)
-
-
-def _load_processed_data() -> pd.DataFrame:
+@pytest.fixture(scope="module")
+def df_salience():
     """
-    Helper to load the processed salience data.
-    Expects data/processed/salience_scores.csv to exist (produced by T014).
+    Load the salience enriched dataset.
+    Raises FileNotFoundError or AssertionError if the file is missing or invalid.
     """
-    data_path = Path(__file__).parent.parent.parent / "data" / "processed" / "salience_scores.csv"
-    if not data_path.exists():
-        pytest.skip(f"Data file not found: {data_path}. Run preprocessing tasks first.")
-    return pd.read_csv(data_path)
+    if not OUTPUT_FILE.exists():
+        pytest.fail(
+            f"Contract test failed: Output file not found at {OUTPUT_FILE}. "
+            "Has T016 (preprocess) been run?"
+        )
+    
+    try:
+        df = pd.read_csv(OUTPUT_FILE)
+    except Exception as e:
+        pytest.fail(f"Contract test failed: Could not read CSV: {e}")
+    
+    return df
 
-
-def test_schema_validates_salience_score_range():
+class TestSalienceSchema:
     """
-    Contract test: Verify that every row in the processed dataset has a
-    numeric salience_score within the normalized range [0.0, 1.0].
-
-    This enforces the contract that the salience computation pipeline
-    (T013) and merging logic (T014) produce valid normalized scores.
+    Contract tests for the salience enriched data schema.
     """
-    df = _load_processed_data()
 
-    # Assert column exists
-    assert "salience_score" in df.columns, "Missing required column 'salience_score'"
+    def test_salience_score_column_exists(self, df_salience):
+        """
+        Verify that the `salience_score` column exists in the dataset.
+        """
+        missing_cols = [col for col in REQUIRED_COLUMNS if col not in df_salience.columns]
+        assert not missing_cols, (
+            f"Contract test failed: Missing required columns: {missing_cols}. "
+            "The `salience_score` column is required by FR-002."
+        )
 
-    # Assert numeric type
-    assert pd.api.types.is_numeric_dtype(df["salience_score"]), \
-        "Column 'salience_score' must be numeric"
+    def test_salience_score_is_numeric(self, df_salience):
+        """
+        Verify that the `salience_score` column contains numeric data.
+        """
+        score_col = df_salience["salience_score"]
+        
+        # Check if dtype is numeric
+        if not pd.api.types.is_numeric_dtype(score_col):
+            # Try to coerce to see if it's string-numeric
+            try:
+                score_col = pd.to_numeric(score_col, errors='raise')
+            except (ValueError, TypeError):
+                pytest.fail(
+                    f"Contract test failed: `salience_score` column is not numeric. "
+                    f"Found dtype: {score_col.dtype}"
+                )
 
-    # Assert range constraints [0.0, 1.0]
-    min_score = df["salience_score"].min()
-    max_score = df["salience_score"].max()
+    def test_salience_score_range_valid(self, df_salience):
+        """
+        Verify that all salience scores are within the range [0.0, 1.0].
+        """
+        score_col = pd.to_numeric(df_salience["salience_score"], errors='coerce')
+        
+        # Check for NaNs introduced by coercion (non-numeric values)
+        if score_col.isna().any():
+            pytest.fail(
+                "Contract test failed: `salience_score` contains non-numeric values "
+                "that could not be coerced."
+            )
 
-    assert min_score >= 0.0, f"Salience score minimum {min_score} is below 0.0"
-    assert max_score <= 1.0, f"Salience score maximum {max_score} is above 1.0"
+        min_val = score_col.min()
+        max_val = score_col.max()
 
-    # Assert no NaN values in the score column (schema validity)
-    assert not df["salience_score"].isna().any(), \
-        "Found NaN values in 'salience_score' column"
+        assert min_val >= MIN_SCORE, (
+            f"Contract test failed: Minimum salience score {min_val} is below "
+            f"allowed minimum {MIN_SCORE}."
+        )
+        assert max_val <= MAX_SCORE, (
+            f"Contract test failed: Maximum salience score {max_val} is above "
+            f"allowed maximum {MAX_SCORE}."
+        )
 
-    logger.info(f"Schema validation passed: {len(df)} rows, range [{min_score:.4f}, {max_score:.4f}]")
+    def test_salience_score_not_all_null(self, df_salience):
+        """
+        Verify that the `salience_score` column is not entirely empty.
+        """
+        score_col = df_salience["salience_score"]
+        valid_count = score_col.notna().sum()
+        
+        assert valid_count > 0, (
+            "Contract test failed: `salience_score` column is entirely empty. "
+            "At least one valid score is expected."
+        )
+
+    def test_salience_score_has_no_infinite_values(self, df_salience):
+        """
+        Verify that the `salience_score` column contains no infinite values.
+        """
+        score_col = pd.to_numeric(df_salience["salience_score"], errors='coerce')
+        assert not score_col.isin([float('inf'), float('-inf')]).any(), (
+            "Contract test failed: `salience_score` contains infinite values."
+        )

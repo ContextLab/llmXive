@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `paper/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, pandas, opencv-python, scikit-learn, numba)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, pandas, opencv-python, scikit-learn, numba)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `code/data/__init__.py` and `code/models/__init__.py`
-- [ ] T005 [P] Create `code/data/download.py` skeleton (do not fetch data yet)
-- [ ] T006 [P] Create `code/data/salience.py` skeleton for ITTI/GBVS and text-heuristic computation (FR-002)
-- [ ] T007 [P] Create `code/models/addm.py` skeleton for choice-only aDDM implementation (FR-003)
-- [ ] T008 [P] Setup `code/main.py` entry point with argument parsing for pipeline stages
+- [X] T004 [P] Create `code/data/__init__.py` and `code/models/__init__.py`
+- [X] T005 [P] Create `code/data/download.py` skeleton (do not fetch data yet)
+- [X] T006 [P] Create `code/data/salience.py` skeleton for ITTI/GBVS and text-heuristic computation (FR-002)
+- [X] T007 [P] Create `code/models/addm.py` skeleton for choice-only aDDM implementation (FR-003)
+- [X] T008 [P] Setup `code/main.py` entry point with argument parsing for pipeline stages
 - [ ] T009 [P] Configure `pytest` with contract test fixtures for schema validation
-- [ ] T010 [P] [FR-008] Create `code/data/preprocess.py` skeleton to handle proxy control variables (lives saved/lost, species, age, gender) for FR-008
+- [X] T010 [P] [FR-008] Create `code/data/preprocess.py` skeleton to handle proxy control variables (lives saved/lost, species, age, gender) for FR-008
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,14 +77,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Contract test: Verify `salience_score` column exists and is numeric in `tests/contract/test_salience_schema.py`
-- [ ] T012 [P] [US1] Unit test: Verify text-only heuristic returns valid score when image URL is broken in `tests/unit/test_salience_fallback.py`
+- [X] T011 [P] [US1] Contract test: Verify `salience_score` column exists and is numeric in `tests/contract/test_salience_schema.py`
+- [X] T012 [P] [US1] Unit test: Verify text-only heuristic returns valid score when image URL is broken in `tests/unit/test_salience_fallback.py`
 
 ### Implementation for User Story 1
 
 - [ ] T013 [P] [US1] Implement `code/data/download.py`: Fetch Moral Machine CSV, subset to ≤ 50,000 rows using stratified sampling (by outcome and species) with seed=42, save to `data/raw/moral_machine_subset.csv` (FR-001)
-- [ ] T014 [P] [US1] Implement `code/data/salience.py`: Visual salience using ITTI/GBVS (OpenCV) for image stimuli, normalize to 0.0–1.0 (FR-002)
-- [ ] T015 [US1] Implement `code/data/salience.py`: Text-salience heuristic (word frequency + position) for text-only stimuli, normalize to 0.0–1.0, and implement fallback logic for broken image URLs (FR-002, Edge Case)
+- [X] T014 [P] [US1] Implement `code/data/salience.py`: Visual salience using ITTI/GBVS (OpenCV) for image stimuli, normalize to 0.0–1.0 (FR-002)
+- [X] T015 [US1] Implement `code/data/salience.py`: Text-salience heuristic (word frequency + position) for text-only stimuli, normalize to 0.0–1.0, and implement fallback logic for broken image URLs (FR-002, Edge Case)
 - [ ] T016 [US1] Implement `code/data/preprocess.py`: Merge raw data with salience scores (visual/text/fallback) into a single `salience_score` column (0.0–1.0) and output `data/processed/salience_enriched.csv`. Assert max(salience_score) <= 1.0 and min >= 0.0 (US-001, FR-002)
 - [ ] T017 [US1] Add logging for salience computation failures and fallback triggers
 
@@ -159,8 +159,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -228,11 +228,11 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data)
-   - Developer B: User Story 2 (Model)
-   - Developer C: User Story 3 (Analysis)
+ - Developer A: User Story 1 (Data)
+ - Developer B: User Story 2 (Model)
+ - Developer C: User Story 3 (Analysis)
 3. Once US1/US2/US3 complete:
-   - Team: Polish & Cross-Cutting Concerns
+ - Team: Polish & Cross-Cutting Concerns
 4. Stories complete and integrate independently
 
 ---

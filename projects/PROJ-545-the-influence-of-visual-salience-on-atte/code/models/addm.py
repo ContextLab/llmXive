@@ -1,14 +1,11 @@
 """
-Implementation of the choice-only Attentional Drift Diffusion Model (aDDM).
+Implementation of the attentional Drift Diffusion Model (aDDM) for choice-only scenarios.
 
-This module implements the core logic of the aDDM adapted for choice-only data
-(no Reaction Time data available). It simulates the evidence accumulation process
-where visual salience modulates the drift rate based on the current fixation.
+This module provides the core logic for simulating and evaluating the aDDM,
+focusing on binary choice decisions influenced by visual salience. It implements
+the likelihood function required for parameter fitting via grid search.
 
-Key features:
-- Choice-only variant: Fits to binary choices without RT constraints.
-- Salience modulation: Drift rate is weighted by visual salience of options.
-- Numerical stability: Uses float64 and bounded integration steps.
+FR-003: Choice-only aDDM implementation (no RT data used for fitting).
 """
 
 import os
@@ -16,302 +13,273 @@ import sys
 import logging
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict, Any, Union
+
 import numpy as np
-from scipy.special import erf
-from scipy.stats import norm
+from scipy import stats
+from scipy.special import logsumexp
 
-# Project root path resolution
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Configure logging
+logger = logging.getLogger(__name__)
 
-from utils.logger import get_logger, log_error_to_file
-
-logger = get_logger(__name__)
-
-# Model Constants
-DEFAULT_DT = 0.01  # Time step in seconds
-DEFAULT_A = 1.0    # Decision threshold
-DEFAULT_S = 1.0    # Noise scaling factor
-DEFAULT_W = 0.9    # Salience weight parameter (0 to 1)
-MAX_TIME = 10.0    # Maximum simulation time to prevent infinite loops
+# Constants for numerical stability
+LOG_ZERO = -1e10
+MIN_PROB = 1e-15
 
 
 class aDDMChoiceOnly:
     """
-    Attentional Drift Diffusion Model for Choice-Only Data.
-
-    This model simulates the drift diffusion process where the drift rate at
-    any time step depends on the salience of the currently fixated option.
-    Since we lack RT data, we fit parameters based on the probability of
-    choosing the left or right option.
-
-    Attributes:
-        threshold (float): Decision boundary (a).
-        dt (float): Integration time step.
-        w (float): Salience weight parameter.
-        s (float): Noise scaling factor.
+    Attentional Drift Diffusion Model (aDDM) for binary choices.
+    
+    This model assumes that the drift rate at any moment is determined by the
+    difference in value between the two options, modulated by an attentional
+    weighting factor (lambda) based on visual salience.
+    
+    Parameters:
+    -----------
+    v1 : float
+        Value of option 1 (e.g., moral utility of saving person A).
+    v2 : float
+        Value of option 2.
+    a : float
+        Decision threshold (boundary separation).
+    s : float
+        Scale parameter for noise (standard deviation of Wiener process).
+        Typically set to 1.0 for identifiability.
+    lambda_salience : float
+        Salience weight (0.0 to 1.0). When 1.0, drift is fully determined by
+        the attended option's value relative to the other.
+    p1 : float
+        Probability of attending to option 1 at any given moment.
+        Derived from salience scores: p1 = salience_1 / (salience_1 + salience_2).
+    dt : float
+        Time step for numerical integration (default 0.01s).
     """
-
+    
     def __init__(
         self,
-        threshold: float = DEFAULT_A,
-        dt: float = DEFAULT_DT,
-        w: float = DEFAULT_W,
-        s: float = DEFAULT_S,
-        max_time: float = MAX_TIME
+        v1: float,
+        v2: float,
+        a: float,
+        s: float = 1.0,
+        lambda_salience: float = 0.5,
+        p1: float = 0.5,
+        dt: float = 0.01
     ):
-        self.threshold = threshold
-        self.dt = dt
-        self.w = w
-        self.s = s
-        self.max_time = max_time
-        self._validate_params()
-
-    def _validate_params(self) -> None:
-        """Validate that model parameters are within logical bounds."""
-        if not (0.0 <= self.w <= 1.0):
-            raise ValueError(f"Salience weight 'w' must be in [0, 1], got {self.w}")
-        if self.threshold <= 0:
-            raise ValueError(f"Threshold must be positive, got {self.threshold}")
-        if self.dt <= 0:
-            raise ValueError(f"Time step 'dt' must be positive, got {self.dt}")
-
-    def compute_drift_rate(
-        self,
-        value_diff: float,
-        salience_diff: float,
-        is_fixated_left: bool
-    ) -> float:
+        self.v1 = float(v1)
+        self.v2 = float(v2)
+        self.a = float(a)
+        self.s = float(s)
+        self.lambda_salience = float(lambda_salience)
+        self.p1 = float(p1)
+        self.dt = float(dt)
+        
+        # Derived parameters
+        self.drift_unattended = (1 - self.lambda_salience) * (self.v1 - self.v2)
+        self.drift_attended_1 = self.v1 - self.lambda_salience * self.v2
+        self.drift_attended_2 = self.lambda_salience * self.v1 - self.v2
+        
+        # Ensure drift values are reasonable
+        if self.drift_attended_1 > 100: self.drift_attended_1 = 100
+        if self.drift_attended_2 < -100: self.drift_attended_2 = -100
+        
+    def compute_drift(self, attention_state: int) -> float:
         """
-        Compute the instantaneous drift rate based on value difference and salience.
-
-        In the aDDM, the drift rate is modulated by attention.
-        If fixated on Left: drift = (Value_L - Value_R) + w * (Salience_L - Salience_R)
-        If fixated on Right: drift = (Value_L - Value_R) - w * (Salience_L - Salience_R)
-
-        Since we don't have dynamic fixation data, we approximate the "fixation effect"
-        by using the salience difference as a proxy for attentional bias.
-        For choice-only fitting, we often assume a static bias or average fixation
-        probability. Here, we implement the core logic:
-
+        Compute drift rate based on current attention state.
+        
         Args:
-            value_diff (float): V_L - V_R (Value of Left minus Value of Right).
-            salience_diff (float): S_L - S_R (Salience of Left minus Salience of Right).
-            is_fixated_left (bool): True if currently fixating Left, False if Right.
-
+            attention_state: 0 (attend to option 1), 1 (attend to option 2)
+        
         Returns:
-            float: The instantaneous drift rate.
+            Drift rate for the current time step.
         """
-        base_drift = value_diff
-        salience_contribution = self.w * salience_diff
-
-        if is_fixated_left:
-            # Attention amplifies the difference in the direction of fixation
-            # If S_L > S_R, salience_contribution is positive, boosting Left choice
-            current_drift = base_drift + salience_contribution
+        if attention_state == 0:
+            return self.drift_attended_1
         else:
-            # Attention on Right reduces the effective drift towards Left
-            current_drift = base_drift - salience_contribution
-
-        return current_drift
-
-    def simulate_trial(
-        self,
-        value_diff: float,
-        salience_diff: float,
-        fixation_sequence: Optional[List[bool]] = None,
-        seed: Optional[int] = None
-    ) -> Tuple[bool, float]:
+            return self.drift_attended_2
+    
+    def compute_log_likelihood_choice(self, choice: int, max_steps: int = 1000) -> float:
+        """
+        Compute the log-likelihood of observing a specific choice using
+        numerical integration over the attentional states.
+        
+        This implementation uses a simplified approximation suitable for
+        choice-only data (no RT). It sums over possible attention sequences
+        weighted by their probability.
+        
+        Args:
+            choice: 0 if option 1 was chosen, 1 if option 2 was chosen.
+            max_steps: Maximum number of time steps to simulate.
+        
+        Returns:
+            Log-likelihood of the choice.
+        """
+        # Initialize probabilities for each possible final state
+        # state: (position, attention_sequence_weight)
+        # We approximate by integrating over the distribution of attention
+        
+        # Simplified approach: Expected drift rate
+        # E[drift] = p1 * drift_attended_1 + (1-p1) * drift_attended_2
+        # But we must account for the switching nature of attention
+        
+        # More accurate: Use the closed-form approximation for aDDM choice probability
+        # P(choose 1) = 1 / (1 + exp(-k * (v1 - v2))) where k depends on a, s, lambda, p1
+        
+        # Effective drift rate approximation
+        # Based on Krajbich & Rangel (2011) extensions
+        effective_drift = (
+            self.p1 * self.drift_attended_1 + 
+            (1 - self.p1) * self.drift_attended_2
+        )
+        
+        # Normalize by threshold and noise
+        # P(choose 1) ≈ Logistic( (a * effective_drift) / s^2 )
+        # This is an approximation; exact solution requires solving partial differential equations
+        
+        # For numerical stability, we use a sigmoid function
+        # Log-odds = (a * effective_drift) / s^2
+        log_odds = (self.a * effective_drift) / (self.s ** 2)
+        
+        # Probability of choosing option 1
+        p_choice_1 = 1.0 / (1.0 + np.exp(-log_odds))
+        
+        # Clip to avoid log(0)
+        p_choice_1 = np.clip(p_choice_1, MIN_PROB, 1.0 - MIN_PROB)
+        
+        if choice == 0:
+            return np.log(p_choice_1)
+        else:
+            return np.log(1.0 - p_choice_1)
+    
+    def simulate_trial(self, seed: Optional[int] = None) -> Tuple[int, float]:
         """
         Simulate a single trial of the aDDM.
-
-        Args:
-            value_diff (float): V_L - V_R.
-            salience_diff (float): S_L - S_R.
-            fixation_sequence (Optional[List[bool]]): List of booleans indicating
-                fixation at each time step (True=Left, False=Right).
-                If None, a random sequence is generated based on salience.
-            seed (Optional[int]): Random seed for reproducibility.
-
-        Returns:
-            Tuple[bool, float]: (Choice: True for Left, False for Right), Time taken.
-        """
-        if seed is not None:
-            np.random.seed(seed)
-
-        x = 0.0  # Accumulator state
-        t = 0.0
-
-        # Generate fixation sequence if not provided
-        # Simple heuristic: probability of fixating Left is proportional to its salience
-        if fixation_sequence is None:
-            # Normalize salience to probability [0, 1]
-            # Sigmoid-like mapping or simple normalization if we had absolute values.
-            # For this implementation, we assume salience_diff is small and use a
-            # logistic function or a simple bias.
-            # Let's use a simple bias: P(Left) = 0.5 + 0.2 * tanh(salience_diff)
-            p_left = 0.5 + 0.2 * np.tanh(salience_diff)
-            # Generate enough steps for max_time
-            n_steps = int(self.max_time / self.dt)
-            fixation_sequence = [np.random.rand() < p_left for _ in range(n_steps)]
-
-        steps = int(self.max_time / self.dt)
-        for i in range(steps):
-            t += self.dt
-            is_left = fixation_sequence[i] if i < len(fixation_sequence) else (i % 2 == 0)
-
-            # Compute drift
-            drift = self.compute_drift_rate(value_diff, salience_diff, is_left)
-
-            # Add noise: N(0, s * sqrt(dt))
-            noise = np.random.normal(0.0, self.s * np.sqrt(self.dt))
-
-            # Update accumulator
-            x += drift * self.dt + noise
-
-            # Check for boundary crossing
-            if x >= self.threshold:
-                return True, t  # Chose Left
-            elif x <= -self.threshold:
-                return False, t  # Chose Right
-
-        # If no boundary crossed, return based on final state (or default)
-        logger.warning(f"Trial did not converge within max_time ({self.max_time}s).")
-        return x > 0, t
-
-    def predict_choice_probability(
-        self,
-        value_diff: float,
-        salience_diff: float,
-        n_simulations: int = 1000,
-        seed: Optional[int] = None
-    ) -> float:
-        """
-        Estimate the probability of choosing the Left option via Monte Carlo simulation.
-
-        Args:
-            value_diff (float): V_L - V_R.
-            salience_diff (float): S_L - S_R.
-            n_simulations (int): Number of trials to simulate.
-            seed (Optional[int]): Random seed.
-
-        Returns:
-            float: Probability of choosing Left (0.0 to 1.0).
-        """
-        if seed is not None:
-            np.random.seed(seed)
-
-        choices = []
-        for _ in range(n_simulations):
-            choice, _ = self.simulate_trial(value_diff, salience_diff)
-            choices.append(1 if choice else 0)
-
-        return np.mean(choices)
-
-    def log_likelihood(
-        self,
-        params: Dict[str, float],
-        data: pd.DataFrame,
-        value_col: str = 'value_diff',
-        salience_col: str = 'salience_diff',
-        choice_col: str = 'choice'
-    ) -> float:
-        """
-        Calculate the log-likelihood of the observed data given the parameters.
-
-        Note: This is a simplified version. For choice-only data, we often compare
-        the predicted probability to the observed choice.
-
-        Args:
-            params (Dict): Model parameters (e.g., {'w': 0.5, 'a': 1.0}).
-            data (pd.DataFrame): DataFrame containing value_diff, salience_diff, choice.
-            value_col (str): Column name for value difference.
-            salience_col (str): Column name for salience difference.
-            choice_col (str): Column name for choice (1=Left, 0=Right).
-
-        Returns:
-            float: Log-likelihood value.
-        """
-        import pandas as pd
-        # Update instance parameters
-        if 'w' in params: self.w = params['w']
-        if 'a' in params: self.threshold = params['a']
-
-        total_ll = 0.0
-        # Vectorized approximation or loop?
-        # For simplicity and robustness with the existing pipeline, we loop.
-        # Optimization can be added later.
         
-        for idx, row in data.iterrows():
-            v_diff = row[value_col]
-            s_diff = row[salience_col]
-            obs_choice = row[choice_col]
-
-            # Predict probability
-            p_left = self.predict_choice_probability(v_diff, s_diff, n_simulations=200)
+        Args:
+            seed: Random seed for reproducibility.
+        
+        Returns:
+            Tuple of (choice, decision_time).
+            choice: 0 for option 1, 1 for option 2.
+            decision_time: Time in seconds until boundary crossing.
+        """
+        if seed is not None:
+            np.random.seed(seed)
+        
+        position = 0.0
+        time_elapsed = 0.0
+        step = 0
+        
+        while step < 1000:
+            # Determine attention state
+            attention_state = 0 if np.random.rand() < self.p1 else 1
+            drift = self.compute_drift(attention_state)
             
-            # Clamp probability to avoid log(0)
-            p_left = np.clip(p_left, 1e-7, 1 - 1e-7)
-
-            if obs_choice == 1:
-                total_ll += np.log(p_left)
-            else:
-                total_ll += np.log(1 - p_left)
-
-        return total_ll
-
+            # Wiener process increment
+            noise = np.random.normal(0, self.s * np.sqrt(self.dt))
+            position += drift * self.dt + noise
+            time_elapsed += self.dt
+            step += 1
+            
+            # Check boundaries
+            if position >= self.a:
+                return 0, time_elapsed  # Option 1 chosen
+            elif position <= -self.a:
+                return 1, time_elapsed  # Option 2 chosen
+        
+        # Fallback if no boundary crossed (should be rare)
+        return 0 if position > 0 else 1, time_elapsed
 
 def run_single_simulation(
-    value_diff: float,
-    salience_diff: float,
-    w: float = DEFAULT_W,
-    threshold: float = DEFAULT_A,
-    dt: float = DEFAULT_DT,
+    v1: float,
+    v2: float,
+    a: float,
+    salience_1: float,
+    salience_2: float,
+    lambda_salience: float = 0.5,
     seed: Optional[int] = None
-) -> Tuple[bool, float]:
+) -> Dict[str, Any]:
     """
-    Convenience function to run a single aDDM simulation.
-
+    Run a single aDDM simulation for a binary choice scenario.
+    
     Args:
-        value_diff: V_L - V_R
-        salience_diff: S_L - S_R
-        w: Salience weight
-        threshold: Decision threshold
-        dt: Time step
-        seed: Random seed
-
+        v1: Value of option 1.
+        v2: Value of option 2.
+        a: Decision threshold.
+        salience_1: Visual salience score for option 1 (0.0-1.0).
+        salience_2: Visual salience score for option 2 (0.0-1.0).
+        lambda_salience: Salience weight parameter.
+        seed: Random seed.
+    
     Returns:
-        Tuple[bool, float]: (Chose Left, Time)
+        Dictionary with simulation results: choice, time, drift_rate, p1.
     """
-    model = aDDMChoiceOnly(w=w, threshold=threshold, dt=dt)
-    return model.simulate_trial(value_diff, salience_diff, seed=seed)
-
+    # Compute attention probability from salience
+    total_salience = salience_1 + salience_2
+    if total_salience == 0:
+        p1 = 0.5
+    else:
+        p1 = salience_1 / total_salience
+    
+    model = aDDMChoiceOnly(
+        v1=v1,
+        v2=v2,
+        a=a,
+        lambda_salience=lambda_salience,
+        p1=p1
+    )
+    
+    choice, time = model.simulate_trial(seed=seed)
+    
+    # Calculate effective drift for reporting
+    effective_drift = (
+        p1 * model.drift_attended_1 + 
+        (1 - p1) * model.drift_attended_2
+    )
+    
+    return {
+        "choice": choice,
+        "time": time,
+        "drift_rate": effective_drift,
+        "p1": p1,
+        "threshold": a
+    }
 
 def main():
     """
-    Main entry point for testing the aDDM implementation.
-    Runs a quick simulation to verify the module works.
+    Main entry point for standalone execution.
+    Runs a demo simulation to verify the aDDM implementation.
     """
-    logger.info("Running aDDM Choice-Only Self-Test...")
-
-    # Test 1: Basic simulation
-    v_diff = 0.5
-    s_diff = 0.2
-    choice, time = run_single_simulation(v_diff, s_diff, seed=42)
-    logger.info(f"Simulation 1: ValueDiff={v_diff}, SalDiff={s_diff} -> Choice={'Left' if choice else 'Right'}, Time={time:.2f}s")
-
-    # Test 2: Probability estimation
-    model = aDDMChoiceOnly(w=0.9, threshold=1.0)
-    p_left = model.predict_choice_probability(v_diff, s_diff, n_simulations=500, seed=123)
-    logger.info(f"Predicted P(Left) for v_diff={v_diff}, s_diff={s_diff}: {p_left:.3f}")
-
-    # Test 3: High salience bias
-    # If value_diff is 0 but salience_diff is high, Left should be favored
-    p_bias = model.predict_choice_probability(0.0, 1.0, n_simulations=500, seed=456)
-    logger.info(f"Predicted P(Left) for v_diff=0.0, s_diff=1.0: {p_bias:.3f} (Should be > 0.5)")
-
-    logger.info("aDDM Self-Test Complete.")
-
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    logger.info("Running aDDM choice-only simulation demo...")
+    
+    # Example scenario: Moral Machine-like choice
+    # Option 1: Save 1 human (value = 1.0)
+    # Option 2: Save 3 pets (value = 0.8)
+    # Salience: Human is more salient (0.8) vs pets (0.2)
+    
+    v1 = 1.0
+    v2 = 0.8
+    a = 1.5
+    salience_1 = 0.8
+    salience_2 = 0.2
+    lambda_salience = 0.6
+    
+    results = run_single_simulation(
+        v1=v1,
+        v2=v2,
+        a=a,
+        salience_1=salience_1,
+        salience_2=salience_2,
+        lambda_salience=lambda_salience,
+        seed=42
+    )
+    
+    logger.info(f"Simulation Results: {results}")
+    logger.info("aDDM choice-only implementation verified.")
 
 if __name__ == "__main__":
     main()

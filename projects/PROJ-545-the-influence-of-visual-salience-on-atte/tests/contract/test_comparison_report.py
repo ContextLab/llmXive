@@ -1,171 +1,154 @@
 """
-Contract test for comparison report schema.
-Validates that the output of code/analysis/compare.py adheres to the required schema.
+Contract test for the comparison report schema.
+Verifies that the sensitivity report and comparison analysis outputs
+contain the required metrics.
 """
 import os
 import sys
 import json
 import pytest
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from code.utils.logger import get_logger
+# Constants for schema validation
+SENSITIVITY_THRESHOLDS = [0.01, 0.05, 0.10]
+REQUIRED_REPORT_KEYS = ['log_likelihood', 'AIC', 'BIC']
 
-logger = get_logger(__name__)
 
-# Expected schema structure based on T026/T027/T028 requirements
-# The report must contain:
-# 1. Model comparison metrics (AIC, BIC, Log-Likelihood)
-# 2. Sensitivity analysis results (threshold sweeps)
-# 3. Statistical significance (p-values with Bonferroni correction)
-# 4. Philosophical framing metrics (Spectacle vs Good, Outcome Effect)
-REQUIRED_TOP_LEVEL_KEYS = [
-    "model_comparison",
-    "sensitivity_analysis",
-    "statistical_significance",
-    "philosophical_metrics",
-    "metadata"
-]
-
-MODEL_COMPARISON_KEYS = [
-    "baseline_model",
-    "salience_augmented_model",
-    "aic_difference",
-    "bic_difference",
-    "log_likelihood_baseline",
-    "log_likelihood_salience",
-    "cv_folds",
-    "convergence_rate"
-]
-
-SENSITIVITY_KEYS = [
-    "threshold_sweep",
-    "log_likelihood_variation",
-    "aic_variation"
-]
-
-STAT_SIG_KEYS = [
-    "tests_performed",
-    "bonferroni_corrected_p_values",
-    "significance_threshold"
-]
-
-PHILOSOPHICAL_KEYS = [
-    "spectacle_vs_good_correlation",
-    "outcome_effect_size",
-    "salience_effect_size"
-]
-
-METADATA_KEYS = [
-    "run_timestamp",
-    "data_version",
-    "model_parameters",
-    "notes"
-]
-
-def load_sample_report(report_path: str = None):
+def load_test_artifact(path: str) -> Dict[str, Any]:
     """
-    Loads a sample comparison report.
-    If report_path is provided, loads from disk.
-    Otherwise, generates a minimal valid structure for schema validation.
+    Helper to load a JSON artifact for testing.
     """
-    if report_path and os.path.exists(report_path):
-        with open(report_path, 'r') as f:
-            return json.load(f)
+    full_path = project_root / path
+    if not full_path.exists():
+        raise FileNotFoundError(f"Contract test artifact not found: {full_path}")
     
-    # Generate a minimal valid structure for testing schema
-    return {
-        "model_comparison": {
-            "baseline_model": "aDDM_Standard",
-            "salience_augmented_model": "aDDM_Salience",
-            "aic_difference": 12.5,
-            "bic_difference": 15.2,
-            "log_likelihood_baseline": -450.0,
-            "log_likelihood_salience": -435.0,
-            "cv_folds": 5,
-            "convergence_rate": 0.98
-        },
-        "sensitivity_analysis": {
-            "threshold_sweep": [0.1, 0.2, 0.3, 0.4, 0.5],
-            "log_likelihood_variation": [-435.0, -436.0, -438.0, -440.0, -442.0],
-            "aic_variation": [870.0, 872.0, 876.0, 880.0, 884.0]
-        },
-        "statistical_significance": {
-            "tests_performed": 4,
-            "bonferroni_corrected_p_values": [0.001, 0.015, 0.04, 0.08],
-            "significance_threshold": 0.05
-        },
-        "philosophical_metrics": {
-            "spectacle_vs_good_correlation": 0.65,
-            "outcome_effect_size": 0.12,
-            "salience_effect_size": 0.08
-        },
-        "metadata": {
-            "run_timestamp": "2026-05-16T12:00:00Z",
-            "data_version": "v1.0",
-            "model_parameters": {"grid_steps": 11},
-            "notes": "Test report"
-        }
-    }
+    with open(full_path, 'r') as f:
+        return json.load(f)
 
-def test_report_schema():
+
+class TestComparisonReportSchema:
     """
-    Contract test: Validates the schema of the comparison report.
-    Ensures all required keys are present and have expected data types.
+    Contract test suite for User Story 3: Model Comparison and Sensitivity Analysis.
     """
-    report = load_sample_report()
 
-    # Check top-level keys
-    for key in REQUIRED_TOP_LEVEL_KEYS:
-        assert key in report, f"Missing required top-level key: {key}"
+    def test_sensitivity_report_contains_metrics(self):
+        """
+        Contract test: Verify sensitivity report contains log-likelihood and AIC 
+        for all threshold values.
+        """
+        # We expect a JSON report from the sensitivity analysis (T030)
+        # The path might be data/processed/sensitivity_report.json or similar
+        # Assuming a standard location based on project structure
+        artifact_path = "data/processed/sensitivity_report.json"
+        
+        try:
+            report = load_test_artifact(artifact_path)
+        except FileNotFoundError:
+            pytest.skip(
+                f"Artifact {artifact_path} not found. "
+                "This is expected if T030 (sensitivity) has not been run yet."
+            )
 
-    # Check model_comparison structure
-    assert isinstance(report["model_comparison"], dict)
-    for key in MODEL_COMPARISON_KEYS:
-        assert key in report["model_comparison"], f"Missing key in model_comparison: {key}"
-    
-    # Verify numeric types for metrics
-    assert isinstance(report["model_comparison"]["aic_difference"], (int, float))
-    assert isinstance(report["model_comparison"]["bic_difference"], (int, float))
-    assert isinstance(report["model_comparison"]["convergence_rate"], (int, float))
+        # Structure check: usually a list of dicts or a dict of dicts keyed by threshold
+        # Assuming a list of results for each threshold
+        if isinstance(report, dict):
+            # If it's a dict, check if keys are thresholds
+            keys = list(report.keys())
+            if not all(isinstance(k, (int, float)) for k in keys):
+                # Maybe it's nested
+                if 'results' in report:
+                    report = report['results']
+                else:
+                    # Fallback: assume the dict itself has the keys
+                    pass
 
-    # Check sensitivity_analysis structure
-    assert isinstance(report["sensitivity_analysis"], dict)
-    for key in SENSITIVITY_KEYS:
-        assert key in report["sensitivity_analysis"], f"Missing key in sensitivity_analysis: {key}"
-    
-    # Verify lists for sweep data
-    assert isinstance(report["sensitivity_analysis"]["threshold_sweep"], list)
-    assert isinstance(report["sensitivity_analysis"]["log_likelihood_variation"], list)
+        # Ensure we have entries for the specific thresholds
+        found_thresholds = []
+        if isinstance(report, list):
+            for entry in report:
+                if isinstance(entry, dict):
+                    # Look for a threshold key
+                    thresh = entry.get('threshold') or entry.get('cutoff')
+                    if thresh is not None:
+                        found_thresholds.append(thresh)
+        elif isinstance(report, dict):
+            # If keys are thresholds
+            found_thresholds = [float(k) for k in report.keys() if isinstance(k, (int, float))]
 
-    # Check statistical_significance structure
-    assert isinstance(report["statistical_significance"], dict)
-    for key in STAT_SIG_KEYS:
-        assert key in report["statistical_significance"], f"Missing key in statistical_significance: {key}"
-    
-    # Verify Bonferroni logic (p-values should be between 0 and 1)
-    p_values = report["statistical_significance"]["bonferroni_corrected_p_values"]
-    assert all(0.0 <= p <= 1.0 for p in p_values), "P-values must be between 0 and 1"
+        # Check that we have at least the required thresholds
+        # (The task asks for {0.01, 0.05, 0.10})
+        for target_thresh in SENSITIVITY_THRESHOLDS:
+            # Allow small float tolerance
+            found = any(abs(f - target_thresh) < 1e-6 for f in found_thresholds)
+            assert found, (
+                f"Contract violation: Sensitivity report missing threshold {target_thresh}. "
+                f"Found thresholds: {found_thresholds}"
+            )
 
-    # Check philosophical_metrics structure
-    assert isinstance(report["philosophical_metrics"], dict)
-    for key in PHILOSOPHICAL_KEYS:
-        assert key in report["philosophical_metrics"], f"Missing key in philosophical_metrics: {key}"
-    
-    # Verify correlation coefficient range
-    corr = report["philosophical_metrics"]["spectacle_vs_good_correlation"]
-    assert -1.0 <= corr <= 1.0, "Correlation coefficient must be between -1 and 1"
+    def test_sensitivity_report_has_required_metrics(self):
+        """
+        Contract test: Verify each sensitivity entry contains log-likelihood and AIC.
+        """
+        artifact_path = "data/processed/sensitivity_report.json"
+        
+        try:
+            report = load_test_artifact(artifact_path)
+        except FileNotFoundError:
+            pytest.skip(
+                f"Artifact {artifact_path} not found. "
+                "This is expected if T030 (sensitivity) has not been run yet."
+            )
 
-    # Check metadata structure
-    assert isinstance(report["metadata"], dict)
-    for key in METADATA_KEYS:
-        assert key in report["metadata"], f"Missing key in metadata: {key}"
+        entries = []
+        if isinstance(report, list):
+            entries = report
+        elif isinstance(report, dict):
+            # If it's a dict of results, extract values
+            if 'results' in report:
+                entries = report['results']
+            else:
+                # Assume values are the entries
+                entries = list(report.values())
 
-    logger.info("Schema validation passed successfully.")
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            
+            for metric in REQUIRED_REPORT_KEYS:
+                assert metric in entry, (
+                    f"Contract violation: Missing metric '{metric}' in sensitivity entry. "
+                    f"Entry keys: {list(entry.keys())}"
+                )
+                assert isinstance(entry[metric], (int, float)), (
+                    f"Contract violation: Metric '{metric}' is not numeric."
+                )
 
-if __name__ == "__main__":
-    test_report_schema()
-    print("All contract tests passed.")
+    def test_comparison_report_structure(self):
+        """
+        Contract test: Verify the main comparison report (if JSON) has expected structure.
+        """
+        # If a specific JSON report is generated for T029/T033
+        artifact_path = "data/processed/comparison_report.json"
+        
+        try:
+            report = load_test_artifact(artifact_path)
+        except FileNotFoundError:
+            # If the report is markdown (T033), skip this JSON check
+            pytest.skip(
+                f"Artifact {artifact_path} not found. "
+                "Comparison might be in markdown format (paper/results/comparison_report.md)."
+            )
+
+        # Basic structure check
+        assert isinstance(report, dict), "Comparison report must be a JSON object."
+        
+        # Expect keys for model comparison
+        assert 'models' in report or 'results' in report, (
+            "Contract violation: Comparison report missing 'models' or 'results' key."
+        )
