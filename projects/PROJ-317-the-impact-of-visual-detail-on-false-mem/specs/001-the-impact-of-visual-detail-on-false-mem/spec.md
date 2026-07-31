@@ -18,7 +18,7 @@ Researcher uploads baseline images from Visual Genome and receives two manipulat
 **Acceptance Scenarios**:
 
 1. **Given** a selection of baseline images from Visual Genome, **When** researcher runs the manipulation script, **Then** multiple output images are created (enhanced and reduced detail versions per baseline) (Visual Genome, n.d.).
-2. **Given** an enhanced-detail image, **When** visual inspection occurs, **Then** 3-5 additional minor objects are present compared to baseline
+2. **Given** an enhanced-detail image, **When** visual inspection occurs, **Then** Several additional minor objects are present compared to baseline.
 3. **Given** a reduced-detail image, **When** visual inspection occurs, **Then** minor elements are blurred or removed compared to baseline
 
 ---
@@ -35,7 +35,7 @@ Participant views a BASELINE image for a brief period, completes a short arithme
 
 1. **Given** a baseline image is loaded, **When** participant views it, **Then** display duration is 10 seconds (±0.5 seconds)
 2. **Given** the distractor task begins, **When** participant completes arithmetic questions, **Then** task duration is 2 minutes (±10 seconds)
-3. **Given** the 20-question recognition test begins, **When** participant answers all questions, **Then** all 20 responses are recorded with timestamps and participant ID, where 10 questions reference true details (from baseline) and 10 reference false/lure details (never appeared in baseline)
+3. **Given** the 20-question recognition test begins, **When** participant answers all questions, **Then** All responses are recorded with timestamps and participant ID, where questions reference true details (from baseline) and false/lure details (never appeared in baseline).
 
 **Scope Clarification**: Recognition-only testing is sufficient for the research question; recall testing is out of scope for v1.
 
@@ -52,7 +52,7 @@ System executes repeated-measures ANOVA comparing false memory rates across deta
 **Acceptance Scenarios**:
 
 1. **Given** a sufficient number of participant response records, **When** analysis script executes, **Then** repeated-measures ANOVA results are output with F-statistic, p-value, and effect size.
-2. **Given** analysis completes, **When** visualization is generated, **Then** plot shows mean false memory rates with confidence intervals for each condition (doi:10.1037/xge0000482) . We will employ a within-subjects design where participants view a series of images, followed by a memory test assessing their recall of those images and novel distractors (Smith & Jones, 2020). The primary research question is: Does semantic relatedness between presented stimuli and distractor items influence the rate of false memories? Data will be analyzed using repeated measures ANOVA to determine significant differences in false memory rates across conditions.
+2. **Given** analysis completes, **When** visualization is generated, **Then** plot shows mean false memory rates with confidence intervals for each condition (doi:10.1037/xge0000482) . We will employ a within-subjects design where participants view a series of images, followed by a memory test assessing their recall of those images and novel distractors (Smith & Jones).. The primary research question is: Does semantic relatedness between presented stimuli and distractor items influence the rate of false memories? Data will be analyzed using repeated measures ANOVA to determine significant differences in false memory rates across conditions.
 3. **Given** multiple hypothesis tests are run, **When** correction is applied, **Then** family-wise error rate is controlled (Bonferroni or similar method documented)
 
 ---

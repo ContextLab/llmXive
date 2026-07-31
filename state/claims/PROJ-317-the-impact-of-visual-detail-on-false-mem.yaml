@@ -2842,3 +2842,268 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T21:18:52Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/research.md
+  attempts: 1
+  canonical: Cohen's f of 0.25 for effect size based on Loftus et al. 1974
+  claim_id: c_850b50d5
+  context: Cohen's f=0.25 (medium) based on Loftus et al. (1974) 'The Misinformation
+    Effect'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen's f=0.25 (medium) based on Loftus et al. (1974) 'The Misinformation
+    Effect'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:39:11Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/docs/ethics/scope_boundary.md
+  attempts: 1
+  canonical: Study relies on Constructive Memory framework by Loftus et al 1974 and
+    Schacter et al 1998
+  claim_id: c_216997e1
+  context: The theoretical basis for this study relies on the Constructive Memory
+    framework (Loftus et al., 1974; Schacter et al., 1998), which posits that memory
+    is a reconstructive process prone to error.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical basis for this study relies on the Constructive Memory
+    framework (Loftus et al., 1974; Schacter et al., 1998).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:39:37Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_4036c8f4
+  context: 'Update research.md by appending Section 2.1 with the text: Effect Size
+    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) The Misinformation
+    Effect.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:40:39Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Generate exactly 20 PNG files in data/assets/minor_objects
+  claim_id: c_366641c5
+  context: 'Run code/stimuli/asset_generator.py to generate the assets in data/assets/minor_objects/.
+    Verification: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:41:01Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Display baseline images for 10 seconds with 0.5s tolerance
+  claim_id: c_9bdb32df
+  context: "Implement code/participants/interface.py to display baseline images for\
+    \ 10 seconds (\xB10.5s). Logic: Timer-based display."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Display baseline images for 10 seconds (\xB10.5s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:41:17Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Administer arithmetic questions for 2 minutes with 10s tolerance
+  claim_id: c_26eff514
+  context: "Implement code/participants/interface.py to administer arithmetic questions\
+    \ for 2 minutes (\xB110s). Constraint: If duration is outside the acceptable range,\
+    \ Flag session as Incomplete in the response log."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Administer arithmetic questions for 2 minutes (\xB110s)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:41:40Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_c14236c9
+  context: 'T012.0 [P] [Shared-Infra] Document Effect Size Source: Update research.md
+    by appending Section 2.1 with the text: Effect Size Assumption: Cohen''s f=0.25
+    (medium) based on Loftus et al. (1974) ''The Misinformation Effect''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:42:58Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Exactly 20 valid PNG files exist in data/assets/minor_objects
+  claim_id: c_54bdee69
+  context: 'T015.1-Run [P] [Shared-Infra] Execute Asset Generation: Run code/stimuli/asset_generator.py
+    to generate the assets in data/assets/minor_objects/. Verification: Assert exactly
+    20 valid PNG files exist in data/assets/minor_objects/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that exactly 20 valid PNG files exist in data/assets/minor_objects/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:42:59Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Loftus and Schacter models describe false memory phenomenon but lack
+    mapping to specific human synaptic events
+  claim_id: c_5bece9d8
+  context: 'T081 [Shared-Infra] [Review-Kandel] Update Research Plan with Mechanism
+    Gap Analysis: Update research.md to append a section Theoretical Gap: Behavioral
+    vs. Mechanistic. Content: Current behavioral models (Loftus, Schacter) describe
+    the phenomenon of false memory but do not map it to specific synaptic events in
+    humans.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Loftus_and_Schacter_models_describe_false_memory_phenomenon
+  kind: entity_fact
+  raw_text: Current behavioral models (Loftus, Schacter) describe the phenomenon of
+    false memory but do not map it to specific synaptic events in humans.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:43:22Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
+  claim_id: c_7cc6f99a
+  context: 'Update research.md by appending Section 2.1 with the text: ''Effect Size
+    Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974) The Misinformation
+    Effect''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:43:42Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 20 valid PNG files generated in data/assets/minor_objects/
+  claim_id: c_4a03afaf
+  context: 'Run code/stimuli/asset_generator.py to generate the assets in data/assets/minor_objects/.
+    Verification: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert exactly 20 valid PNG files exist in data/assets/minor_objects/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:43:42Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/research.md
+  attempts: 1
+  canonical: Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_18122daa
+  context: Section 2.1 discusses the effect size assumption for the study, referencing
+    previous work by Loftus et al.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:44:32Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/research.md
+  attempts: 1
+  canonical: Study grounded in Constructive Memory theory by Loftus et al. 1974 and
+    Schacter et al. 1998
+  claim_id: c_7de009c4
+  context: Theoretical Framework section describing the study's basis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study is grounded in the Constructive Memory theory (Loftus et al.,
+    1974; Schacter et al., 1998).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:45:02Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/research.md
+  attempts: 1
+  canonical: Effect size assumption of Cohen's f 0.25 based on Loftus et al. 1974
+  claim_id: c_5921023c
+  context: Effect Size Assumption subsection citing previous research.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:45:03Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/research.md
+  attempts: 1
+  canonical: Kandel et al. stated that a memory without a synaptic correlate is a
+    description not a mechanism
+  claim_id: c_565fc20f
+  context: The Ladder of Explanation section discussing the gap between behavioral
+    and cellular descriptions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kandel_et_al._stated_that_a_memory_without_a_synaptic_correl
+  kind: entity_fact
+  raw_text: As noted by Kandel et al., a memory without a synaptic correlate is a
+    description, not a mechanism.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T19:45:23Z'
