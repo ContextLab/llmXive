@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-08T23:40:34Z",
+  "fetched_at": "2026-07-31T10:59:16Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "Predictive Coding LLMs: Implementing Hierarchical Error Minimization",
       "target_n": 5
     },
-    "duration_seconds": 48.544,
-    "ended_at": "2026-07-08T23:40:34Z",
+    "duration_seconds": 38.42,
+    "ended_at": "2026-07-31T10:59:16Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "predictive coding neural networks"
+          "hierarchical predictive coding in neural networks"
         ],
         [
           2,
-          "hierarchical predictive coding in deep learning"
+          "error minimization frameworks for large language models"
         ],
         [
           3,
-          "free energy principle large language models"
+          "free energy principle applied to transformer architectures"
         ],
         [
           4,
-          "error minimization in transformer architectures"
-        ],
-        [
-          5,
-          "variational free energy language models"
-        ],
-        [
-          6,
-          "predictive processing in generative AI"
-        ],
-        [
-          7,
-          "hierarchical inference in neural language models"
-        ],
-        [
-          8,
           "predictive coding transformers"
         ],
         [
+          5,
+          "brain-inspired hierarchical inference in LLMs"
+        ],
+        [
+          6,
+          "variational inference for language generation"
+        ],
+        [
+          7,
+          "cortical predictive coding in deep learning"
+        ],
+        [
+          8,
+          "hierarchical error backpropagation alternatives"
+        ],
+        [
           9,
-          "active inference large language models"
+          "top-down and bottom-up processing in language models"
         ],
         [
           10,
-          "brain-inspired language model architectures"
+          "predictive coding objectives for sequence modeling"
         ],
         [
           11,
-          "unsupervised hierarchical representation learning"
+          "generative models based on prediction error"
         ],
         [
           12,
-          "generative predictive coding networks"
+          "sparse coding and predictive coding in NLP"
         ],
         [
           13,
-          "hierarchical generative models for NLP"
+          "biologically plausible learning rules for LLMs"
         ],
         [
           14,
-          "minimizing prediction error in sequence models"
+          "hierarchical generative models for text"
         ],
         [
           15,
-          "neuro-symbolic predictive coding"
+          "predictive coding as a learning objective"
         ],
         [
           16,
-          "biologically plausible deep learning for NLP"
+          "minimizing prediction error in autoregressive models"
         ],
         [
           17,
-          "recurrent predictive coding networks"
+          "neurosymbolic predictive coding for language"
         ],
         [
           18,
-          "hierarchical error correction in language generation"
+          "unsupervised hierarchical representation learning"
         ],
         [
           19,
-          "predictive coding vs autoregressive models"
+          "predictive coding vs contrastive learning in transformers"
         ],
         [
           20,
-          "energy-based predictive language models"
+          "energy-based models for hierarchical language understanding"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer science": 0,
-        "predictive coding neural networks": 5
+        "hierarchical predictive coding in neural networks": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "free energy principle variational inference predictive processing",
-      "hierarchical error minimization sparse coding deep learning",
-      "predictive coding neural networks unsupervised representation learning",
-      "local learning rules global error backpropagation replacement",
-      "energy-based models generative modeling inference dynamics"
+      "free energy principle variational inference predictive coding",
+      "hierarchical recurrent neural networks prediction error minimization",
+      "biologically plausible learning rules cortical error signaling",
+      "next token prediction loss minimization gradient descent",
+      "predictive coding neural architectures unsupervised representation learning"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,22 +120,27 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1906.10015"
+        "1003.3081"
       ]
     },
     "per_query_hit_count": {
       "Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer science": 3,
-      "energy-based models generative modeling inference dynamics": 3,
-      "free energy principle variational inference predictive processing": 3,
-      "hierarchical error minimization sparse coding deep learning": 3,
-      "local learning rules global error backpropagation replacement": 3,
-      "predictive coding neural networks unsupervised representation learning": 3
+      "biologically plausible learning rules cortical error signaling": 3,
+      "free energy principle variational inference predictive coding": 3,
+      "hierarchical recurrent neural networks prediction error minimization": 3,
+      "next token prediction loss minimization gradient descent": 3,
+      "predictive coding neural architectures unsupervised representation learning": 2
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
       "rejected_count": 4,
       "rejections": [
+        {
+          "primary_pointer": "1901.06610",
+          "rationale": "The paper focuses on hierarchical attention mechanisms for document classification, which is a distinct algorithmic construct from predictive coding and hierarchical error minimization, sharing only the common keyword \"hierarchical\". It does not measure the specific mechanism (predictive coding/error minimization) or utilize the specific framework (LLMs/Predictive Coding) required for the user's research question.",
+          "title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification"
+        },
         {
           "primary_pointer": "2306.14753",
           "rationale": "The paper proposes a Polynomial Chaos-based architecture for neural networks, which is a distinct mathematical framework from Predictive Coding and hierarchical error minimization, sharing only general deep learning domain keywords. It has no measurable connection to the specific predictive coding mechanism or hierarchical error signals required for the user's research question.",
@@ -147,11 +152,6 @@
           "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
         },
         {
-          "primary_pointer": "1901.06610",
-          "rationale": "The paper focuses on hierarchical attention mechanisms for document classification, which is a distinct algorithmic construct from predictive coding and hierarchical error minimization, sharing only the common keyword \"hierarchical\". It does not measure the specific mechanism (predictive coding/error minimization) or utilize the specific framework (LLMs/Predictive Coding) required for the user's research question.",
-          "title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification"
-        },
-        {
           "primary_pointer": "1905.05918",
           "rationale": "The paper focuses on a specific application of neural networks (MLP) combined with evolutionary algorithms for mechanical system maintenance (RUL estimation), which is an off-domain application distinct from the user's question about the theoretical implementation of \"Predictive Coding\" and \"Hierarchical Error Minimization\" in Large Language Models. It does not address the core mechanism of predictive coding, hierarchical error propagation, or LLM architecture, nor does it serve as a foundationa",
           "title": "A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems"
@@ -159,7 +159,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-08T23:39:45Z",
+    "started_at": "2026-07-31T10:58:37Z",
     "term_input": {
       "normalized": "predictive coding llms: implementing hierarchical error minimization computer science",
       "raw": "Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer science"
@@ -178,7 +178,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.222 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
@@ -197,7 +197,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
@@ -213,7 +213,7 @@
           "primary_pointer": "1612.04126"
         },
         "details": "query-relevance 0.222 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='The hierarchical generalized linear model and the bootstrap estimator of the error of prediction of loss reserves in a non-life insurance company')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
@@ -231,7 +231,7 @@
           "primary_pointer": "2002.04501"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Some interesting observations on the free energy principle')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
@@ -250,7 +250,7 @@
           "primary_pointer": "2604.27942"
         },
         "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='A Collective Variational Principle Unifying Bayesian Inference, Game Theory, and Thermodynamics')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
@@ -266,226 +266,237 @@
           "primary_pointer": "astro-ph/0510346"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='The Dark Energy Survey')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
           "claimed_authors": [
-            "Deep Pandey",
-            "Qi Yu"
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
           ],
-          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2306.11113"
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_abstract": "An essential requirement for the representation of functional patterns in complex neural networks, such as the mammalian cerebral cortex, is the existence of stable regimes of network activation, typically arising from a limited parameter range. In this range of limited sustained activity (LSA), the activity of neural populations in the network persists between the extremes of either quickly dying out or activating the whole network. Hierarchical modular networks were previously found to show a wider parameter range for LSA than random or small-world networks not possessing hierarchical organization or multiple modules. Here we explored how variation in the number of hierarchical levels and modules per level influenced network dynamics and occurrence of LSA. We tested hierarchical configurations of different network sizes, approximating the large-scale networks linking cortical columns in one hemisphere of the rat, cat, or macaque monkey brain. Scaling of the network size affected the number of hierarchical levels and modules in the optimal networks, also depending on whether global edge density or the numbers of connections per node were kept constant. For constant edge density, only few network configurations, possessing an intermediate number of levels and a large number of modules, led to a large range of LSA independent of brain size. For a constant number of node connections, there was a trend for optimal configurations in larger-size networks to possess a larger number of hierarchical levels or more modules. These results may help to explain the trend to greater network complexity apparent in larger brains and may indicate that this complexity is required for maintaining stable levels of neural activation.",
           "claimed_authors": [
-            "Julius Berner",
-            "Philipp Grohs",
-            "Gitta Kutyniok",
-            "Philipp Petersen"
+            "Marcus Kaiser",
+            "Claus C. Hilgetag"
           ],
-          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_title": "Optimal hierarchical modular topologies for producing limited sustained activation of neural networks",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2105.04026"
+          "claimed_year": 2010,
+          "primary_pointer": "1003.3081"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='The Modern Mathematics of Deep Learning')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Optimal hierarchical modular topologies for producing limited sustained activation of neural networks')",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Sparse coding algorithm is an learning algorithm mainly for unsupervised feature for finding succinct, a little above high - level Representation of inputs, and it has successfully given a way for Deep learning. Our objective is to use High - Level Representation data in form of unlabeled category to help unsupervised learning task. when compared with labeled data, unlabeled data is easier to acquire because, unlike labeled data it does not follow some particular class labels. This really makes the Deep learning wider and applicable to practical problems and learning. The main problem with sparse coding is it uses Quadratic loss function and Gaussian noise mode. So, its performs is very poor when binary or integer value or other Non- Gaussian type data is applied. Thus first we propose an algorithm for solving the L1 - regularized convex optimization algorithm for the problem to allow High - Level Representation of unlabeled data. Through this we derive a optimal solution for describing an approach to Deep learning algorithm by using sparse code.",
+          "claimed_abstract": "Document classification is a challenging task with important applications. The deep learning approaches to the problem have gained much attention recently. Despite the progress, the proposed models do not incorporate the knowledge of the document structure in the architecture efficiently and not take into account the contexting importance of words and sentences. In this paper, we propose a new approach based on a combination of convolutional neural networks, gated recurrent units, and attention mechanisms for document classification tasks. The main contribution of this work is the use of convolution layers to extract more meaningful, generalizable and abstract features by the hierarchical representation. The proposed method in this paper improves the results of the current attention-based approaches for document classification.",
           "claimed_authors": [
-            "R. Vidya",
-            "Dr. G. M. Nasira",
-            "R. P. Jaia Priyankka"
+            "Jader Abreu",
+            "Luis Fred",
+            "David Macêdo",
+            "Cleber Zanchettin"
           ],
-          "claimed_title": "Sparse Coding: A Deep Learning using Unlabeled Data for High - Level Representation",
+          "claimed_title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification",
           "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1404.1559"
+          "claimed_year": 2019,
+          "primary_pointer": "1901.06610"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Sparse Coding: A Deep Learning using Unlabeled Data for High - Level Representation')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Hierarchical Attentional Hybrid Neural Networks for Document Classification')",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The quantized neural network (QNN) is an efficient approach for network compression and can be widely used in the implementation of FPGAs. This paper proposes a novel learning framework for n-bit QNNs, whose weights are constrained to the power of two. To solve the gradient vanishing problem, we propose a reconstructed gradient function for QNNs in back-propagation algorithm that can directly get the real gradient rather than estimating an approximate gradient of the expected loss. We also propose a novel QNN structure named n-BQ-NN, which uses shift operation to replace the multiply operation and is more suitable for the inference on FPGAs. Furthermore, we also design a shift vector processing element (SVPE) array to replace all 16-bit multiplications with SHIFT operations in convolution operation on FPGAs. We also carry out comparable experiments to evaluate our framework. The experimental results show that the quantized models of ResNet, DenseNet and AlexNet through our learning framework can achieve almost the same accuracies with the original full-precision models. Moreover, when using our learning framework to train our n-BQ-NN from scratch, it can achieve state-of-the-art results compared with typical low-precision QNNs. Experiments on Xilinx ZCU102 platform show that our n-BQ-NN with our SVPE can execute 2.9 times faster than with the vector processing element (VPE) in inference. As the SHIFT operation in our SVPE array will not consume Digital Signal Processings (DSPs) resources on FPGAs, the experiments have shown that the use of SVPE array also reduces average energy consumption to 68.7% of the VPE array with 16-bit.",
+          "claimed_abstract": "The mammalian cortex is divided into architectonic and functionally distinct areas. There is growing experimental evidence that their emergence and development is controlled by both epigenetic and genetic factors. The latter were recently implicated as dominating the early cortical area specification. In this paper, we present a theoretical model that explicitly considers the genetic factors and that is able to explain several sets of experiments on cortical area regulation involving transcription factors Emx2 and Pax6, and fibroblast growth factor FGF8. The model consists of the dynamics of thalamo- cortical connections modulated by signaling molecules that are regulated genetically, and by axonal competition for neocortical space. The model can make predictions and provides a basic mathematical framework for the early development of the thalamo-cortical connections and area patterning that can be further refined as more experimental facts become known.",
           "claimed_authors": [
-            "Jun Chen",
-            "Liang Liu",
-            "Yong Liu",
-            "Xianfang Zeng"
+            "Jan Karbowski",
+            "G. B. Ermentrout"
           ],
-          "claimed_title": "A Learning Framework for n-bit Quantized Neural Networks toward FPGAs",
+          "claimed_title": "Model of the early development of thalamo-cortical connections and area patterning via signaling molecules",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2004.02396"
+          "claimed_year": 2004,
+          "primary_pointer": "q-bio/0410002"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='A Learning Framework for n-bit Quantized Neural Networks toward FPGAs')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Model of the early development of thalamo-cortical connections and area patterning via signaling molecules')",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Accurate uncertainty quantification is necessary to enhance the reliability of deep learning models in real-world applications. In the case of regression tasks, prediction intervals (PIs) should be provided along with the deterministic predictions of deep learning models. Such PIs are useful or \"high-quality\" as long as they are sufficiently narrow and capture most of the probability density. In this paper, we present a method to learn prediction intervals for regression-based neural networks automatically in addition to the conventional target predictions. In particular, we train two companion neural networks: one that uses one output, the target estimate, and another that uses two outputs, the upper and lower bounds of the corresponding PI. Our main contribution is the design of a novel loss function for the PI-generation network that takes into account the output of the target-estimation network and has two optimization objectives: minimizing the mean prediction interval width and ensuring the PI integrity using constraints that maximize the prediction interval probability coverage implicitly. Furthermore, we introduce a self-adaptive coefficient that balances both objectives within the loss function, which alleviates the task of fine-tuning. Experiments using a synthetic dataset, eight benchmark datasets, and a real-world crop yield prediction dataset showed that our method was able to maintain a nominal probability coverage and produce significantly narrower PIs without detriment to its target estimation accuracy when compared to those PIs generated by three state-of-the-art neural-network-based methods. In other words, our method was shown to produce higher-quality PIs.",
+          "claimed_abstract": "Non-rigid cortical registration is an important and challenging task due to the geometric complexity of the human cortex and the high degree of inter-subject variability. A conventional solution is to use a spherical representation of surface properties and perform registration by aligning cortical folding patterns in that space. This strategy produces accurate spatial alignment but often requires a high computational cost. Recently, convolutional neural networks (CNNs) have demonstrated the potential to dramatically speed up volumetric registration. However, due to distortions introduced by projecting a sphere to a 2D plane, a direct application of recent learning-based methods to surfaces yields poor results. In this study, we present SphereMorph, a diffeomorphic registration framework for cortical surfaces using deep networks that addresses these issues. SphereMorph uses a UNet-style network associated with a spherical kernel to learn the displacement field and warps the sphere using a modified spatial transformer layer. We propose a resampling weight in computing the data fitting loss to account for distortions introduced by polar projection, and demonstrate the performance of our proposed method on two tasks, including cortical parcellation and group-wise functional area alignment. The experiments show that the proposed SphereMorph is capable of modeling the geometric registration problem in a CNN framework and demonstrate superior registration accuracy and computational efficiency. The source code of SphereMorph will be released to the public upon acceptance of this manuscript at https://github.com/voxelmorph/spheremorph.",
           "claimed_authors": [
-            "Giorgio Morales",
-            "John W. Sheppard"
+            "Jieyu Cheng",
+            "Adrian V. Dalca",
+            "Bruce Fischl",
+            "Lilla Zollei"
           ],
-          "claimed_title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2212.06370"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation')",
-        "failed_at": "2026-07-08T23:40:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
-          "claimed_authors": [
-            "Danny D'Agostino",
-            "Ilija Ilievski",
-            "Christine Annette Shoemaker"
-          ],
-          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2307.05639"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
-        "failed_at": "2026-07-08T23:40:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "While end-to-end self-supervised learning with backpropagation (global BP-SSL) has become central for training modern AI systems, theories of local self-supervised learning (local-SSL) have struggled to build functional representations in deep neural networks. To establish a link between global and local rules, we first develop a theory for deep linear networks: we identify conditions for local-SSL algorithms (like Forward-forward or CLAPP) to implement exactly the same weight update as a global BP-SSL. Starting from the theoretical insights, we then develop novel variants of local-SSL algorithms to approximate global BP-SSL in deep non-linear convolutional neural networks. Variants that improve the similarity between gradient updates of local-SSL with those of global BP-SSL also show better performance on image datasets (CIFAR-10, STL-10, and Tiny ImageNet). The best local-SSL rule with the CLAPP loss function matches the performance of a comparable global BP-SSL with InfoNCE or CPC-like loss functions, and improves upon state-of-the-art for local SSL on these benchmarks.",
-          "claimed_authors": [
-            "Wu S. Zihan",
-            "Ariane Delrocq",
-            "Wulfram Gerstner",
-            "Guillaume Bellec"
-          ],
-          "claimed_title": "Can Local Learning Match Self-Supervised Backpropagation?",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2601.21683"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Can Local Learning Match Self-Supervised Backpropagation?')",
-        "failed_at": "2026-07-08T23:40:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "It has been shown that uniform as well as non-uniform cellular automata (CA) can be evolved to perform certain computational tasks. Random Boolean networks are a generalization of two-state cellular automata, where the interconnection topology and the cell's rules are specified at random. Here we present a novel analytical approach to find the local rules of random Boolean networks (RBNs) to solve the global density classification and the synchronization task from any initial configuration. We quantitatively and qualitatively compare our results with previously published work on cellular automata and show that randomly interconnected automata are computationally more efficient in solving these two global tasks. Our approach also provides convergence and quality estimates and allows the networks to be randomly rewired during operation, without affecting the global performance. Finally, we show that RBNs outperform small-world topologies on the density classification task and that they perform equally well on the synchronization task. Our novel approach and the results may have applications in designing robust complex networks and locally interacting distributed computing systems for solving global tasks.",
-          "claimed_authors": [
-            "Bertrand Mesot",
-            "Christof Teuscher"
-          ],
-          "claimed_title": "Deducing Local Rules for Solving Global Tasks with Random Boolean Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2006,
-          "primary_pointer": "cond-mat/0606632"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Deducing Local Rules for Solving Global Tasks with Random Boolean Networks')",
-        "failed_at": "2026-07-08T23:40:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Federated learning (FL) with a single global server framework is currently a popular approach for training machine learning models on decentralized environment, such as mobile devices and edge devices. However, the centralized server architecture poses a risk as any challenge on the central/global server would result in the failure of the entire system. To minimize this risk, we propose a novel federated learning framework that leverages the deployment of multiple global servers. We posit that implementing multiple global servers in federated learning can enhance efficiency by capitalizing on local collaborations and aggregating knowledge, and the error tolerance in regard to communication failure in the single server framework would be handled. We therefore propose a novel framework that leverages the deployment of multiple global servers. We conducted a series of experiments using a dataset containing the event history of electric vehicle (EV) charging at numerous stations. We deployed a federated learning setup with multiple global servers and client servers, where each client-server strategically represented a different region and a global server was responsible for aggregating local updates from those devices. Our preliminary results of the global models demonstrate that the difference in performance attributed to multiple servers is less than 1%. While the hypothesis of enhanced model efficiency was not as expected, the rule for handling communication challenges added to the algorithm could resolve the error tolerance issue. Future research can focus on identifying specific uses for the deployment of multiple global servers.",
-          "claimed_authors": [
-            "Asfia Kawnine",
-            "Hung Cao",
-            "Atah Nuh Mih",
-            "Monica Wachowicz"
-          ],
-          "claimed_title": "Evaluating Multi-Global Server Architecture for Federated Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.15382"
-        },
-        "details": "query-relevance 0.222 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Evaluating Multi-Global Server Architecture for Federated Learning')",
-        "failed_at": "2026-07-08T23:40:14Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "A vital aspect of human intelligence is the ability to compose increasingly complex concepts out of simpler ideas, enabling both rapid learning and adaptation of knowledge. In this paper we show that energy-based models can exhibit this ability by directly combining probability distributions. Samples from the combined distribution correspond to compositions of concepts. For example, given a distribution for smiling faces, and another for male faces, we can combine them to generate smiling male faces. This allows us to generate natural images that simultaneously satisfy conjunctions, disjunctions, and negations of concepts. We evaluate compositional generation abilities of our model on the CelebA dataset of natural faces and synthetic 3D scene images. We also demonstrate other unique advantages of our model, such as the ability to continually learn and incorporate new concepts, or infer compositions of concept properties underlying an image.",
-          "claimed_authors": [
-            "Yilun Du",
-            "Shuang Li",
-            "Igor Mordatch"
-          ],
-          "claimed_title": "Compositional Visual Generation and Inference with Energy Based Models",
+          "claimed_title": "Cortical surface registration using unsupervised learning",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2004.06030"
+          "primary_pointer": "2004.04617"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Compositional Visual Generation and Inference with Energy Based Models')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Cortical surface registration using unsupervised learning')",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We note that most existing approaches for molecular graph generation fail to guarantee the intrinsic property of permutation invariance, resulting in unexpected bias in generative models. In this work, we propose GraphEBM to generate molecular graphs using energy-based models. In particular, we parameterize the energy function in a permutation invariant manner, thus making GraphEBM permutation invariant. We apply Langevin dynamics to train the energy function by approximately maximizing likelihood and generate samples with low energies. Furthermore, to generate molecules with a desirable property, we propose a simple yet effective strategy, which pushes down energies with flexible degrees according to the properties of corresponding molecules. Finally, we explore the use of GraphEBM for generating molecules with multiple objectives in a compositional manner. Comprehensive experimental results on random, goal-directed, and compositional generation tasks demonstrate the effectiveness of our proposed method.",
+          "claimed_abstract": "Researchers have proposed that deep learning, which is providing important progress in a wide range of high complexity tasks, might inspire new insights into learning in the brain. However, the methods used for deep learning by artificial neural networks are biologically unrealistic and would need to be replaced by biologically realistic counterparts. Previous biologically plausible reinforcement learning rules, like AGREL and AuGMEnT, showed promising results but focused on shallow networks with three layers. Will these learning rules also generalize to networks with more layers and can they handle tasks of higher complexity? We demonstrate the learning scheme on classical and hard image-classification benchmarks, namely MNIST, CIFAR10 and CIFAR100, cast as direct reward tasks, both for fully connected, convolutional and locally connected architectures. We show that our learning rule - Q-AGREL - performs comparably to supervised learning via error-backpropagation, with this type of trial-and-error reinforcement learning requiring only 1.5-2.5 times more epochs, even when classifying 100 different classes as in CIFAR100. Our results provide new insights into how deep learning may be implemented in the brain.",
           "claimed_authors": [
-            "Meng Liu",
-            "Keqiang Yan",
-            "Bora Oztekin",
-            "Shuiwang Ji"
+            "Isabella Pozzi",
+            "Sander Bohté",
+            "Pieter Roelfsema"
           ],
-          "claimed_title": "GraphEBM: Molecular Graph Generation with Energy-Based Models",
+          "claimed_title": "A Biologically Plausible Learning Rule for Deep Learning in the Brain",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2102.00546"
+          "claimed_year": 2018,
+          "primary_pointer": "1811.01768"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='GraphEBM: Molecular Graph Generation with Energy-Based Models')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='A Biologically Plausible Learning Rule for Deep Learning in the Brain')",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We motivate Energy-Based Models (EBMs) as a promising model class for continual learning problems. Instead of tackling continual learning via the use of external memory, growing models, or regularization, EBMs change the underlying training objective to cause less interference with previously learned information. Our proposed version of EBMs for continual learning is simple, efficient, and outperforms baseline methods by a large margin on several benchmarks. Moreover, our proposed contrastive divergence-based training objective can be combined with other continual learning methods, resulting in substantial boosts in their performance. We further show that EBMs are adaptable to a more general continual learning setting where the data distribution changes without the notion of explicitly delineated tasks. These observations point towards EBMs as a useful building block for future continual learning methods.",
+          "claimed_abstract": "Building on the foundations of language modeling in natural language processing, Next Token Prediction (NTP) has evolved into a versatile training objective for machine learning tasks across various modalities, achieving considerable success. As Large Language Models (LLMs) have advanced to unify understanding and generation tasks within the textual modality, recent research has shown that tasks from different modalities can also be effectively encapsulated within the NTP framework, transforming the multimodal information into tokens and predict the next one given the context. This survey introduces a comprehensive taxonomy that unifies both understanding and generation within multimodal learning through the lens of NTP. The proposed taxonomy covers five key aspects: Multimodal tokenization, MMNTP model architectures, unified task representation, datasets \\& evaluation, and open challenges. This new taxonomy aims to aid researchers in their exploration of multimodal intelligence. An associated GitHub repository collecting the latest papers and repos is available at https://github.com/LMM101/Awesome-Multimodal-Next-Token-Prediction",
           "claimed_authors": [
-            "Shuang Li",
-            "Yilun Du",
-            "Gido M. van de Ven",
-            "Igor Mordatch"
+            "Liang Chen",
+            "Zekun Wang",
+            "Shuhuai Ren",
+            "Lei Li",
+            "Haozhe Zhao",
+            "Yunshui Li",
+            "Zefan Cai",
+            "Hongcheng Guo",
+            "Lei Zhang",
+            "Yizhe Xiong",
+            "Yichi Zhang",
+            "Ruoyu Wu",
+            "Qingxiu Dong",
+            "Ge Zhang",
+            "Jian Yang",
+            "Lingwei Meng",
+            "Shujie Hu",
+            "Yulong Chen",
+            "Junyang Lin",
+            "Shuai Bai",
+            "Andreas Vlachos",
+            "Xu Tan",
+            "Minjia Zhang",
+            "Wen Xiao",
+            "Aaron Yee",
+            "Tianyu Liu",
+            "Baobao Chang"
           ],
-          "claimed_title": "Energy-Based Models for Continual Learning",
+          "claimed_title": "Next Token Prediction Towards Multimodal Intelligence: A Comprehensive Survey",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2011.12216"
+          "claimed_year": 2024,
+          "primary_pointer": "2412.18619"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Energy-Based Models for Continual Learning')",
-        "failed_at": "2026-07-08T23:40:14Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Next Token Prediction Towards Multimodal Intelligence: A Comprehensive Survey')",
+        "failed_at": "2026-07-31T10:59:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove that if an activation function satisfies some mild conditions and number of neurons in a two-layered fully connected neural network with this activation function is beyond a certain threshold, then gradient descent on quadratic loss function finds the optimal weights of input layer for global minima in linear time. This threshold value is an improvement over previously obtained values. We hypothesise that this bound cannot be improved by the method we are using in this work.",
+          "claimed_authors": [
+            "Biswarup Das",
+            "Eugene. A. Golikov"
+          ],
+          "claimed_title": "Quadratic number of nodes is sufficient to learn a dataset via gradient descent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.05402"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Quadratic number of nodes is sufficient to learn a dataset via gradient descent')",
+        "failed_at": "2026-07-31T10:59:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite recent theoretical progress on the non-convex optimization of two-layer neural networks, it is still an open question whether gradient descent on neural networks without unnatural modifications can achieve better sample complexity than kernel methods. This paper provides a clean mean-field analysis of projected gradient flow on polynomial-width two-layer neural networks. Different from prior works, our analysis does not require unnatural modifications of the optimization algorithm. We prove that with sample size $n = O(d^{3.1})$ where $d$ is the dimension of the inputs, the network trained with projected gradient flow converges in $\\text{poly}(d)$ time to a non-trivial error that is not achievable by kernel methods using $n \\ll d^4$ samples, hence demonstrating a clear separation between unmodified gradient descent and NTK. As a corollary, we show that projected gradient descent with a positive learning rate and a polynomial number of iterations converges to low error with the same sample complexity.",
+          "claimed_authors": [
+            "Arvind Mahankali",
+            "Jeff Z. Haochen",
+            "Kefan Dong",
+            "Margalit Glasgow",
+            "Tengyu Ma"
+          ],
+          "claimed_title": "Beyond NTK with Vanilla Gradient Descent: A Mean-Field Analysis of Neural Networks with Polynomial Width, Samples, and Time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.16361"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Beyond NTK with Vanilla Gradient Descent: A Mean-Field Analysis of Neural Networks with Polynomial Width, Samples, and Time')",
+        "failed_at": "2026-07-31T10:59:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Unsupervised representation learning presents new opportunities for advancing Quantum Architecture Search (QAS) on Noisy Intermediate-Scale Quantum (NISQ) devices. QAS is designed to optimize quantum circuits for Variational Quantum Algorithms (VQAs). Most QAS algorithms tightly couple the search space and search algorithm, typically requiring the evaluation of numerous quantum circuits, resulting in high computational costs and limiting scalability to larger quantum circuits. Predictor-based QAS algorithms mitigate this issue by estimating circuit performance based on structure or embedding. However, these methods often demand time-intensive labeling to optimize gate parameters across many circuits, which is crucial for training accurate predictors. Inspired by the classical neural architecture search algorithm Arch2vec, we investigate the potential of unsupervised representation learning for QAS without relying on predictors. Our framework decouples unsupervised architecture representation learning from the search process, enabling the learned representations to be applied across various downstream tasks. Additionally, it integrates an improved quantum circuit graph encoding scheme, addressing the limitations of existing representations and enhancing search efficiency. This predictor-free approach removes the need for large labeled datasets. During the search, we employ REINFORCE and Bayesian Optimization to explore the latent representation space and compare their performance against baseline methods. We further validate our approach by executing the best-discovered MaxCut circuits on IBM's ibm_sherbrooke quantum processor, confirming that the architectures retain optimal performance even under real hardware noise. Our results demonstrate that the framework efficiently identifies high-performing quantum circuits with fewer search iterations.",
+          "claimed_authors": [
+            "Yize Sun",
+            "Zixin Wu",
+            "Volker Tresp",
+            "Yunpu Ma"
+          ],
+          "claimed_title": "Quantum Architecture Search with Unsupervised Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.11576"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Quantum Architecture Search with Unsupervised Representation Learning')",
+        "failed_at": "2026-07-31T10:59:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predictive Coding LLMs: Implementing Hierarchical Error Minimization computer sc', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-07-31T10:59:05Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -493,31 +504,27 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Pablo Lanillos",
-            "Daniel Oliva",
-            "Anja Philippsen",
-            "Yuichi Yamashita",
-            "Yukie Nagai",
-            "Gordon Cheng"
+            "Marcus Kaiser",
+            "Claus C. Hilgetag"
           ],
-          "title": "A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder",
+          "title": "Optimal hierarchical modular topologies for producing limited sustained activation of neural networks",
           "venue": "arXiv",
-          "year": 2019
+          "year": 2010
         },
-        "primary_pointer": "1906.10015",
-        "summary": "This survey presents the most relevant neural network models of autism spectrum disorder and schizophrenia, from the first connectionist models to recent deep network architectures. We analyzed and compared the most representative symptoms with its neural model counterpart, detailing the alteration introduced in the network that generates each of the symptoms, and identifying their strengths and weaknesses. We additionally cross-compared Bayesian and free-energy approaches, as they are widely applied to modeling psychiatric disorders and share basic mechanisms with neural networks. Models of schizophrenia mainly focused on hallucinations and delusional thoughts using neural dysconnections or inhibitory imbalance as the predominating alteration. Models of autism rather focused on perceptual difficulties, mainly excessive attention to environment details, implemented as excessive inhibitory connections or increased sensory precision. We found an excessive tight view of the psychopathologies around one specific and simplified effect, usually constrained to the technical idiosyncrasy of the used network architecture. Recent theories and evidence on sensorimotor integration and body perception combined with modern neural network architectures could offer a broader and novel spectrum to approach these psychopathologies. This review emphasizes the power of artificial neural networks for modeling some symptoms of neurological disorders but also calls for further developing these techniques in the field of computational psychiatry.",
+        "primary_pointer": "1003.3081",
+        "summary": "An essential requirement for the representation of functional patterns in complex neural networks, such as the mammalian cerebral cortex, is the existence of stable regimes of network activation, typically arising from a limited parameter range. In this range of limited sustained activity (LSA), the activity of neural populations in the network persists between the extremes of either quickly dying out or activating the whole network. Hierarchical modular networks were previously found to show a wider parameter range for LSA than random or small-world networks not possessing hierarchical organization or multiple modules. Here we explored how variation in the number of hierarchical levels and modules per level influenced network dynamics and occurrence of LSA. We tested hierarchical configurations of different network sizes, approximating the large-scale networks linking cortical columns in one hemisphere of the rat, cat, or macaque monkey brain. Scaling of the network size affected the number of hierarchical levels and modules in the optimal networks, also depending on whether global edge density or the numbers of connections per node were kept constant. For constant edge density, only few network configurations, possessing an intermediate number of levels and a large number of modules, led to a large range of LSA independent of brain size. For a constant number of node connections, there was a trend for optimal configurations in larger-size networks to possess a larger number of hierarchical levels or more modules. These results may help to explain the trend to greater network complexity apparent in larger brains and may indicate that this complexity is required for maintaining stable levels of neural activation.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1906.10015",
+          "final_url": "https://arxiv.org/abs/1003.3081",
           "http_status": 200,
-          "pdf_sample_score": 0.3993,
-          "query_relevance_score": 0.5,
+          "pdf_sample_score": 0.3243,
+          "query_relevance_score": 0.6,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-08T23:40:23Z"
+          "verified_at": "2026-07-31T10:59:10Z"
         }
       }
     ]

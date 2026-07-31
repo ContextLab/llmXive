@@ -4,33 +4,33 @@
 
 **Verdict**: concern
 
-The question correctly targets a theoretical mechanism (hierarchical error minimization vs. static attention) and a domain phenomenon (syntactic ambiguity resolution). However, it is heavily fixated on the specific implementation constraints ("isolated from general parameter scaling effects") and the comparative benchmark setup rather than the fundamental computational principle. While the core "why" is scientific, the framing risks becoming a "did our specific prototype beat the baseline?" engineering question if the isolation of variables proves difficult in practice.
+The question asks about the relationship between structural features of garden-path sentences and computational burden, which is a valid domain question. However, the second clause ("does a hierarchical error-minimization mechanism provide a more efficient... solution") frames the inquiry as a direct comparison of a specific implementation method against a baseline, rather than investigating the nature of the linguistic phenomenon itself. The core scientific question should be about *how* ambiguity is resolved in hierarchical systems, not whether *this specific architecture* works better than transformers.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor is the model's internal error-minimization dynamics (derived from the predictive coding architecture), and the predicted variable is the correctness of syntactic disambiguation on external benchmark sentences (GLUE/Garden Path). These are independent: the model generates a prediction, which is then validated against ground-truth linguistic annotations, not a signal derived from the same internal computation.
+The predictor (structural features of garden-path sentences) is derived from linguistic annotations and syntactic parsing of the input text. The predicted variable (resolution accuracy or error rate) is derived from the model's output compared to ground-truth labels. These are independent sources: the input structure is not mathematically derived from the model's output error signal, nor is the error signal a direct summary of the input structure.
 
 ### Triviality check
 
 **Verdict**: pass
 
-A positive result (predictive coding outperforms static attention on ambiguity) would provide strong evidence for the computational necessity of hierarchical error signaling in language, supporting neuroscientific theories. A null result (no advantage after controlling for parameters) would be equally informative, suggesting that standard attention mechanisms already implicitly capture the necessary error-correction dynamics or that the benefit only emerges at scales beyond this project. Neither outcome is predetermined.
+A positive result (predictive coding resolves ambiguity better) would support the hypothesis that biological-like error minimization is crucial for handling linguistic complexity. A null result (no improvement or worse performance) would be highly informative, suggesting that static attention mechanisms are sufficient for these tasks or that the overhead of error propagation outweighs its benefits. Neither outcome is predetermined by current domain knowledge, as this is an architectural comparison not yet settled in literature.
 
 ### Question-narrowing check
 
 **Verdict**: concern
 
-The question asks "To what extent... provide a necessary computational advantage," which is a valid domain question, but the clause "can this advantage be isolated from general parameter scaling effects" shifts the focus toward a specific experimental control challenge rather than the phenomenon itself. The question is slightly narrowed by the requirement to prove isolation, which is a methodological hurdle, though the underlying inquiry remains about the nature of language processing.
+The question explicitly names a specific architectural solution ("hierarchical error-minimization mechanism") and asks if it is "more efficient or robust" than "static context integration." This frames the research as a benchmarking exercise for a specific method rather than an investigation into the principles of ambiguity resolution. It risks reducing the project to "Does method A beat method B?" rather than "What are the necessary conditions for resolving syntactic ambiguity?"
 
 ### Overall verdict
 
 **Verdict**: validator_revise
 
-The core question is scientifically sound but is currently framed in a way that conflates the phenomenon (ambiguity resolution) with the difficulty of the experimental design (controlling for scaling). To ensure the project remains focused on the *mechanism* rather than the *benchmark victory*, the question should be reframed to explicitly prioritize the comparison of processing dynamics over the strict isolation of scaling variables, which may be a secondary contribution.
+The core idea is sound, but the research question is currently framed as a method-evaluation benchmark rather than a substantive inquiry into the mechanism of ambiguity resolution. To fix this, the question should focus on the *properties* required to resolve garden-path sentences, using the predictive coding approach as the means to test those properties, not the subject of the question itself.
 
 [REVISED]
-How do hierarchical error-minimization dynamics differ from static attention mechanisms in resolving syntactic ambiguity, and to what degree do these differences persist when controlling for model parameter count?
+How does the presence of hierarchical prediction-error signaling influence the resolution of syntactic ambiguity in garden-path sentences, and what specific structural features of these sentences determine the necessity for iterative re-analysis?
 [/REVISED]
-This reframing keeps the focus on the *difference in dynamics* (the phenomenon) while acknowledging the scaling control as a condition of the comparison rather than the primary question itself.
+This reframing shifts the focus from "does method X work better?" to "what is the role of hierarchical error signaling in resolving ambiguity?", allowing the predictive coding implementation to serve as the experimental probe for the phenomenon rather than the object of study.
