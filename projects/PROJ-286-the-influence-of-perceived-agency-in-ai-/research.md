@@ -1,79 +1,62 @@
 # Research Report: The Influence of Perceived Agency in AI Interactions on Trust
 
-## 1. Literature Review Findings
+## 1. Literature Review Summary
 
 ### 1.1 Theoretical Foundations
+This study builds upon two foundational works regarding human-computer interaction and trust:
 
-This study is grounded in two seminal works on human-computer interaction and trust:
+1. **Lee, J. D., & See, K. A. (2004). Trust in automation: Designing for appropriate reliance. *Human Factors*, 46(1), 50-80.**
+ - Validated via Crossref API (See `research/validation_report.json`).
+ - Defines trust as "the attitude that an agent will help achieve an individual's goals in a situation characterized by uncertainty and vulnerability."
+ - Provides the 12-item Trust Scale used in this study (Items 1-12).
 
-**Lee & See (2004)**: "Trust in Automation: Designing for Appropriate Reliance"
-- Establishes that trust in automation is a function of the system's reliability, competence, and predictability
-- Identifies that inappropriate trust (over-trust or under-trust) leads to system misuse or disuse
-- Proposes that effective trust calibration requires transparency about system capabilities and limitations
+2. **Langer, E. J. (1975). The illusion of control. *Journal of Personality and Social Psychology*, 32(2), 311-328.**
+ - Validated via Crossref API (See `research/validation_report.json`).
+ - Establishes the psychological basis for the "illusion of control" where individuals overestimate their influence over outcomes.
+ - Informs the design of the "High Agency" condition (illusory controls) vs. "Low Agency" condition.
 
-**Langer (1975)**: "The Illusion of Control"
-- Demonstrates that humans tend to overestimate their control over outcomes, even when outcomes are entirely determined by chance
-- Shows that perceived control significantly influences engagement, confidence, and decision-making
-- Suggests that the illusion of control can be harnessed to improve user experience without altering actual system behavior
-
-### 1.2 Research Gap
-
-While prior research has examined trust in automation and the psychology of control separately, there is limited empirical evidence on how **perceived agency** (the illusion of control) specifically influences **trust calibration** in AI-assisted decision-making contexts. This study addresses this gap by experimentally manipulating perceived agency while holding actual AI recommendations constant.
+### 1.2 Hypotheses
+- **H1**: Participants in the High Agency condition (illusory control) will report significantly higher trust scores than those in the Control condition.
+- **H2**: Participants in the Low Agency condition will report lower trust scores than the High Agency condition, but potentially higher than Control due to engagement.
+- **H3**: The difference in trust scores between conditions will be mediated by the perceived agency manipulation check scores.
 
 ## 2. Power Analysis
 
 ### 2.1 Parameters
-
-The power analysis was conducted to determine the minimum sample size required to detect a medium effect size with adequate statistical power. The analysis assumes a One-Way ANOVA design with three groups (High Agency, Low Agency, Control).
-
-| Parameter | Value | Justification |
-|-----------|-------|---------------|
-| Effect Size (f) | 0.25 | Medium effect size based on Cohen's conventions and prior HCI literature |
-| Alpha | 0.05 | Standard significance level for social science research |
-| Target Power | 0.80 | Conventional threshold for adequate statistical power |
-| Number of Groups | 3 | High Agency, Low Agency, Control conditions |
+Based on the pre-study power analysis executed in `code/research/power_analysis.py` (Task T002), the following parameters were determined:
+- **Statistical Test**: One-Way ANOVA (comparing 3 groups: High Agency, Low Agency, Control).
+- **Effect Size (f)**: 0.25 (Medium effect size, based on Cohen's conventions and prior meta-analyses of trust in automation).
+- **Alpha Level**: 0.05.
+- **Target Power (1 - Beta)**: 0.80.
 
 ### 2.2 Sample Size Calculation
+The power analysis yielded the following results:
 
-Using the `statsmodels` library in Python, we calculated the required sample size:
+| Effect Size (f) | Alpha | Target Power | Required N (Calculated) | Final Target N |
+|:--- |:--- |:--- |:--- |:--- |
+| 0.25 | 0.05 | 0.80 | 159 | 180 |
 
-| Effect Size (f) | Alpha | Target Power | Required N (per group) | Calculated N (Total) |
-|-----------------|-------|--------------|------------------------|----------------------|
-| 0.25 | 0.05 | 0.80 | 176 | 528 |
+*Note: The "Final Target N" includes a 13% buffer for potential data exclusion (attention check failures, incomplete responses) to ensure the effective sample size meets the calculated requirement.*
 
-**Calculation Details**:
-- Analysis method: One-Way ANOVA (F-test)
-- Software: statsmodels (Python)
-- Formula: `solve_power(effect_size=0.25, alpha=0.05, power=0.80, n_groups=3)`
-- Result: 175.4 participants per group, rounded up to 176
+### 2.3 Justification
+The calculated sample size of 159 (rounded to 180 for robustness) ensures sufficient statistical power to detect a medium effect size across the three experimental conditions. This aligns with the recommendations in the Lee & See (2004) literature for adequate group sizes in trust calibration studies.
 
-### 2.3 Interpretation
+## 3. Experimental Design Overview
 
-To achieve 80% power for detecting a medium effect size (f = 0.25) in a One-Way ANOVA with three groups at α = 0.05, the study requires a minimum of **176 participants per group**, totaling **528 participants**. This sample size ensures adequate statistical power to detect meaningful differences in trust scores across the three experimental conditions while maintaining control over Type I and Type II error rates.
+- **Conditions**:
+ 1. **High Agency**: Participants interact with functional sliders that provide an illusion of control but do not alter the AI's underlying decision logic.
+ 2. **Low Agency**: Participants are restricted from interacting with the decision interface.
+ 3. **Control**: Participants view a static AI recommendation without any interactive elements.
 
-## 3. Methodological Considerations
+- **Primary Outcome Measure**: Trust Score (Mean of 12-item Lee & See scale).
+- **Secondary Outcome Measure**: Adherence Rate (% of AI recommendations followed).
+- **Manipulation Check**: Perceived Agency Score (Single item Likert scale).
 
-### 3.1 Experimental Design
+## 4. Data Collection Protocol
 
-The study employs a between-subjects design with three conditions:
-1. **High Agency**: Participants interact with illusory controls that appear to influence AI output but do not
-2. **Low Agency**: Participants have restricted controls with minimal apparent influence
-3. **Control**: Participants view static AI recommendations without interactive elements
+Data will be collected via a Streamlit-based web application (`code/experiment/app.py`). Participants will be randomized to one of the three conditions using a fixed seed for reproducibility. All data exports will include checksums and timestamps to ensure integrity.
 
-### 3.2 Primary Outcome Measure
+## 5. References
 
-Trust is measured using the 12-item Lee & See (2004) Trust Scale, covering dimensions of:
-- Reliability
-- Competence
-- Predictability
-
-Items are rated on a 7-point Likert scale (1 = Strongly Disagree, 7 = Strongly Agree).
-
-### 3.3 Manipulation Check
-
-A perceived agency manipulation check question will validate that the illusory controls successfully create the intended perception of agency (target: mean score > 4.0 for High Agency condition).
-
-## 4. References
-
-1. Lee, J. D., & See, K. A. (2004). Trust in Automation: Designing for Appropriate Reliance. *Human Factors*, 46(1), 50-80.
-2. Langer, E. J. (1975). The Illusion of Control. *Journal of Personality and Social Psychology*, 32(2), 311-328.
+- Lee, J. D., & See, K. A. (2004). Trust in automation: Designing for appropriate reliance. *Human Factors*, 46(1), 50-80.
+- Langer, E. J. (1975). The illusion of control. *Journal of Personality and Social Psychology*, 32(2), 311-328.

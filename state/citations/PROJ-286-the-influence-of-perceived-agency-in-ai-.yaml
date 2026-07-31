@@ -1,1 +1,34 @@
-[]
+- artifact_hash: 6d6e1693de777483c0821696630ab2a8c8c4c768baf7e35816fcd3185b7c6d47
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Users Request Help From Advisory Systems With Simple and Restricted
+    Language: Effects of Real-Time Constraints and Limited Shared Context'
+  kind: doi
+  value: 10.1207/s15327051hci0601_2
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1207/s15327051hci0601_2
+  verified_at: '2026-07-31T18:22:00.652303Z'
+- artifact_hash: 6d6e1693de777483c0821696630ab2a8c8c4c768baf7e35816fcd3185b7c6d47
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Dream content and adaptation to a stressful situation.
+  kind: doi
+  value: 10.1037/h0076648
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1037/h0076648
+  verified_at: '2026-07-31T18:22:00.652303Z'
+- artifact_hash: cffe7c0fafe38def8cce2805a93b15e1230005e7758b108c902d3c64cb6a7707
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: works?query.title={title
+  kind: url
+  value: https://api.crossref.org/works?query.title={title}`
+  verification_status: pending
+  verified_against_url: https://api.crossref.org/works?query.title={title
+  verified_at: '2026-07-31T18:26:11.985358Z'

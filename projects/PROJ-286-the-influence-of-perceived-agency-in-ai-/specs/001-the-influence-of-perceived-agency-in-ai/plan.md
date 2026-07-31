@@ -13,7 +13,7 @@ This project implements a randomized controlled experiment to test whether incre
 **Primary Dependencies**: `streamlit` (experiment interface), `pandas`, `numpy`, `scipy`, `statsmodels`, `pingouin`, `pytest`, `pandas`  
 **Storage**: Local CSV files in `data/raw/` (participant data) and `data/processed/` (analysis-ready data)  
 **Testing**: `pytest` with `pytest-cov` for coverage; synthetic data generators for unit tests  
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, 7GB RAM, no GPU)  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPUs, 7GB RAM, no GPU)  
 **Project Type**: computational-experiment  
 **Performance Goals**: Analysis pipeline completes within 6 hours on free-tier; data collection interface responsive (<200ms interactions)  
 **Constraints**: No GPU/CUDA; all statistical methods must run on CPU; data subset to fit available RAM; no external API dependencies for core analysis  
@@ -27,13 +27,13 @@ This project implements a randomized controlled experiment to test whether incre
 
 | Principle | Status | Implementation Detail |
 |-----------|--------|----------------------|
-| **I. Reproducibility** | ✅ PASS | Random seeds pinned in `code/analysis/` (e.g., `np.random.seed(42)`); all dependencies pinned in `requirements.txt`; GitHub Actions workflow ensures fresh runner execution. |
-| **II. Verified Accuracy** | ✅ PASS | Lee & See (2004) and Langer (1975) citations will be validated by the Reference-Validator Agent in Phase 0 before data collection begins. Trust scale items will be cross-referenced with original instrument. |
+| **I. Reproducibility** | ✅ PASS | Random seeds pinned in `code/analysis/` (e.g., `np.random.seed()`); all dependencies pinned in `requirements.txt`; GitHub Actions workflow ensures fresh runner execution. |
+| **II. Verified Accuracy** | ✅ PASS | Lee & See () and Langer () citations will be validated by the Reference-Validator Agent in Phase 0 before data collection begins. Trust scale items will be cross-referenced with original instrument. |
 | **III. Data Hygiene** | ✅ PASS | Raw data in `data/raw/` is checksummed; no in-place modifications; derivations written to new files in `data/processed/`; PII scan enforced. |
 | **IV. Single Source of Truth** | ✅ PASS | All figures/statistics in paper trace to exactly one row in `data/processed/` and one code block in `code/analysis/`; no hand-typed numbers. |
 | **V. Versioning Discipline** | ✅ PASS | Content hashes for all artifacts; `state/projects/PROJ-286-*.yaml` updated via CI hook/post-run script upon artifact generation. |
 | **VI. Experimental Manipulation Fidelity** | ✅ PASS | High/Low/Control conditions implemented via specific UI manipulations (sliders vs. static display); predictor is interface feature, not derived metric. AI output content is identical across conditions. |
-| **VII. Behavioral Outcome Isolation** | ✅ PASS | Trust scores derived from Lee & See (2004) scale; adherence is a secondary outcome, not used as a filter. No mathematical derivation links trust to agency signal; circularity check enforced. |
+| **VII. Behavioral Outcome Isolation** | ✅ PASS | Trust scores derived from the Lee & See scale; adherence is a secondary outcome, not used as a filter. No mathematical derivation links trust to agency signal; circularity check enforced. |
 
 ## Project Structure
 
@@ -94,7 +94,7 @@ The plan enforces the following computational task ordering to ensure data integ
 
 1. **Phase 0: Research** → 
    - Dataset verification (self-collected).
-   - **Reference Validation**: Run Reference-Validator Agent on Lee & See (2004) and Langer (1975) citations.
+   - **Reference Validation**: Run Reference-Validator Agent on Lee & See (n.d.) and Langer (1975) citations.
    - Power analysis.
    - Literature review.
 2. **Phase 1: Design** → Data model contracts, experimental interface design, analysis pipeline specification.
@@ -132,7 +132,7 @@ All methods are CPU-tractable and fit within GitHub Actions free-tier constraint
 
 - **Statistical Analysis**: `scipy`, `statsmodels`, and `pingouin` are pure-Python/C extensions with no GPU requirements.
 - **Data Size**: ~200 participants × ~25 columns = <1MB CSV; well within 7GB RAM and 14GB disk.
-- **Runtime**: Power analysis, ANOVA, contrasts, and sensitivity sweeps complete in <10 minutes on 2 CPU cores.
+- **Runtime**: Power analysis, ANOVA, contrasts, and sensitivity sweeps complete in <10 minutes on CPU cores.
 - **Libraries**: All dependencies have CPU wheels available on PyPI; no CUDA, 8-bit quantization, or mixed-precision training.
 
 ## Risk Mitigation

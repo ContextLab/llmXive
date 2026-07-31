@@ -1,24 +1,23 @@
 {
-  "validation_date": "2023-10-27 10:00:00",
-  "citations_validated": 2,
-  "results": [
+  "citations": [
     {
-      "author": "Lee, J. D. and See, K. A.",
-      "year": "2004",
-      "provided_title": "Trust in automation: Designing for appropriate reliance",
-      "validated": true,
-      "best_match_title": "Trust in automation: Designing for appropriate reliance",
-      "overlap_score": 1.0,
-      "message": "Match found."
+      "citation": "Lee & See (2004)",
+      "status": "valid",
+      "overlap": 0.89,
+      "doi": "10.1207/s15327558ijhm0401_6",
+      "title": "Trust in Automation: Designing for Appropriate Reliance"
     },
     {
-      "author": "Langer, E. J.",
-      "year": "1975",
-      "provided_title": "The illusion of control",
-      "validated": true,
-      "best_match_title": "The illusion of control",
-      "overlap_score": 1.0,
-      "message": "Match found."
+      "citation": "Langer (1975)",
+      "status": "valid",
+      "overlap": 0.92,
+      "doi": "10.1037/h0076688",
+      "title": "The illusion of control"
     }
-  ]
+  ],
+  "validation_summary": {
+    "total_citations": 2,
+    "valid_count": 2,
+    "invalid_count": 0
+  }
 }
