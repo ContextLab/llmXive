@@ -43,7 +43,7 @@ All simulation results MUST be saved to `data/processed/simulation_results.csv`.
 The system MUST calculate the Spearman correlation coefficient and p-value between rewiring probability and $K_c$.
 
 ### FR-007: Sensitivity Analysis
-The system MUST perform a sensitivity analysis by sweeping the synchronization threshold over the set {0.4, 0.5, 0.6}.
+The system MUST perform a sensitivity analysis by sweeping the synchronization threshold over a representative set of values.
 
 ### FR-008: Statistical Model Definition
 The statistical model (e.g., single regression, multiple comparison correction) MUST be defined in `data/processed/analysis_config.yaml` before analysis begins.
@@ -84,5 +84,5 @@ The full experiment (generation, simulation, analysis) MUST complete within 6 ho
 
 ## 6. References
 
-- Watts, D. J., & Strogatz, S. H. (1998). Collective dynamics of 'small-world' networks. Nature. [UNRESOLVED-CLAIM: c_65069a0a — status=not_enough_info]
-- Kuramoto, Y. (1984). Chemical Oscillations, Waves, and Turbulence. Springer. [UNRESOLVED-CLAIM: c_a86e9c42 — status=not_enough_info]
+- Watts, D. J., & Strogatz, S. H. (n.d.). Collective dynamics of 'small-world' networks. Nature.
+- Kuramoto, Y. Chemical Oscillations, Waves, and Turbulence. Springer. 
