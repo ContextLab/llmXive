@@ -1,21 +1,14 @@
 status: verified
 kind: pypi_package
 ref: datasets
-access_python: 'import sys
+access_python: 'import datasets
 
-  from datasets import load_dataset
 
-  ds = load_dataset("openai/openai_humaneval", split="test")
+  ds = datasets.load_dataset("openai/openai_humaneval", split="test")
 
-  records = len(ds)
+  print(f"RECORDS={len(ds)}")
 
-  print(f"RECORDS={records}")
-
-  required = ["task_id","prompt","canonical_solution","test","entry_point"]
-
-  fields = [f for f in required if f in ds.column_names]
-
-  print("FIELDS=" + ",".join(fields))'
+  print("FIELDS=" + ",".join(ds.column_names))'
 record_count: 164
 sample_fields:
 - task_id
@@ -30,6 +23,6 @@ required_fields:
 - canonical_solution
 - test
 - entry_point
-intent: download HumanEval benchmark via HuggingFace openai_humaneval python package
+intent: download HumanEval dataset from HuggingFace openai_humaneval python package
   dataset
-cache_key: ed0652e64d4ae2fbbab1450653dc70f360e78e23c065118a4cc460f8d4f998e3
+cache_key: e029c981af5439ab9f1dfdbe1355fd6e6773e03ee4a00833cb08b877612e41a3

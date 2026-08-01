@@ -1,95 +1,163 @@
 # Data Model: Evaluating the Impact of Code Generation Models on Code Testability
 
 ## Overview
+This document defines the schema for the primary data artifacts produced by the pipeline: the **Metrics JSON** and the **Artifact Hashes YAML**. These schemas ensure the "Single Source of Truth" (Constitution Principle IV) and enable automated validation. The canonical contract for metrics is `contracts/metrics.schema.yaml`.
 
-This document defines the data structures used throughout the pipeline, ensuring type safety and reproducibility. All data flows from `raw` (HumanEval) to `generated` (LLM code) to `analysis` (metrics) and finally to `results` (report data).
+## 1. Metrics Dataset (`data/analysis/metrics.json`)
 
-## Entity Definitions
+A JSON array where each object represents the analysis of a single code sample (either human reference or LLM-generated) for a specific task.
 
-### 1. CodeSample
-Represents a single unit of code (human or LLM) linked to a specific HumanEval task.
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `task_id` | `str` | Unique identifier from HumanEval (e.g., "HumanEval/0"). |
-| `source_type` | `str` | Enum: `"human"`, `"codegen-350M"`, `"codellama-7b"`, `"codellama-3b"`. |
-| `raw_code` | `str` | The raw Python code string. |
-| `status` | `str` | Enum: `"success"`, `"failed_generation"`, `"failed_execution"`, `"failed_coverage"`. |
-| `error_log` | `str` | Optional error message if status is not "success". |
-
-### 2. MetricResult
-Computed static and dynamic analysis metrics for a `CodeSample`.
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `task_id` | `str` | Links to `CodeSample`. |
-| `source_type` | `str` | Links to `CodeSample`. |
-| `cyclomatic_complexity` | `float` | From `radon`. `[deferred]` if execution fails. |
-| `halstead_volume` | `float` | From `radon`. `[deferred]` if execution fails. |
-| `branch_coverage_pct` | `float` | From `coverage.py` (0.0 to 100.0). `[deferred]` if execution fails. |
-| `pass_rate` | `int` | Binary: 1 (all tests pass), 0 (any failure). |
-
-### 3. StatisticalTestResult
-Output of hypothesis testing.
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `test_name` | `str` | e.g., "Wilcoxon Signed-Rank", "McNemar". |
-| `metric` | `str` | The metric being tested (e.g., "cyclomatic_complexity"). |
-| `statistic` | `float` | The test statistic value. |
-| `p_value` | `float` | The p-value. |
-| `significant` | `bool` | True if $p < 0.05$ (after correction). |
-| `null_hypothesis` | `str` | Text description of $H_0$. |
-| `conclusion` | `str` | Text interpretation of the result. |
-
-### 4. PowerAnalysisResult
-Output of power analysis.
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `analysis_type` | `str` | "a_priori" or "post_hoc". |
-| `effect_size` | `float` | Observed or assumed effect size (Cohen's d). |
-| `sample_size` | `int` | Number of paired samples. |
-| `power` | `float` | Achieved or target power. |
-| `alpha` | `float` | Significance threshold (0.05). |
-| `status` | `str` | "PASS" or "FAIL" based on power threshold. |
-
-## File Formats
-
-### `data/analysis/metrics.json`
-A list of `MetricResult` objects.
-```json
-[
-  {
-    "task_id": "HumanEval/0",
-    "source_type": "human",
-    "cyclomatic_complexity": 2.0,
-    "halstead_volume": 15.5,
-    "branch_coverage_pct": 85.0,
-    "pass_rate": 1
-  },
-  {
-    "task_id": "HumanEval/0",
-    "source_type": "codegen-350M",
-    "cyclomatic_complexity": 3.0,
-    "halstead_volume": 18.2,
-    "branch_coverage_pct": 70.0,
-    "pass_rate": 0
-  }
-]
-```
-
-### `data/analysis/statistical_results.json`
-A list of `StatisticalTestResult` objects.
-
-### `state/artifact_hashes.yaml`
-Tracking file for reproducibility.
+### Schema Definition
 ```yaml
-dataset:
-  source: "openai/openai_humaneval"
-  hash: "sha256:..."
-  commit: "..."
-artifacts:
-  codegen_samples: "sha256:..."
-  codellama_samples: "sha256:..."
+type: array
+items:
+  type: object
+  required:
+    - task_id
+    - model_id
+    - source_type
+    - cyclomatic_complexity
+    - halstead_volume
+    - branch_coverage_pct
+    - pass_rate
+    - checksum
+  properties:
+    task_id:
+      type: string
+      description: "Unique identifier from HumanEval (e.g., 'HumanEval/0')"
+    model_id:
+      type: string
+      description: "Identifier of the model used (e.g., 'human', 'codegen-350m', 'codellama-7b')"
+    source_type:
+      type: string
+      enum: ["human", "generated"]
+      description: "Origin of the code sample"
+    cyclomatic_complexity:
+      type: number
+      description: "Cyclomatic complexity calculated via radon"
+    halstead_volume:
+      type: number
+      description: "Halstead volume calculated via radon.halstead"
+    branch_coverage_pct:
+      type: number
+      minimum: 0
+      maximum: 100
+      nullable: true
+      description: "Dynamic branch coverage percentage (only if executable). Null if code failed to execute."
+    static_branch_count:
+      type: integer
+      minimum: 0
+      nullable: true
+      description: "Static branch count from AST (used if dynamic coverage is null)."
+    pass_rate:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Proportion of unit tests passed (0.0 to 1.0)"
+    checksum:
+      type: string
+      description: "SHA256 hash of the source code string"
+    generation_timestamp:
+      type: string
+      format: date-time
+      description: "ISO 8601 timestamp of generation"
+    status:
+      type: string
+      enum: ["success", "failed_execution", "failed_generation"]
+      description: "Status of the code generation/execution."
 ```
+
+## 2. Artifact Hashes (`state/artifact_hashes.yaml`)
+
+A YAML file tracking the integrity of all raw and processed data files.
+
+### Schema Definition
+```yaml
+type: object
+required:
+  - version
+  - updated_at
+  - hashes
+properties:
+  version:
+    type: string
+    description: "Schema version (e.g., '1.0.0')"
+  updated_at:
+    type: string
+    format: date-time
+    description: "Last update timestamp"
+  hashes:
+    type: object
+    additionalProperties:
+      type: object
+      required:
+        - file_path
+        - sha256
+      properties:
+        file_path:
+          type: string
+          description: "Relative path to the file"
+        sha256:
+          type: string
+          pattern: "^[a-f0-9]{64}$"
+          description: "SHA256 hash of the file content"
+```
+
+## 3. Validation Report (`state/validation_report.yaml`)
+
+Generated by `code/validate_citations.py` to satisfy FR-010.
+
+### Schema Definition
+```yaml
+type: object
+required:
+  - report_id
+  - timestamp
+  - citations
+  - overall_status
+properties:
+  report_id:
+    type: string
+    description: "Unique ID for the report being validated."
+  timestamp:
+    type: string
+    format: date-time
+  citations:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - url
+        - title
+        - overlap_score
+        - status
+      properties:
+        id:
+          type: string
+          description: "Unique citation ID."
+        url:
+          type: string
+        title:
+          type: string
+        overlap_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        status:
+          type: string
+          enum: ["valid", "invalid", "missing"]
+  overall_status:
+    type: string
+    enum: ["passed", "failed"]
+```
+
+## Data Flow
+1. **Raw Data**: `data/raw/humaneval.parquet` (Downloaded, checksummed).
+2. **Generated Data**: `data/generated/[model]_samples.json` (LLM output).
+3. **Analysis**: `data/analysis/metrics.json` (Computed metrics).
+4. **Metadata**: `state/artifact_hashes.yaml` (Integrity tracking).
+5. **Validation**: `state/validation_report.yaml` (Citation validation).
+6. **Results**: `state/validation_results.yaml` (Statistical test results).
+
+All transformations are logged in `state/validation_report.yaml` with provenance links.

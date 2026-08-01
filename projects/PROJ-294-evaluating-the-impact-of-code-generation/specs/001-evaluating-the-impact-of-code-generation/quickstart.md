@@ -1,81 +1,69 @@
 # Quickstart: Evaluating the Impact of Code Generation Models on Code Testability
 
 ## Prerequisites
-
-- **Python**: 3.11+
-- **System Dependencies**: `git`, `make` (optional)
-- **Hardware**: CPU-only environment (minimum 7GB RAM recommended for CodeLlama-7B quantization).
-- **Accounts**: HuggingFace account (for model access if required, though public models are used).
+- Python 3.11+
+- Git
+- (Optional) Kaggle CLI for GPU offload (handled automatically by CI)
 
 ## Installation
 
-1.  **Clone the Repository** (or navigate to the project directory):
-    ```bash
-    cd projects/PROJ-294-evaluating-the-impact-of-code-generation
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-294-evaluating-impact-of-code-generation
+   ```
 
-2.  **Create a Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions to ensure reproducibility.*
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
 ## Running the Pipeline
 
-The pipeline is executed as a single script that orchestrates all phases: download, generation, analysis, testing, and reporting.
+The pipeline is executed in three sequential stages. Run them in order to ensure data availability.
 
-### Full Execution
+### Step 1: Download & Verify Data
+Downloads HumanEval and verifies the SHA256 checksum.
 ```bash
-python code/run_pipeline.py
+python code/download.py
 ```
-**What this does**:
-1.  Downloads HumanEval (validates SHA256).
-2.  Generates code using `Salesforce/codegen-350M-mono` (retries 3x).
-3.  (Optional) Generates code using `CodeLlama-7B` via API or fallback.
-4.  Runs `radon` and `pytest --cov` on all samples.
-5.  Performs statistical tests (Wilcoxon, McNemar).
-6.  Generates `results/results_report.md`.
+*Output*: `data/raw/humaneval.parquet`, `state/artifact_hashes.yaml` (updated).
 
-### Step-by-Step Execution (Debugging)
-If you need to debug a specific stage:
+### Step 2: Generate Code Samples
+Generates code using specified models.
+```bash
+# CPU-only (slow for large models)
+python code/generate.py --model codegen-350m
 
-1.  **Download Data**:
-    ```bash
-    python code/download_data.py
-    ```
-2.  **Generate Code**:
-    ```bash
-    python code/generate_code.py --model codegen-350M
-    ```
-3.  **Analyze Metrics**:
-    ```bash
-    python code/analyze_metrics.py
-    ```
-4.  **Run Tests**:
-    ```bash
-    python code/statistical_tests.py
-    ```
-5.  **Generate Report**:
-    ```bash
-    python code/report_generator.py
-    ```
+# Auto-offload to GPU if detected (for CodeLlama)
+python code/generate.py --model codellama-7b
+```
+*Output*: `data/generated/codegen-350m_samples.json`, `data/generated/codellama-7b_samples.json`.
+
+### Step 3: Analyze & Report
+Computes metrics, runs statistical tests, and generates the report.
+```bash
+python code/analyze.py
+python code/statistics.py
+python code/report.py
+```
+*Output*: `data/analysis/metrics.json`, `state/validation_report.yaml`, `results/report.md`.
 
 ## Verification
 
-To verify the pipeline ran correctly:
-
-1.  **Check `data/analysis/metrics.json`**: Ensure it contains at least 40 valid paired entries.
-2.  **Check `results/results_report.md`**: Open the file to view visualizations and statistical conclusions.
-3.  **Check `state/artifact_hashes.yaml`**: Verify that SHA256 hashes are populated.
+To verify the integrity of the run:
+```bash
+python code/validate.py
+```
+This script checks all `data/` files against `state/artifact_hashes.yaml` and ensures citations in the report are valid.
 
 ## Troubleshooting
 
-- **Memory Error**: If you encounter OOM errors during CodeLlama-7B generation, the pipeline should automatically fall back to CodeLlama-3B. Check `errors.log` for details.
-- **Missing HumanEval**: Ensure you have internet access and the HuggingFace URL is accessible.
-- **Coverage Failures**: If `coverage.py` fails, check `errors.log` for specific Python syntax errors in generated code.
+- **OOM (Out of Memory)**: If `generate.py` fails with OOM, the script automatically attempts to offload to a GPU if the `CUDA_VISIBLE_DEVICES` environment variable is set. On local machines, reduce the batch size or use `--quantize 8bit`.
+- **Checksum Mismatch**: Ensure you are using the exact `datasets` version pinned in `requirements.txt`. Re-run `download.py` to refresh the data.
