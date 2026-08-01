@@ -1,0 +1,196 @@
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: enforce exactly 2 CPU cores using os.sched_setaffinity and OMP_NUM_THREADS=2
+  claim_id: c_a61cd80a
+  context: Implement explicit 2-core enforcement logic in src/environment/runner.py
+    using os.sched_setaffinity to pin the process to exactly 2 CPU cores and setting
+    OMP_NUM_THREADS=2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Task T017c requires enforcing exactly 2 CPU cores using os.sched_setaffinity
+    and setting OMP_NUM_THREADS=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:20:48Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: heavy-tailed noise distribution using Student's t with 3 degrees of freedom
+  claim_id: c_49656563
+  context: Implement generation of held-out set with heavy-tailed noise distribution
+    (Student's t, degrees of freedom=3) in src/environment/synthetic_mdp.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Task T034c requires generating a held-out set with heavy-tailed noise
+    distribution using Student's t with 3 degrees of freedom.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:21:18Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: stability ratio within 0.9 to 1.1 for at least 95% of steps
+  claim_id: c_05715a97
+  context: "Implement stability check function run_stability_check(heuristic_vals,\
+    \ fullbatch_vals) in src/analysis/stats.py. Deliverable: Function returning boolean\
+    \ and ratio stats; verifies ratio remains within [0.9, 1.1] for \u2265 95% of\
+    \ steps."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_ratio_within_0.9_to_1.1_for_at_least_95%25_of_steps
+  kind: magnitude
+  raw_text: Task T021b requires the stability check ratio to remain within the range
+    [0.9, 1.1] for at least 95% of steps.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:21:46Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: coincidence check failure point defined as sample count exceeds bound
+    by factor 1.5 and distance greater than 5%
+  claim_id: c_de5c73a5
+  context: 'Implement COINCIDENCE CHECK for SC-002: Identify smallest N where sample
+    count exceeds bound by a moderate factor AND distance > 5% (using src/environment/pareto_oracle.py
+    from FR-017 as the source for the 5% threshold).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Coincidence_check_failure_point_defined_as_sample_count_exce
+  kind: magnitude
+  raw_text: Task T042b defines the coincidence check failure point as the smallest
+    N where sample count exceeds the bound by a factor of 1.5 and distance is greater
+    than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:22:35Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Sparse distribution with sparsity ratio greater than 0.9
+  claim_id: c_709bd46d
+  context: Implement generation of reward functions with 'Sparse' (sparsity ratio
+    > 0.9) and 'Non-Convex' (curvature metric > 0.5) distributions in src/environment/synthetic_mdp.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sparse_distribution_with_sparsity_ratio_greater_than_0.9
+  kind: magnitude
+  raw_text: Task T034e requires generating reward functions with 'Sparse' distribution
+    having a sparsity ratio greater than 0.9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:23:19Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Non-Convex distribution with curvature metric greater than 0.5
+  claim_id: c_33e45d77
+  context: Implement generation of reward functions with 'Sparse' (sparsity ratio
+    > 0.9) and 'Non-Convex' (curvature metric > 0.5) distributions in src/environment/synthetic_mdp.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Non-Convex_distribution_with_curvature_metric_greater_than_0
+  kind: magnitude
+  raw_text: Task T034e requires generating reward functions with 'Non-Convex' distribution
+    having a curvature metric greater than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:24:02Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: one-sample t-test p-value less than 0.05 for synthetic data with known
+    mean deviation
+  claim_id: c_f3c58051
+  context: 'Implement ONE-SAMPLE T-TEST function run_one_sample_ttest(heuristic_vals,
+    theoretical_bound) in src/analysis/stats.py comparing mean deviation from theoretical
+    bound against zero. Deliverable: Function returning p-value and statistic. Verification:
+    Verify p-value < 0.05 for synthetic data with known mean deviation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/One-sample_t-test_p-value_less_than_0.05_for_synthetic_data
+  kind: magnitude
+  raw_text: Task T021e requires verifying a p-value less than 0.05 for synthetic data
+    with known mean deviation in the one-sample t-test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:24:44Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test p-value greater than 0.05 for synthetic data
+    with known slope matching theoretical bound
+  claim_id: c_0a79db33
+  context: "Implement Kolmogorov-Smirnov goodness-of-fit test for the slope of sample\
+    \ complexity vs N at \u03C1=0 in src/analysis/stats.py. Deliverable: Function\
+    \ run_ks_test_slope(...) returning p-value. Verification: Verify p-value > 0.05\
+    \ for synthetic data with known slope matching theoretical bound."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test_p-value_greater_than_0.05_for_synthe
+  kind: magnitude
+  raw_text: Task T052c requires verifying a p-value greater than 0.05 for synthetic
+    data with known slope matching theoretical bound in the Kolmogorov-Smirnov test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:25:32Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: heavy-tailed held-out set comparison against 10% deviation threshold
+  claim_id: c_db82f7cf
+  context: Implement comparison of heavy-tailed held-out set results against the theoretical
+    bound and the 10% deviation threshold in src/analysis/stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Task T034h implements a comparison against a 10% deviation threshold for
+    the heavy-tailed held-out set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:26:02Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: state space size |S| halved for N greater than 50
+  claim_id: c_94827810
+  context: 'Verify state space degradation logic in T034. Deliverable: Unit test tests/unit/test_runner_degradation.py
+    that asserts |S| is halved for N>50.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/state_space_size_%7CS%7C_halved_for_N_greater_than_50
+  kind: magnitude
+  raw_text: Task T034b requires verifying that the state space size |S| is halved
+    for N greater than 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:26:21Z'

@@ -103,7 +103,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for interval calculation precision (≥0.1h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_intervals.py`
+- [X] T021 [P] [US2] Unit test for interval calculation precision (≥0.1h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_intervals.py`
 - [X] T022 [P] [US2] Unit test for binning logic boundaries (<2h, 2h-48h, >48h) in `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/test_binning.py`
 
 ### Implementation for User Story 2
@@ -131,14 +131,14 @@
 ### Implementation for User Story 3
 
 - [X] T029 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/models.py` to fit Cluster-Robust OLS (clustering by course ID) with feedback group as fixed effect (Plan: Technical Context, Complexity Tracking; FR-005)
-- [~] T030 [US3] Implement extraction of Cohen's d effect sizes and p-values for pairwise comparisons (FR-005)
-- [~] T031 [US3] Implement Tukey HSD post-hoc pairwise comparisons to control family-wise error rate (FR-006, SC-002)
+- [ ] T030 [US3] Implement extraction of Cohen's d effect sizes and p-values for pairwise comparisons (FR-005)
+- [ ] T031 [US3] Implement Tukey HSD post-hoc pairwise comparisons to control family-wise error rate (FR-006, SC-002)
 - [X] T032 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/sensitivity.py` to sweep 2h and 48h boundaries by ±0.01h, ±0.05h, ±0.1h and output intermediate data for stability calculation (FR-007)
-- [~] T033 [US3] Calculate and report "significance stability" (proportion of shifts where p < 0.05) using output from T032 (FR-007, SC-003)
-- [~] T034 [US3] Calculate and report "significance flip rate" (proportion of shifts where the *conclusion* changes) as required by SC-003 (SC-003)
+- [ ] T033 [US3] Calculate and report "significance stability" (proportion of shifts where p < 0.05) using output from T032 (FR-007, SC-003)
+- [ ] T034 [US3] Calculate and report "significance flip rate" (proportion of shifts where the *conclusion* changes) as required by SC-003 (SC-003)
 - [ ] T035 [US3] Generate `data/processed/results_metrics.csv` with effect sizes, p-values, and sensitivity stats (SC-001)
 - [ ] T036 [US3] Generate `data/processed/significance_stability_report.csv` explicitly documenting the stability metric and flip rate (FR-007, SC-003)
-- [~] T037 [US3] Verify "significance flip rate" against SC-003 and log the result (SC-003)
+- [ ] T037 [US3] Verify "significance flip rate" against SC-003 and log the result (SC-003)
 - [~] T038 [US3] Compare calculated effect sizes against the ≥0.3 target and flag the result in the final output (SC-001)
 - [~] T039 [US3] Run Reference-Validator Agent on candidate literature citations to verify "final grade" as a proxy for "skill acquisition" (FR-008, Constitution Principle II) <!-- ATOMIZE: requested -->
 - [X] T040 [US3] Implement `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/report.py` to generate final analysis report including the verified citation (FR-008)

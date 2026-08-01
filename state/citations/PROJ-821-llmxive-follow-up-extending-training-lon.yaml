@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/crozierm/DEAD-text-onnx/398d614ae7f526f1b46669fae9e283d08be1aa58/config.json?%2Fdatasets%2Fcrozierm%2FDEAD-text-onnx%2Fresolve%2Fmain%2Fconfig.json=&etag=%22b6ed0e9434bb6eb9bb94368deb3d3a3d333ff8e5%22
   verified_at: '2026-07-11T18:31:01.442000Z'
-- artifact_hash: d5513ea7f0a4164c3c80ff25444d8ba3fafd7222c51274609bf4c56ee979478d
+- artifact_hash: 27e837725a28b9f1c0333e39376924c23733c9485cdc76ae90a3a20d92297464
   artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://en.wikipedia.org/wiki/Moonshot_AI
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Moonshot_AI
-  verified_at: '2026-07-17T06:50:31.440445Z'
-- artifact_hash: d5513ea7f0a4164c3c80ff25444d8ba3fafd7222c51274609bf4c56ee979478d
+  verified_at: '2026-08-01T07:11:21.014550Z'
+- artifact_hash: 27e837725a28b9f1c0333e39376924c23733c9485cdc76ae90a3a20d92297464
   artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://arxiv.org/abs/2105.03536
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2105.03536
-  verified_at: '2026-07-17T06:50:31.440445Z'
-- artifact_hash: d5513ea7f0a4164c3c80ff25444d8ba3fafd7222c51274609bf4c56ee979478d
+  verified_at: '2026-08-01T07:11:21.014550Z'
+- artifact_hash: 27e837725a28b9f1c0333e39376924c23733c9485cdc76ae90a3a20d92297464
   artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://www.wikidata.org/wiki/Q19823792
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q19823792
-  verified_at: '2026-07-17T06:50:31.440445Z'
+  verified_at: '2026-08-01T07:11:21.014550Z'

@@ -1,10 +1,11 @@
 T009:
   c: false
-  h: 33dfd42bd546e243df97736e8193e8bce12f1a247418f182567a5e6922c04fad
-  r: The `code/schema.py` file exists, but the required `contracts/dataset.schema.yaml`
-    (or `schema.yaml`) is missing, so the utilities cannot be aligned with the schema
-    as the task demands. The missing schema file must be added for the task to be
-    complete.
+  h: 14f0597304e0f0b87f5cb57bfe7cf5dd9ac48338425824cb6820c6ef36fdbe7f
+  r: The `code/schema.py` file is present but its implementation is cut off (e.g.,
+    an unfinished line `valid =`), and the required `contracts/dataset.schema.yaml`
+    file does not exist, so the utilities cannot be verified to align with the schema.
+    Both the missing schema file and the incomplete code mean the task is not genuinely
+    fulfilled.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,3 +43,41 @@ T025:
     \ Without such a concrete implementation or output, the claim that FR\u2011004\
     \ is satisfied cannot be verified. The missing artifact must be supplied for the\
     \ task to be considered complete."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or output files were supplied that demonstrate the extraction\
+    \ of Cohen's\u202Fd effect sizes and corresponding p\u2011values for the pairwise\
+    \ comparisons. Without any tangible artifact, we cannot confirm that the required\
+    \ functionality was implemented. The next implementer must provide the actual\
+    \ implementation (e.g., a script or notebook) and its results showing Cohen's\u202F\
+    d values and p\u2011values for each group comparison."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or result files implementing Tukey HSD post\u2011hoc pairwise\
+    \ comparisons are present; the evidence provided is only the task description,\
+    \ not the required artifact. The implementer must supply the actual implementation\
+    \ (e.g., a script/notebook and its output) that performs the Tukey HSD tests on\
+    \ the OULAD data."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only a textual description of the task and specifications,\
+    \ but no actual artifact (e.g., code, data output, or report) showing the calculated\
+    \ \u201Csignificance stability\u201D proportion from T032 results. Without a concrete\
+    \ file or result, the requirement is not satisfied. The missing deliverable is\
+    \ the computed significance\u2011stability metric (and any accompanying report\
+    \ or code)."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (code, data, or report) showing the computed \u201Csignificance\
+    \ flip rate\u201D was provided; the claim contains only a description of the requirement,\
+    \ not the actual calculation or its output. The required metric is therefore missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, results, or log file showing the computed \u201Csignificance flip rate\u201D\
+    \ and its verification against SC\u2011003 is present. The required artifact (evidence\
+    \ of the calculation and logged outcome) is missing, so the task is not satisfied."

@@ -71,13 +71,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create `code/config.py` for hyperparameters, seeds, model paths, and Arm selection logic (**Arm B Primary** for hypothesis test, **Arm A Auxiliary** for control). **NOTE: Config must enforce Spec FR-002 model ID: mmpro/MMProLong-7B-1.0 [UNRESOLVED-CLAIM: c_59569330 — status=not_enough_info].**
+- [ ] T005 Create `code/config.py` for hyperparameters, seeds, model paths, and Arm selection logic (**Arm B Primary** for hypothesis test, **Arm A Auxiliary** for control). **NOTE: Config must enforce Spec FR-002 model ID: mmpro/MMProLong-7B-1.0.**
 - [ ] T006 [P] Implement `code/__init__.py` and base logging infrastructure
 - [ ] T007 [P] Setup environment configuration management (load `.env` if present, fallback to defaults)
 - [ ] T008 Create base data entities: `code/data_generation/synthetic_sample.py` (attributes: `sample_id`, `text_token_count`, `image_count`, `visual_token_count`, `needle_location`, `needle_value`, `arm_type`, `total_context_tokens`). **Note**: Images are fetched from the fixed set in `data/assets/`. Text is generated via template-based synthetic text.
 - [ ] T009 Create base data entities: `code/inference/inference_result.py` (attributes: `sample_id`, `retrieved_value`, `is_correct`, `inference_time_ms`, `peak_memory_mb`)
 - [ ] T010 [P] Implement `code/main.py` orchestration script (pure orchestration, no pilot run logic here). **Depends on T007 and T008 completion.**
-- [ ] T040 [P] [US2] **Model Preparation**: Implement `code/inference/model_prep.py` to download **`mmpro/MMProLong-7B-1.0 [UNRESOLVED-CLAIM: c_59569330 — status=not_enough_info]`** (per Spec FR-002) from HuggingFace and convert it to `Q4_K_M.gguf [UNRESOLVED-CLAIM: c_e3561434 — status=not_enough_info]` format using `llama.cpp`, saving to `models/mmpro/MMProLong-7B-1.0 [UNRESOLVED-CLAIM: c_59569330 — status=not_enough_info]-Q4_K_M.gguf [UNRESOLVED-CLAIM: c_e3561434 — status=not_enough_info]`. **This task MUST run before T041.** **WARNING: Plan.md incorrectly cites 'Qwen/Qwen2-VL-7B-Instruct'; this task enforces Spec FR-002.**
+- [ ] T040 [P] [US2] **Model Preparation**: Implement `code/inference/model_prep.py` to download **`mmpro/MMProLong-7B-1.0 `** (per Spec FR-002) from HuggingFace and convert it to `Q4_K_M.gguf ` format using `llama.cpp`, saving to `models/mmpro/MMProLong-7B-1.0 -Q4_K_M.gguf `. **This task MUST run before T041.** **WARNING: Plan.md incorrectly cites 'Qwen/Qwen2-VL-7B-Instruct'; this task enforces Spec FR-002.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,12 +87,12 @@
 
 **Goal**: Generate a synthetic dataset where visual density varies across a range. **Arm B (Constant Total) is the PRIMARY arm for the hypothesis test** (per Plan/Constitution), while Arm A (Constant Text) serves as the control (per Spec).
 
-**Independent Test**: A script runs to generate a batch. Output validation confirms text-only token count variance <1% [UNRESOLVED-CLAIM: c_a6c5b9d7 — status=refuted] (Arm A) or total token variance <1% [UNRESOLVED-CLAIM: c_9b675694 — status=not_enough_info] (Arm B), needle difficulty is identical, and visual token count varies exactly as specified.
+**Independent Test**: A script runs to generate a batch. Output validation confirms text-only token count variance <1% (Arm A) or total token variance <1% (Arm B), needle difficulty is identical, and visual token count varies exactly as specified.
 
 ### Implementation for User Story 1
 
 - [ ] T011 [P] [US1] Implement `code/data_generation/generator.py` with Dual-Arm logic:
- - **Arm B (Primary)**: Constant total tokens (text + visual), variable images (0–20). **Formula**: `visual_tokens = image_count * (336/14)^2 * 256 [UNRESOLVED-CLAIM: c_de68661e — status=not_enough_info] ` (approx 256 tokens per 336x336 image at 14x14 patch size). `text_tokens = target_total - visual_tokens`.
+ - **Arm B (Primary)**: Constant total tokens (text + visual), variable images (0–20). **Formula**: `visual_tokens = image_count * (336/14)^2 * 256 ` (approx 256 tokens per 336x336 image at 14x14 patch size). `text_tokens = target_total - visual_tokens`.
  - **Arm A (Auxiliary)**: Constant text tokens ({{claim:c_d8a50755}} (Wikipedia: Moonshot AI, https://en.wikipedia.org/wiki/Moonshot_AI)), variable images (0–20).
  - Ensure images are fixed resolution (336x336) and "needle" placement is deterministic.
  - **Crucial**: The generator must support a `--max_tokens` flag to handle both long-context (128K+) and short-context (≤4K) generation modes.
@@ -111,13 +111,13 @@
 
 ## Phase 4: User Story 2 - CPU-Feasible Inference and Retrieval Execution (Priority: P2)
 
-**Goal**: Execute "needle-in-a-haystack" retrieval on the generated dataset using **`mmpro/MMProLong-7B-1.0 [UNRESOLVED-CLAIM: c_59569330 — status=not_enough_info]`** (4-bit quantized via `llama-cpp-python`) on a 2-core CPU runner [UNRESOLVED-CLAIM: c_d9ca680c — status=not_enough_info] within 6 hours, with robust OOM handling. **Strictly adheres to Spec FR-002.**
+**Goal**: Execute "needle-in-a-haystack" retrieval on the generated dataset using **`mmpro/MMProLong-7B-1.0 `** (4-bit quantized via `llama-cpp-python`) on a 2-core CPU runner within 6 hours, with robust OOM handling. **Strictly adheres to Spec FR-002.**
 
 **Independent Test**: A single sample processes end-to-end without OOM, completes within time limits, and outputs a binary retrieval result.
 
 ### Implementation for User Story 2
 
-- [ ] T041 [P] [US2] Implement `code/inference/loader.py` to load `models/mmpro/MMProLong-7B-1.0 [UNRESOLVED-CLAIM: c_59569330 — status=not_enough_info]-Q4_K_M.gguf [UNRESOLVED-CLAIM: c_e3561434 — status=not_enough_info]` (generated by T040) with {{claim:c_273d3166}} (2105.03536, https://arxiv.org/abs/2105.03536) (`Q4_K_M` format) using `llama-cpp-python` (CPU only). **Exclusive use of llama-cpp-python required. Model ID must match Spec FR-002: mmpro/MMProLong-7B-1.0 [UNRESOLVED-CLAIM: c_59569330 — status=not_enough_info].**
+- [ ] T041 [P] [US2] Implement `code/inference/loader.py` to load `models/mmpro/MMProLong-7B-1.0 -Q4_K_M.gguf ` (generated by T040) with {{claim:c_273d3166}} (2105.03536, https://arxiv.org/abs/2105.03536) (`Q4_K_M` format) using `llama-cpp-python` (CPU only). **Exclusive use of llama-cpp-python required. Model ID must match Spec FR-002: mmpro/MMProLong-7B-1.0.**
 - [ ] T042 [P] [US2] Implement `code/inference/runner.py` with:
  - Batch inference loop.
  - {{claim:c_5c902f9c}} (Wikidata Q19823792, https://www.wikidata.org/wiki/Q19823792).
@@ -127,7 +127,7 @@
 - [ ] T044 [US2] Integrate `code/inference/runner.py` into `code/main.py` to process `data/synthetic/` and write results to `data/results/aggregated/`.
 - [ ] T045 [US2] Implement timing logic in `code/inference/runner.py` to ensure average time per sample meets a predefined efficiency threshold relative to the dataset size.
 - [ ] T046 [US2] [P] Implement inference logic to process short-context samples from `data/synthetic/short_context/` and write results to `data/results/short_context_raw.jsonl`.
-- [ ] T047 [US2] [P] **Generate** the short-context control group: 500 samples [UNRESOLVED-CLAIM: c_0dd58d76 — status=not_enough_info] (≤4K tokens [UNRESOLVED-CLAIM: c_c5557863 — status=not_enough_info]) with 1 image using `generator.py` with `--arm A --max_tokens 4096`, saving to `data/synthetic/short_context/`.
+- [ ] T047 [US2] [P] **Generate** the short-context control group: 500 samples (≤4K tokens) with 1 image using `generator.py` with `--arm A --max_tokens 4096`, saving to `data/synthetic/short_context/`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -157,7 +157,7 @@
 
 **Goal**: Evaluate short-context samples separately to ensure long-context failure is not due to general visual capability loss.
 
-**Independent Test**: Short-context samples are processed and reported separately with ≥95% accuracy baseline [UNRESOLVED-CLAIM: c_ee7e078a — status=refuted] check.
+**Independent Test**: Short-context samples are processed and reported separately with ≥95% accuracy baseline check.
 
 ### Implementation for User Story 4
 
@@ -274,7 +274,7 @@ With multiple developers:
 - **CRITICAL**: No synthetic/fake data inputs. Use real image references (e.g., from NAB or fixed sample set) or strictly synthetic generation that mimics real distribution without fabricating "fake" results.
 - **CRITICAL**: Task ordering respects data flow: Generation → Inference → Analysis.
 - **NOTE**: The Plan mandates **Arm B (Constant Total)** as the PRIMARY arm for the hypothesis test. Tasks follow the Plan. **Spec.md must be updated to reflect this priority.**
-- **NOTE**: The Spec mandates `mmpro/MMProLong-7B-1.0 [UNRESOLVED-CLAIM: c_59569330 — status=not_enough_info]` (FR-002). Tasks follow the Spec. **Plan.md must be updated to reflect this model ID.** **Current Plan.md incorrectly cites 'Qwen/Qwen2-VL-7B-Instruct'; this tasks.md enforces Spec FR-002.**
+- **NOTE**: The Spec mandates `mmpro/MMProLong-7B-1.0 ` (FR-002). Tasks follow the Spec. **Plan.md must be updated to reflect this model ID.** **{{claim:c_1a75fecc}}; this tasks.md enforces Spec FR-002.**
 - **NOTE**: The `data/assets/` directory must be populated with 20 complex diagrams (Task T004) before generation tasks run.
 - **NOTE**: The model must be converted to `.gguf` (Task T040) before inference tasks run.
 - **NOTE**: T010 (Orchestration) depends on T007 and T008. T040 (Model Prep) must run before T041 (Loader).

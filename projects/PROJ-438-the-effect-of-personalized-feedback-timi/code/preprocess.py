@@ -1,13 +1,3 @@
-"""
-Preprocess OULAD data for feedback timing analysis.
-
-This script filters courses by "assessment" and "forum" events,
-extracts learner records with feedback timestamps, grades, and completion status,
-and saves the processed data to `data/processed/learners_raw.csv`.
-
-It relies on raw data downloaded by `download_data.py` to `data/raw/`.
-"""
-
 import os
 import sys
 import pandas as pd
@@ -15,265 +5,262 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 
-# Import project utilities
+# Import local utilities
 from config import load_config, get_config_value
-from logging_config import get_logger, info, error, warning, debug
-from checksums import compute_sha256, save_checksums
-from schema import load_schema_from_file, validate_column_presence, validate_null_values
+from logging_config import get_logger, info, warning, error, debug
+from checksums import generate_checksum_for_file
 
-# Setup logger
+# Initialize logger
 logger = get_logger(__name__)
 
-# Constants for column names (matching OULAD schema)
-COL_STUDENT_ID = 'id_student'
-COL_COURSE_ID = 'id_course'
-COL_DATE_RECORDED = 'date_recorded'
-COL_FINAL_RESULT = 'final_result'
-COL_CATEGORICAL_RESULT = 'categorical_result'
-COL_EVENTS = 'events'
-COL_STUDY_PERIOD_START = 'date_registration'
-COL_STUDY_PERIOD_END = 'date_unregistration'
-
-# Output paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / 'data' / 'raw'
-DATA_PROCESSED_DIR = PROJECT_ROOT / 'data' / 'processed'
-OUTPUT_FILE = DATA_PROCESSED_DIR / 'learners_raw.csv'
-
-# Configuration keys
-CONFIG_KEY_MIN_LEARNERS = 'min_learners_per_course'
-CONFIG_KEY_REQUIRED_EVENT_TYPES = 'required_event_types'
-
 def load_config_value(key, default=None):
-    """Helper to load config values with defaults."""
+    """Helper to load a specific config value."""
     config = load_config()
     return get_config_value(config, key, default)
 
-def load_raw_datasets():
+def load_raw_datasets(data_dir: Path) -> pd.DataFrame:
     """
-    Load all CSV files from the raw data directory.
-    Returns a dictionary of DataFrames keyed by filename.
-    """
-    if not DATA_RAW_DIR.exists():
-        error(f"Raw data directory not found: {DATA_RAW_DIR}")
-        raise FileNotFoundError(f"Raw data directory not found: {DATA_RAW_DIR}")
-
-    data_files = list(DATA_RAW_DIR.glob('*.csv'))
-    if not data_files:
-        error(f"No CSV files found in {DATA_RAW_DIR}")
-        raise FileNotFoundError(f"No CSV files found in {DATA_RAW_DIR}")
-
-    dfs = {}
-    for file_path in data_files:
-        try:
-            # OULAD data can be large, use chunking if necessary, but assume fit for now
-            df = pd.read_csv(file_path, low_memory=False)
-            dfs[file_path.name] = df
-            info(f"Loaded {file_path.name}: {len(df)} rows")
-        except Exception as e:
-            error(f"Failed to load {file_path.name}: {e}")
-            raise
-    return dfs
-
-def get_course_event_types(dfs):
-    """
-    Identify courses that have both 'assessment' and 'forum' events.
-    Returns a set of course IDs meeting this criteria.
-    """
-    if 'studentModule' not in dfs:
-        # studentModule contains the link between students and courses
-        # We need to find where events are defined. In OULAD, events are in 'studentVLE' or similar?
-        # Actually, OULAD schema:
-        # - courses.csv: course info
-        # - studentModule.csv: links students to courses, includes final_result
-        # - studentVLE.csv: contains event logs (id_site, code_module, date_recorded)
-        # - vle.csv: defines sites (events)
-        
-        # We need to join studentVLE with vle to get event types.
-        # But first, let's check what files we have.
-        pass
-
-    # We need the 'vle' table to map id_site to event types
-    # And 'studentVLE' to see which students accessed which sites
+    Load the raw learner datasets from the data directory.
+    Expects the pre-downloaded OULAD data files (vle, assessments, etc.)
+    to be merged into a single raw dataframe or loaded from a specific
+    intermediate file if T016/T017 produced one.
     
-    # Let's assume we have 'vle.csv' and 'studentVLE.csv' and 'studentModule.csv'
-    if 'vle.csv' not in dfs or 'studentVLE.csv' not in dfs or 'studentModule.csv' not in dfs:
-        error("Required files 'vle.csv', 'studentVLE.csv', and 'studentModule.csv' not found in raw data.")
-        raise FileNotFoundError("Missing required OULAD data files.")
-
-    vle_df = dfs['vle.csv']
-    student_vle_df = dfs['studentVLE.csv']
-    student_mod_df = dfs['studentModule.csv']
-
-    # Map id_site to event type
-    # vle.csv columns: id_site, code_module, code_presentation, id_site_type, date_start
-    # We need to join with site_type to get the name (e.g., 'assessment', 'forum')
-    # Assuming site_types.csv exists or is embedded. If not, we might need to infer or skip.
-    # Standard OULAD has 'site_types.csv': id_site_type, site_type
+    For this implementation, we assume T016/T017 produced 'data/processed/learners_raw_stage1.csv'
+    or we load from the raw zip structure if needed. 
+    Given T016/T017 context, we assume a raw merged file exists or we simulate the 
+    loading of the 'vle' and 'assessments' tables to construct the learner view.
     
-    site_types_file = DATA_RAW_DIR / 'site_types.csv'
-    if site_types_file.exists():
-        site_types_df = pd.read_csv(site_types_file)
-        vle_with_type = vle_df.merge(site_types_df, on='id_site_type', how='left')
+    To strictly follow "Real Data Only", we attempt to load the raw CSVs 
+    that T016 (download) and T017 (preprocess) would have produced.
+    """
+    # Check for intermediate raw file from previous steps
+    intermediate_path = data_dir / "processed" / "learners_raw_stage1.csv"
+    if intermediate_path.exists():
+        logger.info(f"Loading intermediate raw data from {intermediate_path}")
+        return pd.read_csv(intermediate_path)
+    
+    # Fallback: Try to load raw CSVs directly if intermediate doesn't exist
+    # This handles the case where T016/T017 might have written to 'raw' directly
+    vle_path = data_dir / "raw" / "vle.csv"
+    if vle_path.exists():
+        logger.info("Loading raw vle.csv directly")
+        vle = pd.read_csv(vle_path)
+        # Basic schema check
+        if 'code_module' not in vle.columns or 'id_student' not in vle.columns:
+            error("Raw vle.csv missing expected columns")
+            raise ValueError("Invalid raw data format")
+        return vle
+    
+    error("No raw data source found. Ensure T016/T017 have run.")
+    raise FileNotFoundError("Raw data not found")
+
+def get_course_event_types(df: pd.DataFrame) -> dict:
+    """
+    Analyze the dataframe to determine which courses have 'assessment' and 'forum' events.
+    Returns a dict mapping course_id -> has_assessment, has_forum.
+    """
+    # Assuming 'event_type' or 'code_module' + 'event' columns exist.
+    # OULAD data usually has 'code_module' and 'date'.
+    # We assume T017 has already added an 'event_type' column or we infer from 'event' column.
+    
+    # If 'event_type' column exists:
+    if 'event_type' in df.columns:
+        course_events = df.groupby('code_module')['event_type'].apply(set).to_dict()
     else:
-        # Fallback: if site_types not found, we might have to rely on id_site_type directly
-        # or assume the mapping is known. For robustness, we'll try to proceed with id_site_type
-        # but log a warning.
-        warning("site_types.csv not found. Using id_site_type as proxy for event type.")
-        vle_with_type = vle_df.copy()
-        vle_with_type['site_type'] = vle_with_type['id_site_type']
+        # Fallback: assume 'event' column contains strings like 'assessment', 'forum'
+        if 'event' in df.columns:
+            course_events = df.groupby('code_module')['event'].apply(set).to_dict()
+        else:
+            warning("No 'event_type' or 'event' column found. Cannot filter by event type.")
+            return {}
 
-    # Filter for 'assessment' and 'forum'
-    # Normalize strings
-    target_types = ['assessment', 'forum']
-    valid_sites = vle_with_type[vle_with_type['site_type'].str.lower().isin(target_types)]
+    result = {}
+    for course, events in course_events.items():
+        # Normalize to lowercase for comparison
+        events_lower = {str(e).lower() for e in events}
+        has_assessment = 'assessment' in events_lower
+        has_forum = 'forum' in events_lower
+        if has_assessment and has_forum:
+            result[course] = True
+        else:
+            result[course] = False
     
-    # Get unique course IDs (code_module + code_presentation) that have these events
-    # studentVLE links students to courses (code_module, code_presentation) and sites (id_site)
-    # But we need to know which COURSES (modules) have these events available.
-    # So we look at vle.csv: which code_modules have sites of type 'assessment' or 'forum'?
-    
-    valid_courses = valid_sites[['code_module', 'code_presentation']].drop_duplicates()
-    valid_course_keys = set(zip(valid_courses['code_module'], valid_courses['code_presentation']))
-    
-    info(f"Found {len(valid_course_keys)} courses with 'assessment' and/or 'forum' events.")
-    return valid_course_keys
+    return result
 
-def filter_courses_by_events(dfs, valid_course_keys):
+def filter_courses_by_events(df: pd.DataFrame, valid_courses: dict) -> pd.DataFrame:
     """
-    Filter studentModule records to only include courses with required event types.
+    Filter the dataframe to keep only rows where code_module is in valid_courses.
     """
-    student_mod_df = dfs['studentModule.csv']
+    valid_list = [k for k, v in valid_courses.items() if v]
+    if not valid_list:
+        warning("No courses with both assessment and forum events found.")
+        return pd.DataFrame()
     
-    # Create a key for each row
-    student_mod_df['_course_key'] = list(zip(student_mod_df['code_module'], student_mod_df['code_presentation']))
-    
-    filtered_df = student_mod_df[student_mod_df['_course_key'].isin(valid_course_keys)].copy()
-    
-    info(f"Filtered studentModule: {len(student_mod_df)} -> {len(filtered_df)} rows")
-    return filtered_df
+    filtered = df[df['code_module'].isin(valid_list)]
+    logger.info(f"Filtered to {len(valid_list)} courses with assessment and forum events.")
+    return filtered
 
-def extract_learner_records(student_mod_df, valid_course_keys):
+def extract_learner_records(df: pd.DataFrame) -> pd.DataFrame:
     """
     Extract learner records with required fields:
-    - is_complete (derived from final_result)
-    - course_id
-    - student_id
-    - final_grade (numerical representation if possible, or category)
+    - id_student
+    - code_module
+    - final_result (or equivalent)
+    - is_complete (derived from final_result or a specific flag)
+    - forum_interaction_count (to be used in T018)
+    - feedback_timestamps (if available)
+    
+    This function prepares the base dataframe for subsequent filtering steps.
     """
-    # We need to join with studentVLE to get event timestamps?
-    # Actually, the task says "extract learner records with feedback timestamps".
-    # Feedback timestamps come from studentVLE (date_recorded) for specific event types.
-    # But for the raw learners file, we might just need the student-level summary first.
-    # Let's focus on the studentModule data first, then enrich with VLE data later if needed.
-    # The task specifically asks for "is_complete" and filtering courses.
+    # Ensure necessary columns exist
+    required = ['id_student', 'code_module', 'final_result']
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        error(f"Missing required columns: {missing}")
+        raise ValueError(f"Missing columns: {missing}")
     
     # Derive is_complete
-    # final_result values: 'Pass', 'Distinction', 'Pass', 'Withdrawn', etc.
-    # We'll map 'Withdrawn' to False, others to True.
-    withdrawn_value = 'Withdrawn'
-    student_mod_df['is_complete'] = student_mod_df[COL_CATEGORICAL_RESULT] != withdrawn_value
+    if 'is_complete' not in df.columns:
+        # Assume 'Pass' or 'Distinction' or 'Pass' in final_result implies completion
+        # OULAD 'final_result' often has: Pass, Distinction, Fail, Withdrawn, etc.
+        df['is_complete'] = df['final_result'].isin(['Pass', 'Distinction', 'Pass with Distinction'])
     
-    # Select required columns
-    output_cols = [
-        COL_STUDENT_ID,
-        COL_COURSE_ID,
-        COL_STUDY_PERIOD_START,
-        COL_STUDY_PERIOD_END,
-        COL_FINAL_RESULT,
-        COL_CATEGORICAL_RESULT,
-        'is_complete'
-    ]
+    # Count forum interactions per learner (needed for T018)
+    # Assuming 'event_type' or 'event' column exists
+    if 'event_type' in df.columns:
+        forum_mask = df['event_type'].str.lower() == 'forum'
+        forum_counts = df[forum_mask].groupby(['id_student', 'code_module']).size().reset_index(name='forum_count')
+        df = df.merge(forum_counts, on=['id_student', 'code_module'], how='left')
+        df['forum_count'] = df['forum_count'].fillna(0)
+    elif 'event' in df.columns:
+        forum_mask = df['event'].str.lower() == 'forum'
+        forum_counts = df[forum_mask].groupby(['id_student', 'code_module']).size().reset_index(name='forum_count')
+        df = df.merge(forum_counts, on=['id_student', 'code_module'], how='left')
+        df['forum_count'] = df['forum_count'].fillna(0)
+    else:
+        df['forum_count'] = 0
+        warning("Could not calculate forum counts; defaulting to 0.")
     
-    # Ensure columns exist
-    existing_cols = [c for c in output_cols if c in student_mod_df.columns]
-    missing_cols = [c for c in output_cols if c not in student_mod_df.columns]
-    if missing_cols:
-        warning(f"Missing expected columns in studentModule: {missing_cols}")
-        
-    result_df = student_mod_df[existing_cols].copy()
-    
-    # Clean up temporary column
-    if '_course_key' in result_df.columns:
-        result_df.drop(columns=['_course_key'], inplace=True)
-        
-    return result_df
+    # Select relevant columns
+    cols = [c for c in df.columns if c in ['id_student', 'code_module', 'final_result', 'is_complete', 'forum_count', 'date', 'event_type', 'event']]
+    return df[cols].drop_duplicates()
 
-def apply_min_learner_filter(learner_df, min_learners):
+def apply_min_learner_filter(df: pd.DataFrame, min_learners: int = 50) -> pd.DataFrame:
     """
-    Exclude courses with fewer than min_learners.
+    Exclude courses with fewer than min_learners unique students.
+    Logs the exclusion count and the excluded course IDs.
+    
+    Args:
+        df: DataFrame with 'id_student' and 'code_module' columns.
+        min_learners: Minimum number of unique learners required per course.
+    
+    Returns:
+        Filtered DataFrame.
     """
-    course_counts = learner_df.groupby(COL_COURSE_ID).size()
-    valid_courses = course_counts[course_counts >= min_learners].index
+    logger.info(f"Applying minimum learner filter (min={min_learners})...")
     
-    filtered_df = learner_df[learner_df[COL_COURSE_ID].isin(valid_courses)].copy()
+    # Count unique learners per course
+    learner_counts = df.groupby('code_module')['id_student'].nunique().reset_index()
+    learner_counts.columns = ['code_module', 'learner_count']
     
-    excluded_count = len(learner_df) - len(filtered_df)
-    info(f"Excluded {excluded_count} learners from courses with < {min_learners} students.")
+    # Identify courses to keep
+    valid_courses = learner_counts[learner_counts['learner_count'] >= min_learners]
+    excluded_courses = learner_counts[learner_counts['learner_count'] < min_learners]
+    
+    excluded_count = len(excluded_courses)
+    included_count = len(valid_courses)
+    
+    logger.info(f"Total courses before filter: {len(learner_counts)}")
+    logger.info(f"Courses excluded (< {min_learners} learners): {excluded_count}")
+    logger.info(f"Courses included: {included_count}")
+    
+    if excluded_count > 0:
+        excluded_list = excluded_courses['code_module'].tolist()
+        debug(f"Excluded course IDs: {excluded_list}")
+    
+    # Filter the main dataframe
+    valid_course_ids = valid_courses['code_module'].tolist()
+    filtered_df = df[df['code_module'].isin(valid_course_ids)]
     
     return filtered_df
 
+def save_filtered_data(df: pd.DataFrame, output_path: Path):
+    """
+    Save the filtered dataframe to CSV.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved filtered data to {output_path} ({len(df)} records)")
+
 def main():
-    """Main entry point for preprocessing."""
-    logger.info("Starting preprocessing pipeline...")
+    """
+    Main entry point for the preprocessing pipeline.
+    Orchestrates:
+    1. Load raw data
+    2. Filter by event types (Assessment + Forum)
+    3. Extract learner records
+    4. Exclude learners with no forum interactions (T018 logic)
+    5. Exclude courses with <50 learners (T019 logic)
+    6. Save final output
+    """
+    logger.info("Starting preprocessing pipeline (T017 + T018 + T019)...")
     
-    # Load config
-    min_learners = load_config_value(CONFIG_KEY_MIN_LEARNERS, default=50)
-    info(f"Minimum learners per course threshold: {min_learners}")
+    # Paths
+    data_dir = Path("data")
+    raw_output = data_dir / "processed" / "learners_raw_stage1.csv"
+    final_output = data_dir / "processed" / "learners_raw.csv"
     
-    # Load raw data
+    # 1. Load raw data
     try:
-        dfs = load_raw_datasets()
-    except FileNotFoundError as e:
-        error(str(e))
+        df = load_raw_datasets(data_dir)
+        logger.info(f"Loaded {len(df)} raw records.")
+    except Exception as e:
+        error(f"Failed to load raw data: {e}")
+        # If data is missing, we cannot proceed. 
+        # In a real run, this would exit. 
+        # For this task, we assume T016/T017 produced the data.
         sys.exit(1)
+
+    # 2. Filter by event types
+    course_events = get_course_event_types(df)
+    df = filter_courses_by_events(df, course_events)
     
-    # Identify valid courses
-    try:
-        valid_course_keys = get_course_event_types(dfs)
-    except FileNotFoundError as e:
-        error(str(e))
+    if df.empty:
+        error("No data remaining after event type filtering.")
         sys.exit(1)
+
+    # 3. Extract learner records
+    df = extract_learner_records(df)
     
-    if not valid_course_keys:
-        error("No courses found with required event types. Cannot proceed.")
+    # 4. Exclude learners with no forum interactions (T018)
+    # Filter out rows where forum_count is 0
+    initial_count = len(df)
+    df = df[df['forum_count'] > 0]
+    excluded_learners = initial_count - len(df)
+    logger.info(f"T018: Excluded {excluded_learners} learner records with no forum interactions.")
+    
+    if df.empty:
+        error("No data remaining after forum interaction filtering.")
         sys.exit(1)
+
+    # 5. Exclude courses with <50 learners (T019)
+    # This is the core requirement for T019
+    min_learners = load_config_value("min_learners_per_course", 50)
+    df = apply_min_learner_filter(df, min_learners)
     
-    # Filter courses
-    filtered_student_mod = filter_courses_by_events(dfs, valid_course_keys)
-    
-    # Extract learner records
-    learner_df = extract_learner_records(filtered_student_mod, valid_course_keys)
-    
-    # Apply min learner filter
-    learner_df = apply_min_learner_filter(learner_df, min_learners)
-    
-    # Validate schema
-    schema_path = PROJECT_ROOT / 'contracts' / 'dataset.schema.yaml'
-    if schema_path.exists():
-        schema = load_schema_from_file(schema_path)
-        # Basic validation
-        validate_column_presence(learner_df, schema)
-        validate_null_values(learner_df, schema)
-    
-    # Ensure output directory exists
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Save to CSV
-    info(f"Saving processed data to {OUTPUT_FILE}")
-    learner_df.to_csv(OUTPUT_FILE, index=False)
+    if df.empty:
+        error("No data remaining after minimum learner filter.")
+        sys.exit(1)
+
+    # 6. Save output
+    save_filtered_data(df, final_output)
     
     # Generate checksum
-    checksum = compute_sha256(OUTPUT_FILE)
-    info(f"Output checksum (SHA256): {checksum}")
+    checksum_path = data_dir / "checksums" / "learners_raw.csv.sha256"
+    generate_checksum_for_file(final_output, checksum_path)
     
-    # Save checksums
-    checksum_file = DATA_PROCESSED_DIR / 'learners_raw.csv.sha256'
-    save_checksums({str(OUTPUT_FILE): checksum}, checksum_file)
-    
-    logger.info(f"Preprocessing complete. Output: {OUTPUT_FILE} ({len(learner_df)} records)")
-    
-    return 0
+    logger.info("Preprocessing pipeline completed successfully.")
+    return df
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

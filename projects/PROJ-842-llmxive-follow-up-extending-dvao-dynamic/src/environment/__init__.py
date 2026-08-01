@@ -1,1 +1,1 @@
-# src/environment package
+# Synthetic MDP environments and runners

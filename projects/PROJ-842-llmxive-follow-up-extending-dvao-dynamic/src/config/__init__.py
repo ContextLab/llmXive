@@ -1,1 +1,1 @@
-# Config Module
+# Configuration management

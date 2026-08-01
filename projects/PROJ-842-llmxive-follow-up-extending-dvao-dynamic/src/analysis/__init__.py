@@ -1,1 +1,1 @@
-# Analysis Module
+# Statistical analysis and validation tools

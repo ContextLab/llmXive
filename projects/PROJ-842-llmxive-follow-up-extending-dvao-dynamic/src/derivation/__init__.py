@@ -1,1 +1,1 @@
-# Derivation Module
+# Symbolic derivations and variance scaling laws

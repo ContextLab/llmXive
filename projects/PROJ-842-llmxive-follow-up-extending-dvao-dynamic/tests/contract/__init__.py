@@ -1,1 +1,1 @@
-# Contract Tests
+# Contract tests

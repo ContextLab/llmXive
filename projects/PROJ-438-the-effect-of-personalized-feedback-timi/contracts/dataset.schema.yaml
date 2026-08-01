@@ -1,0 +1,91 @@
+# Dataset Schema for OULAD-based analysis
+# Used by code/schema.py for validation
+name: "learners_raw"
+description: "Raw learner records from OULAD with feedback timing and grades"
+version: "1.0"
+
+fields:
+  - name: "student_id"
+    type: "string"
+    required: true
+    description: "Unique student identifier"
+    
+  - name: "code_module"
+    type: "string"
+    required: true
+    description: "Course/module code"
+    
+  - name: "region"
+    type: "string"
+    required: false
+    description: "Student's region"
+    
+  - name: "gender"
+    type: "string"
+    required: false
+    description: "Student's gender"
+    
+  - name: "age_band"
+    type: "string"
+    required: false
+    description: "Student's age band"
+    
+  - name: "disability"
+    type: "string"
+    required: false
+    description: "Disability status"
+    
+  - name: "num_assessments"
+    type: "integer"
+    required: true
+    description: "Number of assessments taken"
+    
+  - name: "num_forum_posts"
+    type: "integer"
+    required: true
+    description: "Number of forum posts made"
+    
+  - name: "first_feedback_interval"
+    type: "float"
+    required: true
+    description: "Time in hours from first submission to first feedback"
+    
+  - name: "final_grade"
+    type: "float"
+    required: true
+    description: "Final course grade (0-100)"
+    
+  - name: "is_complete"
+    type: "boolean"
+    required: true
+    description: "Whether student completed the course"
+    
+  - name: "has_forum_interaction"
+    type: "boolean"
+    required: true
+    description: "Whether student had at least one forum interaction"
+    
+  - name: "course_event_types"
+    type: "array"
+    required: true
+    description: "List of event types present in the course"
+    
+  - name: "processed_at"
+    type: "datetime"
+    required: true
+    description: "Timestamp of processing"
+    
+constraints:
+  - field: "num_assessments"
+    min: 0
+  - field: "num_forum_posts"
+    min: 1  # Enforced by T018 exclusion
+  - field: "first_feedback_interval"
+    min: 0
+  - field: "final_grade"
+    min: 0
+    max: 100
+  - field: "is_complete"
+    values: [true, false]
+  - field: "has_forum_interaction"
+    values: [true]  # All records must have this true after T018

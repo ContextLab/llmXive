@@ -1,1 +1,1 @@
-# llmXive Project Root
+# llmXive: Dynamic Variance-adaptive Advantage Optimization for Multi-reward

@@ -1,17 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree, `__init__.py` files, or `.gitkeep` placeholders are provided\
-    \ as evidence; the required project structure and files are absent, so the task\u2019\
-    s requirement is not demonstrably satisfied."
-T026b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No log file `logs/symbolic_verification.log` was presented, nor any excerpt\
-    \ showing its contents (\u201CVERIFIED\u201D or \u201CFAILED\u201D). Without the\
-    \ required artifact, we cannot confirm that a SymPy verification script was run\
-    \ or that it produced the mandated output. The implementer must supply the actual\
-    \ log file (non\u2011empty) containing the verification result."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,6 +19,12 @@ T034:
     \ when the number of objectives\u202FN exceeds\u202F50 and then degrades the state\u2011\
     space size or applies sampling. Without any artifact demonstrating this edge\u2011\
     case handling, the task requirement is not met."
+T034d:
+  c: false
+  h: f91855c93fe0488c08ba617c319b88a2f7abadea8c4a67856bab73196ba1e919
+  r: The `src/analysis/stats.py` file does not contain the required `validate_heavy_tailed_pareto(...)`
+    function (it ends with unrelated utilities), and the expected output file `data/processed/heavy_tailed_results.json`
+    is absent. Both the core function and the verification artifact are missing.
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

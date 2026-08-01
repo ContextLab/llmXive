@@ -1,5 +1,5 @@
 """
-Unit tests for the symbolic verification engine (T026b).
+Unit tests for the symbolic verification module.
 """
 import pytest
 import os
@@ -8,77 +8,96 @@ import tempfile
 import shutil
 from unittest.mock import patch, MagicMock
 
-# Add project root to path
+# Ensure project root is in path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+sys.path.insert(0, project_root)
 
 from src.derivation.symbolic_verification import (
     verify_linearity_of_variance,
     verify_scaling_law_consistency,
     verify_symmetry,
-    main
+    setup_logging
 )
+from src.derivation.variance_scaling import derive_variance_accumulation
+import sympy
+from sympy import symbols, simplify
 
 class TestSymbolicVerification:
+    """Tests for the symbolic verification logic."""
+
+    def test_setup_logging_creates_file(self, tmp_path):
+        """Test that setup_logging creates the log file and directory."""
+        log_file = str(tmp_path / "subdir" / "test.log")
+        logger = setup_logging(log_file)
+        
+        assert os.path.exists(log_file)
+        assert logger is not None
+        assert len(logger.handlers) == 2 # File and Console
+
     def test_verify_linearity_of_variance(self, caplog):
-        """Test that linearity verification returns True for valid symbolic setup."""
-        # The function uses internal logging, we check return value
-        # We can't easily mock the logger passed in, so we call it directly
-        # and rely on the implementation's internal logic which we know is correct
-        # for the defined symbols.
-        result = verify_linearity_of_variance(MagicMock())
-        assert result is True
+        """Test that linearity of variance is verified correctly."""
+        # We mock the logger to capture logs if needed, but the function returns bool
+        # The function uses standard logging, so we rely on the return value.
+        
+        # To test this robustly, we can check the internal logic if we mock the logger
+        # However, the logic is deterministic.
+        # Let's just call it and ensure it returns True for the standard case.
+        
+        # Create a temporary log file
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log') as f:
+            temp_log = f.name
+        
+        try:
+            logger = setup_logging(temp_log)
+            result = verify_linearity_of_variance(logger)
+            assert result is True, "Linearity verification should pass for independent noise."
+        finally:
+            os.unlink(temp_log)
 
     def test_verify_scaling_law_consistency(self, caplog):
-        """Test that scaling law verification returns True."""
-        result = verify_scaling_law_consistency(MagicMock())
-        assert result is True
+        """Test that scaling law consistency is verified against the derived equation."""
+        # We need to ensure derive_variance_accumulation returns a valid expression
+        # that is linear in N.
+        
+        # Mock the derive function if necessary, but it should work with the real implementation.
+        # Assuming the real implementation returns N * epsilon_sq.
+        
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log') as f:
+            temp_log = f.name
+        
+        try:
+            logger = setup_logging(temp_log)
+            result = verify_scaling_law_consistency(logger)
+            # The real derivation should pass this
+            assert result is True, "Scaling law consistency should pass."
+        finally:
+            os.unlink(temp_log)
 
     def test_verify_symmetry(self, caplog):
-        """Test that symmetry verification returns True."""
-        result = verify_symmetry(MagicMock())
-        assert result is True
-
-    def test_main_creates_log_file(self, tmp_path):
-        """Test that main() creates the log file in the expected location."""
-        # Mock the log directory to use a temp directory
-        original_cwd = os.getcwd()
+        """Test that symmetry is verified correctly."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log') as f:
+            temp_log = f.name
+        
         try:
-            os.chdir(tmp_path)
-            # Create logs dir
-            logs_dir = tmp_path / "logs"
-            logs_dir.mkdir()
-            
-            # Run main
-            exit_code = main()
-            
-            # Check log file exists
-            log_file = logs_dir / "symbolic_verification.log"
-            assert log_file.exists()
-            
-            # Check content
-            content = log_file.read_text()
-            assert "VERIFIED" in content or "FAILED" in content
+            logger = setup_logging(temp_log)
+            result = verify_symmetry(logger)
+            assert result is True, "Symmetry verification should pass."
         finally:
-            os.chdir(original_cwd)
+            os.unlink(temp_log)
 
-    def test_main_exit_code(self):
-        """Test that main returns 0 on success."""
-        # Since the verification logic is deterministic and correct, it should pass
-        # We mock the logger to avoid cluttering test output
-        with patch('src.derivation.symbolic_verification.logging') as mock_logging:
-            mock_logger = MagicMock()
-            mock_logging.getLogger.return_value = mock_logger
-            mock_logging.basicConfig = MagicMock()
+    def test_verify_scaling_law_consistency_failure(self):
+        """Test that the function returns False if the expression is not linear in N."""
+        # Mock derive_variance_accumulation to return a non-linear expression
+        with patch('src.derivation.symbolic_verification.derive_variance_accumulation') as mock_derive:
+            N = symbols('N')
+            mock_derive.return_value = N**2 # Non-linear
             
-            # We can't easily mock the file handlers without more setup, 
-            # so we rely on the fact that the logic is sound and returns True
-            # for the internal checks.
-            # Instead, we just check that the function runs without crashing
-            # and returns an integer.
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log') as f:
+                temp_log = f.name
+            
             try:
-                exit_code = main()
-                assert isinstance(exit_code, int)
-            except Exception as e:
-                pytest.fail(f"main() raised an exception: {e}")
+                logger = setup_logging(temp_log)
+                result = verify_scaling_law_consistency(logger)
+                assert result is False, "Should return False for non-linear expression."
+            finally:
+                os.unlink(temp_log)
