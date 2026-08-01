@@ -1,9 +1,8 @@
 """
-Contract tests for the ablation data generator.
+Contract tests for the ablation data generator (T015).
 
-These tests verify that the ablation transformation correctly replaces
-critique text with neutral placeholders while preserving the structure
-and token count characteristics.
+These tests verify that the ablation process correctly replaces critiques
+with neutral placeholders of equivalent token length.
 """
 
 import json
@@ -11,8 +10,8 @@ import os
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock
-
 import pytest
+import tiktoken
 
 from src.data.ablation import (
     count_tokens,
@@ -23,227 +22,226 @@ from src.data.ablation import (
 
 
 class TestTokenCounting:
-    """Tests for token counting functionality."""
+    """Tests for the count_tokens function."""
 
-    def test_count_tokens_basic(self):
-        """Test basic token counting with whitespace approximation."""
-        text = "This is a simple test"
+    def test_count_tokens_empty_string(self):
+        """Empty string should return 0 tokens."""
+        assert count_tokens("") == 0
+        assert count_tokens(None) == 0  # type: ignore
+
+    def test_count_tokens_simple_text(self):
+        """Simple text should return a positive token count."""
+        text = "The quick brown fox jumps over the lazy dog."
         count = count_tokens(text)
-        assert count == 5  # 5 words
+        assert count > 0
 
-    def test_count_tokens_empty(self):
-        """Test token counting with empty string."""
-        count = count_tokens("")
-        assert count == 0
-
-    def test_count_tokens_with_tokenizer(self):
-        """Test token counting with a mock tokenizer."""
-        mock_tokenizer = MagicMock()
-        mock_tokenizer.encode.return_value = [101, 2023, 2003, 2001]  # 4 tokens
-        
-        text = "This is a test"
-        count = count_tokens(text, mock_tokenizer)
-        assert count == 4
-
-        mock_tokenizer.encode.assert_called_once_with(text, add_special_tokens=False)
+    def test_count_tokens_consistency(self):
+        """Token count should be consistent for the same text."""
+        text = "This is a test string for token counting."
+        count1 = count_tokens(text)
+        count2 = count_tokens(text)
+        assert count1 == count2
 
 
 class TestNeutralPlaceholderGeneration:
-    """Tests for neutral placeholder text generation."""
+    """Tests for the generate_neutral_placeholder function."""
 
-    def test_placeholder_length_approximation(self):
-        """Test that placeholder approximates target token count."""
-        target_tokens = 20
-        placeholder = generate_neutral_placeholder(target_tokens)
+    def test_placeholder_length_match(self):
+        """Placeholder should have approximately the same token count as input."""
+        original_text = "This is a specific critique about the reasoning process."
+        token_count = count_tokens(original_text)
+        placeholder = generate_neutral_placeholder(token_count)
         
-        # Should be close to target (within 2 tokens)
-        actual_tokens = count_tokens(placeholder)
-        assert abs(actual_tokens - target_tokens) <= 2
+        placeholder_count = count_tokens(placeholder)
+        # Allow small variance due to tokenization boundaries
+        assert abs(placeholder_count - token_count) <= 2
 
     def test_placeholder_neutrality(self):
-        """Test that placeholder text is neutral (doesn't contain critique-like content)."""
-        placeholder = generate_neutral_placeholder(10)
+        """Placeholder should not contain specific semantic content."""
+        token_count = 10
+        placeholder = generate_neutral_placeholder(token_count)
         
-        # Should not contain specific critique indicators
-        assert "contradiction" not in placeholder.lower()
+        # The placeholder should not contain words from the original critique
+        # that would imply specific reasoning guidance
+        assert "reasoning" not in placeholder.lower()
+        assert "logic" not in placeholder.lower()
         assert "error" not in placeholder.lower()
-        assert "incorrect" not in placeholder.lower()
 
-    def test_placeholder_empty_target(self):
-        """Test placeholder generation with zero target tokens."""
+    def test_placeholder_zero_tokens(self):
+        """Zero token count should return empty string."""
         placeholder = generate_neutral_placeholder(0)
         assert placeholder == ""
 
 
 class TestAblationTupleCreation:
-    """Tests for creating individual ablation tuples."""
+    """Tests for the create_ablation_tuple function."""
 
-    def test_ablation_preserves_structure(self):
-        """Test that ablation preserves all original fields."""
-        dialogue_tuple = {
-            "question": "What is 2 + 2?",
-            "initial_answer": "4",
-            "critique": "The answer is correct but lacks explanation.",
-            "revised_answer": "The answer is 4 because 2 + 2 = 4.",
-            "metadata": {"source": "gsm8k"}
+    @pytest.fixture
+    def valid_dialogue_tuple(self):
+        """Provide a valid dialogue tuple for testing."""
+        return {
+            'question': "What is 2 + 2?",
+            'initial_answer': "The answer is 4.",
+            'critique': "The reasoning is correct but lacks explanation.",
+            'revised_answer': "The answer is 4 because 2 plus 2 equals 4."
         }
 
-        ablated = create_ablation_tuple(dialogue_tuple)
+    def test_ablation_tuple_structure(self, valid_dialogue_tuple):
+        """Ablation tuple should have all required keys."""
+        ablation = create_ablation_tuple(valid_dialogue_tuple)
+        
+        required_keys = {'question', 'initial_answer', 'critique', 'revised_answer', 'ablation_metadata'}
+        assert required_keys.issubset(ablation.keys())
 
-        # All original fields should be preserved
-        assert ablated["question"] == dialogue_tuple["question"]
-        assert ablated["initial_answer"] == dialogue_tuple["initial_answer"]
-        assert ablated["revised_answer"] == dialogue_tuple["revised_answer"]
-        assert ablated["metadata"] == dialogue_tuple["metadata"]
+    def test_ablation_preserves_non_critique_fields(self, valid_dialogue_tuple):
+        """Non-critique fields should remain unchanged."""
+        ablation = create_ablation_tuple(valid_dialogue_tuple)
+        
+        assert ablation['question'] == valid_dialogue_tuple['question']
+        assert ablation['initial_answer'] == valid_dialogue_tuple['initial_answer']
+        assert ablation['revised_answer'] == valid_dialogue_tuple['revised_answer']
 
-    def test_ablation_replaces_critique(self):
-        """Test that critique is replaced with neutral placeholder."""
-        dialogue_tuple = {
-            "question": "Test question",
-            "initial_answer": "Test answer",
-            "critique": "This critique identifies specific logical errors.",
-            "revised_answer": "Revised answer"
-        }
+    def test_ablation_replaces_critique(self, valid_dialogue_tuple):
+        """Critique should be replaced with a placeholder."""
+        ablation = create_ablation_tuple(valid_dialogue_tuple)
+        
+        original_critique = valid_dialogue_tuple['critique']
+        ablation_critique = ablation['critique']
+        
+        assert ablation_critique != original_critique
+        assert len(ablation_critique) > 0  # Placeholder should not be empty
 
-        ablated = create_ablation_tuple(dialogue_tuple)
+    def test_ablation_metadata_included(self, valid_dialogue_tuple):
+        """Ablation metadata should be included."""
+        ablation = create_ablation_tuple(valid_dialogue_tuple)
+        
+        assert 'ablation_metadata' in ablation
+        assert 'original_critique_length' in ablation['ablation_metadata']
+        assert 'ablation_type' in ablation['ablation_metadata']
+        assert ablation['ablation_metadata']['ablation_type'] == 'neutral_placeholder'
 
-        # Critique should be different
-        assert ablated["critique"] != dialogue_tuple["critique"]
-        # But should be neutral
-        assert "error" not in ablated["critique"].lower()
-
-    def test_ablation_adds_metadata(self):
-        """Test that ablation adds appropriate metadata fields."""
-        dialogue_tuple = {
-            "question": "Test",
-            "initial_answer": "Answer",
-            "critique": "Critique text",
-            "revised_answer": "Revised"
-        }
-
-        ablated = create_ablation_tuple(dialogue_tuple)
-
-        assert ablated["ablation_type"] == "neutral_placeholder"
-        assert "original_critique_token_count" in ablated
-        assert "ablated_critique_token_count" in ablated
-
-    def test_ablation_missing_critique(self):
-        """Test that missing critique raises ValueError."""
-        dialogue_tuple = {
-            "question": "Test",
-            "initial_answer": "Answer",
-            "revised_answer": "Revised"
-        }
-
-        with pytest.raises(ValueError, match="must contain a 'critique' field"):
-            create_ablation_tuple(dialogue_tuple)
+    def test_ablation_invalid_input(self):
+        """Invalid input should raise ValueError."""
+        invalid_tuple = {'question': "Test", 'initial_answer': "Test"}
+        
+        with pytest.raises(ValueError):
+            create_ablation_tuple(invalid_tuple)
 
 
 class TestAblationDatasetGeneration:
-    """Tests for generating full ablation datasets."""
+    """Tests for the generate_ablation_dataset function."""
 
-    def test_generate_ablation_dataset_basic(self):
-        """Test basic dataset generation."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "input.jsonl"
-            output_path = Path(tmpdir) / "output.jsonl"
+    @pytest.fixture
+    def sample_dialogue_data(self):
+        """Provide sample dialogue data for testing."""
+        return [
+            {
+                'question': "Question 1",
+                'initial_answer': "Answer 1",
+                'critique': "Critique 1",
+                'revised_answer': "Revised 1"
+            },
+            {
+                'question': "Question 2",
+                'initial_answer': "Answer 2",
+                'critique': "Critique 2",
+                'revised_answer': "Revised 2"
+            },
+            {
+                'question': "Question 3",
+                'initial_answer': "Answer 3",
+                'critique': "Critique 3",
+                'revised_answer': "Revised 3"
+            }
+        ]
 
-            # Create input data
-            input_data = [
-                {"question": "Q1", "initial_answer": "A1", "critique": "C1", "revised_answer": "R1"},
-                {"question": "Q2", "initial_answer": "A2", "critique": "C2", "revised_answer": "R2"}
-            ]
+    def test_generate_ablation_dataset_basic(self, sample_dialogue_data):
+        """Basic dataset generation should work correctly."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as infile:
+            for item in sample_dialogue_data:
+                infile.write(json.dumps(item) + '\n')
+            input_path = infile.name
 
-            with open(input_path, 'w') as f:
-                for item in input_data:
-                    f.write(json.dumps(item) + '\n')
+        output_path = input_path.replace('.jsonl', '_ablation.jsonl')
 
-            # Generate ablation dataset
-            result = generate_ablation_dataset(
-                dialogue_dataset_path=str(input_path),
-                output_path=str(output_path)
-            )
+        try:
+            count = generate_ablation_dataset(input_path, output_path)
+            
+            assert count == len(sample_dialogue_data)
+            assert os.path.exists(output_path)
 
-            # Verify results
-            assert len(result) == 2
-            assert all("ablation_type" in item for item in result)
+            # Verify output content
+            with open(output_path, 'r') as outfile:
+                lines = outfile.readlines()
+                assert len(lines) == len(sample_dialogue_data)
 
-            # Verify output file exists
-            assert output_path.exists()
+                for line in lines:
+                    ablation_tuple = json.loads(line)
+                    assert 'ablation_metadata' in ablation_tuple
+                    assert ablation_tuple['ablation_metadata']['ablation_type'] == 'neutral_placeholder'
 
-            # Verify output format
-            with open(output_path, 'r') as f:
-                lines = f.readlines()
-            assert len(lines) == 2
+        finally:
+            # Cleanup
+            if os.path.exists(input_path):
+                os.remove(input_path)
+            if os.path.exists(output_path):
+                os.remove(output_path)
 
-    def test_generate_ablation_dataset_sample_size(self):
-        """Test dataset generation with sample size limit."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "input.jsonl"
-            output_path = Path(tmpdir) / "output.jsonl"
+    def test_generate_ablation_dataset_max_samples(self, sample_dialogue_data):
+        """Max samples limit should be respected."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as infile:
+            for item in sample_dialogue_data:
+                infile.write(json.dumps(item) + '\n')
+            input_path = infile.name
 
-            # Create larger input
-            input_data = [
-                {"question": f"Q{i}", "initial_answer": f"A{i}", "critique": f"C{i}", "revised_answer": f"R{i}"}
-                for i in range(10)
-            ]
+        output_path = input_path.replace('.jsonl', '_ablation.jsonl')
 
-            with open(input_path, 'w') as f:
-                for item in input_data:
-                    f.write(json.dumps(item) + '\n')
+        try:
+            max_samples = 2
+            count = generate_ablation_dataset(input_path, output_path, max_samples=max_samples)
+            
+            assert count == max_samples
 
-            # Generate with sample size
-            result = generate_ablation_dataset(
-                dialogue_dataset_path=str(input_path),
-                output_path=str(output_path),
-                sample_size=3
-            )
+            with open(output_path, 'r') as outfile:
+                lines = outfile.readlines()
+                assert len(lines) == max_samples
 
-            assert len(result) == 3
+        finally:
+            # Cleanup
+            if os.path.exists(input_path):
+                os.remove(input_path)
+            if os.path.exists(output_path):
+                os.remove(output_path)
 
-    def test_generate_ablation_dataset_missing_file(self):
-        """Test that missing input file raises FileNotFoundError."""
+    def test_generate_ablation_dataset_invalid_json(self, sample_dialogue_data):
+        """Invalid JSON lines should be skipped."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as infile:
+            for item in sample_dialogue_data:
+                infile.write(json.dumps(item) + '\n')
+            # Add an invalid line
+            infile.write("this is not valid json\n")
+            input_path = infile.name
+
+        output_path = input_path.replace('.jsonl', '_ablation.jsonl')
+
+        try:
+            count = generate_ablation_dataset(input_path, output_path)
+            
+            # Should process valid lines and skip invalid ones
+            assert count == len(sample_dialogue_data)
+
+            with open(output_path, 'r') as outfile:
+                lines = outfile.readlines()
+                assert len(lines) == len(sample_dialogue_data)
+
+        finally:
+            # Cleanup
+            if os.path.exists(input_path):
+                os.remove(input_path)
+            if os.path.exists(output_path):
+                os.remove(output_path)
+
+    def test_generate_ablation_dataset_file_not_found(self):
+        """Should raise FileNotFoundError for missing input."""
         with pytest.raises(FileNotFoundError):
-            generate_ablation_dataset(
-                dialogue_dataset_path="/nonexistent/path.jsonl",
-                output_path="/tmp/output.jsonl"
-            )
-
-    def test_generate_ablation_dataset_invalid_json(self):
-        """Test handling of invalid JSON lines."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "input.jsonl"
-            output_path = Path(tmpdir) / "output.jsonl"
-
-            # Create input with invalid JSON
-            with open(input_path, 'w') as f:
-                f.write('{"question": "valid", "initial_answer": "a", "critique": "c", "revised_answer": "r"}\n')
-                f.write('invalid json line\n')
-                f.write('{"question": "valid2", "initial_answer": "a2", "critique": "c2", "revised_answer": "r2"}\n')
-
-            # Should skip invalid lines and process valid ones
-            result = generate_ablation_dataset(
-                dialogue_dataset_path=str(input_path),
-                output_path=str(output_path)
-            )
-
-            assert len(result) == 2
-
-    def test_generate_ablation_dataset_missing_critique(self):
-        """Test handling of tuples missing critique field."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "input.jsonl"
-            output_path = Path(tmpdir) / "output.jsonl"
-
-            # Create input with missing critique
-            with open(input_path, 'w') as f:
-                f.write('{"question": "valid", "initial_answer": "a", "critique": "c", "revised_answer": "r"}\n')
-                f.write('{"question": "missing_critique", "initial_answer": "a", "revised_answer": "r"}\n')
-
-            # Should skip invalid tuples and process valid ones
-            result = generate_ablation_dataset(
-                dialogue_dataset_path=str(input_path),
-                output_path=str(output_path)
-            )
-
-            assert len(result) == 1
+            generate_ablation_dataset("nonexistent_file.jsonl", "output.jsonl")

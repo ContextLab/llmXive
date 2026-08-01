@@ -21,7 +21,7 @@ This project implements a selectionist framework for improving LLM reasoning, re
 - **No GPU Dependency**: If a step fails on CPU due to OOM, the execution stage auto-offloads to a Kaggle GPU (scaled down: fewer epochs, smaller batch size). The plan does not assume auto-offload; it relies on the execution stage's error handling.
 - **Data Integrity**: All datasets streamed or sampled to fit memory; no full dataset loading if >7GB.
 - **Reproducibility**: Fixed seeds, checksummed data.
-- **Hard Timeouts**: All training tasks enforce a bounded max runtime via signal handlers (5 hours).
+- **Hard Timeouts**: All training tasks enforce a bounded max runtime via signal handlers.
 
 ## Constitution Check
 

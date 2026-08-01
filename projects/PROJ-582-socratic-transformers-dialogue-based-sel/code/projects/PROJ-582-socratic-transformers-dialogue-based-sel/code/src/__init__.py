@@ -1,3 +1,3 @@
 """
-Socratic Transformers Project Source Package
+Socratic Transformers Project Source Package.
 """

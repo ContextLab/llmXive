@@ -1,8 +1,8 @@
 """
-Metrics module for Socratic Transformers project.
+Metric utilities for the Socratic Transformers pipeline.
 
-Implements prediction error proxy calculations using log-probability normalized
-by sequence length, as well as calibration error and n-gram overlap metrics.
+Provides functions to compute standard accuracy, loss, and proxy metrics
+for evaluating model performance on reasoning tasks.
 """
 
 import math
@@ -15,324 +15,269 @@ from transformers import PreTrainedModel, PreTrainedTokenizer
 def compute_prediction_error_proxy(
     model: PreTrainedModel,
     tokenizer: PreTrainedTokenizer,
-    prompt: str,
-    response: str,
-    device: Optional[torch.device] = None
-) -> float:
+    questions: List[str],
+    ground_truth_answers: List[str],
+    max_length: int = 512,
+) -> List[float]:
     """
-    Compute the prediction error proxy as negative log-probability normalized by sequence length.
+    Computes a proxy for prediction error based on log-probability of the ground truth.
 
-    This metric serves as a proxy for the model's uncertainty or "surprise" at its own
-    generated response. Lower values indicate higher confidence (lower error), while
-    higher values indicate lower confidence (higher error).
+    This metric serves as a proxy for "surprise" or "error" without explicit
+    symbolic evaluation, aligning with the need to measure system confidence.
 
     Args:
-        model: The transformer model to use for computing log-probabilities.
-        tokenizer: The tokenizer corresponding to the model.
-        prompt: The input prompt text.
-        response: The generated response text to evaluate.
-        device: Optional device to run computation on. If None, uses model's device.
+        model: The transformer model.
+        tokenizer: The associated tokenizer.
+        questions: List of input questions/prompts.
+        ground_truth_answers: List of expected answers (ground truth).
+        max_length: Maximum sequence length for tokenization.
 
     Returns:
-        float: The normalized negative log-probability (prediction error proxy).
-               Returns infinity if the response is empty or has zero probability.
-
-    Raises:
-        ValueError: If prompt or response is empty after tokenization.
+        A list of float values representing the negative log-likelihood (NLL)
+        for each sample. Lower values indicate higher confidence/correctness.
     """
-    if device is None:
-        device = next(model.parameters()).device
+    if len(questions) != len(ground_truth_answers):
+        raise ValueError("Questions and ground_truth_answers must have the same length.")
 
-    # Tokenize the full sequence (prompt + response)
-    full_text = prompt + response
-    encoded = tokenizer(
-        full_text,
-        return_tensors="pt",
-        truncation=True,
-        max_length=2048
-    ).to(device)
+    model.eval()
+    nll_scores = []
 
-    input_ids = encoded["input_ids"]
-    attention_mask = encoded["attention_mask"]
-
-    # Check if we have any tokens to process
-    if input_ids.numel() == 0:
-        raise ValueError("No tokens generated from input")
-
-    # Get model outputs
     with torch.no_grad():
-        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-        logits = outputs.logits
+        for question, answer in zip(questions, ground_truth_answers):
+            # Construct input: question + answer to calculate probability of answer given question
+            full_text = f"{question} {answer}"
+            inputs = tokenizer(
+                full_text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=max_length,
+            )
 
-    # Shift logits to align with labels (logits[i] predicts token i+1)
-    # We want to compute the probability of the response tokens given the prompt
-    shift_logits = logits[..., :-1, :].contiguous()
-    shift_labels = input_ids[..., 1:].contiguous()
+            # Shift labels to compute loss on the answer part only
+            # We assume the answer starts after the question tokens.
+            # A simpler proxy is to compute the loss on the entire sequence
+            # or specifically the answer tokens if we can identify them.
+            # For this proxy, we compute the average negative log probability
+            # of the tokens corresponding to the answer.
 
-    # Create a mask for the response portion
-    # Find where the response starts in the tokenized sequence
-    prompt_encoded = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=2048).to(device)
-    prompt_length = prompt_encoded["input_ids"].size(1)
+            input_ids = inputs["input_ids"]
+            attention_mask = inputs["attention_mask"]
 
-    # Create a mask that is 1 for response tokens, 0 for prompt tokens
-    response_mask = torch.zeros_like(shift_labels, dtype=torch.bool)
-    if prompt_length < shift_labels.size(1):
-        response_mask[:, prompt_length:] = True
+            # Run model
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            logits = outputs.logits
 
-    # Apply attention mask
-    effective_mask = response_mask & (attention_mask[:, 1:] == 1)
+            # Shift logits and labels for next-token prediction loss
+            shift_logits = logits[..., :-1, :].contiguous()
+            shift_labels = input_ids[..., 1:].contiguous()
 
-    # Compute log probabilities
-    log_probs = torch.nn.functional.log_softmax(shift_logits, dim=-1)
+            # Create a mask for the answer part
+            # Find the start index of the answer in the tokenized sequence
+            # This is a heuristic: assume the answer tokens are the last N tokens
+            # corresponding to the answer string.
+            # A more robust way: tokenize answer separately and match.
+            answer_tokens = tokenizer(answer, return_tensors="pt", truncation=True, max_length=max_length)["input_ids"][0]
+            
+            # Simple heuristic: the answer tokens are the suffix of the input_ids
+            # corresponding to the length of answer_tokens.
+            # This assumes the tokenizer didn't add special tokens that shift things unexpectedly
+            # or that we are consistent.
+            start_idx = len(input_ids[0]) - len(answer_tokens)
+            
+            # Extract relevant logits and labels
+            relevant_logits = shift_logits[0, start_idx : start_idx + len(answer_tokens)]
+            relevant_labels = shift_labels[0, start_idx : start_idx + len(answer_tokens)]
 
-    # Gather the log probability of the actual tokens
-    # log_probs shape: (batch_size, seq_len-1, vocab_size)
-    # shift_labels shape: (batch_size, seq_len-1)
-    batch_size, seq_len, vocab_size = log_probs.shape
-    indices = shift_labels.unsqueeze(-1).expand(-1, -1, vocab_size)
-    token_log_probs = torch.gather(log_probs, dim=2, index=indices).squeeze(-1)
+            # Calculate log probs
+            log_probs = torch.nn.functional.log_softmax(relevant_logits, dim=-1)
+            # Gather log probs for the correct tokens
+            chosen_log_probs = log_probs.gather(1, relevant_labels.unsqueeze(-1)).squeeze(-1)
 
-    # Sum log probabilities for response tokens only
-    response_log_probs = token_log_probs * effective_mask.float()
-    total_log_prob = response_log_probs.sum(dim=1)
+            # Average negative log likelihood
+            avg_nll = -chosen_log_probs.mean().item()
+            nll_scores.append(avg_nll)
 
-    # Count number of response tokens
-    num_response_tokens = effective_mask.sum(dim=1).float()
-
-    # Avoid division by zero
-    num_response_tokens = torch.clamp(num_response_tokens, min=1.0)
-
-    # Normalize by sequence length
-    normalized_log_prob = total_log_prob / num_response_tokens
-
-    # Return negative log probability (prediction error proxy)
-    # Higher values = higher error = lower confidence
-    prediction_error = -normalized_log_prob.item()
-
-    return prediction_error
+    return nll_scores
 
 
 def compute_calibration_error(
     predicted_probs: List[float],
-    actual_correct: List[bool]
-) -> float:
+    binary_outcomes: List[int],
+    n_bins: int = 10,
+) -> Tuple[float, float, float]:
     """
-    Compute the calibration error between predicted probabilities and actual correctness.
-
-    This measures how well the model's confidence aligns with its actual accuracy.
-    A perfectly calibrated model would have a calibration error of 0.
+    Computes Expected Calibration Error (ECE), Max Calibration Error (MCE),
+    and Average Calibration Error (ACE).
 
     Args:
-        predicted_probs: List of predicted probabilities (0-1) for each prediction.
-        actual_correct: List of booleans indicating whether each prediction was correct.
+        predicted_probs: List of predicted probabilities (0.0 to 1.0).
+        binary_outcomes: List of binary outcomes (0 or 1).
+        n_bins: Number of bins for calibration curve.
 
     Returns:
-        float: The mean absolute calibration error.
-
-    Raises:
-        ValueError: If input lists have different lengths or are empty.
+        Tuple of (ECE, MCE, ACE).
     """
-    if len(predicted_probs) != len(actual_correct):
-        raise ValueError("predicted_probs and actual_correct must have the same length")
+    if len(predicted_probs) != len(binary_outcomes):
+        raise ValueError("predicted_probs and binary_outcomes must have the same length.")
 
-    if len(predicted_probs) == 0:
-        raise ValueError("Input lists cannot be empty")
+    if n_bins <= 0:
+        raise ValueError("n_bins must be positive.")
 
-    calibration_errors = []
-    for prob, correct in zip(predicted_probs, actual_correct):
-        if not (0.0 <= prob <= 1.0):
-            raise ValueError(f"Probability {prob} is not in range [0, 1]")
+    bin_boundaries = torch.linspace(0, 1, n_bins + 1)
+    ece = 0.0
+    mce = 0.0
+    ace = 0.0
 
-        actual = 1.0 if correct else 0.0
-        calibration_errors.append(abs(prob - actual))
+    for i in range(n_bins):
+        bin_lower = bin_boundaries[i]
+        bin_upper = bin_boundaries[i + 1]
 
-    return sum(calibration_errors) / len(calibration_errors)
+        # Find samples in this bin
+        in_bin = (torch.tensor(predicted_probs) >= bin_lower) & (torch.tensor(predicted_probs) < bin_upper)
+        # Handle the last bin to include the upper boundary
+        if i == n_bins - 1:
+            in_bin = (torch.tensor(predicted_probs) >= bin_lower) & (torch.tensor(predicted_probs) <= bin_upper)
+
+        prop_in_bin = in_bin.float().mean().item()
+
+        if prop_in_bin > 0:
+            # Average confidence in this bin
+            avg_confidence = torch.tensor(predicted_probs)[in_bin].mean().item()
+            # Average accuracy in this bin
+            avg_accuracy = torch.tensor(binary_outcomes)[in_bin].mean().item()
+
+            # Calibration error for this bin
+            calibration_error = abs(avg_confidence - avg_accuracy)
+
+            ece += prop_in_bin * calibration_error
+            mce = max(mce, calibration_error)
+            ace += calibration_error
+
+    ace = ace / n_bins if n_bins > 0 else 0.0
+
+    return ece, mce, ace
 
 
 def compute_ngram_overlap(
-    text1: str,
-    text2: str,
-    n: int = 3
+    generated_text: str,
+    reference_text: str,
+    n: int = 4,
 ) -> float:
     """
-    Compute the n-gram overlap (Jaccard similarity) between two texts.
-
-    This is used to detect degenerate dialogues where the model repeats itself
-    or fails to generate novel content.
+    Computes the n-gram overlap (precision) between generated and reference text.
 
     Args:
-        text1: First text to compare.
-        text2: Second text to compare.
-        n: The size of n-grams to use (default: 3 for trigrams).
+        generated_text: The model's generated text.
+        reference_text: The ground truth reference text.
+        n: The n-gram size.
 
     Returns:
-        float: The Jaccard similarity coefficient (0-1), where 1 means identical
-               n-gram sets and 0 means no overlap.
+        The precision of n-gram overlap (0.0 to 1.0).
     """
-    def get_ngrams(text: str, n: int) -> set:
-        """Extract n-grams from text."""
-        tokens = text.lower().split()
-        if len(tokens) < n:
+    def get_ngrams(text, n):
+        words = text.lower().split()
+        if len(words) < n:
             return set()
-        return set(zip(*[tokens[i:] for i in range(n)]))
+        return set(tuple(words[i:i + n]) for i in range(len(words) - n + 1))
 
-    ngrams1 = get_ngrams(text1, n)
-    ngrams2 = get_ngrams(text2, n)
+    gen_ngrams = get_ngrams(generated_text, n)
+    ref_ngrams = get_ngrams(reference_text, n)
 
-    if not ngrams1 or not ngrams2:
+    if not gen_ngrams:
         return 0.0
 
-    intersection = ngrams1 & ngrams2
-    union = ngrams1 | ngrams2
-
-    return len(intersection) / len(union) if union else 0.0
+    overlap = len(gen_ngrams & ref_ngrams)
+    return overlap / len(gen_ngrams)
 
 
 class MetricCalculator:
     """
-    A class to compute and aggregate various metrics for the Socratic Transformers project.
-
-    This class provides a convenient interface for computing multiple metrics
-    and storing them for later analysis.
+    A utility class to compute various metrics for the Socratic pipeline.
     """
 
-    def __init__(self):
-        """Initialize the MetricCalculator with empty metric storage."""
-        self.metrics: dict = {}
-        self._metric_history: List[dict] = []
-
-    def add_prediction_error(
-        self,
-        model: PreTrainedModel,
-        tokenizer: PreTrainedTokenizer,
-        prompt: str,
-        response: str,
-        label: Optional[str] = None
-    ) -> float:
+    def __init__(self, model: Optional[PreTrainedModel] = None, tokenizer: Optional[PreTrainedTokenizer] = None):
         """
-        Compute and store the prediction error proxy for a given prompt-response pair.
+        Initialize the MetricCalculator.
 
         Args:
-            model: The transformer model to use.
-            tokenizer: The corresponding tokenizer.
-            prompt: The input prompt.
-            response: The generated response.
-            label: Optional label for this metric entry.
-
-        Returns:
-            float: The computed prediction error proxy.
+            model: Optional model for prediction-based metrics.
+            tokenizer: Optional tokenizer for prediction-based metrics.
         """
-        error = compute_prediction_error_proxy(model, tokenizer, prompt, response)
+        self.model = model
+        self.tokenizer = tokenizer
 
-        entry = {
-            "type": "prediction_error",
-            "value": error,
-            "prompt_length": len(prompt),
-            "response_length": len(response)
-        }
-        if label:
-            entry["label"] = label
+    def compute_error_proxy(
+        self,
+        questions: List[str],
+        ground_truth_answers: List[str],
+        max_length: int = 512,
+    ) -> List[float]:
+        """
+        Compute prediction error proxy using the initialized model and tokenizer.
+        """
+        if self.model is None or self.tokenizer is None:
+            raise RuntimeError("Model and tokenizer must be initialized to compute error proxy.")
+        return compute_prediction_error_proxy(self.model, self.tokenizer, questions, ground_truth_answers, max_length)
 
-        self._metric_history.append(entry)
-        self.metrics[f"prediction_error_{len(self.metrics)}"] = error
-
-        return error
-
-    def add_calibration_error(
+    def compute_calibration(
         self,
         predicted_probs: List[float],
-        actual_correct: List[bool],
-        label: Optional[str] = None
-    ) -> float:
+        binary_outcomes: List[int],
+        n_bins: int = 10,
+    ) -> Tuple[float, float, float]:
         """
-        Compute and store the calibration error.
-
-        Args:
-            predicted_probs: List of predicted probabilities.
-            actual_correct: List of actual correctness booleans.
-            label: Optional label for this metric entry.
-
-        Returns:
-            float: The computed calibration error.
+        Compute calibration metrics.
         """
-        error = compute_calibration_error(predicted_probs, actual_correct)
+        return compute_calibration_error(predicted_probs, binary_outcomes, n_bins)
 
-        entry = {
-            "type": "calibration_error",
-            "value": error,
-            "num_samples": len(predicted_probs)
-        }
-        if label:
-            entry["label"] = label
-
-        self._metric_history.append(entry)
-        self.metrics[f"calibration_error_{len(self.metrics)}"] = error
-
-        return error
-
-    def add_ngram_overlap(
+    def compute_ngram(
         self,
-        text1: str,
-        text2: str,
-        n: int = 3,
-        label: Optional[str] = None
+        generated_text: str,
+        reference_text: str,
+        n: int = 4,
     ) -> float:
         """
-        Compute and store the n-gram overlap between two texts.
+        Compute n-gram overlap.
+        """
+        return compute_ngram_overlap(generated_text, reference_text, n)
+
+    def compute_accuracy(
+        self,
+        predicted_labels: List[int],
+        ground_truth_labels: List[int],
+    ) -> float:
+        """
+        Compute standard accuracy.
 
         Args:
-            text1: First text.
-            text2: Second text.
-            n: N-gram size.
-            label: Optional label for this metric entry.
+            predicted_labels: List of predicted class labels (0 or 1).
+            ground_truth_labels: List of ground truth class labels (0 or 1).
 
         Returns:
-            float: The computed n-gram overlap.
+            Accuracy score (0.0 to 1.0).
         """
-        overlap = compute_ngram_overlap(text1, text2, n)
+        if len(predicted_labels) != len(ground_truth_labels):
+            raise ValueError("predicted_labels and ground_truth_labels must have the same length.")
+        
+        if not predicted_labels:
+            return 0.0
 
-        entry = {
-            "type": "ngram_overlap",
-            "value": overlap,
-            "n": n,
-            "text1_length": len(text1),
-            "text2_length": len(text2)
-        }
-        if label:
-            entry["label"] = label
+        correct = sum(p == g for p, g in zip(predicted_labels, ground_truth_labels))
+        return correct / len(predicted_labels)
 
-        self._metric_history.append(entry)
-        self.metrics[f"ngram_overlap_{len(self.metrics)}"] = overlap
-
-        return overlap
-
-    def get_summary(self) -> dict:
+    def compute_loss(
+        self,
+        losses: List[float],
+    ) -> float:
         """
-        Get a summary of all computed metrics.
+        Compute average loss.
+
+        Args:
+            losses: List of loss values.
 
         Returns:
-            dict: A dictionary containing summary statistics for each metric type.
+            Average loss.
         """
-        summary = {}
-        for metric_type in ["prediction_error", "calibration_error", "ngram_overlap"]:
-            values = [
-                entry["value"] for entry in self._metric_history
-                if entry["type"] == metric_type
-            ]
-            if values:
-                summary[metric_type] = {
-                    "mean": sum(values) / len(values),
-                    "min": min(values),
-                    "max": max(values),
-                    "count": len(values)
-                }
-        return summary
-
-    def get_history(self) -> List[dict]:
-        """
-        Get the full history of metric computations.
-
-        Returns:
-            List[dict]: List of all metric entries in chronological order.
-        """
-        return self._metric_history.copy()
+        if not losses:
+            return 0.0
+        return sum(losses) / len(losses)

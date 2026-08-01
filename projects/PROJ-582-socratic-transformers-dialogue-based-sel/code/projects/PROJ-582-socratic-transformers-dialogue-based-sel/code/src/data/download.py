@@ -1,6 +1,9 @@
 """
-Dataset downloader for Socratic Transformers project.
-Fetches GSM8K and MATH datasets from HuggingFace.
+Dataset Downloader for Socratic Transformers Project.
+
+This module handles the retrieval of real datasets (GSM8K, MATH) from HuggingFace
+datasets, ensuring no synthetic fallbacks are used. It adheres to the project's
+constraint of using real, programmatically accessible data sources.
 """
 import os
 import sys
@@ -11,151 +14,155 @@ from datasets import load_dataset
 from src.utils.config import get_config, SocraticConfig
 
 
+def ensure_data_dirs() -> Path:
+    """
+    Ensures the data/raw directory exists and returns its path.
+    """
+    config = get_config()
+    base_dir = config.data_dir
+    raw_dir = base_dir / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    return raw_dir
+
+
 def download_dataset(
     dataset_name: str,
+    subset: Optional[str] = None,
     split: str = "train",
-    output_dir: Optional[Path] = None,
-    streaming: bool = False
+    streaming: bool = False,
+    max_samples: Optional[int] = None
 ) -> Any:
     """
-    Download a dataset from HuggingFace.
+    Downloads a dataset from HuggingFace.
 
     Args:
-        dataset_name: Name of the dataset on HuggingFace (e.g., 'gsm8k', 'hendrycks/math')
-        split: Dataset split to load (default: 'train')
-        output_dir: Directory to cache/download the dataset (default: from config)
-        streaming: If True, stream the dataset without full download (for large datasets)
+        dataset_name: The HuggingFace dataset ID (e.g., 'gsm8k', 'hendrycks/math').
+        subset: The dataset configuration/revision (e.g., 'main' for gsm8k).
+        split: The dataset split to load (e.g., 'train', 'test').
+        streaming: If True, streams the dataset instead of loading into memory.
+        max_samples: If provided, limits the dataset to the first N samples.
 
     Returns:
-        The loaded dataset object (Dataset or IterableDataset)
+        The loaded Dataset or DatasetDict object.
 
     Raises:
-        ValueError: If dataset_name is invalid or download fails
-        RuntimeError: If real data source is unreachable and no fallback is allowed
+        RuntimeError: If the dataset cannot be found or downloaded.
+        ValueError: If the dataset configuration is invalid.
     """
-    config: SocraticConfig = get_config()
-
-    # Determine output directory
-    if output_dir is None:
-        output_dir = Path(config.data_dir) / "raw"
-
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Map short names to HuggingFace dataset IDs
-    dataset_map = {
-        "gsm8k": "gsm8k",
-        "math": "hendrycks/math",
-        "gsm8k:main": "gsm8k:main",
-    }
-
-    if dataset_name not in dataset_map:
-        raise ValueError(
-            f"Unknown dataset: {dataset_name}. "
-            f"Available: {list(dataset_map.keys())}"
-        )
-
-    hf_dataset_id = dataset_map[dataset_name]
+    raw_dir = ensure_data_dirs()
+    print(f"Loading dataset: {dataset_name} (subset: {subset}, split: {split})")
 
     try:
         if streaming:
-            # Stream dataset to avoid memory issues with large datasets
             dataset = load_dataset(
-                hf_dataset_id,
+                dataset_name,
+                name=subset,
                 split=split,
-                streaming=True,
-                trust_remote_code=True
+                streaming=True
             )
         else:
-            # Full download (for smaller datasets or when full access needed)
             dataset = load_dataset(
-                hf_dataset_id,
-                split=split,
-                cache_dir=str(output_dir),
-                trust_remote_code=True
+                dataset_name,
+                name=subset,
+                split=split
             )
 
+        # If max_samples is specified, slice the dataset
+        # Note: For streaming datasets, we must iterate and collect or use islice
+        if max_samples and not streaming:
+            if isinstance(dataset, dict):
+                # If it's a dict of splits, apply to the requested split
+                if split in dataset:
+                    dataset[split] = dataset[split].select(range(min(max_samples, len(dataset[split]))))
+            else:
+                dataset = dataset.select(range(min(max_samples, len(dataset))))
+        elif max_samples and streaming:
+            # For streaming, we return an iterator wrapper logic handled by the caller
+            # or we convert to a list if memory permits (not recommended for large datasets)
+            # Here we return the dataset object; the caller must handle iteration limits
+            # if strict memory constraints exist during iteration.
+            pass
+
+        print(f"Successfully loaded {dataset_name}")
         return dataset
 
     except Exception as e:
-        # Fail loudly - no synthetic fallback
-        raise RuntimeError(
-            f"Failed to download dataset '{dataset_name}' from HuggingFace: {e}. "
-            "Check your internet connection and dataset availability. "
-            "No synthetic data fallback is permitted."
-        ) from e
+        # Fail loudly as per constraints: no synthetic fallback
+        raise RuntimeError(f"Failed to download dataset '{dataset_name}': {str(e)}") from e
 
 
 def download_all_datasets(
-    output_dir: Optional[Path] = None,
-    streaming: bool = False
+    datasets_config: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Download all required datasets for the project.
+    Downloads all configured datasets for the Socratic project.
+
+    Defaults to GSM8K and MATH if no config is provided.
 
     Args:
-        output_dir: Directory to store downloaded datasets
-        streaming: Whether to stream datasets instead of full download
+        datasets_config: Optional dict of dataset configurations.
 
     Returns:
-        Dictionary mapping dataset names to their loaded datasets
+        A dictionary mapping dataset names to their loaded objects.
     """
-    datasets_to_download = [
-        ("gsm8k", "train"),
-        ("gsm8k", "test"),
-        ("math", "train"),
-        ("math", "test"),
-    ]
+    config = get_config()
+    # Default configuration if not provided
+    if datasets_config is None:
+        datasets_config = {
+            "gsm8k": {
+                "name": "gsm8k",
+                "subset": "main",
+                "split": "train",
+                "streaming": False,
+                "max_samples": config.max_samples_per_dataset if hasattr(config, 'max_samples_per_dataset') else None
+            },
+            "math": {
+                "name": "hendrycks/math",
+                "subset": "train",
+                "split": "train",
+                "streaming": False,
+                "max_samples": config.max_samples_per_dataset if hasattr(config, 'max_samples_per_dataset') else None
+            }
+        }
 
-    downloaded = {}
+    loaded_datasets = {}
 
-    for dataset_name, split in datasets_to_download:
-        print(f"Downloading {dataset_name} ({split})...")
+    for key, cfg in datasets_config.items():
         try:
-            dataset = download_dataset(
-                dataset_name=dataset_name,
-                split=split,
-                output_dir=output_dir,
-                streaming=streaming
+            ds = download_dataset(
+                dataset_name=cfg["name"],
+                subset=cfg.get("subset"),
+                split=cfg.get("split", "train"),
+                streaming=cfg.get("streaming", False),
+                max_samples=cfg.get("max_samples")
             )
-            downloaded[f"{dataset_name}_{split}"] = dataset
-            print(f"  ✓ Successfully downloaded {dataset_name}_{split}")
+            loaded_datasets[key] = ds
         except Exception as e:
-            print(f"  ✗ Failed to download {dataset_name}_{split}: {e}")
-            # Re-raise to fail loudly as per requirements
+            print(f"Error downloading {key}: {e}", file=sys.stderr)
+            # We do not skip; if a required dataset fails, the pipeline should stop
+            # unless the config explicitly marks it as optional (not implemented here)
             raise
 
-    return downloaded
+    return loaded_datasets
 
 
 def main():
     """
-    Main entry point for dataset download script.
-    Downloads GSM8K and MATH datasets to the configured data directory.
+    Main entry point for downloading datasets.
     """
-    config = get_config()
-    output_dir = Path(config.data_dir) / "raw"
-
-    print("Starting dataset download for Socratic Transformers project...")
-    print(f"Output directory: {output_dir}")
-
+    print("Starting dataset download process...")
     try:
-        datasets = download_all_datasets(output_dir=output_dir, streaming=False)
-
-        print("\nDownload Summary:")
-        for name, dataset in datasets.items():
-            if hasattr(dataset, "__len__"):
-                print(f"  {name}: {len(dataset)} samples")
-            else:
-                print(f"  {name}: streaming dataset (length unknown)")
-
-        print("\n✓ All datasets downloaded successfully.")
-        return 0
-
+        datasets = download_all_datasets()
+        print("All datasets downloaded successfully.")
+        for name, ds in datasets.items():
+            print(f"  - {name}: {ds}")
+    except RuntimeError as e:
+        print(f"Dataset download failed: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"\n✗ Download failed: {e}")
-        return 1
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

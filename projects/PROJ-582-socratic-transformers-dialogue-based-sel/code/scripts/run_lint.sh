@@ -1,13 +1,10 @@
 #!/bin/bash
-# Script to run linting checks for the Socratic Transformers project
-# Exits with non-zero status if any issues are found.
-
 set -e
 
-echo "Running Ruff checks..."
-ruff check src/ tests/
+echo "Running Ruff Linter..."
+ruff check .
 
-echo "Running Black format checks..."
-black --check src/ tests/
+echo "Running Black Formatter Check..."
+black --check .
 
 echo "All linting and formatting checks passed."

@@ -1,4 +1,4 @@
 """
-Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning
+Socratic Transformers: Dialogue-Based Selection on Belief
 Core source package.
 """

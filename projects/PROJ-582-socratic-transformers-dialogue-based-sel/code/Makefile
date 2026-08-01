@@ -2,30 +2,30 @@
 
 # Linting and Formatting
 lint:
-	ruff check src/ tests/
+    ruff check .
 
 format:
-	black src/ tests/
-	ruff check --fix src/ tests/
+    black .
+    ruff check . --fix
 
 check-lint:
-	ruff check src/ tests/
-	@echo "Ruff check passed."
+    ruff check .
+    ruff check . --output-format=github
 
 check-format:
-	black --check src/ tests/
-	@echo "Black check passed."
+    black --check .
 
 # Testing
 test:
-	pytest tests/ -v
+    pytest tests/ -v
 
-# Clean up
+# Clean
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	find . -type f -name "*.pyd" -delete
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
-	find . -type d -name ".ruff_cache" -exec rm -rf {} +
-	rm -rf .coverage htmlcov/ dist/ build/ *.egg-info/
+    find . -type d -name "__pycache__" -exec rm -rf {} +
+    find . -type f -name "*.pyc" -delete
+    find . -type f -name "*.pyo" -delete
+    find . -type d -name "*.egg-info" -exec rm -rf {} +
+    rm -rf .pytest_cache .coverage htmlcov/ dist/ build/
+
+# Default target
+all: check-lint check-format test

@@ -1,12 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "socratic-transformers"
 version = "0.1.0"
-description = "Dialogue-Based Self-Teaching Through Adversarial Questioning"
-requires-python = ">=3.10"
+description = "Socratic Transformers: Dialogue-Based Selection on Belief"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
     "transformers",
     "peft",
@@ -15,48 +16,76 @@ dependencies = [
     "scikit-learn",
     "pandas",
     "pytest",
+    "ruff",
+    "black",
     "numpy",
     "torch",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "tests*"]
 
 [tool.ruff]
-target-version = "py310"
 line-length = 88
-src = ["src", "tests"]
-
-[tool.ruff.lint]
+target-version = "py39"
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
-    "F",   # pyflakes
+    "F",   # Pyflakes
     "I",   # isort
-    "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
 ]
 
-[tool.ruff.lint.isort]
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"] # Allow unused imports in init files for exports
+
+[tool.ruff.isort]
 known-first-party = ["src"]
+known-third-party = [
+    "datasets",
+    "numpy",
+    "pandas",
+    "peft",
+    "pytest",
+    "torch",
+    "transformers",
+]
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ["py39", "py310", "py311"]
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
+
+[tool.pytest]
+timeout = 300
 filterwarnings = [
     "ignore::DeprecationWarning",
-    "ignore::UserWarning",
+    "ignore::PendingDeprecationWarning",
 ]

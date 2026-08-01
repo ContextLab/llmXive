@@ -1,3 +1,15 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or Black settings)
+    or any other evidence of ruff/black being set up in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`
+    were provided. The required linting/formatting setup is missing.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/`, `data/processed/`, `data/results/` directories
+    or accompanying `.gitkeep` files is present in the provided artifacts; the claim
+    cannot be verified without those concrete files.
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,20 +17,6 @@ T029:
     \ specified error\u2011threshold values (0.01,\u202F0.05,\u202F0.1) are present.\
     \ The implementer supplied no artifact (e.g., script, log, or figure) that demonstrates\
     \ the sweep or its robustness validation, so the requirement is unmet."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No research.md file or its contents were provided, so we cannot confirm that\
-    \ it was updated to distinguish the two concepts and address Ada Lovelace\u2019\
-    s concerns. The required artifact is missing."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` or excerpt showing the problem statement rewritten to use\
-    \ \u201Cevolutionary pressure\u201D / \u201Cnegative selection on belief\u201D\
-    \ and to address David Krakauer\u2019s review is provided; without that artifact\
-    \ we cannot confirm the requirement was met. The implementer must supply the revised\
-    \ specification file (or its relevant section) demonstrating the changes."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

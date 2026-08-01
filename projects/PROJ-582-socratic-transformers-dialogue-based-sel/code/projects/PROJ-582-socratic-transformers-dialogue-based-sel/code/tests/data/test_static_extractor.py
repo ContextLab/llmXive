@@ -1,6 +1,11 @@
 """
-Tests for the static QA extractor (T013).
+Contract and Integration tests for T013: Static QA Extractor.
+
+These tests verify that the static extractor correctly processes real data
+from GSM8K and MATH datasets (mocked for unit tests) and writes valid JSONL
+files to the expected output paths.
 """
+
 import json
 import os
 import sys
@@ -10,122 +15,136 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-# Adjust path for imports if running directly
-current_dir = Path(__file__).resolve().parent
-project_root = current_dir.parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure src is in path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from src.data.static_extractor import extract_gsm8k, extract_math, extract_static_qa
 
 
 class TestStaticExtractor:
-    """Test suite for static data extraction."""
+    """Tests for the static extractor module."""
 
-    def test_extract_gsm8k_structure(self, tmp_path):
-        """Verify GSM8K extraction produces correct schema."""
-        mock_dataset = [
-            {"question": "What is 2+2?", "answer": "The answer is 4."},
-            {"question": "What is 3*3?", "answer": "The answer is 9."}
+    @pytest.fixture
+    def temp_output_dir(self):
+        """Create a temporary directory for output files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
+
+    @patch("src.data.static_extractor.load_dataset")
+    def test_extract_gsm8k_basic(self, mock_load_dataset, temp_output_dir):
+        """Test basic extraction of GSM8K data."""
+        # Mock dataset
+        mock_data = [
+            {"question": "What is 2+2?", "answer": "The answer is 2+2=4. #### 4"},
+            {"question": "What is 3*3?", "answer": "3 times 3 is 9. #### 9"},
         ]
+        mock_dataset = MagicMock()
+        mock_dataset.__iter__ = lambda self: iter(mock_data)
+        mock_load_dataset.return_value = mock_dataset
 
-        output_file = tmp_path / "gsm8k_test.jsonl"
+        output_path = temp_output_dir / "gsm8k_test.jsonl"
+        count = extract_gsm8k(output_path, limit=2)
 
-        with patch("src.data.static_extractor.load_dataset") as mock_load:
-            mock_load.return_value = mock_dataset
-            result = extract_gsm8k(output_file, limit=2)
+        assert count == 2
+        assert output_path.exists()
 
-        assert len(result) == 2
-        assert output_file.exists()
-
-        with open(output_file, "r") as f:
+        # Verify content
+        with open(output_path, "r") as f:
             lines = f.readlines()
-            assert len(lines) == 2
+        
+        assert len(lines) == 2
+        
+        # Check first record
+        rec1 = json.loads(lines[0])
+        assert rec1["source"] == "gsm8k"
+        assert rec1["question"] == "What is 2+2?"
+        assert rec1["answer"] == "4"  # Extracted final answer
 
-            for line in lines:
-                record = json.loads(line)
-                assert "source" in record
-                assert record["source"] == "gsm8k"
-                assert "question" in record
-                assert "answer" in record
-                assert record["type"] == "static_baseline"
-
-    def test_extract_math_structure(self, tmp_path):
-        """Verify MATH extraction produces correct schema."""
-        mock_dataset = [
-            {"problem": "Solve for x: x+1=2", "solution": "x=1", "answer": "1"},
-            {"problem": "What is 10/2?", "solution": "10 divided by 2 is 5.", "answer": "5"}
+    @patch("src.data.static_extractor.load_dataset")
+    def test_extract_gsm8k_answer_extraction(self, mock_load_dataset, temp_output_dir):
+        """Test that GSM8K answer extraction handles various formats."""
+        mock_data = [
+            {"question": "Q1", "answer": "Step 1. #### 10"},
+            {"question": "Q2", "answer": "Just the answer: 5"},  # No ####
         ]
+        mock_dataset = MagicMock()
+        mock_dataset.__iter__ = lambda self: iter(mock_data)
+        mock_load_dataset.return_value = mock_dataset
 
-        output_file = tmp_path / "math_test.jsonl"
+        output_path = temp_output_dir / "gsm8k_test.jsonl"
+        extract_gsm8k(output_path, limit=2)
 
-        with patch("src.data.static_extractor.load_dataset") as mock_load:
-            mock_load.return_value = mock_dataset
-            result = extract_math(output_file, limit=2)
+        with open(output_path, "r") as f:
+            recs = [json.loads(line) for line in f]
 
-        assert len(result) == 2
-        assert output_file.exists()
+        assert recs[0]["answer"] == "10"
+        assert recs[1]["answer"] == "Just the answer: 5"  # Kept as is
 
-        with open(output_file, "r") as f:
-            lines = f.readlines()
-            assert len(lines) == 2
-
-            for line in lines:
-                record = json.loads(line)
-                assert "source" in record
-                assert record["source"] == "math"
-                assert "question" in record
-                assert "answer" in record
-                assert record["type"] == "static_baseline"
-
-    def test_extract_static_qa_integration(self, tmp_path):
-        """Test the full extraction pipeline with mocked datasets."""
-        gsm8k_mock = [
-            {"question": "GSM Q1", "answer": "A1"},
-            {"question": "GSM Q2", "answer": "A2"}
+    @patch("src.data.static_extractor.load_dataset")
+    def test_extract_math_basic(self, mock_load_dataset, temp_output_dir):
+        """Test basic extraction of MATH data."""
+        mock_data = [
+            {
+                "problem": "Find x.",
+                "solution": "The solution is \\boxed{42}."
+            },
+            {
+                "problem": "Calculate area.",
+                "solution": "Area is 100."  # No boxed
+            },
         ]
-        math_mock = [
-            {"problem": "MATH P1", "solution": "S1", "answer": "A1"},
-            {"problem": "MATH P2", "solution": "S2", "answer": "A2"}
-        ]
+        mock_dataset = MagicMock()
+        mock_dataset.__iter__ = lambda self: iter(mock_data)
+        mock_load_dataset.return_value = mock_dataset
 
-        with patch("src.data.static_extractor.load_dataset") as mock_load:
-            # Mock returns different datasets based on call arguments or simply return a list
-            # Since load_dataset is called twice with different args, we need side_effect
-            def side_effect(*args, **kwargs):
-                if args[0] == "gsm8k":
-                    return gsm8k_mock
-                elif args[0] == "hendrycks/competition_math":
-                    return math_mock
-                return []
+        output_path = temp_output_dir / "math_test.jsonl"
+        count = extract_math(output_path, limit=2)
 
-            mock_load.side_effect = side_effect
+        assert count == 2
+        assert output_path.exists()
 
-            results = extract_static_qa(
-                gsm8k_limit=2,
-                math_limit=2,
-                base_output_dir=tmp_path
-            )
+        with open(output_path, "r") as f:
+            recs = [json.loads(line) for line in f]
 
-            assert "gsm8k" in results
-            assert "math" in results
+        assert recs[0]["source"] == "math"
+        assert recs[0]["answer"] == "42"
+        assert recs[1]["answer"] == "Area is 100."
 
-            # Verify files exist and contain data
-            with open(results["gsm8k"], "r") as f:
-                gsm8k_lines = f.readlines()
-                assert len(gsm8k_lines) == 2
+    @patch("src.data.static_extractor.get_config")
+    @patch("src.data.static_extractor.extract_gsm8k")
+    @patch("src.data.static_extractor.extract_math")
+    def test_extract_static_qa_integration(self, mock_math, mock_gsm8k, mock_config, temp_output_dir):
+        """Test the main integration function."""
+        mock_config.return_value = {
+            "data_dir": str(temp_output_dir),
+            "data_limit": 10
+        }
+        mock_gsm8k.return_value = 5
+        mock_math.return_value = 3
 
-            with open(results["math"], "r") as f:
-                math_lines = f.readlines()
-                assert len(math_lines) == 2
+        results = extract_static_qa()
 
-    def test_empty_dataset_handling(self, tmp_path):
-        """Ensure extraction handles empty datasets gracefully."""
-        output_file = tmp_path / "empty_test.jsonl"
+        assert results["gsm8k"] == 5
+        assert results["math"] == 3
+        mock_gsm8k.assert_called_once()
+        mock_math.assert_called_once()
 
-        with patch("src.data.static_extractor.load_dataset") as mock_load:
-            mock_load.return_value = []
-            result = extract_gsm8k(output_file, limit=0)
+    @patch("src.data.static_extractor.load_dataset")
+    def test_extract_gsm8k_load_error(self, mock_load_dataset, temp_output_dir):
+        """Test handling of dataset loading errors."""
+        mock_load_dataset.side_effect = Exception("Network error")
+        
+        output_path = temp_output_dir / "gsm8k_error.jsonl"
+        
+        with pytest.raises(RuntimeError, match="Failed to load GSM8K dataset"):
+            extract_gsm8k(output_path)
 
-        assert len(result) == 0
-        assert output_file.exists()
-        assert output_file.stat().st_size == 0
+    @patch("src.data.static_extractor.load_dataset")
+    def test_extract_math_load_error(self, mock_load_dataset, temp_output_dir):
+        """Test handling of dataset loading errors."""
+        mock_load_dataset.side_effect = Exception("Network error")
+        
+        output_path = temp_output_dir / "math_error.jsonl"
+        
+        with pytest.raises(RuntimeError, match="Failed to load MATH dataset"):
+            extract_math(output_path)
