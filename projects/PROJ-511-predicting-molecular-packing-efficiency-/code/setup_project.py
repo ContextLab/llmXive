@@ -1,28 +1,15 @@
-"""
-Project Setup Module
-Creates the required directory structure for the molecular packing efficiency project.
-"""
 import os
 import sys
 from pathlib import Path
 
 def create_directories():
     """
-    Creates the standard project directory structure:
-    - code/
-    - data/
-    - data/raw_cif/
-    - models/
-    - results/
-    - contracts/
-    - specs/
-    
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Creates the required project directory structure for PROJ-511.
+    Ensures all directories exist and are ready for data/code storage.
     """
-    base_dir = Path(__file__).parent.parent
+    base_path = Path(__file__).resolve().parent.parent
     
-    required_dirs = [
+    directories = [
         "code",
         "data",
         "data/raw_cif",
@@ -33,28 +20,16 @@ def create_directories():
     ]
     
     created_count = 0
-    existing_count = 0
-    failed_count = 0
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {dir_path}")
     
-    for dir_name in required_dirs:
-        dir_path = base_dir / dir_name
-        try:
-            if not dir_path.exists():
-                dir_path.mkdir(parents=True, exist_ok=True)
-                created_count += 1
-                print(f"Created directory: {dir_path}")
-            else:
-                existing_count += 1
-                print(f"Directory already exists: {dir_path}")
-        except OSError as e:
-            failed_count += 1
-            print(f"Failed to create directory {dir_path}: {e}", file=sys.stderr)
-    
-    if failed_count > 0:
-        print(f"\nWarning: {failed_count} directory(ies) failed to create.", file=sys.stderr)
-        return False
-        
-    print(f"\nSetup complete. Created: {created_count}, Existing: {existing_count}")
+    print(f"Directory setup complete. {created_count} new directories created.")
     return True
 
 if __name__ == "__main__":

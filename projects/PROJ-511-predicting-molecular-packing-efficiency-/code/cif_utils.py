@@ -4,10 +4,6 @@ import logging
 from typing import Dict, List, Optional, Tuple, Any, Iterator
 import numpy as np
 import pandas as pd
-from rdkit import Chem
-from rdkit.Chem import AllChem
-import requests
-from io import StringIO
 
 from utils import fix_seed, setup_logging
 from error_handling import CIFParseError, MissingMetadataError, handle_corrupt_cif
@@ -215,6 +211,9 @@ def generate_smiles_from_cif_data(cif_data: Dict[str, Any]) -> Tuple[Optional[st
     Otherwise, generates from 3D geometry using RDKit.
     Returns (smiles, source)
     """
+    from rdkit import Chem
+    from rdkit.Chem import AllChem
+
     # Check for explicit SMILES
     if '_chemical_structure_SMILES' in cif_data:
         smiles = cif_data['_chemical_structure_SMILES']

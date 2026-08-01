@@ -1,251 +1,213 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Validation Report Schema
-description: >-
-  Schema for the comprehensive validation report generated after model training
-  and evaluation, including sensitivity analysis and robustness checks.
+description: Schema for the comprehensive validation report generated after model evaluation.
 type: object
 required:
-  - report_metadata
-  - dataset_summary
-  - model_performance
-  - statistical_validation
+  - model_type
+  - metrics
+  - statistical_tests
+  - feature_analysis
   - sensitivity_analysis
-  - compliance_checklist
+  - timestamp
 properties:
-  report_metadata:
+  model_type:
+    type: string
+    description: The type of model being validated.
+  metrics:
     type: object
-    description: Metadata about the report generation.
+    description: Primary performance metrics.
     required:
-      - generated_at
-      - pipeline_version
-      - dataset_version
-      - model_id
+      - mae
+      - pearson_r
+      - spearman_rho
     properties:
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of report generation.
-      pipeline_version:
-        type: string
-        description: Version of the pipeline code used (e.g., git commit hash).
-      dataset_version:
-        type: string
-        description: Version or hash of the dataset used.
-      model_id:
-        type: string
-        description: Unique identifier for the model instance.
-  dataset_summary:
+      mae:
+        type: number
+        minimum: 0
+        description: Mean Absolute Error on the validation set.
+      mse:
+        type: number
+        minimum: 0
+        description: Mean Squared Error on the validation set.
+      rmse:
+        type: number
+        minimum: 0
+        description: Root Mean Squared Error on the validation set.
+      pearson_r:
+        type: number
+        minimum: -1
+        maximum: 1
+        description: Pearson correlation coefficient between predicted and observed.
+      pearson_p:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: P-value for Pearson correlation.
+      spearman_rho:
+        type: number
+        minimum: -1
+        maximum: 1
+        description: Spearman rank correlation coefficient.
+      spearman_p:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: P-value for Spearman correlation.
+      r2:
+        type: number
+        description: R-squared coefficient of determination.
+  statistical_tests:
     type: object
-    description: Summary statistics of the dataset used for training.
+    description: Results of statistical significance and assumption tests.
     required:
-      - total_samples
-      - train_samples
-      - test_samples
-      - features_count
-      - target_statistics
+      - shapiro_wilk
+      - permutation_test
     properties:
-      total_samples:
-        type: integer
-        minimum: 500
-        description: Total number of samples in the dataset.
-      train_samples:
-        type: integer
-        description: Number of samples in the training split.
-      test_samples:
-        type: integer
-        description: Number of samples in the test split.
-      features_count:
-        type: integer
-        description: Total number of input features used.
-      target_statistics:
+      shapiro_wilk:
         type: object
-        description: Statistics of the target variable (CAPE).
-        required:
-          - mean
-          - std
-          - min
-          - max
-        properties:
-          mean:
-            type: number
-          std:
-            type: number
-          min:
-            type: number
-          max:
-            type: number
-  model_performance:
-    type: object
-    description: Aggregated performance metrics.
-    required:
-      - test_metrics
-      - train_metrics
-    properties:
-      test_metrics:
-        type: object
-        description: Metrics on the held-out test set.
-        properties:
-          mae:
-            type: number
-          rmse:
-            type: number
-          pearson_r:
-            type: number
-          spearman_rho:
-            type: number
-          r_squared:
-            type: number
-      train_metrics:
-        type: object
-        description: Metrics on the training set (for overfitting check).
-        properties:
-          mae:
-            type: number
-          rmse:
-            type: number
-          r_squared:
-            type: number
-  statistical_validation:
-    type: object
-    description: Results of statistical tests required by the specification.
-    required:
-      - residuals_normality
-      - significance_test
-      - multicollinearity
-    properties:
-      residuals_normality:
-        type: object
-        description: Shapiro-Wilk test results for residuals.
+        description: Shapiro-Wilk test for normality of residuals.
         required:
           - statistic
           - p_value
-          - is_normal
         properties:
           statistic:
             type: number
+            minimum: 0
+            maximum: 1
           p_value:
             type: number
-          is_normal:
-            type: boolean
-            description: True if p-value > 0.05 (fail to reject normality).
-      significance_test:
+            minimum: 0
+            maximum: 1
+      permutation_test:
         type: object
-        description: Permutation test results.
+        description: Permutation test results for significance.
         required:
+          - observed_statistic
           - p_value
           - n_permutations
-          - is_significant
         properties:
+          observed_statistic:
+            type: number
+            description: The observed metric (e.g., r or MAE) before shuffling.
           p_value:
             type: number
+            minimum: 0
+            maximum: 1
           n_permutations:
             type: integer
-            minimum: 10000
-          is_significant:
-            type: boolean
-            description: True if p-value < 0.05.
-      multicollinearity:
+            minimum: 1
+            description: Number of permutations performed.
+      partial_correlation:
         type: object
-        description: VIF diagnostic results.
-        required:
-          - max_vif
-          - is_acceptable
+        description: Partial correlation controlling for confounders.
         properties:
-          max_vif:
+          coefficient:
             type: number
-          is_acceptable:
-            type: boolean
-            description: True if max_vif < 5 (or 10 depending on threshold).
-  sensitivity_analysis:
+          p_value:
+            type: number
+  feature_analysis:
     type: object
-    description: Results of the sensitivity analysis on threshold choices (US3).
-    required:
-      - thresholds_tested
-      - results
-      - variation_in_r
-      - bonferroni_corrected
+    description: Analysis of feature importance and multicollinearity.
     properties:
-      thresholds_tested:
+      vif_scores:
         type: array
+        description: Variance Inflation Factor scores for each feature.
         items:
-          type: number
-        description: List of CAPE thresholds tested (e.g., [0.5, 0.6, 0.7]).
-      results:
+          type: object
+          required:
+            - feature
+            - vif
+          properties:
+            feature:
+              type: string
+            vif:
+              type: number
+              minimum: 1
+      feature_importance:
         type: array
-        description: Results for each threshold.
+        description: Relative importance of features (if available).
         items:
           type: object
           properties:
+            feature:
+              type: string
+            importance:
+              type: number
+  sensitivity_analysis:
+    type: object
+    description: Results of sensitivity analysis (threshold sweeps).
+    properties:
+      threshold_sweep:
+        type: array
+        description: Metrics across different packing efficiency thresholds.
+        items:
+          type: object
+          required:
+            - threshold
+            - r
+            - mae
+            - p_value
+          properties:
             threshold:
               type: number
-            pearson_r:
+            r:
               type: number
             mae:
               type: number
             p_value:
               type: number
-      variation_in_r:
-        type: number
-        description: Range or standard deviation of r across thresholds.
       bonferroni_corrected:
         type: boolean
         description: Whether Bonferroni correction was applied.
-  compliance_checklist:
+      max_variation_r:
+        type: number
+        description: Maximum variation in r across thresholds.
+  comparative_analysis:
     type: object
-    description: Checklist of specification requirements met.
-    required:
-      - fr_001_data_source
-      - fr_002_smiles_generation
-      - fr_003_packing_metrics
-      - fr_004_feature_assembly
-      - fr_005_model_architecture
-      - fr_006_statistical_tests
-      - fr_007_sensitivity
-      - fr_009_vif
-      - fr_016_permutation_test
-      - fr_017_data_anchoring
+    description: Comparison between different model variants (Baseline vs Control vs Upper Bound).
     properties:
-      fr_001_data_source:
-        type: boolean
-        description: Data sourced from COD.
-      fr_002_smiles_generation:
-        type: boolean
-        description: SMILES generated from CIFs.
-      fr_003_packing_metrics:
-        type: boolean
-        description: Raw PC and CAPE calculated with Bondi radii.
-      fr_004_feature_assembly:
-        type: boolean
-        description: Features assembled from SMILES, 3D, and confounders.
-      fr_005_model_architecture:
-        type: boolean
-        description: MLP architecture ≤100k params.
-      fr_006_statistical_tests:
-        type: boolean
-        description: MAE, Pearson, Spearman, Shapiro-Wilk computed.
-      fr_007_sensitivity:
-        type: boolean
-        description: Sensitivity analysis over thresholds {0.5, 0.6, 0.7}.
-      fr_009_vif:
-        type: boolean
-        description: VIF computed on all variables.
-      fr_016_permutation_test:
-        type: boolean
-        description: Permutation test with 10,000 shuffles.
-      fr_017_data_anchoring:
-        type: boolean
-        description: Data anchored in diffraction parameters.
-  errors_and_warnings:
-    type: array
-    description: List of any errors or warnings encountered during validation.
-    items:
-      type: object
-      properties:
-        level:
-          type: string
-          enum: ["error", "warning", "info"]
-        message:
-          type: string
-        timestamp:
-          type: string
-          format: date-time
+      baseline_vs_control:
+        type: object
+        properties:
+          delta_mae:
+            type: number
+          delta_r:
+            type: number
+          significance:
+            type: boolean
+      baseline_vs_upper_bound:
+        type: object
+        properties:
+          delta_mae:
+            type: number
+          delta_r:
+            type: number
+          significance:
+            type: boolean
+  thermodynamic_consistency:
+    type: object
+    description: Checks for physical grounding (e.g., correlation with H-bond energy).
+    properties:
+      h_bond_correlation:
+        type: number
+      planarity_correlation:
+        type: number
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of report generation.
+  dataset_info:
+    type: object
+    description: Information about the dataset used for validation.
+    properties:
+      n_samples:
+        type: integer
+      n_features:
+        type: integer
+      target_mean:
+        type: number
+      target_std:
+        type: number
+  notes:
+    type: string
+    description: Additional notes or warnings.

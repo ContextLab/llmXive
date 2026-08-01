@@ -1058,3 +1058,344 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T07:45:43Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Pipeline outputs dataset.csv with at least 500 rows, valid SMILES, and
+    numeric packing coefficients
+  claim_id: c_f67a70b8
+  context: "Independent Test for User Story 1: The pipeline can be run on a fresh\
+    \ CI runner and must output `data/dataset.csv` with \u2265500 rows, valid SMILES,\
+    \ and numeric packing coefficients."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_dataset.csv_with_at_least_500_rows,_valid_S
+  kind: magnitude
+  raw_text: "The pipeline can be run on a fresh CI runner and must output data/dataset.csv\
+    \ with \u2265500 rows, valid SMILES, and numeric packing coefficients."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:52:22Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Model predictions for CAPE correlate with H-bonding energy and planarity
+    indices
+  claim_id: c_5a3cc090
+  context: 'T044: Implement code/thermodynamic_check.py to verify that the model''s
+    predictions for CAPE correlate with the calculated H-bonding energy and planarity
+    indices.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_predictions_for_CAPE_correlate_with_H-bonding_energy_a
+  kind: entity_fact
+  raw_text: The model's predictions for CAPE correlate with the calculated H-bonding
+    energy and planarity indices.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:52:40Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: pipeline outputs dataset with 500 rows
+  claim_id: c_932ab176
+  context: "Independent Test: The pipeline can be run on a fresh CI runner and must\
+    \ output data/dataset.csv with \u2265500 rows, valid SMILES, and numeric packing\
+    \ coefficients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline can be run on a fresh CI runner and must output data/dataset.csv\
+    \ with \u2265500 rows, valid SMILES, and numeric packing coefficients."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:53:30Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: calculate 3D descriptors with seed 42 and 50 max attempts
+  claim_id: c_ccad5301
+  context: 'Implementation for User Story 1 - T018: Implement code/add_3d_descriptors.py
+    to calculate 3D descriptors (radius of gyration, asphericity, moments) from RDKit
+    conformers using ETKDG parameters, seed=42, max_attempts=50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/add_3d_descriptors.py to calculate 3D descriptors (radius
+    of gyration, asphericity, moments) from RDKit conformers using ETKDG parameters,
+    seed=42, max_attempts=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:53:58Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: calculate 3D descriptors with 50 max attempts
+  claim_id: c_ff862e5f
+  context: 'Implementation for User Story 1 - T018: Implement code/add_3d_descriptors.py
+    to calculate 3D descriptors (radius of gyration, asphericity, moments) from RDKit
+    conformers using ETKDG parameters, seed=42, max_attempts=50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/add_3d_descriptors.py to calculate 3D descriptors (radius
+    of gyration, asphericity, moments) from RDKit conformers using ETKDG parameters,
+    seed=42, max_attempts=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:53:59Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: generate 10 to 20 low-energy conformers per molecule
+  claim_id: c_fc03ccc7
+  context: 'Implementation for Revision Concerns - T039: Implement code/generate_conformers.py
+    to generate a conformational ensemble... Use RDKit ETKDGv3 to generate 10-20 low-energy
+    conformers per molecule.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/generate_conformers.py to generate a conformational ensemble
+    for each molecule in data/dataset.csv. Logic: Use RDKit ETKDGv3 to generate 10-20
+    low-energy conformers per molecule.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:54:11Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: estimate hydrogen bond energy contribution as -5 kcal/mol per bond
+  claim_id: c_87ab1eec
+  context: 'Implementation for Revision Concerns - T040: Implement code/compute_physical_features.py
+    to calculate Hydrogen Bonding Capacity... and estimate energy contribution ~-5
+    kcal/mol per bond.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/compute_physical_features.py to calculate Hydrogen Bonding
+    Capacity... and estimate energy contribution ~-5 kcal/mol per bond.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:54:37Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: obtain clean dataset of at least 500 organic crystal structures with
+    SMILES and packing coefficients
+  claim_id: c_68bb421b
+  context: "Phase 3: User Story 1 - Build a reproducible SMILES-packing dataset (Priority:\
+    \ P1) Goal: Obtain a clean dataset of \u2265500 organic crystal structures with\
+    \ SMILES and packing coefficients."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Obtain_clean_dataset_of_at_least_500_organic_crystal_structu
+  kind: magnitude
+  raw_text: "The goal is to obtain a clean dataset of \u2265500 organic crystal structures\
+    \ with SMILES and packing coefficients."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:57:51Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: pipeline output dataset with at least 500 rows valid SMILES and numeric
+    packing coefficients
+  claim_id: c_f9815d7c
+  context: "Independent Test: The pipeline can be run on a fresh CI runner and must\
+    \ output data/dataset.csv with \u2265500 rows, valid SMILES, and numeric packing\
+    \ coefficients."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_output_dataset_with_at_least_500_rows_valid_SMILES
+  kind: magnitude
+  raw_text: "The pipeline must output data/dataset.csv with \u2265500 rows, valid\
+    \ SMILES, and numeric packing coefficients."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:58:11Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: fetch organic CIFs with at most 50 non-hydrogen atoms from COD
+  claim_id: c_69bb25f0
+  context: "T012 [US1] Implement code/download_cif.py to fetch organic CIFs (\u2264\
+    50 non-H atoms) from COD with logging (FR-001, FR-017)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_organic_CIFs_with_at_most_50_non-hydrogen_atoms_from_C
+  kind: magnitude
+  raw_text: "The implementation must fetch organic CIFs with \u226450 non-H atoms\
+    \ from COD."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:58:32Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: 3D descriptors calculation uses ETKDG parameters seed 42 and max attempts
+    50
+  claim_id: c_b6119b69
+  context: T018 [US1] Implement code/add_3d_descriptors.py to calculate 3D descriptors
+    (radius of gyration, asphericity, moments) from RDKit conformers using ETKDG parameters,
+    seed=42, max_attempts=50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 3D descriptors calculation uses ETKDG parameters with seed=42 and
+    max_attempts=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:58:58Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: optimizer is Adam with learning rate 1e-3 and batch size 32
+  claim_id: c_81ceac4a
+  context: 'Optimizer: Adam (lr=1e-3), Batch Size 32.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimizer used is Adam with a learning rate of 1e-3 and a batch size
+    of 32.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:59:28Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: evaluation includes fixed 10000-shuffle permutation test
+  claim_id: c_40b8caea
+  context: T027 [US2] Implement code/evaluate.py to run a fixed 10,000-shuffle permutation
+    test (FR-006, FR-016)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation includes a fixed 10,000-shuffle permutation test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:59:54Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps high-packing thresholds over set 0.5 0.6
+    0.7
+  claim_id: c_e3df1bd8
+  context: T033 [US3] Implement code/sensitivity.py to sweep high-packing threshold
+    over the specific set {0.5, 0.6, 0.7} as required by FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps high-packing thresholds over the set {0.5,
+    0.6, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T19:00:15Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: variation in correlation coefficient r must be at most plus-minus 0.05
+    across threshold set
+  claim_id: c_0ecd9fcc
+  context: "T036 [US3] Implement code/sensitivity.py to compute and report the variation\
+    \ in r across the set {0.5, 0.6, 0.7} and verify it is \u2264 \xB10.05 (SC-004)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variation_in_correlation_coefficient_r_must_be_at_most_plus-
+  kind: magnitude
+  raw_text: "The robustness validation requires the variation in correlation coefficient\
+    \ r to be \u2264 \xB10.05 across the threshold set."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T19:01:24Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: conformational ensemble generation uses RDKit ETKDGv3 to generate 10
+    to 20 low-energy conformers per molecule
+  claim_id: c_9060c855
+  context: 'T039 [US2] Conformational Ensemble Generation: Implement code/generate_conformers.py
+    to generate a conformational ensemble for each molecule in data/dataset.csv. Logic:
+    Use RDKit ETKDGv3 to generate 10-20 low-energy conformers per molecule.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The conformational ensemble generation uses RDKit ETKDGv3 to generate
+    10-20 low-energy conformers per molecule.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T19:01:51Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: hydrogen bonding energy contribution is estimated at approximately minus
+    5 kcal per mol per bond
+  claim_id: c_88f553bc
+  context: 'T040 [US2] Physical Feature Engineering: Implement code/compute_physical_features.py
+    to calculate Hydrogen Bonding Capacity (count of donors/acceptors using RDKit
+    CalcNumHBD/CalcNumHBA and estimate energy contribution ~-5 kcal/mol per bond)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hydrogen bonding energy contribution is estimated at approximately
+    -5 kcal/mol per bond.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T19:02:20Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: full end-to-end pipeline runtime must be at most 6 hours on the CI
+  claim_id: c_f8fb009b
+  context: "T051 [P] Run full end-to-end pipeline on CI and verify runtime \u2264\
+    \ 6 hours (SC-005)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_end-to-end_pipeline_runtime_must_be_at_most_6_hours_on
+  kind: magnitude
+  raw_text: "The full end-to-end pipeline runtime must be \u2264 6 hours on the CI."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T19:02:41Z'

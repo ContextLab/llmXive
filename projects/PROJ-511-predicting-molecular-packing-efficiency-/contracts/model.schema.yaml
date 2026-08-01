@@ -1,215 +1,115 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
-description: >-
-  Schema for the trained model metadata and evaluation metrics produced by
-  the MLP training and evaluation pipeline (User Story 2).
+description: Schema for the trained model checkpoint metadata and configuration.
 type: object
 required:
-  - model_info
-  - training_config
-  - metrics
-  - statistics
+  - model_type
+  - architecture
+  - hyperparameters
+  - training_metrics
+  - feature_columns
+  - target_column
+  - timestamp
 properties:
-  model_info:
+  model_type:
+    type: string
+    description: Type of model (e.g., 'baseline', 'control', 'upper_bound', 'baseline+physics')
+    enum:
+      - baseline
+      - control
+      - upper_bound
+      - baseline+physics
+  architecture:
     type: object
-    description: Metadata about the trained model artifact.
+    description: Description of the neural network architecture.
     required:
-      - architecture
-      - parameter_count
-      - input_features
-      - output_features
-      - timestamp
+      - type
+      - layers
     properties:
-      architecture:
+      type:
         type: string
-        description: Description of the MLP layers (e.g., "2-layer MLP: 128->64->1").
-      parameter_count:
-        type: integer
+        enum:
+          - MLP
+      layers:
+        type: array
+        description: List of layer dimensions (including input and output).
+        items:
+          type: integer
+        minItems: 2
+      activation:
+        type: string
+        default: "ReLU"
+      dropout:
+        type: number
         minimum: 0
-        description: Total number of trainable parameters in the model.
-      input_features:
-        type: integer
-        minimum: 1
-        description: Dimensionality of the input feature vector.
-      output_features:
-        type: integer
-        enum: [1]
-        description: Dimensionality of the output (always 1 for regression).
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of model training completion.
-      device:
-        type: string
-        enum: ["cpu"]
-        description: Device used for training (CPU-only constraint).
-      seed:
-        type: integer
-        description: Random seed used for reproducibility.
-  training_config:
+        maximum: 1
+        default: 0.1
+  hyperparameters:
     type: object
-    description: Hyperparameters and configuration used for training.
+    description: Training hyperparameters used.
     required:
-      - train_split_ratio
-      - test_split_ratio
-      - epochs
       - learning_rate
       - batch_size
-      - loss_function
+      - epochs
       - optimizer
     properties:
-      train_split_ratio:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Fraction of data used for training (e.g., 0.8).
-      test_split_ratio:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Fraction of data used for testing (e.g., 0.2).
-      epochs:
-        type: integer
-        minimum: 1
-        description: Number of training epochs.
       learning_rate:
         type: number
-        minimum: 0.0
-        description: Learning rate used by the optimizer.
+        minimum: 0
       batch_size:
         type: integer
         minimum: 1
-        description: Batch size used during training.
-      loss_function:
-        type: string
-        enum: ["MSE", "MAE"]
-        description: Loss function used for optimization.
+      epochs:
+        type: integer
+        minimum: 1
       optimizer:
         type: string
-        description: Optimizer name (e.g., "Adam", "SGD").
-      early_stopping_patience:
-        type: integer
+        enum:
+          - Adam
+          - SGD
+          - RMSprop
+      weight_decay:
+        type: number
         minimum: 0
-        description: Patience for early stopping (0 if disabled).
-  metrics:
+        default: 0
+  training_metrics:
     type: object
-    description: Primary performance metrics on the test set.
+    description: Final training and validation metrics.
     required:
-      - mae
-      - rmse
-      - pearson_r
-      - pearson_p
-      - spearman_rho
-      - spearman_p
+      - train_loss
+      - val_loss
+      - train_mae
+      - val_mae
     properties:
-      mae:
+      train_loss:
         type: number
-        minimum: 0.0
-        description: Mean Absolute Error on the test set.
-      rmse:
+      val_loss:
         type: number
-        minimum: 0.0
-        description: Root Mean Squared Error on the test set.
-      pearson_r:
+      train_mae:
         type: number
-        description: Pearson correlation coefficient between predicted and actual.
-      pearson_p:
+        minimum: 0
+      val_mae:
         type: number
-        description: Two-sided p-value for Pearson correlation.
-      spearman_rho:
+        minimum: 0
+      train_r2:
         type: number
-        description: Spearman rank correlation coefficient.
-      spearman_p:
+      val_r2:
         type: number
-        description: Two-sided p-value for Spearman correlation.
-      r_squared:
-        type: number
-        description: Coefficient of determination (R²).
-  statistics:
-    type: object
-    description: Statistical validation results required by FR-006 and FR-016.
-    required:
-      - shapiro_wilk
-      - permutation_test
-      - vif_results
-    properties:
-      shapiro_wilk:
-        type: object
-        description: Shapiro-Wilk test for normality of residuals (FR-006).
-        required:
-          - statistic
-          - p_value
-        properties:
-          statistic:
-            type: number
-            description: Shapiro-Wilk test statistic.
-          p_value:
-            type: number
-            description: Two-sided p-value.
-      permutation_test:
-        type: object
-        description: Permutation test results for significance (FR-016).
-        required:
-          - observed_statistic
-          - p_value
-          - n_permutations
-          - resolution
-        properties:
-          observed_statistic:
-            type: number
-            description: The observed correlation (or metric) from the real model.
-          p_value:
-            type: number
-            description: Empirical p-value from shuffling.
-          n_permutations:
-            type: integer
-            minimum: 10000
-            description: Number of permutations performed (must be 10,000).
-          resolution:
-            type: number
-            description: Resolution of the p-value (1/n_permutations).
-      vif_results:
-        type: object
-        description: Variance Inflation Factor diagnostics for all predictors (FR-009).
-        required:
-          - computed
-          - max_vif
-          - mean_vif
-        properties:
-          computed:
-            type: boolean
-            description: Whether VIF was successfully computed for all variables.
-          max_vif:
-            type: number
-            description: Maximum VIF value observed among predictors.
-          mean_vif:
-            type: number
-            description: Mean VIF value across all predictors.
-          details:
-            type: array
-            description: List of VIF values per feature index (optional detail).
-            items:
-              type: object
-              properties:
-                feature_index:
-                  type: integer
-                feature_name:
-                  type: string
-                vif:
-                  type: number
-  artifacts:
-    type: object
-    description: File paths to the generated model and related artifacts.
-    required:
-      - model_path
-      - report_path
-    properties:
-      model_path:
-        type: string
-        description: Relative path to the saved model weights (e.g., "models/model.pt").
-      report_path:
-        type: string
-        description: Relative path to the validation report (e.g., "results/validation_report.json").
-      feature_matrix_path:
-        type: string
-        description: Optional path to the feature matrix used for training.
+  feature_columns:
+    type: array
+    description: List of feature names used for training.
+    items:
+      type: string
+  target_column:
+    type: string
+    description: Name of the target variable (e.g., 'cape').
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the model was trained.
+  seed:
+    type: integer
+    description: Random seed used for reproducibility.
+  notes:
+    type: string
+    description: Optional notes about the training run.

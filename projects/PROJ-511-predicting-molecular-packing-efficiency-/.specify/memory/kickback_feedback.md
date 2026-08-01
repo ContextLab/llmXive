@@ -4,8 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory listings or file system evidence were provided showing that the required folders (`code/`, `data/`, `data/raw_cif/`, `models/`, `results/`, `contracts/`, `specs/`) actually exist; the response contains only the task description and specifications, not the concrete project structure. The implementer must create and show the directory hierarchy (e.g., via a tree listing or screenshots) to satisfy the requirement.
-- `T003` (rejected 1x): No `.gitignore` file content or path was provided in the evidence, so we cannot confirm that a file exists, is non‑empty, and contains the required patterns (`data/raw_cif/`, `*.pt`, `*.csv`, `__pycache__`, `.env`). The implementer must supply the actual `.gitignore` file with those entries.
+- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T007` (rejected 1x): No code files, scripts, or data artifacts were provided to demonstrate that base data‑loading utilities for CIF parsing and SMILES generation exist in the `code/` directory. Consequently, we cannot verify that a CSV with ≥ 500 rows, SMILES generation, or failure logging was implemented. The required implementation is missing.
+- `T008` (rejected 1x): No code artifacts were presented showing modifications in the `code/` directory that implement error handling for corrupt CIF files or missing metadata. Without files, functions, or logs demonstrating such handling, the requirement cannot be confirmed as satisfied. The next implementer must add and provide the actual code (e.g., try/except blocks, validation checks, logging of failed CIFs, fallback SMILES generation flags) located in `code/`.
+- `T009` (rejected 1x): No configuration file (e.g., `.env`, `config.yaml`, or similar) defining the COD download URL and the HuggingFace model path was found in the `code/` directory, nor any documentation or code that sets these values. The required environment configuration artifact is missing.
 
 ## Required change
 

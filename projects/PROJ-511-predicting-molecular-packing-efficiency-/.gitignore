@@ -1,67 +1,61 @@
-# Data artifacts and raw downloads
+# Data artifacts and large files
 data/raw_cif/
-data/*.csv
-data/*.json
-data/*.parquet
-data/physics_features.csv
 data/dataset_intermediate.csv
 data/dataset_with_metrics.csv
 data/dataset_filtered.csv
 data/dataset.csv
+data/dataset_enhanced.csv
+data/features_matrix.npy
+data/features_matrix_enhanced.npy
+data/targets.npy
+data/raw/
+data/processed/
+data/interim/
 
-# Model binaries
+# Model checkpoints and weights
 models/*.pt
 models/*.pth
-models/*.bin
+models/checkpoints/
+models/baseline_checkpoint.pt
+models/control_3d_checkpoint.pt
+models/upper_bound_checkpoint.pt
 
-# Python cache and temp files
+# Python cache and build artifacts
 __pycache__/
 *.py[cod]
-$py.class
-*.so
-.Python
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+.eggs/
 
 # Environment and secrets
 .env
 .env.local
-.env.*.local
+.env.production
+*.pem
+*.key
+.secret
 
 # IDE and editor files
-.idea/
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+.cache/
+
+# Jupyter notebooks outputs (optional, keep notebooks but clear outputs)
+# *.ipynb_checkpoints/
+
+# OS specific
 .DS_Store
-
-# Logs and reports (optional, can be committed if needed)
-# results/*.log
-# results/*.html
-# results/*.txt
-
-# Jupyter notebook checkpoints
-.ipynb_checkpoints/
-
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Temporary processing files
-*.tmp
-*.temp
+Thumbs.db

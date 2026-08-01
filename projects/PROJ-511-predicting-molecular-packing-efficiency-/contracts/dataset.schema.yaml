@@ -1,87 +1,111 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Molecular Packing Efficiency Dataset Schema
 description: |
-  Schema for the final dataset (data/dataset.csv) containing SMILES representations,
-  packing coefficients (PC, CAPE), 3D descriptors, and confounder fields.
-  This schema enforces data integrity and type safety for downstream ML pipelines.
+  Schema for the final dataset used in predicting molecular packing efficiency.
+  Contains SMILES representations, packing metrics (PC, CAPE), 3D descriptors,
+  and experimental confounders.
 type: object
 required:
+  - cod_id
   - smiles
-  - pc
+  - smiles_source
+  - raw_packing_coefficient
   - cape
-  - hbond_count
-  - aromatic_ring_count
   - radius_of_gyration
   - asphericity
-  - temperature
-  - solvent_present
-  - non_h_atom_count
-  - source
+  - principal_moments
+  - lattice_system
+  - temperature_K
+  - has_solvent
+  - n_atoms
+  - unit_cell_volume
 properties:
-  # Molecular Connectivity
+  cod_id:
+    type: string
+    description: Unique identifier from the Crystallography Open Database.
+    pattern: "^[0-9]+$"
+  
   smiles:
     type: string
-    description: Canonical SMILES string representing molecular connectivity.
+    description: Canonical SMILES string representing the molecular connectivity.
     minLength: 1
-
-  # Packing Metrics (Target & Diagnostic)
-  pc:
+  
+  smiles_source:
+    type: string
+    description: Source of the SMILES string.
+    enum:
+      - extracted_cif
+      - generated_rdkit
+  
+  raw_packing_coefficient:
     type: number
-    description: Raw Packing Coefficient (diagnostic). Ratio of molecular volume to unit cell volume.
+    description: Raw Packing Coefficient calculated using Bondi radii.
     minimum: 0.0
     maximum: 1.0
-
+  
   cape:
     type: number
-    description: Corrected Atomic Packing Efficiency (target). Adjusted for thermal motion and voids.
+    description: Corrected Accessible Packing Efficiency (target variable).
     minimum: 0.0
     maximum: 1.0
-
-  # Physics-Derived Features (Pauling/Curie requirements)
-  hbond_count:
-    type: integer
-    description: Total count of potential hydrogen bond donors and acceptors.
-    minimum: 0
-
-  aromatic_ring_count:
-    type: integer
-    description: Number of aromatic rings in the molecule.
-    minimum: 0
-
-  # 3D Descriptors (ETKDG generated conformers)
+  
   radius_of_gyration:
     type: number
-    description: Radius of gyration (Angstrom) calculated from 3D conformer.
+    description: Radius of gyration of the 3D conformer (Angstroms).
     minimum: 0.0
-
+  
   asphericity:
     type: number
-    description: Asphericity descriptor (0=sphere, >0=elongated).
+    description: Asphericity parameter describing the shape of the molecule (0 for sphere, 1 for rod).
     minimum: 0.0
-
-  # Thermodynamic Confounders
-  temperature:
-    type: number
-    description: Data collection temperature in Kelvin.
-    minimum: 0.0
-
-  solvent_present:
-    type: boolean
-    description: Flag indicating if solvent molecules are present in the crystal structure.
-
-  # Metadata & Quality Control
-  non_h_atom_count:
-    type: integer
-    description: Count of non-hydrogen atoms (filtering criterion).
-    minimum: 1
-
-  source:
+    maximum: 1.0
+  
+  principal_moments:
+    type: object
+    description: Principal moments of inertia (I1, I2, I3).
+    required:
+      - i1
+      - i2
+      - i3
+    properties:
+      i1:
+        type: number
+        description: First principal moment of inertia.
+      i2:
+        type: number
+        description: Second principal moment of inertia.
+      i3:
+        type: number
+        description: Third principal moment of inertia.
+  
+  lattice_system:
     type: string
-    description: Source identifier (e.g., COD ID or dataset name).
-
+    description: Crystal lattice system extracted from space group.
+    enum:
+      - triclinic
+      - monoclinic
+      - orthorhombic
+      - tetragonal
+      - trigonal
+      - hexagonal
+      - cubic
+  
+  temperature_K:
+    type: number
+    description: Temperature at which the crystal structure was determined (Kelvin).
+    minimum: 0.0
+  
+  has_solvent:
+    type: boolean
+    description: Whether the structure contains solvent molecules.
+  
+  n_atoms:
+    type: integer
+    description: Total number of non-hydrogen atoms in the molecule.
+    minimum: 1
+  
+  unit_cell_volume:
+    type: number
+    description: Volume of the unit cell in cubic Angstroms.
+    minimum: 0.0
 additionalProperties: false
-description: |
-  This schema ensures that the dataset produced by T018 (add_3d_descriptors.py)
-  and validated by T019 (validate_dataset.py) contains all necessary fields
-  for the MLP training in US2. It explicitly includes fields mandated by
-  reviewer feedback (Pauling: H-bonds, Curie: confounders, Franklin: source).
