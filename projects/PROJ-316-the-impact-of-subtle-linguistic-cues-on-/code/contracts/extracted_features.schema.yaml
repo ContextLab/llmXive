@@ -1,31 +1,40 @@
-# Schema for extracted linguistic features
-# Used by validate_schemas() in src/utils/io.py
-type: object
-required:
-  - conversation_id
-  - first_person_count
-  - hedge_count
-  - hedge_ratio
-  - sentiment_score
-properties:
+# Contract definition for extracted linguistic features
+# Generated for Project PROJ-316
+# This schema defines the expected structure of data/processed/features.csv
+
+version: "1.0"
+description: "Schema for extracted linguistic features used in regression analysis"
+source: "src/extraction modules (T009, T010, T011)"
+
+columns:
   conversation_id:
     type: string
-    description: Unique identifier for the conversation turn
+    description: "Unique identifier for the conversation turn"
+    nullable: false
+
   first_person_count:
     type: integer
-    minimum: 0
-    description: Count of first-person pronouns (I, me, my, mine, we, us, our, ours)
+    description: "Count of first-person pronouns (PRP, PRP$) detected"
+    nullable: false
+    min: 0
+
   hedge_count:
     type: integer
-    minimum: 0
-    description: Count of hedge words from the predefined lexicon
+    description: "Count of hedge words detected from the predefined lexicon"
+    nullable: false
+    min: 0
+
   hedge_ratio:
     type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Ratio of hedge count to total word count
+    description: "Ratio of hedge words to total words (or total hedgeable tokens)"
+    nullable: false
+    min: 0.0
+    max: 1.0
+
   sentiment_score:
     type: number
-    minimum: -1.0
-    maximum: 1.0
-    description: VADER composite sentiment score
+    description: "Composite sentiment score (e.g., VADER compound score)"
+    nullable: false
+    # VADER compound scores range from -1 to 1
+    min: -1.0
+    max: 1.0

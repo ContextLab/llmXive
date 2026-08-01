@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-316-the-impact-of-subtle-linguistic-cues-on-
-last_run_id: e656e2dd-7f6d-4fef-b54b-02bdf496e6b4
+last_run_id: 342f1810-106d-4e3b-9df9-0238f7ca7059
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/specs/001-the-impact-of-subtle-linguistic-cues-on
 title: The Impact of Subtle Linguistic Cues on Perceived Authenticity in AI Chatbots
-updated_at: '2026-07-30T01:06:11.872920Z'
+updated_at: '2026-08-01T13:22:21.367789Z'

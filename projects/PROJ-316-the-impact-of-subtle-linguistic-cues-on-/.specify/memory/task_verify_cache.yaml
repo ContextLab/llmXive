@@ -4,9 +4,9 @@ T001e:
   r: The task T001e is explicitly marked as removed and not authorized by the specification,
     so no artifacts or output are required. Consequently, there is nothing missing
     or incorrect to verify.
-T001g:
+T005:
   c: false
-  h: 90c0f2f77d7ac65df38d67224398856df380203c692605c71409736b0f7f8c61
-  r: The required artifact `data/raw/conversations.jsonl` does not exist, so the implementer
-    could not verify the presence of an `authenticity_score` field as required. The
-    task remains unfinished until the file is provided and inspected.
+  h: 34a495c859c3406b942b71b56bb5e00937fce05b155280d7170745753c393161
+  r: The required file `src/utils/io.py` does not exist, and the schema file needed
+    for `validate_schemas()` (`contracts/extracted_features.schema.yaml` / `schema.yaml`)
+    is also missing, so none of the specified functions are implemented or testable.

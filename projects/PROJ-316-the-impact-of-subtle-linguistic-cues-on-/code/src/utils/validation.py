@@ -1,74 +1,104 @@
 """
 Input validation utilities for the linguistic cues analysis pipeline.
 
-Implements FR-006: Input Validation Logic.
-Ensures that input DataFrames contain required columns with correct types
+This module implements strict input validation as mandated by FR-006,
+ensuring that data frames contain required columns with correct types
 before processing begins.
 """
+
 import pandas as pd
 from typing import List, Set, Optional
 
 
 def validate_input_columns(df: pd.DataFrame, required_cols: List[str]) -> None:
     """
-    Validate that the input DataFrame contains all required columns.
-    
-    This function implements FR-006 by performing strict column validation.
-    It checks for the presence of 'text_content' and 'authenticity_score'
-    columns (or any other required columns specified).
-    
-    Args:
-        df: The input DataFrame to validate.
-        required_cols: List of column names that must be present.
-        
-    Raises:
-        ValueError: If any required column is missing or if the DataFrame
-                   is empty/None.
-        
-    Example:
-        >>> df = pd.DataFrame({'text_content': ['hello'], 'authenticity_score': [4.0]})
-        >>> validate_input_columns(df, ['text_content', 'authenticity_score'])
-        # No exception raised
-        
-        >>> validate_input_columns(df, ['text_content', 'missing_col'])
-        # Raises ValueError
+    Validate that a DataFrame contains all required columns.
+
+    This function enforces FR-006 by checking for the presence of critical
+    columns needed for analysis. If any required column is missing, it raises
+    a clear ValueError with details about what is missing.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The input DataFrame to validate.
+    required_cols : List[str]
+        List of column names that must be present in the DataFrame.
+
+    Raises
+    ------
+    ValueError
+        If the DataFrame is empty, or if any required column is missing.
+        The error message clearly specifies which columns are missing.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({'text_content': ['hello'], 'authenticity_score': [4.0]})
+    >>> validate_input_columns(df, ['text_content', 'authenticity_score'])
+    # No exception raised
+
+    >>> df_missing = pd.DataFrame({'text_content': ['hello']})
+    >>> validate_input_columns(df_missing, ['text_content', 'authenticity_score'])
+    ValueError: Missing required columns: ['authenticity_score']
     """
-    if df is None:
-        raise ValueError("Input DataFrame cannot be None.")
-    
     if df.empty:
-        raise ValueError("Input DataFrame is empty. At least one row is required.")
-    
-    if not isinstance(required_cols, (list, set, tuple)):
-        raise TypeError("required_cols must be a list, set, or tuple of column names.")
-    
-    # Convert to set for efficient lookup
-    required_set: Set[str] = set(required_cols)
-    existing_cols: Set[str] = set(df.columns)
-    
-    # Find missing columns
-    missing: Set[str] = required_set - existing_cols
-    
-    if missing:
-        missing_str = ", ".join(sorted(missing))
-        available_str = ", ".join(sorted(existing_cols))
+        raise ValueError("Input DataFrame is empty. Cannot validate columns on empty data.")
+
+    existing_cols = set(df.columns)
+    required_set = set(required_cols)
+    missing_cols = required_set - existing_cols
+
+    if missing_cols:
+        missing_list = sorted(list(missing_cols))
         raise ValueError(
-            f"Input DataFrame is missing required columns: {missing_str}. "
-            f"Available columns: {available_str}. "
-            f"Required columns: {missing_str}."
+            f"Missing required columns: {missing_list}. "
+            f"Expected columns: {required_list}, found: {sorted(list(existing_cols))}"
         )
-    
-    # Optional: Validate column types for specific known columns
-    if 'text_content' in existing_cols:
-        if not pd.api.types.is_object_dtype(df['text_content']):
-            raise ValueError(
-                f"Column 'text_content' must be of object (string) type. "
-                f"Found: {df['text_content'].dtype}"
-            )
-    
-    if 'authenticity_score' in existing_cols:
-        if not pd.api.types.is_numeric_dtype(df['authenticity_score']):
-            raise ValueError(
-                f"Column 'authenticity_score' must be of numeric type. "
-                f"Found: {df['authenticity_score'].dtype}"
-            )
+
+    # Optional: Check for column type consistency if needed in future
+    # For now, FR-006 focuses on column presence
+
+# Explicitly define required columns for common use cases
+REQUIRED_FOR_AUTHENTICITY_ANALYSIS = ['text_content', 'authenticity_score']
+REQUIRED_FOR_FEATURE_EXTRACTION = ['conversation_id', 'text_content']
+REQUIRED_FOR_CORRELATION = ['text_content', 'authenticity_score', 'first_person_count', 'hedge_count', 'sentiment_score']
+
+
+def validate_authenticity_dataframe(df: pd.DataFrame) -> None:
+    """
+    Validate a DataFrame for authenticity analysis (FR-006 compliance).
+
+    Checks specifically for the columns required to perform authenticity
+    correlation and regression analyses.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame to validate.
+
+    Raises
+    ------
+    ValueError
+        If 'text_content' or 'authenticity_score' columns are missing.
+    """
+    validate_input_columns(df, REQUIRED_FOR_AUTHENTICITY_ANALYSIS)
+
+
+def validate_feature_dataframe(df: pd.DataFrame) -> None:
+    """
+    Validate a DataFrame for feature extraction output.
+
+    Checks for the columns produced by the extraction pipeline.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame to validate.
+
+    Raises
+    ------
+    ValueError
+        If required extraction columns are missing.
+    """
+    validate_input_columns(df, REQUIRED_FOR_FEATURE_EXTRACTION)

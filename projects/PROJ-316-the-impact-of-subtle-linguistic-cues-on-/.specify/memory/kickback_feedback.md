@@ -4,9 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T002` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/annotation_tool.py, data/raw/annotation_instructions.md
-- `T001f` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/conversations.jsonl
-- `T001c` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/gold_standard_50.csv, data/processed/gold_standard_hedges.csv, src/utils/annotation_tool.py, data/raw/rater_metadata.json
+- `T001g` (rejected 1x): The required artifact `data/raw/conversations.jsonl` does not exist, so the implementer could not verify the presence of an `authenticity_score` field as required. The task remains unfinished until the file is provided and inspected.
+- `T001d` (rejected 1x): declared artifact(s) missing/empty/invalid: src/analysis/validation.py, data/processed/hedge_gold_standard.csv
 
 ## Required change
 
