@@ -1,57 +1,55 @@
-"""
-Pydantic models for data validation.
-"""
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field, field_validator, model_validator
 from decimal import Decimal
 
 class MeasurementProvenance(BaseModel):
-    """Model for measurement method details."""
-    method: str
     source: str
-    date: Optional[datetime] = None
+    method: str
+    date: Optional[str] = None
 
 class AlloyRecord(BaseModel):
-    """Model for an alloy data record."""
+    """Schema for an aluminum alloy record."""
     # Required fields
-    poissons_ratio: float = Field(..., description="Poisson's ratio")
-    youngs_modulus: float = Field(..., description="Young's modulus in GPa")
-    cu: float = Field(..., ge=0, le=1, description="Atomic fraction of Copper")
-    mg: float = Field(..., ge=0, le=1, description="Atomic fraction of Magnesium")
-    si: float = Field(..., ge=0, le=1, description="Atomic fraction of Silicon")
-    zn: float = Field(..., ge=0, le=1, description="Atomic fraction of Zinc")
-    mn: float = Field(..., ge=0, le=1, description="Atomic fraction of Manganese")
+    poisson_ratio: float
+    young_modulus: float
+    cu_fraction: float
+    mg_fraction: float
+    si_fraction: float
+    zn_fraction: float
+    mn_fraction: float
+    measurement_method: str
     
-    # Provenance
-    measurement_method: str = Field(..., description="Method used to measure Poisson's ratio")
-    
-    # Optional metadata
-    alloy_name: Optional[str] = None
-    notes: Optional[str] = None
+    # Optional fields
+    al_fraction: Optional[float] = None
+    provenance: Optional[MeasurementProvenance] = None
+    record_id: Optional[str] = None
 
     @model_validator(mode='after')
-    def check_composition_sum(self):
-        total = self.cu + self.mg + self.si + self.zn + self.mn
-        if total > 1.05 or total < 0.95:
-            # Warning only, as Al balance is implied
-            pass 
+    def check_fractions(self):
+        total = self.cu_fraction + self.mg_fraction + self.si_fraction + self.zn_fraction + self.mn_fraction
+        if abs(total - 1.0) > 0.01 and self.al_fraction is None:
+            # Allow if al_fraction is calculated later, but warn
+            pass
         return self
 
 class ModelMetrics(BaseModel):
-    """Model for model performance metrics."""
+    """Schema for model performance metrics."""
     cv_mae: float
     test_mae: float
     model_type: str
-    hyperparameters: Dict[str, Any]
-    timestamp: datetime = Field(default_factory=datetime.now)
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 def main():
-    """CLI entry point for testing schema."""
+    """Test schema validation."""
     record = AlloyRecord(
-        poissons_ratio=0.33,
-        youngs_modulus=70.0,
-        cu=0.05, mg=0.02, si=0.01, zn=0.01, mn=0.01,
+        poisson_ratio=0.33,
+        young_modulus=70.0,
+        cu_fraction=0.05,
+        mg_fraction=0.05,
+        si_fraction=0.05,
+        zn_fraction=0.05,
+        mn_fraction=0.05,
         measurement_method="Ultrasonic"
     )
     print(record)

@@ -1,12 +1,10 @@
-T019:
+T018:
   c: false
-  h: 986d4aa39bef0c361f8a2381bba5e85d0ecdeaf9f5009039d9d659d9ee76aebf
-  r: "The required input `data/processed/filtered_alloys.csv` does not exist, nor\
-    \ does the expected output `data/processed/filtered_alloys_ilr.csv`. Moreover,\
-    \ while `code/data_cleaning.py` is present, the visible portion does not contain\
-    \ a function that reads the filtered CSV, applies the `compositional.ilr` transformation\
-    \ to Cu, Mg, Si, Zn, Mn fractions, and writes the transformed file. The task\u2019\
-    s core deliverable is therefore missing."
+  h: 0898ad9ccc6832c86260b967c3d3bab79758aa2e66cc436f6e2457577f45568e
+  r: "The script lacks the required handling for <\u202F50 valid entries (no warning\
+    \ log or `max_depth=5` adjustment) and the expected output file `data/processed/alloys_clean.parquet`\
+    \ is missing, indicating the pipeline did not produce the required artifact. Additionally,\
+    \ the final generic exception block is incomplete."
 T024:
   c: false
   h: 8b62d11a6bdcb8beb3fde4462cbd7bd5415ac2cbce1f633083f1b944e38c8c30
@@ -15,26 +13,12 @@ T024:
     `models/rf_model.pkl`. Additionally, the expected serialized model file `models/rf_model.pkl`
     is missing from the repository. Both the required code and the resulting artifact
     are absent.
-T027b:
+T045:
   c: false
-  h: bd90467ac32fc93f3e0bbc9d972346d2d83e2c198bdbae5edebcb791daa8000c
-  r: "The provided `code/analysis.py` only contains functions for loading a model,\
-    \ extracting feature importance, and running permutation importance; it does not\
-    \ implement the required perturbation of raw compositions, ILR re\u2011transformation,\
-    \ loss change measurement, or saving to `results/element_importance.csv`. Moreover,\
-    \ the dependent file `data/processed/filtered_alloys.csv` and the output `results/element_importance.csv`\
-    \ are missing. The task\u2019s core functionality and required artifacts are absent."
-T030a:
-  c: false
-  h: 69b5d2b6a4aed8f13922e3ce58cfd670f9ebe585dd60e005dd47b71b43a21970
-  r: The `results/final_report.md` file does not exist on disk, so the required deliverable
-    is missing despite the presence of a `generate_final_report` function in `code/main.py`.
-    The task is not satisfied until the markdown report file is created with the specified
-    sections.
-T030b:
-  c: false
-  h: 1080818924615ee466ab73f8f7954ded20a6cf6ea48acaa04f2e5a0a73083e37
-  r: "The repository lacks `results/final_report.md` and the expected `results/associational_framing_check.json`.\
-    \ Moreover, `code/analysis.py` does not contain any logic that scans a markdown\
-    \ report for causal phrases or writes the required JSON output. The task\u2019\
-    s core functionality and dependent artifacts are missing."
+  h: 9b9c10eb13ffb7e1186f3096f707548fe8dad1e6ac543bac1c49c2115dfea379
+  r: The `code/cli/download_cli.py` script exists and provides a `--extract` flag,
+    but it imports `run_extraction` from `data_extraction` (or `code.data_extraction`)
+    instead of the required `code/data/_download_logic.py`, which is missing entirely.
+    Additionally, `docs/quickstart.md` does not reference this CLI entry point, contradicting
+    the requirement that it be callable as documented. The missing `_download_logic.py`
+    file and incorrect import prevent the task from being genuinely completed.

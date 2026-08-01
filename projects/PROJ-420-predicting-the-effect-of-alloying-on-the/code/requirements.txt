@@ -10,7 +10,6 @@ statsmodels
 openml
 materialsproject
 pydantic
+pyarrow
 jsonschema
 psutil
-ruff
-black

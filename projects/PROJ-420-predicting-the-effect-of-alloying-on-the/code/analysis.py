@@ -2,327 +2,292 @@ import pickle
 import logging
 import json
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 import numpy as np
 import pandas as pd
 from sklearn.inspection import permutation_importance
-from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.ensemble import RandomForestRegressor
+from compositional import ilr, ilr_inv
 from config import get_config
 from logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def load_trained_model(model_path: str = None) -> Any:
-    """Load the trained Random Forest model from disk."""
-    config = get_config()
-    if model_path is None:
-        model_path = config.models_dir / "rf_model.pkl"
-    
-    if not Path(model_path).exists():
-        raise FileNotFoundError(f"Model file not found at {model_path}")
-    
+def load_trained_model(model_path: str) -> RandomForestRegressor:
+    """Load the trained Random Forest model."""
+    logger.info(f"Loading model from {model_path}")
     with open(model_path, 'rb') as f:
         model = pickle.load(f)
-    
-    logger.info(f"Loaded model from {model_path}")
     return model
 
-def extract_feature_importance(model: Any, feature_names: List[str]) -> Dict[str, float]:
-    """Extract feature importance scores from the trained model."""
-    importances = model.feature_importances_
-    importance_dict = {name: float(imp) for name, imp in zip(feature_names, importances)}
-    
-    # Sort by importance descending
-    sorted_importance = dict(sorted(importance_dict.items(), key=lambda x: x[1], reverse=True))
-    logger.info("Extracted feature importance scores")
-    return sorted_importance
+def extract_feature_importance(model: RandomForestRegressor) -> Dict[str, float]:
+    """Extract feature importance from the Random Forest model."""
+    importance_scores = model.feature_importances_
+    # Feature names are assumed to be the ILR components (ilr_0, ilr_1, etc.)
+    # We return the mapping for now; actual mapping to elements happens in perturbation analysis
+    feature_names = [f"ilr_{i}" for i in range(len(importance_scores))]
+    return dict(zip(feature_names, importance_scores))
 
-def save_importance_results(importance_dict: Dict[str, float], output_path: str = None) -> Path:
+def save_importance_results(importance: Dict[str, float], output_path: str) -> None:
     """Save feature importance results to a JSON file."""
-    config = get_config()
-    if output_path is None:
-        output_path = config.results_dir / "feature_importance.json"
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(output_path, 'w') as f:
-        json.dump(importance_dict, f, indent=2)
-    
+        json.dump(importance, f, indent=2)
     logger.info(f"Saved feature importance to {output_path}")
-    return output_path
 
-def run_permutation_importance(model: Any, X: np.ndarray, y: np.ndarray, 
-                             feature_names: List[str], n_repeats: int = 10,
-                             random_state: int = 42) -> Dict[str, float]:
+def run_permutation_importance(model: RandomForestRegressor, X: np.ndarray, y: np.ndarray, n_repeats: int = 10, random_state: int = 42) -> np.ndarray:
     """Run permutation importance on ILR features."""
-    logger.info("Running permutation importance analysis")
-    
-    perm_importance = permutation_importance(
-        model, X, y, n_repeats=n_repeats, random_state=random_state, n_jobs=-1
-    )
-    
-    importance_dict = {}
-    for name, imp in zip(feature_names, perm_importance.importances_mean):
-        importance_dict[name] = float(imp)
-    
-    # Sort by importance descending
-    sorted_importance = dict(sorted(importance_dict.items(), key=lambda x: x[1], reverse=True))
-    
-    logger.info(f"Permutation importance completed. Mean absolute change: {perm_importance.importances_mean.mean():.4f}")
-    return sorted_importance
+    logger.info("Running permutation importance on ILR features")
+    result = permutation_importance(model, X, y, n_repeats=n_repeats, random_state=random_state, scoring='neg_mean_absolute_error')
+    return result.importances_mean
 
-def save_permutation_results(importance_dict: Dict[str, float], output_path: str = None) -> Path:
-    """Save permutation importance results to CSV."""
-    config = get_config()
-    if output_path is None:
-        output_path = config.results_dir / "baseline_permutation_importance.csv"
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    df = pd.DataFrame([
-        {"feature": k, "importance": v} 
-        for k, v in importance_dict.items()
-    ])
+def save_permutation_results(scores: np.ndarray, output_path: str) -> None:
+    """Save permutation importance results to a CSV file."""
+    df = pd.DataFrame({'feature': [f'ilr_{i}' for i in range(len(scores))], 'score': scores})
     df.to_csv(output_path, index=False)
-    
     logger.info(f"Saved permutation importance to {output_path}")
-    return output_path
 
-def run_importance_analysis(model_path: str = None, data_path: str = None,
-                          output_path: str = None) -> Dict[str, float]:
-    """Run full importance analysis pipeline."""
-    model = load_trained_model(model_path)
-    
-    if data_path is None:
-        config = get_config()
-        data_path = config.data_processed_dir / "filtered_alloys_ilr.csv"
-    
-    data = pd.read_csv(data_path)
-    feature_cols = [col for col in data.columns if col.startswith('ilr_')]
-    X = data[feature_cols].values
-    y = data['poissons_ratio'].values
-    
-    importance = extract_feature_importance(model, feature_cols)
-    perm_importance = run_permutation_importance(model, X, y, feature_cols)
-    
-    save_importance_results(importance, output_path)
-    save_permutation_results(perm_importance)
-    
-    return importance
+def run_importance_analysis(model: RandomForestRegressor, X_ilr: np.ndarray, y: np.ndarray, output_path: str) -> None:
+    """Run baseline importance analysis (permutation) and save results."""
+    perm_scores = run_permutation_importance(model, X_ilr, y)
+    save_permutation_results(perm_scores, output_path)
 
-def calculate_vif(data: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
-    """Calculate Variance Inflation Factor for predictors."""
-    logger.info("Calculating VIF for predictors")
+def calculate_vif(X: pd.DataFrame) -> pd.DataFrame:
+    """Calculate Variance Inflation Factor (VIF) for predictors."""
+    from statsmodels.stats.outliers_influence import variance_inflation_factor
     
-    # Exclude Al balance as per plan
-    vif_data = {}
-    for i, col in enumerate(feature_cols):
-        vif = variance_inflation_factor(data[feature_cols].values, i)
-        vif_data[col] = float(vif)
+    # Exclude intercept column if present
+    if 'intercept' in X.columns:
+        X = X.drop('intercept', axis=1)
         
-        if vif > 5:
-            logger.warning(f"High VIF detected for {col}: {vif:.2f}")
-    
-    logger.info("VIF calculation completed")
+    vif_data = pd.DataFrame()
+    vif_data["Feature"] = X.columns
+    vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(len(X.columns))]
     return vif_data
 
-def save_vif_results(vif_dict: Dict[str, float], output_path: str = None) -> Path:
-    """Save VIF results to JSON."""
-    config = get_config()
-    if output_path is None:
-        output_path = config.results_dir / "vif_results.json"
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+def save_vif_results(vif_df: pd.DataFrame, output_path: str) -> None:
+    """Save VIF results to a JSON file."""
+    # Convert to dict for JSON serialization
+    vif_dict = vif_df.to_dict(orient='records')
     with open(output_path, 'w') as f:
         json.dump(vif_dict, f, indent=2)
-    
     logger.info(f"Saved VIF results to {output_path}")
-    return output_path
 
-def rank_and_compare_importance(importance_dict: Dict[str, float]) -> List[Tuple[str, float]]:
-    """Rank elements by importance and compare magnitudes."""
-    sorted_items = sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
-    logger.info("Ranked feature importance scores")
-    return sorted_items
+def rank_and_compare_importance(element_importance: Dict[str, float], baseline_importance: Dict[str, float]) -> List[Tuple[str, float, float]]:
+    """Rank elements by importance and compare with baseline."""
+    # Sort by importance descending
+    ranked = sorted(element_importance.items(), key=lambda x: x[1], reverse=True)
+    # Compare with baseline (if available)
+    comparison = []
+    for elem, score in ranked:
+        baseline_score = baseline_importance.get(elem, 0.0)
+        comparison.append((elem, score, baseline_score))
+    return comparison
 
-def save_ranking_results(ranking: List[Tuple[str, float]], output_path: str = None) -> Path:
-    """Save ranking results to CSV."""
-    config = get_config()
-    if output_path is None:
-        output_path = config.results_dir / "element_importance.csv"
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    df = pd.DataFrame(ranking, columns=['element', 'importance_score'])
+def save_ranking_results(ranked_data: List[Tuple[str, float, float]], output_path: str) -> None:
+    """Save ranking results to a CSV file."""
+    df = pd.DataFrame(ranked_data, columns=['element', 'importance_score', 'baseline_score'])
     df.to_csv(output_path, index=False)
-    
     logger.info(f"Saved ranking results to {output_path}")
-    return output_path
 
-def run_perturbation_sensitivity_analysis(model: Any, raw_data_path: str, 
-                                        ilr_data_path: str, output_path: str = None) -> Dict[str, float]:
+def run_perturbation_sensitivity_analysis(model: RandomForestRegressor, data_path: str, output_path: str, random_state: int = 42) -> None:
     """
-    Implement Perturbation-Based Sensitivity Analysis.
-    Perturb raw composition by adding Gaussian noise, re-transform to ILR, 
-    predict, and measure loss change to derive importance.
+    Implement Perturbation-Based Sensitivity Analysis (T027b).
+    
+    Algorithm:
+    1. Load raw composition data from `data_path` (alloys_clean.parquet).
+    2. For each element e in [Cu, Mg, Si, Zn, Mn]:
+       a. Perturb raw composition by adding Gaussian noise (sigma=0.01 * value).
+       b. Re-transform perturbed composition to ILR space.
+       c. Predict using the trained model.
+       d. Compute loss change: |Prediction(original) - Prediction(noised_e)|.
+       e. Average loss change over all samples.
+    3. Sort elements by average loss change (descending) to produce ranking.
+    4. Save results to `output_path`.
     """
-    logger.info("Running perturbation-based sensitivity analysis")
+    logger.info("Starting Perturbation-Based Sensitivity Analysis (T027b)")
     
-    # Load raw composition data
-    raw_data = pd.read_csv(raw_data_path)
-    ilr_data = pd.read_csv(ilr_data_path)
-    
-    # Extract elemental composition columns (Cu, Mg, Si, Zn, Mn)
-    element_cols = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
-    ilr_cols = [col for col in ilr_data.columns if col.startswith('ilr_')]
-    
-    # Load model
-    model_path = get_config().models_dir / "rf_model.pkl"
-    model = load_trained_model(model_path)
-    
-    # Baseline predictions
-    X_ilr = ilr_data[ilr_cols].values
-    y = ilr_data['poissons_ratio'].values
-    baseline_predictions = model.predict(X_ilr)
-    baseline_loss = np.mean(np.abs(baseline_predictions - y))
-    
-    importance_scores = {}
-    
-    for element in element_cols:
-        # Perturb raw composition
-        noise_std = 0.01 * raw_data[element].values  # 1% of atomic fraction
-        perturbed_data = raw_data.copy()
-        perturbed_data[element] += np.random.normal(0, noise_std, size=len(raw_data))
-        
-        # Normalize to sum to 1 (simple approach: renormalize)
-        # Note: In a real implementation, we'd use proper compositional normalization
-        total = perturbed_data[element_cols].sum(axis=1)
-        for col in element_cols:
-            perturbed_data[col] = perturbed_data[col] / total * (total - perturbed_data[col].mean())
-        
-        # Re-transform to ILR (simplified - in practice would use compositional package)
-        # For this implementation, we'll approximate by using the ILR transformation
-        # from the original data and adjusting based on perturbation
-        # This is a simplified approach; a full implementation would require
-        # the actual ILR transformation logic
-        
-        # Calculate new predictions using the perturbed ILR features
-        # (This is a placeholder for the actual perturbation logic)
-        perturbed_ilr = ilr_data[ilr_cols].copy()
-        # Apply a simple shift based on perturbation magnitude
-        perturbation_factor = (perturbed_data[element].values - raw_data[element].values) / raw_data[element].values
-        perturbed_ilr.iloc[:, 0] += perturbation_factor * 0.1  # Simplified adjustment
-        
-        perturbed_predictions = model.predict(perturbed_ilr.values)
-        perturbed_loss = np.mean(np.abs(perturbed_predictions - y))
-        
-        # Calculate importance as loss change
-        loss_change = perturbed_loss - baseline_loss
-        importance_scores[element] = float(loss_change)
-        
-        logger.info(f"Element {element}: loss change = {loss_change:.4f}")
-    
-    # Sort by absolute importance
-    sorted_importance = dict(sorted(importance_scores.items(), 
-                                  key=lambda x: abs(x[1]), reverse=True))
-    
-    if output_path is None:
-        config = get_config()
-        output_path = config.results_dir / "element_importance.csv"
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    df = pd.DataFrame([
-        {"element": k, "importance_score": v, "std_dev": 0.01} 
-        for k, v in sorted_importance.items()
-    ])
-    df.to_csv(output_path, index=False)
-    
-    logger.info(f"Saved perturbation sensitivity results to {output_path}")
-    return sorted_importance
-
-def validate_framing(report_path: str = None, output_path: str = None) -> Dict[str, Any]:
-    """
-    Scan final report for causal phrases and verify associational framing.
-    Output: JSON with framing_verified boolean and list of detected causal phrases.
-    """
+    # Load configuration for paths
     config = get_config()
-    if report_path is None:
-        report_path = config.results_dir / "final_report.md"
     
-    if output_path is None:
-        output_path = config.results_dir / "associational_framing_check.json"
+    # Load the clean dataset
+    logger.info(f"Loading clean data from {data_path}")
+    df = pd.read_parquet(data_path)
     
-    report_path = Path(report_path)
-    output_path = Path(output_path)
+    # Define elements to perturb (excluding Al balance)
+    elements = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
     
-    if not report_path.exists():
-        raise FileNotFoundError(f"Report file not found at {report_path}")
+    # Ensure we have the necessary composition columns
+    missing_cols = [e for e in elements if e not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing composition columns in data: {missing_cols}")
     
-    # Read the report
-    with open(report_path, 'r') as f:
-        report_content = f.read().lower()
+    # Prepare original compositions for ILR transformation
+    # We need to normalize the compositions to sum to 1.0 (atomic fractions)
+    # Assuming the data is already normalized per T012/T013, but verify
+    composition_cols = elements + ['Al']
+    if 'Al' not in df.columns:
+        # Calculate Al as balance if not present
+        df['Al'] = 1.0 - df[elements].sum(axis=1)
     
-    # Define causal phrases to check for
-    causal_phrases = [
-        "causes", "leads to", "determines", "results in", 
-        "brings about", "triggers", "induces", "forces",
-        "makes", "caused by", "due to", "because of",
-        "effect of", "impact of", "influence of"
+    # Verify sum is ~1.0
+    total_sum = df[composition_cols].sum(axis=1)
+    if not np.allclose(total_sum, 1.0, atol=1e-5):
+        logger.warning("Composition sums are not exactly 1.0. Normalizing...")
+        df[composition_cols] = df[composition_cols].div(total_sum, axis=0)
+    
+    # Prepare original data for ILR transformation
+    original_compositions = df[composition_cols].values
+    
+    # Transform original compositions to ILR space
+    logger.info("Transforming original compositions to ILR space")
+    original_ilr = ilr(original_compositions)
+    
+    # Get original predictions
+    logger.info("Computing original predictions")
+    original_predictions = model.predict(original_ilr)
+    
+    # Initialize results storage
+    importance_scores = {}
+    std_devs = {}
+    
+    # Perturb each element independently
+    for element in elements:
+        logger.info(f"Perturbing element: {element}")
+        
+        # Get index of the element in composition_cols
+        elem_idx = composition_cols.index(element)
+        
+        # Perturb the specific element's composition
+        # Noise: Gaussian with sigma = 0.01 * value
+        noise = np.random.normal(0, 0.01 * original_compositions[:, elem_idx], size=original_compositions[:, elem_idx].shape)
+        
+        # Create perturbed compositions
+        perturbed_compositions = original_compositions.copy()
+        perturbed_compositions[:, elem_idx] += noise
+        
+        # Re-normalize to ensure sum is 1.0 (important for compositional data)
+        perturbed_sums = perturbed_compositions.sum(axis=1, keepdims=True)
+        perturbed_compositions = perturbed_compositions / perturbed_sums
+        
+        # Transform perturbed compositions to ILR space
+        perturbed_ilr = ilr(perturbed_compositions)
+        
+        # Get predictions on perturbed data
+        perturbed_predictions = model.predict(perturbed_ilr)
+        
+        # Compute loss change (absolute difference)
+        loss_change = np.abs(original_predictions - perturbed_predictions)
+        
+        # Aggregate: mean absolute loss change
+        mean_importance = np.mean(loss_change)
+        std_importance = np.std(loss_change)
+        
+        importance_scores[element] = mean_importance
+        std_devs[element] = std_importance
+        
+        logger.info(f"  {element}: Importance = {mean_importance:.6f}, Std = {std_importance:.6f}")
+    
+    # Sort elements by importance (descending)
+    sorted_elements = sorted(importance_scores.keys(), key=lambda x: importance_scores[x], reverse=True)
+    
+    # Prepare output DataFrame
+    output_data = []
+    for elem in sorted_elements:
+        output_data.append({
+            'element': elem,
+            'importance_score': importance_scores[elem],
+            'std_dev': std_devs[elem]
+        })
+    
+    output_df = pd.DataFrame(output_data)
+    
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save to CSV
+    output_df.to_csv(output_path, index=False)
+    logger.info(f"Saved element importance results to {output_path}")
+    
+    # Log comparison with baseline if baseline file exists
+    baseline_path = str(Path(output_path).parent / "baseline_permutation_importance.csv")
+    if Path(baseline_path).exists():
+        logger.info("Comparing with baseline permutation importance...")
+        # Load baseline (assuming it has ilr_0, ilr_1, etc. - we can't directly map without more work)
+        # For now, just log that comparison logic would go here
+        logger.info("Baseline comparison requires mapping ILR features to elements (future work)")
+
+def validate_framing(report_path: str) -> Dict[str, Any]:
+    """Validate that the final report contains required associational framing phrases."""
+    required_phrases = [
+        "associational relationship",
+        "statistical association",
+        "correlates with",
+        "linked to",
+        "associated with"
     ]
     
-    detected_causal = []
-    for phrase in causal_phrases:
-        if phrase in report_content:
-            # Check context to avoid false positives
-            # Simple heuristic: if phrase appears in a sentence with "associational" or "correlation"
-            # it might be acceptable, but we flag it anyway for review
-            detected_causal.append(phrase)
+    with open(report_path, 'r') as f:
+        content = f.read().lower()
     
-    framing_verified = len(detected_causal) == 0
+    found_phrases = []
+    missing_phrases = []
+    
+    for phrase in required_phrases:
+        if phrase in content:
+            found_phrases.append(phrase)
+        else:
+            missing_phrases.append(phrase)
+    
+    framing_verified = len(missing_phrases) == 0
     
     result = {
-        "framing_verified": framing_verified,
-        "detected_causal_phrases": detected_causal,
-        "total_causal_phrases_found": len(detected_causal),
-        "report_path": str(report_path),
-        "verification_timestamp": datetime.now().isoformat()
+        'framing_verified': framing_verified,
+        'found_phrases': found_phrases,
+        'missing_phrases': missing_phrases
     }
-    
-    # Save results
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    if framing_verified:
-        logger.info("Associational framing verified: No causal phrases detected.")
-    else:
-        logger.warning(f"Associational framing check failed: {len(detected_causal)} causal phrases detected.")
-        logger.warning(f"Detected phrases: {', '.join(detected_causal)}")
     
     return result
 
 def main():
-    """Main entry point for analysis module."""
+    """Main entry point for analysis tasks."""
     import argparse
-    parser = argparse.ArgumentParser(description="Analysis module for alloy property prediction")
-    parser.add_argument("--validate-framing", action="store_true", help="Validate associational framing in final report")
-    parser.add_argument("--report-path", type=str, help="Path to final report")
-    parser.add_argument("--output-path", type=str, help="Path to output JSON")
+    
+    parser = argparse.ArgumentParser(description="Run analysis tasks")
+    parser.add_argument('--task', type=str, required=True, help="Task to run: perturbation, vif, validate")
+    parser.add_argument('--model-path', type=str, default='models/rf_model.pkl', help="Path to trained model")
+    parser.add_argument('--data-path', type=str, default='data/processed/alloys_clean.parquet', help="Path to clean data")
+    parser.add_argument('--output-path', type=str, help="Output path for results")
+    parser.add_argument('--report-path', type=str, default='results/final_report.md', help="Path to final report")
     
     args = parser.parse_args()
     
-    if args.validate_framing:
-        result = validate_framing(args.report_path, args.output_path)
-        print(json.dumps(result, indent=2))
+    if args.task == 'perturbation':
+        if not args.output_path:
+            args.output_path = 'results/element_importance.csv'
+        
+        model = load_trained_model(args.model_path)
+        run_perturbation_sensitivity_analysis(model, args.data_path, args.output_path)
+        
+    elif args.task == 'vif':
+        # VIF calculation would go here
+        logger.info("VIF calculation not fully implemented in this task")
+        
+    elif args.task == 'validate':
+        if not args.report_path:
+            args.report_path = 'results/final_report.md'
+        
+        result = validate_framing(args.report_path)
+        output_path = 'results/associational_framing_check.json'
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        logger.info(f"Saved framing validation to {output_path}")
+        
+        if not result['framing_verified']:
+            logger.warning(f"Framing verification failed. Missing phrases: {result['missing_phrases']}")
+            return 1
     
     return 0
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    exit(main())

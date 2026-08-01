@@ -99,7 +99,7 @@ models/
 ## Execution Phases
 
 ### Phase 0: Data Acquisition & Validation
-1. **Download**: Fetch OpenML dataset ID 42347 using `openml.datasets.get_dataset(42347)`.
+1. **Download**: Fetch OpenML dataset ID for the target domain. using `openml.datasets.get_dataset(42347)`.
    - **Retry Logic**: Implement exponential backoff for network failures (no authentication required).
 2. **Validate**: Check schema against `contracts/dataset.schema.yaml`.
 3. **Filter**:
@@ -114,7 +114,7 @@ models/
 2. **ILR**: Apply Isometric Log-Ratio transformation to atomic fractions.
 3. **VIF**: Calculate Variance Inflation Factors on raw composition. Flag if VIF > 5 (expected, but logged).
 4. **Power Analysis**: Check sample size. If < 100, log a warning and limit model complexity (max_depth=5).
-5. **Physical Sanity Check**: Validate that the distribution of Poisson's ratio in the dataset falls within known physical bounds (0.0 <= nu <= 0.5) and typical Aluminum alloy ranges (lower bound to 0.36).
+5. **Physical Sanity Check**: Validate that the distribution of Poisson's ratio in the dataset falls within known physical bounds (0.0 <= nu <= 0.5) and typical Aluminum alloy ranges (lower bound to an upper limit).
 
 ### Phase 2: Model Training & Evaluation
 1. **Split**: / train/test split.

@@ -1,7 +1,3 @@
-"""
-Logging configuration module.
-Provides JSON formatting and standard logger setup.
-"""
 import json
 import logging
 import sys
@@ -9,71 +5,58 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-class JSONFormatter(logging.Formatter):
-    """Formatter that outputs logs as JSON."""
-    
-    def format(self, record: logging.LogRecord) -> str:
-        log_obj = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "level": record.levelname,
-            "logger": record.name,
-            "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno
-        }
-        if record.exc_info:
-            log_obj["exception"] = self.formatException(record.exc_info)
-        return json.dumps(log_obj)
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+LOG_FILE = "data/logs/pipeline.log"
 
-def setup_logging(log_level: int = logging.INFO, log_file: Optional[Path] = None) -> None:
-    """
-    Sets up logging for the application.
-    """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+def setup_logging():
+    """Configure logging for the project."""
+    Path("data/logs").mkdir(parents=True, exist_ok=True)
     
     # Clear existing handlers
-    root_logger.handlers = []
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
     
-    # Console Handler
+    # File handler
+    file_handler = logging.FileHandler(LOG_FILE)
+    file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+    
+    # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    console_handler.setFormatter(logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    ))
-    root_logger.addHandler(console_handler)
+    console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
     
-    # File Handler (if specified)
-    if log_file:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(JSONFormatter())
-        root_logger.addHandler(file_handler)
+    # Root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
 
 def get_logger(name: str) -> logging.Logger:
-    """
-    Gets a logger with the specified name.
-    """
+    """Get a logger instance."""
     return logging.getLogger(name)
 
-def log_with_extra(logger: logging.Logger, level: int, message: str, **extra: Any) -> None:
-    """
-    Logs a message with extra fields (useful for structured logging).
-    """
-    record = logger.makeRecord(
-        logger.name, level, "(unknown file)", 0, message, (), None, extra=extra
-    )
-    logger.handle(record)
+class JSONFormatter(logging.Formatter):
+    """Format log records as JSON."""
+    def format(self, record):
+        log_record = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "logger": record.name
+        }
+        if record.exc_info:
+            log_record["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_record)
+
+def log_with_extra(msg: str, extra: Dict[str, Any]):
+    """Log a message with extra context."""
+    logger = get_logger(__name__)
+    logger.info(msg, extra=extra)
 
 def main():
-    """CLI entry point for testing logging."""
-    setup_logging(log_file=Path("data/logs/test.log"))
+    """Test logging setup."""
+    setup_logging()
     logger = get_logger(__name__)
-    logger.info("Logging system initialized.")
-    logger.warning("This is a warning.")
-    logger.error("This is an error.")
+    logger.info("Logging initialized.")
 
 if __name__ == "__main__":
     main()

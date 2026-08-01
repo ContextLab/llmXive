@@ -2,14 +2,14 @@ import sys
 import logging
 import argparse
 from pathlib import Path
-from data_cleaning import run_cleaning_pipeline
+from data._clean_logic import run_cleaning_pipeline
 from logging_config import setup_logging, get_logger
 from config import get_config
 
 def main():
     """CLI wrapper for the cleaning pipeline.
     
-    Orchestrates the data cleaning steps (T010, T014, T011, T012, T013)
+    Orchestrates the data cleaning steps (T010, T014, T011, T012, T013, T018)
     as defined in the run-book.
     
     Usage:
@@ -19,7 +19,7 @@ def main():
     logger = get_logger(__name__)
     
     parser = argparse.ArgumentParser(
-        description="Run data cleaning pipeline (T010, T014, T011, T012, T013)"
+        description="Run data cleaning pipeline (T010, T014, T011, T012, T013, T018)"
     )
     parser.add_argument(
         "--check-only", 
@@ -31,7 +31,7 @@ def main():
     try:
         config = get_config()
         raw_path = Path(config.data_raw_dir) / "openml_aluminum.json"
-        output_path = Path(config.data_processed_dir) / "filtered_alloys.csv"
+        output_path = Path(config.data_processed_dir) / "alloys_clean.parquet"
         
         # Ensure output directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -45,7 +45,7 @@ def main():
                 )
             
             # Just load and validate schema
-            from data_cleaning import load_raw_data, apply_schema_validation
+            from data._clean_logic import load_raw_data, apply_schema_validation
             records = load_raw_data(raw_path)
             apply_schema_validation(records)
             logger.info("Check-only passed. Schema is valid.")
@@ -68,7 +68,7 @@ def main():
             logger.info(f"Rows after cleaning: {len(df)}")
             
             if len(df) == 0:
-                logger.error("CRITICAL: No valid entries found after filtering.")
+                logger.error("CRITICAL: No valid entries found after filtering. Pipeline halted.")
                 sys.exit(1)
                 
     except FileNotFoundError as e:
@@ -76,6 +76,9 @@ def main():
         sys.exit(1)
     except ValueError as e:
         logger.error(f"Validation error: {e}")
+        sys.exit(1)
+    except RuntimeError as e:
+        logger.error(str(e))
         sys.exit(1)
     except Exception as e:
         logger.error(f"Pipeline failed with unexpected error: {e}", exc_info=True)

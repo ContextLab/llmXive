@@ -6,24 +6,30 @@ from logging_config import setup_logging, get_logger
 from config import get_config
 
 def main():
-    """CLI wrapper for data extraction (T016)."""
+    """CLI wrapper for data extraction."""
     setup_logging()
     logger = get_logger(__name__)
     
     try:
-        logger.info("Starting data extraction pipeline (T016)")
         config = get_config()
+        output_path = Path(config.data_raw_dir) / "openml_aluminum.json"
         
-        # Ensure directories exist
-        Path(config.data_raw_dir).mkdir(parents=True, exist_ok=True)
+        logger.info("Starting data extraction pipeline (T016)")
+        logger.info(f"Output path: {output_path}")
         
-        # Run extraction
-        extraction_main()
+        # Ensure output directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         
-        logger.info("Data extraction pipeline finished successfully.")
+        success = extraction_main(output_path)
+        
+        if not success:
+            logger.error("Data extraction failed.")
+            sys.exit(1)
+            
+        logger.info("Data extraction completed successfully.")
         
     except Exception as e:
-        logger.error(f"Data extraction failed: {e}")
+        logger.error(f"Data extraction failed: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":
