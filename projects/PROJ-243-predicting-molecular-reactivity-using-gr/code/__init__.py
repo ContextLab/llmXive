@@ -1,4 +1,4 @@
 """
-llmXive Project: Predicting Molecular Reactivity Using Graph Neural Networks
-Code package initialization.
+llmXive Project: Predicting Molecular Reactivity
+Code package for data processing, model training, and analysis.
 """

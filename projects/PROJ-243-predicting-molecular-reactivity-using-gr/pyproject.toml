@@ -1,10 +1,11 @@
 [tool.black]
-line-length = 120
+line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
+include = '\\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+  | \.git
   | \.hg
   | \.mypy_cache
   | \.tox

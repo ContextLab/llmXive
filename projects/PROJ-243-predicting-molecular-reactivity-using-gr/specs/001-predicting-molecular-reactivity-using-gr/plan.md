@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project implements a CPU-feasible pipeline to predict molecular reactivity (proxied by HOMO-LUMO gap) using Graph Neural Networks (GNNs) on a representative quantum chemistry dataset. The plan addresses the requirement to compare lightweight Spectral and Heterophily-aware GNNs against a Random Forest baseline under strict GitHub Actions free-tier constraints (Multiple CPU cores, 7 GB RAM, 6h runtime). It explicitly resolves the statistical testing discrepancy by implementing the **Wilcoxon signed-rank test** as the primary method (with paired t-test as sensitivity analysis) to address heteroscedasticity, and refines the validation scope to ensure mechanistic consistency between thermodynamic proxies and kinetic data.
+This project implements a CPU-feasible pipeline to predict molecular reactivity (proxied by HOMO-LUMO gap) using Graph Neural Networks (GNNs) on a representative quantum chemistry dataset. The plan addresses the requirement to compare lightweight Spectral and Heterophily-aware GNNs against a Random Forest baseline under strict GitHub Actions free-tier constraints (Multiple CPU cores, limited RAM, 6h runtime). It explicitly resolves the statistical testing discrepancy by implementing the **Wilcoxon signed-rank test** as the primary method (with paired t-test as sensitivity analysis) to address heteroscedasticity, and refines the validation scope to ensure mechanistic consistency between thermodynamic proxies and kinetic data.
 
 ## Technical Context
 
@@ -104,7 +104,7 @@ projects/PROJ-243-predicting-molecular-reactivity-using-gr/
 2.  **Statistical Test**: 
     *   **Primary**: **Wilcoxon signed-rank test** on prediction errors (GNN vs. RF) to handle non-normal/heteroscedastic residuals.
     *   **Sensitivity**: **Paired t-test** (as required by FR-006) performed as a secondary check.
-    *   *Correction*: Bonferroni correction applied for multiple comparisons ($\alpha_{adj} \approx 0.016$).
+    *   *Correction*: Bonferroni correction applied for multiple comparisons ($\alpha_{adj}$ adjusted to maintain family-wise error rate).
 3.  **Proxy Validation**: Correlate HOMO-LUMO gap with external kinetic dataset **only for reaction types where the gap is a known dominant predictor** (e.g., nucleophilic attacks), ensuring mechanistic consistency.
 
 ### Phase 3: Interpretability & Reporting (FR-005, FR-007, FR-008)

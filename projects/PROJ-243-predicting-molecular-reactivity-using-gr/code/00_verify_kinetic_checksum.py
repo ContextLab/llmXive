@@ -4,113 +4,129 @@ import hashlib
 import logging
 from typing import Dict, Optional
 
-# Import existing utilities from the project
 from config import get_config
-from utils.loaders import calculate_sha256
 
 def load_manifest(manifest_path: str) -> Dict[str, str]:
     """
     Load the SHA-256 manifest file.
-    Expected format: one line per file, whitespace separated:
-    <sha256_hash>  <filename>
-    or
-    <sha256_hash>  <relative_path>
+    Expected format: one line per file, 'hash  filename' or 'hash,filename'.
+    Returns a dict mapping filename -> hash.
     """
     manifest = {}
     if not os.path.exists(manifest_path):
         raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
-
+    
     with open(manifest_path, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
-            parts = line.split()
+            # Support space or comma separation
+            parts = line.replace(',', ' ').split()
             if len(parts) >= 2:
-                # Handle cases where filename might have spaces but usually it doesn't in manifests
-                # Standard checksum format: hash  filename
-                file_hash = parts[0]
-                filename = parts[-1] 
-                manifest[filename] = file_hash
-            else:
-                logging.warning(f"Skipping malformed manifest line: {line}")
-    
+                # Take the last part as filename if there are more than 2 parts
+                # to handle cases like "hash  path/to/file.csv"
+                filename = parts[-1]
+                checksum = parts[0]
+                manifest[filename] = checksum
     return manifest
 
-def verify_checksum(file_path: str, expected_hash: str, algorithm: str = 'sha256') -> bool:
+def verify_checksum(file_path: str, expected_hash: str) -> bool:
     """
-    Verify the SHA-256 checksum of a file against an expected hash.
+    Calculate SHA-256 of file_path and compare with expected_hash.
+    Returns True if they match, False otherwise.
     """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Data file not found: {file_path}")
-    
-    computed_hash = calculate_sha256(file_path)
-    
-    if computed_hash.lower() == expected_hash.lower():
-        logging.info(f"Checksum verified successfully for {file_path}")
-        logging.info(f"  Expected: {expected_hash}")
-        logging.info(f"  Computed: {computed_hash}")
-        return True
-    else:
-        logging.error(f"Checksum MISMATCH for {file_path}")
-        logging.error(f"  Expected: {expected_hash}")
-        logging.error(f"  Computed: {computed_hash}")
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        actual_hash = sha256_hash.hexdigest()
+        return actual_hash == expected_hash
+    except Exception as e:
+        logging.error(f"Error reading file {file_path} for checksum: {e}")
         return False
 
 def main():
     """
     Main entry point for verifying the kinetic dataset checksum.
-    """
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
+    Expects:
+      - data/raw/kinetic_dataset_raw.csv (downloaded by T009d)
+      - data/raw/kinetic_dataset_raw.csv.sha256 (or similar manifest)
     
+    This script verifies the checksum of the kinetic dataset against the manifest.
+    It exits with code 0 on success, 1 on failure.
+    """
+    logger = logging.getLogger(__name__)
     config = get_config()
     
-    # Define paths based on project structure
-    # T009d downloads to data/raw/kinetic_dataset_raw.csv
-    raw_data_dir = os.path.join(config.data_root, "raw")
-    kinetic_file_name = "kinetic_dataset_raw.csv"
-    kinetic_file_path = os.path.join(raw_data_dir, kinetic_file_name)
+    # Define paths based on project conventions
+    # The download task (T009d) should have placed the file here.
+    # The manifest is expected to be alongside the raw file or in a specific manifest dir.
+    # We assume the manifest is named 'kinetic_dataset_raw.csv.sha256' or similar.
+    # If T009d created a manifest, we look for it.
     
-    # The manifest is typically alongside the raw data or in a specific manifest dir.
-    # We assume a manifest file exists named 'kinetic_manifest.txt' in the raw data directory
-    # or we look for a generic manifest.
-    manifest_path = os.path.join(raw_data_dir, "kinetic_manifest.txt")
+    raw_file_path = os.path.join(config['data_dir'], 'raw', 'kinetic_dataset_raw.csv')
     
-    if not os.path.exists(manifest_path):
-        # Fallback: check if manifest is in the root of data/raw
-        # If the task T009d logic created a manifest, it should be here.
-        # If not, we fail loudly as per constraints.
-        logging.error(f"Manifest file not found at {manifest_path}. "
-                      "Cannot verify checksum without a source manifest.")
+    if not os.path.exists(raw_file_path):
+        logger.error(f"Kinetic dataset raw file not found: {raw_file_path}")
+        logger.error("Please ensure T009d (download) has completed successfully.")
         sys.exit(1)
-
+    
+    # Look for manifest file. Common conventions:
+    # 1. <filename>.sha256
+    # 2. <filename>.manifest
+    # 3. checksums.txt
+    manifest_candidates = [
+        f"{raw_file_path}.sha256",
+        f"{raw_file_path}.manifest",
+        os.path.join(os.path.dirname(raw_file_path), 'checksums.txt'),
+        os.path.join(config['data_dir'], 'raw', 'kinetic_dataset_manifest.txt')
+    ]
+    
+    manifest_path = None
+    for candidate in manifest_candidates:
+        if os.path.exists(candidate):
+            manifest_path = candidate
+            break
+    
+    if not manifest_path:
+        logger.error("No manifest file found for kinetic dataset checksum verification.")
+        logger.error("Expected one of: " + ", ".join(manifest_candidates))
+        sys.exit(1)
+    
+    logger.info(f"Found manifest at: {manifest_path}")
+    
     try:
         manifest = load_manifest(manifest_path)
     except Exception as e:
-        logging.error(f"Failed to load manifest: {e}")
+        logger.error(f"Failed to load manifest: {e}")
         sys.exit(1)
-
-    if kinetic_file_name not in manifest:
-        logging.error(f"File '{kinetic_file_name}' not found in manifest.")
+    
+    # Determine the key to look for in the manifest.
+    # It should match the basename of the raw file.
+    target_filename = os.path.basename(raw_file_path)
+    
+    if target_filename not in manifest:
+        logger.error(f"Filename '{target_filename}' not found in manifest.")
+        logger.error(f"Available entries: {list(manifest.keys())}")
         sys.exit(1)
-
-    expected_hash = manifest[kinetic_file_name]
-
-    try:
-        is_valid = verify_checksum(kinetic_file_path, expected_hash)
-        if is_valid:
-            logging.info("Verification PASSED.")
-            sys.exit(0)
-        else:
-            logging.error("Verification FAILED.")
-            sys.exit(1)
-    except Exception as e:
-        logging.error(f"Verification process failed with error: {e}")
+    
+    expected_hash = manifest[target_filename]
+    logger.info(f"Verifying checksum for {target_filename}...")
+    logger.info(f"Expected SHA-256: {expected_hash}")
+    
+    if verify_checksum(raw_file_path, expected_hash):
+        logger.info(f"SUCCESS: Checksum verified for {target_filename}.")
+        sys.exit(0)
+    else:
+        logger.error(f"FAILURE: Checksum mismatch for {target_filename}.")
         sys.exit(1)
 
 if __name__ == "__main__":
+    # Basic logging setup if not already configured by the project's logging infra
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     main()

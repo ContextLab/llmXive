@@ -1,24 +1,23 @@
-T008:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `artifacts/logs/` directory with structured log files nor an `artifacts/metrics.json`
-    file is present. The implementer did not provide any code, configuration, or generated
-    output demonstrating that logging has been set up to write to those locations.
-    Consequently, the required logging infrastructure is missing.
-T009b:
+  r: No evidence of the required directories (`data/raw`, `data/processed`, `data/assets`)
+    is provided; the artifact list is empty, so we cannot confirm that the directories
+    were actually created.
+T001b:
   c: false
-  h: 4b990df6138091e81c80a004945b6396bb1e4e148119ecdb83dec9b9a052210c
-  r: The required file `data/raw/reference_substructures_raw.csv` does not exist,
-    so no SHA-256 checksum can be computed or compared to the source manifest. The
-    task cannot be considered completed until the file is present and its checksum
-    verified.
-T009c:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the required directories (`code`, `artifacts`,
+    `tests`) actually exist or contain any files; without such artifacts the task
+    requirement is not satisfied.
+T003:
   c: false
-  h: 25c3e0edc6d52d190d639d88b20d8d08cc468efe84ec2c7063e714f5bfd5bbf1
-  r: The required artifact `data/assets/reference_substructures.csv` does not exist,
-    so no data ingestion or schema validation could have been performed. The implementer
-    must create the CSV file with the verified data and ensure it conforms to the
-    expected schema.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `ruff.toml`,\
+    \ `pyproject.toml` with Black settings) or setup scripts are present in the provided\
+    \ evidence, so the requirement to configure flake8/ruff and Black has not been\
+    \ satisfied. The implementer must add the appropriate configuration files and\
+    \ any integration steps (e.g., pre\u2011commit hooks) to complete the task."
 T009e:
   c: false
   h: cbc7bd1e07cc3b72df703a7051f108c143976fb680166116c746e677061e1aa7
@@ -31,12 +30,12 @@ T009f:
   r: The required artifact `data/assets/kinetic_dataset.csv` does not exist, so no
     data ingestion or schema validation has been performed. The implementer must create
     the CSV file with the verified data and ensure it conforms to the expected schema.
-T009g:
-  c: false
+T009h:
+  c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code implementing the required curation checks for the reference sets is present,
-    and the expected log file `artifacts/curation_validation.log` does not exist.
-    Consequently the validation logic and logging required by the task are missing.
+  r: "The task description explicitly states that the creation of `reaction_type_lookup.csv`\
+    \ was removed per SC\u2011006, so no artifact is required. Consequently, the implementer\u2019\
+    s claim of completion is valid."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

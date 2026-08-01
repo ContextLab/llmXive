@@ -1,189 +1,128 @@
-"""
-T012: Implement code/01_download_data.py to fetch QM9 subset.
-
-This script fetches the QM9 dataset using the HuggingFace datasets library.
-It implements error handling and retry logic (leveraging the existing
-retry mechanism in utils/loaders.py) and ensures the raw data is saved
-to the correct location: data/raw/qm9_raw.csv.
-
-It strictly adheres to the "fail loudly" constraint: if the real data
-cannot be fetched, it raises an exception and does not fall back to
-synthetic data.
-"""
 import os
 import sys
 import logging
 import time
 from typing import Optional, Tuple
 
-# Add project root to path to allow imports from sibling modules
-# The project structure assumes code/ is the root for imports in this context
-# or we are running as `python code/01_download_data.py`
-try:
-    from utils.loaders import download_with_retry, calculate_sha256
-    from config import get_config, ensure_directories
-    from utils.logging_utils import setup_logging, log_metric, flush_metrics
-except ImportError:
-    # Fallback for execution context where code/ is not in sys.path automatically
-    # but we are running from the project root or code/ directory
-    import sys
-    import os
-    # Determine the directory of this script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    # Add the parent directory (project root) to path if not already there
-    if script_dir not in sys.path:
-        sys.path.insert(0, script_dir)
-    # If running as `python code/01_download_data.py`, script_dir is `code/`
-    # We need to import from `utils`, `config`, etc. which are in `code/`
-    # So we are good if we are in `code/` or if `code/` is in path.
-    # However, `from utils.loaders` implies `utils` is a package in `code/`.
-    # Let's ensure we are importing correctly.
-    # If the script is in `code/`, then `from utils.loaders` works if `code/` is in sys.path.
-    # We added script_dir (code/) to sys.path above.
-    from utils.loaders import download_with_retry, calculate_sha256
-    from config import get_config, ensure_directories
-    from utils.logging_utils import setup_logging, log_metric, flush_metrics
+# Add project root to path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-# Attempt to import datasets; if missing, the environment is not set up correctly
-# per T002 requirements. We let this fail loudly if missing.
-try:
-    from datasets import load_dataset
-except ImportError:
-    raise ImportError(
-        "The 'datasets' library is required. Please ensure T002 requirements.txt "
-        "has been installed (pip install -r requirements.txt)."
+from datasets import load_dataset
+from config import get_config, ensure_directories
+from utils.logging_utils import setup_logging, log_metric, flush_metrics
+from utils.loaders import download_with_retry
+
+def setup_script_logging():
+    """Configure logging for the download script."""
+    config = get_config()
+    ensure_directories()
+    logger = setup_logging(
+        name="download_data",
+        log_file=os.path.join(config["log_dir"], "download_data.log")
     )
+    return logger
 
-def download_qm9_subset(output_path: str, logger: logging.Logger) -> str:
+def download_qm9_subset(
+    logger: logging.Logger,
+    split: str = "train",
+    subset_size: Optional[int] = 1000,
+    output_dir: Optional[str] = None
+) -> Tuple[bool, str]:
     """
-    Downloads the QM9 dataset using the HuggingFace datasets library.
-    
-    This function implements the logic to fetch the real QM9 dataset.
-    It does NOT generate synthetic data. If the download fails, it raises
-    an exception.
+    Fetches a subset of the QM9 dataset using the Hugging Face datasets library.
     
     Args:
-        output_path: The full path where the CSV file will be saved.
-        logger: The logger instance for recording progress.
+        logger: Logger instance for progress and error reporting.
+        split: Dataset split to load (default: 'train').
+        subset_size: Number of molecules to fetch. If None, fetches the full split.
+        output_dir: Directory to save the raw parquet/csv data. Defaults to config.
         
     Returns:
-        The path to the saved CSV file.
-        
-    Raises:
-        RuntimeError: If the download fails after retries or if data is invalid.
+        Tuple of (success: bool, message: str)
     """
-    logger.info("Starting QM9 dataset download via HuggingFace datasets library.")
+    if output_dir is None:
+        config = get_config()
+        output_dir = os.path.join(config["raw_data_dir"])
     
-    # Configuration for the dataset
+    os.makedirs(output_dir, exist_ok=True)
+    
     dataset_name = "qm9"
-    # We load the full dataset but will process it. 
-    # To avoid memory issues during download (though T012 is just download),
-    # we stream if necessary, but load_dataset usually handles this.
-    # We specifically want the raw data for T012.
+    output_file = os.path.join(output_dir, "qm9_subset.parquet")
+    
+    logger.info(f"Starting download of {dataset_name} split='{split}'...")
     
     try:
-        # Load the dataset. 
-        # Note: The qm9 dataset in HF is usually a dict of features.
-        # We need to convert it to a pandas DataFrame and save as CSV.
-        # We use streaming to be memory safe during the fetch phase if possible,
-        # but for a CSV export, we often need to materialize or stream row-by-row.
+        # Use streaming to avoid loading full dataset into memory immediately
+        # This is crucial for large datasets, though QM9 train is manageable (~130k)
+        # We load the full split first, then slice if a subset is requested
+        logger.info(f"Loading dataset: {dataset_name} (split={split})...")
         
-        logger.info(f"Loading dataset: {dataset_name} from HuggingFace...")
+        # The datasets library handles caching and download with retry logic internally
+        # but we wrap it in a try-except to catch specific network or API failures
+        ds = load_dataset(dataset_name, split=split)
         
-        # Attempt to load the dataset
-        # We use trust_remote_code=True if needed, though qm9 is standard.
-        dataset = load_dataset(dataset_name, split="train")
+        logger.info(f"Dataset loaded successfully. Total rows: {len(ds)}")
         
-        logger.info(f"Dataset loaded. Number of molecules: {len(dataset)}")
+        if subset_size and subset_size < len(ds):
+            logger.info(f"Subsetting to first {subset_size} molecules...")
+            # Select first N rows deterministically
+            ds_subset = ds.select(range(subset_size))
+            logger.info(f"Subset created with {len(ds_subset)} rows.")
+        else:
+            ds_subset = ds
+            if subset_size:
+                logger.warning(f"Requested subset_size {subset_size} >= dataset size {len(ds)}. Using full dataset.")
+
+        # Determine the target format. QM9 from HF is a HuggingFace Dataset.
+        # We need to save it to a file for downstream processing (T013).
+        # Parquet is efficient and supported by pandas/pyarrow.
+        logger.info(f"Saving subset to {output_file}...")
         
-        # Convert to Pandas DataFrame for CSV export
-        # The QM9 dataset in HF usually has columns like 'smiles', 'u0_atom', etc.
-        # We want to save the SMILES and relevant raw features if available,
-        # or at least the SMILES for the preprocessing step.
-        # The task says "fetch QM9 subset". We fetch the full set available
-        # and save it. The "subset" logic might be applied in T013 or T014.
-        # However, to be safe on memory, we might want to select specific columns
-        # or stream.
+        # Convert to pandas for easy parquet saving, or use dataset's to_parquet if available
+        # HuggingFace datasets supports to_parquet in newer versions, but converting to pandas is safer for compatibility
+        # given the constraints of specific environment versions.
+        df = ds_subset.to_pandas()
+        df.to_parquet(output_file, index=False)
         
-        # Let's select the SMILES and a few target properties to ensure it's useful.
-        # Standard QM9 targets: u0_atom, u0, u29_atom, u29, h_atom, h, g_atom, g, 
-        # c_atom, c, rho, alpha, epsilon, dipole, zpe.
-        # We will keep SMILES and all numeric targets.
+        logger.info(f"Successfully saved {len(df)} rows to {output_file}")
         
-        import pandas as pd
+        # Log metrics
+        log_metric("download_qm9_rows", len(df))
+        log_metric("download_qm9_file_size_mb", os.path.getsize(output_file) / (1024 * 1024))
         
-        # Convert to DataFrame
-        df = dataset.to_pandas()
-        
-        logger.info(f"Converting to DataFrame. Shape: {df.shape}")
-        
-        # Ensure the output directory exists
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        # Save to CSV
-        logger.info(f"Saving to {output_path}...")
-        df.to_csv(output_path, index=False)
-        
-        logger.info(f"Successfully saved QM9 dataset to {output_path}")
-        
-        return output_path
+        return True, f"Downloaded and saved {len(df)} molecules to {output_file}"
         
     except Exception as e:
-        logger.error(f"Failed to download or process QM9 dataset: {e}", exc_info=True)
-        raise RuntimeError(f"QM9 download failed: {e}")
-
-def setup_script_logging() -> logging.Logger:
-    """Sets up logging for this script."""
-    return setup_logging("01_download_data")
+        error_msg = f"Failed to download QM9 subset: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        return False, error_msg
 
 def main():
-    """Main entry point for T012."""
+    """Main entry point for the download script."""
     logger = setup_script_logging()
+    logger.info("Starting QM9 data download pipeline.")
+    
     config = get_config()
+    # Configuration for the subset size can be passed via config or hardcoded for MVP
+    # Using a reasonable subset size for CPU feasibility testing as per US1
+    subset_size = config.get("qm9_subset_size", 1000) 
     
-    # Ensure directories exist
-    ensure_directories()
+    success, message = download_qm9_subset(
+        logger=logger,
+        split="train",
+        subset_size=subset_size
+    )
     
-    # Define output path
-    # Per task description: data/raw/qm9_raw.csv (implied by pattern of T009a/d)
-    # The task says "fetch QM9 subset". We will save it as qm9_raw.csv.
-    raw_data_dir = os.path.join(config["data_dir"], "raw")
-    output_file = os.path.join(raw_data_dir, "qm9_raw.csv")
-    
-    logger.info(f"Target output file: {output_file}")
-    
-    try:
-        # Check if file already exists to avoid re-downloading (optional but good practice)
-        if os.path.exists(output_file):
-            logger.warning(f"{output_file} already exists. Skipping download.")
-            # We could verify checksum here if a manifest existed, but for T012
-            # we focus on the download logic.
-        else:
-            # Perform the download
-            # We wrap the core logic in a retry mechanism if we were doing HTTP directly,
-            # but load_dataset handles its own retries. However, to align with
-            # the project's pattern of using `download_with_retry` for custom logic,
-            # we could wrap our function if it were a URL fetch.
-            # Since we are using `load_dataset`, we rely on its robustness.
-            # If the task strictly requires using `download_with_retry` from loaders,
-            # we would need a URL. The HF dataset is not a simple URL.
-            # We assume `load_dataset` satisfies the "fetch" requirement.
-            
-            download_qm9_subset(output_file, logger)
-        
-        # Log success
-        log_metric("qm9_download_status", "success", logger=logger)
-        log_metric("qm9_file_path", output_file, logger=logger)
-        
-        logger.info("T012 execution completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"T012 execution failed: {e}", exc_info=True)
-        log_metric("qm9_download_status", "failed", logger=logger)
-        log_metric("qm9_error", str(e), logger=logger)
-        sys.exit(1)
-    finally:
+    if success:
+        logger.info("Pipeline completed successfully.")
         flush_metrics()
+        sys.exit(0)
+    else:
+        logger.error("Pipeline failed.")
+        flush_metrics()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

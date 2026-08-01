@@ -6,36 +6,24 @@ from config import ensure_directories
 
 def main():
     """
-    Entry point for initializing the logging infrastructure.
-    This script is typically called at the start of other pipeline scripts
-    to ensure logs and metrics are written to the correct locations.
+    Initialize the logging infrastructure for the project.
+    This script ensures that the required directories exist and
+    configures the global logger to write to artifacts/logs and artifacts/metrics.json.
     """
-    # Ensure all required directories exist
+    # Ensure standard directories exist as per project setup
     ensure_directories()
     
     # Initialize logging
-    # This creates artifacts/logs/pipeline.log and artifacts/logs/metrics.json
     logger = setup_logging(
         log_dir="artifacts/logs",
-        log_file_name="pipeline.log",
-        metrics_file_name="metrics.json",
-        level=logging.INFO
+        metrics_file="artifacts/metrics.json"
     )
     
-    logger.info("Logging setup completed successfully.")
+    logger.info("Logging infrastructure setup complete.")
+    log_metric("setup_complete", True, metadata={"task": "T008", "timestamp": datetime.now().isoformat()})
     
-    # Log the initialization event itself as a metric
-    log_metric(
-        "logging_initialized",
-        True,
-        stage="setup",
-        details={"timestamp": datetime.utcnow().isoformat()}
-    )
-    
-    # Explicitly flush to ensure the file exists even if script exits immediately
-    flush_metrics()
-    
-    print("Logging infrastructure ready. Check artifacts/logs/ for output.")
+    print("Logging setup complete. Logs will be written to artifacts/logs/")
+    print("Metrics will be written to artifacts/metrics.json")
 
 if __name__ == "__main__":
     main()

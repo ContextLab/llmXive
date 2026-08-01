@@ -1,79 +1,77 @@
-"""
-Configuration management for the project.
-Handles random seeds, device settings, and directory paths.
-"""
 import os
 import random
 import logging
 from typing import Optional, Dict, Any
 import numpy as np
 
-logger = logging.getLogger("config")
-
 class Config:
-    """Configuration class for project settings."""
+    """Configuration management for the project."""
+    
     def __init__(self):
-        # Random seeds
-        self.random_seed = 42
-        self.np_seed = 42
+        self._config = self._load_config()
         
-        # Device settings
-        self.device = 'cpu'  # Default to CPU as per constraints
+    def _load_config(self) -> Dict[str, Any]:
+        """Load configuration from environment or defaults."""
+        return {
+            "paths": {
+                "raw": os.path.join("data", "raw"),
+                "processed": os.path.join("data", "processed"),
+                "assets": os.path.join("data", "assets"),
+                "code": "code",
+                "artifacts": "artifacts",
+                "tests": "tests",
+                "logs": os.path.join("artifacts", "logs")
+            },
+            "random_seed": 42,
+            "device": "cpu",
+            "logging_level": logging.INFO
+        }
         
-        # Directory paths (relative to project root)
-        self.project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.data_dir = os.path.join(self.project_root, 'data')
-        self.data_raw_dir = os.path.join(self.data_dir, 'raw')
-        self.data_processed_dir = os.path.join(self.data_dir, 'processed')
-        self.data_assets_dir = os.path.join(self.data_dir, 'assets')
-        self.code_dir = os.path.join(self.project_root, 'code')
-        self.artifacts_dir = os.path.join(self.project_root, 'artifacts')
-        self.tests_dir = os.path.join(self.project_root, 'tests')
-        
-        # Ensure directories exist on initialization if needed
-        # Note: T001a/T001b are marked as completed in tasks.md, but we ensure here too.
-        # However, per T001a rejection, we must ensure they exist.
-        ensure_directories([self.data_raw_dir, self.data_processed_dir, self.data_assets_dir,
-                            self.code_dir, self.artifacts_dir, self.tests_dir])
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get a configuration value."""
+        keys = key.split(".")
+        value = self._config
+        for k in keys:
+            if isinstance(value, dict) and k in value:
+                value = value[k]
+            else:
+                return default
+        return value
+
+_config_instance = None
 
 def get_config() -> Dict[str, Any]:
-    """
-    Returns the configuration dictionary.
-    
-    Returns:
-        Dictionary containing all configuration settings.
-    """
-    cfg = Config()
-    return {
-        "random_seed": cfg.random_seed,
-        "np_seed": cfg.np_seed,
-        "device": cfg.device,
-        "data_dir": cfg.data_dir,
-        "data_raw_dir": cfg.data_raw_dir,
-        "data_processed_dir": cfg.data_processed_dir,
-        "data_assets_dir": cfg.data_assets_dir,
-        "code_dir": cfg.code_dir,
-        "artifacts_dir": cfg.artifacts_dir,
-        "tests_dir": cfg.tests_dir,
-        "project_root": cfg.project_root
-    }
+    """Get the global configuration instance."""
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = Config()
+    return _config_instance._config
 
-def ensure_directories(dirs: list) -> None:
-    """
-    Ensures that the specified directories exist.
+def ensure_directories() -> None:
+    """Create all required directories if they don't exist."""
+    config = get_config()
+    paths = config["paths"]
     
-    Args:
-        dirs: List of directory paths to create.
-    """
-    for dir_path in dirs:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-        else:
-            logger.debug(f"Directory already exists: {dir_path}")
+    required_dirs = [
+        paths["raw"],
+        paths["processed"],
+        paths["assets"],
+        paths["code"],
+        paths["artifacts"],
+        paths["tests"],
+        paths["logs"]
+    ]
+    
+    for dir_path in required_dirs:
+        os.makedirs(dir_path, exist_ok=True)
 
-if __name__ == "__main__":
-    cfg = get_config()
-    print(f"Configuration loaded. Project root: {cfg['project_root']}")
-    print(f"Data raw dir: {cfg['data_raw_dir']}")
-    print(f"Artifacts dir: {cfg['artifacts_dir']}")
+def set_seed(seed: Optional[int] = None) -> None:
+    """Set random seed for reproducibility."""
+    if seed is None:
+        seed = get_config()["random_seed"]
+        
+    random.seed(seed)
+    np.random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    
+    logging.info(f"Random seed set to: {seed}")

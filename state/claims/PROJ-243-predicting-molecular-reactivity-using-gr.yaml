@@ -1,0 +1,301 @@
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Download curated reference set of reactive substructures from huggingface
+    chembench dataset
+  claim_id: c_a836d7b2
+  context: Task T009a requires downloading a specific dataset from a verified URL
+    to a local path for the project.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_curated_reference_set_of_reactive_substructures_fro
+  kind: entity_fact
+  raw_text: Download the curated reference set of known reactive substructures from
+    verified source https://huggingface.co/datasets/chembench/reactive_substructures/resolve/main/reference_set.csv
+    to data/raw/reference_substructures_raw.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:13:46Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Verify SHA-256 checksum of reference substructures dataset against source
+    manifest
+  claim_id: c_1935153b
+  context: Task T009b specifies a verification step for the downloaded reference substructures
+    dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify checksum (SHA-256) of data/raw/reference_substructures_raw.csv
+    against the source manifest.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:13:59Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Download external kinetic dataset containing at least 20 molecules
+  claim_id: c_42cd5764
+  context: Task T009d describes downloading a kinetic dataset with a minimum size
+    requirement.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_external_kinetic_dataset_containing_at_least_20_mol
+  kind: magnitude
+  raw_text: "Download the external kinetic dataset (\u226520 molecules) from verified\
+    \ source."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:14:18Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Verify SHA-256 checksum of kinetic dataset against source manifest
+  claim_id: c_afb5983b
+  context: Task T009e specifies a verification step for the downloaded kinetic dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify checksum (SHA-256) of data/raw/kinetic_dataset_raw.csv against
+    the source manifest.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:14:32Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Validate correlation between predicted gap and experimental rates for
+    entire dataset
+  claim_id: c_cf32730b
+  context: Task T033 requires validating the correlation for the full dataset without
+    filtering.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_correlation_between_predicted_gap_and_experimental
+  kind: entity_fact
+  raw_text: Validate correlation between predicted gap and experimental rates for
+    the entire dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:15:09Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Fetch QM9 dataset train split using huggingface datasets library
+  claim_id: c_9460f708
+  context: Task T012 specifies the exact method and split to use for fetching the
+    QM9 dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_QM9_dataset_train_split_using_huggingface_datasets_lib
+  kind: entity_fact
+  raw_text: Fetch QM9 subset via datasets.load_dataset('qm9', split='train').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:15:29Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Detect memory usage exceeding 4GB during preprocessing
+  claim_id: c_2e503869
+  context: Task T013 includes a memory profiling hook to detect usage above 4GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Detect_memory_usage_exceeding_4GB_during_preprocessing
+  kind: entity_fact
+  raw_text: Detect memory usage > 4GB during preprocessing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:16:00Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Ensure excluded invalid SMILES count is less than 0.1 percent
+  claim_id: c_96519ebf
+  context: Task T017 sets a threshold for the percentage of excluded invalid SMILES.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_excluded_invalid_SMILES_count_is_less_than_0.1_percen
+  kind: magnitude
+  raw_text: Ensure excluded invalid SMILES count is < 0.1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:16:22Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Train models with early stopping patience 5 and target loss threshold
+    0.01
+  claim_id: c_84e7ae3e
+  context: Task T023 defines the early stopping parameters for model training.
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Train all three models for a sufficient number of epochs with early stopping
+    patience=5, metric='val_loss', target loss threshold=0.01.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T09:16:22Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Compute MSE MAE and Pearson R metrics for all models
+  claim_id: c_1b0e4666
+  context: Task T024 requires calculating specific statistical metrics for model evaluation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_MSE_MAE_and_Pearson_R_metrics_for_all_models
+  kind: entity_fact
+  raw_text: Compute MSE, MAE, Pearson R for all models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:17:34Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Assert alignment score is greater than or equal to 0.7
+  claim_id: c_0dbaf9be
+  context: Task T031c sets a threshold for the alignment score between attributed
+    substructures and the reference set.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_alignment_score_is_greater_than_or_equal_to_0.7
+  kind: magnitude
+  raw_text: Assert that the alignment score in artifacts/alignment_score.json is >=
+    0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:17:57Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Verify end-to-end runtime is less than or equal to 6 hours and memory
+    is less than or equal to 4 GB
+  claim_id: c_e0d3c5a7
+  context: Task T037 sets performance constraints for the system on continuous integration.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_end-to-end_runtime_is_less_than_or_equal_to_6_hours_a
+  kind: magnitude
+  raw_text: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:18:23Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 4
+  canonical: external kinetic dataset contains at least 20 molecules
+  claim_id: c_a973bef6
+  context: "T009d [P] [FR-009] Download the external kinetic dataset (\u226520 molecules)\
+    \ from verified source to data/raw/kinetic_dataset_raw.csv."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_kinetic_dataset_contains_at_least_20_molecules
+  kind: magnitude
+  raw_text: "Download the external kinetic dataset (\u226520 molecules) from verified\
+    \ source"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:24:39Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: external kinetic dataset contains at least 20 molecules
+  claim_id: c_a5a90b7c
+  context: "T009d [P] [FR-009] Download the external kinetic dataset (\u226520 molecules)\
+    \ from verified source ` to `data/raw/kinetic_dataset_raw.csv`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_kinetic_dataset_contains_at_least_20_molecules
+  kind: magnitude
+  raw_text: "Download the external kinetic dataset (\u226520 molecules) from verified\
+    \ source"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:25:37Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Download reference set of reactive substructures from Hugging Face chembench
+    dataset
+  claim_id: c_0655c62d
+  context: Task T009a requires downloading a specific CSV file from a Hugging Face
+    dataset URL for the project.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_reference_set_of_reactive_substructures_from_Huggin
+  kind: entity_fact
+  raw_text: Download the curated reference set of known reactive substructures from
+    verified source 'https://huggingface.co/datasets/chembench/reactive_substructures/resolve/main/reference_set.csv'
+    to 'data/raw/reference_substructures_raw.csv'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:30:25Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Download external kinetic dataset containing at least 20 molecules
+  claim_id: c_d81b143b
+  context: Task T009d specifies downloading a kinetic dataset with a minimum count
+    of 20 molecules.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_external_kinetic_dataset_containing_at_least_20_mol
+  kind: magnitude
+  raw_text: "Download the external kinetic dataset (\u226520 molecules) from verified\
+    \ source to 'data/raw/kinetic_dataset_raw.csv'."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T09:30:43Z'

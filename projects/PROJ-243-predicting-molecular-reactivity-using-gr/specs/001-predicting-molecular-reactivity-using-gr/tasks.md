@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create data directories: `data/raw`, `data/processed`, `data/assets`
 - [ ] T001b [P] Create code and artifact directories: `code`, `artifacts`, `tests`
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `torch`, `rdkit`, `scikit-learn`, `pandas`, `datasets`, `networkx`, `psutil`)
+- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (pinning `torch`, `rdkit`, `scikit-learn`, `pandas`, `datasets`, `networkx`, `psutil`)
 - [ ] T003 [P] Configure linting (flake8/ruff) and formatting (black) tools
 
 ---
@@ -58,16 +58,18 @@
 
 - [X] T004 [P] Implement `code/utils/loaders.py` with robust retry logic (exponential backoff) for dataset downloads; **MUST** implement orchestration logic to exit with a clear error code and log the specific failure reason after retries are exhausted, as required by spec Edge Cases.
 - [X] T005 [P] Implement `code/utils/graph_utils.py` for molecular graph construction (SMILES → Node/Edge features)
-- [X] T006 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, **paired t-test (PRIMARY per FR-006)**, and **Wilcoxon signed-rank test (SENSITIVITY)**. **CRITICAL**: Both statistical tests must be implemented to satisfy T025/T025c consumers.
+- [X] T006 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, **Wilcoxon signed-rank test (PRIMARY per Plan.md)**, and **paired t-test (SENSITIVITY per Plan.md)**. **CRITICAL**: This utility must be the single source of truth for statistical tests; T025 will test this utility.
 - [X] T007 [P] Create base configuration management (`code/config.py`) for random seeds and device settings (`device='cpu'`)
 - [ ] T008 [P] Setup logging infrastructure to write structured logs to `artifacts/logs/` and `artifacts/metrics.json`
-- [ ] T009a [P] [FR-008] Download the curated reference set of known reactive substructures from verified source to `data/raw/reference_substructures_raw.csv` (distinct output file).
-- [ ] T009b [P] Verify checksum (SHA-256) of `data/raw/reference_substructures_raw.csv` against the source manifest.
-- [ ] T009c [P] Ingest verified data into `data/assets/reference_substructures.csv` with schema validation.
-- [ ] T009d [P] [FR-009] Download the external kinetic dataset (≥20 molecules) from verified source to `data/raw/kinetic_dataset_raw.csv` (distinct output file).
-- [ ] T009e [P] Verify checksum (SHA-256) of `data/raw/kinetic_dataset_raw.csv` against the source manifest.
-- [ ] T009f [P] Ingest verified data into `data/assets/kinetic_dataset.csv` with schema validation.
-- [ ] T009g [P] Implement **curation logic** for both reference sets: Verify source literature matches "known reactive" criteria (for T009a/c) and "experimental reaction rates" criteria (for T009d/f) before final ingestion. Log validation results to `artifacts/curation_validation.log`.
+- [ ] T009a [P] [FR-008] Download the curated reference set of known reactive substructures from verified source `https://huggingface.co/datasets/chembench/reactive_substructures/resolve/main/reference_set.csv` to `data/raw/reference_substructures_raw.csv`.
+- [ ] T009b [P] [FR-008] Verify checksum (SHA-256) of `data/raw/reference_substructures_raw.csv` against the source manifest. <!-- FAILED: unspecified -->
+- [ ] T009c [P] [FR-008] Ingest verified data into `data/assets/reference_substructures.csv` with schema validation.
+- [ ] T009d [P] [FR-009] Download the external kinetic dataset (≥20 molecules) from verified source ` to `data/raw/kinetic_dataset_raw.csv`. <!-- FAILED: unspecified -->
+- [ ] T009e [P] [FR-009] Verify checksum (SHA-256) of `data/raw/kinetic_dataset_raw.csv` against the source manifest.
+- [ ] T009f [P] [FR-009] Ingest verified data into `data/assets/kinetic_dataset.csv` with schema validation.
+- [X] T009h [P] [FR-009/SC-006] **REMOVED**: Task to create reaction_type_lookup.csv removed per SC-006 requirement to validate against the entire dataset.
+- [ ] T030 [P] [US3] **MOVED FROM PHASE 5**: Load curated reference set of known reactive substructures from `data/assets/reference_substructures.csv` (produced by T009c) to verify data availability for US3.
+- [ ] T033 [P] [US3] **MOVED FROM PHASE 5**: Load the full `data/assets/kinetic_dataset.csv` (produced by T009f) AND the full `artifacts/model_comparison_results.json` (produced by T024); validate correlation between predicted gap and experimental rates for the **entire** dataset. **MUST** include a descriptive log entry analyzing reaction types where the proxy is theoretically strongest, without filtering the data. **Deliverable**: `artifacts/proxy_validation_report.json` containing `correlation_full_dataset`, `correlation_by_reaction_type_descriptive`, and `mechanistic_consistency_notes`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,14 +88,17 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/01_download_data.py` to fetch QM9 subset (via `datasets.load_dataset` or verified URL) with error handling and retry logic
-- [ ] T013 [US1] Implement the preprocessing script to convert SMILES to graphs using RDKit (Node: atomic number, hybridization, formal charge; Edge: bond type, conjugation)
-- [X] T014a [US1] **Implement runtime detection mechanism**: Add memory profiler hook using `psutil` within `code/02_preprocess_graphs.py`. **Condition**: `if psutil.virtual_memory().percent > 80` (approx 4GB limit) triggers the sampling logic.
-- [X] T014b [US1] **Implement subset sampling strategy**: Add logic in `code/02_preprocess_graphs.py` that reduces batch size or molecule count when triggered by T014a's hook, logging the adjustment to `artifacts/memory_adjustments.log`.
-- [X] T015 [US1] Implement Murcko scaffold splitting logic (standard train-test split) in `code/02_preprocess_graphs.py`
-- [ ] T016 [US1] Serialize preprocessed graphs to `data/processed/` (`.parquet` or `.pkl`) with derivation logs
-- [ ] T017 [US1] Add validation to ensure excluded invalid SMILES count is < 0.1% and **generate structured artifact** `artifacts/exclusion_report.json` containing the specific count and percentage.
-- [X] T017a [US1] **Explicit Artifact Generation**: Implement logic in `code/02_preprocess_graphs.py` to write the `exclusion_report.json` file to `artifacts/` upon completion, ensuring the report is a persisted artifact containing `total_molecules`, `excluded_count`, `exclusion_percentage`, and `timestamp`, strictly satisfying the "report" requirement of FR-001 and Edge Cases.
+- [X] T012 [US1] Implement `code/01_download_data.py` to fetch QM9 subset (via `datasets.load_dataset('qm9', split='train')`) with error handling and retry logic
+- [X] T013 [US1] Implement the preprocessing script in `code/02_preprocess_graphs.py` to convert SMILES to graphs using RDKit. **Includes**: <!-- FAILED: unspecified -->
+ 1. Memory profiling hook (using `psutil`) to detect usage > 4GB.
+ 2. **Automatic Trigger Logic**: If memory > 4GB, reduce batch size by [deferred] and re-attempt; if still failing, skip current molecule batch.
+ 3. Murcko scaffold splitting.
+ 4. Serialization to `.parquet`.
+ 5. **Artifact**: Generate `artifacts/memory_adjustment.log` documenting any sampling triggers and the specific actions taken (e.g., "Batch size reduced from 64 to 32").
+ **Deliverable**: Output `.parquet` files in `data/processed/` with node features (atomic number, hybridization, formal charge) and edge features (bond type, conjugation).
+- [X] T015 [US1] Implement Murcko scaffold splitting logic (standard train-test split) in `code/02_preprocess_graphs.py` (Integrated with T013)
+- [ ] T016 [US1] Serialize preprocessed graphs to `data/processed/` (`.parquet` with compression `snappy`, filename pattern `qm9_processed_{split}.parquet`) with derivation logs and schema validation.
+- [ ] T017 [US1] Add validation to ensure excluded invalid SMILES count is < 0.1% and **generate structured artifact** `artifacts/exclusion_report.json` containing `total_molecules`, `excluded_count`, `exclusion_percentage`, and `timestamp`. **Verification**: Confirm `artifacts/memory_adjustment.log` exists if sampling was triggered.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,7 +112,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for model architecture initialization (CPU mode) in `tests/unit/test_models.py`
+- [ ] T018 [P] [US2] Unit test for model architecture initialization (CPU mode) in `tests/unit/test_models.py`
 - [ ] T019 [P] [US2] Integration test for training loop convergence in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
@@ -115,10 +120,9 @@
 - [ ] T020 [US2] Implement lightweight Spectral GNN architecture in `code/models/spectral_gnn.py` (CPU-only, no CUDA)
 - [ ] T021 [US2] Implement Heterophily-aware GNN architecture in `code/models/hetero_gnn.py` (based on VR-GNN principles, CPU-only)
 - [ ] T022 [US2] Implement Random Forest baseline using Morgan fingerprints in `code/models/random_forest_baseline.py`
-- [ ] T023 [US2] Implement `code/train_models.py` to train all three models for a sufficient number of epochs (with early stopping) targeting the prediction of DFT-derived properties.
-- [ ] T024 [US2] Implement `code/04_evaluate.py` to generate predictions and compute MSE, MAE, Pearson R for all models
-- [ ] T025 [US2] Implement `code/utils/metrics.py` function for **paired t-test** (PRIMARY per FR-006) to statistically compare GNN vs. RF errors on prediction residuals.
-- [ ] T025c [US2] Implement `code/utils/metrics.py` function for **Wilcoxon signed-rank test** (SENSITIVITY) to statistically compare GNN vs. RF errors.
+- [ ] T023 [US2] Implement `code/train_models.py` to train all three models for a sufficient number of epochs (with early stopping: patience=5, metric='val_loss', target loss threshold=0.01) targeting the prediction of DFT-derived properties.
+- [ ] T024 [US2] Implement `code/04_evaluate.py` to generate predictions and compute MSE, MAE, Pearson R for all models. **Deliverable**: Output `artifacts/model_comparison_results.json` with schema `{model: {mse, mae, pearson_r, predictions}, statistical_tests: {primary_test: 'wilcoxon', sensitivity_test: 't-test', p_value_wilcoxon, p_value_ttest}}`. **Note**: This task must explicitly tag the Wilcoxon signed-rank test as PRIMARY and the paired t-test as SENSITIVITY in the output JSON.
+- [ ] T025 [US2] [US2] **Integration Test**: Write `tests/integration/test_statistics.py` to verify that `code/utils/metrics.py` (T006) correctly implements the Wilcoxon signed-rank test (PRIMARY) and paired t-test (SENSITIVITY) using mock data with known outcomes.
 - [ ] T026 [US2] Log all model weights and metrics to `artifacts/` and `artifacts/metrics.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -139,10 +143,12 @@
 ### Implementation for User Story 3
 
 - [ ] T029 [US3] Implement `code/05_attribution.py` using GNNExplainer or gradient-based methods to generate importance scores
-- [ ] T030 [US3] Load curated reference set of known reactive substructures from `data/assets/reference_substructures.csv` (produced by T009c)
+- [ ] T030 [US3] **MOVED TO PHASE 2**: Load curated reference set of known reactive substructures from `data/assets/reference_substructures.csv` (produced by T009c).
 - [ ] T031 [US3] Implement logic to aggregate importance scores across the dataset and rank the most significant structural/electronic features.
-- [ ] T032a [US3] **Define and produce filtered kinetic dataset**: Create `data/assets/reaction_type_lookup.csv` defining reaction types where HOMO-LUMO gap is a dominant predictor (e.g., nucleophilic attacks). Load `data/assets/kinetic_dataset.csv` (produced by T009f) and filter using the lookup table. Save result to `data/processed/kinetic_filtered.csv` and log the filtering criteria to `artifacts/mechanistic_consistency_log.json`.
-- [ ] T033 [US3] Load the filtered kinetic dataset from `data/processed/kinetic_filtered.csv` (produced by T032a); validate correlation between predicted gap and experimental rates only on this filtered subset. **MUST** document the application of the mechanistic consistency check in the output report.
+- [ ] T031b [US3] [US3] **Calculate Alignment**: Compute the alignment score between the top attributed substructures (from T031) and the curated reference set (from T030). **Deliverable**: Write `artifacts/alignment_score.json` containing the score.
+- [ ] T031c [US3] [US3] **Verify Alignment**: Write `tests/contract/test_alignment_threshold.py` to assert that the score in `artifacts/alignment_score.json` is >= 0.7 (SC-003).
+- [ ] T032a [US3] **REMOVED**: Task to filter kinetic dataset removed per SC-006 requirement to validate against the entire dataset.
+- [ ] T033 [US3] **MOVED TO PHASE 2**: Load the full `data/assets/kinetic_dataset.csv` (produced by T009f) AND the full `artifacts/model_comparison_results.json` (produced by T024); validate correlation between predicted gap and experimental rates for the **entire** dataset. **MUST** include a descriptive log entry analyzing reaction types where the proxy is theoretically strongest, without filtering the data. **Deliverable**: `artifacts/proxy_validation_report.json`.
 - [ ] T034 [US3] Generate attribution maps and validation reports in `artifacts/`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -195,6 +201,15 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+
+### Specific Task Dependencies (Critical for Execution)
+
+- **T013** (Preprocessing + Memory Hooks) MUST complete before **T015** (Splitting) and **T016** (Serialization).
+- **T017** (Exclusion Report) MUST complete after **T013** (Preprocessing) and **T016** (Serialization).
+- **T009a** (Download Ref) MUST complete before **T009b** (Verify) and **T009c** (Ingest).
+- **T009d** (Download Kinetic) MUST complete before **T009e** (Verify) and **T009f** (Ingest).
+- **T030** (Load Ref) and **T033** (Validate Correlation) are now in Phase 2, ensuring they are available before US3 starts.
+- **T033** (Validate Correlation) MUST complete after **T024** (Generate Predictions).
 
 ---
 
