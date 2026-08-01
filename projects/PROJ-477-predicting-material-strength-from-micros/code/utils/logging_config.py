@@ -10,6 +10,7 @@ JSON Schema for metrics.json:
   "timestamp": "ISO8601 string",
   "level": "DEBUG|INFO|WARNING|ERROR|CRITICAL",
   "module": "string",
+  "function": "string",
   "message": "string",
   "extra": {
     "metric_name": "string (optional)",
@@ -26,8 +27,20 @@ from pathlib import Path
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-# Ensure the results directory exists
-RESULTS_DIR = Path("results")
+# Use the project root detection from config.py to ensure we write to the correct location
+# Importing here to avoid circular dependency if config.py were to import this
+try:
+    from utils.config import get_results_dir
+    RESULTS_DIR = get_results_dir()
+except (ImportError, FileNotFoundError):
+    # Fallback for standalone execution or if config is not ready
+    # Assume running from 'code' directory
+    base = Path.cwd()
+    if base.name == "code":
+        RESULTS_DIR = base.parent / "results"
+    else:
+        RESULTS_DIR = base / "results"
+
 RESULTS_DIR.mkdir(exist_ok=True)
 
 LOG_FILE_PATH = RESULTS_DIR / "metrics.log"
@@ -82,7 +95,7 @@ def get_logger(name: str = "material_strength") -> logging.Logger:
     # Clear any existing handlers to ensure clean state
     logger.handlers.clear()
     
-    # Create file handler for text log
+    # Create file handler for text log (append mode)
     file_handler = logging.FileHandler(LOG_FILE_PATH, mode='a')
     file_handler.setLevel(logging.DEBUG)
     text_formatter = logging.Formatter(
@@ -91,8 +104,9 @@ def get_logger(name: str = "material_strength") -> logging.Logger:
     )
     file_handler.setFormatter(text_formatter)
     
-    # Create file handler for JSON log
-    json_handler = logging.FileHandler(JSON_LOG_FILE_PATH, mode='w')
+    # Create file handler for JSON log (append mode)
+    # Using append mode to accumulate logs across pipeline steps
+    json_handler = logging.FileHandler(JSON_LOG_FILE_PATH, mode='a')
     json_handler.setLevel(logging.DEBUG)
     json_handler.setFormatter(JsonFormatter())
     
@@ -100,7 +114,7 @@ def get_logger(name: str = "material_strength") -> logging.Logger:
     logger.addHandler(file_handler)
     logger.addHandler(json_handler)
     
-    # Prevent propagation to root logger to avoid duplicate console logs
+    # Prevent propagation to root logger to avoid duplicate console logs if root is configured
     logger.propagate = False
     
     return logger

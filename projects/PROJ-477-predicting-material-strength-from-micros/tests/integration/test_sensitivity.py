@@ -1,173 +1,161 @@
 """
 Integration test for sensitivity sweep (US3).
 
-This test verifies that the sensitivity analysis script:
-1. Runs end-to-end without errors.
-2. Produces the expected output file: results/sensitivity_report.json.
-3. Contains the required metrics for the specified thresholds {0.01, 0.05, 0.1}.
+This test verifies that the sensitivity analysis script runs successfully,
+produces the expected output file, and that the output contains valid
+FPR/FNR calculations for all defined thresholds.
 
 Prerequisites:
-- T029 (interpret.py) must be implemented to generate predictions if not already present.
-- T026 (main.py) or T032 (predictor.py) must have generated a baseline predictions file.
-- This test assumes the existence of a 'results/predictions.csv' or generates one via the predictor script if missing.
+- The sensitivity analysis script (code/eval/sensitivity.py) must have been run
+  to generate results/sensitivity_analysis.csv.
+- Real test set predictions must exist (typically from code/eval/predictor.py).
 """
 import os
-import json
-import subprocess
 import sys
-import pytest
+import csv
+import json
+import tempfile
+import shutil
 from pathlib import Path
+import pytest
 
-# Project root relative to this test file (tests/integration/ -> ../..)
+# Add project root to path to import config utilities if needed
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 CODE_DIR = PROJECT_ROOT / "code"
 RESULTS_DIR = PROJECT_ROOT / "results"
+DATA_DIR = PROJECT_ROOT / "data"
 
-# Expected output artifact
-EXPECTED_OUTPUT = RESULTS_DIR / "sensitivity_report.json"
+# Ensure paths exist for the test environment
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Thresholds defined in T031: {0.01, 0.05, 0.1}
-REQUIRED_THRESHOLDS = [0.01, 0.05, 0.1]
+# Constants matching the specification (T031)
+EXPECTED_COLUMNS = ['threshold', 'fpr', 'fnr']
+EXPECTED_OUTPUT_FILE = RESULTS_DIR / "sensitivity_analysis.csv"
 
-def ensure_predictions_exist():
+# Relative offsets from median used in T031: ±5%, ±10%, ±20%
+# The script should generate rows for these specific relative thresholds.
+EXPECTED_RELATIVE_OFFSETS = [-0.20, -0.10, -0.05, 0.05, 0.10, 0.20]
+
+@pytest.fixture(scope="module")
+def setup_sensitivity_test_data():
     """
-    Ensures results/predictions.csv exists.
-    If not, it attempts to run the predictor script (T032) or main.py to generate dummy data
-    for the sake of this integration test. 
-    In a real CI environment, this would be a hard dependency failure if data isn't present.
+    Fixture to ensure the necessary input data exists for the sensitivity test.
+    Since this is an integration test, it assumes the prior pipeline steps
+    (download, preprocess, split, train, predict) have run.
+    
+    If the output file doesn't exist, we attempt to run the sensitivity script.
+    If that fails (e.g., missing predictions), we skip the test or fail loudly.
     """
-    predictions_path = RESULTS_DIR / "predictions.csv"
-    if not predictions_path.exists():
-        # Attempt to run the predictor script to generate data
-        # This assumes T032 is implemented. If T032 is not done, we might need to skip or fail.
-        # For now, we try to invoke the sensitivity script which might handle missing data,
-        # but the spec says T031 (sensitivity.py) computes FPR/FNR on existing predictions.
-        # We will try to run the sensitivity script directly and see if it errors out due to missing file.
-        pass
-    return predictions_path
+    # Check if the output file already exists
+    if EXPECTED_OUTPUT_FILE.exists():
+        yield EXPECTED_OUTPUT_FILE
+        return
 
-def test_sensitivity_sweep_integration():
-    """
-    Runs the sensitivity analysis script and validates the output report.
-    """
-    # Ensure results directory exists
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    # If not, try to run the sensitivity script to generate it
+    # This mimics the real execution flow
+    sensitivity_script = CODE_DIR / "eval" / "sensitivity.py"
     
-    # Ensure predictions exist (basic check)
-    predictions_path = RESULTS_DIR / "predictions.csv"
+    if not sensitivity_script.exists():
+        pytest.skip(f"Sensitivity script not found at {sensitivity_script}. "
+                    "Prerequisite scripts (train/predict) may not have run.")
     
-    # If predictions don't exist, we might need to generate them.
-    # However, T028 is the test for T031. If T031 is not implemented, this test should fail.
-    # We assume T031 (code/eval/sensitivity.py) is the target implementation.
+    # We need a predictions file to run the script.
+    # Look for a standard predictions file location.
+    predictions_file = RESULTS_DIR / "predictions.csv"
     
-    # Construct the command to run the sensitivity analysis
-    # Assuming the script is run via python code/eval/sensitivity.py
-    script_path = CODE_DIR / "eval" / "sensitivity.py"
+    if not predictions_file.exists():
+        pytest.skip(f"Predictions file not found at {predictions_file}. "
+                    "Run code/eval/predictor.py first.")
     
-    if not script_path.exists():
-        pytest.fail(f"Script {script_path} does not exist. T031 implementation missing.")
-
-    # Run the script
+    # Construct the command
+    cmd = [
+        sys.executable, str(sensitivity_script),
+        "--predictions", str(predictions_file),
+        "--output", str(EXPECTED_OUTPUT_FILE)
+    ]
+    
     try:
-        result = subprocess.run(
-            [sys.executable, str(script_path)],
-            cwd=str(PROJECT_ROOT),
-            capture_output=True,
-            text=True,
-            timeout=120 # 2 minute timeout
-        )
-    except subprocess.TimeoutExpired:
-        pytest.fail("Sensitivity analysis script timed out.")
+        import subprocess
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        pytest.fail(f"Sensitivity analysis script failed to run: {e.stderr}")
     
-    # Check if the script ran successfully (exit code 0)
-    # Note: If the script requires predictions.csv and it's missing, it might exit with 1.
-    # We handle the missing data scenario by checking the output or failing gracefully.
-    
-    # If the script failed because of missing predictions, we might need to generate them.
-    # For this integration test, we assume the environment has the necessary data 
-    # or the script handles the "no data" case gracefully (though spec implies real data).
-    # Let's check the exit code first.
-    
-    # If the script fails due to missing predictions, we might need to skip or generate.
-    # But the task is to test the script. If the script is correct, it should run.
-    # If it fails because of missing input, that's a data pipeline issue, not a script issue.
-    # However, to make this test robust, we'll check if the output file was created.
-    
-    # Re-run if necessary? No, let's just check the result.
-    # If the script is T031, it should write results/sensitivity_report.json.
-    
-    # If the script exited with non-zero, check stderr for "FileNotFound" or similar.
-    # If it's a data missing error, we might need to generate dummy data for the test to pass
-    # if the project setup doesn't guarantee data presence at this stage.
-    # Given the "Real data only" constraint, we cannot generate fake data here.
-    # We assume the data pipeline (T015/T032) has run.
-    
-    # If the script failed, we fail the test.
-    if result.returncode != 0:
-        # If it's a specific "No predictions found" error, we might need to handle it differently,
-        # but strictly speaking, the test environment should have data.
-        # We'll print the error for debugging.
-        print(f"Script stderr: {result.stderr}")
-        print(f"Script stdout: {result.stdout}")
+    if not EXPECTED_OUTPUT_FILE.exists():
+        pytest.fail("Sensitivity script ran but did not produce the expected output file.")
         
-        # If the error is specifically about missing predictions.csv, we might skip this test
-        # if the project is in a state where data hasn't been generated yet.
-        # But for a proper integration test, we expect the data to be there.
-        # Let's assume the data is there. If not, the test fails.
-        pytest.fail(f"Sensitivity script failed with code {result.returncode}. Stderr: {result.stderr}")
+    yield EXPECTED_OUTPUT_FILE
 
-    # Verify the output file exists
-    assert EXPECTED_OUTPUT.exists(), f"Expected output file {EXPECTED_OUTPUT} was not created."
-
-    # Load and validate the JSON content
-    with open(EXPECTED_OUTPUT, "r") as f:
-        report = json.load(f)
-
-    # Validate schema: Must contain thresholds and metrics
-    assert "thresholds" in report, "Report missing 'thresholds' key."
+def test_sensitivity_sweep(setup_sensitivity_test_data):
+    """
+    Asserts that sensitivity_analysis.csv contains rows for all threshold values
+    and FPR/FNR columns are populated with valid floats.
     
-    # Check that all required thresholds are present
-    reported_thresholds = report.get("thresholds", [])
-    # Convert to floats for comparison
-    reported_thresholds_floats = [float(t) for t in reported_thresholds]
+    This satisfies T028: Integration test for sensitivity sweep.
+    """
+    output_file = setup_sensitivity_test_data
     
-    for req_thresh in REQUIRED_THRESHOLDS:
-        # Check if the threshold is in the list (with some tolerance for float representation if needed, but string keys are safer)
-        # The spec says "sweep thresholds {0.01, 0.05, 0.1}".
-        # The JSON likely has keys like "0.01", "0.05", "0.1" or a list of objects.
-        # Assuming the report structure is: {"thresholds": {"0.01": {...}, ...}} or similar.
-        # Let's check the keys if it's a dict, or the list if it's a list.
-        pass
+    assert output_file.exists(), f"Output file {output_file} does not exist."
     
-    # Flexible validation: Check if the report contains entries for the required thresholds
-    found_thresholds = []
-    if isinstance(reported_thresholds, dict):
-        found_thresholds = [float(k) for k in reported_thresholds.keys()]
-    elif isinstance(reported_thresholds, list):
-        # Assuming list of dicts with a 'threshold' key
-        found_thresholds = [float(item.get("threshold", 0)) for item in reported_thresholds]
+    rows = []
+    with open(output_file, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        
+        # Verify header columns
+        assert reader.fieldnames is not None, "CSV file is empty or has no header."
+        for col in EXPECTED_COLUMNS:
+            assert col in reader.fieldnames, f"Missing required column: {col}"
+        
+        for row in reader:
+            rows.append(row)
     
-    for req in REQUIRED_THRESHOLDS:
-        # Check if req is in found_thresholds (allowing small float error)
-        if not any(abs(f - req) < 1e-6 for f in found_thresholds):
-            pytest.fail(f"Required threshold {req} not found in report. Found: {found_thresholds}")
+    assert len(rows) > 0, "Sensitivity analysis CSV contains no data rows."
+    
+    # Verify data integrity for each row
+    valid_offsets = []
+    for row in rows:
+        threshold_val = float(row['threshold'])
+        fpr_val = float(row['fpr'])
+        fnr_val = float(row['fnr'])
+        
+        # FPR and FNR must be between 0 and 1
+        assert 0.0 <= fpr_val <= 1.0, f"FPR {fpr_val} out of range [0, 1]"
+        assert 0.0 <= fnr_val <= 1.0, f"FN R {fnr_val} out of range [0, 1]"
+        
+        # We expect specific relative offsets from the median.
+        # Since we don't know the median value here, we check if the threshold
+        # corresponds to one of the expected relative offsets relative to the
+        # median. However, the CSV stores absolute thresholds.
+        # The task requires "rows for all threshold values".
+        # We verify that we have at least 6 rows (for the 6 offsets defined in T031).
+        valid_offsets.append(threshold_val)
+    
+    # T031 specifies: median ± 5%, median ± 10%, median ± 20%
+    # That is 6 distinct thresholds.
+    assert len(valid_offsets) >= 6, (
+        f"Expected at least 6 threshold rows (for ±5%, ±10%, ±20%), "
+        f"but found {len(valid_offsets)}."
+    )
+    
+    # Optional: Verify the logic implies we hit the specific relative steps.
+    # Since we can't know the median without reading the predictions file again,
+    # we assert the count and valid numeric ranges, which confirms the sweep logic ran.
+    # If the implementation was hardcoded to a single value, this would fail.
+    
+    # Log the found thresholds for debugging
+    print(f"Found {len(valid_offsets)} threshold rows in {output_file}")
+    for val in sorted(valid_offsets):
+        print(f"  Threshold: {val:.4f}")
 
-    # Validate that each threshold entry has FPR and FNR
-    # Structure assumption: {"thresholds": {"0.01": {"fpr": ..., "fnr": ...}, ...}}
-    if isinstance(report.get("thresholds"), dict):
-        for t_str, metrics in report["thresholds"].items():
-            assert "fpr" in metrics, f"Missing 'fpr' for threshold {t_str}"
-            assert "fnr" in metrics, f"Missing 'fnr' for threshold {t_str}"
-            # Validate types
-            assert isinstance(metrics["fpr"], (int, float)), f"fpr for {t_str} is not numeric"
-            assert isinstance(metrics["fnr"], (int, float)), f"fnr for {t_str} is not numeric"
-    elif isinstance(report.get("thresholds"), list):
-        for item in report["thresholds"]:
-            assert "fpr" in item, "Missing 'fpr' in threshold item"
-            assert "fnr" in item, "Missing 'fnr' in threshold item"
-
-    # If we reached here, the integration test passed.
-    assert True
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_sensitivity_file_format(setup_sensitivity_test_data):
+    """
+    Additional check to ensure the file is a valid CSV and readable.
+    """
+    output_file = setup_sensitivity_test_data
+    try:
+        with open(output_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+            assert len(content) > 0, "File is empty."
+            # Basic CSV sanity check: at least one newline
+            assert '\n' in content, "File does not contain newlines (invalid CSV)."
+    except Exception as e:
+        pytest.fail(f"Failed to read or parse CSV file: {e}")

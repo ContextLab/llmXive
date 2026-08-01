@@ -6,3 +6,8 @@ numpy==1.26.4
 matplotlib==3.9.0
 opencv-python-headless==4.10.0.84
 huggingface-hub==0.23.2
+pillow  # auto-added: imported by run-book but missing from venv
+opencv-python  # auto-added: imported by run-book but missing from venv
+pydantic  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+tqdm  # auto-added: imported by run-book but missing from venv

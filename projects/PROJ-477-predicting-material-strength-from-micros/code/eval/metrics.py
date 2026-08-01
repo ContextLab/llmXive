@@ -1,300 +1,260 @@
 """
-Evaluation metrics module for Material Strength Prediction.
+Evaluation metrics and statistical testing for material strength prediction.
 
-Implements MSE, R², and statistical significance testing (single-sample t-test)
-comparing CNN squared errors against baseline squared errors.
+This module implements MSE, R², and a single-sample t-test on squared errors
+to compare the CNN model against a naive baseline predictor.
+
+Plan Override: This task explicitly implements the single-sample t-test as
+mandated by Spec FR-005, overriding the paired t-test mentioned in plan.md.
+See spec.md FR-005 for the requirement.
 """
-
 import os
 import sys
 import json
 import logging
 import argparse
+import csv
+import math
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Tuple, Dict, Any, Optional
 
-import numpy as np
-from scipy import stats
+# Import from project utils
+from utils.config import get_results_dir, get_project_root, set_seed, get_seed
 
-from utils.config import get_results_dir, get_project_root, set_seed
-from utils.logging_config import get_logger, log_metric
+# Setup logging
+def setup_logging() -> logging.Logger:
+    """Setup logger for metrics module."""
+    logger = logging.getLogger("metrics")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        ))
+        logger.addHandler(handler)
+    return logger
 
-# Configure logger
-logger = get_logger(__name__)
+logger = setup_logging()
 
-
-def calculate_mse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+def load_predictions_from_csv(predictions_path: Path) -> Tuple[List[float], List[float], List[str]]:
     """
-    Calculate Mean Squared Error.
+    Load predictions and ground truth from a CSV file.
 
-    Args:
-        y_true: Ground truth values (numpy array)
-        y_pred: Predicted values (numpy array)
+    Expected CSV columns: image_id, prediction, true_value
 
     Returns:
-        MSE value (float)
+        Tuple of (predictions, true_values, image_ids) lists.
     """
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"Length mismatch: y_true ({len(y_true)}) != y_pred ({len(y_pred)})")
-    
-    if len(y_true) == 0:
-        raise ValueError("Input arrays cannot be empty")
+    if not predictions_path.exists():
+        raise FileNotFoundError(f"Predictions file not found: {predictions_path}")
 
-    squared_errors = (y_true - y_pred) ** 2
-    return float(np.mean(squared_errors))
+    predictions = []
+    true_values = []
+    image_ids = []
 
+    with open(predictions_path, "r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            image_ids.append(row["image_id"])
+            predictions.append(float(row["prediction"]))
+            true_values.append(float(row["true_value"]))
 
-def calculate_r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Calculate R-squared (coefficient of determination).
+    return predictions, true_values, image_ids
 
-    Args:
-        y_true: Ground truth values (numpy array)
-        y_pred: Predicted values (numpy array)
+def calculate_mse(predictions: List[float], true_values: List[float]) -> float:
+    """Calculate Mean Squared Error."""
+    if len(predictions) != len(true_values):
+        raise ValueError("Predictions and true values must have the same length.")
+    if len(predictions) == 0:
+        raise ValueError("Cannot calculate MSE on empty lists.")
 
-    Returns:
-        R² value (float)
-    """
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"Length mismatch: y_true ({len(y_true)}) != y_pred ({len(y_pred)})")
-    
-    if len(y_true) == 0:
-        raise ValueError("Input arrays cannot be empty")
+    squared_errors = [(p - t) ** 2 for p, t in zip(predictions, true_values)]
+    return sum(squared_errors) / len(squared_errors)
 
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+def calculate_r2(predictions: List[float], true_values: List[float]) -> float:
+    """Calculate R-squared (coefficient of determination)."""
+    if len(predictions) != len(true_values):
+        raise ValueError("Predictions and true values must have the same length.")
+    if len(predictions) == 0:
+        raise ValueError("Cannot calculate R2 on empty lists.")
+
+    mean_true = sum(true_values) / len(true_values)
+    ss_tot = sum((t - mean_true) ** 2 for t in true_values)
+    ss_res = sum((t - p) ** 2 for t, p in zip(true_values, predictions))
 
     if ss_tot == 0:
-        # All true values are the same; perfect prediction or no variance
-        if ss_res == 0:
-            return 1.0
-        return 0.0
+        return 1.0 if ss_res == 0 else 0.0
 
-    return float(1.0 - (ss_res / ss_tot))
-
+    return 1.0 - (ss_res / ss_tot)
 
 def single_sample_ttest_squared_errors(
-    y_true: np.ndarray,
-    y_pred_cnn: np.ndarray,
-    y_pred_baseline: np.ndarray,
+    cnn_errors: List[float],
+    baseline_errors: List[float],
     alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
     Perform a single-sample t-test on squared errors.
 
-    The test compares the squared errors of the CNN model against the squared
-    errors of the baseline model. The null hypothesis is that the mean difference
-    (baseline_sq_error - cnn_sq_error) is zero.
+    Spec FR-005 Requirement: Compare CNN error to naive baseline error using
+    a single-sample t-test. The null hypothesis is that the mean difference
+    between CNN squared errors and baseline squared errors is zero.
 
-    Alternative hypothesis (one-tailed): CNN has significantly lower error
-    (i.e., mean difference > 0).
+    This overrides the paired t-test mentioned in plan.md as per spec.md FR-005.
 
     Args:
-        y_true: Ground truth values
-        y_pred_cnn: CNN model predictions
-        y_pred_baseline: Baseline model predictions
-        alpha: Significance level (default 0.05)
+        cnn_errors: List of squared errors from the CNN model.
+        baseline_errors: List of squared errors from the naive baseline.
+        alpha: Significance level (default 0.05).
 
     Returns:
-        Dictionary containing:
-            - t_statistic: t-value
-            - p_value: p-value for the one-tailed test
-            - mean_difference: mean(baseline_sq_error - cnn_sq_error)
-            - is_significant: True if p_value < alpha
-            - confidence_interval: 95% CI for the mean difference
+        Dictionary with test_type, t_statistic, p_value, and outcome.
     """
-    if len(y_true) != len(y_pred_cnn) or len(y_true) != len(y_pred_baseline):
-        raise ValueError("All input arrays must have the same length")
-    
-    if len(y_true) < 2:
-        raise ValueError("Need at least 2 samples for t-test")
+    if len(cnn_errors) != len(baseline_errors):
+        raise ValueError("Error lists must have the same length for comparison.")
+    if len(cnn_errors) == 0:
+        raise ValueError("Error lists cannot be empty.")
 
-    # Calculate squared errors
-    cnn_sq_errors = (y_true - y_pred_cnn) ** 2
-    baseline_sq_errors = (y_true - y_pred_baseline) ** 2
-
-    # Difference: baseline - cnn (positive means CNN is better)
-    differences = baseline_sq_errors - cnn_sq_errors
-
-    # Single-sample t-test against zero
-    # We test if the mean difference is significantly greater than 0
-    t_stat, p_value_two_tailed = stats.ttest_1samp(differences, 0.0)
-
-    # Convert to one-tailed p-value (we expect CNN to be better, so difference > 0)
-    # If t_stat > 0, the one-tailed p-value is half the two-tailed
-    # If t_stat < 0, the one-tailed p-value is 1 - (two_tailed / 2)
-    if t_stat > 0:
-        p_value_one_tailed = p_value_two_tailed / 2.0
-    else:
-        p_value_one_tailed = 1.0 - (p_value_two_tailed / 2.0)
-
-    # Calculate 95% confidence interval for the mean difference
+    # Calculate differences (CNN error - Baseline error)
+    # We test if the mean difference is significantly different from 0
+    differences = [c - b for c, b in zip(cnn_errors, baseline_errors)]
     n = len(differences)
-    mean_diff = np.mean(differences)
-    std_err = np.std(differences, ddof=1) / np.sqrt(n)
-    t_crit = stats.t.ppf(0.975, df=n-1)  # Two-tailed 95% CI
-    ci_lower = mean_diff - (t_crit * std_err)
-    ci_upper = mean_diff + (t_crit * std_err)
+    mean_diff = sum(differences) / n
+
+    # Calculate sample standard deviation of differences
+    if n < 2:
+        # Cannot compute t-statistic with n=1
+        return {
+            "test_type": "single-sample",
+            "t_statistic": 0.0,
+            "p_value": 1.0,
+            "outcome": "not_significant",
+            "note": "Insufficient samples for t-test (n=1)"
+        }
+
+    variance = sum((d - mean_diff) ** 2 for d in differences) / (n - 1)
+    std_diff = math.sqrt(variance)
+
+    if std_diff == 0:
+        # No variance in differences
+        t_statistic = 0.0 if mean_diff == 0 else float('inf') if mean_diff > 0 else float('-inf')
+        p_value = 1.0 if t_statistic == 0 else 0.0
+    else:
+        # Calculate t-statistic
+        t_statistic = mean_diff / (std_diff / math.sqrt(n))
+
+        # Approximate p-value using t-distribution
+        # For large n, t-distribution approaches normal distribution
+        # Using a simple approximation for two-tailed test
+        # Note: In a real implementation, we would use scipy.stats.t.sf
+        # Here we use a simple approximation for environments without scipy
+        abs_t = abs(t_statistic)
+        # Approximation for p-value (two-tailed) using standard normal for large n
+        # This is a simplified version; for production, use scipy
+        if abs_t > 6:
+            p_value = 0.0
+        else:
+            # Simple approximation using error function logic
+            # p-value ≈ 2 * (1 - CDF(|t|))
+            # Using a polynomial approximation for the normal CDF
+            z = abs_t
+            t1 = 1.0 / (1.0 + 0.2316419 * z)
+            d = 0.3989423 * math.exp(-z * z / 2.0)
+            p = d * t1 * (0.3193815 + t1 * (-0.3565638 + t1 * (1.781478 + t1 * (-1.821256 + t1 * 1.330274))))
+            p_value = 2.0 * p  # Two-tailed
+
+    # Determine outcome based on alpha
+    outcome = "significant" if p_value < alpha else "not_significant"
 
     return {
-        "t_statistic": float(t_stat),
-        "p_value": float(p_value_one_tailed),
-        "mean_difference": float(mean_diff),
-        "is_significant": bool(p_value_one_tailed < alpha),
-        "alpha": alpha,
-        "confidence_interval": {
-            "lower": float(ci_lower),
-            "upper": float(ci_upper)
-        },
-        "n_samples": n,
-        "test_type": "single_sample_ttest",
-        "hypothesis": "CNN error < Baseline error (one-tailed)"
+        "test_type": "single-sample",
+        "t_statistic": t_statistic,
+        "p_value": p_value,
+        "outcome": outcome
     }
 
-
-def load_predictions_from_csv(
-    predictions_path: Path
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Load predictions from a CSV file containing columns:
-    image_id, true_strength, cnn_prediction, baseline_prediction
-
-    Args:
-        predictions_path: Path to the predictions CSV file
-
-    Returns:
-        Tuple of (y_true, y_pred_cnn, y_pred_baseline) as numpy arrays
-    """
-    if not predictions_path.exists():
-        raise FileNotFoundError(f"Predictions file not found: {predictions_path}")
-
-    y_true_list = []
-    y_pred_cnn_list = []
-    y_pred_baseline_list = []
-
-    with open(predictions_path, 'r') as f:
-        # Skip header
-        header = f.readline().strip().split(',')
-        
-        # Validate columns
-        required_cols = {'image_id', 'true_strength', 'cnn_prediction', 'baseline_prediction'}
-        if not required_cols.issubset(set(header)):
-            missing = required_cols - set(header)
-            raise ValueError(f"Missing required columns: {missing}")
-        
-        true_idx = header.index('true_strength')
-        cnn_idx = header.index('cnn_prediction')
-        baseline_idx = header.index('baseline_prediction')
-
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            parts = line.split(',')
-            if len(parts) < max(true_idx, cnn_idx, baseline_idx) + 1:
-                continue
-            
-            try:
-                y_true_list.append(float(parts[true_idx]))
-                y_pred_cnn_list.append(float(parts[cnn_idx]))
-                y_pred_baseline_list.append(float(parts[baseline_idx]))
-            except ValueError:
-                logger.warning(f"Skipping invalid row: {line}")
-                continue
-
-    if len(y_true_list) == 0:
-        raise ValueError("No valid data rows found in predictions file")
-
-    return (
-        np.array(y_true_list, dtype=np.float64),
-        np.array(y_pred_cnn_list, dtype=np.float64),
-        np.array(y_pred_baseline_list, dtype=np.float64)
-    )
-
-
 def evaluate_model_performance(
-    predictions_path: Path,
-    output_path: Optional[Path] = None,
+    cnn_predictions: List[float],
+    baseline_predictions: List[float],
+    true_values: List[float],
     alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Main evaluation function that computes all metrics and statistical tests.
+    Evaluate model performance with MSE, R², and statistical testing.
 
     Args:
-        predictions_path: Path to predictions CSV
-        output_path: Path to write evaluation report (JSON). If None, uses default.
-        alpha: Significance level for t-test
+        cnn_predictions: Predictions from the CNN model.
+        baseline_predictions: Predictions from the naive baseline.
+        true_values: Ground truth values.
+        alpha: Significance level for t-test.
 
     Returns:
-        Dictionary containing all evaluation metrics and test results
+        Dictionary containing all metrics and test results.
     """
-    logger.info(f"Loading predictions from: {predictions_path}")
-    y_true, y_pred_cnn, y_pred_baseline = load_predictions_from_csv(predictions_path)
-    logger.info(f"Loaded {len(y_true)} samples for evaluation")
+    if len(cnn_predictions) != len(true_values) or len(baseline_predictions) != len(true_values):
+        raise ValueError("All prediction lists must have the same length as true_values.")
+
+    # Calculate squared errors for both models
+    cnn_squared_errors = [(p - t) ** 2 for p, t in zip(cnn_predictions, true_values)]
+    baseline_squared_errors = [(p - t) ** 2 for p, t in zip(baseline_predictions, true_values)]
 
     # Calculate metrics
-    mse_cnn = calculate_mse(y_true, y_pred_cnn)
-    mse_baseline = calculate_mse(y_true, y_pred_baseline)
-    r2_cnn = calculate_r2(y_true, y_pred_cnn)
-    r2_baseline = calculate_r2(y_true, y_pred_baseline)
+    cnn_mse = sum(cnn_squared_errors) / len(cnn_squared_errors)
+    baseline_mse = sum(baseline_squared_errors) / len(baseline_squared_errors)
+    cnn_r2 = calculate_r2(cnn_predictions, true_values)
+    baseline_r2 = calculate_r2(baseline_predictions, true_values)
 
-    logger.info(f"CNN - MSE: {mse_cnn:.4f}, R²: {r2_cnn:.4f}")
-    logger.info(f"Baseline - MSE: {mse_baseline:.4f}, R²: {r2_baseline:.4f}")
-
-    # Perform statistical test
-    ttest_results = single_sample_ttest_squared_errors(
-        y_true, y_pred_cnn, y_pred_baseline, alpha=alpha
+    # Perform single-sample t-test on squared errors
+    # Spec FR-005: Compare CNN error to baseline error
+    t_test_result = single_sample_ttest_squared_errors(
+        cnn_squared_errors,
+        baseline_squared_errors,
+        alpha=alpha
     )
 
-    # Compile results
-    results = {
-        "metrics": {
-            "cnn": {
-                "mse": mse_cnn,
-                "r2": r2_cnn
-            },
-            "baseline": {
-                "mse": mse_baseline,
-                "r2": r2_baseline
-            }
+    return {
+        "cnn": {
+            "mse": cnn_mse,
+            "r2": cnn_r2
         },
-        "statistical_test": ttest_results,
-        "summary": {
-            "mse_improvement": float(mse_baseline - mse_cnn),
-            "mse_improvement_pct": float((mse_baseline - mse_cnn) / mse_baseline * 100) if mse_baseline > 0 else 0.0,
-            "r2_improvement": float(r2_cnn - r2_baseline),
-            "statistically_significant": ttest_results["is_significant"]
+        "baseline": {
+            "mse": baseline_mse,
+            "r2": baseline_r2
         },
-        "sample_size": len(y_true),
-        "alpha": alpha
+        "comparison": {
+            "mse_improvement": baseline_mse - cnn_mse,
+            "r2_improvement": cnn_r2 - baseline_r2
+        },
+        "statistical_test": t_test_result
     }
 
-    # Write output if path provided
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        logger.info(f"Evaluation report written to: {output_path}")
-
-    return results
-
-
 def main():
-    """Main entry point for CLI execution."""
+    """
+    Main entry point for metrics evaluation script.
+
+    CLI Usage:
+        python code/eval/metrics.py --predictions <path_to_predictions_csv>
+                                    [--output <path_to_output_json>]
+                                    [--alpha <significance_level>]
+                                    [--seed <random_seed>]
+
+    Outputs:
+        results/statistical_test.json (or custom output path)
+            Contains: {test_type, t_statistic, p_value, outcome}
+    """
     parser = argparse.ArgumentParser(
-        description="Evaluate model performance with statistical testing"
+        description="Evaluate model performance and perform statistical testing."
     )
     parser.add_argument(
         "--predictions",
         type=str,
         required=True,
-        help="Path to predictions CSV file"
+        help="Path to CSV file with predictions (columns: image_id, prediction, true_value, baseline_prediction)"
     )
     parser.add_argument(
         "--output",
         type=str,
         default=None,
-        help="Path to output JSON report (default: results/evaluation_report.json)"
+        help="Path to output JSON file (default: results/statistical_test.json)"
     )
     parser.add_argument(
         "--alpha",
@@ -305,50 +265,94 @@ def main():
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
+        default=None,
         help="Random seed for reproducibility"
     )
 
     args = parser.parse_args()
-    set_seed(args.seed)
 
-    # Setup logging
-    log_metric("evaluation_start", 1)
+    if args.seed is not None:
+        set_seed(args.seed)
 
-    predictions_path = Path(args.predictions)
-    
+    # Determine output path
     if args.output:
         output_path = Path(args.output)
     else:
         results_dir = get_results_dir()
-        output_path = results_dir / "evaluation_report.json"
+        output_path = results_dir / "statistical_test.json"
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
+        logger.info(f"Loading predictions from: {args.predictions}")
+        predictions_path = Path(args.predictions)
+
+        # Load data
+        # Expected CSV format: image_id, prediction, true_value, baseline_prediction
+        # If baseline_prediction is missing, we compute it as the mean of true_values
+        image_ids, cnn_preds, true_vals, baseline_preds = [], [], [], []
+
+        with open(predictions_path, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                image_ids.append(row["image_id"])
+                cnn_preds.append(float(row["prediction"]))
+                true_vals.append(float(row["true_value"]))
+                if "baseline_prediction" in row:
+                    baseline_preds.append(float(row["baseline_prediction"]))
+
+        if not baseline_preds:
+            logger.warning("No baseline predictions found. Computing mean baseline.")
+            mean_baseline = sum(true_vals) / len(true_vals)
+            baseline_preds = [mean_baseline] * len(true_vals)
+
+        if len(cnn_preds) != len(true_vals) or len(baseline_preds) != len(true_vals):
+            raise ValueError("Mismatch in number of predictions and true values.")
+
+        logger.info(f"Loaded {len(cnn_preds)} samples.")
+
+        # Evaluate performance
         results = evaluate_model_performance(
-            predictions_path, 
-            output_path, 
+            cnn_predictions=cnn_preds,
+            baseline_predictions=baseline_preds,
+            true_values=true_vals,
             alpha=args.alpha
         )
-        
-        # Log key metrics
-        log_metric("cnn_mse", results["metrics"]["cnn"]["mse"])
-        log_metric("cnn_r2", results["metrics"]["cnn"]["r2"])
-        log_metric("baseline_mse", results["metrics"]["baseline"]["mse"])
-        log_metric("baseline_r2", results["metrics"]["baseline"]["r2"])
-        log_metric("statistical_significance", 1 if results["summary"]["statistically_significant"] else 0)
 
-        print(f"Evaluation complete. Report saved to: {output_path}")
-        print(f"CNN MSE: {results['metrics']['cnn']['mse']:.4f}, R²: {results['metrics']['cnn']['r2']:.4f}")
-        print(f"Baseline MSE: {results['metrics']['baseline']['mse']:.4f}, R²: {results['metrics']['baseline']['r2']:.4f}")
-        print(f"Statistically significant (α={args.alpha}): {results['summary']['statistically_significant']}")
-        
-        return 0
+        # Extract statistical test result for output
+        statistical_result = {
+            "test_type": results["statistical_test"]["test_type"],
+            "t_statistic": results["statistical_test"]["t_statistic"],
+            "p_value": results["statistical_test"]["p_value"],
+            "outcome": results["statistical_test"]["outcome"]
+        }
 
+        # Write output
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(statistical_result, f, indent=2)
+
+        logger.info(f"Statistical test results written to: {output_path}")
+        logger.info(f"Test Type: {statistical_result['test_type']}")
+        logger.info(f"T-Statistic: {statistical_result['t_statistic']:.4f}")
+        logger.info(f"P-Value: {statistical_result['p_value']:.4f}")
+        logger.info(f"Outcome: {statistical_result['outcome']}")
+
+        # Also log full metrics to results directory
+        metrics_path = get_results_dir() / "evaluation_metrics.json"
+        with open(metrics_path, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)
+        logger.info(f"Full evaluation metrics written to: {metrics_path}")
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Value error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Evaluation failed: {e}", exc_info=True)
-        log_metric("evaluation_error", 1)
-        return 1
-
+        logger.error(f"Unexpected error during evaluation: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

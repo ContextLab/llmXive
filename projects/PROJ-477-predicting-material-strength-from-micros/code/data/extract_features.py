@@ -1,156 +1,184 @@
+"""
+Feature Extraction for Test Set (T022a)
+
+Extracts grain size features for the test set ONLY to prevent data leakage.
+Input: manifest.csv and data/processed/test/
+Output: data/features/test_grain_features.csv
+"""
 import os
 import csv
 import logging
 import sys
 from pathlib import Path
 from typing import List, Tuple, Optional
-
 import cv2
 import numpy as np
 
-from utils.config import get_processed_dir, get_raw_dir, get_data_dir
-from utils.logging_config import get_logger
+# Import existing config utilities
+from utils.config import get_project_root, get_data_dir, get_processed_dir, get_results_dir, get_code_dir
 
 def get_logger_module():
-    """Get logger for this module."""
-    return get_logger("extract_features")
+    """Setup logger for this module."""
+    logger = logging.getLogger('extract_features')
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        logger.addHandler(handler)
+    return logger
 
-def estimate_grain_size(image_path: str) -> float:
+def estimate_grain_size(image_path: Path) -> Optional[float]:
     """
-    Estimate grain size from an EBSD image using basic image processing.
+    Estimate grain size (in micrometers) from a preprocessed EBSD image.
     
-    This is a simplified implementation that:
-    1. Converts to grayscale
-    2. Applies edge detection
-    3. Estimates average grain size based on edge density and image dimensions
+    Uses a simplified image processing pipeline:
+    1. Convert to grayscale
+    2. Apply adaptive thresholding to segment grain boundaries
+    3. Count connected components or measure grain diameters
+    
+    Note: This is a heuristic estimation based on the synthetic dataset properties.
+    In a real scenario, this would use calibrated EBSD grain boundary detection.
     
     Args:
-        image_path: Path to the EBSD image
-    
+        image_path: Path to the preprocessed image (224x224)
+        
     Returns:
-        Estimated grain size in micrometers
+        Estimated grain size in micrometers, or None if estimation fails
     """
-    logger = get_logger_module()
-    
     try:
-        # Load image
-        image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-        if image is None:
-            logger.warning(f"Could not load image: {image_path}")
-            return 0.0
+        # Read image
+        img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
+        if img is None:
+            logging.warning(f"Could not read image: {image_path}")
+            return None
         
-        # Apply edge detection
-        edges = cv2.Canny(image, 50, 150)
+        # Apply adaptive threshold to highlight grain boundaries
+        # Synthetic EBSD images typically have dark boundaries
+        thresh = cv2.adaptiveThreshold(
+            img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY_INV, 11, 2
+        )
         
-        # Calculate edge density
-        edge_pixels = np.sum(edges > 0)
-        total_pixels = image.shape[0] * image.shape[1]
-        edge_density = edge_pixels / total_pixels if total_pixels > 0 else 0
+        # Morphological operations to clean up noise
+        kernel = np.ones((3,3), np.uint8)
+        dilated = cv2.dilate(thresh, kernel, iterations=2)
+        eroded = cv2.erode(dilated, kernel, iterations=1)
         
-        # Estimate grain size based on edge density
-        # Higher edge density -> smaller grains
-        # This is a simplified heuristic; real implementation would use more sophisticated methods
-        if edge_density > 0.3:
-            grain_size = 2.0  # Small grains
-        elif edge_density > 0.15:
-            grain_size = 5.0  # Medium grains
-        else:
-            grain_size = 10.0  # Large grains
+        # Find contours to estimate grain sizes
+        contours, _ = cv2.findContours(
+            eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
         
-        # Add some variation based on image content
-        grain_size = grain_size * (0.8 + 0.4 * (np.random.rand() - 0.5))
+        if not contours:
+            logging.warning(f"No contours found in {image_path}")
+            return None
         
-        return max(0.1, grain_size)  # Ensure positive value
+        # Calculate equivalent circular diameter for each contour
+        # and take the median as the representative grain size
+        grain_sizes = []
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if area > 10:  # Filter small noise
+                # Equivalent circular diameter: d = 2 * sqrt(A/pi)
+                diameter = 2 * np.sqrt(area / np.pi)
+                grain_sizes.append(diameter)
+        
+        if not grain_sizes:
+            return None
+        
+        # Return median grain size in pixels, scaled to micrometers
+        # Assuming 1 pixel = 0.1 um for this synthetic dataset
+        median_pixels = np.median(grain_sizes)
+        grain_size_um = median_pixels * 0.1
+        
+        return round(grain_size_um, 2)
         
     except Exception as e:
-        logger.error(f"Error estimating grain size for {image_path}: {e}")
-        return 0.0
+        logging.error(f"Error estimating grain size for {image_path}: {e}")
+        return None
 
-def extract_features_for_dataset(
-    raw_dir: Optional[str] = None,
-    output_path: Optional[str] = None
-) -> List[Tuple[str, float]]:
+def extract_features_for_dataset(manifest_path: Path, test_dir: Path) -> List[Tuple[str, float]]:
     """
-    Extract grain size features for all images in the raw dataset directory.
+    Extract grain size features for all images in the test set.
     
     Args:
-        raw_dir: Path to raw images directory
-        output_path: Path to save the features CSV (optional)
-    
+        manifest_path: Path to manifest.csv containing test set image info
+        test_dir: Path to data/processed/test/ directory
+        
     Returns:
-        List of tuples (image_id, grain_size_um)
+        List of (image_id, grain_size_um) tuples
     """
     logger = get_logger_module()
-    
-    if raw_dir is None:
-        raw_dir = str(get_raw_dir())
-    
-    raw_dir = Path(raw_dir)
-    
-    if not raw_dir.exists():
-        logger.error(f"Raw directory not found: {raw_dir}")
-        return []
-    
     features = []
-    image_files = list(raw_dir.glob("*.png")) + list(raw_dir.glob("*.jpg")) + list(raw_dir.glob("*.jpeg"))
     
-    logger.info(f"Found {len(image_files)} images in {raw_dir}")
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
     
-    for img_path in image_files:
-        # Extract image_id from filename
-        image_id = img_path.stem
-        
-        # Estimate grain size
-        grain_size = estimate_grain_size(str(img_path))
-        
-        features.append((image_id, grain_size))
-        logger.debug(f"Extracted features for {image_id}: grain_size={grain_size:.2f} um")
+    if not test_dir.exists():
+        raise FileNotFoundError(f"Test directory not found: {test_dir}")
     
-    logger.info(f"Extracted features for {len(features)} images")
+    logger.info(f"Reading manifest from {manifest_path}")
+    logger.info(f"Processing images from {test_dir}")
     
-    if output_path:
-        save_features_csv(features, output_path)
+    with open(manifest_path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            image_id = row['image_id']
+            filename = row['filename']
+            image_path = test_dir / filename
+            
+            if not image_path.exists():
+                logger.warning(f"Image not found: {image_path}, skipping")
+                continue
+            
+            grain_size = estimate_grain_size(image_path)
+            
+            if grain_size is not None:
+                features.append((image_id, grain_size))
+                logger.debug(f"Extracted grain size {grain_size} um for {image_id}")
+            else:
+                logger.warning(f"Failed to estimate grain size for {image_id}")
     
     return features
-
-def save_features_csv(features: List[Tuple[str, float]], output_path: str):
-    """
-    Save extracted features to a CSV file.
-    
-    Args:
-        features: List of tuples (image_id, grain_size_um)
-        output_path: Path to save the CSV file
-    """
-    logger = get_logger_module()
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['image_id', 'grain_size_um'])
-        for image_id, grain_size in features:
-            writer.writerow([image_id, f"{grain_size:.4f}"])
-    
-    logger.info(f"Saved {len(features)} features to {output_path}")
 
 def main():
     """Main entry point for feature extraction."""
     logger = get_logger_module()
-    logger.info("Starting grain size feature extraction")
+    logger.info("Starting test set feature extraction (T022a)")
     
-    # Get paths
-    raw_dir = get_raw_dir()
-    output_path = get_processed_dir() / "grain_features.csv"
-    
-    # Extract features
-    features = extract_features_for_dataset(str(raw_dir), str(output_path))
-    
-    if len(features) == 0:
-        logger.warning("No features extracted. Ensure raw images are present.")
+    try:
+        # Get paths
+        project_root = get_project_root()
+        manifest_path = project_root / "data" / "processed" / "manifest.csv"
+        test_dir = project_root / "data" / "processed" / "test"
+        output_dir = project_root / "data" / "features"
+        output_path = output_dir / "test_grain_features.csv"
+        
+        # Ensure output directory exists
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Extract features
+        features = extract_features_for_dataset(manifest_path, test_dir)
+        
+        if not features:
+            logger.error("No features extracted. Check input data.")
+            sys.exit(1)
+        
+        # Write output CSV
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['image_id', 'grain_size_um'])
+            for image_id, grain_size in features:
+                writer.writerow([image_id, grain_size])
+        
+        logger.info(f"Successfully extracted {len(features)} features")
+        logger.info(f"Output written to {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Feature extraction failed: {e}")
         sys.exit(1)
-    
-    logger.info(f"Feature extraction complete. Output saved to {output_path}")
 
 if __name__ == "__main__":
     main()

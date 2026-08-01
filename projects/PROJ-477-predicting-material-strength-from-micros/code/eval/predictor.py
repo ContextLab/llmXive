@@ -1,20 +1,38 @@
+"""
+Confidence Interval Calculator using Monte Carlo Dropout.
+
+This module implements FR-008: Calculate confidence intervals using Monte Carlo Dropout.
+It also implements the merged T044 requirement to calculate empirical coverage.
+"""
+
 import os
 import sys
 import json
 import logging
 import argparse
 import csv
-import torch
-import numpy as np
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-from torch.utils.data import DataLoader
 
-# Import from local project structure
-from utils.config import get_results_dir, get_data_dir, get_project_root, set_seed, get_seed
-from data.loader import MicrostructureDataset, OOMSafeDataLoader
-from models.cnn import get_model
-from eval.metrics import load_predictions_from_csv
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import numpy as np
+from tqdm import tqdm
+
+# Import project utilities
+# Note: We assume the project root is the parent of 'code'
+# The config module provides path helpers that handle project root detection
+try:
+    from utils.config import get_project_root, get_results_dir, get_data_dir, set_seed, get_seed
+    from models.cnn import get_model, MaterialStrengthCNN
+except ImportError:
+    # Fallback for direct execution if path is not set up correctly
+    # This usually happens if running from a different directory
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from utils.config import get_project_root, get_results_dir, get_data_dir, set_seed, get_seed
+    from models.cnn import get_model, MaterialStrengthCNN
+
 
 def setup_predictor_logging() -> logging.Logger:
     """Configure logging for the predictor module."""
@@ -22,247 +40,331 @@ def setup_predictor_logging() -> logging.Logger:
     logger.setLevel(logging.INFO)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
         logger.addHandler(handler)
     return logger
 
-def enable_dropout(model: torch.nn.Module) -> None:
-    """Recursively enable dropout and batch norm training mode."""
-    model.train()
+
+def enable_dropout(model: nn.Module) -> None:
+    """
+    Enable dropout layers in the model for Monte Carlo Dropout inference.
+    
+    This recursively sets all Dropout and Dropout2d layers to training mode.
+    """
     for module in model.modules():
-        if isinstance(module, (torch.nn.Dropout, torch.nn.Dropout2d)):
+        if isinstance(module, (nn.Dropout, nn.Dropout2d, nn.Dropout3d)):
             module.train()
 
-def disable_dropout(model: torch.nn.Module) -> None:
-    """Recursively disable dropout and set model to eval mode."""
-    model.eval()
+
+def disable_dropout(model: nn.Module) -> None:
+    """
+    Disable dropout layers in the model (standard inference mode).
+    """
     for module in model.modules():
-        if isinstance(module, (torch.nn.Dropout, torch.nn.Dropout2d)):
+        if isinstance(module, (nn.Dropout, nn.Dropout2d, nn.Dropout3d)):
             module.eval()
 
+
 def run_monte_carlo_dropout(
-    model: torch.nn.Module,
-    dataloader: DataLoader,
-    n_samples: int = 30,
-    device: str = "cpu"
-) -> Tuple[List[np.ndarray], List[str]]:
+    model: nn.Module,
+    dataloader: torch.utils.data.DataLoader,
+    device: torch.device,
+    num_samples: int = 100,
+    dropout_rate: float = 0.2,
+    logger: Optional[logging.Logger] = None
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Run Monte Carlo Dropout inference.
+    Run Monte Carlo Dropout inference to generate predictions with uncertainty.
     
     Args:
-        model: The model with dropout enabled.
+        model: The trained CNN model.
         dataloader: DataLoader for the test set.
-        n_samples: Number of stochastic forward passes.
-        device: Device to run inference on.
-        
+        device: Torch device (cpu/cuda).
+        num_samples: Number of forward passes (N) per sample.
+        dropout_rate: Target dropout rate (used to verify configuration, 
+                      though we manually enable dropout).
+        logger: Logger instance.
+    
     Returns:
-        Tuple of (list of prediction arrays per sample, list of image_ids)
+        Tuple of (image_ids, mean_predictions, std_predictions)
+        - image_ids: List of image identifiers.
+        - mean_predictions: Array of shape (N_samples,) containing mean predictions.
+        - std_predictions: Array of shape (N_samples,) containing std deviations.
+        - ALL predictions: A 3D array of shape (N_samples, N_images, 1) containing 
+          all raw predictions for coverage calculation.
     """
-    all_predictions = [[] for _ in range(n_samples)]
+    if logger:
+        logger.info(f"Starting Monte Carlo Dropout with N={num_samples} samples")
+    
+    model.eval() # Set to eval mode for batch norm, but we will override dropout manually
+    
+    all_predictions = [] # List to store predictions for each sample pass
     image_ids = []
     
-    # Ensure dropout is enabled
-    enable_dropout(model)
+    # We need to collect predictions for every sample in the dataset
+    # to calculate coverage later.
     
     with torch.no_grad():
-        for batch in dataloader:
-            images = batch["image"].to(device)
-            ids = batch["image_id"]
+        for batch_idx, batch in enumerate(tqdm(dataloader, desc="MC Dropout Inference")):
+            # Depending on how the dataset is structured, batch might be a dict or tuple
+            # Assuming standard structure: (images, labels, metadata) or similar
+            # Let's assume the dataloader yields (images, labels, ids)
+            if isinstance(batch, dict):
+                images = batch['image'].to(device)
+                ids = batch.get('id', [f"batch_{batch_idx}_i{i}" for i in range(images.shape[0])])
+            else:
+                # Fallback for tuple
+                images = batch[0].to(device)
+                ids = batch[2] if len(batch) > 2 else [f"batch_{batch_idx}_i{i}" for i in range(images.shape[0])]
             
-            # Run multiple forward passes
-            for i in range(n_samples):
-                outputs = model(images)
-                preds = outputs.squeeze().cpu().numpy()
-                if isinstance(preds, np.ndarray) and preds.ndim == 0:
-                    preds = np.array([preds])
-                all_predictions[i].extend(preds)
-            
+            # Store IDs for this batch
+            if isinstance(ids, torch.Tensor):
+                ids = ids.cpu().numpy().tolist()
             image_ids.extend(ids)
+            
+            batch_preds = []
+            
+            # Run N forward passes with dropout enabled
+            for _ in range(num_samples):
+                # Enable dropout for this pass
+                enable_dropout(model)
+                
+                # Forward pass
+                outputs = model(images)
+                
+                # Assuming output is a single scalar (strength)
+                # If output is logits, we might need sigmoid/softmax, but for regression it's usually direct
+                preds = outputs.cpu().numpy()
+                batch_preds.append(preds)
+                
+                # Disable dropout immediately after (though next loop enables it)
+                # It's safer to just keep it enabled during the loop and disable after
+            
+            # Stack predictions: shape (num_samples, batch_size, 1)
+            batch_preds = np.stack(batch_preds, axis=0)
+            all_predictions.append(batch_preds)
+            
+            # Reset dropout to eval mode (optional, but good practice)
+            disable_dropout(model)
     
-    # Convert to numpy arrays
-    prediction_arrays = [np.array(p) for p in all_predictions]
-    return prediction_arrays, image_ids
+    # Concatenate all batches
+    all_predictions = np.concatenate(all_predictions, axis=1) # Shape: (num_samples, total_images, 1)
+    
+    # Calculate mean and std across the sample dimension (axis=0)
+    mean_preds = np.mean(all_predictions, axis=0).squeeze() # Shape: (total_images,)
+    std_preds = np.std(all_predictions, axis=0).squeeze()   # Shape: (total_images,)
+    
+    return image_ids, mean_preds, std_preds, all_predictions
+
 
 def verify_coverage(
-    predictions: List[np.ndarray],
-    image_ids: List[str],
-    tolerance: float = 0.01
-) -> Dict[str, Any]:
+    all_predictions: np.ndarray,
+    true_values: np.ndarray,
+    confidence_level: float = 0.95,
+    logger: Optional[logging.Logger] = None
+) -> float:
     """
-    Verify that Monte Carlo Dropout produces valid confidence intervals.
+    Calculate empirical coverage of the confidence intervals.
     
-    Checks:
-    1. All predictions are finite
-    2. Variance is non-zero (dropout is actually active)
-    3. Coverage is reasonable (not degenerate)
+    Coverage = Percentage of true values that fall within the [2.5th, 97.5th] percentile interval.
     
     Args:
-        predictions: List of prediction arrays from MC samples.
-        image_ids: List of image identifiers.
-        tolerance: Minimum variance threshold.
-        
+        all_predictions: 3D array of shape (N_samples, N_images, 1).
+        true_values: 1D array of shape (N_images,).
+        confidence_level: Target confidence level (e.g., 0.95).
+    
     Returns:
-        Dict with verification status and details.
+        Empirical coverage rate (float between 0 and 1).
     """
-    if len(predictions) == 0:
-        return {"status": "failed", "reason": "No predictions generated"}
+    if logger:
+        logger.info("Calculating empirical coverage...")
     
-    # Check variance across samples
-    variances = []
-    for i in range(len(image_ids)):
-        sample_preds = [p[i] for p in predictions]
-        var = np.var(sample_preds)
-        variances.append(var)
+    # Calculate percentiles along the sample axis (axis=0)
+    lower_percentile = (1 - confidence_level) / 2
+    upper_percentile = 1 - lower_percentile
     
-    mean_variance = np.mean(variances)
+    ci_lower = np.percentile(all_predictions, lower_percentile * 100, axis=0).squeeze()
+    ci_upper = np.percentile(all_predictions, upper_percentile * 100, axis=0).squeeze()
     
-    if mean_variance < tolerance:
-        return {
-            "status": "failed",
-            "reason": f"Variance too low ({mean_variance:.6f} < {tolerance}), dropout may be inactive"
-        }
+    # Check if true values are within the interval
+    # Handle broadcasting if true_values is 1D and ci arrays are 1D
+    within_interval = (true_values >= ci_lower) & (true_values <= ci_upper)
     
-    # Check for NaN/Inf
-    for i, p in enumerate(predictions):
-        if not np.all(np.isfinite(p)):
-            return {
-                "status": "failed",
-                "reason": f"Non-finite values found in sample {i}"
-            }
+    coverage = np.mean(within_interval)
     
-    return {
-        "status": "passed",
-        "mean_variance": float(mean_variance),
-        "sample_count": len(predictions),
-        "image_count": len(image_ids)
-    }
+    if logger:
+        logger.info(f"Empirical coverage: {coverage:.4f} ({coverage*100:.2f}%)")
+    
+    return coverage
+
 
 def run_confidence_intervals_script(
     model_path: str,
     manifest_path: str,
-    output_path: str,
-    n_samples: int = 30,
-    seed: int = 42
+    output_csv_path: str,
+    output_json_path: str,
+    num_samples: int = 100,
+    dropout_rate: float = 0.2,
+    seed: int = 42,
+    device: str = "cpu"
 ) -> None:
     """
-    Main script to generate predictions with confidence intervals.
+    Main orchestration function for running confidence interval analysis.
     
-    Args:
-        model_path: Path to trained model checkpoint.
-        manifest_path: Path to test set manifest.
-        output_path: Path to write predictions.csv.
-        n_samples: Number of MC dropout samples.
-        seed: Random seed for reproducibility.
+    This function:
+    1. Loads the model and sets up Monte Carlo Dropout.
+    2. Runs inference on the test set.
+    3. Calculates CI (2.5th, 97.5th percentiles).
+    4. Appends ci_lower and ci_upper to predictions.
+    5. Calculates empirical coverage.
+    6. Saves results to CSV and JSON.
     """
     logger = setup_predictor_logging()
-    logger.info(f"Starting confidence interval calculation with {n_samples} samples")
+    logger.info("Starting Confidence Interval Calculation (T032)")
     
-    # Set seed
+    # Set seed for reproducibility
     set_seed(seed)
-    device = "cpu"
     
     # Load model
     logger.info(f"Loading model from {model_path}")
-    model = get_model()
-    model.load_state_dict(torch.load(model_path, map_location=device))
+    device = torch.device(device)
+    model = get_model() # Assumes get_model returns a configured MaterialStrengthCNN
+    
+    if os.path.exists(model_path):
+        state_dict = torch.load(model_path, map_location=device, weights_only=True)
+        # Handle potential key mismatches if state_dict has 'module.' prefix
+        if 'module' in list(state_dict.keys())[0]:
+            state_dict = {k.replace('module.', ''): v for k, v in state_dict.items()}
+        model.load_state_dict(state_dict)
+    else:
+        logger.error(f"Model file not found: {model_path}")
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+    
     model.to(device)
     
-    # Load dataset
-    logger.info(f"Loading dataset from manifest {manifest_path}")
-    dataset = MicrostructureDataset(manifest_path)
-    dataloader = OOMSafeDataLoader(dataset, batch_size=8, shuffle=False)
+    # Load Data
+    logger.info(f"Loading manifest from {manifest_path}")
+    # We need to reconstruct the dataloader. 
+    # Assuming the manifest has columns: image_path, yield_strength, id
+    # We'll use the existing loader logic if available, or reconstruct simply.
+    
+    try:
+        from data.loader import MicrostructureDataset, OOMSafeDataLoader
+        from utils.config import get_processed_dir
+        
+        # The manifest should point to the processed test set
+        # We need to know which split (train/val/test) is in the manifest
+        # For this task, we assume the manifest is for the TEST set as per T032 description
+        
+        dataset = MicrostructureDataset(manifest_path)
+        dataloader = OOMSafeDataLoader(
+            dataset, 
+            batch_size=32, 
+            shuffle=False, 
+            num_workers=0, # Set to 0 for safety in this script
+            pin_memory=False
+        )
+    except ImportError as e:
+        logger.error(f"Failed to import data loader: {e}")
+        raise
     
     # Run MC Dropout
-    logger.info("Running Monte Carlo Dropout inference")
-    predictions, image_ids = run_monte_carlo_dropout(model, dataloader, n_samples, device)
+    image_ids, mean_preds, std_preds, all_predictions = run_monte_carlo_dropout(
+        model, dataloader, device, num_samples=num_samples, dropout_rate=dropout_rate, logger=logger
+    )
     
-    # Verify coverage
-    logger.info("Verifying coverage")
-    verification = verify_coverage(predictions, image_ids)
-    if verification["status"] != "passed":
-        logger.error(f"Verification failed: {verification['reason']}")
-        raise RuntimeError(f"Coverage verification failed: {verification['reason']}")
+    # Load true values for coverage calculation
+    # We assume the manifest contains the true yield strength
+    true_values = []
+    with open(manifest_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            true_values.append(float(row['yield_strength']))
+    true_values = np.array(true_values)
     
-    logger.info("Coverage verification passed")
+    # Calculate Empirical Coverage
+    coverage = verify_coverage(all_predictions, true_values, confidence_level=0.95, logger=logger)
     
-    # Calculate statistics
-    logger.info("Calculating confidence intervals")
-    mean_preds = np.mean(predictions, axis=0)
-    std_preds = np.std(predictions, axis=0)
+    # Calculate Percentile CIs
+    lower_percentile = 2.5
+    upper_percentile = 97.5
+    ci_lower = np.percentile(all_predictions, lower_percentile, axis=0).squeeze()
+    ci_upper = np.percentile(all_predictions, upper_percentile, axis=0).squeeze()
     
-    # 95% CI: mean +/- 1.96 * std
-    ci_lower = mean_preds - 1.96 * std_preds
-    ci_upper = mean_preds + 1.96 * std_preds
+    # Prepare Output CSV
+    output_rows = []
+    for i, img_id in enumerate(image_ids):
+        output_rows.append({
+            'image_id': img_id,
+            'mean_prediction': float(mean_preds[i]),
+            'std_dev': float(std_preds[i]),
+            'ci_lower': float(ci_lower[i]),
+            'ci_upper': float(ci_upper[i]),
+            'true_value': float(true_values[i])
+        })
     
-    # Load ground truth if available
-    ground_truth = {}
-    if os.path.exists(manifest_path):
-        with open(manifest_path, 'r') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                ground_truth[row['image_id']] = float(row['yield_strength_mpa'])
+    # Ensure output directory exists
+    output_dir = Path(output_csv_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Write output CSV
-    logger.info(f"Writing results to {output_path}")
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    # Write CSV
+    logger.info(f"Writing predictions to {output_csv_path}")
+    with open(output_csv_path, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ['image_id', 'mean_prediction', 'std_dev', 'ci_lower', 'ci_upper', 'true_value']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(output_rows)
     
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            'image_id', 
-            'prediction', 
-            'ci_lower', 
-            'ci_upper', 
-            'std_dev',
-            'ground_truth',
-            'error'
-        ])
-        
-        for i, img_id in enumerate(image_ids):
-            pred = mean_preds[i]
-            lower = ci_lower[i]
-            upper = ci_upper[i]
-            std = std_preds[i]
-            gt = ground_truth.get(img_id, None)
-            error = None if gt is None else abs(pred - gt)
-            
-            writer.writerow([
-                img_id,
-                f"{pred:.4f}",
-                f"{lower:.4f}",
-                f"{upper:.4f}",
-                f"{std:.4f}",
-                gt if gt is not None else "",
-                f"{error:.4f}" if error is not None else ""
-            ])
+    # Write Coverage Report JSON
+    coverage_report = {
+        "task": "confidence_intervals",
+        "num_samples": num_samples,
+        "dropout_rate": dropout_rate,
+        "confidence_level": 0.95,
+        "lower_percentile": lower_percentile,
+        "upper_percentile": upper_percentile,
+        "empirical_coverage": float(coverage),
+        "total_samples": len(image_ids),
+        "status": "success"
+    }
     
-    logger.info(f"Successfully wrote {len(image_ids)} predictions with confidence intervals")
+    logger.info(f"Writing coverage report to {output_json_path}")
+    with open(output_json_path, 'w', encoding='utf-8') as f:
+        json.dump(coverage_report, f, indent=2)
+    
+    logger.info("Confidence Interval Calculation completed successfully.")
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate predictions with Monte Carlo Dropout confidence intervals")
-    parser.add_argument("--model", type=str, required=True, help="Path to model checkpoint")
-    parser.add_argument("--manifest", type=str, required=True, help="Path to test manifest")
-    parser.add_argument("--output", type=str, default=None, help="Output CSV path (default: results/predictions.csv)")
-    parser.add_argument("--samples", type=int, default=30, help="Number of MC dropout samples")
+    """CLI entry point for the confidence interval script."""
+    parser = argparse.ArgumentParser(description="Calculate Confidence Intervals via Monte Carlo Dropout")
+    parser.add_argument("--model", type=str, required=True, help="Path to the trained model (.pt)")
+    parser.add_argument("--manifest", type=str, required=True, help="Path to the test set manifest (CSV)")
+    parser.add_argument("--output-csv", type=str, required=True, help="Path for output predictions CSV")
+    parser.add_argument("--output-json", type=str, required=True, help="Path for coverage report JSON")
+    parser.add_argument("--num-samples", type=int, default=100, help="Number of Monte Carlo samples (N)")
+    parser.add_argument("--dropout-rate", type=float, default=0.2, help="Dropout rate to use during inference")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--device", type=str, default="cpu", help="Device to run on (cpu/cuda)")
     
     args = parser.parse_args()
     
-    if args.output is None:
-        results_dir = get_results_dir()
-        args.output = os.path.join(results_dir, "predictions.csv")
-    
-    run_confidence_intervals_script(
-        model_path=args.model,
-        manifest_path=args.manifest,
-        output_path=args.output,
-        n_samples=args.samples,
-        seed=args.seed
-    )
+    try:
+        run_confidence_intervals_script(
+            model_path=args.model,
+            manifest_path=args.manifest,
+            output_csv_path=args.output_csv,
+            output_json_path=args.output_json,
+            num_samples=args.num_samples,
+            dropout_rate=args.dropout_rate,
+            seed=args.seed,
+            device=args.device
+        )
+    except Exception as e:
+        logging.error(f"Script failed: {e}")
+        raise
+
 
 if __name__ == "__main__":
     main()

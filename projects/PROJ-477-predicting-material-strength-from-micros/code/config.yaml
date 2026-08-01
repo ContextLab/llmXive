@@ -1,0 +1,21 @@
+# Configuration for PROJ-477-predicting-material-strength-from-micros
+# This file is populated during Phase 0 research and used for integrity verification.
+
+dataset:
+  name: "Rxzh/ebsd-synthetic"
+  # SHA256 hash of the dataset archive or manifest checksum.
+  # If this hash does not match the downloaded content, the download script will fail loudly.
+  # Placeholder value to be updated once the real dataset checksum is verified.
+  sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  
+paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  features: "data/features"
+  results: "results"
+  
+training:
+  seed: 42
+  batch_size: 32
+  epochs: 50
+  patience: 5

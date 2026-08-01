@@ -1,3 +1,25 @@
+T007:
+  c: true
+  h: 32d5958118e765847be2679a0fb0930c2de7de211312dbbbcf58c30fe1e3a923
+  r: "The repository contains a non\u2011empty `code/utils/logging_config.py` that\
+    \ defines a `JsonFormatter` matching the required schema and a `get_logger` function\
+    \ intended to attach both a text file handler (`results/metrics.log`) and a JSON\
+    \ file handler (`results/metrics.json`). The presence of the file and its implementation\
+    \ details satisfy the task\u2019s requirement."
+T031:
+  c: false
+  h: cbc7419b526153450abb93453dfe52c6ba6bd74fd761d10e77c317a4e146b5b9
+  r: "The repository contains `code/eval/sensitivity.py`, but the file is truncated\
+    \ and does not show the full implementation of the threshold sweep, FPR/FNR calculation,\
+    \ or CSV writing. Moreover, the required output file `results/sensitivity_analysis.csv`\
+    \ is missing. The task\u2019s output artifact is therefore not present."
+T032:
+  c: false
+  h: 3e9e0fc6e8d2a773deb394a5dd25248a3fa6cfa795e4ffa411cfdfe51463175e
+  r: "The required output files `results/predictions.csv` (with `ci_lower` and `ci_upper`\
+    \ columns) and `results/uncertainty_calibration.json` are absent, and the provided\
+    \ `code/eval/predictor.py` does not demonstrably generate or write these artifacts.\
+    \ The task\u2019s core deliverables are therefore missing."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,3 +50,11 @@ T039:
     \ download to report generation has been executed cannot be verified. The implementer\
     \ must supply the runnable end\u2011to\u2011end scripts and the resulting output\
     \ artifacts to satisfy the integration test."
+T040:
+  c: false
+  h: 9e1468556e041b72fd871c7c594d168d91f5ecc865f01d57cb5a6346ee479f5b
+  r: The `code/data/download.py` script is present but its core `download_and_prepare`
+    function is truncated and never actually performs the HuggingFace download. Moreover,
+    the required `code/config.yaml` file is missing, so the script cannot read the
+    expected SHA256 hash and will raise a `FileNotFoundError`. Both the missing configuration
+    file and the incomplete downloader prevent the task from being fulfilled.
