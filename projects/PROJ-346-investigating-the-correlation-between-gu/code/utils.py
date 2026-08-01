@@ -4,166 +4,161 @@ import os
 import time
 import json
 import hashlib
-import pandas as pd
-import numpy as np
-import requests
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Dict, Any, Optional
+import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+# Constants
+READ_THRESHOLD = 10000
+ABUNDANCE_FILTER = 0.001
+AGE_STRATA = {
+    "young": "<40",
+    "middle": "40-60",
+    "old": ">=60"
+}
+
 def get_project_root_path() -> Path:
-    """Returns the project root path."""
-    return Path(__file__).resolve().parent.parent
+    """Return the project root directory."""
+    # Assuming the code is run from the project root or code directory
+    current_file = Path(__file__).resolve()
+    return current_file.parent.parent
 
 def get_code_path() -> Path:
-    """Returns the code directory path."""
+    """Return the code directory path."""
     return get_project_root_path() / "code"
 
 def get_data_path() -> Path:
-    """Returns the data directory path."""
+    """Return the data directory path."""
     return get_project_root_path() / "data"
 
 def get_data_raw_path() -> Path:
-    """Returns the raw data directory path."""
+    """Return the raw data directory path."""
     return get_data_path() / "raw"
 
 def get_data_processed_path() -> Path:
-    """Returns the processed data directory path."""
+    """Return the processed data directory path."""
     return get_data_path() / "processed"
 
 def get_data_qc_path() -> Path:
-    """Returns the QC data directory path."""
+    """Return the QC data directory path."""
     return get_data_path() / "qc"
 
 def get_specs_path() -> Path:
-    """Returns the specs directory path."""
+    """Return the specs directory path."""
     return get_project_root_path() / "specs"
 
 def get_contracts_path() -> Path:
-    """Returns the contracts directory path."""
+    """Return the contracts directory path."""
     return get_project_root_path() / "contracts"
 
 def get_figures_path() -> Path:
-    """Returns the figures directory path."""
+    """Return the figures directory path."""
     return get_project_root_path() / "figures"
 
 def ensure_directory(path: Path) -> None:
-    """Ensures the directory exists."""
+    """Ensure a directory exists, creating it if necessary."""
     path.mkdir(parents=True, exist_ok=True)
 
-def setup_logger(name: str) -> logging.Logger:
-    """Sets up a logger for the given name."""
+def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
+    """Set up and return a logger with standard formatting."""
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(level)
+    
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
+    
     return logger
 
 def get_logger(name: str) -> logging.Logger:
-    """Gets or creates a logger."""
-    return setup_logger(name)
+    """Get an existing logger or create a new one."""
+    return logging.getLogger(name)
 
-def write_json_log(path: Path, data: Dict[str, Any]) -> None:
-    """Writes data to a JSON log file."""
-    ensure_directory(path.parent)
-    with open(path, 'w') as f:
+def write_json_log(data: Dict[str, Any], file_path: Path) -> None:
+    """Write a dictionary to a JSON file."""
+    ensure_directory(file_path.parent)
+    with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
 
-def read_json_log(path: Path) -> Dict[str, Any]:
-    """Reads data from a JSON log file."""
-    with open(path, 'r') as f:
+def read_json_log(file_path: Path) -> Dict[str, Any]:
+    """Read a JSON file and return its contents."""
+    with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def validate_dataframe_columns(df: pd.DataFrame, required_columns: List[str]) -> bool:
-    """Validates that a DataFrame has required columns."""
+def validate_dataframe_columns(df, required_columns: list) -> bool:
+    """Validate that a DataFrame contains all required columns."""
     return all(col in df.columns for col in required_columns)
 
 def sanitize_url(url: str) -> str:
-    """Sanitizes a URL string."""
-    if not url.startswith(('http://', 'https://')):
-        raise ValueError("Invalid URL scheme")
+    """Sanitize a URL string."""
+    # Basic sanitization to prevent injection
+    allowed_schemes = ['http', 'https']
+    if not url.startswith(tuple(f'{s}://' for s in allowed_schemes)):
+        raise ValueError(f"Invalid URL scheme: {url}")
     return url
 
 def sanitize_file_path(path: str) -> str:
-    """Sanitizes a file path string."""
-    if '..' in path:
-        raise ValueError("Invalid file path")
+    """Sanitize a file path string."""
+    # Remove potentially dangerous characters
+    dangerous_chars = ['<', '>', ':', '"', '|', '?', '*']
+    for char in dangerous_chars:
+        path = path.replace(char, '')
     return path
 
-def get_retry_session() -> requests.Session:
-    """
-    Creates a requests session with retry logic.
-    Implements retry up to 3 times with exponential backoff for API failures.
-    """
+def get_retry_session(retries: int = 3, backoff_factor: float = 0.5) -> requests.Session:
+    """Create a requests session with retry logic."""
     session = requests.Session()
-    retry_strategy = Retry(
-        total=3,
-        backoff_factor=1,
-        status_forcelist=[429, 500, 502, 503, 504],
-        allowed_methods=["HEAD", "GET", "OPTIONS"]
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=[429, 500, 502, 503, 504]
     )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
+    adapter = HTTPAdapter(max_retries=retry)
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return session
 
-def load_data_with_retry(url: str, timeout: int = 30) -> pd.DataFrame:
-    """
-    Loads data from a URL with retry logic (up to 3 attempts with exponential backoff).
-    This implements T006 requirements.
-    Raises RuntimeError if all retries fail.
-    """
+def load_data_with_retry(url: str, timeout: int = 30) -> bytes:
+    """Load data from a URL with retry logic."""
     session = get_retry_session()
-    last_exception = None
-    for attempt in range(3):
-        try:
-            response = session.get(sanitize_url(url), timeout=timeout)
-            response.raise_for_status()
-            # Assume CSV for simplicity, can be extended
-            return pd.read_csv(pd.io.common.StringIO(response.text))
-        except Exception as e:
-            last_exception = e
-            logging.warning(f"Attempt {attempt + 1}/3 failed for {url}: {e}")
-            time.sleep(2 ** attempt)  # Exponential backoff: 1s, 2s, 4s
-    raise RuntimeError(f"Failed to load data from {url} after 3 retries: {last_exception}")
+    try:
+        response = session.get(url, timeout=timeout)
+        response.raise_for_status()
+        return response.content
+    except requests.RequestException as e:
+        logger = get_logger("utils")
+        logger.error(f"Failed to load data from {url} after retries: {e}")
+        raise
 
-def compute_file_hash(path: Path) -> str:
-    """Computes the SHA256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+def compute_file_hash(file_path: Path, algorithm: str = 'sha256') -> str:
+    """Compute the hash of a file."""
+    hash_func = hashlib.new(algorithm)
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_func.update(chunk)
+    return hash_func.hexdigest()
 
-def filter_low_read_samples(df: pd.DataFrame, threshold: int = 10000) -> pd.DataFrame:
-    """
-    Filters out samples with total reads below the threshold.
-    Implements FR-001 filter: <10k reads.
-    """
-    if 'total_reads' not in df.columns:
-        logging.warning("Column 'total_reads' not found in DataFrame. Skipping read depth filter.")
-        return df
-    return df[df['total_reads'] >= threshold]
+def filter_low_read_samples(df, read_column: str, threshold: int = READ_THRESHOLD):
+    """Filter out samples with read counts below threshold."""
+    return df[df[read_column] >= threshold]
 
-def filter_rare_taxa(df: pd.DataFrame, threshold: float = 0.001) -> pd.DataFrame:
-    """
-    Filters out taxa with abundance below the threshold.
-    Implements FR-001 filter: <0.1% abundance.
-    """
-    if 'abundance' not in df.columns:
-        logging.warning("Column 'abundance' not found in DataFrame. Skipping rare taxa filter.")
-        return df
-    return df[df['abundance'] >= threshold]
+def filter_rare_taxa(df, abundance_column: str, threshold: float = ABUNDANCE_FILTER):
+    """Filter out taxa with abundance below threshold."""
+    return df[df[abundance_column] >= threshold]
 
 def get_age_group(age: float) -> str:
-    """Categorizes age into groups."""
+    """Categorize age into predefined strata."""
     if age < 40:
-        return "<40"
+        return AGE_STRATA["young"]
     elif age < 60:
-        return "40-<60"
+        return AGE_STRATA["middle"]
     else:
-        return "≥60"
+        return AGE_STRATA["old"]

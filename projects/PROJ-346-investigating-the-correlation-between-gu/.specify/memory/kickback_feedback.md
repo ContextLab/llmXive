@@ -4,7 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T007` (rejected 1x): No pytest configuration file (e.g., `pytest.ini` or `conftest.py`) or test runner script was presented, and the provided project excerpt concerns data ingestion rather than test setup. The required artifacts are missing, so the task is not satisfied.
+- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T017a` (rejected 1x): The repository contains a fully‑implemented `code/07_gap_report.py`, but the required output file `data/processed/data_gap_report.json` is absent, so the script has not been run to produce the mandated artifact. The missing JSON report means the task’s core deliverable is not satisfied.
+- `T017b` (rejected 1x): declared artifact(s) missing/empty/invalid: reports/data_gap_report.md
 
 ## Required change
 
