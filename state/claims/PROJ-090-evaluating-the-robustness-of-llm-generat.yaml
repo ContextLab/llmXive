@@ -1085,3 +1085,655 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T13:38:06Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'pinned dependency versions: transformers 4.42.0, datasets 2.20.0, sentence-transformers
+    3.0.1, bitsandbytes 0.43.1, scikit-learn 1.5.0, statsmodels 0.14.2, pandas 2.2.2,
+    pytest 8.2.2, numpy 1.26.4'
+  claim_id: c_8754480e
+  context: 'Phase 1: Setup (Shared Infrastructure) - T004 [P] Create requirements.txt
+    with pinned versions.'
+  evidence:
+    asserted: '4.42'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'requirements.txt with pinned versions: transformers==4.42.0, datasets==2.20.0,
+    sentence-transformers==3.0.1, bitsandbytes==0.43.1, scikit-learn==1.5.0, statsmodels==0.14.2,
+    pandas==2.2.2, pytest==8.2.2, numpy==1.26.4'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T03:27:18Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'ruff and black configuration: line-length 88, target-version py311,
+    select E F W I'
+  claim_id: c_45e39951
+  context: 'Phase 1: Setup (Shared Infrastructure) - T005 [P] Configure linting and
+    formatting tools.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure linting (ruff) and formatting (black) tools in pyproject.toml
+    at the repository root with explicit settings: line-length = 88, target-version
+    = ''py311'', select = [''E'', ''F'', ''W'', ''I'']'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:27:56Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: persist full unfiltered perturbation candidates to data/processed/perturbation_candidates_raw.json
+  claim_id: c_507ef971
+  context: 'Phase 3: User Story 1 - T017 [US1] Implement perturbation generation pipeline
+    that generates up to 3 candidates per task.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Persist_full_unfiltered_perturbation_candidates_to_data/proc
+  kind: entity_fact
+  raw_text: The system MUST persist the full unfiltered list of all generated candidates
+    to data/processed/perturbation_candidates_raw.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:28:48Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: generate up to 3 perturbation candidates per task
+  claim_id: c_700bf5f5
+  context: 'Phase 3: User Story 1 - T017 [US1] Implement perturbation generation pipeline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'generate up to 3 candidates (one per transformation type: synonym, typo,
+    rephrase) per task'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:29:11Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: semantic similarity threshold for primary set is greater than 0.95
+  claim_id: c_a9d28293
+  context: 'Phase 3: User Story 1 - T016 [US1] Implement semantic validation using
+    sentence-transformers/all-MiniLM-L6-v2.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semantic_similarity_threshold_for_primary_set_is_greater_tha
+  kind: magnitude
+  raw_text: Primary set retains only perturbations with score > 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:30:08Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'zero yield trigger: log halt_report.json with reason ZERO_YIELD and
+    exit code 1'
+  claim_id: c_fb306d50
+  context: 'Phase 3: User Story 1 - T016 [US1] Implement semantic validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST log a critical error to data/logs/halt_report.json with
+    reason ZERO_YIELD and exit with code 1 if the valid yield is < 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:30:52Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: use bigcode/starcoder2-1.5b model for primary CPU run
+  claim_id: c_588fdb25
+  context: 'Phase 4: User Story 2 - T021 [US2] Implement StarCoder loading with bitsandbytes
+    low-bit quantization and CPU offload.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Model ID: Must use bigcode/starcoder2-1.5b (Primary CPU run per Plan.md
+    Compute Feasibility Strategy)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:31:55Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'inference_logs.json schema: task_id, prompt, code, status, confidence_score
+    (0.0-1.0)'
+  claim_id: c_7730a2e8
+  context: 'Phase 4: User Story 2 - T021 [US2] Implement StarCoder loading and inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output data/processed/inference_logs.json MUST be a list of objects,
+    where each object contains: task_id (str), prompt (str), code (str), status (str:
+    pass|fail|timeout|oom), confidence_score (float 0.0-1.0)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:32:26Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'error classifier stratified sampling: max 50 failures or 50 samples,
+    seed 42'
+  claim_id: c_1abefa61
+  context: 'Phase 5: User Story 3 - T037 [US3] Implement error classifier for stratified
+    sampling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement error classifier for stratified sampling (\u226450 failures\
+    \ or sample of 50) in code/analysis/error_classifier.py using stratification by\
+    \ perturbation type and random seed=42"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:32:59Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'sensitivity report thresholds: 0.85, 0.90, 0.95, 0.99'
+  claim_id: c_4928780f
+  context: 'Phase 5: User Story 3 - T036 [US3] Implement sensitivity analysis on semantic
+    thresholds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/sensitivity_report.csv with columns: threshold,
+    pass_rate, delta_from_baseline, sample_count; expected_thresholds = {0.85, 0.90,
+    0.95, 0.99}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:33:29Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'CPU memory usage limit: less than 6GB per process'
+  claim_id: c_7b325e45
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T042a [P] Refactor inference
+    to use chunked loading.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CPU_memory_usage_limit:_less_than_6GB_per_process
+  kind: magnitude
+  raw_text: Refactor code/model/inference.py to use chunked loading to ensure CPU
+    usage < 6GB per process
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:34:09Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'metrics documentation check: at least 4 matches for ECE, Pass@1, McNemar'
+  claim_id: c_97c5c08d
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T040a [P] Append metric definitions
+    to docs/metrics.md.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Metrics_documentation_check:_at_least_4_matches_for_ECE,_Pas
+  kind: magnitude
+  raw_text: Verify documentation completeness in docs/metrics.md with grep for Expected
+    Calibration Error, Pass@1, McNemar and assert count >= 4
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:34:41Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 0
+  canonical: 'Pinned dependency versions: transformers 4.42.0, datasets 2.20.0, sentence-transformers
+    3.0.1, bitsandbytes 0.43.1, scikit-learn 1.5.0, statsmodels 0.14.2, pandas 2.2.2,
+    pytest 8.2.2, numpy 1.26.4'
+  claim_id: c_dc611150
+  context: 'Create requirements.txt with pinned versions: transformers==4.42.0, datasets==2.20.0,
+    sentence-transformers==3.0.1, bitsandbytes==0.43.1, scikit-learn==1.5.0, statsmodels==0.14.2,
+    pandas==2.2.2, pytest==8.2.2, numpy==1.26.4.'
+  evidence:
+    asserted: '4.42'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'requirements.txt with pinned versions: transformers==4.42.0, datasets==2.20.0,
+    sentence-transformers==3.0.1, bitsandbytes==0.43.1, scikit-learn==1.5.0, statsmodels==0.14.2,
+    pandas==2.2.2, pytest==8.2.2, numpy==1.26.4.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T03:36:40Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'Linting and formatting settings: line-length 88, target-version py311'
+  claim_id: c_1cb9ec5d
+  context: 'Configure linting (ruff) and formatting (black) tools in pyproject.toml
+    at the repository root with explicit settings: line-length = 88, target-version
+    = ''py311'', select = [''E'', ''F'', ''W'', ''I''].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure linting (ruff) and formatting (black) tools in pyproject.toml
+    at the repository root with explicit settings: line-length = 88, target-version
+    = ''py311'', select = [''E'', ''F'', ''W'', ''I''].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:36:43Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Perturbation generation generates up to 3 candidates per task
+  claim_id: c_4694bc86
+  context: 'Implement perturbation generation pipeline in code/data/generate_perturbations.py
+    that generates up to 3 candidates (one per transformation type: synonym, typo,
+    rephrase) per task.'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: 'Implement perturbation generation pipeline in code/data/generate_perturbations.py
+    that generates up to 3 candidates (one per transformation type: synonym, typo,
+    rephrase) per task.'
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T03:36:57Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Semantic similarity threshold > 0.95
+  claim_id: c_4947f4e4
+  context: 'STRICT CONSTRAINT: Primary set retains only perturbations with score >
+    0.95 [FR-003].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Primary set retains only perturbations with score > 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:36:58Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: System halts with exit code 1 and ZERO_YIELD report if valid yield is
+    zero
+  claim_id: c_6a140b68
+  context: 'Halt Condition: If the valid yield is < 1 (zero candidates) across the
+    entire dataset, the system MUST log a critical error to data/logs/halt_report.json
+    with reason ''ZERO_YIELD'' and exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the valid yield is < 1 (zero candidates) across the entire dataset,
+    the system MUST log a critical error to data/logs/halt_report.json with reason
+    'ZERO_YIELD' and exit with code 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:37:19Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Model used is bigcode/starcoder2-1.5b
+  claim_id: c_1b84b8ff
+  context: 'Model ID: Must use bigcode/starcoder2-1.5b (Primary CPU run per Plan.md
+    Compute Feasibility Strategy).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Model ID: Must use bigcode/starcoder2-1.5b.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:37:19Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Inference log schema includes confidence_score between 0.0 and 1.0
+  claim_id: c_3f8cc649
+  context: 'Schema: Output data/processed/inference_logs.json MUST be a list of objects,
+    where each object contains: task_id (str), prompt (str), code (str), status (str:
+    ''pass''|''fail''|''timeout''|''oom''), confidence_score (float 0.0-1.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output data/processed/inference_logs.json MUST be a list of objects,
+    where each object contains: task_id (str), prompt (str), code (str), status (str:
+    ''pass''|''fail''|''timeout''|''oom''), confidence_score (float 0.0-1.0).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:37:19Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Error classifier uses stratified sampling of 50 failures with seed 42
+  claim_id: c_29946db5
+  context: "Implement error classifier for stratified sampling (\u226450 failures\
+    \ or sample of 50) in code/analysis/error_classifier.py using stratification by\
+    \ perturbation type and random seed=42."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement error classifier for stratified sampling (\u226450 failures\
+    \ or sample of 50) in code/analysis/error_classifier.py using stratification by\
+    \ perturbation type and random seed=42."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:37:20Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses thresholds 0.85, 0.90, 0.95, 0.99
+  claim_id: c_bcea990d
+  context: 'Generate data/processed/sensitivity_report.csv with columns: threshold,
+    pass_rate, delta_from_baseline, sample_count. expected_thresholds = {0.85, 0.90,
+    0.95, 0.99}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/sensitivity_report.csv with columns: threshold,
+    pass_rate, delta_from_baseline, sample_count. expected_thresholds = {0.85, 0.90,
+    0.95, 0.99}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:37:20Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: CPU memory usage limit is 6GB per process
+  claim_id: c_d0807619
+  context: Refactor code/model/inference.py to use chunked loading to ensure CPU usage
+    < 6GB per process.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU_memory_usage_limit_is_6GB_per_process
+  kind: entity_fact
+  raw_text: Refactor code/model/inference.py to use chunked loading to ensure CPU
+    usage < 6GB per process.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:37:24Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'pinned package versions: transformers 4.42.0, datasets 2.20.0, sentence-transformers
+    3.0.1, bitsandbytes 0.43.1, scikit-learn 1.5.0, statsmodels 0.14.2, pandas 2.2.2,
+    pytest 8.2.2, numpy 1.26.4'
+  claim_id: c_8cafc226
+  context: 'Create requirements.txt with pinned versions: transformers==4.42.0, datasets==2.20.0,
+    sentence-transformers==3.0.1, bitsandbytes==0.43.1, scikit-learn==1.5.0, statsmodels==0.14.2,
+    pandas==2.2.2, pytest==8.2.2, numpy==1.26.4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.42.0, datasets==2.20.0, sentence-transformers==3.0.1,
+    bitsandbytes==0.43.1, scikit-learn==1.5.0, statsmodels==0.14.2, pandas==2.2.2,
+    pytest==8.2.2, numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:43:48Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'ruff and black settings: line-length 88, target-version py311, select
+    E F W I'
+  claim_id: c_7e80fd8e
+  context: 'Configure linting (ruff) and formatting (black) tools in pyproject.toml
+    at the repository root with explicit settings: line-length = 88, target-version
+    = ''py311'', select = [''E'', ''F'', ''W'', ''I''].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length = 88, target-version = 'py311', select = ['E', 'F', 'W', 'I']
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:44:30Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'semantic validation model: sentence-transformers/all-MiniLM-L6-v2'
+  claim_id: c_a2176168
+  context: Implement semantic validation using sentence-transformers/all-MiniLM-L6-v2
+    in code/data/semantic_validator.py to calculate cosine similarity.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_validation_model:_sentence-transformers/all-MiniLM-
+  kind: entity_fact
+  raw_text: uses sentence-transformers/all-MiniLM-L6-v2 for semantic validation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:45:18Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'semantic similarity threshold: > 0.95'
+  claim_id: c_ad3e9ad8
+  context: 'STRICT CONSTRAINT: Primary set retains only perturbations with score >
+    0.95 [FR-003].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: primary set retains only perturbations with score > 0.95
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:45:19Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'perturbation generation limit: 3 candidates per task'
+  claim_id: c_ee902881
+  context: 'Implement perturbation generation pipeline in code/data/generate_perturbations.py
+    that generates up to 3 candidates (one per transformation type: synonym, typo,
+    rephrase) per task.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'generates up to 3 candidates per task (one per transformation type: synonym,
+    typo, rephrase)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:45:19Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'model used: bigcode/starcoder2-1.5b'
+  claim_id: c_9764031e
+  context: 'Model ID: Must use bigcode/starcoder2-1.5b (Primary CPU run per Plan.md
+    Compute Feasibility Strategy).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: uses bigcode/starcoder2-1.5b for primary CPU run
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:46:03Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'confidence_score range: 0.0 to 1.0'
+  claim_id: c_abef59b1
+  context: 'Schema: Output data/processed/inference_logs.json MUST be a list of objects,
+    where each object contains: ... confidence_score (float 0.0-1.0).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Confidence_score_range:_0.0_to_1.0
+  kind: entity_fact
+  raw_text: output confidence_score is a float between 0.0 and 1.0
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:47:22Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'sensitivity analysis thresholds: 0.85, 0.90, 0.95, 0.99'
+  claim_id: c_512bbadb
+  context: expected_thresholds = {0.85, 0.90, 0.95, 0.99}; assert set(df['threshold']).issubset(expected_thresholds)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sensitivity analysis thresholds include 0.85, 0.90, 0.95, 0.99
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:48:02Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'error classifier sample size: max 50'
+  claim_id: c_4356c92d
+  context: "Implement error classifier for stratified sampling (\u226450 failures\
+    \ or sample of 50) in code/analysis/error_classifier.py using stratification by\
+    \ perturbation type and random seed=42."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: error classifier sample size is <= 50 failures or sample of 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:48:49Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'random seed: 42'
+  claim_id: c_39a39006
+  context: "Implement error classifier for stratified sampling (\u226450 failures\
+    \ or sample of 50) in code/analysis/error_classifier.py using stratification by\
+    \ perturbation type and random seed=42."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: random seed=42 used for error classifier stratified sampling
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:49:10Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'CPU memory limit: < 6GB'
+  claim_id: c_3541d3bd
+  context: Refactor code/model/inference.py to use chunked loading to ensure CPU usage
+    < 6GB per process.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU_memory_limit:_%3C_6GB
+  kind: entity_fact
+  raw_text: CPU usage must be < 6GB per process
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:50:11Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: 'pipeline runtime limit: < 6 hours'
+  claim_id: c_7cf6bc99
+  context: Implement pipeline runtime logger in code/main.py to record total execution
+    time and assert it is < 6 hours (SC-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pipeline runtime must be < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:50:12Z'
+- artifact_path: projects/PROJ-090-evaluating-the-robustness-of-llm-generat/specs/001-evaluating-the-robustness-of-llm-generat/tasks.md
+  attempts: 1
+  canonical: ECE analysis addresses overconfidence bias per Daniel Kahneman review
+  claim_id: c_07a1ddd5
+  context: 'Rationale: Addresses ''Daniel Kahneman'' review concern regarding overconfidence
+    bias; measures if model confidence tracks accuracy under perturbation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ECE_analysis_addresses_overconfidence_bias_per_Daniel_Kahnem
+  kind: entity_fact
+  raw_text: ECC analysis addresses 'overconfidence bias' concern raised by Daniel
+    Kahneman review
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:50:54Z'

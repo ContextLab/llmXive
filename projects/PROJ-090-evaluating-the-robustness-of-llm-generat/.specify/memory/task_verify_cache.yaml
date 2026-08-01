@@ -1,28 +1,21 @@
-T016:
+T017:
   c: false
-  h: e814d7f7c419c5139772e2ddca45161cb2f052bc8db59562ca686f9b70de44d2
-  r: "The repository contains `code/data/semantic_validator.py`, but the file is truncated\
-    \ and does not show any logic that filters a candidate pool, applies the fallback\
-    \ threshold, or writes a `raw_score` field to `data/processed/perturbation_candidates_raw.json`.\
-    \ Moreover, the required `data/processed/perturbation_candidates_raw.json` file\
-    \ is absent, so the verification command cannot succeed. The task\u2019s primary\
-    \ and fallback requirements and the verification step are not satisfied."
-T018:
-  c: false
-  h: f227582b1ebf158b02f459dfced7c379ab5aabdf27e4b94ec9157958538c8c4c
-  r: "The `data/processed/perturbation_candidates.json` file does not exist, and the\
-    \ provided `filter_perturbations.py` snippet shows no code that writes the filtered\
-    \ candidates to that path (nor any citation of FR\u2011003/FR\u2011009). Consequently\
-    \ the required primary dataset is not generated, so the task is not satisfied."
+  h: 95555c9cfd94a8ba411f0ffbcfd4305198f708063e407a84e56ad3c1f65366d5
+  r: "The required output file `data/processed/perturbation_candidates_raw.json` does\
+    \ not exist, so the pipeline\u2019s persistence requirement is unmet (and the\
+    \ script\u2019s truncated implementation leaves doubt about generating exactly\
+    \ three candidates per task and logging the full schema). The next implementer\
+    \ must ensure the script writes a correctly\u2011structured JSON file with three\
+    \ entries per task."
 T021:
   c: false
-  h: 18ad8782ae6d3eeae58d8a45e050551edb80aae25e6096aaa41342b7044dba9f
-  r: "The provided `inference.py` loads `bigcode/starcoder2-3b` instead of the required\
-    \ `bigcode/starcoder-3b`, and the file does not show any implementation that records\
-    \ a `confidence_score` in the output logs. Moreover, the required `data/processed/inference_logs.json`\
-    \ file is missing, so the verification command cannot succeed. The task needs\
-    \ the correct model ID, proper confidence\u2011score logging, and the generation\
-    \ of the expected JSON log file."
+  h: f5b4e9143e1968fc34f09f65e412c2f9f43b416c1d8a1655e54ea9ebdd5c69ce
+  r: "The repository contains `code/model/inference.py` with a model\u2011loading\
+    \ function that uses bitsandbytes and the correct model ID, but the required inference\
+    \ logging file `data/processed/inference_logs.json` is missing, and the provided\
+    \ code (truncated) does not demonstrate enforcement of timeouts, capture of logits/confidence\
+    \ scores, or writing of the specified JSON schema. The task\u2019s critical output\
+    \ and logging requirements are therefore unmet."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,6 +23,15 @@ T023:
     \ per\u2011test\u2011case timeout was provided; the claim lacks any artifact demonstrating\
     \ that such an executor has been integrated or that it enforces the required timeout.\
     \ The required implementation and evidence are missing."
+T026:
+  c: false
+  h: fac34faf69fb4e7ed147930f2b07a6c0a27722cfd500fb7e148d1800e4291749
+  r: "The repository lacks the required `data/processed/inference_logs.json` file,\
+    \ so no confidence scores or ECE bins can be appended or verified. Moreover, the\
+    \ provided `confidence_metrics.py` only contains a confidence\u2011score helper\
+    \ and does not implement Expected Calibration Error bin computation or logic to\
+    \ write `ece_bin` into the log. Both the output artifact and the full functionality\
+    \ are missing."
 T034:
   c: false
   h: 5d8f73661e5ddf5c2155637d8cc060d0df101a5e3570504930c7859e931832d3
@@ -59,13 +61,6 @@ T039:
     pass@1, McNemar, and Bonferroni; without concrete documentation artifacts, the
     claim cannot be verified. The missing artifact is the updated documentation with
     those metric definitions.
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files, diffs, or reports showing that unused imports and dead code have
-    been removed are present; the only available information is the task description,
-    which does not constitute the required artifact. The implementer has not provided
-    any evidence that the codebase was modified accordingly.
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -73,14 +68,6 @@ T041:
     \ CPU memory usage has been reduced to stay below 6\u202FGB per process is present.\
     \ The claim lacks any concrete artifact (e.g., updated inference script, memory\
     \ benchmark logs, or a report) to verify the optimization."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The repository contains no `tests/unit/` files that exercise timeout, out\u2011\
-    of\u2011memory, or empty\u2011dataset edge cases, nor any test suite at all. Consequently\
-    \ the claimed addition of unit tests for these scenarios is not evidenced. The\
-    \ missing artifact is a set of unit test files (e.g., `tests/unit/test_edge_cases.py`)\
-    \ covering the specified edge conditions."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

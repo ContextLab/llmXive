@@ -42,7 +42,7 @@ This project evaluates the robustness of LLM-generated code (specifically StarCo
 ## Spec Defects & Assumptions
 
 - **SC-003 (Spec Defect - RESOLVED)**: The spec text originally stated "Total job runtime is measured against the -hour GitHub Actions free-tier limit." **Action**: The spec has been corrected to "6-hour". Plan assumes 6 hours for internal logic.
-- **US-2 Acceptance Scenario 1 (Spec Defect - RESOLVED)**: The text "within the A memory limit is imposed..." was corrupted. **Action**: The spec has been corrected to "within the constrained RAM limit and 30s timeout".
+- **US-2 Acceptance Scenario 1 (Spec Defect - RESOLVED)**: The text "within the A memory limit is imposed..." was corrupted. **Action**: The spec has been corrected to "within the constrained RAM limit and a bounded timeout".
 - **US-3 Acceptance Scenario 3 (Spec Defect - RESOLVED)**: The text "for a a stratified random sample" contained a typo. **Action**: The spec has been corrected to "for a stratified random sample".
 - **FR-011 (Undefined Cap)**: "Sufficient number" is undefined. **Action**: Plan defines cap as **656 samples** (A substantial number of original items will be included. + A set of perturbed samples will be generated.) to fit the 6-hour window.
 
