@@ -20,14 +20,6 @@ T007:
     \ does it automatically run after each major phase. Moreover, the required state\
     \ file `state/projects/PROJ-865-llmxive-followup-extending-autoresearch.yaml`\
     \ is missing, so the hashes and timestamp cannot be recorded."
-T011b:
-  c: false
-  h: 8b8202aa2b4da42a5ce77dff0042fb8c4e0b767227f5cf94ba301fcf4bc1ad5a
-  r: The repository lacks the required input `data/derived/failure_cases_raw.json`,
-    the generated `data/derived/failure_cases.json` (and the split train/val/test
-    files), and the schema file `specs/001-llmxive-followup/contracts/failure_case.schema.yaml`.
-    Without these files the script cannot be executed or validated, so the task is
-    not genuinely completed.
 T013:
   c: false
   h: 623df3e18f031fc0946a892abb84bed6678319b0912774c6493a0b9d9e151168
@@ -37,33 +29,39 @@ T013:
     \ back to regex, which the task forbids. Moreover, the required output file `data/derived/rules_library.json`\
     \ is missing. These missing/incorrect artifacts prevent the task from being considered\
     \ complete."
+T015b:
+  c: false
+  h: 8fa332a069e0ca765e612d1efc1f91ef361dda379a2dce2f5abe3c4cffd6acf2
+  r: "The repository lacks the required `data/derived/rules_library.json`, the schema\
+    \ file `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`, and\
+    \ the expected output `data/artifacts/rule_validation_report.json`. Moreover,\
+    \ the provided `validate_rules.py` does not demonstrate execution, nor does it\
+    \ exit with code\u202F1 when the schema is missing or empty. These essential artifacts\
+    \ and behavior are missing."
 T019:
   c: false
-  h: 116d5c983e715ba84d7473b97aef0b69653753090e07b2af83f7e1e91690dd18
-  r: "The provided `run_experiments.py` raises a `FileNotFoundError` instead of exiting\
-    \ with code\u202F1 and the exact error message required, and it does not check\
-    \ that the manifest is non\u2011empty. Moreover, `data/derived/experiment_manifest.csv`\
-    \ is missing entirely, so the script cannot perform the mandated pre\u2011check.\
-    \ The implementation must add the proper existence/non\u2011empty check, exit\
-    \ with status\u202F1 and the specified message, and ensure the manifest file is\
-    \ present."
-T019a:
+  h: 538a10cb0cc8afca3c596a27e24f8d74c40bb1a8692f027ec9705dfaaae2b1d8
+  r: "The `run_experiments.py` script exists, but it raises a generic `FileNotFoundError`\
+    \ with the message \u201CExperiment manifest not found: \u2026\u201D instead of\
+    \ the required exact error text and clean exit code. Moreover, the required `data/derived/experiment_manifest.csv`\
+    \ file is missing entirely, so the pre\u2011check cannot be demonstrated. The\
+    \ implementation must emit the specified message and exit with a failure code,\
+    \ and the manifest file must be present (or the script\u2019s handling verified)."
+T020:
   c: false
-  h: a59d91b5ba59e6d6793c48cf82cdc34b1b5b6b9ec634e688ceda9c1c3074d9d5
-  r: "The required output file `data/derived/experiment_manifest.csv` does not exist,\
-    \ and the provided `generate_manifest.py` script is incomplete (truncated) and\
-    \ shows no evidence that it actually writes the manifest. The task\u2019s core\
-    \ deliverable\u2014a generated manifest CSV\u2014is missing."
+  h: 588f2121acbb8cb22df8c6f629d407eb5d2ce4750cf5e35f75b46c54abddfc64
+  r: The required artifact `data/derived/results_rule_engine.csv` does not exist,
+    so the metrics are not being recorded as specified. The implementer must create
+    the CSV (with the proper columns and data) and ensure `run_experiments.py` appends
+    rows for each task.
 T022:
   c: false
-  h: ca5a0b9684df8744c539310038d9201d99543ba55ee1edb6ad573d7aa96a6a6d
-  r: "The repository contains `code/03_execution/merge_results.py`, but the required\
-    \ data files (`data/derived/results_rule_engine.csv`, `data/derived/baseline_results.json`,\
-    \ and the manifest) are absent, and no `data/derived/results.csv` was produced.\
-    \ Moreover, the script is truncated, so we cannot confirm it implements the strict\
-    \ ID matching, validation, and failure\u2011handling logic demanded by the task.\
-    \ The missing inputs and output mean the merging functionality cannot be verified\
-    \ or executed."
+  h: 0b221bbe7358c4ae9b0abd07fd8054f1cee0495baa2e9602152ba494fb6d996a
+  r: "The repository contains a `merge_results.py` file, but it is truncated and contains\
+    \ a syntax error (`succes` typo) and no logic to write `results.csv`. Moreover,\
+    \ the required input files `data/derived/results_rule_engine.csv`, `data/derived/baseline_results.json`,\
+    \ and the expected output `data/derived/results.csv` are all missing. The task\u2019\
+    s core requirements are therefore not satisfied."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -80,15 +78,6 @@ T029a:
     \ and writes the JSON with the specified keys. The next implementer must ensure\
     \ the script generates the JSON file containing `p_value`, `ci_lower`, `ci_upper`,\
     \ and `statistic`."
-T029b:
-  c: false
-  h: c2387e0aa6e67aea20ce79ce8a866d9a1990c51746ee86cac23ac58c8662c36d
-  r: "The `calculate_stratified_rates.py` script is truncated (the CSV writer line\
-    \ is incomplete) and does not contain a runnable entry\u2011point that reads the\
-    \ merged results and writes the required `data/derived/stratified_success_rates.csv`.\
-    \ Moreover, the generated CSV (if it existed) would have rows with a `failure_type`\
-    \ column, not separate columns like `syntactic_rate` and `semantic_rate` as the\
-    \ task specifies. The expected output file is missing entirely."
 T036:
   c: false
   h: fd73b4585321232af74c366909a4d1469172728c9b854450c6c1ca1cc2776b76

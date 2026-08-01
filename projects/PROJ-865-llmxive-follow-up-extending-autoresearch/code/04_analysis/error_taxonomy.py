@@ -7,160 +7,182 @@ from utils.logging import get_logger, log_stage_start, log_stage_end
 
 logger = get_logger(__name__)
 
-INPUT_RESULTS_PATH = "data/derived/results.csv"
-INPUT_FAILURE_CASES_PATH = "data/derived/failure_cases.json"
-OUTPUT_TAXONOMY_PATH = "data/derived/error_taxonomy_results.json"
-
-def load_results_csv(path: str) -> List[Dict[str, Any]]:
-    """Load results from CSV file."""
-    results = []
-    p = Path(path)
-    if not p.exists():
+def load_results_csv(path: Path) -> List[Dict[str, Any]]:
+    """Load results.csv into a list of dictionaries."""
+    if not path.exists():
+        logger.error(f"Results file not found: {path}")
         raise FileNotFoundError(f"Results file not found: {path}")
     
-    with open(p, 'r', encoding='utf-8') as f:
+    results = []
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             results.append(row)
     return results
 
-def load_failure_cases(path: str) -> Dict[str, Dict[str, Any]]:
-    """Load failure cases and index by task_id."""
-    p = Path(path)
-    if not p.exists():
+def load_failure_cases(path: Path) -> Dict[str, Dict[str, Any]]:
+    """
+    Load failure_cases.json and index by task_id.
+    This provides the ground_truth_resolution for arbitration.
+    """
+    if not path.exists():
+        logger.error(f"Failure cases file not found: {path}")
         raise FileNotFoundError(f"Failure cases file not found: {path}")
     
-    with open(p, 'r', encoding='utf-8') as f:
-        cases = json.load(f)
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
     
-    # Index by task_id for quick lookup
-    return {case['task_id']: case for case in cases}
+    # Index by task_id for O(1) lookup
+    return {entry['task_id']: entry for entry in data}
 
-def categorize_failure(task_id: str, method: str, success: str, 
-                      failure_cases_map: Dict[str, Dict[str, Any]]) -> Tuple[str, str]:
+def categorize_failure(
+    result_row: Dict[str, Any],
+    failure_case: Dict[str, Any]
+) -> Tuple[str, str]:
     """
-    Categorize a failed pivot.
+    Arbitrate the categorization of a failure using ground_truth_resolution.
+    
+    Logic:
+    1. If ground_truth_resolution is null/empty -> "Missing Ground Truth" (excluded from counts).
+    2. If rule matched (method != 'Unstructured' or fallback_chain indicates match) BUT 
+       the action taken (implied by success=False) did NOT match ground_truth_resolution:
+       -> "Distillation Error" (The rule was insufficient/incorrect).
+    3. If no rule matched (method == 'Unstructured' or fallback_chain empty) AND success=False:
+       -> "Coverage Gap" (The rule set does not cover this failure type).
     
     Returns:
-        Tuple of (category, failure_type)
-        category: "coverage_gap" or "distillation_error"
-        failure_type: The annotated structural feature
+        Tuple (category, reason)
     """
-    # Only categorize failures
-    if success.lower() == 'true' or success.lower() == '1':
-        return None, None
+    task_id = result_row.get('task_id')
+    method = result_row.get('method', '')
+    success_str = result_row.get('success', 'False')
+    success = success_str.lower() in ('true', '1', 'yes')
     
-    if task_id not in failure_cases_map:
-        logger.warning(f"Task {task_id} not found in failure cases. Skipping categorization.")
-        return None, None
+    # Check Ground Truth
+    ground_truth = failure_case.get('ground_truth_resolution')
+    if not ground_truth or ground_truth.strip() == '':
+        return "Missing Ground Truth", "Ground truth resolution is null or empty"
     
-    failure_case = failure_cases_map[task_id]
-    failure_type = failure_case.get('annotated_structural_feature', 'Unknown')
-    ground_truth_resolution = failure_case.get('ground_truth_resolution', '')
+    # If the pivot was successful, it's not a failure to categorize in this context
+    # (Though the taxonomy script usually runs on failures, we check just in case)
+    if success:
+        return "Success", "Pivot was successful"
     
-    # The rule_engine.py logic (from T017) would have attempted to match a rule.
-    # If no rule matched -> "Coverage Gap"
-    # If rule matched but action != ground_truth_resolution -> "Distillation Error"
+    # Determine if a rule matched
+    # Based on T017: "Unstructured - No Rule Match" sets fallback to "Manual Review"
+    # We assume if method is 'Unstructured' or fallback_chain is empty, no rule matched.
+    fallback_chain = result_row.get('fallback_chain', '')
+    rule_matched = method != 'Unstructured' and fallback_chain != 'Manual Review' and fallback_chain != ''
     
-    # Since we don't have the specific rule match log in results.csv, we infer:
-    # In a real scenario, results.csv would have a 'rule_matched' column.
-    # Based on the task description logic:
-    # We assume if the method is 'rule_engine' and it failed, we need to check
-    # if the rule matched. Since we don't have that column, we simulate the check
-    # by assuming if the failure_type is "Unstructured", it's a coverage gap (no rule),
-    # otherwise it might be a distillation error if the rule existed but was wrong.
-    # HOWEVER, the prompt says: "If no rule matches -> Coverage Gap; If rule matches but action != ground_truth -> Distillation Error".
-    # We need to know if a rule matched. 
-    # Let's assume the 'method' column tells us 'rule_engine'.
-    # We need to determine if the rule matched. 
-    # Since the results.csv schema (T024) only has: task_id, method, time_to_pivot, success, failure_type.
-    # We cannot definitively know if a rule matched without an extra column.
-    # BUT, the task T027 description implies we can determine this.
-    # Let's re-read T017: "handle 'Unstructured' cases by defaulting to baseline retrieval method".
-    # This implies if failure_type is "Unstructured", the rule engine did NOT match a rule (it defaulted).
-    # So:
-    # If failure_type == "Unstructured" -> Coverage Gap (no rule matched)
-    # If failure_type != "Unstructured" AND success == False -> Distillation Error (rule matched but failed)
-    
-    if failure_type == "Unstructured":
-        return "coverage_gap", failure_type
+    if not rule_matched:
+        return "Coverage Gap", "No rule matched the failure pattern"
     else:
-        return "distillation_error", failure_type
+        # Rule matched, but pivot failed. This is a Distillation Error.
+        # The rule predicted an action, but the ground truth required something else.
+        return "Distillation Error", "Rule matched but action did not resolve the failure"
 
-def build_taxonomy_report(results: List[Dict[str, Any]], 
-                          failure_cases_map: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
-    """Build the error taxonomy report."""
+def build_taxonomy_report(
+    results: List[Dict[str, Any]],
+    failure_cases_map: Dict[str, Dict[str, Any]]
+) -> Dict[str, Any]:
+    """
+    Build the full taxonomy report including counts and breakdown.
+    """
     coverage_gap_count = 0
     distillation_error_count = 0
-    breakdown_by_type: Dict[str, Dict[str, int]] = {}
+    missing_gt_count = 0
+    total_failures = 0
     
+    breakdown_by_type: Dict[str, Dict[str, int]] = {}
+    excluded_task_ids: List[str] = []
+
     for row in results:
-        task_id = row['task_id']
-        method = row['method']
-        success = row['success']
+        task_id = row.get('task_id')
         
-        # Only process failures from the rule_engine method
-        if method != 'rule_engine' or success.lower() in ('true', '1'):
+        # Skip successful pivots for failure taxonomy
+        if row.get('success', '').lower() in ('true', '1', 'yes'):
             continue
-        
-        category, failure_type = categorize_failure(task_id, method, success, failure_cases_map)
-        
-        if category is None:
+
+        failure_case = failure_cases_map.get(task_id)
+        if not failure_case:
+            logger.warning(f"Task ID {task_id} in results.csv not found in failure_cases.json. Skipping.")
             continue
+
+        category, reason = categorize_failure(row, failure_case)
+
+        if category == "Missing Ground Truth":
+            missing_gt_count += 1
+            excluded_task_ids.append(task_id)
+            continue
+
+        total_failures += 1
         
-        if category == "coverage_gap":
-            coverage_gap_count += 1
-        elif category == "distillation_error":
-            distillation_error_count += 1
+        failure_type = failure_case.get('annotated_structural_feature', 'Unstructured')
         
         if failure_type not in breakdown_by_type:
             breakdown_by_type[failure_type] = {"coverage_gap": 0, "distillation_error": 0}
-        
-        breakdown_by_type[failure_type][category] += 1
-    
-    total_failures = coverage_gap_count + distillation_error_count
-    
+
+        if category == "Coverage Gap":
+            coverage_gap_count += 1
+            breakdown_by_type[failure_type]["coverage_gap"] += 1
+        elif category == "Distillation Error":
+            distillation_error_count += 1
+            breakdown_by_type[failure_type]["distillation_error"] += 1
+
     return {
         "coverage_gap_count": coverage_gap_count,
         "distillation_error_count": distillation_error_count,
+        "missing_gt_count": missing_gt_count,
         "total_failures": total_failures,
-        "breakdown_by_type": breakdown_by_type
+        "breakdown_by_type": breakdown_by_type,
+        "excluded_task_ids": excluded_task_ids
     }
 
-def save_taxonomy_results(report: Dict[str, Any], path: str) -> None:
+def save_taxonomy_results(report: Dict[str, Any], output_path: Path):
     """Save the taxonomy report to JSON."""
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    with open(p, 'w', encoding='utf-8') as f:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
-    logger.info(f"Taxonomy results saved to {path}")
+    logger.info(f"Taxonomy report saved to {output_path}")
 
 def main():
-    log_stage_start("error_taxonomy", INPUT_RESULTS_PATH, INPUT_FAILURE_CASES_PATH)
+    log_stage_start("Error Taxonomy Analysis")
     
+    # Define paths
+    project_root = Path(__file__).resolve().parents[2]
+    results_csv_path = project_root / "data" / "derived" / "results.csv"
+    failure_cases_json_path = project_root / "data" / "derived" / "failure_cases.json"
+    output_json_path = project_root / "data" / "derived" / "error_taxonomy_results.json"
+
+    # Pre-Check: Verify inputs exist
+    if not results_csv_path.exists():
+        logger.error(f"Pre-check failed: {results_csv_path} does not exist.")
+        sys.exit(1)
+    if not failure_cases_json_path.exists():
+        logger.error(f"Pre-check failed: {failure_cases_json_path} does not exist.")
+        sys.exit(1)
+
     try:
-        # Load inputs
-        logger.info(f"Loading results from {INPUT_RESULTS_PATH}")
-        results = load_results_csv(INPUT_RESULTS_PATH)
+        # Load Data
+        logger.info("Loading results.csv...")
+        results = load_results_csv(results_csv_path)
         
-        logger.info(f"Loading failure cases from {INPUT_FAILURE_CASES_PATH}")
-        failure_cases_map = load_failure_cases(INPUT_FAILURE_CASES_PATH)
+        logger.info("Loading failure_cases.json...")
+        failure_cases_map = load_failure_cases(failure_cases_json_path)
         
-        # Build report
-        logger.info("Building error taxonomy report...")
+        # Build Report (Arbitration happens here)
+        logger.info("Categorizing failures and arbitrating with ground truth...")
         report = build_taxonomy_report(results, failure_cases_map)
         
-        # Save output
-        logger.info(f"Saving taxonomy results to {OUTPUT_TAXONOMY_PATH}")
-        save_taxonomy_results(report, OUTPUT_TAXONOMY_PATH)
+        # Save Output
+        save_taxonomy_results(report, output_json_path)
         
-        logger.info(f"Taxonomy complete. Total failures: {report['total_failures']}")
-        log_stage_end("error_taxonomy", status="success")
-        
+        log_stage_end("Error Taxonomy Analysis")
+        return 0
+
     except Exception as e:
-        logger.error(f"Error in error_taxonomy: {e}", exc_info=True)
-        log_stage_end("error_taxonomy", status="failed", error=str(e))
+        logger.error(f"Error during taxonomy analysis: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,71 +1,43 @@
-"""
-Configuration management for the pipeline.
-Defines environment variables, random seeds, and explicit resource limits.
-"""
 import os
 import random
 import numpy as np
-import torch
+from typing import List, Optional
 
-# Explicit Resource Limits as per Task T007
-# These defaults can be overridden by environment variables
+# Environment variables
 MAX_CPU_CORES = int(os.getenv("MAX_CPU_CORES", "2"))
 MAX_MEMORY_GB = int(os.getenv("MAX_MEMORY_GB", "7"))
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", "3600"))
+BASELINE_TIMEOUT_SECONDS = int(os.getenv("BASELINE_TIMEOUT_SECONDS", "7200"))
+BASELINE_CPU_CORES = int(os.getenv("BASELINE_CPU_CORES", "4"))
+BASELINE_MEMORY_GB = int(os.getenv("BASELINE_MEMORY_GB", "16"))
+MAX_STREAMING_ROWS = int(os.getenv("MAX_STREAMING_ROWS", "500"))
+EXPECTED_EFFECT_SIZE = float(os.getenv("EXPECTED_EFFECT_SIZE", "0.5"))
+DEFAULT_SAMPLE_SIZE = int(os.getenv("DEFAULT_SAMPLE_SIZE", "50"))
 
-# Random Seed for Reproducibility
-RANDOM_SEED = int(os.getenv("RANDOM_SEED", "42"))
-
-def set_seed(seed: Optional[int] = None):
-    """
-    Set random seed for reproducibility across the pipeline.
-    Updates Python's random module and sets the hash seed.
-    """
-    if seed is None:
-        seed = RANDOM_SEED
-    
-    random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    
-    # Note: numpy and torch seeding would go here if imported
-    # We defer importing heavy libraries until they are actually needed
-    # to keep this module lightweight and import-safe.
-
-def validate_resource_limits():
-    """
-    Validate that the current environment configuration respects the defined limits.
-    This function logs the configured limits. 
-    Runtime enforcement is handled by the ResourceWatchdog (T007c).
-    
-    Returns:
-        bool: True if limits are valid positive integers.
-    
-    Raises:
-        ValueError: If limits are not positive integers.
-    """
-    if MAX_CPU_CORES <= 0:
-        raise ValueError(f"MAX_CPU_CORES must be positive, got {MAX_CPU_CORES}")
-    if MAX_MEMORY_GB <= 0:
-        raise ValueError(f"MAX_MEMORY_GB must be positive, got {MAX_MEMORY_GB}")
-    if TIMEOUT_SECONDS <= 0:
-        raise ValueError(f"TIMEOUT_SECONDS must be positive, got {TIMEOUT_SECONDS}")
-        
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(
-        f"Resource Limits Configured: "
-        f"CPU={MAX_CPU_CORES}, "
-        f"RAM={MAX_MEMORY_GB}GB, "
-        f"Timeout={TIMEOUT_SECONDS}s"
-    )
-    return True
-
-# Export constants for direct import by other modules
-__all__ = [
-    "MAX_CPU_CORES",
-    "MAX_MEMORY_GB", 
-    "TIMEOUT_SECONDS",
-    "RANDOM_SEED",
-    "set_seed",
-    "validate_resource_limits"
+# Model Priority List for deterministic selection
+MODEL_PRIORITY_LIST: List[str] = [
+    "Llama-8B-INT4", 
+    "Llama-3-4B-INT4", 
+    "TinyLlama-1.1B-INT4"
 ]
+
+# Random seeds for reproducibility
+RANDOM_SEED = 42
+np.random.seed(RANDOM_SEED)
+random.seed(RANDOM_SEED)
+
+def get_config() -> dict:
+    """Return current configuration as a dictionary."""
+    return {
+        "MAX_CPU_CORES": MAX_CPU_CORES,
+        "MAX_MEMORY_GB": MAX_MEMORY_GB,
+        "TIMEOUT_SECONDS": TIMEOUT_SECONDS,
+        "BASELINE_TIMEOUT_SECONDS": BASELINE_TIMEOUT_SECONDS,
+        "BASELINE_CPU_CORES": BASELINE_CPU_CORES,
+        "BASELINE_MEMORY_GB": BASELINE_MEMORY_GB,
+        "MAX_STREAMING_ROWS": MAX_STREAMING_ROWS,
+        "EXPECTED_EFFECT_SIZE": EXPECTED_EFFECT_SIZE,
+        "DEFAULT_SAMPLE_SIZE": DEFAULT_SAMPLE_SIZE,
+        "MODEL_PRIORITY_LIST": MODEL_PRIORITY_LIST,
+        "RANDOM_SEED": RANDOM_SEED
+    }

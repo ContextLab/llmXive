@@ -1805,3 +1805,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T00:23:27Z'
+- artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
+  attempts: 1
+  canonical: ARC-Bench dataset hosted at claw-ai-lab/arc-bench on HuggingFace
+  claim_id: c_90a4bff6
+  context: Fetch the primary source URLs/DOIs for all citations listed in plan.md
+    and spec.md (e.g., the HuggingFace dataset claw-ai-lab/arc-bench or the associated
+    paper DOI).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ARC-Bench_dataset_hosted_at_claw-ai-lab/arc-bench_on_Hugging
+  kind: entity_fact
+  raw_text: The ARC-Bench dataset is available via the HuggingFace dataset claw-ai-lab/arc-bench.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T22:29:36Z'
