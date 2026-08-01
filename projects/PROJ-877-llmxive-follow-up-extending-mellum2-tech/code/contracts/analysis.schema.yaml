@@ -1,0 +1,259 @@
+# Analysis Schema Definition
+# This file defines the JSON Schema for analysis results within the llmXive pipeline.
+# It explicitly covers correlation, threshold, and p_value fields as required.
+
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis
+description: >-
+  Schema for storing statistical analysis results, including correlation metrics,
+  threshold detection, and significance testing.
+
+type: object
+required:
+  - analysis_id
+  - timestamp
+  - correlation
+  - threshold
+  - p_value
+
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for this analysis run (UUID).
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+
+  timestamp:
+    type: string
+    description: ISO 8601 timestamp of when the analysis was completed.
+    format: date-time
+
+  pipeline_version:
+    type: string
+    description: Version of the pipeline that generated this analysis.
+    default: "1.0.0"
+
+  # Correlation Section (US1)
+  correlation:
+    type: object
+    description: Results from the correlation analysis between complexity and loss.
+    required:
+      - method
+      - coefficient
+      - p_value
+      - sample_size
+      - confidence_interval
+
+    properties:
+      method:
+        type: string
+        description: The statistical method used (e.g., 'pearson', 'spearman').
+        enum:
+          - pearson
+          - spearman
+          - kendall
+
+      coefficient:
+        type: number
+        description: The calculated correlation coefficient (r or rho).
+        minimum: -1.0
+        maximum: 1.0
+
+      p_value:
+        type: number
+        description: The p-value associated with the correlation coefficient.
+        minimum: 0.0
+        maximum: 1.0
+
+      sample_size:
+        type: integer
+        description: Number of data points used in the calculation.
+        minimum: 2
+
+      confidence_interval:
+        type: object
+        description: 95% confidence interval for the coefficient.
+        required:
+          - lower
+          - upper
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+
+      metrics:
+        type: array
+        description: List of complexity metrics tested against loss.
+        items:
+          type: string
+        examples:
+          - cyclomatic_complexity
+          - nesting_depth
+          - repetition_ratio
+
+      language:
+        type: string
+        description: The programming language of the dataset subset.
+        enum:
+          - python
+          - java
+          - mixed
+
+  # Threshold Section (US2)
+  threshold:
+    type: object
+    description: Results from threshold detection and piecewise regression.
+    required:
+      - detected
+      - breakpoint
+      - model_preference
+      - sensitivity
+
+    properties:
+      detected:
+        type: boolean
+        description: Whether a statistically significant threshold was detected.
+
+      breakpoint:
+        type: number
+        description: The value of the independent variable (complexity) where the shift occurs.
+        minimum: 0.0
+
+      model_preference:
+        type: string
+        description: Preferred model based on AIC/BIC comparison (linear vs non-linear).
+        enum:
+          - linear
+          - piecewise_linear
+          - quadratic
+          - non_linear
+
+      aic:
+        type: number
+        description: Akaike Information Criterion for the selected model.
+
+      bic:
+        type: number
+        description: Bayesian Information Criterion for the selected model.
+
+      sensitivity:
+        type: object
+        description: Results from the sensitivity analysis (perturbation sweep).
+        required:
+          - bootstrap_shifts
+          - magnitude_shifts
+        properties:
+          bootstrap_shifts:
+            type: object
+            description: Distribution of threshold shifts from bootstrap resampling.
+            properties:
+              mean:
+                type: number
+              std:
+                type: number
+              min:
+                type: number
+              max:
+                type: number
+
+          magnitude_shifts:
+            type: array
+            description: List of threshold shifts observed at different perturbation magnitudes.
+            items:
+              type: object
+              properties:
+                perturbation_magnitude:
+                  type: number
+                delta:
+                  type: number
+
+      confidence_level:
+        type: number
+        description: Confidence level used for threshold detection (default 0.95).
+        minimum: 0.0
+        maximum: 1.0
+
+  # P-Value Section (US3)
+  p_value:
+    type: object
+    description: Results from permutation tests and significance validation.
+    required:
+      - raw_p_value
+      - corrected_p_value
+      - method
+      - corrections_applied
+
+    properties:
+      raw_p_value:
+        type: number
+        description: The raw p-value from the permutation test.
+        minimum: 0.0
+        maximum: 1.0
+
+      corrected_p_value:
+        type: number
+        description: The p-value after multiple comparison correction.
+        minimum: 0.0
+        maximum: 1.0
+
+      method:
+        type: string
+        description: The statistical test method used.
+        enum:
+          - cluster_robust_permutation
+          - standard_permutation
+          - parametric_approximation
+
+      corrections_applied:
+        type: array
+        description: List of corrections applied to the p-value.
+        items:
+          type: string
+        enum:
+          - bonferroni
+          - holm
+          - fdr_bh
+          - fdr_by
+        examples:
+          - bonferroni
+          - fdr_bh
+
+      n_permutations:
+        type: integer
+        description: Number of permutations run for the test.
+        minimum: 1000
+
+      alpha:
+        type: number
+        description: Significance level (alpha) used for the test.
+        default: 0.05
+        minimum: 0.0
+        maximum: 1.0
+
+      significant:
+        type: boolean
+        description: Whether the result is significant at the given alpha level.
+
+  metadata:
+    type: object
+    description: Additional metadata about the analysis run.
+    properties:
+      data_checksum:
+        type: string
+        description: SHA256 checksum of the input data used.
+
+      runtime_seconds:
+        type: number
+        description: Total runtime of the analysis script.
+
+      hardware_info:
+        type: object
+        description: Hardware details (CPU, RAM, GPU if applicable).
+        properties:
+          cpu:
+            type: string
+          ram_gb:
+            type: number
+          gpu:
+            type: string
+            nullable: true

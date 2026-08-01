@@ -1,16 +1,18 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-follow-up-extending-mellum2-tech"
 version = "0.1.0"
-description = "Automated science pipeline for llmXive: Complexity Loss Analysis"
-requires-python = ">=3.10"
+description = "Automated science pipeline for analyzing code complexity and prediction loss"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
     "datasets",
     "transformers",
     "tree-sitter",
+    "codeql",
     "scikit-learn",
     "statsmodels",
     "pandas",
@@ -20,16 +22,16 @@ dependencies = [
     "kenlm",
     "pwlf",
     "ruptures",
-    "torch",
-    "ruff",
-    "black",
+    "python-dotenv",
+    "pyyaml",
+    "pytest",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
     \.git
     | \.hg
@@ -40,17 +42,18 @@ extend-exclude = '''
     | buck-out
     | build
     | dist
-    | data
 )/
 '''
 
-[tool.ruff]
-# Inherits from code/.ruff.toml for specific rules, but defines project root
-extend = "code/.ruff.toml"
-line-length = 88
-target-version = "py310"
+[tool.isort]
+profile = "black"
+line_length = 88
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["code", "code.analysis", "code.data", "code.inference", "code.utils", "code.contracts"]

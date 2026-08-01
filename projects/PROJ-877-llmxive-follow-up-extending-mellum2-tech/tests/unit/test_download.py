@@ -6,7 +6,7 @@ Tests:
 - test_download_handles_empty_dataset: Simulates empty dataset response.
 """
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, mock_open
 import sys
 from pathlib import Path
 import json
@@ -30,6 +30,9 @@ class MockDataset:
             raise Exception("Network timeout or error")
         self.iterated = True
         return iter(self.items)
+    
+    def take(self, n):
+        return MockDataset(items=self.items[:n], raise_on_iter=self.raise_on_iter)
 
 def test_download_handles_network_timeout():
     """
@@ -39,7 +42,7 @@ def test_download_handles_network_timeout():
     - Should raise NetworkError when dataset fetch fails.
     - Should NOT return synthetic data.
     """
-    with patch("code.data.download.load_dataset") as mock_load:
+    with patch("datasets.load_dataset") as mock_load:
         # Simulate network timeout
         mock_load.side_effect = Exception("Connection timeout")
         
@@ -58,7 +61,7 @@ def test_download_handles_empty_dataset():
     - Should return empty list if no chunks match.
     - Should NOT return synthetic data.
     """
-    with patch("code.data.download.load_dataset") as mock_load:
+    with patch("datasets.load_dataset") as mock_load:
         # Return empty dataset
         mock_load.return_value = MockDataset(items=[])
         
@@ -70,7 +73,7 @@ def test_download_handles_empty_dataset():
 
 def test_download_filters_languages():
     """Test that download correctly filters by language."""
-    with patch("code.data.download.load_dataset") as mock_load:
+    with patch("datasets.load_dataset") as mock_load:
         # Create mock items with different languages
         items = [
             {"language": "python", "code": "print('hello')"},
@@ -89,7 +92,7 @@ def test_download_filters_languages():
 
 def test_download_respects_capped_n():
     """Test that download respects the capped_N limit."""
-    with patch("code.data.download.load_dataset") as mock_load:
+    with patch("datasets.load_dataset") as mock_load:
         # Create more items than capped_n
         items = [
             {"language": "python", "code": f"code_{i}"}

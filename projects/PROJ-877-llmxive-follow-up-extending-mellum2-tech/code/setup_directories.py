@@ -1,108 +1,95 @@
 import os
 import logging
+import sys
 from pathlib import Path
 from typing import List, Tuple
 
-logger = logging.getLogger(__name__)
+from config import get_project_root, get_config
+from setup_logging import log_directory_creation, setup_logger
 
-def ensure_data_directories(base_path: Path) -> None:
+def ensure_data_directories() -> List[Tuple[str, bool]]:
     """
-    Create the required directory structure for the project.
+    Ensure all required project directories exist.
     
-    Creates:
-    - projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/
-      - code/
-      - data/
-        - raw/
-        - processed/
-        - results/
-      - tests/
-      - specs/
-    
-    Args:
-        base_path: The root directory where the project structure will be created.
+    Returns:
+        List of tuples (directory_path, created_flag) indicating which dirs were created.
     """
-    project_root = base_path / "projects" / "PROJ-877-llmxive-follow-up-extending-mellum2-tech"
+    project_root = get_project_root()
+    config = get_config()
     
-    directories = [
-        project_root,
-        project_root / "code",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "results",
-        project_root / "tests",
-        project_root / "specs",
-        project_root / "figures",
+    # Define subdirectories relative to project root
+    subdirs = [
+        "code",
+        "data",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "data/figures",
+        "docs",
+        "specs",
+        "contracts"
     ]
     
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created directory: {directory}")
+    created_dirs = []
+    logger = setup_logger("directory_setup")
+    
+    # Ensure project root exists
+    project_root.mkdir(parents=True, exist_ok=True)
+    log_directory_creation("root", str(project_root), "directory_setup")
+    
+    # Create subdirectories
+    for subdir in subdirs:
+        dir_path = project_root / subdir
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append((str(dir_path), True))
+            log_directory_creation("subdirectory", str(dir_path), "directory_setup")
+        else:
+            created_dirs.append((str(dir_path), False))
+            
+    return created_dirs
 
-def generate_init_files(base_path: Path) -> None:
+def generate_init_files() -> List[str]:
     """
-    Create __init__.py files in all Python package directories.
+    Generate __init__.py files for all Python packages.
     
-    Args:
-        base_path: The root directory of the project.
+    Returns:
+        List of paths to created __init__.py files.
     """
-    project_root = base_path / "projects" / "PROJ-877-llmxive-follow-up-extending-mellum2-tech"
-    python_dirs = [
-        project_root / "code",
-        project_root / "code" / "analysis",
-        project_root / "code" / "data",
-        project_root / "code" / "inference",
-        project_root / "code" / "utils",
-        project_root / "code" / "contracts",
-        project_root / "tests",
-        project_root / "tests" / "unit",
-    ]
+    project_root = get_project_root()
+    python_packages = ["code", "code/data", "code/analysis", "code/inference", 
+                     "code/utils", "code/contracts", "tests", "tests/unit"]
     
-    for directory in python_dirs:
-        init_file = directory / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            logger.info(f"Created __init__.py: {init_file}")
+    init_files = []
+    
+    for package in python_packages:
+        pkg_path = project_root / package
+        if pkg_path.exists():
+            init_path = pkg_path / "__init__.py"
+            if not init_path.exists():
+                init_path.write_text("# Package initialization\n")
+                init_files.append(str(init_path))
+                
+    return init_files
 
 def main():
     """
     Main entry point for directory setup.
-    Creates the full project structure and initializes Python packages.
+    Creates all required directories and generates init files.
     """
-    # Use current working directory as base
-    base_path = Path.cwd()
+    logger = setup_logger("directory_setup")
+    logger.info("Starting directory setup...")
     
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(base_path / "project_init.log"),
-            logging.StreamHandler()
-        ]
-    )
+    # Ensure directories
+    created_dirs = ensure_data_directories()
+    logger.info(f"Created/verified {len(created_dirs)} directories")
     
-    logger.info("Starting project directory initialization...")
+    # Generate init files
+    init_files = generate_init_files()
+    logger.info(f"Generated {len(init_files)} __init__.py files")
     
-    ensure_data_directories(base_path)
-    generate_init_files(base_path)
-    
-    # Generate directory listing for verification
-    project_root = base_path / "projects" / "PROJ-877-llmxive-follow-up-extending-mellum2-tech"
-    log_path = base_path / "project_init.log"
-    
-    with open(log_path, 'a') as f:
-        f.write("\n=== Directory Structure Verification ===\n")
-        f.write(f"Project Root: {project_root}\n\n")
-        for root, dirs, files in os.walk(project_root):
-            level = root.replace(str(project_root), '').count(os.sep)
-            indent = ' ' * 2 * level
-            f.write(f'{indent}{os.path.basename(root)}/\n')
-            subindent = ' ' * 2 * (level + 1)
-            for file in files:
-                f.write(f'{subindent}{file}\n')
-        f.write("\n=== Initialization Complete ===\n")
-    
-    logger.info(f"Project structure created successfully. Log written to: {log_path}")
+    logger.info("Directory setup completed successfully")
 
 if __name__ == "__main__":
     main()

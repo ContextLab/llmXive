@@ -34,15 +34,13 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-.tox/
 .coverage
 .coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
+cover
 .hypothesis/
 .pytest_cache/
+.tox/
+.nox/
 
 # Translations
 *.mo
@@ -50,19 +48,11 @@ coverage.xml
 
 # Environments
 .env
-.venv
-env/
+.env.local
+.env.*.local
 venv/
 ENV/
-env.bak/
-venv.bak/
-
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+env/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -70,20 +60,75 @@ venv.bak/
 # pyenv
 .python-version
 
-# mypy
-.mypy_cache/
+# Cython debug symbols
+cython_debug/
 
-# Project specific
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Hugging Face Cache
+.cache/
+hf_cache/
+huggingface/
+*huggingface*
+
+# Data artifacts (exclude large binary/data files from version control)
+data/
 data/raw/
 data/processed/
 data/results/
-figures/
-logs/
-*.log
-project_init.log
-state/
-specs/
+data/tmp/
+*.csv
+*.jsonl
+*.parquet
+*.pt
+*.pth
+*.bin
+*.h5
+*.npz
+*.npy
+*.arpa
+*.lm
 
-# OS files
-.DS_Store
-Thumbs.db
+# Logs
+*.log
+logs/
+
+# Model weights (large files)
+*.bin
+*.safetensors
+model_weights/
+
+# Figures (generated)
+figures/
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.pdf
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Project specific
+.env.template
+requirements.txt.lock
+.mypy_cache/
+.ruff_cache/

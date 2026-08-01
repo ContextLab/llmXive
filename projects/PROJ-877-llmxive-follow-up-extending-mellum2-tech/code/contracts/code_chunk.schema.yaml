@@ -1,0 +1,163 @@
+%YAML 1.2
+---
+title: Code Chunk Schema
+description: >
+  Schema definition for code chunks extracted from the dataset.
+  This schema defines the structure of individual code units used
+  in the complexity and prediction loss analysis pipeline.
+type: object
+required:
+  - chunk_id
+  - complexity
+  - depth
+  - loss
+properties:
+  chunk_id:
+    type: string
+    description: >
+      Unique identifier for the code chunk.
+      Format: <language>_<repo_id>_<file_path_hash>_<start_line>_<end_line>
+    pattern: "^[a-z0-9_]+-[a-f0-9]+-\\d+-\\d+$"
+    minLength: 1
+    examples:
+      - "python_microsoft_vscode-abc123def456-10-50"
+  
+  complexity:
+    type: object
+    description: >
+      Static analysis metrics representing code complexity.
+      Calculated via CodeQL and Tree-Sitter.
+    required:
+      - cyclomatic
+      - halstead
+      - repetition_ratio
+    properties:
+      cyclomatic:
+        type: integer
+        description: Cyclomatic complexity (McCabe).
+        minimum: 1
+        examples:
+          - 1
+          - 5
+          - 24
+      halstead:
+        type: object
+        description: Halstead complexity measures.
+        required:
+          - volume
+          - difficulty
+          - effort
+        properties:
+          volume:
+            type: number
+            description: Program volume.
+            minimum: 0
+          difficulty:
+            type: number
+            description: Program difficulty.
+            minimum: 0
+          effort:
+            type: number
+            description: Program effort.
+            minimum: 0
+      repetition_ratio:
+        type: number
+        description: Ratio of repeated tokens/n-grams.
+        minimum: 0.0
+        maximum: 1.0
+        examples:
+          - 0.05
+          - 0.42
+  
+  depth:
+    type: object
+    description: >
+      Structural depth metrics of the code.
+      Represents nesting and hierarchical depth.
+    required:
+      - max_nesting
+      - avg_nesting
+      - call_depth
+    properties:
+      max_nesting:
+        type: integer
+        description: Maximum nesting depth of control structures.
+        minimum: 0
+        examples:
+          - 0
+          - 3
+          - 12
+      avg_nesting:
+        type: number
+        description: Average nesting depth across the chunk.
+        minimum: 0.0
+      call_depth:
+        type: integer
+        description: Maximum depth of function call chains.
+        minimum: 0
+  
+  loss:
+    type: object
+    description: >
+      Prediction loss metrics from the LLM inference engine.
+      Includes raw and normalized loss values.
+    required:
+      - token_loss
+      - entropy
+      - normalized_loss
+    properties:
+      token_loss:
+        type: number
+        description: Raw cross-entropy loss per token (nats).
+        minimum: 0.0
+      entropy:
+        type: number
+        description: Shannon entropy of the token distribution.
+        minimum: 0.0
+      normalized_loss:
+        type: number
+        description: >
+          Loss normalized by n-gram model baseline.
+          Calculated as: token_loss - ngram_log_prob.
+        minimum: -10.0
+        examples:
+          - 0.5
+          - 2.3
+          - -0.1
+  
+  metadata:
+    type: object
+    description: >
+      Optional metadata about the chunk source and processing.
+    required: []
+    properties:
+      language:
+        type: string
+        enum:
+          - python
+          - java
+        description: Programming language of the chunk.
+      repo_id:
+        type: string
+        description: Source repository identifier.
+      file_path:
+        type: string
+        description: Relative file path within the repository.
+      start_line:
+        type: integer
+        description: Starting line number (1-based).
+        minimum: 1
+      end_line:
+        type: integer
+        description: Ending line number (1-based).
+        minimum: 1
+      token_count:
+        type: integer
+        description: Number of tokens in the chunk.
+        minimum: 1
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of chunk creation.
+        pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$"
+additionalProperties: false

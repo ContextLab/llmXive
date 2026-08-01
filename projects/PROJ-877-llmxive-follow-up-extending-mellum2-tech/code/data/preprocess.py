@@ -1,13 +1,7 @@
 """
-Preprocess downloaded code chunks using CodeQL and tree-sitter.
-
-This module implements T016:
-- Creates queries/complexity.ql for cyclomatic complexity, nesting depth, and repetition ratio.
-- Processes files in data/processed/train_python/ and data/processed/val_java/.
-- Skips unparseable files and logs errors (Edge Case 1).
-- Outputs annotated JSONL files.
+Preprocessing module for code analysis.
+Runs CodeQL and tree-sitter to label code chunks with complexity metrics.
 """
-
 import json
 import logging
 import os
@@ -15,462 +9,292 @@ import sys
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
+import tree_sitter_python as tspython
+from tree_sitter import Language, Parser
 
-# Local imports matching API surface
-from config import get_config
-from utils.logging import get_logger, ParseError, handle_parse_error
-from contracts.schemas import CodeChunk
+from config import get_config, get_project_root
+from utils.logging import get_logger, ParseError
+from utils.timeout import enforce_timeout
 
+# Initialize logger
 logger = get_logger(__name__)
-CONFIG = get_config()
 
-# Constants
-COMPLEXITY_QL_QUERY = """
-// Complexity metrics query for CodeQL
-// Measures: cyclomatic complexity, nesting depth, repetition ratio
-
-import python
-import java
-
-// Cyclomatic Complexity: count decision points (if, while, for, etc.)
-predicate hasCyclomaticComplexity(
-  Function f,
-  int complexity
-) {
-  complexity = f.getNumberOfDecisionPoints() + 1
-}
-
-// Nesting Depth: maximum nesting level of control structures
-predicate hasNestingDepth(
-  Function f,
-  int depth
-) {
-  depth = f.getMaxNestingDepth()
-}
-
-// Repetition Ratio: ratio of repeated statements/lines
-predicate hasRepetitionRatio(
-  Function f,
-  float ratio
-) {
-  // Placeholder: actual implementation would count repeated patterns
-  ratio = 0.0
-}
-"""
+# Tree-sitter constants
+TREE_SITTER_LANGUAGE_PATH = Path(get_project_root()) / "data" / "tree-sitter-languages"
+PYTHON_LANGUAGE = None
+JAVA_LANGUAGE = None
 
 def ensure_codeql_available() -> bool:
-    """Check if CodeQL CLI is available in PATH."""
+    """Check if CodeQL CLI is available in the system PATH."""
     try:
         result = subprocess.run(
             ["codeql", "version"],
             capture_output=True,
             text=True,
-            timeout=10
+            check=False
         )
         if result.returncode == 0:
-            logger.info("CodeQL CLI is available")
+            logger.info("CodeQL CLI found.")
             return True
         else:
-            logger.warning("CodeQL CLI found but returned error: %s", result.stderr)
+            logger.warning("CodeQL CLI found but returned non-zero version check.")
             return False
     except FileNotFoundError:
-        logger.warning("CodeQL CLI not found in PATH")
-        return False
-    except subprocess.TimeoutExpired:
-        logger.warning("CodeQL version check timed out")
-        return False
-    except Exception as e:
-        logger.warning("Error checking CodeQL: %s", str(e))
+        logger.error("CodeQL CLI not found in PATH. Please install CodeQL CLI.")
         return False
 
-def create_complexity_query_file() -> Path:
-    """Create the complexity.ql query file in queries/ directory."""
-    queries_dir = Path(CONFIG["project_root"]) / "queries"
-    queries_dir.mkdir(exist_ok=True)
-    
-    query_file = queries_dir / "complexity.ql"
-    with open(query_file, "w", encoding="utf-8") as f:
-        f.write(COMPLEXITY_QL_QUERY)
-    
-    logger.info("Created complexity query file: %s", query_file)
-    return query_file
+def create_complexity_query_file(output_path: Path) -> None:
+    """Create the CodeQL query file for complexity analysis."""
+    query_content = """
+    import python
+    import java
 
-def run_codeql_analysis(
-    source_file: Path,
-    language: str,
-    output_dir: Path
-) -> Optional[Dict[str, Any]]:
+    from Class, Method, Function, Expression, Statement, ControlFlowGraph
+    select $node, $reason
+    where
+      $node instanceof Class or
+      $node instanceof Method or
+      $node instanceof Function or
+      $node instanceof Expression or
+      $node instanceof Statement
     """
-    Run CodeQL analysis on a single file.
-    
-    Args:
-        source_file: Path to the source file
-        language: 'python' or 'java'
-        output_dir: Directory to store analysis results
-        
-    Returns:
-        Dictionary with complexity metrics or None if analysis fails
-    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(query_content)
+    logger.info(f"Created CodeQL query file at {output_path}")
+
+def run_codeql_analysis(code_path: Path, output_path: Path, language: str = "python") -> Optional[Path]:
+    """Run CodeQL analysis on a code file or directory."""
     if not ensure_codeql_available():
-        logger.warning("Skipping CodeQL analysis for %s: CodeQL not available", source_file)
+        logger.warning("Skipping CodeQL analysis due to missing CLI.")
         return None
-    
+
+    db_path = Path(tempfile.mkdtemp()) / f"codeql_db_{language}"
+    query_path = Path(tempfile.mkdtemp()) / "complexity.ql"
+
     try:
-        # Create a temporary database
-        with tempfile.TemporaryDirectory() as tmp_db:
-            db_path = Path(tmp_db) / "db"
-            
-            # Create database
-            logger.debug("Creating CodeQL database for %s", source_file)
-            db_result = subprocess.run(
-                [
-                    "codeql", "database", "create", str(db_path),
-                    "--language", language,
-                    "--source-root", str(source_file.parent),
-                    "--overwrite"
-                ],
-                capture_output=True,
-                text=True,
-                timeout=60
-            )
-            
-            if db_result.returncode != 0:
-                logger.warning("CodeQL database creation failed for %s: %s", 
-                             source_file, db_result.stderr)
-                return None
-            
-            # Run query
-            query_file = create_complexity_query_file()
-            output_csv = output_dir / f"{source_file.stem}_results.csv"
-            
-            logger.debug("Running CodeQL query on %s", source_file)
-            query_result = subprocess.run(
-                [
-                    "codeql", "database", "analyze", str(db_path),
-                    query_file,
-                    f"--format=csv",
-                    f"--output={output_csv}"
-                ],
-                capture_output=True,
-                text=True,
-                timeout=120
-            )
-            
-            if query_result.returncode != 0:
-                logger.warning("CodeQL query failed for %s: %s", 
-                             source_file, query_result.stderr)
-                return None
-            
-            # Parse results
-            if output_csv.exists():
-                return parse_codeql_results(output_csv)
-            else:
-                logger.warning("No output file generated for %s", source_file)
-                return None
-    
+        # Create database
+        logger.info(f"Creating CodeQL database for {language} at {db_path}")
+        subprocess.run(
+            ["codeql", "database", "create", str(db_path), f"--language={language}", f"--source-root={code_path}"],
+            check=True,
+            capture_output=True,
+            timeout=300
+        )
+
+        # Create query file
+        create_complexity_query_file(query_path)
+
+        # Run query
+        logger.info(f"Running CodeQL query on {code_path}")
+        subprocess.run(
+            ["codeql", "database", "analyze", str(db_path), str(query_path), "--format=csv", f"--output={output_path}"],
+            check=True,
+            capture_output=True,
+            timeout=300
+        )
+
+        return output_path
+    except subprocess.CalledProcessError as e:
+        logger.error(f"CodeQL analysis failed: {e.stderr.decode() if e.stderr else str(e)}")
+        return None
     except subprocess.TimeoutExpired:
-        logger.warning("CodeQL analysis timed out for %s", source_file)
-        return None
-    except Exception as e:
-        logger.warning("Error during CodeQL analysis for %s: %s", source_file, str(e))
+        logger.error("CodeQL analysis timed out.")
         return None
 
-def parse_codeql_results(csv_path: Path) -> Dict[str, Any]:
-    """Parse CodeQL CSV output into metrics dictionary."""
+def parse_codeql_results(csv_path: Path) -> List[Dict[str, Any]]:
+    """Parse CodeQL CSV results into a list of dictionaries."""
+    results = []
+    if not csv_path.exists():
+        return results
+
+    with open(csv_path, "r", encoding="utf-8") as f:
+        header = f.readline().strip().split(",")
+        for line in f:
+            parts = line.strip().split(",")
+            if len(parts) == len(header):
+                results.append(dict(zip(header, parts)))
+    return results
+
+def init_tree_sitter_languages():
+    """Initialize Tree-sitter parsers for Python and Java."""
+    global PYTHON_LANGUAGE, JAVA_LANGUAGE
+    if PYTHON_LANGUAGE is None:
+        TREE_SITTER_LANGUAGE_PATH.mkdir(parents=True, exist_ok=True)
+        try:
+            # Create the shared library for Python
+            python_lang = Language(tspython.language())
+            PYTHON_LANGUAGE = parser = Parser(python_lang)
+            logger.info("Initialized Tree-sitter Python parser.")
+        except Exception as e:
+            logger.error(f"Failed to initialize Tree-sitter Python: {e}")
+            PYTHON_LANGUAGE = None
+
+    if JAVA_LANGUAGE is None:
+        # Note: Java language support requires tree-sitter-java
+        # For this implementation, we assume it's available or skip
+        try:
+            import tree_sitter_java as tsjava
+            java_lang = Language(tsjava.language())
+            JAVA_LANGUAGE = Parser(java_lang)
+            logger.info("Initialized Tree-sitter Java parser.")
+        except ImportError:
+            logger.warning("tree-sitter-java not found. Java parsing will be skipped.")
+            JAVA_LANGUAGE = None
+        except Exception as e:
+            logger.error(f"Failed to initialize Tree-sitter Java: {e}")
+            JAVA_LANGUAGE = None
+
+def analyze_with_tree_sitter(code: str, language: str = "python") -> Dict[str, Any]:
+    """Analyze code using Tree-sitter to extract metrics."""
+    init_tree_sitter_languages()
+    
+    if language == "python" and PYTHON_LANGUAGE is None:
+        return {"error": "Python parser not available"}
+    if language == "java" and JAVA_LANGUAGE is None:
+        return {"error": "Java parser not available"}
+
+    parser = PYTHON_LANGUAGE if language == "python" else JAVA_LANGUAGE
+    tree = parser.parse(code.encode("utf-8"))
+    
     metrics = {
-        "cyclomatic_complexity": 0,
         "nesting_depth": 0,
-        "repetition_ratio": 0.0
+        "cyclomatic_complexity": 1,
+        "function_count": 0,
+        "class_count": 0
     }
-    
-    try:
-        with open(csv_path, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-            
-        # Skip header
-        if len(lines) > 1:
-            # Parse first data row (assuming single function per file for now)
-            parts = lines[1].strip().split(",")
-            if len(parts) >= 3:
-                try:
-                    metrics["cyclomatic_complexity"] = int(parts[0])
-                    metrics["nesting_depth"] = int(parts[1])
-                    metrics["repetition_ratio"] = float(parts[2])
-                except (ValueError, IndexError) as e:
-                    logger.warning("Error parsing CodeQL results: %s", str(e))
-    
-    except Exception as e:
-        logger.warning("Error reading CodeQL results file: %s", str(e))
-    
+
+    def traverse_node(node, depth=0):
+        if node.type in ["if_statement", "for_statement", "while_statement", "with_statement", "try_statement"]:
+            metrics["nesting_depth"] = max(metrics["nesting_depth"], depth + 1)
+            metrics["cyclomatic_complexity"] += 1
+        
+        if node.type in ["function_definition", "method_definition"]:
+            metrics["function_count"] += 1
+        
+        if node.type == "class_definition":
+            metrics["class_count"] += 1
+        
+        for child in node.children:
+            traverse_node(child, depth + 1 if node.type in ["if_statement", "for_statement", "while_statement", "with_statement", "try_statement"] else depth)
+
+    traverse_node(tree.root_node)
     return metrics
 
-def analyze_with_tree_sitter(
-    source_file: Path,
-    language: str
-) -> Dict[str, Any]:
-    """
-    Fallback analysis using tree-sitter if CodeQL is unavailable.
-    
-    Args:
-        source_file: Path to the source file
-        language: 'python' or 'java'
-        
-    Returns:
-        Dictionary with complexity metrics
-    """
+def calculate_tree_sitter_metrics(code: str, language: str = "python") -> Dict[str, Any]:
+    """Calculate tree-sitter metrics for a code snippet."""
     try:
-        import tree_sitter
-        import tree_sitter_python
-        import tree_sitter_java
-    except ImportError:
-        logger.error("tree-sitter libraries not installed. Install with: pip install tree-sitter-python tree-sitter-java")
-        return {
-            "cyclomatic_complexity": 0,
-            "nesting_depth": 0,
-            "repetition_ratio": 0.0,
-            "parse_error": True
+        return analyze_with_tree_sitter(code, language)
+    except Exception as e:
+        logger.warning(f"Tree-sitter analysis failed: {e}")
+        return {"error": str(e)}
+
+def process_single_file(file_path: Path, language: str = "python") -> Dict[str, Any]:
+    """Process a single code file and return metrics."""
+    logger.info(f"Processing file: {file_path}")
+    
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            code = f.read()
+        
+        metrics = {
+            "file_path": str(file_path),
+            "language": language,
+            "size_bytes": len(code.encode("utf-8")),
+            "line_count": len(code.splitlines()),
         }
-    
-    try:
-        # Select appropriate parser
-        if language == "python":
-            parser = tree_sitter.Parser()
-            parser.set_language(tree_sitter_python.Language())
-        elif language == "java":
-            parser = tree_sitter.Parser()
-            parser.set_language(tree_sitter_java.Language())
-        else:
-            logger.warning("Unsupported language: %s", language)
-            return {
-                "cyclomatic_complexity": 0,
-                "nesting_depth": 0,
-                "repetition_ratio": 0.0,
-                "parse_error": True
-            }
         
-        # Read and parse source
-        with open(source_file, "rb") as f:
-            source_code = f.read()
+        # Tree-sitter metrics
+        ts_metrics = calculate_tree_sitter_metrics(code, language)
+        metrics.update(ts_metrics)
         
-        tree = parser.parse(source_code)
+        # CodeQL metrics (optional, if available)
+        if ensure_codeql_available():
+            with tempfile.NamedTemporaryFile(suffix=".ql", delete=False) as tmp:
+                tmp_path = Path(tmp.name)
+            try:
+                output_csv = Path(tempfile.mkdtemp()) / "codeql_results.csv"
+                codeql_path = run_codeql_analysis(file_path.parent, output_csv, language)
+                if codeql_path:
+                    codeql_results = parse_codeql_results(output_csv)
+                    metrics["codeql_results"] = codeql_results
+            finally:
+                if tmp_path.exists():
+                    tmp_path.unlink()
         
-        # Calculate metrics from AST
-        metrics = calculate_tree_sitter_metrics(tree.root_node, language)
-        metrics["parse_error"] = False
         return metrics
-    
     except Exception as e:
-        logger.warning("tree-sitter analysis failed for %s: %s", source_file, str(e))
+        logger.error(f"Failed to process file {file_path}: {e}")
         return {
-            "cyclomatic_complexity": 0,
-            "nesting_depth": 0,
-            "repetition_ratio": 0.0,
-            "parse_error": True,
-            "error_message": str(e)
+            "file_path": str(file_path),
+            "language": language,
+            "error": str(e)
         }
 
-def calculate_tree_sitter_metrics(
-    node: tree_sitter.Node,
-    language: str,
-    depth: int = 0
-) -> Dict[str, Any]:
-    """Recursively calculate complexity metrics from AST."""
-    metrics = {
-        "cyclomatic_complexity": 0,
-        "nesting_depth": depth,
-        "repetition_ratio": 0.0
-    }
+def process_directory(directory: Path, output_path: Path, language: str = "python") -> None:
+    """Process all code files in a directory and write results to a JSONL file."""
+    results = []
+    extensions = {".py"} if language == "python" else {".java"}
     
-    # Decision points for cyclomatic complexity
-    decision_nodes = {
-        "python": ["if_statement", "for_statement", "while_statement", "try_statement", "except_clause"],
-        "java": ["if_statement", "for_statement", "while_statement", "do_statement", "try_catch", "catch_clause"]
-    }
+    logger.info(f"Processing directory: {directory} for language: {language}")
     
-    nesting_nodes = {
-        "python": ["if_statement", "for_statement", "while_statement", "try_statement"],
-        "java": ["if_statement", "for_statement", "while_statement", "do_statement", "try_catch"]
-    }
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if any(file.endswith(ext) for ext in extensions):
+                file_path = Path(root) / file
+                result = process_single_file(file_path, language)
+                results.append(result)
     
-    decision_types = decision_nodes.get(language, [])
-    nesting_types = nesting_nodes.get(language, [])
+    # Write results to JSONL
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        for result in results:
+            f.write(json.dumps(result) + "\n")
     
-    # Count decision points
-    if node.type in decision_types:
-        metrics["cyclomatic_complexity"] += 1
-    
-    # Track maximum nesting depth
-    current_max_depth = depth
-    if node.type in nesting_types:
-        current_max_depth = max(current_max_depth, depth + 1)
-    
-    # Recurse into children
-    total_complexity = metrics["cyclomatic_complexity"]
-    max_depth = current_max_depth
-    
-    for child in node.children:
-        child_metrics = calculate_tree_sitter_metrics(child, language, current_max_depth)
-        total_complexity += child_metrics["cyclomatic_complexity"]
-        max_depth = max(max_depth, child_metrics["nesting_depth"])
-    
-    metrics["cyclomatic_complexity"] = total_complexity
-    metrics["nesting_depth"] = max_depth
-    
-    # Calculate repetition ratio (simplified: count repeated patterns)
-    # This is a placeholder - real implementation would be more sophisticated
-    if node.children:
-        child_types = [child.type for child in node.children]
-        type_counts = {}
-        for t in child_types:
-            type_counts[t] = type_counts.get(t, 0) + 1
-        
-        total_children = len(child_types)
-        if total_children > 0:
-            max_repeated = max(type_counts.values()) if type_counts else 0
-            metrics["repetition_ratio"] = max_repeated / total_children
-    
-    return metrics
-
-def process_single_file(
-    file_path: Path,
-    language: str,
-    output_dir: Path
-) -> Optional[Dict[str, Any]]:
-    """
-    Process a single code file through CodeQL and/or tree-sitter.
-    
-    Args:
-        file_path: Path to the source file
-        language: 'python' or 'java'
-        output_dir: Directory for intermediate outputs
-        
-    Returns:
-        Dictionary with file metrics or None if processing fails
-    """
-    logger.info("Processing file: %s (language: %s)", file_path, language)
-    
-    # Try CodeQL first
-    codeql_metrics = run_codeql_analysis(file_path, language, output_dir)
-    
-    # Fallback to tree-sitter if CodeQL unavailable or failed
-    if codeql_metrics is None:
-        logger.info("Using tree-sitter fallback for %s", file_path)
-        metrics = analyze_with_tree_sitter(file_path, language)
-    else:
-        metrics = codeql_metrics
-    
-    # Add file metadata
-    metrics["file_path"] = str(file_path)
-    metrics["language"] = language
-    metrics["file_size_bytes"] = file_path.stat().st_size
-    
-    return metrics
-
-def process_directory(
-    input_dir: Path,
-    output_file: Path,
-    language: str
-) -> int:
-    """
-    Process all files in a directory and write results to JSONL.
-    
-    Args:
-        input_dir: Directory containing source files
-        output_file: Output JSONL file path
-        language: 'python' or 'java'
-        
-    Returns:
-        Number of successfully processed files
-    """
-    logger.info("Processing directory: %s -> %s", input_dir, output_file)
-    
-    if not input_dir.exists():
-        logger.error("Input directory does not exist: %s", input_dir)
-        return 0
-    
-    # Ensure output directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    processed_count = 0
-    error_count = 0
-    
-    with open(output_file, "w", encoding="utf-8") as f:
-        # Iterate through files
-        for file_path in input_dir.iterdir():
-            if file_path.is_file() and file_path.suffix in [".py", ".java"]:
-                try:
-                    metrics = process_single_file(file_path, language, input_dir.parent)
-                    
-                    if metrics is not None:
-                        # Create CodeChunk object
-                        chunk = CodeChunk(
-                            file_path=str(file_path),
-                            language=language,
-                            cyclomatic_complexity=metrics.get("cyclomatic_complexity", 0),
-                            nesting_depth=metrics.get("nesting_depth", 0),
-                            repetition_ratio=metrics.get("repetition_ratio", 0.0),
-                            file_size_bytes=metrics.get("file_size_bytes", 0),
-                            parse_error=metrics.get("parse_error", False),
-                            error_message=metrics.get("error_message", "")
-                        )
-                        
-                        # Write to JSONL
-                        f.write(json.dumps(chunk.to_dict()) + "\n")
-                        processed_count += 1
-                    else:
-                        error_count += 1
-                
-                except Exception as e:
-                    logger.error("Error processing %s: %s", file_path, str(e))
-                    handle_parse_error(file_path, str(e))
-                    error_count += 1
-    
-    logger.info("Completed processing %s: %d files processed, %d errors", 
-               input_dir, processed_count, error_count)
-    return processed_count
+    logger.info(f"Wrote {len(results)} results to {output_path}")
 
 def main():
     """Main entry point for preprocessing."""
-    logger.info("Starting preprocessing pipeline (T016)")
-    
     config = get_config()
-    project_root = Path(config["project_root"])
+    project_root = get_project_root()
     
-    # Define input/output paths
-    python_train_dir = project_root / "data" / "processed" / "train_python"
-    java_val_dir = project_root / "data" / "processed" / "val_java"
-    
-    python_output = project_root / "data" / "processed" / "annotated_python.jsonl"
-    java_output = project_root / "data" / "processed" / "annotated_java.jsonl"
-    
-    # Check if input directories exist
-    if not python_train_dir.exists():
-        logger.error("Python training directory not found: %s", python_train_dir)
+    # Read feasibility report to determine scope
+    feasibility_path = Path(project_root) / "data" / "results" / "feasibility_report.json"
+    if not feasibility_path.exists():
+        logger.error("Feasibility report not found. Run T011 first.")
         sys.exit(1)
     
-    if not java_val_dir.exists():
-        logger.error("Java validation directory not found: %s", java_val_dir)
-        sys.exit(1)
+    with open(feasibility_path, "r") as f:
+        feasibility = json.load(f)
     
-    # Process Python files
-    python_count = process_directory(python_train_dir, python_output, "python")
+    capped_n = feasibility.get("capped_N", 50)
+    scope_reduction = feasibility.get("scope_reduction", {})
+    include_java = not scope_reduction.get("disable_cross_language", False)
     
-    # Process Java files
-    java_count = process_directory(java_val_dir, java_output, "java")
+    # Define input directories
+    python_dir = Path(project_root) / "data" / "processed" / "train_python"
+    java_dir = Path(project_root) / "data" / "processed" / "val_java"
     
-    # Summary
-    total_processed = python_count + java_count
-    logger.info("Preprocessing complete: %d Python files, %d Java files, total: %d",
-               python_count, java_count, total_processed)
+    # Define output files
+    python_output = Path(project_root) / "data" / "processed" / "annotated_python.jsonl"
+    java_output = Path(project_root) / "data" / "processed" / "annotated_java.jsonl"
     
-    if total_processed == 0:
-        logger.warning("No files were processed. Check input directories and logs.")
-        sys.exit(1)
+    # Process Python
+    if python_dir.exists():
+        process_directory(python_dir, python_output, "python")
+    else:
+        logger.warning(f"Python directory not found: {python_dir}")
     
-    logger.info("Preprocessing artifacts created:")
-    logger.info("  - %s", python_output)
-    logger.info("  - %s", java_output)
+    # Process Java if enabled
+    if include_java and java_dir.exists():
+        process_directory(java_dir, java_output, "java")
+    elif include_java:
+        logger.warning(f"Java directory not found: {java_dir}")
+    else:
+        logger.info("Java processing disabled by scope reduction.")
+    
+    logger.info("Preprocessing complete.")
 
 if __name__ == "__main__":
     main()

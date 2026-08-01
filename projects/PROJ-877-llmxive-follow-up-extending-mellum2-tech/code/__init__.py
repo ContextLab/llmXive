@@ -1,1 +1,3 @@
-# llmXive project code package
+"""
+Main code package for the llmXive pipeline.
+"""

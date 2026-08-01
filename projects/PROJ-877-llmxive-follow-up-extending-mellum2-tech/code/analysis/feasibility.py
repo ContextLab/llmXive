@@ -1,10 +1,3 @@
-"""
-Feasibility Analysis Module for llmXive Project.
-
-This module implements the pilot sample and feasibility check (T011).
-It fetches metadata from the codeparrot/github-code dataset to estimate
-complexity variance and determine the required sample size for statistical power.
-"""
 import json
 import logging
 import sys
@@ -12,248 +5,311 @@ import time
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 
-# Import from project API surface
-from config import get_config, set_seed
-from utils.logging import get_logger, PipelineError
+from datasets import load_dataset
+from dotenv import load_dotenv
 
-# Try to import datasets; if missing, we fail loudly as per constraint
-try:
-    from datasets import load_dataset
-except ImportError:
-    # This will cause a runtime error if datasets is not installed,
-    # which is the correct behavior (fail loudly).
-    raise ImportError("The 'datasets' library is required. Install via 'pip install datasets'.")
+# Import from project config
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import get_project_root, load_environment, validate_required_env_vars
 
-# Constants
-PILOT_SAMPLE_SIZE = 50
-MAX_PIPELINE_HOURS = 6.0
-TARGET_POWER = 0.8
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
+
+# Constants for Power Analysis
 ALPHA = 0.05
-# Estimated average processing time per chunk in seconds (conservative estimate)
-# Includes download, preprocessing, static analysis, and inference.
-AVG_TIME_PER_CHUNK_SECONDS = 120.0 
+POWER_TARGET = 0.80
+ESTIMATED_EFFECT_SIZE_R = 0.3
+PILOT_SAMPLE_SIZE = 50
+MAX_RUNTIME_HOURS = 6.0
+CHUNK_PROCESSING_TIME_ESTIMATE_SECONDS = 120.0  # Conservative estimate per chunk
 
-def fetch_pilot_metadata(num_samples: int = PILOT_SAMPLE_SIZE) -> Dict[str, Any]:
+def fetch_pilot_metadata(sample_size: int = PILOT_SAMPLE_SIZE) -> Dict[str, Any]:
     """
-    Fetches metadata for a pilot sample from codeparrot/github-code.
+    Fetch metadata only (N=50) of code chunks from codeparrot/github-code (Python/Java)
+    using streaming to estimate complexity variance WITHOUT downloading full files.
     
-    Uses streaming to avoid downloading full files, fetching only metadata
-    fields relevant to complexity estimation (e.g., file size, line count).
-    
-    Args:
-        num_samples: Number of pilot samples to fetch.
-        
     Returns:
-        A dictionary containing pilot metadata statistics.
-        
-    Raises:
-        PipelineError: If the dataset fetch fails.
+        Dict containing pilot sample statistics (mean complexity, variance, etc.)
     """
-    logger = get_logger(__name__)
-    logger.info(f"Fetching pilot metadata for {num_samples} samples from codeparrot/github-code...")
+    logger.info(f"Fetching pilot sample of {sample_size} chunks from codeparrot/github-code...")
     
+    # Load dataset in streaming mode to avoid downloading full dataset
     try:
-        # Load dataset in streaming mode
-        # We select Python and Java languages as per spec
-        dataset = load_dataset(
+        ds = load_dataset(
             "codeparrot/github-code",
             split="train",
             streaming=True,
             trust_remote_code=True
         )
         
-        # Filter for Python and Java (approximate filtering based on language field)
-        # Note: The actual schema might vary, but 'language' is a standard field.
-        # We take the first N samples that match.
+        # Filter for Python and Java files
+        # Note: The dataset has a 'lang' field
+        python_ds = ds.filter(lambda x: x.get('lang', '').lower() == 'python')
+        java_ds = ds.filter(lambda x: x.get('lang', '').lower() == 'java')
+        
+        # Combine and take sample
+        # Since we can't easily combine streaming datasets without materializing,
+        # we'll take a sample from Python first, then Java
         pilot_data = []
-        count = 0
-        languages = ["Python", "Java"]
         
-        for item in dataset:
-            if item.get("language") in languages:
-                pilot_data.append(item)
-                count += 1
-                if count >= num_samples:
-                    break
+        # Take 25 from Python
+        python_count = 0
+        for item in python_ds:
+            if python_count >= sample_size // 2:
+                break
+            pilot_data.append(item)
+            python_count += 1
         
-        if count == 0:
-            raise PipelineError("Failed to fetch any pilot samples matching criteria.")
+        # Take remaining from Java
+        java_count = 0
+        for item in java_ds:
+            if java_count >= sample_size - python_count:
+                break
+            pilot_data.append(item)
+            java_count += 1
         
-        logger.info(f"Successfully fetched {count} pilot samples.")
+        if len(pilot_data) == 0:
+            raise RuntimeError("Failed to fetch any pilot data from the dataset.")
         
-        # Compute simple variance estimates from available metadata
-        # Since we don't have full code, we use 'size' or 'line_count' as a proxy for complexity variance
-        # If 'line_count' exists, use it; otherwise fallback to 'size'
-        metric_key = "line_count" if "line_count" in pilot_data[0] else "size"
+        logger.info(f"Successfully fetched {len(pilot_data)} pilot samples.")
         
-        values = [float(item.get(metric_key, 0)) for item in pilot_data]
+        # Extract basic metadata for variance estimation
+        # We'll use 'size' (file size) as a proxy for complexity in this pilot
+        # In a real scenario, we'd run static analysis, but for pilot metadata-only:
+        sizes = [item.get('size', 0) for item in pilot_data if item.get('size')]
         
-        if not values:
-            raise PipelineError("No valid complexity metrics found in pilot data.")
+        if not sizes:
+            # Fallback: use text length if size not available
+            sizes = [len(item.get('content', '')) for item in pilot_data if item.get('content')]
         
-        mean_val = sum(values) / len(values)
-        variance_val = sum((x - mean_val) ** 2 for x in values) / len(values)
+        if not sizes:
+            raise RuntimeError("Could not extract size/length data from pilot samples.")
+        
+        # Calculate basic statistics
+        mean_size = sum(sizes) / len(sizes)
+        variance_size = sum((x - mean_size) ** 2 for x in sizes) / (len(sizes) - 1) if len(sizes) > 1 else 0
+        std_dev_size = variance_size ** 0.5
         
         return {
-            "count": count,
-            "metric_key": metric_key,
-            "mean": mean_val,
-            "variance": variance_val,
-            "std_dev": variance_val ** 0.5,
-            "samples": pilot_data[:10] # Store a small subset for debugging
+            "sample_size": len(pilot_data),
+            "mean_size": mean_size,
+            "variance_size": variance_size,
+            "std_dev_size": std_dev_size,
+            "min_size": min(sizes),
+            "max_size": max(sizes)
         }
         
     except Exception as e:
-        logger.error(f"Failed to fetch pilot metadata: {e}")
-        raise PipelineError(f"Dataset fetch failed: {e}")
+        logger.error(f"Error fetching pilot metadata: {e}")
+        raise
 
 def estimate_variance_and_effect_size(pilot_stats: Dict[str, Any]) -> Tuple[float, float]:
     """
-    Estimates variance and expected effect size from pilot data.
+    Estimate variance and effect size from pilot statistics.
     
     Args:
-        pilot_stats: Statistics from the pilot fetch.
+        pilot_stats: Statistics from the pilot sample
         
     Returns:
-        Tuple of (estimated_variance, estimated_effect_size).
+        Tuple of (estimated_variance, estimated_effect_size)
     """
-    logger = get_logger(__name__)
+    # Use the variance from the pilot sample
+    estimated_variance = pilot_stats.get('variance_size', 0)
     
-    variance = pilot_stats.get("variance", 0.0)
-    std_dev = pilot_stats.get("std_dev", 0.0)
+    # If we have variance, we can estimate effect size
+    # For this pilot, we assume the estimated effect size r=0.3 as per task requirements
+    # In a more sophisticated analysis, we might calculate Cohen's d or similar
+    estimated_effect_size = ESTIMATED_EFFECT_SIZE_R
     
-    # Heuristic for effect size:
-    # We assume a moderate effect size (Cohen's d) based on the standard deviation.
-    # If variance is very low, we assume a smaller effect size to be conservative.
-    # Standard convention: small=0.2, medium=0.5, large=0.8
-    if std_dev == 0:
-        estimated_effect_size = 0.1 # Minimal detectable effect
-    else:
-        # Assume the effect we want to detect is a fraction of the standard deviation
-        estimated_effect_size = 0.5 * std_dev / std_dev # Normalize to 0.5 (medium)
-        
-    logger.info(f"Estimated Variance: {variance:.4f}, Estimated Effect Size: {estimated_effect_size:.4f}")
-    return variance, estimated_effect_size
+    logger.info(f"Estimated variance: {estimated_variance}, Effect size: {estimated_effect_size}")
+    
+    return estimated_variance, estimated_effect_size
 
-def calculate_required_sample_size(variance: float, effect_size: float, power: float = TARGET_POWER, alpha: float = ALPHA) -> int:
+def calculate_required_sample_size(effect_size: float, alpha: float = ALPHA, power: float = POWER_TARGET) -> int:
     """
-    Calculates the required sample size for a given power and effect size.
-    Uses a simplified approximation for two-sample t-test or correlation power.
-    Formula approximation: N = ( (Z_alpha + Z_beta) / effect_size )^2 * 2 (for two groups)
-    For correlation: N = (Z_alpha + Z_beta)^2 / effect_size^2
-    We use a standard approximation for correlation power analysis.
-    """
-    from math import sqrt
-    import scipy.stats as stats
+    Calculate required sample size for a priori power analysis.
+    Uses the formula for Pearson correlation: n = ((Z_alpha + Z_beta) / effect_size)^2 + 3
     
-    # Z-scores
-    z_alpha = stats.norm.ppf(1 - alpha/2)
-    z_beta = stats.norm.ppf(power)
-    
-    # If effect size is 0, return infinity (or a very large number)
-    if effect_size == 0:
-        return 1000000
+    Args:
+        effect_size: Estimated effect size (r)
+        alpha: Significance level
+        power: Desired statistical power
         
-    # Approximation for correlation power (Cohen's q or r)
-    # N = ( (Z_alpha + Z_beta) / r )^2
-    # We treat 'effect_size' here as the correlation coefficient 'r'
-    # If effect_size > 1, cap it to 0.99 to avoid division issues
-    r = min(abs(effect_size), 0.99)
+    Returns:
+        Required sample size (integer)
+    """
+    import math
     
-    n = ((z_alpha + z_beta) / r) ** 2
+    # Z-scores for alpha and power
+    # For alpha=0.05 (two-tailed), Z_alpha ≈ 1.96
+    # For power=0.80, Z_beta ≈ 0.84
+    z_alpha = 1.96  # Approximation for 0.05 significance
+    z_beta = 0.84   # Approximation for 0.80 power
     
-    return int(n) + 1
+    # Calculate required sample size
+    # Formula: n = ((Z_alpha + Z_beta) / effect_size)^2 + 3
+    if effect_size <= 0:
+        raise ValueError("Effect size must be positive")
+        
+    n = ((z_alpha + z_beta) / effect_size) ** 2 + 3
+    
+    return int(math.ceil(n))
 
-def calculate_max_feasible_chunks(max_hours: float = MAX_PIPELINE_HOURS, time_per_chunk: float = AVG_TIME_PER_CHUNK_SECONDS) -> int:
+def calculate_max_feasible_chunks(max_runtime_hours: float = MAX_RUNTIME_HOURS, 
+                                chunk_time_seconds: float = CHUNK_PROCESSING_TIME_ESTIMATE_SECONDS) -> int:
     """
-    Calculates the maximum number of chunks feasible within the time budget.
+    Calculate the maximum number of chunks that can be processed within the time budget.
+    
+    Args:
+        max_runtime_hours: Maximum allowed runtime in hours
+        chunk_time_seconds: Estimated time to process one chunk in seconds
+        
+    Returns:
+        Maximum feasible number of chunks
     """
-    total_seconds = max_hours * 3600
-    max_chunks = int(total_seconds / time_per_chunk)
+    max_runtime_seconds = max_runtime_hours * 3600
+    max_chunks = int(max_runtime_seconds / chunk_time_seconds)
+    
+    logger.info(f"Maximum feasible chunks: {max_chunks} (based on {max_runtime_hours}h budget)")
+    
     return max_chunks
 
-def generate_feasibility_report(pilot_stats: Dict[str, Any]) -> Dict[str, Any]:
+def generate_feasibility_report(pilot_stats: Dict[str, Any], 
+                              required_n: int, 
+                              max_feasible_n: int,
+                              alpha: float = ALPHA,
+                              power: float = POWER_TARGET,
+                              effect_size: float = ESTIMATED_EFFECT_SIZE_R) -> Dict[str, Any]:
     """
-    Generates the full feasibility report.
+    Generate the feasibility report with all calculated parameters.
+    
+    Args:
+        pilot_stats: Statistics from the pilot sample
+        required_n: Required sample size for desired power
+        max_feasible_n: Maximum feasible chunks given time budget
+        alpha: Significance level
+        power: Desired power
+        effect_size: Effect size used for calculation
+        
+    Returns:
+        Feasibility report dictionary
     """
-    logger = get_logger(__name__)
+    # Determine if we need to cap N
+    is_capped = required_n > max_feasible_n
+    capped_n = min(required_n, max_feasible_n)
     
-    variance, effect_size = estimate_variance_and_effect_size(pilot_stats)
-    required_n = calculate_required_sample_size(variance, effect_size)
-    max_feasible_n = calculate_max_feasible_chunks()
+    # Calculate perturbation magnitude and bootstrap count based on N
+    # Default values as per task description
+    perturbation_magnitude = 0.05  # Standard significance threshold proxy
+    bootstrap_count = 1000
     
+    # Adjust bootstrap count based on sample size (smaller sample -> fewer bootstraps for speed)
+    if capped_n < 100:
+        bootstrap_count = 500
+    elif capped_n < 500:
+        bootstrap_count = 800
+    
+    # Determine status
+    status = "capped" if is_capped else "feasible"
+    
+    # Build report
     report = {
-        "pilot_stats": {
-            "count": pilot_stats["count"],
-            "metric_key": pilot_stats["metric_key"],
-            "mean": pilot_stats["mean"],
-            "variance": pilot_stats["variance"]
+        "status": status,
+        "capped_N": capped_n,
+        "power_limitation": f"Required N ({required_n}) exceeds feasible N ({max_feasible_n}). Capped to {capped_n}." if is_capped else "None",
+        "alpha": alpha,
+        "power_target": power,
+        "estimated_effect_size": effect_size,
+        "pilot_sample_stats": {
+            "sample_size": pilot_stats.get("sample_size", 0),
+            "mean_size": pilot_stats.get("mean_size", 0),
+            "variance_size": pilot_stats.get("variance_size", 0),
+            "std_dev_size": pilot_stats.get("std_dev_size", 0)
         },
-        "analysis": {
-            "estimated_effect_size": effect_size,
-            "required_sample_size": required_n,
-            "max_feasible_chunks": max_feasible_n,
-            "target_power": TARGET_POWER,
-            "alpha": ALPHA,
-            "max_hours": MAX_PIPELINE_HOURS
-        },
-        "decision": {}
+        "perturbation_magnitude": perturbation_magnitude,
+        "bootstrap_count": bootstrap_count,
+        "proceed_flag": True,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    if required_n > max_feasible_n:
-        report["decision"]["status"] = "capped"
-        report["decision"]["capped_N"] = max_feasible_n
-        report["decision"]["power_limitation"] = "Study underpowered; capped to max feasible"
-        report["decision"]["proceed_flag"] = True
-        logger.warning("WARNING: Study underpowered; capping N to max feasible")
-    else:
-        report["decision"]["status"] = "feasible"
-        report["decision"]["capped_N"] = required_n
-        report["decision"]["proceed_flag"] = True
-        logger.info(f"Feasible. Required N: {required_n}")
-        
     return report
 
 def write_feasibility_report(report: Dict[str, Any], output_path: Path) -> None:
     """
-    Writes the feasibility report to a JSON file.
+    Write the feasibility report to a JSON file.
+    
+    Args:
+        report: The feasibility report dictionary
+        output_path: Path to write the report
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
-    logging.info(f"Feasibility report written to {output_path}")
+    
+    logger.info(f"Feasibility report written to {output_path}")
 
 def main():
-    """
-    Main entry point for the feasibility check task.
-    """
-    logger = get_logger(__name__)
-    set_seed(42)
-    
-    config = get_config()
-    output_path = Path(config["data"]["results_dir"]) / "feasibility_report.json"
+    """Main entry point for the feasibility analysis task."""
+    logger.info("Starting feasibility analysis (T011)...")
     
     try:
-        # 1. Fetch Pilot Metadata
+        # Load environment and validate
+        load_environment()
+        validate_required_env_vars(["HF_TOKEN"])  # Ensure HF_TOKEN is set for dataset access
+        
+        # Get project root and output path
+        project_root = get_project_root()
+        output_path = project_root / "data" / "results" / "feasibility_report.json"
+        
+        # Step 1: Fetch pilot metadata
         pilot_stats = fetch_pilot_metadata(PILOT_SAMPLE_SIZE)
         
-        # 2. Generate Report
-        report = generate_feasibility_report(pilot_stats)
+        # Step 2: Estimate variance and effect size
+        estimated_variance, estimated_effect_size = estimate_variance_and_effect_size(pilot_stats)
         
-        # 3. Write Artifact
+        # Step 3: Calculate required sample size
+        required_n = calculate_required_sample_size(estimated_effect_size)
+        logger.info(f"Required sample size for power analysis: {required_n}")
+        
+        # Step 4: Calculate maximum feasible chunks
+        max_feasible_n = calculate_max_feasible_chunks()
+        
+        # Step 5: Generate feasibility report
+        report = generate_feasibility_report(
+            pilot_stats=pilot_stats,
+            required_n=required_n,
+            max_feasible_n=max_feasible_n
+        )
+        
+        # Step 6: Write report to disk
         write_feasibility_report(report, output_path)
         
-        # 4. Print Summary
-        print(f"\n--- Feasibility Check Complete ---")
-        print(f"Status: {report['decision']['status']}")
-        print(f"Capped N: {report['decision']['capped_N']}")
-        print(f"Proceed: {report['decision']['proceed_flag']}")
-        if report['decision']['status'] == 'capped':
-            print(f"Limitation: {report['decision']['power_limitation']}")
-        print(f"Output: {output_path}")
+        # Log summary
+        logger.info("="*50)
+        logger.info("FEASIBILITY ANALYSIS SUMMARY")
+        logger.info("="*50)
+        logger.info(f"Status: {report['status']}")
+        logger.info(f"Capped N: {report['capped_N']}")
+        logger.info(f"Power Limitation: {report['power_limitation']}")
+        logger.info(f"Perturbation Magnitude: {report['perturbation_magnitude']}")
+        logger.info(f"Bootstrap Count: {report['bootstrap_count']}")
+        logger.info(f"Proceed Flag: {report['proceed_flag']}")
+        logger.info("="*50)
+        
+        if not report['proceed_flag']:
+            logger.warning("Feasibility check failed. Pipeline should not proceed.")
+            sys.exit(1)
+        
+        logger.info("Feasibility analysis completed successfully.")
         
     except Exception as e:
-        logger.critical(f"Feasibility check failed: {e}")
+        logger.error(f"Feasibility analysis failed: {e}")
         raise
 
 if __name__ == "__main__":

@@ -1,217 +1,137 @@
 """
-Environment configuration management for llmXive pipeline.
-Handles .env file loading, Hugging Face token retrieval, and environment validation.
+Environment configuration utilities.
+Provides functions for loading and validating environment variables.
 """
 import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
+from dotenv import load_dotenv
 
-from utils.logging import get_logger
-
-logger = get_logger(__name__)
-
-# Default .env file path
-ENV_FILE_PATH = Path(".env")
-
-
-def load_environment(env_path: Optional[Path] = None) -> Dict[str, str]:
+def get_logger(name: str = "env_config") -> logging.Logger:
     """
-    Load environment variables from a .env file if it exists.
+    Get a logger instance.
     
     Args:
-        env_path: Path to the .env file. Defaults to .env in project root.
-    
+        name: Logger name.
+        
     Returns:
-        Dictionary of loaded environment variables.
-    
-    Raises:
-        FileNotFoundError: If the specified env_path does not exist.
+        Configured logger instance.
     """
-    if env_path is None:
-        env_path = ENV_FILE_PATH
-    
-    if not env_path.exists():
-        logger.warning(f".env file not found at {env_path}. "
-                     "Some features may require manual environment variable setup.")
-        return {}
-    
-    loaded_vars = {}
-    try:
-        with open(env_path, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
-                line = line.strip()
-                # Skip empty lines and comments
-                if not line or line.startswith('#'):
-                    continue
-                
-                # Parse KEY=VALUE
-                if '=' not in line:
-                    logger.warning(f"Skipping malformed line {line_num} in .env: {line}")
-                    continue
-                
-                key, _, value = line.partition('=')
-                key = key.strip()
-                value = value.strip()
-                
-                # Remove surrounding quotes if present
-                if len(value) >= 2 and ((value.startswith('"') and value.endswith('"')) or 
-                                       (value.startswith("'") and value.endswith("'"))):
-                    value = value[1:-1]
-                
-                if key:
-                    loaded_vars[key] = value
-                    # Set in actual environment
-                    os.environ[key] = value
-                    
-        logger.info(f"Successfully loaded {len(loaded_vars)} variables from {env_path}")
-        return loaded_vars
-    except Exception as e:
-        logger.error(f"Error reading .env file at {env_path}: {e}")
-        raise
-
-
-def get_hf_token() -> str:
-    """
-    Retrieve the Hugging Face API token from environment variables.
-    
-    Priority:
-    1. HUGGING_FACE_TOKEN (explicit variable)
-    2. HF_TOKEN (standard HF variable)
-    3. HuggingfaceToken (from .env)
-    
-    Returns:
-        The Hugging Face token string.
-    
-    Raises:
-        ValueError: If no token is found in any expected location.
-    """
-    token = (
-        os.environ.get("HUGGING_FACE_TOKEN") or
-        os.environ.get("HF_TOKEN") or
-        os.environ.get("HuggingfaceToken")
-    )
-    
-    if not token:
-        error_msg = (
-            "Hugging Face token not found. Please set one of the following environment variables:\n"
-            "- HUGGING_FACE_TOKEN\n"
-            "- HF_TOKEN\n"
-            "- HuggingfaceToken\n"
-            "Or create a .env file with HuggingfaceToken=your_token_here"
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    if not token.startswith("hf_"):
-        logger.warning("Token does not appear to be a valid Hugging Face token (missing 'hf_' prefix).")
-    
-    return token
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
 
-
-def get_env_var(var_name: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+def load_environment(env_path: Optional[Path] = None) -> bool:
     """
-    Get an environment variable with optional default and required flag.
+    Load environment variables from .env file.
+    
+    Args:
+        env_path: Optional path to .env file. If None, uses default location.
+        
+    Returns:
+        True if .env was loaded successfully, False otherwise.
+    """
+    logger = get_logger()
+    
+    if env_path is None:
+        # Try to find .env in project root
+        project_root = Path.cwd()
+        env_path = project_root / ".env"
+        
+    if env_path.exists():
+        result = load_dotenv(dotenv_path=env_path)
+        if result:
+            logger.info(f"Loaded environment from {env_path}")
+            return True
+        else:
+            logger.warning(f"Failed to load environment from {env_path}")
+            return False
+    else:
+        logger.info(f"No .env file found at {env_path}")
+        return False
+
+def get_hf_token() -> Optional[str]:
+    """
+    Get Hugging Face token from environment.
+    
+    Returns:
+        HF token string or None if not set.
+    """
+    return os.environ.get("HF_TOKEN")
+
+def get_env_var(var_name: str, default: Optional[str] = None) -> Optional[str]:
+    """
+    Get an environment variable.
     
     Args:
         var_name: Name of the environment variable.
-        default: Default value if variable is not set.
-        required: If True, raise ValueError when variable is missing.
-    
+        default: Default value if not set.
+        
     Returns:
-        The environment variable value or default.
-    
-    Raises:
-        ValueError: If required=True and variable is not set.
+        Environment variable value or default.
     """
-    value = os.environ.get(var_name, default)
-    
-    if value is None and required:
-        error_msg = f"Required environment variable '{var_name}' is not set."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    return value
+    return os.environ.get(var_name, default)
 
-
-def validate_required_env_vars(required_vars: list) -> bool:
+def validate_required_env_vars(required_vars: list) -> None:
     """
     Validate that all required environment variables are set.
     
     Args:
-        required_vars: List of required environment variable names.
-    
-    Returns:
-        True if all required variables are set, False otherwise.
-    
+        required_vars: List of environment variable names that must be set.
+        
     Raises:
-        ValueError: If any required variable is missing.
+        ValueError: If any required environment variable is missing.
     """
-    missing = []
-    for var in required_vars:
-        if not os.environ.get(var):
-            missing.append(var)
-    
-    if missing:
-        error_msg = (
-            f"Missing required environment variables: {', '.join(missing)}\n"
-            "Please ensure these are set in your .env file or system environment."
+    missing_vars = [var for var in required_vars if not os.environ.get(var)]
+    if missing_vars:
+        raise ValueError(
+            f"Missing required environment variables: {', '.join(missing_vars)}. "
+            f"Please set them in your .env file or export them in your shell."
         )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info(f"All {len(required_vars)} required environment variables are set.")
-    return True
-
 
 def get_environment_summary() -> Dict[str, Any]:
     """
-    Generate a summary of the current environment configuration.
+    Get a summary of the current environment configuration.
     
     Returns:
-        Dictionary containing environment status and key configuration details.
+        Dictionary with environment variable status.
     """
-    has_env_file = ENV_FILE_PATH.exists()
-    hf_token_set = bool(os.environ.get("HUGGING_FACE_TOKEN") or 
-                      os.environ.get("HF_TOKEN") or 
-                      os.environ.get("HuggingfaceToken"))
-    
     return {
-        "env_file_exists": has_env_file,
-        "hf_token_configured": hf_token_set,
-        "loaded_vars_count": len([k for k in os.environ.keys() if k in 
-                                ["HUGGING_FACE_TOKEN", "HF_TOKEN", "HuggingfaceToken",
-                                 "RANDOM_SEED", "DATA_DIR", "CODE_DIR"]]),
-        "python_path": os.environ.get("PYTHONPATH", "not set")
+        "hf_token_set": bool(os.environ.get("HF_TOKEN")),
+        "hf_dataset_name": os.environ.get("HF_DATASET_NAME", "not set"),
+        "project_root": os.environ.get("PROJECT_ROOT", "not set"),
+        "python_version": f"{os.sys.version_info.major}.{os.sys.version_info.minor}"
     }
-
 
 def main():
     """
-    Main entry point for environment configuration testing.
+    Main entry point for environment configuration module.
+    Demonstrates environment loading and validation.
     """
-    logger.info("=== Environment Configuration Check ===")
+    logger = get_logger()
     
     # Load environment
-    try:
-        load_environment()
-    except Exception as e:
-        logger.error(f"Failed to load environment: {e}")
-        return 1
+    load_environment()
     
-    # Summary
-    summary = get_environment_summary()
-    logger.info(f"Environment Summary: {summary}")
-    
-    # Validate HF token specifically
+    # Validate required variables
+    required = ["HF_TOKEN"]
     try:
-        token = get_hf_token()
-        logger.info("Hugging Face token: VALID (masked)")
+        validate_required_env_vars(required)
+        logger.info("All required environment variables are set.")
     except ValueError as e:
-        logger.warning(f"Hugging Face token: MISSING - {e}")
+        logger.warning(str(e))
     
-    return 0
-
+    # Print summary
+    summary = get_environment_summary()
+    logger.info(f"Environment summary: {summary}")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

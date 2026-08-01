@@ -1,22 +1,33 @@
-T001:
+T008a:
+  c: true
+  h: c78c6d404b7b39ba9b6a6eaedd213c733ebf462aba6950cc09c4989417e70e34
+  r: "The artifact `code/contracts/code_chunk.schema.yaml` is present, non\u2011empty,\
+    \ and defines the required top\u2011level fields `chunk_id`, `complexity`, `depth`,\
+    \ and `loss` with explicit sub\u2011field specifications, fulfilling the task\u2019\
+    s specification."
+T008b:
+  c: true
+  h: 773e6fc599e2f8bd7b8236ab37d3b2541a48c88503d784e1f555917d76aec3a3
+  r: "The file `code/contracts/analysis.schema.yaml` exists, is non\u2011empty, and\
+    \ defines explicit schema sections for `correlation`, `threshold`, and `p_value`\
+    \ as required. No missing or placeholder content relevant to the task was found."
+T008c:
+  c: true
+  h: 63e641554ee99830617f1c246521cfc5230e4b0b834c5947413f4496065e8fa7
+  r: "The file `code/contracts/output.schema.yaml` exists, is non\u2011empty (7337\u202F\
+    bytes), and contains a detailed JSON\u2011Schema with explicit field definitions\
+    \ for the final report (metadata, feasibility_summary, variance_check, etc.).\
+    \ No required artifact is missing."
+T009a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory tree (`projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/`\
-    \ with `code/`, `data/`, `tests/` subfolders) was provided; without visible artifacts\
-    \ we cannot confirm the structure exists. The implementer must supply a listing\
-    \ or screenshots showing those directories are created and non\u2011empty."
-T003:
+  r: "No `.env.template` file was presented in the evidence, nor any listing of required\
+    \ environment variables such as `HF_TOKEN` or `HF_DATASET_NAME`. Without the actual\
+    \ file content, the task requirement is not satisfied. The implementer must add\
+    \ a non\u2011empty `.env.template` file containing the specified variables."
+T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` or `README.md` files were presented in the evidence, and there
-    is no content showing they exist or contain a project overview. The required artifacts
-    are missing, so the task is not satisfied.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting/formatting configuration files (e.g., a `pyproject.toml` section\
-    \ for Black, a `.ruff.toml` or `ruff.toml`, or any setup script invoking ruff/black)\
-    \ were presented. Without concrete, non\u2011empty config artifacts, the claim\
-    \ that linting and formatting tools are configured cannot be verified. The next\
-    \ implementer should add the appropriate configuration files and ensure they are\
-    \ committed to the repository."
+  r: "No markdown report or any file containing a summary of thresholds and sensitivity\
+    \ analysis was provided. The evidence lacks the required artifact entirely, so\
+    \ the task\u2019s deliverable is missing."

@@ -1,243 +1,247 @@
 """
-T011b: Variance Detection & Graceful Degradation.
+Variance Detection & Graceful Degradation (T011b).
 
-Loads preprocessed annotated data (JSONL) and checks for zero variance in
-key complexity metrics (cyclomatic_complexity, nesting_depth).
+Loads preprocessed annotated code chunks, computes variance for key
+complexity metrics (cyclomatic_complexity, nesting_depth), and writes
+a failure report if zero variance is detected for any metric.
 
-If zero variance is detected for any metric:
-  1. Logs a warning.
-  2. Writes a report to `data/results/variance_null_report.json`.
-  3. Does NOT exit (allows T020 to handle graceful degradation).
+Dependencies:
+  - data.preprocess (for file paths)
+  - config (for project root)
+  - utils.logging (for logging)
 
-If variance > 0 for all metrics, no report is written (implicit pass),
-and the pipeline proceeds to T018/T019.
+Artifacts:
+  - data/results/variance_null_report.json (ONLY if zero variance detected)
 """
+
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
+import statistics
 
-# Import config for paths
-from config import get_config
-# Import logging utilities
+# Import from project API surface
+from config import get_config, get_project_root
 from utils.logging import get_logger, PipelineError
 
+# Configure logger
 logger = get_logger(__name__)
 
-def load_annotated_data(file_path: Path) -> List[Dict[str, Any]]:
+# Constants
+METRICS_TO_CHECK = ["cyclomatic_complexity", "nesting_depth"]
+VARIANCE_THRESHOLD = 0.0  # Strict zero check
+
+def load_annotated_data(data_dir: Path) -> List[Dict[str, Any]]:
     """
-    Loads a JSONL file containing annotated code chunks.
+    Load annotated JSONL files from the specified data directory.
     
     Args:
-        file_path: Path to the JSONL file.
+        data_dir: Path to the directory containing annotated JSONL files.
         
     Returns:
-        List of dictionaries representing the chunks.
+        List of dictionaries containing chunk data.
         
     Raises:
-        PipelineError: If file not found or invalid JSON.
+        PipelineError: If no data files are found or if parsing fails.
     """
-    if not file_path.exists():
-        raise PipelineError(f"Annotated data file not found: {file_path}")
-    
-    data = []
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    data.append(json.loads(line))
-                except json.JSONDecodeError as e:
-                    logger.warning(f"Skipping invalid JSON at line {line_num} in {file_path}: {e}")
-                    continue
-    except Exception as e:
-        raise PipelineError(f"Failed to read {file_path}: {e}")
-    
-    if not data:
-        raise PipelineError(f"No valid data found in {file_path}")
-        
-    return data
+    if not data_dir.exists():
+        raise PipelineError(f"Data directory does not exist: {data_dir}")
+
+    data_files = list(data_dir.glob("*.jsonl"))
+    if not data_files:
+        raise PipelineError(f"No .jsonl files found in {data_dir}")
+
+    all_records = []
+    for file_path in data_files:
+        logger.info(f"Loading data from {file_path}")
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line_num, line in enumerate(f, 1):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        record = json.loads(line)
+                        all_records.append(record)
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"Skipping invalid JSON at line {line_num} in {file_path}: {e}")
+        except IOError as e:
+            raise PipelineError(f"Failed to read {file_path}: {e}")
+
+    if not all_records:
+        raise PipelineError(f"No valid records loaded from {data_dir}")
+
+    logger.info(f"Loaded {len(all_records)} records from {len(data_files)} files")
+    return all_records
 
 def compute_variance(values: List[float]) -> float:
     """
-    Computes the population variance of a list of numbers.
+    Compute the variance of a list of numeric values.
     
     Args:
         values: List of numeric values.
         
     Returns:
-        The variance (float).
+        The variance of the values. Returns 0.0 if list is empty or has < 2 items.
     """
-    n = len(values)
-    if n == 0:
+    if len(values) < 2:
         return 0.0
-    mean = sum(values) / n
-    variance = sum((x - mean) ** 2 for x in values) / n
-    return variance
+    try:
+        return statistics.variance(values)
+    except statistics.StatisticsError as e:
+        logger.warning(f"Could not compute variance: {e}")
+        return 0.0
 
-def check_metric_variance(data: List[Dict[str, Any]], metric_name: str) -> Tuple[float, bool]:
+def check_metric_variance(
+    records: List[Dict[str, Any]], 
+    metric_name: str
+) -> Tuple[float, bool, Optional[str]]:
     """
-    Extracts a specific metric from data and checks if its variance is zero.
+    Check variance for a specific metric across all records.
     
     Args:
-        data: List of chunk dictionaries.
-        metric_name: The key in the dictionary to check (e.g., 'cyclomatic_complexity').
+        records: List of chunk records.
+        metric_name: Name of the metric to check.
         
     Returns:
-        Tuple of (variance, is_null).
+        Tuple of (variance, is_null, error_message).
     """
     values = []
-    for chunk in data:
-        # Handle nested structures if metrics are stored under 'metrics' key
-        if isinstance(chunk, dict):
-            if metric_name in chunk:
-                val = chunk[metric_name]
-            elif 'metrics' in chunk and isinstance(chunk['metrics'], dict) and metric_name in chunk['metrics']:
-                val = chunk['metrics'][metric_name]
-            else:
-                # Try to find case-insensitive or similar key if exact match fails
-                val = None
-                for k in chunk:
-                    if k.lower() == metric_name.lower():
-                        val = chunk[k]
-                        break
-            
-            if val is not None and isinstance(val, (int, float)):
-                values.append(float(val))
+    missing_count = 0
     
+    for record in records:
+        if metric_name in record:
+            val = record[metric_name]
+            if isinstance(val, (int, float)):
+                values.append(float(val))
+            else:
+                logger.warning(f"Non-numeric value for {metric_name}: {val}")
+                missing_count += 1
+        else:
+            missing_count += 1
+
     if not values:
-        logger.warning(f"No valid values found for metric '{metric_name}' in data.")
-        return 0.0, True
-        
+        return 0.0, True, f"No valid numeric values found for {metric_name} (missing in {missing_count} records)"
+
     variance = compute_variance(values)
-    is_null = (variance == 0.0)
-    return variance, is_null
+    is_null = variance <= VARIANCE_THRESHOLD
+    
+    if is_null:
+        msg = f"Zero variance detected for {metric_name} (variance={variance:.6f}, N={len(values)})"
+        logger.warning(msg)
+        return variance, True, msg
+    
+    logger.info(f"Metric {metric_name} has variance {variance:.6f} (N={len(values)})")
+    return variance, False, None
 
 def write_null_variance_report(
     output_path: Path,
-    metrics: List[Dict[str, Any]],
-    total_chunks: int
+    results: Dict[str, Any]
 ) -> None:
     """
-    Writes the variance null report to disk.
+    Write the variance null report to JSON.
     
     Args:
         output_path: Path to the output JSON file.
-        metrics: List of dicts with metric name, variance, and is_null status.
-        total_chunks: Total number of chunks processed.
+        results: Dictionary containing variance analysis results.
     """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     report = {
         "status": "null_variance",
-        "total_chunks_processed": total_chunks,
-        "metrics_with_null_variance": [m for m in metrics if m["is_null"]],
-        "metrics_with_variance": [m for m in metrics if not m["is_null"]],
-        "message": "No variance detected in one or more metrics; skipping correlation analysis for those metrics.",
-        "timestamp": str(Path(output_path).parent.parent.parent) # Just a placeholder for now, real timestamp logic if needed
+        "timestamp": results.get("timestamp"),
+        "metrics_analyzed": results.get("metrics_analyzed", []),
+        "null_metrics": results.get("null_metrics", []),
+        "message": "Zero variance detected in one or more metrics. Correlation analysis cannot proceed.",
+        "recommendation": "Review data collection or preprocessing pipeline. The dataset lacks necessary complexity variation."
     }
-    
-    # Ensure parent directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Null variance report written to {output_path}")
+    logger.info(f"Wrote null variance report to {output_path}")
 
 def main() -> int:
     """
     Main entry point for the variance check task.
     
     Returns:
-        0 on success (even if null variance found, as per graceful degradation requirement).
-        1 on fatal error.
+        0 if variance is sufficient (no artifact written),
+        1 if zero variance detected (artifact written and error raised),
+        2 on fatal error.
     """
     config = get_config()
-    data_dir = Path(config.get("data_dir", "data"))
-    results_dir = data_dir / "results"
+    project_root = get_project_root()
     
-    # Define input paths based on T016 output
-    annotated_python = data_dir / "processed" / "annotated_python.jsonl"
-    annotated_java = data_dir / "processed" / "annotated_java.jsonl"
+    # Determine input paths based on language availability
+    # We check both Python and Java processed directories if they exist
+    processed_dir = project_root / "data" / "processed"
+    python_dir = processed_dir / "train_python"
+    java_dir = processed_dir / "val_java"
     
-    # Define output path
-    variance_report_path = results_dir / "variance_null_report.json"
+    all_records = []
+    languages_processed = []
     
-    # Metrics to check
-    metrics_to_check = ["cyclomatic_complexity", "nesting_depth"]
-    
-    all_data = []
-    all_chunks_count = 0
-    
-    # Load Python data
-    if annotated_python.exists():
+    if python_dir.exists():
         try:
-            python_data = load_annotated_data(annotated_python)
-            all_data.extend(python_data)
-            all_chunks_count += len(python_data)
-            logger.info(f"Loaded {len(python_data)} chunks from {annotated_python}")
+            records = load_annotated_data(python_dir)
+            all_records.extend(records)
+            languages_processed.append("python")
         except PipelineError as e:
-            logger.error(f"Failed to load Python data: {e}")
-            # Continue to check Java if available, or fail if both missing
-    else:
-        logger.warning(f"Python data file not found: {annotated_python}")
+            logger.warning(f"Could not load Python data: {e}")
+    
+    if java_dir.exists():
+        try:
+            records = load_annotated_data(java_dir)
+            all_records.extend(records)
+            languages_processed.append("java")
+        except PipelineError as e:
+            logger.warning(f"Could not load Java data: {e}")
+    
+    if not all_records:
+        logger.error("No annotated data found in any processed directory.")
+        print("ERROR: No annotated data found to analyze variance.", file=sys.stderr)
+        return 2
+    
+    logger.info(f"Analyzing variance across {len(all_records)} records from: {languages_processed}")
+    
+    results = {
+        "timestamp": str(__import__('datetime').datetime.now()),
+        "languages_processed": languages_processed,
+        "total_records": len(all_records),
+        "metrics_analyzed": [],
+        "null_metrics": []
+    }
+    
+    has_null_variance = False
+    
+    for metric in METRICS_TO_CHECK:
+        variance, is_null, message = check_metric_variance(all_records, metric)
         
-    # Load Java data
-    if annotated_java.exists():
-        try:
-            java_data = load_annotated_data(annotated_java)
-            all_data.extend(java_data)
-            all_chunks_count += len(java_data)
-            logger.info(f"Loaded {len(java_data)} chunks from {annotated_java}")
-        except PipelineError as e:
-            logger.error(f"Failed to load Java data: {e}")
-    else:
-        logger.warning(f"Java data file not found: {annotated_java}")
-    
-    if all_chunks_count == 0:
-        logger.error("No data loaded from any source. Cannot perform variance check.")
-        # Write a report indicating no data found
-        try:
-            write_null_variance_report(
-                variance_report_path,
-                [{"name": "N/A", "variance": 0.0, "is_null": True}],
-                0
-            )
-        except Exception:
-            pass
-        return 1
-
-    null_metrics = []
-    
-    logger.info(f"Checking variance for {all_chunks_count} chunks across {len(metrics_to_check)} metrics.")
-    
-    for metric in metrics_to_check:
-        variance, is_null = check_metric_variance(all_data, metric)
-        logger.info(f"Metric '{metric}': Variance = {variance:.6f}, Null = {is_null}")
+        metric_result = {
+            "metric": metric,
+            "variance": variance,
+            "is_null": is_null
+        }
         
         if is_null:
-            null_metrics.append({
-                "name": metric,
-                "variance": variance,
-                "is_null": True
-            })
-            logger.warning(f"WARNING: No variance detected for metric '{metric}'.")
+            metric_result["message"] = message
+            results["null_metrics"].append(metric_result)
+            has_null_variance = True
         else:
-            null_metrics.append({
-                "name": metric,
-                "variance": variance,
-                "is_null": False
-            })
+            results["metrics_analyzed"].append(metric_result)
     
-    # If any metric has null variance, write the report
-    if any(m["is_null"] for m in null_metrics):
-        write_null_variance_report(variance_report_path, null_metrics, all_chunks_count)
-        logger.warning("Variance check completed with null variance detected. Proceeding to next stage gracefully.")
-    else:
-        logger.info("Variance check completed. All metrics have non-zero variance. No report written.")
-        
+    output_path = project_root / "data" / "results" / "variance_null_report.json"
+    
+    if has_null_variance:
+        write_null_variance_report(output_path, results)
+        logger.error("Zero variance detected. Pipeline cannot proceed with correlation analysis.")
+        print("ERROR: Zero variance detected in complexity metrics. See data/results/variance_null_report.json", file=sys.stderr)
+        return 1
+    
+    logger.info("Variance check passed. All metrics have non-zero variance.")
+    # No artifact written on success, as per requirements
     return 0
 
 if __name__ == "__main__":
