@@ -1,7 +1,7 @@
 # Feature Specification: Systematic Review of Privacy-Preserving Federated Learning Protocols
 
 **Feature Branch**: `001-systematic-review-privacy-fl`  
-**Created**: 2026-07-10  
+**Created**: 2026-08-01  
 **Status**: Draft  
 **Input**: User description: "Systematic Review of Privacy-Preserving Federated Learning Protocols"
 
@@ -35,7 +35,7 @@ The system MUST parse PDFs of selected papers to extract specific quantitative p
 
 1. **Given** a PDF containing a table with "Accuracy Loss" and "Privacy Budget", **When** the parser processes it, **Then** the values are correctly extracted into `extracted_metrics.csv` with the correct privacy mechanism tag.
 2. **Given** a PDF with non-standard table formatting (e.g., merged cells), **When** the parser encounters it, **Then** the system logs a `parsing_error` and skips the specific table row, preserving the rest of the file's data.
-3. **Given** a paper reporting metrics in different units, **When** the system processes the data, **Then** all values are normalized to standard units: Convergence Speed to 'rounds' (integer), Communication Overhead to 'bytes', and Computational Cost to 'seconds' or 'relative overhead ratio' (if baseline is available).
+3. **Given** a paper reporting metrics in different units, **When** the system processes the data, **Then** all values are normalized to standard units: Convergence Speed to 'rounds' (integer), Communication Overhead to 'bytes', and Computational Cost to 'seconds' (extracted) or 'relative overhead ratio' (if baseline is available). If a baseline is NOT available, the system MUST extract the absolute value in seconds but flag it with `valid_baseline: false` in the output schema, excluding it from the meta-analysis aggregation per FR-008.
 
 ---
 
@@ -45,13 +45,13 @@ The system MUST perform meta-analysis to compute effect sizes linking privacy me
 
 **Why this priority**: This delivers the final research output, synthesizing the extracted data into actionable insights and visual evidence.
 
-**Independent Test**: Can be fully tested by running the analysis on a small synthetic dataset with known effect sizes and verifying the generated plots match the expected statistical trends and the summary report contains the calculated confidence intervals (regardless of whether they include zero).
+**Independent Test**: Can be fully tested by running the analysis on the **actual** `extracted_metrics.csv` generated from the retrieved PDFs. The test verifies that the generated plots reflect the **real** statistical distribution of the extracted data (e.g., confidence intervals are calculated from actual reported standard deviations, not simulated values) and that the summary report contains the calculated confidence intervals (regardless of whether they include zero).
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of 20 extracted studies, **When** the meta-analysis runs, **Then** the output includes a forest plot for "Accuracy Loss vs. Privacy Mechanism" with 95% confidence intervals.
+1. **Given** a dataset of 20 extracted studies, **When** the meta-analysis runs, **Then** the output includes a forest plot for "Accuracy Loss vs. Privacy Mechanism" with 95% confidence intervals derived from the **actual** extracted variance data.
 2. **Given** a scenario where a specific privacy mechanism has <3 data points, **When** the analysis runs, **Then** the system flags this as "Insufficient Data" in the report rather than calculating a statistically invalid effect size.
-3. **Given** the full analysis pipeline, **When** the `run.sh` script completes, **Then** it generates a `results_summary.md` containing the main findings, tables, and links to all generated figures.
+3. **Given** the full analysis pipeline, **When** the `run.sh` script completes, **Then** it generates a `results_summary.md` containing the main findings, tables, and links to all generated figures, where all numerical results are derived strictly from the `extracted_metrics.csv` file.
 
 ### Edge Cases
 
@@ -64,20 +64,21 @@ The system MUST perform meta-analysis to compute effect sizes linking privacy me
 ### Functional Requirements
 
 - **FR-001**: System MUST query arXiv and Semantic Scholar APIs using the exact search strings defined in the methodology to retrieve papers published between 2018 and 2024 (See US-1).
-- **FR-002**: System MUST extract and normalize communication overhead, convergence speed, accuracy loss, and computational cost from PDF tables into a single CSV file. All values MUST be derived strictly from extracted text; the system MUST NOT generate, simulate, placeholder, or hardcode any metric values for the final analysis (See US-2).
+- **FR-002**: System MUST use table-parsing libraries (pdfplumber or tabula-py) combined with regex patterns to extract numeric values from PDF tables into a single CSV file. The system MUST extract *reported* values from source PDFs. The system MUST NOT impute, interpolate, synthesize, simulate, placeholder, or hardcode any metric values for the final analysis. Studies with missing data for a specific metric MUST be excluded from the analysis of that specific metric (See US-2).
 - **FR-003**: System MUST categorize each extracted study into one of four privacy mechanism types: Differential Privacy, Secure Aggregation, Homomorphic Encryption, or Hybrid (See US-2).
-- **FR-004**: System MUST perform a meta-analysis to compute effect sizes (e.g., Hedges' g) and 95% confidence intervals for each performance metric per mechanism. If variance data (SD/SE) is missing for >50% of studies *within a specific mechanism group* for a specific metric, the system MUST fall back to descriptive aggregation (median, IQR) and MUST NOT use fixed-effects models for that group. In this fallback mode, the system MUST use non-parametric tests (e.g., Kruskal-Wallis) for group comparison instead of effect size estimation (See US-3).
+- **FR-004**: System MUST perform a meta-analysis to compute effect sizes (e.g., Hedges' g) and 95% confidence intervals for each performance metric per mechanism. If variance data (SD/SE) is missing for >50% of studies *within the specific mechanism group for the specific metric*, the system MUST fall back to descriptive aggregation (median, IQR) and MUST NOT use fixed-effects models for that group. In this fallback mode, the system MUST use non-parametric tests (e.g., Kruskal-Wallis) for group comparison if raw data is available, but MUST NOT generate effect sizes or confidence intervals for that group; the output MUST be explicitly labeled as "Descriptive Summary" to avoid scientific misrepresentation (See US-3).
 - **FR-005**: System MUST generate at least three visualization types: forest plots for effect sizes (when computable), bar charts for mean overhead, and a scatter plot for accuracy vs. privacy budget (See US-3).
-- **FR-006**: System MUST apply multiple-comparison correction (e.g., Benjamini-Hochberg) to the family of hypothesis tests comparing mechanism groups. The test MUST use the Kruskal-Wallis H test on *raw extracted metric values* (e.g., raw accuracy drop %) across groups to assess distributional differences. This test is distinct from effect size estimation; effect sizes are computed via random-effects models only when variance data is sufficient (See US-3).
+- **FR-006**: System MUST apply multiple-comparison correction (e.g., Benjamini-Hochberg) to the family of hypothesis tests comparing mechanism groups. The 'family' is defined as all pairwise comparisons across the 4 performance metrics and 4 mechanism groups (k=16). The system MUST use the Kruskal-Wallis H test on *raw extracted metric values* (column `raw_value` in `extracted_metrics.csv`) to assess distributional differences, provided there are ≥3 raw data points per group. If the omnibus test is significant, the system MUST perform post-hoc Dunn's tests with Benjamini-Hochberg correction. This test is distinct from effect size estimation; effect sizes are computed via random-effects models only when variance data is sufficient (See US-3).
 - **FR-007**: System MUST detect studies lacking variance estimates (SD/SE) and exclude them from random-effects models. If the exclusion rate within a group exceeds 50%, the system MUST switch to the descriptive review pathway defined in FR-004 (See US-3).
-- **FR-008**: System MUST normalize "Computational Cost" to a "relative overhead ratio" (Private Baseline / Non-Private Baseline) for studies reporting both. A valid baseline is defined as a reported non-private execution on the same hardware architecture. Studies reporting only absolute time/FLOPs without such a baseline MUST be excluded from the computational cost meta-analysis to ensure metric commensurability (See US-2).
-- **FR-009**: System MUST report the count and percentage of studies excluded from the computational cost analysis due to missing baselines. If this exclusion rate exceeds 20%, the system MUST perform and report a sensitivity analysis comparing the results with and without the excluded studies to assess selection bias (See US-3).
+- **FR-008**: System MUST normalize "Computational Cost" to a "relative overhead ratio" (Private Baseline / Non-Private Baseline) for studies reporting both. A valid baseline is defined as a reported non-private execution on the same hardware architecture. Studies reporting only absolute time/FLOPs without such a baseline MUST be extracted with `valid_baseline: false` and excluded from the primary computational cost meta-analysis aggregation. However, these studies MUST be retained in the dataset for sensitivity analysis (See US-2).
+- **FR-009**: System MUST report the count and percentage of studies excluded from the primary computational cost analysis due to missing baselines. The denominator for this percentage MUST be the total number of retrieved studies. If this exclusion rate exceeds 20%, the system MUST perform and report a sensitivity analysis comparing the results with and without the excluded studies to assess selection bias (See US-3).
+- **FR-010**: System MUST ensure all numerical results in the final report are derived exclusively from the `extracted_metrics.csv` file generated from actual PDF extractions. The system MUST NOT introduce any simulated, placeholder, or hardcoded values into the statistical analysis or visualization generation steps (See US-3).
 
 ### Key Entities
 
 - **Study**: A unique publication record containing metadata (DOI, title, authors) and extracted quantitative metrics.
 - **Mechanism**: A categorical attribute of a study (DP, SecureAgg, FHE, Hybrid) used as the independent variable.
-- **Metric**: A quantitative outcome variable (Communication Overhead, Convergence Speed, Accuracy Loss, Computational Cost) extracted from a study.
+- **Metric**: A quantitative outcome variable (Communication Overhead, Convergence Speed, Accuracy Loss, Computational Cost) extracted from a study. Each metric record MUST include a `raw_value` (numeric, extracted directly), `normalized_value` (if applicable), and `valid_baseline` (boolean, for computational cost).
 
 ## Success Criteria
 
@@ -88,15 +89,17 @@ The system MUST perform meta-analysis to compute effect sizes linking privacy me
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The system extracts and reports the count (N) of studies per mechanism category. The system MUST successfully complete the pipeline even if N < 5, in which case the output is a "Descriptive Review" (See US-1, US-2).
-- **SC-002**: The validity of the synthesized findings is measured by a manual spot-check of a random sample of 5 extracted studies. A human reviewer MUST confirm that the extracted data in `extracted_metrics.csv` accurately reflects the source PDFs and supports the reported conclusions in `results_summary.md` (See US-2).
-- **SC-003**: The statistical validity of the meta-analysis is measured by the generation of appropriate statistical outputs: 95% confidence intervals for effect sizes when variance data permits, or descriptive statistics (median, IQR) with explicit qualitative summaries when variance data is insufficient (See US-3).
-- **SC-004**: The reproducibility of the pipeline is measured by the ability to re-run the entire process on a fresh runner using a *fixed input snapshot* (e.g., a git-tagged version of `extracted_metrics.csv`) and produce identical `results_summary.md` outputs, ensuring no simulated, placeholder, or hardcoded values are introduced into the final dataset (See US-1, US-3).
+- **SC-002**: The validity of the synthesized findings is measured by a manual spot-check of a random sample of extracted studies. A human reviewer MUST confirm that the extracted data in `extracted_metrics.csv` accurately reflects the source PDFs. The pass criterion is 0 errors in 5 randomly selected rows for the fields 'raw_value' and 'mechanism_type' (See US-2).
+- **SC-003**: The statistical validity of the meta-analysis is measured by the generation of specific statistical outputs: 95% confidence intervals for effect sizes (Hedges' g) when variance data permits, OR descriptive statistics (median, IQR) with explicit qualitative summaries when variance data is insufficient. The output MUST include a forest plot with 95% CI and a p-value for the primary comparison when applicable (See US-3).
+- **SC-004**: The reproducibility of the pipeline is measured by the ability to re-run the entire process on a fresh runner using a *fixed input snapshot* (e.g., a git-tagged version of `extracted_metrics.csv`) and produce identical `results_summary.md` outputs, ensuring all results are derived from the actual extracted dataset without simulated or placeholder values (See US-1, US-3).
+- **SC-005**: The integrity of the results is measured by the absence of any simulated or hardcoded values in the final statistical outputs. A validation script MUST confirm that every numerical value in the final report matches a value present in `extracted_metrics.csv` or is a direct mathematical transformation of such values (See US-3).
 
 ## Assumptions
 
 - The arXiv and Semantic Scholar APIs provide sufficient access to PDFs and metadata for the 2018-2024 window without requiring institutional paywalls.
 - The `tabula-py` or `pdfplumber` libraries can successfully extract tabular data from at least 80% of the target PDFs; the remaining [deferred] will be flagged for manual review.
-- The "computational cost" metric is reported in a comparable unit (e.g., seconds, FLOPs, or relative overhead) across the majority of studies; studies using non-comparable units without a baseline will be excluded per FR-008.
+- The "computational cost" metric is reported in a comparable unit (e.g., seconds, FLOPs, or relative overhead) across the majority of studies; studies using non-comparable units without a baseline will be excluded from the primary aggregation but included in sensitivity analysis per FR-009.
 - The GitHub Actions free-tier runner (2 CPU, 7GB RAM) is sufficient to run the `statsmodels` meta-analysis and generate plots on the extracted dataset (expected size <100 rows).
 - The search strings will yield a sufficient sample size (N≥5 per category) to perform a meta-analysis. If N < 5 per category, the project is valid and will output a "Descriptive Systematic Review" rather than a quantitative meta-analysis (See SC-001).
 - The dataset contains the necessary variables (privacy mechanism type, communication overhead, convergence speed, accuracy loss, computational cost) for all included studies; if a study lacks a specific metric, that study will be excluded from the analysis of that specific metric.
+- All quantitative results presented in the final report are derived exclusively from the text extracted from the retrieved PDFs; no synthetic data, simulated values, or hardcoded placeholders are introduced at any stage of the analysis pipeline.

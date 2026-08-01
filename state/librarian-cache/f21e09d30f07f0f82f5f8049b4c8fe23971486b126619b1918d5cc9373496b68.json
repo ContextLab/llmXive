@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-10T07:54:45Z",
+  "fetched_at": "2026-08-01T13:39:43Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,15 @@
       "idea_body_excerpt": "Systematic Review of Privacy-Preserving Federated Learning Protocols",
       "target_n": 5
     },
-    "duration_seconds": 35.924,
-    "ended_at": "2026-07-10T07:54:45Z",
+    "duration_seconds": 82.03,
+    "ended_at": "2026-08-01T13:39:43Z",
     "expansion": null,
     "extracted_queries": [
       "differential privacy secure aggregation homomorphic encryption",
-      "Federated Averaging Byzantine fault tolerance poisoning attacks",
-      "secure multi-party computation trusted execution environments",
-      "communication efficiency model compression gradient sparsification",
-      "membership inference model inversion reconstruction attacks"
+      "federated learning client poisoning model inversion",
+      "secure multi-party computation trusted execution environment",
+      "communication efficiency convergence rate accuracy trade-off",
+      "data leakage gradient reconstruction membership inference"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -26,36 +26,41 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2004.11794"
+        "2207.02337"
       ]
     },
     "per_query_hit_count": {
-      "Federated Averaging Byzantine fault tolerance poisoning attacks": 3,
       "Systematic Review of Privacy-Preserving Federated Learning Protocols computer science": 3,
-      "communication efficiency model compression gradient sparsification": 3,
+      "communication efficiency convergence rate accuracy trade-off": 3,
+      "data leakage gradient reconstruction membership inference": 3,
       "differential privacy secure aggregation homomorphic encryption": 3,
-      "membership inference model inversion reconstruction attacks": 3,
-      "secure multi-party computation trusted execution environments": 3
+      "federated learning client poisoning model inversion": 3,
+      "secure multi-party computation trusted execution environment": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
+      "rejected_count": 2,
       "rejections": [
         {
           "primary_pointer": "2510.15413",
           "rationale": "The paper focuses on Fully Homomorphic Encryption (FHE) for centralized SQL databases, which is a distinct cryptographic mechanism and system architecture from Federated Learning (FL), where the core challenge is distributed model training without sharing raw data. While both fall under the broad umbrella of \"privacy-preserving computation,\" the paper does not address the specific protocols, communication patterns, or aggregation mechanisms unique to FL, nor does it measure the same variables or",
           "title": "FHE-SQL: Fully Homomorphic Encrypted SQL Database"
+        },
+        {
+          "primary_pointer": "2506.02887",
+          "rationale": "The paper focuses specifically on \"partial client participation\" challenges (e.g., generalization, robustness, fairness) rather than \"privacy-preserving protocols\" (e.g., differential privacy, secure multi-party computation, homomorphic encryption). While both topics exist within Federated Learning, the paper does not measure the same mechanism, address the specific privacy variables, or serve as a foundational reference for privacy-preserving techniques, thus failing criteria (a) through (f) fo",
+          "title": "Overcoming Challenges of Partial Client Participation in Federated Learning : A Comprehensive Review"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-10T07:54:09Z",
+    "started_at": "2026-08-01T13:38:21Z",
     "term_input": {
       "normalized": "systematic review of privacy-preserving federated learning protocols computer science",
       "raw": "Systematic Review of Privacy-Preserving Federated Learning Protocols computer science"
@@ -75,57 +80,7 @@
           "primary_pointer": "2305.05904"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Revisiting Fully Homomorphic Encryption Schemes')",
-        "failed_at": "2026-07-10T07:54:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Among those faults Byzantine faults offers serious challenge to fault tolerance mechanism, because it often go undetected at the initial stage and it can easily propagate to other VMs before a detection is made. Consequently some of the mission critical application such as air traffic control, online baking etc still staying away from the cloud for such reasons. However if a Byzantine faults is not detected and tolerated at initial stage then applications such as big data analytics can go completely wrong in spite of hours of computations performed by the entire cloud. Therefore in the previous work a fool-proof Byzantine fault detection has been proposed, as a continuation this work designs a scheduling algorithm (WSSS) and checkpoint optimization algorithm (TCC) to tolerate and eliminate the Byzantine faults before it makes any impact. The WSSS algorithm keeps track of server performance which is part of Virtual Clusters to help allocate best performing server to mission critical application. WSSS therefore ranks the servers based on a counter which monitors every Virtual Nodes (VN) for time and performance failures. The TCC algorithm works to generalize the possible Byzantine error prone region through monitoring delay variation to start new VNs with previous checkpointing. Moreover it can stretch the state interval for performing and error free VNs in an effect to minimize the space, time and cost overheads caused by checkpointing. The analysis is performed with plotting state transition and CloudSim based simulation. The result shows TCC reduces fault tolerance overhead exponentially and the WSSS allots virtual resources effectively",
-          "claimed_authors": [
-            "Sathya Chinnathambi",
-            "Agilan Santhanam"
-          ],
-          "claimed_title": "Scheduling and Checkpointing optimization algorithm for Byzantine fault tolerance in Cloud Clusters",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1802.00951"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Scheduling and Checkpointing optimization algorithm for Byzantine fault tolerance in Cloud Clusters')",
-        "failed_at": "2026-07-10T07:54:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We introduce and solve the problem of Byzantine fault tolerant distributed quickest change detection in both continuous and discrete time setups. In this problem, multiple sensors sequentially observe random signals from the environment and send their observations to a control center that will determine whether there is a change in the statistical behavior of the observations. We assume that the signals are independent and identically distributed across sensors. An unknown subset of sensors are compromised and will send arbitrarily modified and even artificially generated signals to the control center. It is shown that the performance of the the so-called CUSUM statistic, which is optimal when all sensors are honest, will be significantly degraded in the presence of even a single dishonest sensor. In particular, instead of in a logarithmically the detection delay grows linearly with the average run length (ARL) to false alarm. To mitigate such a performance degradation, we propose a fully distributed low complexity detection scheme. We show that the proposed scheme can recover the log scaling. We also propose a centralized group-wise scheme that can further reduce the detection delay.",
-          "claimed_authors": [
-            "Erhan Bayraktar",
-            "Lifeng Lai"
-          ],
-          "claimed_title": "Byzantine Fault Tolerant Distributed Quickest Change Detection",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1306.2086"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Byzantine Fault Tolerant Distributed Quickest Change Detection')",
-        "failed_at": "2026-07-10T07:54:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In dynamic systems that adapt to users' needs and changing environments, dependability needs cannot be avoided. This paper proposes an orthogonal fault tolerance model as a means to manage and reason about multiple fault tolerance mechanisms that co-exist in dynamically adaptive systems. One of the key challenges associated with dynamically evolving fault tolerance needs is the feature interaction problem arising from the integration of fault tolerance features. The proposed approach provides a separation of fault tolerance concerns to study the effects of integrated fault tolerance on the system. This approach uses state machine and operational semantics to reason about these interactions and inconsistencies. The proposed approach is supported by the tool NuSMV to simulate and verify the state machines against logic statements.",
-          "claimed_authors": [
-            "Sobia K Khan"
-          ],
-          "claimed_title": "Orthogonal Fault Tolerance for Dynamically Adaptive Systems",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1404.6830"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Orthogonal Fault Tolerance for Dynamically Adaptive Systems')",
-        "failed_at": "2026-07-10T07:54:39Z",
+        "failed_at": "2026-08-01T13:39:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -143,7 +98,7 @@
           "primary_pointer": "2301.03724"
         },
         "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='SoK: Hardware Defenses Against Speculative Execution Attacks')",
-        "failed_at": "2026-07-10T07:54:39Z",
+        "failed_at": "2026-08-01T13:39:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -160,7 +115,7 @@
           "primary_pointer": "2101.05560"
         },
         "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Secure Multi-Party Quantum Conference and Xor Computation')",
-        "failed_at": "2026-07-10T07:54:39Z",
+        "failed_at": "2026-08-01T13:39:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -180,83 +135,93 @@
           "primary_pointer": "2204.06790"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='An Exploratory Study of Attestation Mechanisms for Trusted Execution Environments')",
-        "failed_at": "2026-07-10T07:54:39Z",
+        "failed_at": "2026-08-01T13:39:40Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large-scale distributed training requires significant communication bandwidth for gradient exchange that limits the scalability of multi-node training, and requires expensive high-bandwidth network infrastructure. The situation gets even worse with distributed training on mobile devices (federated learning), which suffers from higher latency, lower throughput, and intermittent poor connections. In this paper, we find 99.9% of the gradient exchange in distributed SGD is redundant, and propose Deep Gradient Compression (DGC) to greatly reduce the communication bandwidth. To preserve accuracy during compression, DGC employs four methods: momentum correction, local gradient clipping, momentum factor masking, and warm-up training. We have applied Deep Gradient Compression to image classification, speech recognition, and language modeling with multiple datasets including Cifar10, ImageNet, Penn Treebank, and Librispeech Corpus. On these scenarios, Deep Gradient Compression achieves a gradient compression ratio from 270x to 600x without losing accuracy, cutting the gradient size of ResNet-50 from 97MB to 0.35MB, and for DeepSpeech from 488MB to 0.74MB. Deep gradient compression enables large-scale distributed training on inexpensive commodity 1Gbps Ethernet and facilitates distributed training on mobile. Code is available at: https://github.com/synxlin/deep-gradient-compression.",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
           "claimed_authors": [
-            "Yujun Lin",
-            "Song Han",
-            "Huizi Mao",
-            "Yu Wang",
-            "William J. Dally"
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
           ],
-          "claimed_title": "Deep Gradient Compression: Reducing the Communication Bandwidth for Distributed Training",
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
           "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1712.01887"
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
         },
-        "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Deep Gradient Compression: Reducing the Communication Bandwidth for Distributed Training')",
-        "failed_at": "2026-07-10T07:54:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-08-01T13:39:40Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This study investigates the impact of gradient compression on distributed training performance, focusing on sparsification and quantization techniques, including top-k, DGC, and QSGD. In baseline experiments, random-k compression results in severe performance degradation, highlighting its inefficacy. In contrast, using top-k and DGC at 50 times compression yields performance improvements, reducing perplexity by up to 0.06 compared to baseline. Experiments across 1, 2, and 4 workers demonstrate that conservative sparsification can have a regularizing effect, especially for smaller models, while compression ratios above 5000 times impair performance, particularly for DGC. Communication times are reduced across all compression methods, with top-k and DGC decreasing communication to negligible levels at high compression ratios. However, increased computation times offset this efficiency for top-k due to sorting demands, making it less scalable than DGC or QSGD. In convergence tests, sparsification techniques show accelerated convergence, requiring fewer epochs than the baseline, which has implications for computational savings. Although precision trade-offs emerge, floating point errors are mitigated by compression. This study's findings underscore the need to tune hyperparameters specifically for each compression technique to achieve optimal model performance, especially in distributed training systems.",
+          "claimed_abstract": "Convergence rate to the stationary distribution for continuous-time Markov processes can be studied using Lyapunov functions. Recent work by the author provided explicit rates of convergence in special case of a reflected jump-diffusion on a half-line. These results are proved for total variation distance and its generalizations: measure distances defined by test functions regardless of their continuity. Here we prove similar results for Wasserstein distance, convergence in which is related to convergence for continuou test functions. In some cases, including the reflected Ornstein-Uhlenbeck process, we get faster exponential convergence rates for Wasserstein distance than for total variation distance.",
           "claimed_authors": [
-            "Shruti Singh",
-            "Shantanu Kumar"
+            "Andrey Sarantsev"
           ],
-          "claimed_title": "Efficient Distributed Training through Gradient Compression with Sparsification and Quantization Techniques",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2502.07634"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Efficient Distributed Training through Gradient Compression with Sparsification and Quantization Techniques')",
-        "failed_at": "2026-07-10T07:54:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Modern large scale machine learning applications require stochastic optimization algorithms to be implemented on distributed computational architectures. A key bottleneck is the communication overhead for exchanging information such as stochastic gradients among different workers. In this paper, to reduce the communication cost we propose a convex optimization formulation to minimize the coding length of stochastic gradients. To solve the optimal sparsification efficiently, several simple and fast algorithms are proposed for approximate solution, with theoretical guaranteed for sparseness. Experiments on $\\ell_2$ regularized logistic regression, support vector machines, and convolutional neural networks validate our sparsification approaches.",
-          "claimed_authors": [
-            "Jianqiao Wangni",
-            "Jialei Wang",
-            "Ji Liu",
-            "Tong Zhang"
-          ],
-          "claimed_title": "Gradient Sparsification for Communication-Efficient Distributed Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1710.09854"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Gradient Sparsification for Communication-Efficient Distributed Optimization')",
-        "failed_at": "2026-07-10T07:54:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Neural networks are susceptible to data inference attacks such as the model inversion attack and the membership inference attack, where the attacker could infer the reconstruction and the membership of a data sample from the confidence scores predicted by the target classifier. In this paper, we propose a unified approach, namely purification framework, to defend data inference attacks. It purifies the confidence score vectors predicted by the target classifier by reducing their dispersion. The purifier can be further specialized in defending a particular attack via adversarial learning. We evaluate our approach on benchmark datasets and classifiers. We show that when the purifier is dedicated to one attack, it naturally defends the other one, which empirically demonstrates the connection between the two attacks. The purifier can effectively defend both attacks. For example, it can reduce the membership inference accuracy by up to 15% and increase the model inversion error by a factor of up to 4. Besides, it incurs less than 0.4% classification accuracy drop and less than 5.5% distortion to the confidence scores.",
-          "claimed_authors": [
-            "Ziqi Yang",
-            "Bin Shao",
-            "Bohan Xuan",
-            "Ee-Chien Chang",
-            "Fan Zhang"
-          ],
-          "claimed_title": "Defending Model Inversion and Membership Inference Attacks via Prediction Purification",
+          "claimed_title": "Convergence rate to equilibrium in Wasserstein distance for reflected jump-diffusions",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2005.03915"
+          "primary_pointer": "2003.10590"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Defending Model Inversion and Membership Inference Attacks via Prediction Purification')",
-        "failed_at": "2026-07-10T07:54:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Convergence rate to equilibrium in Wasserstein distance for reflected jump-diffusions')",
+        "failed_at": "2026-08-01T13:39:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study a family of algorithms, which we refer to as local update methods, generalizing many federated and meta-learning algorithms. We prove that for quadratic models, local update methods are equivalent to first-order optimization on a surrogate loss we exactly characterize. Moreover, fundamental algorithmic choices (such as learning rates) explicitly govern a trade-off between the condition number of the surrogate loss and its alignment with the true loss. We derive novel convergence rates showcasing these trade-offs and highlight their importance in communication-limited settings. Using these insights, we are able to compare local update methods based on their convergence/accuracy trade-off, not just their convergence to critical points of the empirical loss. Our results shed new light on a broad range of phenomena, including the efficacy of server momentum in federated learning and the impact of proximal client updates.",
+          "claimed_authors": [
+            "Zachary Charles",
+            "Jakub Konečný"
+          ],
+          "claimed_title": "Convergence and Accuracy Trade-Offs in Federated Learning and Meta-Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.05032"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Convergence and Accuracy Trade-Offs in Federated Learning and Meta-Learning')",
+        "failed_at": "2026-08-01T13:39:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-08-01T13:39:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-08-01T13:39:40Z",
         "reason": "query_irrelevant"
       },
       {
@@ -277,25 +242,7 @@
           "primary_pointer": "2502.00306"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Riddle Me This! Stealthy Membership Inference for Retrieval-Augmented Generation')",
-        "failed_at": "2026-07-10T07:54:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Machine learning models' goal is to make correct predictions for specific tasks by learning important properties and patterns from data. By doing so, there is a chance that the model learns properties that are unrelated to its primary task. Property Inference Attacks exploit this and aim to infer from a given model (\\ie the target model) properties about the training dataset seemingly unrelated to the model's primary goal. If the training data is sensitive, such an attack could lead to privacy leakage. This paper investigates the influence of the target model's complexity on the accuracy of this type of attack, focusing on convolutional neural network classifiers. We perform attacks on models that are trained on facial images to predict whether someone's mouth is open. Our attacks' goal is to infer whether the training dataset is balanced gender-wise. Our findings reveal that the risk of a privacy breach is present independently of the target model's complexity: for all studied architectures, the attack's accuracy is clearly over the baseline. We discuss the implication of the property inference on personal data in the light of Data Protection Regulations and Guidelines.",
-          "claimed_authors": [
-            "Mathias P. M. Parisot",
-            "Balazs Pejo",
-            "Dayana Spagnuelo"
-          ],
-          "claimed_title": "Property Inference Attacks on Convolutional Neural Networks: Influence and Implications of Target Model's Complexity",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2104.13061"
-        },
-        "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title=\"Property Inference Attacks on Convolutional Neural Networks: Influence and Implications of Target Model's Complexity\")",
-        "failed_at": "2026-07-10T07:54:39Z",
+        "failed_at": "2026-08-01T13:39:40Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -322,7 +269,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T07:54:37Z"
+          "verified_at": "2026-08-01T13:38:48Z"
         }
       },
       {
@@ -350,7 +297,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T07:54:37Z"
+          "verified_at": "2026-08-01T13:38:56Z"
         }
       },
       {
@@ -371,13 +318,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2004.11794",
           "http_status": 200,
-          "pdf_sample_score": 0.1578,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.5556,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T07:54:38Z"
+          "verified_at": "2026-08-01T13:39:01Z"
         }
       },
       {
@@ -407,7 +354,64 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T07:54:38Z"
+          "verified_at": "2026-08-01T13:39:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2207.02337",
+        "summary": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2207.02337",
+          "http_status": 200,
+          "pdf_sample_score": 0.1309,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T13:39:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wenqi Wei",
+            "Tiansheng Huang",
+            "Zachary Yahn",
+            "Anoop Singhal",
+            "Margaret Loper",
+            "Ling Liu"
+          ],
+          "title": "Data Poisoning and Leakage Analysis in Federated Learning",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.13004",
+        "summary": "Data poisoning and leakage risks impede the massive deployment of federated learning in the real world. This chapter reveals the truths and pitfalls of understanding two dominating threats: {\\em training data privacy intrusion} and {\\em training data poisoning}. We first investigate training data privacy threat and present our observations on when and how training data may be leaked during the course of federated training. One promising defense strategy is to perturb the raw gradient update by adding some controlled randomized noise prior to sharing during each round of federated learning. We discuss the importance of determining the proper amount of randomized noise and the proper location to add such noise for effective mitigation of gradient leakage threats against training data privacy. Then we will review and compare different training data poisoning threats and analyze why and when such data poisoning induced model Trojan attacks may lead to detrimental damage on the performance of the global model. We will categorize and compare representative poisoning attacks and the effectiveness of their mitigation techniques, delivering an in-depth understanding of the negative impact of data poisoning. Finally, we demonstrate the potential of dynamic model perturbation in simultaneously ensuring privacy protection, poisoning resilience, and model performance. The chapter concludes with a discussion on additional risk factors in federated learning, including the negative impact of skewness, data and algorithmic biases, as well as misinformation in training data. Powered by empirical evidence, our analytical study offers some transformative insights into effective privacy protection and security assurance strategies in attack-resilient federated learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.13004",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T13:39:31Z"
         }
       }
     ]
