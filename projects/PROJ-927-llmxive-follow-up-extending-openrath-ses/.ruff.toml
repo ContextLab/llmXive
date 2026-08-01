@@ -1,0 +1,50 @@
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by Black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+# Allow autofix for all enabled rules.
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files from linting.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as the default target version (Python 3.11).
+target-version = "py311"
+
+# Per-file ignores (optional, can be expanded as needed).
+# [lint.per-file-ignores]

@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-openrath-ses"
+version = "0.1.0"
+description = "Follow-up research: Extending OpenRath Session-Centered Runtime State"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pytest==7.4.0",
+    "scipy==1.11.0",
+    "pandas==2.1.0",
+    "numpy==1.24.0",
+    "pyyaml==6.0.1",
+    "jsonschema==4.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | state
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+# Inherit from .ruff.toml for lint rules, but can override here if needed
+# Currently, we rely on the explicit .ruff.toml file for detailed lint config
+src = ["code", "tests"]
+line-length = 100
+target-version = "py311"

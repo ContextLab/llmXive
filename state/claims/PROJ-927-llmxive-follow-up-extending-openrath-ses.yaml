@@ -1,0 +1,80 @@
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: 'Dependency versions: pytest 7.4.0, scipy 1.11.0, pandas 2.1.0, numpy
+    1.24.0, pyyaml 6.0.1, jsonschema 4.19.0'
+  claim_id: c_1faff479
+  context: Initialize Python 3.11 project with requirements.txt at projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/
+    pinning exact versions
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'pinning exact versions: pytest==7.4.0, scipy==1.11.0, pandas==2.1.0,
+    numpy==1.24.0, pyyaml==6.0.1, jsonschema==4.19.0'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T21:31:05Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: 'Configuration parameters: SEED 42, CORRUPTION_RATE 0.1, WORKFLOW_COUNT
+    500, SWEEP_RATES 0.05 0.10 0.20'
+  claim_id: c_d905c867
+  context: Implement code/config.py to define specific keys
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'define specific keys: SEED=42, CORRUPTION_RATE=0.1, WORKFLOW_COUNT=500,
+    SWEEP_RATES=[0.05, 0.10, 0.20]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T21:31:20Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: 'Statistical fallback: Exact McNemar for N less than 25; Monte Carlo
+    with 10,000 repetitions for Cochran''s Q'
+  claim_id: c_ce837c14
+  context: Implement fallback logic for small N contingency in code/analyzers/statistical_test.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_fallback:_Exact_McNemar_for_N_less_than_25;_Mont
+  kind: magnitude
+  raw_text: Use Exact McNemar if N < 25, and Monte Carlo (10,000 repetitions) for
+    Cochran's Q if assumptions are violated
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T21:31:55Z'
+- artifact_path: projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/specs/001-llmxive-follow-up-extending-openrath-ses/tasks.md
+  attempts: 1
+  canonical: 'Performance targets: runtime less than 6 hours and RAM usage less than
+    4 GB'
+  claim_id: c_e9dbc863
+  context: 'Performance optimization for -workflow sweep: Profile code/main.py and
+    refactor loops'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_targets:_runtime_less_than_6_hours_and_RAM_usage
+  kind: magnitude
+  raw_text: profile code/main.py and refactor loops to ensure < 6h runtime and < 4GB
+    RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T21:32:33Z'

@@ -1,0 +1,18 @@
+T009:
+  c: false
+  h: f601d9d5bf359edccce9424759cb6f5157764513098edc24a83d55463b322c93
+  r: "`code/main.py` exists and defines the required CLI arguments and checkpoint\u2011\
+    loading logic, but the required checkpoint file `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`\
+    \ is absent, so the checkpoint format cannot be verified nor the resume flow exercised.\
+    \ The missing YAML file must be added/updated with a `checkpoint` section containing\
+    \ `last_workflow_id` and `status`."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or data file was presented that implements the required\
+    \ logic of writing corruption flags solely to a central `corruption_map` (or `corruption_log`).\
+    \ The evidence lacks any artifact showing such a map being updated, and there\
+    \ is no proof that side\u2011car `.meta` files or JSON root modifications were\
+    \ avoided. The implementer must provide the actual implementation (e.g., a module,\
+    \ script, or updated data structure) that records corruption status only in the\
+    \ central map."

@@ -20,31 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/`): Create directories `code/`, `code/generators/`, `code/executors/`, `code/simulators/`, `code/reconstructors/`, `code/analyzers/`, `tests/`, `data/raw/workflows/`, `data/processed/event_log/`, `data/processed/session_first/`, `data/processed/results/`, `state/`. Create empty `__init__.py` files in all `code/` subdirectories (`code/`, `code/generators/`, `code/executors/`, `code/simulators/`, `code/reconstructors/`, `code/analyzers/`).
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` at `projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/` pinning exact versions: `pytest==7.4.0`, `scipy==1.11.0`, `pandas==2.1.0`, `numpy==1.24.0`, `pyyaml==6.0.1`, `jsonschema==4.19.0`.
+- [X] T001a [P] Create core project structure: Create directories `code/`, `code/generators/`, `code/executors/`, `code/reconstructors/`, `code/analyzers/`, `tests/`, `data/raw/workflows/`, `data/processed/event_log/`, `data/processed/session_first/`, `data/processed/results/`, `state/`. Create empty `__init__.py` files in all `code/` subdirectories (`code/`, `code/generators/`, `code/executors/`, `code/reconstructors/`, `code/analyzers/`).
+- [X] T001b [P] Create simulators directory: Create directory `code/simulators/` and empty `__init__.py` to satisfy plan structure for `corruption_injector.py`.
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` at `projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/` pinning exact versions: `pytest==7.4.0`, `scipy==1.11.0`, `pandas==2.1.0` (required for data manipulation per Plan), `numpy==1.24.0`, `pyyaml==6.0.1`, `jsonschema==4.19.0` (required for schema validation per Plan).
 - [ ] T003 [P] Configure linting and formatting: Create `.ruff.toml` with `[lint]` rules and `pyproject.toml` with `[tool.black]` section.
 
 ---
@@ -55,17 +56,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` to define specific keys: `SEED=42`, `CORRUPTION_RATE=0.1`, `WORKFLOW_COUNT=500`, `SWEEP_RATES=[, low, moderate]
-
-The specific value to remove/generalize: 'low'
-
-Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`, `STATE_DIR`.
-- [ ] T005 [P] Create directory structure for `data/raw/workflows`, `data/processed/event_log`, `data/processed/session_first`, `data/processed/results`.
-- [ ] T006 Implement `code/generators/__init__.py` and base schema definitions for Workflow Definition and Ground Truth.
-- [ ] T007 Implement `code/executors/__init__.py` and `code/simulators/__init__.py` base classes.
-- [ ] T008 Implement `code/reconstructors/__init__.py` and `code/analyzers/__init__.py` base classes.
-- [ ] T009 Create `code/main.py` orchestration skeleton with CLI arguments (`--seed`, `--count`, `--resume`), checkpoint file format (`state/checkpoint.json` containing `last_workflow_id` and `status`), and resume logic flow (load checkpoint, skip completed IDs, process remaining).
-- [ ] T017 [P] Implement comprehensive data hygiene checksumming: Create `code/utils/checksum_manager.py` to calculate SHA256 for EVERY file under `data/` (both `data/raw/` and `data/processed/`) in a single unified pass and register/update entries in `state/artifact_hashes.json` to satisfy Constitution Principle III.
+- [X] T004 Implement `code/config.py` to define specific keys: `SEED=42`, `CORRUPTION_RATE=0.1`, `WORKFLOW_COUNT=500`, `SWEEP_RATES=[, 0.10, 0.20]`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`, `STATE_DIR`.
+- [X] T009 Create `code/main.py` orchestration skeleton with CLI arguments (`--seed`, `--count`, `--resume`), checkpoint file format (update `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` with `checkpoint` key containing `last_workflow_id` and `status`), and resume logic flow (load checkpoint from YAML, skip completed IDs, process remaining).
+- [X] T017a [P] Implement data hygiene utility: Create `code/utils/checksum_manager.py` to calculate SHA256 for files and provide a method to update the project's YAML state file (`state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`) with `artifact_hashes` map. Do NOT run this yet; just implement the utility.
+- [X] T006 Implement `code/generators/__init__.py` and base schema definitions for Workflow Definition and Ground Truth.
+- [X] T007 Implement `code/executors/__init__.py` and `code/simulators/__init__.py` base classes.
+- [X] T008 Implement `code/reconstructors/__init__.py` and `code/analyzers/__init__.py` base classes.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,16 +75,19 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Unit test for deterministic generation in `tests/unit/test_generator.py` (verify seed consistency).
-- [ ] T011 [P] [US1] Unit test for ground truth immutability in `tests/unit/test_generator.py` (verify read-only constraints).
+- [X] T010 [P] [US1] Unit test for deterministic generation in `tests/unit/test_generator.py` (verify seed consistency).
+- [X] T011 [P] [US1] Unit test for ground truth immutability in `tests/unit/test_generator.py` (verify read-only constraints by attempting write and expecting PermissionError).
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/generators/workflow_generator.py` to create deterministic multi-agent workflows with tool outputs and decision trees.
-- [ ] T013 [US1] Implement ground truth serialization in `code/generators/workflow_generator.py`: Store to `data/raw/workflows/{workflow_id}_ground_truth.json` (one file per workflow) with SHA256 hash.
-- [ ] T014 [US1] Add validation logic to ensure generated workflows contain all necessary variables (tool outputs, state snapshots) as per SC-005.
-- [ ] T015 [US1] Implement checkpointing logic in `code/main.py` to resume workflow generation from the last completed ID on timeout.
-- [ ] T016 [US1] Add logging for workflow generation steps and hash verification.
+- [X] T012 [P] [US1] Implement `code/generators/workflow_generator.py` to create deterministic multi-agent workflows with tool outputs and decision trees.
+- [X] T013 [US1] Implement ground truth serialization in `code/generators/workflow_generator.py`: Store to `data/raw/workflows/{workflow_id}_ground_truth.json` (one file per workflow) with SHA256 hash.
+- [X] T013b [US1] Enforce read-only constraints: After the entire batch of workflows is written and checksummed, call `os.chmod()` with mode `0o555` on the `data/raw/workflows/` directory to prevent accidental overwriting as per Spec Edge Cases.
+- [X] T014 [US1] Implement validation logic in `code/generators/workflow_generator.py::validate_workflow_schema` to ensure generated workflows contain all necessary variables (tool outputs, snapshots) as per SC-005.
+- [X] T015 [US1] Implement checkpointing logic in `code/main.py` to resume workflow generation from the last completed ID on timeout (implementation of T009 skeleton).
+- [X] T015b [US1] Generate and store pre-computed reference hash: Create a script or task to generate a reference hash for the ground truth of the first workflow (seed set to a fixed value). and store it in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` for verification in the Independent Test.
+- [X] T016 [US1] Add logging for workflow generation steps and hash verification in `code/generators/workflow_generator.py` to produce verifiable evidence of determinism.
+- [X] T017b [US1] Execute immediate checksumming: Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file in `data/raw/workflows/` immediately after generation and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,19 +101,20 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for corruption injector in `tests/unit/test_corruption.py` (verify deletion/modification logic).
-- [ ] T019 [P] [US2] Integration test for atomic writes in `tests/integration/test_session_first.py` (verify write-to-temp-then-rename).
+- [X] T018 [P] [US2] Unit test for corruption injector in `tests/unit/test_corruption.py` (verify deletion/modification logic).
+- [X] T019 [P] [US2] Integration test for atomic writes in `tests/integration/test_session_first.py` (verify write-to-temp-then-rename).
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/executors/base_executor.py` abstract base class for architecture execution.
-- [ ] T021 [US2] Implement `code/executors/event_log_executor.py` for asynchronous, fragmented storage (transcripts, snapshots, outputs as separate files).
-- [ ] T022 [US2] Implement `code/executors/session_first_executor.py` for atomic, single-object state recording (write-to-temp-then-rename).
-- [ ] T023 [US2] Implement `code/simulators/corruption_injector.py` to randomly select and modify/delete log entries based on configurable rate (default moderate).
-- [ ] T024a [US2] Implement stochastic network delay (jitter) simulation in `code/executors/event_log_executor.py`: Inject `time.sleep(random.uniform(0, jitter_ms))` specifically inside the `tool_call()` method (FR-004).
-- [ ] T024b [US2] Implement stochastic network delay (jitter) simulation in `code/executors/session_first_executor.py`: Inject `time.sleep(random.uniform(0, jitter_ms))` specifically inside the `tool_call()` method (FR-004).
-- [ ] T025 [US2] Integrate corruption injection into the execution flow in `code/main.py` to ensure logs are corrupted *after* generation but *before* reconstruction.
-- [ ] T026 [US2] Add logic to mark corrupted files with a "corruption flag" in metadata: Add `"corrupted": true` to the JSON root of the file or create a sidecar `.meta` file with this flag.
+- [X] T020 [P] [US2] Implement `code/executors/base_executor.py` abstract base class for architecture execution.
+- [X] T021 [US2] Implement `code/executors/event_log_executor.py` for asynchronous, fragmented storage (transcripts, snapshots, outputs as separate files).
+- [X] T022 [US2] Implement `code/executors/session_first_executor.py` for atomic, single-object state recording (write-to-temp-then-rename).
+- [X] T023 [US2] Implement `code/simulators/corruption_injector.py` to randomly select and modify/delete log entries based on configurable rate (default moderate).
+- [X] T023b [US2] Execute immediate checksumming: Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file in `data/processed/corrupted_logs/` immediately after corruption injection and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`.
+- [X] T024a [US2] Implement stochastic network delay (jitter) simulation in `code/executors/event_log_executor.py`: Inject `time.sleep(random.uniform(0, jitter_ms))` specifically inside the `tool_call()` method (FR-004).
+- [X] T024b [US2] Implement stochastic network delay (jitter) simulation in `code/executors/session_first_executor.py`: Inject `time.sleep(random.uniform(0, jitter_ms))` specifically inside the `tool_call()` method (FR-004).
+- [X] T025 [US2] Integrate corruption injection into the execution flow in `code/main.py` to ensure logs are corrupted *after* generation (Phase 3 output) but *before* reconstruction. Explicitly depend on T023 (corruption logic) and T026 (corruption map) being implemented.
+- [X] T026 [US2] Implement central corruption map logic in `code/simulators/corruption_injector.py::log_corruption`: Write the corruption status to a central `data/processed/corruption_map.json` artifact. **PROHIBITED**: Do NOT create sidecar `.meta` files or modify JSON roots to flag corruption; the central map is the single source of truth.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,17 +133,16 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement `code/reconstructors/reconstruction_engine.py` to parse corrupted logs and rebuild state/decision tree.
-- [ ] T031 [US3] Implement "Unrecoverable" detection logic: Read `data/processed/corruption_log.json` and cross-reference with `decision_tree.nodes` to flag workflows where critical data was deleted (FR-007).
-- [ ] T032 [US3] Implement state comparison logic to calculate binary "Reconstruction Success Rate" against ground truth (FR-005).
-- [ ] T033 [US3] Implement "Replay Latency" measurement in `code/analyzers/metrics_calculator.py` (time from start of reconstruction to completion).
-- [ ] T034a [US3] Implement primary statistical test in `code/analyzers/statistical_test.py`: Cochran's Q test on the 2x2x3 design (Architecture x Outcome x Corruption Rate) as defined in Plan T013.
-- [ ] T034b [US3] Implement post-hoc statistical analysis in `code/analyzers/statistical_test.py`: McNemar's test with Holm-Bonferroni correction for pairwise comparisons as defined in Plan T014.
-- [ ] T035 [US3] Implement sensitivity sweep logic in `code/main.py` to iterate over the `SWEEP_RATES` list defined in `code/config.py` (T004) and run the full pipeline for each rate in the concrete set `{0.05, 0.10, 0.20}` (SC-004).
-- [ ] T036 [US3] Generate `reconstruction_result.json` for each workflow containing success status, reconstructed state, and latency.
-- [ ] T037 [US3] Implement aggregation logic to calculate "Total Resilience Rate" (Success/Total Workflows) where Unrecoverable cases are explicitly counted as failures in the denominator (FR-005), and write to `data/processed/results/aggregated_metrics.json`.
-- [ ] T037a [US3] Implement aggregation logic to calculate "Recoverable State Fidelity" (Success/Recoverable Workflows, explicitly excluding Unrecoverable cases as per FR-005/FR-007) and write to `data/processed/results/fidelity_metrics.json`.
-- [ ] T038 [US3] Implement fallback logic for small N contingency in `code/analyzers/statistical_test.py`: Use Exact McNemar if N < 25, and Monte Carlo (many repetitions) for Cochran's Q if assumptions are violated.
+- [X] T030 [P] [US3] Implement `code/reconstructors/reconstruction_engine.py` to parse corrupted logs and rebuild state/decision tree.
+- [X] T031 [US3] Implement "Unrecoverable" detection logic in `code/reconstructors/engine.py::detect_unrecoverable`: Read `data/processed/corruption_map.json` and cross-reference with `decision_tree.nodes` to flag workflows where critical data was deleted (FR-007).
+- [X] T032 [US3] Implement state comparison logic in `code/analyzers/metrics_calculator.py::calculate_success_rate` to calculate binary "Reconstruction Success Rate" against ground truth (FR-005).
+- [X] T033 [US3] Implement "Replay Latency" measurement in `code/analyzers/metrics_calculator.py::measure_latency` (time from start of reconstruction to completion).
+- [X] T036 [US3] Generate `reconstruction_result.json` for each workflow containing success status, reconstructed state, and latency. Implement `code/reconstructors/engine.py::save_result` to write this artifact.
+- [X] T037 [US3] Implement aggregation logic in `code/analyzers/metrics_calculator.py::aggregate_metrics` to calculate "Total Resilience Rate" (Success/Total Workflows) where Unrecoverable cases are explicitly counted as failures in the denominator (FR-005). **Also calculate** "Recoverable State Fidelity" (Success/Recoverable) and "Unrecoverable Rate" (Unrecoverable/Total) as secondary fields within the same `data/processed/results/aggregated_metrics.json` file to ensure a single source of truth for all metrics.
+- [X] T034a [US3] Implement primary statistical test in `code/analyzers/statistical_test.py`: Cochran's Q test on the 2x2x3 design (Architecture x Outcome x Corruption Rate) as defined in Plan T013.
+- [X] T034b [US3] Implement post-hoc statistical analysis in `code/analyzers/statistical_test.py`: McNemar's test with Holm-Bonferroni correction for pairwise comparisons as defined in Plan T014.
+- [X] T035 [US3] Implement sensitivity sweep logic in `code/main.py` to iterate over the `SWEEP_RATES` list defined in `code/config.py` (T004) and run the full pipeline for each rate in the concrete set `{0.05, 0.10, 0.20}` (SC-004).
+- [X] T038 [US3] Implement fallback logic for small N contingency in `code/analyzers/statistical_test.py`: Use Exact McNemar if N < 25, and Monte Carlo (a sufficient number of repetitions) for Cochran's Q if assumptions are violated.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,9 +154,10 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 
 - [ ] T041 [P] Documentation updates in `README.md` and `docs/`.
 - [ ] T042 Code cleanup and refactoring.
-- [ ] T043 Performance optimization for 500-workflow sweep: Profile `code/main.py` and refactor loops to ensure < 6h runtime and < 4GB RAM; add `tests/bench_sweep.py` to verify performance constraints.
+- [X] T043 [P] Performance optimization for sweep: Refactor the main execution loop in `code/main.py` to use batched processing and streaming to ensure < 6h runtime and < 4GB RAM; add `tests/bench_sweep.py` to verify performance constraints.
 - [ ] T044 [P] Additional unit tests in `tests/unit/`.
 - [ ] T045 Run `quickstart.md` validation.
+- [X] T017c [P] Execute final data hygiene checksumming: Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file under `data/` (both `data/raw/` and `data/processed/`) and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` to satisfy Constitution Principle III. This task runs only after all data generation and processing is complete.
 
 ---
 
@@ -168,8 +168,8 @@ Rewritten passage:`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -235,9 +235,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -254,6 +254,7 @@ With multiple developers:
 - **Data Integrity**: Ground truth files must be stored in a read-only directory to prevent accidental corruption.
 - **Reproducibility**: All random number generators must be seeded explicitly in `config.py`.
 - **Failure Handling**: If corruption deletes critical data, the system must flag the workflow as "Unrecoverable" and exclude it from fidelity calculations, not crash.
-- **Statistical Rigor**: Primary metric is Total Resilience (Success/Total); Recoverable State Fidelity is secondary. Use Cochran's Q for primary test, McNemar with Holm-Bonferroni for post-hoc.
+- **Statistical Rigor**: Primary metric is Total Resilience (Success/Total); Recoverable State Fidelity and Unrecoverable Rate are secondary. Use Cochran's Q for primary test, McNemar with Holm-Bonferroni for post-hoc.
 - **Concrete Sweep**: Corruption rates must be explicitly iterated over {0.05, 0.10, 0.20}.
 - **Jitter Scope**: Jitter must be injected ONLY inside the `tool_call()` method of both architecture executors.
+- **Single Source of Truth**: All metrics (Total Resilience, Recoverable Fidelity, Unrecoverable Rate) must be aggregated in a single `aggregated_metrics.json` file. Checksums must be recorded in the project YAML state file.
