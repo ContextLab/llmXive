@@ -1,6 +1,7 @@
 """
-Unit tests for metadata verification module.
+Unit tests for verify_metadata.py
 """
+
 import pytest
 import json
 import tempfile
@@ -9,8 +10,8 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the project root to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from src.data.verify_metadata import (
     fetch_sra_metadata,
@@ -18,218 +19,210 @@ from src.data.verify_metadata import (
     verify_metadata_requirements,
     verify_fastq_metadata,
     verify_synthetic_metadata,
-    save_verification_report
+    save_verification_report,
+    main
 )
-
 
 @pytest.fixture
 def temp_dir():
-    """Create a temporary directory for test files."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
+@pytest.fixture
+def sample_sra_metadata():
+    return {
+        "tissue": "leaf",
+        "sample_attribute": [
+            {"field": "treatment", "value": "herbivore_attack"},
+            {"field": "organism", "value": "Arabidopsis thaliana"}
+        ],
+        "replicates": 3
+    }
 
 @pytest.fixture
-def sample_fastq_file(temp_dir):
-    """Create a sample FASTQ file for testing."""
-    fastq_path = temp_dir / 'SRX123456.fastq.gz'
-    # Create an empty file to simulate FASTQ
-    fastq_path.touch()
-    return fastq_path
-
+def sample_fastq_files(temp_dir):
+    # Create dummy FASTQ files
+    fastq_dir = temp_dir / "raw"
+    fastq_dir.mkdir()
+    files = []
+    for i in range(3):
+        file_path = fastq_dir / f"SRX12345{i}.fastq.gz"
+        file_path.touch()
+        files.append(file_path)
+    return files
 
 @pytest.fixture
 def sample_manifest(temp_dir):
-    """Create a sample manifest file."""
-    manifest_path = temp_dir / 'real_data_manifest.json'
-    manifest_data = {
-        'SRX123456': {
-            'accession_id': 'SRX123456',
-            'tissue': 'leaf',
-            'treatment': 'herbivore',
-            'species': 'Arabidopsis thaliana',
-            'replicates': 3
-        }
-    }
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest_data, f)
-    return manifest_path
-
-
-@pytest.fixture
-def sample_synthetic_manifest(temp_dir):
-    """Create a sample synthetic manifest."""
-    manifest_path = temp_dir / 'synthetic_manifest.json'
-    manifest_data = {
-        'accession_id': 'SYNTH_001',
-        'source_type': 'synthetic',
-        'organism': 'Arabidopsis thaliana'
-    }
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest_data, f)
-    return manifest_path
-
-
-def test_extract_required_metadata_basic():
-    """Test extraction of basic metadata fields."""
-    raw_metadata = {
-        'accession': 'SRX123456',
-        'study_accession': 'SRP123456',
-        'attributes': [
-            {'key': 'tissue', 'value': 'leaf'},
-            {'key': 'treatment', 'value': 'herbivore'},
-            {'key': 'species', 'value': 'Arabidopsis thaliana'}
+    manifest_path = temp_dir / "manifest.json"
+    data = {
+        "entries": [
+            {
+                "accession_id": "SRX123450",
+                "metadata": {
+                    "tissue": "leaf",
+                    "herbivore_type": "chewing",
+                    "replicates": 3
+                }
+            },
+            {
+                "accession_id": "SRX123451",
+                "metadata": {
+                    "tissue": "root",
+                    "herbivore_type": "sucking",
+                    "replicates": 1
+                }
+            }
         ]
     }
-    
-    extracted = extract_required_metadata(raw_metadata)
-    
-    assert extracted['accession_id'] == 'SRX123456'
-    assert extracted['tissue'] == 'leaf'
-    assert extracted['treatment'] == 'herbivore'
-    assert extracted['species'] == 'Arabidopsis thaliana'
+    with open(manifest_path, 'w') as f:
+        json.dump(data, f)
+    return manifest_path
 
-
-def test_extract_required_metadata_from_title():
-    """Test metadata extraction from title when attributes missing."""
-    raw_metadata = {
-        'accession': 'SRX123456',
-        'title': 'Leaf herbivory response in Arabidopsis',
-        'attributes': []
-    }
+def test_extract_required_metadata(sample_sra_metadata):
+    """Test extraction of required metadata fields"""
+    result = extract_required_metadata(sample_sra_metadata)
     
-    extracted = extract_required_metadata(raw_metadata)
-    
-    assert extracted['tissue'] == 'leaf'
-    assert extracted['treatment'] == 'herbivore'
-
+    assert "tissue" in result
+    assert result["tissue"] == "leaf"
+    assert "herbivore_type" in result
+    assert result["herbivore_type"] == "herbivore_attack"
+    assert result["replicates"] == 3
 
 def test_verify_metadata_requirements_valid():
-    """Test verification with valid metadata."""
+    """Test verification with valid metadata"""
     metadata = {
-        'tissue': 'leaf',
-        'treatment': 'herbivore',
-        'species': 'Arabidopsis thaliana',
-        'replicates': 3
+        "tissue": "leaf",
+        "herbivore_type": "chewing",
+        "replicates": 3
     }
-    
     is_valid, reasons = verify_metadata_requirements(metadata)
     
-    assert is_valid is True
+    assert is_valid
     assert len(reasons) == 0
 
-
 def test_verify_metadata_requirements_missing_tissue():
-    """Test verification with missing tissue."""
+    """Test verification with missing tissue"""
     metadata = {
-        'tissue': None,
-        'treatment': 'herbivore',
-        'species': 'Arabidopsis thaliana',
-        'replicates': 3
+        "herbivore_type": "chewing",
+        "replicates": 3
     }
-    
     is_valid, reasons = verify_metadata_requirements(metadata)
     
-    assert is_valid is False
-    assert 'Missing tissue metadata' in reasons
-
+    assert not is_valid
+    assert any("Missing tissue" in reason for reason in reasons)
 
 def test_verify_metadata_requirements_insufficient_replicates():
-    """Test verification with insufficient replicates."""
+    """Test verification with insufficient replicates"""
     metadata = {
-        'tissue': 'leaf',
-        'treatment': 'herbivore',
-        'species': 'Arabidopsis thaliana',
-        'replicates': 1
+        "tissue": "leaf",
+        "herbivore_type": "chewing",
+        "replicates": 1
     }
-    
     is_valid, reasons = verify_metadata_requirements(metadata)
     
-    assert is_valid is False
-    assert any('Insufficient replicates' in r for r in reasons)
+    assert not is_valid
+    assert any("Insufficient biological replicates" in reason for reason in reasons)
 
+def test_verify_fastq_metadata_with_manifest(sample_fastq_files, sample_manifest):
+    """Test FASTQ metadata verification using manifest"""
+    results = verify_fastq_metadata(sample_fastq_files, sample_manifest)
+    
+    assert len(results) == 3
+    # First file should be valid
+    assert results[0]["is_valid"]
+    # Second file should be invalid (replicates < 2)
+    assert not results[1]["is_valid"]
+    assert any("Insufficient biological replicates" in reason for reason in results[1]["exclusion_reasons"])
 
-def test_verify_fastq_metadata(sample_fastq_file, sample_manifest, temp_dir):
-    """Test FASTQ metadata verification."""
-    # Create a mock for fetch_sra_metadata
-    with patch('src.data.verify_metadata.fetch_sra_metadata') as mock_fetch:
-        mock_fetch.return_value = {
-            'accession': 'SRX123456',
-            'attributes': [
-                {'key': 'tissue', 'value': 'leaf'},
-                {'key': 'treatment', 'value': 'herbivore'},
-                {'key': 'species', 'value': 'Arabidopsis thaliana'}
-            ]
+def test_verify_synthetic_metadata(temp_dir):
+    """Test synthetic metadata verification"""
+    manifest_path = temp_dir / "synthetic_manifest.json"
+    data = {
+        "file_name": "synthetic_data.json",
+        "provenance": {
+            "accession_id": "SYNTH_001",
+            "generated_at": "2023-01-01T00:00:00"
         }
-        
-        results = verify_fastq_metadata([sample_fastq_file], sample_manifest)
-        
-        assert len(results) == 1
-        assert results[0]['accession_id'] == 'SRX123456'
-        assert results[0]['file_exists'] is True
-        assert results[0]['metadata_fetched'] is True
-        assert results[0]['metadata_valid'] is True
-        assert len(results[0]['exclusion_reasons']) == 0
-
-
-def test_verify_synthetic_metadata(sample_synthetic_manifest):
-    """Test synthetic metadata verification."""
-    results = verify_synthetic_metadata(sample_synthetic_manifest)
+    }
+    with open(manifest_path, 'w') as f:
+        json.dump(data, f)
+    
+    results = verify_synthetic_metadata(manifest_path)
     
     assert len(results) == 1
-    assert results[0]['accession_id'] == 'SYNTH_001'
-    assert results[0]['file_exists'] is True
-    assert results[0]['metadata_valid'] is True
-    assert len(results[0]['exclusion_reasons']) == 0
-    assert results[0]['metadata']['species'] == 'Arabidopsis thaliana'
-
+    assert results[0]["is_valid"]
+    assert results[0]["is_synthetic"]
+    assert results[0]["metadata"]["tissue"] == "leaf"
 
 def test_save_verification_report(temp_dir):
-    """Test saving verification report."""
+    """Test saving verification report"""
     results = [
         {
-            'accession_id': 'SRX123456',
-            'file_path': '/tmp/test.fastq.gz',
-            'file_exists': True,
-            'metadata_fetched': True,
-            'metadata_valid': True,
-            'exclusion_reasons': [],
-            'metadata': {'tissue': 'leaf'}
-        },
-        {
-            'accession_id': 'SRX789012',
-            'file_path': '/tmp/test2.fastq.gz',
-            'file_exists': True,
-            'metadata_fetched': False,
-            'metadata_valid': False,
-            'exclusion_reasons': ['Missing tissue metadata'],
-            'metadata': {}
+            "file": "test.fastq.gz",
+            "accession_id": "SRX123456",
+            "metadata": {"tissue": "leaf", "herbivore_type": "chewing"},
+            "is_valid": True,
+            "exclusion_reasons": []
         }
     ]
+    output_path = temp_dir / "report.json"
     
-    output_path = temp_dir / 'verification_report.json'
-    save_verification_report(results, output_path)
+    save_verification_report(results, output_path, mode="real")
     
     assert output_path.exists()
-    
     with open(output_path, 'r') as f:
         report = json.load(f)
     
-    assert report['total_studies'] == 2
-    assert report['valid_studies'] == 1
-    assert report['excluded_studies'] == 1
-    assert 'SRX789012' in report['summary']['excluded_accessions']
-    assert 'Missing tissue metadata' in report['summary']['by_reason']
+    assert report["mode"] == "real"
+    assert report["summary"]["total_studies"] == 1
+    assert report["summary"]["valid_studies"] == 1
 
+@patch('src.data.verify_metadata.fetch_sra_metadata')
+def test_main_real_mode(mock_fetch, temp_dir, sample_fastq_files, sample_manifest):
+    """Test main function in real mode"""
+    mock_fetch.return_value = {
+        "tissue": "leaf",
+        "sample_attribute": [{"field": "treatment", "value": "herbivore"}],
+        "replicates": 3
+    }
+    
+    # Create a temporary manifest
+    manifest_path = temp_dir / "real_manifest.json"
+    data = {
+        "entries": [
+            {
+                "accession_id": "SRX123450",
+                "metadata": {
+                    "tissue": "leaf",
+                    "herbivore_type": "chewing",
+                    "replicates": 3
+                }
+            }
+        ]
+    }
+    with open(manifest_path, 'w') as f:
+        json.dump(data, f)
+    
+    exit_code = main(
+        mode="real",
+        fastq_dir=str(sample_fastq_files[0].parent),
+        manifest_path=str(manifest_path)
+    )
+    
+    assert exit_code == 0
 
-def test_verify_fastq_metadata_missing_file(temp_dir):
-    """Test verification when FASTQ file is missing."""
-    missing_file = temp_dir / 'nonexistent.fastq.gz'
-    manifest_path = temp_dir / 'manifest.json'
-    manifest_path.touch()
+def test_main_synthetic_mode(temp_dir):
+    """Test main function in synthetic mode"""
+    synthetic_manifest = temp_dir / "synthetic_manifest.json"
+    data = {
+        "provenance": {"accession_id": "SYNTH_001"}
+    }
+    with open(synthetic_manifest, 'w') as f:
+        json.dump(data, f)
     
-    results = verify_fastq_metadata([missing_file], manifest_path)
+    exit_code = main(
+        mode="synthetic",
+        synthetic_manifest_path=str(synthetic_manifest)
+    )
     
-    assert len(results) == 1
-    assert results[0]['file_exists'] is False
-    assert 'FASTQ file not found' in results[0]['exclusion_reasons']
+    assert exit_code == 0

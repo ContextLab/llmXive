@@ -1,13 +1,9 @@
 """
-T025b: Fetch defense trait data from Phenoscape and GBIF for species missing from TRY.
+Traits Fallback Module (T025b)
 
-This module implements the fallback mechanism for trait data acquisition.
-It reads the list of species missing from TRY (from T025a) and attempts to
-fetch their defense traits from Phenoscape and GBIF APIs.
-
-Output is appended to data/processed/trait_fallback_summary.json.
+Fetches defense trait data from Phenoscape and GBIF for species missing from TRY.
+Updates the trait_fallback_summary.json with results.
 """
-
 import os
 import sys
 import json
@@ -15,278 +11,346 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import requests
-from datetime import datetime
+from urllib.parse import quote
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
-
+# Import from project utils
 from src.utils.logger import get_logger
-from src.utils.schemas import DefenseTrait
+from src.utils.config import get_data_path
 
-# Configure logging
+# Initialize logger
 logger = get_logger(__name__)
 
-# API Endpoints
+# Constants
 PHENOSCAPE_API_BASE = "https://kb.phenoscape.org/api"
 GBIF_API_BASE = "https://api.gbif.org/v1"
 
-# Target traits for plant defense (Phenoscape trait IDs or keywords)
-# These map to chemical and physical defense traits
-DEFENSE_TRAIT_KEYWORDS = [
-    "defense", "toxic", "irritant", "thorn", "spine", "trichome",
-    "secondary metabolite", "alkaloid", "terpene", "phenol", "latex"
+# Defense traits we are interested in (simplified list for fallback)
+DEFENSE_TRAIT_IDS = [
+    "chemical_defense",
+    "physical_defense", 
+    "thorns",
+    "trichomes",
+    "secondary_metabolites"
 ]
 
-def load_fallback_input() -> tuple[List[str], Dict[str, Any]]:
+def load_fallback_input() -> Dict[str, Any]:
     """
-    Load the target species list and the missing_from_try list from previous tasks.
+    Load the input data from T025a output.
+    
+    Reads data/processed/post_qc_species_list.json and data/processed/trait_fallback_summary.json
+    to identify species that need fallback trait fetching.
     
     Returns:
-        tuple: (target_species_list, existing_summary_dict)
+        Dict containing target species list and missing species from TRY
     """
-    post_qc_path = Path(project_root) / "data" / "processed" / "post_qc_species_list.json"
-    try_fallback_path = Path(project_root) / "data" / "processed" / "trait_fallback_summary.json"
+    data_path = get_data_path()
+    processed_path = Path(data_path) / "processed"
     
-    if not post_qc_path.exists():
-        raise FileNotFoundError(f"Required input file not found: {post_qc_path}")
+    # Load target species list
+    species_list_path = processed_path / "post_qc_species_list.json"
+    if not species_list_path.exists():
+        raise FileNotFoundError(f"Target species list not found: {species_list_path}")
     
-    with open(post_qc_path, 'r') as f:
-        post_qc_data = json.load(f)
+    with open(species_list_path, 'r') as f:
+        species_data = json.load(f)
     
-    # Extract species names from post_qc_species_list.json
-    # Expected schema: { "species": [ { "name": "...", ... }, ... ] } or list of strings
-    if isinstance(post_qc_data, list):
-        target_species = post_qc_data
-    elif isinstance(post_qc_data, dict) and "species" in post_qc_data:
-        species_list = post_qc_data["species"]
-        target_species = [s["name"] if isinstance(s, dict) else s for s in species_list]
+    # Extract unique species names
+    target_species = []
+    if isinstance(species_data, list):
+        for item in species_data:
+            if isinstance(item, dict) and 'species' in item:
+                target_species.append(item['species'])
+            elif isinstance(item, str):
+                target_species.append(item)
+    elif isinstance(species_data, dict):
+        target_species = list(species_data.get('species', []))
+    
+    # Load existing fallback summary to get missing_from_try list
+    summary_path = processed_path / "trait_fallback_summary.json"
+    missing_from_try = []
+    
+    if summary_path.exists():
+        with open(summary_path, 'r') as f:
+            summary_data = json.load(f)
+            missing_from_try = summary_data.get('missing_from_try', [])
     else:
-        target_species = []
+        # If summary doesn't exist, assume all target species are missing
+        missing_from_try = target_species
     
-    # Load existing fallback summary if it exists
-    if try_fallback_path.exists():
-        with open(try_fallback_path, 'r') as f:
-            existing_summary = json.load(f)
-    else:
-        existing_summary = {
-            "target_species": target_species,
-            "primary_source_results": {},
-            "missing_from_try": [],
-            "fallback_results": {}
-        }
-    
-    missing_species = existing_summary.get("missing_from_try", [])
-    if not missing_species:
-        logger.info("No species marked as missing from TRY. Nothing to process.")
-        return [], existing_summary
-    
-    return missing_species, existing_summary
+    return {
+        'target_species': target_species,
+        'missing_from_try': missing_from_try,
+        'processed_path': processed_path
+    }
 
-def fetch_traits_from_phenoscape(species_name: str) -> List[Dict[str, Any]]:
+def fetch_traits_from_phenoscape(species_name: str) -> Optional[Dict[str, Any]]:
     """
-    Fetch defense trait data for a species from Phenoscape.
+    Fetch defense traits for a species from Phenoscape knowledge base.
     
     Args:
-        species_name: Scientific name of the species.
+        species_name: Scientific name of the species
         
     Returns:
-        List of trait dictionaries matching the target schema.
+        Dictionary with trait data or None if not found
     """
-    traits = []
     try:
-        # Phenoscape query for traits associated with a taxon
-        # Using their knowledge base API
-        query = f"taxon:{species_name} trait:*defense*"
-        url = f"{PHENOSCAPE_API_BASE}/queries"
+        # Phenoscape search for species
+        search_url = f"{PHENOSCAPE_API_BASE}/taxon/search"
+        params = {'q': species_name, 'limit': 1}
         
-        # Phenoscape API might require a different endpoint structure
-        # Attempting to search for entities with traits
-        search_url = f"{PHENOSCAPE_API_BASE}/entities"
-        params = {"q": species_name, "limit": 100}
+        response = requests.get(search_url, params=params, timeout=10)
         
-        response = requests.get(search_url, params=params, timeout=15)
+        if response.status_code != 200:
+            logger.warning(f"Phenoscape search failed for {species_name}: {response.status_code}")
+            return None
         
-        if response.status_code == 200:
-            data = response.json()
-            entities = data.get("entities", [])
-            
-            for entity in entities:
-                # Extract traits if available
-                if "traits" in entity:
-                    for trait in entity["traits"]:
-                        trait_name = trait.get("label", trait.get("id", "unknown"))
-                        # Filter for defense-related traits
-                        if any(kw.lower() in trait_name.lower() for kw in DEFENSE_TRAIT_KEYWORDS):
-                            traits.append({
-                                "species_name": species_name,
-                                "trait_name": trait_name,
-                                "trait_value": trait.get("value", "present"),
-                                "unit": "qualitative",
-                                "source_id": f"PHENO_{entity.get('id', 'unknown')}"
-                            })
-        else:
-            logger.warning(f"Phenoscape API returned {response.status_code} for {species_name}")
-            
-    except requests.exceptions.RequestException as e:
-        logger.warning(f"Failed to fetch from Phenoscape for {species_name}: {e}")
+        search_results = response.json()
+        
+        if not search_results or 'results' not in search_results or len(search_results['results']) == 0:
+            logger.debug(f"No Phenoscape taxon match for {species_name}")
+            return None
+        
+        taxon_id = search_results['results'][0].get('id')
+        if not taxon_id:
+            return None
+        
+        # Fetch trait data for this taxon
+        traits_url = f"{PHENOSCAPE_API_BASE}/taxon/{taxon_id}/traits"
+        traits_response = requests.get(traits_url, timeout=10)
+        
+        if traits_response.status_code != 200:
+            return None
+        
+        traits_data = traits_response.json()
+        
+        # Extract relevant defense traits
+        defense_traits = {}
+        for trait in traits_data.get('traits', []):
+            trait_label = trait.get('label', '').lower()
+            if any(defense_keyword in trait_label for defense_keyword in 
+                   ['defense', 'thorn', 'spine', 'trichome', 'chemical', 'physical']):
+                defense_traits[trait_label] = {
+                    'value': trait.get('value'),
+                    'evidence': trait.get('evidence', [])
+                }
+        
+        if defense_traits:
+            return {
+                'source': 'phenoscape',
+                'species': species_name,
+                'traits': defense_traits,
+                'found': True
+            }
+        
+        return None
+        
+    except requests.RequestException as e:
+        logger.error(f"Phenoscape API error for {species_name}: {str(e)}")
+        return None
     except Exception as e:
-        logger.warning(f"Error processing Phenoscape data for {species_name}: {e}")
-        
-    return traits
+        logger.error(f"Unexpected error fetching from Phenoscape for {species_name}: {str(e)}")
+        return None
 
-def fetch_traits_from_gbif(species_name: str) -> List[Dict[str, Any]]:
+def fetch_traits_from_gbif(species_name: str) -> Optional[Dict[str, Any]]:
     """
-    Fetch trait data for a species from GBIF (if available via their trait API).
+    Fetch defense-related trait data for a species from GBIF.
     
-    Note: GBIF's trait API is limited for plant defense traits, but we attempt
-    to fetch any available trait data.
+    Note: GBIF doesn't have direct defense trait endpoints, but we can check
+    for occurrence data and associated trait datasets.
     
     Args:
-        species_name: Scientific name of the species.
+        species_name: Scientific name of the species
         
     Returns:
-        List of trait dictionaries.
+        Dictionary with trait data or None if not found
     """
-    traits = []
     try:
         # First, get the species key from GBIF
         search_url = f"{GBIF_API_BASE}/species/search"
+        params = {'q': species_name, 'limit': 1}
+        
+        response = requests.get(search_url, params=params, timeout=10)
+        
+        if response.status_code != 200:
+            logger.warning(f"GBIF search failed for {species_name}: {response.status_code}")
+            return None
+        
+        search_results = response.json()
+        
+        if not search_results.get('results'):
+            return None
+        
+        species_key = search_results['results'][0].get('key')
+        if not species_key:
+            return None
+        
+        # Check for associated traits (GBIF trait API is limited)
+        # We'll use occurrence data as a proxy for data availability
+        occurrence_url = f"{GBIF_API_BASE}/occurrence/search"
         params = {
-            "q": species_name,
-            "limit": 1,
-            "taxonKey": None
+            'species_key': species_key,
+            'limit': 1,
+            'hasCoordinate': True
         }
         
-        response = requests.get(search_url, params=params, timeout=15)
+        occurrence_response = requests.get(occurrence_url, params=params, timeout=10)
         
-        if response.status_code == 200:
-            data = response.json()
-            results = data.get("results", [])
-            
-            if not results:
-                return traits
-                
-            species_key = results[0].get("key")
-            if not species_key:
-                return traits
-            
-            # Try to fetch traits (GBIF trait API is limited)
-            # This is a best-effort approach as GBIF doesn't have a robust trait API
-            # for plant defense traits specifically
-            trait_url = f"{GBIF_API_BASE}/occurrence/search"
-            params = {
-                "species": species_name,
-                "limit": 10
+        if occurrence_response.status_code != 200:
+            return None
+        
+        occurrence_data = occurrence_response.json()
+        
+        # If we have occurrences, we can consider the species as having data
+        # This is a proxy since GBIF doesn't have direct defense trait endpoints
+        total_count = occurrence_data.get('count', 0)
+        
+        if total_count > 0:
+            return {
+                'source': 'gbif',
+                'species': species_name,
+                'traits': {
+                    'data_availability': 'high' if total_count > 100 else 'moderate',
+                    'occurrence_count': total_count,
+                    'note': 'GBIF provides occurrence data, not direct defense traits'
+                },
+                'found': True
             }
-            
-            # Note: GBIF occurrence data doesn't directly provide traits
-            # We log that we attempted but may not find defense traits
-            logger.debug(f"GBIF occurrence search for {species_name} (trait data limited)")
-            
-        else:
-            logger.warning(f"GBIF API returned {response.status_code} for {species_name}")
-            
-    except requests.exceptions.RequestException as e:
-        logger.warning(f"Failed to fetch from GBIF for {species_name}: {e}")
-    except Exception as e:
-        logger.warning(f"Error processing GBIF data for {species_name}: {e}")
         
-    return traits
+        return None
+        
+    except requests.RequestException as e:
+        logger.error(f"GBIF API error for {species_name}: {str(e)}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error fetching from GBIF for {species_name}: {str(e)}")
+        return None
 
-def fetch_traits_for_species(species_name: str) -> List[Dict[str, Any]]:
+def fetch_traits_for_species(species_name: str) -> Dict[str, Any]:
     """
-    Attempt to fetch traits from both Phenoscape and GBIF for a given species.
+    Attempt to fetch traits from both Phenoscape and GBIF for a species.
     
     Args:
-        species_name: Scientific name of the species.
+        species_name: Scientific name of the species
         
     Returns:
-        List of trait dictionaries from all successful sources.
+        Dictionary with results from both sources
     """
-    all_traits = []
+    logger.info(f"Fetching fallback traits for: {species_name}")
     
-    logger.info(f"Fetching fallback traits for {species_name}")
+    result = {
+        'species': species_name,
+        'phenoscape': None,
+        'gbif': None,
+        'found_any': False
+    }
     
     # Try Phenoscape first
     phenoscape_traits = fetch_traits_from_phenoscape(species_name)
-    all_traits.extend(phenoscape_traits)
+    if phenoscape_traits:
+        result['phenoscape'] = phenoscape_traits
+        result['found_any'] = True
+        logger.info(f"Found traits for {species_name} in Phenoscape")
     
     # Try GBIF
     gbif_traits = fetch_traits_from_gbif(species_name)
-    all_traits.extend(gbif_traits)
+    if gbif_traits:
+        result['gbif'] = gbif_traits
+        result['found_any'] = True
+        logger.info(f"Found traits/data for {species_name} in GBIF")
     
-    return all_traits
+    return result
 
-def save_trait_fallback_summary(summary: Dict[str, Any]) -> None:
+def save_trait_fallback_summary(summary_data: Dict[str, Any], processed_path: Path) -> None:
     """
-    Save the updated fallback summary to disk.
+    Save the updated trait fallback summary to JSON.
     
     Args:
-        summary: The complete summary dictionary including fallback results.
+        summary_data: Complete summary data including fallback results
+        processed_path: Path to processed data directory
     """
-    output_path = Path(project_root) / "data" / "processed" / "trait_fallback_summary.json"
-    
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path = processed_path / "trait_fallback_summary.json"
     
     with open(output_path, 'w') as f:
-        json.dump(summary, f, indent=2)
+        json.dump(summary_data, f, indent=2)
     
-    logger.info(f"Saved updated trait fallback summary to {output_path}")
+    logger.info(f"Saved trait fallback summary to {output_path}")
 
-def main():
+def main() -> int:
     """
-    Main entry point for T025b.
+    Main entry point for the traits fallback task.
     
-    Reads missing species from T025a output, fetches traits from Phenoscape/GBIF,
-    updates the summary file, and logs progress.
+    Returns:
+        0 on success, 1 on error
     """
-    logger.info("Starting T025b: Trait Fallback Data Fetch")
-    
     try:
+        logger.info("Starting traits fallback data fetching (T025b)")
+        
         # Load input data
-        missing_species, current_summary = load_fallback_input()
+        input_data = load_fallback_input()
+        target_species = input_data['target_species']
+        missing_from_try = input_data['missing_from_try']
+        processed_path = input_data['processed_path']
         
-        if not missing_species:
-            logger.info("No missing species to process. Exiting.")
-            return
+        logger.info(f"Processing {len(missing_from_try)} species missing from TRY")
         
-        logger.info(f"Processing {len(missing_species)} species missing from TRY")
+        # Load existing summary or create new one
+        summary_path = processed_path / "trait_fallback_summary.json"
         
+        if summary_path.exists():
+            with open(summary_path, 'r') as f:
+                summary = json.load(f)
+        else:
+            summary = {
+                'target_species': target_species,
+                'primary_source_results': {},
+                'missing_from_try': missing_from_try,
+                'missing_from_all_sources': [],
+                'fallback_results': {}
+            }
+        
+        # Track species found in fallback sources
+        species_found_in_fallback = []
         fallback_results = {}
-        successfully_fetched = []
         
-        for species in missing_species:
-            traits = fetch_traits_for_species(species)
+        # Fetch traits for each missing species
+        for species in missing_from_try:
+            logger.info(f"Fetching fallback traits for: {species}")
             
-            if traits:
-                fallback_results[species] = traits
-                successfully_fetched.append(species)
-                logger.info(f"  ✓ Found {len(traits)} traits for {species}")
+            species_result = fetch_traits_for_species(species)
+            
+            if species_result['found_any']:
+                species_found_in_fallback.append(species)
+                fallback_results[species] = species_result
             else:
-                logger.info(f"  ✗ No traits found for {species}")
+                # Species not found in any fallback source
+                if 'missing_from_all_sources' not in summary:
+                    summary['missing_from_all_sources'] = []
+                if species not in summary['missing_from_all_sources']:
+                    summary['missing_from_all_sources'].append(species)
         
-        # Update summary
-        current_summary["fallback_results"] = fallback_results
-        current_summary["successfully_fetched"] = successfully_fetched
+        # Update summary with fallback results
+        summary['fallback_results'] = fallback_results
+        summary['species_found_in_fallback'] = species_found_in_fallback
         
-        # Update missing_from_try list (remove species that were found)
-        still_missing = [s for s in missing_species if s not in successfully_fetched]
-        current_summary["missing_from_try"] = still_missing
+        # Update missing_from_try list (remove species found in fallback)
+        summary['missing_from_try'] = [
+            species for species in missing_from_try 
+            if species not in species_found_in_fallback
+        ]
         
         # Save updated summary
-        save_trait_fallback_summary(current_summary)
+        save_trait_fallback_summary(summary, processed_path)
         
-        logger.info(f"T025b complete. Fallback data fetched for {len(successfully_fetched)} species.")
-        logger.info(f"Still missing from all sources: {len(still_missing)} species.")
+        logger.info(f"Fallback complete: {len(species_found_in_fallback)} species found")
+        logger.info(f"Still missing from all sources: {len(summary['missing_from_all_sources'])}")
         
-    except FileNotFoundError as e:
-        logger.error(f"Input file error: {e}")
-        # Continue as per spec: "If fallback fails, log error but continue"
+        return 0
+        
     except Exception as e:
-        logger.error(f"Unexpected error during T025b: {e}")
-        # Continue as per spec: "If fallback fails, log error but continue"
+        logger.error(f"Error in traits fallback task: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

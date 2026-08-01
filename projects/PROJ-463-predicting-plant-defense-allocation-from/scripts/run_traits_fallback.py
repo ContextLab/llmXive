@@ -1,21 +1,17 @@
 """
-CLI script to run the fallback trait data acquisition (T025b).
+CLI entry point for running the trait fallback data acquisition (T025b).
 
-This script should be executed after T025a (traits_try.py) has completed
-and identified species missing from the TRY database.
-
-Usage:
-    python scripts/run_traits_fallback.py
+This script orchestrates the fallback trait fetch from Phenoscape and GBIF
+for species missing from the primary TRY database.
 """
 import sys
 from pathlib import Path
 
-# Ensure project root is in path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.traits_fallback import main
 
 if __name__ == "__main__":
-    exit_code = main()
-    sys.exit(exit_code)
+    sys.exit(main())

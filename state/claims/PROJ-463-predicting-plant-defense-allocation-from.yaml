@@ -3981,3 +3981,362 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T16:21:06Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 0
+  canonical: pathway aggregation reduces features to 50 or fewer
+  claim_id: c_ef5c662a
+  context: "Reduce features to \u226450 pathway\u2011level scores. Independent Test:\
+    \ ...pathway aggregation reduces features to \u226450..."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: provide a curated collection of 50 refined biological signatures designed
+        to reduce redundancy and
+      source_id: '2607.17405'
+      url: https://arxiv.org/abs/2607.17405
+      value: '50'
+    filled: true
+  kind: numeric
+  raw_text: Pathway aggregation reduces the number of features to 50 or fewer pathway-level
+    scores.
+  resolved_value: '50'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T01:01:37Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: fixed list of 50 housekeeping genes for normalization
+  claim_id: c_0e66d4ee
+  context: 'Hardcode the following 50 genes into src/utils/config.py: ACT2, ACT7...
+    CYP71A32. Note: While CYP79D16, CYP79D15, etc., are used here for normalization
+    (FR-003), they MUST be excluded from the predictor set in T021 to prevent bias
+    (FR-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The fixed list of housekeeping genes for normalization includes 50 genes:
+    ACT2, ACT7, GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17,
+    CYP83A1, CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3, CYP71A4,
+    CYP71A5, CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13,
+    CYP71A14, CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21,
+    CYP71A22, CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29,
+    CYP71A30, CYP71A31, CYP71A32.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:04:50Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: TPM values generated using log-normal distribution s=1.5 scale=10
+  claim_id: c_6298f159
+  context: "Generate TPM values using a log\u2011normal distribution (scipy.stats.lognorm(s=1.5,\
+    \ scale=10)) to mimic real expression data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TPM values will be generated using a log-normal distribution with parameters
+    s=1.5 and scale=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:05:03Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: synthetic data generation uses random seed 42
+  claim_id: c_2bcfba53
+  context: 'Seed: Use a fixed random seed for reproducibility... parameters: { seed:
+    42, distribution: ''log-normal'' }.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data generation uses a fixed random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:05:10Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: synthetic data generation uses python version 3.11
+  claim_id: c_201ebac4
+  context: 'tool_versions: { ''python'': ''3.11'', ''numpy'': ''...'', ''scipy'':
+    ''...'' }.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python version 3.11 is specified for the synthetic data generation tool
+    versions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:05:18Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: batch correction target CV reduction 20 percent
+  claim_id: c_d650b72a
+  context: "Independent Test: Verify output files match FASTA/TPM specs, batch correction\
+    \ reduces CV \u226520% for housekeeping genes... target_reduction: 0.20."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_target_CV_reduction_20_percent
+  kind: magnitude
+  raw_text: The batch correction target is a reduction in the Coefficient of Variation
+    (CV) for housekeeping genes of at least 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:05:36Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: differential expression FDR 0.05 and absolute log2FC 1
+  claim_id: c_e1fcd51c
+  context: Unit test for DE gene selection logic (FDR < 0.05, |log2FC| > 1)... deseq2_results[
+    (deseq2_results['padj'] < 0.05) & (abs(deseq2_results['log2FoldChange']) > 1)
+    ].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Differential expression analysis uses an FDR threshold of 0.05 and an
+    absolute log2 fold change threshold of 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:05:39Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: pipeline halts if missing trait data exceeds 30 percent
+  claim_id: c_f5f6c8a3
+  context: 'If missing_fraction > 0.30: Write data/manifests/human_input_needed.flag
+    FIRST, THEN raise SystemExit with message ''Insufficient trait data (missing >
+    30%)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_missing_trait_data_exceeds_30_percent
+  kind: magnitude
+  raw_text: The pipeline halts if more than 30% of target species are missing defense
+    trait data from both primary and fallback sources.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:05:49Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: power analysis detects R-squared 0.3 alpha 0.05 beta 0.2
+  claim_id: c_b39fc5e5
+  context: "Compute required N to detect R\xB2=0.3 with \u03B1=0.05, \u03B2=0.2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis computes the required sample size to detect an R-squared
+    value of 0.3 with an alpha of 0.05 and beta of 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:09:06Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: phylogenetic null model performs 10000 permutations
+  claim_id: c_612320e7
+  context: Repeat for N=10 000 permutations (or until convergence). Implement permutation
+    test (N=10 000 or until convergence)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The phylogenetic null model performs 10,000 permutations or runs until
+    convergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:11:27Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: reproducibility test fetches from NCBI GEO GSE123456
+  claim_id: c_beb35518
+  context: 'Primary Source: Fetch from https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE123456
+    (a simulated dataset for prototype).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_test_fetches_from_NCBI_GEO_GSE123456
+  kind: entity_fact
+  raw_text: The reproducibility test fetches data from the NCBI GEO accession GSE123456.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:12:04Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Reduce features to 50 pathway-level scores citing arXiv:2607.17405
+  claim_id: c_a6579170
+  context: "Aggregate DE genes to pathways using data/processed/pathway_mappings.json\
+    \ (output of T036). Reduce features to \u226450 (2607.17405, https://arxiv.org/abs/2607.17405)\
+    \ pathway\u2011level scores."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: "Reduce features to \u226450 (2607.17405, https://arxiv.org/abs/2607.17405)\
+    \ pathway\u2011level scores."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:16:30Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Repeat phylogenetic null model for 10000 permutations
+  claim_id: c_588c9d6c
+  context: 'Null Model: Shuffle species labels (the DAI response vector) across the
+    phylogenetic tree topology. If phylolm::phylo.permute is unavailable or does not
+    support label shuffling, use ape::permute or manually shuffle the DAI vector values
+    while keeping the tree structure intact, then refit the model. Repeat for N=10
+    000 permutations (or until convergence).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat for N=10 000 permutations (or until convergence).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:17:24Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Perform 10000 permutation tests for Spearman correlation
+  claim_id: c_a8c868ae
+  context: "Implement permutation test (N=10 000 or until convergence) for Spearman\
+    \ correlation and apply Holm\u2011Bonferroni correction across all tissue\u2011\
+    specific model tests and gene\u2011set hypotheses."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement permutation test (N=10 000 or until convergence) for Spearman
+    correlation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:17:56Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Reduce features to 50 pathway-level scores
+  claim_id: c_a5ececaa
+  context: "Within each LOSO training fold, rank DE genes by aggregate significance...\
+    \ Aggregate DE genes to pathways... Reduce features to \u226450 (2607.17405, https://arxiv.org/abs/2607.17405)\
+    \ pathway-level scores."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Reduce features to \u226450 pathway-level scores (2607.17405, https://arxiv.org/abs/2607.17405)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:21:41Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Repeat for 10000 permutations
+  claim_id: c_75914e5a
+  context: 'Null Model: Shuffle species labels... Repeat for N=10 000 permutations
+    (or until convergence).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repeat for N=10 000 permutations (or until convergence).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:21:41Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Generate TPM values using log-normal distribution with s=1.5 and scale=10
+  claim_id: c_47b074a6
+  context: "Distribution: Generate TPM values using a log\u2011normal distribution\
+    \ (scipy.stats.lognorm(s=1.5, scale=10)) to mimic real expression data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate TPM values using a log\u2011normal distribution (scipy.stats.lognorm(s=1.5,\
+    \ scale=10))."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:22:14Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Use fixed random seed for reproducibility
+  claim_id: c_61075433
+  context: 'Seed: Use a fixed random seed for reproducibility.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_fixed_random_seed_for_reproducibility
+  kind: entity_fact
+  raw_text: Use a fixed random seed for reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:23:05Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Hardcode 50 housekeeping genes including ACT2, ACT7, GAPDH, UBQ10, EF1a,
+    TUB6, TUB1, PP2A, SAND, and CYP71A1 through CYP71A32
+  claim_id: c_e74f27ea
+  context: 'Hardcode the following 50 genes into src/utils/config.py: ACT2, ACT7,
+    GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1,
+    CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3, CYP71A4, CYP71A5,
+    CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13, CYP71A14,
+    CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21, CYP71A22,
+    CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29, CYP71A30,
+    CYP71A31, CYP71A32.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hardcode the following 50 genes into src/utils/config.py: ACT2, ACT7,
+    GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1,
+    CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3, CYP71A4, CYP71A5,
+    CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13, CYP71A14,
+    CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21, CYP71A22,
+    CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29, CYP71A30,
+    CYP71A31, CYP71A32.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:23:26Z'

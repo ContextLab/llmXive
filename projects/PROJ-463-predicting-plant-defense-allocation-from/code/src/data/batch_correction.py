@@ -1,333 +1,363 @@
-import numpy as np
-import pandas as pd
-from typing import List, Dict, Optional, Tuple
-from pathlib import Path
+"""
+Batch correction module for RNA-seq data using ComBat-seq and geNorm.
+
+This module implements:
+1. geNorm-based selection of stable housekeeping genes from a fixed list.
+2. ComBat-seq batch correction via rpy2.
+3. Coefficient of Variation (CV) calculation before and after correction.
+4. Generation of a batch correction report.
+"""
+
+import os
 import sys
 import json
-import datetime
-import hashlib
-from scipy import stats
-from sklearn.preprocessing import StandardScaler
+import logging
+from pathlib import Path
+from typing import List, Dict, Optional, Tuple, Any
+import numpy as np
+import pandas as pd
 
-from src.utils.logger import get_logger
+# Import configuration for housekeeping genes
 from src.utils.config import get_housekeeping_genes
 
-logger = get_logger(__name__)
+# Setup logging
+logger = logging.getLogger(__name__)
 
-def calculate_geometric_mean(row: pd.Series) -> float:
-    """Calculate geometric mean of non-zero values in a row."""
-    non_zero = row[row > 0]
-    if len(non_zero) == 0:
-        return 0.0
-    return np.exp(np.mean(np.log(non_zero)))
+# Constants
+MIN_M_VALUE_GENES = 2  # Minimum genes to select for geNorm (standard practice)
+BATCH_CORRECTION_REPORT_PATH = "data/manifests/batch_correction_report.json"
+TARGET_REDUCTION = 0.20  # 20% reduction target
 
-def calculate_georm_m_value(matrix: pd.DataFrame, gene_list: List[str]) -> float:
+def calculate_geometric_mean(values: np.ndarray) -> float:
     """
-    Calculate GeNorm M-value for a set of housekeeping genes.
-    M-value is the average pairwise variation of a gene with all other control genes.
-    Lower M-value indicates more stable expression.
+    Calculate the geometric mean of an array of values.
+    Handles zeros by adding a small epsilon.
+    """
+    epsilon = 1e-10
+    log_values = np.log(values + epsilon)
+    return np.exp(np.mean(log_values))
+
+def calculate_georm_m_value(expression_matrix: pd.DataFrame) -> Dict[str, float]:
+    """
+    Calculate M-values for a set of genes using the geNorm algorithm logic.
+    M-value = mean absolute pairwise variation of a gene's expression with all other genes.
     
     Args:
-        matrix: DataFrame with genes as rows, samples as columns
-        gene_list: List of housekeeping gene names to evaluate
-        
+        expression_matrix: DataFrame with genes as rows and samples as columns.
+    
     Returns:
-        Mean M-value across all specified housekeeping genes
+        Dictionary mapping gene_id to M-value.
     """
-    hk_genes = [g for g in gene_list if g in matrix.index]
-    if len(hk_genes) < 2:
-        logger.warning(f"Less than 2 housekeeping genes found in matrix. Found: {hk_genes}")
-        return 0.0
+    if expression_matrix.shape[0] < 2:
+        raise ValueError("At least 2 genes are required to calculate M-values.")
     
-    hk_matrix = matrix.loc[hk_genes]
+    m_values = {}
+    genes = expression_matrix.index.tolist()
     
-    # Calculate pairwise variation (standard deviation of log ratios)
-    m_values = []
-    for i, gene1 in enumerate(hk_genes):
-        variations = []
-        for gene2 in hk_genes[i+1:]:
-            # Log ratio of expression
-            log_ratio = np.log2(hk_matrix.loc[gene1] + 1) - np.log2(hk_matrix.loc[gene2] + 1)
-            # Variation is the standard deviation of this log ratio across samples
-            var = np.std(log_ratio)
-            variations.append(var)
+    # Convert to numpy for speed
+    data = expression_matrix.values.astype(float)
+    
+    for i, gene_i in enumerate(genes):
+        # Calculate pairwise variation with all other genes
+        pairwise_variations = []
+        for j, gene_j in enumerate(genes):
+            if i == j:
+                continue
+            # Variation is the standard deviation of the ratio of expression values
+            # geNorm uses the average expression ratio
+            ratio = data[i, :] / (data[j, :] + 1e-10)
+            # M-value contribution is the standard deviation of the log ratio
+            # Or simply the mean absolute difference in log space
+            # Standard geNorm M-value: mean absolute pairwise variation
+            # We'll use the standard deviation of the log ratio as a proxy for stability
+            log_ratio = np.log2(ratio)
+            variation = np.std(log_ratio)
+            pairwise_variations.append(variation)
         
-        if variations:
-            m_values.append(np.mean(variations))
+        m_values[gene_i] = np.mean(pairwise_variations)
     
-    return np.mean(m_values) if m_values else 0.0
+    return m_values
 
-def calculate_cv_for_genes(matrix: pd.DataFrame, gene_list: List[str]) -> float:
+def calculate_cv_for_genes(expression_matrix: pd.DataFrame, gene_ids: List[str]) -> float:
     """
-    Calculate Coefficient of Variation (CV) for a set of genes across samples.
-    CV = std / mean (averaged across all genes in the list)
+    Calculate the average Coefficient of Variation (CV) for a specific list of genes.
+    CV = std / mean.
     
     Args:
-        matrix: DataFrame with genes as rows, samples as columns
-        gene_list: List of gene names to calculate CV for
-        
+        expression_matrix: DataFrame with genes as rows and samples as columns.
+        gene_ids: List of gene IDs to include in the calculation.
+    
     Returns:
-        Average CV across all specified genes
+        Average CV across the specified genes.
     """
-    hk_genes = [g for g in gene_list if g in matrix.index]
-    if not hk_genes:
-        logger.warning(f"No housekeeping genes found in matrix. Cannot calculate CV.")
-        return 0.0
+    # Filter matrix to only include requested genes
+    # Handle case where some genes might be missing
+    available_genes = [g for g in gene_ids if g in expression_matrix.index]
+    if not available_genes:
+        logger.warning(f"No matching genes found for CV calculation among {len(gene_ids)} requested.")
+        return np.nan
     
-    hk_matrix = matrix.loc[hk_genes]
+    subset_matrix = expression_matrix.loc[available_genes]
     
-    # Calculate CV for each gene
-    cv_values = []
-    for gene in hk_genes:
-        row = hk_matrix.loc[gene]
-        mean_val = np.mean(row)
-        std_val = np.std(row)
-        if mean_val > 0:
-            cv_values.append(std_val / mean_val)
+    # Calculate CV for each gene (row)
+    # Mean and std across samples (columns)
+    means = subset_matrix.mean(axis=1)
+    stds = subset_matrix.std(axis=1)
     
-    return np.mean(cv_values) if cv_values else 0.0
+    # Avoid division by zero
+    cv_per_gene = stds / (means + 1e-10)
+    
+    # Return average CV
+    return float(np.mean(cv_per_gene))
 
-def apply_combat_seq(matrix: pd.DataFrame, batch_col: str = 'batch') -> pd.DataFrame:
+def apply_combat_seq(
+    counts: pd.DataFrame,
+    batch: pd.Series,
+    group: Optional[pd.Series] = None,
+    par_prior: bool = True,
+    ref_batch: Optional[int] = None
+) -> pd.DataFrame:
     """
-    Apply ComBat-seq batch correction logic.
-    Since we don't have rpy2 in this specific function context and to keep it pure Python,
-    we implement a simplified version that adjusts for batch effects using linear modeling
-    on the log2 scale, which is the standard approach for count data normalization.
-    
-    For a full ComBat-seq implementation, one would typically use the sva R package via rpy2.
-    Here we implement a robust equivalent using sklearn's linear regression to estimate
-    and remove batch effects.
+    Apply ComBat-seq batch correction using rpy2.
     
     Args:
-        matrix: DataFrame with genes as rows, samples as columns
-        batch_col: Column name in matrix.columns (if multi-index) or a separate batch mapping
-        
+        counts: Count/TPM matrix (genes x samples).
+        batch: Series indicating batch for each sample.
+        group: Optional Series indicating biological group for each sample.
+        par_prior: Whether to use parametric prior.
+        ref_batch: Reference batch index (optional).
+    
     Returns:
-        Corrected expression matrix
+        Corrected expression matrix (genes x samples).
     """
-    # If the matrix columns are a MultiIndex with a 'batch' level
-    if isinstance(matrix.columns, pd.MultiIndex) and batch_col in matrix.columns.names:
-        batches = matrix.columns.get_level_values(batch_col)
-    else:
-        # Assume a separate batch mapping or single batch
-        # For this implementation, we assume we can derive batches from column names or a mapping
-        # If no batch info is present, return original matrix
-        logger.warning("No batch information found. Returning original matrix.")
-        return matrix
-
-    # Log2 transform for normalization (add 1 to avoid log(0))
-    log_matrix = np.log2(matrix + 1)
-    
-    # Get unique batches
-    unique_batches = batches.unique()
-    if len(unique_batches) <= 1:
-        logger.info("Only one batch found. No correction needed.")
-        return matrix
-    
-    # Create a simple linear model to estimate batch effects
-    # We will adjust each gene's expression to remove batch-specific means
-    corrected_log_matrix = log_matrix.copy()
-    
-    # Global mean for each gene
-    global_means = log_matrix.mean(axis=1)
-    
-    # Calculate batch-specific means and adjust
-    for batch in unique_batches:
-        batch_mask = batches == batch
-        batch_samples = matrix.columns[batch_mask]
+    try:
+        import rpy2.robjects as ro
+        from rpy2.robjects import pandas2ri
+        from rpy2.robjects.conversion import localconverter
+        from rpy2.robjects import numpy2ri
         
-        if len(batch_samples) == 0:
-            continue
+        # Activate pandas conversion
+        pandas2ri.activate()
+        numpy2ri.activate()
+        
+        # Load sva package
+        try:
+            ro.r('library(sva)')
+        except Exception as e:
+            raise RuntimeError("R package 'sva' is not installed. Please install it via: BiocManager::install('sva')") from e
+        
+        # Prepare data for R
+        # ComBat_seq expects counts as integer matrix, but we are working with TPM.
+        # We will round TPMs to nearest integer as a proxy for counts, 
+        # or use ComBat (non-seq version) if counts are not integers.
+        # However, the task specifically asks for ComBat_seq logic. 
+        # We will attempt to use ComBat_seq on rounded values, but warn if they are not integers.
+        
+        # Transpose for R (samples x genes)
+        counts_t = counts.T
+        
+        # Convert to R DataFrame
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            r_counts = ro.conversion.py2rpy(counts_t)
+            r_batch = ro.conversion.py2rpy(batch)
             
-        batch_log_matrix = log_matrix[batch_samples]
-        batch_means = batch_log_matrix.mean(axis=1)
+            r_group = None
+            if group is not None:
+                r_group = ro.conversion.py2rpy(group)
         
-        # Calculate batch effect (difference from global mean)
-        batch_effect = batch_means - global_means
+        # Call ComBat_seq
+        # Note: ComBat_seq expects integer counts. If data is TPM, this might be suboptimal.
+        # We will round to nearest integer to satisfy the type requirement of the function.
+        # In a real scenario with raw counts, this rounding wouldn't be necessary.
+        # For TPM, ComBat (parametric) might be more appropriate, but we follow the task spec.
+        logger.info("Calling ComBat_seq via rpy2...")
         
-        # Adjust the log matrix for this batch
-        for idx in batch_samples:
-            corrected_log_matrix[idx] = log_matrix[idx] - batch_effect
-    
-    # Convert back to linear scale (exp2 - 1, ensuring non-negative)
-    corrected_matrix = np.expm1(corrected_log_matrix)
-    corrected_matrix = corrected_matrix.clip(lower=0)
-    
-    return corrected_matrix
+        # Construct the R command
+        r_code = """
+        library(sva)
+        counts <- as.matrix(counts)
+        batch <- as.factor(batch)
+        """
+        
+        if group is not None:
+            r_code += "group <- as.factor(group)\n"
+            r_code += "combat_data <- ComBat_seq(counts, batch=batch, group=group)\n"
+        else:
+            r_code += "combat_data <- ComBat_seq(counts, batch=batch)\n"
+        
+        # Assign variables to R environment
+        ro.globalenv['counts'] = r_counts
+        ro.globalenv['batch'] = r_batch
+        if group is not None:
+            ro.globalenv['group'] = r_group
+        
+        # Execute
+        ro.r(r_code)
+        
+        # Retrieve result
+        corrected_r = ro.r['combat_data']
+        
+        # Convert back to pandas
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            corrected_df = ro.conversion.rpy2py(corrected_r)
+        
+        # Transpose back to genes x samples
+        corrected_df = corrected_df.T
+        
+        # Ensure index and columns match original
+        corrected_df.index = counts.index
+        corrected_df.columns = counts.columns
+        
+        return corrected_df
+        
+    except ImportError as e:
+        raise RuntimeError("rpy2 is not installed. Please install it via pip install rpy2.") from e
+    except Exception as e:
+        logger.error(f"Error during ComBat_seq execution: {e}")
+        raise
 
-def calculate_cv_reduction(
-    input_matrix_path: str,
-    output_report_path: str,
-    batch_mapping: Optional[Dict[str, str]] = None
-) -> Dict[str, float]:
+def calculate_cv_reduction(pre_cv: float, post_cv: float) -> float:
     """
-    Main function to calculate CV reduction for housekeeping genes after batch correction.
+    Calculate the percentage reduction in CV.
+    """
+    if pre_cv == 0:
+        return 0.0
+    return (1 - (post_cv / pre_cv)) * 100
+
+def apply_batch_correction(
+    tpm_file_path: str,
+    batch_info: Dict[str, str],
+    output_report_path: str = BATCH_CORRECTION_REPORT_PATH
+) -> Dict[str, Any]:
+    """
+    Main function to apply batch correction and generate the report.
     
     Args:
-        input_matrix_path: Path to input TPM matrix CSV (genes as rows, samples as columns)
-        output_report_path: Path to write the batch correction report JSON
-        batch_mapping: Optional dict mapping sample_id -> batch_id. If None, tries to infer from column names.
-        
-    Returns:
-        Dict with pre_correction_cv, post_correction_cv, reduction_percent, target_reduction
-    """
-    logger.info(f"Loading TPM matrix from {input_matrix_path}")
-    df = pd.read_csv(input_matrix_path, index_col=0)
+        tpm_file_path: Path to the TPM matrix CSV (genes x samples).
+        batch_info: Dictionary mapping sample_id to batch_id.
+        output_report_path: Path to save the JSON report.
     
-    # Ensure gene names are strings
-    df.index = df.index.astype(str)
+    Returns:
+        Dictionary containing the report data.
+    """
+    logger.info(f"Loading TPM matrix from {tpm_file_path}")
+    tpm_df = pd.read_csv(tpm_file_path, index_col=0)
+    
+    # Ensure columns are strings
+    tpm_df.columns = tpm_df.columns.astype(str)
     
     # Get housekeeping genes from config
-    housekeeping_genes = get_housekeeping_genes()
-    logger.info(f"Using {len(housekeeping_genes)} housekeeping genes for CV calculation")
+    hk_genes = get_housekeeping_genes()
+    logger.info(f"Using {len(hk_genes)} housekeeping genes for stability assessment.")
     
-    # Filter matrix to only housekeeping genes for CV calculation
-    hk_genes_present = [g for g in housekeeping_genes if g in df.index]
-    if len(hk_genes_present) < 2:
-        logger.error(f"Insufficient housekeeping genes found in matrix. Found: {hk_genes_present}")
-        raise ValueError(f"Less than 2 housekeeping genes found in matrix. Found: {hk_genes_present}")
+    # Filter matrix to housekeeping genes
+    # Handle missing genes
+    available_hk = [g for g in hk_genes if g in tpm_df.index]
+    if len(available_hk) < MIN_M_VALUE_GENES:
+        raise ValueError(f"Insufficient housekeeping genes found in TPM matrix. "
+                       f"Requested: {len(hk_genes)}, Found: {len(available_hk)}.")
     
-    hk_matrix = df.loc[hk_genes_present]
+    hk_matrix = tpm_df.loc[available_hk]
+    
+    # Calculate M-values for geNorm
+    logger.info("Calculating M-values for geNorm...")
+    m_values = calculate_georm_m_value(hk_matrix)
+    
+    # Sort genes by ascending M-value (most stable first)
+    sorted_genes = sorted(m_values.items(), key=lambda x: x[1])
+    
+    # Select the top stable genes (typically the first 2 for geNorm, but we use all for CV calc as per spec)
+    # The task says: "Use the full fixed list of 50 genes for the variance calculation."
+    # So we calculate CV on the FULL list, but the M-value logic is used to verify stability if needed.
+    # For the report, we list the selected genes (the full list used).
+    selected_genes = available_hk
     
     # Calculate pre-correction CV
-    pre_cv = calculate_cv_for_genes(hk_matrix, housekeeping_genes)
-    logger.info(f"Pre-correction CV: {pre_cv:.4f}")
+    logger.info("Calculating pre-correction CV...")
+    pre_cv = calculate_cv_for_genes(tpm_df, selected_genes)
     
-    # Apply batch correction
-    # If batch_mapping is provided, create a MultiIndex or handle it appropriately
-    if batch_mapping:
-        # Create a batch series
-        batch_series = pd.Series([batch_mapping.get(col, 'unknown') for col in df.columns], index=df.columns)
-        # For the correction function, we need to pass the batch info
-        # We'll create a temporary MultiIndex column structure
-        df_temp = df.copy()
-        df_temp.columns = pd.MultiIndex.from_arrays([df_temp.columns, batch_series.values], names=['sample', 'batch'])
-        corrected_df = apply_combat_seq(df_temp, batch_col='batch')
-    else:
-        # Try to infer batch from column names (e.g., "sample_batch1", "sample_batch2")
-        # Simple heuristic: split by underscore and take last part
-        try:
-            batch_parts = [col.split('_')[-1] if '_' in col else 'default' for col in df.columns]
-            df_temp = df.copy()
-            df_temp.columns = pd.MultiIndex.from_arrays([df_temp.columns, batch_parts], names=['sample', 'batch'])
-            corrected_df = apply_combat_seq(df_temp, batch_col='batch')
-        except Exception as e:
-            logger.warning(f"Could not infer batch information: {e}. Skipping correction.")
-            corrected_df = df
+    # Prepare batch vector
+    samples = tpm_df.columns.tolist()
+    batch_vector = [batch_info.get(s, "unknown") for s in samples]
+    batch_series = pd.Series(batch_vector, index=samples)
     
-    # Calculate post-correction CV on the corrected matrix
-    corrected_hk_matrix = corrected_df.loc[hk_genes_present]
-    post_cv = calculate_cv_for_genes(corrected_hk_matrix, housekeeping_genes)
-    logger.info(f"Post-correction CV: {post_cv:.4f}")
+    # Apply ComBat-seq
+    logger.info("Applying ComBat-seq batch correction...")
+    try:
+        corrected_df = apply_combat_seq(tpm_df, batch_series)
+    except Exception as e:
+        logger.error("ComBat-seq failed. Falling back to standard ComBat (non-seq) if available, or raising error.")
+        # Fallback to ComBat if ComBat_seq fails (e.g. due to non-integer data)
+        # We will implement a simple fallback or raise if not supported.
+        # For this implementation, we assume ComBat_seq is the requirement.
+        raise e
+    
+    # Calculate post-correction CV
+    logger.info("Calculating post-correction CV...")
+    post_cv = calculate_cv_for_genes(corrected_df, selected_genes)
     
     # Calculate reduction
-    if pre_cv > 0:
-        reduction_percent = ((pre_cv - post_cv) / pre_cv) * 100
-    else:
-        reduction_percent = 0.0
-        
-    target_reduction = 0.20  # 20%
+    reduction_percent = calculate_cv_reduction(pre_cv, post_cv)
     
+    # Prepare report
     report = {
         "pre_correction_cv": float(pre_cv),
         "post_correction_cv": float(post_cv),
         "reduction_percent": float(reduction_percent),
-        "target_reduction": target_reduction,
-        "meets_target": reduction_percent >= (target_reduction * 100),
-        "housekeeping_genes_used": len(hk_genes_present),
-        "timestamp": datetime.datetime.now().isoformat()
+        "target_reduction": TARGET_REDUCTION,
+        "selected_genes": selected_genes,
+        "geNorm_m_values": {k: float(v) for k, v in sorted_genes[:10]}, # Top 10 for brevity
+        "status": "success" if reduction_percent >= TARGET_REDUCTION * 100 else "below_target"
     }
     
     # Ensure output directory exists
-    output_path = Path(output_report_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir = os.path.dirname(output_report_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
     # Write report
     with open(output_report_path, 'w') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Batch correction report written to {output_report_path}")
-    logger.info(f"CV Reduction: {reduction_percent:.2f}% (Target: {target_reduction*100:.0f}%)")
+    logger.info(f"Batch correction report saved to {output_report_path}")
+    logger.info(f"CV Reduction: {pre_cv:.4f} -> {post_cv:.4f} ({reduction_percent:.2f}%)")
     
     return report
 
-def apply_batch_correction(
-    input_matrix_path: str,
-    output_matrix_path: str,
-    batch_mapping: Optional[Dict[str, str]] = None
-) -> pd.DataFrame:
-    """
-    Apply batch correction to a TPM matrix and save the result.
-    
-    Args:
-        input_matrix_path: Path to input TPM matrix CSV
-        output_matrix_path: Path to save corrected TPM matrix CSV
-        batch_mapping: Optional dict mapping sample_id -> batch_id
-        
-    Returns:
-        Corrected DataFrame
-    """
-    logger.info(f"Applying batch correction to {input_matrix_path}")
-    df = pd.read_csv(input_matrix_path, index_col=0)
-    df.index = df.index.astype(str)
-    
-    if batch_mapping:
-        batch_series = pd.Series([batch_mapping.get(col, 'unknown') for col in df.columns], index=df.columns)
-        df_temp = df.copy()
-        df_temp.columns = pd.MultiIndex.from_arrays([df_temp.columns, batch_series.values], names=['sample', 'batch'])
-        corrected_df = apply_combat_seq(df_temp, batch_col='batch')
-    else:
-        # Try to infer batch
-        try:
-            batch_parts = [col.split('_')[-1] if '_' in col else 'default' for col in df.columns]
-            df_temp = df.copy()
-            df_temp.columns = pd.MultiIndex.from_arrays([df_temp.columns, batch_parts], names=['sample', 'batch'])
-            corrected_df = apply_combat_seq(df_temp, batch_col='batch')
-        except Exception as e:
-            logger.warning(f"Could not apply batch correction: {e}. Returning original matrix.")
-            corrected_df = df
-    
-    # Ensure output directory exists
-    output_path = Path(output_matrix_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save corrected matrix
-    corrected_df.to_csv(output_matrix_path)
-    logger.info(f"Corrected matrix saved to {output_matrix_path}")
-    
-    return corrected_df
-
 def main():
-    """CLI entry point for batch correction."""
+    """
+    CLI entry point for batch correction.
+    Expects:
+      --tpm <path> : Path to TPM matrix CSV
+      --batch <json> : Path to JSON file with sample->batch mapping
+      --output <path> : Path for output report (optional, default: data/manifests/batch_correction_report.json)
+    """
     import argparse
     
-    parser = argparse.ArgumentParser(description="Batch correction for TPM matrices")
-    parser.add_argument("--input", required=True, help="Input TPM matrix CSV path")
-    parser.add_argument("--output-cv-report", default="data/manifests/batch_correction_report.json", help="Output CV report JSON path")
-    parser.add_argument("--output-matrix", default=None, help="Output corrected matrix CSV path (optional)")
-    parser.add_argument("--batch-map", type=str, default=None, help="JSON string of batch mapping {sample: batch}")
+    parser = argparse.ArgumentParser(description="Apply batch correction to TPM matrices.")
+    parser.add_argument("--tpm", required=True, help="Path to TPM matrix CSV (genes x samples).")
+    parser.add_argument("--batch", required=True, help="Path to JSON file with sample->batch mapping.")
+    parser.add_argument("--output", default=BATCH_CORRECTION_REPORT_PATH, help="Path for output report.")
     
     args = parser.parse_args()
     
-    batch_mapping = None
-    if args.batch_map:
-        try:
-            batch_mapping = json.loads(args.batch_map)
-        except json.JSONDecodeError as e:
-            logger.error(f"Invalid batch mapping JSON: {e}")
-            sys.exit(1)
+    if not os.path.exists(args.tpm):
+        logger.error(f"TPM file not found: {args.tpm}")
+        sys.exit(1)
     
-    # Calculate CV reduction and write report
-    report = calculate_cv_reduction(args.input, args.output_cv_report, batch_mapping)
+    if not os.path.exists(args.batch):
+        logger.error(f"Batch info file not found: {args.batch}")
+        sys.exit(1)
     
-    # Optionally write corrected matrix
-    if args.output_matrix:
-        apply_batch_correction(args.input, args.output_matrix, batch_mapping)
+    with open(args.batch, 'r') as f:
+        batch_info = json.load(f)
     
-    if not report["meets_target"]:
-        logger.warning(f"CV reduction {report['reduction_percent']:.2f}% is below target {report['target_reduction']*100:.0f}%")
-    else:
-        logger.info("Batch correction successfully met the target CV reduction.")
+    try:
+        apply_batch_correction(args.tpm, batch_info, args.output)
+        print(f"Batch correction completed successfully. Report: {args.output}")
+    except Exception as e:
+        logger.error(f"Batch correction failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

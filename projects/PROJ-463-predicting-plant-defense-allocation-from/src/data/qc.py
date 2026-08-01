@@ -9,215 +9,230 @@ from datetime import datetime
 
 from src.utils.logger import get_logger
 from src.utils.config import get_data_path
-from src.utils.schemas import RNASeqStudy
 
 logger = get_logger(__name__)
 
-def check_replicates(studies: List[Dict], min_replicates: int = 2) -> Tuple[List[Dict], List[Dict]]:
+def check_replicates(metadata_df: pd.DataFrame, min_replicates: int = 2) -> Tuple[pd.DataFrame, List[Dict]]:
     """
-    Filter studies based on biological replicate count.
+    Filter studies to ensure they have at least min_replicates biological replicates.
     
     Args:
-        studies: List of study dictionaries containing 'replicates' key
-        min_replicates: Minimum required replicates (default 2 per FR-001)
+        metadata_df: DataFrame containing study metadata with 'replicates' column.
+        min_replicates: Minimum number of biological replicates required (default 2).
         
     Returns:
-        Tuple of (included_studies, excluded_studies)
+        Tuple of (filtered_df, exclusion_list) where exclusion_list contains dicts
+        with 'species' and 'exclusion_reason'.
     """
-    included = []
-    excluded = []
+    exclusion_list = []
+    if 'replicates' not in metadata_df.columns:
+        logger.warning("Column 'replicates' not found in metadata. Excluding all entries.")
+        return pd.DataFrame(), [
+            {"species": "unknown", "exclusion_reason": "Missing replicates metadata"}
+        ]
     
-    for study in studies:
-        replicates = study.get('replicates', 0)
-        species = study.get('species', 'Unknown')
+    valid_df = metadata_df[metadata_df['replicates'] >= min_replicates].copy()
+    excluded_df = metadata_df[metadata_df['replicates'] < min_replicates]
+    
+    for _, row in excluded_df.iterrows():
+        species = row.get('species', 'unknown')
+        reps = row.get('replicates', 'N/A')
+        exclusion_list.append({
+            "species": str(species),
+            "exclusion_reason": f"Insufficient biological replicates (found {reps}, required >= {min_replicates})"
+        })
         
-        if replicates < min_replicates:
-            excluded.append({
-                'species': species,
-                'accession_id': study.get('accession_id', 'Unknown'),
-                'replicates': replicates,
-                'exclusion_reason': f"Insufficient biological replicates: {replicates} < {min_replicates}"
-            })
-            logger.warning(f"Excluding study {study.get('accession_id')}: {excluded[-1]['exclusion_reason']}")
-        else:
-            included.append(study)
-            
-    return included, excluded
+    return valid_df, exclusion_list
 
-def check_metadata_completeness(studies: List[Dict], required_fields: List[str] = None) -> Tuple[List[Dict], List[Dict]]:
+def check_metadata_completeness(metadata_df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict]]:
     """
-    Filter studies based on metadata completeness.
+    Filter studies to ensure critical metadata fields (tissue, herbivore type) are present.
     
     Args:
-        studies: List of study dictionaries
-        required_fields: List of required metadata fields (default includes tissue)
+        metadata_df: DataFrame containing study metadata.
         
     Returns:
-        Tuple of (included_studies, excluded_studies)
+        Tuple of (filtered_df, exclusion_list).
     """
-    if required_fields is None:
-        required_fields = ['tissue', 'species', 'treatment']
-        
-    included = []
-    excluded = []
+    exclusion_list = []
+    required_fields = ['tissue', 'treatment'] # 'treatment' maps to herbivore type in this context
     
-    for study in studies:
-        missing_fields = []
-        for field in required_fields:
-            value = study.get(field)
-            if value is None or (isinstance(value, str) and value.strip() == ''):
-                missing_fields.append(field)
-        
-        if missing_fields:
-            species = study.get('species', 'Unknown')
-            excluded.append({
-                'species': species,
-                'accession_id': study.get('accession_id', 'Unknown'),
-                'exclusion_reason': f"Missing required metadata fields: {', '.join(missing_fields)}"
-            })
-            logger.warning(f"Excluding study {study.get('accession_id')}: {excluded[-1]['exclusion_reason']}")
+    # Identify rows missing any required field
+    mask = pd.Series([True] * len(metadata_df), index=metadata_df.index)
+    for field in required_fields:
+        if field not in metadata_df.columns:
+            logger.warning(f"Required column '{field}' missing from metadata.")
+            mask = pd.Series([False] * len(metadata_df), index=metadata_df.index)
+            break
         else:
-            included.append(study)
-            
-    return included, excluded
+            mask = mask & metadata_df[field].notna() & (metadata_df[field] != "")
+    
+    valid_df = metadata_df[mask].copy()
+    excluded_df = metadata_df[~mask]
+    
+    for _, row in excluded_df.iterrows():
+        species = row.get('species', 'unknown')
+        missing_fields = [f for f in required_fields if f not in metadata_df.columns or pd.isna(row.get(f)) or row.get(f) == ""]
+        exclusion_list.append({
+            "species": str(species),
+            "exclusion_reason": f"Missing required metadata: {', '.join(missing_fields)}"
+        })
+        
+    return valid_df, exclusion_list
 
-def run_qc_pipeline(input_manifest_path: Optional[Path] = None, 
-                   output_path: Optional[Path] = None) -> Dict:
+def run_qc_pipeline(input_manifest_path: Optional[str] = None) -> Dict:
     """
-    Run the complete QC pipeline on downloaded studies.
+    Run the full QC pipeline on the metadata derived from the input manifest.
     
     Args:
-        input_manifest_path: Path to the real data manifest or synthetic manifest
-        output_path: Path to write the post-QC species list
-        
+        input_manifest_path: Path to the manifest file (real or synthetic). 
+                             If None, attempts to find the latest manifest in data/processed or data/synthetic.
+                             
     Returns:
-        Dictionary containing QC results and statistics
+        Dictionary containing the post-QC species list and exclusion details.
     """
-    data_path = get_data_path()
-    if input_manifest_path is None:
-        # Default to real data manifest if it exists, otherwise synthetic
-        real_manifest = data_path / 'manifests' / 'real_data_manifest.json'
-        synthetic_manifest = data_path / 'manifests' / 'synthetic_manifest.json'
+    # Determine input path
+    if input_manifest_path:
+        manifest_path = Path(input_manifest_path)
+    else:
+        # Fallback logic to find manifest
+        data_path = get_data_path()
+        processed_path = Path(data_path) / "processed"
+        synthetic_path = Path(data_path) / "synthetic"
         
-        if real_manifest.exists():
-            input_manifest_path = real_manifest
-        elif synthetic_manifest.exists():
-            input_manifest_path = synthetic_manifest
+        # Check processed first
+        if processed_path.exists():
+            manifests = list(processed_path.glob("*manifest*.json"))
+            if manifests:
+                manifest_path = sorted(manifests)[-1]
+            else:
+                logger.warning("No manifest found in data/processed. Checking data/synthetic...")
+                manifests = list(synthetic_path.glob("*manifest*.json"))
+                if manifests:
+                    manifest_path = sorted(manifests)[-1]
+                else:
+                    raise FileNotFoundError("No metadata manifest found in data/processed or data/synthetic. Run T011a or T015 first.")
         else:
-            raise FileNotFoundError("No data manifest found. Run download or synthetic generation first.")
+            raise FileNotFoundError("data/processed directory not found.")
+
+    logger.info(f"Loading metadata from manifest: {manifest_path}")
     
-    if output_path is None:
-        output_path = data_path / 'processed' / 'post_qc_species_list.json'
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Loading studies from manifest: {input_manifest_path}")
-    
-    with open(input_manifest_path, 'r') as f:
+    # Load manifest
+    with open(manifest_path, 'r') as f:
         manifest_data = json.load(f)
     
-    # Handle different manifest structures
-    if 'studies' in manifest_data:
-        studies = manifest_data['studies']
-    elif 'entries' in manifest_data:
-        # Convert manifest entries to study format
-        studies = []
-        for entry in manifest_data['entries']:
-            study = {
-                'accession_id': entry.get('accession_id', entry.get('file_name', '')),
-                'species': entry.get('species', 'Unknown'),
-                'tissue': entry.get('tissue', ''),
-                'treatment': entry.get('treatment', ''),
-                'replicates': entry.get('replicates', 1)
-            }
-            studies.append(study)
+    # The manifest might be a list of entries or a single entry object.
+    # We need to extract the unique species list and their metadata.
+    # Since the manifest structure varies (real vs synthetic), we need to be flexible.
+    # For this task, we assume the manifest contains enough info or we load the associated metadata file.
+    # However, T011a produces a specific report. Let's check if we can derive from that or the manifest.
+    # The task T014 says "Input: Files from T011-real (or synthetic data)".
+    # T011a produces `data/processed/metadata_verification_report.json`.
+    # Let's try to load the verification report if it exists, as it contains the validated metadata.
+    
+    verification_report_path = Path(data_path) / "processed" / "metadata_verification_report.json"
+    if verification_report_path.exists():
+        with open(verification_report_path, 'r') as f:
+            verification_data = json.load(f)
+        
+        # Extract studies from the verification report
+        # Assuming structure: { "studies": [ { "species": "...", "replicates": N, "tissue": "...", ... } ] }
+        studies = verification_data.get("studies", [])
+        if not studies and "mode" in verification_data:
+            # Synthetic mode might have different structure
+            studies = verification_data.get("synthetic_studies", [])
     else:
-        # Assume flat list or single entry
-        studies = [manifest_data] if isinstance(manifest_data, dict) else manifest_data
+        # Fallback: Try to parse the manifest directly if it has study details
+        # This is less robust but handles cases where the verification report is missing
+        logger.warning("Verification report not found. Attempting to parse manifest directly.")
+        if isinstance(manifest_data, list):
+            studies = manifest_data
+        elif isinstance(manifest_data, dict) and "entries" in manifest_data:
+            studies = manifest_data["entries"]
+        else:
+            # If it's a single entry
+            studies = [manifest_data]
+
+    if not studies:
+        logger.warning("No studies found in metadata source.")
+        return {
+            "post_qc_species_list": [],
+            "excluded_studies": [],
+            "total_input": 0,
+            "total_passed": 0
+        }
+
+    # Convert to DataFrame for easier manipulation
+    df = pd.DataFrame(studies)
     
-    total_studies = len(studies)
-    logger.info(f"Found {total_studies} studies to process")
-    
-    # Step 1: Check replicates
-    studies_after_replicates, excluded_by_replicates = check_replicates(studies)
-    logger.info(f"After replicate check: {len(studies_after_replicates)} included, {len(excluded_by_replicates)} excluded")
-    
-    # Step 2: Check metadata completeness
-    studies_after_metadata, excluded_by_metadata = check_metadata_completeness(studies_after_replicates)
-    logger.info(f"After metadata check: {len(studies_after_metadata)} included, {len(excluded_by_metadata)} excluded")
-    
-    # Combine excluded studies
-    all_excluded = excluded_by_replicates + excluded_by_metadata
-    
-    # Prepare output format: list of {species, exclusion_reason}
-    # For included studies, we also list them with no exclusion reason
-    output_list = []
-    
-    for study in studies_after_metadata:
-        output_list.append({
-            'species': study.get('species', 'Unknown'),
-            'accession_id': study.get('accession_id', 'Unknown'),
-            'exclusion_reason': None,
-            'included': True
+    # Ensure columns exist (fill with defaults if missing)
+    if 'species' not in df.columns:
+        # Try to infer from other fields or assign unknown
+        df['species'] = "unknown"
+    if 'replicates' not in df.columns:
+        df['replicates'] = 0 # Will trigger exclusion
+    if 'tissue' not in df.columns:
+        df['tissue'] = None
+    if 'treatment' not in df.columns:
+        df['treatment'] = None
+
+    all_exclusions = []
+
+    # 1. Check Replicates
+    df, exclusions = check_replicates(df, min_replicates=2)
+    all_exclusions.extend(exclusions)
+
+    # 2. Check Metadata Completeness (tissue, treatment)
+    df, exclusions = check_metadata_completeness(df)
+    all_exclusions.extend(exclusions)
+
+    # Construct the output list
+    post_qc_species_list = []
+    for _, row in df.iterrows():
+        post_qc_species_list.append({
+            "species": str(row['species']),
+            "tissue": row.get('tissue'),
+            "treatment": row.get('treatment'),
+            "replicates": row.get('replicates')
         })
-    
-    for excluded in all_excluded:
-        output_list.append({
-            'species': excluded['species'],
-            'accession_id': excluded.get('accession_id', 'Unknown'),
-            'exclusion_reason': excluded['exclusion_reason'],
-            'included': False
-        })
-    
-    # Sort by species name for consistency
-    output_list.sort(key=lambda x: (x['species'], x['included']))
-    
-    # Write output
-    output_record = {
-        'generated_at': datetime.now().isoformat(),
-        'source_manifest': str(input_manifest_path),
-        'total_studies_processed': total_studies,
-        'included_count': len(studies_after_metadata),
-        'excluded_count': len(all_excluded),
-        'studies': output_list
+
+    # Prepare the final report structure
+    output_data = {
+        "post_qc_species_list": post_qc_species_list,
+        "excluded_studies": all_exclusions,
+        "total_input_studies": len(studies),
+        "total_passed_studies": len(post_qc_species_list),
+        "timestamp": datetime.now().isoformat(),
+        "thresholds": {
+            "min_replicates": 2,
+            "required_metadata_fields": ["tissue", "treatment"]
+        }
     }
+
+    # Write output
+    output_path = Path(data_path) / "processed" / "post_qc_species_list.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, 'w') as f:
-        json.dump(output_record, f, indent=2)
+        json.dump(output_data, f, indent=2)
     
-    logger.info(f"QC pipeline complete. Results written to: {output_path}")
-    logger.info(f"Summary: {len(studies_after_metadata)} studies passed QC, {len(all_excluded)} excluded")
-    
-    return output_record
+    logger.info(f"QC pipeline complete. {len(post_qc_species_list)} species passed. Output saved to {output_path}")
+    return output_data
 
 def main():
     """CLI entry point for QC pipeline."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Run QC pipeline on RNA-seq studies')
-    parser.add_argument('--input-manifest', type=Path, help='Path to input manifest file')
-    parser.add_argument('--output', type=Path, help='Path to output post-QC species list')
-    parser.add_argument('--min-replicates', type=int, default=2, help='Minimum required biological replicates')
-    
+    parser = argparse.ArgumentParser(description="Run QC pipeline on metadata.")
+    parser.add_argument("--input-manifest", type=str, help="Path to input manifest file.")
     args = parser.parse_args()
     
-    # Update global config if needed (for min_replicates)
-    # Note: Currently min_replicates is hardcoded to 2 in check_replicates per spec
-    
     try:
-        result = run_qc_pipeline(
-            input_manifest_path=args.input_manifest,
-            output_path=args.output
-        )
-        
-        print(f"QC Complete: {result['included_count']} included, {result['excluded_count']} excluded")
-        return 0
-        
+        result = run_qc_pipeline(input_manifest_path=args.input_manifest)
+        print(json.dumps(result, indent=2))
     except Exception as e:
-        logger.error(f"QC pipeline failed: {str(e)}")
-        print(f"Error: {str(e)}")
-        return 1
+        logger.error(f"QC pipeline failed: {e}", exc_info=True)
+        sys.exit(1)
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

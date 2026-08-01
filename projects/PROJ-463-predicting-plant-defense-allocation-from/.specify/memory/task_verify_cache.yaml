@@ -12,6 +12,16 @@ T003b:
     any logs or commands showing they were run and that the binaries are now in the
     system PATH. The required artifacts (script files and execution evidence) are
     missing.
+T011a:
+  c: false
+  h: 4453c61b2dd66745b5c0b9a2118c82c58cbe1bb4da052861fe3000a2483e648b
+  r: The repository contains `src/data/verify_metadata.py`, but the file is truncated
+    and does not show logic that writes `data/processed/metadata_verification_report.json`.
+    Moreover, the required JSON report is missing from the filesystem, indicating
+    the implementation does not fulfill the output requirement. The next implementer
+    should complete the script (including verification of tissue, herbivore type,
+    and replicates) and ensure it always creates the `metadata_verification_report.json`
+    file in `data/processed`.
 T012a:
   c: true
   h: ad04fa7bb0894eef1cf2f3334e42ed196f160d90b91e82ba9c9b963681ec23d4
@@ -28,32 +38,14 @@ T015:
     \ `data/manifests/synthetic_manifest.json`. Moreover, the manifest file is absent\
     \ from the filesystem. The task\u2019s core requirement\u2014a manifest with the\
     \ specified schema and checksums\u2014is not satisfied."
-T025a:
-  c: false
-  h: f04eeec56d43f328581521a55ddc5c9ad75008edcd247b5bfd513176585cc3e0
-  r: "The repository lacks the required `data/processed/post_qc_species_list.json`\
-    \ and the resulting `data/processed/trait_fallback_summary.json` (both are missing),\
-    \ and the provided `src/data/traits_try.py` is incomplete (truncated, no handling\
-    \ of `TRY_API_KEY_MISSING`, no fallback logic, no halt\u2011condition or flag\
-    \ file creation). The implementation does not meet the specified input, output,\
-    \ or error\u2011handling requirements."
-T025b:
-  c: false
-  h: e91a3d62220ed38877e368b0a2ff4a619f7c3b5edfca29df37ee243297d7bc2d
-  r: "The repository lacks the required input files (`data/processed/post_qc_species_list.json`\
-    \ and the `missing_from_try` list from T025a) and the output file (`data/processed/trait_fallback_summary.json`).\
-    \ Moreover, the provided `src/data/traits_fallback.py` tries to read a different\
-    \ summary file instead of the specified species list, so it does not meet the\
-    \ task\u2019s input/output specifications. The implementation therefore does not\
-    \ satisfy the task requirements."
 T036:
   c: false
-  h: 883c2f15538c2fa3f57923474fb3faa480f561f8b5085b9ca47597a21c395d84
-  r: "The repository contains a partially\u2011implemented `src/data/kegg_mapper.py`,\
-    \ but the file is truncated and does not include logic to write `data/processed/pathway_mappings.json`.\
-    \ Moreover, the required fallback file `data/raw/kegg_mapping_local.json` is absent,\
-    \ and the expected output JSON file is not present. The task\u2019s core deliverables\
-    \ are therefore missing."
+  h: c57ad0c3c516cec45ef05d4cd27642d750d33ff6ded9c67703b5e1cd934fc7e5
+  r: "The repository contains `src/data/kegg_mapper.py` and a fallback JSON, but the\
+    \ required output file `data/processed/pathway_mappings.json` does not exist,\
+    \ and the provided script excerpt does not show any code that writes the mappings\
+    \ to that path. Without the generated `pathway_mappings.json` the task\u2019s\
+    \ output requirement is unmet."
 T039:
   c: false
   h: d6cef207b83bd921ad7be6c1aab7d148bdde7426e32b2df318bdabc99952e25f
