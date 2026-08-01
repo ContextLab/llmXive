@@ -1,178 +1,148 @@
 """
 Configuration management for the llmXive drift detection pipeline.
 
-This module provides centralized configuration handling including:
-- Random seed management
-- Path resolution
-- Batch size and memory limits
-- Model selection
+This module handles random seeds, path management, batch sizes, and
+memory constraints for the project.
 """
 import os
 import random
 from pathlib import Path
 from typing import Any, Dict, Optional, List
+
 import numpy as np
 
+# --- Project Constants ---
+# Root directory of the project
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+# Relative path to the project directory
+_PROJECT_DIR = _PROJECT_ROOT / "projects" / "PROJ-924-llmxive-follow-up-extending-agentdog-1-5"
 
-# Default configuration values
-_config = {
-    "RANDOM_SEED": 42,
-    "MAX_RAM_GB": 7,
-    "BATCH_SIZE": 64,
-    "PROJECT_ROOT": None,
-    "DRIFT_THRESHOLD": 0.5,
-    "CENTROID_MODEL": "all-MiniLM-L6-v2",
-    "BASELINE_MODEL": "facebook/bart-large-mnli",
+# --- Configuration Defaults ---
+# Random seed for reproducibility (Requirement: 42)
+RANDOM_SEED = 42
+# Maximum RAM in GB (Requirement: 7)
+MAX_RAM_GB = 7
+# Batch size for processing (Requirement: 64)
+BATCH_SIZE = 64
+
+# --- Internal State ---
+_config: Dict[str, Any] = {
+    "random_seed": RANDOM_SEED,
+    "max_ram_gb": MAX_RAM_GB,
+    "batch_size": BATCH_SIZE,
+    "project_root": _PROJECT_ROOT,
+    "project_dir": _PROJECT_DIR,
+    "data_raw_dir": _PROJECT_DIR / "data" / "raw",
+    "data_processed_dir": _PROJECT_DIR / "data" / "processed",
+    "data_test_dir": _PROJECT_DIR / "data" / "test",
+    "specs_dir": _PROJECT_DIR / "specs",
+    "docs_dir": _PROJECT_DIR / "docs",
+    "code_dir": _PROJECT_DIR / "code",
+    "drift_detection_specs_dir": _PROJECT_DIR / "specs" / "001-llmxive-drift-detection",
+    # Model configurations
+    "centroid_model": "all-MiniLM-L6-v2",
+    "baseline_model": "google/flan-t5-small",
+    # Drift detection parameters
+    "drift_threshold": 0.5,
 }
-
 
 def set_seed(seed: Optional[int] = None) -> None:
     """
-    Set the random seed for reproducibility.
+    Set the random seed for Python, NumPy, and the global config.
     
     Args:
-        seed: Random seed value. Uses _config["RANDOM_SEED"] if None.
+        seed: The seed value. Defaults to RANDOM_SEED (42).
     """
     if seed is None:
-        seed = _config["RANDOM_SEED"]
-    
+        seed = RANDOM_SEED
     random.seed(seed)
     np.random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-
+    _config["random_seed"] = seed
 
 def get_config() -> Dict[str, Any]:
-    """
-    Get the current configuration dictionary.
-    
-    Returns:
-        Dictionary containing all configuration values.
-    """
+    """Return the current configuration dictionary."""
     return _config.copy()
 
-
-def update_config(key: str, value: Any) -> None:
+def update_config(new_values: Dict[str, Any]) -> None:
     """
-    Update a configuration value.
+    Update the configuration with new values.
     
     Args:
-        key: Configuration key.
-        value: New value.
+        new_values: Dictionary of key-value pairs to update.
     """
-    _config[key] = value
+    _config.update(new_values)
 
+def get_config_summary() -> str:
+    """Return a string summary of the current configuration."""
+    return (
+        f"Seed: {_config['random_seed']}, "
+        f"Max RAM: {_config['max_ram_gb']}GB, "
+        f"Batch Size: {_config['batch_size']}"
+    )
 
-def get_config_summary() -> Dict[str, Any]:
+def get_path(key: str) -> Path:
     """
-    Get a summary of the current configuration.
-    
-    Returns:
-        Dictionary with key configuration values for logging.
-    """
-    return {
-        "random_seed": _config["RANDOM_SEED"],
-        "max_ram_gb": _config["MAX_RAM_GB"],
-        "batch_size": _config["BATCH_SIZE"],
-        "drift_threshold": _config["DRIFT_THRESHOLD"],
-        "centroid_model": _config["CENTROID_MODEL"],
-        "baseline_model": _config["BASELINE_MODEL"],
-    }
-
-
-def get_path(relative_path: str) -> Path:
-    """
-    Get an absolute path relative to the project root.
+    Retrieve a path from the configuration by key.
     
     Args:
-        relative_path: Path relative to project root.
+        key: The configuration key (e.g., 'data_raw_dir').
         
     Returns:
-        Absolute Path object.
+        The corresponding Path object.
+        
+    Raises:
+        KeyError: If the key does not exist in the configuration.
     """
-    if _config["PROJECT_ROOT"] is None:
-        # Default to parent of code directory if not set
-        _config["PROJECT_ROOT"] = Path(__file__).parent.parent
-    
-    return Path(_config["PROJECT_ROOT"]) / relative_path
+    if key not in _config:
+        raise KeyError(f"Configuration key '{key}' not found.")
+    return _config[key]
 
-
-def get_output_path(relative_path: str) -> Path:
+def get_output_path(filename: str, sub_dir: str = "processed") -> Path:
     """
-    Get an output path, ensuring the directory exists.
+    Construct a full output path for a file.
     
     Args:
-        relative_path: Path relative to project root.
+        filename: The name of the file.
+        sub_dir: The subdirectory within the data directory (default: 'processed').
         
     Returns:
-        Absolute Path object with parent directories created.
+        The full Path to the file.
     """
-    path = get_path(relative_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    return path
+    base_dir = _config.get(f"data_{sub_dir}_dir", _config["data_processed_dir"])
+    return base_dir / filename
 
-
-def ensure_directories(paths: List[str]) -> None:
+def ensure_directories() -> None:
     """
-    Ensure that the specified directories exist.
-    
-    Args:
-        paths: List of relative paths to ensure exist.
+    Ensure all directories defined in the configuration exist.
+    Creates them if they do not exist.
     """
-    for path_str in paths:
-        path = get_path(path_str)
-        path.mkdir(parents=True, exist_ok=True)
-
+    dir_keys = [
+        "project_root", "project_dir", "data_raw_dir", 
+        "data_processed_dir", "data_test_dir", "specs_dir", 
+        "docs_dir", "code_dir", "drift_detection_specs_dir"
+    ]
+    for key in dir_keys:
+        if key in _config:
+            path = _config[key]
+            if isinstance(path, Path):
+                path.mkdir(parents=True, exist_ok=True)
 
 def get_batch_size() -> int:
-    """
-    Get the batch size for processing.
-    
-    Returns:
-        Batch size integer.
-    """
-    return _config["BATCH_SIZE"]
-
+    """Return the configured batch size."""
+    return _config["batch_size"]
 
 def get_max_memory_gb() -> int:
-    """
-    Get the maximum memory limit in GB.
-    
-    Returns:
-        Maximum RAM in GB.
-    """
-    return _config["MAX_RAM_GB"]
-
+    """Return the configured maximum RAM in GB."""
+    return _config["max_ram_gb"]
 
 def get_drift_threshold() -> float:
-    """
-    Get the drift threshold for flagging.
-    
-    Returns:
-        Drift threshold value.
-    """
-    return _config["DRIFT_THRESHOLD"]
-
+    """Return the configured drift threshold."""
+    return _config["drift_threshold"]
 
 def get_centroid_model() -> str:
-    """
-    Get the model name for centroid embedding generation.
-    
-    Returns:
-        Model name string.
-    """
-    return _config["CENTROID_MODEL"]
-
+    """Return the configured centroid model name."""
+    return _config["centroid_model"]
 
 def get_baseline_model() -> str:
-    """
-    Get the model name for baseline classification.
-    
-    Returns:
-        Model name string.
-    """
-    return _config["BASELINE_MODEL"]
-
-
-# Initialize project root if not set
-if _config["PROJECT_ROOT"] is None:
-    _config["PROJECT_ROOT"] = Path(__file__).parent.parent
+    """Return the configured baseline model name."""
+    return _config["baseline_model"]

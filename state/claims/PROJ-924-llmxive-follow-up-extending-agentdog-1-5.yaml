@@ -2305,3 +2305,610 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T17:10:14Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 0
+  canonical: Flan-T5 baseline AUC-ROC is greater than 0.6
+  claim_id: c_864d5c0a
+  context: "T039a Implement validate_baseline_proxy function... Verify that the baseline\
+    \ AUC\u2011ROC is reasonable (e.g., >0.6). Output a short validation report data/processed/flan_proxy_validation.json."
+  evidence:
+    asserted: '0.6'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: magnitude
+  raw_text: "Verify that the baseline AUC\u2011ROC is reasonable (e.g., >0.6)"
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T02:10:25Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: test_config.py passes pytest
+  claim_id: c_3f41ec52
+  context: 'T011 Create config.py... Acceptance Criteria: File exists, contains RANDOM_SEED=42,
+    MAX_RAM_GB=7, and BATCH_SIZE=64. Run pytest to confirm test_config.py passes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_config.py_passes_pytest
+  kind: entity_fact
+  raw_text: Run pytest to confirm test_config.py passes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:13:11Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: test_data_loader.py passes pytest
+  claim_id: c_7bf2e1c8
+  context: 'T012a Implement fetch_advbench and fetch_hf4 functions... Acceptance Criteria:
+    Functions raise ValueError on fetch failure. Run pytest to confirm test_data_loader.py
+    passes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_data_loader.py_passes_pytest
+  kind: entity_fact
+  raw_text: Run pytest to confirm test_data_loader.py passes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:13:18Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: test_memory.py passes pytest
+  claim_id: c_6eebfbf6
+  context: 'T016b Implement runtime memory monitoring logic... Acceptance Criteria:
+    Logic raises MemoryError if peak RAM > 7GB. Run pytest to confirm test_memory.py
+    passes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_memory.py_passes_pytest
+  kind: entity_fact
+  raw_text: Run pytest to confirm test_memory.py passes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:13:25Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: test_utils.py passes pytest
+  claim_id: c_a9e455a1
+  context: 'T014 Create utils.py... Acceptance Criteria: File exists, contains validate_schema
+    function. Run pytest to confirm test_utils.py passes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_utils.py_passes_pytest
+  kind: entity_fact
+  raw_text: Run pytest to confirm test_utils.py passes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:13:31Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: drift_score for empty log is at least 1.9
+  claim_id: c_dbef0dad
+  context: 'T019 Unit test for empty/whitespace log handling... asserting result[''drift_score'']
+    >= 1.9. Justification: The score near the upper bound is the theoretical maximum
+    for cosine distance (0 to 2 range)...'
+  evidence:
+    entailment_evidence: Drift score for empty log is at least 1.9
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Drift_score_for_empty_log_is_at_least_1.9
+  kind: magnitude
+  raw_text: asserting result['drift_score'] >= 1.9
+  resolved_value: drift_score for empty log is at least 1.9
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T02:13:33Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: peak memory for batch processing is less than 7GB
+  claim_id: c_d1c7a82b
+  context: T020 Integration test for batch processing memory limits... asserting peak_memory
+    < 7GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_for_batch_processing_is_less_than_7GB
+  kind: magnitude
+  raw_text: asserting peak_memory < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:13:43Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: 'Bootstrap iterations for AUC-ROC stability: 1000 or SD less than 0.01
+    for 5 runs'
+  claim_id: c_89060c1c
+  context: "T040 Implement bootstrap iteration logic for AUC\u2011ROC stability. Output\
+    \ artifact: data/processed/bootstrap_stats.json. Iterations: 1000 bootstrap iterations\
+    \ OR until standard deviation of AUC-ROC < 0.01 for 5 consecutive runs..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_iterations_for_AUC-ROC_stability:_1000_or_SD_less
+  kind: magnitude
+  raw_text: 'Iterations: 1000 bootstrap iterations OR until standard deviation of
+    AUC-ROC < 0.01 for 5 consecutive runs'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:13:54Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Bootstrap timeout handling at 5 hours sets timeout_limited flag
+  claim_id: c_8ed87faf
+  context: 'T040 Implement bootstrap iteration logic... Timeout Handling: If 5 hours
+    are reached, output the current best estimate with a timeout_limited: true flag.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_timeout_handling_at_5_hours_sets_timeout_limited_f
+  kind: magnitude
+  raw_text: 'If 5 hours are reached, output the current best estimate with a timeout_limited:
+    true flag'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:14:01Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: drift score for leetspeak samples is greater than 0.8
+  claim_id: c_a745fbe6
+  context: T046a Implement unit test test_leetspeak_drift_score... assert drift score
+    > 0.8.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drift_score_for_leetspeak_samples_is_greater_than_0.8
+  kind: magnitude
+  raw_text: assert drift score > 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:17:21Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: drift score for obfuscated samples is greater than 0.8
+  claim_id: c_b108e23e
+  context: T046b Implement unit test test_obfuscation_drift_score... assert drift
+    score > 0.8.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drift_score_for_obfuscated_samples_is_greater_than_0.8
+  kind: magnitude
+  raw_text: assert drift score > 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:17:24Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: benchmark completion time is at most 30 minutes
+  claim_id: c_86dfd7e4
+  context: "T045a Implement benchmark_performance.py... run a large\u2011scale log\
+    \ benchmark on data/raw/agent_logs_100k.csv (100k logs)... and assert completion\
+    \ time \u2264 30 minutes (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_completion_time_is_at_most_30_minutes
+  kind: magnitude
+  raw_text: "assert completion time \u2264 30 minutes"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:17:48Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Ingest human annotations raises error if fewer than 3 files found
+  claim_id: c_b6d69b76
+  context: T032a Implement ingest_human_annotations function... Raise a ValueError
+    if FEWER THAN 3 distinct annotation files are found.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingest_human_annotations_raises_error_if_fewer_than_3_files
+  kind: magnitude
+  raw_text: raise a ValueError if FEWER THAN 3 distinct annotation files are found
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:18:07Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Kappa threshold for substantial agreement is greater than 0.6
+  claim_id: c_121f2ea8
+  context: 'T035-interface Implement Human Annotation Interface... Threshold: Kappa
+    > 0.6 indicates substantial agreement. IF Kappa < 0.6, raise a ValueError...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kappa_threshold_for_substantial_agreement_is_greater_than_0.
+  kind: magnitude
+  raw_text: 'Threshold: Kappa > 0.6 indicates substantial agreement'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:19:49Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Flag computationally efficient alternative if AUC difference is at most
+    0.10
+  claim_id: c_b5102f02
+  context: "T042 Add logic to flag 'computationally efficient alternative' if |AUC_drift\u202F\
+    -\u202FAUC_llm| \u2264 0.10"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_computationally_efficient_alternative_if_AUC_difference
+  kind: magnitude
+  raw_text: "flag 'computationally efficient alternative' if |AUC_drift\u202F-\u202F\
+    AUC_llm| \u2264 0.10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:20:08Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: cosine distance theoretical maximum range 0 to 2
+  claim_id: c_27c5e658
+  context: The score near the upper bound is the theoretical maximum for cosine distance
+    (0 to 2 range), assigned by design to represent the 'maximum possible distance'
+    for empty inputs, as defined in the spec's 'maximum distance' requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical maximum for cosine distance is in the 0 to 2 range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:23:42Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: MVP statistical validation Cohen's d threshold 0.5
+  claim_id: c_d9c0f20f
+  context: "verifying that the 'Drift Score' distribution is statistically distinguishable\
+    \ between the two groups with p < 0.05 and an effect size (Cohen's d) \u2265 0.5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A Cohen's d effect size of 0.5 or greater is used as the benchmark for
+    statistical distinguishability in the MVP validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:23:44Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Kappa statistic threshold 0.6 indicates substantial agreement
+  claim_id: c_a9da39a5
+  context: 'Threshold: Kappa > 0.6 indicates substantial agreement. IF Kappa < 0.6,
+    raise a ValueError...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kappa_statistic_threshold_0.6_indicates_substantial_agreemen
+  kind: magnitude
+  raw_text: A Kappa statistic greater than 0.6 indicates substantial agreement in
+    human annotation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:23:49Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: benchmark performance completion time threshold 30 minutes
+  claim_id: c_b666bb33
+  context: "run a large\u2011scale log benchmark on data/raw/agent_logs_100k.csv (100k\
+    \ logs) on a GitHub Actions runner (7GB RAM, 2 cores) and assert completion time\
+    \ \u2264 30 minutes (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_performance_completion_time_threshold_30_minutes
+  kind: magnitude
+  raw_text: The benchmark performance test asserts completion time must be less than
+    or equal to 30 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:23:58Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AUC-ROC bootstrap iterations count 1000
+  claim_id: c_2ad960f0
+  context: 'Iterations: 1000 bootstrap iterations OR until standard deviation of AUC-ROC
+    < 0.01 for 5 consecutive runs OR until a substantial portion of the available
+    CPU time has elapsed (to respect the 6-hour limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap iteration logic for AUC-ROC stability runs 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:24:06Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AUC-ROC bootstrap stop condition standard deviation 0.01 for 5 consecutive
+    runs
+  claim_id: c_469b9846
+  context: 'Iterations: 1000 bootstrap iterations OR until standard deviation of AUC-ROC
+    < 0.01 for 5 consecutive runs...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/AUC-ROC_bootstrap_stop_condition_standard_deviation_0.01_for
+  kind: magnitude
+  raw_text: The bootstrap iteration logic stops if the standard deviation of AUC-ROC
+    is less than 0.01 for 5 consecutive runs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:24:23Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: bootstrap timeout threshold 5 hours
+  claim_id: c_ddb0daad
+  context: 'Timeout Handling: If 5 hours are reached, output the current best estimate
+    with a `timeout_limited: true` flag.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The timeout handling for the bootstrap logic triggers if 5 hours are reached.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:24:31Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: bootstrap CPU time limit 6 hours
+  claim_id: c_65488933
+  context: '...until a substantial portion of the available CPU time has elapsed (to
+    respect the 6-hour limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap iteration logic respects a 6-hour CPU time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:24:34Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: computationally efficient alternative flag threshold AUC difference 0.10
+  claim_id: c_23b73969
+  context: "Add logic to flag 'computationally efficient alternative' if |AUC_drift\u202F\
+    -\u202FAUC_llm| \u2264 0.10"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Computationally_efficient_alternative_flag_threshold_AUC_dif
+  kind: magnitude
+  raw_text: The system flags a 'computationally efficient alternative' if the absolute
+    difference between AUC_drift and AUC_llm is less than or equal to 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:26:27Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: minimum distinct annotation files required 3
+  claim_id: c_a915f7ba
+  context: Raise a ValueError if FEWER THAN 3 distinct annotation files are found.
+    Aggregate distinct annotator files into a single dataset for downstream Kappa
+    calculation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_distinct_annotation_files_required_3
+  kind: magnitude
+  raw_text: The system requires at least 3 distinct annotation files to aggregate
+    for Kappa calculation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:35:20Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: benchmark dataset size 100000 logs
+  claim_id: c_8c12ee5d
+  context: "run a large\u2011scale log benchmark on data/raw/agent_logs_100k.csv (100k\
+    \ logs) on a GitHub Actions runner..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark test uses a dataset of 100,000 logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:37:10Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: benchmark GitHub Actions runner core count 2
+  claim_id: c_eb486a90
+  context: "...on a GitHub Actions runner (7GB RAM, 2 cores) and assert completion\
+    \ time \u2264 30 minutes..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GitHub Actions runner for the benchmark test is configured with 2
+    cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:37:26Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: benchmark GitHub Actions runner RAM 7GB
+  claim_id: c_f3cf740d
+  context: "...on a GitHub Actions runner (7GB RAM, 2 cores) and assert completion\
+    \ time \u2264 30 minutes..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_GitHub_Actions_runner_RAM_7GB
+  kind: entity_fact
+  raw_text: The GitHub Actions runner for the benchmark test is configured with 7GB
+    RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:37:45Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: drift scoring range 0 to 2
+  claim_id: c_a7f08b72
+  context: The score near the upper bound is the theoretical maximum for cosine distance
+    (0 to 2 range)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The drift scoring range is 0 to 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:37:59Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: MVP statistical validation p-value threshold 0.05
+  claim_id: c_b9df1408
+  context: '...verifying that the ''Drift Score'' distribution is statistically distinguishable
+    between the two groups with p < 0.05...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MVP_statistical_validation_p-value_threshold_0.05
+  kind: magnitude
+  raw_text: The p-value threshold for statistical distinguishability in the MVP validation
+    is less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:39:50Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: empty log drift score threshold 1.9
+  claim_id: c_5ffdce5f
+  context: '...asserting `result[''drift_score''] >= 1.9`. **Justification**: The
+    score near the upper bound is the theoretical maximum for cosine distance...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Empty_log_drift_score_threshold_1.9
+  kind: magnitude
+  raw_text: The drift score for empty logs is asserted to be greater than or equal
+    to 1.9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:42:40Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: leetspeak edge case drift score threshold 0.8
+  claim_id: c_cc40b612
+  context: Implement unit test `test_leetspeak_drift_score` ... assert drift score
+    > 0.8.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Leetspeak_edge_case_drift_score_threshold_0.8
+  kind: magnitude
+  raw_text: The leetspeak edge case test asserts a drift score greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:42:48Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: obfuscation edge case drift score threshold 0.8
+  claim_id: c_4f23cd4b
+  context: Implement unit test `test_obfuscation_drift_score` ... assert drift score
+    > 0.8.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Obfuscation_edge_case_drift_score_threshold_0.8
+  kind: magnitude
+  raw_text: The obfuscation edge case test asserts a drift score greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T02:42:57Z'

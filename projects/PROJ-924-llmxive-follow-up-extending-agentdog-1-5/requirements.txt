@@ -8,5 +8,4 @@ statsmodels
 pytest
 transformers
 accelerate
-ruff
-black
+llama-cpp-python

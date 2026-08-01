@@ -4,34 +4,12 @@ T001:
   r: "No evidence was provided that the directory `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`\
     \ actually exists, contains any files, or that its creation was verified. The\
     \ implementer\u2019s claim lacks the required artifact."
-T010:
-  c: false
-  h: 5fef3cdd460bd0033377323dbe2cb05770a3ab304e38550d5fd1910abf81f710
-  r: The `pyproject.toml` file is present and includes Black and Ruff configuration,
-    but the required separate `.ruff.toml` file does not exist (the listed `ruff.toml`
-    is missing). The task explicitly demanded both a `pyproject.toml` and a distinct
-    `.ruff.toml`.
-T011:
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The evidence does not include a `config.py` file at `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`,
-    nor any test output showing that `test_config.py` passed. Consequently, the required
-    constants (`RANDOM_SEED=42`, `MAX_RAM_GB=7`, `BATCH_SIZE=64`) have not been demonstrated
-    to exist. The implementer must add the file with the specified contents and ensure
-    the pytest suite succeeds.
-T012a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data_loader.py` file with `fetch_advbench` and `fetch_hf4` implementations
-    is provided, nor any test output showing `test_data_loader.py` passing. Consequently
-    the required functions, error handling, and streaming behavior cannot be verified.
-    The task remains unfinished.
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `checksums.json` file exists in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/`,\
-    \ nor any content showing it contains raw\u2011data checksums. The required artifact\
-    \ is missing or not shown, so the task is not satisfied."
+  r: No evidence of a `utils.py` file in the specified directory was provided, nor
+    any view of its contents showing a `validate_schema` function or passing `test_utils.py`.
+    The required artifact is missing, so the task is not satisfied.
 T016b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

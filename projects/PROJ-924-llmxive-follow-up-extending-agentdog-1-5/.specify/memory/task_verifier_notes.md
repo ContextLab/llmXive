@@ -1,8 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T010** — The `pyproject.toml` file is present and includes Black and Ruff configuration, but the required separate `.ruff.toml` file does not exist (the listed `ruff.toml` is missing). The task explicitly demanded both a `pyproject.toml` and a distinct `.ruff.toml`.
-- **T011** — The evidence does not include a `config.py` file at `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`, nor any test output showing that `test_config.py` passed. Consequently, the required constants (`RANDOM_SEED=42`, `MAX_RAM_GB=7`, `BATCH_SIZE=64`) have not been demonstrated to exist. The implementer must add the file with the specified contents and ensure the pytest suite succeeds.
-- **T012a** — No `data_loader.py` file with `fetch_advbench` and `fetch_hf4` implementations is provided, nor any test output showing `test_data_loader.py` passing. Consequently the required functions, error handling, and streaming behavior cannot be verified. The task remains unfinished.
-- **T015** — No evidence was provided that a `checksums.json` file exists in `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/`, nor any content showing it contains raw‑data checksums. The required artifact is missing or not shown, so the task is not satisfied.

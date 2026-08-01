@@ -1,49 +1,35 @@
 # Ruff configuration for llmXive project
-# This file satisfies the requirement for T010 (configuring ruff)
-
-# Target Python version
-target-version = "py310"
-
-# Line length (matching black's default)
-line-length = 88
-
-# Exclude directories
-exclude = [
-    ".git",
-    ".tox",
-    "__pycache__",
-    "build",
-    "dist",
-    "*.egg-info",
-    ".eggs",
-    "venv",
-    ".venv",
-]
+# Extends default settings with project-specific rules
 
 [lint]
-# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
+# Enable pycodestyle (`E`), Pyflakes (`F`), and flake8-bugbear (`B`)
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # pyflakes
+    "F",  # Pyflakes
     "I",  # isort
     "B",  # flake8-bugbear
     "C4", # flake8-comprehensions
     "UP", # pyupgrade
 ]
-
-# Ignore specific rules if needed
 ignore = [
-    "E501",  # Line too long (handled by black)
-    "B008",  # Do not perform function call in argument defaults (common in pytest)
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in pytest)
+    "C408", # Unnecessary dict call (sometimes more readable)
 ]
 
-# Per-file ignores
 [lint.per-file-ignores]
-"tests/*" = ["S101"]  # Allow assert in tests
+# Allow unused imports in __init__.py files for public API exposure
+"__init__.py" = ["F401"]
+# Allow print statements in main scripts for debugging/logging
+"main.py" = ["T201"]
 
 [lint.isort]
-# Isort configuration
-known-first-party = ["code"]
-force-single-line = false
-lines-after-imports = 2
+known-first-party = ["config", "utils", "data_loader", "drift_scoring", "taxonomy_builder", "validation", "annotator_interface"]
+force-sort-within-sections = true
+
+[format]
+# Enforce double quotes and 4-space indentation (matching Black defaults)
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
