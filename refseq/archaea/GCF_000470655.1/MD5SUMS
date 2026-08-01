@@ -1,0 +1,16 @@
+d6d6fd48cf3c321d1efaa643ede18f1a  ./annotation_hashes.txt
+8ebfd30d97195279f4288f26a1ab9f6e  ./GCF_000470655.1_HATI1_assembly_report.txt
+6786961bfe6db158085edda798567d6b  ./GCF_000470655.1_HATI1_assembly_stats.txt
+9f0db58c7d8e0de6955a2cb33e0f25b9  ./GCF_000470655.1_HATI1_cds_from_genomic.fna.gz
+e1ff9a1e0f1acf462f01ff34faeb7ce4  ./GCF_000470655.1_HATI1_fcs_report.txt
+c6ef2a48f394bbfc4cc991ea195e4191  ./GCF_000470655.1_HATI1_feature_count.txt
+c0a309adf487ef178484be856f6fce48  ./GCF_000470655.1_HATI1_feature_table.txt.gz
+76b69542567354f420d7e0f3feeecf41  ./GCF_000470655.1_HATI1_gene_ontology.gaf.gz
+364263c11d9d833840e6c493328ad812  ./GCF_000470655.1_HATI1_genomic.fna.gz
+b8895ac76cf2501d19d59464845555ef  ./GCF_000470655.1_HATI1_genomic.gbff.gz
+84c6bceb0941b7c6d9d823f36bc13708  ./GCF_000470655.1_HATI1_genomic.gff.gz
+43bba3b6370aba39d6db134b3f4a55aa  ./GCF_000470655.1_HATI1_genomic.gtf.gz
+82084e6ff7c8fe8d43f2acd01beea3bf  ./GCF_000470655.1_HATI1_protein.faa.gz
+524a3b379445d64912396b921453cbe1  ./GCF_000470655.1_HATI1_protein.gpff.gz
+a4ca66be7988f517b10ea0a4c0da75e1  ./GCF_000470655.1_HATI1_rna_from_genomic.fna.gz
+0fe240902d9445c546fba206a19aebaf  ./GCF_000470655.1_HATI1_translated_cds.faa.gz

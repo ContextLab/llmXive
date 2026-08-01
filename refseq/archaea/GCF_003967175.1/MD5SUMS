@@ -1,0 +1,16 @@
+093d8f081043f650c8725002b8bf7f71  ./annotation_hashes.txt
+0a14290e970ca1dfc04dfa7e6f8c01bb  ./GCF_003967175.1_Sacidi_1.0_assembly_report.txt
+9cf0c237a80824974aa7c25e0a9aea4a  ./GCF_003967175.1_Sacidi_1.0_assembly_stats.txt
+bbd5057e9e43a053183a41022deec88b  ./GCF_003967175.1_Sacidi_1.0_cds_from_genomic.fna.gz
+1def5721c069e3af74d57858a7fd8228  ./GCF_003967175.1_Sacidi_1.0_fcs_report.txt
+089fcdfa1bfbb358d37153294f0c3c1e  ./GCF_003967175.1_Sacidi_1.0_feature_count.txt
+aa6b7af4fca65703ad15eabda45a0186  ./GCF_003967175.1_Sacidi_1.0_feature_table.txt.gz
+8ebc34c5fcda9a6ed46101305be3afbd  ./GCF_003967175.1_Sacidi_1.0_gene_ontology.gaf.gz
+5911396502f5a7f457f948aa00bc4f01  ./GCF_003967175.1_Sacidi_1.0_genomic.fna.gz
+afc9dc61b992285b00246ea349f11f48  ./GCF_003967175.1_Sacidi_1.0_genomic.gbff.gz
+96b82c88b56951032c8bc409ca664c6d  ./GCF_003967175.1_Sacidi_1.0_genomic.gff.gz
+b8f5b916fae1947d3bb864e36bfbb694  ./GCF_003967175.1_Sacidi_1.0_genomic.gtf.gz
+86e4c6f657a230213a6c78710214e645  ./GCF_003967175.1_Sacidi_1.0_protein.faa.gz
+1fe34ab487e6c506838ab57d98aa4b2e  ./GCF_003967175.1_Sacidi_1.0_protein.gpff.gz
+a2edcb5de474e47ce3e35d6498625b5e  ./GCF_003967175.1_Sacidi_1.0_rna_from_genomic.fna.gz
+96547e57b456fb64cdfc4f05ca4d1218  ./GCF_003967175.1_Sacidi_1.0_translated_cds.faa.gz

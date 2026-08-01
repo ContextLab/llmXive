@@ -1,0 +1,17 @@
+beec73e12ade3f5d8b42ca840298b8cf  ./annotation_hashes.txt
+44c57e18c81bcbab7b66ec5a238756d3  ./GCF_000710605.1_HTGA29.1_assembly_report.txt
+9033111f7b87ce60c34880af6a28fcfe  ./GCF_000710605.1_HTGA29.1_assembly_stats.txt
+5be4df566345a253d4729d2c56cfd7ca  ./GCF_000710605.1_HTGA29.1_cds_from_genomic.fna.gz
+ae5e2c6d8ebdbb64668da2c174eae544  ./GCF_000710605.1_HTGA29.1_fcs_report.txt
+8783dd029eed8ed798284acf4b4831ae  ./GCF_000710605.1_HTGA29.1_feature_count.txt
+1603b6bc7e0c507459281fc2b9cf6bb1  ./GCF_000710605.1_HTGA29.1_feature_table.txt.gz
+aac744a7e310c532b379cfd6d1cc0af6  ./GCF_000710605.1_HTGA29.1_gene_ontology.gaf.gz
+74edc1cc32691a105146da59d497046c  ./GCF_000710605.1_HTGA29.1_genomic.fna.gz
+e1c8559a13212576489f06ca8c0dc88f  ./GCF_000710605.1_HTGA29.1_genomic.gbff.gz
+36a8dc0a7bf3edf524c74524f4885149  ./GCF_000710605.1_HTGA29.1_genomic.gff.gz
+6faf74e5a1bb39f499994b69bcd16c36  ./GCF_000710605.1_HTGA29.1_genomic.gtf.gz
+035f9e957794b9319f7b9b493146d1e2  ./GCF_000710605.1_HTGA29.1_protein.faa.gz
+b86ad68c29714bfaecd2943ae9ab05d8  ./GCF_000710605.1_HTGA29.1_protein.gpff.gz
+8f3411dc0132e050e74a910cf253f31a  ./GCF_000710605.1_HTGA29.1_rna_from_genomic.fna.gz
+21dcfd8d8e45d50349d98dae567b73e5  ./GCF_000710605.1_HTGA29.1_translated_cds.faa.gz
+b9a95a596cf80731e4fa4d9ec2422f00  ./GCF_000710605.1_HTGA29.1_wgsmaster.gbff.gz

@@ -1,19 +1,19 @@
 status: none
-intent: download Apis mellifera whole genome sequencing PRJNA639195 PRJNA566029 BeeBase
-  metadata python package dataset
+intent: ncbi-genome-download pip package for BioProject PRJNA639195 and PRJNA566029
+  python package dataset
 required_fields:
+- sample_id
 - chromosome
 - position
 - reference_allele
 - alternate_allele
-- allele_frequency
-- qual
-- depth
-- p_value
-- odds_ratio
-- phenotype
+- QUAL
+- DP
+- AF
+- genotype_calls_per_sample
+- phenotype_status
 - geographic_region
 - sampling_year
-cache_key: 1c733a9c7d2ee1720c7fdf837f12c7b0f2f2de1e532e4efaf7e7e204d568069c
-searched_at: '2026-07-24T06:04:07.468593+00:00'
+cache_key: 4d04df80fc315563de2233dc4d04247df48509ee2ba2379cb581b0df75956e4d
+searched_at: '2026-08-01T12:37:25.997236+00:00'
 retry_count: 1

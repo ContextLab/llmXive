@@ -1,0 +1,17 @@
+568fc09d5eae501178495d9ff5b0cb01  ./annotation_hashes.txt
+ae2222ffe762203f48e5057354148421  ./GCF_977217535.1_MarMAG_089978_assembly_report.txt
+1e469eaaedc84e3f86fb7d9555627658  ./GCF_977217535.1_MarMAG_089978_assembly_stats.txt
+a79fda817f5fd37b1729c55e0ba1850b  ./GCF_977217535.1_MarMAG_089978_cds_from_genomic.fna.gz
+6be0770b63ca5f6dd54e6fcf2bbe3ada  ./GCF_977217535.1_MarMAG_089978_feature_count.txt
+b218cb32d069b60234552345bdb7548b  ./GCF_977217535.1_MarMAG_089978_feature_table.txt.gz
+b2a36b1876541889b1aca4255ce97dca  ./GCF_977217535.1_MarMAG_089978_gene_ontology.gaf.gz
+a8530c91ffae0fc687bfcecdebfe5411  ./GCF_977217535.1_MarMAG_089978_genomic.fna.gz
+a12a7dba330dfeea66c6ab4f87e182aa  ./GCF_977217535.1_MarMAG_089978_genomic_gaps.txt.gz
+2fbe43fa25b1709636a2bc703e3472c4  ./GCF_977217535.1_MarMAG_089978_genomic.gbff.gz
+21870eb40fce3a870eff529d702e28ff  ./GCF_977217535.1_MarMAG_089978_genomic.gff.gz
+c224fccb2f11d605385442d1bcc4894b  ./GCF_977217535.1_MarMAG_089978_genomic.gtf.gz
+8d32260ec65edabc5656e8703cd37445  ./GCF_977217535.1_MarMAG_089978_protein.faa.gz
+99ba8de7e9b913476a9b3ea08df67588  ./GCF_977217535.1_MarMAG_089978_protein.gpff.gz
+cd740d5d23a4f3d5b553d0bafd364eb9  ./GCF_977217535.1_MarMAG_089978_rna_from_genomic.fna.gz
+22efaf65e5ef8a24925ebb250ed019a4  ./GCF_977217535.1_MarMAG_089978_translated_cds.faa.gz
+2009d6ea4ff2108873cae9e63799d3fb  ./GCF_977217535.1_MarMAG_089978_wgsmaster.gbff.gz

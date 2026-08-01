@@ -1,0 +1,15 @@
+9a18859e060cd674399502be56fb71aa  ./annotation_hashes.txt
+d15f9d63b00e19c7f7a4d59351200cac  ./GCF_947597825.1_Lapin-003-2_bin24_assembly_report.txt
+5a5ad4b6cb126ca2d7a16468bbb2d1f3  ./GCF_947597825.1_Lapin-003-2_bin24_assembly_stats.txt
+939386ffc10ef2a71ce4ae1725ed2ea8  ./GCF_947597825.1_Lapin-003-2_bin24_cds_from_genomic.fna.gz
+f0614e121ae5465b70faade10c5e25ed  ./GCF_947597825.1_Lapin-003-2_bin24_feature_count.txt
+aadf3e620dfe0d3516fb5190a023394f  ./GCF_947597825.1_Lapin-003-2_bin24_feature_table.txt.gz
+d9fff2ba28e84e9d0ca55542c7d607c2  ./GCF_947597825.1_Lapin-003-2_bin24_genomic.fna.gz
+65692789d7d913650281379808e15120  ./GCF_947597825.1_Lapin-003-2_bin24_genomic.gbff.gz
+8cc3fb49dbc71c640ec169270cc7e6f0  ./GCF_947597825.1_Lapin-003-2_bin24_genomic.gff.gz
+3e37a0bb7107c86b4579f56ca80361d1  ./GCF_947597825.1_Lapin-003-2_bin24_genomic.gtf.gz
+7b8c3145f58a6ebe7ca0697dfe9526c2  ./GCF_947597825.1_Lapin-003-2_bin24_protein.faa.gz
+c8f59b77e572458abcce7c0c959421da  ./GCF_947597825.1_Lapin-003-2_bin24_protein.gpff.gz
+604e42f685ae79535b79a1e40ab14f61  ./GCF_947597825.1_Lapin-003-2_bin24_rna_from_genomic.fna.gz
+dd3b473ed164d4a44fbd09f23095db72  ./GCF_947597825.1_Lapin-003-2_bin24_translated_cds.faa.gz
+fb751bbd8aafd864fcf1ae87bd275650  ./GCF_947597825.1_Lapin-003-2_bin24_wgsmaster.gbff.gz

@@ -1,0 +1,16 @@
+9c8f1186245c14709ec12e0702dbdb22  ./annotation_hashes.txt
+b75a081d0d533bf540e8f31671a023cb  ./GCF_904067545.1_T_caminus_IRI35c_assembly_report.txt
+8ad6902fc9d61456440b1e7b6b8fcd66  ./GCF_904067545.1_T_caminus_IRI35c_assembly_stats.txt
+12829d44a2d4d38d7fa6a2afb5ab5e8a  ./GCF_904067545.1_T_caminus_IRI35c_cds_from_genomic.fna.gz
+d8892a350ab9d2c1d41ff65df4fa1b0a  ./GCF_904067545.1_T_caminus_IRI35c_fcs_report.txt
+4f0ae52c1601e7d9f5cacd4572923595  ./GCF_904067545.1_T_caminus_IRI35c_feature_count.txt
+da1ed186c624db66fe9469766e3998f3  ./GCF_904067545.1_T_caminus_IRI35c_feature_table.txt.gz
+cc4ca5b66ec90e20fa7425b44a634c79  ./GCF_904067545.1_T_caminus_IRI35c_gene_ontology.gaf.gz
+8ae9de74fc1166cc7864aaadf24876d3  ./GCF_904067545.1_T_caminus_IRI35c_genomic.fna.gz
+e6b83a79ed9e8f7f0afb57d30630abc1  ./GCF_904067545.1_T_caminus_IRI35c_genomic.gbff.gz
+7cf608ef2b588636698d7036004fefef  ./GCF_904067545.1_T_caminus_IRI35c_genomic.gff.gz
+c8a3d477a55ae4435cf41f565dfd4a91  ./GCF_904067545.1_T_caminus_IRI35c_genomic.gtf.gz
+9f6f801d6f98f0dde25ac232372c2536  ./GCF_904067545.1_T_caminus_IRI35c_protein.faa.gz
+250c2b82bf600c970ca6e451baf4aba0  ./GCF_904067545.1_T_caminus_IRI35c_protein.gpff.gz
+ed9933b305d4747eef21d96c5df3cb09  ./GCF_904067545.1_T_caminus_IRI35c_rna_from_genomic.fna.gz
+083e26cce39ff2061e8b1eda3ae489ef  ./GCF_904067545.1_T_caminus_IRI35c_translated_cds.faa.gz

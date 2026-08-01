@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  SNP:
+    type: string
+    description: "rs_id or chr:pos:ref:alt identifier"
+  CHR:
+    type: integer
+    description: "Chromosome number"
+  BP:
+    type: integer
+    description: "Base pair position"
+  A1:
+    type: string
+    description: "Alternate allele"
+  P:
+    type: number
+    description: "Raw p-value from GWAS"
+    minimum: 0
+    maximum: 1
+  Q:
+    type: number
+    description: "FDR-corrected q-value"
+    minimum: 0
+    maximum: 1
+  OR:
+    type: number
+    description: "Odds ratio from logistic regression"
+  SIGNIFICANT:
+    type: boolean
+    description: "True if q < 0.05"
+required:
+  - SNP
+  - CHR
+  - BP
+  - A1
+  - P
+  - Q
+  - OR
+  - SIGNIFICANT
+additionalProperties: false
+description: "Schema for GWAS results with FDR correction. All fields required."

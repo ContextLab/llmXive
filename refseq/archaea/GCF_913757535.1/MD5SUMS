@@ -1,0 +1,17 @@
+104bb69664e3304e8781a7f22a743166  ./annotation_hashes.txt
+0ad0c3afc6ea6791deeb28a21f2d75ab  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_assembly_report.txt
+4de2cbb641bf8ca17b3c0e773a66400f  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_assembly_stats.txt
+27eb5735ed0997aa4e7cd942893b7d8a  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_cds_from_genomic.fna.gz
+908b7a954631780a64f45603aef05a7b  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_fcs_report.txt
+58ac89e3d92a3c0faee6c0466718d247  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_feature_count.txt
+69baa4778d7a548bf7c27acf014b4e36  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_feature_table.txt.gz
+72e35403d16d5e77e35770ebffdad0ab  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_gene_ontology.gaf.gz
+3def58c0c34e3b805cee2e98c800ba53  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_genomic.fna.gz
+3a313f11b6d6c58bec248795c7909856  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_genomic.gbff.gz
+dbc96646dbb594c15b030b2615868391  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_genomic.gff.gz
+6cddfa02babd40f79e260fc8e0dc3919  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_genomic.gtf.gz
+499c5547972187a737209665a23fbcbe  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_protein.faa.gz
+c402b31924059c4a835468b1327dc95c  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_protein.gpff.gz
+a574c54b3877664c268a62eae5bf1859  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_rna_from_genomic.fna.gz
+e1c62b9c5752ba8e41aceb83e53e489d  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_translated_cds.faa.gz
+57760a3c988f6e051b57052cfa7d1007  ./GCF_913757535.1_4H12_R420_Bin12_Hybrid_wgsmaster.gbff.gz

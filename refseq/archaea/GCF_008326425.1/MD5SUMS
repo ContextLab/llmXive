@@ -1,0 +1,16 @@
+d01a62bfb2362429602b2422d9b04a1b  ./annotation_hashes.txt
+96a3031976d084ed51afcded2c417479  ./GCF_008326425.1_SulIC006_1.0_assembly_report.txt
+09b2dcd12bf1ad8098a45db4f5bced11  ./GCF_008326425.1_SulIC006_1.0_assembly_stats.txt
+a9633414f2b6c9b6ad5666f84d4389d0  ./GCF_008326425.1_SulIC006_1.0_cds_from_genomic.fna.gz
+aa4062bae1f44fdeef07ce0bbc445f75  ./GCF_008326425.1_SulIC006_1.0_fcs_report.txt
+be9dc3abe12951d8d96a70c0765446b3  ./GCF_008326425.1_SulIC006_1.0_feature_count.txt
+fca9ff06a02e950a035c759faa5708f7  ./GCF_008326425.1_SulIC006_1.0_feature_table.txt.gz
+3c3f4b983de756725e75ee19385ad2e2  ./GCF_008326425.1_SulIC006_1.0_gene_ontology.gaf.gz
+29bad4e004bb92ff79b834fbaa8a9b6c  ./GCF_008326425.1_SulIC006_1.0_genomic.fna.gz
+7f1a7c39f5b0bacabb87cb5affa9aed9  ./GCF_008326425.1_SulIC006_1.0_genomic.gbff.gz
+84a7c2fd9c380c00dee306bb38a3df25  ./GCF_008326425.1_SulIC006_1.0_genomic.gff.gz
+aacc9dc618552df71b170aeacedb7752  ./GCF_008326425.1_SulIC006_1.0_genomic.gtf.gz
+d771e210cd6920640416b0a2f77ba390  ./GCF_008326425.1_SulIC006_1.0_protein.faa.gz
+250d2f01c11c581783905c90da5a8f26  ./GCF_008326425.1_SulIC006_1.0_protein.gpff.gz
+689fbbb64d4328cabf9c0a2421e100ff  ./GCF_008326425.1_SulIC006_1.0_rna_from_genomic.fna.gz
+8688723cc0b159ded21419da1c233a80  ./GCF_008326425.1_SulIC006_1.0_translated_cds.faa.gz

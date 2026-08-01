@@ -1,0 +1,14 @@
+d6090b6d60c34380630a335b3933e6e4  ./annotation_hashes.txt
+565f7dbefb72b9f9836150a1e0e854b1  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_assembly_report.txt
+7a2f4ed100474cacd546f086958b9236  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_assembly_stats.txt
+b60d059e128116ad3aa382065f4d1a59  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_cds_from_genomic.fna.gz
+ff6537e54cc4b3c88eabd2bf58c629f3  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_feature_count.txt
+d386d4df2bf8ad6e56767bda5a7700af  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_feature_table.txt.gz
+2a81a0922c7d3206dcf484e147692ffc  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_genomic.fna.gz
+9aa88b5c8140cf136c43d7ddc950aa40  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_genomic.gbff.gz
+5558c09efb428548a03690f88bc4dbd4  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_genomic.gff.gz
+b03f71886c813a18fc82ee94eb99f006  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_genomic.gtf.gz
+b8c2ea64fad86009466cbc82f4e3b573  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_protein.faa.gz
+724d152c01ad996b6060eebbfe30d8d2  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_protein.gpff.gz
+118e29dc8d556a8f1bae9d0280aeebc5  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_rna_from_genomic.fna.gz
+d308fd575d7d04f79a2dd493173af75d  ./GCF_043950165.1_NEB_NpaNMX15-1_pb4_811_translated_cds.faa.gz

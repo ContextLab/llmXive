@@ -1,0 +1,17 @@
+c2894a34fe3d1421e928493e575e799b  ./annotation_hashes.txt
+69a5d74f65ff2d291205c7af1f88e21c  ./GCF_982387105.1_metabat2_118_assembly_report.txt
+fc5389053b1cbdc2639ef2ed0945c592  ./GCF_982387105.1_metabat2_118_assembly_stats.txt
+74386a465b1645f8241100abbb8c084a  ./GCF_982387105.1_metabat2_118_cds_from_genomic.fna.gz
+b3762794dfc400bcfb0c74acd1f3cb5c  ./GCF_982387105.1_metabat2_118_fcs_report.txt
+26b40303a90c596e4e4500b816296d8d  ./GCF_982387105.1_metabat2_118_feature_count.txt
+0d1e808d2c565d47f678e53e69f0baf5  ./GCF_982387105.1_metabat2_118_feature_table.txt.gz
+25f9b2816e478dcea42ec93cb1bbb92e  ./GCF_982387105.1_metabat2_118_gene_ontology.gaf.gz
+841cf8f501f7477eb0c88e683604c369  ./GCF_982387105.1_metabat2_118_genomic.fna.gz
+98b941938584023fac2b30a4fc2e00b8  ./GCF_982387105.1_metabat2_118_genomic.gbff.gz
+2aed07f5964babfb25e9905a83d548bf  ./GCF_982387105.1_metabat2_118_genomic.gff.gz
+4bd2ddb5e600e3fcd9361b0793adb5b7  ./GCF_982387105.1_metabat2_118_genomic.gtf.gz
+953436df775e7c54e3864672c7b469b8  ./GCF_982387105.1_metabat2_118_protein.faa.gz
+c2ecb3c153a211d0aff8069f7e9fce42  ./GCF_982387105.1_metabat2_118_protein.gpff.gz
+d54d69a1c9c460e76d5963101bbd5770  ./GCF_982387105.1_metabat2_118_rna_from_genomic.fna.gz
+92f8f139d6377751604c7f888549f587  ./GCF_982387105.1_metabat2_118_translated_cds.faa.gz
+030d113dd8a5f58e2ccc621cd9c35be4  ./GCF_982387105.1_metabat2_118_wgsmaster.gbff.gz

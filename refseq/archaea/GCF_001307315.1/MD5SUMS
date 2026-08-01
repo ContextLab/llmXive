@@ -1,0 +1,17 @@
+314e49f7629db5071be8799290c68d09  ./annotation_hashes.txt
+6326bdc88a779001f88539c7fd7ec7df  ./GCF_001307315.1_Halpeg_cdk2_1_assembly_report.txt
+1d42dac26479f80bf2ccb6adc6fa3cfe  ./GCF_001307315.1_Halpeg_cdk2_1_assembly_stats.txt
+6c34798135c209c73ead029491822a6a  ./GCF_001307315.1_Halpeg_cdk2_1_cds_from_genomic.fna.gz
+fc7354af44bd4deccd3748b32b4e99be  ./GCF_001307315.1_Halpeg_cdk2_1_fcs_report.txt
+64008a7ff147d944651a177735b37209  ./GCF_001307315.1_Halpeg_cdk2_1_feature_count.txt
+fa692f50fbc88e0ae70d3d9fac1c6654  ./GCF_001307315.1_Halpeg_cdk2_1_feature_table.txt.gz
+391c2d26b11ef36e57644c292d78573f  ./GCF_001307315.1_Halpeg_cdk2_1_gene_ontology.gaf.gz
+1c75b7a5fe48da79083e4f3653180db9  ./GCF_001307315.1_Halpeg_cdk2_1_genomic.fna.gz
+e6a389f287e139808f6e7e372b91d4ce  ./GCF_001307315.1_Halpeg_cdk2_1_genomic.gbff.gz
+7c17c47f04ad2aca85931c8a4a5b4a8b  ./GCF_001307315.1_Halpeg_cdk2_1_genomic.gff.gz
+81b3e19b1c90297ff10061b56708c6cb  ./GCF_001307315.1_Halpeg_cdk2_1_genomic.gtf.gz
+1808d62568ef098d1577e6694ee4b019  ./GCF_001307315.1_Halpeg_cdk2_1_protein.faa.gz
+093cbbd4f90c284d82c7dc60557a0247  ./GCF_001307315.1_Halpeg_cdk2_1_protein.gpff.gz
+04d62788fa980a8192e4d4df37938a82  ./GCF_001307315.1_Halpeg_cdk2_1_rna_from_genomic.fna.gz
+020ade3579d2c1f54c41fa154234905e  ./GCF_001307315.1_Halpeg_cdk2_1_translated_cds.faa.gz
+1ac99669de1c2e9cc47c9e979952e69f  ./GCF_001307315.1_Halpeg_cdk2_1_wgsmaster.gbff.gz

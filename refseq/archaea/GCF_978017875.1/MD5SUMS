@@ -1,0 +1,17 @@
+30f32a4abb553710cdc8c36d5fcbb050  ./annotation_hashes.txt
+54ac2b0dc6a97d22f8259ffda985f19f  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_assembly_report.txt
+c3ce870d5b49ab5888d0d7c3db2bf7b4  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_assembly_stats.txt
+03f16451fc9f5cb2dfee9f725b5615fc  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_cds_from_genomic.fna.gz
+799d4f55c4d5ca1af0949fffd131d639  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_fcs_report.txt
+bb0c973e2f1c4ff9fec2a6ba1bf74f12  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_feature_count.txt
+194f6c56c23157e4e524913f5771c94c  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_feature_table.txt.gz
+6f5183dbdab8cd5c3d2e40c02d1a91be  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_gene_ontology.gaf.gz
+80ec6ecc8ac3ca107fd540990eb0bd51  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_genomic.fna.gz
+2a0bcacff051375bc2a73940016799e4  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_genomic.gbff.gz
+00f41812472fa4e842c277d21e7ad202  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_genomic.gff.gz
+7d853ac02d4df2151f5c0f81177b716a  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_genomic.gtf.gz
+c0ca2b2f6c052411e837eaf86fb870c4  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_protein.faa.gz
+59b762e4c497c92c18d97fbe1fe31408  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_protein.gpff.gz
+06fa0bf5faef2aa1d853ba86a29e100d  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_rna_from_genomic.fna.gz
+c8b20945494551fb2757ae4bd33fa54e  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_translated_cds.faa.gz
+8b50dafba7f1356e7c4c00db5e8138c9  ./GCF_978017875.1_EJ_ARO_sm4_MAG7_wgsmaster.gbff.gz

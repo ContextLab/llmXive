@@ -1,0 +1,16 @@
+62c4221f866dd349bdc9be78f4179abc  ./annotation_hashes.txt
+957674818499890102ddd20904a271b1  ./GCF_900090055.1_C.divulgatum_PM4_assembly_report.txt
+265079f9568abd27dc2a152d2efd0bc4  ./GCF_900090055.1_C.divulgatum_PM4_assembly_stats.txt
+ff2737aea19f6173a1157e5f9fd9a81f  ./GCF_900090055.1_C.divulgatum_PM4_cds_from_genomic.fna.gz
+7f80ed878be0595d0d1a3cf2a61334f3  ./GCF_900090055.1_C.divulgatum_PM4_fcs_report.txt
+cbb3e16401eb951791a67530ff3d8c29  ./GCF_900090055.1_C.divulgatum_PM4_feature_count.txt
+99f51837088e3d84df0e07ac1fb82806  ./GCF_900090055.1_C.divulgatum_PM4_feature_table.txt.gz
+1d2201812359b5268285824ad2ec5a60  ./GCF_900090055.1_C.divulgatum_PM4_gene_ontology.gaf.gz
+c7ee5808aeae4e3ba7385aa6c1505697  ./GCF_900090055.1_C.divulgatum_PM4_genomic.fna.gz
+b1ad06d52c687371a98b5c6ba3b1b55f  ./GCF_900090055.1_C.divulgatum_PM4_genomic.gbff.gz
+a70d66ef2ed14dd2ffcb6e489d801ccc  ./GCF_900090055.1_C.divulgatum_PM4_genomic.gff.gz
+1abdc5709a1829f4cc02f1e446233741  ./GCF_900090055.1_C.divulgatum_PM4_genomic.gtf.gz
+32fff639f28d61aa92c2e5ca09a0f880  ./GCF_900090055.1_C.divulgatum_PM4_protein.faa.gz
+c5dc360b861bf2e328c48fb3c638102c  ./GCF_900090055.1_C.divulgatum_PM4_protein.gpff.gz
+5c052bfeea8a0921097d9c84a9b8520e  ./GCF_900090055.1_C.divulgatum_PM4_rna_from_genomic.fna.gz
+ca38ce17f961d7cdd1ef26333c84a50d  ./GCF_900090055.1_C.divulgatum_PM4_translated_cds.faa.gz

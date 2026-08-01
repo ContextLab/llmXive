@@ -1,0 +1,16 @@
+76e8e442cac2dcdd9978a2f3d020f1dc  ./annotation_hashes.txt
+703287e929afe6ab7f59ba3ea53862f1  ./GCF_900079115.1_SSOP1_assembly_report.txt
+082f64203ed1f520375b61680b5760f4  ./GCF_900079115.1_SSOP1_assembly_stats.txt
+86185608d422440b731cd5c632015e29  ./GCF_900079115.1_SSOP1_cds_from_genomic.fna.gz
+b6292af411dab1ce7573fbcd4ae1f250  ./GCF_900079115.1_SSOP1_fcs_report.txt
+7be3e7a3bb5d90e727ac3caf1068b6a2  ./GCF_900079115.1_SSOP1_feature_count.txt
+a58eb46ef06629b26bbfe7bcb5394c34  ./GCF_900079115.1_SSOP1_feature_table.txt.gz
+6638d1f8a048cfeebcab77031f33d800  ./GCF_900079115.1_SSOP1_gene_ontology.gaf.gz
+a731abb3280db1da2b4cd2a70c65ca3a  ./GCF_900079115.1_SSOP1_genomic.fna.gz
+1208f06788031820b4b012f9399baf51  ./GCF_900079115.1_SSOP1_genomic.gbff.gz
+0be751e0bd928dda36dd3ba914a40664  ./GCF_900079115.1_SSOP1_genomic.gff.gz
+9f7b101ec3480b150b214fbe03a1dcf4  ./GCF_900079115.1_SSOP1_genomic.gtf.gz
+2dbaefb166f428b9dde5dd65a3834067  ./GCF_900079115.1_SSOP1_protein.faa.gz
+476be6460a054f7ac5d933f4a7a605d8  ./GCF_900079115.1_SSOP1_protein.gpff.gz
+40c89576a48de58d14cbaaff7f81fb42  ./GCF_900079115.1_SSOP1_rna_from_genomic.fna.gz
+0a6ae5e6d69a2462f94fc185c37a457b  ./GCF_900079115.1_SSOP1_translated_cds.faa.gz

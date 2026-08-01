@@ -1,0 +1,17 @@
+cd941446ebbee743b106d1109dd007c2  ./annotation_hashes.txt
+71e54f40bb3049813325559805ebf92a  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_assembly_report.txt
+31f1d2de98ebab68365e6f25d39f1008  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_assembly_stats.txt
+9b4b61d7427573aee36a9913a960b62b  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_cds_from_genomic.fna.gz
+2de499b6b17be5c165e11ee4c782ea73  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_fcs_report.txt
+700035763a172a9db1781c184be82ae5  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_feature_count.txt
+759f871036dde8b9ee952d28bbeb5691  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_feature_table.txt.gz
+cc6192a83f1f48a8858181156d9da6ff  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_gene_ontology.gaf.gz
+8dcefc0b0bb2c798c972653ee7504e21  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_genomic.fna.gz
+47f5fae99e2ac17036c554c9eeba97e1  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_genomic.gbff.gz
+f0fac2fb3d7566853f500f38db9fa7c7  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_genomic.gff.gz
+68d600c474794772a437e5a8c7026aa4  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_genomic.gtf.gz
+1dbf12ed6a08511ecbdec1415f5e22a5  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_protein.faa.gz
+ce4bbdf483e69319a8da6bb91d4f7407  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_protein.gpff.gz
+75b28f9d3a9b548f9a9002e09dcca6cb  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_rna_from_genomic.fna.gz
+82b332d804ad15f42e88e82c0dcbd1c3  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_translated_cds.faa.gz
+467be5fade2c2307b5262b3246b9a839  ./GCF_964305975.1_EST-A-0098_Methanomassiliicoccus_A-sp905203995_wgsmaster.gbff.gz

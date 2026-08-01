@@ -1,0 +1,17 @@
+1776466ac0cb89a7a4c8c846b95cbfa1  ./annotation_hashes.txt
+75005d910ef2318dd99d3a9b7af389fd  ./GCF_000215915.2_HLRTI_V2_assembly_report.txt
+b50255e9dca90903048697aca8d87d72  ./GCF_000215915.2_HLRTI_V2_assembly_stats.txt
+cbf8bf338df48c5e3819b55683acef96  ./GCF_000215915.2_HLRTI_V2_cds_from_genomic.fna.gz
+2c2d3584fe5ac07a91a79a62ab028c7a  ./GCF_000215915.2_HLRTI_V2_fcs_report.txt
+7fd87f631b92b1bd018345e71ff28906  ./GCF_000215915.2_HLRTI_V2_feature_count.txt
+5b8b1a57de8687f2e60ff4c66611cf7f  ./GCF_000215915.2_HLRTI_V2_feature_table.txt.gz
+cde7489ff4d226cb7a0136903f79d7d4  ./GCF_000215915.2_HLRTI_V2_gene_ontology.gaf.gz
+4941427c9195cf26403a1e18e82546f9  ./GCF_000215915.2_HLRTI_V2_genomic.fna.gz
+847750049863cee0f84919799458009a  ./GCF_000215915.2_HLRTI_V2_genomic.gbff.gz
+fe310201b431d8c29997ec10cf0e3e90  ./GCF_000215915.2_HLRTI_V2_genomic.gff.gz
+dff95cead176d1ecbc3295011cf2468a  ./GCF_000215915.2_HLRTI_V2_genomic.gtf.gz
+25a04361491fb02538cec3322b5ced6c  ./GCF_000215915.2_HLRTI_V2_protein.faa.gz
+1ef2a2515e15c1c677e86ac47d3dc27f  ./GCF_000215915.2_HLRTI_V2_protein.gpff.gz
+1ac5ff3ac4f1e702d7ab3bee6c3a015d  ./GCF_000215915.2_HLRTI_V2_rna_from_genomic.fna.gz
+0b067434046a17fb115def82f340c23f  ./GCF_000215915.2_HLRTI_V2_translated_cds.faa.gz
+05b57d92f34103789b90895028c9dd81  ./GCF_000215915.2_HLRTI_V2_wgsmaster.gbff.gz

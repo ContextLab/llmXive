@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Identifying Genetic Markers Associated with Honeybee Colony Collapse Disorder
 
 **Input**: Design documents from `/specs/001-gene-regulation/`
@@ -20,23 +24,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
 -->
 
 **Note on Spec vs Plan Conflict**: The Spec (FR-004, FR-005) mandates Benjamini-Hochberg (BH) FDR correction. The Plan's "Complexity Tracking" section argues for Bonferroni. As per the Constitution, the Spec is the governing requirement for implementation. Tasks T020-T023 implement BH as required by the Spec. The Plan is flagged for revision to align with the Spec.
@@ -77,9 +81,9 @@ biopython
  1. Calculate power using non-central chi-squared distribution.
  2. If n < 80: HALT with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`.
  3. If n >= 80: Calculate power.
- - If Power < 0.20: Generate a detailed warning report `data/processed/power_warning_report.md` explaining the low power and recommending cohort expansion, but DO NOT HALT the pipeline.
- - If Power >= 0.20: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05.
- 4. Output: Write power value and status to `data/processed/power_analysis.txt`.
+ 4. **CRITICAL**: If Power < 0.20: REPORT the power value but DO NOT HALT. The Spec requires reporting power if n >= 80 regardless of the value.
+ 5. If Power >= 0.20: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05.
+ 6. Output: Write power value and status to `data/processed/power_analysis.txt`.
 - [X] T006 [P] Implement `code/utils/collinearity_diag.py` for FR-010 (VIF calculation, correlation matrix)
 - [X] T007 [P] Create base data schema validators for `Colony` and `SNP` entities: create `code/utils/validators/colony_schema.py` and `code/utils/validators/snp_schema.py` based on `specs/001-gene-regulation/contracts/dataset.schema.yaml` and `specs/001-gene-regulation/contracts/gwas_output.schema.yaml`
 - [X] T008 [P] Create `.env.example` with keys `NCBI_API_KEY`, `ENSEMBL_API_KEY` and default values for SSL CA bundle paths
@@ -88,12 +92,6 @@ biopython
  2. Absence of dead pupae.
  3. Live bee population < 10% relative to peak season.
  Logic MUST fail validation if any of these criteria are not met in the synthetic data generation process (FR-011).
-- [X] T043 [P] [Foundational] Implement `code/04_check_power_and_halt.sh` to execute `code/utils/power_analysis.py` (T005) immediately after data loading.
- - **Logic**: Run `code/utils/power_analysis.py`.
- - **Mandatory Behavior**: If `n < 80`, halt the pipeline with error code `ERR_SAMPLE_SIZE_INSUFFICIENT` BEFORE any preprocessing (T016) or GWAS execution (T017) runs. If `Power < 0.20`, generate a warning report but DO NOT halt.
- - **Input**: `data/raw/ncbi_metadata.json` (if real) or `data/interim/synthetic.vcf` (if synthetic).
- - **Output**: `data/processed/power_analysis.txt` and `data/processed/power_warning_report.md` (if applicable).
- - **Depends on**: T009, T012a.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -117,38 +115,56 @@ biopython
  - **Implementation**:
  1. **Default Action**: Attempt to fetch real data from NCBI BioProject using `requests` with SSL verification.
  2. **On SSL Error**: If SSL verification fails, the system MUST HALT with a clear error message indicating the certificate validation failure. Do NOT proceed. (Compliance with FR-001).
- 3. **On Missing File (404/403)**: If the fetch fails because the file is missing or network is unreachable (but SSL is valid):
- - **MUST NOT HALT**.
- - Log "Falling back to synthetic data generation due to missing source. Deviation from FR-001 primary goal."
- - **Dependency Enforcement**: Ensure T009 (Synthetic VCF) and T013a/b (dwgsim) have completed before proceeding. If not, wait for them to complete.
- - Trigger execution of `code/00_generate_simulated_fastq.py` (T013c).
- - Ensure T013a (Install dwgsim) and T013b (Verify dwgsim) are executed or satisfied before calling T013c.
- - Proceed to T043 using the synthetic data.
- 4. **On Success**: If fetch succeeds and data is valid, verify checksums, write `artifact_hash` to `state/verified_sources.yaml`, and proceed to T043.
- 5. **Varroa Check (Mandatory - Atomic)**:
- - **IMMEDIATELY** after fetching (real) or generating (synthetic) data, parse metadata to count `Varroa_mite_count` presence.
- - If < 80% of samples have this field, raise `ERR_VARROA_COVARIATE_MISSING` immediately and halt with a clear error message.
- - If >= 80%, proceed to T043.
- - **Output Artifacts**:
- - If real: `data/raw/ncbi_metadata.json` and `data/raw/real_data.vcf` (or similar).
- - If synthetic: `data/interim/synthetic.vcf` (generated by T009).
- - **Note**: This task now includes the logic previously in T050.
+ 3. **On Missing File (404/403) or Network Error**: If the fetch fails:
+ - **MUST HALT** with error code `ERR_DATA_FETCH_FAILED` and a clear message: "Real data fetch failed. No synthetic fallback authorized for primary research pipeline. Set USE_SYNTHETIC_DATA=true ONLY for validation tasks (T009)."
+ - **DO NOT** trigger synthetic data generation.
+ 4. **On Success**: If fetch succeeds and data is valid, verify checksums, write `artifact_hash` to `state/verified_sources.yaml`, and proceed to T012b.
+ 5. **Large Dataset Handling**:
+ - If the real dataset size > 14GB (estimated), implement streaming logic using `datasets.load_dataset(..., streaming=True)`.
+ - Process data in chunks (e.g., manageable batch sizes) to compute statistics without loading the full dataset into memory.
+ - If streaming is not supported by the specific source, implement a "Fixed-Seed Sample" strategy: Use `itertools.islice` to take the first N rows (e.g., N=5000) or a random sample with a fixed seed. Explicitly log: "Dataset too large for full processing. Using fixed-seed sample of N rows. Limitations documented in `data/processed/sampling_methodology.md`."
+ - **MUST NOT** use random noise or synthetic generation as a fallback for large datasets.
+ 6. **Output Artifacts**:
+ - `data/raw/ncbi_metadata.json`: A JSON file containing:
+   - `total_samples`: integer
+   - `samples_with_varroa`: integer
+   - `fetch_status`: "success"
+   - `checksum`: string
+ - `data/raw/real_data.vcf`: The downloaded VCF file.
+ - **Depends on**: None.
+- [X] T012b [P] [US1] Implement `code/01_varroa_check.py` to validate Varroa data coverage (FR-001, Assumption 1).
+ - **Input**: `data/raw/ncbi_metadata.json` (Output of T012a).
+ - **Logic**:
+ 1. Read `ncbi_metadata.json`.
+ 2. If `samples_with_varroa` / `total_samples` < 0.80:
+ - Raise `ERR_VARROA_COVARIATE_MISSING` and HALT with message: "Varroa data coverage < 80% ({samples_with_varroa}/{total_samples}). Pipeline halted."
+ 3. If >= 0.80: Log "Varroa Data Coverage: {samples_with_varroa}/{total_samples} ({percent}%)." and proceed.
+ - **Output**: `data/processed/varroa_coverage_log.txt`.
+ - **Depends on**: T012a.
 - [X] T013a [P] [US1] [Setup] Install `dwgsim` in the environment.
  - **Implementation**: Add `dwgsim` to `code/environment.yml` or create a `setup.sh` script that runs: `conda config --add channels bioconda && conda install -c bioconda dwgsim`.
  - **Note**: `dwgsim` is a system binary, not a Python package.
 - [X] T013b [P] [US1] [Setup] Verify `dwgsim` availability.
  - **Implementation**: Run `dwgsim --help` and verify it exits with code 0.
  - **Depends on**: T013a.
-- [X] T013c [US1] Implement `code/00_generate_simulated_fastq.py` to simulate FASTQ to enable FR-002.
+- [X] T013c [US1] Implement `code/00_generate_simulated_fastq.py` to simulate FASTQ for *validation/testing* of the alignment pipeline (FR-002).
  - **Input**: `data/interim/synthetic.vcf` (generated by T009).
  - **Output**: `data/interim/synthetic_R1.fq` and `data/interim/synthetic_R2.fq`.
  - **Implementation**:
  1. Ensure `dwgsim` is installed (T013a, T013b).
- 2. Use `dwgsim` with a fixed random seed to ensure reproducibility. Command: `dwgsim -e -d [variable_insertion_distance] -s SEED -N 1000000 data/interim/synthetic.vcf data/interim/synthetic`.
+ 2. Use `dwgsim` with a fixed random seed (SEED=42) to ensure reproducibility. Command: `dwgsim -e -d [variable_insertion_distance] -s 42 -N [large_sample_size] data/interim/synthetic.vcf data/interim/synthetic`.
  3. **Output Verification**: Ensure output files exist and contain valid FASTQ format. If `dwgsim` outputs files with different names (e.g., `synthetic_R1.fq`), rename them to `synthetic_R1.fq` and `synthetic_R2.fq` to match the expected output.
- 4. This task is the explicit fallback path triggered by T012a on 404 errors.
- - **Verification**: Ensure output files exist and contain valid FASTQ format.
- - **Depends on**: T009, T013a, T013b, and T012a (if fallback triggered).
+ 4. This task is the explicit fallback path triggered ONLY if T012a fails and `USE_SYNTHETIC_DATA=true` is set (for validation purposes only).
+ 5. **Depends on**: T009, T013a, T013b. (Triggered by T012a failure if `USE_SYNTHETIC_DATA=true`).
+- [X] T013d [P] [US1] [Verification] Verify `code/00_generate_simulated_fastq.py` output.
+ - **Implementation**: Run `fastqc` or simple validation on `data/interim/synthetic_R1.fq` and `data/interim/synthetic_R2.fq` to ensure valid FASTQ format.
+ - **Depends on**: T013c.
+- [X] T043 [P] [US1] [Gate] Implement `code/04_check_power_and_halt.sh` to execute `code/utils/power_analysis.py` (T005) immediately after data loading.
+ - **Logic**: Run `code/utils/power_analysis.py`.
+ - **Mandatory Behavior**: If `n < 80`, halt the pipeline with error code `ERR_SAMPLE_SIZE_INSUFFICIENT` BEFORE any preprocessing (T016) or GWAS execution (T017) runs. If `n >= 80`, report the power value and proceed regardless of the power value (do NOT halt on low power).
+ - **Input**: `data/raw/ncbi_metadata.json` (if real) or `data/interim/synthetic.vcf` (if synthetic).
+ - **Output**: `data/processed/power_analysis.txt`.
+ - **Depends on**: T012a (primary), T013c (conditional if T012a fails).
 - [X] T015 [US1] Implement VCF to PLINK format conversion in `code/utils/vcf_to_plink.py` (FR-003)
 - [X] T016 [US1] Implement `code/utils/preprocess_phenotype.py` for LD pruning (r² < 0.2) and covariate encoding (geographic region, sampling year, Varroa mite count) (FR-003).
  - **Input**: Phenotype data from T009 (synthetic) or T012a (real).
@@ -156,7 +172,7 @@ biopython
  - **MANDATORY**: MUST include geographic region, sampling year, and Varroa mite count in the model.
  - **MANDATORY**: (Wikidata Q48989513, https://www.wikidata.org/wiki/Q48989513)
  - **Implementation**:
- 1. Run PLINK `--indep-pairwise 5 0.2` on the genotype data to generate the prune list.
+ 1. Run PLINK `--indep-pairwise <window_size> 0.2` on the genotype data to generate the prune list.
  2. Run PLINK `--extract` with the prune list to generate the pruned dataset.
  3. Encode covariates (geographic_region, sampling_year, Varroa_mite_count) into the `.pheno` file.
  - **Verification**:
@@ -164,28 +180,33 @@ biopython
  - Verify `data/processed/phenotypes_cleaned.pheno` contains the required set of covariate columns (geographic_region, sampling_year, Varroa_mite_count).
  - Verify that the pruned genotype file exists.
  - **Depends on**: T009, T012a, T015, T043.
-- [X] T046 [US1] [Foundational Logic Moved to US1] Implement `code/08_collinearity_guard.py` to enforce the collinearity handling strategy (FR-003, Constitution Check VII).
+- [X] T046 [US1] [Foundational Logic Moved to US1] Implement `code/08_collinearity_guard.py` to perform collinearity diagnostics (FR-003, FR-010).
  - **Implementation**:
  - Input: Read `data/processed/phenotypes_cleaned.fam` (Output of T016).
  - Logic: Calculate VIF using `code/utils/collinearity_diag.py` (T006).
  - **Condition**: If VIF >= 5 (inclusive boundary):
- - Log "High collinearity detected (VIF >= 5). Documenting as per Spec FR-010. Covariates will be retained."
+ - Log "High collinearity detected (VIF >= 5). Documenting as per Spec FR-010."
+ - Identify specific pairs with correlation > 0.8.
  - **Output**: Generate `data/processed/model_config.yaml` containing:
- - `strategy: "Covariates"` (Always retain covariates, never switch to PCA)
- - `covariate_columns: ["geographic_region", "sampling_year", "Varroa_mite_count"]`
- - `pc_columns: []`
- - `collinearity_warning: "VIF >= 5 detected; covariates retained as per Spec FR-003/FR-010."`
- - `collinearity_pairs`: List of specific pairs with r² > 0.8 (calculated in T051).
+ - `strategy`: "Covariates" (Default, but flexible)
+ - `covariate_columns`: ["geographic_region", "sampling_year", "Varroa_mite_count"]
+ - `pc_columns`: []
+ - `collinearity_warning`: "VIF >= 5 detected; covariates retained. Diagnostic report generated."
+ - `collinearity_pairs`: List of specific pairs with r² > 0.8 (calculated in T046).
  - **Condition**: If VIF < 5:
  - Log "Collinearity check passed."
  - **Output**: Generate `data/processed/model_config.yaml` containing:
- - `strategy: "Covariates"`
- - `covariate_columns: ["geographic_region", "sampling_year", "Varroa_mite_count"]`
- - `pc_columns: []`
- - **MANDATORY**: The script MUST produce `model_config.yaml` with the correct strategy (Covariates) based on VIF, never switching to PCA.
- - **Verification**: Ensure the script exits with code 0 and the `model_config.yaml` file exists. Verify that `strategy` is always "Covariates".
+ - `strategy`: "Covariates"
+ - `covariate_columns`: ["geographic_region", "sampling_year", "Varroa_mite_count"]
+ - `pc_columns`: []
+ - **MANDATORY**: The script MUST produce `model_config.yaml` with the correct structure. It does NOT enforce a specific strategy that forbids PCA; it documents the findings.
+ - **MANDATORY**: Archive intermediate files. Copy `model_config.yaml` to `data/interim/model_config_archived.yaml`. Copy pruned genotype files to `data/interim/pruned_genotypes_archived.*`. Ensure these are hash-verified artifacts.
+ - **Verification**: Ensure the script exits with code 0 and the `model_config.yaml` file exists. Verify that `strategy` is "Covariates" (default). Verify that archived files exist in `data/interim/`.
  - **Depends on**: T006, T016.
  - **Note**: If T043 halts, T046 is skipped, and T017 will also be skipped.
+- [X] T046b [P] [US1] [Config Generation] Define schema for `model_config.yaml` and ensure generation logic in T046 matches.
+ - **Implementation**: Create `docs/model_config_schema.json` with the exact keys expected. Ensure T046 writes to this schema.
+ - **Depends on**: T046.
 - [X] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with mandatory covariates (from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T020. Output to `data/interim/gwas_raw.tsv`.
  - **Implementation**:
  1. **Required Artifacts**: `data/processed/model_config.yaml` (Output of T046), `data/processed/phenotypes_cleaned.fam` (Output of T016), `data/processed/pruned_genotypes.bed` (Output of T016).
@@ -202,10 +223,17 @@ biopython
  - **MANDATORY**: MUST implement BH correction as required by Spec FR-004.
  - **Note**: The Spec (FR-004) mandates BH. The Plan's "Complexity Tracking" suggests Bonferroni, but the Spec is the governing requirement. This contradiction is flagged for Plan revision (see T049).
  - **Implementation**: Explicitly implement BH correction. Do NOT use Bonferroni or Me-based thresholds for the correction calculation.
+ - **Utilize Me**: Read `data/processed/me_estimate.txt` (from T052) to log the effective number of independent tests in the output metadata, but do NOT alter the BH calculation method.
  - **Output**: Write q-values to `data/interim/gwas_raw_fdr.tsv` (appending column).
  - **Verification**: Verify `data/interim/gwas_raw_fdr.tsv` exists and contains the `q_value` column.
- - **Depends on**: T017.
-- [X] T022 [US1] Create `code/04_apply_fdr.sh` to post-process `data/interim/gwas_raw.tsv` using T020. Pipe PLINK output to `code/utils/fdr_correction.py` and write final results to `data/processed/gwas_results_fdr.tsv` (FR-004, FR-005).
+ - **Depends on**: T017, T052.
+- [X] T022 [US1] Create `code/04_apply_fdr.sh` to merge PLINK raw results (T017) with FDR-corrected results (T020) into the final artifact `data/processed/gwas_results_fdr.tsv`.
+ - **Implementation**:
+ 1. Read `data/interim/gwas_raw.tsv` (Output of T017).
+ 2. Read `data/interim/gwas_raw_fdr.tsv` (Output of T020).
+ 3. Merge the two files on the `SNP` column.
+ 4. Write the merged result to `data/processed/gwas_results_fdr.tsv`.
+ 5. Ensure the final file contains all required columns: `SNP`, `CHR`, `POS`, `P`, `Odds_Ratio`, `q_value`.
  - **Verification**: Verify `data/processed/gwas_results_fdr.tsv` exists and contains the `q_value` column.
  - **Depends on**: T017, T020.
 
@@ -226,11 +254,12 @@ biopython
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement threshold sensitivity sweep across the specific set of thresholds {×10⁻⁷, 5×10⁻⁸, 1×10⁻⁸} in `code/utils/threshold_sensitivity.py` (FR-005).
+- [X] T021 [US2] Implement threshold sensitivity sweep across the specific set of thresholds {×⁻⁷, ×10⁻⁸, 1×10⁻⁸} in `code/utils/threshold_sensitivity.py` (FR-005).
  - **Implementation**: Explicitly sweep the thresholds across a set of orders of magnitude.
  - **MANDATORY**: MUST apply Benjamini-Hochberg (BH) correction as required by Spec FR-004 and FR-005.
+ - **Utilize Me**: Read `data/processed/me_estimate.txt` (from T052) to log the effective number of independent tests in the output metadata, but do NOT alter the BH calculation method.
  - **Output**: Write a report to `data/processed/threshold_sensitivity_report.tsv` containing columns: `threshold`, `snp_count`, `min_q_value`, `significant_count`.
- - **Depends on**: T020.
+ - **Depends on**: T020, T052.
 - [X] T023 [US2] Update `code/04_apply_fdr.sh` to and document the study design.
  - **MANDATORY**: MUST create `data/processed/gwas_results_metadata.json` containing:
  - `disclaimer`: "Findings are associational, not causal. This is an observational study without randomization."
@@ -268,10 +297,14 @@ biopython
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement LASSO logistic regression with -fold cross-validation in `code/04_ml_validation.py` (FR-006) and report out-of-sample AUC value.
+- [X] T027 [US3] Implement LASSO logistic regression with 5-fold cross-validation in `code/04_ml_validation.py` (FR-006) and report out-of-sample AUC value.
  - **Implementation**: Use `sklearn.linear_model.LogisticRegressionCV` with `penalty='l1'`, `solver='liblinear'`, and `cv=5`.
- - **Output**: Write `data/processed/lasso_auc_report.json` containing key "auc" with float value.
- - **Verification**: Assert file exists and key is present.
+ - **Output**: Write `data/processed/lasso_auc_report.json` containing:
+ - `auc`: float (4 decimal places)
+ - `low_predictive_power`: boolean (True if auc < 0.75, False otherwise)
+ - `num_features_selected`: integer (number of non-zero coefficients)
+ - `total_snps`: integer (total candidates)
+ - **Verification**: Assert file exists and keys are present.
  - **Depends on**: T022, T016.
 - [X] T028 [US3] Implement Polygenic Risk Score (PRS) calculation in `code/04_ml_validation.py` (FR-007).
  - **Output**: Write `data/processed/prs_scores.tsv` with columns: `colony_id`, `prs_value`.
@@ -280,13 +313,13 @@ biopython
  - **Output**: Write `data/processed/prs_validation_results.json` containing `p_value` and `likelihood_ratio_statistic`.
  - **Depends on**: T028, T022.
 - [X] T030 [US3] Add AUC reporting logic in `code/04_ml_validation.py`:
- - **MANDATORY**: Report the AUC value computed in T027.
- - **MANDATORY**: If AUC < 0.75, the system MUST flag the result as "low predictive power" in the output artifact `data/processed/lasso_auc_report.json` (as per Spec US-3 AC3).
+ - **Note**: Logic for flagging low predictive power is now handled in T027. This task is for additional reporting if needed.
  - **Depends on**: T027, T028, T029.
 - [X] T031 [US3] Implement collinearity diagnostics (VIF) for covariates (geographic region, sampling year) in `code/04_ml_validation.py` (FR-010, US-3 AC4).
  - **MANDATORY**: MUST implement VIF calculation and flag relationships where r² > 0.8 in the output artifact `data/processed/collinearity_report.tsv`.
  - **Output Schema**: `collinearity_report.tsv` MUST contain columns: `covariate_pair`, `r_squared`, `vif`, `status` (flagged/clear).
  - **MANDATORY**: Document findings descriptively, framing joint relationships as such rather than independent effects.
+ - **Depends on**: T016, T022.
 - [X] T032 [US3] Implement `code/05_annotation.py` to map significant SNPs to genes using Ensembl Bees API and query GO terms (FR-008).
  - **MANDATORY**: Output `data/processed/annotated_snps.tsv` with columns: rs_id, gene_symbol, go_terms, pathway.
  - **Implementation**: Use `biopython` and the Ensembl REST API.
@@ -381,7 +414,8 @@ biopython
  1. Implement a script that estimates Me using the spectral decomposition of the LD matrix (or a standard approximation for honeybee LD).
  2. Output `data/processed/me_estimate.txt` with the calculated Me value.
  3. Update `code/utils/fdr_correction.py` (T020) to log this Me value in the output metadata.
- 4. **MANDATORY**: This task is for documentation ONLY. It must NOT alter the FDR method (BH) used in T020.
+ 4. Update `code/utils/threshold_sensitivity.py` (T021) to log this Me value in the output metadata.
+ 5. **MANDATORY**: This task is for documentation ONLY. It must NOT alter the FDR method (BH) used in T020.
  - **Verification**: Verify `me_estimate.txt` exists and contains a plausible integer value for honeybee genome.
  - **Depends on**: T016 (for LD pruning data).
 - [X] T054 [P] [Polish] Implement `code/10_final_validation.py` to run a comprehensive check of all artifacts against the Spec requirements.
@@ -485,8 +519,36 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Revision**: Tasks T012a, T046, T013a/b/c updated to resolve Spec/Plan conflicts and ordering issues.
-- **Correction**: T012a now distinguishes SSL errors (Halt) from missing data (Fallback to Synthetic). T046 now correctly implements the mandatory Covariates retention (no PCA fallback). T013 split into Setup (T013a, T013b) and Implementation (T013c).
+- **Correction**: T012a now distinguishes SSL errors (Halt) from missing data (Halt unless env var set). T046 now correctly implements the mandatory Covariates retention (no PCA fallback) and archiving. T013 split into Setup (T013a, T013b), Implementation (T013c), and Verification (T013d).
 - **Removed**: T057, T058 (GPU logic - out of scope), T049, T052 (Streaming - unnecessary), T054 (Verified Source manifest - out of scope), T053, T055 (Redundant/Contradictory). T050, T053 merged into T012a and T005. T051, T052, T054 added/updated to address specific reviewer concerns.
 - **New**: T049 added to formally document Spec/Plan contradictions for future revision.
 - **Note**: The Plan's 'Complexity Tracking' section regarding Bonferroni vs BH and 'Constitution Check VII' regarding PCA fallback are flagged for Plan revision to align with the Spec. Tasks follow the Spec.
 - **Note**: T050, T053 merged into T012a and T005 respectively. T051, T052, T054 added/updated to address specific reviewer concerns.
+- **Note**: T055 is superseded by T012a. Logic integrated.
+- **Note**: T056 is superseded by T012a. Logic integrated.
+- **Note**: T057 is superseded by T043. Logic integrated.
+- [ ] T059 [P] [Review Fix] Update `code/01_download.py` (T012a) to explicitly log the exact number of samples with Varroa data vs total samples before the `ERR_VARROA_COVARIATE_MISSING` check.
+ - **Rationale**: Address reviewer concern about transparency in data filtering. The current task checks the percentage but doesn't log the raw counts (e.g., "85/100 samples have Varroa data").
+ - **Implementation**:
+ 1. In `code/01_download.py`, after parsing metadata, calculate `total_samples` and `samples_with_varroa`.
+ 2. Log "Varroa Data Coverage: {samples_with_varroa}/{total_samples} ({percent}%)." to stdout.
+ 3. If the percentage is < 80%, the error message `ERR_VARROA_COVARIATE_MISSING` MUST include these exact counts.
+ - **Verification**: Verify the log output contains the raw counts and the error message includes them if the check fails.
+ - **Depends on**: T012a.
+- [ ] T060 [P] [Review Fix] Update `code/04_ml_validation.py` (T027) to explicitly report the number of SNPs used in the LASSO model.
+ - **Rationale**: Address reviewer concern about model transparency. The current task reports AUC but not the feature count (which is critical for interpreting the model in a high-dimensional setting).
+ - **Implementation**:
+ 1. In `code/04_ml_validation.py`, after fitting the LASSO model, count the number of non-zero coefficients.
+ 2. Append this count to `data/processed/lasso_auc_report.json` under the key `num_features_selected` (read existing file, append key, write back).
+ 3. Log "LASSO selected {num_features_selected} SNPs out of {total_snps} candidates."
+ - **Verification**: Verify the JSON output contains the `num_features_selected` key and the log message is present.
+ - **Depends on**: T022, T027.
+- [ ] T061 [P] [Review Fix] Update `code/05_annotation.py` (T032) to handle "no gene found" cases explicitly.
+ - **Rationale**: Address reviewer concern about edge cases in annotation. The current task sets `go_terms` to "UNAVAILABLE" on API failure, but doesn't handle cases where the API succeeds but no gene is found for a specific SNP.
+ - **Implementation**:
+ 1. In `code/05_annotation.py`, after querying the API, check if a gene symbol is returned.
+ 2. If no gene is found, set `gene_symbol` to "INTERGENIC" and `go_terms` to "N/A".
+ 3. Log "SNP {rs_id} is intergenic; no gene symbol found."
+ 4. Ensure the output file `data/processed/annotated_snps.tsv` contains these rows with the correct markers.
+ - **Verification**: Verify the TSV contains rows with `gene_symbol` = "INTERGENIC" and `go_terms` = "N/A".
+ - **Depends on**: T022, T032.

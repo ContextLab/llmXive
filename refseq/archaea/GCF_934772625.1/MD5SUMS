@@ -1,0 +1,16 @@
+c49bbe911798bf8fa3daa7892588f4b2  ./annotation_hashes.txt
+8befaadf913e44a09d93c8b22aba90ec  ./GCF_934772625.1_ERR7738269_bin.102_assembly_report.txt
+79edcaa24c61f460935e563764186741  ./GCF_934772625.1_ERR7738269_bin.102_assembly_stats.txt
+4b4af2958d5e0caccb3cc0cd7d11c6c2  ./GCF_934772625.1_ERR7738269_bin.102_cds_from_genomic.fna.gz
+68bd4ed1449d6a3e47ddb3d713fdcc18  ./GCF_934772625.1_ERR7738269_bin.102_fcs_report.txt
+b08cd5e4731dad472f61bbe07ee2ef94  ./GCF_934772625.1_ERR7738269_bin.102_feature_count.txt
+2ebbdcb583bf3e63c5dfbeeffed6de05  ./GCF_934772625.1_ERR7738269_bin.102_feature_table.txt.gz
+be52722385204c0d03fcc56640832371  ./GCF_934772625.1_ERR7738269_bin.102_genomic.fna.gz
+06ee01961e8f5cd21a8a1a96ae184352  ./GCF_934772625.1_ERR7738269_bin.102_genomic.gbff.gz
+58a2466ea52c074dac29edb5eb5f35ae  ./GCF_934772625.1_ERR7738269_bin.102_genomic.gff.gz
+5039a667ea0ec4ab05a1c7cbbc525926  ./GCF_934772625.1_ERR7738269_bin.102_genomic.gtf.gz
+492cd930be9f1f925295b58894ebb662  ./GCF_934772625.1_ERR7738269_bin.102_protein.faa.gz
+02c232e4926165fded5a9e1d3a061d04  ./GCF_934772625.1_ERR7738269_bin.102_protein.gpff.gz
+2587aeec57b0830f0944a417bb3ee855  ./GCF_934772625.1_ERR7738269_bin.102_rna_from_genomic.fna.gz
+2f659d89e0fac9b0bf3d8778837119f8  ./GCF_934772625.1_ERR7738269_bin.102_translated_cds.faa.gz
+f1d4aa99cb9728bd68f5b66c8247dc6a  ./GCF_934772625.1_ERR7738269_bin.102_wgsmaster.gbff.gz

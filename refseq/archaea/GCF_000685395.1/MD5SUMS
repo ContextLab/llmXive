@@ -1,0 +1,17 @@
+19bf34f13674cc1210a73698e670aef7  ./annotation_hashes.txt
+7a1e56247218af27631fb74b018b1ad3  ./GCF_000685395.1_NKMY2_assembly_report.txt
+8346fd5cef836cde70cd1d5f63365db2  ./GCF_000685395.1_NKMY2_assembly_stats.txt
+45188ac52bce2839988dea12c3b7f923  ./GCF_000685395.1_NKMY2_cds_from_genomic.fna.gz
+75d4d7f4bf994ad74c77051337bb2463  ./GCF_000685395.1_NKMY2_fcs_report.txt
+78450d6bd58402efcc46b1cd4f379240  ./GCF_000685395.1_NKMY2_feature_count.txt
+acec4cc7530f50ac51fb61f1e8f4ae5e  ./GCF_000685395.1_NKMY2_feature_table.txt.gz
+9e46328e577c1f10c9cf095776d17846  ./GCF_000685395.1_NKMY2_gene_ontology.gaf.gz
+970427d1e1a1c6c9e44e44ec60876e72  ./GCF_000685395.1_NKMY2_genomic.fna.gz
+0fa849c109e1bff158f67896d3777a67  ./GCF_000685395.1_NKMY2_genomic.gbff.gz
+8fb2a361c223364845c48478b7a28bda  ./GCF_000685395.1_NKMY2_genomic.gff.gz
+63e194f95ad63038544f82dbaec05c66  ./GCF_000685395.1_NKMY2_genomic.gtf.gz
+39c1ebd74c30f0ce1d409c405ed43159  ./GCF_000685395.1_NKMY2_protein.faa.gz
+eec89ec55fb9f6e2daf6675eccf93f5a  ./GCF_000685395.1_NKMY2_protein.gpff.gz
+9eec97df8e89f7ae1ebd6724df6702f3  ./GCF_000685395.1_NKMY2_rna_from_genomic.fna.gz
+1b0fcff98e515d59f67ae96310c319b3  ./GCF_000685395.1_NKMY2_translated_cds.faa.gz
+1915dc2acb5720c04c05ae1ba997c7e0  ./GCF_000685395.1_NKMY2_wgsmaster.gbff.gz

@@ -1,0 +1,16 @@
+5093f3aa129d28917b7697d86c388932  ./annotation_hashes.txt
+56093edd8f4516cddc6448c2e52f42fa  ./GCF_900095295.1_MCBB_assembly_report.txt
+3a5388bf6670ec4c0dd101cf0407dbfc  ./GCF_900095295.1_MCBB_assembly_stats.txt
+e0d2048e9c0fb0ea243f22ffaf35db4b  ./GCF_900095295.1_MCBB_cds_from_genomic.fna.gz
+e209ac435404206dbf2c0efec67d33c1  ./GCF_900095295.1_MCBB_fcs_report.txt
+9896721584be17008e9bdd9e6a867fa8  ./GCF_900095295.1_MCBB_feature_count.txt
+2dad2a4ee04ae6fdd2baed0c6df57a3b  ./GCF_900095295.1_MCBB_feature_table.txt.gz
+746972d93ead20dc753c0a6f3d0b19ca  ./GCF_900095295.1_MCBB_gene_ontology.gaf.gz
+2b51b2872f84be461aeec533aef86ef3  ./GCF_900095295.1_MCBB_genomic.fna.gz
+24f66fd0754222918bcbd3493e58c6bc  ./GCF_900095295.1_MCBB_genomic.gbff.gz
+15255557ace6ffe71da5f974f98c3afe  ./GCF_900095295.1_MCBB_genomic.gff.gz
+dcc63feb5de841dd002cd07117c4b0c9  ./GCF_900095295.1_MCBB_genomic.gtf.gz
+d86d3a225a9358be322208aaa949de42  ./GCF_900095295.1_MCBB_protein.faa.gz
+bb4569dfebfbcce1d48f9517a482fb42  ./GCF_900095295.1_MCBB_protein.gpff.gz
+e3e3a849524f21f1b7613001d021ca62  ./GCF_900095295.1_MCBB_rna_from_genomic.fna.gz
+4aa3efcbdd7fa30552b870447529e881  ./GCF_900095295.1_MCBB_translated_cds.faa.gz

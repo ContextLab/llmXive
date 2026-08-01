@@ -1,0 +1,17 @@
+c42bbe62c2cc97e440d63ed9e34431c6  ./annotation_hashes.txt
+dcd832171e6efe6e73cc2b84afe8a154  ./GCF_982248925.1_ERR14141017_bin_46_assembly_report.txt
+b25f25a75e420b0c868b4da2909dc8cc  ./GCF_982248925.1_ERR14141017_bin_46_assembly_stats.txt
+4967d4f13dcd2db974ff2307adc26687  ./GCF_982248925.1_ERR14141017_bin_46_cds_from_genomic.fna.gz
+23f57002ffbfed70c96620abf54d1c5e  ./GCF_982248925.1_ERR14141017_bin_46_fcs_report.txt
+749055434bb05193d3feadb9545aad9f  ./GCF_982248925.1_ERR14141017_bin_46_feature_count.txt
+acacd76669305ec424723eef90ec4f4e  ./GCF_982248925.1_ERR14141017_bin_46_feature_table.txt.gz
+36fe991c0c1030959220d4db46afbf01  ./GCF_982248925.1_ERR14141017_bin_46_gene_ontology.gaf.gz
+b21c9c5dd4e8814127320c5492196e9c  ./GCF_982248925.1_ERR14141017_bin_46_genomic.fna.gz
+6cf6b2045f7382e4b1a57313f4090b61  ./GCF_982248925.1_ERR14141017_bin_46_genomic.gbff.gz
+f3970e6c2f113d099f55a8b48024b196  ./GCF_982248925.1_ERR14141017_bin_46_genomic.gff.gz
+183a8b0760e6f18c575c4eabbcc85bef  ./GCF_982248925.1_ERR14141017_bin_46_genomic.gtf.gz
+09bd52f4bcf176985346261adf4da447  ./GCF_982248925.1_ERR14141017_bin_46_protein.faa.gz
+bef0b7efd4e86840ca69d0e62eaa36c9  ./GCF_982248925.1_ERR14141017_bin_46_protein.gpff.gz
+d4b39ab79ac40166ad43597f4f6f7399  ./GCF_982248925.1_ERR14141017_bin_46_rna_from_genomic.fna.gz
+f75b72981efa33b9e3330a61c34327f6  ./GCF_982248925.1_ERR14141017_bin_46_translated_cds.faa.gz
+ddb1c4ef58b2fb8966d6b3d082a49c16  ./GCF_982248925.1_ERR14141017_bin_46_wgsmaster.gbff.gz

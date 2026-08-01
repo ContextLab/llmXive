@@ -1,0 +1,17 @@
+ae7f43bb77f558b1d9fd9b20dce46d16  ./annotation_hashes.txt
+04e3d4d6cb6741645a0d2c340e3fc2e5  ./GCF_000258515.1_TheZil1.0_assembly_report.txt
+fe59ac1dfae63a532b7193f9436785dc  ./GCF_000258515.1_TheZil1.0_assembly_stats.txt
+08e4fe708ed39a4bda7713329d242375  ./GCF_000258515.1_TheZil1.0_cds_from_genomic.fna.gz
+5a58d4916dcfde5cc0d4daf1f0fb5e63  ./GCF_000258515.1_TheZil1.0_fcs_report.txt
+413f145ce2a8f69fb5c7663243d9b6c8  ./GCF_000258515.1_TheZil1.0_feature_count.txt
+ac9ff8e722f874527eb9538ea64af4d3  ./GCF_000258515.1_TheZil1.0_feature_table.txt.gz
+8c22bbdf785f3aa8955256d727326a8b  ./GCF_000258515.1_TheZil1.0_gene_ontology.gaf.gz
+518000052fe3ded5a772b06bc1d6071c  ./GCF_000258515.1_TheZil1.0_genomic.fna.gz
+a7ee89c724ca368c3442db5c2bf1dad6  ./GCF_000258515.1_TheZil1.0_genomic.gbff.gz
+f3a8da60fd8fe031ba5f4cf23a9a55c2  ./GCF_000258515.1_TheZil1.0_genomic.gff.gz
+97d9c4bb1bcfe631418d6c2f5d3358a2  ./GCF_000258515.1_TheZil1.0_genomic.gtf.gz
+8036e784b57c78dbcaa1f08db5088863  ./GCF_000258515.1_TheZil1.0_protein.faa.gz
+e40b9994d5e1d440ede0cec45366a809  ./GCF_000258515.1_TheZil1.0_protein.gpff.gz
+2b4780cfdd6eb16ead877ab5334d8e3f  ./GCF_000258515.1_TheZil1.0_rna_from_genomic.fna.gz
+2a3aaa8bf75891fb386a6e972ac6dd07  ./GCF_000258515.1_TheZil1.0_translated_cds.faa.gz
+89bd264afcbb8fa53ffb1ff73d89469b  ./GCF_000258515.1_TheZil1.0_wgsmaster.gbff.gz

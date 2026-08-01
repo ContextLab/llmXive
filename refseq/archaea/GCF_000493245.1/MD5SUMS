@@ -1,0 +1,16 @@
+0ac47d99ed66015b63f35cadba9c13cd  ./annotation_hashes.txt
+005dcba6c1476da9fcda3c119ffdbfd9  ./GCF_000493245.1_Nat_J71_assembly_report.txt
+19d8182bad35519dee3000f1208f4926  ./GCF_000493245.1_Nat_J71_assembly_stats.txt
+b483042079dc6b941a992e9864fd3bc1  ./GCF_000493245.1_Nat_J71_cds_from_genomic.fna.gz
+b058de9b9f058ff7bd6aa51f5324a46c  ./GCF_000493245.1_Nat_J71_fcs_report.txt
+726b3180b7d9ecbbd182866859c37bfb  ./GCF_000493245.1_Nat_J71_feature_count.txt
+288fbaf1343ac595bc05bf4bf998ad98  ./GCF_000493245.1_Nat_J71_feature_table.txt.gz
+a0fd1e2bf45d15af641e70da105cebad  ./GCF_000493245.1_Nat_J71_genomic.fna.gz
+d30a63a463f98790e4d45ce32c2a6ad3  ./GCF_000493245.1_Nat_J71_genomic.gbff.gz
+6559abbe00d212866042899d566e1144  ./GCF_000493245.1_Nat_J71_genomic.gff.gz
+cc793a927c669315de6f3f3ced878065  ./GCF_000493245.1_Nat_J71_genomic.gtf.gz
+ebb298c2da01f87623956a5514afdc42  ./GCF_000493245.1_Nat_J71_protein.faa.gz
+f3e812e4cb2c86002edcddb2ea54d21d  ./GCF_000493245.1_Nat_J71_protein.gpff.gz
+baddab596403dada51c574a7b14b8f72  ./GCF_000493245.1_Nat_J71_rna_from_genomic.fna.gz
+9f6f1222e509fe58942b0c865463630d  ./GCF_000493245.1_Nat_J71_translated_cds.faa.gz
+7668e2e6a41f090db5662b99caa65544  ./GCF_000493245.1_Nat_J71_wgsmaster.gbff.gz

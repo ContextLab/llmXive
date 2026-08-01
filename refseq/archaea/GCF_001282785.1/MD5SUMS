@@ -1,0 +1,17 @@
+4d371d561a3e9c5264095e86ec3df1df  ./annotation_hashes.txt
+4e0240c70a71d4273e51455b1b87182b  ./GCF_001282785.1_halo7_assembly_report.txt
+a53f846179d9f560b17e1de72f997fb5  ./GCF_001282785.1_halo7_assembly_stats.txt
+b4367388057e121ab7c07404d6974646  ./GCF_001282785.1_halo7_cds_from_genomic.fna.gz
+d5ee69a2775361ceffd7da936aafdd8a  ./GCF_001282785.1_halo7_fcs_report.txt
+369a69805f7dd730b80c4416ad4bcd06  ./GCF_001282785.1_halo7_feature_count.txt
+8e5496904e8c3b963b3115219754554b  ./GCF_001282785.1_halo7_feature_table.txt.gz
+df1083b94f78e21b17562ec052c2093d  ./GCF_001282785.1_halo7_gene_ontology.gaf.gz
+3619a25ea2b87aa874ec8feaa1c8531e  ./GCF_001282785.1_halo7_genomic.fna.gz
+3cdb6f8dee459efa0af3e9aad1575052  ./GCF_001282785.1_halo7_genomic.gbff.gz
+68df285aa977ba8086c6646adca56a71  ./GCF_001282785.1_halo7_genomic.gff.gz
+1319c8ebfb465144260ed886e2575098  ./GCF_001282785.1_halo7_genomic.gtf.gz
+8ff664ea4d7a5419c6bc8153e973d307  ./GCF_001282785.1_halo7_protein.faa.gz
+46bf395d1eefca3987d24c4e874e43ca  ./GCF_001282785.1_halo7_protein.gpff.gz
+66909a80bdb2206e48897bfc99c0983d  ./GCF_001282785.1_halo7_rna_from_genomic.fna.gz
+cbd2fe88e09f8ecfc113b50938eff92f  ./GCF_001282785.1_halo7_translated_cds.faa.gz
+9546277eaadbc103922699c1eb056600  ./GCF_001282785.1_halo7_wgsmaster.gbff.gz

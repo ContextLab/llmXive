@@ -1,0 +1,17 @@
+b0f973997bcc8acb924f2cb2514dbf94  ./annotation_hashes.txt
+a84c611a035f346a4ca671a5e0e90315  ./GCF_000495475.1_Htyrrel1.0_assembly_report.txt
+7a08445f12b75c0721d6253ff9937c7a  ./GCF_000495475.1_Htyrrel1.0_assembly_stats.txt
+61e63b7df9bea49488a0e00298752d46  ./GCF_000495475.1_Htyrrel1.0_cds_from_genomic.fna.gz
+e37ab7fefe524984eb25724933c02059  ./GCF_000495475.1_Htyrrel1.0_fcs_report.txt
+5fdd95c3042e0eb16bafa358eb09750d  ./GCF_000495475.1_Htyrrel1.0_feature_count.txt
+dbf00faae3068d3dd52eb6e9ae5e684d  ./GCF_000495475.1_Htyrrel1.0_feature_table.txt.gz
+f16176c3e14b4efdc36b2fadaab444a7  ./GCF_000495475.1_Htyrrel1.0_gene_ontology.gaf.gz
+eb472afc37a1ea36f5b0d10f14c127d7  ./GCF_000495475.1_Htyrrel1.0_genomic.fna.gz
+b53f6e0d4b5447446803ade4e6ea81a9  ./GCF_000495475.1_Htyrrel1.0_genomic.gbff.gz
+2cf507856497fb98b4aaf74f3bcc2c18  ./GCF_000495475.1_Htyrrel1.0_genomic.gff.gz
+c4163cda270ec1ef98a82e0609e337ef  ./GCF_000495475.1_Htyrrel1.0_genomic.gtf.gz
+18dbad243fc289db7fb644c9113ffcd5  ./GCF_000495475.1_Htyrrel1.0_protein.faa.gz
+550f06cc9f96d5653d64a711c1dd5145  ./GCF_000495475.1_Htyrrel1.0_protein.gpff.gz
+abf946817afc80cdc6221f657e8786c7  ./GCF_000495475.1_Htyrrel1.0_rna_from_genomic.fna.gz
+0550a69490d0f71f76b0cc6791809294  ./GCF_000495475.1_Htyrrel1.0_translated_cds.faa.gz
+62e47e863dc0a16d018d0e3fa4e13401  ./GCF_000495475.1_Htyrrel1.0_wgsmaster.gbff.gz
