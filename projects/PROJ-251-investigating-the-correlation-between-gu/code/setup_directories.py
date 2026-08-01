@@ -4,7 +4,9 @@ from pathlib import Path
 
 def create_directories():
     """
-    Create the required project directory structure:
+    Create the required project directory structure.
+    
+    Directories created:
     - code/
     - data/raw
     - data/processed
@@ -12,34 +14,42 @@ def create_directories():
     - specs/001-investigating-the-correlation-between-gu/contracts/
     
     Returns:
-        bool: True if all directories were created or already exist, False otherwise.
+        bool: True if all directories were created successfully, False otherwise.
     """
-    base_path = Path(__file__).resolve().parent.parent
+    base_dir = Path(__file__).resolve().parent.parent
     
     directories = [
-        base_path / "code",
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "data" / "results",
-        base_path / "specs" / "001-investigating-the-correlation-between-gu" / "contracts"
+        base_dir / "code",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "data" / "results",
+        base_dir / "specs" / "001-investigating-the-correlation-between-gu" / "contracts",
     ]
     
-    success = True
+    created = []
+    failed = []
+    
     for directory in directories:
         try:
             directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created/Verified directory: {directory}")
+            created.append(str(directory.relative_to(base_dir)))
         except OSError as e:
-            print(f"Error creating directory {directory}: {e}")
-            success = False
+            failed.append(f"{str(directory.relative_to(base_dir))}: {e}")
     
-    return success
+    if failed:
+        print(f"Failed to create directories: {', '.join(failed)}")
+        return False
+    
+    print(f"Successfully created {len(created)} directories:")
+    for d in created:
+        print(f"  - {d}")
+    
+    return True
+
+def main():
+    """Entry point for directory creation script."""
+    success = create_directories()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    success = create_directories()
-    if success:
-        print("All directories created successfully.")
-        sys.exit(0)
-    else:
-        print("Failed to create some directories.")
-        sys.exit(1)
+    main()

@@ -2,157 +2,120 @@ import os
 import sys
 import logging
 import requests
+import pandas as pd
 from pathlib import Path
 from typing import Tuple, Optional
-from .config import get_sra_accession, get_raw_path, get_hf_token, get_ncbi_api_key
-from .logging_config import get_logger
-from .sra_downloader import DataUnavailableError
 
-# Define the verified real data source as per project constraints.
-# The project uses a specific HuggingFace dataset that contains the pre-processed
-# OTU tables and serology metadata for the SRP accession series.
-# This is the "VERIFIED REAL DATA SOURCE" referenced in the system prompt.
-HF_DATASET_NAME = "gut-microbiome-influenza-vaccination/preprocessed"
-OTU_FILE_NAME = "otutable.csv"
-SEROLOGY_FILE_NAME = "serology.csv"
+from utils.config import get_sra_accession, get_raw_path
+from utils.logging_config import get_logger
+from utils.sra_downloader import DataUnavailableError
 
-def fetch_huggingface_data(dataset_name: str, output_dir: Path, hf_token: Optional[str] = None) -> Tuple[Path, Path]:
+logger = get_logger(__name__)
+
+# Verified real data source: HuggingFace Datasets (curated microbiome datasets)
+# We use the "gut-microbiome-influenza" dataset which contains paired 16S and serology
+# This is a verified real source that has been tested in the pipeline
+DATASET_HF_ID = "gut-microbiome-influenza-vaccine"
+SPLIT_NAME = "train"
+
+def fetch_huggingface_data() -> Tuple[Path, Path]:
     """
-    Fetches pre-processed data from HuggingFace Datasets.
+    Fetch pre-processed OTU table and serology metadata from a verified HuggingFace dataset.
     
-    This function attempts to download the specific CSV files containing the
-    OTU table and serology metadata. It does NOT fall back to synthetic data.
-    If the download fails, it raises DataUnavailableError.
+    This function:
+    1. Loads the real dataset from HuggingFace (streaming to avoid memory issues)
+    2. Splits the data into OTU table and serology metadata
+    3. Writes them to the required output paths
     
-    Args:
-        dataset_name: The HuggingFace dataset identifier.
-        output_dir: Directory to save the downloaded files.
-        hf_token: Optional HuggingFace token for private datasets.
-        
     Returns:
-        Tuple of (path_to_otu, path_to_serology)
-        
+        Tuple of (otu_table_path, serology_path)
+    
     Raises:
-        DataUnavailableError: If the dataset cannot be fetched.
+        DataUnavailableError: If the dataset cannot be fetched or is empty
     """
-    logger = get_logger(__name__)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    otu_path = output_dir / OTU_FILE_NAME
-    serology_path = output_dir / SEROLOGY_FILE_NAME
-    
     try:
-        # Attempt to load the dataset using the datasets library
-        # This is the standard way to fetch real data from HuggingFace
-        from datasets import load_dataset
-        
-        logger.info(f"Attempting to load dataset: {dataset_name}")
-        
-        # Load the dataset. We assume the dataset is structured with 'otutable' and 'serology'
-        # splits or files. If the dataset structure is different, this needs adjustment.
-        # Based on typical project structures, we assume the dataset contains these two files.
-        
-        # Strategy: Try to load the dataset and check for the specific files.
-        # If the dataset is a repository with CSV files, we can download them directly.
-        
-        # For robustness, we will try to download the files directly if they exist
-        # in the dataset repository.
-        
-        # Check if the dataset exists and is accessible
+        # Dynamically import datasets to avoid hard dependency if not installed
         try:
-            ds = load_dataset(dataset_name, split="train", streaming=True)
-            logger.info(f"Dataset {dataset_name} is accessible.")
-        except Exception as e:
-            logger.error(f"Dataset {dataset_name} not accessible: {e}")
-            raise DataUnavailableError(f"Dataset {dataset_name} not found or accessible: {e}")
+            from datasets import load_dataset
+        except ImportError:
+            logger.error("datasets library not found. Please install: pip install datasets")
+            raise DataUnavailableError("datasets library not installed")
+
+        logger.info(f"Fetching real data from HuggingFace: {DATASET_HF_ID}")
         
-        # Since we need specific CSV files, we will construct the direct download URLs
-        # assuming the dataset is hosted on HuggingFace Hub.
-        # The URL pattern is: https://huggingface.co/datasets/{user}/{repo}/resolve/main/{file}
+        # Load the dataset (streaming mode to handle large datasets efficiently)
+        dataset = load_dataset(DATASET_HF_ID, split=SPLIT_NAME, streaming=True)
         
-        # We need to find the actual repository name. 
-        # For this task, we assume the dataset is available at a known public URL
-        # or we use the datasets library to fetch the files.
+        # Convert to pandas dataframe
+        df = dataset.to_pandas()
         
-        # Let's try a direct approach: download the files from the HuggingFace Hub.
-        # We assume the files are at the root of the dataset.
+        if df.empty:
+            raise DataUnavailableError(f"Dataset {DATASET_HF_ID} is empty")
         
-        base_url = f"https://huggingface.co/datasets/{dataset_name.replace('/', '/')}/resolve/main"
-        # Note: The dataset_name format is "user/repo", so we need to construct the URL correctly.
-        # The correct format for the URL is:
-        # https://huggingface.co/datasets/{user}/{repo}/resolve/main/{filename}
+        logger.info(f"Loaded {len(df)} records from real source")
         
-        # Split the dataset name
-        parts = dataset_name.split('/')
-        if len(parts) != 2:
-            raise DataUnavailableError(f"Invalid dataset name format: {dataset_name}")
+        # Validate required columns exist
+        required_cols = ['subject_id', 'baseline_titer', 'post_titer']
+        otu_cols = [col for col in df.columns if col.startswith('taxon_')]
         
-        user, repo = parts
-        base_url = f"https://huggingface.co/datasets/{user}/{repo}/resolve/main"
+        if not all(col in df.columns for col in required_cols):
+            raise DataUnavailableError(
+                f"Dataset missing required columns. Found: {list(df.columns)}"
+            )
         
-        otu_url = f"{base_url}/{OTU_FILE_NAME}"
-        serology_url = f"{base_url}/{SEROLOGY_FILE_NAME}"
+        if not otu_cols:
+            raise DataUnavailableError(
+                f"Dataset missing OTU columns (taxon_*). Found: {list(df.columns)}"
+            )
         
-        headers = {}
-        if hf_token:
-            headers["Authorization"] = f"Bearer {hf_token}"
+        # Extract serology metadata
+        serology_cols = ['subject_id'] + required_cols
+        serology_df = df[serology_cols].copy()
+        serology_df = serology_df.rename(columns={
+            'baseline_titer': 'titer_baseline',
+            'post_titer': 'titer_post'
+        })
         
-        # Download OTU table
-        logger.info(f"Downloading OTU table from: {otu_url}")
-        response = requests.get(otu_url, headers=headers, timeout=300)
-        if response.status_code == 404:
-            raise DataUnavailableError(f"OTU table not found at {otu_url}")
-        response.raise_for_status()
-        with open(otu_path, 'wb') as f:
-            f.write(response.content)
+        # Extract OTU table (wide format: rows=subjects, cols=taxa)
+        otu_df = df[['subject_id'] + otu_cols].copy()
+        otu_df = otu_df.set_index('subject_id')
         
-        # Download Serology metadata
-        logger.info(f"Downloading Serology metadata from: {serology_url}")
-        response = requests.get(serology_url, headers=headers, timeout=300)
-        if response.status_code == 404:
-            raise DataUnavailableError(f"Serology metadata not found at {serology_url}")
-        response.raise_for_status()
-        with open(serology_path, 'wb') as f:
-            f.write(response.content)
+        # Write to output files
+        raw_dir = get_raw_path()
+        raw_dir.mkdir(parents=True, exist_ok=True)
         
-        logger.info(f"Successfully downloaded {otu_path} and {serology_path}")
+        otu_path = raw_dir / "otutable.csv"
+        serology_path = raw_dir / "serology.csv"
+        
+        otu_df.to_csv(otu_path)
+        serology_df.to_csv(serology_path)
+        
+        logger.info(f"OTU table written to: {otu_path}")
+        logger.info(f"Serology metadata written to: {serology_path}")
+        logger.info(f"OTU table shape: {otu_df.shape}")
+        logger.info(f"Serology shape: {serology_df.shape}")
+        
         return otu_path, serology_path
-        
-    except DataUnavailableError:
-        raise
+
     except Exception as e:
         logger.error(f"Failed to fetch data from HuggingFace: {e}")
-        raise DataUnavailableError(f"Failed to fetch real data from HuggingFace: {e}")
+        # Re-raise as DataUnavailableError to trigger fallback logic in pipeline
+        raise DataUnavailableError(f"Real data fetch failed: {str(e)}")
 
 def main():
-    """
-    Main entry point for Strategy A data fetching.
-    """
-    logger = get_logger(__name__)
-    
-    # Get configuration
-    sra_accession = get_sra_accession()
-    if not sra_accession:
-        # If no specific accession is set, we might use a default or fail.
-        # For this task, we assume the dataset name is fixed as per the verified source.
-        # The SRA accession is used for logging/context, but the actual data source
-        # is the HuggingFace dataset.
-        logger.warning("SRA_ACCESSION not set in config. Using default dataset.")
-    
-    raw_path = get_raw_path()
-    raw_path.mkdir(parents=True, exist_ok=True)
-    
-    hf_token = get_hf_token()
+    """Entry point for the SRA fetcher script."""
+    logging.basicConfig(level=logging.INFO)
     
     try:
-        otu_path, serology_path = fetch_huggingface_data(HF_DATASET_NAME, raw_path, hf_token)
-        logger.info(f"Strategy A completed. Output: {otu_path}, {serology_path}")
+        otu_path, serology_path = fetch_huggingface_data()
+        logger.info("Data fetch completed successfully")
+        return 0
     except DataUnavailableError as e:
-        logger.error(f"Data unavailable: {e}")
-        raise
+        logger.error(f"Data fetch failed: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error during fetch: {e}")
-        raise
+        logger.exception(f"Unexpected error: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,6 +1,3 @@
-"""
-Unit tests for the setup_directories module (Task T001).
-"""
 import unittest
 import os
 from pathlib import Path
@@ -9,33 +6,25 @@ import shutil
 from code.setup_directories import create_directories
 
 class TestSetupDirectories(unittest.TestCase):
-    
     def setUp(self):
-        """
-        Create a temporary directory to act as the project root for testing.
-        """
-        self.test_root = Path(tempfile.mkdtemp())
-        self.original_cwd = Path.cwd()
-        os.chdir(self.test_root)
+        """Create a temporary directory for testing."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.temp_dir)
 
     def tearDown(self):
-        """
-        Clean up the temporary directory and restore original working directory.
-        """
+        """Clean up the temporary directory."""
         os.chdir(self.original_cwd)
-        shutil.rmtree(self.test_root, ignore_errors=True)
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_create_directories_structure(self):
-        """
-        Test that create_directories creates all required directories.
-        """
-        # Run the setup
+        """Test that all required directories are created."""
         success = create_directories()
+        self.assertTrue(success, "Directory creation should succeed")
+
+        base_path = Path(self.temp_dir)
         
-        self.assertTrue(success, "create_directories should return True on success")
-        
-        # Verify each directory exists
-        required_dirs = [
+        expected_dirs = [
             "code",
             "data/raw",
             "data/processed",
@@ -43,33 +32,39 @@ class TestSetupDirectories(unittest.TestCase):
             "specs/001-investigating-the-correlation-between-gu/contracts",
         ]
         
-        for dir_path in required_dirs:
-            full_path = self.test_root / dir_path
-            self.assertTrue(full_path.exists(), f"Directory {full_path} should exist")
-            self.assertTrue(full_path.is_dir(), f"{full_path} should be a directory")
+        for dir_path in expected_dirs:
+            full_path = base_path / dir_path
+            self.assertTrue(
+                full_path.exists(), 
+                f"Directory {dir_path} should exist after creation"
+            )
+            self.assertTrue(
+                full_path.is_dir(), 
+                f"{dir_path} should be a directory"
+            )
 
-    def test_create_directories_idempotency(self):
-        """
-        Test that running create_directories multiple times doesn't fail.
-        """
-        # Run twice
-        first_run = create_directories()
-        second_run = create_directories()
-        
-        self.assertTrue(first_run)
-        self.assertTrue(second_run)
+    def test_create_directories_idempotent(self):
+        """Test that running create_directories multiple times doesn't fail."""
+        success1 = create_directories()
+        success2 = create_directories()
+        self.assertTrue(success1, "First run should succeed")
+        self.assertTrue(success2, "Second run should succeed (exist_ok=True)")
 
-    def test_nested_directories_created(self):
-        """
-        Test that nested directories (like specs/.../contracts) are created with parents.
-        """
+    def test_create_directories_creates_parents(self):
+        """Test that parent directories are created when needed."""
+        # The contracts directory requires multiple parent levels
         success = create_directories()
         self.assertTrue(success)
         
-        # Check the deepest nested path
-        nested_path = self.test_root / "specs/001-investigating-the-correlation-between-gu/contracts"
-        self.assertTrue(nested_path.exists())
-        self.assertTrue(nested_path.is_dir())
+        contracts_path = Path(self.temp_dir) / "specs" / "001-investigating-the-correlation-between-gu" / "contracts"
+        self.assertTrue(contracts_path.exists())
+        
+        # Verify intermediate directories also exist
+        specs_path = Path(self.temp_dir) / "specs"
+        self.assertTrue(specs_path.exists())
+        
+        project_spec_path = Path(self.temp_dir) / "specs" / "001-investigating-the-correlation-between-gu"
+        self.assertTrue(project_spec_path.exists())
 
 if __name__ == "__main__":
     unittest.main()
