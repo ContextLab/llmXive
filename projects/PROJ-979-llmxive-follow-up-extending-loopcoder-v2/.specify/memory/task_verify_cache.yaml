@@ -42,44 +42,29 @@ T008b:
     nor shown, and no content with the three required sections (Hypothesis, Pilot
     Results, Rationale) is provided. Without this document, the pilot comparison and
     baseline hypothesis are not documented.
-T012a:
-  c: false
-  h: 00db0c616610fa74c00b8bec455317ee35f1d2fda9d4fb3628ec333980379450
-  r: The required input `data/processed/filtered_splits.json` and the output `data/processed/entropy_results.csv`
-    (as well as the exclusion log) are missing, so the pipeline cannot be executed
-    and the artifact is not produced. Additionally, the provided `entropy.py` snippet
-    is incomplete and does not show the clustering, entropy calculation, or saving
-    steps.
 T013a:
   c: false
-  h: 8b6d397ad7ce65dddb90d39d44d1934c67c0aa98e4fb6d0c9ff5b1a2f7a9e2ab
-  r: "The repository lacks the required `data/processed/filtered_splits.json` input\
-    \ and the `data/processed/convergence_results.csv` output file. Moreover, the\
-    \ provided `code/src/inference.py` is truncated and does not contain the logic\
-    \ to iterate over k\u202F=\u202F1,2,3, run the model, execute code in Docker,\
-    \ and write the results to the CSV as specified. These essential artifacts and\
-    \ functionality are missing."
+  h: b06886a3db7bd82f6ca9384088261d006e1e154c5d1c9ea6eaadc63bb6ddbb01
+  r: "The required input file `data/processed/filtered_splits.json` does not exist,\
+    \ and the expected output artifact `data/processed/convergence_results.csv` is\
+    \ missing. Moreover, the provided `code/src/inference.py` is truncated and does\
+    \ not show the full implementation of the k\u2011loop, Docker sandbox execution,\
+    \ or CSV writing logic. Consequently the task\u2019s specifications are not satisfied."
 T013e:
   c: false
-  h: 7fa52188febbf8d67d0588de9fefb4ad8469691100b10940c3d1d10230bf565f
-  r: "The required input `data/processed/filtered_splits.json` does not exist, and\
-    \ the expected output `data/processed/convergence_results_k4.csv` is also missing.\
-    \ Moreover, the provided `code/src/inference.py` shows no implementation of a\
-    \ sensitivity\u2011only pass for\u202Fk=4, nor any code that writes the required\
-    \ CSV. These essential artifacts are absent, so the task is not completed."
-T019:
+  h: b45f8d54f9739d6aea7399bb5805a586c41a1a1bfb53c38d8ada496194c27238
+  r: "The required dataset `data/processed/filtered_splits.json` is absent, and the\
+    \ expected output file `data/processed/convergence_results_k4.csv` was not generated.\
+    \ Moreover, the provided `code/src/inference.py` snippet stops after `generate_solution`\
+    \ and does not contain the full sensitivity\u2011inference logic (loading the\
+    \ dataset, running k=4, sandbox execution, recording results, and saving the CSV).\
+    \ These missing artifacts and incomplete implementation mean the task is not satisfied."
+T026:
   c: false
-  h: 7b6e8fdb9692fb4390679d300497b3681f45e8898c6f9484bdc50ca367b39671
-  r: "The repository lacks the required input data files (`entropy_results.csv`, `convergence_results.csv`),\
-    \ and the expected output artifacts (`router_model.pkl`, `router_metrics.json`)\
-    \ are not present. Moreover, the provided `analysis.py` does not contain any logistic\u2011\
-    regression training, model saving, or metric computation logic required by the\
-    \ task. The implementation is therefore incomplete."
-T022:
-  c: false
-  h: a98f771f2aa09c168fc4469405fc287b13eed65d8645413df361c3358e6c18e6
-  r: "The required `data/processed/router_results.csv` file is absent, and the provided\
-    \ `code/src/analysis.py` does not contain any logic for loading or reporting the\
-    \ router simulation results (it only handles entropy and convergence data). Consequently,\
-    \ the task\u2019s core deliverable\u2014integrating the router results and updating\
-    \ the report generation\u2014is not satisfied."
+  h: 927e8b21dbd05d10858b08fe3357185fc9b2ab436b9130b5722f61fe579a3485
+  r: "The repository lacks the required input files (`data/processed/convergence_results.csv`\
+    \ and `convergence_results_k4.csv`) and the output `sensitivity_sweep.json`. Moreover,\
+    \ the provided `robustness.py` does not contain any implementation of the sensitivity\u2011\
+    sweep loop, missing the logic to filter k=1, iterate over thresholds {2,3,4},\
+    \ compute \u03C1 and p\u2011values, or handle the missing k=4 file with a warning.\
+    \ These artifacts must be added and the script completed to satisfy the task."

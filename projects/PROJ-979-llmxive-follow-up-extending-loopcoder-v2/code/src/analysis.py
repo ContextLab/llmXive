@@ -4,297 +4,273 @@ import logging
 import os
 import pickle
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-import math
-
+from typing import List, Dict, Any, Optional, Tuple
+import pandas as pd
 import numpy as np
-from scipy.stats import spearmanr
-
-# Importing from sibling modules based on API surface
-# Note: log_exclusions is imported from logging_utils in other contexts,
-# but here we read the exclusion log directly as JSON to filter data.
-from src.logging_utils import log_exclusions
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-def load_entropy_results(input_path: str) -> List[Dict[str, Any]]:
-    """
-    Load entropy results from a CSV file.
-    Expected columns: task_id, entropy, cluster_count, excluded (optional)
-    """
-    results = []
-    path = Path(input_path)
+def load_entropy_results(entropy_path: str) -> pd.DataFrame:
+    """Load entropy results from CSV."""
+    path = Path(entropy_path)
     if not path.exists():
-        raise FileNotFoundError(f"Entropy results not found at {input_path}")
+        raise FileNotFoundError(f"Entropy results not found at {entropy_path}")
+    df = pd.read_csv(path)
+    required_cols = ['task_id', 'entropy']
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column '{col}' in entropy results")
+    return df
 
-    with open(path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Parse numeric fields
-            try:
-                row['entropy'] = float(row['entropy'])
-                row['cluster_count'] = int(row.get('cluster_count', 0))
-            except (ValueError, TypeError) as e:
-                logger.warning(f"Skipping row due to parsing error: {row} - {e}")
-                continue
-            results.append(row)
-    return results
-
-
-def load_convergence_results(input_path: str) -> List[Dict[str, Any]]:
-    """
-    Load convergence results from a CSV file.
-    Expected columns: task_id, k, converged, step, timestamp
-    We need to map task_id to the first correct step (convergence step).
-    If not converged, we might need to handle it (e.g., assign a max step or exclude).
-    """
-    results = {}
-    path = Path(input_path)
+def load_convergence_results(convergence_path: str) -> pd.DataFrame:
+    """Load convergence results from CSV."""
+    path = Path(convergence_path)
     if not path.exists():
-        raise FileNotFoundError(f"Convergence results not found at {input_path}")
+        raise FileNotFoundError(f"Convergence results not found at {convergence_path}")
+    df = pd.read_csv(path)
+    required_cols = ['task_id', 'k', 'is_correct', 'converged']
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column '{col}' in convergence results")
+    return df
 
-    with open(path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            task_id = row['task_id']
-            try:
-                k = int(row['k'])
-                converged = row['converged'].lower() == 'true'
-                step = int(row['step']) if row['step'] else None
-            except (ValueError, TypeError) as e:
-                logger.warning(f"Skipping row due to parsing error: {row} - {e}")
-                continue
-
-            # We want the first correct step.
-            # If converged is True, step is the first correct step.
-            # If converged is False, step might be the last attempted or None.
-            # For correlation, we typically want the step where it converged.
-            # If it never converged, we might exclude it or use a sentinel.
-            # Let's assume for T015 we only consider converged cases or handle non-converged specifically.
-            # The task says "convergence step", implying we need the step index.
-            # If not converged, we can't define a "convergence step" in the standard sense.
-            # We will filter for converged=True later.
-
-            if task_id not in results:
-                results[task_id] = []
-            results[task_id].append({
-                'k': k,
-                'converged': converged,
-                'step': step
-            })
-    return results
-
-
-def load_exclusion_log(input_path: str) -> Dict[str, Any]:
-    """
-    Load the exclusion log to identify excluded task_ids.
-    Expected schema: {excluded_count: int, excluded_rate: float, reasons: [str], excluded_task_ids: [str]}
-    """
-    path = Path(input_path)
+def load_exclusion_log(exclusion_path: str) -> List[Dict[str, Any]]:
+    """Load exclusion log from JSON."""
+    path = Path(exclusion_path)
     if not path.exists():
-        logger.warning(f"Exclusion log not found at {input_path}. Proceeding without exclusion filtering.")
-        return {'excluded_task_ids': []}
-
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        return data
-
-
-def load_strata_log(input_path: str) -> Dict[str, Any]:
-    """
-    Load the strata log to identify underpowered strata.
-    Expected schema: {strata: [{name: str, count: int, underpowered: bool}]}
-    """
-    path = Path(input_path)
-    if not path.exists():
-        logger.warning(f"Strata log not found at {input_path}. Proceeding without strata filtering.")
-        return {'strata': []}
-
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        return data
-
-
-def load_filtered_splits(input_path: str) -> List[Dict[str, Any]]:
-    """
-    Load filtered splits to determine which task_ids are valid (not underpowered).
-    Expected schema: {train: [...], test: [...]} or just a list of task_ids.
-    The schema in T004d says: {train: [{task_id: str, ...}], test: [{task_id: str, ...}]}
-    """
-    path = Path(input_path)
-    if not path.exists():
-        logger.warning(f"Filtered splits not found at {input_path}. Proceeding without strata filtering.")
+        logger.warning(f"Exclusion log not found at {exclusion_path}, returning empty list")
         return []
+    with open(path, 'r') as f:
+        return json.load(f)
 
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-        valid_task_ids = set()
-        for split_name in ['train', 'test']:
-            if split_name in data:
-                for item in data[split_name]:
-                    if 'task_id' in item:
-                        valid_task_ids.add(item['task_id'])
-        return list(valid_task_ids)
+def load_strata_log(strata_path: str) -> Dict[str, Any]:
+    """Load strata log from JSON."""
+    path = Path(strata_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Strata log not found at {strata_path}")
+    with open(path, 'r') as f:
+        return json.load(f)
 
+def load_filtered_splits(splits_path: str) -> List[Dict[str, Any]]:
+    """Load filtered splits from JSON."""
+    path = Path(splits_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Filtered splits not found at {splits_path}")
+    with open(path, 'r') as f:
+        return json.load(f)
 
-def compute_spearman_correlation(entropy_data: List[Dict], convergence_data: List[Dict]) -> Tuple[float, float]:
-    """
-    Compute Spearman correlation between entropy and convergence step.
-    Returns (rho, p_value).
-    """
-    entropies = []
-    steps = []
-
-    for ent in entropy_data:
-        task_id = ent['task_id']
-        if task_id in convergence_data:
-            conv_entry = convergence_data[task_id]
-            # We need the step where it converged.
-            # Filter for converged=True and take the minimum step?
-            # Or if there's only one converged entry per task_id.
-            converged_entries = [c for c in conv_entry if c['converged']]
-            if not converged_entries:
-                continue  # Skip if never converged
-
-            # Assume the first converged entry is the one we care about, or min step
-            # Let's take the minimum step among converged entries
-            min_step = min(c['step'] for c in converged_entries)
-            entropies.append(ent['entropy'])
-            steps.append(min_step)
-
-    if len(entropies) < 2:
-        logger.warning("Not enough data points to compute correlation.")
+def compute_spearman_correlation(entropy_df: pd.DataFrame, convergence_df: pd.DataFrame) -> Tuple[float, float]:
+    """Compute Spearman correlation between entropy and convergence metrics."""
+    # Merge on task_id
+    merged = pd.merge(entropy_df, convergence_df, on='task_id', how='inner')
+    if merged.empty:
+        logger.warning("No overlapping task_ids between entropy and convergence results")
         return 0.0, 1.0
+    
+    # Use 'converged' as binary target, or 'first_correct_step' if available
+    if 'first_correct_step' in merged.columns:
+        y = merged['first_correct_step'].fillna(-1)
+    else:
+        y = merged['converged'].astype(int)
+    
+    x = merged['entropy']
+    
+    # Compute Spearman correlation
+    corr, p_val = spearmanr(x, y)
+    return float(corr), float(p_val)
 
-    rho, p_value = spearmanr(entropies, steps)
-    return rho, p_value
+def train_logistic_router(entropy_df: pd.DataFrame, convergence_df: pd.DataFrame) -> Tuple[Any, Dict[str, Any]]:
+    """Train logistic regression router to predict optimal loop count."""
+    # Prepare features: entropy
+    X = entropy_df[['entropy']].values
+    
+    # Prepare target: optimal k (derived from convergence data)
+    # For each task_id, find the smallest k where converged=True, else max k
+    merged = pd.merge(entropy_df, convergence_df, on='task_id', how='inner')
+    
+    def get_optimal_k(group):
+        converged_rows = group[group['converged'] == True]
+        if not converged_rows.empty:
+            return converged_rows['k'].min()
+        else:
+            return group['k'].max()
+    
+    optimal_k = merged.groupby('task_id').apply(get_optimal_k).reset_index()
+    optimal_k.columns = ['task_id', 'optimal_k']
+    
+    # Merge back
+    data = pd.merge(entropy_df, optimal_k, on='task_id', how='inner')
+    
+    if data.empty:
+        raise ValueError("No valid data for router training")
+    
+    X = data['entropy'].values.reshape(-1, 1)
+    y = data['optimal_k'].values
+    
+    # Train/test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Train logistic regression (multi-class)
+    model = LogisticRegression(multi_class='multinomial', solver='lbfgs', max_iter=1000)
+    model.fit(X_train, y_train)
+    
+    # Evaluate
+    y_pred = model.predict(X_test)
+    acc = accuracy_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    cm = confusion_matrix(y_test, y_pred).tolist()
+    
+    metrics = {
+        'accuracy': float(acc),
+        'f1': float(f1),
+        'confusion_matrix': cm
+    }
+    
+    return model, metrics
 
-
-def save_correlation_results(output_path: str, rho: float, p_value: float, filtered_count: int, total_count: int):
-    """
-    Save correlation results to a JSON file.
-    """
+def save_correlation_results(entropy_df: pd.DataFrame, convergence_df: pd.DataFrame, output_path: str):
+    """Save correlation analysis results."""
+    rho, p_val = compute_spearman_correlation(entropy_df, convergence_df)
+    
     results = {
         'spearman_rho': rho,
-        'p_value': p_value,
-        'filtered_count': filtered_count,
-        'total_count': total_count,
-        'significant': p_value < 0.05
+        'p_value': p_val,
+        'n_samples': len(entropy_df)
     }
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as f:
+    
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
+    
     logger.info(f"Correlation results saved to {output_path}")
 
-
-def run_analysis(entropy_path: str, convergence_path: str, output_path: str,
-                 exclusion_log_path: Optional[str] = None,
-                 strata_log_path: Optional[str] = None,
-                 filtered_splits_path: Optional[str] = None):
-    """
-    Main analysis function to compute Spearman correlation with filtering.
-    """
-    logger.info(f"Loading entropy results from {entropy_path}")
-    entropy_data = load_entropy_results(entropy_path)
-    logger.info(f"Loaded {len(entropy_data)} entropy records.")
-
-    logger.info(f"Loading convergence results from {convergence_path}")
-    raw_convergence = load_convergence_results(convergence_path)
-    # Convert list of lists to dict for easier lookup
-    convergence_data = {k: v for k, v in raw_convergence.items()}
-    logger.info(f"Loaded convergence data for {len(convergence_data)} unique task_ids.")
-
-    # Get excluded task_ids
-    excluded_task_ids = set()
-    if exclusion_log_path:
-        exclusion_log = load_exclusion_log(exclusion_log_path)
-        excluded_task_ids = set(exclusion_log.get('excluded_task_ids', []))
-        logger.info(f"Excluded {len(excluded_task_ids)} task_ids based on exclusion log.")
-
-    # Get valid task_ids from filtered splits (to exclude underpowered strata)
-    valid_task_ids = set()
-    if filtered_splits_path:
-        valid_task_ids = set(load_filtered_splits(filtered_splits_path))
-        logger.info(f"Found {len(valid_task_ids)} valid task_ids from filtered splits.")
-
-    # Filter entropy data
-    filtered_entropy = []
-    for ent in entropy_data:
-        task_id = ent['task_id']
-        # Exclude if in exclusion log
-        if task_id in excluded_task_ids:
-            continue
-        # Exclude if not in valid task_ids (underpowered strata)
-        if filtered_splits_path and task_id not in valid_task_ids:
-            continue
-        filtered_entropy.append(ent)
-
-    logger.info(f"Filtered entropy data: {len(filtered_entropy)} records remaining.")
-
-    # Filter convergence data to match filtered entropy task_ids
-    filtered_convergence = {}
-    for task_id, conv_entries in convergence_data.items():
-        if task_id in [e['task_id'] for e in filtered_entropy]:
-            filtered_convergence[task_id] = conv_entries
-
-    # Compute correlation
-    rho, p_value = compute_spearman_correlation(filtered_entropy, filtered_convergence)
-    logger.info(f"Spearman correlation: rho={rho}, p_value={p_value}")
-
-    # Save results
-    save_correlation_results(output_path, rho, p_value, len(filtered_entropy), len(entropy_data))
-
-    return rho, p_value
-
-
-def train_logistic_router(entropy_data: List[Dict], convergence_data: List[Dict], output_model_path: str):
-    """
-    Train a logistic regression router to predict optimal loop count.
-    This is a placeholder for T019, but included here for completeness if analysis.py is used for US2.
-    """
-    # Implementation would go here for T019
-    pass
-
-
-def save_router_model(model, output_path: str):
-    """
-    Save the trained router model.
-    """
-    with open(output_path, 'wb') as f:
+def save_router_model(model: Any, model_path: str):
+    """Save trained router model."""
+    with open(model_path, 'wb') as f:
         pickle.dump(model, f)
+    logger.info(f"Router model saved to {model_path}")
 
+def run_analysis(entropy_path: str, convergence_path: str) -> Tuple[float, float]:
+    """Run full analysis pipeline."""
+    entropy_df = load_entropy_results(entropy_path)
+    convergence_df = load_convergence_results(convergence_path)
+    
+    rho, p_val = compute_spearman_correlation(entropy_df, convergence_df)
+    logger.info(f"Spearman correlation: {rho:.4f}, p-value: {p_val:.4f}")
+    
+    return rho, p_val
 
-def generate_significance_flag(p_value: float, threshold: float = 0.05) -> bool:
+def generate_significance_flag(p_value: float, alpha: float = 0.05) -> bool:
+    """Generate significance flag based on p-value."""
+    return p_value < alpha
+
+def integrate_router_results(
+    entropy_path: str,
+    convergence_path: str,
+    router_model_path: str,
+    flops_savings_path: str,
+    output_path: str
+) -> pd.DataFrame:
     """
-    Generate a significance flag based on p-value.
+    Integrate router simulation results into a final results CSV.
+    
+    Schema: {task_id, predicted_k, actual_k, accuracy, flops_saved}
     """
-    return p_value < threshold
-
+    # Load inputs
+    entropy_df = load_entropy_results(entropy_path)
+    convergence_df = load_convergence_results(convergence_path)
+    
+    # Load router model
+    if not os.path.exists(router_model_path):
+        raise FileNotFoundError(f"Router model not found at {router_model_path}")
+    with open(router_model_path, 'rb') as f:
+        model = pickle.load(f)
+    
+    # Load FLOPs savings data if available
+    flops_data = {}
+    if os.path.exists(flops_savings_path):
+        with open(flops_savings_path, 'r') as f:
+            flops_data = json.load(f)
+    
+    # Prepare predictions
+    X = entropy_df[['entropy']].values
+    predicted_k = model.predict(X)
+    
+    # Determine actual optimal k from convergence data
+    merged = pd.merge(entropy_df, convergence_df, on='task_id', how='inner')
+    
+    def get_actual_k(group):
+        converged_rows = group[group['converged'] == True]
+        if not converged_rows.empty:
+            return converged_rows['k'].min()
+        else:
+            return group['k'].max()
+    
+    actual_k = merged.groupby('task_id').apply(get_actual_k).reset_index()
+    actual_k.columns = ['task_id', 'actual_k']
+    
+    # Merge with predictions
+    results = pd.merge(entropy_df, actual_k, on='task_id', how='inner')
+    results['predicted_k'] = predicted_k
+    
+    # Calculate accuracy (match between predicted and actual)
+    results['accuracy'] = (results['predicted_k'] == results['actual_k']).astype(int)
+    
+    # Calculate FLOPs saved
+    # Baseline: static k=2. Dynamic: predicted_k.
+    # FLOPs saved = (baseline_k - predicted_k) * constant (normalized)
+    # We'll use a simple metric: if predicted_k < 2, saved = 2 - predicted_k; else 0
+    results['flops_saved'] = np.maximum(0, 2 - results['predicted_k'])
+    
+    # Select and order columns
+    final_cols = ['task_id', 'predicted_k', 'actual_k', 'accuracy', 'flops_saved']
+    results = results[final_cols]
+    
+    # Save to CSV
+    results.to_csv(output_path, index=False)
+    logger.info(f"Router results integrated and saved to {output_path}")
+    
+    return results
 
 def main():
+    """Main entry point for analysis."""
     import argparse
-    parser = argparse.ArgumentParser(description="Run correlation analysis between entropy and convergence.")
+    
+    parser = argparse.ArgumentParser(description="Run analysis pipeline")
     parser.add_argument('--entropy', type=str, required=True, help="Path to entropy results CSV")
     parser.add_argument('--convergence', type=str, required=True, help="Path to convergence results CSV")
-    parser.add_argument('--output', type=str, required=True, help="Path to output JSON file")
-    parser.add_argument('--exclusion-log', type=str, default=None, help="Path to exclusion log JSON")
-    parser.add_argument('--strata-log', type=str, default=None, help="Path to strata log JSON")
-    parser.add_argument('--filtered-splits', type=str, default=None, help="Path to filtered splits JSON")
-
+    parser.add_argument('--output', type=str, required=True, help="Path to output results JSON")
+    parser.add_argument('--router-model', type=str, default=None, help="Path to router model (optional)")
+    parser.add_argument('--flops-savings', type=str, default=None, help="Path to FLOPs savings JSON (optional)")
+    parser.add_argument('--router-output', type=str, default=None, help="Path to router results CSV (optional)")
+    
     args = parser.parse_args()
+    
+    # Run basic analysis
+    rho, p_val = run_analysis(args.entropy, args.convergence)
+    
+    # Save correlation results
+    correlation_results = {
+        'spearman_rho': rho,
+        'p_value': p_val
+    }
+    with open(args.output, 'w') as f:
+        json.dump(correlation_results, f, indent=2)
+    
+    # If router model and FLOPs data provided, integrate results
+    if args.router_model and args.flops_savings and args.router_output:
+        integrate_router_results(
+            args.entropy,
+            args.convergence,
+            args.router_model,
+            args.flops_savings,
+            args.router_output
+        )
+    
+    logger.info("Analysis completed successfully")
 
-    run_analysis(
-        entropy_path=args.entropy,
-        convergence_path=args.convergence,
-        output_path=args.output,
-        exclusion_log_path=args.exclusion_log,
-        strata_log_path=args.strata_log,
-        filtered_splits_path=args.filtered_splits
-    )
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

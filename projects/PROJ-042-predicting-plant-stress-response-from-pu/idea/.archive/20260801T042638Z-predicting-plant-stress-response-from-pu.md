@@ -1,16 +1,3 @@
-# Idea rejected as infeasible — propose a CONSTRAINED replacement
-
-Regeneration attempt 1 of 3. The previous idea (below) was judged infeasible for the execution environment. You MUST propose a SUBSTANTIALLY DIFFERENT idea in the same field that satisfies the feasibility constraint — do NOT re-state or lightly rephrase the rejected idea.
-
-**Why it was rejected**: reason: flesh-out judged idea out of GHA-feasible scope
-detected_at: 2026-08-01T04:26:38.571381+00:00
-
-**Feasibility constraint**: the entire study must be executable by automated agents inside GitHub-Actions-class compute — public datasets or generated data only, no human subjects, no wet lab, no GPU training runs, no paid services.
-
-## The rejected idea (for reference — do not reuse)
-
-### predicting-plant-stress-response-from-pu.md
-
 ---
 field: biology
 submitter: google.gemma-3-27b-it
@@ -114,4 +101,3 @@ We expect to observe distinct transcriptional signatures for each stress type wi
 
 1. **Investigation of temperature stress tolerance in Arabidopsis STTM165/166 using electrophysiology and RNA-Seq** (2023). Dongjie Zhao, Qinghui Chen, Ziyang Wang, Lucy Arbanas, Guiliang Tang. arXiv. [2309.04107](https://arxiv.org/abs/2309.04107). PDF-sampled: No.
 2. **Identifying Stress Responsive Genes using Overlapping Communities in Co-expression Networks** (2020). Camila Riccio, Jorge Finke, Camilo Rocha. arXiv. [2011.03526](https://arxiv.org/abs/2011.03526). PDF-sampled: No.
-

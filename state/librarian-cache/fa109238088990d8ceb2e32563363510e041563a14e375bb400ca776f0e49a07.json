@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-11T00:28:26Z",
+  "fetched_at": "2026-08-01T04:26:09Z",
   "field": "biology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "Predicting Plant Stress Response from Publicly Available Transcriptomic Data",
       "target_n": 5
     },
-    "duration_seconds": 80.041,
-    "ended_at": "2026-07-11T00:28:26Z",
+    "duration_seconds": 48.148,
+    "ended_at": "2026-08-01T04:26:09Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Plant transcriptomics under abiotic stress"
+          "machine learning plant stress transcriptomics"
         ],
         [
           2,
-          "Gene expression profiling in stressed plants"
+          "deep learning gene expression stress prediction"
         ],
         [
           3,
-          "Predictive modeling of plant stress using RNA-seq"
+          "abiotic stress gene expression classification"
         ],
         [
           4,
-          "Public plant transcriptome databases stress response"
+          "biotic stress response transcriptomic profiling"
         ],
         [
           5,
-          "Machine learning for plant stress biomarker discovery"
+          "drought stress transcriptome machine learning"
         ],
         [
           6,
-          "Transcriptomic signatures of drought and heat stress in plants"
+          "heat stress gene expression predictive models"
         ],
         [
           7,
-          "Meta-analysis of plant stress gene expression datasets"
+          "salt stress transcriptomic biomarkers"
         ],
         [
           8,
-          "Data mining public plant expression repositories for stress"
+          "plant stress tolerance gene expression signatures"
         ],
         [
           9,
-          "Computational prediction of plant physiological stress"
+          "RNA-seq stress response pattern recognition"
         ],
         [
           10,
-          "Integrative analysis of plant stress transcriptomics"
+          "transcriptomic data mining plant stress"
         ],
         [
           11,
-          "Deep learning approaches to plant stress prediction from omics"
+          "public gene expression database stress analysis"
         ],
         [
           12,
-          "Stress-responsive gene networks in plants"
+          "Arabidopsis thaliana stress transcriptomics"
         ],
         [
           13,
-          "Cross-species plant stress transcriptome comparison"
+          "crop stress prediction from RNA-seq data"
         ],
         [
           14,
-          "Automated stress classification from plant gene expression"
+          "unsupervised learning plant stress clustering"
         ],
         [
           15,
-          "Plant stress phenotyping via transcriptomic data integration"
+          "supervised learning stress phenotype prediction"
         ],
         [
           16,
-          "Leveraging public RNA-seq data for plant stress resilience"
+          "gene regulatory networks under stress"
         ],
         [
           17,
-          "Transcriptome-wide association studies for plant stress traits"
+          "meta-analysis plant stress transcriptomes"
         ],
         [
           18,
-          "Early detection of plant stress via gene expression patterns"
+          "feature selection stress response genes"
         ],
         [
           19,
-          "Bioinformatics pipelines for plant stress response prediction"
+          "transfer learning plant stress prediction"
         ],
         [
           20,
-          "Unsupervised learning on plant stress transcriptomic profiles"
+          "integrative omics plant stress response"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Plant transcriptomics under abiotic stress": 5,
-        "Predicting Plant Stress Response from Publicly Available Transcriptomic Data biology": 0
+        "Predicting Plant Stress Response from Publicly Available Transcriptomic Data biology": 0,
+        "machine learning plant stress transcriptomics": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "transcriptome decontamination stress artifact removal",
-      "Arabidopsis drought heat salt RNA-seq",
-      "transcriptional regulatory network gene co-expression",
-      "differential expression biomarker validation stress tolerance",
-      "abiotic stress signaling pathway crosstalk mechanism"
+      "transcriptome profiling abiotic stress",
+      "Arabidopsis thaliana drought heat stress RNA-seq",
+      "gene co-expression network WGCNA stress",
+      "differentially expressed genes stress biomarker",
+      "transcriptional regulation signaling pathway stress"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,21 +120,21 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1502.02001"
+        "2309.04107"
       ]
     },
     "per_query_hit_count": {
-      "Arabidopsis drought heat salt RNA-seq": 3,
+      "Arabidopsis thaliana drought heat stress RNA-seq": 3,
       "Predicting Plant Stress Response from Publicly Available Transcriptomic Data biology": 3,
-      "abiotic stress signaling pathway crosstalk mechanism": 3,
-      "differential expression biomarker validation stress tolerance": 3,
-      "transcriptional regulatory network gene co-expression": 3,
-      "transcriptome decontamination stress artifact removal": 3
+      "differentially expressed genes stress biomarker": 3,
+      "gene co-expression network WGCNA stress": 3,
+      "transcriptional regulation signaling pathway stress": 3,
+      "transcriptome profiling abiotic stress": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 3,
+      "rejected_count": 6,
       "rejections": [
         {
           "primary_pointer": "2011.11597",
@@ -142,19 +142,34 @@
           "title": "Abiotic Stress Prediction from RGB-T Images of Banana Plantlets"
         },
         {
-          "primary_pointer": "1709.09496",
-          "rationale": "The paper focuses on drought stress classification using 3D phenotypic models (canopy structure and images) rather than transcriptomic data, meaning it does not measure the same biological mechanism (gene expression) or the specific data domain (transcriptomics) required by the user's question. While both address plant stress, the paper falls under the \"Distinct construct sharing only homonym keywords\" rejection rule because it studies a completely different modality (phenotyping vs. genomics) w",
-          "title": "Drought Stress Classification using 3D Plant Models"
+          "primary_pointer": "2306.04338",
+          "rationale": "This paper is off-domain entirely, focusing on machine learning for official government statistics rather than plant biology, transcriptomics, or stress response mechanisms. It does not measure any biological variables, establish baselines for plant data, or provide foundational methods relevant to bioinformatics or agricultural prediction.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
         },
         {
-          "primary_pointer": "1705.06447",
-          "rationale": "The paper focuses on identifying genetic loci (QTL/SNPs) and modeling yield plasticity using crop models and genome-wide association studies, rather than analyzing or predicting stress responses using transcriptomic data. While it studies abiotic stress in plants, it does not measure the specific variable (transcriptomic data) or utilize the specific methodology (transcriptomic prediction) required by the user's question, failing to meet the criteria for same-mechanism evidence or independent/de",
-          "title": "Genetic control of plasticity of oil yield for combined abiotic stresses using a joint approach of crop modeling and genome-wide association"
+          "primary_pointer": "2006.16189",
+          "rationale": "This paper provides general ML validation recommendations for biology but does not measure plant stress response, transcriptomic data, or any variables specific to the user's research question. It fails to satisfy any acceptance criteria (a-f) as it lacks connection to the specific domain (plants), data type (transcriptomics), or mechanism (stress response prediction) the user is investigating.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on machine learning methodology (learning curves for algorithm selection) and has no measurable connection to the user's specific biological domain (plants), data type (transcriptomics), or phenomenon (stress response). It falls under the rejection rule for being off-domain entirely, as it does not address the mechanism, variables, or empirical setting required for a literature review on plant stress prediction.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "This paper is off-domain entirely — it is a general machine learning survey on active learning for data streams with no connection to plant biology, transcriptomics, or stress response prediction. It does not satisfy any acceptance criteria (a-f) as it measures neither the biological mechanism nor the domain-specific variables the user is studying.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2412.07415",
+          "rationale": "The paper focuses on predicting psychological stress in humans using survey data, which is a distinct construct and domain from the user's question regarding plant stress response and transcriptomic data. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (the word \"stress\" refers to a biological/physiological state in plants versus a psychological state in humans) and is \"Off-domain entirely\" (human psychology vs. plant biology).",
+          "title": "Machine Learning Algorithms for Detecting Mental Stress in College Students"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-11T00:27:06Z",
+    "started_at": "2026-08-01T04:25:21Z",
     "term_input": {
       "normalized": "predicting plant stress response from publicly available transcriptomic data biology",
       "raw": "Predicting Plant Stress Response from Publicly Available Transcriptomic Data biology"
@@ -178,7 +193,7 @@
           "primary_pointer": "1607.06358"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
-        "failed_at": "2026-07-11T00:27:39Z",
+        "failed_at": "2026-08-01T04:25:48Z",
         "reason": "query_irrelevant"
       },
       {
@@ -195,7 +210,7 @@
           "primary_pointer": "1110.5626"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
-        "failed_at": "2026-07-11T00:27:39Z",
+        "failed_at": "2026-08-01T04:25:48Z",
         "reason": "query_irrelevant"
       },
       {
@@ -213,60 +228,78 @@
           "primary_pointer": "1907.02664"
         },
         "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-07-11T00:27:39Z",
+        "failed_at": "2026-08-01T04:25:48Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "StyleGAN is one of the state-of-the-art image generators which is well-known for synthesizing high-resolution and hyper-realistic face images. Though images generated by vanilla StyleGAN model are visually appealing, they sometimes contain prominent circular artifacts which severely degrade the quality of generated images. In this work, we provide a systematic investigation on how those circular artifacts are formed by studying the functionalities of different stages of vanilla StyleGAN architecture, with both mechanism analysis and extensive experiments. The key modules of vanilla StyleGAN that promote such undesired artifacts are highlighted. Our investigation also explains why the artifacts are usually circular, relatively small and rarely split into 2 or more parts. Besides, we propose a simple yet effective solution to remove the prominent circular artifacts for vanilla StyleGAN, by applying a novel pixel-instance normalization (PIN) layer.",
+          "claimed_abstract": "Sulfur is a redox active element that may have helped mediate an electron flow that kickstarted life and which presently is an essential element for all life on Earth. Despite current uncertainties in global sulfur fluxes, modeling sulfur's abiotic cycling through Earth's deep history is important for understanding the impact of a planet wide biosphere on sulfur geochemical cycling and availability and vice versa. We present here an open-source, dynamical box model for estimating global sulfur fluxes and concentrations among surface and deep Earth reservoirs over Earth history, allowing tracking and estimation of the sulfur distribution in planetary reservoirs over deep time in the absence of life. While the main model presented here does not take into account the abrupt evolution of redox-shunting biosynthetic pathways such as oxygenic photosynthesis, we also modeled the abiotic sulfur cycle before and after a Great Oxidation Event-like transition on Earth-like planets. Our results suggest a considerably distinct chemical makeup of sulfur content in marine sediments in the absence of life on an Earth-like planet, leading to a marine sediment sulfate content two orders of magnitude larger than on present-day Earth and a marine sediment sulfide content 4 orders of magnitude lower than on present day Earth, attributable to the lack of microbial sulfur metabolism. This model could be useful for understanding sulfur cycling on potentially habitable exoplanets.",
           "claimed_authors": [
-            "Way Tan",
-            "Bihan Wen",
-            "Xulei Yang"
+            "Rafael Rianço-Silva",
+            "Javed Akhter Mondal",
+            "Matthew A. Pasek",
+            "Henry Jurney",
+            "Marcos Jusino-Maldonado",
+            "Henderson James Cleaves"
           ],
-          "claimed_title": "Systematic Analysis and Removal of Circular Artifacts for StyleGAN",
+          "claimed_title": "Global Abiotic Sulfur Cycling on Earth-like Terrestrial Planets",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2103.01090"
+          "claimed_year": 2026,
+          "primary_pointer": "2603.06124"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Systematic Analysis and Removal of Circular Artifacts for StyleGAN')",
-        "failed_at": "2026-07-11T00:27:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Global Abiotic Sulfur Cycling on Earth-like Terrestrial Planets')",
+        "failed_at": "2026-08-01T04:25:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Micro-services are a common architectural approach to software development today. An indispensable tool for evolving micro-service systems is A/B testing. In A/B testing, two variants, A and B, are applied in an experimental setting. By measuring the outcome of an evaluation criterion, developers can make evidence-based decisions to guide the evolution of their software. Recent studies highlight the need for enhancing the automation when such experiments are conducted in iterations. To that end, we contribute a novel artifact that aims at enhancing the automation of an experimentation pipeline of a micro-service system relying on the principles of self-adaptation. Concretely, we propose SEAByTE, an experimental framework for testing novel self-adaptation solutions to enhance the automation of continuous A/B testing of a micro-service based system. We illustrate the use of the SEAByTE artifact with a concrete example.",
+          "claimed_abstract": "Understanding the genetic basis of phenotypic plasticity is crucial for predicting and managing climate change effects on wild plants and crops. Here, we combined crop modeling and quantitative genetics to study the genetic control of oil yield plasticity for multiple abiotic stresses in sunflower.\n  First we developed stress indicators to characterize 14 environments for three abiotic stresses (cold, drought and nitrogen) using the SUNFLO crop model and phenotypic variations of three commercial varieties. The computed plant stress indicators better explain yield variation than descriptors at the climatic or crop levels. In those environments, we observed oil yield of 317 sunflower hybrids and regressed it with three selected stress indicators. The slopes of cold stress norm reaction were used as plasticity phenotypes in the following genome-wide association study.\n  Among the 65,534 tested SNP, we identified nine QTL controlling oil yield plasticity to cold stress. Associated SNP are localized in genes previously shown to be involved in cold stress responses: oligopeptide transporters, LTP, cystatin, alternative oxidase, or root development. This novel approach opens new perspectives to identify genomic regions involved in genotype-by-environment interaction of a complex traits to multiple stresses in realistic natural or agronomical conditions.",
           "claimed_authors": [
-            "Federico Quin",
-            "Danny Weyns"
+            "Brigitte Mangin",
+            "Pierre Casadebaig",
+            "Eléna Cadic",
+            "Nicolas Blanchet",
+            "Marie-Claude Boniface",
+            "Sébastien Carrère",
+            "Jérôme Gouzy",
+            "Ludovic Legrand",
+            "Baptiste Mayjonade",
+            "Nicolas Pouilly",
+            "Thierry André",
+            "Marie Coque",
+            "Joël Piquemal",
+            "Marion Laporte",
+            "Patrick Vincourt",
+            "Stéphane Muños",
+            "Nicolas B. Langlade"
           ],
-          "claimed_title": "SEAByTE: A Self-adaptive Micro-service System Artifact for Automating A/B Testing",
+          "claimed_title": "Genetic control of plasticity of oil yield for combined abiotic stresses using a joint approach of crop modeling and genome-wide association",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2204.01343"
+          "claimed_year": 2017,
+          "primary_pointer": "1705.06447"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='SEAByTE: A Self-adaptive Micro-service System Artifact for Automating A/B Testing')",
-        "failed_at": "2026-07-11T00:27:39Z",
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Genetic control of plasticity of oil yield for combined abiotic stresses using a joint approach of crop modeling and genome-wide association')",
+        "failed_at": "2026-08-01T04:25:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper attempts to undertake the study of three types of noise such as Salt and Pepper (SPN), Random variation Impulse Noise (RVIN), Speckle (SPKN). Different noise densities have been removed between 10% to 60% by using five types of filters as Mean Filter (MF), Adaptive Wiener Filter (AWF), Gaussian Filter (GF), Standard Median Filter (SMF) and Adaptive Median Filter (AMF). The same is applied to the Saturn remote sensing image and they are compared with one another. The comparative study is conducted with the help of Mean Square Errors (MSE) and Peak-Signal to Noise Ratio (PSNR). So as to choose the base method for removal of noise from remote sensing image.",
+          "claimed_abstract": "Gene expression levels exhibit stochastic variations among genetically identical organisms under the same environmental conditions (called gene expression \"noise\" or phenotype \"fluctuation\"). In yeast and Escherichia coli, positive correlations have been found between such gene expression noise and \"plasticity\" with environmental variations. To determine the universality of such correlations in both unicellular and multicellular organisms, we focused on the relationships between gene expression \"noise\" and \"plasticity\" in Arabidopsis thaliana, a multicellular model organism. In recent studies on yeast and E. coli, only some gene groups with specific properties of promoter architecture, average expression levels, and functions exhibited strong noise-plasticity correlations. However, we found strong noise-plasticity correlations for most gene groups in Arabidopsis; additionally, promoter architecture, functional essentiality of genes, and circadian rhythm appeared to have only a weak influence on the correlation strength. The differences in the characteristics of noise-plasticity correlations may result from three-dimensional chromosomal structures and/or circadian rhythm.",
           "claimed_authors": [
-            "Salem Saleh Al-amri",
-            "N. V. Kalyankar",
-            "S. D. Khamitkar"
+            "Koudai Hirao",
+            "Atsushi J Nagano",
+            "Akinori Awazu"
           ],
-          "claimed_title": "A Comparative Study of Removal Noise from Remote Sensing Image",
+          "claimed_title": "Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana",
           "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1002.1148"
+          "claimed_year": 2015,
+          "primary_pointer": "1511.03840"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='A Comparative Study of Removal Noise from Remote Sensing Image')",
-        "failed_at": "2026-07-11T00:27:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Noise-plasticity correlations of gene expression in the multicellular organism Arabidopsis thaliana')",
+        "failed_at": "2026-08-01T04:25:49Z",
         "reason": "query_irrelevant"
       },
       {
@@ -288,209 +321,154 @@
           "primary_pointer": "2605.11622"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='RNA-FM: Flow-Matching Generative Model for Genome-wide RNA-Seq Prediction')",
-        "failed_at": "2026-07-11T00:27:39Z",
+        "failed_at": "2026-08-01T04:25:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Single-cell RNA sequencing (scRNA-seq) has revolutionized our ability to analyze gene expression at the resolution of individual cells, providing unprecedented insights into cellular heterogeneity and complex biological systems. This paper reviews various advanced computational and machine learning techniques tailored for the analysis of scRNA-seq data, emphasizing their roles in different stages of the data processing pipeline.",
+          "claimed_abstract": "The Gene Ontology (GO) project is the largest resource for cataloguing gene function. The combination of solid conceptual underpinnings and a practical set of features have made the GO a widely adopted resource in the research community and an essential resource for data analysis. In this chapter, we provide a concise primer for all users of the GO. We briefly introduce the structure of the ontology and explain how to interpret annotations associated with the GO.",
           "claimed_authors": [
-            "Megha Patel",
-            "Nimish Magre",
-            "Himanshi Motwani",
-            "Nik Bear Brown"
+            "Pascale Gaudet",
+            "Nives Škunca",
+            "James C. Hu",
+            "Christophe Dessimoz"
           ],
-          "claimed_title": "Advances in Machine Learning, Statistical Methods, and AI for Single-Cell RNA Annotation Using Raw Count Matrices in scRNA-seq Data",
+          "claimed_title": "Primer on the Gene Ontology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01876"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Primer on the Gene Ontology')",
+        "failed_at": "2026-08-01T04:25:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gene Ontology (GO) is a formidable resource but there are several considerations about it that are essential to understand the data and interpret it correctly. The GO is sufficiently simple that it can be used without deep understanding of its structure or how it is developed, which is both a strength and a weakness. In this chapter, we discuss some common misinterpretations of the ontology and the annotations. A better understanding of the pitfalls and the biases in the GO should help users make the most of this very rich resource. We also review some of the misconceptions and misleading assumptions commonly made about GO, including the effect of data incompleteness, the importance of annotation qualifiers, and the transitivity or lack thereof associated with different ontology relations. We also discuss several biases that can confound aggregate analyses such as gene enrichment analyses. For each of these pitfalls and biases, we suggest remedies and best practices.",
+          "claimed_authors": [
+            "Pascale Gaudet",
+            "Christophe Dessimoz"
+          ],
+          "claimed_title": "Gene Ontology: Pitfalls, Biases, Remedies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01875"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Gene Ontology: Pitfalls, Biases, Remedies')",
+        "failed_at": "2026-08-01T04:25:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Advancing the discovery of prognostic cancer biomarkers is crucial for comprehending disease mechanisms, refining treatment plans, and improving patient outcomes. This study introduces Weighted Gene Topological Data Analysis (WGTDA), an innovative framework utilizing topological principles to identify gene interactions and distinctive biomarker features. WGTDA undergoes evaluation against Weighted Gene Co-expression Network Analysis (WGCNA), underscoring that topology-based biomarkers offer more reliable predictors of survival probability than WGCNA's hub genes. Furthermore, WGTDA identifies gene signatures that are significant to survival probability, irrespective of whether the expression is above or below the median. WGTDA provides a new perspective on biomarker discovery, uncovering intricate gene-to-gene relationships often overlooked by conventional correlation-based analyses, emphasizing the potential advantage of leveraging topological concepts to extract crucial information about gene-gene interactions.",
+          "claimed_authors": [
+            "Ndivhuwo Nyase",
+            "Lebohang Mashatola",
+            "Aviwe Kohlakala",
+            "Kahn Rhrissorrakrai",
+            "Stephanie Muller"
+          ],
+          "claimed_title": "WGTDA: A Topological Perspective to Biomarker Discovery in Gene Expression Data",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2406.05258"
+          "primary_pointer": "2402.08807"
         },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Advances in Machine Learning, Statistical Methods, and AI for Single-Cell RNA Annotation Using Raw Count Matrices in scRNA-seq Data')",
-        "failed_at": "2026-07-11T00:27:39Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='WGTDA: A Topological Perspective to Biomarker Discovery in Gene Expression Data')",
+        "failed_at": "2026-08-01T04:25:50Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Gene Regulatory Networks (GRNs) consisting of combinations of transcription factors (TFs) and their cis promoters are assumed to be sufficient to direct the development of organisms. Mutations in GRNs are assumed to be the primary drivers for the evolution of multicellular life. Here it is proven that neither of these assumptions is correct. They are inconsistent with fundamental principles of combinatorics of bounded encoded networks. It is shown there are inherent complexity and control capacity limits for any gene regulatory network that is based solely on protein coding genes such as transcription factors. This result has significant practical consequences for understanding development, evolution, the Cambrian Explosion, as well as multi-cellular diseases such as cancer. If the arguments are sound, then genes cannot explain the development of complex multicellular organisms and genes cannot explain the evolution of complex multicellular life.",
+          "claimed_abstract": "The advent of high--throughput transcription profiling technologies has enabled identification of genes and pathways associated with disease, providing new avenues for precision medicine. A key challenge is to analyze this data in the context of the regulatory networks and pathways that control cellular processes, while still obtaining insights that can be used to design new diagnostic and therapeutic interventions. While classical differential expression analysis provides specific and hence targetable gene-level insights, it does not include any systems-level information. On the other hand, pathway analyses integrate systems-level information with expression data, but are often limited in their ability to indicate specific molecular targets. We introduce GeneSurrounder, an analysis method that takes into account the complex structure of interaction networks to identify specific genes that disrupt pathway activity in a disease-specific manner. GeneSurrounder integrates transcriptomic data and pathway network information in a novel two-step procedure to detect genes that (i) appear to influence the expression of other genes local to it in the network and (ii) are part of a subnetwork of differentially expressed genes. Combined, this evidence can be used to pinpoint specific genes that have a mechanistic role in the phenotype of interest. Applying GeneSurrounder to three distinct ovarian cancer studies using a global KEGG network, we show that our method is able to identify biologically relevant genes and genes missed by single-gene association tests, integrate pathway and expression data, and yield more consistent results across multiple studies of the same phenotype than competing methods.",
           "claimed_authors": [
-            "Eric Werner"
+            "Sahil D. Shah",
+            "Rosemary Braun"
           ],
-          "claimed_title": "Combinatorial Limits of Transcription Factors and Gene Regulatory Networks in Development and Evolution",
+          "claimed_title": "Network-based identification of disease genes in expression data: the GeneSurrounder method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.10922"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Network-based identification of disease genes in expression data: the GeneSurrounder method')",
+        "failed_at": "2026-08-01T04:25:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a technique to characterize differentially expressed genes in terms of their position in a high-dimensional co-expression network. The set-up of Gaussian graphical models is used to construct representations of the co-expression network in such a way that redundancy and the propagation of spurious information along the network are avoided. The proposed inference procedure is based on the minimization of the Bayesian Information Criterion (BIC) in the class of decomposable graphical models. This class of models can be used to represent complex relationships and has suitable properties that allow to make effective inference in problems with high degree of complexity (e.g. several thousands of genes) and small number of observations (e.g. 10-100) as typically occurs in high throughput gene expression studies. Taking advantage of the internal structure of decomposable graphical models, we construct a compact representation of the co-expression network that allows to identify the regions with high concentration of differentially expressed genes. It is argued that differentially expressed genes located in highly interconnected regions of the co-expression network are less informative than differentially expressed genes located in less interconnected regions. Based on that idea, a measure of uncertainty that resembles the notion of relative entropy is proposed. Our methods are illustrated with three publically available data sets on microarray experiments (the larger involving more than 50,000 genes and 64 patients) and a short simulation study.",
+          "claimed_authors": [
+            "Gabriel C. G. de Abreu",
+            "Rodrigo Labouriau"
+          ],
+          "claimed_title": "Characterization of differentially expressed genes using high-dimensional co-expression networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1011.3805"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Characterization of differentially expressed genes using high-dimensional co-expression networks')",
+        "failed_at": "2026-08-01T04:25:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, there has been a lot of effort in understanding sRNA mediated regulation of gene expression and how this mode of regulation differs from transcriptional regulation.In E.coli, in the presence of oxidative stress, the synthesis of sigma^s is regulated through an interesting mechanism involving both transcriptional and sRNA-mediated translational regulation. The key regulatory factors involved in transcriptional and translational regulation are ArcA and ArcB proteins and ArcZ sRNA, respectively. Phosphorylated ArcA, in a feedforward mechanism, represses the transcriptions sigma^s and ArcZ sRNA with the latter being a post-transcriptional activator for sigma^s. Through a feedback mechanisms, ArcZ sRNA destabilises ArcB mRNA and regulates the level of ArcB protein, a kinase that phosphorylates ArcA. The oxygen and energy availability is expected to influence the ArcA phosphorylation rate and, as a consequence, in equilibrium, the system is likely to be in either a high ArcB (low ArcZ) or a low ArcB (high ArcZ) state. Kinetic modelling studies suggest that the rate of destabilisation of ArcB mRNA by ArcZ sRNA must be appropriately tuned for achieving the desired state. In particular, for a high phosphorylation rate, the transition from a low to a high ArcZ synthesis regime with the increase in sRNA-mRNA interaction is similar to the threshold-linear response observed earlier. Further, we show that the mRNA destabilisation by sRNA might be, in particular, beneficial in the low phosphorylation state for having the right concentration levels of ArcZ and ArcB. Stochastic simulation results suggest that as the ArcZ-ArcB binding affinity is increased, the probability distribution for the number of ArcZ molecules becomes flatter indicating frequently occurring transcriptional bursts of varying strengths.",
+          "claimed_authors": [
+            "Sutapa Mukherji"
+          ],
+          "claimed_title": "Transcriptional and translational regulation in Arc protein network of Escherichia coli's stress response",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.09202"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title=\"Transcriptional and translational regulation in Arc protein network of Escherichia coli's stress response\")",
+        "failed_at": "2026-08-01T04:25:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Stress impacts driving-related cognitive functions like attention and decision-making, and may arise in automated vehicles due to non-driving tasks. Unobtrusive relaxation techniques are needed to regulate stress without distracting from driving. Tactile wearables have shown efficacy in stress regulation through respiratory guidance, but individual variations may affect their efficacy. This study assessed slow-breathing tactile guidance under different stress levels on 85 participants. Physiological, behavioral and subjective data were collected. The influence of individual variations (e.g., driving habits and behavior, personality) using logistic regression analysis was explored. Participants could follow the guidance and adjust breathing while driving, but subjective efficacy depended on individual variations linked to different efficiency in using the technique, in relation with its attentional cost. An influence of factors linked to the evaluation of context criticality was also found. The results suggest that considering individual and contextual variations is crucial in designing and using such techniques in demanding driving contexts. In this line some design recommendations and insights for further studies are provided.",
+          "claimed_authors": [
+            "A. J. Bequet",
+            "C. Jallais",
+            "J. Quick",
+            "D. Ndiaye",
+            "A. R. Hidalgo-Munoz"
+          ],
+          "claimed_title": "Road to Serenity: Individual Variations in the Efficacy of Unobtrusive Respiratory Guidance for Driving Stress Regulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.09777"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Road to Serenity: Individual Variations in the Efficacy of Unobtrusive Respiratory Guidance for Driving Stress Regulation')",
+        "failed_at": "2026-08-01T04:25:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding the mechanisms by which cells coordinate their size with their ability to divide has long attracted the interest of biologists. The Target of Rapamycin (TOR) pathway is becoming increasingly recognized as a master regulator of cell size, however less is known how TOR activity might be coupled with the cell cycle. Here, we establish that mTOR complex 1 (mTORC1) promotes cytokinesis through activation of a Rho GTPase-Rho Kinase (ROCK) signaling cascade. Hyperactivation of mTORC1 signaling by depletion of any of its negative regulators: TSC1, TSC2, PTEN, or DEPTOR, induces polyploidy in a rapamycin-sensitive manner. mTORC1 hyperactivation-mediated polyploidization occurs by a prolonged, but ultimately failed attempt at abcission followed by re-fusion. Similar to the effects of ROCK2 overexpression, these mTORC1-driven aberrant cytokinesis events are accompanied by increased Rho-GTP loading, extensive plasma membrane blebbing, and increased actin-myosin contractility, all of which can be rescued by either mTORC1 or ROCK inhibition. These results provide evidence for the existence of a novel mTORC1-Rho-ROCK pathway during cytokinesis and suggest that mTORC1 might play a critical role in setting the size at which a mammalian cell divides.",
+          "claimed_authors": [
+            "Timothy R. Peterson",
+            "Mathieu Laplante",
+            "Ed Van Veen",
+            "Marcel Van Vugt",
+            "Carson C. Thoreen",
+            "David M. Sabatini"
+          ],
+          "claimed_title": "mTORC1 regulates cytokinesis through activation of Rho-ROCK signaling",
           "claimed_venue": "arXiv",
           "claimed_year": 2015,
-          "primary_pointer": "1508.03531"
+          "primary_pointer": "1506.04437"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Combinatorial Limits of Transcription Factors and Gene Regulatory Networks in Development and Evolution')",
-        "failed_at": "2026-07-11T00:27:42Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "A proof is presented that gene regulatory networks (GRNs) based solely on transcription factors cannot control the development of complex multicellular life. GRNs alone cannot explain the evolution of multicellular life in the Cambrian Explosion. Networks are based on addressing systems which are used to construct network links. The more complex the network the greater the number of links and the larger the required address space. It has been assumed that combinations of transcription factors generate a large enough address space to form GRNs that are complex enough to control the development of complex multicellular life. However, it is shown in this article that transcription factors do not have sufficient combinatorial power to serve as the basis of an addressing system for regulatory control of genomes in the development of complex organisms. It is proven that given $n$ transcription factor genes in a genome and address combinations of length $k$ then there are at most $n/k$ k-length transcription factor addresses in the address space. The complexity of embryonic development requires a corresponding complexity of control information in the cell and its genome. Therefore, a different addressing system must exist to form the complex control networks required for complex control systems. It is postulated that a new type of network evolved based on an RNA-DNA addressing system that utilized and subsumed the extant GRNs. These new developmental control networks are called CENES (for Control genes). The evolution of these new higher networks would explain how the Cambrian Explosion was possible. The architecture of these higher level networks may in fact be universal (modulo syntax) in the genomes of all multicellular life.",
-          "claimed_authors": [
-            "Eric Werner"
-          ],
-          "claimed_title": "What Transcription Factors Can't Do: On the Combinatorial Limits of Gene Regulatory Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1312.5565"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title=\"What Transcription Factors Can't Do: On the Combinatorial Limits of Gene Regulatory Networks\")",
-        "failed_at": "2026-07-11T00:27:42Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Gene regulatory networks are powerful abstractions of biological systems. Since the advent of high-throughput measurement technologies in biology in the late 90s, reconstructing the structure of such networks has been a central computational problem in systems biology. While the problem is certainly not solved in its entirety, considerable progress has been made in the last two decades, with mature tools now available. This chapter aims to provide an introduction to the basic concepts underpinning network inference tools, attempting a categorisation which highlights commonalities and relative strengths. While the chapter is meant to be self-contained, the material presented should provide a useful background to the later, more specialised chapters of this book.",
-          "claimed_authors": [
-            "Vân Anh Huynh-Thu",
-            "Guido Sanguinetti"
-          ],
-          "claimed_title": "Gene regulatory network inference: an introductory survey",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1801.04087"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Gene regulatory network inference: an introductory survey')",
-        "failed_at": "2026-07-11T00:27:42Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In dynamic systems that adapt to users' needs and changing environments, dependability needs cannot be avoided. This paper proposes an orthogonal fault tolerance model as a means to manage and reason about multiple fault tolerance mechanisms that co-exist in dynamically adaptive systems. One of the key challenges associated with dynamically evolving fault tolerance needs is the feature interaction problem arising from the integration of fault tolerance features. The proposed approach provides a separation of fault tolerance concerns to study the effects of integrated fault tolerance on the system. This approach uses state machine and operational semantics to reason about these interactions and inconsistencies. The proposed approach is supported by the tool NuSMV to simulate and verify the state machines against logic statements.",
-          "claimed_authors": [
-            "Sobia K Khan"
-          ],
-          "claimed_title": "Orthogonal Fault Tolerance for Dynamically Adaptive Systems",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1404.6830"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Orthogonal Fault Tolerance for Dynamically Adaptive Systems')",
-        "failed_at": "2026-07-11T00:27:42Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In recent years, Electroencephalographic analysis has gained prominence in stress research when combined with AI and Machine Learning models for validation. In this study, a lightweight dynamic brain connectivity framework based on Time Varying Directed Transfer Function is proposed, where TV DTF features were validated through ML based stress classification. TV DTF estimates the directional information flow between brain regions across distinct EEG frequency bands, thereby capturing temporal and causal influences that are often overlooked by static functional connectivity measures. EEG recordings from the 32 channel SAM 40 dataset were employed, focusing on mental arithmetic task trials. The dynamic EEG-based TV-DTF features were validated through ML classifiers such as Support Vector Machine, Random Forest, Gradient Boosting, Adaptive Boosting, and Extreme Gradient Boosting. Experimental results show that alpha-TV-DTF provided the strongest discriminative power, with SVM achieving 89.73% accuracy in 3-class classification and with XGBoost achieving 93.69% accuracy in 2 class classification. Relative to absolute power and phase locking based functional connectivity features, alpha TV DTF and beta TV DTF achieved higher performance across the ML models, highlighting the advantages of dynamic over static measures. Feature importance analysis further highlighted dominant long-range frontal parietal and frontal occipital informational influences, emphasizing the regulatory role of frontal regions under stress. These findings validate the lightweight TV-DTF as a robust framework, revealing spatiotemporal brain dynamics and directional influences across different stress levels.",
-          "claimed_authors": [
-            "Sayantan Acharya",
-            "Abbas Khosravi",
-            "Douglas Creighton",
-            "Roohallah Alizadehsani",
-            "U. Rajendra Acharya"
-          ],
-          "claimed_title": "Rewiring Human Brain Networks via Lightweight Dynamic Connectivity Framework: An EEG-Based Stress Validation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2511.05505"
-        },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Rewiring Human Brain Networks via Lightweight Dynamic Connectivity Framework: An EEG-Based Stress Validation')",
-        "failed_at": "2026-07-11T00:27:42Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Biomarkers play a central role in medicine's gradual progress towards proactive, personalized precision diagnostics and interventions. However, finding biomarkers that provide very early indicators of a change in health status, for example for multi-factorial diseases, has been challenging. Discovery of such biomarkers stands to benefit significantly from advanced information processing and means to detect complex correlations, which quantum computing offers. In this perspective paper, quantum algorithms, particularly in machine learning, are mapped to key applications in biomarker discovery. The opportunities and challenges associated with the algorithms and applications are discussed. The analysis is structured according to different data types - multi-dimensional, time series, and erroneous data - and covers key data modalities in healthcare - electronic health records (EHRs), omics, and medical images. An outlook is provided concerning open research challenges.",
-          "claimed_authors": [
-            "Frederik F. Flöther",
-            "Daniel Blankenberg",
-            "Maria Demidik",
-            "Karl Jansen",
-            "Raga Krishnakumar",
-            "Rajiv Krishnakumar",
-            "Nouamane Laanait",
-            "Laxmi Parida",
-            "Carl Saab",
-            "Filippo Utro"
-          ],
-          "claimed_title": "How quantum computing can enhance biomarker discovery",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2411.10511"
-        },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='How quantum computing can enhance biomarker discovery')",
-        "failed_at": "2026-07-11T00:27:42Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Quantum processors require a signal-delivery architecture with high addressability (low crosstalk) to ensure high performance already at the scale of dozens of qubits. Signal crosstalk causes inadvertent driving of quantum gates, which will adversely affect quantum-gate fidelities in scaled-up devices. Here, we demonstrate packaged flip-chip superconducting quantum processors with signal-crosstalk performance competitive with those reported in other platforms. For capacitively coupled qubit-drive lines, we find on-resonant crosstalk better than -27 dB (average -37 dB). For inductively coupled magnetic-flux-drive lines, we find less than 0.13 % direct-current flux crosstalk (average 0.05 %). These observed crosstalk levels are adequately small and indicate a decreasing trend with increasing distance, which is promising for further scaling up to larger numbers of qubits. We discuss the implication of our results for the design of a low-crosstalk, on-chip signal delivery architecture, including the influence of a shielding tunnel structure, potential sources of crosstalk, and estimation of crosstalk-induced qubit-gate error in scaled-up quantum processors.",
-          "claimed_authors": [
-            "Sandoko Kosen",
-            "Hang-Xi Li",
-            "Marcus Rommel",
-            "Robert Rehammar",
-            "Marco Caputo",
-            "Leif Grönberg",
-            "Jorge Fernández-Pendás",
-            "Anton Frisk Kockum",
-            "Janka Biznárová",
-            "Liangyu Chen",
-            "Christian Križan",
-            "Andreas Nylander",
-            "Amr Osman",
-            "Anita Fadavi Roudsari",
-            "Daryoush Shiri",
-            "Giovanna Tancredi",
-            "Joonas Govenius",
-            "Jonas Bylander"
-          ],
-          "claimed_title": "Signal crosstalk in a flip-chip quantum processor",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.00285"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Signal crosstalk in a flip-chip quantum processor')",
-        "failed_at": "2026-07-11T00:27:42Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The G-protein coupled receptors EP2 and EP4 both transduce the signal of the lipid messenger Prostaglandin E2 (PGE2). Changes in the cell response to PGE2 can have important effects on immunity and development of diseases, however, a thorough understanding of the EP2-EP4 receptors' signaling pathways is lacking. Experimental data show that receptor activity (indicated by cAMP expression) has a different kinetics depending on which receptor is triggered by PGE2 and that crosstalk exists between EP2 and EP4. To better understand the underlying mechanisms and be able to predict cell responses to PGE2, we develop novel mathematical models for the cAMP signaling pathways of EP2 and EP4 and their crosstalk. Ligand binding dynamics plays a crucial role for both, the single receptor activity and their crosstalk. The mathematical models can predict the qualitative cAMP levels observed experimentally and provide possible explanations for the differences and commonalities in the signaling behavior of EP2 and EP4. As inhibition of PGE2 signaling is gaining increasing attention in tumor immunology, these mathematical models could contribute to design effective anti-tumor therapies targeting EP2 and EP4.",
-          "claimed_authors": [
-            "Alessandra Cambi",
-            "Diane S Lidke",
-            "Mariya Ptashnyk",
-            "Willemijn Smit",
-            "Stefanie Sonner"
-          ],
-          "claimed_title": "Mathematical models for the EP2 and EP4 signaling pathways and their crosstalk",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2505.11712"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='Mathematical models for the EP2 and EP4 signaling pathways and their crosstalk')",
-        "failed_at": "2026-07-11T00:27:42Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "With shrinking interconnect spacing in advanced technology nodes, existing timing predictions become less precise due to the challenging quantification of crosstalk-induced delay. During the routing, the crosstalk effect is typically modeled by predicting coupling capacitance with congestion information. However, the timing estimation tends to be overly pessimistic, as the crosstalk-induced delay depends not only on the coupling capacitance but also on the signal arrival time. This work presents a crosstalk-aware timing estimation method using a two-step machine learning approach. Interconnects that are physically adjacent and overlap in signal timing windows are filtered first. Crosstalk delay is predicted by integrating physical topology and timing features without relying on post-routing results and the parasitic extraction. Experimental results show a match rate of over 99% for identifying crosstalk nets compared to the commercial tool on the OpenCores benchmarks, with prediction results being more accurate than those of other state-of-the-art methods.",
-          "claimed_authors": [
-            "Leilei Jin",
-            "Jiajie Xu",
-            "Wenjie Fu",
-            "Hao Yan",
-            "Longxing Shi"
-          ],
-          "claimed_title": "A Crosstalk-Aware Timing Prediction Method in Routing",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.04145"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='A Crosstalk-Aware Timing Prediction Method in Routing')",
-        "failed_at": "2026-07-11T00:27:42Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Stress Response from Publicly Available Transcriptomic Data bio', candidate_title='mTORC1 regulates cytokinesis through activation of Rho-ROCK signaling')",
+        "failed_at": "2026-08-01T04:25:50Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -515,80 +493,40 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2309.04107",
           "http_status": 200,
+          "pdf_sample_score": 0.3325,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T04:25:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Camila Riccio",
+            "Jorge Finke",
+            "Camilo Rocha"
+          ],
+          "title": "Identifying Stress Responsive Genes using Overlapping Communities in Co-expression Networks",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2011.03526",
+        "summary": "This paper proposes a workflow to identify genes that respond to specific treatments in plants. The workflow takes as input the RNA sequencing read counts and phenotypical data of different genotypes, measured under control and treatment conditions. It outputs a reduced group of genes marked as relevant for treatment response. Technically, the proposed approach is both a generalization and an extension of WGCNA. It aims to identify specific modules of overlapping communities underlying the co-expression network of genes. Module detection is achieved by using Hierarchical Link Clustering. The overlapping nature of the systems' regulatory domains that generate co-expression can be identified by such modules. LASSO regression is employed to analyze phenotypic responses of modules to treatment.\n  Results. The workflow is applied to rice (Oryza sativa), a major food source known to be highly sensitive to salt stress. The workflow identifies 19 rice genes that seem relevant in the response to salt stress. They are distributed across 6 modules: 3 modules, each grouping together 3 genes, are associated to shoot K content; 2 modules of 3 genes are associated to shoot biomass; and 1 module of 4 genes is associated to root biomass. These genes represent target genes for the improvement of salinity tolerance in rice.\n  Conclusion. A more effective framework to reduce the search-space for target genes that respond to a specific treatment is introduced. It facilitates experimental validation by restraining efforts to a smaller subset of genes of high potential relevance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2011.03526",
+          "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.375,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T00:27:39Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Gwenaëlle Marchand",
-            "Baptiste Mayjonade",
-            "Didier Varès",
-            "Nicolas Blanchet",
-            "Marie-Claude Boniface",
-            "Pierre Maury",
-            "Fety Andrianasolo Nambinina",
-            "Philippe Burger",
-            "Philippe Debaeke",
-            "Pierre Casadebaig",
-            "Patrick Vincourt",
-            "Nicolas B. Langlade"
-          ],
-          "title": "A biomarker based on gene expression indicates plant water status in controlled and natural environments",
-          "venue": "arXiv",
-          "year": 2013
-        },
-        "primary_pointer": "1310.2542",
-        "summary": "Plant or soil water status are required in many scientific fields to understand plant responses to drought. Because the transcriptomic response to abiotic conditions, such as water deficit, reflects plant water status, genomic tools could be used to develop a new type of molecular biomarker. Using the sunflower (Helianthus annuus L.) as a model species to study the transcriptomic response to water deficit both in greenhouse and field conditions, we specifically identified three genes that showed an expression pattern highly correlated to plant water status as estimated by the pre-dawn leaf water potential, fraction of transpirable soil water, soil water content or fraction of total soil water in controlled conditions. We developed a generalized linear model to estimate these classical water status indicators from the expression levels of the three selected genes under controlled conditions. This estimation was independent of the four tested genotypes and the stage (pre- or post-flowering) of the plant. We further validated this gene expression biomarker under field conditions for four genotypes in three different trials, over a large range of water status, and we were able to correct their expression values for a large diurnal sampling period.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1310.2542",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-11T00:27:49Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Andrés Ritter",
-            "Simon M Dittami",
-            "Sophie Goulitquer",
-            "Juan A Correa",
-            "Catherine Boyen",
-            "Philippe Potin",
-            "Thierry Tonon"
-          ],
-          "title": "Transcriptomic and metabolomic analysis of copper stress acclimation in Ectocarpus siliculosus highlights signaling and tolerance mechanisms in brown algae",
-          "venue": "arXiv",
-          "year": 2015
-        },
-        "primary_pointer": "1502.02001",
-        "summary": "Brown algae are sessile macro-organisms of great ecological relevance in coastal ecosystems. They evolved independently from land plants and other multicellular lineages, and therefore hold several original ontogenic and metabolic features. Most brown algae grow along the coastal zone where they face frequent environmental changes, including exposure to toxic levels of heavy metals such as copper (Cu). We carried out large-scale transcriptomic and metabolomic analyses to decipher the short-term acclimation of the brown algal model E. siliculosus to Cu stress, and compared these data to results known for other abiotic stressors. This comparison demonstrates that Cu induces oxidative stress in E. siliculosus as illustrated by the transcriptomic overlap between Cu and H2O2 treatments. The common response to Cu and H2O2 consisted in the activation of the oxylipin and the repression of inositol signaling pathways, together with the regulation of genes coding for several transcription-associated proteins. Concomitantly, Cu stress specifically activated a set of genes coding for orthologs of ABC transporters, a P1B-type ATPase, ROS detoxification systems such as a vanadium-dependent bromoperoxidase, and induced an increase of free fatty acid contents. Finally we observed, as a common abiotic stress mechanism, the activation of autophagic processes on one hand and the repression of genes involved in nitrogen assimilation on the other hand. Comparisons with data from green plants indicate that some processes involved in Cu and oxidative stress response are conserved across these two distant lineages. At the same time the high number of yet uncharacterized brown alga-specific genes induced in response to copper stress underlines the potential to discover new components and molecular interactions unique to these organisms. Of particular interest for future research is the potential cross-talk between reactive oxygen species (ROS)-, myo-inositol-, and oxylipin signaling.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1502.02001",
-          "http_status": 200,
-          "pdf_sample_score": 0.322,
-          "query_relevance_score": 0.5,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-11T00:27:50Z"
+          "verified_at": "2026-08-01T04:25:49Z"
         }
       }
     ]

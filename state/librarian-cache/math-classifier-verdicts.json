@@ -1611,6 +1611,10 @@
     "classified_at": "2026-07-11T01:27:38Z",
     "verdict": false
   },
+  "PROJ-942-llmxive-follow-up-extending-bench-evalua::1.6.0": {
+    "classified_at": "2026-08-01T04:24:36Z",
+    "verdict": false
+  },
   "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn::1.6.0": {
     "classified_at": "2026-07-15T21:40:25Z",
     "verdict": false

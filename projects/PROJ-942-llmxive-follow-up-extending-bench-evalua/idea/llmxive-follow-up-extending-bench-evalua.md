@@ -5,30 +5,82 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori"
 
-## Summary of the prior work
-The paper introduces $\pi$-Bench, a benchmark designed to evaluate the proactive capabilities of personal assistant agents in long-horizon, multi-turn workflows where user intents are initially underspecified. It demonstrates that current agents struggle to distinguish between merely completing explicit tasks and proactively inferring hidden needs based on cross-session continuity and inter-task dependencies. The study establishes that prior interaction history significantly aids in resolving latent intents, highlighting a gap between task completion metrics and true proactive assistance.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can lightweight, rule-based or small-context-window agents achieve parity with large language models in proactive intent resolution when provided with an explicit "Intent Graph" summary of prior interactions, rather than raw conversation history?
-**Why it matters:** $\pi$-Bench shows that history is valuable for proactivity, but processing full long-horizon trajectories is computationally expensive and latency-prone; this extension investigates whether distilling history into a structured knowledge representation (the Intent Graph) allows CPU-tractable models to anticipate needs effectively, enabling real-time proactive assistance on edge devices without GPU acceleration.
+## Research question
+
+Does distilling long-horizon interaction history into a structured "Intent Graph" enable lightweight, CPU-tractable agents to achieve parity with large language models in proactive intent resolution, or does the loss of raw conversational nuance fundamentally degrade proactive performance?
+
+## Motivation
+
+Current benchmarks like $\pi$-Bench demonstrate that prior interaction history is critical for proactive assistance, yet processing full raw trajectories is computationally prohibitive for edge deployment. This research addresses the gap between the theoretical necessity of historical context and the practical constraints of real-time, low-latency inference by investigating whether structured memory summarization can preserve the signal required for intent resolution without the overhead of massive context windows.
+
+## Related work
+
+- [$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows](https://arxiv.org/abs/2605.14678) — Establishes the baseline that agents struggle with latent intents without full history, defining the ground-truth metrics and task structure we will extend.
+- [KnowU-Bench: Towards Interactive, Proactive, and Personalized Mobile Agent Evaluation](https://arxiv.org/abs/2604.08455) — Highlights the specific failure of existing benchmarks to capture the nuances of personalized, proactive mobile agents, motivating the need for a more efficient evaluation of proactive capabilities.
+- [Proactive Agent Research Environment: Simulating Active Users to Evaluate Proactive Assistants](https://arxiv.org/abs/2604.00842) — Provides a framework for simulating user behavior, which supports our methodology for generating the "ground truth" hidden intents needed to construct the Intent Graph.
+- [VitaBench 2.0: Evaluating Personalized and Proactive Agents in Long-Term User Interactions](https://arxiv.org/abs/2605.27141) — Reinforces the dependency of effective collaboration on understanding long-term user context, validating the core assumption that history (in some form) is essential for the task.
+
+## Expected results
+
+We expect that agents using the Intent Graph will achieve proactivity scores within 5-10% of the full-history LLM baseline, demonstrating that structured summaries retain sufficient signal for intent resolution. Conversely, if the scores drop significantly, it would indicate that the "nuance" of raw conversation (e.g., tone, implicit phrasing) is irreplaceable by graph topology alone. The measurement will compare the F1-score of proactive action selection across the three conditions (Intent Graph, Raw History, No History).
 
 ## Methodology sketch
-**Data:** Utilize the 100 tasks from $\pi$-Bench, extracting the full interaction traces and the ground-truth hidden intents to construct a structured "Intent Graph" for each session (nodes = inferred intents, edges = causal/temporal dependencies).
-**Procedure:** Implement a CPU-tractable evaluation pipeline where (1) a small context model (e.g., a distilled 1B parameter model or even a heuristic rule engine) receives *only* the Intent Graph and the current user prompt, and (2) compare its proactive action selection against the baseline from the original paper (which uses full raw history) and a "no-history" baseline.
-**Expected result:** We hypothesize that agents using the Intent Graph will achieve proactivity scores within 5% of the full-history LLM baseline while reducing inference latency by an order of magnitude, proving that structured memory summarization is sufficient for high-quality proactive assistance without heavy compute.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the $\pi$-Bench dataset (100 tasks) from the original arXiv repository; parse the provided interaction traces and ground-truth hidden intents.
+- **Graph Construction**: Implement a pre-processing step to convert each session's raw dialogue into a directed "Intent Graph" where nodes represent inferred user intents and edges represent causal/temporal dependencies; store this as JSON.
+- **Baseline Implementation**: Run the original $\pi$-Bench evaluation script using the full raw conversation history as the context window for a reference large language model (using a CPU-optimized quantized version if GPU is unavailable, or a smaller open-weight model as a proxy for "large" behavior).
+- **Lightweight Agent Setup**: Configure a small-context-window agent (e.g., a distilled 1B parameter model or a rule-based heuristic engine) to accept *only* the constructed Intent Graph and the current user prompt as input.
+- **Execution**: Run the lightweight agent on all 100 tasks, recording the proactive actions selected for each turn.
+- **Statistical Analysis**: Calculate the F1-score for proactive intent resolution for both the baseline and the lightweight agent; perform a paired t-test to determine if the performance difference is statistically significant (p < 0.05).
+- **Latency Measurement**: Record the inference time per turn for both the raw-history baseline and the Intent Graph agent to quantify the latency reduction.
+- **Validation Independence**: Ensure the ground-truth intents used for scoring are the original annotations from the $\pi$-Bench paper, which are independent of the model's input representation (raw vs. graph).
 
-- **$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows** — {'name': 'Haoran Zhang', 'kind': 'human'}, {'name': 'Luxin Xu', 'kind': 'human'}, {'name': 'Zhilin Wang', 'kind': 'human'}, {'name': 'Runquan Gui', 'kind': 'human'}, {'name': 'Shunkai Zhang', 'kind': 'human'}, {'name': 'Haodi Lei', 'kind': 'human'}, {'name': 'Zihao He', 'kind': 'human'}, {'name': 'Bingsu He', 'kind': 'human'}, {'name': 'Chicheng Qin', 'kind': 'human'}, {'name': 'Tong Zhu', 'kind': 'human'}, {'name': 'Xiaoye Qu', 'kind': 'human'}, {'name': 'Yang Yang', 'kind': 'human'}, {'name': 'Yu Cheng', 'kind': 'human'}, {'name': 'Yafu Li', 'kind': 'human'}, {'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-27T22:36:38.761856Z'}. https://arxiv.org/abs/2605.14678.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_14678,
-  title = {$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows},
-  author = {\{'name': 'Haoran Zhang', 'kind': 'human'\} and \{'name': 'Luxin Xu', 'kind': 'human'\} and \{'name': 'Zhilin Wang', 'kind': 'human'\} and \{'name': 'Runquan Gui', 'kind': 'human'\} and \{'name': 'Shunkai Zhang', 'kind': 'human'\} and \{'name': 'Haodi Lei', 'kind': 'human'\} and \{'name': 'Zihao He', 'kind': 'human'\} and \{'name': 'Bingsu He', 'kind': 'human'\} and \{'name': 'Chicheng Qin', 'kind': 'human'\} and \{'name': 'Tong Zhu', 'kind': 'human'\} and \{'name': 'Xiaoye Qu', 'kind': 'human'\} and \{'name': 'Yang Yang', 'kind': 'human'\} and \{'name': 'Yu Cheng', 'kind': 'human'\} and \{'name': 'Yafu Li', 'kind': 'human'\} and \{'name': 'qwen.qwen3.5-122b', 'kind': 'llm', 'affiliation': None, 'email': None, 'agent_version': None, 'model_name': 'qwen.qwen3.5-122b', 'backend': 'dartmouth', 'first_contributed_at': '2026-06-27T22:36:38.761856Z'\}},
-  year = {2026},
-  eprint = {2605.14678},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.14678},
-  url = {https://arxiv.org/abs/2605.14678}
-}
-```
+- Reviewed existing ideas: $\pi$-Bench extension (Intent Graph), KnowU-Bench analysis, Proactive Agent Simulation.
+- Closest match: $\pi$-Bench extension (Intent Graph) (similarity: high conceptual overlap but distinct focus on structured memory vs. raw history).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-01T04:25:02Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori" computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori" computer science | 0 |
+| 1 | proactive personal assistant agents evaluation | 5 |
+| 2 | long-horizon task planning for AI assistants | 0 |
+| 3 | autonomous agent benchmarking frameworks | 0 |
+| 4 | LLM-based proactive agent performance metrics | 0 |
+| 5 | multi-step reasoning in personal assistant agents | 0 |
+| 6 | evaluating AI agents for long-term goal completion | 0 |
+| 7 | proactive behavior in conversational agents | 0 |
+| 8 | long-horizon planning benchmarks for large language models | 0 |
+| 9 | agent autonomy assessment in personal computing | 0 |
+| 10 | benchmarking LLMs for complex multi-turn interactions | 0 |
+| 11 | proactive task initiation in AI assistants | 0 |
+| 12 | long-context planning evaluation for language agents | 0 |
+| 13 | autonomous personal assistant capability assessment | 0 |
+| 14 | temporal reasoning in proactive AI agents | 0 |
+| 15 | evaluation of AI agents for extended task sequences | 0 |
+| 16 | long-horizon decision making in personal assistants | 0 |
+| 17 | benchmarking proactive capabilities in generative AI | 0 |
+| 18 | sustained goal tracking in AI assistant agents | 0 |
+| 19 | evaluation of LLMs for long-duration autonomous tasks | 0 |
+| 20 | comparative analysis of proactive agent frameworks | 0 |
+
+### Verified citations
+
+1. **$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows** (2026). Haoran Zhang, Luxin Xu, Zhilin Wang, Runquan Gui, Shunkai Zhang, et al.. arXiv. [2605.14678](https://arxiv.org/abs/2605.14678). PDF-sampled: No.
+2. **KnowU-Bench: Towards Interactive, Proactive, and Personalized Mobile Agent Evaluation** (2026). Tongbo Chen, Zhengxi Lu, Zhan Xu, Guocheng Shao, Shaohan Zhao, et al.. arXiv. [2604.08455](https://arxiv.org/abs/2604.08455). PDF-sampled: No.
+3. **Proactive Agent Research Environment: Simulating Active Users to Evaluate Proactive Assistants** (2026). Deepak Nathani, Cheng Zhang, Chang Huan, Jiaming Shan, Yinfei Yang, et al.. arXiv. [2604.00842](https://arxiv.org/abs/2604.00842). PDF-sampled: No.
+4. **ProPerSim: Developing Proactive and Personalized AI Assistants through User-Assistant Simulation** (2025). Jiho Kim, Junseong Choi, Woosog Chay, Daeun Kyung, Yeonsu Kwon, et al.. arXiv. [2509.21730](https://arxiv.org/abs/2509.21730). PDF-sampled: No.
+5. **VitaBench 2.0: Evaluating Personalized and Proactive Agents in Long-Term User Interactions** (2026). Yuxin Chen, Yi Zhang, Zhengzhou Cai, Yaorui Shi, Zhiyuan Yao, et al.. arXiv. [2605.27141](https://arxiv.org/abs/2605.27141). PDF-sampled: No.

@@ -1,0 +1,729 @@
+{
+  "fetched_at": "2026-08-01T04:25:02Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\"",
+      "target_n": 5
+    },
+    "duration_seconds": 55.403,
+    "ended_at": "2026-08-01T04:25:02Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "proactive personal assistant agents evaluation"
+        ],
+        [
+          2,
+          "long-horizon task planning for AI assistants"
+        ],
+        [
+          3,
+          "autonomous agent benchmarking frameworks"
+        ],
+        [
+          4,
+          "LLM-based proactive agent performance metrics"
+        ],
+        [
+          5,
+          "multi-step reasoning in personal assistant agents"
+        ],
+        [
+          6,
+          "evaluating AI agents for long-term goal completion"
+        ],
+        [
+          7,
+          "proactive behavior in conversational agents"
+        ],
+        [
+          8,
+          "long-horizon planning benchmarks for large language models"
+        ],
+        [
+          9,
+          "agent autonomy assessment in personal computing"
+        ],
+        [
+          10,
+          "benchmarking LLMs for complex multi-turn interactions"
+        ],
+        [
+          11,
+          "proactive task initiation in AI assistants"
+        ],
+        [
+          12,
+          "long-context planning evaluation for language agents"
+        ],
+        [
+          13,
+          "autonomous personal assistant capability assessment"
+        ],
+        [
+          14,
+          "temporal reasoning in proactive AI agents"
+        ],
+        [
+          15,
+          "evaluation of AI agents for extended task sequences"
+        ],
+        [
+          16,
+          "long-horizon decision making in personal assistants"
+        ],
+        [
+          17,
+          "benchmarking proactive capabilities in generative AI"
+        ],
+        [
+          18,
+          "sustained goal tracking in AI assistant agents"
+        ],
+        [
+          19,
+          "evaluation of LLMs for long-duration autonomous tasks"
+        ],
+        [
+          20,
+          "comparative analysis of proactive agent frameworks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\" computer science": 0,
+        "proactive personal assistant agents evaluation": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "proactive agent benchmark long-horizon reasoning",
+      "π-Bench LLM task planning evaluation",
+      "LLM proactive behavior autonomous task completion",
+      "long-horizon task success rate agent metrics",
+      "reinforcement learning from human feedback proactive planning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.00842"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM proactive behavior autonomous task completion": 2,
+      "llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\" computer science": 3,
+      "long-horizon task success rate agent metrics": 2,
+      "proactive agent benchmark long-horizon reasoning": 3,
+      "reinforcement learning from human feedback proactive planning": 3,
+      "π-Bench LLM task planning evaluation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-01T04:24:07Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"$π$-bench: evaluating proactive personal assistant agents in long-hori\" computer science",
+      "raw": "llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Hori\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As language models are increasingly deployed for complex autonomous tasks, their ability to reason accurately over longer horizons becomes critical. An essential component of this ability is planning and managing a long, complex chain-of-thought (CoT). We introduce LongCoT, a scalable benchmark of 2,500 expert-designed problems spanning chemistry, mathematics, computer science, chess, and logic to isolate and directly measure the long-horizon CoT reasoning capabilities of frontier models. Problems consist of a short input with a verifiable answer; solving them requires navigating a graph of interdependent steps that span tens to hundreds of thousands of reasoning tokens. Each local step is individually tractable for frontier models, so failures reflect long-horizon reasoning limitations. At release, the best models achieve <10% accuracy (GPT 5.2: 9.8%; Gemini 3 Pro: 6.1%) on LongCoT, revealing a substantial gap in current capabilities. Overall, LongCoT provides a rigorous measure of long-horizon reasoning, tracking the ability of frontier models to reason reliably over extended periods.",
+          "claimed_authors": [
+            "Sumeet Ramesh Motwani",
+            "Daniel Nichols",
+            "Charles London",
+            "Peggy Li",
+            "Fabio Pizzati",
+            "Acer Blake",
+            "Hasan Hammoud",
+            "Tavish McDonald",
+            "Akshat Naik",
+            "Alesia Ivanova",
+            "Vignesh Baskaran",
+            "Ivan Laptev",
+            "Ruben Glatt",
+            "Tal Ben-Nun",
+            "Philip Torr",
+            "Natasha Jaques",
+            "Ameya Prabhu",
+            "Brian Bartoldson",
+            "Bhavya Kailkhura",
+            "Christian Schroeder de Witt"
+          ],
+          "claimed_title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.14140"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) demonstrate remarkable reasoning capabilities, yet their performance often deteriorates sharply in long-horizon tasks, exhibiting systematic breakdown beyond certain scales. Conventional explanations primarily attribute this phenomenon to task complexity, such as combinatorial search explosion or long-term credit assignment challenges. In this work, we argue that these explanations are incomplete: even in linear, unbranched tasks without semantic ambiguity, autoregressive execution is subject to an intrinsic stability limit.\n  We propose that the fundamental constraint on long-horizon reasoning arises from process-level instability in autoregressive generation rather than solely from search or task complexity, reframing long-horizon reasoning as a problem of structural governance. We derive Theorem~A, showing that decision advantage in single-path autoregressive reasoning decays exponentially with execution length, imposing a fundamental bound on maintainable reasoning chains. This result implies a structural consequence: stable long-horizon reasoning requires discrete segmentation, naturally inducing graph-like execution structures such as directed acyclic graphs (DAGs).\n  Empirical studies in both synthetic environments and real TextWorld tasks reveal observable performance cliffs consistent with theoretical predictions. Our findings provide a dynamical perspective on long-horizon reasoning failure and suggest new limitations on maintaining long-term coherence under purely autoregressive architectures. Furthermore, we highlight that short-horizon evaluation protocols may obscure structural instability, indicating a potential shift from scaling toward structured governance in future reasoning systems.",
+          "claimed_authors": [
+            "Hsien-Jyh Liao"
+          ],
+          "claimed_title": "Intrinsic Stability Limits of Autoregressive Reasoning: Structural Consequences for Long-Horizon Execution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.06413"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='Intrinsic Stability Limits of Autoregressive Reasoning: Structural Consequences for Long-Horizon Execution')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models excel at short-horizon reasoning tasks, but performance drops as reasoning horizon lengths increase. Existing approaches to combat this rely on inference-time scaffolding or costly step-level supervision, neither of which scales easily. In this work, we introduce a scalable method to bootstrap long-horizon reasoning capabilities using only existing, abundant short-horizon data. Our approach synthetically composes simple problems into complex, multi-step dependency chains of arbitrary length. We train models on this data using outcome-only rewards under a curriculum that automatically increases in complexity, allowing RL training to be scaled much further without saturating. Empirically, our method generalizes remarkably well: curriculum training on composed 6th-grade level math problems (GSM8K) boosts accuracy on longer, competition-level benchmarks (GSM-Symbolic, MATH-500, AIME) by up to 2.06x. It also transfers significantly to diverse out-of-distribution ReasoningGym domains and long-context benchmarks, indicating broader generalization. Importantly, our long-horizon improvements are significantly higher than baselines even at high pass@k, showing that models can learn new reasoning paths under RL. Theoretically, we show that curriculum RL with outcome rewards achieves an exponential improvement in sample complexity over full-horizon training, providing training signal comparable to dense supervision. h1 therefore introduces an efficient path towards scaling RL for long-horizon problems using only existing data.",
+          "claimed_authors": [
+            "Sumeet Ramesh Motwani",
+            "Alesia Ivanova",
+            "Ziyang Cai",
+            "Philip Torr",
+            "Riashat Islam",
+            "Shital Shah",
+            "Christian Schroeder de Witt",
+            "Charles London"
+          ],
+          "claimed_title": "h1: Bootstrapping LLMs to Reason over Longer Horizons via Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.07312"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='h1: Bootstrapping LLMs to Reason over Longer Horizons via Reinforcement Learning')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Travel planning is a demanding stress test for tool-using LLM agents: a usable itinerary is a single artifact that must be right along many axes at once - every flight, hotel, and attraction must exist and be bookable, the days must be physically traversable, the total must clear a budget, and the plan must serve a traveler whose needs are only partly stated. Existing agent benchmarks reward these properties one at a time and grade the final output with soft or LLM-judged rubrics, which cannot certify that a returned plan is executable and are neither reproducible nor auditable. We introduce TREK (Travel Reasoning and Evaluation Kit), a benchmark for feasible itinerary synthesis: producing a single plan that is jointly constraint-correct, hallucination-free, spatio-temporally executable, budget-valid, and responsive to the traveler's unstated persona needs. TREK comprises 800 multi-constraint tasks - 533 feasible and 267 provably infeasible with typed route/entity/budget causes - over a synthetic, internally consistent knowledge base of 212,530 records across 375 cities and 13 personas, served through a production-style tool sandbox of validated RESTful APIs. Every task is scored by a fully deterministic, rule-based evaluator with no LLM judge and ships a human-verified gold reference that scores a perfect 1.0 under that same evaluator, so the ceiling is demonstrably achievable and every remaining gap is an agent limitation rather than scorer strictness. Evaluating 15 LLM agents across nine constraint dimensions, we find that even the strongest (GPT-5.6) produces a fully-feasible plan on only 46.2% of solvable tasks, with a median of 6.6% and a floor of 0.0%; satisfying travelers' unstated needs emerges as the universal bottleneck, unsolved even at the frontier. We release the dataset, tool sandbox, deterministic evaluator, and agent code as a fully reproducible benchmark.",
+          "claimed_authors": [
+            "Jinhu Qi",
+            "Wentao Zhang",
+            "Siu Man Ng",
+            "Feiyang Xu",
+            "Yanyu Chen",
+            "Yaoman Li",
+            "Irwin King"
+          ],
+          "claimed_title": "TREK: A Travel Reasoning and Evaluation Kit for LLM Agents in Complex Trip Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.26977"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='TREK: A Travel Reasoning and Evaluation Kit for LLM Agents in Complex Trip Planning')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent evaluations of Large Language Models (LLMs) have centered around testing their zero-shot/few-shot capabilities for basic natural language tasks and their ability to translate instructions into tool APIs. However, the evaluation of LLMs utilizing complex tools to finish multi-turn, multi-modal instructions in a complex multi-modal environment has not been investigated. To address this gap, we introduce the PowerPoint Task Completion (PPTC) benchmark to assess LLMs' ability to create and edit PPT files based on user instructions. It contains 279 multi-turn sessions covering diverse topics and hundreds of instructions involving multi-modal operations. We also propose the PPTX-Match Evaluation System that evaluates if LLMs finish the instruction based on the prediction file rather than the label API sequence, thus it supports various LLM-generated API sequences. We measure 3 closed LLMs and 6 open-source LLMs. The results show that GPT-4 outperforms other LLMs with 75.1\\% accuracy in single-turn dialogue testing but faces challenges in completing entire sessions, achieving just 6\\% session accuracy. We find three main error causes in our benchmark: error accumulation in the multi-turn session, long PPT template processing, and multi-modality perception. These pose great challenges for future LLM and agent systems. We release the data, code, and evaluation system of PPTC at \\url{https://github.com/gydpku/PPTC}.",
+          "claimed_authors": [
+            "Yiduo Guo",
+            "Zekai Zhang",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01767"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As social beings, much human behavior is predicated on social context - the ambient social state that includes cultural norms, social signals, individual preferences, etc. In this paper, we propose a socially-aware task and motion planning algorithm that considers social context to generate appropriate and effective plans in human social environments (HSEs). The key strength of our proposed approach is that it explicitly models how potential actions not only affect objective cost, but also transform the social context in which it plans and acts. We investigate strategies to limit the complexity of our algorithm, so that our planner will remain tractable for mobile platforms in complex HSEs like hospitals and factories. The planner will also consider the relative importance and urgency of its tasks, which it uses to determine when it is and is not appropriate to violate social expectations to achieve its objective. This social awareness will allow robots to understand a fundamental rule of society: just because something makes your job easier, does not make it the right thing to do!\n  To our knowledge, the proposed work is the first task and motion planning approach that supports socially intelligent robot policy for HSEs. Through this ongoing work, robots will be able to understand, respect, and leverage social context accomplish tasks both acceptably and effectively in HSEs.",
+          "claimed_authors": [
+            "Andrea Frank",
+            "Laurel Riek"
+          ],
+          "claimed_title": "Socially intelligent task and motion planning for human-robot interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.08398"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='Socially intelligent task and motion planning for human-robot interaction')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mobile task automation is an attractive technique that aims to enable voice-based hands-free user interaction with smartphones. However, existing approaches suffer from poor scalability due to the limited language understanding ability and the non-trivial manual efforts required from developers or end-users. The recent advance of large language models (LLMs) in language understanding and reasoning inspires us to rethink the problem from a model-centric perspective, where task preparation, comprehension, and execution are handled by a unified language model. In this work, we introduce AutoDroid, a mobile task automation system capable of handling arbitrary tasks on any Android application without manual efforts. The key insight is to combine the commonsense knowledge of LLMs and domain-specific knowledge of apps through automated dynamic analysis. The main components include a functionality-aware UI representation method that bridges the UI with the LLM, exploration-based memory injection techniques that augment the app-specific domain knowledge of LLM, and a multi-granularity query optimization module that reduces the cost of model inference. We integrate AutoDroid with off-the-shelf LLMs including online GPT-4/GPT-3.5 and on-device Vicuna, and evaluate its performance on a new benchmark for memory-augmented Android task automation with 158 common tasks. The results demonstrated that AutoDroid is able to precisely generate actions with an accuracy of 90.9%, and complete tasks with a success rate of 71.3%, outperforming the GPT-4-powered baselines by 36.4% and 39.7%. The demo, benchmark suites, and source code of AutoDroid will be released at url{https://autodroid-sys.github.io/}.",
+          "claimed_authors": [
+            "Hao Wen",
+            "Yuanchun Li",
+            "Guohong Liu",
+            "Shanhui Zhao",
+            "Tao Yu",
+            "Toby Jia-Jun Li",
+            "Shiqi Jiang",
+            "Yunhao Liu",
+            "Yaqin Zhang",
+            "Yunxin Liu"
+          ],
+          "claimed_title": "AutoDroid: LLM-powered Task Automation in Android",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.15272"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='AutoDroid: LLM-powered Task Automation in Android')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing Vision-Language Navigation (VLN) methods primarily focus on single-stage navigation, limiting their effectiveness in multi-stage and long-horizon tasks within complex and dynamic environments. To address these limitations, we propose a novel VLN task, named Long-Horizon Vision-Language Navigation (LH-VLN), which emphasizes long-term planning and decision consistency across consecutive subtasks. Furthermore, to support LH-VLN, we develop an automated data generation platform NavGen, which constructs datasets with complex task structures and improves data utility through a bidirectional, multi-granularity generation approach. To accurately evaluate complex tasks, we construct the Long-Horizon Planning and Reasoning in VLN (LHPR-VLN) benchmark consisting of 3,260 tasks with an average of 150 task steps, serving as the first dataset specifically designed for the long-horizon vision-language navigation task. Furthermore, we propose Independent Success Rate (ISR), Conditional Success Rate (CSR), and CSR weight by Ground Truth (CGT) metrics, to provide fine-grained assessments of task completion. To improve model adaptability in complex tasks, we propose a novel Multi-Granularity Dynamic Memory (MGDM) module that integrates short-term memory blurring with long-term memory retrieval to enable flexible navigation in dynamic environments. Our platform, benchmark and method supply LH-VLN with a robust data generation pipeline, comprehensive model evaluation dataset, reasonable metrics, and a novel VLN model, establishing a foundational framework for advancing LH-VLN.",
+          "claimed_authors": [
+            "Xinshuai Song",
+            "Weixing Chen",
+            "Yang Liu",
+            "Weikai Chen",
+            "Guanbin Li",
+            "Liang Lin"
+          ],
+          "claimed_title": "Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.09082"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present our submission to Shared Metrics Task: RoBLEURT (Robustly Optimizing the training of BLEURT). After investigating the recent advances of trainable metrics, we conclude several aspects of vital importance to obtain a well-performed metric model by: 1) jointly leveraging the advantages of source-included model and reference-only model, 2) continuously pre-training the model with massive synthetic data pairs, and 3) fine-tuning the model with data denoising strategy. Experimental results show that our model reaching state-of-the-art correlations with the WMT2020 human annotations upon 8 out of 10 to-English language pairs.",
+          "claimed_authors": [
+            "Yu Wan",
+            "Dayiheng Liu",
+            "Baosong Yang",
+            "Tianchi Bi",
+            "Haibo Zhang",
+            "Boxing Chen",
+            "Weihua Luo",
+            "Derek F. Wong",
+            "Lidia S. Chao"
+          ],
+          "claimed_title": "RoBLEURT Submission for the WMT2021 Metrics Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.13352"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='RoBLEURT Submission for the WMT2021 Metrics Task')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To use reinforcement learning from human feedback (RLHF) in practical applications, it is crucial to learn reward models from diverse sources of human feedback and to consider human factors involved in providing feedback of different types. However, the systematic study of learning from diverse types of feedback is held back by limited standardized tooling available to researchers. To bridge this gap, we propose RLHF-Blender, a configurable, interactive interface for learning from human feedback. RLHF-Blender provides a modular experimentation framework and implementation that enables researchers to systematically investigate the properties and qualities of human feedback for reward learning. The system facilitates the exploration of various feedback types, including demonstrations, rankings, comparisons, and natural language instructions, as well as studies considering the impact of human factors on their effectiveness. We discuss a set of concrete research opportunities enabled by RLHF-Blender. More information is available at https://rlhfblender.info/.",
+          "claimed_authors": [
+            "Yannick Metz",
+            "David Lindner",
+            "Raphaël Baur",
+            "Daniel Keim",
+            "Mennatallah El-Assady"
+          ],
+          "claimed_title": "RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.04332"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We argue for the epistemic and ethical advantages of pluralism in Reinforcement Learning from Human Feedback (RLHF) in the context of Large Language Models (LLM). Drawing on social epistemology and pluralist philosophy of science, we suggest ways in which RHLF can be made more responsive to human needs and how we can address challenges along the way. The paper concludes with an agenda for change, i.e. concrete, actionable steps to improve LLM development.",
+          "claimed_authors": [
+            "Kristian González Barman",
+            "Simon Lohse",
+            "Henk de Regt"
+          ],
+          "claimed_title": "Reinforcement Learning from Human Feedback: Whose Culture, Whose Values, Whose Perspectives?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.17482"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='Reinforcement Learning from Human Feedback: Whose Culture, Whose Values, Whose Perspectives?')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning (RL) research has demonstrated success in both physical and simulated domains; however, the predominant methodology remains rooted in simulations. The predominance of simulations makes translating research to physical reality uncertain for both algorithms and researchers. We propose a physical platform that is designed to simplify the transition. In this paper, we present the Open Ant: a physical variant of the commonly used Gymnasium Ant environment, along with a simulation. We demonstrate that competent walking policies can be learned from scratch in approximately one hour directly from the physical robot's experience for two substantially different RL algorithms: SARSA($λ$) and Soft Actor-Critic (SAC). Separately, we show policies that were learned in simulation transfer to reality. We also examine how well the platform supports a nimble experimental ecosystem. Specifically, we observe the speed with which new users from diverse backgrounds achieve their first success with the platform, and how easily the platform can be repaired and updated when hardware issues arise. Both the hardware design and software are available as open-source on GitHub for ease of customization. In summary, we advocate for the use of the Open Ant for RL researchers who frequently use simulated environments, so they can more easily include robot experiments in their evaluations.",
+          "claimed_authors": [
+            "Elena Sorina Lupu",
+            "Patrick Spieler",
+            "Khurram Javed",
+            "Kris De Asis",
+            "John D. Martin",
+            "Martha Steenstrup",
+            "Joseph Modayil"
+          ],
+          "claimed_title": "The Open Ant: A Robot Platform for Reinforcement Learning Research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.18488"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"$π$-Bench: Evaluating Proactive Personal Assistant', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
+        "failed_at": "2026-08-01T04:24:36Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haoran Zhang",
+            "Luxin Xu",
+            "Zhilin Wang",
+            "Runquan Gui",
+            "Shunkai Zhang",
+            "Haodi Lei",
+            "Zihao He",
+            "Bingsu He",
+            "Chicheng Qin",
+            "Tong Zhu",
+            "Xiaoye Qu",
+            "Yang Yang",
+            "Yu Cheng",
+            "Yafu Li"
+          ],
+          "title": "$π$-Bench: Evaluating Proactive Personal Assistant Agents in Long-Horizon Workflows",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.14678",
+        "summary": "The rise of personal assistant agents, e.g., OpenClaw, highlights the growing potential of large language models to support users across everyday life and work. A core challenge in these settings is proactive assistance, since users often begin with underspecified requests and leave important needs, constraints, or preferences unstated. However, existing benchmarks rarely evaluate whether agents can identify and act on such hidden intents before they are explicitly stated, especially in sustained multi-turn interactions where user needs emerge gradually. To address this gap, we introduce $π$-Bench, a benchmark for proactive assistance comprising 100 multi-turn tasks across 5 domain-specific user personas. By incorporating hidden user intents, inter-task dependencies, and cross-session continuity, $π$-Bench evaluates agents' ability to anticipate and address user needs over extended interactions, jointly measuring proactivity and task completion in long-horizon trajectories that better reflect real-world use. Experiments show (1) proactive assistance remains challenging, (2) a clear distinction between task completion and proactivity, and (3) the value of prior interaction for proactive intent resolution in later tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.14678",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T04:24:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tongbo Chen",
+            "Zhengxi Lu",
+            "Zhan Xu",
+            "Guocheng Shao",
+            "Shaohan Zhao",
+            "Fei Tang",
+            "Yong Du",
+            "Kaitao Song",
+            "Yizhou Liu",
+            "Yuchen Yan",
+            "Wenqi Zhang",
+            "Xu Tan",
+            "Weiming Lu",
+            "Jun Xiao",
+            "Yueting Zhuang",
+            "Yongliang Shen"
+          ],
+          "title": "KnowU-Bench: Towards Interactive, Proactive, and Personalized Mobile Agent Evaluation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.08455",
+        "summary": "Personalized mobile agents that infer user preferences and calibrate proactive assistance hold great promise as everyday digital assistants, yet existing benchmarks fail to capture what this requires. Prior work evaluates preference recovery from static histories or intent prediction from fixed contexts. Neither tests whether an agent can elicit missing preferences through interaction, nor whether it can decide when to intervene, seek consent, or remain silent in a live GUI environment. We introduce KnowU-Bench, an online benchmark for personalized mobile agents built on a reproducible Android emulation environment, covering 42 general GUI tasks, 86 personalized tasks, and 64 proactive tasks. Unlike prior work that treats user preferences as static context, KnowU-Bench hides the user profile from the agent and exposes only behavioral logs, forcing genuine preference inference rather than context lookup. To support multi-turn preference elicitation, it instantiates an LLM-driven user simulator grounded in structured profiles, enabling realistic clarification dialogues and proactive consent handling. Beyond personalization, KnowU-Bench provides comprehensive evaluation of the complete proactive decision chain, including grounded GUI execution, consent negotiation, and post-rejection restraint, evaluated through a hybrid protocol combining rule-based verification with LLM-as-a-Judge scoring. Our experiments reveal a striking degradation: agents that excel at explicit task execution fall below 50% under vague instructions requiring user preference inference or intervention calibration, even for frontier models like Claude Sonnet 4.6. The core bottlenecks are not GUI navigation but preference acquisition and intervention calibration, exposing a fundamental gap between competent interface operation and trustworthy personal assistance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.08455",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T04:24:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Deepak Nathani",
+            "Cheng Zhang",
+            "Chang Huan",
+            "Jiaming Shan",
+            "Yinfei Yang",
+            "Alkesh Patel",
+            "Zhe Gan",
+            "William Yang Wang",
+            "Michael Saxon",
+            "Xin Eric Wang"
+          ],
+          "title": "Proactive Agent Research Environment: Simulating Active Users to Evaluate Proactive Assistants",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.00842",
+        "summary": "Proactive agents that anticipate user needs and autonomously execute tasks hold great promise as digital assistants, yet the lack of realistic user simulation frameworks hinders their development. Existing approaches model apps as flat tool-calling APIs, failing to capture the stateful and sequential nature of user interaction in digital environments and making realistic user simulation infeasible. We introduce Proactive Agent Research Environment (Pare), a framework for building and evaluating proactive agents in digital environments. Pare models applications as finite state machines with stateful navigation and state-dependent action space for the user simulator, enabling active user simulation. Building on this foundation, we present Pare-Bench, a benchmark of 143 diverse tasks spanning communication, productivity, scheduling, and lifestyle apps, designed to test context observation, goal inference, intervention timing, and multi-app orchestration.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.00842",
+          "http_status": 200,
+          "pdf_sample_score": 0.185,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T04:24:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiho Kim",
+            "Junseong Choi",
+            "Woosog Chay",
+            "Daeun Kyung",
+            "Yeonsu Kwon",
+            "Yohan Jo",
+            "Edward Choi"
+          ],
+          "title": "ProPerSim: Developing Proactive and Personalized AI Assistants through User-Assistant Simulation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.21730",
+        "summary": "As large language models (LLMs) become increasingly integrated into daily life, there is growing demand for AI assistants that are not only reactive but also proactive and personalized. While recent advances have pushed forward proactivity and personalization individually, their combination remains underexplored. To bridge this gap, we introduce ProPerSim, a new task and simulation framework for developing assistants capable of making timely, personalized recommendations in realistic home scenarios. In our simulation environment, a user agent with a rich persona interacts with the assistant, providing ratings on how well each suggestion aligns with its preferences and context. The assistant's goal is to use these ratings to learn and adapt to achieve higher scores over time. Built on ProPerSim, we propose ProPerAssistant, a retrieval-augmented, preference-aligned assistant that continually learns and adapts through user feedback. Experiments across 32 diverse personas show that ProPerAssistant adapts its strategy and steadily improves user satisfaction, highlighting the promise of uniting proactivity and personalization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.21730",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T04:24:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuxin Chen",
+            "Yi Zhang",
+            "Zhengzhou Cai",
+            "Yaorui Shi",
+            "Zhiyuan Yao",
+            "Chenhang Cui",
+            "Jingnan Zheng",
+            "Yaqi Huo",
+            "Xi Su",
+            "Qi Gu",
+            "Xunliang Cai",
+            "Xiang Wang",
+            "An Zhang",
+            "Tat-Seng Chua"
+          ],
+          "title": "VitaBench 2.0: Evaluating Personalized and Proactive Agents in Long-Term User Interactions",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.27141",
+        "summary": "Large language models (LLMs) have evolved into interactive agents that collaborate with users in real-world tasks. Effective collaboration in such settings increasingly depends on understanding the user beyond what is explicitly stated, as user intent is often reflected in fragmented daily interactions and requires both personalized modeling and proactive interaction. However, existing agent benchmarks primarily evaluate reasoning and tool use, largely overlooking the challenges of inferring and leveraging user preferences in realistic scenarios. To address this gap, we introduce VitaBench 2.0, a benchmark for evaluating personalized and proactive agent behavior in long-term user interactions. In VitaBench 2.0, tasks are organized as temporally ordered sequences for individual users, where preferences are embedded in fragmented and heterogeneous interactions. Successful completion of tasks requires the agent to continuously extract, utilize, and update user preferences from these interactions. We further evaluate proactiveness through tasks that require agents to recognize missing information and actively acquire it from users or environments before making decisions. To support systematic analysis, we provide an extensible memory interface that enables controlled comparison across different memory architectures. We benchmark a diverse set of frontier proprietary and open-source LLMs. Results show that real-world personalization remains highly challenging even for state-of-the-art models, revealing a substantial gap between current capabilities and practical requirements. Extensive analysis further reveals the failure modes and capability bottlenecks of current agents in real-world personalized decision-making, providing insights for future model improvements.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.27141",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T04:24:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"$π$-bench: evaluating proactive personal assistant agents in long-hori\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

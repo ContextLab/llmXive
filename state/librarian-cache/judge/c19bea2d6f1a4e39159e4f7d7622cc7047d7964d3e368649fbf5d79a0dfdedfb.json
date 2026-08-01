@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.00842",
+  "judged_at": "2026-08-01T04:24:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"$π$-bench: evaluating proactive personal assistant agents in long-hori\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the core mechanism of \"proactive personal assistant agents\" and the specific domain of \"long-horizon\" task evaluation (via its \"Pare-Bench\" spanning diverse, sequential tasks) that the user's question references. It provides the canonical alternative-vocabulary cluster (criterion f) for evaluating proactive agents through realistic user simulation, which is the necessary methodological foundation for the user's follow-up research",
+  "relevant": true
+}

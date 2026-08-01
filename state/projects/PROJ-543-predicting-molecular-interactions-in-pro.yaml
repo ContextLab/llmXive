@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T20:22:56.230952Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-543-predicting-molecular-interactions-in-pro
-last_run_id: 3e251e8f-692d-46bb-9c8f-f135a56c5e53
+last_run_id: 40d6087b-1d1f-4ea3-8c9d-772bc1a9d738
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro
 title: Predicting Molecular Interactions in Protein-Ligand Complexes Using Graph Neural
   Networks
-updated_at: '2026-07-26T01:05:36.059194Z'
+updated_at: '2026-08-01T04:17:49.526287Z'
