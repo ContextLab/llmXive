@@ -1,0 +1,11 @@
+status: none
+intent: download Amazon Books Last.fm MovieLens datasets python package dataset
+required_fields:
+- item_id
+- title
+- text_or_description
+- categories_or_tags
+- content_feature_vector
+cache_key: 8ff81a5cc5630d465664bcdd016b7ae8f8adbe44e8c80ee00671664b496db975
+searched_at: '2026-08-01T10:56:33.717868+00:00'
+retry_count: 1

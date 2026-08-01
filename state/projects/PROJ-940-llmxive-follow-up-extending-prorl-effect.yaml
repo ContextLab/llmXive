@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T11:03:13.053344Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-940-llmxive-follow-up-extending-prorl-effect
-last_run_id: 9c0d7737-d24c-49c3-be45-6b7b2a05faf4
+last_run_id: a974bffb-5838-41c9-8a4f-c1f55df6303c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-940-llmxive-follow-up-extending-prorl-effect/specs/001-llmxive-follow-up-extending-prorl-effect
 title: 'llmXive follow-up: extending "ProRL: Effective Reinforcement Learning for
   Proactive Recommendation v"'
-updated_at: '2026-07-10T04:34:11.496673Z'
+updated_at: '2026-08-01T11:27:50.295956Z'
