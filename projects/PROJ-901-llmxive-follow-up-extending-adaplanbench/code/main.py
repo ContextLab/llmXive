@@ -1,323 +1,287 @@
+"""
+Main orchestration script with resource monitor wrapper.
+Implements FR-006 and SC-003: Resource monitoring and fail-fast mechanism.
+"""
 import os
 import sys
 import time
-import resource
 import json
-import csv
 import argparse
+import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Callable
-from contextlib import contextmanager
-from dataclasses import dataclass, field, asdict
+from typing import Callable, Any, Dict, List, Optional
+import psutil
 
-# Local imports based on provided API surface
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
+
 from config import (
-    Paths,
-    ResourceLimits,
-    ModelConfig,
-    DatasetConfig,
-    AnalysisConfig,
     get_paths,
     get_resource_limits,
-    get_model_config,
-    get_dataset_config,
-    get_analysis_config,
-    ensure_directories,
-    ProjectLogger,
-    get_logger
+    ResourceLimitExceeded,
+    ProjectLogger
 )
-from dataset.loader import load_adaplanbench, verify_progressive_constraints, filter_progressive_constraints, save_filtered_dataset, main as loader_main
-from analysis.power import run_power_analysis, main as power_main
-from analysis.glmm import run_statistical_analysis, main as glmm_main
-from analysis.generate_execution_traces import main as traces_main
-from analysis.adherence_verifier import main as adherence_main
-from analysis.agreement_rate import main as agreement_main
-from agent.monolithic_runner import main as monolithic_main
-from agent.dual_track_runner import main as dual_track_main
 
-# ---------------------------------------------------------------------------
-# Resource Monitor Implementation (T008a)
-# ---------------------------------------------------------------------------
+# Ensure directories exist
+paths = get_paths()
+paths.ensure_directories()
 
-@dataclass
+logger = ProjectLogger("main")
+
+
 class ResourceMetrics:
-    """Data class for resource usage metrics."""
-    timestamp: str
-    task_id: str
-    cpu_percent: float
-    ram_gb: float
+    """Data class to hold resource usage metrics."""
+    def __init__(self, timestamp: str, task_id: str, cpu_percent: float, ram_gb: float):
+        self.timestamp = timestamp
+        self.task_id = task_id
+        self.cpu_percent = cpu_percent
+        self.ram_gb = ram_gb
 
-class ResourceLimitExceeded(Exception):
-    """Custom exception raised when resource limits are exceeded."""
-    pass
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "timestamp": self.timestamp,
+            "task_id": self.task_id,
+            "cpu_percent": self.cpu_percent,
+            "ram_gb": self.ram_gb
+        }
+
 
 class ResourceMonitor:
     """
-    Monitors CPU and RAM usage.
-    Implements fail-fast mechanism: raises ResourceLimitExceeded if CPU > 90% or RAM > 6.5GB.
+    Context manager to monitor CPU and RAM usage during task execution.
     Logs metrics to data/processed/resource_logs.json.
+    Raises ResourceLimitExceeded if thresholds are exceeded.
     """
-    def __init__(self, task_id: str, output_path: Optional[Path] = None):
+    def __init__(self, task_id: str, log_path: Optional[Path] = None):
         self.task_id = task_id
-        self.output_path = output_path or Paths.PROCESSED / "resource_logs.json"
-        self.logger = get_logger("ResourceMonitor")
+        self.log_path = log_path or paths.PROCESSED / "resource_logs.json"
         self.limits = get_resource_limits()
-        # Ensure output directory exists
-        self.output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Load existing logs if file exists
-        self.logs: List[Dict[str, Any]] = []
-        if self.output_path.exists():
-            try:
-                with open(self.output_path, 'r') as f:
-                    self.logs = json.load(f)
-            except (json.JSONDecodeError, IOError):
-                self.logs = []
+        self.cpu_threshold = self.limits.cpu_percent
+        self.ram_threshold = self.limits.ram_gb
+        self.snapshots: List[Dict[str, Any]] = []
+        self.exceeded = False
+        self.exceeded_limit: Optional[str] = None
+        self.trigger_values: Optional[Dict[str, float]] = None
 
-    def _get_current_usage(self) -> ResourceMetrics:
+    def _get_current_usage(self) -> Dict[str, float]:
         """Get current CPU and RAM usage."""
-        # CPU percent for the current process
-        # Note: resource.getrusage returns user+system time, we calculate percent relative to interval
-        # For a simple snapshot, we use the process's CPU time delta or a static check
-        # Since resource module doesn't give instantaneous % easily without a loop, 
-        # we use a simple approximation based on the last check or a 1s sleep if needed.
-        # However, for the "wrap task" context, we usually check before and after.
-        # Here we implement a snapshot using the current process stats.
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        
-        # Calculate RAM in GB (maxrss is in KB on Linux)
-        ram_gb = usage.ru_maxrss / (1024 * 1024) # Convert KB to GB (assuming 1KB = 1024 bytes)
-        
-        # CPU percent: For a single snapshot, we can't get % without a delta.
-        # We will implement the check in the context manager using a delta approach or 
-        # assume the caller checks periodically. 
-        # To satisfy the "fail fast" immediately on entry if already high, we check current load.
-        # A robust way without external deps: check /proc/stat or use psutil if available.
-        # Since we must stick to stdlib or provided deps, we will estimate based on 
-        # the fact that if the process is running, we check the *current* usage.
-        # For the purpose of this task, we will simulate a check by comparing 
-        # current CPU time to wall time over a small interval if possible, 
-        # OR simply log the maxrss and a placeholder for CPU if we can't measure % instantly.
-        # 
-        # Better approach for "fail fast" on start: Check system load if possible, 
-        # but the requirement is "CPU > 90%". 
-        # Let's use a simple heuristic: if we can't measure % instantly, we assume 
-        # the process is running and check the *accumulated* usage vs time? No.
-        # 
-        # Implementation: We will perform a 0.1s sleep to measure delta for the context manager.
-        # For the snapshot method, we return 0.0 for CPU if we can't measure, 
-        # but the context manager will handle the actual check.
-        # 
-        # Actually, resource.getrusage gives ru_utime and ru_stime.
-        # We can't get % without a time delta. 
-        # Let's implement the check inside the context manager where we have start/end times.
-        # For this snapshot, we'll return 0.0 and let the context manager handle the logic.
-        cpu_percent = 0.0 
-        
-        return ResourceMetrics(
-            timestamp=datetime.utcnow().isoformat(),
-            task_id=self.task_id,
-            cpu_percent=cpu_percent,
-            ram_gb=ram_gb
-        )
+        process = psutil.Process(os.getpid())
+        cpu = process.cpu_percent(interval=None)  # Non-blocking, uses last measurement
+        ram = process.memory_info().rss / (1024 ** 3)  # Convert bytes to GB
+        return {"cpu": cpu, "ram": ram}
 
-    def check_limits(self, cpu_percent: float, ram_gb: float) -> None:
-        """
-        Check if limits are exceeded.
-        Raises ResourceLimitExceeded if CPU > 90% or RAM > 6.5GB.
-        """
-        if cpu_percent > self.limits.cpu_percent_limit:
-            raise ResourceLimitExceeded(
-                f"CPU usage {cpu_percent:.2f}% exceeds limit of {self.limits.cpu_percent_limit}%"
+    def _log_snapshot(self, cpu: float, ram: float):
+        """Record a resource snapshot and check thresholds."""
+        timestamp = datetime.utcnow().isoformat() + "Z"
+        snapshot = {
+            "timestamp": timestamp,
+            "task_id": self.task_id,
+            "cpu_percent": round(cpu, 2),
+            "ram_gb": round(ram, 4),
+            "threshold_exceeded": False,
+            "exceeded_limit": None,
+            "snapshot_values": {"cpu": round(cpu, 2), "ram": round(ram, 4)}
+        }
+
+        # Check thresholds
+        if cpu > self.cpu_threshold:
+            snapshot["threshold_exceeded"] = True
+            snapshot["exceeded_limit"] = "CPU"
+            self.exceeded = True
+            self.exceeded_limit = "CPU"
+            self.trigger_values = {"cpu": cpu, "ram": ram}
+        elif ram > self.ram_threshold:
+            snapshot["threshold_exceeded"] = True
+            snapshot["exceeded_limit"] = "RAM"
+            self.exceeded = True
+            self.exceeded_limit = "RAM"
+            self.trigger_values = {"cpu": cpu, "ram": ram}
+
+        self.snapshots.append(snapshot)
+        return snapshot
+
+    def __enter__(self):
+        """Enter context: start monitoring."""
+        # Warm up CPU measurement
+        psutil.Process(os.getpid()).cpu_percent(interval=None)
+        time.sleep(0.1)  # Small delay to allow initial measurement
+        logger.info(f"Starting resource monitor for task: {self.task_id}")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context: log final state and handle exceptions."""
+        # Log final snapshot if we haven't exceeded yet
+        if not self.exceeded:
+            cpu, ram = self._get_current_usage()
+            self._log_snapshot(cpu, ram)
+
+        # Write logs to disk
+        self._write_logs()
+
+        if self.exceeded:
+            # Log the trigger values before raising
+            logger.error(
+                f"Resource limit exceeded for task {self.task_id}: "
+                f"{self.exceeded_limit} usage ({self.trigger_values[self.exceeded_limit.lower()]}) "
+                f"exceeded threshold."
             )
-        if ram_gb > self.limits.ram_gb_limit:
             raise ResourceLimitExceeded(
-                f"RAM usage {ram_gb:.2f}GB exceeds limit of {self.limits.ram_gb_limit}GB"
+                f"Task {self.task_id} exceeded {self.exceeded_limit} limit "
+                f"({self.trigger_values[self.exceeded_limit.lower()]})"
             )
 
-    def log_metrics(self, cpu_percent: float, ram_gb: float) -> None:
-        """Log metrics to the JSON file."""
-        metrics = ResourceMetrics(
-            timestamp=datetime.utcnow().isoformat(),
-            task_id=self.task_id,
-            cpu_percent=cpu_percent,
-            ram_gb=ram_gb
-        )
-        self.logs.append(asdict(metrics))
-        
-        with open(self.output_path, 'w') as f:
-            json.dump(self.logs, f, indent=2)
-        
-        self.logger.info(f"Logged resource metrics for {self.task_id}: CPU={cpu_percent:.2f}%, RAM={ram_gb:.2f}GB")
+        return False  # Don't suppress exceptions
 
-@contextmanager
-def resource_monitor_context(task_id: str, output_path: Optional[Path] = None):
+    def _write_logs(self):
+        """Write accumulated logs to JSON file."""
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        existing_logs = []
+        if self.log_path.exists():
+            try:
+                with open(self.log_path, 'r') as f:
+                    content = f.read().strip()
+                    if content:
+                        existing_logs = json.loads(content)
+            except (json.JSONDecodeError, IOError) as e:
+                logger.warning(f"Could not read existing logs: {e}")
+                existing_logs = []
+
+        existing_logs.extend(self.snapshots)
+
+        with open(self.log_path, 'w') as f:
+            json.dump(existing_logs, f, indent=2)
+        logger.debug(f"Resource logs written to {self.log_path}")
+
+
+def resource_monitor_context(task_id: str):
     """
-    Context manager to wrap task execution.
-    Logs CPU and RAM usage per task to data/processed/resource_logs.json.
-    Raises ResourceLimitExceeded if limits are exceeded.
+    Factory function to create a resource monitor context manager.
+    Usage:
+        with resource_monitor_context("my_task") as monitor:
+            # do work
+            monitor.check()  # Optional manual check
     """
-    monitor = ResourceMonitor(task_id, output_path)
+    return ResourceMonitor(task_id)
+
+
+def run_dataset_preparation():
+    """Run dataset preparation tasks."""
+    logger.info("Running dataset preparation...")
+    # Import and run loader
+    from dataset.loader import main as loader_main
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--verify-only', action='store_true')
+    parser.add_argument('--filter-min-constraints', type=int, default=5)
+    parser.add_argument('--output', type=str, default=None)
+    args = parser.parse_args(['--filter-min-constraints', '5'])
+    loader_main(args)
+
+
+def run_agent_execution():
+    """Run agent execution tasks."""
+    logger.info("Running agent execution...")
+    # Run monolithic baseline
+    from agent.monolithic_runner import main as monolithic_main
+    monolithic_main()
     
-    # Start monitoring
-    start_time = time.time()
-    start_rusage = resource.getrusage(resource.RUSAGE_SELF)
+    # Run dual track
+    from agent.dual_track_runner import main as dual_track_main
+    dual_track_main()
+
+
+def run_statistical_analysis_main():
+    """Run statistical analysis tasks."""
+    logger.info("Running statistical analysis...")
     
-    try:
-        yield monitor
-    finally:
-        end_time = time.time()
-        end_rusage = resource.getrusage(resource.RUSAGE_SELF)
-        
-        # Calculate usage
-        elapsed_time = end_time - start_time
-        if elapsed_time > 0:
-            cpu_time = (end_rusage.ru_utime + end_rusage.ru_stime) - (start_rusage.ru_utime + start_rusage.ru_stime)
-            cpu_percent = (cpu_time / elapsed_time) * 100.0
-        else:
-            cpu_percent = 0.0
-        
-        ram_gb = end_rusage.ru_maxrss / (1024 * 1024) # KB to GB
-        
-        # Check limits BEFORE logging
-        try:
-            monitor.check_limits(cpu_percent, ram_gb)
-        except ResourceLimitExceeded as e:
-            # Log the failure event before re-raising? Or just raise.
-            # The requirement says "aborting the run", so we raise immediately.
-            # But we should probably log the exceeded state for the record.
-            monitor.log_metrics(cpu_percent, ram_gb)
-            raise e
-        
-        # Log successful metrics
-        monitor.log_metrics(cpu_percent, ram_gb)
-
-# ---------------------------------------------------------------------------
-# Task Execution Wrappers
-# ---------------------------------------------------------------------------
-
-def run_dataset_preparation(args: argparse.Namespace) -> None:
-    """Run dataset preparation tasks with resource monitoring."""
-    task_id = "T013_filter"
-    with resource_monitor_context(task_id):
-        # Simulate calling the loader main with args
-        # We need to construct the args for the loader
-        loader_args = argparse.Namespace()
-        loader_args.verify_only = getattr(args, 'verify_only', False)
-        loader_args.filter_min_constraints = getattr(args, 'filter_min_constraints', None)
-        loader_args.output = getattr(args, 'output', str(Paths.PROCESSED / "filtered_tasks.csv"))
-        loader_main(loader_args)
-
-def run_agent_execution(args: argparse.Namespace) -> None:
-    """Run agent execution tasks with resource monitoring."""
-    # Monolithic
-    task_id_mono = "T026a_monolithic"
-    with resource_monitor_context(task_id_mono):
-        mono_args = argparse.Namespace()
-        mono_args.input = str(Paths.PROCESSED / "filtered_tasks.csv")
-        mono_args.output = str(Paths.PROCESSED / "monolithic_logs.json")
-        mono_args.model = getattr(args, 'model', 'phi-3-mini')
-        mono_main(mono_args)
-
-    # Dual Track
-    task_id_dual = "T026b_dual_track"
-    with resource_monitor_context(task_id_dual):
-        dual_args = argparse.Namespace()
-        dual_args.input = str(Paths.PROCESSED / "filtered_tasks.csv")
-        dual_args.output = str(Paths.PROCESSED / "dual_track_logs.json")
-        dual_main(dual_args)
-
-def run_statistical_analysis_main(args: argparse.Namespace) -> None:
-    """Run statistical analysis tasks with resource monitoring."""
-    # Power Analysis
-    task_id_power = "T030_power"
-    with resource_monitor_context(task_id_power):
-        power_args = argparse.Namespace()
-        power_args.input = str(Paths.PROCESSED / "filtered_tasks.csv")
-        power_args.output = str(Paths.PROCESSED / "power_report.json")
-        power_main(power_args)
-
-    # GLMM
-    task_id_glmm = "T031_glmm"
-    with resource_monitor_context(task_id_glmm):
-        glmm_args = argparse.Namespace()
-        glmm_args.input = str(Paths.PROCESSED / "execution_traces.csv") # Note: This file must be generated first
-        glmm_args.output = str(Paths.PROCESSED / "statistical-results.json")
-        # Check if file exists, if not, maybe run traces generation first?
-        # For now, we assume the pipeline order is correct or the user passes the right file.
-        if not os.path.exists(glmm_args.input):
-            # Try to generate traces if missing
-            traces_args = argparse.Namespace()
-            traces_args.monolithic_log = str(Paths.PROCESSED / "monolithic_logs.json")
-            traces_args.dual_track_log = str(Paths.PROCESSED / "dual_track_logs.json")
-            traces_args.output = str(Paths.PROCESSED / "execution_traces.csv")
-            traces_main(traces_args)
-        
-        glmm_main(glmm_args)
-
-    # Adherence Verifier
-    task_id_adherence = "T035_adherence"
-    with resource_monitor_context(task_id_adherence):
-        adh_args = argparse.Namespace()
-        adh_args.input = str(Paths.PROCESSED / "execution_traces.csv")
-        adh_args.output = str(Paths.PROCESSED / "adherence_verification.json")
-        adherence_main(adh_args)
-
-    # Agreement Rate
-    task_id_agreement = "T034_agreement"
-    with resource_monitor_context(task_id_agreement):
-        agr_args = argparse.Namespace()
-        agr_args.input = str(Paths.PROCESSED / "execution_traces.csv")
-        agr_args.annotation_sample = str(Paths.PROCESSED / "annotation_sample.csv")
-        agr_args.output = str(Paths.PROCESSED / "agreement_rate_report.json")
-        agreement_main(agr_args)
-
-def run_all_tasks(args: argparse.Namespace) -> None:
-    """Run all tasks in sequence."""
-    # 1. Dataset Prep
-    run_dataset_preparation(args)
+    # Generate execution traces
+    from analysis.generate_execution_traces import main as traces_main
+    traces_main()
     
-    # 2. Agent Execution
-    run_agent_execution(args)
+    # Run power analysis
+    from analysis.power import main as power_main
+    power_main()
     
-    # 3. Statistical Analysis
-    run_statistical_analysis_main(args)
+    # Run adherence verification
+    from analysis.adherence_verifier import main as adherence_main
+    adherence_main()
+    
+    # Run agreement rate
+    from analysis.agreement_rate import main as agreement_main
+    agreement_main()
+    
+    # Run GLMM
+    from analysis.glmm import main as glmm_main
+    glmm_main()
+    
+    # Generate statistical results
+    from analysis.generate_statistical_results import main as stats_main
+    stats_main()
+
+
+def run_all_tasks():
+    """Run all tasks in sequence with resource monitoring."""
+    tasks = [
+        ("dataset_preparation", run_dataset_preparation),
+        ("agent_execution", run_agent_execution),
+        ("statistical_analysis", run_statistical_analysis_main)
+    ]
+    
+    for task_id, task_func in tasks:
+        logger.info(f"Starting task: {task_id}")
+        with resource_monitor_context(task_id):
+            try:
+                task_func()
+                logger.info(f"Task {task_id} completed successfully")
+            except ResourceLimitExceeded:
+                logger.error(f"Task {task_id} aborted due to resource limits")
+                raise
+            except Exception as e:
+                logger.error(f"Task {task_id} failed: {e}")
+                traceback.print_exc()
+                raise
+
 
 def main():
-    parser = argparse.ArgumentParser(description="llmXive Main Orchestration Script")
-    parser.add_argument("--mode", choices=["full", "dataset", "agent", "analysis"], default="full",
-                        help="Execution mode")
-    parser.add_argument("--model", type=str, default="phi-3-mini", help="Model to use for agents")
-    parser.add_argument("--output", type=str, default=None, help="Output directory for logs (optional)")
-    
-    # Dataset specific args
-    parser.add_argument("--verify-only", action="store_true", help="Verify dataset only")
-    parser.add_argument("--filter-min-constraints", type=int, help="Filter min constraints")
-    
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description="llmXive Orchestration Script")
+    parser.add_argument('--mode', type=str, choices=['preparation', 'execution', 'analysis', 'all'],
+                      default='all', help='Which phase to run')
+    parser.add_argument('--task', type=str, help='Specific task to run')
     args = parser.parse_args()
-    
-    ensure_directories()
-    logger = get_logger("Main")
-    logger.info(f"Starting main orchestration in mode: {args.mode}")
-    
-    try:
-        if args.mode == "full":
-            run_all_tasks(args)
-        elif args.mode == "dataset":
-            run_dataset_preparation(args)
-        elif args.mode == "agent":
-            run_agent_execution(args)
-        elif args.mode == "analysis":
-            run_statistical_analysis_main(args)
-        
-        logger.info("All tasks completed successfully.")
-    except ResourceLimitExceeded as e:
-        logger.error(f"Resource limit exceeded: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Error during execution: {e}")
-        raise
+
+    if args.mode == 'all' and not args.task:
+        run_all_tasks()
+    elif args.task:
+        # Run specific task with monitoring
+        task_map = {
+            'dataset_preparation': run_dataset_preparation,
+            'agent_execution': run_agent_execution,
+            'statistical_analysis': run_statistical_analysis_main
+        }
+        if args.task in task_map:
+            with resource_monitor_context(args.task):
+                task_map[args.task]()
+        else:
+            logger.error(f"Unknown task: {args.task}")
+            sys.exit(1)
+    else:
+        # Run specific mode
+        mode_map = {
+            'preparation': run_dataset_preparation,
+            'execution': run_agent_execution,
+            'analysis': run_statistical_analysis_main
+        }
+        if args.mode in mode_map:
+            with resource_monitor_context(f"{args.mode}_mode"):
+                mode_map[args.mode]()
+        else:
+            logger.error(f"Unknown mode: {args.mode}")
+            sys.exit(1)
+
+    logger.info("All tasks completed successfully")
+
 
 if __name__ == "__main__":
     main()

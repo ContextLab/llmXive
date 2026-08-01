@@ -3,6 +3,9 @@ Validation script for the filtered subset (T015).
 
 Samples tasks from data/processed/filtered_tasks.csv and verifies
 that the constraint_count matches the original metadata logic.
+
+This script is designed to be run after T013 (filtering) to ensure
+the filtering logic correctly isolated tasks with >= 5 progressive constraints.
 """
 
 import os
@@ -59,14 +62,17 @@ def validate_subset(sample_size: int = 10):
     if not input_path.exists():
         raise FileNotFoundError(
             f"Filtered dataset not found at {input_path}. "
-            "Please run T012/T013/T014 first to generate the filtered dataset."
+            "Please run T012/T013 first to generate the filtered dataset."
         )
 
-    df = pd.read_csv(input_path)
+    try:
+        df = pd.read_csv(input_path)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read filtered dataset: {e}")
 
     if len(df) == 0:
-        print("Warning: Filtered dataset is empty.")
-        return
+        print("Error: Filtered dataset is empty. Validation cannot proceed.")
+        sys.exit(1)
 
     effective_sample_size = min(sample_size, len(df))
     print(f"Validating subset of {effective_sample_size} tasks from {len(df)} total...")
@@ -88,7 +94,13 @@ def validate_subset(sample_size: int = 10):
             fail_count += 1
             continue
 
-        count = int(row['constraint_count'])
+        try:
+            count = int(row['constraint_count'])
+        except (ValueError, TypeError):
+            print(f"  [FAIL] {task_id}: Invalid 'constraint_count' value: {row['constraint_count']}")
+            all_valid = False
+            fail_count += 1
+            continue
 
         # Verify count is >= 5 (MIN_CONSTRAINT_REVEALS)
         if count < MIN_CONSTRAINT_REVEALS:
@@ -125,7 +137,7 @@ def validate_subset(sample_size: int = 10):
     print(f"\nValidation Summary: {pass_count} passed, {fail_count} failed.")
 
     if all_valid:
-        print("Validation PASSED: All sampled tasks meet the criteria.")
+        print("Validation passed")
     else:
         print("Validation FAILED: Some tasks did not meet criteria.")
         sys.exit(1)

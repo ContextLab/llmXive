@@ -1,21 +1,22 @@
 {
   "project_id": "PROJ-901-llmxive-follow-up-extending-adaplanbench",
   "ok": false,
-  "reason": "6 command(s) failed: python code/dataset/loader.py --verify-only (rc=1); python code/dataset/loader.py --filter-min-constraints 5 --output data/processed/filtered_tasks.csv (rc=1); python code/analysis/power.py --input data/processed/filtered_tasks.csv (rc=1); 10 declared deliverable(s) absent: data/processed/adherence_verification.json; data/processed/agreement_rate_report.json; data/processed/annotation_sample.csv",
-  "artifacts": [],
-  "failures": [
-    "python code/dataset/loader.py --verify-only -> rc=1\n    Loading AdaPlanBench dataset...\nError: 'DatasetConfig' object has no attribute 'LOCAL_PATH'",
-    "python code/dataset/loader.py --filter-min-constraints 5 --output data/processed/filtered_tasks.csv -> rc=1\n    Loading AdaPlanBench dataset...\nError: 'DatasetConfig' object has no attribute 'LOCAL_PATH'",
-    "python code/analysis/power.py --input data/processed/filtered_tasks.csv -> rc=1\n    Error: Execution traces file not found: data/processed/filtered_tasks.csv",
-    "python code/main.py --mode full --model phi-3-mini --output data/processed/execution_logs.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/main.py\", line 24, in <module>\n    from agent.monolithic_runner import main as monolithic_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/agent/monolithic_runner.py\", line 24, in <module>\n    from agent.judges import AdaPlanJudge\nModuleNotFoundError: No module named 'agent.judges'",
-    "python code/analysis/glmm.py --input data/processed/execution_logs.csv --output data/processed/results.json -> rc=1\n    Running GLMM analysis on data/processed/execution_logs.csv...\n\nError during GLMM analysis: Execution traces file not found: data/processed/execution_logs.csv\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/analysis/glmm.py\", line 419, in main\n    results = run_statistical_analysis(args.input, args.output)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ru",
-    "python code/dataset/annotator.py --input data/processed/execution_logs.csv --target-kappa-precision 0.10 -> rc=2\n    usage: annotator.py [-h] --input INPUT [--output OUTPUT]\n                    [--sample-size SAMPLE_SIZE] [--seed SEED]\nannotator.py: error: unrecognized arguments: --target-kappa-precision 0.10"
+  "reason": "every produced artifact is gitignored (data/processed/statistical-results.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/dataset/loader.py --filter-constraints 5 (rc=2); python code/analysis/power.py --input data/processed/filtered_tasks.csv (rc=1); python code/main.py --mode execution (rc=1); 7 declared deliverable(s) absent: data/processed/adherence_verification.json; data/processed/agreement_rate_report.json; data/processed/annotation_sample.csv",
+  "artifacts": [
+    "data/processed/statistical-results.json"
   ],
-  "fix_rounds": 3,
+  "failures": [
+    "python code/dataset/loader.py --filter-constraints 5 -> rc=2\n    usage: loader.py [-h] [--verify-only]\n                 [--filter-min-constraints FILTER_MIN_CONSTRAINTS]\n                 [--output OUTPUT]\nloader.py: error: unrecognized arguments: --filter-constraints 5",
+    "python code/analysis/power.py --input data/processed/filtered_tasks.csv -> rc=1\n    Loading filtered tasks from data/processed/filtered_tasks.csv...\n\nError during power analysis: Filtered tasks file not found: data/processed/filtered_tasks.csv",
+    "python code/main.py --mode execution -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/main.py\", line 36, in <module>\n    from agent.monolithic_runner import main as monolithic_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/agent/monolithic_runner.py\", line 24, in <module>\n    from agent.judges import AdaPlanJudge\nModuleNotFoundError: No module named 'agent.judges'",
+    "python code/dataset/annotator.py --sample-size 50 -> rc=2\n    usage: annotator.py [-h] --input INPUT [--output OUTPUT]\n                    [--sample-size SAMPLE_SIZE] [--seed SEED]\nannotator.py: error: the following arguments are required: --input",
+    "python code/analysis/glmm.py --input data/processed/execution_traces.csv -> rc=1\n    Running GLMM analysis on data/processed/execution_traces.csv...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/analysis/glmm.py\", line 352, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-llmxive-follow-up-extending-adaplanbench/code/analysis/glmm.py\", line 348, in main\n    run_statistical_analysis(args.input, args.output)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-901-"
+  ],
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-23T08:58:26Z"
+  "updated_at": "2026-08-01T11:46:19Z"
 }

@@ -1,14 +1,8 @@
 """
-Power analysis for the GLMM on the filtered AdaPlanBench subset.
+Power analysis for the GLMM experiment.
 
-Calculates the achieved power for the GLMM given:
-- groups=2 (monolithic vs dual-track)
-- alpha=0.05
-- effect_size=0.15 (Cohen's f² target)
-- n_observations derived from the actual sample size in data/processed/filtered_tasks.csv
-
-Output: data/processed/power_report.json
-Schema: {calculated_power, effect_size, sample_size, groups}
+Calculates the achieved power for the planned GLMM given the sample size
+from the filtered dataset.
 """
 import os
 import sys
@@ -16,177 +10,192 @@ import json
 import argparse
 import math
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 
 import pandas as pd
-from statsmodels.stats.power import FTestPower
+from statsmodels.stats.power import FTestAnovaPower
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "filtered_tasks.csv"
-DEFAULT_OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "power_report.json"
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import Paths
 
-def load_filtered_tasks(input_path: Path) -> pd.DataFrame:
+# Constants for the analysis
+ALPHA = 0.05
+EFFECT_SIZE = 0.15  # Cohen's f² target
+GROUPS = 2  # Monolithic vs Dual-track
+
+def load_filtered_tasks(file_path: str) -> pd.DataFrame:
     """
-    Load the filtered tasks CSV.
-    Validates that the file exists and has the expected columns.
+    Load the filtered tasks dataset.
+    
+    Args:
+        file_path: Path to the filtered_tasks.csv file.
+        
+    Returns:
+        DataFrame containing the filtered tasks.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file is empty or missing required columns.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Filtered tasks file not found: {input_path}")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Filtered tasks file not found: {file_path}")
     
-    df = pd.read_csv(input_path)
+    df = pd.read_csv(file_path)
     
-    required_cols = ['task_id', 'raw_prompt', 'progressive_constraints', 'constraint_count']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {input_path}: {missing_cols}")
-    
+    if df.empty:
+        raise ValueError(f"Filtered tasks file is empty: {file_path}")
+        
+    # Verify required columns exist (T013 ensures these)
+    required_cols = ['task_id', 'progressive_constraints', 'constraint_count']
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {file_path}: {missing}")
+        
     return df
 
 def calculate_achieved_power(
-    sample_size: int,
-    effect_size: float,
-    alpha: float = 0.05,
-    groups: int = 2
+    n_observations: int,
+    groups: int = GROUPS,
+    effect_size: float = EFFECT_SIZE,
+    alpha: float = ALPHA
 ) -> float:
     """
-    Calculate the achieved power for a GLMM-like test.
+    Calculate the achieved power for the GLMM.
     
-    We approximate the power calculation using FTestPower from statsmodels,
-    treating the interaction effect (constraints x architecture) as the target.
+    Uses FTestAnovaPower (appropriate for ANOVA/GLMM with fixed effects).
+    For a GLMM with 2 groups and interaction term, we approximate using
+    the F-test power calculation.
     
-    Parameters:
-    - sample_size: Total number of observations (tasks)
-    - effect_size: Cohen's f² (target effect size)
-    - alpha: Significance level
-    - groups: Number of groups (architectures)
-    
+    Args:
+        n_observations: Total number of observations (tasks).
+        groups: Number of groups (2 for monolithic vs dual-track).
+        effect_size: Cohen's f² effect size.
+        alpha: Significance level.
+        
     Returns:
-    - calculated_power: float between 0 and 1
+        Calculated power (0.0 to 1.0).
     """
-    # For a GLMM with 2 groups and a continuous predictor (constraint_count),
-    # we approximate the degrees of freedom for the numerator (effect) as:
-    # df1 = number of predictors involved in the interaction = 1 (for the interaction term)
-    # df2 = total sample size - number of parameters estimated
-    #       For a simple interaction model: intercept + group + constraint + interaction
-    #       Parameters = 4, so df2 = sample_size - 4
+    if n_observations <= groups:
+        # Not enough observations for any analysis
+        return 0.0
+        
+    # Degrees of freedom for the numerator (interaction effect)
+    # For 2 groups and constraint_count as continuous, interaction df = (groups-1) * 1 = 1
+    df_num = groups - 1
     
-    df1 = 1  # Interaction term
-    df2 = max(1, sample_size - 4)  # Avoid division by zero or negative df2
+    # Degrees of freedom for the denominator
+    df_denom = n_observations - groups - 1  # Adjust for intercept and other terms
     
-    # Use FTestPower to calculate power
-    # Note: FTestPower is typically used for ANOVA, but it provides a reasonable
-    # approximation for the power of detecting an interaction effect in a GLMM
-    # when we have a continuous predictor and a categorical grouping factor.
-    power_analysis = FTestPower()
+    if df_denom <= 0:
+        return 0.0
+        
+    # Use statsmodels FTestAnovaPower
+    power_analyzer = FTestAnovaPower()
     
     try:
-        power = power_analysis.power(effect_size, df1, df2, alpha=alpha)
+        power = power_analyzer.solve_power(
+            effect_size=effect_size,
+            nobs1=n_observations,
+            alpha=alpha,
+            power=None,
+            ratio=1.0  # Equal group sizes assumed
+        )
+        return float(power) if power is not None else 0.0
     except Exception:
-        # Fallback: if statsmodels fails, use a simple approximation
-        # Power = 1 - Beta, where Beta is the Type II error rate
-        # For small effect sizes and moderate sample sizes, this is a rough estimate
-        power = 1.0 - (1.0 / (1.0 + effect_size * sample_size / (groups * 2)))
-    
-    return float(power)
+        # If calculation fails, return 0.0
+        return 0.0
 
 def run_power_analysis(
-    input_path: Path = DEFAULT_INPUT_PATH,
-    output_path: Path = DEFAULT_OUTPUT_PATH,
-    effect_size: float = 0.15,
-    alpha: float = 0.05,
-    groups: int = 2
+    input_path: str,
+    output_path: str
 ) -> Dict[str, Any]:
     """
-    Perform the power analysis and write the results to a JSON file.
+    Run the power analysis and generate the report.
     
-    Steps:
-    1. Load the filtered tasks CSV to get the sample size.
-    2. Calculate the achieved power using the sample size and target effect size.
-    3. Write the results to the output JSON file.
+    Args:
+        input_path: Path to the filtered_tasks.csv file.
+        output_path: Path to write the power_report.json file.
+        
+    Returns:
+        Dictionary containing the power analysis results.
     """
-    print(f"Loading filtered tasks from {input_path}...")
+    # Load the filtered tasks
     df = load_filtered_tasks(input_path)
     
-    sample_size = len(df)
-    print(f"Sample size (n_observations): {sample_size}")
+    # Get the sample size
+    n_observations = len(df)
     
-    if sample_size == 0:
-        raise ValueError("Sample size is 0. Cannot perform power analysis.")
+    # Calculate achieved power
+    calculated_power = calculate_achieved_power(
+        n_observations=n_observations,
+        groups=GROUPS,
+        effect_size=EFFECT_SIZE,
+        alpha=ALPHA
+    )
     
-    print(f"Calculating achieved power for effect_size={effect_size}, alpha={alpha}, groups={groups}...")
-    calculated_power = calculate_achieved_power(sample_size, effect_size, alpha, groups)
-    
-    result = {
+    # Prepare the report
+    report = {
         "calculated_power": calculated_power,
-        "effect_size": effect_size,
-        "sample_size": sample_size,
-        "groups": groups,
-        "alpha": alpha,
-        "input_file": str(input_path),
-        "output_file": str(output_path)
+        "effect_size": EFFECT_SIZE,
+        "sample_size": n_observations,
+        "groups": GROUPS,
+        "alpha": ALPHA,
+        "notes": "Power calculated for GLMM with 2 groups (monolithic vs dual-track) and effect size f²=0.15"
     }
     
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
+    # Write the report
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
+        json.dump(report, f, indent=2)
     
-    print(f"Power analysis complete. Results written to {output_path}")
-    print(f"  Calculated Power: {calculated_power:.4f}")
-    print(f"  Effect Size: {effect_size}")
-    print(f"  Sample Size: {sample_size}")
-    print(f"  Groups: {groups}")
-    
-    return result
+    return report
 
 def main():
-    parser = argparse.ArgumentParser(description="Perform power analysis on the filtered AdaPlanBench subset.")
+    """Main entry point for the power analysis script."""
+    parser = argparse.ArgumentParser(
+        description="Perform power analysis on the filtered dataset for GLMM experiment."
+    )
     parser.add_argument(
         "--input",
         type=str,
-        default=str(DEFAULT_INPUT_PATH),
-        help=f"Path to the filtered tasks CSV (default: {DEFAULT_INPUT_PATH})"
+        default="data/processed/filtered_tasks.csv",
+        help="Path to the filtered tasks CSV file (default: data/processed/filtered_tasks.csv)"
     )
     parser.add_argument(
         "--output",
         type=str,
-        default=str(DEFAULT_OUTPUT_PATH),
-        help=f"Path to the output JSON file (default: {DEFAULT_OUTPUT_PATH})"
-    )
-    parser.add_argument(
-        "--effect-size",
-        type=float,
-        default=0.15,
-        help="Target Cohen's f² effect size (default: 0.15)"
-    )
-    parser.add_argument(
-        "--alpha",
-        type=float,
-        default=0.05,
-        help="Significance level (default: 0.05)"
-    )
-    parser.add_argument(
-        "--groups",
-        type=int,
-        default=2,
-        help="Number of groups (default: 2)"
+        default="data/processed/power_report.json",
+        help="Path to write the power report JSON file (default: data/processed/power_report.json)"
     )
     
     args = parser.parse_args()
     
-    input_path = Path(args.input)
-    output_path = Path(args.output)
+    print(f"Loading filtered tasks from {args.input}...")
     
     try:
-        run_power_analysis(
-            input_path=input_path,
-            output_path=output_path,
-            effect_size=args.effect_size,
-            alpha=args.alpha,
-            groups=args.groups
-        )
+        report = run_power_analysis(args.input, args.output)
+        
+        print(f"Power analysis complete!")
+        print(f"  Sample size: {report['sample_size']}")
+        print(f"  Calculated power: {report['calculated_power']:.4f}")
+        print(f"  Effect size: {report['effect_size']}")
+        print(f"  Groups: {report['groups']}")
+        print(f"Report written to: {args.output}")
+        
+        # Log the result
+        print(f"Power analysis result: power={report['calculated_power']:.4f}")
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
         print(f"Error during power analysis: {e}", file=sys.stderr)
         sys.exit(1)

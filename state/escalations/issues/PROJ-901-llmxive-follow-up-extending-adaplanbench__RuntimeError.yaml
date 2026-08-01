@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-01T12:24:26.686738+00:00'
+issue_number: 1297
+project_id: PROJ-901-llmxive-follow-up-extending-adaplanbench

@@ -1,10 +1,12 @@
-T013:
+T008a:
   c: false
-  h: dccb9fbc191f46a0c5a1af68c2c02c637c9bb3a4edb7cf049175985f6618c860
-  r: "The `code/dataset/loader.py` script contains the filtering logic, but the required\
-    \ output file `data/processed/filtered_tasks.csv` is absent, so the task\u2019\
-    s deliverable (a CSV with the specified columns) was not produced. The missing\
-    \ CSV means the requirement is not satisfied."
+  h: d0aea4990dff2dbdca7d8a35c71c37fbe66f0e49d2948a69e91ed39f7b5e67b8
+  r: "The provided `code/main.py` is truncated and does not append snapshots to `self.snapshots`,\
+    \ never sets `trigger_values`, lacks the context\u2011manager methods and the\
+    \ fail\u2011fast exception raise, and never writes to `data/processed/resource_logs.json`\
+    \ (the file is missing). Consequently the unit tests in `tests/unit/test_resource_monitor.py`\
+    \ would fail. The implementation must be completed to meet the schema, logging,\
+    \ and exception requirements."
 T026a:
   c: false
   h: 72ca844abc23706d3c16113f50ffe2ac72cdab14226d324257e1d207dbb31f13
@@ -32,12 +34,11 @@ T026f:
     \ is missing. The implementation must generate the CSV with the specified columns."
 T030:
   c: false
-  h: 564806055fd0b540c0ea9fa5367fc8697ce7e18de864631691319b917988b571
-  r: The provided `code/analysis/power.py` is truncated and contains a typo (`FTestPowe`),
-    so it cannot run the power calculation. The required input file `data/processed/filtered_tasks.csv`
-    does not exist, and the expected output `data/processed/power_report.json` was
-    never generated. The task therefore lacks both the necessary data and a functional
-    implementation.
+  h: a384963243868d6a5acbad6cd280d47a7f1ed9d3d19e4f9c9546c1ec9c8c460c
+  r: The required input file `data/processed/filtered_tasks.csv` does not exist, so
+    the script cannot obtain the sample size, and the expected output `data/processed/power_report.json`
+    is also missing. Additionally, the provided `power.py` is truncated and does not
+    show the logic that writes the JSON report. The task therefore is not fully implemented.
 T033:
   c: false
   h: a46cafaccdcc3c3fa997b61c3d83272054b25aea5c963f1f2db1bb8d115d99b4

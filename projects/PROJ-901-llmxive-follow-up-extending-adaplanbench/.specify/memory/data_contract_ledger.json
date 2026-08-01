@@ -4,6 +4,10 @@
     "required": []
   },
   {
+    "data_file": "data/processed/execution_traces.csv",
+    "required": []
+  },
+  {
     "data_file": "data/processed/filtered_tasks.csv",
     "required": []
   }
