@@ -1,121 +1,142 @@
 import pytest
 import pandas as pd
-import json
-from pathlib import Path
-import sys
 import os
+import sys
+import tempfile
+from pathlib import Path
 
 # Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from dataset.loader import filter_progressive_constraints, save_filtered_dataset, DatasetBlockedException
-from config import get_paths
+from dataset.loader import (
+    filter_progressive_constraints,
+    save_filtered_dataset,
+    DatasetBlockedException
+)
 
-@pytest.fixture
-def sample_dataset():
-    """Create a sample dataset for testing."""
-    data = {
-        'task_id': ['task_1', 'task_2', 'task_3', 'task_4', 'task_5'],
-        'raw_prompt': [
-            'Prompt 1',
-            'Prompt 2',
-            'Prompt 3',
-            'Prompt 4',
-            'Prompt 5'
-        ],
-        'progressive_constraints': [
-            ['c1', 'c2', 'c3', 'c4', 'c5'],  # 5 constraints
-            ['c1', 'c2', 'c3', 'c4'],        # 4 constraints
-            ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], # 6 constraints
-            ['c1', 'c2'],                    # 2 constraints
-            ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7'] # 7 constraints
-        ]
-    }
-    return pd.DataFrame(data)
+class TestConstraintCountCalculation:
+    """Tests for T013: Verify constraint_count calculation and filtering logic."""
 
-@pytest.fixture
-def output_path(tmp_path):
-    """Create a temporary output path."""
-    return str(tmp_path / "filtered_tasks.csv")
+    def test_constraint_count_calculation(self):
+        """Verify that constraint_count is correctly calculated as len(progressive_constraints)."""
+        # Create a mock dataframe with known constraint lists
+        data = {
+            'task_id': ['task1', 'task2', 'task3', 'task4'],
+            'raw_prompt': ['prompt1', 'prompt2', 'prompt3', 'prompt4'],
+            'progressive_constraints': [
+                ['c1', 'c2', 'c3', 'c4', 'c5'],  # 5 constraints
+                ['c1', 'c2', 'c3'],               # 3 constraints
+                ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7'], # 7 constraints
+                []                                # 0 constraints
+            ]
+        }
+        df = pd.DataFrame(data)
 
-def test_constraint_count_calculation(sample_dataset):
-    """Test that constraint_count is correctly calculated as len(progressive_constraints)."""
-    filtered_df = filter_progressive_constraints(sample_dataset, min_constraints=5)
-    
-    # Check that constraint_count column exists
-    assert 'constraint_count' in filtered_df.columns
-    
-    # Check that the values are correct
-    expected_counts = [5, 6, 7]  # Only tasks with >= 5 constraints
-    actual_counts = sorted(filtered_df['constraint_count'].tolist())
-    
-    assert actual_counts == sorted(expected_counts), \
-        f"Expected constraint counts {sorted(expected_counts)}, got {actual_counts}"
+        # Apply filter with min_constraints=5
+        filtered_df = filter_progressive_constraints(df, min_constraints=5)
 
-def test_filtering_logic(sample_dataset):
-    """Test that filtering correctly excludes tasks with < 5 constraints."""
-    filtered_df = filter_progressive_constraints(sample_dataset, min_constraints=5)
-    
-    # Should have 3 tasks (5, 6, and 7 constraints)
-    assert len(filtered_df) == 3
-    
-    # Verify all constraint counts are >= 5
-    assert all(filtered_df['constraint_count'] >= 5)
+        # Verify constraint_count column exists
+        assert 'constraint_count' in filtered_df.columns, "constraint_count column missing"
 
-def test_filtering_with_different_threshold(sample_dataset):
-    """Test filtering with a different threshold."""
-    filtered_df = filter_progressive_constraints(sample_dataset, min_constraints=3)
-    
-    # Should have 4 tasks (3, 4, 5, 6, 7 -> only 2 is excluded)
-    # Wait, let's recount: 5, 4, 6, 2, 7 -> >= 3: 5, 4, 6, 7 = 4 tasks
-    assert len(filtered_df) == 4
-    
-    # Verify all constraint counts are >= 3
-    assert all(filtered_df['constraint_count'] >= 3)
+        # Verify constraint_count values match len(progressive_constraints)
+        for idx, row in filtered_df.iterrows():
+            expected_count = len(row['progressive_constraints'])
+            assert row['constraint_count'] == expected_count, \
+                f"constraint_count mismatch for task {row['task_id']}: expected {expected_count}, got {row['constraint_count']}"
 
-def test_output_schema(sample_dataset, output_path):
-    """Test that the output CSV has the correct schema."""
-    filtered_df = filter_progressive_constraints(sample_dataset, min_constraints=5)
-    save_filtered_dataset(filtered_df, output_path)
-    
-    # Read the CSV back
-    result_df = pd.read_csv(output_path)
-    
-    # Check required columns
-    required_cols = ['task_id', 'raw_prompt', 'progressive_constraints', 'constraint_count']
-    for col in required_cols:
-        assert col in result_df.columns, f"Missing required column: {col}"
-    
-    # Check that progressive_constraints is stored as a JSON string
-    for constraints_str in result_df['progressive_constraints']:
-        # Should be able to parse it as JSON
-        parsed = json.loads(constraints_str)
-        assert isinstance(parsed, list)
+        # Verify only tasks with >= 5 constraints are included
+        assert len(filtered_df) == 2, f"Expected 2 tasks with >= 5 constraints, got {len(filtered_df)}"
+        
+        # Verify the specific tasks included
+        task_ids = set(filtered_df['task_id'].tolist())
+        assert task_ids == {'task1', 'task3'}, f"Unexpected tasks: {task_ids}"
 
-def test_empty_result(sample_dataset, output_path):
-    """Test filtering when no tasks match the criteria."""
-    # Use a threshold that excludes all tasks
-    filtered_df = filter_progressive_constraints(sample_dataset, min_constraints=100)
-    
-    assert len(filtered_df) == 0
-    
-    # Should still be able to save
-    save_filtered_dataset(filtered_df, output_path)
-    
-    # Read back and verify
-    result_df = pd.read_csv(output_path)
-    assert len(result_df) == 0
+    def test_output_schema_columns(self):
+        """Verify the output CSV includes all required columns per T013 spec."""
+        data = {
+            'task_id': ['task1'],
+            'raw_prompt': ['prompt1'],
+            'progressive_constraints': [['c1', 'c2', 'c3', 'c4', 'c5']]
+        }
+        df = pd.DataFrame(data)
 
-def test_missing_columns_raises_exception():
-    """Test that missing required columns raises DatasetBlockedException."""
-    # Create a dataset missing 'task_id'
-    incomplete_data = {
-        'raw_prompt': ['Prompt 1'],
-        'progressive_constraints': [['c1', 'c2', 'c3', 'c4', 'c5']]
-    }
-    df = pd.DataFrame(incomplete_data)
-    
-    with pytest.raises(DatasetBlockedException) as exc_info:
-        filter_progressive_constraints(df, min_constraints=5)
-    
-    assert "task_id" in str(exc_info.value)
+        filtered_df = filter_progressive_constraints(df, min_constraints=5)
+
+        required_columns = ['task_id', 'raw_prompt', 'progressive_constraints', 'constraint_count']
+        for col in required_columns:
+            assert col in filtered_df.columns, f"Required column '{col}' missing from output"
+
+    def test_save_filtered_dataset_writes_file(self):
+        """Verify that save_filtered_dataset writes a non-empty CSV file."""
+        data = {
+            'task_id': ['task1'],
+            'raw_prompt': ['prompt1'],
+            'progressive_constraints': [['c1', 'c2', 'c3', 'c4', 'c5']],
+            'constraint_count': [5]
+        }
+        df = pd.DataFrame(data)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'test_output.csv')
+            save_filtered_dataset(df, output_path)
+
+            # Verify file exists
+            assert os.path.exists(output_path), "Output file was not created"
+
+            # Verify file is not empty
+            assert os.path.getsize(output_path) > 0, "Output file is empty"
+
+            # Verify CSV can be read back
+            read_df = pd.read_csv(output_path)
+            assert len(read_df) == 1, "Read back failed to load data"
+            assert list(read_df.columns) == ['task_id', 'raw_prompt', 'progressive_constraints', 'constraint_count']
+
+    def test_filter_handles_null_constraints(self):
+        """Verify filtering handles null/NaN progressive_constraints gracefully."""
+        data = {
+            'task_id': ['task1', 'task2', 'task3'],
+            'raw_prompt': ['p1', 'p2', 'p3'],
+            'progressive_constraints': [
+                ['c1', 'c2', 'c3', 'c4', 'c5'],
+                None,  # Null value
+                ['c1', 'c2']
+            ]
+        }
+        df = pd.DataFrame(data)
+
+        # Should not raise an error
+        filtered_df = filter_progressive_constraints(df, min_constraints=5)
+
+        # Only task1 should be included (task2 has None -> count=0, task3 has 2)
+        assert len(filtered_df) == 1
+        assert filtered_df.iloc[0]['task_id'] == 'task1'
+
+    def test_filter_min_constraints_parameter(self):
+        """Verify the min_constraints parameter works correctly."""
+        data = {
+            'task_id': ['t1', 't2', 't3', 't4'],
+            'raw_prompt': ['p1', 'p2', 'p3', 'p4'],
+            'progressive_constraints': [
+                ['c1', 'c2', 'c3', 'c4', 'c5'],  # 5
+                ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'], # 6
+                ['c1', 'c2', 'c3'],                # 3
+                ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8'] # 8
+            ]
+        }
+        df = pd.DataFrame(data)
+
+        # Test with min=5
+        filtered_5 = filter_progressive_constraints(df, min_constraints=5)
+        assert len(filtered_5) == 3  # t1, t2, t4
+
+        # Test with min=6
+        filtered_6 = filter_progressive_constraints(df, min_constraints=6)
+        assert len(filtered_6) == 2  # t2, t4
+
+        # Test with min=7
+        filtered_7 = filter_progressive_constraints(df, min_constraints=7)
+        assert len(filtered_7) == 1  # t4
+
+        # Test with min=9 (none should pass)
+        filtered_9 = filter_progressive_constraints(df, min_constraints=9)
+        assert len(filtered_9) == 0

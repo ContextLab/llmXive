@@ -1,5 +1,5 @@
-'|annotation consist human sample selection task':
+'|annotation human sample size task':
   quote: of over 50,000 unique (medical term, lay def-
   source_id: '2312.15561'
   url: https://arxiv.org/abs/2312.15561
-  value: '500'
+  value: '50'

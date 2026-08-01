@@ -1,12 +1,13 @@
 T008a:
   c: false
-  h: d0aea4990dff2dbdca7d8a35c71c37fbe66f0e49d2948a69e91ed39f7b5e67b8
-  r: "The provided `code/main.py` is truncated and does not append snapshots to `self.snapshots`,\
-    \ never sets `trigger_values`, lacks the context\u2011manager methods and the\
-    \ fail\u2011fast exception raise, and never writes to `data/processed/resource_logs.json`\
-    \ (the file is missing). Consequently the unit tests in `tests/unit/test_resource_monitor.py`\
-    \ would fail. The implementation must be completed to meet the schema, logging,\
-    \ and exception requirements."
+  h: 48c7433797effbd0f2237fbcb30111a07fc17bfa1055142d15b7a96de7842a59
+  r: "`code/main.py` only contains a partially\u2011implemented `ResourceMonitor`\
+    \ class and never shows it being used to wrap task execution, and the required\
+    \ test file `tests/unit/test_resource_monitor.py` is absent. Moreover, the expected\
+    \ log file `data/processed/resource_logs.json` does not exist, so the schema,\
+    \ fail\u2011fast behavior, and logging cannot be verified. The implementation\
+    \ must complete the context manager logic, integrate it around task runs, provide\
+    \ the unit test, and generate the JSON log."
 T026a:
   c: false
   h: 72ca844abc23706d3c16113f50ffe2ac72cdab14226d324257e1d207dbb31f13

@@ -1,10 +1,11 @@
 status: none
-intent: AdaPlanBench dataset download HuggingFace repository python package dataset
+intent: AdaPlanBench household task progressive constraints dataset download HuggingFace
+  python package dataset
 required_fields:
 - task_id
-- task_prompt
+- prompt
 - progressive_constraints
 - constraint_count
-cache_key: 23f9ff90be2014e497a980856d43c53fd827e9078c3394694d9db35e8c09148c
-searched_at: '2026-08-01T11:47:18.562628+00:00'
+cache_key: e9d3921d864e4d7ea175092676c92ce886f3c3aafed21d2d78b455b9aa67447b
+searched_at: '2026-08-01T11:38:48.212539+00:00'
 retry_count: 1

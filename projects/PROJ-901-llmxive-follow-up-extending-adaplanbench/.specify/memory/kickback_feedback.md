@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T013` (rejected 1x): The repository lacks the required `data/processed/filtered_tasks.csv` file, and `code/dataset/loader.py` does not contain a complete implementation of `filter_progressive_constraints` (e.g., adding the `constraint_count` column) nor a `save_filtered_dataset` function to write the CSV. Consequently the tests cannot pass and the output schema/file is missing.
+- `T013` (rejected 1x): The repository lacks the required `filter_progressive_constraints` and `save_filtered_dataset` implementations in `code/dataset/loader.py`, and the output file `data/processed/filtered_tasks.csv` does not exist. Consequently the tests cannot pass and the filtering logic is not realized.
 
 ## Required change
 

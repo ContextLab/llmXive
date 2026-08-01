@@ -4,8 +4,8 @@ Validation script for the filtered subset (T015).
 Samples tasks from data/processed/filtered_tasks.csv and verifies
 that the constraint_count matches the original metadata logic.
 
-This script is designed to be run after T013 (filtering) to ensure
-the filtering logic correctly isolated tasks with >= 5 progressive constraints.
+This script is invoked by the run-book to ensure data integrity before
+proceeding to agent execution and analysis.
 """
 
 import os
@@ -71,7 +71,7 @@ def validate_subset(sample_size: int = 10):
         raise RuntimeError(f"Failed to read filtered dataset: {e}")
 
     if len(df) == 0:
-        print("Error: Filtered dataset is empty. Validation cannot proceed.")
+        print("Error: Filtered dataset is empty. Cannot validate.")
         sys.exit(1)
 
     effective_sample_size = min(sample_size, len(df))
@@ -115,6 +115,7 @@ def validate_subset(sample_size: int = 10):
 
             if constraints is None:
                 # If we can't parse it, we can't verify the length, but the count check passed
+                # We log a warning but do not fail the task if the count is correct.
                 print(f"  [WARN] {task_id}: Could not parse 'progressive_constraints' to verify length, but count check passed.")
                 pass_count += 1
                 continue
@@ -137,7 +138,8 @@ def validate_subset(sample_size: int = 10):
     print(f"\nValidation Summary: {pass_count} passed, {fail_count} failed.")
 
     if all_valid:
-        print("Validation passed")
+        print("Validation PASSED: All sampled tasks meet the criteria.")
+        sys.exit(0)
     else:
         print("Validation FAILED: Some tasks did not meet criteria.")
         sys.exit(1)
