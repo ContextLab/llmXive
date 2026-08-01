@@ -16,7 +16,8 @@ Every task's requirements implicitly include this section. Values are copied ver
 - **Fail closed on any illegal history.** `project_attempt` RAISES on an unknown event type, an out-of-order `seq`, a transition not in the table, or a second terminal. It never ignores, never "best-effort skips". This matches `project_coordinator` (`coordinator.py:40-83`), which is the house pattern.
 - **Exactly one terminal per Attempt (FR-035).** Every terminal append is CAS-conditioned on the freshly-rebuilt projection having NO terminal for that Attempt. First writer wins; the loser discards its own terminal and performs NO further side effect. This guards two DIFFERENT terminals racing, which per-transition idempotency keys do not.
 - **Cross-stream preconditions are ENFORCED, because every stream is a subtree of ONE ref.** `lane_log._log_ref` builds `LogRef(ref=LANE_REF, event_dir=…/{problem_id})` — the coordinator and every Problem share `refs/llmxive/self-improvement`, and the module docstring states the consequence: "the single ref serializes all lane mutations (FR-008)". A mutation spanning the coordinator and a Problem is therefore ONE commit under ONE compare-and-swap (`append_many`, Task 2), and a predicate that reads the coordinator's `claim_generation` while writing an Attempt event is deciding against the exact parent the commit is built on. **Never describe a cross-stream check as advisory or best-effort** — it is binding, and the multi-step sequences that would have needed compensating recovery paths do not exist in this design.
-- **All-or-nothing, never a compensating path.** Any operation that changes both the claim and the Attempt (grant, reclaim, terminal-plus-release, promotion-observed) is a single transaction. If a crash can leave one half durable and the other not, the operation is built wrong — fix the transaction, do not add a repair step. Every such operation carries crash tests at each seam (parent fixed, commit built, ref moved) asserting the complete transition or none of it. The complete set is the **Cross-stream invariant matrix** below; an operation that is not a row there touches exactly one stream.
+- **All-or-nothing, never a compensating path.** Any operation that changes both the claim and the Attempt (grant, reclaim, terminal-plus-release, promotion-observed) is a single transaction. If a crash can leave one half durable and the other not, the operation is built wrong — fix the transaction, do not add a repair step. Every such operation carries crash tests at each seam (parent fixed, commit built, pushed-but-unacknowledged) asserting the complete transition or none of it, plus an idempotent retry after the last one. The complete set is the **Cross-stream invariant matrix** below; an operation that is not a row there touches exactly one stream.
+- **"All or nothing" is about VISIBILITY, and visibility changes at the ref CAS.** Before it, nothing; after it, everything; a retry after a lost acknowledgement is a no-op returning the stored result. A crash AFTER a successful push leaves the transaction fully durable — saying otherwise is not a stronger guarantee, it is a false one, and it would send an implementer looking for a repair path that must not exist. See the matrix's commit-point note.
 - **Coordinator effects are DECLARED IN THE TABLE, never written per call site.** `Transition.coordinator_effects` lists the coordinator events a transition emits in the same commit (`("ClaimReleased",)`, or `("MonitorStarted", "ClaimReleased")` for `PromotionObserved`). `cas_attempt_transition` emits exactly what the row declares. `terminal` and `releases_claim` are DERIVED properties, never separately-maintained fields — a transition is terminal iff its `to_state` is in `TERMINAL_STATES`, and it releases iff `"ClaimReleased"` is among its effects. Terminality and release are NOT the same predicate: `PromotionObserved` releases without being terminal, and `Rejected`/`Retained`/`RevertObserved` are terminal without releasing (nobody holds the lane at those points).
 - **`last_autonomous_merge_at` is the instant on the LATEST merge event, not a running maximum.** The fold assigns it in `seq` order, so the highest-`seq` `MonitorStarted` wins outright. It is NOT claimed to increase numerically: two runners anchor their clocks independently, so a later-`seq` event can legitimately carry an earlier instant, and asserting numeric monotonicity would be asserting something the clock does not guarantee. `seq` decides — as everywhere else in the lane.
 - **`seq` is the SOLE ordering authority (FR-009/FR-036).** Timestamps measure DURATIONS only; any code that sorts by timestamp is a defect. `seq` proves ORDER and proves that a recorded beat exists — it cannot prove that an EXPECTED beat is missing, which needs a trusted duration. So `seq` is not a fallback liveness signal: with no trusted time there is no reclaim, per the fail-closed rule below.
@@ -44,16 +45,38 @@ adding a row here FIRST — a transaction whose invariants were never written do
 half-states this slice exists to eliminate get reintroduced.
 
 Read the columns as: what lands, what is re-checked against the commit's own parent (never a
-stale read), what must be true afterwards, and what a crash at ANY seam leaves behind. The
-crash column is the same for every row on purpose — that identical answer is the property the
-design buys.
+stale read), what must be true afterwards, and what a crash BEFORE the commit point leaves
+behind. That last column is the same for every row on purpose — the identical answer is the
+property the design buys.
 
-|# |Operation (task)|Events in the ONE commit, IN ORDER|Precondition, re-evaluated at the parent|Post-state invariant|Crash at any seam|
+|# |Operation (task)|Events in the ONE commit, IN ORDER|Precondition, re-evaluated at the parent|Post-state invariant|Crash BEFORE the commit point|
 |-|-|-|-|-|-|
 |1|**Claim grant** — `cas_claim` (Task 7)|coordinator `ClaimAcquired`; Problem `ClaimGranted`|lane free **AND** the Attempt is `proposal_verified`|the lane is held by exactly `(P,A)`; the Attempt is `claimed`; BOTH records carry the identical generation + terms|neither record; lane free; Attempt still `proposal_verified`|
 |2|**Terminal + release** — `cas_attempt_transition` (Task 6)|Problem terminal; coordinator `ClaimReleased`|the Attempt has NO terminal, its state is in `from_states`, **AND** the lane is still held by that exact `(P,A)` pair|exactly one terminal; lane free|neither; Attempt non-terminal; lane still held|
 |3|**Reclaim** — `cas_reclaim` (Task 9)|Problem `ClaimExpired`; coordinator `ClaimReleased`|the claim is still held by `(P,A)` AT the observed generation, the Attempt has NO terminal, **AND** it has no unreconciled intent|exactly one terminal (`attempt_abandoned`); lane free; the next claim takes the next generation|neither; Attempt non-terminal; lane still held by the original|
 |4|**Promotion observed** — `cas_attempt_transition` (Task 11)|Problem `PromotionObserved`; coordinator `MonitorStarted`; coordinator `ClaimReleased`|the Attempt is `promotion_requested` **AND** the lane is still held by that exact `(P,A)` pair|the Attempt is `monitoring`; it IS in `monitored_attempts`; lane free; `last_autonomous_merge_at` is this event's instant|none of the three; Attempt still `promotion_requested`; lane still held; not monitored|
+
+**The commit point, and what happens after it.** "All or nothing" is a claim about
+VISIBILITY, and visibility changes at exactly one instant: the ref compare-and-swap — the
+fast-forward push when the log has a remote, the local `update-ref` when it does not. An
+earlier draft of this matrix said "a crash at ANY seam leaves no events", which is false
+after that instant and contradicted this plan's own `_after_push` test: once the push
+succeeds the whole transaction is durable, and only the local acknowledgement is missing.
+The honest contract has three parts, and all three are tested (Task 2 Step 3):
+
+- **Before the commit point:** no event of the transaction is visible to any reader. The
+  commit object may exist and be unreachable; unreachable is not visible.
+- **After the commit point:** EVERY event of the transaction is visible. Never a subset —
+  that is what one commit buys.
+- **A retry after a lost acknowledgement** (the process died between the successful push
+  and its local ref update, or anywhere later) observes its own events already present and
+  returns the STORED result with `created=False`, writing nothing and changing nothing.
+
+The third part is what makes the second survivable: a durable transaction whose caller
+never learned it landed is indistinguishable, to that caller, from one that never ran — so
+the recovery path has to be the ordinary retry, and the retry has to be a no-op. There is
+no separate "reconcile a lost acknowledgement" path, for the same reason there is no
+compensating release: an operation that needs one is built wrong.
 
 Three consequences the rows encode, which no task may quietly contradict:
 
@@ -61,9 +84,12 @@ Three consequences the rows encode, which no task may quietly contradict:
   append, which would have left the Attempt in `promotion_requested` while the coordinator
   believed it was monitored and the lane free — a claim released for an Attempt that never
   advanced. It writes THREE events, and the two coordinator events are ordered
-  `MonitorStarted` then `ClaimReleased` because `project_coordinator` refuses a
-  `ClaimReleased` that is not by the current owner: releasing first would make the fold's own
-  ownership check unable to see the owner it is about to stop monitoring.
+  `MonitorStarted` then `ClaimReleased` because BOTH fold branches check ownership against
+  the current holder: reversed, the release clears the slot and `MonitorStarted` then has no
+  owner to match. That is only true because Task 11 ADDS the ownership check to
+  `MonitorStarted` — an earlier draft asserted the order was enforced by the release's check
+  alone, which is backwards (the release runs while the owner still exists, so the reversed
+  order would have folded cleanly and the mutation test would have proved nothing).
 - **Rows 2, 3 and 4 all release the claim, so the release is TABLE-DRIVEN, not a special
   case per call site.** `Transition.coordinator_effects` (Task 4) declares which coordinator
   events a transition emits, and `cas_attempt_transition` emits exactly those. No task
@@ -89,8 +115,9 @@ Three consequences the rows encode, which no task may quietly contradict:
 ## File Structure
 
 - `src/llmxive/git_event_log.py` — **modified**: `TransactionResult`, `append_transaction`, and one shared tree builder (`_commit_events`) that both the single-event and multi-subtree writers call. One responsibility: git-native CAS over an append-only log, now across several subtrees of one ref.
-- `src/llmxive/self_improvement/lane_log.py` — **modified**: `append_many`, the lane-level transaction with per-stream expected revisions and one predicate over every touched stream.
-- `src/llmxive/self_improvement/clock.py` — `AuthoritativeClock` protocol, `TimeSample`, `GitHubDateClock`, `FixedAnchorClock` (test/CI double with real logic), `NoTrustedTimeError`, `parse_http_date`. One responsibility: producing an instant the whole lane can compare.
+- `src/llmxive/self_improvement/lane_log.py` — **modified**: `append_many`, the lane-level transaction with per-stream expected revisions and one predicate over every touched stream; `list_problem_streams` (a `git ls-tree` over the event dir — "which streams exist" is a question about the ref's tree, so the store answers it).
+- `src/llmxive/self_improvement/policy.py` — the Policy Contract v1 constants, derived where the spec derives them. Created in Task 3 (the clock is the first consumer), extended in Task 9 with the phase budgets and counter caps. Imports nothing from the lane, so every other module may depend on it.
+- `src/llmxive/self_improvement/clock.py` — `AuthoritativeClock` protocol, `TimeSample`, `GitHubDateClock`, `FixedAnchorClock` (test/CI double with real logic), `NoTrustedTimeError`, `parse_http_date`, `MAX_CLOCK_REGRESSION_S`. One responsibility: producing an instant the whole lane can compare — monotonic, floored, and fail-closed past the tolerance rather than frozen.
 - `src/llmxive/self_improvement/lifecycle.py` — `AttemptState`, `ProblemDisposition`, `Transition`, `TRANSITIONS`, `TERMINAL_STATES`, `COUNTED_TERMINALS`, `project_attempt`, `cas_attempt_transition`, `IllegalTransition`. One responsibility: what may legally happen to an Attempt.
 - `src/llmxive/self_improvement/intents.py` — `IntentDisposition`, `IntentRecord`, `Reconciler`, `record_intent`, `observe_intent`, `unreconciled_intents`, `LaneQuarantine`. One responsibility: the saga's intent bookkeeping and its four outcomes.
 - `src/llmxive/self_improvement/cooldown.py` — `CooldownCause`, `CooldownState`, `problem_cooldown`, `cas_cooldown`. One responsibility: the two independent counters.
@@ -159,7 +186,11 @@ committed together or not at all. Add instead, as a note under the transition ta
 
 Copy the plan's **Cross-stream invariant matrix** into FR-035 verbatim, immediately after
 the note above — it is normative, not commentary: it is the exhaustive list of operations
-that touch more than one stream, and an operation absent from it touches exactly one.
+that touch more than one stream, and an operation absent from it touches exactly one. Copy
+its **commit-point note** with it; the three-part durability contract (nothing before the
+ref CAS, everything after it, an idempotent retry on a lost acknowledgement) is the part
+implementers will reason about during recovery, and stating only "all or nothing" invites
+the false reading that a crash after a successful push leaves nothing behind.
 
 Then make the transition table machine-comparable, because a drift test that compares only
 event names is what let `PromotionObserved` claim "one coordinator CAS" while the code
@@ -184,11 +215,15 @@ Event cell. Six edits, all in `specs/025-self-improvement-lane/spec.md:300-331`:
 
 2. **`PromotionObserved` becomes `PromotionObserved †◇`**, its `To` becomes `monitoring`,
    and its Side-effect cell becomes: `one transaction (matrix row 4): MonitorStarted then
-   ClaimReleased`. The order is fixed by the coordinator's own fold, which refuses a
-   `ClaimReleased` by a non-owner — releasing first would leave the monitoring record with
-   no owner to attribute it to. Delete the trailing sentence of the `_failed` vs `_aborted`
-   paragraph ("`PromotionObserved` merges 'clear active slot' + 'add to monitoring' into a
-   single coordinator CAS") — it is the sentence that described this as coordinator-only.
+   ClaimReleased`. The order is enforced by the fold: BOTH coordinator events check
+   ownership against the current holder, so releasing first would leave `MonitorStarted`
+   with no owner to match. State the `MonitorStarted` precondition explicitly beside
+   `ClaimReleased`'s, since rev 23 is what adds it — monitoring may only begin for the
+   Attempt that HOLDS the lane, because a `MonitorStarted` for an Attempt nobody claimed is
+   the lane watching a merge it never promoted. Delete the trailing sentence of the
+   `_failed` vs `_aborted` paragraph ("`PromotionObserved` merges 'clear active slot' +
+   'add to monitoring' into a single coordinator CAS") — it is the sentence that described
+   this as coordinator-only.
 
 3. **`From` and `To` cells name states EXACTLY**, so the parser needs no per-row special
    cases. `To`: `rejected (pre-claim)` → `rejected`, `superseded → new Attempt` →
@@ -267,8 +302,13 @@ paragraph with:
 > direction of evicting a live holder sooner. Emitted time is additionally floored at the
 > highest value already emitted: a refresh installs a new measurement of a remote clock, and
 > the elapsed time since the PREVIOUS anchor has already advanced the emitted instant, so a
-> new anchor even slightly behind the old one regresses what callers see. A sample whose
-> round trip exceeds `max_sample_rtt` (2 s) is
+> new anchor even slightly behind the old one regresses what callers see. That floor is
+> BOUNDED by `max_clock_regression` = `max_clock_skew`: while clamped, emitted time stands
+> still and every duration the lane derives stands still with it, so an unbounded clamp
+> would convert an authority fault into a lane that appears healthy and makes no progress —
+> expiry never approaching, cooldowns never maturing. A regression past the bound is not
+> imprecision to absorb but an absence of trusted time, and the run therefore does no lane
+> work. A sample whose round trip exceeds `max_sample_rtt` (2 s) is
 > DISCARDED and retried; a run that cannot obtain a sample inside that bound has no trusted
 > time and performs no lane work. Between samples, elapsed time is measured with the
 > monotonic clock ONLY — never the wall clock — so emitted authority time is monotonic by
@@ -285,7 +325,8 @@ paragraph with:
 |Claim-bound policy (new in rev 23)|`claim_expiry`, `max_claim_hold_time`, `max_clock_skew`, and `policy_version` are RECORDED ON the coordinator's `ClaimAcquired` — the record a reclaimer already holds — and read from there rather than from live policy, so a policy edit mid-claim cannot retroactively expire a live run. The Attempt-side `ClaimGranted` written in the same transaction carries identical terms; the coordinator record is authoritative and the two agreeing is an invariant, not a fallback. Same discipline as the durably-bound per-Attempt limits (FR-033).|
 ```
 
-Also add `max_sample_rtt` = 2 s to the Policy Contract table, beside `max_clock_skew`.
+Also add `max_sample_rtt` = 2 s and `max_clock_regression` = `max_clock_skew` (5 min,
+derived) to the Policy Contract table, beside `max_clock_skew`.
 
 - [ ] **Step 5: Update the rev-22 status line to rev 23**
 
@@ -296,12 +337,14 @@ release-a-terminal-Attempt transition was designed and then deleted as unreachab
 cross-stream invariant matrix is now normative and `PromotionObserved` is one of its rows
 (a three-event transaction, not the coordinator-only CAS the table described);
 `last_autonomous_merge_at` is defined as the latest merge event's instant rather than a
-running maximum; FR-036's sampling is monotonic, RTT-bounded, centred on the header's
-whole-second interval, and floored so a refresh cannot regress emitted time. Say plainly
-which of these came from review findings against the PLAN (the false architectural premise,
-and the coordinator-only promotion) rather than from the spec being wrong — and which were
-genuine spec defects: the `PromotionObserved` row, the monotonicity claim, and the `†`
-paragraph that tied claim release to terminals.
+running maximum; `MonitorStarted` gains an ownership precondition; FR-036's sampling is
+monotonic, RTT-bounded, centred on the header's whole-second interval, floored so a refresh
+cannot regress emitted time, and fail-closed past `max_clock_regression` so the floor cannot
+freeze the lane. Say plainly which of these came from review findings against the PLAN (the
+false architectural premise, the coordinator-only promotion, the impossible
+crash-at-any-seam claim) rather than from the spec being wrong — and which were genuine spec
+defects: the `PromotionObserved` row, the monotonicity claim, the `†` paragraph that tied
+claim release to terminals, and the absent bound on clock regression.
 
 - [ ] **Step 6: Verify the table is still well-formed**
 
@@ -585,6 +628,49 @@ def test_a_successful_push_never_rewinds_a_local_ref_that_moved(repo, bare_remot
     assert tip == ahead["commit"], "the local ref was rewound past a newer commit"
     assert _is_ancestor(repo, result.commit, tip), "our commit is not reachable locally"
     assert {e["event_id"] for e in _read(repo, "P1")} == {"other", "ours"}
+
+
+def test_a_crash_after_the_push_leaves_the_transaction_DURABLE(repo, bare_remote):
+    """The commit point is the push, so this crash is on the far side of it.
+
+    The two crash tests above (`_after_parent`, `_before_ref_update`) assert ABSENCE
+    because they fire before the ref moves. This one must assert PRESENCE. An earlier
+    draft of the matrix claimed a crash "at any seam" left nothing — false here, and
+    false in the direction that matters: an implementer who believed it would go looking
+    for a repair path for events that are already correctly durable."""
+    def die():
+        raise RuntimeError("runner killed between the push and its local ref update")
+
+    with pytest.raises(RuntimeError, match="runner killed"):
+        _txn(repo, [("coordinator", {"event_id": "c1"}), ("P1", {"event_id": "p1"})],
+             remote=bare_remote, _after_push=die)
+
+    # Locally the ref never moved — the caller has no acknowledgement.
+    # On the REMOTE, both events are durable, and BOTH of them: never a subset.
+    assert _read_remote(bare_remote, "coordinator") == ["c1"]
+    assert _read_remote(bare_remote, "P1") == ["p1"]
+
+
+def test_a_retry_after_a_LOST_ACKNOWLEDGEMENT_is_a_no_op(repo, bare_remote):
+    """The recovery path for the test above — and it is the ORDINARY retry, not a
+    reconciler. A durable transaction whose caller never learned it landed is, to that
+    caller, indistinguishable from one that never ran, so the retry has to be safe."""
+    def die():
+        raise RuntimeError("killed")
+
+    pairs = [("coordinator", {"event_id": "c1"}), ("P1", {"event_id": "p1"})]
+    with pytest.raises(RuntimeError):
+        _txn(repo, pairs, remote=bare_remote, _after_push=die,
+             finalize=lambda e, seq: {**e, "seq": seq})
+
+    again = _txn(repo, pairs, remote=bare_remote,
+                 finalize=lambda e, seq: {**e, "seq": seq})
+    assert again.created is False, "the retry re-wrote a transaction that had landed"
+    assert again.seqs == {("coordinator", "c1"): 0, ("P1", "p1"): 0}
+    assert [e["event_id"] for e in _read(repo, "coordinator")] == ["c1"]
+    assert [e["event_id"] for e in _read(repo, "P1")] == ["p1"]
+    # And the ref advanced exactly once across BOTH calls.
+    assert _commit_count(repo, LANE_REF) == _BOOTSTRAP_COMMITS + 1
 
 
 @pytest.mark.parametrize("writer", ["append_to_log", "append_transaction"])
@@ -1021,7 +1107,8 @@ needs a cross-scope anchor to prove it.
    writes nothing to either.
 4. A `precondition` reading the coordinator stream and refusing (simulating a stale
    generation) blocks the Problem-stream write.
-5. Crash at `_after_parent` and crash at `_before_ref_update`: both streams are unchanged.
+5. Crash at `_after_parent` and crash at `_before_ref_update`: both streams are unchanged (both seams are BEFORE the commit point).
+5b. Crash at `_after_push`: both streams carry their event — the commit point has passed — and the following retry is a no-op returning `created=False`. The lane wrapper inherits this from the core, and inheriting it silently is how a plan comes to state the opposite.
 6. A full replay is idempotent — no duplicate events on either stream.
 7. A corrupt sequence on ANY touched stream raises `GitLogError` (fail closed) rather than
    `LaneRevisionConflict`, matching `append`'s split.
@@ -1094,10 +1181,12 @@ emitted a backward-moving 'authoritative' clock on an ordinary NTP correction.""
 from __future__ import annotations
 
 import datetime as dt
+from pathlib import Path
 
 import pytest
 
 from llmxive.self_improvement.clock import (
+    MAX_CLOCK_REGRESSION_S,
     FixedAnchorClock,
     GitHubDateClock,
     NoTrustedTimeError,
@@ -1106,6 +1195,9 @@ from llmxive.self_improvement.clock import (
 
 DATE_HDR = "Fri, 31 Jul 2026 12:00:00 GMT"
 LATER_HDR = "Fri, 31 Jul 2026 13:00:00 GMT"
+#: One minute behind DATE_HDR — a regression INSIDE `MAX_CLOCK_REGRESSION_S` (300 s), so
+#: the clamp absorbs it. The hour-long step is the fail-closed case, not this one.
+EARLIER_HDR = "Fri, 31 Jul 2026 11:59:00 GMT"
 
 
 class Mono:
@@ -1217,17 +1309,18 @@ def test_a_clock_that_only_ever_samples_slowly_has_NO_trusted_time():
 
 
 def test_emitted_time_never_moves_backward_across_a_refresh():
-    # The authority itself jumps BACKWARD (a load-balanced fleet with a lagging node).
-    # Emitted time must not regress: the lane's durations would go negative.
+    # The authority itself steps BACKWARD by a minute (a load-balanced fleet with a
+    # lagging node) — within tolerance, so it is absorbed rather than fatal. Emitted time
+    # must not regress: the lane's durations would go negative.
     mono = Mono()
-    clock = _clock(mono, [LATER_HDR, DATE_HDR], refresh_interval_s=300)
+    clock = _clock(mono, [DATE_HDR, EARLIER_HDR], refresh_interval_s=300)
     first = dt.datetime.fromisoformat(clock())
     mono.advance(400)
     second = dt.datetime.fromisoformat(clock())
     assert clock.fetch_count() == 2
     # Held at the floor, not advanced past it: the clamp is a floor on what was EMITTED,
-    # and it is the only thing standing between a one-hour backward authority step and a
-    # negative `since_beat`. Elapsed monotonic time walks out of the clamp on its own.
+    # and it is the only thing standing between a backward authority step and a negative
+    # `since_beat`. Elapsed monotonic time walks out of the clamp on its own.
     assert second == first, f"authority time went backward: {first} -> {second}"
     mono.advance(4000)
     assert dt.datetime.fromisoformat(clock()) > second
@@ -1250,6 +1343,34 @@ def test_a_refresh_that_regresses_by_LESS_than_the_interval_is_still_clamped():
     # Adopted naively, `after` would be ~11:59:59.5 — FIVE MINUTES behind `mid`, from an
     # authority that moved back by one second. Elapsed time since the new anchor is ~0.
     assert after == mid
+
+
+def test_a_regression_PAST_THE_TOLERANCE_fails_closed_instead_of_freezing():
+    """The clamp's own failure mode, bounded.
+
+    While clamped, emitted time stands still — so expiry stops approaching, hold time
+    stops accruing, and cooldowns stop maturing. That is the right trade for a small
+    regression and the wrong one for a large one: an unbounded clamp turns an authority
+    fault into a lane that looks healthy and makes no progress. Past the tolerance there
+    is no trusted time, and FR-036 already says the run does no lane work."""
+    mono = Mono()
+    clock = _clock(mono, [LATER_HDR, DATE_HDR], refresh_interval_s=300)  # 1 h backward
+    first = dt.datetime.fromisoformat(clock())
+    mono.advance(400)
+    with pytest.raises(NoTrustedTimeError, match="backward"):
+        clock()
+    # And it does not quietly recover from the poisoned sample: the next call re-samples.
+    assert clock.fetch_count() == 2
+    assert first is not None
+
+
+def test_the_regression_tolerance_is_DERIVED_from_the_skew_allowance():
+    from llmxive.self_improvement import clock as clock_mod, policy
+
+    assert clock_mod.MAX_CLOCK_REGRESSION_S == policy.MAX_CLOCK_SKEW_S
+    src = Path(clock_mod.__file__).read_text()
+    assert "MAX_CLOCK_REGRESSION_S = policy.MAX_CLOCK_SKEW_S" in src, (
+        "the tolerance must be derived from the skew allowance, not written as a literal")
 
 
 def test_refresh_scheduling_uses_monotonic_elapsed():
@@ -1346,7 +1467,31 @@ def test_the_raw_header_is_what_we_think_it_is():
 Run: `python -m pytest tests/unit/test_self_improvement_clock.py -q`
 Expected: collection error, `ModuleNotFoundError: llmxive.self_improvement.clock`.
 
-- [ ] **Step 3: Implement**
+- [ ] **Step 3a: Create `policy.py` with the timing constants**
+
+The clock is the Policy Contract's first consumer, so the module is born here and Task 9
+appends the phase budgets to it. Splitting these across two modules — or letting the clock
+keep private copies of `refresh_interval` and `max_sample_rtt` while `policy.py` declares
+them again — is the Constitution I violation this plan keeps citing, one file away.
+
+```python
+# src/llmxive/self_improvement/policy.py
+"""Policy Contract v1 constants, DERIVED where the spec derives them (Constitution I — the
+LLM-call-ceiling row is the precedent). ONE module: every bound the lane enforces is read
+from here, so a value cannot be edited in one consumer and not another.
+
+Task 9 appends the post-claim phase budgets and the counter caps. This module imports
+nothing from the lane, which is what lets `clock.py` depend on it without a cycle."""
+
+MINUTE = 60
+
+HEARTBEAT_INTERVAL_S = 5 * MINUTE
+CLAIM_EXPIRY_S = 3 * HEARTBEAT_INTERVAL_S          # tolerate two missed beats
+MAX_CLOCK_SKEW_S = 5 * MINUTE
+MAX_SAMPLE_RTT_S = 2                                # Policy Contract `max_sample_rtt`
+```
+
+- [ ] **Step 3b: Implement the clock**
 
 ```python
 # src/llmxive/self_improvement/clock.py
@@ -1380,17 +1525,21 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Protocol
 
+from llmxive.self_improvement import policy
+
 #: Read from any authenticated response; ``/rate_limit`` is documented as not counting
 #: against the rate limit, so a run that has not yet called the API pays nothing for it.
 RATE_LIMIT_URL = "https://api.github.com/rate_limit"
 
-#: Policy Contract: re-measure each ``heartbeat_interval`` so a long run cannot drift.
-DEFAULT_REFRESH_INTERVAL_S = 300
+#: Policy Contract: re-measure each ``heartbeat_interval`` so a long run cannot drift. The
+#: interval IS the heartbeat interval — imported, not restated, because a Policy Contract
+#: value written down twice is a Policy Contract with two answers (Constitution I).
+DEFAULT_REFRESH_INTERVAL_S = policy.HEARTBEAT_INTERVAL_S
 
 #: Policy Contract ``max_sample_rtt``. A slower round trip means the midpoint estimate is
 #: wider than the lane's safety margin can absorb, so the sample is worthless, not merely
 #: imprecise.
-DEFAULT_MAX_SAMPLE_RTT_S = 2.0
+DEFAULT_MAX_SAMPLE_RTT_S = float(policy.MAX_SAMPLE_RTT_S)
 
 #: Attempts to land a sample inside the RTT budget before declaring no trusted time.
 _SAMPLE_ATTEMPTS = 3
@@ -1404,6 +1553,15 @@ _HTTP_DATE_RESOLUTION_S = 1.0
 #: Centre of that interval. Added to the parsed header so the estimate is unbiased; without
 #: it every anchor sits half a second EARLY, which biases toward evicting sooner.
 _HTTP_DATE_CENTRE = dt.timedelta(seconds=_HTTP_DATE_RESOLUTION_S / 2)
+
+#: How far the authority may move BACKWARD before the clock stops clamping and fails
+#: closed. DERIVED from the skew allowance, not chosen: `max_clock_skew` is already the
+#: disagreement the lane tolerates between two clocks, and a clamp of at most that long is
+#: absorbed by the same padding every bound is computed with (`elapsed >= claim_expiry +
+#: max_clock_skew`). A regression larger than the lane's own tolerance is not imprecision
+#: to absorb — it is an authority fault, and freezing lane time behind it would stall
+#: expiry, hold time and cooldown maturation for as long as the fault lasted.
+MAX_CLOCK_REGRESSION_S = policy.MAX_CLOCK_SKEW_S
 
 
 class NoTrustedTimeError(RuntimeError):
@@ -1534,15 +1692,27 @@ class GitHubDateClock:
             sample = self._sample = self._take_sample()
         instant = sample.instant + dt.timedelta(
             seconds=self._monotonic() - sample.monotonic_at)
-        # NON-REGRESSING ACROSS REFRESHES. Within one anchor the monotonic source already
-        # guarantees this. Across anchors it does not: a fresh sample is a new measurement
-        # of a remote clock, and an authority that moved backward — or simply a sample whose
-        # error landed on the other side — installs an origin behind the one already
-        # emitted. Every duration in the lane assumes emitted time never decreases, so the
-        # floor is enforced HERE rather than assumed. The clamp is bounded by construction:
-        # it can only ever hold time still, never advance it, and elapsed monotonic time
-        # carries it past the floor within the regression's own magnitude.
+        # NON-REGRESSING ACROSS REFRESHES, but only up to a BOUND. Within one anchor the
+        # monotonic source already guarantees this. Across anchors it does not: a fresh
+        # sample is a new measurement of a remote clock, and an authority that moved
+        # backward — or simply a sample whose error landed on the other side — installs an
+        # origin behind the one already emitted.
+        #
+        # Clamping is right for a SMALL regression and wrong for a large one. While clamped,
+        # emitted time stands still, so every duration the lane derives stands still with
+        # it: expiry stops approaching, hold time stops accruing, cooldowns stop maturing.
+        # An unbounded clamp therefore converts an authority fault into a silently frozen
+        # lane, which is worse than the regression — the lane would look healthy and make no
+        # progress. Past the bound this is not a clock with imprecision, it is no trusted
+        # time, and FR-036 already says what to do about that.
         if self._floor is not None and instant < self._floor:
+            behind = (self._floor - instant).total_seconds()
+            if behind > MAX_CLOCK_REGRESSION_S:
+                self._sample = None
+                raise NoTrustedTimeError(
+                    f"the authority moved {behind:.1f}s backward, past the "
+                    f"{MAX_CLOCK_REGRESSION_S}s tolerance — refusing to freeze lane time "
+                    "behind a clock that cannot be trusted")
             return self._floor
         self._floor = instant
         return instant
@@ -1573,6 +1743,7 @@ class FixedAnchorClock:
 __all__ = [
     "DEFAULT_MAX_SAMPLE_RTT_S",
     "DEFAULT_REFRESH_INTERVAL_S",
+    "MAX_CLOCK_REGRESSION_S",
     "RATE_LIMIT_URL",
     "AuthoritativeClock",
     "FixedAnchorClock",
@@ -1593,10 +1764,20 @@ An earlier draft argued the regression was "absorbed" because a refresh only fir
 matters: 300 s of elapsed time raises the extrapolated instant by 300 s, so the new anchor
 must beat the OLD ANCHOR + 300 s, not the old anchor — a backward step of even one second
 regresses the emitted value. The floor in `_now` is therefore an enforced invariant, not an
-argument. A regression larger than the sampling uncertainty is still an authority failure
-worth knowing about, and it stays visible: the clamp holds emitted time still (never
-advances it), so the stall is observable in the stamps rather than silently rewritten
-backward into the log, where a duration would come out negative.
+argument.
+
+The clamp is also BOUNDED, which the same draft missed in the other direction. While
+clamped, emitted time stands still — and every duration the lane derives stands still with
+it, so expiry stops approaching, hold time stops accruing and cooldowns stop maturing. That
+is the right trade for a regression inside `MAX_CLOCK_REGRESSION_S` (derived from
+`max_clock_skew`, the disagreement the lane already pads every bound for) and the wrong one
+past it, where an unbounded clamp would convert an authority fault into a lane that looks
+healthy and makes no progress for as long as the fault lasts. Past the tolerance the clock
+raises `NoTrustedTimeError` and drops its sample: this is not imprecision to absorb, it is
+no trusted time, and FR-036 already says the run then does no lane work. A regression is
+therefore either absorbed and visible as a stall in the stamps, or fatal and visible as a
+raise — never silently rewritten backward into the log, where a duration would come out
+negative.
 
 - [ ] **Step 4: Run the tests**
 
@@ -1610,10 +1791,13 @@ stored wall anchor, re-run, and confirm `test_emitted_time_never_moves_backward_
 and `test_refresh_scheduling_uses_monotonic_elapsed` FAIL. Restore.
 
 Then, one at a time, restoring after each: delete the `self._floor` clamp and confirm BOTH
-regression tests fail; drop `_HTTP_DATE_RESOLUTION_S` from `uncertainty_s` and confirm
+regression tests fail; remove the `MAX_CLOCK_REGRESSION_S` bound (clamp unconditionally) and
+confirm `test_a_regression_PAST_THE_TOLERANCE_fails_closed_instead_of_freezing` fails —
+this is the mutation that reproduces the frozen lane, so it is the one most worth seeing
+fail; drop `_HTTP_DATE_RESOLUTION_S` from `uncertainty_s` and confirm
 `test_uncertainty_never_drops_below_the_HEADER_RESOLUTION` fails; drop `_HTTP_DATE_CENTRE`
 and confirm `test_the_header_instant_is_CENTRED_not_taken_at_face_value` fails. Each of the
-three is a separate guarantee, so each needs a test that dies without it. Confirm
+four is a separate guarantee, so each needs a test that dies without it. Confirm
 `git diff` is empty at the end. A grep guard belongs in the same commit:
 
 ```bash
@@ -1625,6 +1809,7 @@ Expected: no match outside the real-call test — the module must never read wal
 
 ```bash
 PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/clock.py \
+  src/llmxive/self_improvement/policy.py \
   tests/unit/test_self_improvement_clock.py \
   tests/real_call/test_self_improvement_clock_real.py \
   -m "feat(025 slice-2): authoritative clock — monotonic elapsed, bracketed sampling (FR-036)"
@@ -2292,15 +2477,19 @@ New types and their exact payload key sets:
 | `SideEffectObserved` | `problem_id`, `attempt_id`, `claim_generation`, `effect`, `idempotency_key`, `disposition` |
 | `Cooldown` | `problem_id`, `cause`, `epoch`, `cooldown_until` |
 
-One EXISTING type also changes shape. `MonitorStarted` gains a required `merged_at` — the
-instant the promotion it is monitoring was observed, which is what `last_autonomous_merge_at`
-folds to (matrix row 4). Its `_MONITOR_KEYS` becomes `frozenset({"attempt_id", "merged_at"})`,
-and the five 1A call sites that construct one (`tests/unit/test_self_improvement_coordinator.py:94-95`,
-`tests/unit/test_self_improvement_events.py:325-329`) gain the field. **Add the field — do
-not make it optional.** `MonitorStarted` has exactly one producer (Task 6's effect builder),
-which always knows the instant; an optional field would exist solely so a record could be
-written without the value the coordinator then needs, which is how `last_autonomous_merge_at`
-would end up `None` for a merge that demonstrably happened.
+One EXISTING type also changes shape. `MonitorStarted` gains two required keys:
+`merged_at` — the instant the promotion it is monitoring was observed, which is what
+`last_autonomous_merge_at` folds to — and `problem_id`, without which the fold's new
+ownership check (Task 11) cannot compare the PAIR and would fall back to matching an
+`attempt_id` alone, the 1A F6 mistake. Its `_MONITOR_KEYS` becomes
+`frozenset({"problem_id", "attempt_id", "merged_at"})`, and the five 1A call sites that
+construct one (`tests/unit/test_self_improvement_coordinator.py:94-95`,
+`tests/unit/test_self_improvement_events.py:325-329`) gain both fields plus a claim so the
+ownership check is satisfiable. **Add the fields — do not make them optional.**
+`MonitorStarted` has exactly one producer (Task 6's effect builder), which always knows
+both; an optional field would exist solely so a record could be written without the value
+the coordinator then needs, which is how `last_autonomous_merge_at` would end up `None` for
+a merge that demonstrably happened.
 
 Constrained vocabularies, validated (a free-form string here is how a typo becomes a silent new category):
 - `ReviewAborted.stage` ∈ `{"proposal", "patch"}`; `cause` ∈ the seven FR-034 causes: `{"model_unavailable", "chain_exhausted", "route_audit_fatal", "route_replay", "unresolved_dispatch", "budget_ceiling", "wall_clock"}`.
@@ -2419,7 +2608,8 @@ def _monitor_effect(problem_id: str, attempt_id: str, actor: str, timestamp: str
     `last_autonomous_merge_at` folds to, so the coordinator never has to guess when the
     merge it is monitoring actually landed."""
     return coord_event("MonitorStarted", ("monitor", problem_id, attempt_id),
-                        {"attempt_id": attempt_id, "merged_at": timestamp},
+                        {"problem_id": problem_id, "attempt_id": attempt_id,
+                         "merged_at": timestamp},
                         actor, timestamp, attempt_id)
 
 
@@ -2551,8 +2741,19 @@ duplication Constitution I forbids, and the older one would be the unsafe path.
 7. **A claim on an Attempt that is not `proposal_verified` is refused**, and writes NOTHING to either stream. The claim is a transition in the table (`proposal_verified → claimed`), so it obeys the table like every other one.
 8. **A crash at `_before_ref_update` leaves neither record.** The lane is unclaimed and the Attempt is still `proposal_verified`; a retry then succeeds normally.
 9. **A replay after the generation moved on keeps the ORIGINAL generation**: claim P1/A1 (generation 1), release, claim P2/A2 (generation 2), then re-invoke the FIRST `cas_claim` verbatim. It must return `created=False` with the stored generation 1 — not raise an append-only violation, and not mint a record claiming generation 3 for a claim taken at 1. Recomputing the generation makes the replay fail exactly when the lane has been busy.
+9b. **A replay under a DIFFERENT actor is still a no-op**: re-invoke with `actor="runner-b"` where the stored pair says `actor="runner-a"`, and assert `created=False`, no new events, and the stored records STILL name `runner-a`. `actor` is part of an event's identity (`_IDENTITY_EXCLUDE` covers `seq`, `timestamp` and the revision anchors — not `actor`), so rebuilding with the caller's own identity would fail append-only validation. Recovery under a different runner identity is the normal case, not an exotic one: it is what a lost acknowledgement on a dead runner looks like.
+9c. **The replay path is exercised through a real lost acknowledgement**, not only by calling twice: kill `cas_claim` at `_after_push`, then re-invoke from a second actor and assert 9b's outcome. Calling twice in one process proves the branch runs; this proves it runs on the state a crash actually leaves.
 10. **A replay while the claim is still held is a plain no-op**: same call, same arguments, no new events on either stream, and `ClaimOutcome.acquired` is True.
-11. **`assert_lane_consistent` accepts a lane written by `cas_claim`, and REFUSES a hand-built half-state**: construct, by direct `append`, a coordinator `ClaimAcquired` with no matching `ClaimGranted`, and assert it raises naming both streams. Then the mirror (a `ClaimGranted` with no `ClaimAcquired`) raises too.
+10b. **A half-present claim raises `LaneInconsistent` rather than being completed**: hand-build (by direct `append`) a coordinator `ClaimAcquired` with no `ClaimGranted`, then invoke `cas_claim` for that pair. It must refuse — reconstructing the missing half from the surviving one would finish a transaction that was never atomically started.
+11. **`assert_lane_consistent` accepts a lane written by `cas_claim`** — through a full claim/terminal/release cycle, and while idle, and with several Problems of which one is claimed.
+12. **It refuses every half-state, in BOTH directions.** By direct `append` (bypassing the transaction, which is the only way to build these):
+    a. a coordinator `ClaimAcquired` with no Attempt-side `ClaimGranted` ⇒ raises;
+    b. an Attempt-side `ClaimGranted` with NO coordinator record, **while the coordinator is idle** ⇒ raises. This is the case a coordinator-first checker cannot see at all: losing the coordinator half is exactly what makes the lane look idle, so an early return on "idle" reports health precisely when the damage is worst;
+    c. an orphan `ClaimGranted` on a Problem the checker was not given ⇒ the driver's call passes the FULL Problem set, and a test asserts `list_problem_streams` returns every stream with events, so the check cannot pass by looking at nothing;
+    d. a held claim whose Attempt is `terminal` / `monitoring` / `rejected` ⇒ raises (not merely `proposal_verified`, which was the only state the first draft rejected);
+    e. a coordinator and Attempt holding at DIFFERENT generations ⇒ raises naming both — no single transaction could have written that pair;
+    f. a coordinator `ClaimAcquired` and Attempt `ClaimGranted` whose claim TERMS differ ⇒ raises. The write-time invariant is only real if something reads it back.
+13. **It is not vacuous**: with an empty `problem_ids`, a lane carrying a known-bad pair still raises via direction 2 — and `list_problem_streams` on a repo with three Problems returns three ids. A consistency checker that passes on an empty scan is worse than none.
 
 - [ ] **Step 2: Run to verify they fail**
 
@@ -2610,29 +2811,49 @@ def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str,
     current = project_coordinator(coordinator_events)
     acquired_id = derive_event_id(
         COORDINATOR_STREAM, f"claim\x00{problem_id}\x00{attempt_id}")
-    # A REPLAY reuses the stored record's body verbatim — its generation, its terms, its
-    # timestamp. The id is derived from (problem, attempt), so a second call for the same
-    # pair is always a replay (the table forbids re-claiming an Attempt: it is `claimed` or
-    # terminal by then, never `proposal_verified` again). Recomputing
-    # `claim_generation + 1` would build a DIFFERENT body under the SAME id, and the
-    # append-only check would reject the replay as a content violation — turning a
-    # harmless retry into a hard failure, and doing it only after the generation had
-    # advanced, which is exactly when a retry is most likely.
-    prior = next((e for e in coordinator_events if e.event_id == acquired_id), None)
-    if prior is not None:
-        body, stamp = dict(prior.payload), prior.timestamp
+    granted_id = derive_event_id(problem_id, f"claim\x00{attempt_id}")
+    stored = (next((e for e in coordinator_events if e.event_id == acquired_id), None),
+              next((e for e in problem_events if e.event_id == granted_id), None))
+    if all(stored):
+        # A REPLAY reuses the STORED PAIR VERBATIM — generation, terms, timestamp, and
+        # ACTOR. Two independent reasons, and the second is the one a first draft missed:
+        #
+        # (1) Recomputing `claim_generation + 1` builds a DIFFERENT body under the SAME id,
+        #     which the append-only check rejects as a content violation — turning a
+        #     harmless retry into a hard failure, and doing it only once the generation has
+        #     advanced, which is exactly when a retry is most likely.
+        # (2) `actor` is NOT in `lane_log._IDENTITY_EXCLUDE` (only `seq`, `timestamp` and
+        #     the revision anchors are), so it IS part of an event's identity. Recovery
+        #     routinely happens under a different trusted runner identity than the one that
+        #     first wrote the claim, and rebuilding with the CURRENT caller's actor would
+        #     make the cross-runner retry — the whole reason lost acknowledgements are
+        #     survivable — fail append-only validation.
+        #
+        # The id is derived from (problem, attempt), so a second call for the same pair is
+        # always a replay: the table forbids re-claiming an Attempt, which is `claimed` or
+        # terminal by then, never `proposal_verified` again.
+        acquired, granted = stored
+    elif any(stored):
+        # Exactly one half present, which no transaction could have produced. Refuse here
+        # rather than reconstructing the missing half from the surviving one — that would
+        # "complete" a transaction that was never atomically started, which is precisely
+        # what `append_transaction`'s partial-presence guard exists to prevent.
+        raise LaneInconsistent(
+            f"claim {problem_id}/{attempt_id} is half-present: "
+            f"ClaimAcquired={'yes' if stored[0] else 'no'}, "
+            f"ClaimGranted={'yes' if stored[1] else 'no'}"
+        )
     else:
         body = {"problem_id": problem_id, "attempt_id": attempt_id,
                 "claim_generation": current.claim_generation + 1, **terms.as_payload()}
-        stamp = timestamp
-    acquired = Event(
-        event_id=acquired_id,
-        event_type="ClaimAcquired", problem_id=COORDINATOR_STREAM, actor=actor,
-        payload=body, timestamp=stamp, attempt_id=attempt_id)
-    granted = Event(
-        event_id=derive_event_id(problem_id, f"claim\x00{attempt_id}"),
-        event_type="ClaimGranted", problem_id=problem_id, actor=actor,
-        payload=dict(body), timestamp=stamp, attempt_id=attempt_id)
+        acquired = Event(
+            event_id=acquired_id,
+            event_type="ClaimAcquired", problem_id=COORDINATOR_STREAM, actor=actor,
+            payload=body, timestamp=timestamp, attempt_id=attempt_id)
+        granted = Event(
+            event_id=granted_id,
+            event_type="ClaimGranted", problem_id=problem_id, actor=actor,
+            payload=dict(body), timestamp=timestamp, attempt_id=attempt_id)
 
     def _free_and_verified(observed: dict[str, list[Event]]) -> tuple[bool, str]:
         if any(e.event_id == acquired.event_id for e in observed[COORDINATOR_STREAM]):
@@ -2674,32 +2895,114 @@ and writing one would be writing a converter for records that do not exist.
 What the slice owes instead is a detector, because "no history exists today" is a fact with
 a shelf life and the failure it guards is silent:
 
-```python
-def assert_lane_consistent(repo: Path, *, config: LaneLogConfig | None = None) -> None:
-    """Raise if the coordinator's claim and the Attempt's own timeline disagree.
+The check is over the PAIRING, in both directions, so it must be driven by the events that
+form the pair — not by whether the lane happens to be busy right now. A first draft returned
+immediately when the coordinator was idle, which made it blind to the orphan it explicitly
+promised to catch (an Attempt-side `ClaimGranted` whose coordinator record was lost is
+invisible from an idle coordinator, and an idle coordinator is exactly what losing that
+record looks like). It also accepted a held claim against ANY Attempt state that was not
+`proposal_verified`, so a claim paired with a terminal or monitoring Attempt passed.
 
-    Every path that grants or ends a claim is now ONE transaction, so the two records exist
-    together or not at all — this asserts the property rather than trusting it. It is also
-    the only thing that would notice a pre-transaction half-state if one ever appeared: a
-    lane bootstrapped from a pre-slice-2 clone, a hand-repaired ref, a partial restore.
-    Fail closed and stop: a lane holding a claim for an Attempt that never started it
-    cannot be repaired by guessing which half was the truth."""
+```python
+#: The states an Attempt may be in while the coordinator holds its claim. Derived from the
+#: table — every state reachable by a transition that does not release, from `claimed` on —
+#: never re-listed, or this drifts the moment a state is added.
+CLAIM_HOLDING_STATES: frozenset[AttemptState] = frozenset({
+    AttemptState.CLAIMED, AttemptState.IMPLEMENTING,
+    AttemptState.PROMOTING, AttemptState.PROMOTION_REQUESTED,
+})
+
+
+def assert_lane_consistent(repo: Path, *, problem_ids: Iterable[str],
+                           config: LaneLogConfig | None = None) -> None:
+    """Raise `LaneInconsistent` if the coordinator's claims and the Attempts' own
+    timelines disagree, in EITHER direction.
+
+    Every path that grants or ends a claim is one transaction, so the paired records exist
+    together or not at all — this asserts that rather than trusting it, and it is the only
+    thing that would notice a half-state introduced from OUTSIDE the transaction: a lane
+    bootstrapped from a pre-slice-2 clone, a partial restore, a hand-repaired ref. Fail
+    closed and stop; a claim with one half missing cannot be repaired by guessing which
+    half was the truth.
+
+    ``problem_ids`` is required, not discovered, because "which Problems exist" is a
+    question about the ref's tree rather than about any one stream, and a checker that
+    silently examined an empty set would pass vacuously — the failure mode this whole
+    function exists to avoid. Task 13's driver passes the ids it is about to consider;
+    `list_problem_streams(repo)` (a `git ls-tree` over the event dir) gives the full set."""
     coordinator = project_coordinator(read(repo, COORDINATOR_STREAM, config=config))
+    held = (coordinator.active_problem_id, coordinator.active_attempt_id)
+
+    # Direction 1: every Attempt that BELIEVES it holds a claim must be the held pair.
+    for problem_id in problem_ids:
+        for attempt_id, history in _attempts(read(repo, problem_id, config=config)):
+            projection = project_attempt(history)
+            if projection.state not in CLAIM_HOLDING_STATES:
+                continue
+            if (problem_id, attempt_id) != held:
+                raise LaneInconsistent(
+                    f"{problem_id}/{attempt_id} is {projection.state.value} — a "
+                    f"claim-holding state — but the coordinator holds {held}. An "
+                    "Attempt-side ClaimGranted exists with no matching ClaimAcquired."
+                )
+            if projection.claim_generation != coordinator.claim_generation:
+                raise LaneInconsistent(
+                    f"{problem_id}/{attempt_id} holds the lane at generation "
+                    f"{projection.claim_generation} but the coordinator is at "
+                    f"{coordinator.claim_generation} — the two halves are from "
+                    "DIFFERENT claims, which no single transaction could have written."
+                )
+            _assert_terms_agree(history, read(repo, COORDINATOR_STREAM, config=config))
+
+    # Direction 2: a held claim must have its Attempt in a claim-holding state.
     if coordinator.active_problem_id is None:
         return
     history = [e for e in read(repo, coordinator.active_problem_id, config=config)
                if e.attempt_id == coordinator.active_attempt_id]
     state = project_attempt(history).state if history else None
-    if state is None or state is AttemptState.PROPOSAL_VERIFIED:
+    if state not in CLAIM_HOLDING_STATES:
         raise LaneInconsistent(
-            f"the coordinator holds {coordinator.active_problem_id}/"
-            f"{coordinator.active_attempt_id} but that Attempt is {state} on its own "
-            "stream — a claim was written without its ClaimGranted (pre-slice-2 shape)"
+            f"the coordinator holds {held} but that Attempt is {state} on its own stream "
+            f"— expected one of {sorted(s.value for s in CLAIM_HOLDING_STATES)}. A "
+            "coordinator ClaimAcquired exists with no matching ClaimGranted, or a "
+            "terminal landed without its release."
         )
 ```
 
-Task 13's driver calls it once at startup, before any lane work. That is the whole
-migration story: prove the state cannot occur, detect it anyway, refuse to run on it.
+Two supporting helpers. `_attempts` groups a stream by `attempt_id` PRESERVING order, so
+each group is still a valid `project_attempt` input (Problem-level events, which carry no
+`attempt_id`, are skipped — they belong to the Problem, not to any Attempt):
+
+```python
+def _attempts(events: list[Event]) -> Iterator[tuple[str, list[Event]]]:
+    grouped: dict[str, list[Event]] = {}
+    for e in events:
+        if e.attempt_id is not None:
+            grouped.setdefault(e.attempt_id, []).append(e)
+    return iter(grouped.items())
+```
+
+`list_problem_streams` belongs in `lane_log.py` beside `read` — "which streams exist" is a
+question about the ref's tree, and the store is the only thing that knows its layout:
+
+```python
+def list_problem_streams(repo: Path, config: LaneLogConfig | None = None) -> tuple[str, ...]:
+    """Every Problem stream with at least one event, EXCLUDING the coordinator.
+
+    A `git ls-tree` over the event dir at the ref's tip — derived from the tree, never from
+    a caller's list, because a caller's list is exactly what goes stale when a Problem is
+    added by another runner."""
+```
+
+`_assert_terms_agree` re-checks the invariant Task 7 test 6 establishes at write time — that
+the coordinator's `ClaimAcquired` and the Attempt's `ClaimGranted` carry identical terms and
+generation — because "the two agreeing is an invariant, not a fallback" is only true if
+something eventually reads both. Writing it once and never re-reading it is how an invariant
+becomes an assumption.
+
+Task 13's driver calls this once at startup with the full Problem set, before any lane work.
+That is the whole migration story: prove the state cannot occur, detect it anyway in both
+directions, refuse to run on it.
 
 - [ ] **Step 4: Run the tests**
 
@@ -2798,32 +3101,26 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/intents.
 
 **Files:**
 - Modify: `src/llmxive/self_improvement/coordinator.py`
-- Create: `src/llmxive/self_improvement/policy.py`
+- Modify: `src/llmxive/self_improvement/policy.py` (created in Task 3)
 - Test: `tests/integration/test_self_improvement_claim_liveness.py`
 
 **Interfaces:**
-- Consumes: `append_many` (Task 2), `unreconciled_intents` (Task 8), `AuthoritativeClock.sample_uncertainty_s` (Task 3).
-- Produces: `cas_heartbeat`, `cas_reclaim`, `HEARTBEAT_INTERVAL_S`, `CLAIM_EXPIRY_S`, `MAX_CLOCK_SKEW_S`, `MAX_SAMPLE_RTT_S`, `MAX_CLAIM_HOLD_TIME_S`, `reclaimable`.
+- Consumes: `append_many` (Task 2), `unreconciled_intents` (Task 8), `AuthoritativeClock.sample_uncertainty_s` (Task 3), `policy.MAX_CLOCK_SKEW_S` (Task 3).
+- Produces: `cas_heartbeat`, `cas_reclaim`, `MAX_CLAIM_HOLD_TIME_S` and the phase budgets it derives from, the counter caps, `reclaimable`.
 
 There is deliberately **no** `cas_release_terminal`. An Attempt that is terminal while its
 claim is still held is unreachable once the terminal and the release share a transaction
 (Task 6), so the repair entry point an earlier draft specified would be dead code guarding
 a state the store cannot produce.
 
-- [ ] **Step 1: Write `policy.py` first — derived, not literal**
+- [ ] **Step 1: EXTEND `policy.py` — derived, not literal**
+
+Task 3 created the module with the timing constants the clock needs
+(`HEARTBEAT_INTERVAL_S`, `CLAIM_EXPIRY_S`, `MAX_CLOCK_SKEW_S`, `MAX_SAMPLE_RTT_S`). Append
+the phase budgets and counter caps below them; do not restate the four that already exist.
 
 ```python
-# src/llmxive/self_improvement/policy.py
-"""Policy Contract v1 constants that the lifecycle needs, DERIVED where the spec derives
-them (Constitution I — the LLM-call-ceiling row is the precedent). Writing 220 as a literal
-would let a phase budget change without the total following it."""
-
-MINUTE = 60
-
-HEARTBEAT_INTERVAL_S = 5 * MINUTE
-CLAIM_EXPIRY_S = 3 * HEARTBEAT_INTERVAL_S          # tolerate two missed beats
-MAX_CLOCK_SKEW_S = 5 * MINUTE
-MAX_SAMPLE_RTT_S = 2                                # Policy Contract `max_sample_rtt`
+# src/llmxive/self_improvement/policy.py  (appended)
 
 #: Post-claim phase budgets (Policy Contract "Wall-clock budget / Attempt").
 IMPLEMENTATION_S = 45 * MINUTE
@@ -3036,9 +3333,20 @@ Shown at column 0 — they sit at the event loop's indentation, as `elif` arms b
 
 ```python
 if e.event_type == "MonitorStarted":
+    attempt = payload_field(e, "attempt_id")
+    # Monitoring starts for the Attempt whose promotion this transaction just observed,
+    # which is by construction the claim HOLDER. Asserting it is what makes the ordering
+    # inside row 4 semantically required rather than merely conventional: reversed, the
+    # release clears the slot first and this check then has no owner to match. Without
+    # it the fold accepts either order, and the mutation test in Step 5 proves nothing.
+    # It is also a real corruption check on its own — a MonitorStarted for an Attempt
+    # nobody claimed is monitoring a merge the lane never promoted.
+    if (c.active_problem_id, c.active_attempt_id) != (payload_field(e, "problem_id"), attempt):
+        raise ValueError(
+            f"illegal transition MonitorStarted for {attempt!r}, which does not hold the "
+            f"lane (held by {c.active_problem_id!r}/{c.active_attempt_id!r})")
     c = replace(c,
-                monitored_attempts=(*c.monitored_attempts,
-                                    payload_field(e, "attempt_id")),
+                monitored_attempts=(*c.monitored_attempts, attempt),
                 # The LATEST merge event's instant — assignment, not max(). A later-`seq`
                 # event may carry an earlier instant (two runners, two independently
                 # anchored clocks), and `seq` is the ordering authority here as everywhere
@@ -3068,9 +3376,15 @@ Expected: all pass.
 
 Temporarily strip `PromotionObserved`'s `coordinator_effects` back to `()` in `lifecycle.py`,
 re-run, and confirm case 5 FAILS with the lane still held and nothing monitored — the
-coordinator-only draft's exact outcome. Restore, then temporarily reverse the effect order to
-`("ClaimReleased", "MonitorStarted")` and confirm case 5 FAILS inside `project_coordinator`
-with a non-owner release. Restore; confirm `git diff` on `lifecycle.py` is empty.
+coordinator-only draft's exact outcome. Restore.
+
+Then temporarily reverse the effect order to `("ClaimReleased", "MonitorStarted")` and
+confirm case 5 FAILS inside `project_coordinator` with `MonitorStarted ... does not hold the
+lane`. Restore. **Then delete the ownership check from the `MonitorStarted` fold branch and
+confirm the REVERSED order now folds cleanly** — that is what proves the ordering is
+enforced by the check rather than by wishful reading. Without this second mutation the order
+test is self-confirming: the release's own owner check runs while the owner still exists, so
+it can never be what rejects the reversal. Restore both; confirm `git diff` is empty.
 
 - [ ] **Step 6: Commit**
 
@@ -3321,3 +3635,5 @@ Expected: at least one crash case per matrix row (claim, terminal, reclaim, prom
 6. **`MonitorStarted` gains a REQUIRED `merged_at`,** changing a 1A event's payload contract and five 1A test call sites. It has exactly one producer, which always knows the value, so an optional field would exist only to let the coordinator record a merge it cannot date. Same class of flag as item 4: a contract change to signed-off code, surfaced rather than slipped in.
 7. **Task 2 now also fixes a PRE-EXISTING defect in `append_to_log`** — the post-push `update-ref` with no expected-old value, which lets a slow writer rewind the local ref past a newer commit from the same clone (`git_event_log.py:684-686`). It is on the code path this transaction copies and it affects the 026 credit ledger too, so it is fixed in the shared helper rather than worked around. If you would rather that landed as its own commit ahead of the slice, Task 2 Step 5 edit 0 is separable.
 8. **`assert_lane_consistent` is a detector for a state that currently cannot exist.** Both `git for-each-ref 'refs/llmxive/*'` and `git ls-remote origin 'refs/llmxive/*'` are empty, so there is no lane history to migrate and no converter is written. The detector guards a future clone, restore, or hand-repair. Confirm you want it rather than a migration — writing a converter for records that do not exist would be the more expensive answer.
+9. **`MonitorStarted` gains an ownership precondition in the coordinator fold** (finding 4's first option, not the second). It makes row 4's ordering semantically enforced rather than conventional, and it is a real corruption check on its own — a `MonitorStarted` for an unclaimed Attempt is the lane watching a merge it never promoted. The cost is a second contract change to a 1A event: its payload gains `problem_id` (the check compares the PAIR, per the 1A F6 guard) alongside `merged_at`, and the 1A folding tests need a claim prelude. If you would rather keep `MonitorStarted` unconditional, the fallback is to document the order as canonical and delete the reversal mutation test — say which.
+10. **`policy.py` moves from Task 9 to Task 3.** The clock's `max_sample_rtt` and refresh interval ARE Policy Contract values, and the regression tolerance is derived from `max_clock_skew`; leaving `policy.py` in Task 9 would have the clock keeping private copies of contract values declared elsewhere. Task 9 now extends the module rather than creating it.
