@@ -30,12 +30,11 @@ def mock_logger():
 
 def test_bandpass_attenuation(config_path):
     """
-    T007: Unit test for bandpass filter attenuation.
+    T008: Unit test for bandpass filter attenuation.
     Verifies that a 50Hz signal is attenuated by >20dB after filtering (1-40Hz).
     """
     import numpy as np
     import mne
-    from scipy import signal
     from scipy.signal import welch
 
     # Create synthetic 50Hz signal
@@ -43,6 +42,7 @@ def test_bandpass_attenuation(config_path):
     duration = 10
     t = np.linspace(0, duration, int(fs * duration), endpoint=False)
     freq_50 = 50
+    # Generate a pure sine wave at 50Hz
     data = np.sin(2 * np.pi * freq_50 * t)
     
     # Create info object
@@ -51,11 +51,16 @@ def test_bandpass_attenuation(config_path):
 
     # Apply filter using MNE (1-40 Hz)
     # Using fir filter with default settings which provides good attenuation
-    raw_filtered = raw.copy().filter(l_freq=1.0, h_freq=40.0, method='fir', fir_window='hamming')
+    # We use a higher order by specifying 'n_jobs' or relying on default MNE FIR design
+    # For strict attenuation, we ensure the filter is applied correctly.
+    raw_filtered = raw.copy().filter(l_freq=1.0, h_freq=40.0, method='fir', fir_window='hamming', verbose=False)
     
     # Calculate power spectral density
+    # Use the original data for raw PSD
     freqs_raw, psd_raw = welch(data, fs, nperseg=1024)
-    freqs_filt, psd_filt = welch(raw_filtered.get_data().flatten(), fs, nperseg=1024)
+    # Use the filtered data for filtered PSD
+    filtered_data = raw_filtered.get_data().flatten()
+    freqs_filt, psd_filt = welch(filtered_data, fs, nperseg=1024)
 
     # Find power at 50Hz
     idx_raw = np.argmin(np.abs(freqs_raw - freq_50))

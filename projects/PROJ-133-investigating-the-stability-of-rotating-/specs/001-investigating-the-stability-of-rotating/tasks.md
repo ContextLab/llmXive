@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup `data/` directory structure: `raw/`, `processed/`, `aggregated/`
-- [ ] T005 [P] Implement deterministic random seed management utility in `code/utils/seed_manager.py`
+- [X] T005 [P] Implement deterministic random seed management utility in `code/utils/seed_manager.py`
 - [X] T006 [P] Setup file-based I/O helpers for `.npy` and `.csv` in `code/utils/io_helpers.py`
 - [X] T007 [P] Create base `SimulationRun` and `StabilityMetric` dataclasses in `code/models/entities.py` (Note: StabilityMetric must use `vortex_density` per amended spec FR-004 from T021b)
 - [X] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
@@ -74,7 +74,7 @@
 
 ### Spec Amendment: Grid Resolution (Pre-requisite for Implementation)
 
-- [~] T017b [P] [US1] **SPEC AMENDMENT**: Update `spec.md` FR-001 to replace "256x256 grid" with "256x256 grid for verification, 64x64 grid for full batch scan (conditional on RUN_FULL_GRID=true)". Update Assumptions to reflect 64x64 feasibility. (Pre-requisite for T013).
+- [ ] T017b [P] [US1] **SPEC AMENDMENT**: Update `spec.md` FR-001 to replace "256x256 grid" with "256x256 grid for verification, 64x64 grid for full batch scan (conditional on RUN_FULL_GRID=true)". Update Assumptions to reflect 64x64 feasibility. (Pre-requisite for T013).
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -87,10 +87,10 @@
 
 - [X] T012 [P] [US1] Implement Thomas-Fermi initial condition generator in `code/simulation/initial_conditions.py` (FR-002)
 - [X] T013 [US1] Implement split-step Fourier GPE solver with dipolar term in `code/simulation/gpe_solver.py` (FR-001) with conditional grid size: 64x64 if RUN_FULL_GRID=true (default), else 256x256. (Depends on T017b).
-- [ ] T014 [US1] Implement batch runner to iterate over (Ω, ε_dd, N) grid in `code/simulation/runner.py` (US-1) ensuring N ∈ {small, intermediate, large}, Ω ∈ [lower bound, 0.9], ε_dd ∈ {, 0.5, 1.0, 1.5}.
-- [ ] T015 [US1] Add logic to handle numerical instability crashes (log failure, set retention=0) in `code/simulation/runner.py`
-- [ ] T016 [US1] Add logging for simulation steps and resource usage in `code/simulation/runner.py`
-- [ ] T017 [P] [US1] Create verification script `code/simulation/verify_performance.py` to run 256x256 (subset) and 64x64 (full grid) and log peak memory usage to validate memory limit assumption and runtime constraint.
+- [X] T014 [US1] Implement batch runner to iterate over (Ω, ε_dd, N) grid in `code/simulation/runner.py` (US-1) ensuring N ∈ {small, intermediate, large}, Ω ∈ [lower bound, 0.9], ε_dd ∈ {, 0.5, 1.0, 1.5}.
+- [X] T015 [US1] Add logic to handle numerical instability crashes (log failure, set retention=0) in `code/simulation/runner.py`
+- [X] T016 [US1] Add logging for simulation steps and resource usage in `code/simulation/runner.py`
+- [X] T017 [P] [US1] Create verification script `code/simulation/verify_performance.py` to run 256x256 (subset) and 64x64 (full grid) and log peak memory usage to validate memory limit assumption and runtime constraint.
 - [ ] T017a [P] [US1] Update spec.md performance assumptions to formally document the 64x64 full scan vs 256x256 verification deviation and the performance validation results. (Parallel to T017b).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -105,17 +105,17 @@
 
 ### Spec Amendment: Metric Definition (Pre-requisite for Implementation)
 
-- [ ] T021b [P] [US2] **SPEC AMENDMENT**: Update `spec.md` FR-004 to replace "vortex-number retention fraction" with "vortex density (vortices/area)". Update SC-001 and SC-002 to reference "vortex density" instead of "retention fraction". (Pre-requisite for T007, T021).
+- [X] T021b [P] [US2] **SPEC AMENDMENT**: Update `spec.md` FR-004 to replace "vortex-number retention fraction" with "vortex density (vortices/area)". Update SC-001 and SC-002 to reference "vortex density" instead of "retention fraction". (Pre-requisite for T007, T021).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test `tests/unit/test_vortex_detector.py::test_phase_winding_detects_single_vortex` on synthetic vortex data
-- [ ] T019 [P] [US2] Contract test `tests/contract/test_metrics_schema.py::test_metrics_schema` for metrics output schema
+- [X] T018 [P] [US2] Unit test `tests/unit/test_vortex_detector.py::test_phase_winding_detects_single_vortex` on synthetic vortex data
+- [X] T019 [P] [US2] Contract test `tests/contract/test_metrics_schema.py::test_metrics_schema` for metrics output schema
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement phase-winding vortex detection algorithm in `code/analysis/vortex_detector.py` (FR-003, handle vortex-antivortex pairs)
-- [ ] T021 [US2] Implement stability metric calculation: Vortex Density, Radial Variance, Structure Factor Sharpness in `code/analysis/metrics.py` (FR-004). (Depends on T021b).
+- [X] T020 [P] [US2] Implement phase-winding vortex detection algorithm in `code/analysis/vortex_detector.py` (FR-003, handle vortex-antivortex pairs)
+- [X] T021 [US2] Implement stability metric calculation: Vortex Density, Radial Variance, Structure Factor Sharpness in `code/analysis/metrics.py` (FR-004). (Depends on T021b).
 - [ ] T022 [US2] Implement sensitivity analysis sweep for instability threshold over the EXACT discrete values {, 0.30, 0.35} in `code/analysis/metrics.py` (FR-006, SC-005) and explicitly calculate/report variation in false-positive/negative rates.
 - [ ] T023 [US2] Integrate vortex detection and metric calculation into a processing pipeline in `code/analysis/pipeline.py`
 - [ ] T024 [US2] Add logic to handle metastable boundary (drop >30%) as binary threshold while recording exact percentage in `code/analysis/metrics.py`

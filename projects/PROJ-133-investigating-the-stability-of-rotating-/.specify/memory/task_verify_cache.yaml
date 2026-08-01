@@ -1,0 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory tree under `projects/PROJ-133-investigating-the-stability-of-rotating-/`\
+    \ is provided; the `code`, `data`, `tests`, and `docs` subfolders (and their specified\
+    \ sub\u2011directories) are not shown to exist or contain any files. The implementer\
+    \ must create the full project structure as specified."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`) or scripts are present in the provided
+    artifacts, so the claim of having configured ruff and Black cannot be verified.
+    The required artifacts are missing.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that a `data/` directory (with `raw/`, `processed/`,\
+    \ and `aggregated/` sub\u2011directories) actually exists on disk; the artifact\
+    \ list is empty, so the required directory structure cannot be confirmed. The\
+    \ implementer must create the `data/` folder hierarchy and supply proof (e.g.,\
+    \ a directory listing)."
+T017a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated\u202Fspec.md file or excerpt showing the required performance assumptions\
+    \ (the 64\xD764 full\u2011scan vs\u202F256\xD7256 verification deviation and validation\
+    \ results) is provided. The evidence lacks the concrete documentation the task\
+    \ demands, so the requirement is not satisfied."
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided, and there is no evidence that FR\u2011\
+    001\u2019s grid description and the Assumptions section have been edited as required.\
+    \ The implementer must supply the revised specification document showing the new\
+    \ \u201C256x256 grid for verification, 64x64 grid for full batch scan (conditional\
+    \ on RUN_FULL_GRID=true)\u201D wording and the corresponding assumption update."
+T021b:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided specification excerpt shows FR\u2011004 now defines \u201Cvortex\
+    \ density (vortices/area)\u201D and both SC\u2011001 and SC\u2011002 refer to\
+    \ \u201Cvortex density\u201D instead of \u201Cretention fraction\u201D, confirming\
+    \ the required amendments to `spec.md` are present."

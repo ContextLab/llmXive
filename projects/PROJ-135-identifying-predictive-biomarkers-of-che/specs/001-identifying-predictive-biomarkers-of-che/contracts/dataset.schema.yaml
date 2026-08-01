@@ -1,102 +1,65 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Chemo Biomarker Dataset Schema
-description: |
-  Schema for processed cancer datasets used in the biomarker discovery pipeline.
-  Covers both TCGA and GEO derived data after harmonization and filtering.
+%YAML 1.1
+---
 type: object
+description: >
+  Schema for processed cancer dataset records.
+  Each record represents a single sample with gene expression data.
 required:
-  - metadata
-  - samples
-  - features
+  - tumor_type
+  - sample_id
+  - response_label
+  - gene_expression
 properties:
-  metadata:
+  tumor_type:
+    type: string
+    description: >
+      The cancer/tumor type identifier (e.g., 'BRCA', 'LUAD', 'PRAD').
+      Must match the standardized nomenclature used in TCGA/GEO.
+    minLength: 2
+    maxLength: 10
+  sample_id:
+    type: string
+    description: >
+      Unique identifier for the sample.
+      For TCGA: TCGA-XX-XXXX format.
+      For GEO: GSM-XXXXXXX format.
+    minLength: 5
+  response_label:
+    type: string
+    description: >
+      Binary or categorical response label indicating chemotherapy response.
+      Expected values: 'Responder', 'NonResponder', 'CR', 'PR', 'SD', 'PD'.
+      Must be mapped to a binary classification for modeling.
+    enum:
+      - Responder
+      - NonResponder
+      - CR
+      - PR
+      - SD
+      - PD
+  gene_expression:
     type: object
-    required:
-      - source
-      - tumor_type
-      - processing_date
-      - version
-      - sample_count
-      - gene_count
-      - response_distribution
-    properties:
-      source:
-        type: string
-        description: Source identifier (e.g., 'TCGA-BRCA', 'GSE25055')
-      tumor_type:
-        type: string
-        description: Standardized tumor type code (e.g., 'BRCA', 'LUAD')
-      processing_date:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of processing
-      version:
-        type: string
-        description: Pipeline version used for processing
-      sample_count:
-        type: integer
-        minimum: 1
-        description: Total number of samples in this dataset
-      gene_count:
-        type: integer
-        minimum: 1
-        description: Total number of genes (features) after filtering
-      response_distribution:
-        type: object
-        required:
-          - responders
-          - non_responders
-        properties:
-          responders:
-            type: integer
-            minimum: 0
-          non_responders:
-            type: integer
-            minimum: 0
-  samples:
-    type: array
-    description: List of sample metadata
-    items:
-      type: object
-      required:
-        - sample_id
-        - response_label
-      properties:
-        sample_id:
-          type: string
-          description: Unique sample identifier
-        response_label:
-          type: string
-          enum: ["responder", "non_responder"]
-          description: Clinical response status (RECIST/CR/PR based)
-        platform:
-          type: string
-          description: Platform used (e.g., 'Illumina HiSeq', 'Affymetrix')
-        batch_id:
-          type: string
-          description: Batch identifier for correction
-  features:
-    type: array
-    description: List of gene features
-    items:
-      type: object
-      required:
-        - gene_symbol
-        - biotype
-      properties:
-        gene_symbol:
-          type: string
-          description: HGNC gene symbol
-        biotype:
-          type: string
-          description: Gene biotype (e.g., 'protein_coding')
-  expression_data:
-    type: object
-    description: |
-      Matrix of expression values. Keys are sample_ids, values are objects
-      mapping gene_symbols to numeric expression values (VST/normalized).
-      Represented as a nested dictionary for JSON compatibility.
+    description: >
+      Map of gene symbols (HGNC) to normalized expression values.
+      Keys are gene symbols, values are numeric expression levels.
+      Values should be VST-normalized or log2-transformed counts.
     additionalProperties:
-      type: object
-      additionalProperties:
-        type: number
+      type: number
+      minimum: 0
+    minProperties: 1
+additionalProperties: false
+examples:
+  - tumor_type: "BRCA"
+    sample_id: "TCGA-02-0001"
+    response_label: "Responder"
+    gene_expression:
+      TP53: 12.5
+      BRCA1: 8.3
+      EGFR: 4.1
+  - tumor_type: "LUAD"
+    sample_id: "GSM123456"
+    response_label: "NonResponder"
+    gene_expression:
+      KRAS: 15.2
+      EGFR: 6.7
+      ALK: 2.1

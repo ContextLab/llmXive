@@ -7,12 +7,13 @@ T008:
     up pytest or YAML schema tests, so the required artifacts are missing.
 T010:
   c: false
-  h: bcacfaf02be0f24767ac6f7fc70f9dc2c33320f00dd099051484ca5c42797cad
-  r: The `tests/contract/test_data_schema.py` file is truncated and contains a syntax
-    error (`e` at the end), so it cannot run. Moreover, the required `dataset.schema.yaml`
-    file does not exist at the expected path, making it impossible for the test to
-    validate any data against the schema. Both the test implementation and the schema
-    artifact are missing/invalid.
+  h: 150b0f3fdab97ba9581f7896c8578544371f8a4b05b489987e83a8ef54b8a722
+  r: The `tests/contract/test_data_schema.py` file is present but is truncated (ends
+    with an incomplete `except` block) and therefore contains a syntax error. Moreover,
+    the required `dataset.schema.yaml` file does not exist at the referenced path,
+    so the test cannot actually load or validate any schema against raw data. Both
+    the missing schema and the broken test mean the contract test does not fulfill
+    the requirement.
 T012c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

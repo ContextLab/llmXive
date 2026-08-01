@@ -1,3 +1,11 @@
+T011:
+  c: false
+  h: 0e4480e12ca3457e7c3ed8e3f6a2c312cbd732b361add669c968fdc4ceb269ba
+  r: "The repository contains a partially implemented `code/preprocess.py` (functions\
+    \ for loading config, band\u2011pass and notch filtering) but the script does\
+    \ not show code that reads the raw EEG, applies the filters, and writes the result\
+    \ to `data/processed/cleaned_eeg.fif`. Moreover, the expected output file `data/processed/cleaned_eeg.fif`\
+    \ is absent. The task therefore remains unfinished."
 T014:
   c: false
   h: be11b7ad5377b1c9da590f3188988417fa4b7a8ec03c905323ba424c6bcb58f1
@@ -7,14 +15,15 @@ T014:
     \ and is truncated). Consequently the script does not meet the specification of\
     \ calculating LZC per channel and writing the results to the CSV. The missing\
     \ CSV and absent LZC logic must be added."
-T015:
+T016:
   c: false
-  h: 2ca86f5d92afd16ae74b0afe2f68dbd0dcfc5af861b6e153dc8534908f704748
-  r: The provided `code/features.py` is truncated and does not contain a full implementation
-    (the `calculate_permutation_entropy` function ends abruptly and there is no logic
-    to iterate over participants/channels or write `data/processed/pe_metrics.csv`).
-    Moreover, the required CSV output file is missing. The task therefore fails to
-    meet the specified requirements.
+  h: e63e29db0d5bf20f804f8a83923d9f5b6db89655eb6f8927d0751b1353e53795
+  r: "The repository lacks the required output file `data/processed/pe_metrics.csv`\
+    \ and the input file `data/processed/cleaned_eeg.fif`. Moreover, `code/features.py`\
+    \ is incomplete: the `calculate_permutation_entropy` function is truncated and\
+    \ there is no code that iterates over participants/channels, computes PE, and\
+    \ writes the CSV with the specified schema. Consequently the task\u2019s functional\
+    \ and testing requirements are not met."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -5,189 +5,157 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List
 
-# Import existing config utilities to ensure paths are consistent
-# The API surface indicates src.config has get_project_root
-try:
-    from src.config import get_project_root
-except ImportError:
-    # Fallback if import path differs slightly in execution context
-    from code.src.config import get_project_root
+from src.config import get_project_root, ensure_directories
 
-from src.utils import setup_logging, ensure_path_exists
-
-# Configure logging
-logger = setup_logging("feasibility")
+# Configure logging for this module
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def count_available_tumor_types(data_dir: Path) -> int:
     """
-    Count the total number of tumor types available for LOO validation.
+    Counts the total number of unique tumor types available for LOO validation.
     
-    This function checks the `data/processed/` directory for discovery sets
-    that have been generated (or are expected to be generated) by the acquisition
-    and preprocessing stages. Specifically, it looks for files matching
-    the pattern `{tumor_type}_discovery_set.csv`.
+    This function scans the processed data directory for files matching the pattern
+    '{tumor_type}_discovery_set.csv' or '{tumor_type}_training_set.csv'.
+    It extracts the tumor type prefix and counts unique types.
     
-    If no processed data exists yet, it attempts to infer available tumor types
-    from the raw data directory or a configuration mapping if available.
-    However, per the task description, this check is independent of GEO dataset
-    availability and focuses on the TCGA types that will be used for modeling.
-    
-    For the purpose of this Pre-Check (T009), which runs BEFORE T014 (Data Feasibility Gate)
-    and before T031/T032 (Modeling), we assume the project structure defines
-    a set of target tumor types in the configuration or we scan for existing
-    processed files if a partial run occurred.
-    
-    Since T009 is a "Pre-Check" that must run *before* data acquisition completes
-    (T014), it likely relies on a configuration of *intended* tumor types or
-    a preliminary scan of available TCGA codes.
-    
-    Given the task description: "count the total number of tumor types (N) available...
-    independent of GEO dataset availability... run before any model training...
-    and before the Data Feasibility Gate (T014)".
-    
-    We will implement a check that:
-    1. Checks for a configuration file specifying target tumor types (if exists).
-    2. If not, scans `data/processed/` for any existing `_discovery_set.csv` files.
-    3. If neither, it returns 0 (indicating no types found yet, which might trigger a halt
-       if the pipeline expects them to be pre-defined, but usually this task implies
-       checking the *potential* pool. However, without real data, we must rely on
-       the existence of files or a config.
-    
-    Re-reading T009: "count the total number of tumor types (N) available for Leave-One-Cancer-Type-Out (LOO) validation".
-    This implies we need to know what types we *have* or *will have*.
-    Since T014 (Data Feasibility) is the one that counts TCGA types and decides to halt,
-    T009 seems to be a specific check for the *modeling phase* viability.
-    
-    Interpretation: The task asks to count N. If N < 3, halt.
-    Since T014 is the one that downloads and counts, T009 might be checking a
-    *pre-defined list* of tumor types intended for the study, or it might be
-    checking the `data/processed` directory if the pipeline is being resumed.
-    
-    However, the most robust implementation for a "Pre-Check" that runs *before*
-    T014 (which does the actual counting and downloading) is to check a
-    configuration file that lists the *target* tumor types for this project.
-    If that list is empty or < 3, we halt.
-    
-    Let's assume the project uses a `config.py` or a specific YAML file to define
-    the `TARGET_TUMOR_TYPES`. If not present, we might scan `data/processed`
-    as a fallback (for resuming).
-    
-    We will look for `TARGET_TUMOR_TYPES` in `src/config.py` or a local config.
-    If `src/config` does not expose this, we will check `data/processed` for
-    existing files.
-    
-    Updated Strategy:
-    1. Try to load target types from `src/config` (if exposed) or a local `config.yaml`.
-    2. If not found, scan `data/processed/` for `{name}_discovery_set.csv`.
-    3. Count unique tumor types.
-    4. If count < 3, write halt file and exit.
+    Args:
+        data_dir (Path): Path to the data/processed directory.
+        
+    Returns:
+        int: The count of unique tumor types found.
     """
+    if not data_dir.exists():
+        logger.warning(f"Processed data directory does not exist: {data_dir}")
+        return 0
     
-    project_root = get_project_root()
-    processed_dir = project_root / "data" / "processed"
-    target_types = []
+    tumor_types = set()
     
-    # Strategy 1: Check for a configuration of target types
-    # We'll look for a common config pattern or a specific file mentioned in specs
-    # Since T004 defines config, let's assume we might need to read a specific file
-    # if not in the main config module.
-    # However, the task says "count... available".
-    # If this runs before T014, we might not have data.
-    # But T009 is a "Halt Condition".
+    # Look for processed data files
+    # Expected pattern: {tumor_type}_discovery_set.csv or {tumor_type}_training_set.csv
+    # We also check raw data if processed doesn't exist yet, but primarily processed
+    for file_path in data_dir.iterdir():
+        if file_path.is_file() and file_path.suffix == '.csv':
+            filename = file_path.stem
+            # Split by last underscore to get tumor type
+            # e.g., "BRCA_discovery_set" -> "BRCA"
+            parts = filename.rsplit('_', 1)
+            if len(parts) >= 1:
+                tumor_type = parts[0]
+                # Basic validation: tumor type should be alphanumeric and reasonable length
+                if tumor_type and len(tumor_type) >= 2 and tumor_type.isalnum():
+                    tumor_types.add(tumor_type)
     
-    # Let's check if there are any existing processed files (for resuming or partial runs)
-    if processed_dir.exists():
-        files = list(processed_dir.glob("*_discovery_set.csv"))
-        for f in files:
-            # Extract tumor type from filename: {tumor_type}_discovery_set.csv
-            name = f.stem.replace("_discovery_set", "")
-            if name and name not in target_types:
-                target_types.append(name)
-    
-    # If we found types in processed data, return that count.
-    # If not, and this is a fresh run, we might need to rely on a config list.
-    # Since we cannot download data yet (T014 does that), and we can't guess,
-    # we must rely on the existence of *something*.
-    # If the count is 0, and we have no config, we might just return 0.
-    # But the task implies we should count "available" types.
-    # If the pipeline is designed to run T009 *after* T012 (Acquisition) but *before* T014?
-    # No, T014 is the "Data Feasibility Gate". T009 is "Pre-Check LOO Feasibility".
-    # The description says: "This check is independent of GEO dataset availability;
-    # it must run before any model training (T031/T032) and before the Data Feasibility Gate (T014)".
-    # This is slightly contradictory if T014 is the one that counts TCGA types.
-    # Perhaps T009 is checking the *intended* list from a spec/config.
-    
-    # Let's assume there is a `target_tumor_types` list in `src/config` or a local file.
-    # If not, we assume the user has pre-configured the environment.
-    # Since I cannot invent a config file not in the API surface, I will rely on
-    # the `data/processed` directory scan as the primary source of truth for "available" types.
-    # If the directory is empty, N=0.
-    
-    return len(target_types)
+    logger.info(f"Found {len(tumor_types)} unique tumor types: {sorted(tumor_types)}")
+    return len(tumor_types)
 
 def write_feasibility_gate_result(
     gate_path: Path,
     status: str,
     reason: str,
-    tumor_types_count: int
+    tumor_type_count: int,
+    tumor_types: List[str]
 ) -> None:
     """
-    Write the feasibility gate result to a JSON file.
+    Writes the feasibility gate result to a JSON file.
+    
+    Args:
+        gate_path (Path): Path to the output JSON file.
+        status (str): 'halted' or 'ready'.
+        reason (str): Explanation of the status.
+        tumor_type_count (int): Number of tumor types found.
+        tumor_types (List[str]): List of tumor type identifiers.
     """
-    ensure_path_exists(gate_path)
     result = {
         "status": status,
         "reason": reason,
-        "tumor_types_count": tumor_types_count,
-        "timestamp": "N/A" # Could add datetime if needed
+        "tumor_type_count": tumor_type_count,
+        "tumor_types": tumor_types,
+        "gate_name": "loo_feasibility"
     }
+    
+    # Ensure parent directory exists
+    gate_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(gate_path, 'w') as f:
         json.dump(result, f, indent=2)
-    logger.info(f"Feasibility gate result written: {gate_path}")
+    
+    logger.info(f"Feasibility gate result written to {gate_path}: {status}")
 
 def main() -> int:
     """
-    Main entry point for T009: Pre-Check LOO Feasibility.
+    Main entry point for the Pre-Check LOO Feasibility task (T009).
     
-    1. Count available tumor types (N).
-    2. If N < 3:
-       - Write data/feasibility_gate.json with status "halted".
-       - Exit with code 1.
-    3. If N >= 3:
-       - Proceed (exit 0).
+    This task:
+    1. Counts the total number of tumor types (N) available.
+    2. If N < 3, halts execution (exit code 1) and writes a 'halted' gate.
+    3. If N >= 3, proceeds and writes a 'ready' gate.
+    
+    Returns:
+        int: Exit code (0 for success/proceed, 1 for halt).
     """
     project_root = get_project_root()
-    gate_file = project_root / "data" / "feasibility_gate.json"
+    data_dir = project_root / "data" / "processed"
+    gate_path = project_root / "data" / "feasibility_gate_loo.json"
+    
+    # Ensure directories exist
+    ensure_directories()
     
     logger.info("Starting Pre-Check LOO Feasibility (T009)...")
     
-    # Count available types
-    # Note: This implementation scans `data/processed` for existing discovery sets.
-    # If this is a fresh run, N might be 0.
-    # However, the task implies we should count "available" types.
-    # If the pipeline is sequential, T009 might be intended to run after T012 (Acquisition)
-    # but before T014 (Gate). But T014 is the one that counts TCGA types.
-    # Let's assume the user has placed some data or config.
-    # If N=0, we halt.
+    # Count available tumor types
+    n = count_available_tumor_types(data_dir)
     
-    N = count_available_tumor_types(project_root / "data" / "processed")
-    logger.info(f"Found {N} tumor types available for LOO validation.")
-    
-    if N < 3:
-        logger.warning(f"Insufficient tumor types for LOO validation (N={N} < 3). Halting.")
+    # Determine status based on count
+    if n < 3:
+        status = "halted"
+        reason = "insufficient_loo_types"
+        logger.error(f"LOO Feasibility Check FAILED: Only {n} tumor types found. Minimum required: 3.")
+        
+        # Write halted gate
         write_feasibility_gate_result(
-            gate_file,
-            status="halted",
-            reason="insufficient_loo_types",
-            tumor_types_count=N
+            gate_path=gate_path,
+            status=status,
+            reason=reason,
+            tumor_type_count=n,
+            tumor_types=[]
         )
-        return 1
-    
-    logger.info(f"Feasibility check passed. {N} tumor types available.")
-    # Optionally write a "ready" state if we want to be explicit,
-    # but the task says "Proceed Condition: If N >= 3, proceed."
-    # We return 0 to indicate success/proceed.
-    return 0
+        
+        # Terminate execution with exit code 1
+        sys.exit(1)
+    else:
+        status = "ready"
+        reason = "sufficient_loo_types"
+        logger.info(f"LOO Feasibility Check PASSED: {n} tumor types found. Proceeding.")
+        
+        # Write ready gate
+        # Note: We list the actual types found for transparency
+        tumor_types = sorted(list(set())) # Placeholder, we need to re-collect or pass it
+        # Re-collect types for the 'ready' case
+        from pathlib import Path
+        tumor_types = set()
+        if data_dir.exists():
+            for file_path in data_dir.iterdir():
+                if file_path.is_file() and file_path.suffix == '.csv':
+                    filename = file_path.stem
+                    parts = filename.rsplit('_', 1)
+                    if len(parts) >= 1:
+                        tumor_type = parts[0]
+                        if tumor_type and len(tumor_type) >= 2 and tumor_type.isalnum():
+                            tumor_types.add(tumor_type)
+        
+        write_feasibility_gate_result(
+            gate_path=gate_path,
+            status=status,
+            reason=reason,
+            tumor_type_count=n,
+            tumor_types=sorted(list(tumor_types))
+        )
+        
+        return 0
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,77 +1,57 @@
-"""
-Setup data directory structure for the code smell comparison study.
-
-This script creates the required directory hierarchy under the project's
-data/ folder as defined in the project plan and tasks.md.
-
-Directories created:
-- data/raw/human_samples
-- data/raw/llm_samples
-- data/raw/reference_set
-- data/intermediate
-- data/processed
-- figures
-"""
 import os
 import sys
 from pathlib import Path
 from utils.logger import get_logger
 from utils.config import get_project_root
 
-# Define the relative paths to create under the project root
-DATA_DIRS = [
-    "data/raw/human_samples",
-    "data/raw/llm_samples",
-    "data/raw/reference_set",
-    "data/intermediate",
-    "data/processed",
-    "figures",
-]
-
 def setup_data_directories():
     """
-    Creates all necessary data directories if they do not already exist.
+    Creates the required directory structure for the project's data storage.
     
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    This implements Task T006: Setup data directory structure.
+    Creates:
+      - data/raw/human_samples
+      - data/raw/llm_samples
+      - data/intermediate
+      - data/processed
     """
-    logger = get_logger(__name__)
-    project_root = get_project_root()
-    success = True
-
-    logger.info(f"Project root identified at: {project_root}")
-
-    for dir_path_str in DATA_DIRS:
-        full_path = project_root / dir_path_str
-        
-        if full_path.exists():
-            logger.info(f"Directory already exists: {full_path}")
-        else:
-            try:
-                full_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {full_path}")
-            except OSError as e:
-                logger.error(f"Failed to create directory {full_path}: {e}")
-                success = False
-
-    if success:
-        logger.info("All data directories successfully verified/created.")
-    else:
-        logger.error("Some directories failed to create.")
-        
-    return success
+    root = get_project_root()
+    logger = get_logger()
+    
+    # Define the relative paths as per task requirements
+    required_dirs = [
+        "data/raw/human_samples",
+        "data/raw/llm_samples",
+        "data/intermediate",
+        "data/processed"
+    ]
+    
+    created_count = 0
+    for rel_path in required_dirs:
+        target_path = root / rel_path
+        try:
+            target_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {target_path}")
+            created_count += 1
+        except PermissionError:
+            logger.error(f"Permission denied creating directory: {target_path}")
+            raise
+        except OSError as e:
+            logger.error(f"Error creating directory {target_path}: {e}")
+            raise
+    
+    logger.info(f"Successfully created {created_count} data directories.")
+    return created_count
 
 def main():
     """Entry point for the script."""
-    logger = get_logger(__name__)
-    logger.info("Starting data directory setup...")
-    
-    if setup_data_directories():
-        logger.info("Setup completed successfully.")
-        return 0
-    else:
-        logger.error("Setup failed.")
-        return 1
+    try:
+        count = setup_data_directories()
+        print(f"Setup complete. {count} directories created.")
+        sys.exit(0)
+    except Exception as e:
+        print(f"Setup failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

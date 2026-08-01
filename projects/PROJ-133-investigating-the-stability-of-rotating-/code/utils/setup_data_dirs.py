@@ -1,48 +1,80 @@
-"""
-Setup utility to initialize the project's data directory structure.
-
-This script creates the required subdirectories under `data/` as specified
-in the project's data model and task requirements:
-- data/raw: For unprocessed, downloaded, or raw simulation output files.
-- data/processed: For cleaned, normalized, or intermediate analysis data.
-- data/aggregated: For final statistical aggregates, phase maps, and report data.
-
-It is idempotent: running it multiple times will not error if directories exist.
-"""
 import os
 import sys
 from pathlib import Path
 
-# Define the project root relative to this script's location
-# Assuming this script is at code/utils/setup_data_dirs.py
-# Project root is two levels up: code/utils -> code -> root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_ROOT = PROJECT_ROOT / "data"
-
-SUBDIRECTORIES = [
-    "raw",
-    "processed",
-    "aggregated",
-]
+def create_project_structure(base_dir: Path) -> None:
+    """
+    Create the required directory structure for the project.
+    
+    This function ensures the existence of:
+    - code/simulation, code/analysis, code/statistics, code/viz, code/utils
+    - data/raw, data/processed, data/aggregated
+    - tests/unit, tests/contract, tests/integration
+    - docs
+    
+    Args:
+        base_dir: The root directory of the project where structures will be created.
+    """
+    # Define the required directory paths relative to the base directory
+    directories = [
+        # Code subdirectories
+        base_dir / "code" / "simulation",
+        base_dir / "code" / "analysis",
+        base_dir / "code" / "statistics",
+        base_dir / "code" / "viz",
+        base_dir / "code" / "utils",
+        
+        # Data subdirectories (specifically for T004)
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "data" / "aggregated",
+        
+        # Test subdirectories
+        base_dir / "tests" / "unit",
+        base_dir / "tests" / "contract",
+        base_dir / "tests" / "integration",
+        
+        # Documentation
+        base_dir / "docs",
+    ]
+    
+    # Create directories if they don't exist
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created directory: {directory}")
+        else:
+            print(f"Directory already exists: {directory}")
+    
+    print(f"Project structure setup complete. {created_count} directories created/verified.")
 
 def main():
-    """Create the data directory structure if it doesn't exist."""
-    if not DATA_ROOT.exists():
-        print(f"Creating base data directory: {DATA_ROOT}")
-        DATA_ROOT.mkdir(parents=True, exist_ok=True)
-    else:
-        print(f"Data directory already exists: {DATA_ROOT}")
-
-    for subdir_name in SUBDIRECTORIES:
-        subdir_path = DATA_ROOT / subdir_name
-        if not subdir_path.exists():
-            subdir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {subdir_path}")
+    """
+    Entry point for the script. Creates the data directory structure.
+    """
+    # Determine the project root (parent of the 'code' directory)
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
+    
+    print(f"Project root detected at: {project_root}")
+    
+    # Create the structure
+    create_project_structure(project_root)
+    
+    # Verify the specific data directories required for T004
+    data_base = project_root / "data"
+    required_subdirs = ["raw", "processed", "aggregated"]
+    
+    for subdir in required_subdirs:
+        path = data_base / subdir
+        if path.exists() and path.is_dir():
+            print(f"✓ Verified: {path}")
         else:
-            print(f"Directory already exists: {subdir_path}")
-
-    print("Data directory setup complete.")
-    return 0
+            print(f"✗ Missing: {path}")
+            raise FileNotFoundError(f"Required directory {path} was not created.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

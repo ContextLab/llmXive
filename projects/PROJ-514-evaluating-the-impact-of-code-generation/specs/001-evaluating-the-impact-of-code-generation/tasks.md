@@ -87,7 +87,7 @@
  - **Freshness Logic**: For each selected repo, use `git log --diff-filter=A --format="%H" -- "*.py" "*.java"` to find commits that *added* functions.
  - **Selection**: Select the **most recent commits per repo** that added a.py or.java file.
  - **Extraction**: Extract the function code from each commit. Save to `data/raw/human_samples/` with metadata JSON sidecars containing `repo_id`, `commit_sha`, `issue_id` (if linked), `issue_url` (full URL), `file_path`, `function_name`.
- - **Constraint**: Total samples collected (3 per repository across 50 repositories) [UNRESOLVED-CLAIM: c_55472511 — status=not_enough_info].
+ - **Constraint**: Total samples collected (3 per repository across 50 repositories).
  - **Logging**: Log every sample's `commit_sha`, `repo_id`, and `issue_url` to `data/raw/api_logs.json`.
  - **Traceability**: Ensure `issue_url` is logged to satisfy Constitution Principle II (Verified Accuracy).
 - [ ] T012.5 [US1] Implement `code/01_data_collection/export_task_descriptions.py`:
@@ -129,12 +129,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/02_static_analysis/run_pmd.py`:
+- [X] T021 [P] [US2] Implement `code/02_static_analysis/run_pmd.py`:
  - **Wrapper**: Subprocess wrapper to execute PMD CLI with specific rulesets for `LongMethod`, `DuplicatedCode`, `FeatureEnvy`, `LongParameterList`.
- - **Limits**: Enforce per-process memory limit (≤2 GB) and 2-minute timeout per file [UNRESOLVED-CLAIM: c_8e7768dd — status=not_enough_info].
+ - **Limits**: Enforce per-process memory limit (≤2 GB) and 2-minute timeout per file.
  - **Error Handling**: Log syntax errors and PMD crashes; exclude from analysis.
  - **Output**: Return raw PMD XML/JSON output.
-- [ ] T022 [US2] Implement `code/02_static_analysis/parse_results.py`:
+- [X] T022 [US2] Implement `code/02_static_analysis/parse_results.py`:
  - **Parser**: Parse PMD XML/JSON output into `data/intermediate/analysis_results.json`.
  - **Dependency**: Must run after T021 completes.
  - **Mapping**: Map smells to `SmellMetric` entities.
@@ -199,7 +199,7 @@
 
 - [ ] T030 [P] Documentation updates in `specs/001-code-smell-comparison/research.md`
 - [ ] T031 Code cleanup and refactoring
-- [ ] T032 Performance optimization (ensure total CI job ≤ 2 hours with 20 parallel jobs [UNRESOLVED-CLAIM: c_43add690 — status=not_enough_info])
+- [ ] T032 Performance optimization (ensure total CI job ≤ 2 hours with 20 parallel jobs)
 - [ ] T033 [P] Additional unit tests in `tests/unit/`
 - [ ] T034 Run `quickstart.md` validation to ensure reproducibility
 

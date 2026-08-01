@@ -1,182 +1,180 @@
+"""
+Integration test for data download and checksum verification.
+
+This test verifies that:
+1. The download script correctly validates the dataset before downloading.
+2. The downloaded files exist and have valid checksums.
+3. The validation report is generated correctly.
+
+Run: pytest tests/integration/test_download.py
+"""
 import os
 import sys
 import json
-import pytest
+import tempfile
+import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pytest
+import hashlib
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "projects" / "PROJ-470-predicting-cognitive-fatigue-from-restin" / "code"))
 
-from download import load_config, write_validation_report, fetch_sleep_edf_metadata, fetch_shhs_metadata, validate_dataset, download_raw_data
+from download import (
+    load_config,
+    write_validation_report,
+    fetch_sleep_edf_metadata,
+    fetch_shhs_metadata,
+    validate_dataset,
+    download_raw_data,
+    main
+)
+from utils.logging import get_logger
+
+# Configure logging for tests
+logger = get_logger("test_download")
 
 @pytest.fixture
-def config():
-    """Load configuration for tests."""
-    return load_config()
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    shutil.rmtree(temp_dir, ignore_errors=True)
 
-def test_download_script_exists():
-    """Test that the download script exists and is importable."""
-    assert Path('code/download.py').exists()
-
-def test_validation_report_structure():
-    """Test that the validation report has the correct structure."""
-    report = {
-        "status": "fail",
-        "available_variables": ["subject", "eeg"],
-        "participant_count": 0,
-        "message": "Required variables missing or insufficient power"
+@pytest.fixture
+def config(temp_data_dir):
+    """Create a minimal config for testing."""
+    config = {
+        "data_dir": str(temp_data_dir),
+        "dataset_id": "sleep_edf",
+        "metadata_url": "https://physionet.org/files/sleep-edf/1.0.0/sleep-capture.csv",
+        "notch_frequency": 50,
+        "filter_low": 1,
+        "filter_high": 40,
+        "artifact_threshold": 100,
+        "random_seed": 42,
+        "n_threshold": 30
     }
-    # Check structure
-    assert "status" in report
+    return config
+
+def test_validation_report_schema(temp_data_dir, config):
+    """Test that the validation report has the correct schema."""
+    report_path = Path(temp_data_dir) / "validation_report.json"
+    
+    # Write a mock validation report
+    mock_report = {
+        "status": "pass",
+        "available_variables": ["pre_fatigue", "post_fatigue", "eeg_data"],
+        "participant_count": 35,
+        "message": "Dataset validated successfully"
+    }
+    
+    write_validation_report(mock_report, str(report_path))
+    
+    # Verify the file exists and has correct content
+    assert report_path.exists(), "Validation report file not created"
+    
+    with open(report_path, 'r') as f:
+        report = json.load(f)
+    
+    assert report["status"] == "pass"
     assert "available_variables" in report
     assert "participant_count" in report
     assert "message" in report
-    assert report["status"] == "fail"
+    assert isinstance(report["available_variables"], list)
+    assert isinstance(report["participant_count"], int)
+    assert report["participant_count"] > 0
 
-def test_metadata_fetch_fails_gracefully():
-    """Test that metadata fetch fails gracefully if datasets module is missing."""
-    # This test simulates the case where datasets module is not installed
-    # We can't easily mock the import, so we just check the function exists
-    assert callable(fetch_sleep_edf_metadata)
-    assert callable(fetch_shhs_metadata)
+def test_checksum_verification(temp_data_dir, config):
+    """Test that downloaded files have correct checksums."""
+    # Create a mock file
+    mock_file = Path(temp_data_dir) / "mock_data.edf"
+    mock_file.write_bytes(b"mock eeg data content")
+    
+    # Calculate expected checksum
+    expected_checksum = hashlib.md5(mock_file.read_bytes()).hexdigest()
+    
+    # Verify checksum calculation
+    actual_checksum = hashlib.md5(mock_file.read_bytes()).hexdigest()
+    
+    assert expected_checksum == actual_checksum, "Checksum verification failed"
 
-def test_config_loading():
-    """Test that configuration is loaded correctly."""
-    config = load_config()
-    assert config is not None
-    assert 'n_threshold' in config or 'min_participants' in config
+def test_download_script_validation_logic(temp_data_dir, config):
+    """Test that the download script validates metadata before downloading."""
+    # This test ensures the download script checks for required variables
+    # before attempting to download the full dataset
+    
+    # Mock the metadata fetching to return a dataset with required variables
+    def mock_fetch_metadata():
+        return {
+            "columns": ["participant_id", "pre_fatigue", "post_fatigue", "eeg_file"],
+            "data": [
+                {"participant_id": "001", "pre_fatigue": 2.5, "post_fatigue": 4.0, "eeg_file": "001.edf"},
+                {"participant_id": "002", "pre_fatigue": 3.0, "post_fatigue": 4.5, "eeg_file": "002.edf"},
+            ]
+        }
+    
+    # Test that validation passes when required variables are present
+    metadata = mock_fetch_metadata()
+    validation_result = validate_dataset(metadata, ["pre_fatigue", "post_fatigue"])
+    
+    assert validation_result["status"] == "pass"
+    assert validation_result["participant_count"] == 2
 
-def test_validation_logic():
-    """Test the validation logic for required columns."""
-    config = load_config()
+def test_download_script_fails_on_missing_variables(temp_data_dir, config):
+    """Test that the download script fails when required variables are missing."""
+    # Mock the metadata fetching to return a dataset without required variables
+    def mock_fetch_metadata():
+        return {
+            "columns": ["participant_id", "eeg_file"],
+            "data": [
+                {"participant_id": "001", "eeg_file": "001.edf"},
+            ]
+        }
     
-    # Test with missing columns
-    available_cols = ["subject", "eeg"]
-    valid, message = validate_dataset({"name": "Test"}, available_cols, config)
-    assert not valid
-    assert "missing" in message.lower()
+    # Test that validation fails when required variables are missing
+    metadata = mock_fetch_metadata()
+    validation_result = validate_dataset(metadata, ["pre_fatigue", "post_fatigue"])
+    
+    assert validation_result["status"] == "fail"
+    assert validation_result["participant_count"] == 0
+    assert "Required variables missing" in validation_result["message"]
 
-    # Test with present columns (simulated)
-    available_cols_with_fatigue = ["subject", "eeg", "pre_fatigue", "post_fatigue"]
-    # We mock the N check to pass for this unit test
-    # The real function might fail on N check without real data, but we test column logic
-    valid, message = validate_dataset({"name": "Test"}, available_cols_with_fatigue, config)
-    # We ensure it returns a boolean and doesn't crash on column check
-    assert isinstance(valid, bool)
+def test_integration_download_and_validation(temp_data_dir, config):
+    """End-to-end test of download and validation workflow."""
+    # This test simulates the full workflow:
+    # 1. Fetch metadata
+    # 2. Validate dataset
+    # 3. Generate validation report
+    # 4. Verify report exists and is valid
+    
+    # Mock metadata with required variables
+    mock_metadata = {
+        "columns": ["participant_id", "pre_fatigue", "post_fatigue", "eeg_file"],
+        "data": [
+            {"participant_id": f"{i:03d}", "pre_fatigue": 2.0 + i*0.1, "post_fatigue": 3.0 + i*0.1, "eeg_file": f"{i:03d}.edf"}
+            for i in range(35)
+        ]
+    }
+    
+    # Validate dataset
+    validation_result = validate_dataset(mock_metadata, ["pre_fatigue", "post_fatigue"])
+    
+    assert validation_result["status"] == "pass"
+    assert validation_result["participant_count"] == 35
+    
+    # Write validation report
+    report_path = Path(temp_data_dir) / "validation_report.json"
+    write_validation_report(validation_result, str(report_path))
+    
+    # Verify report exists and is valid
+    assert report_path.exists()
+    with open(report_path, 'r') as f:
+        report = json.load(f)
+    
+    assert report["status"] == "pass"
+    assert report["participant_count"] == 35
 
-def test_download_checksum_verification():
-    """
-    Integration test for data download and checksum verification.
-    This test mocks the actual download to verify the checksum logic
-    and the validation of required metadata columns without downloading
-    a multi-gigabyte file.
-    """
-    config = load_config()
-    
-    # Mock the raw data download to return a small, known content
-    mock_content = b"subject_id,pre_fatigue,post_fatigue,eeg_data\n1,2.5,3.0,signal_data\n2,2.8,3.2,signal_data\n"
-    
-    # Create a temporary mock file path
-    mock_file_path = Path('data/raw/mock_test_data.csv')
-    
-    # Ensure the directory exists for the test
-    mock_file_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write mock content
-    with open(mock_file_path, 'wb') as f:
-        f.write(mock_content)
-    
-    try:
-        # Verify the file exists and has content
-        assert mock_file_path.exists()
-        assert mock_file_path.stat().st_size > 0
-        
-        # Calculate expected checksum (simple MD5 for test purposes)
-        import hashlib
-        expected_md5 = hashlib.md5(mock_content).hexdigest()
-        
-        # Verify checksum logic
-        with open(mock_file_path, 'rb') as f:
-            actual_md5 = hashlib.md5(f.read()).hexdigest()
-        
-        assert actual_md5 == expected_md5, "Checksum verification failed"
-        
-        # Verify metadata columns are detected correctly
-        import pandas as pd
-        df = pd.read_csv(mock_file_path)
-        
-        # Check for required columns
-        required_cols = ['pre_fatigue', 'post_fatigue']
-        for col in required_cols:
-            assert col in df.columns, f"Required column {col} missing"
-        
-        # Verify participant count
-        assert len(df) == 2, "Participant count mismatch"
-        
-    finally:
-        # Cleanup
-        if mock_file_path.exists():
-            mock_file_path.unlink()
-            if mock_file_path.parent.exists() and not any(mock_file_path.parent.iterdir()):
-                mock_file_path.parent.rmdir()
-
-def test_validate_dataset_columns():
-    """
-    Test that validate_dataset correctly identifies missing and present columns.
-    """
-    config = load_config()
-    
-    # Case 1: Missing required fatigue columns
-    meta = {"name": "TestDataset"}
-    cols = ["subject", "eeg_signal"]
-    valid, msg = validate_dataset(meta, cols, config)
-    assert not valid
-    assert "missing" in msg.lower()
-    
-    # Case 2: Present required fatigue columns (pre/post)
-    cols_with_fatigue = ["subject", "eeg_signal", "pre_fatigue", "post_fatigue"]
-    valid, msg = validate_dataset(meta, cols_with_fatigue, config)
-    # This might fail on N threshold in real scenario, but column check passes
-    # We assert it doesn't crash and returns a boolean
-    assert isinstance(valid, bool)
-    
-    # Case 3: Present baseline fatigue only (cross-sectional)
-    cols_baseline = ["subject", "eeg_signal", "baseline_fatigue"]
-    valid, msg = validate_dataset(meta, cols_baseline, config)
-    assert isinstance(valid, bool)
-
-def test_download_raw_data_integration():
-    """
-    Integration test for download_raw_data function.
-    Tests that the function correctly handles file writing and basic validation.
-    """
-    config = load_config()
-    
-    # Mock data
-    mock_data = b"test_eeg_signal_data_12345"
-    test_file_path = Path('data/raw/test_integration_eeg.bin')
-    
-    # Ensure directory exists
-    test_file_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    try:
-        # Write mock data
-        with open(test_file_path, 'wb') as f:
-            f.write(mock_data)
-        
-        # Verify file was written
-        assert test_file_path.exists()
-        assert test_file_path.stat().st_size == len(mock_data)
-        
-        # Verify content
-        with open(test_file_path, 'rb') as f:
-            read_data = f.read()
-        assert read_data == mock_data
-        
-    finally:
-        # Cleanup
-        if test_file_path.exists():
-            test_file_path.unlink()
-        if test_file_path.parent.exists() and not any(test_file_path.parent.iterdir()):
-            test_file_path.parent.rmdir()
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

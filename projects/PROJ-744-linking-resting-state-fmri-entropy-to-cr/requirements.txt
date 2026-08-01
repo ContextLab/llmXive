@@ -1,4 +1,4 @@
-# Core dependencies
+# Existing dependencies
 numpy==1.26.4
 scipy==1.13.1
 pandas==2.2.2
@@ -9,5 +9,6 @@ tqdm==4.66.4
 requests==2.32.3
 pytest==8.2.2
 psutil==6.0.0
-# Additional for data loading
-boto3==1.34.140
+boto3==1.34.118
+# Additional dependencies for surrogate analysis (if any)
+# None added, all existing dependencies are sufficient

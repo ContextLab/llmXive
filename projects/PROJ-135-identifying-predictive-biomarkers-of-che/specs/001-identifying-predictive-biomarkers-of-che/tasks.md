@@ -78,7 +78,7 @@
 > **NOTE**: These tests MUST be written first and ensure they FAIL before implementation.
 
 - [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`. **Requirement**: Verify that downloaded raw files conform to `dataset.schema.yaml`.
-- [ ] T011 [P] [US1] Integration test for end-to-end download, normalization, and splitting on 2 tumor types in `tests/integration/test_acquisition.py`. **Requirement**: Assert that `data/processed/` contains valid split files and `data/feasibility_gate.json` is written correctly.
+- [ ] T011 [P] [US1] Integration test for end-to-end download, normalization, and splitting on 2 tumor types in `tests/integration/test_acquisition.py`. **Requirement**: Assert that `data/processed/` contains valid split files and `data/feasibility_gate.json` is written correctly. <!-- FAILED: unspecified -->
 - [X] T011b [P] [US1] Integration test for Feasibility Gate logic in `tests/integration/test_feasibility_gate.py`. **Requirement**: Verify that the pipeline writes 'halted' gate and proceeds with internal validation when GEO datasets < 2, and halts completely when TCGA types < 3.
 
 ### Implementation for User Story 1

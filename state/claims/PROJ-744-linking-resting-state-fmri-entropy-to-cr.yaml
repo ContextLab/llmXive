@@ -1,0 +1,184 @@
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: 'dependencies pinned to specific versions: numpy 1.26.4, scipy 1.13.1,
+    pandas 2.2.2, statsmodels 0.14.2, nibabel 5.2.1, scikit-learn 1.5.0, tqdm 4.66.4,
+    requests 2.32.3, pytest 8.2.2, psutil 6.0.0'
+  claim_id: c_d56d926c
+  context: 'Phase 1: Setup - Task T002b specifies pinning dependencies in requirements.txt
+    with exact versions.'
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Pin dependencies in requirements.txt with exact versions: numpy==1.26.4,
+    scipy==1.13.1, pandas==2.2.2, statsmodels==0.14.2, nibabel==5.2.1, scikit-learn==1.5.0,
+    tqdm==4.66.4, requests==2.32.3, pytest==8.2.2, psutil==6.0.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T00:51:43Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: download pre-processed HCP multi-dimensional volumes from OpenNeuro S3
+    bucket ds000030
+  claim_id: c_f29c948b
+  context: 'Phase 2: Data Acquisition - Task T039 specifies downloading HCP data from
+    OpenNeuro S3 bucket ds000030.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_pre-processed_HCP_multi-dimensional_volumes_from_Op
+  kind: entity_fact
+  raw_text: download pre-processed HCP multi-dimensional volumes from OpenNeuro S3
+    bucket (ds000030)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:52:17Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: exclude subjects with fewer than 100 remaining frames
+  claim_id: c_f277de05
+  context: 'Phase 3: Foundational - Task T007 specifies motion scrubbing logic to
+    exclude subjects with fewer than 100 frames.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_fewer_than_100_remaining_frames
+  kind: magnitude
+  raw_text: exclude subjects with <100 remaining frames
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:52:45Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: calculate entropy across scales 1 to 20
+  claim_id: c_04bc206f
+  context: 'Phase 4: User Story 1 - Task T014 specifies calculating entropy across
+    scales 1-20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate entropy across multiple scales (1-20)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:52:58Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: iterate over HCP 360-parcel atlas
+  claim_id: c_cad87386
+  context: 'Phase 4: User Story 1 - Task T015 specifies iterating over the HCP 360-parcel
+    atlas.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: iterate over HCP 360-parcel atlas
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:54:03Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: flag subjects for manual review if more than 10 percent of parcels are
+    invalid
+  claim_id: c_dae35dbd
+  context: 'Phase 4: User Story 1 - Task T015b specifies flagging subjects if more
+    than 10% of parcels are invalid.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_subjects_for_manual_review_if_more_than_10_percent_of_p
+  kind: magnitude
+  raw_text: flag subjects for manual review if >10% of parcels are invalid
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:54:48Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: handle chunking for memory constraints of less than 7GB RAM
+  claim_id: c_c30180cf
+  context: 'Phase 4: User Story 1 - Task T017 specifies handling chunking for memory
+    constraints under 7GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_chunking_for_memory_constraints_of_less_than_7GB_RAM
+  kind: magnitude
+  raw_text: handle chunking for memory constraints (<7GB RAM)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:55:14Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: halt primary analysis if sample size is less than 30
+  claim_id: c_6f57b0e4
+  context: 'Phase 5: User Story 2 - Task T025 specifies halting primary analysis if
+    sample size is less than 30.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_primary_analysis_if_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: HALT primary analysis if N < 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:56:27Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: re-execute entropy computation for r values 0.15*SD, 0.20*SD, and 0.25*SD
+  claim_id: c_7048fffa
+  context: 'Phase 6: User Story 3 - Task T030a specifies re-executing entropy computation
+    for r values 0.15*SD, 0.20*SD, and 0.25*SD.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: re-execute entropy computation logic for each r value in {0.15*SD, 0.20*SD,
+    0.25*SD}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:57:44Z'
+- artifact_path: projects/PROJ-744-linking-resting-state-fmri-entropy-to-cr/specs/001-linking-resting-state-fmri-entropy-to-cr/tasks.md
+  attempts: 1
+  canonical: full multiscale sample entropy profile across scales 1 to 20
+  claim_id: c_7b9b630d
+  context: 'Phase 6: User Story 3 - Task T030a specifies re-computing the full multiscale
+    sample entropy profile across scales 1-20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full Multiscale Sample Entropy profile (scales 1-20)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:58:13Z'

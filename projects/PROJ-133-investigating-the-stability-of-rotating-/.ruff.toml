@@ -1,0 +1,25 @@
+# Standalone Ruff configuration file (optional, duplicates pyproject.toml for explicit CLI usage)
+# For this project, settings are primarily in pyproject.toml.
+# This file ensures ruff works if invoked directly without pyproject discovery in some environments.
+
+target-version = "py39"
+line-length = 88
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+[isort]
+known-first-party = ["config", "models", "simulation", "analysis", "statistics", "viz", "utils"]
+force-sort-within-sections = true

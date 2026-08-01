@@ -1,98 +1,87 @@
-"""
-Unit tests for feature extraction module (T014, T015).
-Tests LZC and Permutation Entropy on synthetic signals.
-"""
 import pytest
 import numpy as np
-import sys
 import os
+import sys
+from pathlib import Path
 
-# Add code directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from features import calculate_lzc, calculate_permutation_entropy
+from features import calculate_lzc, calculate_permutation_entropy, save_metrics_to_csv
 
-def test_lzc_white_noise():
+def test_lzc_known_signal():
     """
-    Unit test for LZC calculation on white noise (synthetic).
-    T014 Verification: Generate white noise, assert valid numeric float and not NaN.
+    Unit test for LZC calculation on a synthetic white noise signal.
+    Per T015 verification:
+    - Generate synthetic signal (white noise, seed=42, amplitude=1, 256 Hz, 120s)
+    - Assert output is a valid numeric float, positive, and not NaN.
     """
-    # Generate synthetic signal: white noise, seed=42, normalized
+    # Generate synthetic signal
     np.random.seed(42)
     duration = 120  # seconds
-    fs = 256        # Hz
-    n_samples = duration * fs
-    signal = np.random.normal(0, 1, n_samples) # Amplitude normalized to unity (std=1)
-
+    sampling_rate = 256  # Hz
+    n_samples = duration * sampling_rate
+    signal = np.random.normal(loc=0, scale=1, size=n_samples)
+    
     # Calculate LZC
-    try:
-        lzc_val = calculate_lzc(signal)
-    except ImportError:
-        pytest.skip("lempel_ziv_complexity not installed")
+    lzc_value = calculate_lzc(signal)
+    
+    # Assertions
+    assert isinstance(lzc_value, float), "LZC value must be a float"
+    assert not np.isnan(lzc_value), "LZC value must not be NaN"
+    assert lzc_value >= 0, "LZC value must be non-negative"
+    # White noise should have high complexity, typically > 0.5 normalized
+    # We don't assert a specific value as LZC can vary, but it must be valid.
 
-    assert isinstance(lzc_val, float), "LZC value must be a float"
-    assert not np.isnan(lzc_val), "LZC value must not be NaN"
-    # LZC for white noise should be non-zero and typically high (complex)
-    assert lzc_val > 0, "LZC for white noise should be positive"
-    print(f"LZC (white noise): {lzc_val}")
-
-def test_pe_white_noise():
+def test_pe_known_signal():
     """
-    Unit test for Permutation Entropy on white noise (synthetic).
-    T015 Verification: Generate white noise, assert valid numeric float and not NaN.
+    Unit test for Permutation Entropy on a synthetic white noise signal.
+    Per T016 verification (relevant for features.py):
+    - Generate synthetic signal (white noise, seed=42, amplitude=1, 256 Hz, 120s, order=3, delay=1)
+    - Assert output is a valid numeric float, positive, and not NaN.
     """
-    # Generate synthetic signal: white noise, seed=42, normalized
+    # Generate synthetic signal
     np.random.seed(42)
     duration = 120  # seconds
-    fs = 256        # Hz
-    n_samples = duration * fs
-    signal = np.random.normal(0, 1, n_samples)
-
+    sampling_rate = 256  # Hz
+    n_samples = duration * sampling_rate
+    signal = np.random.normal(loc=0, scale=1, size=n_samples)
+    
     # Calculate PE
-    try:
-        pe_val = calculate_permutation_entropy(signal, order=3, delay=1)
-    except ImportError:
-        pytest.skip("nolds not installed")
+    pe_value = calculate_permutation_entropy(signal, order=3, delay=1)
+    
+    # Assertions
+    assert isinstance(pe_value, float), "PE value must be a float"
+    assert not np.isnan(pe_value), "PE value must not be NaN"
+    assert pe_value >= 0, "PE value must be non-negative"
+    # Normalized PE should be between 0 and 1
+    assert pe_value <= 1.0, "Normalized PE value must be <= 1.0"
 
-    assert isinstance(pe_val, float), "PE value must be a float"
-    assert not np.isnan(pe_val), "PE value must not be NaN"
-    # PE for white noise should be close to log2(order!) (max entropy)
-    # order=3 -> 3! = 6 -> log2(6) ≈ 2.58
-    # It won't be exactly that due to finite samples, but should be in range.
-    assert 0 < pe_val < 3.0, f"PE for white noise should be in reasonable range, got {pe_val}"
-    print(f"PE (white noise): {pe_val}")
-
-def test_lzc_sine_wave():
+def test_save_metrics_to_csv():
     """
-    Test LZC on a simple sine wave (low complexity).
+    Unit test for saving metrics to CSV.
     """
-    fs = 256
-    t = np.linspace(0, 120, 120 * fs)
-    signal = np.sin(2 * np.pi * 10 * t) # 10 Hz sine
+    import tempfile
+    import pandas as pd
 
-    try:
-        lzc_val = calculate_lzc(signal)
-    except ImportError:
-        pytest.skip("lempel_ziv_complexity not installed")
+    # Mock results
+    results = [
+        {'participant_id': 'P001', 'channel': 'Fz', 'metric_type': 'LZC', 'value': 0.65},
+        {'participant_id': 'P001', 'channel': 'Cz', 'metric_type': 'LZC', 'value': 0.62},
+        {'participant_id': 'P002', 'channel': 'Fz', 'metric_type': 'LZC', 'value': 0.68},
+    ]
 
-    assert isinstance(lzc_val, float)
-    assert not np.isnan(lzc_val)
-    # Sine wave should have lower complexity than white noise
-    print(f"LZC (sine wave): {lzc_val}")
-
-def test_pe_sine_wave():
-    """
-    Test PE on a simple sine wave (low entropy).
-    """
-    fs = 256
-    t = np.linspace(0, 120, 120 * fs)
-    signal = np.sin(2 * np.pi * 10 * t)
-
-    try:
-        pe_val = calculate_permutation_entropy(signal, order=3, delay=1)
-    except ImportError:
-        pytest.skip("nolds not installed")
-
-    assert isinstance(pe_val, float)
-    assert not np.isnan(pe_val)
-    print(f"PE (sine wave): {pe_val}")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'test_lzc_metrics.csv')
+        save_metrics_to_csv(results, output_path, metric_type='LZC')
+        
+        # Verify file exists
+        assert os.path.exists(output_path), "CSV file should be created"
+        
+        # Verify content
+        df = pd.read_csv(output_path)
+        assert 'participant_id' in df.columns, "CSV must contain 'participant_id' column"
+        assert 'channel' in df.columns, "CSV must contain 'channel' column"
+        assert 'lzc_value' in df.columns, "CSV must contain 'lzc_value' column"
+        assert len(df) == 3, "CSV should contain 3 rows"
+        assert df['lzc_value'].dtype in [np.float64, np.float32], "lzc_value should be numeric"

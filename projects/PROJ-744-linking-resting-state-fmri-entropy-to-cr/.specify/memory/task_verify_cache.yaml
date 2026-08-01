@@ -1,0 +1,32 @@
+T007:
+  c: false
+  h: 48659c687c23220ef36f8f00ecf43fde4c05ed3e7d0202686b43f70d102bb560
+  r: "The provided `code/data_loader.py` contains only checksum and S3\u2011download\
+    \ utilities; there is no implementation of motion\u2011scrubbing, FD\u2011based\
+    \ filtering, subject exclusion logic, or NaN\u2011counting, nor any logging to\
+    \ the required log files. Moreover, the three log files (`missing_data.log`, `motion_exclusions.log`,\
+    \ `parcel_quality.log`) do not exist. The task\u2019s core requirements are therefore\
+    \ unmet."
+T015b:
+  c: false
+  h: 4e356e8d73e24671784f75a3dec114944445df0f2bcb04b21180616035d062ae
+  r: "The provided `code/entropy.py` excerpt only defines `compute_sample_entropy`\
+    \ and shows no logic that counts NaN parcels, checks the >10\u202F% threshold,\
+    \ or writes to `data/logs/invalid_parcels.log`. Moreover, the required log file\
+    \ `data/logs/invalid_parcels.log` does not exist on disk. The task\u2019s core\
+    \ requirement\u2014flagging subjects with >10\u202F% invalid parcels and logging\
+    \ them\u2014is therefore not satisfied."
+T017:
+  c: false
+  h: e9042d2593fc4852a8c0d7aec492c9ebe0e748d13e971f89ed89aa6cf32d0d47
+  r: "The required output file `data/processed/entropy_metrics.csv` is absent, and\
+    \ the provided `code/entropy.py` excerpt only shows a helper function without\
+    \ any orchestration logic, chunking handling, or CSV writing. The task\u2019s\
+    \ core deliverable is therefore not present."
+T017b:
+  c: false
+  h: 090758488d27f7ca8a9cdd2212f67ab4d6a520bbc8ae3c34d50934466260df44
+  r: "The `code/entropy.py` file does not contain any logic that records peak RAM\
+    \ usage to `data/logs/ram_usage.log` (the file is absent), and the provided snippet\
+    \ shows only the entropy computation function without any psutil\u2011based instrumentation\
+    \ or file writing. The required log artifact is missing, so the task is not fulfilled."
