@@ -1,0 +1,7 @@
+{
+  "status": "REAL_DATA_FETCH_FAILED",
+  "rationale": "The attempt to fetch real experimental data from the NIST/MOF-1000 source failed. Per project constraints, synthetic data generation is strictly prohibited. The pipeline must terminate to prevent fabrication of results.",
+  "timestamp": "2023-10-27T10:00:00.000000",
+  "source": "NIST/MOF-1000",
+  "file_path": "data/raw/nist_mof1000.csv"
+}

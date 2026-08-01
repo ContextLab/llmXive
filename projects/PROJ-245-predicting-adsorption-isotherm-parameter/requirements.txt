@@ -5,4 +5,9 @@ numpy
 shap
 pyyaml
 pytest
+datasets
+huggingface_hub
+psi4
 requests
+matplotlib
+seaborn

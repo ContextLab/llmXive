@@ -1,28 +1,22 @@
 """
-Hybrid Data Loader for Adsorption Isotherm Pipeline.
+Data Loader Module for Adsorption Isotherm Parameter Prediction.
 
-This module implements the logic to attempt fetching real data from external sources
-(NIST/MOF-1000) and gracefully falling back to synthetic data generation if the fetch fails.
-It ensures the pipeline remains runnable for CI/CD even without verified external sources.
+This module handles the fetching, loading, and validation of real experimental data
+from the NIST/MOF-1000 dataset. It strictly enforces the "Real Data Only" policy:
+if the fetch fails, it raises a DataFetchError and terminates. No synthetic fallbacks are permitted.
 """
+
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
+import pandas as pd
 
-# Import from project modules
-from data.download import (
-    attempt_nist_fetch,
-    attempt_fallback_fetch,
-    write_verification_log,
-    sanitize_filename
-)
-from data.synthetic_gen import generate_synthetic_data
-from data.preprocess import preprocess_pipeline
-from data.validate_schema import validate_dataframe, load_schema
-from data.verified_source_enforcer import detect_data_source_type
+# Import from sibling modules using the defined API surface
+from data.download import attempt_nist_fetch, write_verification_log
+from data.validate_schema import load_schema, validate_dataframe
 
 # Configure logging
 logging.basicConfig(
@@ -31,163 +25,188 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DIR = DATA_DIR / "raw"
-PROCESSED_DIR = DATA_DIR / "processed"
-VERIFICATION_LOG_PATH = DATA_DIR / "verification_log.json"
-SCHEMA_PATH = PROJECT_ROOT / "contracts" / "dataset.schema.yaml"
+class DataFetchError(Exception):
+    """Custom exception raised when real data fetching fails."""
+    pass
 
+def ensure_directories(base_dir: str) -> None:
+    """Create necessary directories for raw and processed data."""
+    raw_dir = Path(base_dir) / "raw"
+    processed_dir = Path(base_dir) / "processed"
+    audit_dir = Path(base_dir) / "audit"
+    
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    audit_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Ensured directories exist: {raw_dir}, {processed_dir}, {audit_dir}")
 
-def ensure_directories():
-    """Ensure all necessary directories exist."""
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def load_raw_data(source_type: str = "auto") -> Tuple[Optional[Dict[str, Any]], str]:
+def load_raw_data(base_dir: str) -> pd.DataFrame:
     """
-    Attempt to load raw data from real sources. If that fails, generate synthetic data.
+    Load raw data from the local cache if it exists, otherwise attempt to fetch it.
     
     Args:
-        source_type: "real", "synthetic", or "auto" (default).
-    
+        base_dir: The base directory containing the 'raw' subdirectory.
+        
     Returns:
-        Tuple of (data_dict, source_status)
-        - data_dict: The loaded/generated data as a dictionary with 'df' and 'metadata'.
-        - source_status: "REAL", "SYNTHETIC", or "FAILED" (if both fail).
+        A pandas DataFrame containing the raw data.
+        
+    Raises:
+        DataFetchError: If the data cannot be fetched and no valid local copy exists.
     """
-    ensure_directories()
+    raw_dir = Path(base_dir) / "raw"
+    data_file = raw_dir / "nist_mof1000.csv"
     
-    if source_type == "synthetic":
-        logger.info("Forcing synthetic data generation.")
-        return generate_synthetic_data(), "SYNTHETIC"
+    if data_file.exists():
+        logger.info(f"Loading existing raw data from {data_file}")
+        try:
+            df = pd.read_csv(data_file)
+            logger.info(f"Successfully loaded {len(df)} rows from local cache.")
+            return df
+        except Exception as e:
+            logger.error(f"Failed to read local cache: {e}. Attempting fetch.")
     
-    # Attempt real data fetch
-    logger.info("Attempting to fetch real data from NIST/MOF-1000 sources...")
+    # Attempt to fetch real data
+    logger.info("Attempting to fetch real data from NIST/MOF-1000...")
+    fetch_success = attempt_nist_fetch(str(raw_dir))
     
-    real_data, fetch_status = attempt_nist_fetch()
+    if not fetch_success:
+        # CRITICAL: No synthetic fallback. Raise error and write failure log.
+        error_msg = "Real data fetch from NIST/MOF-1000 failed. No synthetic fallback permitted."
+        logger.error(error_msg)
+        
+        # Write verification log indicating failure
+        log_entry = {
+            "status": "REAL_DATA_FETCH_FAILED",
+            "rationale": "The attempt to fetch real experimental data from the NIST/MOF-1000 source failed. "
+                         "Per project constraints, synthetic data generation is strictly prohibited. "
+                         "The pipeline must terminate to prevent fabrication of results.",
+            "timestamp": str(pd.Timestamp.now()),
+            "source": "NIST/MOF-1000",
+            "file_path": str(data_file)
+        }
+        
+        write_verification_log(str(raw_dir), log_entry)
+        raise DataFetchError(error_msg)
     
-    if fetch_status == "SUCCESS" and real_data is not None:
-        logger.info("Successfully fetched real data.")
-        write_verification_log("SUCCESS", "Real data fetched successfully from NIST/MOF-1000.")
-        return real_data, "REAL"
-    
-    # If NIST fetch failed, try fallback sources
-    logger.warning("NIST fetch failed. Attempting fallback sources...")
-    real_data, fallback_status = attempt_fallback_fetch()
-    
-    if fallback_status == "SUCCESS" and real_data is not None:
-        logger.info("Successfully fetched real data from fallback source.")
-        write_verification_log("SUCCESS", "Real data fetched successfully from fallback source.")
-        return real_data, "REAL"
-    
-    # All real sources failed
-    logger.error("All real data sources failed. Switching to synthetic data generation.")
-    write_verification_log(
-        "UNVERIFIED", 
-        "Real data fetch failed from all sources. Switching to synthetic data for pipeline validation.",
-        rationale="NIST/MOF-1000 data not accessible; synthetic data used for CI reproducibility."
-    )
-    
-    synthetic_data = generate_synthetic_data()
-    return synthetic_data, "SYNTHETIC"
+    # If fetch was successful, reload the file
+    if not data_file.exists():
+        raise DataFetchError("Fetch reported success but file does not exist.")
+        
+    logger.info(f"Loading fetched data from {data_file}")
+    df = pd.read_csv(data_file)
+    logger.info(f"Successfully loaded {len(df)} rows from fetched data.")
+    return df
 
-
-def validate_loaded_data(data_dict: Dict[str, Any], source_status: str) -> bool:
+def validate_loaded_data(df: pd.DataFrame, schema_path: str = "contracts/dataset.schema.yaml") -> Tuple[bool, Optional[str]]:
     """
-    Validate the loaded data against the schema.
+    Validate the loaded DataFrame against the defined schema.
     
     Args:
-        data_dict: The data dictionary containing 'df' and 'metadata'.
-        source_status: The source status ("REAL" or "SYNTHETIC").
-    
+        df: The DataFrame to validate.
+        schema_path: Path to the schema YAML file.
+        
     Returns:
-        True if validation passes, False otherwise.
+        Tuple of (is_valid, error_message).
     """
-    if "df" not in data_dict:
-        logger.error("Loaded data dictionary missing 'df' key.")
-        return False
+    try:
+        schema = load_schema(schema_path)
+        is_valid, errors = validate_dataframe(df, schema)
+        
+        if not is_valid:
+            error_details = "; ".join(errors) if errors else "Schema validation failed."
+            logger.error(f"Data validation failed: {error_details}")
+            return False, error_details
+        
+        logger.info("Data validation passed against schema.")
+        return True, None
+        
+    except Exception as e:
+        logger.error(f"Error during validation process: {e}")
+        return False, str(e)
+
+def load_and_preprocess_data(base_dir: str) -> pd.DataFrame:
+    """
+    Orchestrate the loading and initial preprocessing of the dataset.
     
-    df = data_dict["df"]
-    schema = load_schema(SCHEMA_PATH)
+    This function:
+    1. Ensures directories exist.
+    2. Loads raw data (fetching if necessary).
+    3. Validates the data against the schema.
+    4. Performs basic cleaning (dropping obvious null rows if allowed by schema).
     
-    is_valid, errors = validate_dataframe(df, schema)
+    Args:
+        base_dir: The base directory for data storage.
+        
+    Returns:
+        A cleaned and validated pandas DataFrame.
+        
+    Raises:
+        DataFetchError: If data fetching fails.
+        ValueError: If data validation fails.
+    """
+    ensure_directories(base_dir)
     
+    # Load raw data
+    df = load_raw_data(base_dir)
+    
+    # Validate
+    is_valid, error_msg = validate_loaded_data(df)
     if not is_valid:
-        logger.error(f"Data validation failed: {errors}")
-        return False
+        raise ValueError(f"Data validation failed: {error_msg}")
     
-    logger.info("Data validation passed.")
-    return True
-
-
-def load_and_preprocess_data(source_type: str = "auto") -> Tuple[Optional[Dict[str, Any]], str]:
-    """
-    Load raw data (real or synthetic), validate it, and run the preprocessing pipeline.
-    
-    Args:
-        source_type: "real", "synthetic", or "auto".
-    
-    Returns:
-        Tuple of (processed_data_dict, source_status)
-    """
-    # Step 1: Load raw data
-    raw_data_dict, source_status = load_raw_data(source_type)
-    
-    if raw_data_dict is None:
-        logger.error("Failed to load or generate any data.")
-        return None, "FAILED"
-    
-    # Step 2: Validate raw data
-    if not validate_loaded_data(raw_data_dict, source_status):
-        logger.error("Raw data validation failed. Cannot proceed.")
-        return None, "FAILED"
-    
-    # Step 3: Run preprocessing pipeline
-    logger.info("Running preprocessing pipeline...")
-    processed_data_dict = preprocess_pipeline(raw_data_dict["df"])
-    
-    if processed_data_dict is None:
-        logger.error("Preprocessing pipeline failed.")
-        return None, "FAILED"
-    
-    # Step 4: Attach source metadata to processed data
-    processed_data_dict["metadata"]["source_status"] = source_status
-    processed_data_dict["metadata"]["source_type"] = source_type
-    
-    logger.info(f"Data loading and preprocessing complete. Source: {source_status}")
-    return processed_data_dict, source_status
-
+    # Basic preprocessing: Drop rows with completely empty index if any
+    initial_count = len(df)
+    df = df.dropna(how='all')
+    dropped = initial_count - len(df)
+    if dropped > 0:
+        logger.info(f"Dropped {dropped} completely empty rows.")
+        
+    return df
 
 def main():
     """
-    Main entry point for the Hybrid Data Loader.
-    Runs the full load -> validate -> preprocess pipeline.
+    Entry point for the loader script.
+    Runs the full fetch, load, and validate pipeline.
+    Writes the processed output to data/processed/curated_data.csv if successful.
     """
-    logger.info("Starting Hybrid Data Loader...")
+    # Determine base directory
+    # If running as script, assume project root is parent of 'code'
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+    data_dir = project_root / "data"
     
-    # Default to auto-detection
-    processed_data, status = load_and_preprocess_data(source_type="auto")
+    logger.info(f"Starting data loading pipeline. Base dir: {data_dir}")
     
-    if processed_data is None:
-        logger.error("Pipeline failed to produce valid data.")
-        sys.exit(1)
-    
-    # Save processed data
-    output_path = PROCESSED_DIR / "curated_dataset.csv"
-    processed_data["df"].to_csv(output_path, index=False)
-    logger.info(f"Processed data saved to {output_path}")
-    
-    # Log summary
-    logger.info(f"Final dataset shape: {processed_data['df'].shape}")
-    logger.info(f"Source Status: {status}")
-    logger.info(f"Columns: {list(processed_data['df'].columns)}")
-    
-    return processed_data, status
-
+    try:
+        # Load and validate
+        df = load_and_preprocess_data(str(data_dir))
+        
+        # Save the validated dataset
+        output_path = data_dir / "processed" / "curated_data.csv"
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully saved validated data to {output_path}")
+        
+        # Write a success log
+        log_entry = {
+            "status": "REAL_DATA_FETCH_SUCCESS",
+            "rows_loaded": len(df),
+            "timestamp": str(pd.Timestamp.now()),
+            "output_file": str(output_path)
+        }
+        write_verification_log(str(data_dir), log_entry)
+        
+        return 0
+        
+    except DataFetchError as e:
+        logger.critical(f"Pipeline failed due to data fetch error: {e}")
+        return 1
+    except ValueError as e:
+        logger.critical(f"Pipeline failed due to validation error: {e}")
+        return 1
+    except Exception as e:
+        logger.critical(f"Unexpected error in loader: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
