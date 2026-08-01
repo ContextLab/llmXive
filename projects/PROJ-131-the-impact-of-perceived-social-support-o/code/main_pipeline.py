@@ -1,16 +1,8 @@
 """
-Main Pipeline Orchestrator for the Social Support Resilience Project.
+Main Pipeline Entry Point for PROJ-131: Social Support & Resilience Analysis.
 
-This script chains all phases of the research pipeline:
-1. Ingestion (T012)
-2. Preprocessing (T013)
-3. Cohort Construction & Validation (T014-T016)
-4. Modeling & Bootstrapping (T020-T024)
-5. Sensitivity Analysis (T027-T030)
-6. Reporting (T025)
-
-Dependencies:
-- All Phase 1-5 tasks must be complete before running this orchestrator.
+Orchestrates the full research pipeline: Ingestion -> Preprocessing -> Cohort -> Modeling -> Sensitivity -> Reporting.
+Strictly follows the 'Revised Approach' (Single-Dataset Analysis).
 """
 import os
 import sys
@@ -19,155 +11,100 @@ import time
 from pathlib import Path
 from typing import Optional
 
-# Add project root to path to ensure imports work
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Configure logging
+log_dir = Path("data/results")
+log_dir.mkdir(parents=True, exist_ok=True)
+log_file = log_dir / "pipeline_run.log"
 
-from logger import get_logger
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger("main_pipeline")
 
-from data.ingestion import main as ingestion_main
-from data.preprocessing import main as preprocessing_main
-from data.cohort import main as cohort_main
-from analysis.validation import main as validation_main
-from analysis.models import main as models_main
-from analysis.sensitivity_compare import main as sensitivity_compare_main
-from analysis.results import main as results_main
-from analysis.save_regression_results import main as save_results_main
-from analysis.save_sensitivity_results import main as save_sensitivity_main
-from analysis.bootstrap_ci import main as bootstrap_main
-from analysis.fdr_correction import main as fdr_main
-
-logger = get_logger(__name__)
+# Ensure project root is in path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
 def run_pipeline():
     """
-    Executes the full research pipeline in the correct order.
-    
-    Order:
-    1. Ingestion
-    2. Preprocessing
-    3. Cohort Construction
-    4. Validation
-    5. Modeling (OLS + Bootstrap + FDR)
-    6. Sensitivity Analysis
-    7. Reporting
+    Executes the full research pipeline in sequential order.
     """
     start_time = time.time()
-    logger.info("Starting Main Pipeline Execution")
-    
-    # Phase 1: Ingestion (T012)
-    logger.info("Phase 1: Data Ingestion")
+    logger.info("=" * 60)
+    logger.info("STARTING MAIN PIPELINE: Social Support & Resilience Analysis")
+    logger.info("=" * 60)
+
     try:
+        # Step 1: Ingestion
+        logger.info("Step 1: Ingesting Cyberbullying Survey 2021 dataset...")
+        from data.ingestion import main as ingestion_main
         ingestion_main()
-    except Exception as e:
-        logger.error(f"Ingestion failed: {e}")
-        raise
+        logger.info("Step 1 Complete: Ingestion finished.")
 
-    # Phase 2: Preprocessing (T013)
-    logger.info("Phase 2: Preprocessing & Imputation")
-    try:
+        # Step 2: Preprocessing
+        logger.info("Step 2: Preprocessing data (MICE, scaling, cleaning)...")
+        from data.preprocessing import main as preprocessing_main
         preprocessing_main()
-    except Exception as e:
-        logger.error(f"Preprocessing failed: {e}")
-        raise
+        logger.info("Step 2 Complete: Preprocessing finished.")
 
-    # Phase 3: Cohort Construction (T014)
-    logger.info("Phase 3: Cohort Construction")
-    try:
+        # Step 3: Cohort Construction & Validation
+        logger.info("Step 3: Building and validating analysis cohort...")
+        from data.cohort import main as cohort_main
         cohort_main()
-    except Exception as e:
-        logger.error(f"Cohort construction failed: {e}")
-        raise
+        logger.info("Step 3 Complete: Cohort validation finished.")
 
-    # Phase 3b: Validation (T015)
-    logger.info("Phase 3b: Cohort Validation")
-    try:
-        validation_main()
-    except Exception as e:
-        logger.error(f"Cohort validation failed: {e}")
-        raise
-
-    # Phase 4: Modeling (T020)
-    logger.info("Phase 4: Model Fitting (OLS)")
-    try:
+        # Step 4: Modeling (OLS + Bootstrap)
+        logger.info("Step 4: Fitting OLS models with interaction terms and bootstrapping...")
+        from analysis.models import main as models_main
         models_main()
-    except Exception as e:
-        logger.error(f"Model fitting failed: {e}")
-        raise
+        logger.info("Step 4 Complete: Modeling finished.")
 
-    # Phase 4b: Bootstrapping (T021)
-    logger.info("Phase 4b: Bootstrapping CIs")
-    try:
-        bootstrap_main()
-    except Exception as e:
-        logger.error(f"Bootstrapping failed: {e}")
-        raise
+        # Step 5: Sensitivity Analysis
+        logger.info("Step 5: Running sensitivity analysis (continuous harassment, stratification)...")
+        from analysis.sensitivity import main as sensitivity_main
+        sensitivity_main()
+        logger.info("Step 5 Complete: Sensitivity analysis finished.")
 
-    # Phase 4c: FDR Correction (T023)
-    logger.info("Phase 4c: FDR Correction")
-    try:
-        fdr_main()
-    except Exception as e:
-        logger.error(f"FDR correction failed: {e}")
-        raise
+        # Step 6: Comparison & Results Saving
+        logger.info("Step 6: Comparing sensitivity results with baseline...")
+        from analysis.sensitivity_compare import main as compare_main
+        compare_main()
+        logger.info("Step 6 Complete: Comparison finished.")
 
-    # Phase 4d: Save Regression Results (T024)
-    logger.info("Phase 4d: Saving Regression Results")
-    try:
-        save_results_main()
-    except Exception as e:
-        logger.error(f"Saving regression results failed: {e}")
-        raise
-
-    # Phase 5: Sensitivity Analysis (T027)
-    logger.info("Phase 5: Sensitivity Analysis")
-    try:
-        sensitivity_compare_main()
-    except Exception as e:
-        logger.error(f"Sensitivity analysis failed: {e}")
-        raise
-
-    # Phase 5b: Save Sensitivity Results (T029)
-    logger.info("Phase 5b: Saving Sensitivity Results")
-    try:
-        save_sensitivity_main()
-    except Exception as e:
-        logger.error(f"Saving sensitivity results failed: {e}")
-        raise
-
-    # Phase 6: Reporting (T025)
-    logger.info("Phase 6: Generating Reports")
-    try:
+        # Step 7: Report Generation
+        logger.info("Step 7: Generating markdown summary report...")
+        from analysis.results import main as results_main
         results_main()
-    except Exception as e:
-        logger.error(f"Report generation failed: {e}")
-        raise
+        logger.info("Step 7 Complete: Report generation finished.")
 
-    end_time = time.time()
-    duration = end_time - start_time
-    logger.info(f"Pipeline completed successfully in {duration:.2f} seconds")
-    return True
+        end_time = time.time()
+        duration = end_time - start_time
+        logger.info("=" * 60)
+        logger.info(f"PIPELINE COMPLETED SUCCESSFULLY in {duration:.2f} seconds.")
+        logger.info("=" * 60)
+        return True
+
+    except ImportError as e:
+        logger.error(f"Import error: {e}")
+        logger.error("Check that all modules are present in the 'code/' directory.")
+        raise
+    except Exception as e:
+        logger.error(f"Pipeline failed with error: {e}", exc_info=True)
+        raise
 
 def main():
-    """Entry point for the pipeline."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler(PROJECT_ROOT / "data" / "logs" / "pipeline.log")
-        ]
-    )
-    
-    # Ensure log directory exists
-    log_dir = PROJECT_ROOT / "data" / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-
+    """
+    Entry point for the script.
+    """
     try:
         run_pipeline()
     except Exception as e:
-        logger.exception("Pipeline execution failed with fatal error")
+        logger.critical(f"Pipeline execution aborted: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

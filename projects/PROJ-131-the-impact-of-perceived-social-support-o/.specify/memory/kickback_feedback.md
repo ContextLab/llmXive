@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T015` (rejected 1x): No artifacts (e.g., a synthetic cohort CSV, covariate balance statistics, or regression output files) were provided; the claim cannot be verified against any concrete data or code. The required deliverables are missing, so the task is not satisfied.
+- `T031` (rejected 1x): No `main_pipeline.py` (or any code) was presented showing the required chaining of the six phases, nor evidence that it runs after all phase tasks are complete. The artifact needed to satisfy T031 is missing.
 
 ## Required change
 

@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-131-the-impact-of-perceived-social-support-o",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"Aborting to prevent synthetic data fabrication. \"\u2026\u201d; code/data/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026led. Aborting to prevent synthetic data fabrication.\"         )\u2026\u201d; 1 command(s) failed: python code/main_pipeline.py (rc=1); 3 declared deliverable(s) absent: data/raw/cyberbullying_2021.csv; data/results/regression_results.csv; data/results/sensitivity_analysis.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main_pipeline.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-131-the-impact-of-perceived-social-support-o/code/main_pipeline.py\", line 29, in <module>\n    from data.ingestion import main as ingestion_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-131-the-impact-of-perceived-social-support-o/code/data/ingestion.py\", line 17, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-01T13:54:35Z"
+}

@@ -1,3 +1,12 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main_pipeline.py` file or any code configuring an entry point to orchestrate\
+    \ the modular steps is present in the provided evidence. Without this script,\
+    \ the requirement to set up the pipeline\u2019s entry point is unmet. The next\
+    \ implementer must add a functional `main_pipeline.py` that imports and runs the\
+    \ data ingestion, preprocessing, modeling, and sensitivity analysis modules in\
+    \ the correct order."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,12 +41,6 @@ T028:
     \ coefficients from the baseline run (T020) and from each sensitivity analysis,\
     \ nor a computed table of their shifts, was provided. The implementer\u2019s response\
     \ contains only the task description and project spec, without the required output."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `main_pipeline.py` (or any code) was presented showing the required chaining
-    of the six phases, nor evidence that it runs after all phase tasks are complete.
-    The artifact needed to satisfy T031 is missing.
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,16 +48,3 @@ T041:
     request diff is provided; the claim that the spec has been amended to deprecate\
     \ the synthetic cohort requirements is unsupported by any tangible artifact. The\
     \ required amendment is missing."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pull request or amended `specs/001-social-support-resilience/spec.md` file
-    was presented; the required artifact (the updated spec with revised success criteria)
-    is missing.
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pull request or modified `specs/001-social-support-resilience/spec.md` file
-    is provided; the evidence lacks the required artifact showing the functional requirements
-    have been updated. The implementer must supply the PR (or at least the updated
-    spec file) that reflects the changes described.
