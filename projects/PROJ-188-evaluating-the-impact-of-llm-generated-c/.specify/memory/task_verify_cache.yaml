@@ -1,22 +1,41 @@
-T000a:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No formal decision document or amendment text for Constitution Principle VII
-    is present; the implementer provided no artifact, placeholder, or evidence of
-    the required decision. The task remains unfulfilled.
-T000b:
+  r: No artifact showing the existence of the required root directory `projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/`
+    is provided; without a directory listing or confirmation, we cannot verify that
+    the implementer actually created it. The task remains unverified.
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No amended `constitution.md` file or excerpt showing Principle VII updated to
-    authorize CodeLlama-7B with TinyLlama fallback is provided; the required governance
-    amendment artifact is missing.
-T008:
+  r: No evidence was provided that a `code/` subdirectory actually exists in the project
+    repository; the claim is unsupported and the required artifact is missing.
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or configuration file was provided that sets up loading of HuggingFace
-    token and model path environment variables, nor any documentation showing this
-    has been implemented. The required artifact (e.g., a Python module or settings
-    file that reads `HF_TOKEN` and model path variables) is missing.
+  r: No artifact showing a `data/` subdirectory was provided; the evidence list is
+    empty, so we cannot confirm that the required directory was actually created.
+    The implementer must add proof (e.g., a directory listing or a file inside `data/`).
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required subdirectories `data/raw/`, `data/intermediate/`,
+    and `data/processed/` actually exist; the claim is unsubstantiated. The implementer
+    must show the directory structure (e.g., a file listing or screenshots) to confirm
+    they were created.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that `code/__init__.py` and `tests/__init__.py` exist,
+    nor that they are empty. The implementer must add these two empty files in the
+    respective directories.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `ruff.toml`, `pyproject.toml`
+    with Black settings, or related setup scripts) are present in the provided evidence,
+    so the requirement to configure ruff and Black has not been demonstrated. The
+    task lacks any tangible artifact showing that these tools are installed, configured,
+    or integrated into the project.
 T013c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -24,25 +43,6 @@ T013c:
     \ label maps correctly to the `complexity_score` ranges before saving. The required\
     \ artifact (a script implementing this validation logic) is missing, so the task\u2019\
     s requirement is not satisfied."
-T015a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a file at `specs/001-evaluating-the-impact-of-llm-generated-c/data-model.md`
-    was provided, nor any displayed schema definitions for Snippet and Response. The
-    required artifact is missing or not shown.
-T015b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `specs/001-evaluating-the-impact-of-llm-generated-c/data-model.md`
-    file or its contents was provided, and there is no indication that the Response
-    schema was updated to include a `missing_count` field. The required artifact is
-    missing, so the task is not satisfied.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No validation script or any code file was presented; the claim lacks any artifact\
-    \ showing checks for nulls, label validity, token count limits, or N\u202F\u2265\
-    \u202F20. The required script is missing entirely."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -57,20 +57,6 @@ T019:
     (survey UI, random assignment to the three conditions, display of code/explanations,
     and logging of answers with timestamps) were provided. The required artifact is
     missing, so the task is not satisfied.
-T022b:
-  c: false
-  h: d24d7facd3770e70c37b6567648e0edf1c56276da618e9324dc475a069458d6f
-  r: The repository lacks the required `data/intermediate/responses.csv` file, and
-    the shown portion of `code/02_survey_logic.py` does not contain any logic that
-    computes a `missing_count` and appends it to the response records. Both the output
-    file and the implementation are missing.
-T026c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `plan.md` file or excerpt was provided; without the actual document\
-    \ we cannot verify that the \u201CComplexity Tracking\u201D section was edited\
-    \ to remove the GLMM rationale and note LMM as the spec\u2011compliant choice.\
-    \ The required artifact is missing."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -78,9 +64,3 @@ T027:
     \ HSD test (or showing adjusted p\u2011values for pairwise condition comparisons)\
     \ was provided. The evidence consists only of the task description; there is no\
     \ artifact to verify that the required statistical analysis was actually implemented."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, analysis script, data, or report showing a BLEU sensitivity sweep was
-    provided; the implementer supplied no artifact to demonstrate that the required
-    BLEU sensitivity analysis was performed.

@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ParticipantSummary
+description: >-
+  Aggregated statistics for a single participant across all their responses.
+type: object
+required:
+  - participant_id
+  - total_responses
+  - missing_count
+  - avg_latency
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant.
+    minLength: 1
+  total_responses:
+    type: integer
+    description: Total number of responses provided by the participant.
+    minimum: 0
+  missing_count:
+    type: integer
+    description: Total number of missing/unanswered questions for the participant.
+    minimum: 0
+  avg_latency:
+    type: number
+    description: Average latency in milliseconds across all responses.
+    minimum: 0
+additionalProperties: false

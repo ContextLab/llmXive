@@ -7,4 +7,6 @@ datasets==2.14.0
 pandas==2.1.0
 numpy==1.24.0
 pyyaml==6.0.1
-matplotlib>=3.7.0
+radon==5.1.0
+ruff==0.1.6
+black==23.12.1

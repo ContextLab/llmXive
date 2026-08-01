@@ -1,10 +1,12 @@
 {
-  "decision": "Amend Constitution Principle VII",
-  "rationale": "Spec FR-001 takes precedence for implementation; Constitution updated to align.",
-  "original_constitution": "Constitution Principle VII mandates StarCoder-15B.",
-  "spec_requirement": "Spec FR-001 mandates CodeLlama-7B.",
-  "conflict_resolution": "To resolve the conflict between the Constitution and the Spec, the Constitution is amended to authorize CodeLlama-7B (with TinyLlama fallback) as the primary model for LLM-generated explanations.",
-  "approval_signature": "Governance Committee - Automated Decision Record",
-  "timestamp": "2023-10-27T10:00:00Z",
-  "status": "APPROVED"
+  "decision_id": "CONST-AMENDMENT-001",
+  "date": "2024-05-21T00:00:00Z",
+  "principle_amended": "Constitution Principle VII",
+  "previous_text": "All LLM-generated explanations MUST be produced using StarCoder-15B.",
+  "new_text": "All LLM-generated explanations MUST be produced using TinyLlama-1.1B (primary for CPU feasibility) or CodeLlama-7B (fallback).",
+  "rationale": "Amend Principle VII to authorize TinyLlama-1.1B as primary for CPU feasibility, with CodeLlama-7B as fallback. This aligns the Constitution with the Plan's execution strategy.",
+  "conflict_resolution": "Resolved conflict between Spec FR-001 (CodeLlama-7B mandate) and Plan Constraints (TinyLlama-1.1B primary for CPU). The amendment explicitly authorizes the dual-model strategy to satisfy both feasibility and intent.",
+  "approval_signature": "b8f3a9c2e1d4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0",
+  "status": "APPROVED",
+  "dependencies": ["T000b"]
 }

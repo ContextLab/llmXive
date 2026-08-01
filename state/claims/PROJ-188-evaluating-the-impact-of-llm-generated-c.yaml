@@ -1,0 +1,66 @@
+- artifact_path: projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Zhang et al. (2024) detailed pre-training small-scale language model
+    with sparse mixture-of-experts and curriculum learning
+  claim_id: c_4ccb1979
+  context: The research question is whether efficient language models can achieve
+    competitive performance through targeted pre-training strategies. The method involves
+    pre-training a small-scale language model using a sparse mixture-of-experts architecture
+    and curriculum learning, as detailed in Zhang et al. (2024). as the primary model
+    for CPU feasibility
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The method involves pre-training a small-scale language model using a
+    sparse mixture-of-experts architecture and curriculum learning, as detailed in
+    Zhang et al. (2024).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:31:19Z'
+- artifact_path: projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Pre-training small-scale language model using sparse mixture-of-experts
+    and curriculum learning detailed in Zhang et al. 2024
+  claim_id: c_0910accc
+  context: The research question is whether efficient language models can achieve
+    competitive performance through targeted pre-training strategies. The method involves
+    pre-training a small-scale language model using a sparse mixture-of-experts architecture
+    and curriculum learning, as detailed in Zhang et al. (2024). as the primary model
+    for CPU feasibility
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The method involves pre-training a small-scale language model using a
+    sparse mixture-of-experts architecture and curriculum learning, as detailed in
+    Zhang et al. (2024).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:33:34Z'
+- artifact_path: projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Method uses sparse mixture-of-experts and curriculum learning for small-scale
+    LLM
+  claim_id: c_d898d5ea
+  context: The research question is whether efficient language models can achieve
+    competitive performance through targeted pre-training strategies. The method involves
+    pre-training a small-scale language model using a sparse mixture-of-experts architecture
+    and curriculum learning, as detailed in Zhang et al. (2024).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_uses_sparse_mixture-of-experts_and_curriculum_learnin
+  kind: entity_fact
+  raw_text: The method involves pre-training a small-scale language model using a
+    sparse mixture-of-experts architecture and curriculum learning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:39:09Z'

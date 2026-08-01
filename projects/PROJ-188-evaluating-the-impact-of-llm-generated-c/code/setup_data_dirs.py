@@ -1,39 +1,43 @@
 """
 Script to create the required data directory structure for the project.
-Creates data/raw/, data/intermediate/, and data/processed/ directories.
+Creates data/raw/, data/intermediate/, and data/processed/ subdirectories.
 """
 import os
 from pathlib import Path
 
 
-def create_data_directories():
+def create_data_directories(base_path: str = ".") -> None:
     """
-    Creates the standard data directory structure required by the project.
-    Directories created:
-        - data/raw/
-        - data/intermediate/
-        - data/processed/
-    
-    Returns:
-        None
-    
-    Raises:
-        OSError: If directory creation fails due to permissions or other OS errors.
+    Create the standard data directory structure.
+
+    Args:
+        base_path: The root directory where 'data' folder exists (default: current directory)
     """
-    base_dir = Path("data")
-    
-    directories = [
-        base_dir / "raw",
-        base_dir / "intermediate",
-        base_dir / "processed",
+    base = Path(base_path)
+    data_dir = base / "data"
+
+    # Ensure the main data directory exists
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    # Define subdirectories
+    subdirs = [
+        "raw",
+        "intermediate",
+        "processed"
     ]
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
-    
+
+    for subdir_name in subdirs:
+        subdir_path = data_dir / subdir_name
+        subdir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {subdir_path}")
+
     print("Data directory structure setup complete.")
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Entry point for the script."""
     create_data_directories()
+
+
+if __name__ == "__main__":
+    main()

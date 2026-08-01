@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+type: "object"
+properties:
+  threshold:
+    type: "number"
+    description: "Significance threshold."
+    minimum: 0.0
+    maximum: 1.0
+  accuracy_mean:
+    type: "object"
+    description: "Mean accuracy per condition."
+    properties:
+      CodeOnly:
+        type: "number"
+      CodeLLM:
+        type: "number"
+      CodeDoc:
+        type: "number"
+    required:
+      - CodeOnly
+      - CodeLLM
+      - CodeDoc
+  latency_mean:
+    type: "object"
+    description: "Mean latency per condition."
+    properties:
+      CodeOnly:
+        type: "number"
+      CodeLLM:
+        type: "number"
+      CodeDoc:
+        type: "number"
+    required:
+      - CodeOnly
+      - CodeLLM
+      - CodeDoc
+  p_value_interaction:
+    type: "number"
+    description: "P-value for condition*complexity interaction."
+    minimum: 0.0
+    maximum: 1.0
+  p_value_tukey:
+    type: "string"
+    description: "JSON string of Tukey HSD adjusted p-values."
+    pattern: "^\\{.*\\}$"
+required:
+  - threshold
+  - accuracy_mean
+  - latency_mean
+  - p_value_interaction
+  - p_value_tukey
+additionalProperties: false

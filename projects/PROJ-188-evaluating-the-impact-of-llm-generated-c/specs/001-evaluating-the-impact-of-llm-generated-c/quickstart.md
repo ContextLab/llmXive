@@ -1,55 +1,85 @@
-# Quickstart: Evaluating the Impact of LLM-Generated Code Explanations on Comprehension
+# Quickstart: Evaluating the Impact of LLM-Generated Code Explanations
 
 ## Prerequisites
+
 - Python 3.11+
 - Git
-- Access to HuggingFace Hub (token required for CodeLlama if gated, though CodeSearchNet is public).
+- HuggingFace account (for model access, if required)
 
-## Setup
+## Installation
 
-1.  **Clone and Install**
+1.  **Clone the repository**:
     ```bash
-    cd projects/PROJ-188-evaluating-the-impact-of-llm-generated-c
+    git clone <repo-url>
+    cd projects/001-evaluating-the-impact-of-llm-generated-c
+    ```
+
+2.  **Create a virtual environment**:
+    ```bash
     python -m venv venv
-    source venv/bin/activate
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
     pip install -r code/requirements.txt
     ```
 
-2.  **Configure Environment**
-    Create a `.env` file in `code/` with:
+4.  **Set environment variables**:
+    Create a `.env` file in `code/` (or set in shell):
     ```bash
-    HF_TOKEN=your_huggingface_token
-    RANDOM_SEED=42
-    MAX_TOKENS=150
+    export HF_TOKEN="your_huggingface_token_here"
+    export MODEL_PATH="TinyLlama/TinyLlama-1.1B-Chat-v1.0" # Primary CPU model
     ```
 
-## Execution
+## Running the Pipeline
+
+The pipeline is designed to run end-to-end.
 
 ### Step 1: Data Curation & Explanation Generation
-Run the curation script to download CodeSearchNet and generate explanations.
+Generates explanations for the curated snippets.
 ```bash
 python code/01_data_curation.py
+python code/02_explanation_gen.py
 ```
-*Output*: `data/intermediate/explanations.jsonl`, `data/raw/codesearchnet.parquet`.
+*Note: This step uses TinyLlama-1.1B for CPU feasibility. CodeLlama-7B is a fallback.*
 
-### Step 2: Survey Simulation (or Data Loading)
-If simulating for testing:
+### Step 2: Survey Simulation
+Generates mock participant data to simulate the survey results.
 ```bash
-python code/02_survey_logic.py --mode simulate --n_participants 90
+python code/03_survey_logic.py
 ```
-*Output*: `data/intermediate/survey_responses.csv`.
+*Output: `data/intermediate/mock_responses.csv` (row-level) and `data/intermediate/participant_summary.csv` (aggregate).*
 
-If using real data, place CSV in `data/intermediate/survey_responses.csv` and skip.
-
-### Step 3: Statistical Analysis
-Run the analysis pipeline.
+### Step 3: Data Cleaning
+Applies filtering rules (PII removal, speeder exclusion) and calculates `missing_count` for the summary.
 ```bash
-python code/03_analysis.py
+python code/04_data_cleaning.py
 ```
-*Output*: `data/processed/analysis_results.json`, `data/processed/figures/`.
+*Output: `data/intermediate/cleaned_responses.csv` and updated `participant_summary.csv`.*
 
-## Verification
-Check that the analysis output contains:
-- Interaction p-value < 0.05 (if hypothesis supported).
-- Tukey adjusted p-values.
-- Sensitivity sweep results for BLEU thresholds {0.70, 0.80, 0.90}.
+### Step 4: Statistical Analysis
+Runs LMM, Tukey HSD, and BLEU descriptive analysis.
+```bash
+python code/05_analysis.py
+```
+*Output: `data/processed/results.csv`.*
+
+### Step 5: Report Generation
+Assembles the final report with the required limitation statement.
+```bash
+python code/06_report_gen.py
+```
+*Output: `data/processed/final_report.md`.*
+
+## Validation
+
+To verify the pipeline:
+```bash
+pytest tests/
+```
+
+## Troubleshooting
+
+- **OOM Error**: If `02_explanation_gen.py` runs out of memory, ensure `load_in_4bit=True` is set for TinyLlama. If it still fails, the fallback to CodeLlama-7B (if GPU available) will trigger.
+- **Missing Data**: Ensure `code/01_data_curation.py` successfully downloaded the HumanEval subset.

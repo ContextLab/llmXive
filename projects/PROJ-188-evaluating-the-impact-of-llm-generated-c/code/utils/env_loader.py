@@ -1,219 +1,136 @@
-"""
-Environment variable loading utilities for HuggingFace token and model paths.
-
-This module provides functions to load, validate, and retrieve environment variables
-required for model access, specifically the HuggingFace token and custom model paths.
-
-Dependencies:
-- python-dotenv (optional, for .env file support)
-"""
-
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 import logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Required environment variables
-REQUIRED_VARS = {
-    'HF_TOKEN': 'HuggingFace API token for model access',
-    'HF_MODEL_PATH': 'Path to HuggingFace model cache (optional, defaults to HF_HOME)',
-    'TRANSFORMERS_CACHE': 'Transformers cache directory (optional)',
-}
+# Constants for environment variable names
+HF_TOKEN_ENV = "HF_TOKEN"
+TINYLLAMA_PATH_ENV = "TINYLLAMA_MODEL_PATH"
+CODELLAMA_PATH_ENV = "CODELLAMA_MODEL_PATH"
 
-def load_env_vars(env_path: Optional[Path] = None) -> Dict[str, str]:
+# Default model paths if env vars are missing (used only if not set)
+DEFAULT_TINYLLAMA_PATH = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+DEFAULT_CODELLAMA_PATH = "codellama/CodeLlama-7b-Instruct-hf"
+
+def load_env_vars() -> Dict[str, str]:
     """
-    Load environment variables from a .env file if it exists.
-    
-    Args:
-        env_path: Path to .env file. Defaults to project root .env.
+    Load required environment variables for the project.
     
     Returns:
-        Dictionary of loaded environment variables.
+        Dict[str, str]: Dictionary of loaded environment variables.
     
     Raises:
-        FileNotFoundError: If the specified .env file does not exist.
+        ValueError: If required variables are missing.
     """
-    env_dict = {}
+    required_vars = [HF_TOKEN_ENV]
+    missing_vars = [var for var in required_vars if not os.getenv(var)]
     
-    if env_path is None:
-        # Default to .env in project root
-        project_root = Path(__file__).resolve().parent.parent.parent
-        env_path = project_root / '.env'
+    if missing_vars:
+        raise ValueError(
+            f"Missing required environment variables: {', '.join(missing_vars)}. "
+            f"Please set {HF_TOKEN_ENV} in your environment."
+        )
     
-    if env_path.exists():
-        logger.info(f"Loading environment variables from {env_path}")
-        try:
-            # Try to load using python-dotenv if available
-            try:
-                from dotenv import load_dotenv
-                load_dotenv(dotenv_path=env_path)
-                logger.info("Successfully loaded .env file using python-dotenv")
-            except ImportError:
-                logger.warning("python-dotenv not installed. Manual .env parsing not implemented.")
-                logger.warning("Please ensure environment variables are set in your shell or system.")
-                # Fallback: manual parsing (simple key=value)
-                with open(env_path, 'r') as f:
-                    for line in f:
-                        line = line.strip()
-                        if line and not line.startswith('#') and '=' in line:
-                            key, value = line.split('=', 1)
-                            key = key.strip()
-                            value = value.strip().strip('"').strip("'")
-                            env_dict[key] = value
-                            os.environ[key] = value
-                logger.info(f"Manually loaded {len(env_dict)} variables from .env")
-        except Exception as e:
-            logger.error(f"Error loading .env file: {e}")
-            raise
+    loaded = {}
+    for var in required_vars:
+        loaded[var] = os.getenv(var)
+        logger.info(f"Loaded environment variable: {var}")
+    
+    # Optional model paths
+    if os.getenv(TINYLLAMA_PATH_ENV):
+        loaded[TINYLLAMA_PATH_ENV] = os.getenv(TINYLLAMA_PATH_ENV)
+        logger.info(f"Loaded custom TinyLlama path: {loaded[TINYLLAMA_PATH_ENV]}")
     else:
-        logger.info(f"No .env file found at {env_path}. Using system environment variables.")
+        loaded[TINYLLAMA_PATH_ENV] = DEFAULT_TINYLLAMA_PATH
+        logger.info(f"Using default TinyLlama path: {DEFAULT_TINYLLAMA_PATH}")
+        
+    if os.getenv(CODELLAMA_PATH_ENV):
+        loaded[CODELLAMA_PATH_ENV] = os.getenv(CODELLAMA_PATH_ENV)
+        logger.info(f"Loaded custom CodeLlama path: {loaded[CODELLAMA_PATH_ENV]}")
+    else:
+        loaded[CODELLAMA_PATH_ENV] = DEFAULT_CODELLAMA_PATH
+        logger.info(f"Using default CodeLlama path: {DEFAULT_CODELLAMA_PATH}")
     
-    return env_dict
+    return loaded
 
-def get_model_path() -> Optional[str]:
+def get_model_path(model_name: str) -> str:
     """
-    Get the HuggingFace model path from environment variables.
+    Get the model path for a specific model.
     
-    Priority:
-    1. HF_MODEL_PATH
-    2. TRANSFORMERS_CACHE
-    3. HF_HOME
-    4. Default: ~/.cache/huggingface
-    
+    Args:
+        model_name (str): Name of the model ('tinyllama' or 'codellama').
+        
     Returns:
-        Path to model cache directory or None if not set.
+        str: Path to the model.
+        
+    Raises:
+        ValueError: If model_name is invalid.
     """
-    model_path = os.getenv('HF_MODEL_PATH')
+    env_vars = load_env_vars()
     
-    if model_path:
-        logger.info(f"Using HF_MODEL_PATH: {model_path}")
-        return model_path
-    
-    # Fallback to TRANSFORMERS_CACHE
-    transformers_cache = os.getenv('TRANSFORMERS_CACHE')
-    if transformers_cache:
-        logger.info(f"Using TRANSFORMERS_CACHE: {transformers_cache}")
-        return transformers_cache
-    
-    # Fallback to HF_HOME
-    hf_home = os.getenv('HF_HOME')
-    if hf_home:
-        logger.info(f"Using HF_HOME: {hf_home}")
-        return hf_home
-    
-    # Default path
-    default_path = str(Path.home() / '.cache' / 'huggingface')
-    logger.info(f"Using default HF cache path: {default_path}")
-    return default_path
+    if model_name.lower() == "tinyllama":
+        return env_vars[TINYLLAMA_PATH_ENV]
+    elif model_name.lower() == "codellama":
+        return env_vars[CODELLAMA_PATH_ENV]
+    else:
+        raise ValueError(f"Invalid model name: {model_name}. Use 'tinyllama' or 'codellama'.")
 
 def validate_token(token: Optional[str] = None) -> bool:
     """
     Validate the HuggingFace token.
     
     Args:
-        token: Token string. If None, reads from HF_TOKEN env var.
-    
+        token (Optional[str]): Token to validate. If None, uses HF_TOKEN env var.
+        
     Returns:
-        True if token is present and non-empty, False otherwise.
-    
-    Raises:
-        ValueError: If token is missing or empty.
+        bool: True if token is valid (non-empty), False otherwise.
     """
     if token is None:
-        token = os.getenv('HF_TOKEN')
+        token = os.getenv(HF_TOKEN_ENV)
     
-    if not token or not token.strip():
-        error_msg = "HuggingFace token (HF_TOKEN) is not set. Please set it via environment variable or .env file."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+    if not token or not isinstance(token, str) or len(token.strip()) == 0:
+        logger.error("HuggingFace token is missing or invalid.")
+        return False
     
-    # Basic format validation (HF tokens typically start with 'hf_')
-    token = token.strip()
-    if not token.startswith('hf_'):
-        logger.warning(f"Token does not start with 'hf_'. This may indicate an invalid token format.")
-    
-    logger.info("HuggingFace token validated successfully")
+    # Basic format check (HF tokens are typically 40+ characters)
+    if len(token) < 20:
+        logger.warning("HuggingFace token seems unusually short.")
+        return False
+        
+    logger.info("HuggingFace token validated successfully.")
     return True
 
-def ensure_required_vars() -> Dict[str, str]:
+def ensure_required_vars() -> None:
     """
-    Ensure all required environment variables are set.
-    
-    Returns:
-        Dictionary of required variables and their values.
+    Ensure all required environment variables are set and valid.
     
     Raises:
-        ValueError: If any required variable is missing.
+        RuntimeError: If any required variable is missing or invalid.
     """
-    missing_vars = []
-    env_vars = {}
-    
-    for var_name, description in REQUIRED_VARS.items():
-        value = os.getenv(var_name)
-        if value:
-            env_vars[var_name] = value
-            logger.debug(f"Found required variable: {var_name}")
-        else:
-            # Some vars are optional
-            if var_name == 'HF_TOKEN':
-                missing_vars.append(f"{var_name} ({description})")
-            else:
-                logger.info(f"Optional variable {var_name} not set, using default")
-    
-    if missing_vars:
-        error_msg = f"Missing required environment variables: {', '.join(missing_vars)}"
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info("All required environment variables are set")
-    return env_vars
+    try:
+        env_vars = load_env_vars()
+        if not validate_token(env_vars.get(HF_TOKEN_ENV)):
+            raise RuntimeError("HuggingFace token validation failed.")
+        logger.info("All required environment variables are set and valid.")
+    except ValueError as e:
+        raise RuntimeError(f"Environment variable error: {e}")
 
 def main():
     """
-    Main function to demonstrate environment variable loading and validation.
+    Main entry point for testing environment variable loading.
     """
-    print("=== Environment Variable Loader Test ===")
-    
-    # Load .env if exists
-    load_env_vars()
-    
-    # Ensure required vars
+    logging.basicConfig(level=logging.INFO)
     try:
-        env_vars = ensure_required_vars()
-        print(f"✓ Required variables found: {list(env_vars.keys())}")
-    except ValueError as e:
-        print(f"✗ Missing required variables: {e}")
-        return 1
-    
-    # Validate token
-    try:
-        validate_token()
-        print("✓ Token validated successfully")
-    except ValueError as e:
-        print(f"✗ Token validation failed: {e}")
-        return 1
-    
-    # Get model path
-    model_path = get_model_path()
-    print(f"✓ Model path: {model_path}")
-    
-    # Check if path exists
-    if model_path:
-        path_obj = Path(model_path)
-        if path_obj.exists():
-            print(f"✓ Model path exists: {path_obj}")
-        else:
-            print(f"⚠ Model path does not exist (will be created on first use): {path_obj}")
-    
-    print("=== Test Complete ===")
-    return 0
+        ensure_required_vars()
+        print("Environment variables loaded successfully.")
+        print(f"TinyLlama path: {get_model_path('tinyllama')}")
+        print(f"CodeLlama path: {get_model_path('codellama')}")
+    except RuntimeError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    main()

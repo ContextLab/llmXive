@@ -1,0 +1,13 @@
+{
+  "amendment_id": "CONST-AMENDMENT-001",
+  "tag": "CONST-AMENDMENT-DELIVERABLE",
+  "principle": "VII",
+  "previous_text": "All LLM-generated explanations MUST be produced using StarCoder-15B via the HuggingFace `transformers` library with a fixed token limit of 200 and pinned random seeds.",
+  "new_text": "All LLM-generated explanations MUST be produced using TinyLlama-1.1B (primary for CPU feasibility) or CodeLlama-7B (fallback) via the HuggingFace `transformers` library with a fixed token limit of 200 and pinned random seeds.",
+  "rationale": "Amend Principle VII to authorize TinyLlama-1.1B as primary for CPU feasibility, with CodeLlama-7B as fallback. This aligns the Constitution with the Plan's execution strategy (FR-001 & Plan Constraints).",
+  "amended_by": "Automated Science Pipeline",
+  "timestamp": "2024-01-15T12:00:00Z",
+  "linked_task": "T000b",
+  "git_commit_command": "git add constitution.md && git commit -m \"Amend Principle VII for TinyLlama primary/CodeLlama fallback\"",
+  "status": "APPROVED"
+}

@@ -1,0 +1,48 @@
+{
+  "project_id": "PROJ-188-evaluating-the-impact-of-llm-generated-c",
+  "tasks": [
+    {
+      "task_key": "T000a",
+      "reject_count": 1,
+      "last_reason": "No formal decision document or amendment text for Constitution Principle VII is present; the implementer provided no artifact, placeholder, or evidence of the required decision. The task remains unfulfilled.",
+      "first_seen": "2026-08-01T08:39:09.477271+00:00",
+      "last_seen": "2026-08-01T08:39:09.477271+00:00"
+    },
+    {
+      "task_key": "T000b",
+      "reject_count": 1,
+      "last_reason": "No amended `constitution.md` file or excerpt showing Principle VII updated to authorize CodeLlama-7B with TinyLlama fallback is provided; the required governance amendment artifact is missing.",
+      "first_seen": "2026-08-01T08:39:09.478322+00:00",
+      "last_seen": "2026-08-01T08:39:09.478322+00:00"
+    },
+    {
+      "task_key": "T015a",
+      "reject_count": 1,
+      "last_reason": "No evidence of a file at `specs/001-evaluating-the-impact-of-llm-generated-c/data-model.md` was provided, nor any displayed schema definitions for Snippet and Response. The required artifact is missing or not shown.",
+      "first_seen": "2026-08-01T08:39:17.014884+00:00",
+      "last_seen": "2026-08-01T08:39:17.014884+00:00"
+    },
+    {
+      "task_key": "T015b",
+      "reject_count": 1,
+      "last_reason": "No evidence of the `specs/001-evaluating-the-impact-of-llm-generated-c/data-model.md` file or its contents was provided, and there is no indication that the Response schema was updated to include a `missing_count` field. The required artifact is missing, so the task is not satisfied.",
+      "first_seen": "2026-08-01T08:39:17.015913+00:00",
+      "last_seen": "2026-08-01T08:39:17.015913+00:00"
+    },
+    {
+      "task_key": "T008",
+      "reject_count": 1,
+      "last_reason": "No code, script, or configuration file was provided that sets up loading of HuggingFace token and model path environment variables, nor any documentation showing this has been implemented. The required artifact (e.g., a Python module or settings file that reads `HF_TOKEN` and model path variables) is missing.",
+      "first_seen": "2026-08-01T08:39:18.566404+00:00",
+      "last_seen": "2026-08-01T08:39:18.566404+00:00"
+    },
+    {
+      "task_key": "T016",
+      "reject_count": 1,
+      "last_reason": "No validation script or any code file was presented; the claim lacks any artifact showing checks for nulls, label validity, token count limits, or N\u202f\u2265\u202f20. The required script is missing entirely.",
+      "first_seen": "2026-08-01T08:39:18.567730+00:00",
+      "last_seen": "2026-08-01T08:39:18.567730+00:00"
+    }
+  ],
+  "updated_at": "2026-08-01T08:39:18.567730+00:00"
+}
