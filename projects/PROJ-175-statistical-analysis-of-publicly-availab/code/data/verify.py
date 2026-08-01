@@ -1,115 +1,153 @@
-"""
-Task T038 & T042: Data Verification with Robust Error Handling
-Implements specific HTTP error handling and schema validation for Recipe1M Ratings.
-"""
 import os
 import sys
 import json
 import requests
-import pandas as pd
 from pathlib import Path
-import logging
-
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-ROOT_DIR = Path(__file__).resolve().parents[2]
-DATA_DIR = ROOT_DIR / "data"
-LOGS_DIR = DATA_DIR / "logs"
 
 class DataUnavailableError(Exception):
-    """Custom exception for data availability issues."""
+    """Raised when a required data source is unavailable or returns a non-200 status."""
     pass
 
-def fetch_schema_sample(url, timeout=10):
+def fetch_schema_sample(url: str, timeout: int = 30) -> dict:
     """
-    Fetch a sample of the schema from a URL to verify accessibility.
+    Performs a pre-flight HEAD check on the given URL.
+    
+    Args:
+        url: The URL to check.
+        timeout: Request timeout in seconds.
+        
+    Returns:
+        A dictionary with 'status_code' and 'url'.
+        
+    Raises:
+        DataUnavailableError: If the URL does not return a 200 status code.
     """
     try:
-        response = requests.head(url, timeout=timeout)
-        if response.status_code == 200:
-            return {"status": "accessible", "url": url, "headers": dict(response.headers)}
-        else:
-            raise DataUnavailableError(f"URL returned status code {response.status_code}: {url}")
-    except requests.RequestException as e:
-        raise DataUnavailableError(f"Failed to fetch URL {url}: {str(e)}")
+        # Use HEAD to check availability without downloading the full resource
+        response = requests.head(url, timeout=timeout, allow_redirects=True)
+        
+        if response.status_code != 200:
+            # Log the error to the download errors log if it exists, or create it
+            log_path = Path("data/download_errors.log")
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            error_msg = (
+                f"[HEAD_CHECK_FAILED] URL: {url} | "
+                f"Status Code: {response.status_code} | "
+                f"Reason: {response.reason}\n"
+            )
+            
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(error_msg)
+            
+            raise DataUnavailableError(
+                f"Data source unavailable at {url}: HTTP {response.status_code} ({response.reason})"
+            )
+        
+        return {
+            "status_code": response.status_code,
+            "url": url,
+            "content_type": response.headers.get("Content-Type", "unknown")
+        }
+        
+    except requests.exceptions.RequestException as e:
+        log_path = Path("data/download_errors.log")
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        error_msg = (
+            f"[HEAD_CHECK_EXCEPTION] URL: {url} | "
+            f"Error Type: {type(e).__name__} | "
+            f"Message: {str(e)}\n"
+        )
+        
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(error_msg)
+        
+        raise DataUnavailableError(
+            f"Failed to connect to data source {url}: {str(e)}"
+        ) from e
 
-def verify_schema(df, expected_columns, file_path=None):
+def verify_data_sources(verification_report_path: str = "data/verification_report.json") -> list:
     """
-    Verify that a DataFrame has the expected columns.
-    """
-    missing = set(expected_columns) - set(df.columns)
-    if missing:
-        error_msg = f"Missing columns in {file_path}: {missing}"
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    return True
-
-def verify_data_sources(urls, log_file=None):
-    """
-    Verify a list of data source URLs.
-    Logs errors to a specific file without synthetic fallback.
-    """
-    results = []
-    errors = []
+    Reads the verification report and performs HEAD checks on all verified URLs.
     
-    if log_file is None:
-        log_file = DATA_DIR / "download_errors.log"
+    Args:
+        verification_report_path: Path to the verification report JSON file.
+        
+    Returns:
+        A list of URLs that passed the HEAD check.
+        
+    Raises:
+        DataUnavailableError: If any URL fails the check.
+        FileNotFoundError: If the verification report is missing.
+    """
+    report_path = Path(verification_report_path)
+    if not report_path.exists():
+        raise FileNotFoundError(
+            f"Verification report not found at {verification_report_path}. "
+            "Run T012 first to generate the verification report."
+        )
     
-    for url in urls:
+    with open(report_path, "r", encoding="utf-8") as f:
+        report = json.load(f)
+    
+    # Expecting a structure like {"sources": [{"name": "...", "url": "...", "status": "PASS"}]}
+    sources = report.get("sources", [])
+    urls_to_check = [
+        s["url"] for s in sources 
+        if s.get("status") == "PASS" and "url" in s
+    ]
+    
+    if not urls_to_check:
+        print("No URLs to verify in the report.")
+        return []
+    
+    passed_urls = []
+    
+    for url in urls_to_check:
+        print(f"Pre-flight HEAD check for: {url}")
         try:
             result = fetch_schema_sample(url)
-            results.append(result)
+            print(f"  -> PASS (Status: {result['status_code']})")
+            passed_urls.append(url)
         except DataUnavailableError as e:
-            errors.append({"url": url, "error": str(e)})
-            logger.error(f"Data source unavailable: {url} - {e}")
-    
-    # Write errors to log file
-    with open(log_file, 'w') as f:
-        json.dump(errors, f, indent=2)
-    
-    if errors:
-        raise DataUnavailableError(f"Failed to verify {len(errors)} data sources. Check {log_file}")
-    
-    return results
-
-def verify_counterfactual_label_schema(df):
-    """
-    Verify schema for counterfactual labels (if applicable).
-    Note: Per Plan's Critical Reframe, this is largely superseded by Ratings verification.
-    """
-    required_cols = ["recipe_id", "ingredient_id", "label"]
-    return verify_schema(df, required_cols)
-
-def verify_data_sources_with_label_check(urls, sample_size=1000):
-    """
-    Verify data sources and perform basic schema checks on a sample.
-    """
-    # First verify URLs are accessible
-    verify_data_sources(urls)
-    
-    # Note: Actual loading and schema check would happen in download/preprocess steps
-    # This function is primarily for pre-flight URL verification
-    return {"status": "verified", "urls_checked": len(urls)}
+            print(f"  -> FAIL: {str(e)}")
+            raise e
+        
+    return passed_urls
 
 def main():
     """
-    Main entry point for verification tasks.
+    Entry point for T046: Pre-flight HEAD checks.
     """
-    # Example usage (to be replaced by actual URLs from T012)
-    urls = [
-        "https://huggingface.co/datasets/recipe1m/resolve/main/recipe1m.parquet",
-        "https://huggingface.co/datasets/recipe1m/resolve/main/ratings.parquet"
-    ]
+    print("Starting T046: Pre-flight HEAD checks for verified URLs...")
     
     try:
-        results = verify_data_sources(urls)
-        print("All data sources verified successfully.")
-        return 0
+        verified_urls = verify_data_sources()
+        
+        # Log success
+        log_entry = {
+            "task": "T046",
+            "status": "SUCCESS",
+            "urls_verified": len(verified_urls),
+            "timestamp": __import__("datetime").datetime.now().isoformat()
+        }
+        
+        log_path = Path("data/t046_head_check_log.json")
+        with open(log_path, "w", encoding="utf-8") as f:
+            json.dump(log_entry, f, indent=2)
+            
+        print(f"T046 Complete: Verified {len(verified_urls)} URLs.")
+        
     except DataUnavailableError as e:
-        print(f"Verification failed: {e}")
-        return 1
+        print(f"T046 Failed: {str(e)}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"T046 Failed: {str(e)}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"T046 Failed with unexpected error: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

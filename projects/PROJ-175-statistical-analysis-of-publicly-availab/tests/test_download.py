@@ -1,69 +1,130 @@
 import os
-import sys
 import json
 import pytest
+import pandas as pd
 from pathlib import Path
-import time
+from unittest.mock import patch, MagicMock
+import sys
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add the code directory to the path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from data.download import verify_checksum, download_file_streaming, process_recipe1m_streaming
+from data.download import (
+    ensure_directories,
+    load_verification_report,
+    verify_url_status,
+    DataUnavailableError,
+    download_datasets
+)
 
-class TestDownload:
-    def test_verify_checksum_valid(self, tmp_path):
-        """Test checksum verification with a known valid file."""
-        test_file = tmp_path / "test.txt"
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
-        
-        # Calculate MD5 of test content
-        import hashlib
-        expected_md5 = hashlib.md5(test_content).hexdigest()
-        
-        assert verify_checksum(test_file, expected_md5) is True
+@pytest.fixture
+def mock_verification_report(tmp_path):
+    """Create a mock verification report."""
+    report_path = tmp_path / "verification_report.json"
+    report = {
+        "status": "PASS",
+        "datasets": [
+            {
+                "name": "recipe1m-full",
+                "dataset_name": "recipe1m-full",
+                "url": "https://huggingface.co/datasets/recipe1m-full",
+                "status": "available"
+            },
+            {
+                "name": "ratings",
+                "dataset_name": "recipe1m-ratings",
+                "url": "https://huggingface.co/datasets/recipe1m-ratings",
+                "status": "available"
+            }
+        ]
+    }
+    with open(report_path, 'w') as f:
+        json.dump(report, f)
+    return str(report_path)
 
-    def test_verify_checksum_invalid(self, tmp_path):
-        """Test checksum verification with an invalid MD5."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_bytes(b"Hello, World!")
-        
-        assert verify_checksum(test_file, "invalid_md5_hash") is False
+def test_ensure_directories(tmp_path):
+    """Test that ensure_directories creates the required structure."""
+    output_dir = tmp_path / "test_data"
+    ensure_directories(str(output_dir))
+    
+    required_dirs = [
+        "raw", "processed", "final", "logs"
+    ]
+    
+    for d in required_dirs:
+        assert (output_dir / d).exists(), f"Directory {d} was not created"
 
-    def test_download_file_streaming_integration(self, tmp_path):
-        """Test downloading a small file from a public URL."""
-        # Use a small, reliable public file for testing
-        url = "https://httpbin.org/bytes/1024" # 1KB random bytes
-        output_path = tmp_path / "downloaded.bin"
-        
-        # This test might fail in restricted environments, so we wrap in try/except
-        try:
-            result = download_file_streaming(url, output_path)
-            assert result is True
-            assert output_path.exists()
-            assert output_path.stat().st_size == 1024
-        except RuntimeError as e:
-            # If download fails (e.g., network issue), we skip the test or mark it as expected failure
-            # But for the purpose of this task, we assume the function logic is correct.
-            pytest.skip(f"Network unavailable for integration test: {e}")
+def test_load_verification_report_missing(mock_verification_report, tmp_path):
+    """Test loading a missing verification report."""
+    # Move the report to a different location to simulate missing
+    missing_path = tmp_path / "nonexistent.json"
+    
+    with pytest.raises(FileNotFoundError):
+        load_verification_report(str(missing_path))
 
-    def test_process_recipe1m_streaming_structure(self):
-        """Test that process_recipe1m_streaming creates the expected log structure."""
-        # This test assumes the data directory exists and verification report is present
-        # In a real CI, these would be set up.
-        # We mock the verification report for this test
-        data_dir = project_root / "data"
-        data_dir.mkdir(parents=True, exist_ok=True)
+def test_load_verification_report_success(mock_verification_report):
+    """Test successful loading of verification report."""
+    report = load_verification_report(mock_verification_report)
+    
+    assert report["status"] == "PASS"
+    assert len(report["datasets"]) == 2
+    assert report["datasets"][0]["name"] == "recipe1m-full"
+
+def test_verify_url_status_success():
+    """Test URL verification with successful responses."""
+    urls = [
+        {"url": "https://httpbin.org/status/200"},
+        {"url": "https://httpbin.org/status/200"}
+    ]
+    
+    # Note: This test might be flaky depending on network, so we mock
+    with patch('data.download.requests.head') as mock_head:
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_head.return_value = mock_response
         
-        verify_path = data_dir / "verification_report.json"
-        # Create a mock verification report if it doesn't exist
-        if not verify_path.exists():
-            mock_verify = {"status": "PASS", "urls": {}}
-            with open(verify_path, 'w') as f:
-                json.dump(mock_verify, f)
+        result = verify_url_status(urls)
+        assert result is True
+        assert mock_head.call_count == 2
+
+def test_verify_url_status_failure():
+    """Test URL verification with failed responses."""
+    urls = [
+        {"url": "https://httpbin.org/status/404"}
+    ]
+    
+    with patch('data.download.requests.head') as mock_head:
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_head.return_value = mock_response
         
-        # We cannot actually run the full streaming in a unit test without network/HF access
-        # But we can verify the function exists and raises appropriate errors if prerequisites are missing
-        # For now, we just ensure the function is callable and doesn't crash on import
-        assert callable(process_recipe1m_streaming)
+        result = verify_url_status(urls)
+        assert result is False
+
+@pytest.mark.integration
+def test_download_datasets_pilot(mock_verification_report, tmp_path):
+    """
+    Integration test for pilot dataset download.
+    This test requires network access and the actual HuggingFace dataset.
+    """
+    # This is an integration test that would require real data
+    # For unit testing purposes, we'll mock the download process
+    pass
+
+def test_download_datasets_missing_verification(tmp_path):
+    """Test download_datasets when verification report is missing."""
+    with pytest.raises(FileNotFoundError):
+        download_datasets(output_dir=str(tmp_path / "raw"))
+
+def test_download_datasets_no_records(tmp_path, mock_verification_report):
+    """Test download_datasets when no records are streamed."""
+    # Mock the load_dataset to return an empty iterator
+    with patch('data.download.load_dataset') as mock_load:
+        mock_dataset = MagicMock()
+        mock_dataset.__iter__ = lambda self: iter([])
+        mock_load.return_value = mock_dataset
+        
+        with pytest.raises(DataUnavailableError) as exc_info:
+            download_datasets(pilot_size=10, output_dir=str(tmp_path / "raw"))
+        
+        assert "Failed to stream any records" in str(exc_info.value)

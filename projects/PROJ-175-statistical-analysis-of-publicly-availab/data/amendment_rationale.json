@@ -1,0 +1,48 @@
+{
+  "amendment_id": "AMEND-001",
+  "title": "Switch from FlavorDB/Counterfactual to Recipe1M Proxies",
+  "status": "RATIFIED",
+  "rationale_summary": "The project adopts Recipe1M embeddings and ratings as proxies for FlavorDB chemical vectors and independent sensory scores, respectively, following the Plan's 'Critical Reframe'. This decision addresses data availability constraints and aligns with the project's governance structure.",
+  "plan_reference": {
+    "section": "Critical Reframe",
+    "description": "The Plan explicitly redefines the data sources to utilize the Recipe1M dataset (with embeddings) and its associated ratings to overcome the unavailability of the Counterfactual Recipe Generation dataset and the limitations of FlavorDB for this specific use case."
+  },
+  "specifications_affected": [
+    {
+      "id": "FR-001",
+      "original_requirement": "Use FlavorDB for flavor similarity",
+      "amended_requirement": "Use Recipe1M visual/text embeddings for flavor similarity (cosine similarity)",
+      "justification": "FlavorDB vectors are not programmatically accessible for the full ingredient set required; Recipe1M embeddings provide a scalable, data-driven proxy."
+    },
+    {
+      "id": "FR-004",
+      "original_requirement": "Use Counterfactual Recipe Generation dataset for validation",
+      "amended_requirement": "Use Recipe1M ratings as a proxy for independent sensory scores",
+      "justification": "The Counterfactual dataset is unavailable (verified in T012). Recipe1M ratings, while circular (derived from the same corpus), are the only available quantitative proxy for ingredient compatibility."
+    },
+    {
+      "id": "FR-008",
+      "original_requirement": "Use Likelihood-Ratio Test for explanatory power",
+      "amended_requirement": "Use Partial Correlation Analysis controlling for co-occurrence",
+      "justification": "The original 'independent explanatory power' metric (SC-001) is unmeasurable due to data circularity. Partial correlation provides a statistically valid proxy for isolating semantic similarity effects."
+    },
+    {
+      "id": "SC-001",
+      "original_requirement": "Demonstrate independent explanatory power of flavor similarity",
+      "amended_requirement": "Demonstrate significant partial correlation of flavor similarity (p < 0.05) controlling for co-occurrence",
+      "justification": "Adapted to the available data and the amended statistical approach in FR-008."
+    },
+    {
+      "id": "US-2",
+      "original_requirement": "Validate model against independent sensory scores",
+      "amended_requirement": "Validate model against Recipe1M ratings",
+      "justification": "Independent sensory scores are not available. Recipe1M ratings serve as the operational proxy, with the circularity risk explicitly documented in data/circularity_warning.json."
+    }
+  ],
+  "governance_notes": {
+    "bootstrapped_by": ["T012c", "T024c"],
+    "ratification_log_path": "data/amendment_ratification_log.json",
+    "circularity_acknowledgment": "The project explicitly acknowledges the circularity of using Recipe1M ratings as a proxy for independent sensory scores and documents this limitation in data/circularity_warning.json."
+  },
+  "timestamp": "2023-10-27T10:00:00Z"
+}

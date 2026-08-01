@@ -1,13 +1,3 @@
-"""
-Power Analysis & Sample Size Determination (Task T008)
-
-Estimates required sample size to detect effect size >= 0.1 using statsmodels.
-Input: data/raw/marginal_counts.parquet (T013b) to estimate variance.
-Output: data/power_analysis.json with N_unified.
-
-DEFINITION FIX: If variance estimation fails or is unavailable, default N_unified
-to a conservative estimate (15000) sufficient for logistic regression stability.
-"""
 import os
 import sys
 import json
@@ -15,165 +5,135 @@ import math
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from statsmodels.stats.power import tt_ind_solve_power
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+try:
+    from statsmodels.stats.power import tt_ind_solve_power
+except ImportError:
+    print("ERROR: statsmodels is required for power analysis. Install via: pip install statsmodels")
+    sys.exit(1)
 
-from utils.memory_monitor import check_memory_limit
-
-def load_pilot_stats(input_path: str) -> dict:
+def load_pilot_stats(pilot_path: str) -> float:
     """
-    Load marginal counts and compute variance estimates for power analysis.
-    
-    Args:
-        input_path: Path to data/raw/marginal_counts.parquet
-        
-    Returns:
-        Dictionary with variance estimates and sample stats
+    Load pilot data variance from marginal_counts.parquet or similar.
+    Returns the variance estimate. If file is missing or empty, returns None.
     """
-    check_memory_limit(limit_mb=7168)
-    
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    if not os.path.exists(pilot_path):
+        return None
     
     try:
-        df = pd.read_parquet(input_path)
+        df = pd.read_parquet(pilot_path)
+        if df.empty:
+            return None
         
-        # Ensure we have the necessary columns
-        if 'frequency' not in df.columns:
-            # Try to infer from available columns
-            freq_col = [c for c in df.columns if 'freq' in c.lower() or 'count' in c.lower()]
-            if freq_col:
-                freq_col = freq_col[0]
-            else:
-                raise ValueError("No frequency or count column found in marginal_counts.parquet")
-        else:
-            freq_col = 'frequency'
+        # Look for a variance column or compute it from a numeric column
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        if len(numeric_cols) == 0:
+            return None
         
-        # Compute variance of frequencies
-        frequencies = df[freq_col].dropna()
+        # Use the first numeric column's variance (assuming it represents counts/frequencies)
+        var_col = numeric_cols[0]
+        variance = df[var_col].var()
         
-        if len(frequencies) == 0:
-            raise ValueError("No valid frequency data found")
+        if pd.isna(variance) or variance == 0:
+            return None
         
-        variance = frequencies.var()
-        mean_freq = frequencies.mean()
-        n_samples = len(frequencies)
-        
-        return {
-            'variance': variance,
-            'mean_frequency': mean_freq,
-            'n_samples': n_samples,
-            'std_dev': math.sqrt(variance)
-        }
+        return variance
     except Exception as e:
-        raise RuntimeError(f"Failed to load pilot stats: {str(e)}")
+        print(f"Warning: Could not load pilot stats from {pilot_path}: {e}")
+        return None
 
-def calculate_sample_size(variance: float, effect_size: float = 0.1, 
-                          power: float = 0.8, alpha: float = 0.05) -> int:
+def calculate_sample_size(variance: float, effect_size: float = 0.1, power: float = 0.8, alpha: float = 0.05) -> int:
     """
-    Calculate required sample size using t-test power analysis.
-    
-    Args:
-        variance: Variance estimate from pilot data
-        effect_size: Minimum effect size to detect (default 0.1)
-        power: Desired statistical power (default 0.8)
-        alpha: Significance level (default 0.05)
-        
-    Returns:
-        Required sample size per group
+    Calculate unified sample size N_unified using t-test power analysis.
+    Uses statsmodels.stats.power.tt_ind_solve_power.
     """
-    if variance <= 0:
-        raise ValueError("Variance must be positive")
-    
     # Standard deviation
     std_dev = math.sqrt(variance)
     
+    # Cohen's d calculation: effect_size = delta / std_dev
+    # We want to detect an effect of 'effect_size' units.
     # Cohen's d = effect_size / std_dev
-    # We want to detect an effect of 'effect_size' units
-    # So Cohen's d = effect_size / std_dev
-    cohens_d = effect_size / std_dev if std_dev > 0 else 0.1
+    cohens_d = effect_size / std_dev
     
-    # Prevent extremely small effect sizes that would require infinite samples
-    if abs(cohens_d) < 0.01:
-        cohens_d = 0.01
+    # If Cohen's d is too small (close to 0), sample size will be huge.
+    # Clamp to a reasonable minimum to avoid overflow, though this indicates a very hard effect to detect.
+    if cohens_d < 1e-6:
+        cohens_d = 1e-6
     
-    try:
-        # Solve for sample size
-        n_per_group = tt_ind_solve_power(
-            effect_size=abs(cohens_d),
-            alpha=alpha,
-            power=power,
-            ratio=1.0,  # Equal group sizes
-            alternative='two-sided'
-        )
-        
-        return int(math.ceil(n_per_group * 2))  # Total sample size
-    except Exception as e:
-        # If calculation fails, return conservative estimate
-        print(f"Warning: Power calculation failed ({e}), using conservative estimate")
-        return 15000
+    # Calculate sample size per group
+    n_per_group = tt_ind_solve_power(
+        effect_size=cohens_d,
+        alpha=alpha,
+        power=power,
+        ratio=1.0,  # equal group sizes
+        alternative='two-sided'
+    )
+    
+    # Total sample size
+    n_total = int(math.ceil(n_per_group * 2))
+    
+    return max(n_total, 100)  # Minimum 100 samples to ensure stability
 
 def main():
-    """Main entry point for power analysis task."""
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    input_path = project_root / "data" / "raw" / "marginal_counts.parquet"
-    output_path = project_root / "data" / "power_analysis.json"
+    """
+    Main entry point for T008: Power Analysis.
+    Reads pilot data variance, computes N_unified, and writes outputs.
+    Falls back to hardcoded variance if pilot data is missing/insufficient.
+    """
+    # Paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    pilot_path = project_root / "data" / "raw" / "pilot_data.parquet"
+    output_power_path = project_root / "data" / "power_analysis.json"
+    output_split_config_path = project_root / "data" / "split_config.json"
     
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_power_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Default parameters
-    effect_size = 0.1
-    power = 0.8
-    alpha = 0.05
-    n_unified = 15000  # Conservative default
+    variance = load_pilot_stats(str(pilot_path))
+    is_fallback = False
     
-    try:
-        # Load pilot statistics
-        print("Loading pilot statistics...")
-        stats = load_pilot_stats(str(input_path))
-        
-        # Calculate sample size
-        print("Calculating required sample size...")
-        n_unified = calculate_sample_size(
-            variance=stats['variance'],
-            effect_size=effect_size,
-            power=power,
-            alpha=alpha
-        )
-        
-        # Ensure minimum reasonable sample size
-        n_unified = max(n_unified, 1000)
-        
-        print(f"Calculated sample size: {n_unified}")
-        
-    except FileNotFoundError as e:
-        print(f"Warning: {e}")
-        print("Using conservative sample size estimate")
-    except Exception as e:
-        print(f"Warning: Power analysis failed ({e})")
-        print("Using conservative sample size estimate")
+    if variance is None:
+        print("Pilot data missing or insufficient. Using fallback variance estimate.")
+        variance = 1.0
+        is_fallback = True
     
-    # Prepare output
-    result = {
+    # Calculate sample size
+    n_unified = calculate_sample_size(variance)
+    
+    # Prepare output data
+    power_analysis_data = {
         "N_unified": n_unified,
-        "effect_size": effect_size,
-        "power": power,
-        "alpha": alpha,
-        "method": "tt_ind_solve_power",
-        "status": "COMPLETED" if n_unified != 15000 else "DEFAULTED",
-        "notes": "Conservative estimate used if variance unavailable"
+        "effect_size": 0.1,
+        "power": 0.8,
+        "alpha": 0.05,
+        "variance_used": variance,
+        "source": "pilot_data.parquet" if not is_fallback else "FALLBACK_CONSTANT",
+        "timestamp": pd.Timestamp.now().isoformat()
     }
     
-    # Write output
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
+    # Write power analysis JSON
+    with open(output_power_path, 'w') as f:
+        json.dump(power_analysis_data, f, indent=2)
+    print(f"Power analysis written to {output_power_path}")
     
-    print(f"Power analysis complete. Results written to {output_path}")
-    return result
+    # Prepare split config
+    # Use N_unified as the total sample size for the split
+    # Default 80/20 split
+    train_size = int(n_unified * 0.8)
+    test_size = n_unified - train_size
+    
+    split_config_data = {
+        "N_unified": n_unified,
+        "train_size": train_size,
+        "test_size": test_size,
+        "seed": 42,
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+    
+    # Write split config JSON
+    with open(output_split_config_path, 'w') as f:
+        json.dump(split_config_data, f, indent=2)
+    print(f"Split config written to {output_split_config_path}")
 
 if __name__ == "__main__":
     main()

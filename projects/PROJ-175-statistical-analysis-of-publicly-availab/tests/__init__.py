@@ -1,3 +1,1 @@
-"""
-Tests package for llmXive Statistical Analysis Project
-"""
+"""Initialization for the test package."""

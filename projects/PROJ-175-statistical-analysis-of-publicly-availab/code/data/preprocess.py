@@ -1,214 +1,347 @@
+"""
+Preprocessing pipeline for recipe data normalization and co-occurrence computation.
+Implements T014: Normalization using Levenshtein distance against Recipe1M ingredient list.
+"""
+
 import os
 import sys
 import json
 import re
 import gc
 import time
+import logging
 from pathlib import Path
+from datetime import datetime
+from typing import Dict, List, Tuple, Optional, Set
+
 import pandas as pd
 import numpy as np
-from collections import defaultdict
-from typing import List, Dict, Tuple, Set
-import itertools
 
-# Import shared utilities if they exist in the project structure
-try:
-    from utils.memory_monitor import check_memory_limit
-except ImportError:
-    # Fallback if utils is not in path during direct execution
-    pass
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/preprocessing.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 
-def log_event(message: str, level: str = "INFO"):
-    """Log a message to stdout and optionally to a log file."""
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] {level}: {message}")
-
+# Ensure directories exist
 def ensure_directories():
-    """Ensure required output directories exist."""
+    """Create necessary directories if they don't exist."""
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Directories ensured: {RAW_DIR}, {PROCESSED_DIR}")
+
+def log_event(event_type: str, details: Dict):
+    """Log an event to the preprocessing log."""
+    log_entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "event_type": event_type,
+        "details": details
+    }
+    logger.info(json.dumps(log_entry))
+
+def levenshtein_distance(s1: str, s2: str) -> int:
+    """Compute the Levenshtein distance between two strings."""
+    if len(s1) < len(s2):
+        return levenshtein_distance(s2, s1)
+
+    if len(s2) == 0:
+        return len(s1)
+
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+
+    return previous_row[-1]
+
+def normalize_ingredient_name(name: str, reference_list: List[str], max_distance: int = 2) -> Tuple[str, bool]:
+    """
+    Normalize an ingredient name against a reference list using Levenshtein distance.
+    
+    Args:
+        name: The ingredient name to normalize
+        reference_list: List of reference ingredient names from Recipe1M
+        max_distance: Maximum allowed Levenshtein distance (default 2)
+    
+    Returns:
+        Tuple of (normalized_name, was_normalized)
+    """
+    name_clean = name.lower().strip()
+    name_clean = re.sub(r'[^a-z0-9\s]', '', name_clean)
+    
+    if name_clean in reference_list:
+        return name_clean, False
+    
+    best_match = None
+    best_distance = float('inf')
+    
+    for ref in reference_list:
+        ref_clean = ref.lower().strip()
+        ref_clean = re.sub(r'[^a-z0-9\s]', '', ref_clean)
+        
+        dist = levenshtein_distance(name_clean, ref_clean)
+        
+        if dist < best_distance:
+            best_distance = dist
+            best_match = ref
+        
+        if best_distance <= max_distance:
+            break
+    
+    if best_distance <= max_distance:
+        return best_match, True
+    else:
+        return name, False
 
 def load_normalized_ingredients(input_path: str) -> pd.DataFrame:
-    """
-    Load the normalized ingredients dataset from T014.
-    Expected columns: 'recipe_id', 'ingredient_id', 'normalized_name', 'position'
-    """
+    """Load normalized ingredients from parquet file."""
     path = Path(input_path)
     if not path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    log_event(f"Loading normalized ingredients from {input_path}...")
-    # Try parquet first, fallback to csv if necessary
-    if path.suffix == '.parquet':
-        df = pd.read_parquet(path)
-    elif path.suffix == '.csv':
-        df = pd.read_csv(path)
-    else:
-        # Try to infer based on content
-        try:
-            df = pd.read_parquet(path)
-        except Exception:
-            df = pd.read_csv(path)
-    
-    log_event(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
-    
-    # Validate required columns
-    required_cols = ['recipe_id', 'ingredient_id']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}. Found: {list(df.columns)}")
-    
+    logger.info(f"Loading normalized ingredients from {input_path}")
+    df = pd.read_parquet(path)
+    logger.info(f"Loaded {len(df)} rows")
     return df
 
-def compute_pairwise_cooccurrence(df: pd.DataFrame, min_support: int = 2) -> pd.DataFrame:
+def compute_pairwise_cooccurrence(ingredients_df: pd.DataFrame, output_path: str):
     """
-    Compute pairwise co-occurrence counts from normalized ingredient data.
-    
-    Logic:
-    1. Group by recipe_id.
-    2. For each recipe, generate all unique pairs of ingredients (combinations).
-    3. Aggregate counts across all recipes.
-    4. Filter by minimum support (optional).
+    Compute pairwise co-occurrence matrix from normalized ingredients.
     
     Args:
-        df: DataFrame with 'recipe_id' and 'ingredient_id'.
-        min_support: Minimum number of recipes an ingredient pair must appear in.
-        
-    Returns:
-        DataFrame with columns: 'ingredient_id_1', 'ingredient_id_2', 'co_occurrence_count'.
+        ingredients_df: DataFrame with recipe-ingredient pairs
+        output_path: Path to save the co-occurrence matrix
     """
-    log_event("Computing pairwise co-occurrence counts...")
+    logger.info("Computing pairwise co-occurrence matrix...")
     
-    # Ensure deterministic ordering of ingredients within a recipe to avoid (A,B) and (B,A) duplicates
-    # We sort ingredient_ids alphabetically/numerically within each recipe
-    df_sorted = df.sort_values(['recipe_id', 'ingredient_id'])
+    # Group by recipe_id and count ingredient pairs
+    recipe_ingredients = ingredients_df.groupby('recipe_id')['ingredient_name'].apply(list)
     
-    # Group by recipe and generate pairs
-    pair_counts = defaultdict(int)
+    co_occurrence_counts = {}
+    total_pairs = 0
     
-    # Process in chunks to manage memory if dataset is large
-    # But for co-occurrence, we often need to iterate recipes.
-    # If memory is tight, we can iterate groups one by one.
-    
-    log_event("Iterating recipes to generate pairs...")
-    start_time = time.time()
-    
-    # Check memory before processing
-    try:
-        check_memory_limit(7168) # 7GB limit
-    except NameError:
-        pass # Skip if function not available
-    
-    recipe_groups = df_sorted.groupby('recipe_id')
-    total_recipes = len(recipe_groups)
-    
-    processed_recipes = 0
-    for recipe_id, group in recipe_groups:
-        # Get unique ingredients for this recipe
-        ingredients = group['ingredient_id'].unique()
-        
-        if len(ingredients) < 2:
-            continue
-        
-        # Generate all unique pairs (combinations)
-        # Sort to ensure (A, B) is same as (B, A) and we count once
-        sorted_ingredients = sorted(ingredients)
-        
-        for pair in itertools.combinations(sorted_ingredients, 2):
-            pair_key = (pair[0], pair[1])
-            pair_counts[pair_key] += 1
-        
-        processed_recipes += 1
-        if processed_recipes % 10000 == 0:
-            elapsed = time.time() - start_time
-            log_event(f"Processed {processed_recipes}/{total_recipes} recipes...")
-            # Check memory periodically
-            try:
-                check_memory_limit(7168)
-            except NameError:
-                pass
-
-    log_event(f"Finished iterating {processed_recipes} recipes in {time.time() - start_time:.2f}s")
+    for ingredients in recipe_ingredients:
+        unique_ingredients = list(set(ingredients))
+        for i in range(len(unique_ingredients)):
+            for j in range(i + 1, len(unique_ingredients)):
+                pair = tuple(sorted([unique_ingredients[i], unique_ingredients[j]]))
+                co_occurrence_counts[pair] = co_occurrence_counts.get(pair, 0) + 1
+                total_pairs += 1
     
     # Convert to DataFrame
-    result_data = [
-        {'ingredient_id_1': k[0], 'ingredient_id_2': k[1], 'co_occurrence_count': v}
-        for k, v in pair_counts.items()
+    co_occurrence_data = [
+        {
+            'ingredient_1': pair[0],
+            'ingredient_2': pair[1],
+            'co_occurrence_count': count
+        }
+        for pair, count in co_occurrence_counts.items()
     ]
     
-    result_df = pd.DataFrame(result_data)
+    co_occurrence_df = pd.DataFrame(co_occurrence_data)
+    logger.info(f"Computed {len(co_occurrence_df)} unique ingredient pairs")
     
-    if result_df.empty:
-        log_event("WARNING: No co-occurrence pairs found!", "WARNING")
-        # Create empty dataframe with correct schema
-        result_df = pd.DataFrame(columns=['ingredient_id_1', 'ingredient_id_2', 'co_occurrence_count'])
-        result_df = result_df.astype({'ingredient_id_1': 'str', 'ingredient_id_2': 'str', 'co_occurrence_count': 'int64'})
+    # Save to parquet
+    co_occurrence_df.to_parquet(output_path, index=False)
+    logger.info(f"Saved co-occurrence matrix to {output_path}")
+    
+    # Log statistics
+    stats = {
+        'total_pairs': total_pairs,
+        'unique_pairs': len(co_occurrence_df),
+        'timestamp': datetime.utcnow().isoformat()
+    }
+    log_event('co_occurrence_computed', stats)
+
+def load_reference_ingredients() -> List[str]:
+    """Load reference ingredient list from Recipe1M dataset."""
+    # Try to load from pilot data or full data
+    pilot_path = RAW_DIR / "pilot_data.parquet"
+    full_path = RAW_DIR / "recipe1m_full.parquet"
+    
+    reference_list = []
+    
+    if pilot_path.exists():
+        logger.info("Loading reference ingredients from pilot data...")
+        df = pd.read_parquet(pilot_path)
+        if 'ingredient' in df.columns:
+            reference_list = df['ingredient'].unique().tolist()
+        elif 'ingredients' in df.columns:
+            # Handle list of ingredients
+            all_ingredients = []
+            for ingredients in df['ingredients']:
+                if isinstance(ingredients, list):
+                    all_ingredients.extend(ingredients)
+            reference_list = list(set(all_ingredients))
+    elif full_path.exists():
+        logger.info("Loading reference ingredients from full data...")
+        df = pd.read_parquet(full_path)
+        if 'ingredient' in df.columns:
+            reference_list = df['ingredient'].unique().tolist()
+        elif 'ingredients' in df.columns:
+            all_ingredients = []
+            for ingredients in df['ingredients']:
+                if isinstance(ingredients, list):
+                    all_ingredients.extend(ingredients)
+            reference_list = list(set(all_ingredients))
     else:
-        # Filter by min_support
-        if min_support > 0:
-            initial_count = len(result_df)
-            result_df = result_df[result_df['co_occurrence_count'] >= min_support]
-            log_event(f"Filtered pairs by min_support={min_support}: {initial_count} -> {len(result_df)}")
-        
-        # Sort for consistency
-        result_df = result_df.sort_values(['ingredient_id_1', 'ingredient_id_2']).reset_index(drop=True)
+        raise FileNotFoundError("No Recipe1M data found. Run download.py first.")
     
-    return result_df
+    logger.info(f"Loaded {len(reference_list)} reference ingredients")
+    return reference_list
 
 def save_output(df: pd.DataFrame, output_path: str):
-    """Save the co-occurrence dataframe to parquet."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    log_event(f"Saving co-occurrence counts to {output_path}...")
+    """Save DataFrame to parquet file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(output_path, index=False)
-    log_event(f"Saved {len(df)} rows to {output_path}")
+    logger.info(f"Saved output to {output_path}")
 
 def main():
-    """
-    Main entry point for T013c: Compute Pairwise Co-occurrence.
+    """Main preprocessing pipeline for T014 normalization."""
+    logger.info("Starting T014 preprocessing pipeline...")
+    start_time = time.time()
     
-    Usage:
-        python code/data/preprocess.py --input data/processed/normalized_ingredients.parquet --output data/raw/co_occurrence_counts.parquet
-    """
-    import argparse
+    ensure_directories()
     
-    parser = argparse.ArgumentParser(description="Compute pairwise co-occurrence counts.")
-    parser.add_argument("--input", type=str, default=str(PROCESSED_DIR / "normalized_ingredients.parquet"),
-                        help="Path to input normalized ingredients file.")
-    parser.add_argument("--output", type=str, default=str(RAW_DIR / "co_occurrence_counts.parquet"),
-                        help="Path to output co-occurrence counts file.")
-    parser.add_argument("--min-support", type=int, default=2,
-                        help="Minimum number of recipes for a pair to be included.")
-    
-    args = parser.parse_args()
-    
+    # Load reference ingredients
     try:
-        ensure_directories()
+        reference_list = load_reference_ingredients()
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load reference ingredients: {e}")
+        sys.exit(1)
+    
+    # Load raw ingredient data (from T013a_full or T013b)
+    input_path = RAW_DIR / "recipe1m_full.parquet"
+    if not input_path.exists():
+        input_path = RAW_DIR / "pilot_data.parquet"
+    
+    if not input_path.exists():
+        logger.error("No input data found. Run download.py first.")
+        sys.exit(1)
+    
+    logger.info(f"Loading input data from {input_path}")
+    raw_df = pd.read_parquet(input_path)
+    
+    # Determine column name for ingredients
+    ingredient_col = None
+    for col in ['ingredient', 'ingredients', 'ingredient_name', 'ingredient_list']:
+        if col in raw_df.columns:
+            ingredient_col = col
+            break
+    
+    if ingredient_col is None:
+        logger.error("Could not find ingredient column in input data")
+        sys.exit(1)
+    
+    logger.info(f"Using column '{ingredient_col}' for ingredients")
+    
+    # Extract and normalize ingredients
+    normalized_ingredients = []
+    excluded_count = 0
+    normalized_count = 0
+    
+    # Process in chunks to manage memory
+    chunk_size = 10000
+    for start_idx in range(0, len(raw_df), chunk_size):
+        end_idx = min(start_idx + chunk_size, len(raw_df))
+        chunk = raw_df.iloc[start_idx:end_idx]
         
-        # Load data
-        df = load_normalized_ingredients(args.input)
+        for _, row in chunk.iterrows():
+            recipe_id = row['recipe_id'] if 'recipe_id' in row else start_idx
+            
+            ingredients = row[ingredient_col]
+            if isinstance(ingredients, str):
+                ingredients = [ingredients]
+            elif not isinstance(ingredients, list):
+                ingredients = []
+            
+            for ingredient in ingredients:
+                if not isinstance(ingredient, str):
+                    continue
+                
+                normalized_name, was_normalized = normalize_ingredient_name(
+                    ingredient, reference_list, max_distance=2
+                )
+                
+                if was_normalized:
+                    normalized_count += 1
+                else:
+                    # Check if it's a valid ingredient (not excluded)
+                    if normalized_name.lower().strip() not in ['', 'nan', 'none']:
+                        normalized_count += 1
+                    else:
+                        excluded_count += 1
+                
+                normalized_ingredients.append({
+                    'recipe_id': recipe_id,
+                    'original_name': ingredient,
+                    'normalized_name': normalized_name,
+                    'was_normalized': was_normalized
+                })
         
-        # Compute co-occurrence
-        co_occurrence_df = compute_pairwise_cooccurrence(df, min_support=args.min_support)
-        
-        # Save output
-        save_output(co_occurrence_df, args.output)
-        
-        log_event("T013c completed successfully.")
-        return 0
-        
-    except Exception as e:
-        log_event(f"ERROR: {str(e)}", "ERROR")
-        import traceback
-        traceback.print_exc()
-        return 1
+        # Free memory
+        if (end_idx // chunk_size) % 5 == 0:
+            gc.collect()
+    
+    # Create DataFrame
+    normalized_df = pd.DataFrame(normalized_ingredients)
+    
+    # Save normalized ingredients
+    output_path = PROCESSED_DIR / "normalized_ingredients.parquet"
+    save_output(normalized_df, str(output_path))
+    
+    # Create unique ingredients list
+    unique_ingredients = normalized_df['normalized_name'].unique()
+    unique_df = pd.DataFrame({'ingredient_name': unique_ingredients})
+    unique_output_path = PROCESSED_DIR / "unique_ingredients.parquet"
+    save_output(unique_df, str(unique_output_path))
+    
+    # Compute co-occurrence matrix
+    co_occurrence_path = PROCESSED_DIR / "co_occurrence_matrix.parquet"
+    compute_pairwise_cooccurrence(normalized_df, str(co_occurrence_path))
+    
+    # Generate normalization report
+    report = {
+        "normalized_count": normalized_count,
+        "excluded_count": excluded_count,
+        "total_ingredients_processed": len(normalized_ingredients),
+        "unique_ingredients": len(unique_ingredients),
+        "reference_list_size": len(reference_list),
+        "max_levenshtein_distance": 2,
+        "timestamp": datetime.utcnow().isoformat(),
+        "status": "SUCCESS" if normalized_count > 0 else "NO_DATA",
+        "deviation_note": "Uses Recipe1M ingredient list instead of FlavorDB per Plan Critical Reframe"
+    }
+    
+    report_path = DATA_DIR / "normalization_report.json"
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    log_event('normalization_complete', report)
+    
+    elapsed_time = time.time() - start_time
+    logger.info(f"T014 preprocessing completed in {elapsed_time:.2f} seconds")
+    logger.info(f"Normalized {normalized_count} ingredients, excluded {excluded_count}")
+    logger.info(f"Output files: {output_path}, {unique_output_path}, {co_occurrence_path}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

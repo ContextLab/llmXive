@@ -373,3 +373,633 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T03:19:15Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory limit check threshold set to 7168 MB
+  claim_id: c_bebcece6
+  context: 'Deliverable: Create code/utils/memory_monitor.py to enforce a predefined
+    RAM limit. Deliverable: Create check_limit(limit_mb=7168) function that raises
+    MemoryError if exceeded...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The check_limit function raises a MemoryError if RAM exceeds 7168 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:32:36Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Dynamic downsampling triggered at 80% RAM limit
+  claim_id: c_17e571c0
+  context: 'Constraint: If RAM > 80% limit, trigger dynamic downsampling logic. (US-1
+    Edge Cases)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If RAM usage exceeds 80% of the limit, dynamic downsampling logic is triggered.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:32:36Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: effect size 0.1, power 0.8'
+  claim_id: c_097e47ee
+  context: "Using variance from pilot data (T013b), compute unified sample size N_unified\
+    \ for effect size \u2265 0.1, power 0.8."
+  evidence:
+    candidates:
+    - - ''
+      - 0.8
+    - - ''
+      - 0.1
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_parameters:_effect_size_0.1,_power_0.8
+  kind: magnitude
+  raw_text: The power analysis computes a unified sample size for an effect size of
+    at least 0.1 with a power of 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-01T18:33:32Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Fallback variance estimate set to 1.0
+  claim_id: c_42f9ad1d
+  context: 'Action: If T013b fails or yields insufficient data, USE a hardcoded variance
+    estimate of 1.0...'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: A hardcoded variance estimate of 1.0 is used as a fallback if pilot data
+    fails.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T18:33:32Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Levenshtein distance threshold for normalization set to 2
+  claim_id: c_166d9e80
+  context: "Implement code/data/preprocess.py step 1\u20112: normalize ingredient\
+    \ names using Levenshtein distance \u2264 2 against the Recipe1M ingredient list..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ingredient names are normalized using Levenshtein distance with a threshold
+    of 2 or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:33:48Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Functional role independence threshold set to 0.1
+  claim_id: c_f9671905
+  context: 'Verification: Log correlation between derived role and co-occurrence frequency;
+    must be < 0.1.'
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline halts if the correlation between the derived functional role
+    and co-occurrence frequency exceeds 0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T18:33:48Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Data leakage audit threshold set to 0.5 mutual information
+  claim_id: c_ac6ab039
+  context: Quantify mutual information between predictors and outcome; raise CircularityError
+    if MI > 0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A CircularityError is raised if the mutual information between predictors
+    and outcome exceeds 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:34:09Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Bayesian convergence R-hat threshold set to 1.01
+  claim_id: c_6b3f1c42
+  context: "Verification: Verify R\u0302 <= 1.01 in output log. Fail if R\u0302 >\
+    \ 1.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian model fit fails if the R-hat statistic exceeds 1.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:34:32Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Calibration verification max deviation threshold set to 0.1
+  claim_id: c_1ac87807
+  context: Bin predicted probabilities, compare to observed frequencies; fail if max
+    deviation > 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The calibration verification fails if the maximum deviation between predicted
+    probabilities and observed frequencies exceeds 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:35:53Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime validation threshold set to 6 hours
+  claim_id: c_9e773887
+  context: "Run code/validate_runtime.py to ensure full pipeline \u2264 6 h..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline runtime validation requires completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:36:11Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: sample size calculation for effect size 0.1 and power 0.8
+  claim_id: c_3dd78917
+  context: "Using variance from pilot data (T013b), compute unified sample size N_unified\
+    \ for effect size \u2265 0.1, power 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute unified sample size N_unified for effect size \u2265 0.1, power\
+    \ 0.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:39:22Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: RAM limit set to 7168 MB
+  claim_id: c_e1fe1c6d
+  context: 'Setup memory profiling utility in code/utils/memory_monitor.py to enforce
+    a predefined RAM limit. Deliverable: Create check_limit(limit_mb=7168) function
+    that raises MemoryError if exceeded.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a check_limit(limit_mb=7168) function that raises MemoryError if
+    exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:39:40Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: dynamic downsampling triggered at 80% RAM usage
+  claim_id: c_61c3af32
+  context: 'Constraint: If RAM > 80% limit, trigger dynamic downsampling logic. (US-1
+    Edge Cases)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If RAM > 80% limit, trigger dynamic downsampling logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:39:40Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: data leakage threshold set to mutual information 0.5
+  claim_id: c_3f6fcd1a
+  context: Quantify mutual information between predictors and outcome; raise CircularityError
+    if MI > 0.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise CircularityError if mutual information (MI) between predictors and
+    outcome is > 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:39:40Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Bayesian convergence criterion R-hat <= 1.01
+  claim_id: c_c537af51
+  context: "Verification: Verify R\u0302 <= 1.01 in output log. Fail if R\u0302 >\
+    \ 1.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify R-hat <= 1.01 in output log for Bayesian model fit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:40:05Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: calibration deviation threshold set to 0.1
+  claim_id: c_a7f7de75
+  context: Bin predicted probabilities, compare to observed frequencies; fail if max
+    deviation > 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail calibration if max deviation between binned probabilities and observed
+    frequencies is > 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:40:05Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: correlation between functional role and co-occurrence must be less than
+    0.1
+  claim_id: c_38135e2b
+  context: 'Verification: Log correlation between derived role and co-occurrence frequency;
+    must be < 0.1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_functional_role_and_co-occurrence_must_b
+  kind: magnitude
+  raw_text: Log correlation between derived role and co-occurrence frequency; must
+    be < 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:40:40Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: partial correlation of flavor similarity and functional role controlling
+    for co-occurrence
+  claim_id: c_11723039
+  context: Compute partial correlation of flavor similarity and functional role controlling
+    for co-occurrence.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Partial_correlation_of_flavor_similarity_and_functional_role
+  kind: entity_fact
+  raw_text: Compute partial correlation of flavor similarity and functional role controlling
+    for co-occurrence.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:41:04Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: success metric defined as partial correlation p-value less than 0.05
+  claim_id: c_8b35bff8
+  context: Create data/amended_success_criterion.json defining the project's success
+    metric as Partial Correlation P-Value < 0.05 (replacing SC-001).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_metric_defined_as_partial_correlation_p-value_less_t
+  kind: magnitude
+  raw_text: Define success metric as Partial Correlation P-Value < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:41:37Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: ingredient normalization using Levenshtein distance 2
+  claim_id: c_414d7f6f
+  context: "Implement code/data/preprocess.py step 1-2: normalize ingredient names\
+    \ using Levenshtein distance \u2264 2 against the Recipe1M ingredient list."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Normalize ingredient names using Levenshtein distance \u2264 2 against\
+    \ the Recipe1M ingredient list."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:41:37Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: functional role discretized into tertiles using pandas.qcut
+  claim_id: c_ca3ae23a
+  context: Use pandas.qcut with duplicates='drop' to create tertiles (or quantile
+    fallback if < 3 unique values).
+  evidence:
+    entailment_evidence: Functional role discretized into tertiles using pandas.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Functional_role_discretized_into_tertiles_using_pandas.qcut
+  kind: entity_fact
+  raw_text: Use pandas.qcut with duplicates='drop' to create tertiles for functional
+    role discretization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-01T18:41:58Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: multicollinearity resolution if VIF exceeds 5
+  claim_id: c_6cd326ad
+  context: If VIF > 5 for any predictor (esp. functional role), attempt orthogonalization;
+    if still > 5, drop predictor as last resort.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5 for any predictor, attempt orthogonalization or drop predictor.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:41:58Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: reproducibility audit required for final sign-off
+  claim_id: c_78760568
+  context: Run reproducibility audit (T059); if PASS, update docs/research.md with
+    Final Sign-off.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_audit_required_for_final_sign-off
+  kind: entity_fact
+  raw_text: Run reproducibility audit; if PASS, update docs/research.md with Final
+    Sign-off.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:42:22Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: pipeline execution time limit of 6 hours
+  claim_id: c_66905660
+  context: "Run code/validate_runtime.py to ensure full pipeline \u2264 6 h; generate\
+    \ data/ci_validation_report.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure full pipeline execution time is \u2264 6 h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:42:22Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Recipe1M dataset name recipe1m-full split train
+  claim_id: c_21e37f73
+  context: 'Implement code/data/download.py to stream Recipe1M (with embeddings) and
+    Ratings. Action: Step 1: Verify dataset_name=''recipe1m-full'' against the verified
+    sources list in plan.md. Step 2: Use datasets.load_dataset(..., streaming=True)
+    with split=''train''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Recipe1M_dataset_name_recipe1m-full_split_train
+  kind: entity_fact
+  raw_text: Use dataset_name='recipe1m-full' and split='train' for Recipe1M data download.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:42:48Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: peak RAM limit of 7 GB for streaming processing
+  claim_id: c_5ec383cd
+  context: Implement streaming for Recipe1M and chunked processing in code/data/download.py
+    and code/data/preprocess.py to keep peak RAM < 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement streaming for Recipe1M and chunked processing to keep peak RAM
+    < 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:43:01Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Power analysis computes unified sample size for effect size 0.1 and power
+    0.8
+  claim_id: c_2859e95d
+  context: "Using variance from pilot data (T013b), compute unified sample size N_unified\
+    \ for effect size \u2265 0.1, power 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis computes a unified sample size N_unified for an effect\
+    \ size \u2265 0.1 and power 0.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:46:04Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory profiling utility enforces 7168 MB RAM limit
+  claim_id: c_d0d27f2d
+  context: 'Create check_limit(limit_mb=7168) function that raises MemoryError if
+    exceeded... Constraint: If RAM > 80% limit, trigger dynamic downsampling logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory profiling utility enforces a predefined RAM limit of 7168 MB
+    (7 GB).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:46:28Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Data leakage audit raises error if mutual information exceeds 0.5
+  claim_id: c_8817f4f8
+  context: Quantify mutual information between predictors and outcome; raise CircularityError
+    if MI > 0.5.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_leakage_audit_raises_error_if_mutual_information_exceed
+  kind: magnitude
+  raw_text: The data leakage audit raises a CircularityError if mutual information
+    (MI) between predictors and outcome is greater than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:47:14Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Bayesian model fit fails if R-hat exceeds 1.01
+  claim_id: c_f9cec199
+  context: "Verify R\u0302 <= 1.01 in output log. Fail if R\u0302 > 1.01."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_model_fit_fails_if_R-hat_exceeds_1.01
+  kind: magnitude
+  raw_text: "The Bayesian model fit fails if the R-hat (R\u0302) convergence metric\
+    \ is greater than 1.01."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:48:06Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Functional role derivation requires correlation with co-occurrence frequency
+    less than 0.1
+  claim_id: c_069c47d7
+  context: 'Verification: Log correlation between derived role and co-occurrence frequency;
+    must be < 0.1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Functional_role_derivation_requires_correlation_with_co-occu
+  kind: magnitude
+  raw_text: The functional role derivation requires the correlation between the derived
+    role and co-occurrence frequency to be less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:49:07Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Calibration verification fails if max deviation exceeds 0.1
+  claim_id: c_ab5ce85e
+  context: Bin predicted probabilities, compare to observed frequencies; fail if max
+    deviation > 0.1.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_verification_fails_if_max_deviation_exceeds_0.1
+  kind: magnitude
+  raw_text: Calibration verification fails if the maximum deviation between binned
+    predicted probabilities and observed frequencies is greater than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:50:33Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime limit is 6 hours
+  claim_id: c_6c5ac8c4
+  context: "Run code/validate_runtime.py to ensure full pipeline \u2264 6 h; generate\
+    \ data/ci_validation_report.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project enforces a total pipeline runtime limit of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:50:54Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Ingredient normalization uses Levenshtein distance threshold of 2
+  claim_id: c_eba331bf
+  context: "normalize ingredient names using Levenshtein distance \u2264 2 against\
+    \ the Recipe1M ingredient list."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ingredient names are normalized using Levenshtein distance with a threshold\
+    \ of \u2264 2 against the Recipe1M ingredient list."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:50:55Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Multicollinearity resolution drops predictors if VIF exceeds 5
+  claim_id: c_93876350
+  context: If VIF > 5 for any predictor (esp. functional role), attempt orthogonalization;
+    if still > 5, drop predictor as last resort.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Multicollinearity_resolution_drops_predictors_if_VIF_exceeds
+  kind: magnitude
+  raw_text: The multicollinearity resolution drops predictors if the Variance Inflation
+    Factor (VIF) is greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T18:51:28Z'

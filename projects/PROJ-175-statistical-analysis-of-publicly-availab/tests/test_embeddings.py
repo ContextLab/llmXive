@@ -1,133 +1,128 @@
 """
-Tests for T013d: Fetch Recipe1M Embeddings.
+Tests for T014c: Embeddings fetching functionality.
 """
+import os
+import sys
+import json
+import tempfile
+from pathlib import Path
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import json
-import os
-import sys
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.data.embeddings import load_unique_ingredients, fetch_embeddings_streaming, save_output, ensure_directories, LOG_FILE, OUTPUT_FILE, INPUT_FILE
+from code.data.embeddings import (
+    ensure_directories,
+    load_ingredient_list,
+    aggregate_embeddings,
+    save_embeddings
+)
 
 @pytest.fixture
-def mock_unique_ingredients(tmp_path):
-    """Create a mock unique_ingredients.parquet file."""
-    input_path = tmp_path / "unique_ingredients.parquet"
-    df = pd.DataFrame({
-        "ingredient_id": ["salt", "sugar", "flour", "butter", "egg"],
-        "count": [100, 90, 80, 70, 60]
-    })
-    df.to_parquet(input_path)
-    # Temporarily override INPUT_FILE for testing
-    original_path = INPUT_FILE
-    # We cannot easily override the global in the module without importlib reload
-    # So we will test the logic by passing data directly or mocking the file system
-    return input_path, df
+def temp_dirs():
+    """Create temporary directories for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        processed_dir = tmp_path / "data" / "processed"
+        raw_dir = tmp_path / "data" / "raw"
+        processed_dir.mkdir(parents=True, exist_ok=True)
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        yield tmp_path
+        # Cleanup handled by TemporaryDirectory
 
-def test_ensure_directories(tmp_path):
-    """Test that ensure_directories creates the folder."""
-    test_dir = tmp_path / "test_output"
-    # Patch the OUTPUT_DIR constant in the module
-    import code.data.embeddings as emb_module
-    original_output_dir = emb_module.OUTPUT_DIR
-    emb_module.OUTPUT_DIR = test_dir
-    
+def test_ensure_directories(temp_dirs):
+    """Test that ensure_directories creates the necessary folders."""
+    # Change to temp dir context
+    original_cwd = os.getcwd()
     try:
+        os.chdir(temp_dirs)
+        # Mock the PROJECT_ROOT behavior
+        import code.data.embeddings as emb_module
+        emb_module.PROCESSED_DIR = temp_dirs / "data" / "processed"
+        emb_module.RAW_DIR = temp_dirs / "data" / "raw"
+        
         emb_module.ensure_directories()
-        assert test_dir.exists()
+        
+        assert emb_module.PROCESSED_DIR.exists()
+        assert emb_module.RAW_DIR.exists()
     finally:
-        emb_module.OUTPUT_DIR = original_output_dir
+        os.chdir(original_cwd)
 
-def test_load_unique_ingredients_missing_file():
-    """Test that load_unique_ingredients raises if file missing."""
-    # Ensure the file doesn't exist
-    if INPUT_FILE.exists():
-        INPUT_FILE.unlink()
+def test_aggregate_embeddings():
+    """Test embedding aggregation logic."""
+    # Create mock embedding data
+    ingredient_embeddings = {
+        'ingredient_a': [np.array([1.0, 2.0, 3.0]), np.array([2.0, 3.0, 4.0])],
+        'ingredient_b': [np.array([0.5, 1.5, 2.5])]
+    }
+    ingredient_counts = {
+        'ingredient_a': 2,
+        'ingredient_b': 1
+    }
     
-    with pytest.raises(FileNotFoundError):
-        load_unique_ingredients()
+    aggregated, stats = aggregate_embeddings(ingredient_embeddings, ingredient_counts)
+    
+    # Check aggregation results
+    assert 'ingredient_a' in aggregated
+    assert 'ingredient_b' in aggregated
+    
+    # Check mean calculation for ingredient_a
+    expected_mean_a = np.mean([np.array([1.0, 2.0, 3.0]), np.array([2.0, 3.0, 4.0])], axis=0)
+    actual_mean_a = np.array(aggregated['ingredient_a']['embedding'])
+    np.testing.assert_array_almost_equal(actual_mean_a, expected_mean_a)
+    
+    # Check count
+    assert aggregated['ingredient_a']['count'] == 2
+    assert aggregated['ingredient_b']['count'] == 1
 
-# Note: Actual streaming test requires a real dataset or a mock of the dataset iterator
-# We test the structure of the expected output if we had a mock
-def test_fetch_embeddings_streaming_structure():
-    """
-    Test the logic of fetch_embeddings_streaming with a mock dataset iterator.
-    This avoids hitting the network during unit tests.
-    """
-    # Mock ingredients
-    ingredients = ["salt", "sugar"]
+def test_save_embeddings(temp_dirs):
+    """Test saving embeddings to parquet."""
+    # Create mock aggregated data
+    aggregated = {
+        'ingredient_a': {
+            'embedding': [1.0, 2.0, 3.0],
+            'std': [0.1, 0.1, 0.1],
+            'count': 10
+        },
+        'ingredient_b': {
+            'embedding': [4.0, 5.0, 6.0],
+            'std': [0.2, 0.2, 0.2],
+            'count': 5
+        }
+    }
+    stats = [
+        {'ingredient_id': 'ingredient_a', 'embedding_count': 10, 'mean_norm': 3.74},
+        {'ingredient_id': 'ingredient_b', 'embedding_count': 5, 'mean_norm': 8.77}
+    ]
     
-    # Mock dataset iterator
-    class MockDataset:
-        def __iter__(self):
-            return iter([
-                {"ingredient": "salt", "embedding": [0.1, 0.2, 0.3]},
-                {"ingredient": "sugar", "embedding": [0.4, 0.5, 0.6]},
-                {"ingredient": "flour", "embedding": [0.7, 0.8, 0.9]}, # Not in list
-            ])
-    
-    # We need to patch load_dataset
+    # Set output path
     import code.data.embeddings as emb_module
-    original_load = emb_module.load_dataset
+    emb_module.PROCESSED_DIR = temp_dirs / "data" / "processed"
+    emb_module.EMBEDDINGS_OUTPUT = emb_module.PROCESSED_DIR / "test_embeddings.parquet"
     
-    def mock_load(*args, **kwargs):
-        return MockDataset()
+    df = save_embeddings(aggregated, stats)
     
-    emb_module.load_dataset = mock_load
+    # Verify file exists
+    assert emb_module.EMBEDDINGS_OUTPUT.exists()
     
-    try:
-        df = fetch_embeddings_streaming(ingredients)
-        assert len(df) == 2
-        assert "salt" in df["ingredient_id"].values
-        assert "sugar" in df["ingredient_id"].values
-        assert "embedding" in df.columns
-        assert isinstance(df.iloc[0]["embedding"], list)
-    finally:
-        emb_module.load_dataset = original_load
+    # Verify content
+    df_loaded = pd.read_parquet(emb_module.EMBEDDINGS_OUTPUT)
+    assert len(df_loaded) == 2
+    assert 'ingredient_id' in df_loaded.columns
+    assert 'embedding' in df_loaded.columns
+    assert 'embedding_count' in df_loaded.columns
+    
+    # Verify data integrity
+    assert 'ingredient_a' in df_loaded['ingredient_id'].values
+    assert 'ingredient_b' in df_loaded['ingredient_id'].values
 
-def test_save_output(tmp_path):
-    """Test saving output to parquet."""
-    test_dir = tmp_path / "test_save"
-    test_dir.mkdir()
-    test_file = test_dir / "test_embeddings.parquet"
-    
+def test_load_ingredient_list_missing_files(temp_dirs):
+    """Test error handling when source files are missing."""
     import code.data.embeddings as emb_module
-    original_output_dir = emb_module.OUTPUT_DIR
-    original_output_file = emb_module.OUTPUT_FILE
-    emb_module.OUTPUT_DIR = test_dir
-    emb_module.OUTPUT_FILE = test_file
+    emb_module.PROCESSED_DIR = temp_dirs / "data" / "processed"
+    emb_module.RAW_DIR = temp_dirs / "data" / "raw"
     
-    try:
-        df = pd.DataFrame({
-            "ingredient_id": ["test"],
-            "embedding": [[1.0, 2.0]],
-            "source": "mock"
-        })
-        save_output(df)
-        assert test_file.exists()
-        loaded = pd.read_parquet(test_file)
-        assert len(loaded) == 1
-    finally:
-        emb_module.OUTPUT_DIR = original_output_dir
-        emb_module.OUTPUT_FILE = original_output_file
-
-def test_log_results(tmp_path):
-    """Test logging results."""
-    import code.data.embeddings as emb_module
-    original_log_file = emb_module.LOG_FILE
-    emb_module.LOG_FILE = tmp_path / "test_log.json"
-    
-    try:
-        emb_module.log_results(100, 50, "SUCCESS")
-        assert emb_module.LOG_FILE.exists()
-        with open(emb_module.LOG_FILE, 'r') as f:
-            data = json.load(f)
-        assert data["status"] == "SUCCESS"
-        assert data["coverage_rate"] == 0.5
-    finally:
-        emb_module.LOG_FILE = original_log_file
+    with pytest.raises(FileNotFoundError, match="Neither.*nor.*found"):
+        load_ingredient_list()
