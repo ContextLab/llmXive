@@ -1,1 +1,22 @@
-[]
+- artifact_hash: ce09df9cbce453b628723142b49d05c0324cc6cd07654c31d5272670a13f40d0
+  artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: ENCODE
+  kind: url
+  value: https://www.encodeproject.org/
+  verification_status: pending
+  verified_against_url: https://www.encodeproject.org/
+  verified_at: '2026-08-01T10:18:40.701992Z'
+- artifact_hash: b1a775a7b0abc3092733be4be245a561534ab99e440083f88c14e7e4b8f85298
+  artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Bonferroni correction - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q385989
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q385989
+  verified_at: '2026-08-01T10:36:50.254712Z'

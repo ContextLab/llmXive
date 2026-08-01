@@ -1,21 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required project directories (`code/`, `data/`, `artifacts/`,
-    `tests/`) is provided; the claim lacks any artifact listing or file tree confirming
-    their existence. The task therefore remains unverified.
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or notebook was provided that adds a `pot_incomplete` boolean\
-    \ column to the output DataFrame or emits the required warning log when the z\u2011\
-    axis data is missing. Consequently the required artifact is absent."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `energy_samples.csv` file was presented in the evidence, nor any listing of
-    its location under `data/derived/`. Consequently the required output file with
-    the specified columns is missing, so the task is not satisfied.
 T021:
   c: false
   h: d2800f2938c76f5bc7fa4acfe6bcd3ac530162603deff7d586805193e1862f8a
@@ -37,3 +19,25 @@ T026:
     \ for detecting and handling non\u2011stationary (chirped) signal segments via\
     \ binning or exclusion. Without any artifact to inspect, we cannot confirm the\
     \ required functionality was implemented."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for the required `artifacts/sensitivity_analysis_report.json` file\
+    \ containing the threshold\u2011vs\u2011rejection\u2011rate data, but no such\
+    \ file or any JSON content is present in the provided artifact list. Without the\
+    \ actual JSON report, the task\u2019s deliverable is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, notebook, or result file) was provided that computes\
+    \ the primary rejection decision at thresholds 0.01, 0.05, and 0.10 and then compares\
+    \ them to produce a boolean \u201Cidentical\u201D result. The evidence consists\
+    \ solely of the task description and project spec, without any implementation\
+    \ or output, so the requirement is not satisfied."
+T035:
+  c: false
+  h: e48be81847292bb568507c32486f9a0b25bc7b1369729c48734f024a050b47c6
+  r: The provided `code/regression.py` is truncated and contains a typo (`deviation_magni`),
+    so it does not successfully create the predictor/target DataFrame. Moreover, the
+    required `config.yaml` file is missing, preventing the roughness proxy mapping
+    from material type. Both artifacts needed for the task are absent or broken.

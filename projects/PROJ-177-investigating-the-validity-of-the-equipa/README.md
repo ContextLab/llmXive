@@ -1,51 +1,41 @@
 # PROJ-177: Investigating the Validity of the Equipartition Theorem in Driven Granular Systems
 
-## Overview
-This project implements an automated pipeline to investigate the validity of the equipartition theorem in driven granular systems. It ingests particle tracking data, calculates energy components, performs statistical hypothesis testing against Maxwell-Boltzmann distributions, and conducts sensitivity and regression analyses.
-
 ## Project Structure
-```
-.
-├── code/ # Python source modules
-├── data/ # Input and derived data
-│ ├── raw/ # Raw experimental data (gitignored, fetch required)
-│ ├── derived/ # Processed data (e.g., energy_samples.csv)
-│ └── config.yaml # Material properties and frequency bins
-├── artifacts/ # Final analysis outputs (JSON, figures)
-├── state/ # Pipeline state and hashes
-├── figures/ # Generated plots
-├── tests/ # Pytest test suite
-├── requirements.txt # Python dependencies
-├── pyproject.toml # Project config, linting, formatting
-└── README.md
-```
 
-## Setup
-1. Ensure Python 3.11+ is installed.
-2. Install dependencies:
+This project follows the standard llmXive pipeline structure:
+
+- `code/`: Python modules for data ingestion, analysis, and orchestration.
+- `data/`: Raw input data and derived datasets.
+ - `data/raw/`: Unprocessed particle tracking and driving signal logs.
+ - `data/derived/`: Computed energy components and intermediate results.
+- `artifacts/`: Final outputs, statistical results, and reports.
+- `tests/`: Unit and integration tests for all modules.
+- `specs/`: Design documents and user stories.
+- `state/`: Pipeline state tracking and artifact hashes.
+
+## Prerequisites
+
+- Python 3.11+
+- `requirements.txt` dependencies (see T002)
+
+## Quick Start
+
+1. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
-3. Configure linting and formatting (optional but recommended):
+
+2. Run the full pipeline:
  ```bash
- pip install ruff black
+ python code/main.py --run-all
  ```
 
-## Usage
-Run the main pipeline script:
-```bash
-python code/main.py --help
-```
-
-Run tests:
-```bash
-pytest tests/
-```
-
-## Data Requirements
-This project requires real experimental data from driven granular systems.
-Refer to `specs/001-validity-equipartition-granular/` for data format specifications.
-Place raw data in `data/raw/`.
+3. Run specific stages:
+ ```bash
+ python code/main.py --stage ingestion
+ python code/main.py --stage statistics
+ ```
 
 ## License
-MIT
+
+Research project for scientific investigation.

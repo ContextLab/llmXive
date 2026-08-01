@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.11609",
+  "judged_at": "2026-08-01T10:37:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
+  "rationale": "The candidate paper is the foundational work that the user's question explicitly references as the \"follow-up\" to extend; it establishes the core mechanism (Anti-Self-Distillation via Pointwise Mutual Information) and empirical baseline that any subsequent research or literature review on this specific topic must cite. This satisfies criteria (d) as the canonical reference for the technique and (c) as the empirical baseline for the method being extended.",
+  "relevant": true
+}

@@ -1,11 +1,13 @@
 """
-Contract test for MolNet data download.
-Verifies that the download script can fetch data and validate required fields.
+Contract test for MolNet data download and checksum verification.
+Verifies that the download script can fetch data, validate required fields,
+and that checksums are correctly computed and stored.
 """
 import os
 import sys
 import json
 import tempfile
+import hashlib
 from pathlib import Path
 import pytest
 
@@ -13,7 +15,13 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from code.data.download import download_molnet_data, validate_fields, REQUIRED_FIELDS
+from code.data.download import (
+    download_molnet_data, 
+    validate_fields, 
+    compute_file_sha256, 
+    save_checksums,
+    REQUIRED_FIELDS
+)
 from utils.exceptions import DataError
 
 @pytest.fixture
@@ -63,6 +71,39 @@ def test_validate_fields_failure(incomplete_data):
     assert "Missing required fields" in str(excinfo.value)
     assert "adhesion_energy" in str(excinfo.value)
 
+def test_compute_file_sha256():
+    """Test SHA256 computation on a temporary file."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+        f.write('{"test": "data"}')
+        temp_path = f.name
+
+    try:
+        hash_val = compute_file_sha256(temp_path)
+        assert isinstance(hash_val, str)
+        assert len(hash_val) == 64  # SHA256 hex length
+        
+        # Verify determinism
+        hash_val2 = compute_file_sha256(temp_path)
+        assert hash_val == hash_val2
+    finally:
+        os.unlink(temp_path)
+
+def test_save_checksums(tmp_path):
+    """Test that checksums are saved correctly to JSON."""
+    checksums = {
+        "file1.json": "abc123...",
+        "file2.csv": "def456..."
+    }
+    output_path = tmp_path / "checksums.json"
+    
+    save_checksums(checksums, str(output_path))
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        loaded = json.load(f)
+    
+    assert loaded == checksums
+
 def test_download_molnet_data_structure():
     """
     Test that the actual download returns a list of dicts with expected keys.
@@ -94,3 +135,31 @@ def test_download_molnet_data_structure():
         pytest.skip("MolNet dataset not available or format changed. Implementation raises DataError as expected.")
     except Exception as e:
         pytest.fail(f"Download failed unexpectedly: {e}")
+
+def test_download_and_checksum_integration(tmp_path):
+    """
+    Integration test: Download data, compute checksum, and verify it matches.
+    This ensures the download and checksum logic work together.
+    """
+    try:
+        # Download data
+        data = download_molnet_data()
+        assert len(data) > 0
+        
+        # Save to temp file to compute checksum
+        temp_file = tmp_path / "downloaded_data.json"
+        with open(temp_file, 'w') as f:
+            json.dump(data, f)
+        
+        # Compute checksum
+        computed_hash = compute_file_sha256(str(temp_file))
+        assert len(computed_hash) == 64
+        
+        # Verify by recomputing
+        recomputed_hash = compute_file_sha256(str(temp_file))
+        assert computed_hash == recomputed_hash
+        
+    except DataError:
+        pytest.skip("MolNet dataset not available. Skipping integration test.")
+    except Exception as e:
+        pytest.fail(f"Integration test failed: {e}")

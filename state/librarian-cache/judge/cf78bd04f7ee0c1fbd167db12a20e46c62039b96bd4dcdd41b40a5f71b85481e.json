@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.18488",
+  "judged_at": "2026-08-01T10:37:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
+  "rationale": "The paper focuses on physical robotics hardware and sim-to-real transfer for standard control algorithms (SARSA, SAC), which is an off-domain application of reinforcement learning compared to the user's specific question about \"Anti-Self-Distillation\" and \"Pointwise Mutual Information\" for LLM reasoning. It does not measure the same mechanism, variables, or empirical population (LLMs vs. physical robots) and shares only the broad keyword \"Reinforcement Learning\" without addressing the specific a",
+  "relevant": false
+}

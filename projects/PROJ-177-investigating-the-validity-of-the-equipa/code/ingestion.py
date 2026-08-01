@@ -5,303 +5,204 @@ from typing import Dict, List, Optional, Tuple, Any
 import pandas as pd
 import numpy as np
 import logging
-import warnings
 
-# Ensure logging is configured
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/ingestion.log')
-    ]
-)
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class IngestionError(Exception):
     """Custom exception for ingestion errors."""
     pass
 
-def find_csv_files(base_dir: str) -> List[Path]:
-    """Find all CSV files in the given directory and subdirectories."""
-    base = Path(base_dir)
-    if not base.exists():
-        raise IngestionError(f"Directory {base_dir} does not exist")
-    return list(base.rglob("*.csv"))
+def find_csv_files(directory: Path) -> List[Path]:
+    """Find all CSV files in the given directory."""
+    if not directory.exists():
+        raise IngestionError(f"Directory not found: {directory}")
+    return list(directory.glob("*.csv"))
 
 def load_tracking_data(file_paths: List[Path]) -> pd.DataFrame:
-    """Load and concatenate particle tracking data from multiple CSV files."""
-    if not file_paths:
-        raise IngestionError("No CSV files found for tracking data")
-    
+    """Load and concatenate particle tracking CSVs."""
     dfs = []
-    for fp in file_paths:
+    for path in file_paths:
         try:
-            df = pd.read_csv(fp)
-            # Ensure required columns exist
-            required_cols = ['particle_id', 'timestamp', 'x', 'y']
-            missing = [c for c in required_cols if c not in df.columns]
-            if missing:
-                logger.warning(f"File {fp} missing columns: {missing}. Attempting to continue with available data.")
+            df = pd.read_csv(path)
             dfs.append(df)
+            logger.info(f"Loaded tracking data from {path}")
         except Exception as e:
-            logger.error(f"Failed to load {fp}: {e}")
-            raise IngestionError(f"Failed to load {fp}: {e}")
-    
+            raise IngestionError(f"Failed to load {path}: {e}")
+    if not dfs:
+        raise IngestionError("No tracking data files found.")
     return pd.concat(dfs, ignore_index=True)
 
 def load_driving_data(file_paths: List[Path]) -> pd.DataFrame:
     """Load driving signal logs."""
-    if not file_paths:
-        raise IngestionError("No CSV files found for driving data")
-    
     dfs = []
-    for fp in file_paths:
+    for path in file_paths:
         try:
-            df = pd.read_csv(fp)
+            df = pd.read_csv(path)
             dfs.append(df)
+            logger.info(f"Loaded driving data from {path}")
         except Exception as e:
-            logger.error(f"Failed to load driving data {fp}: {e}")
-            raise IngestionError(f"Failed to load {fp}: {e}")
-    
+            raise IngestionError(f"Failed to load {path}: {e}")
+    if not dfs:
+        raise IngestionError("No driving data files found.")
     return pd.concat(dfs, ignore_index=True)
 
 def sync_timestamps(tracking_df: pd.DataFrame, driving_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Synchronize timestamps between tracking and driving data."""
-    # Simple synchronization: align on common time range
-    min_time = max(tracking_df['timestamp'].min(), driving_df['timestamp'].min())
-    max_time = min(tracking_df['timestamp'].max(), driving_df['timestamp'].max())
-    
-    tracking_sync = tracking_df[(tracking_df['timestamp'] >= min_time) & (tracking_df['timestamp'] <= max_time)].copy()
-    driving_sync = driving_df[(driving_df['timestamp'] >= min_time) & (driving_df['timestamp'] <= max_time)].copy()
-    
-    return tracking_sync, driving_sync
+    """Sync timestamps between tracking and driving data."""
+    # Assume both have a 'timestamp' column
+    common_ts = np.intersect1d(tracking_df['timestamp'].values, driving_df['timestamp'].values)
+    tracking_df = tracking_df[tracking_df['timestamp'].isin(common_ts)].reset_index(drop=True)
+    driving_df = driving_df[driving_df['timestamp'].isin(common_ts)].reset_index(drop=True)
+    logger.info(f"Synced timestamps: {len(common_ts)} common points")
+    return tracking_df, driving_df
 
 def merge_datasets(tracking_df: pd.DataFrame, driving_df: pd.DataFrame) -> pd.DataFrame:
     """Merge tracking and driving data on timestamp."""
-    # Assuming driving data has a single row per timestamp or needs to be broadcast
-    # For simplicity, we merge on timestamp if driving data has it
-    if 'timestamp' in driving_df.columns:
-        merged = pd.merge(tracking_df, driving_df, on='timestamp', how='left')
-    else:
-        # If driving data doesn't have timestamp, assume it applies to all
-        merged = tracking_df.copy()
-        for col in driving_df.columns:
-            merged[col] = driving_df[col].iloc[0] if len(driving_df) == 1 else driving_df[col].values[0]
-    
+    merged = pd.merge(tracking_df, driving_df, on='timestamp', how='inner')
+    logger.info(f"Merged dataset shape: {merged.shape}")
     return merged
 
-def handle_missing_frames(df: pd.DataFrame, time_col: str = 'timestamp', id_col: str = 'particle_id') -> pd.DataFrame:
-    """Handle missing frames via linear interpolation or flagging."""
-    df_sorted = df.sort_values([id_col, time_col])
-    
-    # Group by particle_id and interpolate
-    def interpolate_group(group):
-        group = group.set_index(time_col)
-        # Interpolate numeric columns
-        numeric_cols = group.select_dtypes(include=[np.number]).columns
-        group[numeric_cols] = group[numeric_cols].interpolate(method='linear', limit_direction='both')
-        return group.reset_index()
-    
-    df_interpolated = df_sorted.groupby(id_col, group_keys=False).apply(interpolate_group)
-    return df_interpolated
-
-def compute_derivatives(df: pd.DataFrame, time_col: str = 'timestamp') -> pd.DataFrame:
-    """Compute velocity (v) and angular velocity (omega) via finite differences."""
-    df = df.sort_values([time_col]).copy()
-    
-    # Velocity: dx/dt, dy/dt, dz/dt
-    df['vx'] = df['x'].diff() / df[time_col].diff()
-    df['vy'] = df['y'].diff() / df[time_col].diff()
-    if 'z' in df.columns:
-        df['vz'] = df['z'].diff() / df[time_col].diff()
-    else:
-        df['vz'] = np.nan
-    
-    # Fill NaN from diff with forward fill or 0
-    df['vx'] = df['vx'].fillna(0)
-    df['vy'] = df['vy'].fillna(0)
-    df['vz'] = df['vz'].fillna(0)
-    
-    # Angular velocity (assuming theta is in radians)
-    if 'theta' in df.columns:
-        df['omega'] = df['theta'].diff() / df[time_col].diff()
-        df['omega'] = df['omega'].fillna(0)
-    else:
-        df['omega'] = 0.0
-    
+def handle_missing_frames(df: pd.DataFrame, max_gap: int = 5) -> pd.DataFrame:
+    """Handle missing frames via linear interpolation."""
+    df = df.sort_values('timestamp')
+    for col in df.select_dtypes(include=[np.number]).columns:
+        if col == 'timestamp':
+            continue
+        # Interpolate missing values
+        df[col] = df[col].interpolate(method='linear', limit=max_gap)
+    # Forward/backward fill remaining NaNs
+    df = df.ffill().bfill()
+    logger.info("Handled missing frames via interpolation")
     return df
 
-def check_z_axis_completeness(df: pd.DataFrame) -> Tuple[pd.DataFrame, bool]:
-    """Check if z-axis data is present and flag accordingly."""
-    has_z = 'z' in df.columns and not df['z'].isna().all()
+def compute_derivatives(df: pd.DataFrame) -> pd.DataFrame:
+    """Compute velocity (v) and angular velocity (omega) via finite differences."""
+    # Assume columns: x, y, z, theta (orientation)
+    # dt is assumed constant or derived from timestamp
+    dt = df['timestamp'].diff().fillna(df['timestamp'].iloc[1] - df['timestamp'].iloc[0]).values
+    dt = np.where(dt == 0, 1e-9, dt)  # Avoid division by zero
+
+    # Velocity components
+    df['vx'] = np.gradient(df['x'].values, dt)
+    df['vy'] = np.gradient(df['y'].values, dt)
+    df['vz'] = np.gradient(df['z'].values, dt) if 'z' in df.columns else 0.0
+
+    # Angular velocity
+    df['omega'] = np.gradient(df['theta'].values, dt) if 'theta' in df.columns else 0.0
+
+    logger.info("Computed derivatives (v, omega)")
+    return df
+
+def check_z_axis_completeness(df: pd.DataFrame) -> Tuple[bool, pd.Series]:
+    """Check if z-axis data is complete."""
+    if 'z' not in df.columns:
+        logger.warning("z-axis data is missing in the dataset.")
+        pot_incomplete = pd.Series([True] * len(df), index=df.index)
+        return False, pot_incomplete
     
-    if not has_z:
-        df['pot_incomplete'] = True
-        logger.warning("Z-axis data is missing or incomplete. 'pot_incomplete' flag set to True for all rows.")
-    else:
-        df['pot_incomplete'] = False
+    # Check for NaNs in z
+    has_nans = df['z'].isna().any()
+    if has_nans:
+        logger.warning("z-axis data contains NaNs.")
     
-    return df, has_z
+    pot_incomplete = df['z'].isna()
+    return not has_nans, pot_incomplete
 
 def calculate_energy_components(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
-    """
-    Calculate E_trans, E_rot, E_pot, E_vib using config constants.
-    
-    Formulas:
-    E_trans = 0.5 * m * (vx^2 + vy^2 + vz^2)
-    E_rot = 0.5 * I * omega^2
-    E_pot = m * g * z (if z available)
-    E_vib = variance of acceleration (high-frequency component) or derived from acceleration variance
-    """
-    # Extract config
-    mass = config.get('mass', 1.0)  # kg
-    inertia = config.get('inertia', 1.0)  # kg*m^2
-    g = config.get('gravity', 9.81)  # m/s^2
-    radius = config.get('radius', 0.0025)  # m (2.5mm default)
-    
-    # If inertia not provided, derive using I = 2/5 * m * r^2
-    if inertia == 1.0 and mass != 1.0:
-        inertia = (2/5) * mass * (radius ** 2)
-        logger.info(f"Inertia derived from mass and radius: I = {inertia:.6e} kg*m^2")
-    
-    df = df.copy()
-    
-    # Translational Energy
-    v_squared = df['vx']**2 + df['vy']**2 + df['vz']**2
+    """Calculate E_trans, E_rot, E_pot, E_vib using config constants."""
+    # Extract config parameters
+    mass = config.get('mass', 1.0)
+    inertia = config.get('inertia', 1.0)
+    g = config.get('gravity', 9.81)
+    k_spring = config.get('k_spring', 100.0)  # Vibrational spring constant
+    z_ref = config.get('z_ref', 0.0)  # Reference height for potential energy
+
+    # Translational kinetic energy: E_trans = 0.5 * m * v^2
+    v_squared = df['vx']**2 + df['vy']**2 + (df['vz'] if 'vz' in df.columns else 0.0)**2
     df['E_trans'] = 0.5 * mass * v_squared
-    
-    # Rotational Energy
+
+    # Rotational kinetic energy: E_rot = 0.5 * I * omega^2
     df['E_rot'] = 0.5 * inertia * df['omega']**2
-    
-    # Potential Energy
-    if 'z' in df.columns and not df['z'].isna().all():
-        df['E_pot'] = mass * g * df['z']
+
+    # Potential energy: E_pot = m * g * z
+    if 'z' in df.columns:
+        df['E_pot'] = mass * g * (df['z'] - z_ref)
     else:
         df['E_pot'] = 0.0
-        logger.warning("Potential energy set to 0 due to missing z-axis data.")
-    
-    # Vibrational Energy: Derived from acceleration variance
-    # Acceleration is the derivative of velocity
-    if 'vx' in df.columns and 'vy' in df.columns and 'vz' in df.columns:
-        ax = df['vx'].diff() / df['timestamp'].diff()
-        ay = df['vy'].diff() / df['timestamp'].diff()
-        az = df['z'].diff().diff() / (df['timestamp'].diff()**2) if 'z' in df.columns else 0
-        
-        # Replace NaN with 0
-        ax = ax.fillna(0)
-        ay = ay.fillna(0)
-        az = az.fillna(0)
-        
-        # Acceleration magnitude squared
-        a_squared = ax**2 + ay**2 + az**2
-        
-        # Vibrational energy as a scaled variance of acceleration (simplified model)
-        # E_vib = 0.5 * m * variance(a)
-        # We use a rolling window variance for local vibrational energy
-        window_size = 5
-        if len(df) > window_size:
-            a_var = a_squared.rolling(window=window_size, min_periods=1).var()
-            df['E_vib'] = 0.5 * mass * a_var
-        else:
-            df['E_vib'] = 0.0
+        logger.warning("z-axis missing; E_pot set to 0.")
+
+    # Vibrational energy: E_vib = 0.5 * k * (z - z_ref)^2 (simplified model)
+    if 'z' in df.columns:
+        df['E_vib'] = 0.5 * k_spring * (df['z'] - z_ref)**2
     else:
         df['E_vib'] = 0.0
-    
+        logger.warning("z-axis missing; E_vib set to 0.")
+
+    logger.info("Calculated energy components")
     return df
 
-def ingest_data(
-    tracking_files: List[str],
-    driving_files: List[str],
-    config: Dict[str, Any],
-    output_path: str
-) -> str:
-    """
-    Main ingestion pipeline:
-    1. Load tracking and driving data
-    2. Sync timestamps
-    3. Merge datasets
-    4. Handle missing frames
-    5. Compute derivatives
-    6. Check z-axis completeness
-    7. Calculate energy components
-    8. Output to CSV
-    """
-    logger.info("Starting data ingestion pipeline...")
-    
-    # 1. Load data
-    tracking_df = load_tracking_data([Path(f) for f in tracking_files])
-    driving_df = load_driving_data([Path(f) for f in driving_files])
-    
-    # 2. Sync timestamps
-    tracking_df, driving_df = sync_timestamps(tracking_df, driving_df)
-    
-    # 3. Merge
-    merged_df = merge_datasets(tracking_df, driving_df)
-    
-    # 4. Handle missing frames
-    merged_df = handle_missing_frames(merged_df)
-    
-    # 5. Compute derivatives (v, omega)
-    merged_df = compute_derivatives(merged_df)
-    
-    # 6. Check z-axis completeness
-    merged_df, has_z = check_z_axis_completeness(merged_df)
-    
-    # 7. Calculate energy components
-    merged_df = calculate_energy_components(merged_df, config)
-    
-    # 8. Select and order output columns
-    output_columns = [
-        'particle_id', 'timestamp', 
-        'E_trans', 'E_rot', 'E_pot', 'E_vib', 
-        'pot_incomplete'
-    ]
-    
-    # Ensure all columns exist
-    for col in output_columns:
-        if col not in merged_df.columns:
-            merged_df[col] = 0.0 if col != 'pot_incomplete' else False
-    
-    output_df = merged_df[output_columns]
-    
+def ingest_data(input_dir: Path, output_dir: Path, config: Dict[str, Any]) -> None:
+    """Main ingestion pipeline: load, sync, merge, interpolate, compute energies, save."""
     # Ensure output directory exists
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "energy_samples.csv"
+
+    # Find and load data
+    tracking_files = find_csv_files(input_dir / "tracking")
+    driving_files = find_csv_files(input_dir / "driving")
+
+    tracking_df = load_tracking_data(tracking_files)
+    driving_df = load_driving_data(driving_files)
+
+    # Sync and merge
+    tracking_df, driving_df = sync_timestamps(tracking_df, driving_df)
+    merged_df = merge_datasets(tracking_df, driving_df)
+
+    # Handle missing frames
+    merged_df = handle_missing_frames(merged_df)
+
+    # Compute derivatives
+    merged_df = compute_derivatives(merged_df)
+
+    # Check z-axis completeness
+    z_complete, pot_incomplete = check_z_axis_completeness(merged_df)
+    merged_df['pot_incomplete'] = pot_incomplete
+
+    # Calculate energy components
+    merged_df = calculate_energy_components(merged_df, config)
+
+    # Select output columns
+    output_cols = ['particle_id', 'timestamp', 'E_trans', 'E_rot', 'E_pot', 'E_vib', 'pot_incomplete']
+    # Ensure particle_id exists; if not, create a dummy one
+    if 'particle_id' not in merged_df.columns:
+        merged_df['particle_id'] = 0
     
-    # Write to CSV
-    output_df.to_csv(output_path, index=False)
-    logger.info(f"Energy samples written to {output_path}")
-    
-    return str(output_path)
+    output_df = merged_df[output_cols]
+
+    # Save to CSV
+    output_df.to_csv(output_file, index=False)
+    logger.info(f"Saved energy samples to {output_file}")
 
 def main():
     """CLI entry point for ingestion."""
     import argparse
-    import yaml
-    
-    parser = argparse.ArgumentParser(description="Ingest granular particle data and calculate energies.")
-    parser.add_argument("--tracking", nargs="+", required=True, help="List of tracking CSV files")
-    parser.add_argument("--driving", nargs="+", required=True, help="List of driving signal CSV files")
+    parser = argparse.ArgumentParser(description="Ingest granular data and compute energies.")
+    parser.add_argument("--input", type=str, required=True, help="Input directory containing 'tracking' and 'driving' subdirs")
+    parser.add_argument("--output", type=str, required=True, help="Output directory for energy_samples.csv")
     parser.add_argument("--config", type=str, required=True, help="Path to config.yaml")
-    parser.add_argument("--output", type=str, default="data/derived/energy_samples.csv", help="Output CSV path")
     
     args = parser.parse_args()
     
     # Load config
-    try:
-        with open(args.config, 'r') as f:
-            config = yaml.safe_load(f)
-    except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        sys.exit(1)
+    import yaml
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
     
-    # Run ingestion
-    try:
-        ingest_data(args.tracking, args.driving, config, args.output)
-    except Exception as e:
-        logger.error(f"Ingestion failed: {e}")
-        sys.exit(1)
+    input_dir = Path(args.input)
+    output_dir = Path(args.output)
+    
+    ingest_data(input_dir, output_dir, config)
 
 if __name__ == "__main__":
     main()

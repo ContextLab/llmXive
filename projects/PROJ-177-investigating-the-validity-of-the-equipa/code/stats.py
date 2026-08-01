@@ -1,415 +1,344 @@
-"""
-Statistical analysis module for granular system energy distributions.
-
-Implements hypothesis testing (KS, Chi-squared), binning, and handling
-of non-stationary segments (chirped signals).
-"""
-import os
-import json
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Any, Optional
-from pathlib import Path
 from scipy import stats
-from scipy.stats import chi2, kstest
-import warnings
+from typing import Dict, List, Tuple, Any, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 class StatsError(Exception):
     """Custom exception for statistical analysis errors."""
     pass
 
-def bin_energy_data(df: pd.DataFrame, bin_columns: List[str]) -> pd.DataFrame:
+def bin_energy_data(data: pd.DataFrame, bin_column: str = 'frequency_bin') -> pd.DataFrame:
     """
     Bin energy data by driving frequency and material type.
     
     Args:
-        df: DataFrame with energy columns and metadata
-        bin_columns: List of columns to use for binning (e.g., ['frequency', 'material'])
+        data: DataFrame with energy columns and metadata
+        bin_column: Column name to use for binning (default: 'frequency_bin')
         
     Returns:
-        DataFrame with bin assignments
+        DataFrame grouped by bins
     """
-    if not all(col in df.columns for col in bin_columns):
-        missing = [col for col in bin_columns if col not in df.columns]
-        raise StatsError(f"Missing required columns for binning: {missing}")
+    if bin_column not in data.columns:
+        # Create a default bin if not present
+        data = data.copy()
+        data[bin_column] = 'default'
     
-    # Create a unique bin identifier
-    df = df.copy()
-    df['bin_id'] = df[bin_columns].astype(str).agg('-'.join, axis=1)
-    return df
+    return data.groupby([bin_column, 'material_type'])
 
 def calculate_maxwell_boltzmann_pdf(energies: np.ndarray, kT: float) -> np.ndarray:
     """
-    Calculate the Maxwell-Boltzmann probability density function.
-    
-    For a 3D system, the energy distribution follows:
-    P(E) = (2/sqrt(pi)) * (1/(kT)^(3/2)) * sqrt(E) * exp(-E/kT)
+    Calculate Maxwell-Boltzmann probability density function values.
     
     Args:
         energies: Array of energy values
         kT: Thermal energy scale parameter
         
     Returns:
-        PDF values for the given energies
+        Array of PDF values
     """
     if kT <= 0:
         raise StatsError("kT must be positive")
     
-    # Avoid division by zero and negative energies
-    energies = np.maximum(energies, 1e-10)
-    
-    prefactor = 2.0 / np.sqrt(np.pi)
-    scale_factor = 1.0 / (kT ** 1.5)
-    pdf = prefactor * scale_factor * np.sqrt(energies) * np.exp(-energies / kT)
+    # MB distribution for 3D: f(E) = 2 * sqrt(E / pi) * (1/kT)^(3/2) * exp(-E/kT)
+    # Simplified for energy distribution
+    pdf = (2.0 / np.sqrt(np.pi)) * (1.0 / kT**1.5) * np.sqrt(energies) * np.exp(-energies / kT)
     return pdf
 
-def perform_ks_test(energies: np.ndarray, kT: float) -> Tuple[float, float]:
+def perform_ks_test(observed: np.ndarray, theoretical_cdf: callable) -> Tuple[float, float]:
     """
-    Perform Kolmogorov-Smirnov test against Maxwell-Boltzmann distribution.
+    Perform Kolmogorov-Smirnov test against theoretical distribution.
     
     Args:
-        energies: Array of observed energy values
-        kT: Thermal energy scale parameter for the theoretical distribution
+        observed: Observed energy values
+        theoretical_cdf: CDF function of theoretical distribution
         
     Returns:
-        Tuple of (KS statistic, p-value)
+        Tuple of (statistic, p-value)
     """
-    if len(energies) == 0:
-        raise StatsError("Cannot perform KS test on empty data")
-    
-    # Define the theoretical CDF for MB distribution
-    def mb_cdf(x):
-        # CDF for Maxwell-Boltzmann: erf(sqrt(x/kT)) - (2/sqrt(pi)) * sqrt(x/kT) * exp(-x/kT)
-        x = np.array(x)
-        if np.any(x < 0):
-            raise StatsError("Energy values must be non-negative")
-        sqrt_xt = np.sqrt(x / kT)
-        from scipy.special import erf
-        return erf(sqrt_xt) - (2.0 / np.sqrt(np.pi)) * sqrt_xt * np.exp(-x / kT)
-    
-    # Perform KS test
-    statistic, pvalue = kstest(energies, mb_cdf)
+    statistic, pvalue = stats.kstest(observed, theoretical_cdf)
     return statistic, pvalue
 
-def perform_chisquared_test(energies: np.ndarray, kT: float, n_bins: int = 20) -> Tuple[float, float, List[int], List[float]]:
+def perform_chisquared_test(observed_counts: np.ndarray, expected_counts: np.ndarray) -> Tuple[float, float]:
     """
-    Perform Chi-squared goodness-of-fit test against Maxwell-Boltzmann distribution.
+    Perform Chi-squared goodness-of-fit test.
     
     Args:
-        energies: Array of observed energy values
-        kT: Thermal energy scale parameter
-        n_bins: Number of bins for histogram (default 20)
+        observed_counts: Observed bin counts
+        expected_counts: Expected bin counts under null hypothesis
         
     Returns:
-        Tuple of (Chi-squared statistic, p-value, observed counts, expected counts)
+        Tuple of (statistic, p-value)
     """
-    if len(energies) == 0:
-        raise StatsError("Cannot perform Chi-squared test on empty data")
-    
-    # Create bins using quantiles to ensure sufficient counts per bin
-    # or use standard rules if data allows
-    try:
-        bin_edges = np.histogram_bin_edges(energies, bins=n_bins)
-    except ValueError:
-        # Fallback to equal width if standard binning fails
-        bin_edges = np.linspace(energies.min(), energies.max(), n_bins + 1)
-    
-    # Ensure last bin covers max value
-    bin_edges[-1] = bin_edges[-1] + 1e-10
-    
-    # Calculate observed counts
-    observed_counts, _ = np.histogram(energies, bins=bin_edges)
-    
-    # Calculate expected counts by integrating PDF over bins
-    expected_counts = []
-    for i in range(len(bin_edges) - 1):
-        left, right = bin_edges[i], bin_edges[i+1]
-        # Integrate PDF from left to right
-        # For MB: integral of sqrt(E)*exp(-E/kT) dE
-        # Use numerical integration for accuracy
-        from scipy.integrate import quad
-        integral, _ = quad(lambda x: calculate_maxwell_boltzmann_pdf(np.array([x]), kT)[0], left, right)
-        expected_counts.append(integral * len(energies))
-    
-    expected_counts = np.array(expected_counts)
-    
-    # Avoid division by zero
-    mask = expected_counts > 0
-    if not np.all(mask):
-        warnings.warn(f"Some expected counts are zero. {np.sum(~mask)} bins excluded.")
-    
-    # Calculate Chi-squared statistic
-    chi2_stat = np.sum((observed_counts[mask] - expected_counts[mask])**2 / expected_counts[mask])
-    
-    # Degrees of freedom: number of bins - 1 - number of estimated parameters
-    # Here kT is given, so df = n_bins - 1
-    df = np.sum(mask) - 1
-    if df <= 0:
-        raise StatsError("Insufficient bins for Chi-squared test")
-    
-    pvalue = 1 - chi2.cdf(chi2_stat, df)
-    
-    return chi2_stat, pvalue, observed_counts.tolist(), expected_counts.tolist()
+    statistic, pvalue = stats.chisquare(f_obs=observed_counts, f_exp=expected_counts)
+    return statistic, pvalue
 
-def apply_benjamini_hochberg(p_values: List[float]) -> List[float]:
+def apply_benjamini_hochberg(pvalues: List[float], alpha: float = 0.05) -> List[bool]:
     """
-    Apply Benjamini-Hochberg False Discovery Rate correction.
+    Apply Benjamini-Hochberg FDR correction.
     
     Args:
-        p_values: List of p-values from multiple tests
+        pvalues: List of p-values
+        alpha: Significance level
         
     Returns:
-        List of adjusted p-values
+        List of booleans indicating rejection
     """
-    if len(p_values) == 0:
+    n = len(pvalues)
+    if n == 0:
         return []
     
-    p_values = np.array(p_values)
-    n = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
+    sorted_indices = np.argsort(pvalues)
+    sorted_pvalues = np.array(pvalues)[sorted_indices]
     
-    # Calculate adjusted p-values
-    adjusted_p = np.zeros(n)
-    for i in range(n):
-        adjusted_p[sorted_indices[i]] = sorted_p[i] * n / (i + 1)
+    # Calculate critical values
+    critical_values = (np.arange(1, n + 1) / n) * alpha
     
-    # Ensure monotonicity (cumulative min from the end)
-    for i in range(n-2, -1, -1):
-        adjusted_p[sorted_indices[i]] = min(adjusted_p[sorted_indices[i]], adjusted_p[sorted_indices[i+1]])
+    # Find largest k where p_k <= critical_value
+    reject = np.zeros(n, dtype=bool)
+    for i in range(n - 1, -1, -1):
+        if sorted_pvalues[i] <= critical_values[i]:
+            reject[:i+1] = True
+            break
     
-    # Clip to [0, 1]
-    adjusted_p = np.clip(adjusted_p, 0, 1)
+    # Map back to original order
+    result = np.zeros(n, dtype=bool)
+    result[sorted_indices] = reject
     
-    return adjusted_p.tolist()
+    return result.tolist()
 
 def detect_non_stationary_segments(df: pd.DataFrame, time_col: str = 'timestamp', 
-                                   signal_col: str = 'driving_frequency', 
-                                   threshold: float = 0.05) -> pd.DataFrame:
+                                  signal_col: str = 'driving_amplitude', 
+                                  window_size: int = 100) -> pd.Series:
     """
-    Detect non-stationary segments (chirped signals) in the data.
-    
-    A segment is considered non-stationary if the rate of change in driving frequency
-    exceeds a threshold relative to the mean frequency.
+    Detect non-stationary segments (e.g., chirped signals) by analyzing 
+    local statistics over sliding windows.
     
     Args:
-        df: DataFrame with timestamp and signal columns
-        time_col: Name of the timestamp column
-        signal_col: Name of the driving frequency column
-        threshold: Threshold for detecting significant changes (default 0.05)
+        df: DataFrame with time series data
+        time_col: Column name for timestamps
+        signal_col: Column name for the driving signal to analyze
+        window_size: Number of samples per window for local statistics
         
     Returns:
-        DataFrame with a 'is_stationary' boolean column
+        Series indicating which rows belong to non-stationary segments
     """
-    if time_col not in df.columns or signal_col not in df.columns:
-        raise StatsError(f"Required columns '{time_col}' and/or '{signal_col}' not found in DataFrame")
+    if signal_col not in df.columns:
+        logger.warning(f"Signal column '{signal_col}' not found. Assuming stationary.")
+        return pd.Series([False] * len(df), index=df.index)
     
-    df = df.copy()
+    signal = df[signal_col].values
+    n = len(signal)
     
-    # Sort by timestamp
-    df = df.sort_values(time_col).reset_index(drop=True)
+    if n < window_size:
+        logger.warning(f"Data length ({n}) less than window size ({window_size}). Assuming stationary.")
+        return pd.Series([False] * n, index=df.index)
     
-    # Calculate the rate of change in frequency
-    freq_diff = df[signal_col].diff()
-    time_diff = df[time_col].diff()
+    # Calculate local statistics in sliding windows
+    local_mean = pd.Series(signal).rolling(window=window_size, center=True).mean()
+    local_std = pd.Series(signal).rolling(window=window_size, center=True).std()
     
-    # Avoid division by zero
-    time_diff = time_diff.replace(0, np.nan)
-    rate_of_change = freq_diff / time_diff
+    # Drop NaN from rolling operations
+    local_mean = local_mean.dropna()
+    local_std = local_std.dropna()
     
-    # Calculate the mean frequency and its standard deviation
-    mean_freq = df[signal_col].mean()
-    if mean_freq == 0:
-        mean_freq = 1e-10
+    # Detect non-stationarity: significant trend in mean or large variance in std
+    # Criterion 1: Slope of local mean > threshold (detecting chirp/ramp)
+    if len(local_mean) > 1:
+        x = np.arange(len(local_mean))
+        slope, _, _, _, _ = stats.linregress(x, local_mean.values)
+        mean_trend_threshold = np.std(signal) / window_size
+        has_mean_trend = abs(slope) > mean_trend_threshold
+    else:
+        has_mean_trend = False
     
-    # Normalize rate of change by mean frequency
-    normalized_rate = rate_of_change / mean_freq
+    # Criterion 2: High variance in local standard deviation
+    if len(local_std) > 1:
+        std_variance = np.var(local_std.values)
+        std_threshold = (np.std(signal) / np.sqrt(window_size)) ** 2
+        has_varying_variance = std_variance > std_threshold
+    else:
+        has_varying_variance = False
     
-    # Identify non-stationary segments
-    # A segment is non-stationary if the normalized rate exceeds the threshold
-    df['is_stationary'] = np.abs(normalized_rate) <= threshold
+    # Identify segments: if global test detects non-stationarity, mark all as non-stationary
+    # OR use a more granular approach: mark windows that deviate significantly
+    is_non_stationary = has_mean_trend or has_varying_variance
     
-    # Fill NaN values (first row) as stationary if the rate is not extreme
-    df['is_stationary'] = df['is_stationary'].fillna(True)
-    
-    return df
+    if is_non_stationary:
+        logger.info("Non-stationary segments detected (chirped signal or varying statistics).")
+        # Mark all points as non-stationary for exclusion, or could implement window-based marking
+        # For simplicity in this implementation, we flag the entire dataset if non-stationarity is detected
+        # A more refined approach would mark specific time windows
+        result = pd.Series([True] * len(df), index=df.index)
+    else:
+        result = pd.Series([False] * len(df), index=df.index)
+        
+    return result
 
-def handle_non_stationary_segments(df: pd.DataFrame, strategy: str = 'exclude', 
-                                   time_col: str = 'timestamp',
-                                   signal_col: str = 'driving_frequency') -> pd.DataFrame:
+def handle_non_stationary_segments(df: pd.DataFrame, time_col: str = 'timestamp',
+                                  signal_col: str = 'driving_amplitude',
+                                  window_size: int = 100,
+                                  strategy: str = 'exclude') -> pd.DataFrame:
     """
-    Handle non-stationary segments (chirped signals) by binning or exclusion.
+    Handle non-stationary segments (chirped signals) by either binning or exclusion.
     
     Args:
-        df: Input DataFrame with energy and signal data
-        strategy: Strategy to handle non-stationary segments ('exclude' or 'bin')
-        time_col: Name of the timestamp column
-        signal_col: Name of the driving frequency column
+        df: Input DataFrame with energy and time series data
+        time_col: Column name for timestamps
+        signal_col: Column name for driving signal
+        window_size: Window size for stationarity detection
+        strategy: 'exclude' (drop non-stationary segments) or 'bin' (create separate bins)
         
     Returns:
         Processed DataFrame with non-stationary segments handled
     """
     if strategy not in ['exclude', 'bin']:
-        raise StatsError(f"Invalid strategy '{strategy}'. Must be 'exclude' or 'bin'.")
+        raise StatsError(f"Unknown strategy: {strategy}. Must be 'exclude' or 'bin'.")
     
     # Detect non-stationary segments
-    df_processed = detect_non_stationary_segments(df, time_col, signal_col)
+    non_stationary_mask = detect_non_stationary_segments(
+        df, time_col=time_col, signal_col=signal_col, window_size=window_size
+    )
     
     if strategy == 'exclude':
         # Exclude non-stationary segments
-        df_final = df_processed[df_processed['is_stationary']].copy()
-        excluded_count = len(df_processed) - len(df_final)
-        if excluded_count > 0:
-            warnings.warn(f"Excluded {excluded_count} rows ({excluded_count/len(df_processed)*100:.2f}%) due to non-stationary segments (chirped signals).")
-    else:  # strategy == 'bin'
-        # Bin non-stationary segments separately
-        # Create a separate bin for non-stationary data
-        df_final = df_processed.copy()
-        df_final['bin_id'] = df_final.apply(
-            lambda row: f"non_stationary" if not row['is_stationary'] else row.get('bin_id', 'unknown'),
-            axis=1
-        )
-        warnings.warn(f"Non-stationary segments ({len(df_final[~df_final['is_stationary']])} rows) binned separately.")
+        if non_stationary_mask.any():
+            n_excluded = non_stationary_mask.sum()
+            logger.info(f"Excluding {n_excluded} rows ({100*n_excluded/len(df):.1f}%) due to non-stationarity.")
+            df_processed = df[~non_stationary_mask].reset_index(drop=True)
+        else:
+            df_processed = df.copy()
+            logger.info("No non-stationary segments detected. Using all data.")
+            
+    elif strategy == 'bin':
+        # Create a separate bin for non-stationary segments
+        df_processed = df.copy()
+        if 'stationary_segment' not in df_processed.columns:
+            df_processed['stationary_segment'] = 'stationary'
+        
+        df_processed.loc[non_stationary_mask, 'stationary_segment'] = 'non_stationary'
+        logger.info(f"Created separate bin for {non_stationary_mask.sum()} non-stationary rows.")
     
-    return df_final
+    return df_processed
 
-def run_statistical_analysis(df: pd.DataFrame, config: Dict[str, Any]) -> Dict[str, Any]:
+def run_statistical_analysis(data_path: str, output_path: str, 
+                            strategy: str = 'exclude') -> Dict[str, Any]:
     """
-    Run the full statistical analysis pipeline.
+    Run full statistical analysis pipeline including non-stationary handling.
     
     Args:
-        df: DataFrame with energy data and metadata
-        config: Configuration dictionary with parameters
+        data_path: Path to energy_samples.csv
+        output_path: Path to output JSON
+        strategy: Strategy for handling non-stationary segments
         
     Returns:
-        Dictionary containing all statistical results
+        Dictionary of results
     """
-    results = {
-        'bins': [],
-        'tests': [],
-        'summary': {}
-    }
+    # Load data
+    df = pd.read_csv(data_path)
     
     # Handle non-stationary segments
-    strategy = config.get('non_stationary_strategy', 'exclude')
-    df_processed = handle_non_stationary_segments(
-        df, 
-        strategy=strategy,
-        time_col=config.get('time_col', 'timestamp'),
-        signal_col=config.get('signal_col', 'driving_frequency')
-    )
+    df_clean = handle_non_stationary_segments(df, strategy=strategy)
     
-    # Bin the data
-    bin_columns = config.get('bin_columns', ['frequency', 'material'])
-    df_binned = bin_energy_data(df_processed, bin_columns)
+    # If excluded, continue with cleaned data; if binned, proceed with binning
+    if 'stationary_segment' in df_clean.columns:
+        bins = df_clean.groupby(['stationary_segment', 'frequency_bin', 'material_type'])
+    else:
+        bins = df_clean.groupby(['frequency_bin', 'material_type'])
     
-    # Group by bins and perform tests
-    p_values = []
-    test_results = []
+    results = {
+        'summary': {
+            'total_samples': len(df),
+            'samples_after_processing': len(df_clean),
+            'non_stationary_strategy': strategy
+        },
+        'bins': []
+    }
     
-    for bin_id, group in df_binned.groupby('bin_id'):
-        # Calculate kT from the mean energy (equipartition: E = kT for 1D, 3/2 kT for 3D)
-        # Assuming 3D system: kT = 2/3 * mean(E_trans)
-        mean_energy = group['E_trans'].mean()
-        kT = (2.0/3.0) * mean_energy if mean_energy > 0 else 1.0
+    for name, group in bins:
+        bin_name = str(name)
+        
+        # Extract energy data (assuming 'E_trans' or similar column exists)
+        energy_col = 'E_trans' if 'E_trans' in group.columns else group.columns[0]
+        energies = group[energy_col].dropna().values
+        
+        if len(energies) < 2:
+            continue
+        
+        # Calculate theoretical parameters
+        kT = np.mean(energies)  # Estimate from data
         
         # Perform KS test
-        try:
-            ks_stat, ks_p = perform_ks_test(group['E_trans'].values, kT)
-        except Exception as e:
-            ks_stat, ks_p = None, None
+        # Define CDF for MB distribution
+        def mb_cdf(x):
+            if x <= 0:
+                return 0.0
+            return stats.gamma.cdf(x, a=1.5, scale=kT)
+        
+        ks_stat, ks_pval = perform_ks_test(energies, mb_cdf)
         
         # Perform Chi-squared test
-        try:
-            chi2_stat, chi2_p, obs_counts, exp_counts = perform_chisquared_test(
-                group['E_trans'].values, kT, n_bins=config.get('n_bins', 20)
+        # Bin data using standard rules
+        n_bins = max(10, int(np.sqrt(len(energies))))
+        observed_counts, bin_edges = np.histogram(energies, bins=n_bins)
+        
+        # Calculate expected counts
+        expected_counts = np.zeros(len(observed_counts))
+        for i in range(len(bin_edges) - 1):
+            bin_lower = bin_edges[i]
+            bin_upper = bin_edges[i+1]
+            prob = mb_cdf(bin_upper) - mb_cdf(bin_lower)
+            expected_counts[i] = prob * len(energies)
+        
+        # Avoid division by zero
+        mask = expected_counts > 0
+        if mask.sum() > 1:
+            chi2_stat, chi2_pval = perform_chisquared_test(
+                observed_counts[mask], expected_counts[mask]
             )
-        except Exception as e:
-            chi2_stat, chi2_p, obs_counts, exp_counts = None, None, [], []
+        else:
+            chi2_stat, chi2_pval = 0.0, 1.0
         
-        # Store results
-        test_result = {
-            'bin_id': bin_id,
-            'n_samples': len(group),
-            'mean_energy': float(mean_energy),
-            'estimated_kT': float(kT),
-            'ks_test': {
-                'statistic': float(ks_stat) if ks_stat is not None else None,
-                'p_value': float(ks_p) if ks_p is not None else None
-            },
-            'chisquared_test': {
-                'statistic': float(chi2_stat) if chi2_stat is not None else None,
-                'p_value': float(chi2_p) if chi2_p is not None else None,
-                'observed_counts': obs_counts,
-                'expected_counts': exp_counts
-            },
-            'non_stationary_excluded': not group['is_stationary'].all()
-        }
-        
-        test_results.append(test_result)
-        
-        if ks_p is not None:
-            p_values.append(ks_p)
-        if chi2_p is not None:
-            p_values.append(chi2_p)
+        results['bins'].append({
+            'bin_name': bin_name,
+            'n_samples': len(energies),
+            'ks_test': {'statistic': float(ks_stat), 'pvalue': float(ks_pval)},
+            'chisquared_test': {'statistic': float(chi2_stat), 'pvalue': float(chi2_pval)}
+        })
     
-    # Apply FDR correction
-    if p_values:
-        adjusted_p_values = apply_benjamini_hochberg(p_values)
-        # Map adjusted p-values back to tests (simplified: assume 2 tests per bin)
-        # This is a rough mapping; in practice, you'd track which p-value belongs to which test
-        idx = 0
-        for i, result in enumerate(test_results):
-            if result['ks_test']['p_value'] is not None:
-                result['ks_test']['adjusted_p_value'] = float(adjusted_p_values[idx])
-                idx += 1
-            if result['chisquared_test']['p_value'] is not None:
-                result['chisquared_test']['adjusted_p_value'] = float(adjusted_p_values[idx])
-                idx += 1
+    # Apply FDR correction if multiple tests
+    pvalues = [b['ks_test']['pvalue'] for b in results['bins']]
+    if len(pvalues) > 1:
+        rejections = apply_benjamini_hochberg(pvalues)
+        for i, b in enumerate(results['bins']):
+            b['fdr_rejected'] = rejections[i]
     
-    results['tests'] = test_results
-    
-    # Summary
-    total_bins = len(test_results)
-    significant_bins = sum(1 for t in test_results 
-                          if (t['ks_test']['p_value'] is not None and t['ks_test']['p_value'] < 0.05) or
-                             (t['chisquared_test']['p_value'] is not None and t['chisquared_test']['p_value'] < 0.05))
-    
-    results['summary'] = {
-        'total_bins': total_bins,
-        'significant_bins': significant_bins,
-        'rejection_rate': significant_bins / total_bins if total_bins > 0 else 0.0,
-        'non_stationary_handling': strategy
-    }
+    # Save results
+    import json
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
     
     return results
 
 def main():
-    """Main entry point for statistical analysis."""
+    """CLI entry point for statistical analysis."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Run statistical analysis on granular energy data')
-    parser.add_argument('--input', type=str, required=True, help='Path to energy_samples.csv')
-    parser.add_argument('--output', type=str, required=True, help='Path to output JSON file')
-    parser.add_argument('--config', type=str, default='data/config.yaml', help='Path to config file')
+    parser = argparse.ArgumentParser(description='Statistical analysis of granular energy data')
+    parser.add_argument('--input', type=str, required=True, help='Input CSV file')
+    parser.add_argument('--output', type=str, required=True, help='Output JSON file')
+    parser.add_argument('--strategy', type=str, default='exclude', 
+                      choices=['exclude', 'bin'],
+                      help='Strategy for non-stationary segments')
+    
     args = parser.parse_args()
     
-    # Load config
-    import yaml
-    with open(args.config, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    # Load data
-    df = pd.read_csv(args.input)
-    
-    # Run analysis
-    results = run_statistical_analysis(df, config)
-    
-    # Save results
-    with open(args.output, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    print(f"Statistical analysis complete. Results saved to {args.output}")
+    results = run_statistical_analysis(args.input, args.output, args.strategy)
+    print(f"Analysis complete. Results written to {args.output}")
+    print(f"Processed {results['summary']['samples_after_processing']} samples "
+          f"from {results['summary']['total_samples']} original.")
 
 if __name__ == '__main__':
     main()

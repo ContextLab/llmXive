@@ -42,3 +42,46 @@ T017:
     \ provided `code/preprocess.py` does not contain any implementation that computes\
     \ expression variance, selects 500 cell\u2011type\u2011specific genes, or writes\
     \ the specified CSV. Consequently the task\u2019s deliverables are not present."
+T021:
+  c: false
+  h: cf395a1ec9632e5c8a247aa6cddf63f341bc209326c4338067f5ca589c26f3dc
+  r: "The required input file `data/processed/variable_peaks.csv` does not exist,\
+    \ so the training script cannot be executed. Moreover, the provided `code/train.py`\
+    \ excerpt does not show saving of the trained model to `data/models/elastic_net_{cell_line}.pkl`\
+    \ nor a clear setting of \u03B1=0.5, leaving the deliverable unverified. The task\
+    \ therefore remains unfinished."
+T022:
+  c: false
+  h: a427076118e6d1909f4c4815ca80bcce467f1d2683d423ac6dcf95d6799d5214
+  r: "The required output file `data/processed/cv_scores.json` does not exist, and\
+    \ the provided excerpt of `code/train.py` does not show a k\u2011fold (k=5) cross\u2011\
+    validation loop or a comment justifying the choice of k=5. Without the CV scores\
+    \ file and clear evidence of the requested implementation, the task is not satisfied."
+T023:
+  c: false
+  h: da3c3f618a19c9d4e1a67497ced1ee1168259a284e43f1023820cb66caa0ecde
+  r: "The required output file `data/processed/correlations.csv` does not exist, and\
+    \ the provided `code/evaluate.py` is incomplete (the correlation function is truncated\
+    \ and there is no code that writes a CSV). Consequently the task\u2019s deliverable\
+    \ is missing."
+T024:
+  c: false
+  h: 7cdfdf8b7c27e4ae903f8c3c3233664654905c82641fd8988dc86a7553165494
+  r: "The required output file `data/processed/pvalues_corrected.csv` is missing from\
+    \ the repository, so the deliverable of corrected p\u2011values is not present.\
+    \ No other artifact substitutes for this CSV."
+T025:
+  c: false
+  h: 3771e838619cd3a6085f36ba9a6ec579a886886e9f5d2672be8bd44ec76c860b
+  r: "The required input file `data/processed/housekeeping_genes.csv` is missing,\
+    \ and the expected output `data/processed/housekeeping_r2.csv` does not exist.\
+    \ Without the gene list and the resulting R\xB2 report, the task is not fulfilled."
+T026:
+  c: false
+  h: fc848e0b4c9163f353a9ff2a7dea435efff297361fbf3f61dc3fd40029c4814b
+  r: "The required gene list files (`data/processed/housekeeping_genes.csv`, `data/processed/cell_type_specific_genes.csv`)\
+    \ are absent, and the expected output file (`data/processed/external_validation_r2.csv`)\
+    \ does not exist. Moreover, the provided `code/evaluate.py` snippet shows only\
+    \ loading and correlation utilities and does not contain any implementation of\
+    \ external validation or code that writes the R\xB2 result. These missing artifacts\
+    \ mean the task\u2019s deliverables are not satisfied."

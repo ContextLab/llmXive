@@ -141,8 +141,8 @@
 
 ### Tests for User Story 4
 
-- [ ] T033 [P] [US4] Unit test for linear regression fit in `tests/test_regression.py` (verify slope/intercept calculation)
-- [ ] T034 [P] [US4] Unit test for t-test significance in `tests/test_regression.py` (verify p-value calculation for slope)
+- [X] T033 [P] [US4] Unit test for linear regression fit in `tests/test_regression.py` (verify slope/intercept calculation)
+- [X] T034 [P] [US4] Unit test for t-test significance in `tests/test_regression.py` (verify p-value calculation for slope)
 
 ### Implementation for User Story 4
 

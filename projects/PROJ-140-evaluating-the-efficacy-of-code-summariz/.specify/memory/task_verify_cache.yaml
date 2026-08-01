@@ -16,12 +16,11 @@ T015:
     is not satisfied."
 T016:
   c: false
-  h: 3083ebb7f8cd3f5f1deb8e6409d9d063cc38764967493f614e9da85fcac2689a
-  r: The `code/utils/anonymize_logs.py` script is truncated and contains an unfinished
-    `save_anonymized_logs` function (e.g., `logger.wa`), indicating it cannot run
-    successfully. Moreover, the required output file `data/interaction_logs/anonymized_logs.csv`
-    does not exist. Both the functional script and the generated CSV are missing,
-    so the task is not satisfied.
+  h: 26431c4aaa72999c61b52018b1b9f6acfb074ddcae83e4b2a5c337fc331e394f
+  r: "The required output file `data/interaction_logs/anonymized_logs.csv` does not\
+    \ exist, and the provided `code/utils/anonymize_logs.py` is incomplete (truncated)\
+    \ with no evident entry\u2011point that reads raw logs and writes the anonymized\
+    \ CSV, so the task\u2019s core requirement is unmet."
 T018a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,3 +41,34 @@ T019:
   r: "No evidence of a `data/consent/` directory, a `.gitignore` entry excluding it,\
     \ or any script/command that sets file permissions to `chmod 600` is provided.\
     \ The implementer\u2019s claim cannot be verified without these artifacts."
+T027:
+  c: false
+  h: 8be0308eb8c6a05539b0e1935eaaf50759c7dc974d5ab387c246bb29ee47de5e
+  r: "The required artifact `github/workflows/test_reproducibility.yml` does not exist,\
+    \ so no integration test for CI resource constraints is present. The task\u2019\
+    s core deliverable is missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md file or its contents were provided; the claim lacks any artifact\
+    \ showing documentation for rerunning the analysis on GitHub Actions under the\
+    \ specified free\u2011tier constraints. Consequently the required deliverable\
+    \ is missing."
+T030a:
+  c: false
+  h: 3ae5c1e6643f14d94834612afb8f7c5f393de6f853e5bc4f6ae7a0f1421a30ca
+  r: The `baseline_results.json` file, which the task explicitly requires to be generated
+    and committed, is missing. Moreover, the provided `generate_baseline_results.py`
+    is truncated and only attempts to load existing CSV/JSON files rather than executing
+    the analysis script and writing the required JSON output. The core functionality
+    and output artifact are therefore absent.
+T032:
+  c: false
+  h: ca7098ef5e76f2a94ada4ac09fe0eef79afae26da646c2e897330bf0c5127181
+  r: "The required `state/projects/PROJ-140.../artifact_hashes.yaml` file is missing,\
+    \ so no hashes have been provided. The task\u2019s core deliverable is absent."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md file or its contents were presented, so we cannot verify that installation
+    steps and dependencies were added. The required artifact is missing from the evidence.

@@ -1,0 +1,522 @@
+{
+  "fetched_at": "2026-08-01T10:37:51Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Informati\"",
+      "target_n": 5
+    },
+    "duration_seconds": 48.975,
+    "ended_at": "2026-08-01T10:37:51Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "anti-self-distillation for reinforcement learning"
+        ],
+        [
+          2,
+          "pointwise mutual information in LLM reasoning"
+        ],
+        [
+          3,
+          "preventing self-distillation in large language models"
+        ],
+        [
+          4,
+          "reinforcement learning with PMI-based rewards"
+        ],
+        [
+          5,
+          "anti-distillation techniques for LLM alignment"
+        ],
+        [
+          6,
+          "reasoning enhancement via mutual information"
+        ],
+        [
+          7,
+          "self-distillation suppression in RLHF"
+        ],
+        [
+          8,
+          "PMI-guided policy optimization for LLMs"
+        ],
+        [
+          9,
+          "counteracting knowledge collapse in language models"
+        ],
+        [
+          10,
+          "information-theoretic approaches to LLM reasoning"
+        ],
+        [
+          11,
+          "reinforcement learning with anti-self-supervision"
+        ],
+        [
+          12,
+          "improving chain-of-thought via PMI"
+        ],
+        [
+          13,
+          "mitigating self-distillation in generative models"
+        ],
+        [
+          14,
+          "pointwise mutual information for reward shaping"
+        ],
+        [
+          15,
+          "anti-self-distillation in neural network training"
+        ],
+        [
+          16,
+          "LLM reasoning stability through information maximization"
+        ],
+        [
+          17,
+          "preventing representation collapse in RL for LLMs"
+        ],
+        [
+          18,
+          "mutual information maximization in language model fine-tuning"
+        ],
+        [
+          19,
+          "self-distillation avoidance in multi-step reasoning"
+        ],
+        [
+          20,
+          "information bottleneck methods for LLM reasoning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "anti-self-distillation for reinforcement learning": 5,
+        "llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Informati\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "pointwise mutual information anti-self-distillation",
+      "self-distillation negative transfer reasoning RL",
+      "knowledge distillation negative sampling reward modeling",
+      "reasoning trajectory entropy reduction policy gradient",
+      "mutual information leakage teacher-student alignment"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.12375"
+      ]
+    },
+    "per_query_hit_count": {
+      "knowledge distillation negative sampling reward modeling": 3,
+      "llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Informati\" computer science": 3,
+      "mutual information leakage teacher-student alignment": 2,
+      "pointwise mutual information anti-self-distillation": 3,
+      "reasoning trajectory entropy reduction policy gradient": 2,
+      "self-distillation negative transfer reasoning RL": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2607.18488",
+          "rationale": "The paper focuses on physical robotics hardware and sim-to-real transfer for standard control algorithms (SARSA, SAC), which is an off-domain application of reinforcement learning compared to the user's specific question about \"Anti-Self-Distillation\" and \"Pointwise Mutual Information\" for LLM reasoning. It does not measure the same mechanism, variables, or empirical population (LLMs vs. physical robots) and shares only the broad keyword \"Reinforcement Learning\" without addressing the specific a",
+          "title": "The Open Ant: A Robot Platform for Reinforcement Learning Research"
+        },
+        {
+          "primary_pointer": "2507.02910",
+          "rationale": "The paper focuses on curriculum reinforcement learning and task sequencing using Structural Causal Models (SCMs), which is a distinct mechanism from the user's specific query about \"Anti-Self-Distillation\" and \"Pointwise Mutual Information\" for reasoning RL. While both fall under the broad domain of reinforcement learning, the candidate paper does not measure the same biological/algorithmic pathway, variables, or empirical setting as the user's specific follow-up topic, nor does it serve as a fo",
+          "title": "Causal-Paced Deep Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "1807.05037",
+          "rationale": "The paper focuses on Inverse Reinforcement Learning (IRL) and hierarchical planning in human behavior, which is a distinct methodological domain from the user's question about \"Anti-Self-Distillation\" and \"Pointwise Mutual Information\" for Reasoning RL in LLMs. While both involve Reinforcement Learning, the specific mechanisms (distillation vs. inverse planning), objectives (reasoning enhancement vs. goal inference), and theoretical frameworks do not overlap sufficiently to satisfy the inclusion",
+          "title": "Exploring Hierarchy-Aware Inverse Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "1809.09501",
+          "rationale": "The paper focuses on accelerating convergence in Reinforcement Learning using Anderson Acceleration, which is a distinct algorithmic mechanism from the user's specific interest in \"Anti-Self-Distillation\" and \"Pointwise Mutual Information\" for reasoning. It does not measure the same biological/algorithmic mechanism, share the same variables, or serve as a foundational reference for the specific distillation-based approach mentioned in the user's query.",
+          "title": "Anderson Acceleration for Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-01T10:37:02Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
+      "raw": "llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Informati\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Shannon-Hartley theorem can accurately calculate the channel capacity when the signal observation time is infinite. However, the calculation of finite-time mutual information, which remains unknown, is essential for guiding the design of practical communication systems. In this paper, we investigate the mutual information between two correlated Gaussian processes within a finite-time observation window. We first derive the finite-time mutual information by providing a limit expression. Then we numerically compute the mutual information within a single finite-time window. We reveal that the number of bits transmitted per second within the finite-time window can exceed the mutual information averaged over the entire time axis, which is called the exceed-average phenomenon. Furthermore, we derive a finite-time mutual information formula under a typical signal autocorrelation case by utilizing the Mercer expansion of trace class operators, and reveal the connection between the finite-time mutual information problem and the operator theory. Finally, we analytically prove the existence of the exceed-average phenomenon in this typical case, and demonstrate its compatibility with the Shannon capacity.",
+          "claimed_authors": [
+            "Jieao Zhu",
+            "Zijian Zhang",
+            "Zhongzhichao Wan",
+            "Linglong Dai"
+          ],
+          "claimed_title": "On Finite-Time Mutual Information",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.11254"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='On Finite-Time Mutual Information')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional channel capacity based on the discrete spatial dimensions mismatches the continuous electromagnetic fields. For the wireless communication system in a limited region, the spatial discretization may results in information loss because the continuous field can not be perfectly recovered from the sampling points. Therefore, electromagnetic information theory based on spatially continuous electromagnetic fields becomes necessary to reveal the fundamental theoretical capacity bound of communication systems. In this paper, we propose analyzing schemes for the performance limit between continuous transceivers. Specifically, we model the communication process between two continuous regions by random fields. Then, for the white noise model, we use Mercer expansion to derive the mutual information between the source and the destination. For the close-form expression, an analytic method is introduced based on autocorrelation functions with rational spectrum. Moreover, the Fredholm determinant is used for the general autocorrelation functions to provide the numerical calculation scheme. Further works extend the white noise model to colored noise and discuss the mutual information under it. Finally, we build an ideal model with infinite-length source and destination which shows a strong correpsondence with the time-domain model in classical information theory. The mutual information and the capacity are derived through the spatial spectral density.",
+          "claimed_authors": [
+            "Zhongzhichao Wan",
+            "Jieao Zhu",
+            "Zijian Zhang",
+            "Linglong Dai",
+            "Chan-Byoung Chae"
+          ],
+          "claimed_title": "Mutual Information for Electromagnetic Information Theory Based on Random Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.00496"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Mutual Information for Electromagnetic Information Theory Based on Random Fields')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-distillation has emerged as an effective post-training paradigm for LLMs, often improving performance while shortening reasoning traces. However, in mathematical reasoning, we find that it can reduce response length while degrading performance. We trace this degradation to the suppression of epistemic verbalization - the model's expression of uncertainty during reasoning. Through controlled experiments varying conditioning context richness and task coverage, we show that conditioning the teacher on rich information suppresses uncertainty expression, enabling rapid in-domain optimization with limited task coverage but harming OOD performance, where unseen problems benefit from expressing uncertainty and adjusting accordingly. Across Qwen3-1.7B/8B, DeepSeek-Distill-Qwen-7B, and Olmo3-7B-Instruct, we observe performance drops of up to 40%. Our findings highlight that exposing appropriate levels of uncertainty is crucial for robust reasoning and underscore the importance of optimizing reasoning behavior beyond merely reinforcing correct answer traces.",
+          "claimed_authors": [
+            "Jeonghye Kim",
+            "Xufang Luo",
+            "Minbeom Kim",
+            "Sangmook Lee",
+            "Dohyung Kim",
+            "Jiwon Jeon",
+            "Dongsheng Li",
+            "Yuqing Yang"
+          ],
+          "claimed_title": "Why Does Self-Distillation (Sometimes) Degrade the Reasoning Capability of LLMs?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.24472"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Why Does Self-Distillation (Sometimes) Degrade the Reasoning Capability of LLMs?')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose reinforcement learning (RL) strategies tailored for reasoning in large language models (LLMs) under strict memory and compute limits, with a particular focus on compatibility with LoRA fine-tuning. Building on early policy gradient methods with baseline subtraction, we design critic-free methods that operate on a small, informative subset of output tokens to reduce memory usage and stabilize training. We introduce S-GRPO, a stochastic variant of Group Relative Policy Optimization, and T-SPMO, a token-level prefix matching approach for fine-grained credit assignment. Applied to Qwen2-1.5B, our methods raise accuracy on the SVAMP benchmark from 46% to over 70% and show strong performance on multi-digit multiplication. Surprisingly, full-token GRPO under LoRA fails to improve over the base model, suggesting that selective token-level optimization may act as an implicit regularizer in low-parameter training regimes.",
+          "claimed_authors": [
+            "Alan Lee",
+            "Harry Tong"
+          ],
+          "claimed_title": "Token-Efficient RL for LLM Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20834"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Token-Efficient RL for LLM Reasoning')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
+          "claimed_authors": [
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
+          ],
+          "claimed_title": "Triplet Loss for Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08116"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Triplet Loss for Knowledge Distillation')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+          "claimed_authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "claimed_title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.13567"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='DistillLens: Symmetric Knowledge Distillation Through Logit Lens')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reward models learned from human preferences are central to aligning large language models (LLMs) via reinforcement learning from human feedback, yet they are often vulnerable to reward hacking due to noisy annotations and systematic biases such as response length or style. We propose Bayesian Non-Negative Reward Model (BNRM), a principled reward modeling framework that integrates non-negative factor analysis into Bradley-Terry (BT) preference model. BNRM represents rewards through a sparse, non-negative latent factor generative process that operates at two complementary levels: instance-specific latent variables induce disentangled reward representations, while sparsity over global latent factors acts as an implicit debiasing mechanism that suppresses spurious correlations. Together, this disentanglement-then-debiasing structure enables robust uncertainty-aware reward learning. To scale BNRM to modern LLMs, we develop an amortized variational inference network conditioned on deep model representations, allowing efficient end-to-end training. Extensive empirical results demonstrate that BNRM substantially mitigates reward over-optimization, improves robustness under distribution shifts, and yields more interpretable reward decompositions than strong baselines.",
+          "claimed_authors": [
+            "Zhibin Duan",
+            "Guowei Rong",
+            "Zhuo Li",
+            "Bo Chen",
+            "Mingyuan Zhou",
+            "Dandan Guo"
+          ],
+          "claimed_title": "Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.10623"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Mitigating Reward Hacking in RLHF via Bayesian Non-negative Reward Modeling')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Policy gradient algorithms have been successfully applied to enhance the reasoning capabilities of large language models (LLMs). KL regularization is ubiquitous, yet the design surface, choice of KL direction (forward vs. reverse), normalization (normalized vs. unnormalized), and estimator ($k_1/k_2/k_3$), is scattered across the literature and often intertwined with off-policy estimation. We ask a focused question: under the off-policy setting, what weighting is required for each KL variant so that the surrogate we optimize yields the exact gradient of the intended KL-regularized objective? We answer this with a compact, unified derivation we call the Regularized Policy Gradient (RPG) view. RPG (i) unifies normalized and unnormalized KL variants and shows that the widely-used $k_3$ penalty is exactly the unnormalized KL; (ii) specifies conditions under which REINFORCE-style losses with stop-gradient are gradient-equivalent to fully differentiable surrogates; (iii) identifies and corrects an off-policy importance-weighting mismatch in GRPO's KL term; and (iv) introduces RPG-Style Clip, a clipped-importance-sampling step within RPG-REINFORCE that enables stable, off-policy policy-gradient training at scale. On mathematical reasoning benchmarks (AIME24, AIME25), RPG-REINFORCE with RPG-Style Clip improves accuracy by up to $+6$ absolute percentage points over DAPO. We extend our experiments to 8K context length, and RPG-REINFORCE with RPG-Style Clip achieves 52% accuracy on AIME25, surpassing the official Qwen3-4B-Instruct model (47%). Notably, RPG is a stable and scalable RL algorithm for LLM reasoning, realized via (a) a KL-correct objective, (b) clipped importance sampling, and (c) an iterative reference-policy update scheme. Project Page: https://github.com/complex-reasoning/RPG.",
+          "claimed_authors": [
+            "Yifan Zhang",
+            "Yifeng Liu",
+            "Huizhuo Yuan",
+            "Yang Yuan",
+            "Quanquan Gu",
+            "Andrew Chi-Chih Yao"
+          ],
+          "claimed_title": "On the Design of KL-Regularized Policy Gradient Algorithms for LLM Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.17508"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='On the Design of KL-Regularized Policy Gradient Algorithms for LLM Reasoning')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A tunable measure for information leakage called \\textit{maximal $α$-leakage} is introduced. This measure quantifies the maximal gain of an adversary in refining a tilted version of its prior belief of any (potentially random) function of a dataset conditioning on a disclosed dataset. The choice of $α$ determines the specific adversarial action ranging from refining a belief for $α=1$ to guessing the best posterior for $α= \\infty$, and for these extremal values this measure simplifies to mutual information (MI) and maximal leakage (MaxL), respectively. For all other $α$ this measure is shown to be the Arimoto channel capacity. Several properties of this measure are proven including: (i) quasi-convexity in the mapping between the original and disclosed datasets; (ii) data processing inequalities; and (iii) a composition property.",
+          "claimed_authors": [
+            "Jiachun Liao",
+            "Oliver Kosut",
+            "Lalitha Sankar",
+            "Flavio P. Calmon"
+          ],
+          "claimed_title": "A Tunable Measure for Information Leakage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.03332"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='A Tunable Measure for Information Leakage')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we first introduce the notion of channel leakage as the minimum mutual information between the channel input and channel output. As its name indicates, channel leakage quantifies the minimum information leakage to the malicious receiver. In a broad sense, it can be viewed as a dual concept of channel capacity, which characterizes the maximum information transmission to the targeted receiver. We obtain explicit formulas of channel leakage for the white Gaussian case, the colored Gaussian case, and the fading case. We then utilize this notion to investigate the fundamental limitations of obfuscation in terms of privacy-distortion tradeoffs (as well as privacy-power tradeoffs) for streaming data; particularly, we derive analytical tradeoff equations for the stationary case, the non-stationary case, and the finite-time case. Our results also indicate explicitly how to design the privacy masks in an optimal way.",
+          "claimed_authors": [
+            "Song Fang",
+            "Quanyan Zhu"
+          ],
+          "claimed_title": "Channel Leakage, Information-Theoretic Limitations of Obfuscation, and Optimal Privacy Mask Design for Streaming Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.04893"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Anti-Self-Distillation for Reasoning RL via Pointw', candidate_title='Channel Leakage, Information-Theoretic Limitations of Obfuscation, and Optimal Privacy Mask Design for Streaming Data')",
+        "failed_at": "2026-08-01T10:37:31Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guobin Shen",
+            "Xiang Cheng",
+            "Chenxiao Zhao",
+            "Lei Huang",
+            "Jindong Li",
+            "Dongcheng Zhao",
+            "Xing Yu"
+          ],
+          "title": "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.11609",
+        "summary": "On-policy self-distillation, where a student is pulled toward a copy of itself conditioned on privileged context (e.g., a verified solution or feedback), offers a promising direction for advancing reasoning capability without a stronger external teacher. Yet in math reasoning the gains are inconsistent, even when the same approach succeeds elsewhere. A pointwise mutual information analysis traces the failure to the privileged context itself: it inflates the teacher's confidence on tokens already implied by the solution (structural connectives, verifiable claims) and deflates it on deliberation tokens (\"Wait\", \"Let\", \"Maybe\") that drive multi-step search. We propose Anti-Self-Distillation (AntiSD), which ascends a divergence between student and teacher rather than descending it: this reverses the per-token sign and yields a naturally bounded advantage in one step. An entropy-triggered gate disables the term once the teacher entropy collapses, completing a drop-in replacement for default self-distillation. Across five models from 4B to 30B parameters on math reasoning benchmarks, AntiSD reaches the GRPO baseline's accuracy in 2 to 10x fewer training steps and improves final accuracy by up to 11.5 points. AntiSD opens a path to scalable self-improvement, where a language model bootstraps its own reasoning through its training signal.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.11609",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5385,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T10:37:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12375",
+        "summary": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12375",
+          "http_status": 200,
+          "pdf_sample_score": 0.2725,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-01T10:37:36Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
