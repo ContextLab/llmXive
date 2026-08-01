@@ -1,21 +1,30 @@
-# PROJ-546: Predicting Molecular Properties from Quantum Chemical Calculations
+# Predicting Molecular Properties from Quantum Chemical Calculations
+
+**Project ID**: PROJ-546
 
 ## Overview
-This project implements a pipeline to predict molecular barrier heights using semi-empirical (DFTB+) and high-level DFT (Psi4) descriptors, comparing their accuracy and computational cost.
+This project implements a pipeline to predict molecular properties (specifically reaction barrier heights) using semi-empirical quantum chemical descriptors (DFTB+) and high-level DFT baselines (Psi4), validated against experimental data.
 
 ## Structure
-- `specs/`: Project specifications and user stories
-- `data/`: Raw and processed data artifacts
-- `code/`: Python implementation scripts and utilities
-- `tests/`: Test suite
+- `code/`: Python implementation scripts for data download, descriptor generation, model training, and evaluation.
+- `data/`: Storage for raw and processed data artifacts.
+- `tests/`: Unit and integration tests.
+- `reports/`: Generated evaluation and sensitivity analysis reports.
+- `logs/`: Execution logs and error tracking.
+- `docs/`: Project documentation.
 
 ## Quick Start
-1. Install dependencies: `pip install -r code/requirements.txt`
-2. Download data: `python code/download_data.py`
-3. Generate semi-empirical descriptors: `python code/generate_descriptors.py --method dftb`
-4. Train and evaluate models: `python code/train_models.py`
+1. Ensure Python 3.11+ is installed.
+2. Install dependencies: `pip install -r code/requirements.txt`
+3. Download data: `python code/download_data.py`
+4. Generate descriptors: `python code/generate_descriptors.py`
+5. Train and evaluate models: `python code/train_models.py` && `python code/evaluate_models.py`
 
 ## Requirements
+- DFTB+ (for semi-empirical calculations)
+- Psi4 (for DFT calculations)
 - Python 3.11+
-- DFTB+ (system installation)
-- Psi4 (system installation)
+- scikit-learn, pandas, rdkit
+
+## License
+Proprietary - Internal Research Use Only

@@ -2,11 +2,15 @@
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-  \.git
+    \.git
+  | \.hg
   | \.mypy_cache
+  | \.tox
   | \.venv
+  | _build
+  | buck-out
   | build
   | dist
 )/

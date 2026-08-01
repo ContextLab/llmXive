@@ -1,206 +1,254 @@
-"""
-Logging utilities for DFTB+ and Psi4 quantum chemistry workflows.
-
-Provides structured logging for invocation details, timing metrics, and resource usage
-to support reproducibility and performance analysis.
-"""
 import logging
 import os
 import sys
 import time
+import json
 from datetime import datetime
 from typing import Optional, Dict, Any, Callable
 from contextlib import contextmanager
-import resource
 
-# Configure a dedicated logger for quantum chemistry workflows
-LOGGER_NAME = "quantum_workflow"
-logger = logging.getLogger(LOGGER_NAME)
+# Ensure logs directory exists
+LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+os.makedirs(LOGS_DIR, exist_ok=True)
 
-# Default log format with timestamp, level, and message
-DEFAULT_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-def setup_logger(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logger(name: str, log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Configure the quantum workflow logger with optional file output.
+    Set up a logger with both file and console handlers.
     
     Args:
-        log_file: Path to log file. If None, only console output is used.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        name: Logger name (usually __name__)
+        log_file: Relative path to log file (under logs/)
+        level: Logging level
     
     Returns:
-        Configured logger instance.
+        Configured logger instance
     """
+    logger = logging.getLogger(name)
     logger.setLevel(level)
     
-    # Clear existing handlers to avoid duplicates
-    if logger.hasHandlers():
-        logger.handlers.clear()
+    # Avoid adding handlers multiple times
+    if logger.handlers:
+        return logger
+    
+    # Formatter for structured logs
+    formatter = logging.Formatter(
+        '%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(logging.Formatter(DEFAULT_FORMAT))
+    console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
     # File handler if specified
     if log_file:
-        # Ensure log directory exists
-        log_dir = os.path.dirname(log_file)
-        if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir)
-        
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(logging.Formatter(DEFAULT_FORMAT))
+        log_path = os.path.join(LOGS_DIR, log_file)
+        file_handler = logging.FileHandler(log_path)
+        file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
     
     return logger
 
-def log_dftb_invocation(smiles: str, work_dir: str, input_file: str, log_file: str) -> None:
+def log_dftb_invocation(
+    logger: logging.Logger,
+    molecule_id: str,
+    input_file: str,
+    command: str,
+    working_dir: str
+) -> None:
     """
-    Log the start of a DFTB+ invocation with key parameters.
+    Log the start of a DFTB+ calculation invocation.
     
     Args:
-        smiles: SMILES string of the molecule.
-        work_dir: Working directory for the calculation.
-        input_file: Path to the DFTB+ input file.
-        log_file: Path to the DFTB+ output log file.
+        logger: Logger instance
+        molecule_id: Unique identifier for the molecule
+        input_file: Path to the DFTB+ input file
+        command: The command line invocation string
+        working_dir: Working directory for the calculation
     """
-    logger.info(f"DFTB+ invocation started for SMILES: {smiles}")
-    logger.debug(f"Working directory: {work_dir}")
-    logger.debug(f"Input file: {input_file}")
-    logger.debug(f"Output log: {log_file}")
+    logger.info(
+        f"DFTB+ INVOCATION START | molecule_id={molecule_id} | "
+        f"input_file={input_file} | working_dir={working_dir} | "
+        f"command={command}"
+    )
 
-def log_psi4_invocation(smiles: str, work_dir: str, input_file: str, log_file: str) -> None:
+def log_psi4_invocation(
+    logger: logging.Logger,
+    molecule_id: str,
+    input_file: str,
+    command: str,
+    working_dir: str
+) -> None:
     """
-    Log the start of a Psi4 invocation with key parameters.
+    Log the start of a Psi4 calculation invocation.
     
     Args:
-        smiles: SMILES string of the molecule.
-        work_dir: Working directory for the calculation.
-        input_file: Path to the Psi4 input file.
-        log_file: Path to the Psi4 output log file.
+        logger: Logger instance
+        molecule_id: Unique identifier for the molecule
+        input_file: Path to the Psi4 input file
+        command: The command line invocation string
+        working_dir: Working directory for the calculation
     """
-    logger.info(f"Psi4 invocation started for SMILES: {smiles}")
-    logger.debug(f"Working directory: {work_dir}")
-    logger.debug(f"Input file: {input_file}")
-    logger.debug(f"Output log: {log_file}")
-
-@contextmanager
-def timed_section(section_name: str, logger_instance: Optional[logging.Logger] = None):
-    """
-    Context manager to log the execution time of a code section.
-    
-    Args:
-        section_name: Name of the section being timed.
-        logger_instance: Logger to use. Defaults to the module logger.
-    
-    Yields:
-        None
-    """
-    log = logger_instance or logger
-    start_time = time.time()
-    log.debug(f"Starting {section_name}")
-    
-    try:
-        yield
-    finally:
-        elapsed = time.time() - start_time
-        log.info(f"{section_name} completed in {elapsed:.2f} seconds")
+    logger.info(
+        f"PSI4 INVOCATION START | molecule_id={molecule_id} | "
+        f"input_file={input_file} | working_dir={working_dir} | "
+        f"command={command}"
+    )
 
 def get_resource_usage() -> Dict[str, Any]:
     """
-    Get current process resource usage.
+    Get current CPU and memory usage of the current process.
     
     Returns:
-        Dictionary containing memory usage (RSS in bytes) and other metrics.
+        Dictionary with 'cpu_time', 'rss_mb', 'vms_mb'
     """
+    import resource
     usage = resource.getrusage(resource.RUSAGE_SELF)
     return {
-        "max_rss_bytes": usage.ru_maxrss * 1024,  # Convert KB to bytes on Linux
-        "user_time_seconds": usage.ru_utime,
-        "system_time_seconds": usage.ru_stime,
+        'cpu_time': usage.ru_utime + usage.ru_stime,
+        'rss_mb': usage.ru_maxrss / 1024.0,  # Convert KB to MB (Linux)
+        'vms_mb': 0  # Not directly available via resource on all platforms
     }
 
-def log_resource_snapshot(stage: str, logger_instance: Optional[logging.Logger] = None) -> Dict[str, Any]:
+def log_resource_snapshot(
+    logger: logging.Logger,
+    molecule_id: str,
+    stage: str,
+    resource_data: Optional[Dict[str, Any]] = None
+) -> None:
     """
     Log a snapshot of resource usage at a specific stage.
     
     Args:
-        stage: Name of the current stage (e.g., "before_optimization", "after_optimization").
-        logger_instance: Logger to use. Defaults to the module logger.
-    
-    Returns:
-        Dictionary with resource metrics.
+        logger: Logger instance
+        molecule_id: Unique identifier for the molecule
+        stage: Stage name (e.g., 'start', 'geometry_opt', 'done')
+        resource_data: Optional pre-computed resource data
     """
-    log = logger_instance or logger
-    usage = get_resource_usage()
+    if resource_data is None:
+        resource_data = get_resource_usage()
     
-    log.info(f"Resource usage at {stage}:")
-    log.info(f"  Max RSS: {usage['max_rss_bytes'] / (1024*1024):.2f} MB")
-    log.info(f"  User time: {usage['user_time_seconds']:.2f} s")
-    log.info(f"  System time: {usage['system_time_seconds']:.2f} s")
-    
-    return usage
+    logger.info(
+        f"RESOURCE SNAPSHOT | molecule_id={molecule_id} | stage={stage} | "
+        f"cpu_time={resource_data['cpu_time']:.2f}s | "
+        f"rss_mb={resource_data['rss_mb']:.2f}MB"
+    )
 
-def log_calculation_summary(smiles: str, method: str, success: bool, duration: float, 
-                             resource_usage: Optional[Dict[str, Any]] = None, 
-                             log_file: Optional[str] = None) -> None:
+@contextmanager
+def timed_section(
+    logger: logging.Logger,
+    molecule_id: str,
+    section_name: str,
+    log_file: Optional[str] = None
+):
     """
-    Log a summary of a completed calculation.
+    Context manager to time a code block and log results.
     
     Args:
-        smiles: SMILES string of the molecule.
-        method: Computational method used (e.g., "DFTB+", "Psi4").
-        success: Whether the calculation completed successfully.
-        duration: Total duration in seconds.
-        resource_usage: Optional dictionary of resource metrics.
-        log_file: Optional path to append summary to a file.
+        logger: Logger instance
+        molecule_id: Unique identifier for the molecule
+        section_name: Name of the timed section
+        log_file: Optional log file for structured JSON output
     """
-    status = "SUCCESS" if success else "FAILURE"
-    log_msg = f"{method} calculation for {smiles}: {status} (duration: {duration:.2f}s)"
+    start_time = time.time()
+    start_cpu = time.process_time()
     
-    logger.info(log_msg)
+    logger.info(f"TIMED SECTION START | molecule_id={molecule_id} | section={section_name}")
     
-    if resource_usage:
-        logger.info(f"  Peak memory: {resource_usage['max_rss_bytes'] / (1024*1024):.2f} MB")
-        logger.info(f"  Total time: {resource_usage['user_time_seconds'] + resource_usage['system_time_seconds']:.2f} s")
-    
-    # Append to file if specified
-    if log_file:
-        with open(log_file, "a") as f:
-            f.write(f"{datetime.now().isoformat()} | {log_msg}\n")
-            if resource_usage:
-                f.write(f"  Peak memory: {resource_usage['max_rss_bytes'] / (1024*1024):.2f} MB\n")
-                f.write(f"  Total time: {resource_usage['user_time_seconds'] + resource_usage['system_time_seconds']:.2f} s\n")
+    try:
+        yield
+        success = True
+    except Exception as e:
+        success = False
+        logger.error(f"TIMED SECTION FAILED | molecule_id={molecule_id} | section={section_name} | error={str(e)}")
+        raise
+    finally:
+        end_time = time.time()
+        end_cpu = time.process_time()
+        
+        wall_time = end_time - start_time
+        cpu_time = end_cpu - start_cpu
+        
+        resource_data = get_resource_usage()
+        
+        log_entry = {
+            'timestamp': datetime.now().isoformat(),
+            'molecule_id': molecule_id,
+            'section': section_name,
+            'wall_time_sec': round(wall_time, 3),
+            'cpu_time_sec': round(cpu_time, 3),
+            'peak_rss_mb': round(resource_data['rss_mb'], 2),
+            'success': success
+        }
+        
+        logger.info(
+            f"TIMED SECTION END | molecule_id={molecule_id} | section={section_name} | "
+            f"wall_time={wall_time:.3f}s | cpu_time={cpu_time:.3f}s | "
+            f"peak_rss={resource_data['rss_mb']:.2f}MB"
+        )
+        
+        # Write structured JSON log if file specified
+        if log_file:
+            log_path = os.path.join(LOGS_DIR, log_file)
+            os.makedirs(os.path.dirname(log_path), exist_ok=True)
+            
+            # Append to JSON lines file
+            with open(log_path, 'a') as f:
+                f.write(json.dumps(log_entry) + '\n')
 
-def main():
+def log_calculation_summary(
+    logger: logging.Logger,
+    molecule_id: str,
+    total_wall_time: float,
+    total_cpu_time: float,
+    peak_rss_mb: float,
+    descriptors_extracted: bool,
+    output_file: Optional[str] = None
+) -> None:
     """
-    Demonstration of logging utilities.
+    Log a summary of the entire calculation for a molecule.
+    
+    Args:
+        logger: Logger instance
+        molecule_id: Unique identifier for the molecule
+        total_wall_time: Total wall clock time in seconds
+        total_cpu_time: Total CPU time in seconds
+        peak_rss_mb: Peak memory usage in MB
+        descriptors_extracted: Whether descriptors were successfully extracted
+        output_file: Optional path to structured log file
     """
-    # Setup logger with file output
-    log_file = os.path.join(os.path.dirname(__file__), "..", "logs", "workflow_demo.log")
-    setup_logger(log_file=log_file, level=logging.DEBUG)
+    summary = {
+        'molecule_id': molecule_id,
+        'total_wall_time_sec': round(total_wall_time, 3),
+        'total_cpu_time_sec': round(total_cpu_time, 3),
+        'peak_rss_mb': round(peak_rss_mb, 2),
+        'descriptors_extracted': descriptors_extracted,
+        'status': 'SUCCESS' if descriptors_extracted else 'FAILED'
+    }
     
-    logger.info("Demonstrating logging utilities")
-    
-    # Example: timed section
-    with timed_section("example_operation"):
-        time.sleep(0.5)
-    
-    # Example: resource snapshot
-    log_resource_snapshot("demo_stage")
-    
-    # Example: calculation summary
-    log_calculation_summary(
-        smiles="CCO",
-        method="DFTB+",
-        success=True,
-        duration=12.5,
-        resource_usage={"max_rss_bytes": 500 * 1024 * 1024, "user_time_seconds": 10.0, "system_time_seconds": 2.5},
-        log_file=log_file
+    logger.info(
+        f"CALCULATION SUMMARY | molecule_id={molecule_id} | "
+        f"wall_time={total_wall_time:.3f}s | cpu_time={total_cpu_time:.3f}s | "
+        f"peak_rss={peak_rss_mb:.2f}MB | status={'SUCCESS' if descriptors_extracted else 'FAILED'}"
     )
     
-    print(f"Demo logs written to: {os.path.abspath(log_file)}")
+    if output_file:
+        log_path = os.path.join(LOGS_DIR, output_file)
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        
+        with open(log_path, 'a') as f:
+            f.write(json.dumps(summary) + '\n')
 
-if __name__ == "__main__":
+def main():
+    """Demo of logging utilities."""
+    logger = setup_logger(__name__, 'test_dftb_execution.log')
+    
+    with timed_section(logger, 'MOL-001', 'geometry_optimization', 'dftb_execution.log'):
+        time.sleep(0.1)
+        logger.info("Simulating DFTB+ calculation...")
+    
+    log_resource_snapshot(logger, 'MOL-001', 'end')
+
+if __name__ == '__main__':
     main()

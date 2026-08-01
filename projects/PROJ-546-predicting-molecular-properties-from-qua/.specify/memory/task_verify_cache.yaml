@@ -1,3 +1,19 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory `projects/PROJ-546-predicting-molecular-properties-from-qua/`\
+    \ or any of its sub\u2011folders/files is provided; without a visible project\
+    \ structure we cannot confirm the task was completed. The implementer must supply\
+    \ the actual folder hierarchy (e.g., `data/`, `src/`, `scripts/`, `notebooks/`,\
+    \ etc.) to satisfy the requirement."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or any setup scripts) are present, nor
+    any evidence that ruff and Black have been integrated into the project or CI pipeline.
+    The required artifacts to demonstrate that linting (ruff) and formatting (black)
+    are configured are missing.
 T012:
   c: false
   h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
@@ -5,54 +21,26 @@ T012:
     \ in the repository, so there is no test that runs `code/generate_descriptors.py`\
     \ on 50 molecules or validates its output. Without this artifact, the task\u2019\
     s requirement is unmet."
-T014:
+T032:
+  c: false
+  h: 28d50c2c85709a53779897a746562526da26846c306aea6a8028a2a7549d1d49
+  r: "The required artifact `reports/sensitivity.csv` does not exist, so no `mae_degradation`\
+    \ column or stability check can be verified. The implementer must create the CSV\
+    \ file with the added column and provide the analysis of top\u20113 descriptor\
+    \ changes."
+T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log files were presented that implement the requested logic\
-    \ to detect non\u2011converged quantum chemistry calculations, skip those molecules,\
-    \ and record the failures. Consequently, the required artifact is missing, so\
-    \ the task is not satisfied."
-T015:
+  r: "No evidence was provided that the `quickstart.md` validation was actually executed,\
+    \ nor any logs or timing information showing the pipeline completed end\u2011\
+    to\u2011end within the required 6\u2011hour window. The implementer\u2019s claim\
+    \ lacks the necessary artifact (e.g., execution log, runtime report) to verify\
+    \ the task was fulfilled."
+T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test files were presented that implement the required validation\
-    \ logic for the descriptor CSV (checking required columns, ensuring HOMO\u202F\
-    <\u202FLUMO, and verifying that Mulliken charges sum to the molecular net charge).\
-    \ Without any artifact, the task\u2019s requirement is not satisfied."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, log files, or documentation showing that logging for
-    DFTB+ invocation, timing, and resource usage has been added is present. The implementer
-    provided only the task description and specifications, but no concrete artifact
-    (e.g., Python module, logging config, example log output) that fulfills the requirement.
-    The missing implementation must be supplied for the task to be considered complete.
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or report file implementing FR\u2011008 was provided;\
-    \ the evidence lacks any artifact (e.g., a script, function, or updated `evaluation.json`\
-    \ flag) that actually checks whether the semi\u2011empirical MAE exceeds the DFT\
-    \ MAE by more than 20\u202F%. Consequently the required logic is not demonstrated."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (e.g., updated evaluation report, code implementing the FR\u2011\
-    010 check, or results of a one\u2011sided t\u2011test) are present; the claim\
-    \ cannot be verified because nothing was provided to demonstrate that the semi\u2011\
-    empirical MAE was checked against the 2.0\u202Fkcal/mol threshold or that a one\u2011\
-    sided t\u2011test was performed."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, logs, or report files were provided that demonstrate runtime and memory\
-    \ logging for DFTB+ and Psi4, the calculation of the speedup ratio, or the comparison\
-    \ against the 10\xD7 threshold with failure flagging. The required artifacts are\
-    \ missing, so the task is not satisfied."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test, or documentation was provided that shows a validation\
-    \ step ensuring the same subset of molecules is used for both DFTB+ and DFT calculations,\
-    \ nor that it respects the different optimized geometries required by FR\u2011\
-    002 and FR\u2011003. The required artifact is missing."
+  r: "No code, documentation, or output was supplied that adds the requested logic\
+    \ for reporting a \u201Cmissing degrees of freedom\u201D error term, quantifying\
+    \ the lost physical information, or framing it as a physical model. The implementer\
+    \ provided only the task description and specifications, but no actual implementation\
+    \ artifact."

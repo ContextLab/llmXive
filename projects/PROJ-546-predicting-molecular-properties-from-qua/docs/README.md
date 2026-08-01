@@ -1,3 +1,7 @@
 # Documentation
-This directory contains additional documentation, including API references and design decisions.
-See `specs/` for feature requirements.
+
+This directory contains project documentation.
+
+## Files
+- `reproducibility.md`: Steps to reproduce results.
+- `physical_model_discussion.md`: Discussion of physical models vs. computational artifacts.

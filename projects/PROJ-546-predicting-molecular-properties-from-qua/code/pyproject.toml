@@ -3,31 +3,41 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molecular-property-prediction"
+name = "molecular-property-pipeline"
 version = "0.1.0"
-description = "Predicting molecular properties from quantum chemical calculations"
+description = "Predicting Molecular Properties from Quantum Chemical Calculations"
 requires-python = ">=3.11"
 dependencies = [
     "scikit-learn>=1.4.0",
     "pandas>=2.2.0",
-    "rdkit>=2024.1.0",
+    "rdkit>=2023.9.0",
     "requests>=2.31.0",
-    "pytest>=8.0.0",
 ]
 
-[tool.ruff]
-# Point to the dedicated config file
-config = ".ruff.toml"
-
 [tool.black]
-# Explicit Black configuration matching the .ruff.toml format settings
 line-length = 88
-target-version = ["py311"]
-skip-string-normalization = false
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Inherit from .ruff.toml but explicitly set project root
+extend = ".ruff.toml"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"

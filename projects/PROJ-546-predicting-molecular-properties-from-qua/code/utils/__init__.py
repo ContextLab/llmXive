@@ -1,1 +1,1 @@
-# Utils package
+# Utilities package

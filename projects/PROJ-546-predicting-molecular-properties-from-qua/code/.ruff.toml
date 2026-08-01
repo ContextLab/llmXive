@@ -1,29 +1,18 @@
-# Ruff configuration for PROJ-546
-# Enforces PEP 8 compliance and project-specific rules
-
 [lint]
-# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "RUF", # ruff-specific rules
 ]
 ignore = [
-    "E501", # Line too long (handled by Black)
-    "B008", # Do not perform function call in argument defaults (common in ML)
+    "E501", # line-too-long (handled by black)
+    "B008", # do-not-perform-function-calls-in-argument-defaults (often needed for dataclasses)
 ]
 
 [lint.isort]
-known-first-party = ["utils", "validators"]
-force-sort-within-sections = true
-lines-after-imports = 2
-
-[format]
-# Black-compatible formatting settings
-quote-style = "double"
-indent-style = "space"
-line-width = 88
+known-first-party = ["download_data", "evaluate_models", "sensitivity_analysis", "train_models", "generate_descriptors", "track_compute_resources", "utils", "validators", "evaluators"]

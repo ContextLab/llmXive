@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 97958e600c25643d5d7b8f58a0b0149b0d4ebdfa2c362d3d5326a8b7cb5d7831
+  artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/reproducibility.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.XXXXXXX
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXXXX
+  verified_at: '2026-08-01T07:44:55.290009Z'

@@ -1,28 +1,20 @@
 # Research Question Validation
 
-## Context
-Predicting molecular barrier heights is a critical task in computational chemistry.
-High-level DFT methods (e.g., B3LYP) are accurate but computationally expensive.
-Semi-empirical methods (e.g., DFTB+) are faster but less accurate.
+## Objective
+Validate the use of semi-empirical methods (DFTB+) as a proxy for high-level DFT calculations in predicting molecular reaction barriers.
 
 ## Hypothesis
-A Random Forest model trained on semi-empirical descriptors can predict barrier heights with sufficient accuracy (MAE < 2.0 kcal/mol) to be a viable alternative for large-scale screening, provided the speedup is >10x.
+Semi-empirical descriptors (HOMO, LUMO, Mayer orders) can predict experimental barriers with accuracy comparable to DFT within a margin of 2.0 kcal/mol, while offering a 10x speedup in computation time.
 
 ## Methodology
-1. **Data Collection**: Fetch experimental barrier data from Zenodo.
+1. **Data Collection**: Retrieve experimental barrier data from Zenodo.
 2. **Descriptor Generation**:
- - Run DFTB+ on full dataset for semi-empirical descriptors.
- - Run Psi4 on a subset for high-level DFT descriptors.
-3. **Model Training**: Train Random Forest models on both datasets.
-4. **Evaluation**: Compare MAE and statistical significance.
-5. **Analysis**: Identify key descriptors and sensitivity to thresholds.
+ - Compute DFTB+ descriptors for the full dataset.
+ - Compute DFT (B3LYP/def2-SVP) descriptors for a subset.
+3. **Modeling**: Train Random Forest models on both descriptor sets.
+4. **Evaluation**: Compare MAE against experimental ground truth and perform statistical significance testing.
 
-## Validation Criteria
-- **Accuracy**: Semi-empirical MAE must be within 2.0 kcal/mol of experimental values.
-- **Efficiency**: Semi-empirical workflow must be >10x faster than DFT.
-- **Robustness**: Pipeline must handle convergence failures and OOM errors gracefully.
-
-## Limitations
-- DFTB+ accuracy depends on the parameter set used.
-- DFT calculations are limited to a subset due to computational cost.
-- Geometry optimization protocols differ between DFTB+ and DFT.
+## Constraints
+- Computational budget: ~6 hours for the full pipeline.
+- Memory limit: 6.5 GB per process.
+- Accuracy threshold: Semi-empirical MAE ≤ 2.0 kcal/mol.

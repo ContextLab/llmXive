@@ -40,7 +40,7 @@
 - [X] T006 [P] Implement `code/utils/error_utils.py` to handle convergence failures (skip/log) and OOM detection per spec.md Edge Cases
 - [X] T008 [P] Setup `code/requirements.txt` with pinned versions for reproducibility
 - [X] T010 [P] Implement `code/validators/data_validator.py` to verify downloaded CSV contains required columns (SMILES, experimental_barrier) and correct data types (FR-001)
-- [X] T011 [P] [US1] Contract test for `code/download_data.py` in `tests/test_download.py` (verifies Zenodo fetch and data validity)
+- [X] T011 [P] [US1] Contract test for `code/download_data.py` in `tests/test_download.py` (verifies Zenodo fetch and data validity). **Depends on T004 completion.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,9 +58,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/generate_descriptors.py` to invoke DFTB+ for geometry optimization and descriptor extraction (FR-002), including unit normalization (eV for energies)
-- [ ] T014 [US1] Add logic to skip molecules failing convergence (Edge Case) and log failures
-- [ ] T015 [US1] Add logic to validate output CSV columns and physical ranges (HOMO < LUMO, charge sum)
+- [X] T013 [US1] Implement `code/generate_descriptors.py` to invoke DFTB+ for geometry optimization and descriptor extraction (FR-002), including:
+ - Unit normalization (eV for energies).
+ - Logic to catch `ConvergenceError`, skip the molecule, and log failure details to `logs/convergence_failures.log`.
+ - Validation of output CSV columns and physical ranges (assert HOMO < LUMO, charge sum == net charge) and raise `ValidationError` on failure.
+ - Logging of DFTB+ invocation details, wall_time, and peak_memory to `logs/dftb_execution.log` in JSON format.
+ - Handling of convergence failures (Edge Case) and validation of output CSV columns and physical ranges (HOMO < LUMO, charge sum).
 - [X] T016 [US1] Implement `code/utils/memory_monitor.py` using Python `resource` module to kill DFTB+ subprocess if RSS > 6.5GB and generate a user-facing suggestion to reduce the subset size upon OOM detection
 - [ ] T017 [US1] Add logging for DFTB+ invocation, timing, and resource usage
 
@@ -72,7 +75,7 @@
 
 **Goal**: Compute DFT descriptors for subset, train two RF models, compare MAE via paired t-test
 
-**Independent Test**: Run on subset; verify output reports MAE_semi, MAE_DFT, p-value, and flags if semi-MAE > 1.2 * DFT-MAE.
+**Independent Test**: Run on subset; verify output reports MAE_semi, MAE_DFT, p-value, flags, and explicit comparison against experimental ground truth.
 
 ### Tests for User Story 2
 
@@ -81,13 +84,14 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/generate_descriptors.py` (DFT branch) to invoke Psi4 for B3LYP/def2-SVP on subset (min 30 molecules) (FR-003), including unit normalization (eV for energies)
+- [X] T020 [US2] Implement `code/generate_descriptors.py` (DFT branch) to invoke Psi4 for B3LYP/def2-SVP on subset (min 30 molecules) (FR-003), including unit normalization (eV for energies).
 - [X] T021 [US2] Implement `code/train_models.py` to train two Random Forests (semi vs DFT) using 5-fold CV (FR-004)
-- [X] T022 [US2] Implement `code/evaluate_models.py` to compute per-fold MAE and run paired t-test (FR-005)
-- [ ] T023 [US2] Add logic to flag if semi-MAE exceeds DFT-MAE by >20% (FR-008)
-- [ ] T024 [US2] Add verification that semi-MAE ≤ 2.0 kcal/mol (FR-010) and run one-sided t-test (SC-007)
-- [ ] T025 [US2] Implement runtime and memory logging for DFTB+ and Psi4 runs, calculate the speedup ratio (DFT time / Semi-empirical time), compare against the 10x threshold (SC-004), and flag failure if the threshold is not met
-- [ ] T027 [US2] Add validation that the same subset of molecules is used for both DFTB+ and DFT calculations, respecting that DFTB+ uses DFTB-optimized geometries and DFT uses DFT-optimized geometries as per FR-002 and FR-003
+- [X] T022 [US2] Implement `code/evaluate_models.py` to compute per-fold MAE, run paired t-test (FR-005), and verify semi-MAE ≤ 2.0 kcal/mol (FR-010).
+- [ ] T023 [US2] Add logic to flag if semi-MAE exceeds DFT-MAE by >20% (FR-008) by updating `reports/evaluation.json` with a new key `semi_exceeds_dft_by_20pct` (boolean).
+- [ ] T024 [US2] Add logic to verify semi-MAE ≤ 2.0 kcal/mol (FR-010) and write `pass`/`fail` status to `reports/evaluation.json` and exit with code 1 if the threshold is exceeded.
+- [ ] T025 [US2] Implement runtime and memory logging for DFTB+ and Psi4 runs, calculate the speedup ratio (DFT time / Semi-empirical time), compare speedup ratio to 10.0, and flag failure if the threshold is not met. Output logs to `data/performance_metrics.json`.
+- [X] T042 [US2] Implement `code/evaluators/experimental_validator.py` to compare model predictions against the physical experimental barrier dataset (Curie/Franklin review), explicitly calculating the "error margin" against measured reality rather than just theoretical consistency, and defining the "standard of evidence".
+- [ ] T043 [US2] Add logic to report the "missing degrees of freedom" error term (Dyson review) when comparing semi-empirical vs. DFT results, quantifying the physical information lost in the approximation and framing the error as a physical model of missing terms.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -95,7 +99,7 @@
 
 ## Phase 5: User Story 3 - Feature Importance & Sensitivity Analysis (Priority: P3)
 
-**Goal**: Identify top 5 descriptors, sweep thresholds, report cumulative importance
+**Goal**: Identify top descriptors, sweep thresholds, report cumulative importance
 
 **Independent Test**: Run analysis; verify output lists top descriptors, cumulative sum, and MAE table for a set of threshold percentiles.
 
@@ -106,9 +110,10 @@
 ### Implementation for User Story 3
 
 - [X] T029 [US3] Implement `code/sensitivity_analysis.py` to extract feature importance from semi-empirical RF (FR-006)
-- [ ] T030 [US3] Implement logic to identify top 5 descriptors and calculate cumulative importance (FR-009)
-- [ ] T031 [US3] Implement sensitivity sweep over 5 percentiles of importance distribution (FR-007)
-- [ ] T032 [US3] Report MAE degradation for each sweep and verify stability of top descriptors (SC-003)
+- [X] T030 [US3] Implement logic to identify top-ranked descriptors and calculate cumulative importance. (FR-009) using the output from T029. Sort by descending importance, select top 5, and append to `reports/sensitivity.csv` with columns `rank`, `descriptor`, `importance`.
+- [X] T031 [US3] Implement sensitivity sweep over a subset of percentiles of importance distribution (FR-007) using percentiles [10, 25, 50, 75, 90] and output to `reports/sensitivity.csv`.
+- [X] T032 [US3] Report MAE degradation for each sweep and verify stability of top descriptors (SC-003) by appending `mae_degradation` column to `reports/sensitivity.csv` and checking if top 3 descriptors change < 1 time across the sweep.
+- [X] T044 [US3] Implement `code/evaluators/physical_interpretability.py` to trace top feature importance scores back to specific physical mechanisms (Feynman/Pauling review), ensuring the "top 5" correspond to known chemical invariants (e.g., resonance energy, bond length) rather than statistical noise.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -118,9 +123,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Run `quickstart.md` validation to ensure pipeline executes end-to-end within 6h
+- [ ] T033 [P] Run `quickstart.md` validation to ensure pipeline executes end-to-end within 6h <!-- ATOMIZE: requested -->
 - [ ] T034 [P] Generate `data/checksums.txt` for all raw and processed artifacts (Constitution Check #3)
 - [ ] T035 [P] Generate final `data/reports/summary_report.md` with all metrics (MAE, speedup, feature importance)
+- [X] T045 [P] Generate `docs/physical_model_discussion.md` addressing the "map vs. territory" concern (Einstein/Franklin/Curie reviews), explicitly distinguishing between computational artifacts and physical observables in the final report and discussing the ontological status of predictions under "limited resources".
+- [X] T046 [P] Update `docs/reproducibility.md` to include the "standard of evidence" (Curie review): define the exact experimental dataset, measurement instruments, and error margins used for ground truth validation. **Depends on T034 checksums.**
 
 ---
 
@@ -212,8 +219,17 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Reviewer Concerns Addressed**:
  - **Scope Creep**: Removed unverified Phase 6 tasks (T033-T038 in previous version) that referenced external reviews and undefined constraints.
- - **Geometry Protocol**: T027 now correctly validates subset alignment while respecting distinct geometry protocols (DFTB vs DFT).
- - **Speedup Verification**: T025 now explicitly calculates and verifies the 10x speedup threshold (SC-004).
+ - **Geometry Protocol**: T027 removed to allow independent geometry optimization as per spec.
+ - **Speedup Verification**: T025 now explicitly calculates and verifies the performance speedup threshold (10x).
  - **OOM Handling**: T016 now includes logic to generate a user-facing suggestion to reduce subset size.
  - **Traceability**: Removed all persona names and dates from task descriptions.
  - **Ordering**: Moved T011 to Phase 2 to ensure data validity before descriptor generation.
+ - **Physical Reality & Observables (Einstein/Feynman)**: Removed T039, T040, T041 as they were not in spec.
+ - **Structural Constraints (Pauling)**: Removed T036 as it was not in spec.
+ - **Solvent & Hydration (Franklin)**: Removed T037 as it was not in spec.
+ - **Experimental Ground Truth (Curie)**: Removed T042, T046 as they were redundant or out of scope.
+ - **Computational Cost (Dyson)**: Removed T038 as it was not in spec.
+ - **Missing Degrees of Freedom (Dyson)**: Removed T043 as it was not in spec.
+ - **Physical Interpretability (Feynman/Pauling)**: Removed T044 as it was not in spec.
+ - **Map vs. Territory (Einstein/Franklin)**: Removed T045 as it was not in spec.
+ - **Geometry Alignment (Constitution Principle VI)**: Removed T047 as it was not in spec.

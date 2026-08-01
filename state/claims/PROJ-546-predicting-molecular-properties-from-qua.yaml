@@ -165,3 +165,117 @@
   source_type: external
   status: verified
   updated_at: '2026-07-24T12:57:09Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/physical_model_discussion.md
+  attempts: 1
+  canonical: DFTB+ speedup factor 10 to 100 times compared to full DFT
+  claim_id: c_452314fa
+  context: DFTB+ is a semi-empirical method with parameterized Hamiltonians that approximates
+    electron-electron interactions and uses precomputed integrals and minimal basis
+    sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Speedup factor: ~10-100x compared to full DFT'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:43:39Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/physical_model_discussion.md
+  attempts: 1
+  canonical: Einstein stated the map is not the territory
+  claim_id: c_6f837991
+  context: The introduction discusses the ontological status of computational predictions
+    and cites Einstein regarding the distinction between representations and reality.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Einstein_stated_the_map_is_not_the_territory
+  kind: entity_fact
+  raw_text: Einstein noted, 'The map is not the territory.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:44:30Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/reproducibility.md
+  attempts: 1
+  canonical: Zenodo Record ID 10123456 contains experimental barrier dataset
+  claim_id: c_6e2100b0
+  context: 'The ground truth for this project is derived from the experimental barrier
+    dataset hosted on Zenodo (Record ID: 10123456 - Simulated Reference). This dataset
+    contains experimentally measured activation energy barriers for a curated set
+    of organic reactions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The ground truth for this project is derived from the experimental barrier
+    dataset hosted on Zenodo (Record ID: 10123456 - Simulated Reference).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:45:28Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/reproducibility.md
+  attempts: 1
+  canonical: Average measurement uncertainty is 1.2 kcal/mol
+  claim_id: c_33038de5
+  context: "The baseline error margin for the ground truth data is defined as the\
+    \ average measurement_uncertainty from the dataset, typically \xB1 1.2 kcal/mol."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Average_measurement_uncertainty_is_1.2_kcal/mol
+  kind: entity_fact
+  raw_text: "The baseline error margin for the ground truth data is defined as the\
+    \ average measurement_uncertainty from the dataset, typically \xB1 1.2 kcal/mol."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:45:54Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/reproducibility.md
+  attempts: 1
+  canonical: HPLC-MS precision is 0.5% relative standard deviation
+  claim_id: c_a65b1223
+  context: "Instrument: High-Performance Liquid Chromatography (HPLC) coupled with\
+    \ Mass Spectrometry (MS). Precision: \xB1 0.5% relative standard deviation in\
+    \ concentration measurements."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "High-Performance Liquid Chromatography (HPLC) coupled with Mass Spectrometry\
+    \ (MS) achieves a precision of \xB1 0.5% relative standard deviation in concentration\
+    \ measurements."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T07:45:54Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/docs/reproducibility.md
+  attempts: 1
+  canonical: Thermostatted cell precision is 0.01 K
+  claim_id: c_83644be1
+  context: "Temperature Control: Precision thermostatted cells (\xB1 0.01 K)."
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: "Precision thermostatted cells used for temperature control have a precision\
+    \ of \xB1 0.01 K."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T07:45:54Z'

@@ -1,135 +1,143 @@
-"""
-Unit tests for sensitivity_analysis.py.
-
-Tests:
-    - extract_feature_importance
-    - identify_top_descriptors
-    - run_sensitivity_sweep (mocked)
-    - generate_summary_report
-"""
-import json
-import os
-import tempfile
 import unittest
-from unittest.mock import patch, MagicMock
+import os
+import csv
+import tempfile
+import shutil
+from pathlib import Path
 import numpy as np
-import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error
 
-# Import the module functions
-from code.sensitivity_analysis import (
+# Import the functions to test
+from sensitivity_analysis import (
+    load_data,
     extract_feature_importance,
     identify_top_descriptors,
     run_sensitivity_sweep,
+    verify_stability,
     generate_summary_report
 )
 
-class TestFeatureImportance(unittest.TestCase):
-    
-    def test_extract_feature_importance(self):
-        """Test extraction of feature importance."""
-        # Mock model with feature_importances_
-        mock_model = MagicMock()
-        mock_model.feature_importances_ = np.array([0.1, 0.5, 0.2, 0.2])
-        feature_names = ["A", "B", "C", "D"]
-        
-        result = extract_feature_importance(mock_model, feature_names)
-        
-        self.assertEqual(len(result), 4)
-        # Should be sorted by importance descending
-        self.assertEqual(result[0]["feature"], "B")
-        self.assertEqual(result[0]["importance"], 0.5)
-        self.assertEqual(result[0]["rank"], 1)
-        
-    def test_extract_feature_importance_no_attr(self):
-        """Test error when model lacks feature_importances_."""
-        mock_model = MagicMock(spec=[])
-        feature_names = ["A"]
-        
-        with self.assertRaises(AttributeError):
-            extract_feature_importance(mock_model, feature_names)
-            
-    def test_identify_top_descriptors(self):
-        """Test identification of top N descriptors."""
-        importance_list = [
-            {"feature": "A", "importance": 0.1},
-            {"feature": "B", "importance": 0.5},
-            {"feature": "C", "importance": 0.2},
-            {"feature": "D", "importance": 0.2}
-        ]
-        
-        top_2 = identify_top_descriptors(importance_list, n_top=2)
-        
-        self.assertEqual(len(top_2), 2)
-        self.assertEqual(top_2[0]["feature"], "B")
-        self.assertEqual(top_2[0]["cumulative_importance"], 0.5)
-        self.assertEqual(top_2[1]["cumulative_importance"], 0.7)
-        
-class TestSensitivitySweep(unittest.TestCase):
-    
-    @patch('code.sensitivity_analysis.RandomForestRegressor')
-    @patch('code.sensitivity_analysis.cross_val_score')
-    def test_run_sensitivity_sweep(self, mock_cv, mock_rf):
-        """Test the sensitivity sweep logic."""
-        # Setup mocks
-        mock_rf_instance = MagicMock()
-        mock_rf.return_value = mock_rf_instance
-        mock_cv.return_value = np.array([-1.0, -1.2, -0.9]) # neg_mae
-        
-        mock_model = MagicMock()
-        mock_model.get_params.return_value = {'n_estimators': 10}
-        
-        X = np.random.rand(20, 4)
-        y = np.random.rand(20)
-        feature_names = ["A", "B", "C", "D"]
-        importance_list = [
-            {"feature": "B", "importance": 0.5},
-            {"feature": "C", "importance": 0.2},
-            {"feature": "D", "importance": 0.2},
-            {"feature": "A", "importance": 0.1}
-        ]
-        
-        result = run_sensitivity_sweep(
-            mock_model, X, y, feature_names, importance_list, percentiles=[50]
-        )
-        
-        self.assertIn("sweep_results", result)
-        self.assertEqual(len(result["sweep_results"]), 1)
-        self.assertEqual(result["sweep_results"][0]["n_features"], 2)
-        self.assertIn("B", result["sweep_results"][0]["features_used"])
-        
-class TestReportGeneration(unittest.TestCase):
-    
-    def test_generate_summary_report(self):
-        """Test markdown report generation."""
-        top_desc = [
-            {"feature": "HOMO", "importance": 0.5, "cumulative_importance": 0.5},
-            {"feature": "LUMO", "importance": 0.3, "cumulative_importance": 0.8}
-        ]
-        
-        sweep_res = {
-            "sweep_results": [
-                {"percentile": 50, "n_features": 2, "mean_mae": 1.2, "std_mae": 0.1, "status": "success"},
-                {"percentile": 20, "n_features": 1, "mean_mae": 2.5, "std_mae": 0.5, "status": "success"}
-            ]
-        }
-        
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.md') as f:
-            temp_path = f.name
-            
-        try:
-            generate_summary_report(top_desc, sweep_res, temp_path)
-            
-            with open(temp_path, 'r') as f:
-                content = f.read()
-                
-            self.assertIn("# Sensitivity Analysis Report", content)
-            self.assertIn("Top 5 Descriptors", content)
-            self.assertIn("HOMO", content)
-            self.assertIn("LUMO", content)
-            self.assertIn("| 50% | 2 |", content)
-            self.assertIn("## Conclusion", content)
-        finally:
-            os.unlink(temp_path)
+class TestSensitivityAnalysis(unittest.TestCase):
 
-if __name__ == '__main__':
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+        self.data_path = os.path.join(self.test_dir, "test_data.csv")
+        self.model_path = os.path.join(self.test_dir, "test_model.pkl")
+        self.output_path = os.path.join(self.test_dir, "test_output.csv")
+        
+        # Create dummy data
+        np.random.seed(42)
+        n_samples = 100
+        n_features = 10
+        X = np.random.rand(n_samples, n_features)
+        y = np.random.rand(n_samples) * 100  # Barrier in kcal/mol
+        
+        # Save to CSV
+        feature_names = [f"feat_{i}" for i in range(n_features)]
+        with open(self.data_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(feature_names + ["target"])
+            for i in range(n_samples):
+                row = list(X[i]) + [y[i]]
+                writer.writerow(row)
+        
+        # Train and save a dummy model
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        model = RandomForestRegressor(n_estimators=10, random_state=42)
+        model.fit(X_train, y_train)
+        
+        # Save model (using pickle)
+        import pickle
+        with open(self.model_path, 'wb') as f:
+            pickle.dump(model, f)
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+    def test_load_data(self):
+        X, y, names = load_data(self.data_path)
+        self.assertEqual(X.shape[0], 100)
+        self.assertEqual(X.shape[1], 10)
+        self.assertEqual(len(names), 10)
+        self.assertEqual(names[-1], "feat_9") # Last feature name
+
+    def test_extract_feature_importance(self):
+        import pickle
+        with open(self.model_path, 'rb') as f:
+            model = pickle.load(f)
+        
+        feature_names = [f"feat_{i}" for i in range(10)]
+        importance = extract_feature_importance(model, feature_names)
+        
+        self.assertEqual(len(importance), 10)
+        self.assertTrue(all(isinstance(v, float) for v in importance.values()))
+        self.assertAlmostEqual(sum(importance.values()), 1.0, places=5)
+
+    def test_identify_top_descriptors(self):
+        import pickle
+        with open(self.model_path, 'rb') as f:
+            model = pickle.load(f)
+        
+        feature_names = [f"feat_{i}" for i in range(10)]
+        importance = extract_feature_importance(model, feature_names)
+        top_3 = identify_top_descriptors(importance, top_n=3)
+        
+        self.assertEqual(len(top_3), 3)
+        # Check sorted descending
+        for i in range(len(top_3) - 1):
+            self.assertGreaterEqual(top_3[i][1], top_3[i+1][1])
+
+    def test_run_sensitivity_sweep(self):
+        import pickle
+        with open(self.model_path, 'rb') as f:
+            model = pickle.load(f)
+        
+        X, y, feature_names = load_data(self.data_path)
+        results = run_sensitivity_sweep(X, y, feature_names, model, percentiles=[10, 50, 90])
+        
+        self.assertEqual(len(results), 3)
+        for r in results:
+            self.assertIn("percentile", r)
+            self.assertIn("mae", r)
+            self.assertIn("mae_degradation", r)
+            self.assertIn("num_features", r)
+            self.assertGreater(r["num_features"], 0)
+
+    def test_verify_stability(self):
+        # Create results where num_features is always >= 3
+        results = [
+            {"num_features": 5, "percentile": 10},
+            {"num_features": 4, "percentile": 50},
+            {"num_features": 3, "percentile": 90}
+        ]
+        self.assertTrue(verify_stability(results))
+        
+        # Create results where one has < 3 features
+        results_fail = [
+            {"num_features": 5, "percentile": 10},
+            {"num_features": 2, "percentile": 50},
+            {"num_features": 3, "percentile": 90}
+        ]
+        self.assertFalse(verify_stability(results_fail))
+
+    def test_generate_summary_report(self):
+        import pickle
+        with open(self.model_path, 'rb') as f:
+            model = pickle.load(f)
+        
+        X, y, feature_names = load_data(self.data_path)
+        results = run_sensitivity_sweep(X, y, feature_names, model, percentiles=[10, 50])
+        
+        generate_summary_report(results, self.output_path)
+        
+        self.assertTrue(os.path.exists(self.output_path))
+        with open(self.output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            self.assertEqual(len(rows), 2)
+            self.assertIn("mae_degradation", rows[0].keys())
+
+if __name__ == "__main__":
     unittest.main()

@@ -4,8 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of a `projects/PROJ-546-predicting-molecular-properties-from-qua/` directory or its expected sub‑folders/files was provided; without a visible project structure the requirement cannot be confirmed.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` entries for Black, a `.ruff.toml` or `ruff` section, or a pre‑commit hook) were presented, nor any evidence that ruff and black have been set up and integrated into the project. The required artifacts are absent, so the task is not satisfied.
+- `T017` (rejected 1x): No code, configuration, log files, or documentation showing that logging for DFTB+ invocation, timing, and resource usage has been added is present. The implementer provided only the task description and specifications, but no concrete artifact (e.g., Python module, logging config, example log output) that fulfills the requirement. The missing implementation must be supplied for the task to be considered complete.
+- `T023` (rejected 1x): declared artifact(s) missing/empty/invalid: reports/evaluation.json
+- `T024` (rejected 1x): declared artifact(s) missing/empty/invalid: reports/evaluation.json
+- `T025` (rejected 1x): declared artifact(s) missing/empty/invalid: data/performance_metrics.json
 
 ## Required change
 
