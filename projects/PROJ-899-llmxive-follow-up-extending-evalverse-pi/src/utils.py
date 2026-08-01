@@ -1,118 +1,112 @@
 """
-Utility functions for logging, file I/O, and error handling.
+Utility functions for logging, error handling, and file I/O.
 """
 import logging
 import os
 import sys
 import json
 import csv
+import shutil
 from pathlib import Path
-from typing import Optional, Any, Dict, List, Union
-from datetime import datetime
+from typing import Optional, Dict, Any, List
 
-# Global logger instance
-_logger_instance: Optional[logging.Logger] = None
-
-def get_logger(name: str) -> logging.Logger:
-    """Get or create a logger instance."""
-    global _logger_instance
-    if _logger_instance is None:
-        _logger_instance = logging.getLogger("llmXive")
-        _logger_instance.setLevel(logging.INFO)
-        if not _logger_instance.handlers:
-            handler = logging.StreamHandler(sys.stdout)
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
-            handler.setFormatter(formatter)
-            _logger_instance.addHandler(handler)
-    return logging.getLogger(name)
-
-def setup_logging(log_file: Optional[Path] = None, level: int = logging.INFO) -> None:
+def setup_logging(log_file: Optional[Path] = None, level: int = logging.INFO) -> logging.Logger:
     """Setup logging configuration."""
-    logger = get_logger(__name__)
+    logger = logging.getLogger("llmXive")
     logger.setLevel(level)
     
-    if log_file:
-        ensure_directories([log_file.parent])
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(logging.Formatter(
+    if not logger.handlers:
+        formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
-        logger.addHandler(file_handler)
+        )
+        
+        # Console handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+        
+        # File handler
+        if log_file:
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+    
+    return logger
 
-def ensure_directories(paths: List[Union[str, Path]]) -> None:
-    """Ensure all given paths exist as directories."""
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance."""
+    return logging.getLogger(name)
+
+def ensure_directories(*paths: Path) -> None:
+    """Ensure directories exist."""
     for path in paths:
-        p = Path(path)
-        p.mkdir(parents=True, exist_ok=True)
+        path.mkdir(parents=True, exist_ok=True)
 
-def write_json(file_path: Union[str, Path], data: Any) -> None:
-    """Write data to a JSON file."""
-    p = Path(file_path)
-    ensure_directories([p.parent])
-    with open(p, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, default=str)
+def write_json(data: Dict[str, Any], path: Path) -> None:
+    """Write data to JSON file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
 
-def read_json(file_path: Union[str, Path]) -> Dict[str, Any]:
-    """Read data from a JSON file."""
-    p = Path(file_path)
-    if not p.exists():
-        return {}
-    with open(p, 'r', encoding='utf-8') as f:
+def read_json(path: Path) -> Optional[Dict[str, Any]]:
+    """Read data from JSON file."""
+    if not path.exists():
+        return None
+    with open(path, "r") as f:
         return json.load(f)
 
-def write_csv(file_path: Union[str, Path], data: List[Dict[str, Any]], fieldnames: Optional[List[str]] = None) -> None:
-    """Write a list of dictionaries to a CSV file."""
-    p = Path(file_path)
-    ensure_directories([p.parent])
-    
+def write_csv(data: List[Dict[str, Any]], path: Path) -> None:
+    """Write data to CSV file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
     if not data:
-        # Write empty file with headers if provided
-        with open(p, 'w', newline='', encoding='utf-8') as f:
-            if fieldnames:
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
         return
-
-    if fieldnames is None:
-        fieldnames = list(data[0].keys())
     
-    with open(p, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    with open(path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=data[0].keys())
         writer.writeheader()
         writer.writerows(data)
 
-def read_csv(file_path: Union[str, Path]) -> List[Dict[str, Any]]:
-    """Read a CSV file into a list of dictionaries."""
-    p = Path(file_path)
-    if not p.exists():
+def read_csv(path: Path) -> List[Dict[str, Any]]:
+    """Read data from CSV file."""
+    if not path.exists():
         return []
-    
-    with open(p, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
+    with open(path, "r") as f:
+        return list(csv.DictReader(f))
 
-def safe_delete(file_path: Union[str, Path]) -> bool:
-    """Safely delete a file if it exists."""
-    p = Path(file_path)
-    if p.exists():
-        try:
-            p.unlink()
-            return True
-        except Exception as e:
-            logger = get_logger(__name__)
-            logger.warning(f"Failed to delete {p}: {e}")
-            return False
-    return False
+def safe_delete(path: Path) -> bool:
+    """Safely delete a file or directory."""
+    try:
+        if path.is_file():
+            path.unlink()
+        elif path.is_dir():
+            shutil.rmtree(path)
+        return True
+    except Exception as e:
+        logging.error(f"Failed to delete {path}: {e}")
+        return False
 
 def handle_error(error: Exception, context: str = "") -> None:
-    """Handle an error by logging it and optionally raising."""
-    logger = get_logger(__name__)
-    logger.error(f"{context}: {str(error)}", exc_info=True)
+    """Handle and log an error."""
+    logging.error(f"{context}: {str(error)}", exc_info=True)
 
-def validate_file_exists(file_path: Union[str, Path], description: str = "File") -> None:
-    """Validate that a file exists, raising an error if not."""
-    p = Path(file_path)
-    if not p.exists():
-        raise FileNotFoundError(f"{description} not found: {p}")
+def validate_file_exists(path: Path, description: str = "file") -> bool:
+    """Validate that a file exists."""
+    if not path.exists():
+        logging.error(f"{description} not found: {path}")
+        return False
+    return True
+
+def get_timestamp_filename(prefix: str = "output", extension: str = ".csv") -> str:
+    """Generate a filename with timestamp."""
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"{prefix}_{timestamp}{extension}"
+
+def format_size(size_bytes: int) -> str:
+    """Format byte size to human readable string."""
+    for unit in ["B", "KB", "MB", "GB", "TB"]:
+        if size_bytes < 1024.0:
+            return f"{size_bytes:.2f} {unit}"
+        size_bytes /= 1024.0
+    return f"{size_bytes:.2f} PB"

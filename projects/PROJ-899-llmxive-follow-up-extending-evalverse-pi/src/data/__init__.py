@@ -1,3 +1,3 @@
 """
-Data loading, preprocessing, and management modules.
+Data module initialization.
 """

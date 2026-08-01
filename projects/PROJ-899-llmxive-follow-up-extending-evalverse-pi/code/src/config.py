@@ -1,126 +1,72 @@
-"""
-Core configuration management for the llmXive project.
-Handles path resolution, environment variables, and global constants.
-"""
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# --- Constants ---
-PROJECT_ROOT_NAME = "PROJ-899-llmxive-follow-up-extending-evalverse-pi"
-DEFAULT_SEED = 42
-RANDOM_SEED = DEFAULT_SEED
+# Project Configuration
+PROJECT_NAME = "PROJ-899-llmxive-follow-up-extending-evalverse-pi"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_ROOT = PROJECT_ROOT / "data"
+STATE_ROOT = PROJECT_ROOT / "state"
+REPORTS_ROOT = PROJECT_ROOT / "reports"
+FIGURES_ROOT = PROJECT_ROOT / "figures"
+CACHE_DIR = DATA_ROOT / "cache"
+RAW_DATA_DIR = DATA_ROOT / "raw"
+PROCESSED_DATA_DIR = DATA_ROOT / "processed"
+RESULTS_DIR = DATA_ROOT / "results"
 
-# --- Path Resolvers ---
-_project_root: Optional[Path] = None
-_data_root: Optional[Path] = None
-_state_root: Optional[Path] = None
-_reports_root: Optional[Path] = None
-_figures_root: Optional[Path] = None
-_cache_dir: Optional[Path] = None
+# Dataset Configuration (referenced by T009b)
+DATASET_DOI = "10.5281/zenodo.1234567"  # Placeholder DOI
+DATASET_URL = "https://zenodo.org/record/1234567/files/evalverse.tar.gz"  # Placeholder URL
+
+# Random Seeds
+RANDOM_SEED = 42
+NUMPY_SEED = 42
+
+# Thresholds
+CORRELATION_THRESHOLD = 0.85
+VLM_REQUIRED_LOWER_CI = 0.70
+ERROR_RATE_THRESHOLD = 0.05
 
 def get_project_root() -> Path:
-    """Return the absolute path to the project root directory."""
-    global _project_root
-    if _project_root is None:
-        # Try to detect from environment or current working directory
-        if "LLMXIVE_PROJECT_ROOT" in os.environ:
-            _project_root = Path(os.environ["LLMXIVE_PROJECT_ROOT"])
-        else:
-            # Default: assume script is in code/scripts/, project root is parent of code/
-            current = Path(__file__).resolve()
-            _project_root = current.parent.parent
-
-        if not _project_root.exists():
-            raise FileNotFoundError(f"Project root not found at {_project_root}")
-    return _project_root
+    return PROJECT_ROOT
 
 def get_data_root() -> Path:
-    """Return the absolute path to the data directory."""
-    global _data_root
-    if _data_root is None:
-        _data_root = get_project_root() / "data"
-    return _data_root
+    return DATA_ROOT
 
 def get_state_root() -> Path:
-    """Return the absolute path to the state directory."""
-    global _state_root
-    if _state_root is None:
-        _state_root = get_project_root() / "state"
-    return _state_root
+    return STATE_ROOT
 
 def get_reports_root() -> Path:
-    """Return the absolute path to the reports directory."""
-    global _reports_root
-    if _reports_root is None:
-        _reports_root = get_project_root() / "reports"
-    return _reports_root
+    return REPORTS_ROOT
 
 def get_figures_root() -> Path:
-    """Return the absolute path to the figures directory."""
-    global _figures_root
-    if _figures_root is None:
-        _figures_root = get_project_root() / "figures"
-    return _figures_root
+    return FIGURES_ROOT
 
 def get_cache_dir() -> Path:
-    """Return the absolute path to the cache directory."""
-    global _cache_dir
-    if _cache_dir is None:
-        # Cache can be inside data or project root, typically data/cache or ~/.cache/llmxive
-        # For this project, we use data/cache as per task T009 requirements
-        _cache_dir = get_data_root() / "cache"
-    return _cache_dir
+    return CACHE_DIR
 
 def get_raw_data_dir() -> Path:
-    """Return the path to the raw data subdirectory."""
-    return get_data_root() / "raw"
+    return RAW_DATA_DIR
 
 def get_processed_data_dir() -> Path:
-    """Return the path to the processed data subdirectory."""
-    return get_data_root() / "processed"
+    return PROCESSED_DATA_DIR
 
-# --- Environment Setup ---
-def ensure_environment() -> bool:
-    """
-    Ensure all necessary directories and configuration files exist.
-    Creates directories if missing.
-    Returns True if successful.
-    """
-    # Ensure base directories
-    dirs_to_create = [
-        get_data_root(),
-        get_state_root(),
-        get_reports_root(),
-        get_figures_root(),
-        get_cache_dir(),
-        get_raw_data_dir(),
-        get_processed_data_dir(),
+def ensure_environment():
+    """Ensure all required directories exist."""
+    dirs = [
+        DATA_ROOT, STATE_ROOT, REPORTS_ROOT, FIGURES_ROOT, CACHE_DIR,
+        RAW_DATA_DIR, PROCESSED_DATA_DIR, RESULTS_DIR
     ]
-
-    for d in dirs_to_create:
+    for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
-    # Ensure .gitkeep files exist in empty directories to track them in git
-    for d in dirs_to_create:
-        gitkeep = d / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
-
-    return True
-
 def get_config_summary() -> Dict[str, Any]:
-    """
-    Return a summary of the current configuration state.
-    """
     return {
-        "project_root": str(get_project_root()),
-        "data_root": str(get_data_root()),
-        "state_root": str(get_state_root()),
-        "reports_root": str(get_reports_root()),
-        "figures_root": str(get_figures_root()),
-        "cache_dir": str(get_cache_dir()),
-        "random_seed": RANDOM_SEED,
-        "raw_data_dir": str(get_raw_data_dir()),
-        "processed_data_dir": str(get_processed_data_dir()),
+        "project_root": str(PROJECT_ROOT),
+        "data_root": str(DATA_ROOT),
+        "state_root": str(STATE_ROOT),
+        "reports_root": str(REPORTS_ROOT),
+        "figures_root": str(FIGURES_ROOT),
+        "dataset_doi": DATASET_DOI,
+        "random_seed": RANDOM_SEED
     }

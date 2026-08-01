@@ -1,41 +1,30 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
+
+# Distribution / packaging
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+dist/
+build/
 
 # Virtual environments
 venv/
-ENV/
 env/
+.venv/
 
 # IDE
 .idea/
 .vscode/
-*.swp
-*.swo
 
 # Data
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+data/results/*
+!data/results/.gitkeep
 
 # State
 state/*
@@ -51,6 +40,7 @@ figures/*
 
 # Logs
 *.log
+logs/
 
 # OS
 .DS_Store

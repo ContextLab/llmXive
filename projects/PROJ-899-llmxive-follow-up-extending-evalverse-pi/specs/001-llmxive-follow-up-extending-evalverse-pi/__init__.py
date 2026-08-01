@@ -1,0 +1,3 @@
+"""
+Feature distillation specification placeholder.
+"""

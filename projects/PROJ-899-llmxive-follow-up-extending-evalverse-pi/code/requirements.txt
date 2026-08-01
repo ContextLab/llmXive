@@ -1,20 +1,9 @@
-# Core dependencies
-opencv-python==4.8.1.78
-librosa==0.10.1
-scikit-learn==1.3.2
-xgboost==2.0.2
-psutil==5.9.6
-
-# Data handling
-pandas==2.1.3
-numpy==1.26.2
-
-# Testing
-pytest==7.4.3
-
-# Utilities
-requests==2.31.0
-
-# Linting and formatting (already configured per T003)
-# ruff==0.1.6
-# black==23.11.0
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+xgboost>=2.0.0
+opencv-python>=4.8.0
+librosa>=0.10.0
+psutil>=5.9.0
+pytest>=7.4.0
+scipy>=1.11.0

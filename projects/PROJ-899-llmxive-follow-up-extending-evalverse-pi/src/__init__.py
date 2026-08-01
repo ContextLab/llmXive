@@ -1,3 +1,3 @@
 """
-llmXive: Automated Science Pipeline - EvalVerse Extension
+llmXive Feature Distillation Project Source
 """

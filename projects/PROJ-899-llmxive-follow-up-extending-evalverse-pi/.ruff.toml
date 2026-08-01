@@ -1,6 +1,28 @@
-# Extends the configuration in pyproject.toml for specific IDE/editor overrides if needed,
-# but primarily relies on pyproject.toml for the main configuration.
-# This file ensures ruff finds configuration even if pyproject.toml is not in the root.
-extend = "pyproject.toml"
-line-length = 88
+# Ruff configuration file (alternative to pyproject.toml)
+# This file is provided for environments that prefer explicit config files
+# over pyproject.toml sections.
+#
+# If both exist, ruff typically prioritizes pyproject.toml, but having this
+# ensures explicit configuration is available in the root.
+#
+# See tool.ruff in pyproject.toml for the actual settings.
 target-version = "py311"
+line-length = 88
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = ["E501", "B008"]
+exclude = [
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+    "__pycache__",
+    ".mypy_cache",
+]

@@ -7,27 +7,29 @@ import numpy as np
 
 @dataclass
 class VideoClip:
-    """Represents a video clip with its metadata and features."""
-    id: str
-    path: str
+    """Represents a video clip with its metadata."""
+    clip_id: str
+    file_path: str
     duration: float
+    width: int
+    height: int
     fps: float
-    resolution: Tuple[int, int]
-    has_audio: bool = True
-    features: Optional[Dict[str, np.ndarray]] = None
-    expert_scores: Optional[Dict[str, float]] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class FeatureVector:
     """Represents a feature vector extracted from a video clip."""
     clip_id: str
-    features: Dict[str, float]
-    timestamp: Optional[float] = None
+    features: np.ndarray
+    feature_names: List[str]
+    extraction_time: float
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class DimensionScore:
-    """Represents a score for a specific technical dimension."""
+    """Represents a score for a technical dimension."""
     dimension: str
     score: float
     confidence_interval: Optional[Tuple[float, float]] = None
-    status: Optional[str] = None  # "feature-sufficient", "VLM-required", etc.
+    classification: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)

@@ -1,3 +1,3 @@
 """
-Machine learning models, training, and evaluation modules.
+Models module initialization.
 """

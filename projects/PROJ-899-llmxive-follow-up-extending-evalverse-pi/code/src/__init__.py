@@ -1,1 +1,1 @@
-"""llmXive: Automated Science Pipeline."""
+# llmXive Source Package
