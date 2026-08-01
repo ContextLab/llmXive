@@ -3061,3 +3061,342 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T16:18:17Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Generate 1,000,000 synthetic populations for UCI Adult, UCI Iris, and
+    UCI Wine Quality
+  claim_id: c_a7984da3
+  context: Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for UCI Adult, UCI Iris, and UCI Wine Quality distributions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=1,000,000 synthetic populations for UCI Adult, UCI Iris, and
+    UCI Wine Quality distributions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:35:07Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Set N_sim to 1000 for simulation count
+  claim_id: c_5b9ab4c2
+  context: Implement code/config.py with hyperparameters, random seeds, artifact paths,
+    and nominal_coverage_target. Set N_sim = 1000 to match plan feasibility check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:35:46Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Verify bias-correction and variance-inflation formulas against Covington
+    et al. 2021 and Karwa & Vadhan 2017
+  claim_id: c_d13e8c00
+  context: 'Implement code/analysis/adjustments.py with bias-correction and variance-inflation
+    methods. Mandatory: Verify the specific formulas against the cited literature
+    (Covington et al. 2021 and Karwa & Vadhan 2017) before implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The formulas for bias-correction and variance-inflation are verified against
+    Covington et al. 2021 and Karwa & Vadhan 2017.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:36:06Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: 'Bias-correction formula for mean: mu_adj = x_bar - sigma^2 / (2n)'
+  claim_id: c_c70e4381
+  context: 'Formulas to implement: Bias-Correction (Mean): mu_adj = x_bar - sigma^2
+    / (2n) (or as per Covington et al. 2021)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bias-correction formula for the mean is mu_adj = x_bar - sigma^2 /
+    (2n).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:38:09Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: 'Variance-inflation formula for regression: SE_adj = SE * sqrt(1 + lambda/n)'
+  claim_id: c_ef6dafe0
+  context: 'Formulas to implement: Variance-Inflation (Regression): SE_adj = SE *
+    sqrt(1 + lambda/n) (or as per Karwa & Vadhan 2017)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variance-inflation formula for regression is SE_adj = SE * sqrt(1
+    + lambda/n).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:38:44Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis thresholds: 0.90, 0.93, 0.95'
+  claim_id: c_c70b6c00
+  context: 'Implement and execute sensitivity analysis: Run code/analysis/sensitivity_analysis.py
+    with thresholds [0.90, 0.93, 0.95] derived from config.nominal_coverage_target.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep uses thresholds 0.90, 0.93, and 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:39:18Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: N_sim=1000 simulation runtime limit is 6 hours on standard CPU
+  claim_id: c_c2c184cb
+  context: Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full N_sim=1000 simulation is projected to run within 6 hours on a
+    standard CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:40:07Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Feasibility check exits with warning if projected time > 5.5 hours
+  claim_id: c_9f668547
+  context: If the projected time exceeds 5.5 hours, the script must exit with a warning
+    to reduce N_sim in config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility check script exits with a warning if the projected time
+    exceeds 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:41:14Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Simulation processes in batches of 100
+  claim_id: c_a47afffd
+  context: 'Implement a chunked processing strategy for the N_sim loop: process and
+    write results in batches of 100 simulations to artifacts/coverage_results.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_processes_in_batches_of_100
+  kind: causal
+  raw_text: The simulation processes and writes results in batches of 100 simulations.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:41:16Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Convergence check standard error of coverage < 0.5%
+  claim_id: c_28869dfd
+  context: Implement code/analysis/convergence_check.py to run simulation with multiple
+    seeds and verify standard error of coverage < 0.5%.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Convergence_check_standard_error_of_coverage_%3C_0.5%25
+  kind: magnitude
+  raw_text: The convergence check verifies the standard error of coverage is less
+    than 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:42:02Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: synthetic population generation creates known parameters for UCI Adult,
+    Iris, and Wine Quality distributions
+  claim_id: c_d7d537c4
+  context: 'T003: Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for UCI Adult, UCI Iris, and UCI Wine Quality distributions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_population_generation_creates_known_parameters_for
+  kind: entity_fact
+  raw_text: The generation MUST create a population with known parameters (mean, variance,
+    coefficients) to serve as ground truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:43:27Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: simulation count set to 1000 samples
+  claim_id: c_9412969c
+  context: 'T002: Implement code/config.py with hyperparameters, random seeds, artifact
+    paths, and nominal_coverage_target. Set N_sim = 1000 to match plan feasibility
+    check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:43:28Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: adjustment formulas verified against Covington et al. 2021 and Karwa
+    & Vadhan 2017
+  claim_id: c_bf2c0541
+  context: 'T020: Implement code/analysis/adjustments.py with bias-correction and
+    variance-inflation methods. Mandatory: Verify the specific formulas against the
+    cited literature (Covington et al. 2021 and Karwa & Vadhan 2017) before implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The formulas for bias-correction and variance-inflation must be verified
+    against Covington et al. 2021 and Karwa & Vadhan 2017.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:43:52Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis reports change in count of datasets passing criterion
+  claim_id: c_089adc3e
+  context: 'T031: Implement and execute sensitivity analysis. Mandatory: The sweep
+    MUST report the ''change in the count of datasets passing the criterion'' (as
+    per spec FR-006), not per statistic.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_reports_change_in_count_of_datasets_pas
+  kind: entity_fact
+  raw_text: The sensitivity analysis sweep must report the change in the count of
+    datasets passing the criterion.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:44:15Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: feasibility check warns if projected time exceeds 5.5 hours
+  claim_id: c_887934e1
+  context: 'T040: Add a code/utils/feasibility_check.py script that runs a micro-benchmark.
+    If the projected time exceeds 5.5 hours, the script must exit with a warning to
+    reduce N_sim in config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility check must exit with a warning if the projected time exceeds
+    5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:45:25Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: simulation runtime limit is 6 hours
+  claim_id: c_ef69c2b4
+  context: 'T040: Add a code/utils/feasibility_check.py script that runs a micro-benchmark
+    to verify that the full N_sim=1000 simulation will fit within the 6-hour runtime
+    limit on the target CPU runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full simulation must fit within the 6-hour runtime limit on the target
+    CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:46:08Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: pipeline runs within 6 hours on standard runner
+  claim_id: c_d372ef97
+  context: 'T037: Run quickstart.md validation to ensure the entire pipeline runs
+    within 6 hours on a standard runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The quickstart validation must ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:46:35Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: simulation processes results in batches of 100
+  claim_id: c_e16474f8
+  context: 'T041: Ensure code/main.py implements a chunked processing strategy for
+    the N_sim loop: process and write results in batches of 100 simulations to artifacts/coverage_results.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_processes_results_in_batches_of_100
+  kind: causal
+  raw_text: The simulation must process and write results in batches of 100 simulations.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:46:37Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: standard error of coverage is less than 0.5 percent
+  claim_id: c_27d20e68
+  context: 'T033: Implement code/analysis/convergence_check.py to run simulation with
+    multiple seeds and verify standard error of coverage < 0.5%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_error_of_coverage_is_less_than_0.5_percent
+  kind: magnitude
+  raw_text: The standard error of coverage must be less than 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T03:47:31Z'

@@ -1,9 +1,10 @@
-T011:
+T001b:
   c: false
-  h: 01a1ba9d8f2c8711ed4b0121f5bffa256055d5e124aabc624944d63a7b6646fc
-  r: "The required artifact `code/tests/test_coverage_pipeline.py` does not exist\
-    \ in the repository, so no integration test is present to verify end\u2011to\u2011\
-    end coverage calculation. The task\u2019s core deliverable is missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files are present in any of the required package directories
+    (`code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`). The implementer
+    provided only a feature specification and no filesystem artifacts, so the task
+    requirement is not satisfied.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
