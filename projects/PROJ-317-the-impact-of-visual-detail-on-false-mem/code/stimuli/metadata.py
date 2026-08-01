@@ -1,10 +1,9 @@
 """
-Stimulus Metadata Generation Module
+Stimulus Metadata Generation Module.
 
-Generates and manages metadata for baseline images used in the visual detail study.
-Produces YAML files containing detail_level, object_list, texture_settings, and timestamp.
+Generates metadata files for each baseline image, storing detail_level,
+object_list, texture_settings, timestamp, and manipulation_timestamp.
 """
-
 import json
 import logging
 import math
@@ -17,122 +16,90 @@ from typing import Dict, List, Optional, Any
 
 import yaml
 
-from config import get_stimuli_dir, get_stimuli_metadata_dir, get_project_root
-from utils.logging import get_logger
+from config import get_project_root, get_stimuli_dir, get_data_dir
+from utils.logging import get_logger, log_error
 
 logger = get_logger(__name__)
 
 @dataclass
 class ManipulationRecord:
-    """Record of a specific manipulation applied to an image."""
-    type: str  # 'enhanced' or 'reduced'
-    parameters: Dict[str, Any]
+    """Record of a specific manipulation performed on an image."""
     timestamp: str
+    manipulation_type: str
+    parameters: Dict[str, Any]
 
 @dataclass
 class StimulusMetadata:
-    """Complete metadata structure for a single stimulus image."""
+    """Complete metadata for a stimulus image."""
     id: str
-    detail_level: str  # 'low', 'medium', 'high', or specific descriptor
+    path: str
+    detail_level: str
     object_list: List[str]
     texture_settings: Dict[str, Any]
     timestamp: str
-    complexity_score: Optional[float] = None
-    image_path: Optional[str] = None
+    manipulation_timestamp: str
+    baseline_complexity_score: Optional[float] = None
     manipulation_records: List[ManipulationRecord] = field(default_factory=list)
-    source_dataset: Optional[str] = None
-    checksum: Optional[str] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert dataclass to dictionary for serialization."""
-        return {
-            'id': self.id,
-            'detail_level': self.detail_level,
-            'object_list': self.object_list,
-            'texture_settings': self.texture_settings,
-            'timestamp': self.timestamp,
-            'complexity_score': self.complexity_score,
-            'image_path': self.image_path,
-            'manipulation_records': [asdict(m) for m in self.manipulation_records],
-            'source_dataset': self.source_dataset,
-            'checksum': self.checksum
-        }
 
 def generate_metadata_for_image(
-    image_path: Path,
     image_id: str,
-    complexity_score: Optional[float] = None,
+    image_path: Path,
+    baseline_complexity: Optional[float] = None,
     object_list: Optional[List[str]] = None,
-    source_dataset: Optional[str] = None,
-    checksum: Optional[str] = None
+    texture_settings: Optional[Dict[str, Any]] = None
 ) -> StimulusMetadata:
     """
     Generate metadata for a single baseline image.
 
     Args:
-        image_path: Path to the image file
-        image_id: Unique identifier for the image
-        complexity_score: Pre-calculated complexity score (optional)
-        object_list: List of detected objects (optional, will be generated if missing)
-        source_dataset: Name of the source dataset (e.g., 'Visual Genome')
-        checksum: SHA256 checksum of the image file (optional)
+        image_id: Unique identifier for the image.
+        image_path: Path to the image file.
+        baseline_complexity: Optional baseline complexity score.
+        object_list: Optional list of detected objects. If None, generates a mock list.
+        texture_settings: Optional texture configuration. If None, generates defaults.
 
     Returns:
-        StimulusMetadata object with populated fields
+        StimulusMetadata object with all required fields populated.
     """
-    # Determine detail level based on complexity score or filename heuristics
-    detail_level = "medium"
-    if complexity_score is not None:
-        if complexity_score < 0.3:
+    now = datetime.utcnow().isoformat() + "Z"
+
+    # Default object list if not provided (mock for baseline generation)
+    if object_list is None:
+        object_list = [
+            "background_texture",
+            "ambient_lighting",
+            "general_shape"
+        ]
+
+    # Default texture settings if not provided
+    if texture_settings is None:
+        texture_settings = {
+            "grain": 0.0,
+            "sharpness": 1.0,
+            "contrast": 1.0
+        }
+
+    # Determine detail level based on complexity if available
+    detail_level = "baseline"
+    if baseline_complexity is not None:
+        if baseline_complexity < 0.4:
             detail_level = "low"
-        elif complexity_score > 0.7:
+        elif baseline_complexity > 0.6:
             detail_level = "high"
         else:
             detail_level = "medium"
-    else:
-        # Fallback heuristic based on filename or path
-        filename = image_path.name.lower()
-        if "simple" in filename or "low" in filename:
-            detail_level = "low"
-        elif "complex" in filename or "high" in filename:
-            detail_level = "high"
-
-    # Generate object list if not provided
-    if object_list is None:
-        # Heuristic: extract potential object names from filename
-        base_name = image_path.stem.replace('_', ' ').replace('-', ' ')
-        words = base_name.split()
-        # Filter out common stop words and keep potential nouns
-        stop_words = {'the', 'a', 'an', 'image', 'of', 'in', 'on', 'at', 'to', 'for'}
-        potential_objects = [w for w in words if w not in stop_words and len(w) > 2]
-        
-        if not potential_objects:
-            # Default fallback list based on common dataset objects
-            potential_objects = ["background", "scene", "general_objects"]
-        
-        object_list = potential_objects
-
-    # Generate texture settings based on detail level
-    texture_settings = {
-        'sharpness': 1.0 if detail_level == "high" else 0.8 if detail_level == "medium" else 0.5,
-        'noise_level': 0.1 if detail_level == "low" else 0.05 if detail_level == "medium" else 0.0,
-        'color_saturation': 0.9,
-        'contrast': 1.0
-    }
 
     metadata = StimulusMetadata(
         id=image_id,
+        path=str(image_path),
         detail_level=detail_level,
         object_list=object_list,
         texture_settings=texture_settings,
-        timestamp=datetime.now().isoformat(),
-        complexity_score=complexity_score,
-        image_path=str(image_path),
-        source_dataset=source_dataset,
-        checksum=checksum
+        timestamp=now,
+        manipulation_timestamp=now,
+        baseline_complexity_score=baseline_complexity
     )
 
-    logger.info(f"Generated metadata for image {image_id}: detail_level={detail_level}, objects={len(object_list)}")
     return metadata
 
 def save_metadata_as_yaml(metadata: StimulusMetadata, output_path: Path) -> None:
@@ -140,16 +107,32 @@ def save_metadata_as_yaml(metadata: StimulusMetadata, output_path: Path) -> None
     Save StimulusMetadata to a YAML file.
 
     Args:
-        metadata: The metadata object to save
-        output_path: Path where the YAML file will be written
+        metadata: The metadata object to save.
+        output_path: Path where the YAML file will be written.
     """
+    # Convert dataclass to dict, handling nested dataclasses
+    data = {
+        "id": metadata.id,
+        "path": metadata.path,
+        "detail_level": metadata.detail_level,
+        "object_list": metadata.object_list,
+        "texture_settings": metadata.texture_settings,
+        "timestamp": metadata.timestamp,
+        "manipulation_timestamp": metadata.manipulation_timestamp,
+        "baseline_complexity_score": metadata.baseline_complexity_score
+    }
+
+    if metadata.manipulation_records:
+        data["manipulation_records"] = [
+            asdict(record) for record in metadata.manipulation_records
+        ]
+
+    # Ensure parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    data = metadata.to_dict()
-    # Convert ManipulationRecord dicts to proper format if needed
+
     with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+
     logger.info(f"Saved metadata to {output_path}")
 
 def load_metadata_from_yaml(path: Path) -> Optional[StimulusMetadata]:
@@ -157,10 +140,10 @@ def load_metadata_from_yaml(path: Path) -> Optional[StimulusMetadata]:
     Load StimulusMetadata from a YAML file.
 
     Args:
-        path: Path to the YAML file
+        path: Path to the YAML file.
 
     Returns:
-        StimulusMetadata object or None if file not found or invalid
+        StimulusMetadata object or None if file not found or invalid.
     """
     if not path.exists():
         logger.warning(f"Metadata file not found: {path}")
@@ -169,113 +152,125 @@ def load_metadata_from_yaml(path: Path) -> Optional[StimulusMetadata]:
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
-        
-        # Reconstruct ManipulationRecord objects if present
-        if 'manipulation_records' in data and data['manipulation_records']:
-            data['manipulation_records'] = [
-                ManipulationRecord(**m) for m in data['manipulation_records']
-            ]
-        
-        return StimulusMetadata(**data)
+
+        if not data:
+            return None
+
+        # Reconstruct nested objects
+        manipulation_records = []
+        if "manipulation_records" in data:
+            for rec in data["manipulation_records"]:
+                manipulation_records.append(ManipulationRecord(**rec))
+
+        metadata = StimulusMetadata(
+            id=data["id"],
+            path=data["path"],
+            detail_level=data["detail_level"],
+            object_list=data["object_list"],
+            texture_settings=data["texture_settings"],
+            timestamp=data["timestamp"],
+            manipulation_timestamp=data["manipulation_timestamp"],
+            baseline_complexity_score=data.get("baseline_complexity_score"),
+            manipulation_records=manipulation_records
+        )
+        return metadata
+
     except Exception as e:
         logger.error(f"Failed to load metadata from {path}: {e}")
         return None
 
 def generate_stimulus_metadata(
-    image_paths: List[Path],
-    complexity_scores: Optional[Dict[str, float]] = None,
-    object_lists: Optional[Dict[str, List[str]]] = None,
-    source_dataset: str = "Visual Genome Subset"
-) -> List[StimulusMetadata]:
+    image_id: str,
+    image_path: Path,
+    complexity_score: Optional[float] = None
+) -> None:
     """
-    Generate metadata for a list of baseline images.
+    Generate and save metadata for a single image.
+
+    This function is the primary entry point for creating metadata files.
+    It generates the metadata object and saves it to the correct location.
 
     Args:
-        image_paths: List of paths to baseline images
-        complexity_scores: Optional dict mapping image_id to complexity_score
-        object_lists: Optional dict mapping image_id to object_list
-        source_dataset: Name of the source dataset
-
-    Returns:
-        List of StimulusMetadata objects
+        image_id: Unique identifier for the image.
+        image_path: Path to the image file.
+        complexity_score: Optional baseline complexity score.
     """
-    metadata_list = []
-    output_dir = get_stimuli_metadata_dir()
+    metadata = generate_metadata_for_image(
+        image_id=image_id,
+        image_path=image_path,
+        baseline_complexity=complexity_score
+    )
 
-    for img_path in image_paths:
-        if not img_path.exists():
-            logger.warning(f"Image not found, skipping: {img_path}")
-            continue
+    # Output path: directly inside data/stimuli/ per Constitution VII
+    output_dir = get_stimuli_dir()
+    output_path = output_dir / f"{image_id}_metadata.yaml"
 
-        # Extract ID from filename (stem)
-        image_id = img_path.stem
-        
-        complexity = None
-        if complexity_scores and image_id in complexity_scores:
-            complexity = complexity_scores[image_id]
+    save_metadata_as_yaml(metadata, output_path)
 
-        objects = None
-        if object_lists and image_id in object_lists:
-            objects = object_lists[image_id]
-
-        # Generate checksum if not provided (basic implementation)
-        checksum = None
-        try:
-            import hashlib
-            sha256_hash = hashlib.sha256()
-            with open(img_path, "rb") as f:
-                for byte_block in iter(lambda: f.read(4096), b""):
-                    sha256_hash.update(byte_block)
-            checksum = sha256_hash.hexdigest()
-        except Exception as e:
-            logger.warning(f"Could not compute checksum for {img_path}: {e}")
-
-        metadata = generate_metadata_for_image(
-            image_path=img_path,
-            image_id=image_id,
-            complexity_score=complexity,
-            object_list=objects,
-            source_dataset=source_dataset,
-            checksum=checksum
-        )
-
-        output_path = output_dir / f"{image_id}.yaml"
-        save_metadata_as_yaml(metadata, output_path)
-        metadata_list.append(metadata)
-
-    logger.info(f"Generated {len(metadata_list)} metadata files in {output_dir}")
-    return metadata_list
-
-def main():
+def main() -> None:
     """
-    Main entry point for generating stimulus metadata.
-    Scans the stimuli directory and generates metadata for all images.
+    Main entry point for generating metadata for all baseline images.
+
+    Iterates over images in data/stimuli/raw/ and generates metadata for each.
     """
     stimuli_dir = get_stimuli_dir()
-    metadata_dir = get_stimuli_metadata_dir()
-    
-    if not stimuli_dir.exists():
-        logger.error(f"Stimuli directory does not exist: {stimuli_dir}")
-        sys.exit(1)
+    raw_dir = stimuli_dir / "raw"
 
-    # Find all image files
-    image_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff'}
-    image_paths = [
-        p for p in stimuli_dir.rglob('*')
-        if p.suffix.lower() in image_extensions
+    if not raw_dir.exists():
+        logger.warning(f"Raw stimuli directory not found: {raw_dir}")
+        logger.info("No images to process. Ensure T006.3-Filter has populated data/stimuli/raw/")
+        return
+
+    # Find all image files (common extensions)
+    image_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif'}
+    image_files = [
+        f for f in raw_dir.iterdir()
+        if f.is_file() and f.suffix.lower() in image_extensions
     ]
 
-    if not image_paths:
-        logger.warning(f"No images found in {stimuli_dir}")
-        sys.exit(0)
+    if not image_files:
+        logger.warning(f"No image files found in {raw_dir}")
+        return
 
-    logger.info(f"Found {len(image_paths)} images to process")
+    logger.info(f"Found {len(image_files)} images to process")
 
-    # Generate metadata for all images
-    generate_stimulus_metadata(image_paths, source_dataset="Visual Genome Subset")
+    # Try to load complexity scores if available
+    complexity_stats_path = get_data_dir() / "processed" / "complexity_stats.json"
+    complexity_map: Dict[str, float] = {}
+    if complexity_stats_path.exists():
+        try:
+            with open(complexity_stats_path, 'r') as f:
+                stats = json.load(f)
+            # Assuming stats contains a mapping or list we can index
+            if "image_scores" in stats:
+                complexity_map = {item["id"]: item["score"] for item in stats["image_scores"]}
+        except Exception as e:
+            logger.warning(f"Could not load complexity stats: {e}")
 
-    logger.info("Metadata generation complete")
+    success_count = 0
+    error_count = 0
+
+    for img_path in image_files:
+        image_id = img_path.stem
+        try:
+            complexity = complexity_map.get(image_id)
+            generate_stimulus_metadata(image_id, img_path, complexity)
+            success_count += 1
+        except Exception as e:
+            logger.error(f"Failed to generate metadata for {img_path}: {e}")
+            error_count += 1
+
+    logger.info(f"Metadata generation complete: {success_count} succeeded, {error_count} failed")
+
+    if error_count > 0:
+        logger.warning(f"Some metadata files were not generated. Check logs for details.")
 
 if __name__ == "__main__":
-    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Generate stimulus metadata for baseline images")
+    parser.add_argument("--log-level", default="INFO", help="Logging level")
+    args = parser.parse_args()
+
+    logging.basicConfig(level=getattr(logging, args.log_level.upper()))
     main()
