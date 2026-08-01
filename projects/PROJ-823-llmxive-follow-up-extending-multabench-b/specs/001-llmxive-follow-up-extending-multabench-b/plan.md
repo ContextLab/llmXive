@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project extends the MulTaBench benchmark by implementing a "CPU-Conditioned" multimodal learning approach. The core technical strategy involves generating frozen embeddings for unstructured data (images/text) using CLIP ViT-B/32 and Sentence-BERT on a CPU-only environment, then training a lightweight, trainable projection module (MLP or attention) that uses normalized tabular features as a query to modulate these embeddings. The goal is to recover performance lost by not fine-tuning the backbone, specifically analyzing the correlation between recovery efficacy and tabular structural properties (cardinality, sparsity, missingness). The entire pipeline is constrained to run on GitHub Actions free-tier runners (limited CPU and RAM resources, time-limited execution) without GPU acceleration.
+This project extends the MulTaBench benchmark by implementing a "CPU-Conditioned" multimodal learning approach. The core technical strategy involves generating frozen embeddings for unstructured data (images/text) using CLIP ViT-B and Sentence-BERT on a CPU-only environment., then training a lightweight, trainable projection module (MLP or attention) that uses normalized tabular features as a query to modulate these embeddings. The goal is to recover performance lost by not fine-tuning the backbone, specifically analyzing the correlation between recovery efficacy and tabular structural properties (cardinality, sparsity, missingness). The entire pipeline is constrained to run on GitHub Actions free-tier runners (limited CPU and RAM resources, time-limited execution) without GPU acceleration.
 
 ## Technical Context
 
@@ -107,5 +107,5 @@ requirements.txt         # Generated from pyproject.toml for CI
 1.  **Phase 0: Research & Data Validation**: Verify local data checksums, confirm dataset structure.
 2.  **Phase 1: Frozen Embedding Generation**: Generate embeddings for images/text (CLIP/SBERT) with `random_seed=42` and 4 additional seeds for sensitivity. Output `FrozenEmbedding` parquet files with `run_id`.
 3.  **Phase 2: Tabular-Conditioned Projection**: Train the projection layer. Verify frozen backbone integrity via `tests/test_projection.py`.
-4.  **Phase 3: Statistical Analysis**: Compute metadata stats, recovery ratios (averaged over 5 seeds), and perform correlation analysis with Bayesian estimation.
+4.  **Phase 3: Statistical Analysis**: Compute metadata stats, recovery ratios (averaged over multiple seeds), and perform correlation analysis with Bayesian estimation.
 5.  **Phase 4: Update State**: Execute `update_state.py` to hash artifacts and update `state/projects/...yaml`.

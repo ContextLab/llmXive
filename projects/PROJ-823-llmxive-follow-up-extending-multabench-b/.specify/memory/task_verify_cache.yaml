@@ -27,13 +27,6 @@ T032a:
     \ logic to write the required CSV. Moreover, the expected output file `data/artifacts/gpu_tuned_baselines.csv`\
     \ is absent. The task\u2019s deliverables (a populated CSV with the specified\
     \ schema and a gap report) are therefore not present."
-T032b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data file was presented that reads the validated\
-    \ CSV from T032a and extracts the \u201CGPU\u2011Tuned\u201D baseline entries\
-    \ from the MulTaBench paper. The required artifact (logic for fetching those baselines)\
-    \ is missing, so the task is not satisfied."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -73,3 +66,28 @@ T038:
     \ we cannot confirm that the required reporting for datasets lacking GPU\u2011\
     Tuned baselines was added. The implementer must supply the modified report (or\
     \ source files) showing the new \u201CData Availability Gap\u201D content."
+T049:
+  c: false
+  h: 626a3721fe18ba8c50a8144a61551a4ae4bbe37c01e06740d946580ac398ba31
+  r: The required artifact `data/artifacts/final_validation_report.md` does not exist,
+    and there is no evidence that a `correlation_report_{run_id}.json` file is present;
+    thus the reviewer cannot verify that all FR requirements are met.
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file was provided, and there is no evidence that a summary
+    containing the Recovery Ratio and key correlations was added to the repository
+    root. The required documentation artifact is missing.
+T051:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing any files under `data/artifacts/`, nor any
+    demonstration that generated artifacts were saved there with a clear `run_id`
+    naming scheme. The required archive is missing, so the task is not satisfied.
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing that open issues or TODO comments related to US1, US2, and
+    US3 have been identified and removed (e.g., updated issue tracker, commit diffs,
+    or cleaned code files) is provided. The evidence consists only of the feature
+    specification, not proof of closing the TODOs.

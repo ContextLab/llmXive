@@ -1,0 +1,61 @@
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/data/artifacts/final_validation_report.md
+  attempts: 1
+  canonical: 5 seeds used in deterministic re-computation
+  claim_id: c_3e6a9a6f
+  context: "### FR-001\n**Status:** \u2705 passed\n- Seed Count: 5"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Seed Count: 5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T23:01:24Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/data/artifacts/final_validation_report.md
+  attempts: 1
+  canonical: 6.20 GB peak memory usage
+  claim_id: c_065ff245
+  context: "### FR-002\n**Status:** \u2705 passed\n- Peak Memory: 6.20 GB"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Peak Memory: 6.20 GB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T23:01:50Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/data/artifacts/final_validation_report.md
+  attempts: 1
+  canonical: 4.50 hours total runtime
+  claim_id: c_cf14e3fa
+  context: "### FR-002\n**Status:** \u2705 passed\n- Total Runtime: 4.50 hours"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Runtime: 4.50 hours'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T23:02:19Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/data/artifacts/final_validation_report.md
+  attempts: 1
+  canonical: 2 datasets skipped due to zero variance
+  claim_id: c_ac93a294
+  context: "### FR-003\n**Status:** \u2705 passed\n- Skipped Datasets (Zero Variance):\
+    \ 2"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Skipped Datasets (Zero Variance): 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T23:03:06Z'
