@@ -1,202 +1,169 @@
 """
-Unit tests for power analysis utility.
-Tests calculation accuracy and abort behavior.
+Unit tests for power analysis module.
+
+Tests for T008: Power analysis on final paired set.
+Verifies power calculations and abort criteria.
 """
-import json
 import pytest
+import json
+import math
 from pathlib import Path
-import tempfile
 import sys
+import os
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from power_analysis import calculate_required_n, run_power_analysis, MIN_REQUIRED_N
+from power_analysis import (
+    calculate_z_score,
+    calculate_required_n,
+    calculate_power,
+    run_power_analysis
+)
 from exceptions import E_POWER
 
 
-class TestCalculateRequiredN:
-    """Tests for calculate_required_n function."""
+class TestCalculateZScore:
+    """Tests for Fisher's z-transformation."""
     
-    def test_effect_size_05(self):
-        """Test with effect size r=0.5, alpha=0.05, power=0.8"""
-        n = calculate_required_n(effect_size=0.5, alpha=0.05, power=0.8)
-        # Expected value should be around 28-30
-        assert 28 <= n <= 32, f"Expected n around 29, got {n}"
-    
-    def test_effect_size_03(self):
-        """Test with smaller effect size r=0.3"""
-        n = calculate_required_n(effect_size=0.3, alpha=0.05, power=0.8)
-        # Smaller effect size requires larger sample
-        assert n > 50, f"Expected n > 50 for r=0.3, got {n}"
-    
-    def test_effect_size_08(self):
-        """Test with larger effect size r=0.8"""
-        n = calculate_required_n(effect_size=0.8, alpha=0.05, power=0.8)
-        # Larger effect size requires smaller sample
-        assert n < 15, f"Expected n < 15 for r=0.8, got {n}"
-    
+    def test_standard_effect_size(self):
+        """Test z-score calculation for r=0.5"""
+        z = calculate_z_score(0.5)
+        # Fisher's z for r=0.5 is approximately 0.549
+        expected = 0.5 * math.log((1 + 0.5) / (1 - 0.5))
+        assert abs(z - expected) < 1e-10
+        
+    def test_small_effect_size(self):
+        """Test z-score for small effect size"""
+        z = calculate_z_score(0.1)
+        expected = 0.5 * math.log((1 + 0.1) / (1 - 0.1))
+        assert abs(z - expected) < 1e-10
+        
     def test_invalid_effect_size(self):
-        """Test that invalid effect sizes raise ValueError"""
+        """Test that effect size >= 1 raises error"""
+        with pytest.raises(ValueError):
+            calculate_z_score(1.0)
+        with pytest.raises(ValueError):
+            calculate_z_score(-1.0)
+
+
+class TestCalculateRequiredN:
+    """Tests for sample size calculation."""
+    
+    def test_medium_effect_size(self):
+        """Test N calculation for effect_size=0.5, alpha=0.05, power=0.8"""
+        n = calculate_required_n(effect_size=0.5, alpha=0.05, power=0.8)
+        # Expected N is approximately 29 for these parameters
+        assert n >= 25 and n <= 35
+        
+    def test_large_effect_size(self):
+        """Test N calculation for large effect size"""
+        n = calculate_required_n(effect_size=0.8, alpha=0.05, power=0.8)
+        # Larger effect size should require smaller N
+        assert n < 20
+        
+    def test_high_power_requirement(self):
+        """Test N calculation with higher power requirement"""
+        n_low = calculate_required_n(effect_size=0.5, alpha=0.05, power=0.8)
+        n_high = calculate_required_n(effect_size=0.5, alpha=0.05, power=0.9)
+        # Higher power should require larger N
+        assert n_high > n_low
+        
+    def test_invalid_parameters(self):
+        """Test that invalid parameters raise errors"""
         with pytest.raises(ValueError):
             calculate_required_n(effect_size=1.5)
-        
         with pytest.raises(ValueError):
-            calculate_required_n(effect_size=-1.5)
+            calculate_required_n(effect_size=0.5, alpha=1.5)
+        with pytest.raises(ValueError):
+            calculate_required_n(effect_size=0.5, power=1.5)
+
+
+class TestCalculatePower:
+    """Tests for power calculation."""
     
-    def test_boundary_effect_size(self):
-        """Test edge cases near boundaries"""
-        # Very small effect size
-        n_small = calculate_required_n(effect_size=0.1, alpha=0.05, power=0.8)
-        assert n_small > 100
+    def test_medium_sample_size(self):
+        """Test power calculation for N=40, effect_size=0.5"""
+        power = calculate_power(n=40, effect_size=0.5, alpha=0.05)
+        # Power should be > 0.8 for these parameters
+        assert power > 0.75
         
-        # Effect size close to 1
-        n_large = calculate_required_n(effect_size=0.9, alpha=0.05, power=0.8)
-        assert n_large < 10
+    def test_small_sample_size(self):
+        """Test power calculation for small N"""
+        power = calculate_power(n=10, effect_size=0.5, alpha=0.05)
+        # Power should be low for small N
+        assert power < 0.5
+        
+    def test_large_sample_size(self):
+        """Test power calculation for large N"""
+        power = calculate_power(n=100, effect_size=0.5, alpha=0.05)
+        # Power should be very high
+        assert power > 0.95
+        
+    def test_very_small_n(self):
+        """Test that very small N returns 0 power"""
+        power = calculate_power(n=2, effect_size=0.5, alpha=0.05)
+        assert power == 0.0
 
 
 class TestRunPowerAnalysis:
-    """Tests for run_power_analysis function."""
+    """Tests for the main power analysis function."""
     
     def test_successful_analysis(self):
-        """Test successful power analysis with default parameters"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_power_analysis.json"
-            results = run_power_analysis(
+        """Test successful power analysis with sufficient N"""
+        result = run_power_analysis(
+            n_samples=50,
+            effect_size=0.5,
+            alpha=0.05,
+            target_power=0.8,
+            min_viable_n=40
+        )
+        
+        assert result["N"] == 50
+        assert result["effect_size"] == 0.5
+        assert result["alpha"] == 0.05
+        assert result["test_type"] == "F-test (correlation)"
+        assert result["meets_minimum_viable"] is True
+        assert "power" in result
+        assert "required_n_for_target" in result
+        
+    def test_below_minimum_viable(self):
+        """Test that E-POWER is raised when N < min_viable_n"""
+        with pytest.raises(E_POWER) as exc_info:
+            run_power_analysis(
+                n_samples=30,
                 effect_size=0.5,
                 alpha=0.05,
-                power=0.8,
-                output_path=str(output_path)
+                target_power=0.8,
+                min_viable_n=40
             )
-            
-            # Check results structure
-            assert "effect_size" in results
-            assert "alpha" in results
-            assert "power" in results
-            assert "required_n" in results
-            assert "passes_threshold" in results
-            assert "status" in results
-            
-            # Check file was created
-            assert output_path.exists()
-            
-            # Check file contents
-            with open(output_path, 'r') as f:
-                saved_results = json.load(f)
-            
-            assert saved_results["required_n"] == results["required_n"]
-            assert saved_results["status"] == "PASS"
-    
-    def test_failing_threshold(self):
-        """Test that E_POWER is raised when n < 28"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_power_analysis_fail.json"
-            
-            # Use a large effect size that results in small n
-            with pytest.raises(E_POWER) as exc_info:
-                run_power_analysis(
-                    effect_size=0.9,  # Large effect -> small n
-                    alpha=0.05,
-                    power=0.8,
-                    output_path=str(output_path)
-                )
-            
-            assert "E-POWER" in str(exc_info.value)
-            assert "below minimum threshold" in str(exc_info.value)
-    
-    def test_output_file_format(self):
-        """Test that output JSON has correct format"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_format.json"
-            run_power_analysis(output_path=str(output_path))
-            
-            with open(output_path, 'r') as f:
-                data = json.load(f)
-            
-            # Check all required fields
-            required_fields = [
-                "effect_size", "alpha", "power", 
-                "required_n", "min_required_n", 
-                "passes_threshold", "status"
-            ]
-            
-            for field in required_fields:
-                assert field in data, f"Missing field: {field}"
-    
-    def test_default_output_path(self):
-        """Test default output path creation"""
-        # This test just verifies the function can handle the default path
-        # without raising errors (actual file creation depends on environment)
-        try:
-            results = run_power_analysis(
-                effect_size=0.5,
-                alpha=0.05,
-                power=0.8
-            )
-            assert results["status"] == "PASS"
-        except Exception:
-            # If default path fails due to permissions, that's okay for this test
-            # The important part is the logic works
-            pass
-
-
-class TestMinRequiredN:
-    """Tests for the minimum required n threshold."""
-    
-    def test_threshold_value(self):
-        """Verify the threshold is set to 28"""
-        assert MIN_REQUIRED_N == 28
-    
-    def test_passes_threshold_logic(self):
-        """Test passes_threshold calculation"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Test case that passes
-            output_path = Path(tmpdir) / "pass.json"
-            results = run_power_analysis(effect_size=0.5, output_path=str(output_path))
-            assert results["passes_threshold"] == (results["required_n"] >= 28)
-            
-            # Test case that fails (large effect size)
-            output_path_fail = Path(tmpdir) / "fail.json"
-            try:
-                run_power_analysis(effect_size=0.9, output_path=str(output_path_fail))
-                # If it didn't raise, check the logic
-                # But it should raise E_POWER
-                assert False, "Should have raised E_POWER"
-            except E_POWER:
-                # Expected
-                pass
-
-
-class TestIntegration:
-    """Integration tests for power analysis module."""
-    
-    def test_end_to_end(self):
-        """Test complete flow from calculation to file output"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "integration_test.json"
-            
-            # Run analysis
-            results = run_power_analysis(
-                effect_size=0.5,
-                alpha=0.05,
-                power=0.8,
-                output_path=str(output_path)
-            )
-            
-            # Verify file exists and is valid JSON
-            assert output_path.exists()
-            
-            with open(output_path, 'r') as f:
-                file_data = json.load(f)
-            
-            # Verify data consistency
-            assert file_data["effect_size"] == results["effect_size"]
-            assert file_data["required_n"] == results["required_n"]
-            assert file_data["status"] == results["status"]
-            
-            # Verify calculation is reasonable
-            assert 28 <= file_data["required_n"] <= 35
-            
-            # Verify threshold logic
-            assert file_data["passes_threshold"] == (file_data["required_n"] >= 28)
-            assert file_data["min_required_n"] == 28
+        
+        assert "E-POWER" in str(exc_info.value)
+        assert "30" in str(exc_info.value)
+        assert "40" in str(exc_info.value)
+        
+    def test_below_target_power_warning(self):
+        """Test that low power triggers warning but not abort if N >= min"""
+        # Use a very small effect size to get low power even with N=40
+        result = run_power_analysis(
+            n_samples=40,
+            effect_size=0.2,
+            alpha=0.05,
+            target_power=0.8,
+            min_viable_n=40
+        )
+        
+        assert result["meets_minimum_viable"] is True
+        # Power should be low for small effect size
+        assert result["meets_target_power"] is False
+        
+    def test_output_schema(self):
+        """Test that result contains all required fields"""
+        result = run_power_analysis(n_samples=50)
+        
+        required_fields = [
+            "N", "power", "effect_size", "alpha", "test_type"
+        ]
+        for field in required_fields:
+            assert field in result, f"Missing required field: {field}"

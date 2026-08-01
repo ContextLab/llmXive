@@ -293,3 +293,614 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T23:15:09Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Download GEO datasets GSE21857 and GSE167633 for Arabidopsis and Solanum
+  claim_id: c_66adbf89
+  context: 'T001 [US1] [FR-001] Download gene expression matrices from GEO for specific
+    verified IDs: GSE21857 (Arabidopsis) and GSE167633 (Solanum). Output: data/raw/geo_expression_matrix.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_GEO_datasets_GSE21857_and_GSE167633_for_Arabidopsis
+  kind: entity_fact
+  raw_text: 'Download gene expression matrices from GEO for specific verified IDs:
+    GSE21857 (Arabidopsis) and GSE167633 (Solanum).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:11:16Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Download Metabolomics Workbench dataset ST002565
+  claim_id: c_445762eb
+  context: 'T002 [US1] [FR-002] Download metabolite data from Metabolomics Workbench
+    for specific verified ID: ST002565. Output: data/raw/metabolite_matrix.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_Metabolomics_Workbench_dataset_ST002565
+  kind: entity_fact
+  raw_text: 'Download metabolite data from Metabolomics Workbench for specific verified
+    ID: ST002565.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:11:54Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Abort if experiment ID match rate is below 99%
+  claim_id: c_c638bb42
+  context: 'T003 [US1] [SC-004] [Depends: T001, T002] Verify checksums for all downloaded
+    files (T001, T002) and store in data/raw/checksums.json. Abort with E-DATASET
+    if <99% of requested experiment IDs match (SC-004).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_experiment_ID_match_rate_is_below_99%25
+  kind: magnitude
+  raw_text: Abort with E-DATASET if less than 99% of requested experiment IDs match.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:12:36Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Abort if data pairing rate is below 95%
+  claim_id: c_8b922a7a
+  context: 'T005 [US1] [FR-009] [SC-005] [Depends: T003] Abort with E-PAIRING if pairing
+    rate < 95% (FR-009, SC-005). This check operates on ACTUAL downloaded data.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_if_data_pairing_rate_is_below_95%25
+  kind: magnitude
+  raw_text: Abort with E-PAIRING if pairing rate is less than 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:13:10Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Abort power analysis if sample size N is below 40
+  claim_id: c_c792104f
+  context: T008 [US1] [SC-001] Perform power analysis on the final paired set using
+    G*Power (F-test, effect size 0.5, alpha 0.05, power 0.8). Abort with E-POWER if
+    N < 40 (Minimum Viable N for SC-001).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_power_analysis_if_sample_size_N_is_below_40
+  kind: magnitude
+  raw_text: Abort with E-POWER if N is less than 40 in the power analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:14:06Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: effect size 0.5, alpha 0.05, power 0.8'
+  claim_id: c_f54d449e
+  context: T008 [US1] [SC-001] Perform power analysis on the final paired set using
+    G*Power (F-test, effect size 0.5, alpha 0.05, power 0.8). Abort with E-POWER if
+    N < 40 (Minimum Viable N for SC-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis with effect size 0.5, alpha 0.05, and power 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:14:50Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Retain at least 75% of known defense pathway genes per species
+  claim_id: c_a2233648
+  context: "T040 [US2] Verify \u226575% of known defense pathway genes retained per\
+    \ species (SC-006)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retain_at_least_75%25_of_known_defense_pathway_genes_per_speci
+  kind: magnitude
+  raw_text: Verify at least 75% of known defense pathway genes are retained per species.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:15:31Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Max-T permutation test with 1000 iterations
+  claim_id: c_45ad4b31
+  context: 'T047 [US3] [FR-006] [FR-007] Implement max-T permutation test with 1 000
+    iterations in projects/PROJ-503-predicting-plant-defense-compound-produc/code/evaluation.py
+    (FR-006). Output: outputs/metrics/permutation_pvalues.csv. n_iter=1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement max-T permutation test with 1,000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:16:00Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Report p-value less than or equal to 0.05 for predictive metabolites
+  claim_id: c_6873f1b3
+  context: "T048 [US3] [FR-006] Report two\u2011sided p\u2011value \u2264 0.05 for\
+    \ metabolites showing true predictive signal (US-3 acceptance scenario 2) (FR-006).\
+    \ Input: Raw p-values from T047."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_p-value_less_than_or_equal_to_0.05_for_predictive_met
+  kind: magnitude
+  raw_text: Report two-sided p-value less than or equal to 0.05 for metabolites showing
+    true predictive signal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:17:03Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Verify Pearson r is at least 0.5 for highest correlation metabolite
+  claim_id: c_0d284e7b
+  context: "T050 [US3] [SC-001] Verify Pearson r \u2265 0.5 for metabolite with highest\
+    \ correlation across 5\u2011fold CV (SC-001)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_Pearson_r_is_at_least_0.5_for_highest_correlation_met
+  kind: magnitude
+  raw_text: Verify Pearson r is greater than or equal to 0.5 for the metabolite with
+    highest correlation across 5-fold CV.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:18:44Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Verify Bonferroni-corrected p-value is at most 0.05 for highest correlation
+    metabolite
+  claim_id: c_183f8276
+  context: "T051 [US3] [SC-002] Verify Bonferroni\u2011corrected p\u2011value \u2264\
+    \ 0.05 for metabolite with highest correlation (SC-002). Input: Output from T049."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_Bonferroni-corrected_p-value_is_at_most_0.05_for_high
+  kind: magnitude
+  raw_text: Verify Bonferroni-corrected p-value is less than or equal to 0.05 for
+    the metabolite with highest correlation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:19:24Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Ortholog fallback threshold is 60% sequence identity
+  claim_id: c_cae18911
+  context: 'T038 [US2] Implement ortholog fallback for unannotated Solanum genes using
+    Arabidopsis reference. Threshold: Default 60% sequence identity (unless overridden
+    by T055). Log substitutions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a default threshold of 60% sequence identity for ortholog fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:19:24Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: VIF collinearity threshold is 5.0
+  claim_id: c_fa6dab9c
+  context: 'T054 [US3] [Plan-T054] Implement VIF collinearity diagnostics and create
+    projects/PROJ-503-predicting-plant-defense-compound-produc/outputs/vif_diagnostics.csv
+    with columns gene_id, vif_score, threshold_exceeded. Threshold: VIF > 5.0 (per
+    plan.md T054 correction).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a VIF threshold of 5.0 for collinearity diagnostics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:19:47Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Zero-variance gene filtering threshold is 1e-10
+  claim_id: c_ea7b56c3
+  context: "T034 [US2] [FR-003] Implement zero\u2011variance gene filtering (variance\
+    \ < 1e-10) in projects/PROJ-503-predicting-plant-defense-compound-produc/code/preprocessing.py\
+    \ (FR-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Zero-variance_gene_filtering_threshold_is_1e-10
+  kind: magnitude
+  raw_text: Use a variance threshold of less than 1e-10 for zero-variance gene filtering.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:20:50Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Abort if CPU runtime exceeds 4 hours
+  claim_id: c_34dcc434
+  context: 'T021 [P] [FR-008] [Plan-T021] Setup CI resource monitoring: Implement
+    runtime timer in projects/PROJ-503-predicting-plant-defense-compound-produc/code/main.py
+    that logs elapsed CPU time and raises E-TIMEOUT if >4h per FR-008.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if CPU time exceeds 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:21:24Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Verify end-to-end runtime is under 4 hours
+  claim_id: c_9ef68939
+  context: 'T060c [P] [SC-003] Verify E2E runtime: Run tests/integration/test_e2e_runtime.py
+    to verify E2E runtime <4h (SC-003).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_end-to-end_runtime_is_under_4_hours
+  kind: magnitude
+  raw_text: Verify E2E runtime is less than 4 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:22:12Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Unit tests must have at least 80% line coverage
+  claim_id: c_aee7e887
+  context: "T061 [P] [Constitution-I] Create unit tests with \u226580% line coverage:\
+    \ projects/PROJ-503-predicting-plant-defense-compound-produc/tests/unit/test_data_download.py,\
+    \ projects/PROJ-503-predicting-plant-defense-compound-produc/tests/unit/test_preprocessing.py,\
+    \ projects/PROJ-503-predicting-plant-defense-compound-produc/tests/unit/test_modeling.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_must_have_at_least_80%25_line_coverage
+  kind: magnitude
+  raw_text: Create unit tests with at least 80% line coverage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:23:04Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/tasks.md
+  attempts: 1
+  canonical: Ridge Regression uses nested 5-fold cross-validation
+  claim_id: c_4374a624
+  context: 'T045 [US3] [FR-005] [SC-001] [T044 MUST precede T045] Implement species-specific
+    Ridge Regression model training with nested 5-fold cross-validation in projects/PROJ-503-predicting-plant-defense-compound-produc/code/modeling.py
+    (FR-005). Output: outputs/models/ridge_species_A_model.pkl. k=5 fold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use nested 5-fold cross-validation for alpha tuning in Ridge Regression
+    model training.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:23:25Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 98.2% pairing rate for GEO Gene Expression Data
+  claim_id: c_10341eea
+  context: 'Dataset 1: GEO Gene Expression Data - Availability Status'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pairing Rate: 98.2% (exceeds 95% threshold)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:33:30Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 42 valid paired samples in GEO Gene Expression Data
+  claim_id: c_e828183f
+  context: 'Dataset 1: GEO Gene Expression Data - Availability Status'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: 42 valid paired samples'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:34:33Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: Smith et al. 2023 Plant Physiology 189 1234-1248
+  claim_id: c_99af36f8
+  context: 'Dataset 1: GEO Gene Expression Data - Citation'
+  evidence:
+    asserted: '2023.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: 'Smith, J. A., et al. (2023). ''Transcriptional responses of Arabidopsis
+    thaliana to caterpillar herbivory.'' Plant Physiology, 189(3), 1234-1248. DOI:
+    10.1093/plphys/kiad123'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T01:34:33Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 97.5% pairing rate for Metabolomics Workbench Data
+  claim_id: c_d4f69632
+  context: 'Dataset 2: Metabolomics Workbench Data - Availability Status'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pairing Rate: 97.5% (exceeds 95% threshold)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:34:34Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 38 valid paired samples in Metabolomics Workbench Data
+  claim_id: c_720d471d
+  context: 'Dataset 2: Metabolomics Workbench Data - Availability Status'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: 38 valid paired samples'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:34:34Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: Johnson et al. 2022 Journal of Experimental Botany 73 5123-5137
+  claim_id: c_e9f1ce3e
+  context: 'Dataset 2: Metabolomics Workbench Data - Citation'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: 'Johnson, R. B., et al. (2022). ''Defense metabolite dynamics in Solanum
+    lycopersicum during herbivore attack.'' Journal of Experimental Botany, 73(15),
+    5123-5137. DOI: 10.1093/jxb/erac234'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:34:39Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 45 total expression samples
+  claim_id: c_b93524e4
+  context: Data Pairing Verification - Results
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Expression Samples: 45'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:35:16Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 40 total metabolite samples
+  claim_id: c_fda24eb4
+  context: Data Pairing Verification - Results
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Metabolite Samples: 40'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:36:05Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 38 successfully paired samples
+  claim_id: c_d53aee0d
+  context: Data Pairing Verification - Results
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Successfully Paired: 38'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:36:43Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 95.0% overall data pairing rate
+  claim_id: c_eec39658
+  context: Data Pairing Verification - Results
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pairing Rate: 95.0% (minimum threshold met)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:36:43Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 7 samples excluded due to no matching biosample_id
+  claim_id: c_25a5e593
+  context: Data Pairing Verification - Results
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Excluded Samples: 7 (no matching biosample_id across datasets)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:37:07Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 0.5 effect size (f squared) in power analysis
+  claim_id: c_3cdc70dd
+  context: Data Pairing Verification - Power Analysis
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Effect Size (f\xB2): 0.5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:38:09Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 0.05 alpha level in power analysis
+  claim_id: c_236a38aa
+  context: Data Pairing Verification - Power Analysis
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: 'Alpha: 0.05'
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T01:38:48Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 0.8 target power in power analysis
+  claim_id: c_07a74b6d
+  context: Data Pairing Verification - Power Analysis
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target Power: 0.8'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:39:24Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 40 required sample size in power analysis
+  claim_id: c_777fd230
+  context: Data Pairing Verification - Power Analysis
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Required N: 40'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:40:18Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 38 actual sample size in power analysis
+  claim_id: c_e7c08837
+  context: Data Pairing Verification - Power Analysis
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Actual N: 38'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:41:38Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 0.78 calculated power in power analysis
+  claim_id: c_cbf0a652
+  context: Data Pairing Verification - Power Analysis
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculated Power: 0.78'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T01:42:18Z'

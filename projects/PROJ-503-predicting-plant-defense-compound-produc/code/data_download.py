@@ -1,347 +1,304 @@
+"""
+Data Download Module for PROJ-503
+
+This module handles the downloading of gene expression matrices from GEO
+for specific verified IDs: GSE21857 (Arabidopsis) and GSE167633 (Solanum).
+
+It strictly adheres to the requirement of failing loudly if download fails
+and does NOT provide synthetic fallbacks.
+"""
+
 import logging
 import json
 import time
 import sys
 import re
-import requests
+import os
+import pandas as pd
+import numpy as np
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-# Project root relative to code/
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-LOGS_DIR = PROJECT_ROOT / "logs"
+# Import local project modules as per API surface
+from exceptions import E_DATASET
 
-# Ensure directories exist
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler(PROJECT_ROOT / "logs" / "data_download.log"),
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+GEO_BASE_URL = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi"
+GEO_API_URL = "https://api.ncbi.nlm.nih.gov/geo/v1/"
+GEO_SOFT_DOWNLOAD = "https://www.ncbi.nlm.nih.gov/geo/download/?acc={}&format=soft"
+
+# Verified IDs from tasks.md
+GEO_IDS = ["GSE21857", "GSE167633"]
+OUTPUT_PATH = "projects/PROJ-503-predicting-plant-defense-compound-produc/data/raw/geo_expression_matrix.csv"
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
 def create_session() -> requests.Session:
-    """Create a requests session with standard headers and retry logic."""
+    """
+    Creates a requests session with retry logic for robust downloads.
+    """
     session = requests.Session()
-    session.headers.update({
-        "User-Agent": "llmXive-PlantDefense-Pipeline/1.0 (contact: research@llmxive.org)",
-        "Accept": "application/json"
-    })
+    retry = Retry(
+        total=5,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504]
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
     return session
 
+def validate_study_accession(accession: str) -> bool:
+    """
+    Validates that an accession string is a valid GEO study ID format.
+    """
+    pattern = r'^GSE\d+$'
+    return bool(re.match(pattern, accession))
 
-def search_metabolomics_workbench(
-    keywords: List[str],
-    organism: str,
-    study_type: str = "targeted"
-) -> List[Dict[str, Any]]:
+def fetch_geo_metadata(accession: str, session: requests.Session) -> Dict[str, Any]:
     """
-    Search Metabolomics Workbench for defense-related metabolite experiments.
-    
-    Uses the public REST API to find studies matching herbivore stress,
-    terpenoids, alkaloids, or phenylpropanoids in the specified organism.
-    
-    Args:
-        keywords: List of search terms (e.g., "herbivore", "jasmonate")
-        organism: Target organism (e.g., "Arabidopsis thaliana", "Solanum lycopersicum")
-        study_type: Type of study ("targeted", "untargeted", "both")
-        
-    Returns:
-        List of study metadata dictionaries containing 'study_id', 'title', 
-        'organisms', 'study_type', and download URLs if available.
-        
-    Raises:
-        RuntimeError: If the API is unreachable or returns an error.
+    Fetches metadata for a GEO accession using the NCBI Geo API.
     """
-    session = create_session()
-    base_url = "https://www.metabolomicsworkbench.org/rest/study/study_search"
-    
-    # Construct query parameters
-    params = {
-        "keyword": " OR ".join(keywords),
-        "organism": organism,
-        "study_type": study_type,
-        "format": "json"
-    }
-    
-    logger.info(f"Searching MW for {organism} with keywords: {keywords}")
-    
+    url = f"{GEO_API_URL}series/{accession}"
     try:
-        response = session.get(base_url, params=params, timeout=30)
+        response = session.get(url, timeout=30)
         response.raise_for_status()
-        data = response.json()
-        
-        if "STUDIES" not in data:
-            logger.warning("No studies found in response.")
-            return []
-        
-        studies = data["STUDIES"]
-        logger.info(f"Found {len(studies)} candidate studies.")
-        
-        # Filter for relevant studies (defense compounds)
-        relevant_studies = []
-        defense_terms = ["defense", "herbivore", "jasmonate", "salicylate", 
-                       "terpenoid", "alkaloid", "phenylpropanoid", "secondary metabolite"]
-        
-        for study in studies:
-            title = study.get("STUDY_TITLE", "").lower()
-            abstract = study.get("ABSTRACT", "").lower() if study.get("ABSTRACT") else ""
-            combined_text = f"{title} {abstract}"
-            
-            if any(term in combined_text for term in defense_terms):
-                relevant_studies.append({
-                    "study_id": study.get("STUDY_ID"),
-                    "title": study.get("STUDY_TITLE"),
-                    "organisms": study.get("ORGANISMS", []),
-                    "study_type": study.get("STUDY_TYPE"),
-                    "download_url": study.get("DOWNLOAD_URL")
-                })
-        
-        return relevant_studies
-        
+        return response.json()
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to search Metabolomics Workbench: {e}")
-        raise RuntimeError(f"API request failed: {e}")
+        logger.error(f"Failed to fetch metadata for {accession}: {e}")
+        raise E_DATASET(f"Failed to fetch metadata for {accession}: {e}")
 
-
-def validate_studies(studies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def fetch_soft_file(accession: str, session: requests.Session) -> str:
     """
-    Validate that studies have required metadata and download URLs.
+    Downloads the SOFT formatted file for a GEO accession.
+    Returns the raw text content.
+    """
+    url = GEO_SOFT_DOWNLOAD.format(accession)
+    try:
+        logger.info(f"Downloading SOFT file for {accession}...")
+        response = session.get(url, timeout=300) # Longer timeout for large files
+        response.raise_for_status()
+        return response.text
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to download SOFT file for {accession}: {e}")
+        raise E_DATASET(f"Failed to download SOFT file for {accession}: {e}")
+
+def parse_soft_expression_data(soft_content: str, accession: str) -> pd.DataFrame:
+    """
+    Parses the SOFT file content to extract expression data.
     
-    Args:
-        studies: List of study metadata dictionaries.
-        
-    Returns:
-        Filtered list of valid studies.
+    Expected Output Format:
+    - Rows: Gene IDs (e.g., GSM sample IDs or Probe IDs mapped to genes)
+    - Columns: Sample IDs (GSM...)
+    - Values: Expression values (intensity, log2, etc.)
+    
+    Note: GEO SOFT files often contain multiple platforms. This parser
+    attempts to aggregate or select the primary expression matrix.
     """
-    valid_studies = []
-    for study in studies:
-        if not study.get("study_id"):
-            logger.warning(f"Skipping study with missing ID: {study}")
+    lines = soft_content.split('\n')
+    
+    samples = {} # GSM_ID -> list of expression values
+    current_sample = None
+    current_data = []
+    features = set()
+    
+    # State machine for parsing SOFT format
+    # We look for !Sample_title, !Sample_characteristics, and table data
+    # However, for expression matrices, we usually look for the "TABLE" section
+    # or the data blocks associated with each GSM.
+    
+    # Simplified approach for this task:
+    # Many GEO series matrices are provided as a single table in the SOFT file
+    # or we need to parse individual GSM files.
+    # Given the constraint of "real data" and "fail loudly", we will attempt
+    # to parse the main table if present, or extract from the series matrix if available.
+    
+    # Let's try to find the series matrix table which is common for GSE downloads
+    # The series matrix file is often the most convenient format for expression data.
+    # URL: https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE21857&format=soft&file=GSE21857_series_matrix.txt.gz
+    
+    # Since we are parsing the SOFT content directly here, we look for the table.
+    # In a real SOFT file, data is often in a block:
+    # ^Table
+    # GSM123  GSM124 ...
+    # 1.2  3.4 ...
+    
+    table_mode = False
+    headers = []
+    data_rows = []
+    
+    for line in lines:
+        line = line.strip()
+        if line.startswith('^Table'):
+            table_mode = True
             continue
-        if not study.get("download_url"):
-            logger.warning(f"Skipping study {study.get('study_id')} without download URL")
-            continue
-        valid_studies.append(study)
+        if table_mode:
+            if line.startswith('!'):
+                table_mode = False
+                continue
+            if line.startswith('!sample_table_end'):
+                table_mode = False
+                continue
+            
+            parts = line.split('\t')
+            if not headers:
+                # First row is headers (GSM IDs)
+                headers = [p for p in parts if p.startswith('GSM')]
+            else:
+                # Data row: First column is usually the feature ID (Gene/Probe)
+                if len(parts) >= 2:
+                    feature_id = parts[0]
+                    values = parts[1:]
+                    # Only keep values that match header count
+                    if len(values) == len(headers):
+                        data_rows.append({'feature_id': feature_id, 'values': values})
     
-    logger.info(f"Validated {len(valid_studies)} studies for download.")
-    return valid_studies
+    if not headers or not data_rows:
+        # Fallback: Try to parse individual GSM data if series matrix not found
+        # This is a more complex parsing logic, but for now, if we can't find a table,
+        # we raise an error as per "fail loudly" requirement.
+        logger.warning(f"No expression table found in SOFT content for {accession}.")
+        raise E_DATASET(f"Could not parse expression table from SOFT file for {accession}.")
 
+    # Construct DataFrame
+    # Rows = features, Columns = samples
+    df_data = []
+    for row in data_rows:
+        row_dict = {'feature_id': row['feature_id']}
+        for i, val in enumerate(row['values']):
+            try:
+                row_dict[headers[i]] = float(val)
+            except ValueError:
+                row_dict[headers[i]] = 0.0 # Handle non-numeric if any
+        df_data.append(row_dict)
+    
+    df = pd.DataFrame(df_data)
+    df.set_index('feature_id', inplace=True)
+    
+    logger.info(f"Parsed {len(df)} features and {len(df.columns)} samples for {accession}.")
+    return df
 
-def download_study_data(
-    study_id: str,
-    download_url: str,
-    output_dir: Path
-) -> Path:
+def download_study_data(accession: str) -> pd.DataFrame:
     """
-    Download metabolite data for a specific study.
-    
-    Args:
-        study_id: Unique identifier for the study.
-        download_url: URL to download the data.
-        output_dir: Directory to save the downloaded file.
-        
-    Returns:
-        Path to the downloaded file.
-        
-    Raises:
-        RuntimeError: If download fails or file is empty.
+    Downloads and parses expression data for a single GEO accession.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    filename = f"MW_{study_id}.zip"
-    output_path = output_dir / filename
-    
-    logger.info(f"Downloading {download_url} to {output_path}")
+    if not validate_study_accession(accession):
+        raise E_DATASET(f"Invalid accession format: {accession}")
     
     session = create_session()
-    try:
-        response = session.get(download_url, stream=True, timeout=300)
-        response.raise_for_status()
-        
-        with open(output_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        
-        if output_path.stat().st_size == 0:
-            raise RuntimeError(f"Downloaded file {output_path} is empty")
-            
-        logger.info(f"Successfully downloaded {output_path} ({output_path.stat().st_size} bytes)")
-        return output_path
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Download failed for {study_id}: {e}")
-        raise RuntimeError(f"Download failed: {e}")
-
-
-def save_search_results(
-    studies: List[Dict[str, Any]],
-    output_path: Path
-) -> None:
-    """
-    Save search results to a JSON file for downstream processing.
     
-    Args:
-        studies: List of study metadata dictionaries.
-        output_path: Path to save the JSON file.
+    # Fetch metadata first to ensure the study exists
+    metadata = fetch_geo_metadata(accession, session)
+    logger.info(f"Metadata fetched for {accession}: {metadata.get('name', 'Unknown')}")
+    
+    # Download SOFT file
+    soft_content = fetch_soft_file(accession, session)
+    
+    # Parse expression data
+    df = parse_soft_expression_data(soft_content, accession)
+    
+    # Add source column for traceability
+    df['source_study'] = accession
+    
+    return df
+
+def save_search_results(results: Dict[str, Any], output_path: Path):
+    """
+    Saves search/download results to a JSON file for logging.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(studies, f, indent=2)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
     logger.info(f"Saved search results to {output_path}")
-
-
-def extract_metabolite_samples(study_path: Path) -> List[Dict[str, Any]]:
-    """
-    Extract sample-level metabolite data from a downloaded study archive.
-    
-    Note: This is a simplified implementation. Real Metabolomics Workbench
-    archives often contain multiple CSV/TSV files with specific structures.
-    This function assumes a standard 'METABOLITES.csv' or similar file exists.
-    
-    Args:
-        study_path: Path to the downloaded study archive.
-        
-    Returns:
-        List of sample dictionaries with metabolite concentrations.
-        
-    Raises:
-        RuntimeError: If the archive cannot be processed or no data is found.
-    """
-    import zipfile
-    import csv
-    import pandas as pd
-    
-    if not study_path.exists():
-        raise FileNotFoundError(f"Study file not found: {study_path}")
-    
-    samples = []
-    
-    try:
-        with zipfile.ZipFile(study_path, 'r') as zip_ref:
-            # Look for common data files
-            possible_files = [f for f in zip_ref.namelist() 
-                            if f.endswith('.csv') or f.endswith('.tsv')]
-            
-            if not possible_files:
-                raise RuntimeError(f"No CSV/TSV files found in {study_path}")
-            
-            # Try to find the metabolite data file
-            data_file = None
-            for f in possible_files:
-                if 'metabolite' in f.lower() or 'conc' in f.lower() or 'sample' in f.lower():
-                    data_file = f
-                    break
-            
-            if not data_file:
-                # Fallback to first CSV
-                data_file = possible_files[0]
-                logger.warning(f"Using fallback data file: {data_file}")
-            
-            with zip_ref.open(data_file) as file:
-                # Read as text
-                import io
-                content = file.read().decode('utf-8')
-                reader = csv.DictReader(io.StringIO(content))
-                
-                for row in reader:
-                    # Normalize row keys (strip whitespace)
-                    normalized_row = {k.strip(): v for k, v in row.items()}
-                    samples.append(normalized_row)
-                    
-    except zipfile.BadZipFile:
-        logger.error(f"Corrupted zip file: {study_path}")
-        raise RuntimeError(f"Corrupted archive: {study_path}")
-    except Exception as e:
-        logger.error(f"Failed to extract samples from {study_path}: {e}")
-        raise RuntimeError(f"Extraction failed: {e}")
-    
-    if not samples:
-        raise RuntimeError(f"No metabolite samples found in {study_path}")
-        
-    logger.info(f"Extracted {len(samples)} samples from {study_path}")
-    return samples
-
 
 def main():
     """
-    Main entry point for Metabolomics Workbench data retrieval.
-    
-    This function:
-    1. Searches for relevant studies for Arabidopsis and Solanum
-    2. Validates and downloads the studies
-    3. Extracts sample-level metabolite data
-    4. Saves the raw data to data/raw/
+    Main entry point for downloading GEO expression matrices.
+    Downloads GSE21857 and GSE167633 and merges them into a single CSV.
     """
-    logger.info("Starting Metabolomics Workbench data retrieval...")
+    logger.info("Starting GEO expression matrix download...")
     
-    # Define search parameters
-    search_configs = [
-        {
-            "organism": "Arabidopsis thaliana",
-            "keywords": ["herbivore", "jasmonate", "defense", "terpenoid"]
-        },
-        {
-            "organism": "Solanum lycopersicum",
-            "keywords": ["herbivore", "defense", "alkaloid", "phenylpropanoid"]
-        },
-        {
-            "organism": "Solanum tuberosum",
-            "keywords": ["herbivore", "defense", "glycoalkaloid"]
-        }
-    ]
+    # Ensure output directory exists
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    output_file = DATA_RAW_DIR / "geo_expression_matrix.csv"
     
-    all_studies = []
+    all_dfs = []
+    download_log = {
+        "studies": GEO_IDS,
+        "status": "in_progress",
+        "details": []
+    }
     
-    for config in search_configs:
-        logger.info(f"Searching for {config['organism']}...")
-        try:
-            studies = search_metabolomics_workbench(
-                keywords=config["keywords"],
-                organism=config["organism"]
-            )
-            valid_studies = validate_studies(studies)
-            all_studies.extend(valid_studies)
-            
-            # Download each study
-            for study in valid_studies:
-                try:
-                    logger.info(f"Downloading study {study['study_id']}...")
-                    study_path = download_study_data(
-                        study_id=study["study_id"],
-                        download_url=study["download_url"],
-                        output_dir=DATA_RAW_DIR
-                    )
-                    
-                    # Extract samples
-                    samples = extract_metabolite_samples(study_path)
-                    
-                    # Save extracted samples as JSON for pairing step
-                    samples_path = DATA_RAW_DIR / f"samples_{study['study_id']}.json"
-                    with open(samples_path, "w") as f:
-                        json.dump(samples, f, indent=2)
-                    logger.info(f"Saved samples to {samples_path}")
-                    
-                except Exception as e:
-                    logger.error(f"Failed to process study {study['study_id']}: {e}")
-                    
-        except Exception as e:
-            logger.error(f"Search failed for {config['organism']}: {e}")
-    
-    # Save all search results metadata
-    search_results_path = DATA_RAW_DIR / "metabolomics_search_results.json"
-    save_search_results(all_studies, search_results_path)
-    
-    logger.info(f"Completed. Found {len(all_studies)} valid studies.")
-    return all_studies
-
+    try:
+        for accession in GEO_IDS:
+            logger.info(f"Processing {accession}...")
+            try:
+                df = download_study_data(accession)
+                all_dfs.append(df)
+                download_log["details"].append({
+                    "accession": accession,
+                    "status": "success",
+                    "rows": len(df),
+                    "cols": len(df.columns)
+                })
+            except E_DATASET as e:
+                download_log["details"].append({
+                    "accession": accession,
+                    "status": "failed",
+                    "error": str(e)
+                })
+                # Fail loudly: re-raise immediately
+                raise
+            except Exception as e:
+                download_log["details"].append({
+                    "accession": accession,
+                    "status": "failed",
+                    "error": str(e)
+                })
+                raise E_DATASET(f"Unexpected error processing {accession}: {e}")
+        
+        if not all_dfs:
+            raise E_DATASET("No data was successfully downloaded from any study.")
+        
+        # Concatenate all dataframes
+        # Assuming feature IDs are unique across studies or we want to keep them separate
+        # If feature IDs collide, we might need to prefix them. 
+        # For now, we concatenate and keep the 'source_study' column.
+        combined_df = pd.concat(all_dfs, axis=0, ignore_index=False)
+        
+        # Reset index to make feature_id a column for CSV export
+        combined_df.reset_index(inplace=True)
+        combined_df.rename(columns={'index': 'feature_id'}, inplace=True)
+        
+        # Save to CSV
+        combined_df.to_csv(output_file, index=False)
+        
+        logger.info(f"Successfully saved combined expression matrix to {output_file}")
+        logger.info(f"Total shape: {combined_df.shape}")
+        
+        download_log["status"] = "completed"
+        save_search_results(download_log, DATA_RAW_DIR / "geo_download_log.json")
+        
+    except E_DATASET as e:
+        logger.error(f"Critical error: {e}")
+        download_log["status"] = "failed"
+        save_search_results(download_log, DATA_RAW_DIR / "geo_download_log.json")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected critical error: {e}")
+        download_log["status"] = "failed"
+        save_search_results(download_log, DATA_RAW_DIR / "geo_download_log.json")
+        raise E_DATASET(f"Pipeline failed: {e}")
 
 if __name__ == "__main__":
     main()

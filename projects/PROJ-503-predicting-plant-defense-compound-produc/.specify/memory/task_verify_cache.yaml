@@ -1,30 +1,16 @@
-T001:
+T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings, screenshots, or file\u2011tree output were provided to\
-    \ demonstrate that the required folders (e.g., `projects/PROJ-503-predicting-plant-defense-compound-produc/code/`,\
-    \ `.../data/raw/`, `.../logs/`, etc.) actually exist and are non\u2011empty. The\
-    \ claim lacks concrete evidence of the project structure being created."
-T004:
+  r: "No code, script, or log file is provided that implements a runtime check of\
+    \ the pairing rate on the downloaded data and aborts with error\u202FE\u2011PAIRING\
+    \ when the rate falls below 95\u202F%. The required artifact (e.g., a function/module,\
+    \ unit test, or execution log demonstrating the abort behavior) is absent."
+T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data_pairing.json` or `feature_filtering.csv` files were supplied; the response
-    contains only the task description and spec excerpt, with no actual logging utilities,
-    JSON entries, or CSV output. The required artifacts are missing, so the task is
-    not satisfied.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files were presented for `projects/PROJ-503-predicting-plant-defense-compound-produc/code/models/`,\
-    \ and there is no evidence that the classes `ExpressionMatrix`, `MetaboliteMatrix`,\
-    \ `FeatureSet`, or `ModelArtifact` with the required explicit attributes have\
-    \ been created. The required data\u2011model artifacts are missing."
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or documentation for the required error handling framework
-    (E-DATASET, E-PAIRING, E-TIMEOUT, E-POWER) was presented; the claim lacks any
-    artifact demonstrating implementation per plan.md.
+  r: "No `logs/power_analysis_report.json` file was presented, and no content showing\
+    \ N, power, effect_size, alpha, or test_type was provided. The required power\u2011\
+    analysis output is therefore missing."
 T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

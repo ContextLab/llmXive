@@ -1,36 +1,3 @@
-- artifact_hash: 5803654141b849ec7afaee49d1c5b0acba57abdc3f7a61a763de715f5b2dc15c
-  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Home - GEO - NCBI
-  kind: url
-  value: https://www.ncbi.nlm.nih.gov/geo/
-  verification_status: pending
-  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/
-  verified_at: '2026-07-26T23:25:42.673837Z'
-- artifact_hash: 5803654141b849ec7afaee49d1c5b0acba57abdc3f7a61a763de715f5b2dc15c
-  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: 'Metabolomics Workbench : Home'
-  kind: url
-  value: https://www.metabolomicsworkbench.org/
-  verification_status: pending
-  verified_against_url: https://www.metabolomicsworkbench.org/
-  verified_at: '2026-07-26T23:25:42.673837Z'
-- artifact_hash: 5803654141b849ec7afaee49d1c5b0acba57abdc3f7a61a763de715f5b2dc15c
-  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: 'KEGG: Kyoto Encyclopedia of Genes and Genomes'
-  kind: url
-  value: https://www.kegg.jp/
-  verification_status: pending
-  verified_against_url: https://www.kegg.jp/
-  verified_at: '2026-07-26T23:25:42.673837Z'
 - artifact_hash: 59338e4c0eb69debd84341a139a2473d565bd702e616252a8337ddddea08803e
   artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/research.md
   cite_id: c-001
@@ -75,3 +42,71 @@
   verification_status: pending
   verified_against_url: https://www.kegg.jp/kegg-bin/show_pathway?map=ko00900
   verified_at: '2026-07-29T10:01:21.837461Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: GEO Accession viewer
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Metabolomics Workbench
+  kind: url
+  value: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=ST002565
+  verification_status: pending
+  verified_against_url: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=ST002565
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Home - GEO - NCBI
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Metabolomics Workbench : Home'
+  kind: url
+  value: https://www.metabolomicsworkbench.org/
+  verification_status: pending
+  verified_against_url: https://www.metabolomicsworkbench.org/
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: <i>cis</i>-Golgi phosphate transporters harboring an EXS domain are
+    essential for plant growth and development
+  kind: doi
+  value: 10.1093/plphys/kiad123
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1093/plphys/kiad123
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: Asymmetric wall ingrowth deposition in Arabidopsis phloem parenchyma
+    transfer cells is tightly associated with sieve elements
+  kind: doi
+  value: 10.1093/jxb/erac234
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1093/jxb/erac234
+  verified_at: '2026-08-01T01:32:59.021218Z'

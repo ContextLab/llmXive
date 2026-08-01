@@ -1,238 +1,122 @@
 """
-Unit tests for verify_checksums.py (T028)
+Unit tests for verify_checksums.py (T003)
+Tests checksum verification and experiment ID matching logic.
 """
 import json
 import os
 import tempfile
 from pathlib import Path
+import pytest
 from unittest.mock import patch, MagicMock
 
-import pytest
-
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Add parent directory to path for imports
 import sys
-sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.verify_checksums import (
-    load_expected_checksums,
-    scan_raw_data_files,
-    verify_checksums,
-    calculate_success_rate,
-    main
+from exceptions import E_DATASET
+from verify_checksums import (
+    load_file_metadata, 
+    verify_experiment_id_matching, 
+    main,
+    EXPECTED_FILES,
+    EXPECTED_EXPERIMENT_IDS
 )
-from code.exceptions import E_DATASET
 
+class TestLoadFileMetadata:
+    """Tests for load_file_metadata function."""
+    
+    def test_file_not_found(self):
+        """Test behavior when file doesn't exist."""
+        result = load_file_metadata(Path("/nonexistent/file.csv"))
+        assert result is None
+    
+    def test_extract_experiment_ids(self):
+        """Test extraction of experiment IDs from file content."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("GSE21857,GSE167633,ST002565,sample1,sample2\n")
+            f.write("gene1,10,20,30,40\n")
+            temp_path = Path(f.name)
+        
+        try:
+            metadata = load_file_metadata(temp_path)
+            assert metadata is not None
+            assert "experiment_ids" in metadata
+            assert "GSE21857" in metadata["experiment_ids"]
+            assert "GSE167633" in metadata["experiment_ids"]
+            assert "ST002565" in metadata["experiment_ids"]
+        finally:
+            os.unlink(temp_path)
+    
+    def test_no_experiment_ids_found(self):
+        """Test behavior when no experiment IDs are found."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("sample1,sample2,sample3\n")
+            f.write("gene1,10,20,30\n")
+            temp_path = Path(f.name)
+        
+        try:
+            metadata = load_file_metadata(temp_path)
+            assert metadata is not None
+            assert metadata["experiment_ids"] == []
+        finally:
+            os.unlink(temp_path)
 
-class TestLoadExpectedChecksums:
-    def test_load_from_manifest(self, tmp_path):
-        """Test loading checksums from a manifest file."""
-        manifest_data = {
-            "data/raw/sample1.tar.gz": "abc123...",
-            "data/raw/sample2.tar.gz": "def456..."
+class TestVerifyExperimentIdMatching:
+    """Tests for verify_experiment_id_matching function."""
+    
+    def test_all_ids_match(self):
+        """Test when all expected IDs are found."""
+        metadata = {"experiment_ids": ["GSE21857", "GSE167633", "ST002565"]}
+        result = verify_experiment_id_matching(metadata, EXPECTED_EXPERIMENT_IDS)
+        assert result is True
+    
+    def test_partial_match_above_threshold(self):
+        """Test when match rate is above 99% threshold."""
+        # With 3 expected IDs, need at least 3 to pass (100%)
+        metadata = {"experiment_ids": ["GSE21857", "GSE167633"]}
+        result = verify_experiment_id_matching(metadata, EXPECTED_EXPERIMENT_IDS)
+        # 2/3 = 66.67% which is below 99%, so should be False
+        assert result is False
+    
+    def test_no_match(self):
+        """Test when no expected IDs are found."""
+        metadata = {"experiment_ids": ["GSE12345", "GSE67890"]}
+        result = verify_experiment_id_matching(metadata, EXPECTED_EXPERIMENT_IDS)
+        assert result is False
+    
+    def test_empty_expected_ids(self):
+        """Test with empty expected IDs set."""
+        metadata = {"experiment_ids": ["GSE21857"]}
+        result = verify_experiment_id_matching(metadata, set())
+        assert result is True
+    
+    def test_empty_found_ids(self):
+        """Test with empty found IDs."""
+        metadata = {"experiment_ids": []}
+        result = verify_experiment_id_matching(metadata, EXPECTED_EXPERIMENT_IDS)
+        assert result is False
+
+class TestMainFunction:
+    """Tests for the main function."""
+    
+    @patch('verify_checksums.DATA_RAW_DIR')
+    @patch('verify_checksums.EXPECTED_FILES')
+    def test_missing_files_raises_error(self, mock_expected_files, mock_data_raw_dir, tmp_path):
+        """Test that missing files raise E_DATASET error."""
+        # Setup mocks
+        mock_data_raw_dir.__truediv__.return_value = tmp_path
+        mock_expected_files.return_value = {
+            "file1.csv": tmp_path / "file1.csv"
         }
         
-        manifest_path = tmp_path / "data" / "checksums_manifest.json"
-        manifest_path.parent.mkdir(parents=True)
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest_data, f)
-        
-        # Mock the constant to point to our temp manifest
-        with patch('code.verify_checksums.CHECKSUM_MANIFEST', manifest_path):
-            result = load_expected_checksums()
-        
-        assert result == manifest_data
-
-    def test_fallback_to_sources_yaml(self, tmp_path):
-        """Test falling back to sources.yaml if manifest doesn't exist."""
-        import yaml
-        
-        sources_data = {
-            "geo_GSE12345": {
-                "accession": "GSE12345",
-                "local_path": "data/raw/geo_GSE12345.tar.gz",
-                "checksum": "xyz789..."
-            }
-        }
-        
-        sources_path = tmp_path / "data" / "sources.yaml"
-        sources_path.parent.mkdir(parents=True)
-        with open(sources_path, 'w') as f:
-            yaml.dump(sources_data, f)
-        
-        # Mock paths
-        with patch('code.verify_checksums.CHECKSUM_MANIFEST', tmp_path / "data" / "checksums_manifest.json"):
-            with patch('code.verify_checksums.SOURCES_CONFIG', sources_path):
-                result = load_expected_checksums()
-        
-        assert "data/raw/geo_GSE12345.tar.gz" in result
-        assert result["data/raw/geo_GSE12345.tar.gz"] == "xyz789..."
-
-    def test_empty_when_no_source(self, tmp_path):
-        """Test returning empty dict when no checksums found."""
-        with patch('code.verify_checksums.CHECKSUM_MANIFEST', tmp_path / "nonexistent.json"):
-            with patch('code.verify_checksums.SOURCES_CONFIG', tmp_path / "nonexistent.yaml"):
-                result = load_expected_checksums()
-        
-        assert result == {}
-
-
-class TestScanRawDataFiles:
-    def test_scan_files(self, tmp_path):
-        """Test scanning for files in raw data directory."""
-        raw_dir = tmp_path / "data" / "raw"
-        raw_dir.mkdir(parents=True)
-        
-        # Create some test files
-        (raw_dir / "file1.txt").write_text("content1")
-        (raw_dir / "file2.txt").write_text("content2")
-        (raw_dir / "subdir").mkdir()
-        (raw_dir / "subdir" / "file3.txt").write_text("content3")
-        
-        with patch('code.verify_checksums.PROJECT_ROOT', tmp_path):
-            result = scan_raw_data_files()
-        
-        assert len(result) == 3
-        assert "data/raw/file1.txt" in result
-        assert "data/raw/file2.txt" in result
-        assert "data/raw/subdir/file3.txt" in result
-
-    def test_empty_directory(self, tmp_path):
-        """Test scanning an empty directory."""
-        raw_dir = tmp_path / "data" / "raw"
-        raw_dir.mkdir(parents=True)
-        
-        with patch('code.verify_checksums.PROJECT_ROOT', tmp_path):
-            result = scan_raw_data_files()
-        
-        assert result == {}
-
-    def test_missing_directory(self, tmp_path):
-        """Test when raw data directory doesn't exist."""
-        with patch('code.verify_checksums.PROJECT_ROOT', tmp_path):
-            result = scan_raw_data_files()
-        
-        assert result == {}
-
-
-class TestVerifyChecksums:
-    def test_all_match(self, tmp_path):
-        """Test when all checksums match."""
-        expected = {
-            "data/raw/file1.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "data/raw/file2.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        }
-        
-        # Create actual files with empty content (matching the hash above)
-        raw_dir = tmp_path / "data" / "raw"
-        raw_dir.mkdir(parents=True)
-        (raw_dir / "file1.txt").write_text("")
-        (raw_dir / "file2.txt").write_text("")
-        
-        found_files = {
-            "data/raw/file1.txt": raw_dir / "file1.txt",
-            "data/raw/file2.txt": raw_dir / "file2.txt"
-        }
-        
-        results, mismatches = verify_checksums(expected, found_files)
-        
-        assert all(results.values())
-        assert len(mismatches) == 0
-
-    def test_mismatch_detected(self, tmp_path):
-        """Test when a checksum mismatch is detected."""
-        expected = {
-            "data/raw/file1.txt": "wrong_hash_value"
-        }
-        
-        raw_dir = tmp_path / "data" / "raw"
-        raw_dir.mkdir(parents=True)
-        (raw_dir / "file1.txt").write_text("content")
-        
-        found_files = {
-            "data/raw/file1.txt": raw_dir / "file1.txt"
-        }
-        
-        results, mismatches = verify_checksums(expected, found_files)
-        
-        assert not results["data/raw/file1.txt"]
-        assert len(mismatches) == 1
-        assert mismatches[0]["status"] == "mismatch"
-
-    def test_missing_file(self, tmp_path):
-        """Test when an expected file is missing."""
-        expected = {
-            "data/raw/missing.txt": "some_hash"
-        }
-        
-        results, mismatches = verify_checksums(expected, {})
-        
-        assert not results["data/raw/missing.txt"]
-        assert len(mismatches) == 1
-        assert mismatches[0]["status"] == "missing"
-
-
-class TestCalculateSuccessRate:
-    def test_perfect_rate(self):
-        """Test 100% success rate."""
-        results = {"file1": True, "file2": True, "file3": True}
-        rate = calculate_success_rate(results)
-        assert rate == 100.0
-
-    def test_partial_rate(self):
-        """Test partial success rate."""
-        results = {"file1": True, "file2": False, "file3": True}
-        rate = calculate_success_rate(results)
-        assert rate == 66.66666666666666
-
-    def test_empty_results(self):
-        """Test with empty results."""
-        rate = calculate_success_rate({})
-        assert rate == 0.0
-
-
-class TestMainIntegration:
-    @pytest.fixture
-    def setup_test_env(self, tmp_path):
-        """Set up a test environment with files and checksums."""
-        # Create directories
-        raw_dir = tmp_path / "data" / "raw"
-        raw_dir.mkdir(parents=True)
-        logs_dir = tmp_path / "logs"
-        logs_dir.mkdir(parents=True)
-        
-        # Create test files
-        (raw_dir / "valid.txt").write_text("valid content")
-        (raw_dir / "invalid.txt").write_text("invalid content")
-        
-        # Create manifest
-        manifest = {
-            "data/raw/valid.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",  # empty file hash (will mismatch)
-            "data/raw/invalid.txt": "wrong_hash"
-        }
-        
-        # Actually, let's use real hashes for valid files
-        import hashlib
-        valid_hash = hashlib.sha256(b"valid content").hexdigest()
-        manifest["data/raw/valid.txt"] = valid_hash
-        
-        manifest_path = tmp_path / "data" / "checksums_manifest.json"
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f)
-        
-        return {
-            "tmp_path": tmp_path,
-            "valid_hash": valid_hash,
-            "manifest_path": manifest_path
-        }
-
-    def test_main_success(self, setup_test_env, caplog):
-        """Test main function with successful verification."""
-        # Note: This test would need more mocking to actually run main() successfully
-        # as it relies on global constants and file system state
-        pass
-
-    def test_main_failure(self, setup_test_env, caplog):
-        """Test main function with failed verification."""
-        # Similar to above, complex to test without extensive mocking
-        pass
+        # Create a mock that raises E_DATASET when files are missing
+        with patch('verify_checksums.logger') as mock_logger:
+            with pytest.raises(E_DATASET):
+                main()
+    
+    def test_checksum_verification_logic(self):
+        """Test the core checksum verification logic."""
+        # This is a high-level test to ensure the logic flows correctly
+        # Detailed checksum tests are in checksum_utils tests
+        assert len(EXPECTED_EXPERIMENT_IDS) > 0
+        assert len(EXPECTED_FILES) > 0
