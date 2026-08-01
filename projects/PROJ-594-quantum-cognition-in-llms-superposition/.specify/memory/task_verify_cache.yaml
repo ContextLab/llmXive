@@ -1,18 +1,3 @@
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files, scripts, or documentation were provided that set a fixed
-    random seed, enforce CPU device usage, or define a batch size of 8. The claim
-    lacks any tangible artifact demonstrating that the environment configuration management
-    task has been implemented.
-T012:
-  c: false
-  h: 54ae53a90b2b14c6f16bdd01bbcb1a8295bc59d595bf55a0e604bb4d3e960ff4
-  r: The `run_baseline.py` script exists but the provided excerpt ends before any
-    code that writes the results to `data/results/baseline_metrics.json`, and the
-    expected JSON file is missing from the repository. Without generating the output
-    file, the task requirement is not met. The script must include logic to save the
-    computed metrics to the specified JSON path, and the resulting file must be present.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,13 +5,39 @@ T015:
     \ `[UNK]` tokens was added to the WiC dataset processing pipeline. The required\
     \ artifact (e.g., updated data\u2011loading module, unit test, or commit diff)\
     \ is missing, so the task\u2019s requirement is not demonstrably satisfied."
-T024:
+T023:
   c: false
-  h: 7d6b34c51a86acd186ad88e0de3a846be642b8736bc1fa1b11af6818ebc5ef66
-  r: "The provided `run_quantum.py` is truncated and does not contain a runnable script\
-    \ that loops over a limited number of epochs, nor does it write the required `data/results/quantum_metrics.json`\
-    \ (the file is missing). Consequently the task\u2019s core requirements are not\
-    \ satisfied."
+  h: 41b18475466ebc7f9239c8ac8e6138dbaf575ecc618d36cf12546def3064e42e
+  r: "The provided `bert_adapter.py` is truncated and does not show a loss function\
+    \ with the phase\u2011penalty term, nor any code that calls `calculate_interference_cross_term`\
+    \ and writes its values to `data/results/cross_term_log.json`. Moreover, the required\
+    \ log file is missing from the repository. Consequently the task\u2019s core requirements\
+    \ are not met."
+T024c:
+  c: false
+  h: fa443a262d4cfde03788ac9e81fb82765ddde24799691198ff7234c6875fc3d6
+  r: "The repository contains a `run_quantum.py` file, but it is truncated and shows\
+    \ no logic that writes `data/results/quantum_metrics.json`. Moreover, the required\
+    \ `data/results/quantum_metrics.json` file is absent. The task\u2019s core requirement\u2014\
+    producing the JSON metrics file with the specified schema\u2014is therefore not\
+    \ met."
+T025:
+  c: false
+  h: 2e0391afb980f960d4d558e56e61711e908c1da2892f5c5f54422fad0758335b
+  r: "The repository contains `code/experiments/run_quantum.py`, but the shown excerpt\
+    \ stops before any training loop and does not demonstrate computing `calculate_interference_cross_term`\
+    \ for ambiguous tokens or accumulating and writing the results to `data/results/cross_term_log.json`.\
+    \ Moreover, the required `cross_term_log.json` file is absent. The task\u2019\
+    s core logging functionality and output file are therefore missing."
+T025b:
+  c: false
+  h: ca6f1c120574c2b29d7ba1699f8ff17f1c6c0327316060139ee58262be3b3a78
+  r: 'The required input `data/results/cross_term_log.json` is absent, so the script
+    cannot perform the check, and the existing `interference_validation.json` does
+    not follow the specified schema (it lacks `min_cross_term` and `valid` fields
+    and uses different names). A proper unit test/assertion that reads the log, asserts
+    a negative minimum, and writes a JSON matching `{"min_cross_term": float, "percentage_negative":
+    float, "valid": bool}` is missing.'
 T031:
   c: false
   h: f7832f67b29e4aec9bf9ffe67dca613493818ab4bc4b76988e771989e059b5ff

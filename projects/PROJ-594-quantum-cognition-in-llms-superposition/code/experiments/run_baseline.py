@@ -17,6 +17,7 @@ if project_root not in sys.path:
 from models.baseline_bert import load_wic_dataset, run_frozen_bert_inference, compute_metrics
 from utils.config import set_environment, get_config
 from utils.logging import detect_nan_inf
+from utils.framing_utils import format_associational_statement
 
 def run_single_seed(seed: int) -> Dict[str, float]:
     """
@@ -26,7 +27,7 @@ def run_single_seed(seed: int) -> Dict[str, float]:
     set_environment(seed)
     config = get_config()
     
-    print(f"--- Running Baseline Evaluation (Seed: {seed}) ---")
+    print(format_associational_statement(f"--- Running Baseline Evaluation (Seed: {seed}) ---"))
     
     # Load dataset
     dataset = load_wic_dataset()
@@ -36,12 +37,12 @@ def run_single_seed(seed: int) -> Dict[str, float]:
     
     # Check for NaN/Inf in predictions
     if detect_nan_inf(torch.tensor(predictions), name="Predictions"):
-        raise RuntimeError(f"Seed {seed}: NaN or Inf detected in predictions.")
+        raise RuntimeError(format_associational_statement(f"Seed {seed}: NaN or Inf detected in predictions."))
     
     # Compute metrics
     metrics = compute_metrics(predictions, labels)
     
-    print(f"Seed {seed}: Accuracy={metrics['accuracy']:.4f}, F1={metrics['macro_f1']:.4f}")
+    print(format_associational_statement(f"Seed {seed}: Accuracy={metrics['accuracy']:.4f}, F1={metrics['macro_f1']:.4f}"))
     return metrics
 
 def main():
@@ -57,8 +58,8 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
     output_path = os.path.join(args.output_dir, 'baseline_metrics.json')
 
-    print(f"Starting baseline evaluation with seeds: {args.seeds}")
-    print(f"Stability threshold (variance): {args.variance_threshold}")
+    print(format_associational_statement(f"Starting baseline evaluation with seeds: {args.seeds}"))
+    print(format_associational_statement(f"Stability threshold (variance): {args.variance_threshold}"))
 
     all_metrics = []
     accuracies = []
@@ -75,7 +76,7 @@ def main():
             accuracies.append(metrics['accuracy'])
             f1s.append(metrics['macro_f1'])
     except Exception as e:
-        print(f"Error during evaluation: {e}")
+        print(format_associational_statement(f"Error during evaluation: {e}"))
         sys.exit(1)
 
     # Calculate statistics
@@ -87,40 +88,42 @@ def main():
     var_f1 = np.var(f1s, ddof=0)
     std_f1 = np.std(f1s)
 
-    print(f"\n--- Stability Analysis ---")
-    print(f"Accuracy: Mean={mean_acc:.4f}, Var={var_acc:.6f}, Std={std_acc:.4f}")
-    print(f"F1 Score: Mean={mean_f1:.4f}, Var={var_f1:.6f}, Std={std_f1:.4f}")
+    print(format_associational_statement(f"\n--- Stability Analysis ---"))
+    print(format_associational_statement(f"Accuracy: Mean={mean_acc:.4f}, Var={var_acc:.6f}, Std={std_acc:.4f}"))
+    print(format_associational_statement(f"F1 Score: Mean={mean_f1:.4f}, Var={var_f1:.6f}, Std={std_f1:.4f}"))
 
     # Stability Check Assertion
     if var_acc > args.variance_threshold:
         raise AssertionError(
-            f"Stability Check FAILED: Accuracy variance ({var_acc:.6f}) exceeds threshold ({args.variance_threshold}). "
-            f"The model is not stable across seeds."
+            format_associational_statement(
+                f"Stability Check FAILED: Accuracy variance ({var_acc:.6f}) exceeds threshold ({args.variance_threshold}). "
+                f"The model is not stable across seeds."
+            )
         )
     if var_f1 > args.variance_threshold:
         raise AssertionError(
-            f"Stability Check FAILED: F1 variance ({var_f1:.6f}) exceeds threshold ({args.variance_threshold}). "
-            f"The model is not stable across seeds."
+            format_associational_statement(
+                f"Stability Check FAILED: F1 variance ({var_f1:.6f}) exceeds threshold ({args.variance_threshold}). "
+                f"The model is not stable across seeds."
+            )
         )
 
-    print("Stability Check PASSED.")
+    print(format_associational_statement("Stability Check PASSED."))
 
     # Prepare final output
+    # Note: Schema requested in task: {"accuracy": float, "macro_f1": float, "seed": int, "variance_accuracy": float, "variance_macro_f1": float}
+    # Since we run multiple seeds, we output per-seed metrics and summary variances.
+    # We include the mean accuracy/F1 as the primary "accuracy" and "macro_f1" fields in summary, 
+    # and variance fields as requested.
     final_report = {
         'seeds_used': args.seeds,
         'stability_threshold': args.variance_threshold,
         'stability_check_passed': True,
         'summary': {
-            'accuracy': {
-                'mean': float(mean_acc),
-                'variance': float(var_acc),
-                'std': float(std_acc)
-            },
-            'macro_f1': {
-                'mean': float(mean_f1),
-                'variance': float(var_f1),
-                'std': float(std_f1)
-            }
+            'accuracy': float(mean_acc),
+            'macro_f1': float(mean_f1),
+            'variance_accuracy': float(var_acc),
+            'variance_macro_f1': float(var_f1)
         },
         'per_seed_metrics': all_metrics
     }
@@ -128,7 +131,7 @@ def main():
     with open(output_path, 'w') as f:
         json.dump(final_report, f, indent=2)
 
-    print(f"Results saved to {output_path}")
+    print(format_associational_statement(f"Results saved to {output_path}"))
 
 if __name__ == "__main__":
     main()
