@@ -1,59 +1,57 @@
+"""
+code/utils/logging_config.py
+
+Configures the logging infrastructure for the pipeline.
+"""
 import os
 import logging
+import sys
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Optional
 
 # Ensure logs directory exists
-LOGS_DIR = Path(__file__).resolve().parent.parent.parent / "logs"
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
+LOGS_DIR = Path("logs")
+LOGS_DIR.mkdir(exist_ok=True)
 LOG_FILE = LOGS_DIR / "pipeline.log"
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Configures and returns a logger that writes to logs/pipeline.log.
+    Gets a logger with the specified name, configured to write to the pipeline log.
     """
     logger = logging.getLogger(name)
     if logger.handlers:
         return logger
-    
-    logger.setLevel(logging.DEBUG)
-    
+
+    logger.setLevel(logging.INFO)
+
     # File handler
-    file_handler = RotatingFileHandler(
-        LOG_FILE, 
-        maxBytes=10*1024*1024, 
-        backupCount=5
-    )
-    file_handler.setLevel(logging.DEBUG)
-    
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    file_handler.setFormatter(formatter)
-    
-    logger.addHandler(file_handler)
-    
-    # Console handler for immediate feedback
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
+    fh = RotatingFileHandler(LOG_FILE, maxBytes=5*1024*1024, backupCount=3)
+    fh.setLevel(logging.INFO)
+
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
     return logger
 
-def log_exclusion_reason(material_id: str, reason: str):
+def log_exclusion_reason(source: str, item_id: str, reason: str):
     """
-    Logs the reason for excluding a material from the dataset.
+    Logs a specific exclusion reason to the pipeline log.
     """
-    logger = get_logger(__name__)
-    logger.warning(f"Excluding {material_id}: {reason}")
+    logger = get_logger(source)
+    logger.warning(f"EXCLUSION [Source: {source}, ID: {item_id}]: {reason}")
 
-def log_pipeline_event(event: str):
+def log_pipeline_event(source: str, message: str):
     """
-    Logs a high-level pipeline event.
+    Logs a general pipeline event.
     """
-    logger = get_logger(__name__)
-    logger.info(f"PIPELINE_EVENT: {event}")
+    logger = get_logger(source)
+    logger.info(f"PIPELINE EVENT: {message}")

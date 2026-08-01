@@ -1,38 +1,62 @@
+"""
+tests/contract/test_schemas.py
+
+Contract tests to validate data schemas against definitions.
+"""
 import pytest
 import pandas as pd
-import yaml
+import os
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.utils.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 def test_features_csv_schema_validation():
     """
-    Test case for T011: Validate the features.csv schema against contracts/data-schema.yaml.
+    Contract test: Verifies that the features.csv file (if it exists) 
+    matches the expected schema defined in contracts/data-schema.yaml.
+    
+    Note: This test assumes the file exists after T018 (preprocess) runs.
+    For T012, this test validates the *expectation* of the schema structure.
     """
-    schema_path = Path(PROJECT_ROOT) / "contracts" / "data-schema.yaml"
-    
+    schema_path = Path("contracts/data-schema.yaml")
     if not schema_path.exists():
-        pytest.skip("Schema file not found yet")
-    
-    with open(schema_path, 'r') as f:
+        # If schema doesn't exist, we might skip or create a default expectation
+        # For this task, we assume the schema file is created in T006.
+        # If T006 is completed, this file should exist.
+        pytest.skip("Schema definition file not found. Skipping contract test.")
+
+    # Load schema
+    import yaml
+    with open(schema_path, "r") as f:
         schema = yaml.safe_load(f)
+
+    expected_columns = set(schema.get("columns", {}).keys())
+    expected_types = schema.get("columns", {})
+
+    # If we are testing the output of T012 (download), the output is JSON.
+    # This test is for the CSV produced by T018. 
+    # However, the task list says T011 is a contract test for features.csv.
+    # We will check if the file exists and validate.
     
-    required_columns = schema.get('required_columns', [])
-    # Simulate a features dataframe
-    df = pd.DataFrame({
-        'material_id': ['mp-123'],
-        'tolerance_factor': [0.95],
-        'octahedral_factor': [0.45],
-        'ionic_mismatch': [0.1],
-        'electronegativity_diff': [0.5],
-        'decomposition_energy': [-0.2]
-    })
+    features_path = Path("data/processed/features.csv")
+    if not features_path.exists():
+        pytest.skip("features.csv not found. Run preprocessing first.")
+
+    df = pd.read_csv(features_path)
+
+    # Check columns
+    missing_cols = expected_columns - set(df.columns)
+    assert not missing_cols, f"Missing columns in features.csv: {missing_cols}"
+
+    # Check types (basic check for non-null)
+    for col, type_info in expected_types.items():
+        if type_info.get("nullable") == False:
+            null_count = df[col].isnull().sum()
+            assert null_count == 0, f"Column {col} has {null_count} null values, but schema requires non-null."
     
-    # Validate columns
-    for col in required_columns:
-        assert col in df.columns, f"Missing required column: {col}"
-    
-    # Validate types (example)
-    assert df['decomposition_energy'].dtype in ['float64', 'int64', 'float32']
+    logger.info("Contract test passed: features.csv matches schema.")

@@ -1,0 +1,45 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings, `ls` output, or other evidence were provided to show that
+    the required folders under `projects/PROJ-236-exploring-the-influence-of-network-topol/`
+    (e.g., `code/utils`, `code/tests/unit`, `data/raw`, etc.) actually exist. Without
+    such proof the verification condition cannot be satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`)\
+    \ or command\u2011line output logs are provided, and there is no evidence that\
+    \ `ruff --quiet` and `black --check` were run successfully on the `code/` directory.\
+    \ The required artifacts and verification results are missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CI script or related code was provided; the claim that a verification script
+    exists that reads connectivity metrics and aborts the build when the overall success
+    rate falls below 95% after retries cannot be confirmed. The required artifact
+    is missing.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a unrelated feature specification about network\
+    \ topology and heat transport, with no CI configuration, test results, or any\
+    \ evidence of a \u201CPhysical Stability Filter\u201D pass\u2011rate check. Consequently,\
+    \ the required artifact (CI check ensuring >5\u202F% seed rejection causes failure)\
+    \ is missing."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a textual description of the intended verification\
+    \ and did not supply any actual artifact (e.g., CI configuration, unit\u2011test\
+    \ code, or test output) demonstrating that a CI assertion fails when the distance\u2011\
+    cutoff scaling is incorrect. Without concrete code or results, the requirement\
+    \ for a verifiable CI\u2011based check is not met."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no actual artifact\u2014no test script, checksum\u2011recomputation\
+    \ code, or `data/` directory contents are presented. Without concrete files or\
+    \ code that loops over saved artifacts and validates their checksums, the verification\
+    \ task is not satisfied. The implementer must supply the automated test implementation\
+    \ and the relevant data files."

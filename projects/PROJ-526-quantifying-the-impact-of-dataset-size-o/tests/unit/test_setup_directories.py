@@ -1,43 +1,52 @@
+"""
+Unit tests for the setup_directories module.
+Verifies that the required directory structure is created correctly.
+"""
+import os
+import tempfile
 import pytest
 from pathlib import Path
-import tempfile
-import shutil
-import os
+from code.setup_directories import create_directories, DIRECTORIES_TO_CREATE
 
-# Import the functions to test
-# Assuming the code is in code/setup_directories.py
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+def test_create_directories_structure(tmp_path):
+    """
+    Test that create_directories creates all expected subdirectories
+    under a temporary root directory.
+    """
+    # Arrange
+    expected_dirs = [
+        "code", "data", "tests", "state", "docs",
+        "data/raw", "data/processed",
+        "tests/contract", "tests/unit", "tests/integration",
+        "state/checksums"
+    ]
+    
+    # Act
+    created_paths = create_directories(tmp_path)
+    
+    # Assert
+    # Check that the correct number of directories were reported
+    assert len(created_paths) == len(expected_dirs)
+    
+    # Check that each expected directory actually exists on the filesystem
+    for dir_name in expected_dirs:
+        target_path = tmp_path / dir_name
+        assert target_path.exists(), f"Directory {target_path} was not created."
+        assert target_path.is_dir(), f"Path {target_path} exists but is not a directory."
 
-from setup_directories import create_directories
-
-class TestCreateDirectories:
-    def test_creates_single_directory(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            base = Path(tmp_dir)
-            dirs = ["test_dir"]
-            create_directories(base, dirs)
-            assert (base / "test_dir").is_dir()
-
-    def test_creates_nested_directories(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            base = Path(tmp_dir)
-            dirs = ["data/raw", "data/processed", "state"]
-            create_directories(base, dirs)
-            
-            assert (base / "data").is_dir()
-            assert (base / "data/raw").is_dir()
-            assert (base / "data/processed").is_dir()
-            assert (base / "state").is_dir()
-
-    def test_handles_existing_directories(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            base = Path(tmp_dir)
-            # Create one manually
-            (base / "existing").mkdir()
-            
-            dirs = ["existing", "new_one"]
-            create_directories(base, dirs) # Should not raise
-            
-            assert (base / "existing").is_dir()
-            assert (base / "new_one").is_dir()
+def test_create_directories_idempotent(tmp_path):
+    """
+    Test that running create_directories multiple times does not raise errors
+    and results in the same directory structure.
+    """
+    # Act - run twice
+    paths_first = create_directories(tmp_path)
+    paths_second = create_directories(tmp_path)
+    
+    # Assert
+    assert len(paths_first) == len(paths_second)
+    assert paths_first == paths_second
+    
+    # Verify structure still exists
+    for dir_name in DIRECTORIES_TO_CREATE:
+        assert (tmp_path / dir_name).exists()

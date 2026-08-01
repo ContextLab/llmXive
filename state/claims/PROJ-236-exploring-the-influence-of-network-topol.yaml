@@ -510,3 +510,346 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T21:59:33Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: at least 5 atomic coordinate seed files for N=500 atoms
+  claim_id: c_8b28ad36
+  context: "Task T014 specifies generating or fetching a small set of atomic coordinate\
+    \ seeds representing disordered alloys for N = 500 atoms and verifying that at\
+    \ least 5 seed files exist with valid SHA\u2011256 checksums."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_5_atomic_coordinate_seed_files_for_N%3D500_atoms
+  kind: magnitude
+  raw_text: "Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR\
+    \ files) representing disordered alloys for N = 500 atoms. Ensure at least 5 seed\
+    \ files exist and each passes a SHA\u2011256 checksum recorded in data/checksums.txt."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:45:39Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: Allen-Feldman theory is a CPU-tractable implementation for disordered
+    systems that avoids third-order force constants
+  claim_id: c_fed29b9c
+  context: "Phase 4: User Story 2 \u2013 Compute Phonon Transport and Thermal Conductivity\
+    \ \u2013 T031 implements Allen-Feldman theory solver core, described as the CPU-tractable\
+    \ implementation for disordered systems, avoiding third-order force constants."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Allen-Feldman_theory_is_a_CPU-tractable_implementation_for_d
+  kind: entity_fact
+  raw_text: Allen-Feldman theory as the CPU-tractable implementation for disordered
+    systems, avoiding third-order force constants.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:46:38Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: atomic coordinate seeds for 500 atoms
+  claim_id: c_6aa41526
+  context: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms. Store in data/raw/atomic_seeds/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: small set of atomic coordinate seeds (XYZ/POSCAR files) representing disordered
+    alloys for N = 500 atoms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:51:12Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: at least 5 seed files exist
+  claim_id: c_662e8def
+  context: "Verification: Ensure at least 5 seed files exist and each passes a SHA\u2011\
+    256 checksum recorded in data/checksums.txt."
+  evidence:
+    entailment_evidence: At least 5 seed files exist
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/At_least_5_seed_files_exist
+  kind: magnitude
+  raw_text: Ensure at least 5 seed files exist
+  resolved_value: at least 5 seed files exist
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T12:51:14Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 500-atom disordered alloy seeds
+  claim_id: c_790e972e
+  context: Task T014 specifies creating or obtaining atomic coordinate seed files
+    for disordered alloys, with the dataset containing N = 500 atoms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:52:05Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: atomic coordinate seeds for 500 atoms
+  claim_id: c_e980cb4d
+  context: Task T014 specifies generating or fetching a small set of atomic coordinate
+    seeds (XYZ/POSCAR files) representing disordered alloys for N = 500 atoms. This
+    is verified by a checksum recorded in data/checksums.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:52:40Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: runtime warning for >6 hours
+  claim_id: c_5ede0824
+  context: "Global runtime monitor tracks total wall\u2011clock time of the ensemble\
+    \ execution and enforces a predefined temporal limit; if total time > 6 hours,\
+    \ a warning is logged."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total runtime exceeds 6 hours, the system logs a warning and flags
+    the sample size as potentially insufficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:53:43Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "connectivity success rate \u226595%"
+  claim_id: c_6d204523
+  context: Implementation ensures > 95% of realizations are connected; CI fails if
+    overall connectivity success rate < 95%.
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Connectivity_success_rate_%E2%89%A595%25
+  kind: magnitude
+  raw_text: At least 95% of generated network realizations are connected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-01T12:54:22Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "physical stability filter reject rate \u22645%"
+  claim_id: c_723e7206
+  context: CI fails if > 5% of seeds are rejected by the filter.
+  evidence:
+    entailment_evidence: "Physical stability filter reject rate \u22645%"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Physical_stability_filter_reject_rate_%E2%89%A45%25
+  kind: magnitude
+  raw_text: No more than 5% of atomic seeds are rejected by the Physical Stability
+    Filter.
+  resolved_value: "physical stability filter reject rate \u22645%"
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T12:54:25Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: small-world clustering within 5%
+  claim_id: c_95b834d9
+  context: Unit test verifies generated graph matches target clustering coefficient
+    within 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Small\u2011World graph generator produces a clustering coefficient\
+    \ within 5% of the target value."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:54:25Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: random graph average path length within 10%
+  claim_id: c_2d07e257
+  context: Unit test verifies average path length is within 10% of theoretical expectation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The average path length of the Random graph generator is within 10% of
+    the theoretical expectation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:54:25Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "allen-feldman \u03BA within 10% of literature"
+  claim_id: c_a9fa886b
+  context: "Integration test runs on a 1D chain benchmark and checks \u03BA is within\
+    \ 10% of literature value."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Allen\u2011Feldman solver on a 1D chain benchmark yields thermal\
+    \ conductivity \u03BA within 10% of the literature value."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:54:51Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "bootstrap iterations \u22651000"
+  claim_id: c_74085047
+  context: "Unit test asserts the iteration count used is \u2265 1000."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_iterations_%E2%89%A51000
+  kind: magnitude
+  raw_text: Bootstrap resampling uses at least 1000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:55:29Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "runtime per realization \u226445 minutes"
+  claim_id: c_64f93860
+  context: "Enforce per\u2011realization runtime \u2264 45 minutes; CI asserts recorded\
+    \ runtimes are \u2264 45 min."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Per\u2011realization runtime does not exceed 45 minutes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:55:57Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "total ensemble runtime \u22646 hours"
+  claim_id: c_c135f5b3
+  context: "Aggregate total ensemble runtime and enforce \u2264 6 hours using orchestrator\
+    \ monitor; CI checks total runtime metric is logged."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: List of accolades received by Rangasthalam
+        url: https://en.wikipedia.org/wiki/List_of_accolades_received_by_Rangasthalam
+        value: three hours
+      quote: The film's storyline draws loose inspiration from multiple real-life
+        geopolitical events and conflicts in South Asia, including the 1999 IC-814
+        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
+        developments linked to Pakistan's Operation Lyari. Principal photography for
+        Dhurandhar took place from July 2024 to October 2025 across multiple locations
+        in India and abroad, including the states and union territories of Punjab,
+        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
+        The film features music composed by Shashwat Sachdev, cinematography by Vikash
+        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
+        Dhurandhar ranks as one of the longest Indian films ever produced.
+      source_id: Dhurandhar
+      url: https://en.wikipedia.org/wiki/Dhurandhar
+      value: 214 minutes
+    filled: true
+  kind: numeric
+  raw_text: Total ensemble runtime does not exceed 6 hours.
+  resolved_value: 214 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T12:56:10Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: "bootstrap CI width \u22640.2"
+  claim_id: c_1d0d5928
+  context: CI check that computes width from bootstrap results and aborts if width
+    exceeds 0.2.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_CI_width_%E2%89%A40.2
+  kind: magnitude
+  raw_text: "Bootstrap confidence\u2011interval width is at most 0.2."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T12:56:37Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: corrected p-values <0.05
+  claim_id: c_0f1a3a48
+  context: "CI assertion that scans corrected p\u2011values and fails if any significant\
+    \ metric does not meet the threshold."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Another remedy for data dredging is to record the number of all significance\
+        \ tests conducted during the study and simply divide one's criterion for significance\
+        \ (alpha) by this number; this is the Bonferroni correction.  However, this\
+        \ is a very conservative metric. A family-wise alpha of 0.05, divided in this\
+        \ way by 1,000 to account for 1,000 significance tests, yields a very stringent\
+        \ per-hypothesis alpha of 0.00005. Methods particularly useful in analysis\
+        \ of variance, and in constructing simultaneous confidence bands for regressions\
+        \ involving basis functions are Scheff\xE9's method and, if the researcher\
+        \ has in mind only pairwise comparisons, the Tukey method. To avoid the extreme\
+        \ conservativeness of the Bonferroni correction, more sophisticated selective\
+        \ inference methods are available. The most common selective inference method\
+        \ is the use of Benjamini and Hochberg's false discovery rate controlling\
+        \ procedure: it is a less conservative approach that has become a popular\
+        \ method for control of multiple hypothesis tests."
+      source_id: Data dredging
+      url: https://en.wikipedia.org/wiki/Data_dredging
+      value: '0.00005'
+    filled: true
+  kind: magnitude
+  raw_text: "Corrected p\u2011values for significant metrics are less than 0.05."
+  resolved_value: '0.00005'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T12:56:51Z'

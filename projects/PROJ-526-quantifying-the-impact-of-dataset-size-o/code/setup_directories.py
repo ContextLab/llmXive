@@ -1,43 +1,65 @@
+"""
+Module to create the required directory structure for the project.
+Ensures all necessary folders for data, tests, state, and docs exist.
+"""
 import os
 from pathlib import Path
 from typing import List
 
-def create_directories(base_path: Path, directories: List[str]) -> None:
-    """
-    Create a list of directories relative to base_path.
-    Raises FileNotFoundError if a directory cannot be created.
-    """
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            if not dir_path.is_dir():
-                raise FileNotFoundError(f"Failed to create directory: {dir_path}")
-        except OSError as e:
-            raise FileNotFoundError(f"Error creating directory {dir_path}: {e}")
+# Define the directory structure relative to the project root
+# Based on tasks.md: T001a, T001b, T004
+DIRECTORIES_TO_CREATE = [
+    # Root directories (T001a)
+    "code",
+    "data",
+    "tests",
+    "state",
+    "docs",
+    # Data subdirectories (T001b, T004)
+    "data/raw",
+    "data/processed",
+    # Test subdirectories (T001b)
+    "tests/contract",
+    "tests/unit",
+    "tests/integration",
+    # State subdirectories (T004 - implied for checksums storage)
+    "state/checksums",
+]
 
-def main() -> None:
+def create_directories(root_dir: Path) -> List[str]:
     """
-    Main entry point for setting up the project directory structure.
-    Creates the required directories under the project root.
+    Create all required directories under the given root directory.
+    
+    Args:
+        root_dir: The project root path.
+        
+    Returns:
+        List of paths that were created or verified.
     """
-    project_root = Path(__file__).resolve().parent.parent
+    created_or_verified = []
+    for dir_name in DIRECTORIES_TO_CREATE:
+        target_path = root_dir / dir_name
+        target_path.mkdir(parents=True, exist_ok=True)
+        created_or_verified.append(str(target_path))
+    return created_or_verified
+
+def main():
+    """
+    Entry point to create the directory structure.
+    Assumes the script is run from the project root or receives the root as an argument.
+    """
+    # Determine project root: usually the parent of the 'code' directory where this script lives
+    # Or we can use the current working directory if run as `python code/setup_directories.py`
+    # Given the task context, we assume the script is run from the project root.
+    root = Path.cwd()
     
-    # Define required directory structure relative to project root
-    required_dirs = [
-        "data",
-        "data/raw",
-        "data/processed",
-        "state",
-        "tests",
-        "tests/contract",
-        "tests/unit",
-        "tests/integration",
-        "docs",
-        "code",
-        "code/utils"
-    ]
+    print(f"Creating directory structure in: {root}")
+    created_paths = create_directories(root)
     
-    print(f"Creating directories in {project_root}...")
-    create_directories(project_root, required_dirs)
-    print("Directory structure created successfully.")
+    for p in created_paths:
+        print(f"  - {p}")
+    
+    print(f"Successfully created/verified {len(created_paths)} directories.")
+
+if __name__ == "__main__":
+    main()

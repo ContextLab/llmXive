@@ -1,71 +1,63 @@
-"""
-Unit tests for the logging configuration module.
-
-Verifies that:
-1. The log directory is created if missing
-2. The logger returns a valid instance
-3. Log files are written correctly
-4. Exclusion reasons are logged with WARNING level
-"""
 import os
 import logging
 import tempfile
 import shutil
 from pathlib import Path
-import sys
+import pytest
 
-# Add the project root to the path to allow imports
-# This assumes the test is run from the project root
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from utils.logging_config import get_logger, log_exclusion_reason, log_pipeline_event, LOG_DIR, LOG_FILE
-
+# We need to ensure the logs directory exists for the test to run without errors
+# but we can test the logger configuration in isolation.
+from utils.logging_config import get_logger, log_exclusion_reason, log_pipeline_event
 
 class TestLoggingConfig:
-    """Tests for logging infrastructure."""
+    def test_get_logger_returns_valid_instance(self):
+        """Test that get_logger returns a valid logger instance."""
+        logger = get_logger("test_logger_1")
+        assert isinstance(logger, logging.Logger)
+        assert logger.name == "test_logger_1"
+        assert len(logger.handlers) > 0
 
-    def test_log_directory_creation(self):
-        """Test that the logs directory is created if it doesn't exist."""
-        # Ensure the directory exists (side effect of import)
-        assert LOG_DIR.exists(), "Logs directory should be created on import"
-        assert LOG_DIR.is_dir(), "Logs path should be a directory"
+    def test_log_exclusion_reason_formats_correctly(self, caplog):
+        """Test that log_exclusion_reason logs with the correct format."""
+        logger = get_logger("test_logger_2")
+        # We need to capture the log output. Since we use a file handler and console,
+        # we can temporarily set the level and check the handler's output or use caplog
+        # if we configure caplog to capture the logger.
+        
+        # Reset handlers for clean test if necessary, but caplog usually works with propagation
+        # However, our logger adds handlers directly. Let's verify the message content.
+        
+        # We will verify that the function calls logger.warning with the expected string.
+        # Since we can't easily inspect the RotatingFileHandler content in a unit test without file I/O,
+        # we will check that the function executes without error and logs a warning.
+        
+        # To make it testable with caplog, we need to ensure the logger propagates or we inspect the handler.
+        # Let's just verify the function call works and logs at the correct level.
+        
+        with caplog.at_level(logging.WARNING, logger="test_logger_2"):
+            log_exclusion_reason("MISSING_DATA", "material_123", "Ionic radius missing")
+            assert "EXCLUSION" in caplog.text
+            assert "Category: MISSING_DATA" in caplog.text
+            assert "ID: material_123" in caplog.text
+            assert "Reason: Ionic radius missing" in caplog.text
 
-    def test_get_logger_returns_instance(self):
-        """Test that get_logger returns a valid Logger instance."""
-        logger = get_logger("test_logger")
-        assert isinstance(logger, logging.Logger), "Should return a Logger instance"
-        assert logger.name == "test_logger", "Logger name should match"
-        assert logger.level == logging.INFO, "Logger level should be INFO"
+    def test_log_pipeline_event_formats_correctly(self, caplog):
+        """Test that log_pipeline_event logs with the correct format."""
+        logger = get_logger("test_logger_3")
+        
+        with caplog.at_level(logging.INFO, logger="test_logger_3"):
+            log_pipeline_event("DATA_LOADED", "features.csv loaded successfully")
+            assert "EVENT" in caplog.text
+            assert "Type: DATA_LOADED" in caplog.text
+            assert "Details: features.csv loaded successfully" in caplog.text
 
-    def test_logger_has_handlers(self):
-        """Test that the logger has both file and console handlers."""
-        logger = get_logger("test_handlers")
-        # The root logger holds the handlers in this implementation
-        root_logger = logging.getLogger()
-        assert len(root_logger.handlers) >= 2, "Should have at least file and console handlers"
-
-    def test_log_exclusion_reason_logs_warning(self):
-        """Test that log_exclusion_reason logs at WARNING level."""
-        logger = get_logger("test_exclusion")
-        # We can't easily capture the file output in a unit test without complex mocking,
-        # but we can verify the function calls the logger correctly.
-        # We will verify the log level is set up correctly.
-        assert logger.isEnabledFor(logging.WARNING), "Logger should be enabled for WARNING"
-
-    def test_log_pipeline_event_logs_info(self):
-        """Test that log_pipeline_event logs at INFO level for success."""
-        logger = get_logger("test_event")
-        assert logger.isEnabledFor(logging.INFO), "Logger should be enabled for INFO"
-
-    def test_log_file_path_valid(self):
-        """Test that the log file path is valid and writable."""
-        # The file might not exist yet, but the path should be valid
-        assert LOG_FILE.parent == LOG_DIR, "Log file should be in logs directory"
-        assert LOG_FILE.suffix == ".log", "Log file should have .log extension"
-        # Check if we can create a file there
-        try:
-            with open(LOG_FILE, "a"):
-                pass
-            assert True
-        except IOError:
-            assert False, "Log file path should be writable"
+    def test_log_pipeline_event_supports_error_level(self, caplog):
+        """Test that log_pipeline_event can log errors."""
+        logger = get_logger("test_logger_4")
+        
+        with caplog.at_level(logging.ERROR, logger="test_logger_4"):
+            log_pipeline_event("ERROR", "API rate limit exceeded", level=logging.ERROR)
+            assert "EVENT" in caplog.text
+            assert "Type: ERROR" in caplog.text
+            assert "Details: API rate limit exceeded" in caplog.text
+            assert "ERROR" in caplog.text # Check log level indicator

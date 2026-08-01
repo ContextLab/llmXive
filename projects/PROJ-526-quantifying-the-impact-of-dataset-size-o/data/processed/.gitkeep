@@ -1,1 +1,3 @@
-# Placeholder to keep data/processed directory in git
+# This directory stores processed datasets and results.
+# Key files (parquet, csv) are tracked if small, otherwise ignored.
+# See .gitignore for specific rules.

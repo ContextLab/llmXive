@@ -1,10 +1,24 @@
-pymatgen
-matminer
-scikit-learn
-pandas
-numpy
-requests
-huggingface_hub
-pytest
-flake8
-black
+# Core Data & ML
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+pyarrow>=12.0.0
+
+# Materials Science
+pymatgen>=2023.0.0
+matminer>=0.9.0
+
+# Data Access
+requests>=2.31.0
+huggingface_hub>=0.16.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Utilities
+tqdm>=4.65.0
+pyyaml>=6.0.0
+
+# Testing
+pytest>=7.4.0

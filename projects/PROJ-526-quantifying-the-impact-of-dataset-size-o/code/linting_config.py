@@ -1,45 +1,36 @@
 """
-Configuration helpers for linting and formatting tools.
-Provides programmatic access to black and flake8 settings used by the runner.
+Configuration helpers for linting tools.
+Exposes functions to retrieve configuration dictionaries 
+that match the static config files (.flake8, pyproject.toml).
 """
 from pathlib import Path
 from typing import Dict, Any, List
 
+
 def get_black_config() -> Dict[str, Any]:
     """
-    Returns the effective Black configuration used by the project.
-    Matches settings in pyproject.toml.
+    Returns the Black configuration as a dictionary.
+    Matches the settings in pyproject.toml.
     """
     return {
-        "line_length": 120,
+        "line_length": 88,
         "target_version": ["py310"],
-        "exclude": [
-            ".git",
-            "__pycache__",
-            "data",
-            "build",
-            "dist",
-            ".eggs",
-        ],
+        "include": r"\.pyi?$",
+        "exclude": r"/(\.git|\.hg|\.mypy_cache|\.tox|\.venv|_build|buck-out|build|dist)/",
+        "skip_string_normalization": False
     }
+
 
 def get_flake8_config() -> Dict[str, Any]:
     """
-    Returns the effective Flake8 configuration used by the project.
-    Matches settings in .flake8.
+    Returns the Flake8 configuration as a dictionary.
+    Matches the settings in .flake8.
     """
     return {
-        "max_line_length": 120,
-        "exclude": [
-            ".git",
-            "__pycache__",
-            "data",
-            "build",
-            "dist",
-            ".eggs",
-        ],
-        "ignore": ["E203", "E266", "W503"],
-        "per_file_ignores": {
-            "tests/*": ["S101"],
-        },
+        "max_line_length": 88,
+        "extend_ignore": ["E203", "W503"],
+        "exclude": [".git", "__pycache__", "build", "dist", ".eggs"],
+        "max_complexity": 15,
+        "import_order_style": "pep8",
+        "application_import_names": ["code", "tests"]
     }

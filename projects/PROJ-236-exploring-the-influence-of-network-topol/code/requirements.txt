@@ -13,3 +13,4 @@ pytest-cov
 ruff
 black
 mypy
+requests

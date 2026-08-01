@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.23202",
+  "judged_at": "2026-08-01T12:43:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dual latent memory in vision-language-action models for robotic manipu\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same domain (Vision-Language-Action models for robotic manipulation) and investigates the same core mechanism of improving model performance through latent attention alignment, satisfying criteria (a) and (b) as a direct methodological follow-up to the user's \"Dual Latent Memory\" concept.",
+  "relevant": true
+}

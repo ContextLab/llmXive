@@ -73,20 +73,20 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T009 [P] [US1] Unit test `tests/unit/test_descriptors.py::test_tolerance_factor_calculation_returns_correct_value_for_KCl3`
-- [ ] T010 [P] [US1] Unit test `tests/unit/test_api_client.py::test_retry_logic_triggers_on_429_error`
-- [ ] T011 [P] [US1] Contract test `tests/contract/test_schemas.py::test_features_csv_schema_validation`
+- [X] T009 [P] [US1] Unit test `tests/unit/test_descriptors.py::test_tolerance_factor_calculation_returns_correct_value_for_KCl3`
+- [X] T010 [P] [US1] Unit test `tests/unit/test_api_client.py::test_retry_logic_triggers_on_429_error`
+- [X] T011 [P] [US1] Contract test `tests/contract/test_schemas.py::test_features_csv_schema_validation`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/download.py` to fetch up to 10,000 entries from Materials Project API (using `utils/api_client.py`), validate the count, and raise a critical error if the initial MP fetch yields < 5,000 valid entries (merging the logic of T014.5 here).
-- [~] T013 [US1] Implement explicit OQMD ingestion logic in `code/data/download.py` (or a new `code/data/download_oqmd.py`): Fetch from the verified OQMD CSV URL, parse the specific columns (formula, space_group, decomposition_energy), and merge with MP data ONLY if MP yields < 5,000 valid entries. Ensure the merged dataset reaches the minimum threshold required for statistical validity..
+- [X] T012 [US1] Implement `code/data/download.py` to fetch up to 10,000 entries from Materials Project API (using `utils/api_client.py`), validate the count, and raise a critical error if the initial MP fetch yields < 5,000 valid entries (merging the logic of T014.5 here).
+- [ ] T013 [US1] Implement explicit OQMD ingestion logic in `code/data/download.py` (or a new `code/data/download_oqmd.py`): Fetch from the verified OQMD CSV URL, parse the specific columns (formula, space_group, decomposition_energy), and merge with MP data ONLY if MP yields < 5,000 valid entries. Ensure the merged dataset reaches the minimum threshold required for statistical validity..
 - [X] T014 [US1] Implement structural filtering in `code/data/download.py`: Filter entries where `space_group == 221` (Cubic) OR `space_group == 148` (Rhombohedral).
 - [X] T015 [US1] Implement `code/data/descriptors.py` using `pymatgen` to calculate Goldschmidt tolerance factor ($t$) and octahedral factor ($\mu$).
 - [X] T016 [US1] Implement `code/data/descriptors.py` to calculate ionic radius mismatch and electronegativity differences.
 - [X] T017 [US1] Implement exclusion logic in `code/data/descriptors.py` for ambiguous oxidation states or missing radii, logging reasons to `logs/pipeline.log`.
-- [~] T018 [US1] Create `code/data/preprocess.py` to clean data, handle missing values, and save `data/processed/features.csv`.
-- [~] T019 [US1] Verify `data/processed/features.csv` has zero nulls in `decomposition_energy` column.
+- [ ] T018 [US1] Create `code/data/preprocess.py` to clean data, handle missing values, and save `data/processed/features.csv`.
+- [ ] T019 [US1] Verify `data/processed/features.csv` has zero nulls in `decomposition_energy` column.
 
 **Checkpoint:** At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,7 +101,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T020 [P] [US2] Unit test `tests/unit/test_model_utils.py::test_permutation_importance_returns_correct_scores`
-- [~] T021 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_full_training_pipeline_with_sample_data`
+- [ ] T021 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_full_training_pipeline_with_sample_data`
 
 ### Implementation for User Story 2
 
@@ -114,7 +114,7 @@
 - [X] T028 [US2] Implement permutation-based sensitivity analysis in `code/models/train.py` to validate feature importance hypotheses.
 - [X] T029 [US2] Implement `code/viz/plot.py` to generate `predicted-vs-true.png` scatter plot.
 - [X] T030 [US2] Implement `code/viz/plot.py` to generate `feature-importance.png` bar chart.
-- [ ] T031 [US2] Save trained model artifact to `results/model.pkl` and metrics to `results/metrics.json`.
+- [ ] T031 [US2] Save trained model artifact to `results/model.pkl` and metrics to `results/metrics.json`. <!-- FAILED: unspecified -->
 
 **Checkpoint:** At this point, User Stories 1 AND 2 should both work independently
 

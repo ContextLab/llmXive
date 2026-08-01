@@ -5,38 +5,32 @@ import shutil
 import gc
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any, Optional
 from huggingface_hub import HfApi, hf_hub_download, list_repo_files
-from config import get_config, require_hf_token, require_data_dir
-from utils.logging_config import get_logger
+from huggingface_hub.utils import RepositoryNotFoundError, HfHubHTTPError
+
+from config import get_config, require_hf_token
+from utils.logging_config import get_logger, log_download_progress, log_error_summary
 
 logger = get_logger(__name__)
 
 class DownloadError(Exception):
-    """Custom exception for download failures."""
+    """Custom exception for data download failures."""
     pass
 
-def exponential_backoff(attempt: int, base_delay: float = 1.0, max_delay: float = 60.0) -> float:
-    """
-    Calculate delay time using exponential backoff with jitter.
-    
-    Args:
-        attempt: The current retry attempt number (0-indexed).
-        base_delay: Base delay in seconds.
-        max_delay: Maximum delay in seconds.
-    
-    Returns:
-        Delay time in seconds.
-    """
-    delay = min(base_delay * (2 ** attempt), max_delay)
+def exponential_backoff(retry_count: int, base_delay: float = 1.0, max_delay: float = 60.0) -> float:
+    """Calculate delay with exponential backoff."""
+    delay = min(base_delay * (2 ** retry_count), max_delay)
+    logger.info("Rate limit hit. Retrying in %.2f seconds (attempt %d)...", delay, retry_count + 1)
     return delay
 
 def download_with_retry(
     repo_id: str,
     filename: str,
-    local_dir: str,
+    local_dir: Path,
+    token: str,
     max_retries: int = 5
-) -> str:
+) -> Path:
     """
     Download a file from HuggingFace Hub with retry logic.
     
@@ -44,6 +38,7 @@ def download_with_retry(
         repo_id: HuggingFace repository ID.
         filename: Name of the file to download.
         local_dir: Local directory to save the file.
+        token: HuggingFace API token.
         max_retries: Maximum number of retry attempts.
     
     Returns:
@@ -54,164 +49,158 @@ def download_with_retry(
     """
     for attempt in range(max_retries):
         try:
-            logger.info(f"Attempting to download {filename} from {repo_id} (attempt {attempt + 1}/{max_retries})")
+            logger.info("Downloading %s from %s (attempt %d/%d)...", filename, repo_id, attempt + 1, max_retries)
             local_path = hf_hub_download(
                 repo_id=repo_id,
                 filename=filename,
-                local_dir=local_dir,
-                force_download=False
+                local_dir=str(local_dir),
+                token=token,
+                local_dir_use_symlinks=False
             )
-            logger.info(f"Successfully downloaded {filename} to {local_path}")
-            return local_path
-        except Exception as e:
+            logger.info("Successfully downloaded: %s", local_path)
+            return Path(local_path)
+        except (RepositoryNotFoundError, HfHubHTTPError) as e:
             if attempt == max_retries - 1:
-                logger.error(f"Failed to download {filename} after {max_retries} attempts: {e}")
-                raise DownloadError(f"Download failed for {filename}: {e}")
+                logger.error("Failed to download %s after %d attempts: %s", filename, max_retries, str(e))
+                raise DownloadError(f"Failed to download {filename}: {str(e)}") from e
+            
             delay = exponential_backoff(attempt)
-            logger.warning(f"Download failed: {e}. Retrying in {delay:.1f}s...")
             time.sleep(delay)
-    
-    raise DownloadError(f"Download failed for {filename} after {max_retries} attempts")
+        except Exception as e:
+            logger.error("Unexpected error downloading %s: %s", filename, str(e))
+            raise DownloadError(f"Unexpected error downloading {filename}: {str(e)}") from e
 
-def fetch_dataset_metadata(repo_id: str) -> Dict[str, Any]:
+def fetch_dataset_metadata(repo_id: str, token: str) -> List[str]:
     """
-    Fetch metadata about a dataset repository.
+    Fetch list of files in a HuggingFace repository.
     
     Args:
-        repo_id: HuggingFace repository ID.
+        repo_id: Repository ID.
+        token: API token.
     
     Returns:
-        Dictionary containing repository metadata.
+        List of filenames in the repository.
     """
     try:
-        api = HfApi()
-        info = api.repo_info(repo_id=repo_id, repo_type="dataset")
-        logger.info(f"Fetched metadata for {repo_id}: {info.id}")
-        return {
-            "id": info.id,
-            "sha": info.sha,
-            "last_modified": info.last_modified,
-            "siblings": [s.rfilename for s in info.siblings]
-        }
+        api = HfApi(token=token)
+        files = api.list_repo_files(repo_id=repo_id)
+        logger.info("Found %d files in repository %s", len(files), repo_id)
+        return files
     except Exception as e:
-        logger.error(f"Failed to fetch metadata for {repo_id}: {e}")
-        raise DownloadError(f"Metadata fetch failed for {repo_id}: {e}")
+        logger.error("Failed to fetch metadata for %s: %s", repo_id, str(e))
+        raise DownloadError(f"Failed to fetch metadata for {repo_id}") from e
 
 def process_property_files(
-    base_dir: Path,
-    property_name: str,
-    file_patterns: List[str]
-) -> List[Path]:
+    repo_id: str,
+    local_dir: Path,
+    token: str,
+    property_name: str
+) -> Dict[str, Path]:
     """
-    Locate and validate property-specific files in the downloaded data.
+    Download all files for a specific property dataset.
     
     Args:
-        base_dir: Base directory containing the downloaded data.
-        property_name: Name of the property (used for logging).
-        file_patterns: List of file patterns to match.
+        repo_id: Repository ID.
+        local_dir: Base local directory.
+        token: API token.
+        property_name: Name of the property (used to create subdirectory).
     
     Returns:
-        List of paths to matching files.
+        Dictionary mapping filenames to local paths.
     """
-    matching_files = []
-    for pattern in file_patterns:
-        files = list(base_dir.glob(pattern))
-        if files:
-            logger.info(f"Found {len(files)} file(s) matching '{pattern}' for {property_name}")
-            matching_files.extend(files)
-        else:
-            logger.warning(f"No files found matching '{pattern}' for {property_name}")
+    property_dir = local_dir / property_name
+    property_dir.mkdir(parents=True, exist_ok=True)
     
-    return matching_files
-
-def download_all_datasets(
-    data_dir: Path,
-    datasets_config: Dict[str, Dict[str, Any]]
-) -> Dict[str, List[Path]]:
-    """
-    Download all configured datasets.
+    files = fetch_dataset_metadata(repo_id, token)
+    downloaded_files = {}
     
-    Args:
-        data_dir: Root data directory.
-        datasets_config: Configuration dictionary mapping property names to dataset details.
+    # Filter for relevant data files (csv, parquet, json)
+    relevant_files = [f for f in files if f.endswith(('.csv', '.parquet', '.json', '.tsv'))]
     
-    Returns:
-        Dictionary mapping property names to lists of downloaded file paths.
-    """
-    raw_dir = data_dir / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    total = len(relevant_files)
+    current = 0
     
-    downloaded_files: Dict[str, List[Path]] = {}
-    
-    for prop_name, config in datasets_config.items():
-        repo_id = config.get("repo_id")
-        files = config.get("files", [])
-        
-        if not repo_id:
-            logger.error(f"Missing repo_id for property {prop_name}")
+    for filename in relevant_files:
+        current += 1
+        log_download_progress(logger, current, total, f"Download {property_name}")
+        try:
+            local_path = download_with_retry(repo_id, filename, property_dir, token)
+            downloaded_files[filename] = local_path
+        except DownloadError as e:
+            logger.warning("Skipping file %s due to error: %s", filename, str(e))
             continue
-        
-        logger.info(f"Downloading data for property: {prop_name}")
-        prop_dir = raw_dir / prop_name
-        prop_dir.mkdir(parents=True, exist_ok=True)
-        
-        prop_files = []
-        for file_name in files:
-            try:
-                local_path = download_with_retry(repo_id, file_name, str(prop_dir))
-                prop_files.append(Path(local_path))
-            except DownloadError as e:
-                logger.error(f"Skipping {prop_name} due to download error: {e}")
-                break  # Stop processing this property if one file fails
-        
-        if prop_files:
-            downloaded_files[prop_name] = prop_files
-            logger.info(f"Completed download for {prop_name}: {len(prop_files)} files")
-        else:
-            logger.error(f"Failed to download any files for {prop_name}")
-        
-        # Garbage collection between properties to manage memory
-        gc.collect()
     
+    log_error_summary(logger, total - len(downloaded_files), f"Download {property_name}")
     return downloaded_files
 
+def download_all_datasets(
+    properties: List[Dict[str, str]],
+    base_dir: Path,
+    token: str
+) -> Dict[str, Dict[str, Path]]:
+    """
+    Download datasets for all specified properties.
+    
+    Args:
+        properties: List of dicts with 'name' and 'repo_id'.
+        base_dir: Base directory for downloads.
+        token: API token.
+    
+    Returns:
+        Nested dict: {property_name: {filename: local_path}}.
+    """
+    all_downloads = {}
+    total_properties = len(properties)
+    
+    for idx, prop in enumerate(properties):
+        prop_name = prop['name']
+        repo_id = prop['repo_id']
+        
+        logger.info("Processing property %d/%d: %s (Repo: %s)", idx + 1, total_properties, prop_name, repo_id)
+        
+        try:
+            downloaded = process_property_files(repo_id, base_dir, token, prop_name)
+            all_downloads[prop_name] = downloaded
+            logger.info("Completed download for %s: %d files", prop_name, len(downloaded))
+        except Exception as e:
+            logger.error("Failed to download dataset for %s: %s", prop_name, str(e))
+            # Continue with other properties
+            continue
+    
+    return all_downloads
+
 def main():
-    """
-    Main entry point for data download.
-    """
-    logger.info("Starting data download process")
+    """Main entry point for data download."""
+    config = get_config()
+    require_hf_token()
+    
+    raw_dir = config.data_dir / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Define datasets to download (example configuration)
+    # In a real scenario, this would come from a config file or spec
+    datasets = [
+        {"name": "formation_energy", "repo_id": "materialsproject/formation_energy"},
+        {"name": "band_gap", "repo_id": "materialsproject/band_gap"},
+        {"name": "elastic_modulus", "repo_id": "materialsproject/elastic_modulus"},
+        # Add more properties as available
+    ]
+    
+    logger.info("Starting data download for %d properties...", len(datasets))
     
     try:
-        config = get_config()
-        data_dir = Path(require_data_dir(config))
+        results = download_all_datasets(datasets, raw_dir, config.hf_token)
         
-        # Example configuration - in real usage, this might come from a config file
-        # or be derived from the project specification
-        datasets_config = {
-            "formation_energy": {
-                "repo_id": "materialsvirtuallab/mp-formulation",
-                "files": ["formation_energy.csv"]
-            },
-            "band_gap": {
-                "repo_id": "materialsvirtuallab/mp-formulation",
-                "files": ["band_gap.csv"]
-            }
-        }
+        total_files = sum(len(files) for files in results.values())
+        logger.info("Download complete. Total files downloaded: %d", total_files)
         
-        downloaded = download_all_datasets(data_dir, datasets_config)
-        
-        if downloaded:
-            logger.info(f"Successfully downloaded data for {len(downloaded)} properties")
-            for prop, files in downloaded.items():
-                logger.info(f"  - {prop}: {len(files)} files")
-        else:
-            logger.warning("No datasets were successfully downloaded")
+        # Log summary
+        for prop, files in results.items():
+            logger.info("Property %s: %d files", prop, len(files))
             
     except Exception as e:
-        logger.error(f"Data download failed: {e}", exc_info=True)
+        logger.critical("Data download pipeline failed: %s", str(e))
         sys.exit(1)
-    
-    logger.info("Data download process completed")
 
 if __name__ == "__main__":
     main()

@@ -26,50 +26,33 @@ venv/
 ENV/
 env/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
-# Data Artifacts (Raw and Processed)
-# Raw data is large and should not be committed
-data/raw/
-# Processed data (Parquet/CSV) can be large
-data/processed/*.parquet
-data/processed/*.csv
-data/processed/*.h5
-# Keep the directory structure but ignore the heavy files
+# Data
+data/raw/*
 !data/raw/.gitkeep
+data/processed/*
 !data/processed/.gitkeep
-
-# State and Checksums
-state/*.json
-state/*.log
-!state/.gitkeep
-!state/amendments.md
+*.parquet
+*.csv
+*.json
+!data/processed/scaling_results.csv
+!data/processed/materials_master.parquet
+!data/processed/final_analysis.csv
 
 # Logs
 *.log
 logs/
 
+# State
+state/*.json
+!state/amendments.md
+!state/properties_status.json
+
 # OS
 .DS_Store
 Thumbs.db
-
-# Project specific
-projects/
-state/checksums.json
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.mypy_cache/
-
-# Secrets
-.env
-.env.local
-*.pem
-*.key

@@ -86,7 +86,7 @@
 
 - [X] T011 [US1] Implement `code/download_data.py` to fetch materials data from HuggingFace (Materials Project/AFLOW) with exponential backoff for rate limits
 - [X] T012 [US1] Implement `code/generate_descriptors.py` to compute Magpie composition-only descriptors for all entries
-- [ ] T013 [US1] Implement data consolidation logic to merge properties into a single `data/processed/materials_master.parquet` file (with CSV fallback if memory permits)
+- [X] T013 [US1] Implement data consolidation logic to merge properties into a single `data/processed/materials_master.parquet` file (with CSV fallback if memory permits)
 - [X] T014 [US1] Implement chunked loading in `code/download_data.py` using batch processing and optimized dtypes (float32) to verify peak RAM usage remains < 7GB during full dataset load
 - [ ] T015 [US1] Add logging for download progress and descriptor generation stats
 - [ ] T016 [US1] Implement validation logic to count distinct properties. **IF count < 15, raise a critical `ValueError` and halt the pipeline immediately.** Log the "15-N" gap and update `state/properties_status.json` ONLY if the count is sufficient. This task enforces the hard constraint of FR-001; execution must not proceed to US2/US3 if this check fails.
@@ -109,8 +109,8 @@
 ### Implementation for User Story 2
 
 - [X] T019 [US2] Implement `code/train_learning_curves.py` to generate **5 training subsets** (sizes: `[1000, 5000, 10000, 20000, 40000]`) per property, training with **1 random seed** per subset using fixed hyperparameters. **Note**: This implementation relies on the amendment ratified in T035 to deviate from the Constitution's 10-subset/3-seed requirement.
-- [ ] T020 [US2] Implement `code/fit_scaling_laws.py` to fit $Error = a \cdot N^{-b}$ and classify properties as "non-power-law" if $R^2 < 0.9$. Output `data/processed/scaling_results.csv` with columns: `property_name`, `exponent_b`, `intercept_a`, `r_squared`, `fit_status`.
-- [ ] T021 [US2] Implement aggregation logic to produce `data/processed/scaling_results.csv` with exponents and flags <!-- FAILED: unspecified -->
+- [X] T020 [US2] Implement `code/fit_scaling_laws.py` to fit $Error = a \cdot N^{-b}$ and classify properties as "non-power-law" if $R^2 < 0.9$. Output `data/processed/scaling_results.csv` with columns: `property_name`, `exponent_b`, `intercept_a`, `r_squared`, `fit_status`.
+- [X] T021 [US2] Implement aggregation logic to produce `data/processed/scaling_results.csv` with exponents and flags <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T022 [US2] Add error handling for properties with insufficient data points (< 1,000 samples)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -131,10 +131,10 @@
 ### Implementation for User Story 3
 
 - [X] T025 [US3] Implement `code/analyze_physics.py` to compute "spatial locality" (correlation with valence electron variance) and "symmetry sensitivity" (coefficient of variation)
-- [ ] T026 [US3] Implement Pearson correlation analysis between physical metrics and scaling exponents
+- [ ] T026 [US3] Implement Pearson correlation analysis between physical metrics and scaling exponents <!-- ATOMIZE: requested -->
 - [X] T027 [US3] Implement `code/analyze_physics.py` to perform a **Permutation Test** (primary method for N=2-3 scope) to compare electronic vs. mechanical classes. **Input**: List of scaling exponents per class. **Output**: `p-value` (float). **Note**: This task relies on the amendment ratified in T036 to deviate from the Constitution's Kruskal-Wallis/ANOVA requirement. No fallback logic is implemented as N>=5 is impossible per the Plan.
 - [X] T028 [US3] Implement `code/visualize_results.py` to generate heatmaps and comparative learning curve plots
-- [ ] T029 [US3] Generate final summary table with all statistical results in `data/processed/final_analysis.csv`
+- [X] T029 [US3] Generate final summary table with all statistical results in `data/processed/final_analysis.csv`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -145,7 +145,7 @@
 **Purpose**: Improvements that affect multiple user stories and formalize deviations
 
 - [ ] T030 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T031 Code cleanup and refactoring for readability
+- [ ] T031 Code cleanup and refactoring for readability <!-- FAILED: unspecified -->
 - [ ] T032 Performance optimization (dtype optimization, batch size tuning)
 - [ ] T033 [P] Additional unit tests for edge cases (empty datasets, fit failures) in `tests/unit/`
 - [ ] T034 Run `quickstart.md` validation to ensure full pipeline reproducibility
