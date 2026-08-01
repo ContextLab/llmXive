@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/claw-ai-lab/arc-bench/resolve/main/data/arc_bench_25_topics.parquet
   verified_at: '2026-07-25T00:25:36.269226Z'
-- artifact_hash: a07a3748cfceece11dc5342ebe620c7885ec99b2852c13a77bbd86c1844133e6
+- artifact_hash: 69be48936a8f0a37559d41fd085e9456c36f38e1945d1d8210b5b64341d3dbe7
   artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-30T00:06:33.211381Z'
-- artifact_hash: a07a3748cfceece11dc5342ebe620c7885ec99b2852c13a77bbd86c1844133e6
+  verified_at: '2026-08-01T11:29:20.751752Z'
+- artifact_hash: 69be48936a8f0a37559d41fd085e9456c36f38e1945d1d8210b5b64341d3dbe7
   artifact_path: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-07-30T00:06:33.211381Z'
+  verified_at: '2026-08-01T11:29:20.751752Z'
