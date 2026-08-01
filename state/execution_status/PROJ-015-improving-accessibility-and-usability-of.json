@@ -1,14 +1,17 @@
 {
   "project_id": "PROJ-015-improving-accessibility-and-usability-of",
   "ok": false,
-  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/simulator/raw_data_logger.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026b simulator. It does NOT generate synthetic data. \"\"\" import json im\u2026\u201d; code/simulator/simulator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rule-based simulator to generate synthetic session data for pipelin\u2026\u201d; code/simulator/simulator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026taSimulator:     \"\"\"     Generates deterministic synthetic session data for CI vali\u2026\u201d; run-book completed but produced no data/figure artifacts; 5 declared deliverable(s) absent: data/processed/cleaned_sessions.csv; data/processed/descriptive_stats.csv; data/processed/metrics_summary.csv",
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/simulator/raw_data_logger.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026b simulator. It does NOT generate synthetic data. \"\"\" import json im\u2026\u201d; code/simulator/simulator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026taSimulator:     \"\"\"     Generates deterministic synthetic session data for CI vali\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python main.py; 1 command(s) failed: python code/utils/checksum.py --verify (rc=1); 4 declared deliverable(s) absent: data/processed/cleaned_sessions.csv; data/processed/metrics_summary.csv; data/processed/power_flags.json",
   "artifacts": [],
-  "failures": [],
-  "fix_rounds": 2,
+  "failures": [
+    "python main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-015-improving-accessibility-and-usability-of/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-015-improving-accessibility-and-usability-of/main.py': [Errno 2] No such file or directory",
+    "python code/utils/checksum.py --verify -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-015-improving-accessibility-and-usability-of/code/utils/checksum.py\", line 36, in <module>\n    def verify_checksums_in_directory(directory: Path) -> Dict[str, bool]:\n                                                          ^^^^\nNameError: name 'Dict' is not defined. Did you mean: 'dict'?"
+  ],
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-24T13:37:10Z"
+  "updated_at": "2026-08-01T16:57:30Z"
 }

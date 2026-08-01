@@ -1,11 +1,14 @@
 """
-Statistical Analysis Pipeline Runner.
+Main analysis orchestration script.
 
-Orchestrates the data loading, cleaning, statistical analysis (ANOVA),
-and report generation for the usability study.
+This script orchestrates the full analysis pipeline:
+1. Data Loading and Validation
+2. Statistical Analysis (ANOVA, Holm-Bonferroni)
+3. Power Analysis
+4. Report Generation
 
-Constitution Principle VII: Statistical rigor must be maintained.
-Spec FR-002 (Amended by T035a): Repeated Measures ANOVA is the primary test.
+Constitution Principle VII: Reproducibility and Transparency.
+Spec FR-002 (Amended by T035a): Repeated Measures ANOVA is the required statistical test.
 """
 
 import sys
@@ -14,375 +17,406 @@ import json
 import os
 import traceback
 import logging
-import pandas as pd
-import numpy as np
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-# Import from local project modules (API Surface)
-# Note: We assume the project root is in sys.path or we adjust it.
-# The execution environment should set PYTHONPATH or install the package.
-try:
-    from analysis.data_cleaner import DataCleaner
-    from analysis.stat_utils import run_anova_pipeline, run_holm_bonferroni, calculate_effect_size
-    from analysis.power_analysis import PowerCalculator
-    from utils.logger import get_logger, get_project_root
-except ImportError as e:
-    # Fallback for direct execution without package installation
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from analysis.data_cleaner import DataCleaner
-    from analysis.stat_utils import run_anova_pipeline, run_holm_bonferroni, calculate_effect_size
-    from analysis.power_analysis import PowerCalculator
-    from utils.logger import get_logger, get_project_root
+import pandas as pd
+import numpy as np
+
+# Import from existing API surface
+from analysis.data_cleaner import DataCleaner, main as clean_main
+from analysis.stat_utils import (
+    run_anova_pipeline,
+    run_holm_bonferroni,
+    calculate_effect_size,
+    verify_primary_anova_pvalue,
+    generate_metrics_summary
+)
+from analysis.power_analysis import PowerCalculator, main as power_main
+from utils.logger import get_logger
 
 # Configure logging
 logger = get_logger(__name__)
 
 class DataValidationError(Exception):
-    """Raised when data validation fails."""
+    """Custom exception for data validation failures."""
     pass
 
 def load_and_validate_data(input_path: str) -> pd.DataFrame:
     """
-    Loads and validates the cleaned sessions data.
-    
-    Validates exact columns and data types as per specification.
-    
+    Load raw session data and validate it against the schema.
+
     Args:
-        input_path: Path to the cleaned_sessions.csv file.
-        
+        input_path: Path to the raw data directory or file.
+
     Returns:
-        Validated pandas DataFrame.
-        
+        Cleaned DataFrame ready for analysis.
+
     Raises:
-        DataValidationError: If validation fails.
+        DataValidationError: If data is missing or invalid.
     """
-    if not os.path.exists(input_path):
-        raise DataValidationError(f"Input file not found: {input_path}")
+    input_dir = Path(input_path)
     
-    try:
-        df = pd.read_csv(input_path)
-    except Exception as e:
-        raise DataValidationError(f"Failed to read CSV: {e}")
-
-    required_columns = [
-        'participant_id', 
-        'interface_type', 
-        'completion_time_seconds', 
-        'error_count', 
-        'sus_score', 
-        'explanation_engagement_time_seconds'
-    ]
-
-    # Check columns
-    missing_cols = set(required_columns) - set(df.columns)
+    if not input_dir.exists():
+        raise DataValidationError(f"Input path does not exist: {input_path}")
+    
+    # Check for raw data files
+    json_files = list(input_dir.glob("*.json"))
+    if not json_files:
+        raise DataValidationError(f"No JSON session files found in {input_path}")
+    
+    logger.info(f"Loading {len(json_files)} session files from {input_path}")
+    
+    # Load and concatenate all sessions
+    sessions = []
+    for json_file in json_files:
+        try:
+            with open(json_file, 'r') as f:
+                session_data = json.load(f)
+                sessions.append(session_data)
+        except Exception as e:
+            logger.warning(f"Failed to load {json_file}: {e}")
+            continue
+    
+    if not sessions:
+        raise DataValidationError("No valid session data could be loaded.")
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(sessions)
+    
+    # Validate required columns
+    required_cols = ['participant_id', 'interface_type', 'completion_time', 'error_count']
+    missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
         raise DataValidationError(f"Missing required columns: {missing_cols}")
-
-    # Type and range validation
-    errors = []
-
-    # participant_id: str
-    if not df['participant_id'].apply(lambda x: isinstance(x, str) or pd.isna(x)).all():
-        errors.append("participant_id must be string")
-
-    # interface_type: enum (traditional|explainable)
-    valid_interfaces = {'traditional', 'explainable'}
-    if not df['interface_type'].isin(valid_interfaces).all():
-        errors.append(f"interface_type must be in {valid_interfaces}")
-
-    # completion_time_seconds: float >= 0
-    if not pd.api.types.is_numeric_dtype(df['completion_time_seconds']):
-        errors.append("completion_time_seconds must be numeric")
-    elif (df['completion_time_seconds'] < 0).any():
-        errors.append("completion_time_seconds cannot be negative")
-
-    # error_count: int >= 0
-    if not pd.api.types.is_integer_dtype(df['error_count']) and not pd.api.types.is_numeric_dtype(df['error_count']):
-        errors.append("error_count must be numeric")
-    elif (df['error_count'] < 0).any():
-        errors.append("error_count cannot be negative")
-
-    # sus_score: int 0-100
-    if not pd.api.types.is_numeric_dtype(df['sus_score']):
-        errors.append("sus_score must be numeric")
-    elif (df['sus_score'] < 0).any() or (df['sus_score'] > 100).any():
-        errors.append("sus_score must be between 0 and 100")
-
-    # explanation_engagement_time_seconds: float >= 0
-    if not pd.api.types.is_numeric_dtype(df['explanation_engagement_time_seconds']):
-        errors.append("explanation_engagement_time_seconds must be numeric")
-    elif (df['explanation_engagement_time_seconds'] < 0).any():
-        errors.append("explanation_engagement_time_seconds cannot be negative")
-
-    if errors:
-        raise DataValidationError("Data validation failed:\n" + "\n".join(errors))
-
+    
+    logger.info(f"Loaded {len(df)} sessions with columns: {list(df.columns)}")
     return df
 
-def execute_pipeline(df: pd.DataFrame) -> Dict[str, Any]:
+def execute_pipeline(
+    input_path: str,
+    output_dir: str,
+    state_file: Optional[str] = None,
+    simulate: bool = False
+) -> Dict[str, Any]:
     """
-    Executes the statistical analysis pipeline.
-    
-    1. Runs Repeated Measures ANOVA.
-    2. Applies Holm-Bonferroni correction.
-    3. Calculates effect sizes.
-    4. Runs Power Analysis.
-    
+    Execute the full analysis pipeline.
+
     Args:
-        df: Validated DataFrame.
-        
+        input_path: Path to raw data.
+        output_dir: Path to output directory.
+        state_file: Path to state file for checksums.
+        simulate: If True, allow simulation mode (dev only).
+
     Returns:
-        Dictionary containing analysis results.
+        Dictionary with pipeline results and paths.
     """
-    logger.info("Starting statistical analysis pipeline...")
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    # Prepare data for ANOVA
-    # We need to pivot for repeated measures: columns = interface_type, values = metrics
-    # Metrics: completion_time_seconds, error_count, sus_score
-    
-    metrics_to_test = ['completion_time_seconds', 'error_count', 'sus_score']
-    results = []
-    
-    for metric in metrics_to_test:
-        logger.info(f"Running ANOVA for metric: {metric}")
-        
-        # Pivot data to wide format for ANOVA
-        # Assuming each participant has exactly one row per interface_type
-        # If not, we might need to aggregate first, but spec implies paired design
-        pivot_df = df.pivot(index='participant_id', columns='interface_type', values=metric)
-        
-        if pivot_df.isnull().any().any():
-            logger.warning(f"Missing values in {metric} pivot, skipping ANOVA for this metric.")
-            continue
-            
-        # Run ANOVA
-        # Using scipy.stats.f_oneway for independent, but we need repeated measures.
-        # Since we don't have a specific rm_anova in the API surface, we implement a basic one
-        # or use the one from stat_utils if available.
-        # The API surface lists run_anova_pipeline in stat_utils.
-        
-        try:
-            from analysis.stat_utils import run_anova_pipeline
-            anova_result = run_anova_pipeline(pivot_df, metric)
-            
-            # Run Holm-Bonferroni
-            # We need to collect p-values first.
-            # For now, we assume run_anova_pipeline returns a dict with p_value.
-            results.append({
-                'metric_name': metric,
-                'F_statistic': anova_result.get('F_statistic', 0.0),
-                'p_value': anova_result.get('p_value', 1.0),
-                'effect_size': 0.0 # Placeholder, calculate later
-            })
-        except Exception as e:
-            logger.error(f"Error running ANOVA for {metric}: {e}")
-            continue
-
-    # Apply Holm-Bonferroni correction
-    if results:
-        p_values = [r['p_value'] for r in results]
-        # Holm-Bonferroni implementation
-        # Sort p-values
-        sorted_indices = np.argsort(p_values)
-        sorted_p_values = np.array(p_values)[sorted_indices]
-        n = len(sorted_p_values)
-        
-        adjusted_p_values = np.zeros(n)
-        for i in range(n):
-            # Holm's step-down procedure
-            # alpha / (n - i)
-            # But we need to ensure monotonicity: adjusted_p[i] = max(adjusted_p[i-1], p[i] * (n-i))
-            # Actually, standard Holm: p_adj[i] = p[i] * (n - i)
-            # Then enforce monotonicity: p_adj[i] = max(p_adj[i], p_adj[i-1])
-            
-            # Let's use scipy for this if available, or implement simply
-            # Since we are in a constrained environment, we implement manually
-            # Adjusted p-value for the i-th smallest p-value is p_i * (n - i)
-            # But we must ensure they are non-decreasing.
-            
-            # Simpler approach for this specific task:
-            # Just multiply by (n - i) and take max with previous
-            if i == 0:
-                adjusted_p_values[i] = sorted_p_values[i] * n
-            else:
-                adjusted_p_values[i] = max(adjusted_p_values[i-1], sorted_p_values[i] * (n - i))
-            
-            # Cap at 1.0
-            adjusted_p_values[i] = min(adjusted_p_values[i], 1.0)
-        
-        # Map back to original order
-        final_adjusted_p_values = np.zeros(n)
-        final_adjusted_p_values[sorted_indices] = adjusted_p_values
-        
-        for i, r in enumerate(results):
-            r['adjusted_p_value'] = float(final_adjusted_p_values[i])
-            
-        # Calculate Effect Sizes (Eta-squared)
-        # Eta^2 = SS_between / SS_total
-        # We need to calculate this from the ANOVA results or data.
-        # Assuming run_anova_pipeline or stat_utils can provide this, or we calculate manually.
-        # For Repeated Measures ANOVA:
-        # Eta^2 = (SS_effect) / (SS_effect + SS_error)
-        # We'll approximate using F and df if not directly available, or use the result from stat_utils.
-        
-        for r in results:
-            # Placeholder: if stat_utils didn't return effect_size, we calculate it.
-            # This is a simplified calculation assuming balanced design.
-            # Real implementation should rely on the specific ANOVA output.
-            # For now, we set it to 0.1 if significant, 0.0 otherwise, as a placeholder for the "real" calculation
-            # which depends on the exact ANOVA implementation in stat_utils.
-            # Since we cannot invent the ANOVA details, we assume the pipeline in stat_utils handles it.
-            # If not, we leave it as 0.0 to avoid fabrication.
-            pass 
-            
-    # Power Analysis
-    logger.info("Running Power Analysis...")
-    power_results = {}
-    for r in results:
-        metric = r['metric_name']
-        # Estimate effect size (eta-squared) from F if needed, or use provided
-        # Assuming we have effect_size in r, else 0.0
-        eta_sq = r.get('effect_size', 0.0)
-        n_participants = df['participant_id'].nunique()
-        
-        # Use PowerCalculator from API
-        calculator = PowerCalculator()
-        power = calculator.calculate_power(n=n_participants, effect_size=eta_sq, alpha=0.05)
-        
-        flag = "OK"
-        if n_participants < 30:
-            flag = "UNDERPOWERED"
-        
-        power_results[metric] = {
-            "subgroup": metric,
-            "N": n_participants,
-            "power": float(power),
-            "flag": flag
-        }
-
-    return {
-        'anova_results': results,
-        'power_analysis': power_results
+    results = {
+        'cleaned_data': None,
+        'metrics_summary': None,
+        'power_flags': None,
+        'report': None
     }
-
-def write_report(results: Dict[str, Any], output_dir: str, csv_path: str, report_path: str):
-    """
-    Writes the analysis results to CSV and text report.
     
-    Constitution Principle VII: Statistical rigor must be maintained.
-    Spec FR-002 (Amended by T035a): Repeated Measures ANOVA is the primary test.
-    
-    Args:
-        results: Dictionary containing analysis results.
-        output_dir: Directory to write files.
-        csv_path: Path for metrics_summary.csv.
-        report_path: Path for report_summary.txt.
-    """
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Write CSV
-    anova_df = pd.DataFrame(results['anova_results'])
-    if not anova_df.empty:
-        # Ensure columns are in expected order
-        cols = ['metric_name', 'interface_type', 'F_statistic', 'p_value', 'adjusted_p_value', 'effect_size']
-        # 'interface_type' might not be in the results if we aggregated across types, 
-        # but the spec says "metric_name, interface_type, ...". 
-        # In Repeated Measures, the "interface_type" is the within-subject factor.
-        # We can set it to "within-subject" or similar if not specific.
-        # Let's assume the result structure has the necessary info.
-        # If 'interface_type' is missing, we add a column.
-        if 'interface_type' not in anova_df.columns:
-            anova_df['interface_type'] = 'within-subject'
-            
-        anova_df = anova_df[cols]
-        anova_df.to_csv(csv_path, index=False)
-        logger.info(f"Written metrics summary to {csv_path}")
-    else:
-        # Create empty CSV with headers
-        pd.DataFrame(columns=cols).to_csv(csv_path, index=False)
-        logger.warning("No ANOVA results to write.")
-
-    # Write Text Report
-    with open(report_path, 'w') as f:
-        f.write("Usability Study Analysis Report\n")
-        f.write("=" * 50 + "\n\n")
-        f.write("Methodology Notes:\n")
-        f.write("- Statistical Test: Repeated Measures ANOVA\n")
-        f.write("- Correction: Holm-Bonferroni\n")
-        f.write("- Basis: Constitution Principle VII, Spec FR-002 (Amended by T035a)\n\n")
+    try:
+        # Step 1: Load and validate data
+        logger.info("Step 1: Loading and validating data...")
+        raw_data = load_and_validate_data(input_path)
         
-        f.write("ANOVA Results:\n")
-        f.write("-" * 30 + "\n")
-        for res in results['anova_results']:
-            f.write(f"Metric: {res['metric_name']}\n")
-            f.write(f"  F-statistic: {res['F_statistic']:.4f}\n")
-            f.write(f"  P-value: {res['p_value']:.4f}\n")
-            f.write(f"  Adjusted P-value: {res['adjusted_p_value']:.4f}\n")
-            f.write(f"  Effect Size: {res['effect_size']:.4f}\n\n")
+        # Step 2: Clean data (filter incomplete, impute SUS)
+        logger.info("Step 2: Cleaning data...")
+        cleaner = DataCleaner()
+        cleaned_data = cleaner.clean(raw_data)
+        
+        # Save cleaned data
+        cleaned_csv_path = output_path / "cleaned_sessions.csv"
+        cleaned_data.to_csv(cleaned_csv_path, index=False)
+        logger.info(f"Saved cleaned data to {cleaned_csv_path}")
+        results['cleaned_data'] = str(cleaned_csv_path)
+        
+        # Step 3: Statistical Analysis (Repeated Measures ANOVA)
+        logger.info("Step 3: Running statistical analysis...")
+        
+        # Prepare data for ANOVA (long format)
+        anova_data = cleaner.prepare_for_anova(cleaned_data)
+        
+        # Run ANOVA pipeline
+        anova_results = run_anova_pipeline(anova_data)
+        
+        # Apply Holm-Bonferroni correction
+        logger.info("Applying Holm-Bonferroni correction...")
+        corrected_results = run_holm_bonferroni(anova_results)
+        
+        # Calculate effect sizes
+        logger.info("Calculating effect sizes...")
+        effect_sizes = calculate_effect_size(anova_data, corrected_results)
+        
+        # Verify primary ANOVA p-value
+        logger.info("Verifying primary ANOVA p-value...")
+        primary_verified = verify_primary_anova_pvalue(anova_results)
+        
+        # Generate metrics summary
+        metrics_summary = generate_metrics_summary(
+            corrected_results, 
+            effect_sizes, 
+            primary_verified
+        )
+        
+        # Save metrics summary
+        metrics_csv_path = output_path / "metrics_summary.csv"
+        metrics_summary.to_csv(metrics_csv_path, index=False)
+        logger.info(f"Saved metrics summary to {metrics_csv_path}")
+        results['metrics_summary'] = str(metrics_csv_path)
+        
+        # Step 4: Power Analysis
+        logger.info("Step 4: Running power analysis...")
+        power_calculator = PowerCalculator()
+        power_flags = power_calculator.analyze(cleaned_data, metrics_summary)
+        
+        # Save power flags
+        power_json_path = output_path / "power_flags.json"
+        with open(power_json_path, 'w') as f:
+            json.dump(power_flags, f, indent=2)
+        logger.info(f"Saved power flags to {power_json_path}")
+        results['power_flags'] = str(power_json_path)
+        
+        # Check for underpowered subgroups
+        underpowered = [k for k, v in power_flags.items() if v.get('flag') == 'UNDERPOWERED']
+        if underpowered:
+            logger.warning(f"UNDERPOWERED subgroups detected: {underpowered}")
+        
+        # Step 5: Write Report
+        logger.info("Step 5: Writing report...")
+        report_path = write_report(
+            output_path,
+            metrics_summary,
+            power_flags,
+            cleaned_data
+        )
+        results['report'] = str(report_path)
+        
+        # Update state file with checksums
+        if state_file:
+            from analysis.clean_data import compute_checksum
+            checksums = {}
+            for key, path in results.items():
+                if path:
+                    checksums[key] = compute_checksum(path)
             
-        f.write("Power Analysis:\n")
-        f.write("-" * 30 + "\n")
-        for metric, power_data in results['power_analysis'].items():
-            f.write(f"Metric: {metric}\n")
-            f.write(f"  N: {power_data['N']}\n")
-            f.write(f"  Power: {power_data['power']:.4f}\n")
-            f.write(f"  Flag: {power_data['flag']}\n\n")
+            state_path = Path(state_file)
+            state_path.parent.mkdir(parents=True, exist_ok=True)
             
-    logger.info(f"Written report to {report_path}")
+            current_state = {}
+            if state_path.exists():
+                with open(state_path, 'r') as f:
+                    current_state = json.load(f)
+            
+            current_state['artifact_hashes'] = checksums
+            
+            with open(state_path, 'w') as f:
+                json.dump(current_state, f, indent=2)
+            logger.info(f"Updated state file: {state_path}")
+        
+        return results
+        
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {e}")
+        traceback.print_exc()
+        
+        # Log error to file
+        error_log_path = output_path / "error_log.txt"
+        with open(error_log_path, 'w') as f:
+            f.write(f"Pipeline Error: {str(e)}\n")
+            f.write(traceback.format_exc())
+        
+        raise
+
+def write_report(
+    output_path: Path,
+    metrics_summary: pd.DataFrame,
+    power_flags: Dict[str, Any],
+    cleaned_data: pd.DataFrame
+) -> Path:
+    """
+    Write the final analysis report.
+
+    Constitution Principle VII: Reproducibility and Transparency.
+    Spec FR-002 (Amended by T035a): Repeated Measures ANOVA is the required statistical test.
+
+    Args:
+        output_path: Directory to write report.
+        metrics_summary: DataFrame with ANOVA results.
+        power_flags: Dictionary with power analysis results.
+        cleaned_data: Cleaned session data.
+
+    Returns:
+        Path to the written report file.
+    """
+    report_path = output_path / "report_summary.txt"
+    
+    with open(report_path, 'w') as f:
+        f.write("=" * 80 + "\n")
+        f.write("USABILITY RESEARCH ANALYSIS REPORT\n")
+        f.write("Project: Improving Accessibility and Usability of Complex Computer Systems\n")
+        f.write("Spec Reference: FR-002 (Amended by T035a) - Repeated Measures ANOVA\n")
+        f.write("Principle: Constitution Principle VII - Reproducibility and Transparency\n")
+        f.write("=" * 80 + "\n\n")
+        
+        # Descriptive Statistics
+        f.write("1. DESCRIPTIVE STATISTICS\n")
+        f.write("-" * 40 + "\n")
+        desc_stats = cleaned_data.groupby('interface_type').agg({
+            'completion_time': ['mean', 'std', 'count'],
+            'error_count': ['mean', 'std', 'count'],
+            'sus_score': ['mean', 'std', 'count']
+        })
+        f.write(desc_stats.to_string())
+        f.write("\n\n")
+        
+        # Statistical Analysis Results
+        f.write("2. STATISTICAL ANALYSIS RESULTS\n")
+        f.write("-" * 40 + "\n")
+        f.write("Method: Repeated Measures ANOVA (within-subjects design)\n")
+        f.write("Correction: Holm-Bonferroni for multiple comparisons\n")
+        f.write("\n")
+        f.write(metrics_summary.to_string())
+        f.write("\n\n")
+        
+        # Power Analysis
+        f.write("3. POWER ANALYSIS\n")
+        f.write("-" * 40 + "\n")
+        for subgroup, flags in power_flags.items():
+            f.write(f"Subgroup: {subgroup}\n")
+            f.write(f"  N: {flags.get('N', 'N/A')}\n")
+            f.write(f"  Power: {flags.get('power', 'N/A'):.4f}\n")
+            f.write(f"  Required N: {flags.get('required_N', 'N/A')}\n")
+            f.write(f"  Status: {flags.get('flag', 'N/A')}\n")
+            f.write("\n")
+        
+        # Conclusion
+        f.write("4. CONCLUSION\n")
+        f.write("-" * 40 + "\n")
+        
+        # Check if any significant results
+        significant = metrics_summary[metrics_summary['adjusted_p_value'] < 0.05]
+        if not significant.empty:
+            f.write("Significant differences found between interface types:\n")
+            for _, row in significant.iterrows():
+                f.write(f"  - {row['metric_name']}: p = {row['adjusted_p_value']:.4f}\n")
+        else:
+            f.write("No statistically significant differences found at alpha = 0.05.\n")
+        
+        # Check power
+        underpowered = [k for k, v in power_flags.items() if v.get('flag') == 'UNDERPOWERED']
+        if underpowered:
+            f.write(f"\nWARNING: Study may be underpowered for: {', '.join(underpowered)}\n")
+        
+        f.write("\n" + "=" * 80 + "\n")
+        f.write("END OF REPORT\n")
+        f.write("=" * 80 + "\n")
+    
+    logger.info(f"Report written to {report_path}")
+    
+    # Verify CSV has required columns
+    required_cols = ['metric_name', 'interface_type', 'F_statistic', 'p_value', 'adjusted_p_value', 'effect_size']
+    missing_cols = [col for col in required_cols if col not in metrics_summary.columns]
+    if missing_cols:
+        logger.warning(f"Metrics summary missing columns: {missing_cols}")
+    else:
+        logger.info("Metrics summary contains all required columns.")
+    
+    return report_path
+
+def check_readiness(output_dir: str) -> bool:
+    """
+    Check if all required artifacts exist.
+
+    Args:
+        output_dir: Path to output directory.
+
+    Returns:
+        True if all artifacts exist, False otherwise.
+    """
+    output_path = Path(output_dir)
+    required_files = [
+        "cleaned_sessions.csv",
+        "metrics_summary.csv",
+        "power_flags.json",
+        "report_summary.txt",
+        "figures/completion_time.png",
+        "figures/error_count.png",
+        "figures/sus_score.png"
+    ]
+    
+    missing = []
+    for file in required_files:
+        if not (output_path / file).exists():
+            missing.append(file)
+    
+    if missing:
+        logger.warning(f"Missing artifacts: {missing}")
+        return False
+    
+    logger.info("All required artifacts present.")
+    return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Statistical Analysis Pipeline")
-    parser.add_argument("--input", type=str, required=True, help="Path to cleaned_sessions.csv")
-    parser.add_argument("--output-dir", type=str, default="data/processed", help="Output directory for results")
-    parser.add_argument("--simulate", action="store_true", help="Run in simulation mode (bypass real data check)")
+    """Main entry point for the analysis pipeline."""
+    parser = argparse.ArgumentParser(
+        description="Run the full usability analysis pipeline."
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        required=True,
+        help="Path to raw data directory"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        required=True,
+        help="Path to output directory"
+    )
+    parser.add_argument(
+        "--state-file",
+        type=str,
+        default=None,
+        help="Path to state file for checksums"
+    )
+    parser.add_argument(
+        "--simulate",
+        action="store_true",
+        help="Enable simulation mode (dev only)"
+    )
     
     args = parser.parse_args()
     
-    # Check for real data if not simulating
-    if not args.simulate:
-        # Check if input file exists and is not empty (beyond header)
-        if not os.path.exists(args.input):
-            logger.error(f"Production mode: No real data found at {args.input}. Exiting.")
-            sys.exit(1)
-        
-        # Check if file has data rows
-        try:
-            df_check = pd.read_csv(args.input)
-            if len(df_check) == 0:
-                logger.error("Production mode: Data file is empty. Exiting.")
-                sys.exit(1)
-        except Exception as e:
-            logger.error(f"Production mode: Error reading data file: {e}. Exiting.")
-            sys.exit(1)
-    
     try:
-        # Load and Validate
-        logger.info(f"Loading data from {args.input}...")
-        df = load_and_validate_data(args.input)
+        results = execute_pipeline(
+            input_path=args.input,
+            output_dir=args.output,
+            state_file=args.state_file,
+            simulate=args.simulate
+        )
         
-        # Execute Pipeline
-        results = execute_pipeline(df)
+        logger.info("Pipeline completed successfully!")
+        logger.info(f"Results: {results}")
         
-        # Write Report
-        csv_path = os.path.join(args.output_dir, "metrics_summary.csv")
-        report_path = os.path.join(args.output_dir, "report_summary.txt")
-        write_report(results, args.output_dir, csv_path, report_path)
-        
-        # Write Power Flags JSON (as per T036)
-        power_path = os.path.join(args.output_dir, "power_flags.json")
-        with open(power_path, 'w') as f:
-            json.dump(results['power_analysis'], f, indent=2)
-        logger.info(f"Written power flags to {power_path}")
-        
-        logger.info("Analysis pipeline completed successfully.")
-        sys.exit(0)
-        
+        # Check readiness
+        if check_readiness(args.output):
+            logger.info("Readiness check passed.")
+        else:
+            logger.warning("Readiness check failed.")
+            sys.exit(1)
+            
     except DataValidationError as e:
-        logger.error(f"Data Validation Error: {e}")
+        logger.error(f"Data validation error: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Pipeline Execution Error: {e}")
+        logger.error(f"Pipeline failed: {e}")
         traceback.print_exc()
         sys.exit(1)
 

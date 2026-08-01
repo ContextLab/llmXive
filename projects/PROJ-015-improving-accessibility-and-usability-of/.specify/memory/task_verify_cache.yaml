@@ -6,12 +6,12 @@ T019b:
     \ The task\u2019s deliverable is absent, thus the requirement is not satisfied."
 T021a:
   c: false
-  h: d15bc97d12bdfe637be6e29366f9e73bc8a3e37b6590ff61d71a0fc39d03f356
-  r: "The repository lacks the required output file `data/processed/cleaned_sessions.csv`,\
-    \ and the provided `code/analysis/data_cleaner.py` is truncated and does not show\
-    \ implementation of the status\u2011='incomplete' filtering nor the final CSV\
-    \ export. Consequently the specified exclusion, imputation, and output steps are\
-    \ not demonstrably completed."
+  h: a7af662d47ca73f9f567315aac7a482e1c388c84348f6ef817c77b8eb40006d6
+  r: "The repository contains `code/analysis/data_cleaner.py`, but the file is truncated\
+    \ and does not show the full implementation (e.g., the cleaning, imputation, and\
+    \ CSV export logic). Moreover, the required output file `data/processed/cleaned_sessions.csv`\
+    \ is absent. Without a generated cleaned CSV, the task\u2019s deliverable is not\
+    \ met."
 T021c:
   c: false
   h: ed42dd752681a9d6082d9488478ae326629c87a45c62eb81eb361dbaabed38c1
@@ -33,14 +33,6 @@ T023b:
     \ there is no evidence that `explanation_engagement_time` was excluded from the\
     \ ANOVA input and logged as required. Without this artifact, the task\u2019s core\
     \ requirement is unmet."
-T025b:
-  c: false
-  h: 52235437baeddf5efd74089d1ba05550634a3469865d52c5effd59a345b1b252
-  r: "The `run_analysis.py` file contains a partially\u2011implemented `load_and_validate_data()`\
-    \ function, but the code is truncated before it validates the numeric columns\
-    \ and their value ranges, and the required `data/processed/cleaned_sessions.csv`\
-    \ file is absent, so the loader cannot be exercised. The implementation must be\
-    \ completed to include all type/range checks and the expected CSV must be present."
 T025c:
   c: false
   h: 0e6411352582c301acc6e22c53bb7a5656aad676f67ce4d537edb61d421fa80f
@@ -58,12 +50,12 @@ T030:
     \ is no evidence that the notebook is fully deterministic as required."
 T031b:
   c: false
-  h: c9bd10cc18cc7332c90305e9f66b68b6065ae396362c15d7c012b57cefdbcc3e
-  r: "The repository lacks the required `contracts/session.schema.yaml` file, and\
-    \ `simulator.py` falls back to stub functions (`load_schema` returns a minimal\
-    \ placeholder schema and `validate_session` always returns\u202FTrue). Consequently,\
-    \ the simulator does not perform real schema validation nor abort on mismatches.\
-    \ The task\u2019s core requirement is therefore unmet."
+  h: ff6eae213a55acae8829c6639e5d2691cb6173170fc535320d89b4af48bf6ea1
+  r: The required schema file `contracts/session.schema.yaml` is missing, so there
+    is nothing for the simulator to validate against. Moreover, the provided `simulator.py`
+    snippet only imports validation utilities but does not show any actual call to
+    `load_schema` or `validate_session` on the generated sessions. Both the schema
+    artifact and concrete validation implementation are absent.
 T035a:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

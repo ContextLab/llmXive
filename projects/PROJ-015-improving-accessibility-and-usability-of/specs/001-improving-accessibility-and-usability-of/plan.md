@@ -15,7 +15,7 @@ This plan implements a reproducible research pipeline to evaluate the usability 
 **Target Platform**: Linux (GitHub Actions runners), Local Desktop (for participant recruitment).
 **Project Type**: Research Pipeline / Web Application (Simulator).
 **Performance Goals**: Analysis of <1000 sessions must complete in <60s on CPU.
-**Constraints**: Must run on GitHub Actions free tier (2 CPU, 7GB RAM). No GPU required for statistical analysis. Strict adherence to Constitution Principle III (Data Hygiene) and Principle VII (Standardized Metrics).
+**Constraints**: Must run on GitHub Actions free tier (multi-core CPU, standard RAM allocation). No GPU required for statistical analysis. Strict adherence to Constitution Principle III (Data Hygiene) and Principle VII (Standardized Metrics).
 **Scale/Scope**: Target N=40 participants (Constitution Principle VI). Aiming for N=30 initially, but prioritize recruitment to reach N=40 if feasible. If reaching N=40 is not possible due to constraints, this limitation will be explicitly stated in the research report.
 
 ## Constitution Check
