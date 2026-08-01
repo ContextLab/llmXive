@@ -68,12 +68,13 @@ def calculate_wiener_index(mol: Chem.Mol) -> float:
         return 0.0
 
 def calculate_zagreb_index(mol: Chem.Mol) -> float:
-    # Zagreb index is not directly available, use a fallback or skip
-    # RDKit does not have a direct Zagreb index function in standard descriptors
-    # We will return 0.0 or calculate manually if needed.
-    # For now, returning 0.0 to avoid crash, but ideally should implement or skip.
-    # Let's try to find a workaround or just return 0.0.
-    return 0.0
+    # Zagreb index is not directly available in standard RDKit Descriptors
+    # Implementing fallback: sum of squared degrees of all atoms
+    try:
+        degrees = [mol.GetAtomWithIdx(i).GetTotalDegree() for i in range(mol.GetNumAtoms())]
+        return sum(d * d for d in degrees)
+    except Exception:
+        return 0.0
 
 def calculate_descriptors_for_molecule(smiles: str) -> Dict[str, Any]:
     """Calculate all descriptors for a single molecule."""
@@ -96,7 +97,7 @@ def calculate_descriptors_for_molecule(smiles: str) -> Dict[str, Any]:
 def calculate_descriptors_batch(df: pd.DataFrame, smiles_col: str = "smiles") -> pd.DataFrame:
     """
     Calculate descriptors for a batch of molecules.
-    Handles errors and logs excluded molecules.
+    Handles errors and logs excluded molecules (T015).
     """
     results = []
     excluded_path = get_data_path() / "processed" / "excluded_molecules.csv"
@@ -121,23 +122,38 @@ def main():
     """Main entry point for Descriptors."""
     logger.info("Starting Descriptors (T014, T015)...")
     
+    # Try to load merged data first, fallback to structural subset if gate failed
     merged_path = get_data_path() / "processed" / "merged_drugs.csv"
-    if not merged_path.exists():
-        logger.warning("Merged dataset not found. Skipping descriptors.")
+    structural_path = get_data_path() / "processed" / "structural_subset.csv"
+    
+    df = None
+    if merged_path.exists():
+        df = pd.read_csv(merged_path)
+        logger.info(f"Loaded merged dataset: {len(df)} molecules")
+    elif structural_path.exists():
+        df = pd.read_csv(structural_path)
+        logger.info(f"Loaded structural subset (gate failed): {len(df)} molecules")
+    else:
+        logger.warning("No valid dataset found (merged_drugs.csv or structural_subset.csv). Skipping descriptors.")
         return
 
-    df = pd.read_csv(merged_path)
-    
-    if "smiles" not in df.columns:
-        logger.error("SMILES column not found in merged dataset.")
+    if df is not None and "smiles" not in df.columns:
+        logger.error("SMILES column not found in dataset.")
         return
 
-    logger.info(f"Processing {len(df)} molecules...")
-    result_df = calculate_descriptors_batch(df)
-    
-    output_path = get_data_path() / "processed" / "descriptors.csv"
-    result_df.to_csv(output_path, index=False)
-    logger.info(f"Descriptors saved to {output_path}")
+    if df is not None and len(df) > 0:
+        logger.info(f"Processing {len(df)} molecules...")
+        result_df = calculate_descriptors_batch(df)
+        
+        output_path = get_data_path() / "processed" / "descriptors.csv"
+        result_df.to_csv(output_path, index=False)
+        logger.info(f"Descriptors saved to {output_path}")
+        
+        # Verify excluded_molecules.csv was created if there were errors
+        if excluded_path.exists():
+            logger.info(f"Excluded molecules logged to {excluded_path}")
+        else:
+            logger.info("No molecules were excluded.")
 
 if __name__ == "__main__":
     main()

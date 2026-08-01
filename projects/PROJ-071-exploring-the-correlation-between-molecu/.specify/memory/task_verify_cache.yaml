@@ -1,55 +1,33 @@
-T010g:
+T015b:
   c: false
-  h: 4451299bb63330ac5bad4f0c39805f423af503897bab294b753a16dacd14736c
-  r: "The provided `tests/test_descriptors.py` only contains unit tests on aspirin\
-    \ and a partial RDKit version check; it never reads `data/gate_status.json`, performs\
-    \ the N=50 sampling, logs to `data/processed/dataset_metric_skip_log.json`, or\
-    \ validates metrics on the merged drug dataset. Moreover, the required `data/processed/merged_drugs.csv`\
-    \ and the skip\u2011log file are absent. The task\u2019s core functionality is\
-    \ therefore not implemented."
-T012:
+  h: 8092fb88ba96747751719619056732aedc26805d1cd09487cc1c79b0302e4f74
+  r: The `tests/test_descriptors.py` file ends abruptly (`def `) and does not contain
+    a completed test that checks for the existence of `data/processed/excluded_molecules.csv`
+    or validates its columns. Additionally, the required `data/processed/excluded_molecules.csv`
+    file is absent from the repository. Both the test implementation and the data
+    artifact are missing, so the task is not satisfied.
+T021d:
   c: false
-  h: df7f3f077131c511bfaba5e1691df136994014ce92b32981c261e1e7475ebce0
-  r: "The repository contains a partially\u2011implemented `code/ingest.py` (truncated\
-    \ and never shows merging, counting, gate enforcement, report generation, or checksum\
-    \ creation). The required output files are missing or inconsistent: `data/processed/merged_drugs.csv`\
-    \ does not exist, `data_insufficiency_report.md` is absent, and the checksum file\
-    \ references a non\u2011existent CSV. Consequently the task\u2019s full requirements\
-    \ are not satisfied."
-T015:
-  c: false
-  h: 53b763f76add3977295bda8b0f54096a02dcc3042d877d44c19c4ff70e0011ac
-  r: "The repository lacks the required `data/processed/excluded_molecules.csv` file,\
-    \ and the provided `code/descriptors.py` does not show any call to `log_error_to_file`\
-    \ when a valence\u2011related exception occurs (the file is truncated before such\
-    \ logic could appear). Consequently, the error\u2011handling and logging behavior\
-    \ demanded by T015 is not implemented."
-T020:
-  c: false
-  h: c6e5c227240f879397529f5edb857209367b4038c9b64048ac70cd192799ebaf
-  r: "The repository lacks the required output files (`standard_subset.csv`, `data_characteristics.csv`,\
-    \ `statistical_insufficiency_report.md`, `full_processed_state.csv`, `analysis_log.txt`)\
-    \ and the `code/standardize.py` implementation is truncated and does not contain\
-    \ the logic to perform the gate check, generate those files, or raise `StatisticalInsufficiencyError`.\
-    \ The task\u2019s specifications are therefore not met."
-T032:
-  c: false
-  h: 9766e55a4e414fcaa6545aac1a3bde0c95ac3a6b8e10c32c98e6c1bd100ab638
-  r: "The repository contains a partially\u2011implemented `code/viz.py` (truncated\
-    \ and missing the final `generate_placeholder_plot` definition) and the required\
-    \ output image `data/outputs/scatter_tpsa_vs_half_life.png` does not exist. Consequently\
-    \ the task\u2019s core deliverable\u2014a scatter plot (or placeholder) saved\
-    \ at the specified path\u2014is not present. The implementation must be completed\
-    \ and the plot file generated."
+  h: 95b2d046fb4ab76cbe070d63494c390eaf63726a52aa46d31cc2b7f11057a5e9
+  r: "The repository lacks the required input file `data/stat_gate_status.json` and\
+    \ the three output artifacts (`statistical_insufficiency_report.md`, `full_processed_state.csv`,\
+    \ `analysis_log.txt`). Moreover, the provided `code/insufficiency.py` is truncated\
+    \ and does not contain logic that reads the status and conditionally creates those\
+    \ files, so the task\u2019s functional requirement is not met."
 T033:
   c: false
-  h: ba632ed0ee94c4ee68533100b21bf159d413d694e2937163f9449f53b8ca8211
-  r: "The repository lacks the required output files (`data/outputs/residuals.png`,\
-    \ `qq_plot.png`). Moreover, `code/viz.py` is truncated and does not contain any\
-    \ implementation that generates histogram, QQ\u2011plot, or residual\u2011vs\u2011\
-    fitted diagnostics; the residual\u2011loading function returns `None` and the\
-    \ residual\u2011plot logic is absent. Consequently the task\u2019s functional\
-    \ requirements are not met."
+  h: 2b13c68f134c741fead75b43ec95ff865248c5e79992fd122d9e123d08d54d04
+  r: The `code/viz.py` file is incomplete (truncated and contains unfinished functions)
+    and the required output files (`data/outputs/residuals.png`, `qq_plot.png`) as
+    well as the input `data/processed/analysis_results.json` are missing, so the implementation
+    does not meet the specification.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no evidence of the required plot files (`scatter_tpsa_vs_half_life.png`,\
+    \ `residuals.png`, `qq_plot.png`) or the `results_report.md` report in the repository;\
+    \ the claim provides only a textual description without any actual artifacts.\
+    \ The task therefore lacks the necessary non\u2011empty output files."
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -57,6 +35,15 @@ T041:
     the implementer did not supply evidence that the full pipeline was run or that
     total execution time was recorded. The required execution-time measurement is
     missing.
+T041a:
+  c: false
+  h: 737faab4f61568d1a81602a8a11de3cb71f5cc559104af5a392552631632ac78
+  r: "The provided `code/run_pipeline.py` is truncated and does not show an `if __name__\
+    \ == '__main__':` block, nor does it contain logic that writes the required `data/output/pipeline_metrics.json`\
+    \ file with the specified schema. Moreover, the expected `pipeline_metrics.json`\
+    \ file is missing from the repository. The script also catches `StatisticalInsufficiencyError`\
+    \ instead of the required `DataInsufficiencyError`. These gaps mean the task\u2019\
+    s specifications are not fully met."
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
