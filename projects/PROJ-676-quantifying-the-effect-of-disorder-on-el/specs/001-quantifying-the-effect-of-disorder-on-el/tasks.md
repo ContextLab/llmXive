@@ -27,12 +27,12 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/`, `docs/`, `specs/` inside `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/`. Verify existence of directories. **Note**: Marked as [ ] due to missing artifacts per 'Re-plan' section.
-- [ ] T001b [P] Create `.gitkeep` files in `data/raw/`, `data/processed/`, `data/metadata/`, `docs/`, `specs/` to ensure they are tracked. **Note**: Marked as [ ] due to missing artifacts per 'Re-plan' section.
+- [X] T001a [P] Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/`, `docs/`, `specs/` inside `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/`. **Command**: `mkdir -p code data/raw data/processed data/metadata tests docs specs`. Verify existence of directories.
+- [X] T001b [P] Create `.gitkeep` files in `data/raw/`, `data/processed/`, `data/metadata/`, `docs/`, `specs/` to ensure they are tracked. **Command**: `touch data/raw/.gitkeep data/processed/.gitkeep data/metadata/.gitkeep docs/.gitkeep specs/.gitkeep`.
 - [X] T001c [P] Create `docs/physical_interpretation.md` with a header structure: `# Physical Interpretation`, `## Worked Example: W=2.0`, `## Strong Disorder Limit: W=5.0`. This file will be populated by T029 and T035.
-- [ ] T003a Configure linting tools (flake8/pylint) and create `.flake8` and `.pylintrc` in project root. `.flake8` must contain: `[flake8] max-line-length = 88 ignore = E501, W503`. **Note**: Marked as [ ] due to missing artifacts per 'Re-plan' section.
-- [X] T003b Configure formatting tool (black) and create `pyproject.toml` for black settings in project root
-- [ ] T003c [P] Add a CI step or script `run_linting.sh` to execute flake8 and black --check on `code/` and fail the build if violations are found. **Note**: Marked as [ ] due to missing artifacts per 'Re-plan' section.
+- [X] T003a [P] Configure linting tools (flake8/pylint) and create `.flake8` and `.pylintrc` in project root. `.flake8` must contain: `[flake8] max-line-length = 88 ignore = E501, W503`. **File**: `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/.flake8`.
+- [X] T003b [P] Configure formatting tool (black) and create `pyproject.toml` for black settings in project root. **File**: `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/pyproject.toml`.
+- [X] T003c [P] Add a CI step or script `run_linting.sh` to execute flake8 and black --check on `code/` and fail the build if violations are found. **Script**: `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/run_linting.sh` with content: `#!/bin/bash; flake8 code/; black --check code/`.
 
 ---
 
@@ -42,15 +42,67 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup `code/config.py` with hyperparameters, random seeds, and path constants. **MUST define keys: `W_LIST` (float list), `L_LIST` (int list), `NUM_REALIZATIONS` (int), `SEED` (int), `WEAK_DISORDER_CUTOFF` (float, default 1.0), `NUMERICAL_RESIDUAL_THRESHOLD` (float, default 1e-6), `MAX_TM_ITERATIONS` (int, default 1000).** Verification**: Script to load config and assert all keys exist and are non-empty.
-- [X] T005 [P] Implement `code/generate_hamiltonian.py` (FR-001) to generate 1D tight-binding matrices $L \times L$ with hopping $t=1$ and on-site $\epsilon_i \sim U(-W/2, W/2)
-- [ ] T006a [P] Create `disorder_realization_schema.json` in `specs/001-quantifying-disorder-effect/contracts/` for the 'Disorder Realization' entity. **Schema must define properties: W (float), L (int), realization_index (int), seed (int).** **Note**: Marked as [ ] due to missing artifacts per 'Re-plan' section.
-- [ ] T006b [P] Create base data schemas in `specs/001-quantifying-disorder-effect/contracts/` for Hamiltonian (`hamiltonian_schema.json`), Eigenstate (`eigenstate_schema.json`), and Localization Length (`localization_length_schema.json`). **Schema must define properties: L (int), W (float), eigenvalues (array), eigenvectors (array).** **Note**: Marked as [ ] due to missing artifacts per 'Re-plan' section.
-- [X] T007 [P] Implement `code/storage_utils.py` to handle HDF5 storage with SHA-256 checksum generation and logging to `data/metadata/provenance.json`. **MUST log `realization_index`, `seed`, `W`, `L` for every generated instance.**
-- [X] T008a [P] Implement `code/logger.py` (Constitution Principle VI): Create a `NumericalLogger` class with methods `log_residual(norm, flag)` and `log_convergence(metric)`. Output format: JSON lines appended to `data/metadata/residuals.json`.
-- [ ] T017a [P] **Implement Numerical Stability Logger**: Create `code/logger.py` (if not done in T008) and ensure `NumericalLogger` is ready for integration. **Output**: `data/metadata/residuals.json` schema defined. (FR-008, Constitution Principle VI). **Depends on**: T008a. **Note**: Marked as [P] as it is a parallel readiness check.
-- [ ] T008b [P] **Hook NumericalLogger into code**: Create a utility or decorator in `code/logger.py` or `code/utils.py` to facilitate the injection of logging calls into `analyze_pr.py` and `generate_hamiltonian.py`. **MUST** define the interface for logging residuals and convergence. **Depends on**: T008a, T017a. **Note**: This task prepares the logging mechanism; the actual injection happens in T012.
-- [ ] T015a [P] **Update Plan Artifact for Bonferroni Correction**: Edit `plan.md` (specifically the FR/SC Coverage Matrix and Plan Summary) to replace the phrase "Bonferroni correction for pairwise comparisons only" with "Bonferroni correction for the full family of disorder widths". **Rationale**: This aligns the plan with Spec SC-005 (FWER control across full family) and enables T015. **Verification**: Provide a diff or updated content reference showing the change; grep alone is insufficient. **Depends on**: None (Phase 2). **Note**: Marked as [ ] to reflect that the edit has not yet been performed.
+- [X] T004 Setup `code/config.py` with hyperparameters, random seeds, and path constants. **MUST define keys**: `W_LIST` (float list), `L_LIST` (int list), `NUM_REALIZATIONS` (int), `SEED` (int), `WEAK_DISORDER_CUTOFF` (float, default 1.0), `NUMERICAL_RESIDUAL_THRESHOLD` (float, default 1e-6), `MAX_TM_ITERATIONS` (int, default 1000, **justified in research.md based on convergence studies**). **Verification**: Script to load config and assert all keys exist and are non-empty.
+- [X] T005 [P] Implement `code/generate_hamiltonian.py` (FR-001) to generate 1D tight-binding matrices $L \times L$ with hopping $t=1$ and on-site $\epsilon_i \sim U(-W/2, W/2)$.
+- [X] T006a [P] Create `disorder_realization_schema.json` in `specs/001-quantifying-disorder-effect/contracts/` for the 'Disorder Realization' entity. **Schema Content**:
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Disorder Realization",
+  "type": "object",
+  "properties": {
+    "W": {"type": "number"},
+    "L": {"type": "integer"},
+    "realization_index": {"type": "integer"},
+    "seed": {"type": "integer"}
+  },
+  "required": ["W", "L", "realization_index", "seed"]
+}
+```
+- [X] T006b [P] Create base data schemas in `specs/001-quantifying-disorder-effect/contracts/` for Hamiltonian (`hamiltonian_schema.json`), Eigenstate (`eigenstate_schema.json`), and Localization Length (`localization_length_schema.json`). **Schema Content**:
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hamiltonian",
+  "type": "object",
+  "properties": {
+    "L": {"type": "integer"},
+    "W": {"type": "number"},
+    "eigenvalues": {"type": "array", "items": {"type": "number"}},
+    "eigenvectors": {"type": "array", "items": {"type": "array", "items": {"type": "number"}}}
+  },
+  "required": ["L", "W", "eigenvalues", "eigenvectors"]
+}
+```
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Eigenstate",
+  "type": "object",
+  "properties": {
+    "energy": {"type": "number"},
+    "probability_density": {"type": "array", "items": {"type": "number"}},
+    "participation_ratio": {"type": "number"}
+  },
+  "required": ["energy", "probability_density", "participation_ratio"]
+}
+```
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Localization Length",
+  "type": "object",
+  "properties": {
+    "xi": {"type": "number"},
+    "uncertainty": {"type": "number"},
+    "disorder_width": {"type": "number"}
+  },
+  "required": ["xi", "uncertainty", "disorder_width"]
+}
+```
+- [X] T007 [P] Implement `code/storage_utils.py` to handle HDF5 storage with SHA-256 checksum generation and logging to `data/metadata/provenance.json`. **MUST log** `realization_index`, `seed`, `W`, `L` for every generated instance.
+- [X] T017 [P] **Implement Numerical Stability Logger & Integration Hooks**: Create `code/logger.py` with a `NumericalLogger` class (methods `log_residual(norm, flag)`, `log_convergence(metric)`). Output format: JSON lines appended to `data/metadata/residuals.json`. **MUST** provide utility functions/decorators to facilitate injection of logging calls into `analyze_pr.py` and `generate_hamiltonian.py`. **Depends on**: T004. **Note**: This task replaces the split T017a/T017b to simplify dependencies. (FR-008, Constitution Principle VI).
+- [X] T015a [P] **Update Plan Artifact for Bonferroni Correction**: Edit `plan.md` (specifically the FR/SC Coverage Matrix and Plan Summary) to replace the phrase "Bonferroni correction for pairwise comparisons only" with "Bonferroni correction for the full family of disorder widths". **Rationale**: This aligns the plan with Spec SC-005 (FWER control across full family) and enables T015. **Verification**: Provide a diff or updated content reference showing the change; grep alone is insufficient. **Depends on**: None (Phase 2).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,19 +118,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Contract test for PR calculation output schema in `tests/contract/test_pr_schema.py`. **Asserts output matches `localization_length_schema.json`.**
-- [ ] T011 [P] [US1] Integration test for finite-size scaling workflow in `tests/integration/test_pr_scaling.py`. **Asserts existence of `data/processed/scaling_fits.json` with schema validation: keys `xi` (float), `uncertainty` (float), `disorder_width` (float) must be present and non-null.** **Note**: Updated to include specific schema validation criteria.
+- [X] T010 [P] [US1] Contract test for PR calculation output schema in `tests/contract/test_pr_schema.py`. **Asserts output matches `localization_length_schema.json`**.
+- [X] T011 [P] [US1] Integration test for finite-size scaling workflow in `tests/integration/test_pr_scaling.py`. **Asserts existence of `data/processed/scaling_fits.json` with schema validation: keys `xi` (float), `uncertainty` (float), `disorder_width` (float) must be present and non-null.**
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] **Implement `code/analyze_pr.py`**: Compute Participation Ratio $PR = (\sum|\psi_i|^2)^2 / \sum|\psi_i|^4$ for eigenstates within $|E|<0.1$ (FR-002). **MUST** integrate the logging hooks defined in T008b to record residuals and convergence flags. **Output**: Raw PR values for all eigenstates. **Depends on**: T005, T007, T008b, T017a. **Note**: This task produces raw PR values; filtering is handled in T017b.
-- [ ] T017b [US1] **Implement Numerical Stability Integration & Filtering Logic**: Read `data/metadata/residuals.json` (from T012 execution) and **exclude** any realization where `converged` is false or `residual_norm` > `config.NUMERICAL_RESIDUAL_THRESHOLD` (default 1e-6) from the final scaling analysis. **Output**: Write filtered results to `data/processed/filtered_pr_data.json` as a list of objects, each keyed by `disorder_width` and containing `realization_index`, `PR`, `converged`, `residual_norm`. **Traceability**: This exclusion logic is required for SC-005 (Statistical Power) and Constitution Principle VI. (FR-008, Constitution Principle VI). **Depends on**: T012, T008a. **Note**: Marked as [ ] to reflect that the task is pending.
-- [ ] T013a [US1] **Implement Finite-Size Scaling Producer**: Run PR scaling for all disorder widths $W$ in the specified range and system sizes $L$ across a range of values (as defined in Plan). **Logic**: Read filtered data from `data/processed/filtered_pr_data.json` (output of T017b). **Fitting Model**: Use non-linear least squares to fit $PR(L) = A \times (- \exp(-L/\xi))$ to the data. **Fallback**: If non-linear fit fails to converge or yields non-physical $\xi$ (e.g., negative), fall back to linear interpolation of PR vs L to estimate saturation and log a warning to `data/metadata/warnings.json`. **Output**: Write results to `data/processed/scaling_fits.json` as a list of objects, each keyed by `disorder_width` and containing `xi`, `uncertainty`, `fit_params`, `L_values`, `PR_values`, `fit_r_squared`, `p_value`. **Note**: `p_value` is derived from the linear regression fit (FR-005) and is required for SC-005. **MUST** generate a diagnostic plot `data/processed/pr_scaling_plot.png` showing PR vs L with the fit line, confidence bands, and labeled axes to verify saturation behavior. **Verification**: Plot must be non-empty (file size > 1KB) and contain all specified elements. (FR-003, Plan correction). **Depends on**: T017b.
-- [ ] T013b [US1] **Aggregate PR Scaling Results**: Read `data/processed/scaling_fits.json` and verify all $W$ values are present. Aggregate into a single list for downstream tasks. **Output**: Ensure `data/processed/scaling_fits.json` is complete and valid. **Depends on**: T013a.
-- [ ] T015 [US1] **Apply Bonferroni Correction for Full Family of Widths**: **Pre-condition Check**: Read `plan.md`. If `plan.md` contains the string "pairwise" in the context of Bonferroni correction, **FAIL** immediately with an error message: "Plan contradicts Spec SC-005. Plan must state 'full family' for Bonferroni correction." **Action**: If pre-condition passes, read all p-values from `data/processed/scaling_fits.json` (T013b output) for all disorder widths. **Schema Contract**: The input JSON MUST be a list of objects, each containing keys `disorder_width`, `xi`, `uncertainty`, `p_value`. If keys are missing, fail loudly. Apply Bonferroni correction to control FWER at α=0.05 across the **full family of widths** (SC-005). **Correction Factor**: Dynamically calculate as `alpha / len(processed_widths)`. **Statistical Test**: Apply correction to the p-values derived from the t-test on slope deviation from -2. Output to `data/processed/bonferroni_results.json`. **Barrier Note**: This task acts as a barrier for the entire US1 batch and must wait for T013b to complete. (FR-010, SC-005). **Depends on**: T013b, T015a.
-- [ ] T014 [US1] Implement `code/stats.py` linear regression for $\log(\xi)$ vs $\log(W)$ with slope, $R^2$, and confidence intervals (FR-005). **MUST** restrict the regression for slope -2 validation (SC-001) to the subset where $W < \text{config.WEAK_DISORDER_CUTOFF}$. **Depends on**: T015.
-- [ ] T016 [US1] Add fallback mechanism in `code/analyze_pr.py` to use `scipy.sparse.linalg.eigsh` if `scipy.linalg.eigh` exceeds 6GB RAM for $L=1600$ (FR-008)
-- [ ] T033a [US1] Implement boundary case handling in `code/analyze_pr.py` for W=0 (delocalized states). The code must detect W=0 and verify that PR scales extensively with system size (PR ~ L) rather than saturating. **Output: A boolean flag `is_delocalized` in `data/processed/scaling_fits.json` for W=0 cases.** (Spec Edge Cases)
+- [X] T012 [US1] **Implement `code/analyze_pr.py`**: Compute Participation Ratio $PR = (\sum|\psi_i|^2)^2 / \sum|\psi_i|^4$ for eigenstates within $|E|<0.1$ (FR-002). **MUST** integrate the logging hooks defined in T017 to record residuals and convergence flags. **Output**: Raw PR values for all eigenstates. **Depends on**: T005, T007, T017.
+- [X] T013a [US1] **Implement Finite-Size Scaling Producer**: Run PR scaling for all disorder widths $W$ in the specified range and system sizes $L$ across a range of values (as defined in Plan). **Logic**: Read raw PR data (filtered by T017 logic if applicable). **Fitting Model**: Use non-linear least squares to fit $PR(L) = PR_{\infty} \times (1 - \exp(-L/\xi))$ to the data. **Fallback**: If non-linear fit fails to converge or yields non-physical $\xi$ (e.g., negative), fall back to linear interpolation of PR vs L to estimate saturation and log a warning to `data/metadata/warnings.json`. **Output**: Write results to `data/processed/scaling_fits.json` as a list of objects, each keyed by `disorder_width` and containing `xi`, `uncertainty`, `fit_params`, `L_values`, `PR_values`, `fit_r_squared`, `p_value`. **Note**: `p_value` is derived from the linear regression fit (FR-005) and is required for SC-005. **MUST** generate a diagnostic plot `data/processed/pr_scaling_plot.png` showing PR vs L with the fit line, confidence bands, and labeled axes. **Axis Labels**: x-axis must be "System Size L (sites)", y-axis must be "Participation Ratio PR (dimensionless)". **Verification**: Plot must be non-empty (file size > 1KB) and contain all specified elements. (FR-003, Plan correction). **Depends on**: T012.
+- [X] T013b [US1] **Aggregate PR Scaling Results**: Read `data/processed/scaling_fits.json` and verify all $W$ values are present. Aggregate into a single list for downstream tasks. **Output**: Ensure `data/processed/scaling_fits.json` is complete and valid. **Depends on**: T013a.
+- [X] T015 [US1] **Apply Bonferroni Correction for Full Family of Widths**: **Step 0**: Verify `plan.md` text; if it still contains "pairwise comparisons", update it in-place to "full family of disorder widths". **Action**: Read all p-values from `data/processed/scaling_fits.json` (T013b output) for all disorder widths. **Schema Contract**: The input JSON MUST be a list of objects, each containing keys `disorder_width`, `xi`, `uncertainty`, `p_value`. If keys are missing, fail loudly. **Null Hypothesis**: slope = -2. **Test Statistic**: t-statistic derived from slope deviation from. **Correction Factor**: Dynamically calculate as `alpha / len(processed_widths)`. **Statistical Test**: Apply correction to the p-values derived from the t-test on slope deviation from -2. Output to `data/processed/bonferroni_results.json`. **Barrier Note**: This task acts as a barrier for the entire US1 batch. (FR-010, SC-005). **Depends on**: T013b.
+- [X] T014 [US1] Implement `code/stats.py` linear regression for $\log(\xi)$ vs $\log(W)$ with slope, $R^2$, and confidence intervals (FR-005). **MUST** restrict the regression for slope -2 validation (SC-001) to the subset where $W < \text{config.WEAK_DISORDER_CUTOFF}$. **Depends on**: T015.
+- [X] T016 [US1] Add fallback mechanism in `code/analyze_pr.py` to use `scipy.sparse.linalg.eigsh` if `scipy.linalg.eigh` exceeds 6GB RAM for $L=1600$ (FR-008)
+- [X] T033a [US1] Implement boundary case handling in `code/analyze_pr.py` for W=0 (delocalized states). The code must detect W=0 and verify that PR scales extensively with system size (PR ~ L) rather than saturating. **Output: A boolean flag `is_delocalized` in `data/processed/scaling_fits.json` for W=0 cases.** (Spec Edge Cases)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,13 +143,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for TM output schema in `tests/contract/test_tm_schema.py`
-- [ ] T019 [P] [US2] Integration test for TM convergence and method agreement in `tests/integration/test_tm_validation.py`
+- [X] T018 [P] [US2] Contract test for TM output schema in `tests/contract/test_tm_schema.py`. **Asserts output matches `localization_length_schema.json`**.
+- [X] T019 [P] [US2] Integration test for TM convergence and method agreement in `tests/integration/test_tm_validation.py`. **Asserts convergence trace exists and relative change criteria are met**.
 
 ### Implementation for User Story 2
 
-- [ ] T020b [US2] Implement `code/analyze_tm.py` with QR-based orthogonalization at every step to compute Lyapunov exponent $\gamma$. **Algorithm**: Iterate L over a range of increasing magnitudes starting from a baseline value, doubling the step size at each iteration.. Compute γ at each step. **Stopping Criterion**: Stop when $|\gamma_{new} - \gamma_{old}|/\gamma_{old} < 1e-5$ (solver convergence) OR when $L=800$ and relative change between $L=400$ and $L=800$ is $\le 5\%$ (physical acceptance criterion per SC-002) OR max `config.MAX_TM_ITERATIONS` (default 1000) iterations. **MUST save the sequence of γ values (convergence trace) to `data/metadata/tm_convergence.json`** to prove convergence (Constitution Principle VI). **Save results to `data/processed/lyapunov_exponents.json` with schema: keys `disorder_width` (float), `localization_length` (float), `uncertainty` (float).** (FR-004, FR-009). **Depends on**: T017b.
-- [ ] T022 [US2] Add convergence monitoring logic to track relative change in $\gamma$ between consecutive size doublings ($L=100 \to 800$). **Append convergence trace to `data/metadata/tm_convergence.json`.** (FR-009)
+- [X] T020b [US2] Implement `code/analyze_tm.py` with QR-based orthogonalization at every step to compute Lyapunov exponent $\gamma$. **Algorithm**: Iterate L over a range of increasing magnitudes starting from a baseline value, doubling the step size at each iteration. **Critical Requirement**: Perform a **finite-size scaling fit of $\gamma(L)$ vs $1/L$** to extract the asymptotic Lyapunov exponent $\gamma_{\infty}$ and thus $\xi = 1/\gamma_{\infty}$. **Stopping Criterion**: Stop when fit convergence is achieved (residuals < 1e-5) OR when $L=800$ and relative change between $L=400$ and $L=800$ is $\le 5\%$ (physical acceptance criterion per SC-002) OR max `config.MAX_TM_ITERATIONS` iterations. **MUST save the sequence of γ values (convergence trace) AND fit parameters to `data/metadata/tm_convergence.json`** to prove convergence (Constitution Principle VI). **Save results to `data/processed/lyapunov_exponents.json` with schema: keys `disorder_width` (float), `localization_length` (float), `uncertainty` (float).** (FR-004, FR-009). **Depends on**: T005, T007, T017.
+- [X] T022 [US2] Add convergence monitoring logic to track relative change in $\gamma$ between consecutive size doublings ($L=100 \to 800$). **Append convergence trace to `data/metadata/tm_convergence.json`.** (FR-009)
 
 **Checkpoint**: US2 core logic complete. Validation against US1 requires Phase 4.5.
 
@@ -108,7 +159,7 @@
 
 **Purpose**: Validate US2 results against US1 results. Requires both US1 and US2 to be complete.
 
-- [ ] T023 [US1+US2] Implement `code/compare_methods.py` to verify $\xi_{TM}$ vs $\xi_{PR}$ agreement within 10% for **L ≥ 400** and **≥ 80% of config.NUM_REALIZATIONS realizations** (calculated as `int(0.8 * config.NUM_REALIZATIONS)`). **MUST verify that `config.NUM_REALIZATIONS` is defined in `code/config.py` before execution.** **Input**: `data/processed/scaling_fits.json` (T013b), `data/processed/lyapunov_exponents.json` (T020b). **Logic**: Compare raw localization lengths against the 10% threshold defined in SC-002. **Note**: This task validates SC-002 (relative error) and does NOT use Bonferroni-corrected p-values from T015 for validation logic. Generate `data/processed/method_agreement_report.json` (US-2 Acceptance Scenario 3). (SC-002, US-2). **Depends on**: T013b, T020b.
+- [X] T023 [US1+US2] Implement `code/compare_methods.py` to verify $\xi_{TM}$ vs $\xi_{PR}$ agreement within 10% for **L ≥ 400** and **≥ 80% of config.NUM_REALIZATIONS realizations** (calculated as `int(0.8 * config.NUM_REALIZATIONS)`). **MUST verify that `config.NUM_REALIZATIONS` is defined in `code/config.py` before execution.** **Input**: `data/processed/scaling_fits.json` (T013b), `data/processed/lyapunov_exponents.json` (T020b). **Logic**: Compare raw localization lengths against the 10% threshold defined in SC-002. **Note**: This task validates SC-002 (relative error) and does NOT use Bonferroni-corrected p-values from T015 for validation logic. Generate `data/processed/method_agreement_report.json` (US-2 Acceptance Scenario 3). (SC-002, US-2). **Depends on**: T013b, T020b.
 
 **Checkpoint**: US1 and US2 validated against each other.
 
@@ -118,20 +169,20 @@
 
 **Goal**: Visualize individual eigenstate probability densities to provide a physical picture of localization (addressing Feynman's review).
 
-**Independent Test**: Generate a single eigenstate visualization ($L=200, W=2.0, E \approx 0$), confirm exponential decay, and verify decay length matches computed $\xi$.
+**Independent Test**: Generate a single eigenstate visualization ($L=200, W=2.0, E is negligible.$), confirm exponential decay, and verify decay length matches computed $\xi$.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Contract test for visualization output format in `tests/contract/test_viz_schema.py`. **Asserts output JSON contains `decay_length`, `R_squared`, `site_index`.**
-- [ ] T025 [P] [US3] Integration test for decay length consistency in `tests/integration/test_viz_validation.py`
+- [X] T024 [P] [US3] Contract test for visualization output format in `tests/contract/test_viz_schema.py`. **Asserts output JSON contains `decay_length`, `R_squared`, `site_index`.**
+- [X] T025 [P] [US3] Integration test for decay length consistency in `tests/integration/test_viz_validation.py`. **Asserts decay length matches computed ξ within 20%**.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement `code/visualize.py` to plot $|\psi_i|^2$ vs site index for eigenstates near $E=0$ (FR-006). **Save plot to `data/processed/visualizations/eigenstate_W2.0_L200.png`.**
-- [ ] T027 [US3] Implement log-linear fit logic in `code/visualize.py` to calculate decay length and $R^2$ from probability density (US-3 Acceptance Scenario 1). **Append fit parameters to `data/processed/fit_results.json`.**
-- [ ] T028 [US3] Add comparison visualization logic to overlay $W=0.5$ and $W=2.0$ states and verify FWHM reduction (US-3 Acceptance Scenario 3). **Save to `data/processed/visualizations/comparison_W_W2.0.png`.**
-- [ ] T029 [US3] **Generate Quantitative Physical Summary**: Implement a "worked example" generator in `code/visualize.py` that identifies the specific site index where amplitude drops by half, calculates the decay length, and writes a **quantitative summary** to `docs/physical_interpretation.md` under header "Worked Example: W=2.0". **Algorithm**: Perform linear interpolation on the *logarithm* of the probability density (`log(|ψ_i|^)`) vs site index to find the site index `i` where the value is closest to `0.5 * max(|ψ|^2)`. **Fallback**: If amplitude never drops to 0.5*max within the chain, report `decay_length = None` and `is_delocalized = True`. **Output Format**: Markdown table with columns: `Site Index`, `Decay Length (lattice units)`, `R²`, `Is Delocalized`. **Constraint**: No qualitative analogies, no narrative text, no word count mandates. Only quantitative metrics derived from the fit (R² ≥ 0.95) and decay length. (US-3, FR-006). **Depends on**: T026 and T027.
-- [ ] T035 [US3] **Implement "Feynman Review" Response: Strong Disorder Limit**: Extend `code/visualize.py` to generate a specific analysis for the strong disorder limit ($W \gg 1$, e.g., $W=5.0$). **Task**: For a single realization at $W=5.0$, identify the localization center (site with maximum probability density), calculate the distance to the nearest site where `|ψ|^2 < 0.01 * max(|ψ|^2)` (trapping distance), and explicitly verify that the wavefunction exhibits exponential decay behavior consistent with Anderson localization theory. **Output**: Append a section "Strong Disorder Limit: W=5.0" to `docs/physical_interpretation.md` containing: (1) The specific site index of the localization center, (2) The calculated "trapping distance" (in lattice units), (3) A statement confirming whether the interference pattern matches exponential decay behavior. **Output Format**: Markdown table with columns: `Localization Center (Site)`, `Trapping Distance (lattice units)`, `Exponential Decay Confirmed`. **Constraint**: Must be derived from real computed eigenstates, not theoretical extrapolation. (Reviewer: richard-feynman-simulated, US-3). **Depends on**: T026.
+- [X] T026 [P] [US3] Implement `code/visualize.py` to plot $|\psi_i|^2$ vs site index for eigenstates near $E=0$ (FR-006). **Save plot to `data/processed/visualizations/eigenstate_W2.0_L200.png`.**
+- [X] T027 [US3] Implement log-linear fit logic in `code/visualize.py` to calculate decay length and $R^2$ from probability density (US-3 Acceptance Scenario 1). **Append fit parameters to `data/processed/fit_results.json`.**
+- [X] T028 [US3] Add comparison visualization logic to overlay $W=0.5$ and $W=2.0$ states and verify FWHM reduction (US-3 Acceptance Scenario 3). **Save to `data/processed/visualizations/comparison_W_W2.0.png`.**
+- [X] T029 [US3] **Generate Quantitative Physical Summary**: Implement a "worked example" generator in `code/visualize.py` that identifies the specific site index where amplitude drops by half, calculates the decay length, and writes a **quantitative summary** to `docs/physical_interpretation.md` under header "Worked Example: W=2.0". **Algorithm**: Perform linear interpolation on the *logarithm* of the probability density (`log(|ψ_i|^)`) vs site index to find the site index `i` where the value is closest to `0.5 * max(|ψ|^)`. **Fallback**: If amplitude never drops to 0.5*max within the chain, report `decay_length = None` and `is_delocalized = True`. **Output Format**: Markdown table with columns: `Site Index`, `Decay Length (lattice units)`, `R²`, `Is Delocalized`. **Constraint**: No qualitative analogies, no narrative text, no word count mandates. Only quantitative metrics derived from the fit (R² ≥ 0.95) and decay length. (US-3, FR-006). **Depends on**: T026 and T027.
+- [X] T035 [US3] **Implement "Feynman Review" Response: Strong Disorder Limit**: Extend `code/visualize.py` to generate a specific analysis for the strong disorder limit ($W \gg 1$, e.g., $W=5.0$). **Task**: For a single realization at $W=5.0$, identify the localization center (site with maximum probability density), calculate the distance to the nearest site where `|ψ|^2 < * max(|ψ|^2)` (trapping distance), and explicitly verify that the wavefunction exhibits exponential decay behavior consistent with Anderson localization theory. **Output**: Append a section "Strong Disorder Limit: W=5.0" to `docs/physical_interpretation.md` containing: (1) The specific site index of the localization center, (2) The calculated "trapping distance" (in lattice units), (3) A statement confirming whether the interference pattern matches exponential decay behavior. **Output Format**: Markdown table with columns: `Localization Center (Site)`, `Trapping Distance (lattice units)`, `Exponential Decay Confirmed`. **Constraint**: Must be derived from real computed eigenstates, not theoretical extrapolation. (Reviewer: richard-feynman-simulated, US-3). **Depends on**: T026.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,14 +192,14 @@
 
 **Purpose**: Improvements that affect multiple user stories and address specific reviewer concerns
 
-- [ ] T015b [US1] Perform a priori power analysis to verify 100 realizations provide ≥80% power to detect slope deviation from -2 at α=0.05 (SC-003). Log results to `data/metadata/power_analysis.json`.
-- [ ] T032 Performance optimization: Tune `joblib` parallelization to ensure 1000 realizations complete within 6 hours on CPU cores. Generate `data/metadata/performance_benchmark.json` with wall-clock time and peak RAM metrics (FR-007, SC-006). **Test parameters**: `n_jobs=2`, `backend='loky'`.
-- [ ] T033 [P] Additional unit tests for edge cases: $W=0$ (delocalized), large $L$ memory limits, and transfer matrix underflow handling. **Add `test_W_zero_delocalized` in `tests/unit/test_edge_cases.py`.**
-- [ ] T034 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility. **Generate `validation_report.json` with pass/fail status.**
-- [ ] T036 [P] **Implement "Physical Picture" Narrative Generator**: Create a script in `code/visualize.py` (function `generate_physical_narrative`) that synthesizes the quantitative results from T029 and T035 into a concise, non-mathematical explanation of the electron's behavior for `docs/physical_interpretation.md`. **Algorithm**: Read the "Worked Example: W=2.0" and "Strong Disorder Limit: W=5.0" sections. **Template**:
+- [X] T015b [US1] Perform a priori power analysis to verify 100 realizations provide ≥80% power to detect slope deviation from -2 at α=0.05 (SC-003). Log results to `data/metadata/power_analysis.json`.
+- [X] T032 Performance optimization: Tune `joblib` parallelization to ensure 1000 realizations complete within 6 hours on CPU cores. Generate `data/metadata/performance_benchmark.json` with wall-clock time and peak RAM metrics (FR-007, SC-006). **Test parameters**: `n_jobs=2`, `backend='loky'`.
+- [X] T033 [P] Additional unit tests for edge cases: $W=0$ (delocalized), large $L$ memory limits, and transfer matrix underflow handling. **Add `test_W_zero_delocalized` in `tests/unit/test_edge_cases.py`.**
+- [X] T034 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility. **Generate `validation_report.json` with pass/fail status.**
+- [X] T036 [P] **Implement "Physical Picture" Narrative Generator**: Create a script in `code/visualize.py` (function `generate_physical_narrative`) that synthesizes the quantitative results from T029 and T035 into a concise, non-mathematical explanation of the electron's behavior for `docs/physical_interpretation.md`. **Algorithm**: Read the "Worked Example: W=2.0" and "Strong Disorder Limit: W=5.0" sections. **Template**:
  - **Localized Case**: "At W={W}, the electron is trapped at site {site} with a distance of {dist} lattice units. The decay length is {decay}."
  - **Delocalized Case (W=0)**: "At W={W}, the electron is not trapped (delocalized) at site N/A with a distance of N/A lattice units. The decay length is N/A."
- **Constraint**: The narrative MUST be strictly derived from the computed metrics (site indices, distances, decay lengths) and must NOT introduce new theoretical claims or qualitative analogies not present in the data. It must explicitly answer: "When does it stop wandering?" and "Where is it trapped?" using the specific site indices calculated in T029/T035. (Reviewer: richard-feynman-simulated, US-3). **Depends on**: T029, T035.
+ **Constraint**: The narrative MUST be strictly derived from the computed metrics (site indices, distances, decay lengths) and must NOT introduce new theoretical claims or qualitative analogies not present in the data. It must explicitly answer: "When does it stop wandering?" and "Where is it trapped?" using the specific site indices calculated in T029/T035. **Robustness**: The narrative MUST be robust to edge cases (W=0) where T029/T035 output None/NaN; in such cases, **use the fallback text "delocalized" or "N/A" as defined in T029** to prevent rendering failures. (Reviewer: richard-feynman-simulated, US-3). **Depends on**: T029, T035.
 
 ---
 
@@ -250,24 +301,17 @@ With multiple developers:
 - **Crucial**: All data generation must use real random seeds logged in `provenance.json`; no synthetic/fake data allowed.
 - **Crucial**: T029 specifically addresses the "Feynman" review by demanding a quantitative summary of physical interpretation based on computed metrics, avoiding scope creep. No qualitative analogies or word counts.
 - **Crucial**: T013a overrides the simplified FR-003 proportionality to implement the correct finite-size scaling saturation logic as per the Plan.
-- **Crucial**: T015 applies Bonferroni correction for FWER across ALL widths (full family), aligning with SC-005, and enforces the Spec over the Plan if they contradict.
-- **Crucial**: T017 is split into T017a (Parallel Logger) and T017b (Sequential Integration/Filtering) to ensure numerical stability logging is integrated before T012/T013 implementation begins and that ill-conditioned instances are excluded.
+- **Crucial**: T015 applies Bonferroni correction for FWER across ALL widths (full family), aligning with SC-005, and enforces the Spec over the Plan if they contradict. **Self-correction logic added to handle plan.md updates in-place.**
+- **Crucial**: T017 is now a single task combining logger implementation and integration hooks to resolve circular dependencies.
 - **Crucial**: T023 validates SC-002 (relative error) and does NOT use Bonferroni p-values.
 - **Crucial**: T035 specifically addresses the "Feynman" review's request for a "worked example" in the strong disorder limit ($W \gg 1$) to demonstrate the physical picture of "trapping" and "suppression of diffusion" without relying solely on abstract fitting. It requires identifying specific lattice sites and distances, directly answering "when does it stop wandering?".
-- **Crucial**: Ta explicitly lists required system sizes $L$ spanning a range from small to large scales and disorder widths $W$ ranging from low to moderate magnitudes.
 - **Crucial**: T015 dynamically calculates Bonferroni factor based on `len(processed_widths)`.
 - **Crucial**: T029 and T035 define specific algorithms for "half-amplitude site" and "localization center" to ensure deterministic implementation.
 - **Crucial**: T036 synthesizes the quantitative findings from T029/T035 into a direct answer to the reviewer's request for a "physical picture" without equations, strictly grounded in the computed site indices and distances using a specific text template with fallback for delocalized states.
 - **Crucial**: T014 explicitly restricts the slope -2 validation to the weak disorder subset ($W < 1.0$).
-- **Crucial**: T015a ensures the plan.md is updated to reflect the full family correction before T015 runs.
-- **Crucial**: T012 now correctly depends on T008b (Hooking logger) to ensure logging is integrated before the main implementation is finalized.
-- **Crucial**: T008b is now a prerequisite for T012, resolving the circular dependency.
-- **Crucial**: T013a now correctly depends only on T017b for data consumption.
-- **Crucial**: T015a is now unique and located only in Phase 2.
-- **Crucial**: T011 updated to include specific schema validation criteria.
+- **Crucial**: T015a ensures the plan.md is updated to reflect the full family correction before T015 runs (though T015 now has self-correction).
+- **Crucial**: T012 now correctly depends on T017 for logging integration.
 - **Crucial**: T013a updated to include specific plot requirements and verification criteria.
-- **Crucial**: T017b updated to specify output artifact path and schema.
-- **Crucial**: T020b updated to specify output artifact schema.
+- **Crucial**: T020b updated to specify output artifact schema and finite-size scaling fit requirement.
 - **Crucial**: T029 updated to specify output format for quantitative summary.
-- **Crucial**: T015a updated to require explicit confirmation of plan.md edit.
-- **Crucial**: T015 updated to remove pre-condition check that causes blocking.
+- **Crucial**: T036 updated to be robust to edge cases (W=0).

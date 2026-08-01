@@ -1,15 +1,15 @@
-T005 Setup Python 3.11 virtualenv and install dependencies from `requirements.txt`: 1
-'T005 Setup Python 3.11 virtualenv and install dependencies from `requirements.txt` <!-- ATOMIZE: requested -->': 1
-? 'T005 Setup Python 3.11 virtualenv and install dependencies from `requirements.txt`
-  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
-: 2
-T007 Implement `src/utils/logging.py` for structured logging and progress tracking: 1
-? T008 Create `contracts/dataset_graph.schema.yaml` defining `TransitionStateGraph`
-  attributes (nodes, edges, energy_dft, barrier_height)
-: 1
-T009 Create `contracts/prediction_schema.yaml` defining `PredictionResult` and `EnsemblePredictionResult` structures: 1
-T010 Setup `data/raw/` directory with checksum verification logic for downloaded artifacts: 1
-? T011 Create `src/data/splits.py` to define the interface and skeleton for 5-Fold
-  Leave-Ligand-Scaffold-Out (LLSO) logic **(Do not implement full logic yet; define
-  function signatures only)**
-: 1
+T007: 1
+T008: 1
+T010: 1
+T011: 1
+T014: 1
+T015: 1
+T015b: 1
+T016: 1
+T017: 1
+T018: 1
+T027: 1
+T028: 1
+T032: 1
+T037: 1
+T041: 1

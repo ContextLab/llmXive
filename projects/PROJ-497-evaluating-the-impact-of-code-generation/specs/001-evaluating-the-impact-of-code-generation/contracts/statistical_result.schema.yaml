@@ -5,7 +5,7 @@ type: "object"
 properties:
   test_type:
     type: "string"
-    enum: ["ZINB", "Permutation"]
+    enum: ["Permutation", "ZINB"]
     description: "Type of statistical test performed."
   p_value:
     type: "number"
@@ -19,26 +19,26 @@ properties:
     description: "95% confidence interval for the effect size."
   effect_size:
     type: "number"
-    description: "Incidence Rate Ratio (IRR) or Risk Ratio."
+    description: "Effect size (e.g., Rank-Biserial)."
   adjusted_p_value:
     type: "number"
     description: "P-value after multiple-comparison correction."
   convergence_status:
     type: "string"
     enum: ["SUCCESS", "FAILED"]
-    description: "Status of the model convergence."
+    description: "Status of the model convergence (if applicable)."
   power:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Post-hoc power analysis result (if applicable)."
+    description: "Post-hoc power analysis result."
   flag:
     type: "string"
     enum: ["OK", "UNDER_POWERED", "INSUFFICIENT_DATA"]
     description: "Data quality flag."
   unit_of_analysis:
     type: "string"
-    description: "Description of the unit of analysis (e.g., 'Task')."
+    description: "Description of the unit of analysis (e.g., 'Individual Code Sample')."
 required:
   - test_type
   - p_value

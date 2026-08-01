@@ -1,9 +1,9 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: ADReSS Cleaned Dataset Schema
-description: |
-  Schema for the cleaned, preprocessed ADReSS dataset used in the
-  statistical analysis of cognitive decline. Derived from raw transcripts
-  after text cleaning and filtering (T013, T014).
+title: Cognitive Decline Dataset Schema
+description: >
+  JSON Schema for the cleaned and processed ADReSS dataset.
+  Defines the structure for participant records including ID, cognitive status label,
+  and cleaned text transcript.
 type: object
 required:
   - participant_id
@@ -12,30 +12,33 @@ required:
 properties:
   participant_id:
     type: string
-    description: Unique identifier for the participant (e.g., 'p001', 'control_01')
-    pattern: "^[a-zA-Z0-9_-]+$"
+    description: >
+      Unique identifier for the participant.
+      Format typically follows ADReSS naming conventions (e.g., P001, P002).
+    pattern: '^P\\d{3}$'
     examples:
-      - "p001"
-      - "control_12"
-      - "ad_45"
+      - "P001"
+      - "P123"
   label:
     type: string
-    description: Cognitive status label derived from ADReSS metadata
+    description: >
+      Cognitive status label derived from the dataset metadata.
+      Valid values are restricted to the expected classes.
     enum:
-      - "Control"
-      - "MCI"
-      - "AD"
+      - Control
+      - MCI
+      - AD
     examples:
       - "Control"
       - "MCI"
       - "AD"
   text:
     type: string
-    description: |
-      Cleaned transcript text. Non-verbal annotations (e.g., <laughter>, <pause>)
-      removed, normalized to UTF-8, and filtered for minimum length (>= 50 words).
+    description: >
+      The cleaned, normalized text transcript of the participant's speech.
+      Non-verbal annotations (<laughter>, <pause>) have been removed.
+      UTF-8 normalized.
     minLength: 50
     examples:
-      - "The patient described the cookie theft picture in detail mentioning the water spilling."
-      - "Control subject provided a coherent narrative about the picture with correct grammar."
+      - "The patient described a scene from the cookie jar picture..."
 additionalProperties: false

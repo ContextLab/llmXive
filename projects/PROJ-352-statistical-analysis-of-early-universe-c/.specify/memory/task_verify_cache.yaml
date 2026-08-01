@@ -1,0 +1,14 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `setup.cfg`, `.flake8`, `pyproject.toml`
+    with Black settings, or `pylintrc`) are present, nor any documentation showing
+    they have been set up. Without these artifacts the task of configuring flake8/pylint
+    and Black is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/` and `data/processed/` directories or\
+    \ any logging infrastructure (e.g., configuration files, logger initialization\
+    \ code) was provided. The implementer\u2019s claim cannot be verified because\
+    \ the necessary artifacts are missing."

@@ -1,0 +1,28 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or file list was provided showing that the required folders\
+    \ (`code`, `data/raw`, `data/processed`, `data/interim`, `data/results`, `tests/unit`,\
+    \ `tests/contract`, `tests/integration`, `specs/001-statistical-cognitive-decline/contracts`)\
+    \ actually exist. Without concrete evidence of these paths, the task\u2019s requirement\
+    \ is not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains no visible linting or formatting configuration files
+    (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) or any documentation
+    showing that ruff/flake8 and Black have been set up. Without these artifacts,
+    the task of configuring the tools is not satisfied.
+T012c:
+  c: false
+  h: c279ae8cac5f0d583df90180e266c3903e3efbf827f12ce6a8048f829636f5a5
+  r: The required artifact `data/ingestion_amendment.log` does not exist, so no documentation
+    of FR-001 satisfaction or DementiaBank exclusion is present. The implementer must
+    create the log file with the specified entries.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided that demonstrate the addition
+    of logging for excluded records with specific reason codes, nor any evidence that
+    the logging parses the cognitive status metadata extraction result. The required
+    artifact (implemented logging logic) is missing.

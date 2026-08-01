@@ -1,149 +1,195 @@
 """
-Unit tests for graph construction module.
+Unit tests for graph_construction.py
 """
+
 import numpy as np
 import pytest
+from pathlib import Path
+import tempfile
+import json
 
 from src.data.graph_construction import (
     calculate_coordination_number,
     build_adjacency_matrix,
     extract_edge_attributes,
     construct_transition_state_graph,
-    filter_outliers
+    filter_outliers,
+    save_graphs_to_parquet,
+    save_metadata
 )
 
 
 class TestCalculateCoordinationNumber:
-    def test_empty_input(self):
-        positions = np.zeros((0, 3))
-        atomic_numbers = np.array([])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result == []
-
-    def test_single_atom(self):
-        positions = np.array([[0.0, 0.0, 0.0]])
-        atomic_numbers = np.array([1])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result == [0]
-
-    def test_two_atoms_within_cutoff(self):
-        positions = np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]])
-        atomic_numbers = np.array([1, 1])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result == [1, 1]
-
-    def test_two_atoms_outside_cutoff(self):
-        positions = np.array([[0.0, 0.0, 0.0], [5.0, 0.0, 0.0]])
-        atomic_numbers = np.array([1, 1])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result == [0, 0]
-
-    def test_triple_coordination(self):
-        # Central atom with 3 neighbors
+    def test_simple_molecule(self):
+        # Methane: C at center, 4 H at ~1.09 A
         positions = np.array([
             [0.0, 0.0, 0.0],
-            [2.0, 0.0, 0.0],
-            [-2.0, 0.0, 0.0],
-            [0.0, 2.0, 0.0]
+            [1.09, 0.0, 0.0],
+            [-0.36, 1.03, 0.0],
+            [-0.36, -0.52, 0.94],
+            [-0.36, -0.52, -0.94]
         ])
-        atomic_numbers = np.array([6, 1, 1, 1])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result[0] == 3  # Central atom has 3 neighbors
-        assert all(r == 1 for r in result[1:])  # Hydrogens have 1 neighbor
+        atomic_numbers = [6, 1, 1, 1, 1]
+        cutoff = 1.5  # Sufficient to catch bonds in methane
+
+        coords = calculate_coordination_number(positions, atomic_numbers, cutoff)
+
+        # Carbon should have 4 neighbors, H should have 1
+        assert coords[0] == 4
+        assert all(c == 1 for c in coords[1:])
+
+    def test_no_bonds(self):
+        # Atoms far apart
+        positions = np.array([
+            [0.0, 0.0, 0.0],
+            [10.0, 10.0, 10.0]
+        ])
+        atomic_numbers = [6, 1]
+        cutoff = 2.0
+
+        coords = calculate_coordination_number(positions, atomic_numbers, cutoff)
+        assert coords == [0, 0]
+
+    def test_self_exclusion(self):
+        # Atom should not count itself
+        positions = np.array([[0.0, 0.0, 0.0]])
+        atomic_numbers = [6]
+        cutoff = 5.0
+
+        coords = calculate_coordination_number(positions, atomic_numbers, cutoff)
+        assert coords[0] == 0
 
 
 class TestBuildAdjacencyMatrix:
-    def test_empty_input(self):
-        positions = np.zeros((0, 3))
-        adj = build_adjacency_matrix(positions)
-        assert adj.shape == (0, 0)
-
-    def test_single_atom(self):
-        positions = np.array([[0.0, 0.0, 0.0]])
-        adj = build_adjacency_matrix(positions)
-        assert adj.shape == (1, 1)
-        assert adj[0, 0] == False
-
     def test_symmetric(self):
-        positions = np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]])
-        adj = build_adjacency_matrix(positions)
-        assert adj[0, 1] == adj[1, 0]
+        positions = np.array([
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [5.0, 5.0, 5.0]
+        ])
+        adj = build_adjacency_matrix(positions, cutoff=2.0)
 
-    def test_no_self_loops(self):
-        positions = np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]])
-        adj = build_adjacency_matrix(positions)
-        assert not np.any(np.diag(adj))
+        assert adj[0, 1] == True
+        assert adj[1, 0] == True
+        assert adj[0, 2] == False
+        assert adj[2, 0] == False
+        assert adj[1, 2] == False
+        assert adj[2, 1] == False
+        assert np.all(np.diag(adj) == False)
+
+    def test_cutoff_precision(self):
+        positions = np.array([
+            [0.0, 0.0, 0.0],
+            [2.5, 0.0, 0.0],
+            [2.51, 0.0, 0.0]
+        ])
+        adj = build_adjacency_matrix(positions, cutoff=2.5)
+
+        assert adj[0, 1] == True
+        assert adj[0, 2] == False
 
 
 class TestConstructTransitionStateGraph:
-    def test_valid_reaction(self):
-        row = {
-            "atomic_numbers": [6, 1, 1, 1],
-            "positions": [
-                [0.0, 0.0, 0.0],
-                [2.0, 0.0, 0.0],
-                [-2.0, 0.0, 0.0],
-                [0.0, 2.0, 0.0]
-            ],
-            "energy_dft": -100.5,
-            "barrier_height": 15.2,
-            "reaction_id": "test_001",
-            "ligand_class": "Group 13"
-        }
-        graph = construct_transition_state_graph(row)
+    def test_basic_structure(self):
+        positions = np.array([
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0]
+        ])
+        graph = construct_transition_state_graph(
+            atom_symbols=['C', 'H'],
+            positions=positions,
+            formal_charges=[0, 0],
+            energy_dft=-100.0,
+            barrier_height=15.0,
+            ligand_class='Group 13',
+            reaction_id='rxn_001'
+        )
 
-        assert graph is not None
-        assert graph["reaction_id"] == "test_001"
-        assert graph["energy_dft"] == -100.5
-        assert graph["barrier_height"] == 15.2
-        assert graph["ligand_class"] == "Group 13"
-        assert graph["num_atoms"] == 4
-        assert len(graph["nodes"]) == 4
-        assert len(graph["edges"]) > 0
+        assert 'nodes' in graph
+        assert 'edges' in graph
+        assert 'metadata' in graph
 
-    def test_empty_atomic_numbers(self):
-        row = {
-            "atomic_numbers": [],
-            "positions": [],
-            "energy_dft": 0.0,
-            "barrier_height": 0.0,
-            "reaction_id": "empty_001"
-        }
-        graph = construct_transition_state_graph(row)
-        assert graph is None
+        assert len(graph['nodes']) == 2
+        assert graph['nodes'][0]['atomic_number'] == 6
+        assert graph['nodes'][0]['formal_charge'] == 0
+        assert 'coordination_number' in graph['nodes'][0]
 
-    def test_invalid_position_dimensions(self):
-        row = {
-            "atomic_numbers": [6, 1],
-            "positions": [[0.0, 0.0], [1.0, 1.0]],  # 2D instead of 3D
-            "energy_dft": 0.0,
-            "barrier_height": 0.0,
-            "reaction_id": "bad_dim_001"
-        }
-        graph = construct_transition_state_graph(row)
-        assert graph is None
+        assert graph['metadata']['energy_dft'] == -100.0
+        assert graph['metadata']['barrier_height'] == 15.0
+        assert graph['metadata']['ligand_class'] == 'Group 13'
+        assert graph['metadata']['reaction_id'] == 'rxn_001'
+
+    def test_default_formal_charges(self):
+        positions = np.array([[0.0, 0.0, 0.0]])
+        graph = construct_transition_state_graph(
+            atom_symbols=['C'],
+            positions=positions
+        )
+        assert graph['nodes'][0]['formal_charge'] == 0
 
 
 class TestFilterOutliers:
     def test_no_outliers(self):
         graphs = [
-            {"max_coordination": 3},
-            {"max_coordination": 4},
-            {"max_coordination": 5}
+            {'nodes': [{'coordination_number': 4}, {'coordination_number': 1}], 'metadata': {}},
+            {'nodes': [{'coordination_number': 3}, {'coordination_number': 3}], 'metadata': {}}
         ]
-        training, test = filter_outliers(graphs)
-        assert len(training) == 3
-        assert len(test) == 0
+        valid, outliers = filter_outliers(graphs, max_coordination=6)
+        assert len(valid) == 2
+        assert len(outliers) == 0
 
-    def test_with_outliers(self):
+    def test_has_outliers(self):
         graphs = [
-            {"max_coordination": 3},
-            {"max_coordination": 7},
-            {"max_coordination": 5},
-            {"max_coordination": 8}
+            {'nodes': [{'coordination_number': 4}, {'coordination_number': 1}], 'metadata': {}},
+            {'nodes': [{'coordination_number': 7}, {'coordination_number': 1}], 'metadata': {}},
+            {'nodes': [{'coordination_number': 6}, {'coordination_number': 6}], 'metadata': {}}
         ]
-        training, test = filter_outliers(graphs)
-        assert len(training) == 2
-        assert len(test) == 2
-        assert all(g["max_coordination"] <= 6 for g in training)
-        assert all(g["max_coordination"] > 6 for g in test)
+        valid, outliers = filter_outliers(graphs, max_coordination=6)
+        assert len(valid) == 2
+        assert len(outliers) == 1
+        assert outliers[0]['nodes'][0]['coordination_number'] == 7
+
+    def test_empty_list(self):
+        valid, outliers = filter_outliers([], max_coordination=6)
+        assert len(valid) == 0
+        assert len(outliers) == 0
+
+
+class TestSaveGraphsToParquet:
+    def test_save_and_load(self):
+        graphs = [
+            {
+                'nodes': [{'atomic_number': 6, 'formal_charge': 0, 'coordination_number': 4, 'symbol': 'C'}],
+                'edges': [],
+                'metadata': {'energy_dft': -100.0, 'reaction_id': 'rxn_001'}
+            }
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "test_graphs.parquet"
+            save_graphs_to_parquet(graphs, path)
+
+            assert path.exists()
+
+            import pandas as pd
+            df = pd.read_parquet(path)
+            assert len(df) == 1
+            assert df.iloc[0]['metadata']['energy_dft'] == -100.0
+
+class TestSaveMetadata:
+    def test_save_outlier_metadata(self):
+        outliers = [
+            {'metadata': {'reaction_id': 'rxn_bad'}},
+            {'metadata': {'reaction_id': 'rxn_bad2'}}
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "outliers.json"
+            save_metadata(outliers, path)
+
+            assert path.exists()
+            with open(path) as f:
+                data = json.load(f)
+
+            assert data['n_outliers'] == 2
+            assert 'sample_reaction_ids' in data

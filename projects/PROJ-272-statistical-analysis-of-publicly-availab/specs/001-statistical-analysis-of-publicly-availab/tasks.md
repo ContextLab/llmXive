@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `mkdir -p code data/raw data/processed data/interim data/results tests/unit tests/contract tests/integration specs/001-statistical-cognitive-decline/contracts`
-- [ ] T002 Initialize Python 3.11 project with dependencies: Create `requirements.txt` with pinned versions: `pandas>=2.0.0`, `scikit-learn>=1.3.0`, `nltk>=3.8`, `spacy>=3.7`, `sentence-transformers>=2.2.0`, `numpy>=1.24.0`, `scipy>=1.10.0`, `pyyaml>=6.0`, `tqdm>=4.65.0`
+- [X] T002 Initialize Python 3.11 project with dependencies: Create `requirements.txt` with pinned versions: `pandas>=2.0.0`, `scikit-learn>=1.3.0`, `nltk>=3.8`, `spacy>=3.7`, `sentence-transformers>=2.2.0`, `numpy>=1.24.0`, `scipy>=1.10.0`, `pyyaml>=6.0`, `tqdm>=4.65.0`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -57,7 +57,7 @@
 
 - [X] T004 Setup configuration management in `code/config.py` (paths, random seeds, CPU-only constraints)
 - [X] T005 [P] Implement logging infrastructure in `code/utils.py` with file and console handlers
-- [ ] T006 [P] Create data validation utilities in `code/utils.py` (UTF-8 normalization, length checks)
+- [X] T006 [P] Create data validation utilities in `code/utils.py` (UTF-8 normalization, length checks)
 - [ ] T007 [P] Setup pre-commit hooks for PII scanning and dependency checks: Create `.pre-commit-config.yaml` with `detect-secrets` and `black` hooks
 - [ ] T008 [P] Create base schema definitions in `specs/001-statistical-cognitive-decline/contracts/`: Create `dataset.schema.yaml` and `feature.schema.yaml` using JSON Schema format in YAML, defining fields: `participant_id`, `label`, `text`
 
@@ -74,14 +74,14 @@
 ### Implementation for User Story 1
 
 - [X] T012 [FR-001] [US1] Implement data download utility in `code/ingestion.py` to fetch ADReSS raw files from canonical GitHub URL; Compute SHA-256 hash upon download and log it (Depends on T004)
-- [X] T012a [FR-001] [US1] Implement scope validation in `code/ingestion.py`: Validate that the configuration explicitly excludes DementiaBank and that no attempt is made to fetch it unless ADReSS fails; Log a warning if DementiaBank is detected in config (Depends on T004)
+- [X] T012a [FR-001] [US1] Implement scope validation in `code/ingestion.py`: Validate that the configuration explicitly excludes DementiaBank and that no attempt is made to fetch it unless ADReSS fails [UNRESOLVED-CLAIM: c_459a4712 — status=not_enough_info]; Log a warning if DementiaBank is detected in config (Depends on T004)
 - [X] T012b [FR-001] [US1] Implement fallback logic in `code/ingestion.py`: If ADReSS download fails, attempt to fetch DementiaBank from verified source (if available); Log strict warning that DementiaBank source is unverified and data is treated as fallback only (Depends on T012)
-- [~] T012c [FR-001] [US1] Document Spec Amendment in `data/ingestion_amendment.log`: Record that FR-001 is satisfied by ADReSS-only ingestion due to verified-source constraints; Log that DementiaBank is excluded as primary source (Depends on T012a)
-- [X] T012d [US1] Validate dataset size in `code/ingestion.py`: Check if ADReSS dataset contains ≥ 500 participants per group; Fail pipeline with specific error if threshold not met (Depends on T012)
+- [ ] T012c [FR-001] [US1] Document Spec Amendment in `data/ingestion_amendment.log`: Record that FR-001 is satisfied by ADReSS-only ingestion due to verified-source constraints; Log that DementiaBank is excluded as primary source (Depends on T012a)
+- [X] T012d [US1] Validate dataset size in `code/ingestion.py`: Check if ADReSS dataset contains ≥ 500 participants per group [UNRESOLVED-CLAIM: c_6d48df60 — status=not_enough_info]; Fail pipeline with specific error if threshold not met (Depends on T012)
 - [ ] T012e [US1] Record computed SHA-256 checksum in `data/raw/checksums.json` with filename and hash (Depends on T012)
-- [ ] T013 [US1] Implement text cleaning pipeline in `code/ingestion.py`: remove non-verbal annotations, normalize to UTF-8 (Depends on T012)
-- [ ] T014 [US1] Implement record filtering in `code/ingestion.py`: exclude transcripts < 50 words and missing labels (Depends on T013)
-- [ ] T015 [US1] Implement metadata extraction in `code/ingestion.py` to parse cognitive status (Control, MCI, AD) from ADReSS headers and generate specific reason codes for excluded records (Depends on T013)
+- [X] T013 [US1] Implement text cleaning pipeline in `code/ingestion.py`: remove non-verbal annotations, normalize to UTF-8 (Depends on T012)
+- [X] T014 [US1] Implement record filtering in `code/ingestion.py`: exclude transcripts < 50 words and missing labels (Depends on T013)
+- [X] T015 [US1] Implement metadata extraction in `code/ingestion.py` to parse cognitive status (Control, MCI, AD) from ADReSS headers and generate specific reason codes for excluded records (Depends on T013)
 - [ ] T016 [US1] Create intermediate cleaned dataset in `data/interim/cleaned_adress.csv` with derivation log (Depends on T014, T015)
 - [ ] T017 [US1] Add logging for excluded records with specific reason codes, ensuring the logging logic parses the cognitive status metadata extraction result (Depends on T015)
 
@@ -139,7 +139,7 @@
 - [ ] T035 [US3] Implement Random Forest training and evaluation in `code/modeling.py` (Preliminary Sanity Check) (Depends on T033)
 - [ ] T036 [US3] Report preliminary metrics (AUC, Accuracy, F1) for both classifiers on held-out test set (Depends on T034, T035)
 - [ ] T037 [US3] Implement a nested k-fold cross-validation loop in `code/modeling.py` for primary validation (Depends on T025)
-- [ ] T038 [US3] Ensure nested CV uses CPU-only models and respects memory constraints (< 7 GB) (Depends on T037)
+- [ ] T038 [US3] Ensure nested CV uses CPU-only models and respects memory constraints (< 7 GB) [UNRESOLVED-CLAIM: c_5eb4b1a4 — status=not_enough_info] (Depends on T037)
 - [ ] T039 [US3] Calculate mean AUC and standard deviation across outer folds; save results to `data/results/cv_metrics.json` (Depends on T037)
 - [ ] T040 [US3] Generate final results report in `data/results/model_performance.json` (Depends on T036, T039)
 
@@ -160,9 +160,9 @@
 - [ ] T041 [P] Documentation updates: Add `research.md` with feature definitions and statistical rationale
 - [ ] T042 Code cleanup and refactoring for readability
 - [ ] T043 Performance optimization: Ensure semantic embedding batch processing fits within RAM limits
-- [ ] T044 [P] Additional unit tests for edge cases (empty transcripts, collinear data) in `tests/unit/`
+- [] T044 [P] Additional unit tests for edge cases (empty transcripts, collinear data) in `tests/unit/`
 - [ ] T045 Run quickstart.md validation to ensure reproducibility on fresh environment
-- [ ] T046 Verify total runtime ≤ 6 hours AND memory usage ≤ 7 GB using `tracemalloc`; Generate `data/results/runtime_log.json` with `total_seconds` and `data/results/memory_profile.json` with `peak_rss_gb` (Depends on T040)
+- [ ] T046 {{claim:c_864f1b79}} (Wikipedia: Dhurandhar, https://en.wikipedia.org/wiki/Dhurandhar) AND memory usage ≤ 7 GB using `tracemalloc`; Generate `data/results/runtime_log.json` with `total_seconds` and `data/results/memory_profile.json` with `peak_rss_gb` (Depends on T040)
 
 ---
 

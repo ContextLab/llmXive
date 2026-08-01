@@ -18,7 +18,7 @@ Crucially, the plan corrects the methodology to avoid circular definitions: $\xi
 **Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM, no GPU).  
 **Performance Goals**: Complete 1000 realizations (10 widths × 100 samples) within 6 h on CPU; peak RAM < 7 GB.  
 **Constraints**: No GPU usage; strict double‑precision arithmetic; open boundary conditions only.  
-**Scale/Scope**: System sizes $L$ ranging from small to large scales.; Disorder widths $W \in \{, 0.2, …, 2.0\}$ (≈10 values); Multiple realizations per width.
+**Scale/Scope**: System sizes $L$ ranging from small to large scales.; Disorder widths $W$ spanning a representative range of magnitudes; Multiple realizations per width.
 
 > Domain‑specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

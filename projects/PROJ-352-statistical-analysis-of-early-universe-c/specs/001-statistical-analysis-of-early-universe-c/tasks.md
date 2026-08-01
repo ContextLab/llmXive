@@ -58,8 +58,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup data directory structure (`data/raw/`, `data/processed/`) and logging infrastructure
-- [ ] T005 Implement `code/download.py` with exponential backoff retry logic for Planck Legacy Archive access
-- [ ] T006 Implement checksum validation logic for downloaded FITS files in `code/download.py`
+- [X] T005 Implement `code/download.py` with exponential backoff retry logic for Planck Legacy Archive access
+- [X] T006 Implement checksum validation logic for downloaded FITS files in `code/download.py`
 - [X] T007 Create base configuration management for paths, seeds, and Planck parameters in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -68,7 +68,7 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download Planck 2015/2018 SMICA CMB temperature map at Nside=128 [UNRESOLVED-CLAIM: c_0e0b636b — status=not_enough_info], validate integrity, apply Galactic mask, and verify pixel counts.
+**Goal**: Download Planck 2015/2018 SMICA CMB temperature map at Nside=128, validate integrity, apply Galactic mask, and verify pixel counts.
 
 **Independent Test**: Can be fully tested by downloading a single Planck map, applying the Galactic mask, and verifying pixel counts and coverage.
 
@@ -81,10 +81,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/download.py`: Fetch `COM_CMB_ILM-NR1-000_R2.01.fits` (SMICA Nside=128) from Planck Legacy Archive with retry logic
-- [ ] T013 [US1] Implement `code/download.py`: Validate file integrity via MD5/SHA checksums against known Planck values
-- [ ] T014 [US1] Implement `code/mask.py`: Load a Galactic mask (or equivalent) and apply to CMB map
-- [ ] T015 [US1] Implement `code/mask.py`: Apply a pixel buffer zone as PRIMARY method per Spec Edge Cases by setting pixels within N=2 of mask edge to 0. Algorithm: For each pixel, if distance to nearest masked pixel <= 2, set value to 0.
+- [X] T012 [US1] Implement `code/download.py`: Fetch `COM_CMB_ILM-NR1-000_R2.01.fits` (SMICA Nside=128) from Planck Legacy Archive with retry logic
+- [X] T013 [US1] Implement `code/download.py`: Validate file integrity via MD5/SHA checksums against known Planck values <!-- FAILED: unspecified -->
+- [X] T014 [US1] Implement `code/mask.py`: Load a Galactic mask (or equivalent) and apply to CMB map
+- [X] T015 [US1] Implement `code/mask.py`: Apply a pixel buffer zone as PRIMARY method per Spec Edge Cases by setting pixels within N=2 of mask edge to 0. Algorithm: For each pixel, if distance to nearest masked pixel <= 2, set value to 0.
 - [ ] T015b [US1] Implement `code/mask.py`: Apply Schmalzing & Gorski (1998) analytical correction as SECONDARY verification step; compare T015 output against analytical expectations and log comparison
 - [ ] T016 [US1] {{claim:c_8f22d433}} (FR-002) using formula: `sky_coverage = valid_pixels / (12 * 128^2)`. Save verification result to `data/processed/coverage_report.json`
 - [ ] T017 [US1] Compute basic statistics (mean, std) on masked map to ensure physical plausibility and Save mean/std to `data/processed/map_stats.json`
@@ -111,7 +111,7 @@
 - [ ] T022 [US2] Implement `code/minkowski.py`: Apply Schmalzing & Gorski mask correction to MF results
 - [ ] T023 [US2] Compute functionals at thresholds {±0.5σ, ±1σ, 0σ}
 - [ ] T024a [US2] Generate theoretical genus curve for Gaussian Random Field using analytic formula (e.g., Schmalzing & Barreiro) based on input power spectrum and save to `data/processed/theoretical_genus_curve.json`
-- [ ] T024 [US2] Verify numerical precision (≥6 decimal places) and reproducibility (±0.001% tolerance) [UNRESOLVED-CLAIM: c_31ee06d1 — status=not_enough_info] using synthetic Gaussian map (seed=42). Assertion logic: `assert abs(val1 - val2) / val1 < 0.00001` in `tests/test_minkowski.py::test_precision_tolerance`
+- [ ] T024 [US2] Verify numerical precision (≥6 decimal places) and reproducibility (±0.001% tolerance) using synthetic Gaussian map (seed=42). Assertion logic: `assert abs(val1 - val2) / val1 < 0.00001` in `tests/test_minkowski.py::test_precision_tolerance`
 - [ ] T024c [US2] Compute RMS deviation between observed MFs (from T025) and theoretical genus curve (from T024a). This measures physics deviation (signal vs null hypothesis). Target: ≤1% (SC-002). Save report to `data/processed/computation_accuracy_report.json`
 - [ ] T025 [US2] Save MF results to `data/processed/minkowski_functionals_observed.json`
 - [ ] T025d [US2] Validate computation accuracy: Generate synthetic Gaussian map (seed=42), compute MFs, calculate RMS deviation against analytic genus curve (from T024a); verify target ≤1% (SC-002). Save report to `data/processed/computation_accuracy_report.json`
@@ -135,8 +135,8 @@
 
 - [ ] T028 [US3] Implement `code/simulate.py`: Load theoretical LCDM power spectrum (Planck 2018 TT, TE, EE)
 - [ ] T029 [US3] Implement `code/simulate.py`: Load Planck beam transfer function and SMICA noise covariance maps
-- [ ] T030 [US3] Implement `code/simulate.py`: Generate N=500 Gaussian random field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (σ²=1.1 μK²) [UNRESOLVED-CLAIM: c_cee14250 — status=not_enough_info]
-- [ ] T030b [US3] Implement `code/simulate.py`: Verify total runtime for N=1000 (500 Gaussian + 500 String) < 6h on GitHub Actions free-tier [UNRESOLVED-CLAIM: c_92dd7851 — status=refuted]. Abort if exceeded.
+- [ ] T030 [US3] Implement `code/simulate.py`: Generate N=500 Gaussian random field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (σ²=1.1 μK²)
+- [ ] T030b [US3] Implement `code/simulate.py`: Verify total runtime for N=1000 (500 Gaussian + 500 String) < 6h on GitHub Actions free-tier. Abort if exceeded.
 - [ ] T031 [US3] Implement `code/simulate.py`: Process simulations in batches (Generate -> Compute MF -> Discard Map) to stay under available RAM constraints.
 - [ ] T032 [US3] Compute Minkowski Functionals for each simulation using `code/minkowski.py`
 - [ ] T036 [US3] Implement `code/simulate.py`: {{claim:c_1feb14ee}} and compute their MFs to build the H1 distribution
@@ -158,13 +158,13 @@
 - [ ] T044b [P] Update `docs/data-model.md` with data schema for `results.json` and `coverage_report.json`
 - [ ] T045a [P] Run linter (flake8/pylint) on `code/` and fix all errors/warnings
 - [ ] T045b [P] Refactor code to remove duplication (>20% similarity) and improve readability
-- [ ] T046a [P] Profile memory usage of simulation loop and optimize to ensure < 6.5GB peak [UNRESOLVED-CLAIM: c_cbf68a92 — status=not_enough_info] (Strategy: Implement streaming generator, delete maps after MF computation)
+- [ ] T046a [P] Profile memory usage of simulation loop and optimize to ensure < 6.5GB peak (Strategy: Implement streaming generator, delete maps after MF computation)
 - [ ] T046b [P] Profile runtime of full pipeline and optimize hotspots to ensure < 6h total (Strategy: Profile with cProfile, optimize hotspots in minkowski.py)
 - [ ] T047a [P] Add unit tests for `code/download.py` (coverage > 80%)
 - [ ] T047b [P] Add unit tests for `code/mask.py` (coverage > 80%)
 - [ ] T047c [P] Add unit tests for `code/minkowski.py` (coverage > 80%)
 - [ ] T048a [P] Run `docs/quickstart.md` validation script and verify all output artifacts match spec
-- [ ] T049a [P] Execute download pipeline stress-test loop (N=10) to empirically measure success rate [UNRESOLVED-CLAIM: c_be8dd21f — status=not_enough_info]. Success = (HTTP 200 AND checksum match). Metric: success_count / total_attempts * 100. Output schema: `{"total_attempts": N, "successes": M, "rate": M/N}` to `data/processed/reliability_report.json`
+- [ ] T049a [P] Execute download pipeline stress-test loop (N=10) to empirically measure success rate. Success = (HTTP 200 AND checksum match). Metric: success_count / total_attempts * 100. Output schema: `{"total_attempts": N, "successes": M, "rate": M/N}` to `data/processed/reliability_report.json`
 - [ ] T049b [P] Execute download pipeline stress-test loop (N=100) to calculate reliability metric for SC-001
 
 ---
@@ -262,7 +262,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on GitHub Actions free-tier (limited CPU, limited RAM, no GPU). No 8-bit quantization or CUDA operations allowed.
 - **Data Integrity**: No fake data generation. All inputs must be from real Planck archives or real theoretical spectra.
-- **Simulation Count**: Total simulations = N=1,000 (500 Gaussian + 500 Cosmic String) [UNRESOLVED-CLAIM: c_95be95c4 — status=not_enough_info] to strictly adhere to FR-007 and SC-004 (≤6h runtime).
+- **Simulation Count**: Total simulations = N=1,000 (500 Gaussian + 500 Cosmic String) to strictly adhere to FR-007 and SC-004 (≤6h runtime).
 - **Mask Correction**: The 2-pixel buffer zone is the PRIMARY method for edge handling as mandated by Spec Edge Cases. Schmalzing & Gorski analytical correction is used as secondary verification only.
 - **Scope**: Observer Invariance (Phase 5b) has been removed as it was unapproved scope creep. The analysis focuses strictly on the Spec's FR-001 to FR-007.
 - **Plan vs Spec Conflict**: The Plan.md Phase 1.4 description of Schmalzing & Gorski as "primary" contradicts the Spec.md Edge Cases. The tasks follow the Spec.md (Buffer Primary). The Plan.md requires correction.

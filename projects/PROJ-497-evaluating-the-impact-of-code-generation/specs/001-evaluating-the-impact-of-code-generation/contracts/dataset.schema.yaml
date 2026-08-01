@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Aggregated Analysis Dataset Schema"
-description: "Schema for the aggregated analysis dataset containing vulnerability counts and metadata (Unit of Analysis = Task)."
+description: "Schema for the aggregated analysis dataset containing vulnerability counts and metadata (Unit of Analysis = Individual Code Sample)."
 type: "object"
 properties:
   task_id:
@@ -23,6 +23,9 @@ properties:
   vulnerability_count:
     type: "number"
     description: "Mean count of vulnerabilities detected (raw)."
+  adjusted_vulnerability_count:
+    type: "number"
+    description: "Mean count of vulnerabilities detected (adjusted, sensitivity only)."
   sample_count:
     type: "integer"
     description: "Number of samples aggregated (for LLM)."
@@ -32,6 +35,9 @@ properties:
   content_hash:
     type: "string"
     description: "SHA-256 hash of the aggregated content."
+  complexity_mean:
+    type: "number"
+    description: "Mean Cyclomatic Complexity."
 required:
   - task_id
   - benchmark_name
@@ -39,7 +45,9 @@ required:
   - model_name
   - lines_of_code
   - vulnerability_count
+  - adjusted_vulnerability_count
   - sample_count
   - is_valid
   - content_hash
+  - complexity_mean
 additionalProperties: false

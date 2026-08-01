@@ -28,16 +28,24 @@ properties:
         description: "Tool and version used for scanning."
       statistical_method:
         type: "string"
-        description: "Primary statistical method (e.g., ZINB)."
+        description: "Primary statistical method (e.g., Permutation Test)."
       unit_of_analysis:
         type: "string"
-        description: "Description of the unit of analysis (e.g., 'Task')."
+        description: "Description of the unit of analysis (e.g., 'Individual Code Sample')."
+      primary_metric:
+        type: "string"
+        description: "Primary metric used (e.g., 'Raw Vulnerability Count')."
+      sensitivity_metric:
+        type: "string"
+        description: "Sensitivity metric used (e.g., 'FPR Adjusted Count')."
     required:
       - models_used
       - dataset_source
       - static_analysis_tool
       - statistical_method
       - unit_of_analysis
+      - primary_metric
+      - sensitivity_metric
   results:
     type: "object"
     properties:
@@ -52,7 +60,7 @@ properties:
         enum: ["small", "medium", "large", "negligible", "underpowered"]
       power_achieved:
         type: "number"
-        description: "Achieved power for the sample size (number of tasks)."
+        description: "Achieved power for the sample size."
       fpr_sensitivity:
         type: "object"
         description: "Sensitivity analysis results."
@@ -61,9 +69,13 @@ properties:
             type: "number"
           human_fpr:
             type: "number"
+          note:
+            type: "string"
+            description: "Explicit note that this is a sensitivity metric only."
         required:
           - llm_fpr
           - human_fpr
+          - note
     required:
       - key_findings
       - statistical_significance
@@ -79,7 +91,7 @@ properties:
     type: "array"
     items:
       type: "string"
-    description: "List of study limitations (including FPR circularity)."
+    description: "List of study limitations (including FPR circularity, quantization bias, lack of ground truth)."
 required:
   - title
   - date

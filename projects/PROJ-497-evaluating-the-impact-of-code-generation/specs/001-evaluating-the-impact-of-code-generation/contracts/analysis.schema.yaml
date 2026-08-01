@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "StatisticalAnalysisResults"
-description: "Schema for the results of the statistical hypothesis testing (ZINB and robustness checks)."
+description: "Schema for the results of the statistical hypothesis testing (Permutation Test primary, ZINB secondary)."
 type: "object"
 properties:
   overall_comparison:
@@ -9,7 +9,7 @@ properties:
     properties:
       primary_test_type:
         type: "string"
-        enum: ["zinb", "mann-whitney-u", "t-test"]
+        enum: ["permutation", "zinb"]
         description: "Type of primary statistical test performed."
       p_value:
         type: "number"
@@ -19,7 +19,7 @@ properties:
         description: "P-value after multiple-comparison correction (if applicable)."
       effect_size:
         type: "number"
-        description: "Incidence Rate Ratio (ZINB) or Cohen's d / Rank-Biserial."
+        description: "Effect size (e.g., Rank-Biserial for Permutation)."
       confidence_interval:
         type: "object"
         properties:
@@ -32,13 +32,16 @@ properties:
           - upper
       power:
         type: "number"
-        description: "Achieved power for the sample size (number of tasks)."
+        description: "Achieved power for the sample size."
       sample_size_tasks:
         type: "integer"
         description: "Number of valid tasks (unit of analysis)."
       unit_of_analysis:
         type: "string"
-        description: "Description of the unit of analysis (e.g., 'Task')."
+        description: "Description of the unit of analysis (e.g., 'Individual Code Sample')."
+      underpowered:
+        type: "boolean"
+        description: "True if power < 0.80."
     required:
       - primary_test_type
       - p_value
@@ -47,6 +50,7 @@ properties:
       - power
       - sample_size_tasks
       - unit_of_analysis
+      - underpowered
   stratified_results:
     type: "array"
     description: "Results broken down by vulnerability category (Severity/Pattern)."
@@ -103,10 +107,14 @@ properties:
           method:
             type: "string"
             description: "Method used for FPR estimation (e.g., 'Rule-based Heuristic')."
+          note:
+            type: "string"
+            description: "Explicit note that this is a sensitivity metric only."
         required:
           - llm_fpr
           - human_fpr
           - method
+          - note
     required:
       - conclusion
       - significant_difference

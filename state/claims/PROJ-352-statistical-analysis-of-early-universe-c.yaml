@@ -2390,3 +2390,119 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T01:33:20Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: "500 Gaussian simulations with FWHM=5.0 arcmin and noise variance 1.1\
+    \ \u03BCK\xB2"
+  claim_id: c_83eca2f8
+  context: "T030 [US3] Implement code/simulate.py: Generate N=500 Gaussian random\
+    \ field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (\u03C3\xB2\
+    =1.1 \u03BCK\xB2)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=500 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T16:23:07Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: 500 Gaussian random field realizations with FWHM=5.0 arcmin and noise
+    sigma squared=1.1 micro Kelvin squared
+  claim_id: c_651f6710
+  context: 'Phase 5: User Story 3 - Gaussian Simulation and Statistical Comparison.
+    Implementation task T030.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=500 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T16:24:33Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Cosmic String template realizations for H1 distribution
+  claim_id: c_5f63f919
+  context: 'Phase 5: User Story 3. Implementation task T036.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cosmic_String_template_realizations_for_H1_distribution
+  kind: entity_fact
+  raw_text: Generate Cosmic String template realizations to build the H1 distribution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T16:24:56Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: 1000 total simulations consisting of 500 Gaussian and 500 Cosmic String
+    realizations
+  claim_id: c_c07f3928
+  context: Notes section under Implementation Strategy and Constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total simulations = N=1,000 (500 Gaussian + 500 Cosmic String)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T16:25:26Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Schmalzing and Gorski 1998 analytical correction
+  claim_id: c_5bc50fc5
+  context: 'Phase 3: User Story 1. Implementation task T015b.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Schmalzing & Gorski (1998) analytical correction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T16:26:45Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Planck 2018 TT, TE, EE power spectrum
+  claim_id: c_43e2ad9a
+  context: 'Phase 5: User Story 3. Implementation task T028.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load theoretical LCDM power spectrum (Planck 2018 TT, TE, EE)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T16:27:51Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: COM_CMB_ILM-NR1-000_R2.01.fits SMICA Nside=128 from Planck Legacy Archive
+  claim_id: c_f7f204d2
+  context: 'Phase 3: User Story 1. Implementation task T012.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch COM_CMB_ILM-NR1-000_R2.01.fits (SMICA Nside=128) from Planck Legacy
+    Archive
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T16:28:41Z'

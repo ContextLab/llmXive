@@ -1,138 +1,110 @@
-"""
-Logging and utility infrastructure for the statistical analysis pipeline.
-
-Provides:
-- Configurable logging to both console and file.
-- Data validation utilities (UTF-8 normalization, length checks).
-"""
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Optional, Union
 
-# Import config to ensure paths are initialized before logging setup
 from config import get_path, ensure_dirs
 
-
-def setup_logging(
-    log_level: int = logging.INFO,
-    log_filename: Optional[str] = "pipeline.log",
-    console: bool = True,
-    file: bool = True,
-) -> logging.Logger:
+def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
     """
-    Configures the root logger with file and console handlers.
+    Setup logging infrastructure.
     
     Args:
-        log_level: The logging level (e.g., logging.DEBUG, logging.INFO).
-        log_filename: Name of the log file relative to the project root.
-        console: Whether to add a StreamHandler for stdout.
-        file: Whether to add a FileHandler.
+        log_level (int): Logging level (e.g., logging.INFO).
         
     Returns:
-        The configured root logger instance.
+        logging.Logger: Configured logger.
     """
-    logger = logging.getLogger()
+    logger = logging.getLogger("llmXive")
     logger.setLevel(log_level)
     
-    # Clear existing handlers to avoid duplicates on re-runs in same process
-    if logger.handlers:
-        logger.handlers.clear()
-    
-    # Ensure log directory exists
-    log_dir = get_path("data").parent / "logs"
-    ensure_dirs(log_dir)
-    
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    
-    if console:
+    if not logger.handlers:
+        # File handler
+        log_dir = get_path("logs")
+        ensure_dirs(log_dir)
+        log_file = os.path.join(log_dir, "pipeline.log")
+        
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(log_level)
+        file_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(file_formatter)
+        
+        # Console handler
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(log_level)
-        console_handler.setFormatter(formatter)
+        console_formatter = logging.Formatter(
+            '%(levelname)s: %(message)s'
+        )
+        console_handler.setFormatter(console_formatter)
+        
+        logger.addHandler(file_handler)
         logger.addHandler(console_handler)
     
-    if file:
-        log_file_path = log_dir / log_filename
-        file_handler = logging.FileHandler(log_file_path, encoding="utf-8")
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-            
     return logger
-
-
-def normalize_text(text: Union[str, bytes]) -> str:
-    """
-    Normalizes text to UTF-8 string, handling potential encoding errors.
-    
-    Args:
-        text: The input text string or bytes.
-        
-    Returns:
-        A normalized UTF-8 string.
-        
-    Raises:
-        ValueError: If the input cannot be decoded as UTF-8.
-    """
-    if isinstance(text, bytes):
-        try:
-            text = text.decode("utf-8")
-        except UnicodeDecodeError as e:
-            # Attempt to replace invalid characters, but log a warning
-            # In a strict pipeline, we might want to fail here.
-            # For now, we replace with replacement character.
-            text = text.decode("utf-8", errors="replace")
-    elif not isinstance(text, str):
-        text = str(text)
-        
-    # Normalize unicode (NFKC) for consistency
-    import unicodedata
-    return unicodedata.normalize("NFKC", text)
-
-
-def validate_text_length(text: str, min_length: int = 50, max_length: Optional[int] = None, unit: str = "words") -> bool:
-    """
-    Validates that text meets length constraints.
-    
-    Args:
-        text: The text to validate.
-        min_length: Minimum number of units (words or chars) allowed.
-        max_length: Maximum number of units (words or chars) allowed.
-        unit: Measurement unit, either "words" or "chars".
-        
-    Returns:
-        True if valid, False otherwise.
-    """
-    if not text:
-        return False
-        
-    if unit == "chars":
-        length = len(text)
-    else:
-        # Default to words
-        length = len(text.split())
-        
-    if length < min_length:
-        return False
-    if max_length is not None and length > max_length:
-        return False
-    return True
-
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Retrieves a logger by name. If not configured yet, returns the root logger.
+    Get a logger instance.
     
     Args:
-        name: Name of the logger.
+        name (Optional[str]): Logger name. If None, returns the root logger.
         
     Returns:
-        A logging.Logger instance.
+        logging.Logger: Logger instance.
     """
-    if name is None:
-        return logging.getLogger()
-    return logging.getLogger(name)
+    base_logger = setup_logging()
+    if name:
+        return base_logger.getChild(name)
+    return base_logger
+
+def normalize_text(text: str) -> str:
+    """
+    Normalize text to UTF-8 and handle encoding issues.
+    
+    Args:
+        text (str): Input text.
+        
+    Returns:
+        str: Normalized text.
+    """
+    if not text:
+        return ""
+    
+    # If text is bytes, decode to UTF-8
+    if isinstance(text, bytes):
+        text = text.decode('utf-8', errors='ignore')
+    
+    # Normalize Unicode characters (NFKC normalization)
+    import unicodedata
+    text = unicodedata.normalize('NFKC', text)
+    
+    return text
+
+def validate_text_length(text: str, min_length: int = 50, unit: str = "w") -> Tuple[bool, int]:
+    """
+    Validate text length.
+    
+    Args:
+        text (str): Input text.
+        min_length (int): Minimum required length.
+        unit (str): Unit of measurement ('w' for words, 'c' for characters).
+        
+    Returns:
+        Tuple[bool, int]: (is_valid, actual_length)
+    """
+    if not text:
+        return False, 0
+    
+    if unit == "w":
+        # Count words (split by whitespace)
+        length = len(text.split())
+    elif unit == "c":
+        # Count characters
+        length = len(text)
+    else:
+        raise ValueError(f"Invalid unit '{unit}'. Use 'w' for words or 'c' for characters.")
+    
+    return length >= min_length, length
