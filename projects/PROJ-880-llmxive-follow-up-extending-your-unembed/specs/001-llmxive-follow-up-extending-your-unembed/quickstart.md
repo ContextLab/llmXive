@@ -1,101 +1,70 @@
 # Quickstart: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
-## Prerequisites
+## 1. Prerequisites
 
-- **Python**: 3.11+
-- **System**: Linux (Ubuntu 22.04 recommended), 8 GB+ RAM, Adequate disk storage capacity.
-- **Dependencies**: `pip install -r code/requirements.txt`
+- Python 3.11+
+- `pip` or `conda`
+- Access to Hugging Face Hub (for model weights and datasets)
+- Significant disk space (for streaming data)
 
-## Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-880-llmxive-follow-up-extending-your-unembed
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-
-4. **Download data** (Optional, for local debugging):
-   ```bash
-   python code/data/download.py --dataset oscar --language fr
-   ```
-
-## Running the Pipeline
-
-### Full Execution
-
-To run the complete analysis (SVD, Alignment, Similarity, Attribution, Bootstrap, WALS):
+## 2. Installation
 
 ```bash
-python code/main.py --config config/default.yaml
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-880-llmxive-follow-up-extending-your-unembed
+
+# Install dependencies
+pip install -r code/requirements.txt
+```
+
+## 3. Data Acquisition
+
+The pipeline automatically downloads required datasets. Ensure you have internet access.
+
+```bash
+# Run the data acquisition script
+python code/utils.py --action download
 ```
 
 This will:
-1. Download/stream datasets (OSCAR, RedPajama, WALS).
-2. Extract edge spectrum subspaces for Llama, Mistral, BLOOM.
-3. Align subspaces via Procrustes (Phase 0).
-4. Compute similarity matrices.
-5. Perform token attribution.
-6. Run the label permutation bootstrap test.
-7. Validate against WALS.
-8. Record hashes and save results to `data/processed/`.
+- Download RedPajama (English) frequency data.
+- Download Wikipedia (French, Chinese) frequency data.
+- Download WALS features.
+- Download SentEval benchmarks.
 
-### Individual Phases
+## 4. Running the Pipeline
 
-- **Extract & Align Subspaces**:
-  ```bash
-  python code/main.py --phase alignment
-  ```
-- **Compute Similarity**:
-  ```bash
-  python code/main.py --phase similarity
-  ```
-- **Token Attribution**:
-  ```bash
-  python code/main.py --phase attribution
-  ```
-- **Statistical Test**:
-  ```bash
-  python code/main.py --phase bootstrap
-  ```
+Execute the main analysis pipeline:
 
-## Output Inspection
-
-After completion, check the results:
-
-- **Similarity Report**: `data/processed/similarity_report.json`
-- **Token Attribution**: `data/processed/token_attribution.json`
-- **Bootstrap Results**: `data/processed/permutation_result.json`
-- **WALS Validation**: `data/processed/wals_validation.json`
-- **SVD Details**: `data/processed/spectrum_output.json`
-
-### Example Output (similarity_report.json)
-```json
-{
-  "model_pairs": [
-    {
-      "model_a": "Llama-3-EN",
-      "model_b": "BLOOM-Multilingual",
-      "cosine_similarity": 0.87,
-      "alignment_method": "procrustes_shared_vocab",
-      "confidence_interval": [0.85, 0.89]
-    }
-  ]
-}
+```bash
+python code/main.py --models llama3 mistral bloom --languages en fr zh
 ```
 
-## Troubleshooting
+### Steps Performed:
+1. **Load Models**: Load $W_U$ and $W_E$ for each model.
+2. **SVD**: Compute a set of top singular vectors.
+3. **Similarity**: Compute cosine similarity between subspaces.
+4. **Token Attribution**: Identify top tokens in the edge spectrum.
+5. **Validation**: Correlate shifts with WALS and SentEval.
+6. **Permutation Test**: Compute p-values.
 
-- **OOM Error**: Ensure `load_in_8bit=True` is used in `code/analysis/svd_extractor.py`. If still failing, reduce `k` (top-$k$) to 50.
-- **Data Missing**: If `data/raw/` is empty, run the download script or ensure internet access for streaming.
-- **WALS Error**: If WALS data is missing, the pipeline will skip the correlation step and log a warning.
+## 5. Output
+
+Results are saved in `data/processed/`:
+
+- `svd_results/`: SVD matrices.
+- `subspace_metrics/`: Similarity matrices.
+- `token_attribution/`: Top token lists.
+- `validation_metrics/`: Correlation coefficients and p-values.
+- `feasibility_report.json`: (If T060 is triggered).
+
+## 6. Verification
+
+Run the test suite to ensure correctness:
+
+```bash
+pytest tests/
+```
+
+Check the `data/processed/validation_metrics/validation_report.json` for the final p-value and correlation coefficients.

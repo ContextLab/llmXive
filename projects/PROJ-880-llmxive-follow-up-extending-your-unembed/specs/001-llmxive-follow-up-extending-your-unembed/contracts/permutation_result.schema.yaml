@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Permutation Result Schema"
-description: "Schema for the label permutation bootstrap resampling test results."
+description: "Schema for the output of the permutation test and statistical analysis using within-language similarity samples."
 type: "object"
 required:
   - "observed_similarity"
@@ -13,7 +13,7 @@ properties:
     description: "The observed cosine similarity between the two aligned subspaces."
   null_distribution:
     type: "array"
-    description: "List of similarity scores from label-permuted frequency vectors."
+    description: "List of similarity scores from within-language similarity samples and label-permuted frequency vectors."
     items:
       type: "number"
   p_value:
@@ -35,8 +35,22 @@ properties:
         type: "integer"
       method:
         type: "string"
-        enum: ["label_permutation"]
+        enum: ["within_language_similarity", "label_permutation"]
         description: "Method used for null distribution generation."
       significant:
         type: "boolean"
         description: "True if p_value < 0.05."
+  alignment_method:
+    type: "string"
+    description: "Method used for cross-lingual alignment (e.g., 'procrustes_shared_vocab')."
+    enum:
+      - "procrustes_shared_vocab"
+      - "none"
+  null_method:
+    type: "string"
+    description: "Method used for null distribution generation."
+    enum:
+      - "within_language_similarity"
+      - "label_permutation"
+    default: "within_language_similarity"
+additionalProperties: false

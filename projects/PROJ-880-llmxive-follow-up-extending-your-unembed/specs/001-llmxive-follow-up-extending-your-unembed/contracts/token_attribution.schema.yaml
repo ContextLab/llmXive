@@ -1,59 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Token Attribution Schema"
-description: "Schema for token ranking and mean embedding attribution results."
-type: "object"
+title: "Token Attribution"
+description: "Schema for token attribution results (token-wise projection)"
+type: object
 required:
-  - "languages"
-  - "metadata"
+  - language
+  - model_id
+  - top_tokens
 properties:
-  languages:
-    type: "object"
-    description: "Keys are language codes (e.g., 'en', 'fr', 'zh')."
-    additionalProperties:
-      type: "object"
+  language:
+    type: string
+    description: "Language code (e.g., 'en', 'fr', 'zh')"
+  model_id:
+    type: string
+    description: "Model identifier"
+  top_tokens:
+    type: array
+    description: "Top-k tokens with highest logit weights in the edge spectrum"
+    items:
+      type: object
       required:
-        - "top_tokens"
-        - "mean_embedding_norm"
+        - token_id
+        - token_text
+        - logit_weight
+        - projected_vector
       properties:
-        top_tokens:
-          type: "array"
-          description: "List of top-10 tokens with their weights in the edge spectrum."
+        token_id:
+          type: integer
+          description: "Token ID"
+        token_text:
+          type: string
+          description: "Token text"
+        logit_weight:
+          type: number
+          description: "Logit weight in the subspace"
+        projected_vector:
+          type: array
+          description: "The projected vector onto the subspace"
           items:
-            type: "object"
-            required:
-              - "token_id"
-              - "token_str"
-              - "weight"
-            properties:
-              token_id:
-                type: "integer"
-              token_str:
-                type: "string"
-              weight:
-                type: "number"
-        mean_embedding_norm:
-          type: "number"
-          description: "L2 norm of the mean embedding vector."
-        shift_vector:
-          type: "array"
-          description: "Difference vector between this language and the English baseline (if applicable)."
-          items:
-            type: "number"
-        baseline_comparison:
-          type: "object"
-          description: "Comparison against permuted frequency baseline."
-          properties:
-            overlap_ratio:
-              type: "number"
-              description: "Overlap with top-10 of permuted baseline."
-  metadata:
-    type: "object"
-    required:
-      - "k"
-      - "dataset_source"
-    properties:
-      k:
-        type: "integer"
-      dataset_source:
-        type: "string"
-        description: "Source of the frequency data (e.g., 'RedPajama-EN', 'OSCAR-FR')."
+            type: number
+  frequency_source:
+    type: string
+    description: "Source of frequency data (e.g., 'redpajama', 'oscar', 'wikipedia')"
+  mean_embedding_norm:
+    type: number
+    description: "L2 norm of the mean embedding vector (average of projected vectors)"
+additionalProperties: false

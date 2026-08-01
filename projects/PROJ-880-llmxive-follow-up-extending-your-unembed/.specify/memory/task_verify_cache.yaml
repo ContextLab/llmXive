@@ -13,20 +13,3 @@ T009:
     `similarity_report.schema.yaml`, but the required `similarity_report.schema.yaml`
     file is missing from the repository, so the contract test cannot actually validate
     anything. The missing schema file must be added for the task to be satisfied.
-T060:
-  c: false
-  h: b61faeec8b345fbd1e043b33cd47264542f3274c727814e58bc55da424def829
-  r: The `code/main.py` shown does not contain any logic that computes the RAM needed
-    for a full SVD, issues a Feasibility Warning, marks T012b as SKIPPED, or writes
-    `data/processed/feasibility_report.json`. Moreover, the required `feasibility_report.json`
-    file is missing entirely. The mandatory CPU feasibility gate is therefore not
-    implemented.
-T065:
-  c: false
-  h: 6661107120294e70a04b5fff27e8c9ceef4052caf0f4118335a00522ef020111
-  r: "The provided `code/model_analyzer.py` shows only loading and token\u2011mapping\
-    \ utilities; there is no visible logic that computes the three\u2011way vocabulary\
-    \ intersection, checks whether its size is below\u202F10,000, logs a critical\
-    \ warning, or writes `data/processed/vocab_alignment_warning.json`. Moreover,\
-    \ the required JSON warning file does not exist on disk. The task\u2019s core\
-    \ validation step is therefore missing."

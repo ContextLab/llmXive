@@ -1,15 +1,15 @@
-- artifact_hash: 408005ca631e0e3aa0a0cf5b80298accbb7d7f50aac65afb4d519c62dd84a2ec
+- artifact_hash: 488db1c65573fb5003d5774310a97fcf20c4a08760e588815005d8c59c30c6d3
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "togethercomputer/RedPajama-Data-1T \xB7 Datasets at Hugging Face"
+  fetched_title: arxiv.txt
   kind: url
-  value: https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T`
+  value: https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T/resolve/main/urls/arxiv.txt`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T
-  verified_at: '2026-07-29T14:21:40.547418Z'
-- artifact_hash: 408005ca631e0e3aa0a0cf5b80298accbb7d7f50aac65afb4d519c62dd84a2ec
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/togethercomputer/RedPajama-Data-1T/398f92572e94f4793e41c22ab7ea2a788d9e7de4/urls%2Farxiv.txt?%2Fdatasets%2Ftogethercomputer%2FRedPajama-Data-1T%2Fresolve%2Fmain%2Furls%2Farxiv.txt=&etag=%22d22ee10d9b822da64dccfb05e848bfacfd843bb6%22
+  verified_at: '2026-08-01T02:41:23.256838Z'
+- artifact_hash: 488db1c65573fb5003d5774310a97fcf20c4a08760e588815005d8c59c30c6d3
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/research.md
   cite_id: c-002
   cited_authors: []
@@ -19,15 +19,28 @@
   value: https://huggingface.co/datasets/oscar`
   verification_status: pending
   verified_against_url: https://huggingface.co/Oscar/datasets
-  verified_at: '2026-07-29T14:21:40.547418Z'
-- artifact_hash: 408005ca631e0e3aa0a0cf5b80298accbb7d7f50aac65afb4d519c62dd84a2ec
+  verified_at: '2026-08-01T02:41:23.256838Z'
+- artifact_hash: 488db1c65573fb5003d5774310a97fcf20c4a08760e588815005d8c59c30c6d3
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Environment and Early Evolution of the 8 May 2009 Derecho-Producing
+    Convective System | Zenodo
   kind: url
-  value: https://github.com/wals/wals-data/raw/master/wals.csv`
-  verification_status: mismatch
-  verified_against_url: https://github.com/wals/wals-data/raw/master/wals.csv
-  verified_at: '2026-07-29T14:21:40.547418Z'
+  value: https://zenodo.org/records/1234567`
+  verification_status: pending
+  verified_against_url: https://zenodo.org/records/1234567
+  verified_at: '2026-08-01T02:41:23.256838Z'
+- artifact_hash: 488db1c65573fb5003d5774310a97fcf20c4a08760e588815005d8c59c30c6d3
+  artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - facebookresearch/SentEval: A python tool for evaluating\
+    \ the quality of sentence embeddings. \xB7 GitHub"
+  kind: url
+  value: https://github.com/facebookresearch/SentEval`
+  verification_status: pending
+  verified_against_url: https://github.com/facebookresearch/SentEval
+  verified_at: '2026-08-01T02:41:23.256838Z'

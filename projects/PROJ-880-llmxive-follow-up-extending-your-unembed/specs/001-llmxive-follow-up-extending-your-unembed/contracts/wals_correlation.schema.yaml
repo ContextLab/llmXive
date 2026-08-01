@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "WALS Correlation Report"
+description: "Schema for the correlation between subspace shift and typological features."
+type: object
+required:
+  - language_pair
+  - correlation_coefficient
+  - p_value
+  - features_used
+  - n_components
+properties:
+  language_pair:
+    type: string
+    description: "Identifier for the language pair (e.g., 'en-fr')."
+  correlation_coefficient:
+    type: number
+    description: "Pearson correlation coefficient between shift vector and WALS features (after PCA)."
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    "number"
+    description: "P-value for the correlation test (from label permutation)."
+    minimum: 0.0
+    maximum: 1.0
+  features_used:
+    type: array
+    description: "List of WALS feature IDs used in the correlation."
+    items:
+      type: string
+  n_components:
+    type: integer
+    description: "Number of PCA components used to reduce WALS dimensionality."
+  n_samples:
+    type: integer
+    description: "Number of data points (features) used in the correlation."
+  pca_variance_explained:
+    type: number
+    description: "Cumulative variance explained by the selected PCA components."
+additionalProperties: false

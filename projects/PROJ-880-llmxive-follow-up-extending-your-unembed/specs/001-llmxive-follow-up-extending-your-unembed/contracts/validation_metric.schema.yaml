@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Metric"
+description: "Schema for validation metrics (WALS, SentEval, Permutation Test)"
+type: object
+required:
+  - shift_id
+  - wals_correlation
+  - senteval_correlation
+  - p_value
+properties:
+  shift_id:
+    type: string
+    description: "Identifier of the shift vector"
+  wals_correlation:
+    type: number
+    description: "Pearson correlation with WALS feature differences (after PCA)"
+    minimum: -1.0
+    maximum: 1.0
+  senteval_correlation:
+    type: number
+    description: "Pearson correlation with SentEval STS accuracy drop"
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    type: number
+    description: "P-value from permutation test"
+    minimum: 0.0
+    maximum: 1.0
+  permutation_iterations:
+    type: integer
+    description: "Number of permutations performed"
+  statistical_significance:
+    type: boolean
+    description: "True if p_value < 0.05"
+  confidence_interval:
+    type: array
+    description: "95% confidence interval for the shift"
+    items:
+      type: number
+  timestamp:
+    type: string
+    format: date-time
+    description: "Timestamp of the computation"
+  null_method:
+    type: string
+    description: "Method used for null distribution generation (e.g., 'label_permutation')"
+    enum:
+      - "label_permutation"
+      - "within_language_similarity"
+  pca_components:
+    type: integer
+    description: "Number of PCA components used for WALS reduction"
+additionalProperties: false

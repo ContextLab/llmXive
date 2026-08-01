@@ -1,48 +1,39 @@
 # Implementation Plan: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
-**Branch**: `001-llmxive-crosslingual` | **Date**: 2026-07-14 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-crosslingual/spec.md`
+**Branch**: `001-llmxive-crosslingual` | **Date**: 2026-07-14 | **Spec**: [link]
+**Input**: Feature specification from `specs/001-llmxive-crosslingual/spec.md`
 
 ## Summary
 
-This project investigates whether the "edge spectrum" subspace (top-$k$ singular vectors of the unembedding matrix $W_U$) encodes a universal, language-agnostic "common sense" prior or reflects language-specific syntactic noise. The technical approach involves extracting these subspaces from three distinct models (Llama, Mistral, BLOOM), aligning them via a shared vocabulary subset (Procrustes), computing cosine similarities between English and multilingual variants, attributing semantic content to the subspaces using external token frequency data (OSCAR for FR/CN, RedPajama for EN), and validating the observed shifts against WALS typological features via a label-permutation statistical bootstrap test.
+This project investigates whether the "edge spectrum" subspace (top-$k$ singular vectors of the unembedding matrix $W_U$) encodes a universal, language-agnostic "common sense" prior or if its composition shifts to reflect language-specific syntactic noise. The technical approach involves: (1) loading Llama-3, Mistral, and BLOOM models; (2) performing SVD on $W_U$ to extract the top-ranked singular vectors; (3) computing cosine similarity between subspaces of English vs. multilingual models *only on shared vocabulary tokens* (normalized by intersection size) using Procrustes alignment; (4) computing the "mean embedding" as $W_E \times f$ (spec-compliant baseline) AND projecting **individual high-frequency tokens** onto the subspace (primary metric) to analyze semantic variance and identify specific tokens driving the shift; (5) validating shifts against WALS typological features (reduced via PCA) and Multilingual SentEval performance using a **Label Permutation Null Model** for validation and a **Within-Language Similarity Null Model** for the main permutation test; and (6) conducting a permutation test (N ≥ 1000) using within-language similarity samples to establish statistical significance.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `transformers` (model loading), `torch` (CPU tensor operations), `numpy` (SVD, linear algebra), `scipy` (statistical tests, Procrustes), `datasets` (data streaming), `pyyaml` (schema validation), `pandas` (data manipulation).
-**Storage**: Local filesystem for model weights (cached via Hugging Face), `data/` directory for processed frequency lists and JSON reports.
-**Testing**: `pytest` (unit, contract, integration), `jsonschema` (schema validation).
-**Target Platform**: Linux server (GitHub Actions free-tier: CPU, ~7 GB RAM).
-**Project Type**: Computational research pipeline / CLI tool.
-**Performance Goals**: Complete full SVD, Procrustes alignment, and 1,000-iteration label permutation bootstrap on CPU within 6 hours.
-**Constraints**: No local GPU; models must be loaded in low-precision or standard-precision formats with memory-mapped loading to fit within constrained RAM budgets; datasets must be streamed or sampled to fit disk limits.
-**Scale/Scope**: models, multiple languages (EN, FR, CN), top-k singular vectors, ~M token frequency samples.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `transformers` (v4.40+), `torch` (CPU-only or CUDA if offloaded), `numpy`, `scipy`, `datasets`, `pandas`, `requests`, `scikit-learn`, `tinydb` (for relational JSON storage), `pytest`  
+**Storage**: Local file system (`data/raw/`, `data/processed/`) managed by `tinydb` for relational entity integrity. `tinydb` acts as a document store for relational entities (Model, Subspace, etc.) within the JSON file system, ensuring referential integrity via unique IDs.  
+**Testing**: `pytest` (unit tests for linear algebra, integration tests for pipeline).  
+**Target Platform**: GitHub Actions `ubuntu-latest` (CPU-first); automatic offload to Kaggle GPU if CUDA is required.  
+**Project Type**: Computational research / data analysis pipeline.  
+**Performance Goals**: Complete SVD and permutation pipeline on 4 vCPU/16GB RAM within 6 hours.  
+**Constraints**: Memory usage < 14GB; no PII in data; all external data must be open and directly downloadable.  
+**Scale/Scope**: models (Llama series, Mistral, BLOOM); Multiple languages (English, French, Chinese); + permutation iterations.
 
-> **Note**: Empirical values (exact iteration counts, dataset sizes) are deferred to research/implementation.
-
-**Performance Budget Allocation**:
-- Total Budget: hours.
-- SVD Extraction (multiple models): [deferred].
-- Procrustes Alignment: < 5 mins.
-- Token Attribution & Frequency Counting: ~ mins (streaming).
-- Bootstrap (1,000 iterations): < 1 hour (optimized).
-- WALS Correlation & Reporting: < 15 mins.
-- **Buffer**: [deferred] for retries, I/O, and overhead.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*Gates determined based on constitution file*
 
-| Principle | Status | Evidence / Action |
+| Principle | Status | Action Required / Compliance Note |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates `requirements.txt` pinning; random seeds pinned in code; data fetched from canonical OSCAR/HF URLs. |
-| **II. Verified Accuracy** | **PASS** | All dataset URLs cited from the verified block (OSCAR, WALS GitHub); WALS source validated. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming of raw data; transformations write new files; no in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (cosine sim, p-value, rotation angle) trace to `data/processed/` JSON artifacts generated by code. |
-| **V. Versioning** | **PASS** | Phase 6 explicitly computes SHA-256 hashes using `hashlib` and records them in `data/checksums.txt` and `state/projects/...yaml` with `updated_at` timestamp. |
-| **VI. Cross-Lingual Subspace Isolation** | **PASS** | Plan explicitly isolates $W_U$ SVD and $\hat{\vh}$ projection per language/model pair; Procrustes alignment ensures no cross-contamination before similarity. |
-| **VII. Typological Shift Rigor** | **PASS** | Plan separates shift quantification (subspace rotation angle, Phase 2/5) from validation (WALS correlation, Phase 5); token attribution strictly from frequency lists (OSCAR/RedPajama). |
+| **I. Reproducibility** | ✅ PASS | Plan mandates pinned `requirements.txt`, fixed random seeds, and canonical data sources (HF datasets, Zenodo). All code in `code/` is runnable end-to-end. |
+| **II. Verified Accuracy** | ✅ PASS | Plan includes **Task T067** to run the Reference-Validator Agent on dataset citations (RedPajama, WALS, SentEval) before data acquisition. |
+| **III. Data Hygiene** | ✅ PASS | Plan includes checksumming of raw data (FR-006) and separation of raw/processed data. No in-place modification. |
+| **IV. Single Source of Truth** | ✅ PASS | Plan requires all metrics (SC-001 to SC-004) to be derived from `data/processed/` artifacts and traced to `code/`. |
+| **V. Versioning Discipline** | ✅ PASS | Plan includes **Task T070** to update the project state YAML (`state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml`) with content hashes after artifact generation. |
+| **VI. Cross-Lingual Subspace Isolation** | ✅ PASS | Plan explicitly isolates SVD and projection operations per language/model pair to prevent buffer contamination. |
+| **VII. Typological Shift Rigor** | ✅ PASS | Plan separates shift quantification (cosine similarity) from validation (SentEval correlation) and uses specific frequency lists for token attribution. The Label Permutation null model ensures validation is not tautological. |
 
 ## Project Structure
 
@@ -55,17 +46,7 @@ specs/001-llmxive-crosslingual/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── frequency_list.schema.yaml
-│   ├── permutation_result.schema.yaml
-│   ├── permutation_results.schema.yaml
-│   ├── similarity_matrix.schema.yaml
-│   ├── similarity_report.schema.yaml
-│   ├── spectrum_output.schema.yaml
-│   ├── statistical_results.schema.yaml
-│   ├── svd_output.schema.yaml
-│   ├── token_attribution.schema.yaml
-│   └── wals_validation.schema.yaml
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output (Generated by Implementer Agent, referenced here for T060/T065)
 ```
 
 ### Source Code (repository root)
@@ -73,54 +54,53 @@ specs/001-llmxive-crosslingual/
 ```text
 projects/PROJ-880-llmxive-follow-up-extending-your-unembed/
 ├── code/
-│   ├── __init__.py
 │   ├── requirements.txt
-│   ├── main.py                 # Entry point orchestrating phases
-│   ├── data/
-│   │   ├── __init__.py
-│   │   ├── download.py         # OSCAR/HF dataset streaming & checksumming
-│   │   └── preprocess.py       # Frequency counting & WALS mapping
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── alignment.py        # Procrustes alignment on shared vocab (Phase 0)
-│   │   ├── svd_extractor.py    # SVD on W_U, top-k extraction
-│   │   ├── similarity.py       # Cosine similarity & subspace rotation
-│   │   ├── attribution.py      # Token ranking & mean embedding projection
-│   │   └── statistics.py       # Label permutation test & p-value calculation
-│   ├── validation/
-│   │   ├── __init__.py
-│   │   └── wals_correlator.py  # WALS feature correlation
-│   └── utils/
-│       ├── __init__.py
-│       ├── logging.py
-│       └── schema_validator.py # JSON schema validation helpers
+│   ├── main.py              # Entry point for pipeline execution
+│   ├── model_analyzer.py    # SVD, subspace extraction, similarity calc
+│   ├── token_frequency.py   # Frequency counting, mean embedding projection, individual token projection
+│   ├── validation.py        # WALS mapping, SentEval correlation, permutation test
+│   ├── utils.py             # Data loading, checksumming, logging, tinydb management
+│   └── tasks/
+│       ├── t060_feasibility.py   # Task T060: Feasibility check
+│       ├── t065_vocab_align.py   # Task T065: Vocab alignment warning
+│       ├── t067_verify_sources.py # Task T067: Reference validation
+│       ├── t068_sensitivity.py   # Task T068: Sensitivity analysis (OSCAR vs Wikipedia)
+│       └── t070_state_update.py  # Task T070: State file update
 ├── data/
-│   ├── raw/                    # Downloaded frequency lists, WALS CSV
-│   ├── processed/              # JSON reports, frequency vectors
-│   └── checksums.txt           # Artifact hashes
+│   ├── raw/
+│   │   ├── redpajama/       # Raw frequency lists (downloaded)
+│   │   ├── oscar/           # OSCAR subsets for French/Chinese (downloaded)
+│   │   ├── wikipedia/       # Wikipedia subsets (fallback)
+│   │   └── wals/            # Typological features (downloaded)
+│   └── processed/
+│       ├── svd_results/     # SVD matrices and singular values
+│       ├── subspace_metrics/ # Cosine similarity matrices
+│       ├── token_attribution/ # Top-k tokens per language
+│       ├── validation_metrics/ # Correlation coefficients, p-values
+│       ├── feasibility_report.json # T060 output artifact
+│       └── vocab_alignment_warning.json # T065 output artifact
 ├── tests/
-│   ├── __init__.py
 │   ├── unit/
-│   │   ├── test_svd_extractor.py
-│   │   ├── test_similarity.py
-│   │   ├── test_vocabulary_mapping.py
-│   │   └── test_svd_stability.py
-│   ├── contract/
-│   │   └── test_schemas.py     # Validates all schemas
 │   └── integration/
-│       └── test_full_pipeline.py
 └── state/
     └── projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml
 ```
 
-**Structure Decision**: A modular Python package structure (`code/`) is selected to isolate data acquisition, linear algebra, and statistical validation. This ensures strict separation of concerns (Constitution Principle VI) and facilitates unit testing of edge cases (e.g., missing vocab mapping). The `data/` directory is split into `raw` (immutable) and `processed` (derived) to satisfy Data Hygiene (Principle III).
+**Structure Decision**: Single project structure chosen for computational research. `code/` contains modular scripts for each stage of the pipeline (SVD, frequency, validation). `data/` strictly separates raw downloads from processed artifacts to satisfy Data Hygiene (Principle III). `tinydb` is used to manage relational entities (Model, Subspace, etc.) within the JSON file system, ensuring referential integrity via unique IDs. `tests/` includes unit tests for linear algebra stability and integration tests for the full pipeline.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Procrustes Alignment** | Required to compare subspaces of models with different vocabularies (FR-008). | Direct cosine similarity is mathematically undefined across unaligned bases. |
-| **Label Permutation Bootstrap** | Required for statistical significance (FR-004, US-3). | Random orthogonal bases do not test the specific hypothesis of typological shift. |
-| **External WALS Correlation** | Required to validate typological shift (FR-007, US-2). | Internal model metrics alone cannot distinguish "common sense" from "syntactic noise". |
-| **Streaming OSCAR Data** | Required to handle >1M token frequency lists within 7 GB RAM (FR-006). | Loading full frequency matrices into RAM would cause OOM on the CPU runner. |
-| **Multi-model SVD Pipeline** | Required to compare English vs. Multilingual subspaces (FR-001, US-1). | A single-model analysis cannot test the "universality" hypothesis. |
+| :--- | :--- | :--- |
+| **Multi-model SVD** | Required to compare English (Llama/Mistral) vs. Multilingual (BLOOM) subspaces (FR-001, US-1). | Using a single model would fail to test the "cross-lingual" hypothesis. |
+| **Permutation Test (N≥1000, Within-Language)** | Required for statistical rigor (FR-004, US-3) to distinguish signal from noise and avoid tautological correlation. | A smaller N or analytic approximation would lack power; random orthogonal bases do not test the correct null hypothesis. |
+| **External Validation (WALS/SentEval)** | Required to validate that the shift is typological, not just random (FR-007, US-2). | Relying solely on internal similarity metrics would not prove the shift corresponds to linguistic theory. |
+| **Sensitivity Analysis (OSCAR vs Wikipedia)** | Required to address the construct validity of using Wikipedia as a proxy for Common Crawl (FR-006). | Using only Wikipedia risks biasing the "syntactic noise" hypothesis. |
+
+## Tasks (Relevant to Plan)
+
+- **T060**: Feasibility Check. Run `check_svd_feasibility` to log runtime/memory and generate `data/processed/feasibility_report.json`. (Gate for SC-005).
+- **T065**: Vocab Alignment. Compute shared vocabulary intersection and generate `data/processed/vocab_alignment_warning.json`.
+- **T067**: Source Verification. Run Reference-Validator on WALS, SentEval, and OSCAR sources.
+- **T068**: Sensitivity Analysis. Compare frequency distributions from OSCAR vs. Wikipedia for French/Chinese.
+- **T070**: State Update. Update `state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml` with artifact hashes.

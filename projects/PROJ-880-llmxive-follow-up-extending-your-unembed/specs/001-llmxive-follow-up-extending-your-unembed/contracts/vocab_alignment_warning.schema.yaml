@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Vocab Alignment Warning"
+description: "Schema for warnings regarding vocabulary mismatches across models."
+type: object
+required:
+  - model_pair
+  - intersection_size
+  - total_vocab_size
+  - overlap_ratio
+  - warning_message
+properties:
+  model_pair:
+    type: string
+    description: "Identifier for the model pair."
+  intersection_size:
+    type: integer
+    description: "Number of shared tokens in the vocabulary."
+  total_vocab_size:
+    type: integer
+    description: "Total unique tokens across both vocabularies."
+  overlap_ratio:
+    type: number
+    description: "Ratio of intersection to union."
+    minimum: 0.0
+    maximum: 1.0
+  warning_message:
+    type: string
+    description: "Specific warning about the impact of mismatch."
+  mapping_layer_used:
+    type: boolean
+    description: "Whether a mapping layer was applied."
+additionalProperties: false

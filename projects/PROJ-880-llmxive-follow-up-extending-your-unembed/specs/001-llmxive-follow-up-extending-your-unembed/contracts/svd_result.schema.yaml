@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SVD Result"
+description: "Schema for SVD results of unembedding matrix"
+type: object
+required:
+  - model_id
+  - k
+  - singular_vectors
+  - singular_values
+properties:
+  model_id:
+    type: string
+    description: "Identifier of the model (e.g., 'llama3', 'mistral', 'bloom')"
+  k:
+    type: integer
+    description: "Number of singular vectors extracted"
+  singular_vectors:
+    type: array
+    description: "Top-k left singular vectors (U matrix)"
+    items:
+      type: array
+      items:
+        type: number
+        description: "Singular vector component"
+  singular_values:
+    type: array
+    description: "Top-k singular values"
+    items:
+      type: number
+      description: "Singular value"
+  computation_time:
+    type: number
+    description: "Time taken for SVD computation in seconds"
+  memory_usage_mb:
+    type: number
+    description: "Peak memory usage in MB"
