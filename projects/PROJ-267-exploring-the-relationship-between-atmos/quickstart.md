@@ -1,161 +1,147 @@
-# Quick Start Guide: Atmospheric River Gravity Correlation
+# Quickstart Guide: Atmospheric River Gravity Correlation
 
-This guide provides instructions for installing dependencies, obtaining data, and running the analysis pipeline for the "Exploring the Relationship Between Atmospheric Rivers and Gravity Anomalies" project (PROJ-267).
+This guide provides instructions for installing dependencies, obtaining data, running the analysis pipeline, and verifying expected outputs for the PROJ-267 project.
 
 ## Prerequisites
 
 - Python 3.11 or higher
-- pip (Python package installer)
-- Access to the internet for data fetching
-- Sufficient disk space (~15 GB for raw and processed data)
+- pip (Python package manager)
+- Git (for cloning the repository)
+- At least 15 GB of free disk space (for raw data and processed outputs)
+- Internet connection (for data download and citation verification)
 
 ## Installation
 
-1. Navigate to the project root:
+1. **Navigate to the project directory**:
  ```bash
  cd projects/PROJ-267-exploring-the-relationship-between-atmos
  ```
 
-2. Create a virtual environment (recommended):
+2. **Create a virtual environment** (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
+ pip install --upgrade pip
  pip install -r code/requirements.txt
  ```
 
-4. Verify installation by running the citation verification script:
- ```bash
- python code/00_verify_citations.py
- ```
- This script validates all data source citations against primary metadata. It must exit with code 0 to proceed.
+ The `requirements.txt` file includes:
+ - `pandas`, `numpy`, `scipy`, `statsmodels`: Data processing and statistical analysis
+ - `requests`: HTTP requests for data fetching
+ - `matplotlib`, `seaborn`: Visualization
+ - `pyyaml`: Configuration parsing
 
 ## Data Sources
 
-The pipeline relies on two primary real-world datasets. The ingestion script (`01_data_ingestion.py`) will automatically download these if they are not present in `data/raw/`.
+This project relies on two primary real-world datasets. The pipeline will automatically attempt to fetch these during the ingestion phase.
 
-1. **GRACE-FO Mascon Solutions**
- - **Source**: NASA JPL GRACE-FO RL06 Mascons
- - **Access**: Programmatic download via `gracefo` package or direct URL.
- - **Storage**: `data/raw/grace-fo/`
- - **Note**: Requires acceptance of terms on the JPL server. The script logs the specific release version used.
+### 1. GRACE-FO Mascon Solutions
+- **Source**: NASA GRACE-FO Level 3 Mascon Data (RL06)
+- **Access**: Fetch via the `01_data_ingestion.py` script using the NASA Earthdata API or direct download links.
+- **Region**: West Coast North America (35°N-50°N, 120°W-125°W)
+- **Storage**: `data/raw/grace-fo/`
 
-2. **NOAA CPC Atmospheric River Catalog**
- - **Source**: NOAA National Centers for Environmental Information (NCEI)
- - **Access**: Direct CSV download from the NOAA AR Catalog API.
- - **Storage**: `data/raw/noaa-ar/`
- - **Note**: Contains integrated water vapor transport (IWVT) and event metadata.
+### 2. NOAA CPC Atmospheric River Catalog
+- **Source**: NOAA Climate Prediction Center (CPC) Atmospheric River Catalog
+- **Access**: Fetch via `01_data_ingestion.py` from the NOAA public FTP/HTTP endpoints.
+- **Region**: Global, filtered to West Coast NA in preprocessing.
+- **Storage**: `data/raw/noaa-ar/`
+
+> **Note**: If you encounter authentication issues with NASA Earthdata, ensure you have registered for an account and set the `EARTHDATA_USERNAME` and `EARTHDATA_PASSWORD` environment variables.
 
 ## Running the Pipeline
 
-Execute the pipeline scripts in the following order. Each script produces intermediate or final artifacts in the `data/` directory.
+The pipeline consists of sequential steps. Execute them in order from the project root.
 
-### Step 1: Data Ingestion
-Fetches raw data from the sources listed above.
+### Step 1: Verify Citations
+Validates that all referenced data sources and papers are accessible and metadata matches.
+```bash
+python code/00_verify_citations.py
+```
+- **Expected Output**: Exit code 0 if all citations are valid; non-zero if any fail.
+
+### Step 2: Data Ingestion
+Fetches raw GRACE-FO and NOAA AR data.
 ```bash
 python code/01_data_ingestion.py
 ```
-**Expected Output**:
-- `data/raw/grace-fo/` (directory containing downloaded mascon files)
-- `data/raw/noaa-ar/` (directory containing AR catalog CSVs)
-- Log file: `logs/ingestion.log`
+- **Expected Output**: Raw CSV/netCDF files in `data/raw/grace-fo/` and `data/raw/noaa-ar/`.
 
-### Step 2: Preprocessing
-Applies GRACE-FO corrections (degree-1, C20), Gaussian smoothing, and aggregates to monthly resolution.
+### Step 3: Preprocessing
+Applies GRACE-FO corrections (degree-1, C20), smoothing, and monthly aggregation.
 ```bash
 python code/02_preprocessing.py
 ```
-**Expected Output**:
-- `data/processed/grace_monthly.csv`
-- `data/processed/ar_monthly.csv`
+- **Expected Output**: Preprocessed time-series data in `data/processed/`.
 
-### Step 3: Merge Output
-Combines preprocessed datasets and validates schema compliance.
+### Step 4: Merge Output
+Combines GRACE-FO and AR data into a single schema-validated CSV.
 ```bash
 python code/03_merge_output.py
 ```
-**Expected Output**:
-- `data/processed/merged_monthly.csv` (Primary analysis dataset)
-- Validation logs indicating schema compliance.
+- **Expected Output**: `data/processed/merged_monthly.csv`
 
-### Step 4: Correlation Analysis
-Computes Pearson correlations with lag windows and bootstrap confidence intervals.
+### Step 5: Correlation Analysis
+Computes Pearson correlations with lag windows and bootstrap corrections.
 ```bash
 python code/04_correlation.py
-```
-**Expected Output**:
-- `data/processed/correlation_results.json`
-
-### Step 5: Bootstrap Correction
-Applies Bonferroni correction and calculates final significance.
-```bash
 python code/05_bootstrap_correction.py
 ```
-**Expected Output**:
-- `data/processed/bootstrap_corrected_results.json`
+- **Expected Output**: Correlation results in `data/processed/correlation_results.json`.
 
 ### Step 6: Control Validation
-Compares target region against control regions to validate signal magnitude.
+Compares target region against control regions to validate signal-to-noise.
 ```bash
 python code/06_control_validation.py
 ```
-**Expected Output**:
-- `data/processed/control_validation_results.json`
-- `data/processed/signal_noise_analysis.csv`
+- **Expected Output**: Validation report in `data/processed/control_validation.json`.
 
-### Step 7: Visualization
-Generates diagnostic plots.
+### Step 7: Visualization & Reporting
+Generates time-series plots, scatter plots, and sensitivity reports.
 ```bash
 python code/07_visualization_timeseries.py
 python code/08_visualization_scatter.py
 python code/09_visualization_spatial.py
-```
-**Expected Output**:
-- `output/timeseries_overlay.png`
-- `output/scatter_regression.png`
-- `output/spatial_anomaly_map.png`
-
-### Step 8: Sensitivity Report
-Generates the final sensitivity analysis and validates report language.
-```bash
 python code/10_sensitivity_report.py
 ```
-**Expected Output**:
-- `docs/sensitivity_report.md`
-- Validation log confirming absence of causal language.
+- **Expected Output**:
+ - `output/timeseries_overlay.png`
+ - `output/scatter_regression.png`
+ - `output/spatial_anomaly_map.png`
+ - `docs/sensitivity_report.md`
 
-## Expected Outputs Summary
+## Expected Outputs
 
-Upon successful completion of the full pipeline, the following artifacts will exist:
+Upon successful completion of the pipeline, you should find the following artifacts:
 
-| Path | Description |
+| File Path | Description |
 |:--- |:--- |
-| `data/processed/merged_monthly.csv` | Combined time-series of GRACE-FO gravity and AR intensity |
-| `data/processed/correlation_results.json` | Raw correlation coefficients and p-values |
-| `data/processed/bootstrap_corrected_results.json` | Results with multiple-comparison correction |
-| `output/timeseries_overlay.png` | Visual overlay of gravity anomalies and AR events |
-| `docs/sensitivity_report.md` | Final report with sensitivity analysis and bias documentation |
-
-## Validation
-
-To verify the entire pipeline against the specification:
-
-```bash
-# Run contract tests
-pytest tests/contract/ -v
-
-# Run integration tests (requires data/processed/merged_monthly.csv)
-pytest tests/integration/ -v
-
-# Validate output language compliance
-python code/10_sensitivity_report.py --validate
-```
+| `data/processed/merged_monthly.csv` | Merged dataset with ≥90% completeness, no NaN in primary columns. |
+| `data/processed/correlation_results.json` | Pearson correlations, p-values, and bootstrap CIs for lags 0-3. |
+| `data/processed/control_validation.json` | Signal-to-noise analysis and null result handling. |
+| `output/timeseries_overlay.png` | Time-series overlay of AR intensity and gravity anomaly. |
+| `output/scatter_regression.png` | Scatter plot with regression line. |
+| `output/spatial_anomaly_map.png` | Spatial map of gravity anomalies. |
+| `docs/sensitivity_report.md` | Sensitivity analysis and threshold sweep results. |
 
 ## Troubleshooting
 
-- **Citation Verification Failed**: If `00_verify_citations.py` exits with an error, check your internet connection and ensure the URLs in `specs/001-exploring-the-relationship-between-atmos/citations.yaml` are accessible.
-- **Missing Data Files**: If the pipeline fails at Step 2, ensure Step 1 completed successfully and the `data/raw/` directories contain the expected files.
-- **Memory Errors**: The GRACE-FO data processing is memory intensive. If you encounter `MemoryError`, ensure you have at least 7 GB of RAM available and close other applications.
+- **Citation Verification Failed**: Ensure your internet connection is active and the URLs in `docs/citations.yaml` are correct.
+- **Data Fetch Errors**: If NASA/NOAA endpoints are unreachable, check the network or try again later. The script will fail loudly without synthetic fallback.
+- **Memory Errors**: If processing large datasets fails, ensure you have at least 7 GB of RAM available. The pipeline is optimized for CPU-only execution.
+- **Schema Validation Errors**: If `merged_monthly.csv` fails validation, check the `contracts/dataset.schema.yaml` definition and ensure the preprocessing steps are complete.
+
+## Validation
+
+To verify the entire pipeline end-to-end:
+```bash
+# Run the final validation script
+python code/10_sensitivity_report.py --validate
+
+# Run contract tests
+pytest tests/contract/
+```

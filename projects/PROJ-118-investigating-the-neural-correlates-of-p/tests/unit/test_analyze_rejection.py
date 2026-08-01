@@ -1,89 +1,147 @@
-import pytest
-from pathlib import Path
-import tempfile
 import os
+import tempfile
+from pathlib import Path
+import pytest
 
 from analyze_rejection import (
+    find_ica_logs,
     parse_ica_log,
     analyze_rejection_rates,
     identify_excluded_participants,
-    write_exclusion_log
+    write_exclusion_log,
+    run_rejection_analysis
 )
 
-def test_parse_ica_log_valid():
-    """Test parsing a valid ICA log file."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
-        f.write("Processing subject sub-01\n")
-        f.write("Total epochs: 100\n")
-        f.write("Rejected epochs: 15\n")
-        f.write("Components removed: 2\n")
-        f.close()
-        
-        result = parse_ica_log(Path(f.name))
-        
-        assert result['total_epochs'] == 100
-        assert result['rejected_epochs'] == 15
-        assert result['components_removed'] == 2
-        
-        os.unlink(f.name)
+@pytest.fixture
+def temp_processed_dir(tmp_path):
+    """Create a temporary processed directory with mock ICA logs."""
+    # Create sub-01 log
+    sub01_log = tmp_path / "sub-01_ica_log.txt"
+    sub01_log.write_text("""
+    MNE-Python preprocessing log
+    ...
+    Creating 200 epochs
+    ...
+    Dropped 10 epoch(s): bad segments
+    ...
+    Removing 1 component: blink
+    """)
 
-def test_parse_ica_log_empty():
-    """Test parsing an empty or unreadable log file."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
-        f.write("No relevant data here\n")
-        f.close()
-        
-        result = parse_ica_log(Path(f.name))
-        
-        assert result['total_epochs'] == 0
-        assert result['rejected_epochs'] == 0
-        assert result['components_removed'] == 0
-        
-        os.unlink(f.name)
+    # Create sub-02 log (high rejection)
+    sub02_log = tmp_path / "sub-02_ica_log.txt"
+    sub02_log.write_text("""
+    MNE-Python preprocessing log
+    ...
+    Creating 200 epochs
+    ...
+    Dropped 150 epoch(s): bad segments
+    ...
+    Removing 2 components: blink, muscle
+    """)
 
-def test_analyze_rejection_rates():
-    """Test analysis across multiple log files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Create test log files
-        log1 = Path(tmpdir) / "ica_log_sub-01.txt"
-        log1.write_text("Total epochs: 100\nRejected epochs: 10\nComponents removed: 1\n")
-        
-        log2 = Path(tmpdir) / "ica_log_sub-02.txt"
-        log2.write_text("Total epochs: 200\nRejected epochs: 120\nComponents removed: 3\n")
-        
-        results = analyze_rejection_rates([log1, log2])
-        
-        assert 'sub-01' in results
-        assert 'sub-02' in results
-        assert results['sub-01']['rejection_rate'] == 0.10
-        assert results['sub-02']['rejection_rate'] == 0.60
+    # Create sub-03 log (no rejections)
+    sub03_log = tmp_path / "sub-03_ica_log.txt"
+    sub03_log.write_text("""
+    MNE-Python preprocessing log
+    ...
+    Creating 200 epochs
+    ...
+    Removing 1 component: blink
+    """)
 
-def test_identify_excluded_participants():
-    """Test identification of participants exceeding threshold."""
-    data = {
-        'sub-01': {'total_epochs': 100, 'rejected_epochs': 10, 'rejection_rate': 0.10, 'components_removed': 1},
-        'sub-02': {'total_epochs': 200, 'rejected_epochs': 120, 'rejection_rate': 0.60, 'components_removed': 3},
-        'sub-03': {'total_epochs': 150, 'rejected_epochs': 75, 'rejection_rate': 0.50, 'components_removed': 2}
-    }
+    # Create a non-subject file to test filtering
+    other_log = tmp_path / "misc_log.txt"
+    other_log.write_text("Some other log")
+
+    return tmp_path
+
+def test_find_ica_logs(temp_processed_dir):
+    logs = find_ica_logs(temp_processed_dir)
+    # Should find sub-01, sub-02, sub-03 logs but not misc_log.txt
+    assert len(logs) == 3
+    names = {log.name for log in logs}
+    assert "sub-01_ica_log.txt" in names
+    assert "sub-02_ica_log.txt" in names
+    assert "sub-03_ica_log.txt" in names
+
+def test_parse_ica_log_sub01(temp_processed_dir):
+    log_path = temp_processed_dir / "sub-01_ica_log.txt"
+    stats = parse_ica_log(log_path)
+    assert stats['total_epochs'] == 200
+    assert stats['rejected_epochs'] == 10
+    assert stats['removed_components'] == 1
+
+def test_parse_ica_log_sub02(temp_processed_dir):
+    log_path = temp_processed_dir / "sub-02_ica_log.txt"
+    stats = parse_ica_log(log_path)
+    assert stats['total_epochs'] == 200
+    assert stats['rejected_epochs'] == 150
+    assert stats['removed_components'] == 2
+
+def test_parse_ica_log_sub03(temp_processed_dir):
+    log_path = temp_processed_dir / "sub-03_ica_log.txt"
+    stats = parse_ica_log(log_path)
+    assert stats['total_epochs'] == 200
+    assert stats['rejected_epochs'] == 0
+    assert stats['removed_components'] == 1
+
+def test_analyze_rejection_rates(temp_processed_dir):
+    logs = find_ica_logs(temp_processed_dir)
+    analysis = analyze_rejection_rates(logs)
     
-    excluded = identify_excluded_participants(data, threshold=0.5)
-    
-    assert 'sub-02' in excluded
-    assert 'sub-01' not in excluded
-    assert 'sub-03' not in excluded  # Exactly at threshold, not excluded
+    assert "sub-01" in analysis
+    assert analysis["sub-01"]["rejection_rate"] == 10 / 200
+    assert analysis["sub-01"]["rejected_epochs"] == 10
 
-def test_write_exclusion_log():
-    """Test writing exclusion log to file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test_exclusion.log"
-        
-        excluded = {'sub-02', 'sub-04'}
-        write_exclusion_log(excluded, output_path)
-        
-        assert output_path.exists()
-        
-        content = output_path.read_text()
-        assert 'sub-02' in content
-        assert 'sub-04' in content
-        assert 'Excluded Participants Log' in content
-        assert '50%' in content  # Threshold mentioned in header
+    assert "sub-02" in analysis
+    assert analysis["sub-02"]["rejection_rate"] == 150 / 200
+    assert analysis["sub-02"]["rejected_epochs"] == 150
+
+    assert "sub-03" in analysis
+    assert analysis["sub-03"]["rejection_rate"] == 0 / 200
+
+def test_identify_excluded_participants(temp_processed_dir):
+    logs = find_ica_logs(temp_processed_dir)
+    analysis = analyze_rejection_rates(logs)
+    
+    # Threshold 0.5 (50%)
+    excluded = identify_excluded_participants(analysis, threshold=0.5)
+    
+    assert "sub-02" in excluded  # 75% rejection
+    assert "sub-01" not in excluded  # 5% rejection
+    assert "sub-03" not in excluded  # 0% rejection
+
+def test_write_exclusion_log(temp_processed_dir):
+    logs = find_ica_logs(temp_processed_dir)
+    analysis = analyze_rejection_rates(logs)
+    excluded = identify_excluded_participants(analysis, threshold=0.5)
+    
+    output_path = temp_processed_dir / "rejected_participants.log"
+    write_exclusion_log(excluded, output_path)
+    
+    assert output_path.exists()
+    content = output_path.read_text()
+    assert "sub-02" in content
+    assert "sub-01" not in content
+    assert "# Reason: Rejection rate > 50%" in content
+
+def test_run_rejection_analysis(temp_processed_dir):
+    analysis, excluded, log_path = run_rejection_analysis(temp_processed_dir, threshold=0.5)
+    
+    assert log_path.exists()
+    assert "sub-02" in excluded
+    assert len(excluded) == 1
+    
+    content = log_path.read_text()
+    assert "sub-02" in content
+
+def test_run_rejection_analysis_empty_dir(tmp_path):
+    """Test behavior when no logs are found."""
+    analysis, excluded, log_path = run_rejection_analysis(tmp_path, threshold=0.5)
+    
+    assert log_path.exists()
+    assert len(excluded) == 0
+    assert len(analysis) == 0
+    
+    content = log_path.read_text()
+    assert "# Excluded Participants" in content

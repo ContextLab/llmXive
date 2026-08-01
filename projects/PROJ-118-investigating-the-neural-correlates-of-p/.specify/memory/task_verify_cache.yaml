@@ -1,64 +1,20 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that the required directories (`data/raw`,\
-    \ `data/processed`, `code`, `tests`, `results`) actually exist under `projects/PROJ-118-investigating-the-neural-correlates-of-p/`.\
-    \ Without a directory listing, screenshots, or any other artifact confirming their\
-    \ creation, the task requirement is not satisfied. The implementer must provide\
-    \ concrete proof that these folders have been created and are non\u2011empty."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I could find no evidence of a `data/raw` or `data/processed` directory, nor any
-    `.gitkeep` files within them. Without these actual artifacts present, the requirement
-    to set up the directory structure is not satisfied. The implementer must add the
-    two directories and place a `.gitkeep` file in each.
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration file, or documentation was presented that defines or manages
-    the `OPENNEURO_API_KEY` environment variable or sets up local path handling. The
-    required artifact (e.g., a `.env` file, a Python module that reads `os.getenv`,
-    or setup instructions) is missing, so the task is not satisfied.
-T011:
-  c: false
-  h: d66a8a78c521644b3992023941ae95af87a479ad465f605cb8979e0c1edc3a7b
-  r: "The integration test file `tests/integration/test_preprocess.py` exists, but\
-    \ the required output artifact `data/processed/epo_raw.fif` is missing, so the\
-    \ test cannot pass and the task\u2019s requirement is not satisfied. The pipeline\
-    \ must generate this file with >0 epochs for the test to be complete."
-T018:
-  c: false
-  h: c0780b2f3ebfc7981bf5940e7a50bffd346035a9a8d5710267d7103c21d049ef
-  r: "The provided `code/preprocess.py` does not contain any implementation that creates\
-    \ epochs for \u201Cstandard\u201D and \u201Cdeviant\u201D conditions or writes\
-    \ them to `data/processed/epo_raw.fif` (the file is absent). Consequently, the\
-    \ required output artifact is missing and the task\u2019s core requirement is\
-    \ not fulfilled."
-T022:
-  c: false
-  h: c6b25edb4433a69eb6528dabb7f1988521d763f59b73d6a25e2a0ea34408e5d3
-  r: "The required input file `data/processed/epo_raw.fif` does not exist, so the\
-    \ script cannot actually load any data or compute ERPs. Moreover, the provided\
-    \ `extract.py` is only a partial implementation (functions defined, script truncated,\
-    \ no top\u2011level code to iterate over participants), so it does not fulfill\
-    \ the task of computing average ERPs per participant. The missing data file and\
-    \ incomplete script must be added/fixed."
 T027:
   c: false
-  h: 0494a2040e6f07e4bf5e0ab2c845363f155d66b2085944861634360bd9327bbd
-  r: "The required `results/metrics.csv` file does not exist, and the provided `code/extract.py`\
-    \ (as shown) contains only helper functions for loading epochs and computing ERPs\
-    \ with no code that writes a CSV with the specified columns or implements the\
-    \ `peak_detected` flag logic. The task\u2019s core output is therefore missing."
+  h: 64947c94ccd4bdbf689d8123765289f608f287bcd3bec6e6b765019e4fa42e07
+  r: "The `results/metrics.csv` file contains only the header line and no participant\
+    \ rows, so the required output data is missing. Moreover, the provided `code/extract.py`\
+    \ excerpt shows functions for loading epochs and computing ERPs but does not include\
+    \ any logic that writes a CSV with the specified columns or handles the `peak_detected`\
+    \ flag for inclusion/exclusion in downstream analyses. The task\u2019s core functionality\
+    \ is therefore not implemented."
 T029:
   c: false
-  h: 878ad24991a4fd93d109fb1efd83dbf22cbc6fd1b07b4ea1911291cead3a0884
-  r: "The `code/stats.py` file does not contain any logic that filters rows by a `peak_detected`\
-    \ flag, nor does it combine exclusion lists from US1/US2 before statistical testing;\
-    \ it only loads metrics and excludes participants by ID. Additionally, the required\
-    \ `results/metrics.csv` file is absent, so the filtering cannot even be exercised.\
-    \ The task\u2019s core requirement is therefore unmet."
+  h: 2246d6e78f54be34eab482147e06f4a4e5c296a5f6d25957fec553f3b721d33e
+  r: The `code/stats.py` file never filters rows where `peak_detected` is False (the
+    function only excludes participants from the rejection log) and the file ends
+    abruptly, indicating missing implementation. Moreover, `results/metrics.csv` contains
+    only the header line with no actual data rows, so there is nothing to filter.
+    Both the required filtering logic and a populated metrics file are missing.
 T035:
   c: false
   h: c08585025d22f03601c4e58e1f3bbd1b7e6d8512cc65d9c1324d5904d8b6e1a0
@@ -70,8 +26,9 @@ T035:
     \ The missing JSON output and unimplemented analysis steps must be added."
 T050:
   c: false
-  h: e4514a1efc5af4a8345ea228aadbe903e2ddedcb0ff6af5833c3498eebe302ce
-  r: The `tests/integration/test_extract.py` test is present, but the required output
-    file `results/metrics.csv` does not exist, so the integration test cannot succeed
-    and the required columns cannot be verified. The missing `results/metrics.csv`
-    must be generated by the extraction pipeline for the task to be complete.
+  h: 0599872a63249ef4ae0338cc6c14dfd4912a2d4c1aa368edff3f9b0d88964366
+  r: The `results/metrics.csv` file exists but contains only the header (no rows),
+    so the integration test does not actually verify that extraction was run on `sub-01`
+    or that any metrics were produced. The test also swallows exceptions from `run_extraction_pipeline`,
+    allowing it to pass even when the pipeline fails. Real metric data for `sub-01`
+    (and a test that fails if extraction does not succeed) are missing.

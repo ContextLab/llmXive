@@ -1,3 +1,1 @@
-# This directory stores preprocessed EEG data (epochs, cleaned signals, etc.).
-# Outputs from code/preprocess.py and code/extract.py will be written here.
-# Do not remove this file; it ensures the directory is tracked by git.
+# This directory contains processed EEG data (e.g., epo_raw.fif)

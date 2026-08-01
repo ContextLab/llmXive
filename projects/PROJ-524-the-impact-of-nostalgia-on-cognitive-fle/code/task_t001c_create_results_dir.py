@@ -1,51 +1,69 @@
 """
-Task T001c: Create the data/results/ directory.
+Task T001c: Create data/results directory.
 
-This script ensures the existence of the 'data/results' directory,
-which is required for storing statistical reports, sensitivity analyses,
-and final output artifacts.
+This script ensures the existence of the `data/results/` directory
+as required by the project's data organization structure.
 """
 import os
 import sys
 import logging
 from pathlib import Path
 
-from config import get_config, ensure_dirs
-from utils import setup_logging, log_info
+# Ensure we can import from the project root if this script is run directly
+# In a standard setup, the project root is in sys.path
+try:
+    from config import get_config, ensure_dirs
+    from utils import setup_logging, log_info, log_warning
+except ImportError:
+    # Fallback for direct execution if path is not set correctly
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from config import get_config, ensure_dirs
+    from utils import setup_logging, log_info, log_warning
 
 
 def create_results_directory():
     """
-    Creates the data/results directory if it does not exist.
-
+    Creates the `data/results/` directory if it does not exist.
+    
     Returns:
-        Path: The path to the created/existing directory.
+        bool: True if the directory was created or already exists, False on error.
     """
     config = get_config()
-    results_dir = Path(config.get("paths", {}).get("results", "data/results"))
+    if not config:
+        log_error("Configuration could not be loaded.")
+        return False
+
+    # Define the path relative to the project root or data root
+    # Typically data/results is a subdirectory of the data folder
+    data_root = config.get('data_root', 'data')
+    results_path = Path(data_root) / 'results'
+
+    log_info(f"Ensuring existence of results directory: {results_path}")
     
-    if not results_dir.exists():
-        results_dir.mkdir(parents=True, exist_ok=True)
-        log_info(f"Created directory: {results_dir}")
-    else:
-        log_info(f"Directory already exists: {results_dir}")
-        
-    return results_dir
+    try:
+        ensure_dirs([results_path])
+        log_info(f"Successfully created or verified: {results_path}")
+        return True
+    except Exception as e:
+        log_error(f"Failed to create results directory {results_path}: {e}")
+        return False
 
 
 def main():
-    """
-    Entry point for the task script.
-    """
-    setup_logging(level=logging.INFO)
-    log_info("Starting task T001c: Create data/results directory")
+    """Main entry point for the task."""
+    # Setup logging
+    log_level = os.getenv('LOG_LEVEL', 'INFO')
+    setup_logging(level=log_level)
     
-    try:
-        path = create_results_directory()
-        log_info(f"Task T001c completed successfully. Path: {path}")
+    log_info("Starting T001c: Create data/results directory")
+    
+    success = create_results_directory()
+    
+    if success:
+        log_info("T001c completed successfully.")
         return 0
-    except Exception as e:
-        log_error(f"Task T001c failed: {e}")
+    else:
+        log_error("T001c failed.")
         return 1
 
 

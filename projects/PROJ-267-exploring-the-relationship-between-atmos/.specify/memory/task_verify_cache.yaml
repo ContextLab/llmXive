@@ -1,9 +1,10 @@
-T009:
+T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file was provided in the evidence, and thus there is no installation\
-    \ guide, data source list, run commands, or expected output documentation to verify\
-    \ against the FR\u2011007 requirements. The required artifact is missing."
+  r: No evidence of the required `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md`
+    file (or its contents) was provided; without the file containing the entity definitions
+    for AR Event, Gravity Anomaly, and Correlation Result, the task cannot be considered
+    completed.
 T017:
   c: false
   h: e624b3b855a5bb91a904463a8451d361bacfc49caf3e67f80cf96a364ce10bee

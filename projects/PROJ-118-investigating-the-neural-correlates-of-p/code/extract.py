@@ -6,268 +6,325 @@ import numpy as np
 import pandas as pd
 import mne
 
-# Import existing utilities from sibling modules if needed
-# from data_utils import load_config_and_validate
-# from analyze_rejection import identify_excluded_participants
+from config_loader import get_project_root, get_config, ensure_directory
+from data_utils import get_subject_ids
+from preprocess import get_standard_montage
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants derived from project context
-PRIMARY_WINDOW = (0.150, 0.250)  # 150-250 ms
-SECONDARY_WINDOW = (0.100, 0.300)  # 100-300 ms
-PEAK_THRESHOLD_UMV = 2.0  # Microvolts
-TARGET_CHANNELS = ['Fz', 'FCz']
-
-def load_epochs(epochs_path: Path) -> mne.Epochs:
-    """Load epochs from a .fif file."""
-    if not epochs_path.exists():
-        raise FileNotFoundError(f"Epochs file not found: {epochs_path}")
-    logger.info(f"Loading epochs from {epochs_path}")
-    epochs = mne.read_epochs(epochs_path, preload=True)
-    return epochs
-
-def get_subject_epochs_paths(epochs_dir: Path) -> Dict[str, Path]:
-    """Get paths to epochs files for all subjects."""
-    paths = {}
-    if not epochs_dir.exists():
-        raise FileNotFoundError(f"Epochs directory not found: {epochs_dir}")
+def load_epochs(subject_id: str, processed_dir: Path) -> Optional[mne.Epochs]:
+    """
+    Load preprocessed epochs for a specific subject from data/processed.
+    Expects file: data/processed/{subject_id}_epo.fif or data/processed/epo_raw.fif
+    depending on how the pipeline was organized. We check standard naming.
+    """
+    # Try specific subject file first
+    file_path = processed_dir / f"{subject_id}_epo.fif"
+    if not file_path.exists():
+        # Fallback to generic epo_raw.fif if it exists (though typically per-subject)
+        file_path = processed_dir / "epo_raw.fif"
     
-    for subject_dir in sorted(epochs_dir.iterdir()):
-        if subject_dir.is_dir() and subject_dir.name.startswith('sub-'):
-            epochs_file = subject_dir / 'epo_raw.fif'
-            if epochs_file.exists():
-                paths[subject_dir.name] = epochs_file
-    return paths
+    if not file_path.exists():
+        logger.warning(f"No epoch file found for {subject_id} at {file_path}")
+        return None
 
-def compute_average_erps(epochs: mne.Epochs, condition: str) -> mne.Evoked:
-    """Compute average ERP for a specific condition."""
-    if condition not in epochs.event_id:
-        logger.warning(f"Condition {condition} not found in epochs. Available: {list(epochs.event_id.keys())}")
-        # Fallback: try to find similar condition name
-        matching = [k for k in epochs.event_id.keys() if condition.lower() in k.lower()]
-        if matching:
-            condition = matching[0]
-            logger.info(f"Using matched condition: {condition}")
-        else:
-            raise ValueError(f"Condition {condition} not found in epochs")
-    
-    erp = epochs[condition].average()
-    return erp
+    try:
+        epochs = mne.read_epochs(file_path, preload=True)
+        # Ensure events are mapped to conditions if not already in metadata
+        # Assuming 'condition' or 'event_id' is in info or metadata
+        if epochs.metadata is None:
+            # Create basic metadata if missing, assuming event_id maps to condition names
+            # This relies on how T018 (epoching) was implemented. 
+            # If T018 used event_id 'standard' and 'deviant', we might need to reconstruct.
+            # For robustness, we check if 'condition' column exists.
+            pass 
+        return epochs
+    except Exception as e:
+        logger.error(f"Failed to load epochs for {subject_id}: {e}")
+        return None
 
-def compute_difference_wave(standard_erp: mne.Evoked, deviant_erp: mne.Evoked) -> mne.Evoked:
-    """Compute difference wave (Deviant - Standard)."""
-    # Ensure channels match
-    common_chs = list(set(standard_erp.ch_names) & set(deviant_erp.ch_names))
-    if not common_chs:
-        raise ValueError("No common channels between standard and deviant ERPs")
+def get_subject_epochs_paths(processed_dir: Path) -> List[str]:
+    """
+    Find all subject epoch files in the processed directory.
+    Returns list of subject IDs found.
+    """
+    # Assuming files are named {sub}_epo.fif
+    pattern = processed_dir / "*_epo.fif"
+    files = list(pattern.parent.glob(pattern.name))
+    # Extract subject IDs
+    subject_ids = [f.stem.replace('_epo', '') for f in files]
+    return subject_ids
+
+def compute_average_erps(epochs: mne.Epochs, condition: str) -> Optional[mne.Evoked]:
+    """
+    Compute average ERP for a specific condition ('standard' or 'deviant').
+    """
+    if epochs.metadata is not None and 'condition' in epochs.metadata.columns:
+        mask = epochs.metadata['condition'] == condition
+        if not mask.any():
+            logger.warning(f"No epochs found for condition '{condition}'")
+            return None
+        evoked = epochs[mask].average()
+    else:
+        # Fallback: try to filter by event_id string if metadata is missing
+        # This assumes the event_id in the raw data or epochs matches the condition name
+        try:
+            evoked = epochs[condition].average()
+        except KeyError:
+            logger.warning(f"Condition '{condition}' not found in epochs. Available: {list(epochs.event_id.keys()) if hasattr(epochs, 'event_id') else 'N/A'}")
+            return None
+    return evoked
+
+def compute_difference_wave(evoked_deviant: mne.Evoked, evoked_standard: mne.Evoked) -> mne.Evoked:
+    """
+    Compute difference wave: Deviant - Standard.
+    Assumes both evokeds have the same time points and channels.
+    """
+    if evoked_deviant.times.shape != evoked_standard.times.shape:
+        raise ValueError("Time points do not match between deviant and standard evokeds.")
     
-    # Reorder and select common channels
-    std = standard_erp.copy().pick_channels(common_chs)
-    dev = deviant_erp.copy().pick_channels(common_chs)
-    
-    diff = dev - std
-    diff.comment = 'Diff (Deviant - Standard)'
+    # Create a copy to avoid modifying originals
+    diff = evoked_deviant.copy()
+    diff.data = evoked_deviant.data - evoked_standard.data
+    diff.comment = "Deviant - Standard"
     return diff
 
-def save_difference_waves(diff_erp: mne.Evoked, output_path: Path):
-    """Save difference wave to file."""
-    diff_erp.save(output_path, overwrite=True)
-    logger.info(f"Saved difference wave to {output_path}")
-
-def extract_erp_metrics(erp: mne.Evoked, window: Tuple[float, float], 
-                        channels: List[str] = TARGET_CHANNELS) -> Tuple[Optional[float], Optional[float]]:
+def extract_erp_metrics(evoked: mne.Evoked, condition: str, 
+                        time_window: Tuple[float, float], 
+                        channels: List[str], 
+                        baseline: Optional[Tuple[float, float]] = None) -> Dict[str, Any]:
     """
-    Extract peak amplitude and latency in a given time window.
-    Returns (amplitude_µV, latency_s) or (None, None) if no peak found.
+    Extract peak amplitude and latency for a given condition and channel.
+    For MMN (US2), we look for the most negative peak in the difference wave.
+    
+    Args:
+        evoked: Evoked object (usually difference wave for MMN)
+        condition: Name of the condition (for logging)
+        time_window: (start, end) in seconds
+        channels: List of channel names to search
+        baseline: Optional baseline window tuple
+    
+    Returns:
+        Dictionary with 'amplitude', 'latency', 'peak_detected'
     """
     # Select channels
     try:
-        erp_picked = erp.copy().pick_channels(channels)
+        evoked_subset = evoked.copy().pick_channels(channels)
     except Exception:
-        # If specific channels not found, try closest or all
-        erp_picked = erp.copy()
+        # If channels not found, try to pick as many as possible or warn
+        logger.warning(f"Channels {channels} not fully found. Attempting partial pick.")
+        available = [c for c in channels if c in evoked.ch_names]
+        if not available:
+            logger.error(f"None of the required channels {channels} found in data.")
+            return {'amplitude': np.nan, 'latency': np.nan, 'peak_detected': False}
+        evoked_subset = evoked.copy().pick_channels(available)
+
+    # Extract data
+    data = evoked_subset.data
+    times = evoked_subset.times
+
+    # Find indices for time window
+    start_idx = np.where(times >= time_window[0])[0]
+    end_idx = np.where(times <= time_window[1])[0]
     
-    # Get time and data
-    times = erp_picked.times
-    data = erp_picked.data  # shape: (n_channels, n_times)
+    if len(start_idx) == 0 or len(end_idx) == 0:
+        logger.warning(f"Time window {time_window} out of bounds for data.")
+        return {'amplitude': np.nan, 'latency': np.nan, 'peak_detected': False}
+
+    start_idx, end_idx = start_idx[0], end_idx[-1]
     
-    # Find indices for the window
-    t_min, t_max = window
-    idx_start = np.searchsorted(times, t_min)
-    idx_end = np.searchsorted(times, t_max)
+    # Search for most negative peak (MMN is negative deflection)
+    # We look across all selected channels and time points in the window
+    window_data = data[:, start_idx:end_idx+1]
+    window_times = times[start_idx:end_idx+1]
     
-    if idx_start >= idx_end or idx_end > len(times):
-        logger.warning(f"Window {window} out of bounds for data times {times[0]} to {times[-1]}")
-        return None, None
-    
-    # Find minimum (most negative) value in the window across selected channels
-    window_data = data[:, idx_start:idx_end]
+    min_val = np.min(window_data)
     min_idx_global = np.argmin(window_data)
     
-    # Convert flat index to (channel_idx, time_idx)
-    chan_idx = min_idx_global // window_data.shape[1]
-    time_idx = min_idx_global % window_data.shape[1]
+    # Map flat index back to channel and time
+    n_channels = window_data.shape[0]
+    channel_idx = min_idx_global // (end_idx - start_idx + 1)
+    time_idx = min_idx_global % (end_idx - start_idx + 1)
     
-    abs_time_idx = idx_start + time_idx
-    latency = times[abs_time_idx]
-    amplitude = window_data[chan_idx, time_idx]
+    peak_latency = window_times[time_idx]
+    peak_amplitude = min_val
     
-    return amplitude, latency
+    # Check threshold for detection (e.g., > 2.0 uV magnitude for negative peak)
+    # SC-005: if no peak >= 2.0 uV in primary window, search secondary.
+    # This function handles primary.
+    threshold = 2.0 # uV
+    peak_detected = abs(peak_amplitude) >= threshold if peak_amplitude < 0 else False
+    
+    return {
+        'amplitude': peak_amplitude,
+        'latency': peak_latency,
+        'peak_detected': peak_detected
+    }
 
-def calculate_snr(erp: mne.Evoked, baseline_window: Tuple[float, float] = (-0.2, 0.0)) -> float:
+def calculate_snr(evoked: mne.Evoked, signal_window: Tuple[float, float], 
+                  noise_window: Tuple[float, float]) -> float:
     """
     Calculate Signal-to-Noise Ratio.
-    Signal: peak amplitude (absolute value)
-    Noise: standard deviation of baseline period
+    Signal: RMS of the average in the signal window.
+    Noise: RMS of the pre-stimulus baseline (or specified noise window).
     """
-    times = erp.times
-    data = erp.data
-    
-    # Baseline indices
-    t_min, t_max = baseline_window
-    idx_start = np.searchsorted(times, t_min)
-    idx_end = np.searchsorted(times, t_max)
-    
-    if idx_start >= idx_end:
-        return 0.0
-    
-    baseline_data = data[:, idx_start:idx_end]
-    noise = np.std(baseline_data)
-    
-    if noise == 0:
-        return 0.0
-    
-    # Use maximum absolute amplitude as signal
-    peak_amp = np.max(np.abs(data))
-    snr = peak_amp / noise
-    return snr
+    times = evoked.times
+    data = evoked.data # Shape: (n_channels, n_times)
 
-def save_intermediate_erps(standard_erp: mne.Evoked, deviant_erp: mne.Evoked, 
-                           diff_erp: mne.Evoked, subject_id: str, output_dir: Path):
-    """Save intermediate ERP objects for inspection."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    standard_erp.save(output_dir / f'{subject_id}_std-ave.fif', overwrite=True)
-    deviant_erp.save(output_dir / f'{subject_id}_dev-ave.fif', overwrite=True)
-    diff_erp.save(output_dir / f'{subject_id}_diff-ave.fif', overwrite=True)
+    # Signal window
+    sig_start = np.where(times >= signal_window[0])[0][0]
+    sig_end = np.where(times <= signal_window[1])[0][-1]
+    sig_data = data[:, sig_start:sig_end+1]
+    signal_rms = np.sqrt(np.mean(sig_data**2))
 
-def run_extraction_pipeline(epochs_dir: Path, output_path: Path, 
-                            excluded_subjects: Optional[List[str]] = None):
+    # Noise window (usually pre-stimulus)
+    if noise_window[0] < times[0] or noise_window[1] > times[-1]:
+        # Fallback to full pre-stimulus if specified window is out of bounds
+        noise_start = 0
+        noise_end = np.where(times < 0)[0][-1] if np.any(times < 0) else 0
+    else:
+        noise_start = np.where(times >= noise_window[0])[0][0]
+        noise_end = np.where(times <= noise_window[1])[0][-1]
+    
+    if noise_end <= noise_start:
+        logger.warning("Noise window invalid, cannot calculate SNR.")
+        return 0.0
+
+    noise_data = data[:, noise_start:noise_end+1]
+    noise_rms = np.sqrt(np.mean(noise_data**2))
+
+    if noise_rms == 0:
+        return np.inf
+    return signal_rms / noise_rms
+
+def save_intermediate_erps(evoked_standard: mne.Evoked, evoked_deviant: mne.Evoked, 
+                           diff_wave: mne.Evoked, subject_id: str, output_dir: Path):
     """
-    Run the full metric extraction pipeline.
-    Produces results/metrics.csv with columns:
-    participant_id, standard_amplitude, standard_latency, deviant_amplitude, 
-    deviant_latency, peak_detected, snr
+    Save intermediate ERP files for debugging/inspection.
     """
-    if excluded_subjects is None:
-        excluded_subjects = []
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    subject_paths = get_subject_epochs_paths(epochs_dir)
-    metrics_list = []
-    
-    for subject_id, epochs_file in subject_paths.items():
-        if subject_id in excluded_subjects:
-            logger.info(f"Skipping excluded subject: {subject_id}")
-            continue
+    ensure_directory(output_dir)
+    # Naming convention: sub-XX_standard_evoked.fif, etc.
+    evoked_standard.save(output_dir / f"{subject_id}_standard_evoked.fif", overwrite=True)
+    evoked_deviant.save(output_dir / f"{subject_id}_deviant_evoked.fif", overwrite=True)
+    diff_wave.save(output_dir / f"{subject_id}_diff_evoked.fif", overwrite=True)
+
+def run_extraction_pipeline():
+    """
+    Main pipeline to extract MMN metrics for all subjects.
+    Produces results/metrics.csv with required columns.
+    """
+    root = get_project_root()
+    config = get_config()
+    processed_dir = root / "data" / "processed"
+    results_dir = root / "results"
+    ensure_directory(results_dir)
+
+    # Configuration for MMN extraction
+    # Primary window: 150-250ms
+    primary_window = (0.150, 0.250)
+    # Secondary window fallback: 100-300ms
+    secondary_window = (0.100, 0.300)
+    # Channels of interest
+    target_channels = ['Fz', 'FCz']
+    # Baseline for SNR (pre-stimulus)
+    noise_window = (-0.200, 0.0)
+    # Signal window for SNR (around peak)
+    signal_window = (0.150, 0.250)
+
+    subjects = get_subject_ids() # Or use get_subject_epochs_paths(processed_dir)
+    # If get_subject_ids returns raw IDs, we need to ensure they match epoch files
+    # Let's use the files found in processed dir to be safe
+    subject_files = get_subject_epochs_paths(processed_dir)
+    if not subject_files:
+        logger.error("No subject epoch files found in data/processed. Pipeline cannot run.")
+        return
+
+    metrics_data = []
+
+    for sub_id in subject_files:
+        logger.info(f"Processing subject: {sub_id}")
         
-        logger.info(f"Processing {subject_id}")
+        epochs = load_epochs(sub_id, processed_dir)
+        if epochs is None:
+            logger.warning(f"Skipping {sub_id} due to missing epochs.")
+            continue
+
+        # Compute Average ERPs
+        evoked_std = compute_average_erps(epochs, 'standard')
+        evoked_dev = compute_average_erps(epochs, 'deviant')
+
+        if evoked_std is None or evoked_dev is None:
+            logger.warning(f"Skipping {sub_id} due to missing conditions.")
+            continue
+
+        # Compute Difference Wave
         try:
-            # Load epochs
-            epochs = load_epochs(epochs_file)
-            
-            # Compute average ERPs
-            std_erp = compute_average_erps(epochs, 'standard')
-            dev_erp = compute_average_erps(epochs, 'deviant')
-            
-            # Compute difference wave
-            diff_erp = compute_difference_wave(std_erp, dev_erp)
-            
-            # Save intermediate results (optional but useful)
-            save_intermediate_erps(std_erp, dev_erp, diff_erp, subject_id, 
-                                   output_path.parent / 'intermediate')
-            
-            # Extract metrics from Standard ERP
-            std_amp, std_lat = extract_erp_metrics(std_erp, PRIMARY_WINDOW)
-            if std_amp is None:
-                std_amp, std_lat = extract_erp_metrics(std_erp, SECONDARY_WINDOW)
-            
-            # Extract metrics from Deviant ERP
-            dev_amp, dev_lat = extract_erp_metrics(dev_erp, PRIMARY_WINDOW)
-            if dev_amp is None:
-                dev_amp, dev_lat = extract_erp_metrics(dev_erp, SECONDARY_WINDOW)
-            
-            # Extract peak from Difference Wave
-            diff_amp, diff_lat = extract_erp_metrics(diff_erp, PRIMARY_WINDOW)
-            peak_detected = True
-            
-            # Fallback logic per SC-005
-            if diff_amp is None or abs(diff_amp) < PEAK_THRESHOLD_UMV:
-                diff_amp, diff_lat = extract_erp_metrics(diff_erp, SECONDARY_WINDOW)
-                if diff_amp is None or abs(diff_amp) < PEAK_THRESHOLD_UMV:
-                    peak_detected = False
-                    # Still record the best found value or None
-                    if diff_amp is None:
-                        diff_amp = 0.0
-                        diff_lat = 0.0
-            
-            # Calculate SNR on the difference wave
-            snr = calculate_snr(diff_erp)
-            
-            metrics_list.append({
-                'participant_id': subject_id,
-                'standard_amplitude': std_amp if std_amp is not None else np.nan,
-                'standard_latency': std_lat if std_lat is not None else np.nan,
-                'deviant_amplitude': dev_amp if dev_amp is not None else np.nan,
-                'deviant_latency': dev_lat if dev_lat is not None else np.nan,
-                'peak_detected': peak_detected,
-                'snr': snr
-            })
-            
+            diff_wave = compute_difference_wave(evoked_dev, evoked_std)
         except Exception as e:
-            logger.error(f"Failed to process {subject_id}: {e}", exc_info=True)
-            # Retain participant with flagged status for prevalence analysis
-            metrics_list.append({
-                'participant_id': subject_id,
-                'standard_amplitude': np.nan,
-                'standard_latency': np.nan,
-                'deviant_amplitude': np.nan,
-                'deviant_latency': np.nan,
-                'peak_detected': False,
-                'snr': np.nan
-            })
-    
+            logger.error(f"Failed to compute difference wave for {sub_id}: {e}")
+            continue
+
+        # Save intermediate files
+        save_intermediate_erps(evoked_std, evoked_dev, diff_wave, sub_id, processed_dir)
+
+        # Extract Metrics for Standard (for completeness, though MMN is diff)
+        # Note: T027 asks for standard_amplitude/latency too. We extract from standard ERP.
+        # We look for the most negative peak in the same window for standard? 
+        # Usually standard doesn't have MMN, but we extract the metric as requested.
+        
+        std_metrics = extract_erp_metrics(evoked_std, 'standard', primary_window, target_channels)
+        dev_metrics = extract_erp_metrics(evoked_dev, 'deviant', primary_window, target_channels)
+        diff_metrics = extract_erp_metrics(diff_wave, 'diff', primary_window, target_channels)
+
+        # Fallback logic for MMN (Difference Wave) if peak not detected in primary
+        final_diff_metrics = diff_metrics
+        if not diff_metrics['peak_detected']:
+            logger.info(f"Primary peak not detected for {sub_id}, checking secondary window.")
+            sec_metrics = extract_erp_metrics(diff_wave, 'diff', secondary_window, target_channels)
+            if sec_metrics['peak_detected']:
+                final_diff_metrics = sec_metrics
+                logger.info(f"Secondary peak detected for {sub_id} at {sec_metrics['latency']}s")
+            else:
+                logger.info(f"No peak detected for {sub_id} in either window.")
+
+        # Calculate SNR on the difference wave
+        try:
+            snr = calculate_snr(diff_wave, signal_window, noise_window)
+        except Exception as e:
+            logger.warning(f"SNR calculation failed for {sub_id}: {e}")
+            snr = np.nan
+
+        # Construct row
+        row = {
+            'participant_id': sub_id,
+            'standard_amplitude': std_metrics['amplitude'],
+            'standard_latency': std_metrics['latency'],
+            'deviant_amplitude': dev_metrics['amplitude'],
+            'deviant_latency': dev_metrics['latency'],
+            'peak_detected': final_diff_metrics['peak_detected'],
+            'snr': snr
+        }
+        metrics_data.append(row)
+
     # Create DataFrame
-    df = pd.DataFrame(metrics_list)
+    df = pd.DataFrame(metrics_data)
     
     # Ensure correct types
     df['peak_detected'] = df['peak_detected'].astype(bool)
     
     # Save to CSV
+    output_path = results_dir / "metrics.csv"
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved metrics to {output_path}")
+    logger.info(f"Metrics saved to {output_path}")
     logger.info(f"Total participants processed: {len(df)}")
     logger.info(f"Participants with peak detected: {df['peak_detected'].sum()}")
-    logger.info(f"Participants without peak (flagged for exclusion from t-test): {(~df['peak_detected']).sum()}")
-    
+
     return df
 
 def main():
-    """Entry point for the extraction pipeline."""
-    # Default paths based on project structure
-    base_dir = Path(__file__).parent.parent
-    epochs_dir = base_dir / 'data' / 'processed'
-    output_file = base_dir / 'results' / 'metrics.csv'
-    
-    # Load excluded participants if available
-    excluded_file = base_dir / 'data' / 'processed' / 'rejected_participants.log'
-    excluded_subjects = []
-    if excluded_file.exists():
-        with open(excluded_file, 'r') as f:
-            excluded_subjects = [line.strip() for line in f if line.strip()]
-    
-    run_extraction_pipeline(epochs_dir, output_file, excluded_subjects)
+    run_extraction_pipeline()
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+if __name__ == "__main__":
     main()

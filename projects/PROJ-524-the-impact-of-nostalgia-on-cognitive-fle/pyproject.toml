@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nostalgia-cognitive-flexibility"
+version = "0.1.0"
+description = "Automated science pipeline: Impact of Nostalgia on Cognitive Flexibility in Aging Adults"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=2.0.0",
+    "scipy>=1.11.0",
+    "statsmodels>=0.14.0",
+    "numpy>=1.24.0",
+    "pyyaml>=6.0",
+    "openml>=0.13.0",
+    "datasets>=2.14.0",
+    "requests>=2.31.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true

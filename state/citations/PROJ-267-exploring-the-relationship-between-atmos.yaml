@@ -1,4 +1,4 @@
-- artifact_hash: ca40b30e282a1d2c7c7138630b84d9f512ad5908642d6de16d8c232893ad1627
+- artifact_hash: d84e5eb0fee1fe8c299bd71032900fdd9e9dd9609b74708da26e9e6355d48a2d
   artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q385989
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q385989
-  verified_at: '2026-07-17T10:16:17.090915Z'
+  verified_at: '2026-08-01T19:06:48.255682Z'

@@ -1,0 +1,28 @@
+'|correlation defined null result':
+  quote: The strength of correlations also are an important consideration for interpretation
+    of correlation analyses but descriptions of the strength of correlation are not
+    universally accepted. A small correlation coefficient calculated for a very large
+    sample may be statistically significant without providing a quantitative relation
+    between variables. Similarly, a large correlation coefficient calculated with
+    a small sample size may indicate that a quantitative equation between variables
+    may be possible even though the correlation coefficient is not statistically significant.
+    Akoglu (2018) noted the need for consistent descriptions of strength and provides
+    different correlation-strength descriptors for psychology, politics, and medicine
+    that have different descriptors and thresholds. Because there is a general lack
+    of consensus on correlation strength, Granato (2014)  defined operational definitions
+    for the absolute values of correlation coefficients as weak (less than 0.5), moderate
+    (greater than or equal to 0.5 and less than 0.75), semi-strong (greater than or
+    equal to 0.75 and less than 0.85), and strong (greater than or equal to 0.85)
+    for use in hydrologic analyses of stormwater treatment statistics. Similarly,
+    Schober and others (2018) note that "...cutoff points are arbitrary and inconsistent
+    and should be used judiciously..." Despite their warning Schober and others (2018)
+    provide a table indicating that correlations less than or equal to 0.1 are negligible;
+    correlations greater than 0.1 and less than or equal to 0.39 are weak; correlations
+    greater than 0.39 and less than or equal to 0.69 are moderate; correlations greater
+    than 0.69 and less than or equal to 0.89 are strong; and correlations greater
+    than 0.89 are very strong. Descriptions of strength indicate the potential to
+    develop quantitative relations among variables but these descriptors, as with
+    the correlation coefficients themselves, do not indicate causation.
+  source_id: Spearman's rank correlation coefficient
+  url: https://en.wikipedia.org/wiki/Spearman's_rank_correlation_coefficient
+  value: '0.1'
