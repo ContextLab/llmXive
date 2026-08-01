@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Spectrum Output
+description: "Schema for SVD output (US1)"
+type: object
+required:
+  - model
+  - singular_values
+  - vectors
+properties:
+  model:
+    type: string
+  singular_values:
+    type: array
+    items:
+      type: number
+  vectors:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+additionalProperties: false

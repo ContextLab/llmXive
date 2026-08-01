@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Frequency List
+description: "Schema for frequency distribution outputs (US2)"
+type: object
+required:
+  - language
+  - total_tokens
+  - unique_tokens
+  - distribution
+properties:
+  language:
+    type: string
+  total_tokens:
+    type: integer
+  unique_tokens:
+    type: integer
+  distribution:
+    type: object
+    additionalProperties:
+      type: number
+additionalProperties: false

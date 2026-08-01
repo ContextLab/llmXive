@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project investigates whether the "edge spectrum" subspace (top-$k$ singular vectors of the unembedding matrix $W_U$) encodes a universal, language-agnostic "common sense" prior or reflects language-specific syntactic noise. The technical approach involves extracting these subspaces from three distinct models (Llama-3, Mistral, BLOOM), aligning them via a shared vocabulary subset (Procrustes), computing cosine similarities between English and multilingual variants, attributing semantic content to the subspaces using external token frequency data (OSCAR for FR/CN, RedPajama for EN), and validating the observed shifts against WALS typological features via a label-permutation statistical bootstrap test.
+This project investigates whether the "edge spectrum" subspace (top-$k$ singular vectors of the unembedding matrix $W_U$) encodes a universal, language-agnostic "common sense" prior or reflects language-specific syntactic noise. The technical approach involves extracting these subspaces from three distinct models (Llama, Mistral, BLOOM), aligning them via a shared vocabulary subset (Procrustes), computing cosine similarities between English and multilingual variants, attributing semantic content to the subspaces using external token frequency data (OSCAR for FR/CN, RedPajama for EN), and validating the observed shifts against WALS typological features via a label-permutation statistical bootstrap test.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This project investigates whether the "edge spectrum" subspace (top-$k$ singular
 **Project Type**: Computational research pipeline / CLI tool.
 **Performance Goals**: Complete full SVD, Procrustes alignment, and 1,000-iteration label permutation bootstrap on CPU within 6 hours.
 **Constraints**: No local GPU; models must be loaded in low-precision or standard-precision formats with memory-mapped loading to fit within constrained RAM budgets; datasets must be streamed or sampled to fit disk limits.
-**Scale/Scope**: models, 3 languages (EN, FR, CN), top-100 singular vectors, ~1M token frequency samples.
+**Scale/Scope**: models, multiple languages (EN, FR, CN), top-k singular vectors, ~M token frequency samples.
 
 > **Note**: Empirical values (exact iteration counts, dataset sizes) are deferred to research/implementation.
 

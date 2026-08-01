@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Similarity Matrix
+description: "Schema for similarity_matrix.json (US1)"
+type: object
+required:
+  - pairs
+properties:
+  pairs:
+    type: array
+    items:
+      type: object
+      required:
+        - model_a
+        - model_b
+        - cosine_similarity
+      properties:
+        model_a:
+          type: string
+        model_b:
+          type: string
+        cosine_similarity:
+          type: number
+additionalProperties: false

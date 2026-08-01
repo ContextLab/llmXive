@@ -1,0 +1,18 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Permutation Results
+description: "Schema for permutation test intermediate results"
+type: object
+required:
+  - null_distribution
+  - observed
+  - threshold
+properties:
+  null_distribution:
+    type: array
+    items:
+      type: number
+  observed:
+    type: number
+  threshold:
+    type: number
+additionalProperties: false

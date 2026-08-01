@@ -1,0 +1,242 @@
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: hyperparameters k=100 and n_bootstrap=1000
+  claim_id: c_97bf7e3f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/config.py` with paths, seeds, and hyperparameters (k=100,
+    n_bootstrap=1000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:32:18Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: dependency versions torch 2.1.0, transformers 4.36.0, numpy 1.24.3, scipy
+    1.11.4, pandas 2.1.4, huggingface_hub 0.20.3, datasets 2.16.1
+  claim_id: c_ace17937
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize a Python project with `requirements.txt` pinning exact versions:
+    `torch==2.1.0`, `transformers==4.36.0`, `numpy==1.24.3`, `scipy==1.11.4`, `pandas==2.1.4`,
+    `huggingface_hub==0.20.3`, `datasets==2.16.1`'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T00:32:18Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: compute top 100 singular vectors of full unembedding matrix
+  claim_id: c_014b4163
+  context: 'Phase 3: User Story 1 - T012'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute **top-k (k=100) singular vectors of the FULL unembedding matrix
+    (W_U)**
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:32:48Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: memory footprint calculation matrix size times 4 bytes times 2
+  claim_id: c_a8245dc8
+  context: 'Phase 3: User Story 1 - T012b-PRECHECK'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate theoretical memory footprint (matrix size * 4 bytes * 2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:33:18Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: feasibility warning raised if memory exceeds 6 GB
+  claim_id: c_42f95e5b
+  context: 'Phase 3: User Story 1 - T012b-PRECHECK'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory > 6GB for ANY of the three models, raise a `FeasibilityWarning`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:33:18Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: singular values less than 1e-12 detected during SVD
+  claim_id: c_329fb88d
+  context: 'Phase 3: User Story 1 - T038'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Singular_values_less_than_1e-12_detected_during_SVD
+  kind: magnitude
+  raw_text: Detect and handle singular values < 1e-12 during SVD
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:33:48Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: frequency distributions computed from streamed RedPajama English dataset
+  claim_id: c_ed509faa
+  context: 'Phase 4: User Story 2 - T019a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Frequency_distributions_computed_from_streamed_RedPajama_Eng
+  kind: entity_fact
+  raw_text: Compute the frequency distributions from the streamed RedPajama (English)
+    dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:34:11Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: critical warning logged if vocabulary intersection size is less than
+    5000 tokens
+  claim_id: c_ce86cf51
+  context: 'Phase 4: User Story 2 - T042'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_warning_logged_if_vocabulary_intersection_size_is_l
+  kind: magnitude
+  raw_text: If the intersection size is < 5,000 tokens, log a critical warning
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:34:51Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: null distribution generated using random orthogonal bases of same dimension
+    as observed subspace
+  claim_id: c_8f9994a1
+  context: 'Phase 5: User Story 3 - T026'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_distribution_generated_using_random_orthogonal_bases_of
+  kind: entity_fact
+  raw_text: Implement `code/statistical_test.py` to generate the null distribution
+    by generating **random orthogonal bases** of the same dimension as the observed
+    subspace
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:35:30Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: permutation test ensures CPU-only execution and runtime under 6 hours
+  claim_id: c_97cd9fa4
+  context: 'Phase 5: User Story 3 - T027'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure CPU-only execution and < 6h runtime, using a fixed random seed
+    from config
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:35:30Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: SVD optimized using scipy.linalg.svd with full_matrices false
+  claim_id: c_99764bc5
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T033a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SVD_optimized_using_scipy.linalg.svd_with_full_matrices_fals
+  kind: entity_fact
+  raw_text: Optimize SVD computation in `code/model_analyzer.py` using `scipy.linalg.svd`
+    with `full_matrices=False`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:36:04Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: optimized SVD and permutation loops verified to complete within 6 hours
+  claim_id: c_8ee1df11
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T033b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the optimized SVD and permutation loops complete within the
+    < 6h runtime constraint on the target runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:36:05Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: feasibility warning logged if theoretical RAM usage exceeds 6 GB
+  claim_id: c_4092f9c5
+  context: 'Phase N+1: Review Remediation & Feasibility Validation - T060'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If `matrix_size * 4 bytes * 2 > 6GB`, log a **Feasibility Warning**
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:36:26Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: critical warning logged if vocabulary intersection size is less than
+    10000 tokens
+  claim_id: c_1d39cdfa
+  context: 'Phase N+1: Review Remediation & Feasibility Validation - T065'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_warning_logged_if_vocabulary_intersection_size_is_l
+  kind: magnitude
+  raw_text: If the intersection size is < 10,000 tokens, log a critical warning
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:36:28Z'

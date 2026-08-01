@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Token Attribution
+description: "Schema for token_attribution_report.json output (US2)"
+type: object
+required:
+  - model
+  - language
+  - top_tokens
+properties:
+  model:
+    type: string
+  language:
+    type: string
+  top_tokens:
+    type: array
+    items:
+      type: object
+      required:
+        - token_id
+        - logit_weight
+        - token_str
+      properties:
+        token_id:
+          type: integer
+        logit_weight:
+          type: number
+        token_str:
+          type: string
+additionalProperties: false

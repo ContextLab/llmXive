@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: WALS Validation
+description: "Schema for wals_validation.json output (US3)"
+type: object
+required:
+  - language_pairs
+  - shift_vector
+  - wals_diff
+  - correlation_r
+  - p_value
+properties:
+  language_pairs:
+    type: array
+    items:
+      type: object
+      required:
+        - lang_a
+        - lang_b
+      properties:
+        lang_a:
+          type: string
+        lang_b:
+          type: string
+  shift_vector:
+    type: array
+    items:
+      type: number
+  wals_diff:
+    type: array
+    items:
+      type: number
+  correlation_r:
+    type: number
+  p_value:
+    type: number
+additionalProperties: false

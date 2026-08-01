@@ -5,6 +5,7 @@ Handles loading, SVD, and subspace similarity calculations.
 import os
 import torch
 import logging
+import json
 import numpy as np
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Any, List, Set
@@ -18,6 +19,10 @@ class MissingModelError(Exception):
     pass
 
 class CorruptedWeightError(Exception):
+    pass
+
+class VocabularyAlignmentError(Exception):
+    """Raised when vocabulary alignment fails or intersection is insufficient."""
     pass
 
 def load_model_weights(model_name: str, device: str = "cpu") -> torch.Tensor:
@@ -131,6 +136,74 @@ def calculate_subspace_similarities(models: Dict[str, torch.Tensor], k: int = 10
             })
     
     return results
+
+def validate_cross_lingual_vocab_alignment(
+    tokenizer_map: Dict[str, Any], 
+    min_intersection_size: int = 10000,
+    output_path: Optional[Path] = None
+) -> bool:
+    """
+    Validate that the shared vocabulary intersection between models is sufficient
+    for cross-lingual similarity calculations.
+    
+    Args:
+        tokenizer_map: Dict mapping model names to their tokenizer instances.
+        min_intersection_size: Minimum required intersection size (default 10,000).
+        output_path: Optional path to write warning JSON if validation fails.
+        
+    Returns:
+        True if validation passes, False if it fails (and warning is written).
+    """
+    model_names = list(tokenizer_map.keys())
+    if len(model_names) < 2:
+        logging.warning("Insufficient models for vocabulary alignment check.")
+        return True
+    
+    # Compute intersection across all models
+    common_vocab: Set[int] = None
+    
+    for i, name_a in enumerate(model_names):
+        tok_a = tokenizer_map[name_a]
+        vocab_a = set(tok_a.get_vocab().values())
+        
+        if common_vocab is None:
+            common_vocab = vocab_a
+        else:
+            common_vocab = common_vocab.intersection(vocab_a)
+        
+        if not common_vocab:
+            break
+    
+    intersection_size = len(common_vocab) if common_vocab else 0
+    
+    logging.info(f"Shared vocabulary intersection size: {intersection_size}")
+    
+    if intersection_size < min_intersection_size:
+        warning_msg = (
+            f"CRITICAL: Vocabulary intersection size ({intersection_size}) is below "
+            f"threshold ({min_intersection_size}). Cross-lingual similarity calculations "
+            "may be statistically invalid."
+        )
+        logging.critical(warning_msg)
+        
+        warning_data = {
+            "status": "warning",
+            "intersection_size": intersection_size,
+            "min_required": min_intersection_size,
+            "models_checked": model_names,
+            "message": warning_msg
+        }
+        
+        if output_path:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(warning_data, f, indent=2)
+            logging.info(f"Wrote vocabulary alignment warning to {output_path}")
+        
+        return False
+    
+    logging.info(f"Vocabulary alignment validation PASSED (size: {intersection_size})")
+    return True
 
 def main():
     """Run model analysis (example)."""

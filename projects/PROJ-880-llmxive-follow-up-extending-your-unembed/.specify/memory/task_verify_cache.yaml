@@ -13,24 +13,20 @@ T009:
     `similarity_report.schema.yaml`, but the required `similarity_report.schema.yaml`
     file is missing from the repository, so the contract test cannot actually validate
     anything. The missing schema file must be added for the task to be satisfied.
-T030:
+T060:
   c: false
-  h: f486f842c39ae456d67aa8a274b88dbc579b38fbcde0eb228dd0a98b6e5c6ae1
-  r: "The required output files `data/processed/permutation_result.json` and `data/processed/wals_validation.json`\
-    \ are absent, and the provided `code/main.py` only contains a partial US1 pipeline\
-    \ (loading models, SVD, similarity matrix) with no logic for the statistical test,\
-    \ external validation, or the specified JSON schemas and `data_unavailable` flag.\
-    \ The task\u2019s core requirements are therefore not met."
-T033:
+  h: b61faeec8b345fbd1e043b33cd47264542f3274c727814e58bc55da424def829
+  r: The `code/main.py` shown does not contain any logic that computes the RAM needed
+    for a full SVD, issues a Feasibility Warning, marks T012b as SKIPPED, or writes
+    `data/processed/feasibility_report.json`. Moreover, the required `feasibility_report.json`
+    file is missing entirely. The mandatory CPU feasibility gate is therefore not
+    implemented.
+T065:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or JSON reports were supplied that perform the SVD extraction,\
-    \ compute top\u2011100 singular vectors, or calculate cosine similarity matrices\
-    \ for the three models. Consequently, the required performance\u2011optimized\
-    \ implementation and its output artifacts are missing."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/unit/` directory or new test files were provided; there is no evidence
-    of additional unit tests covering edge cases such as missing vocabulary mapping.
-    The required artifact is missing, so the task is not satisfied.
+  h: 6661107120294e70a04b5fff27e8c9ceef4052caf0f4118335a00522ef020111
+  r: "The provided `code/model_analyzer.py` shows only loading and token\u2011mapping\
+    \ utilities; there is no visible logic that computes the three\u2011way vocabulary\
+    \ intersection, checks whether its size is below\u202F10,000, logs a critical\
+    \ warning, or writes `data/processed/vocab_alignment_warning.json`. Moreover,\
+    \ the required JSON warning file does not exist on disk. The task\u2019s core\
+    \ validation step is therefore missing."
