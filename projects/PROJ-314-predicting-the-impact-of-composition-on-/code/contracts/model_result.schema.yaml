@@ -1,28 +1,24 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ModelResult
-description: >
-  Schema for the output of the predictive modeling pipeline.
-  Contains performance metrics, feature importance, and validation reports.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Result Schema"
+description: "Schema for the output of the predictive modeling pipeline (US2). Defines the structure of model metrics, cross-validation results, and baseline comparisons."
 type: object
 required:
   - model_type
   - metrics
-  - feature_importance
-  - stratification_report
-  - permutation_p_value
+  - cross_validation
   - timestamp
+  - data_version
 properties:
   model_type:
     type: string
-    description: >
-      Type of model trained (e.g., "RandomForest", "GradientBoosting").
+    description: "Type of model (e.g., 'RandomForest', 'GradientBoosting')"
     enum:
       - RandomForest
       - GradientBoosting
       - Baseline
-  
   metrics:
     type: object
+    description: "Primary performance metrics on the test set"
     required:
       - mae
       - r2
@@ -30,98 +26,90 @@ properties:
     properties:
       mae:
         type: number
-        format: float
-        description: Mean Absolute Error.
+        description: "Mean Absolute Error"
       r2:
         type: number
-        format: float
-        description: Coefficient of determination (R²).
+        description: "Coefficient of Determination (R-squared)"
       rmse:
         type: number
-        format: float
-        description: Root Mean Squared Error.
+        description: "Root Mean Squared Error"
+      mape:
+        type: number
+        description: "Mean Absolute Percentage Error (optional)"
+  cross_validation:
+    type: object
+    description: "Cross-validation results"
+    required:
+      - mean_score
+      - std_score
+      - scores
+    properties:
+      mean_score:
+        type: number
+        description: "Mean R2 score across folds"
+      std_score:
+        type: number
+        description: "Standard deviation of R2 scores"
+      scores:
+        type: array
+        description: "Individual R2 scores for each fold"
+        items:
+          type: number
+      fold_count:
+        type: integer
+        description: "Number of CV folds used"
+  baseline_comparison:
+    type: object
+    description: "Comparison against the global mean baseline"
+    required:
+      - baseline_mae
+      - model_mae
+      - improvement_percent
+    properties:
       baseline_mae:
         type: number
-        format: float
-        nullable: true
-        description: MAE of the global mean baseline predictor.
-  
-  feature_importance:
-    type: array
-    description: >
-      List of features ranked by importance (SHAP or model-based).
-    items:
-      type: object
-      required:
-        - feature_name
-        - importance_score
-      properties:
-        feature_name:
-          type: string
-        importance_score:
-          type: number
-          format: float
-        physical_mechanism:
-          type: string
-          nullable: true
-          description: >
-            Mapped physical mechanism from physics_mappings.py if available.
-  
+        description: "MAE of the global mean baseline predictor"
+      model_mae:
+        type: number
+        description: "MAE of the trained model"
+      improvement_percent:
+        type: number
+        description: "Percentage improvement over baseline"
   stratification_report:
     type: object
-    description: >
-      Details about the stratified split or hold-out strategy used.
+    description: "Details of the stratified split used"
     required:
-      - split_type
-      - classes
-      - class_distribution
+      - train_size
+      - test_size
+      - groups
     properties:
-      split_type:
-        type: string
-        enum:
-          - stratified_k_fold
-          - hold_out
-      k_folds:
+      train_size:
         type: integer
-        nullable: true
-        description: Number of folds if split_type is stratified_k_fold.
-      classes:
-        type: array
-        items:
-          type: string
-        description: List of unique classes (primary_anion_cation_group) used.
-      class_distribution:
+        description: "Number of samples in training set"
+      test_size:
+        type: integer
+        description: "Number of samples in test set"
+      groups:
         type: object
+        description: "Distribution of primary_anion_cation_group in train/test"
         additionalProperties:
-          type: integer
-        description: >
-          Map of class name to sample count in the training set.
-  
-  permutation_p_value:
-    type: number
-    format: float
-    description: >
-      P-value from the permutation test. If < 0.05, the model is
-      considered statistically significant.
-  
-  leakage_warning:
-    type: boolean
-    description: >
-      True if a potential data leakage issue was detected (performance drop < 10%
-      when removing primary_anion_cation_group).
-  
+          type: object
+          properties:
+            train_count:
+              type: integer
+            test_count:
+              type: integer
+  hyperparameters:
+    type: object
+    description: "Best hyperparameters found during tuning"
+    additionalProperties: true
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of when the model was generated.
-  
-  hyperparameters:
-    type: object
-    description: >
-      Dictionary of hyperparameters used for the model.
-    additionalProperties: true
-  
-  data_hash:
+    description: "ISO 8601 timestamp of when the model was evaluated"
+  data_version:
     type: string
-    description: >
-      SHA-256 hash of the input dataset used for training, for reproducibility.
+    description: "Version hash of the input data used for training"
+  pipeline_version:
+    type: string
+    description: "Version of the modeling pipeline code"

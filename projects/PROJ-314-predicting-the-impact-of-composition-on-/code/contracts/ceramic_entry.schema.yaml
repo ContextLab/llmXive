@@ -1,122 +1,90 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: CeramicEntry
-description: >
-  Schema for a single ceramic material entry after ingestion and cleaning.
-  Includes composition, target variable (Weibull modulus), sample count,
-  flags for data quality, and computed elemental descriptors.
+description: |
+  Schema for a single ceramic material entry.
+  Represents a row in the raw or processed dataset before model training.
+  Includes composition, processing parameters, and target variable.
 type: object
 required:
   - composition
   - weibull_modulus
-  - sample_count
-  - primary_anion_cation_group
-  - mean_atomic_radius
-  - electronegativity_std
-  - valence_electron_concentration
-  - cation_size_variance
-  - sintering_temp
 properties:
   composition:
     type: string
-    description: >
-      Chemical formula in standard notation (e.g., "Al2O3", "BaTiO3").
-      Used as the primary key for data retrieval and merging.
-    pattern: "^[A-Z][a-z]?[0-9]*([A-Z][a-z]?[0-9]*)*$"
-  
+    description: |
+      Chemical formula string (e.g., "Al2O3", "Y3Al5O12").
+      Must be parseable by chemparse.
+    minLength: 1
   weibull_modulus:
     type: number
-    format: float
-    description: >
-      The Weibull modulus (m) value representing the variability in
-      material strength. This is the target variable for prediction.
+    description: |
+      The target variable: Weibull modulus (m).
+      Must be a positive real number.
     minimum: 0
-  
   sample_count:
     type: integer
-    description: >
-      Number of samples (N) used to derive the Weibull modulus.
-      Used for filtering low-confidence data points (N < 30).
+    description: |
+      Number of samples (N) used to calculate the Weibull modulus.
+      Used for filtering (N >= 30) and weighting.
     minimum: 1
-  
-  is_range_flag:
-    type: boolean
-    description: >
-      True if the original Weibull modulus was reported as a range,
-      False if it was a single value.
-  
-  range_original:
-    type: string
-    nullable: true
-    description: >
-      The original string representation of the range if is_range_flag is true
-      (e.g., "5.2-6.8"). Null otherwise.
-  
-  range_uncertainty:
-    type: number
-    nullable: true
-    description: >
-      Calculated uncertainty derived from the range (e.g., half the range width).
-      Null if is_range_flag is false.
-  
-  primary_anion_cation_group:
-    type: string
-    description: >
-      Categorical classification of the material based on its primary
-      anion and cation groups (e.g., "Oxide-AlkalineEarth", "Nitride-Si").
-      Used for stratified splitting in modeling.
-  
-  mean_atomic_radius:
-    type: number
-    format: float
-    description: >
-      Weighted mean atomic radius of the constituent elements in Angstroms.
-  
-  electronegativity_std:
-    type: number
-    format: float
-    description: >
-      Standard deviation of electronegativity values for the constituent elements.
-  
-  valence_electron_concentration:
-    type: number
-    format: float
-    description: >
-      Valence Electron Concentration (VEC): sum of valence electrons of all
-      atoms divided by total number of atoms in the formula unit.
-  
-  cation_size_variance:
-    type: number
-    format: float
-    description: >
-      Variance in ionic radii of the cation species.
-  
   sintering_temp:
     type: number
-    format: float
+    description: |
+      Sintering temperature in Celsius.
+      Can be null if not reported.
     nullable: true
-    description: >
-      Sintering temperature in Celsius. May be null if not reported.
-  
+  sintering_time:
+    type: number
+    description: |
+      Sintering time in hours.
+      Can be null if not reported.
+    nullable: true
+  primary_anion_cation_group:
+    type: string
+    description: |
+      Derived grouping feature based on the primary anion and cation.
+      Used for stratified splitting.
+      Example: "Oxide-Al", "Nitride-Si".
+    nullable: true
+  is_range_flag:
+    type: boolean
+    description: |
+      Indicates if the original Weibull modulus was a range (e.g., "10-12").
+      If true, the value stored in weibull_modulus is the midpoint.
+    default: false
+  range_original:
+    type: string
+    description: |
+      Original string value of the Weibull modulus if it was a range.
+      Null if not a range.
+    nullable: true
+  range_uncertainty:
+    type: number
+    description: |
+      Calculated uncertainty from range: (max - min) / 2.
+      Null if is_range_flag is false.
+    nullable: true
   is_imputed:
     type: boolean
-    description: >
-      True if any values for this entry were imputed (e.g., missing sintering temp),
-      False if all values were originally present.
-  
-  source_id:
-    type: string
-    nullable: true
-    description: >
-      Unique identifier from the source database (e.g., Materials Project ID).
-  
+    description: |
+      Indicates if any missing values in this row were imputed.
+    default: false
   source_url:
     type: string
+    description: |
+      URL or DOI of the source paper for this entry.
+      Used for citation validation.
+    format: uri
     nullable: true
-    description: >
-      URL of the source publication or database entry.
-  
-  processing_notes:
+  material_class:
     type: string
+    description: |
+      Broad classification of the material (e.g., "Oxide", "Nitride", "Carbide").
+      Used for filtering rare classes.
     nullable: true
-    description: >
-      Any notes regarding data cleaning, exclusion reasons, or fallback logic used.
+  notes:
+    type: string
+    description: |
+      Any additional notes or flags associated with this entry.
+    nullable: true
+additionalProperties: false

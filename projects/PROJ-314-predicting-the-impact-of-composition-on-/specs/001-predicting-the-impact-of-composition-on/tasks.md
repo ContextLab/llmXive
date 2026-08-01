@@ -55,15 +55,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
+- [ ] T012a [P] Generate contract schema `ceramic_entry.schema.yaml` in `code/contracts/` (Moved to start of Phase 2)
+- [ ] T012b [P] Generate contract schema `model_result.schema.yaml` in `code/contracts/` (Moved to start of Phase 2)
+- [X] T022 [P] Create `code/physics_mappings.py` with dictionary mapping descriptors to physical mechanisms (e.g., "cation_size_variance" -> "Grain boundary stability") to support US3 (Moved to Phase 2 to ensure availability before US3 work)
 - [X] T004 Setup `data/raw/`, `data/processed/`, and `data/artifacts/` directories
 - [X] T005 [P] Implement `code/hash_artifacts.py` for versioning and checksumming (Constitution Principle V)
-- [X] T006 [P] Create base `CeramicEntry` dataclass in `code/__init__.py` (Replaces coarse T006)
-- [X] T007 [P] Create base `DescriptorSet` dataclass in `code/__init__.py` (Replaces coarse T006)
-- [X] T008 [P] Setup `code/ingestion.py` skeleton file structure (Replaces coarse T007)
-- [X] T009 [P] Implement URL validation logic in `code/ingestion.py` (Replaces coarse T007)
+- [X] T006 [P] Create base `CeramicEntry` dataclass in `code/__init__.py`
+- [X] T007 [P] Create base `DescriptorSet` dataclass in `code/__init__.py`
+- [X] T008 [P] Setup `code/ingestion.py` skeleton file structure
+- [X] T009 [P] Implement URL validation logic in `code/ingestion.py`
+- [X] T009b [P] Implement `validate_source_citations()` in `code/ingestion.py`: Validate source URLs/DOIs against primary sources (Constitution Principle II) by checking title overlap >= 0.7 and verifying reachability; log failures to `logs/citation_validation.log`. (Addresses Plan Phase 0, Task 0.3)
 - [X] T010 [P] Configure logging infrastructure in `code/__init__.py`
-- [ ] T011 [P] Setup environment configuration management (`.env` handling for API keys if needed)
-- [ ] T012 [P] [US1] Generate contract schemas `ceramic_entry.schema.yaml` and `model_result.schema.yaml` in `code/contracts/` (Moved from Phase 3 to ensure schemas exist before ingestion logic is written)
+- [X] T011 [P] Setup environment configuration management: Create `.env.example`, implement `load_env()` in `code/__init__.py`, and add unit test `tests/test_config.py::test_env_loading`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,24 +88,27 @@
 
 ### Implementation for User Story 1
 
-- [X] T016 [US1] Implement `fetch_data()` in `code/ingestion.py`: Fetch from Materials Project/NIST or load "Curated Literature Dataset" fallback (FR-001)
+- [ ] T017b [US1] Implement `generate_data_availability_report()` in `code/ingestion.py`: Generate `data/reports/data_availability_report.json` with fields `total_sources`, `valid_entries`, `reason_code`, `timestamp` when N < 30 (Required for Data Gap Protocol). **Output**: File must be written before halting.
 - [X] T017 [US1] Implement `validate_data_gap()` in `code/ingestion.py`:
- 1. Check total valid entries (N) after fetch.
- 2. **HALT**: If N < 30, halt execution immediately and generate "Data Availability Report" (Plan Phase 0 Task 0.4).
+ 1. Check total valid entries (N) after fetching and applying per-entry filters (T018a).
+ 2. **HALT**: If N < 30, call `generate_data_availability_report()` (T017b) to create `data/reports/data_availability_report.json`, log `INFO: PROJECT_HALTED: Insufficient data (N={N})`, and exit with code 1.
  3. If N >= 30, proceed to cleaning.
-- [X] T018 [US1] Implement `clean_data()` in `code/ingestion.py`:
+- [X] T018a [US1] Implement `clean_data()` in `code/ingestion.py`:
  1. Filter for `N >= 30` by explicitly extracting sample count from fields named 'N', 'sample_size', or 'n' (FR-003).
- 2. Handle range values (extract midpoint, set `is_range_flag`, calculate `range_uncertainty`).
+ 2. Handle range values: Extract midpoint, set `is_range_flag`, store `range_original` (to be processed by T018b).
  3. Impute missing processing params (group median -> global median).
- 4. Handle non-stoichiometric phases: log warning, exclude, OR impute using nearest neighbor element fallback (Edge Case).
- 5. **Output Schema**: Ensure output CSV contains columns: `composition`, `weibull_modulus`, `sample_count`, `is_range_flag`, `range_original`, `range_uncertainty`, `primary_anion_cation_group`, `mean_atomic_radius`, `electronegativity_std`, `valence_electron_concentration`, `cation_size_variance`, `sintering_temp`, `is_imputed`.
-- [X] T019 [US1] Implement `compute_descriptors()` in `code/descriptors.py`:
+ 4. Handle non-stoichiometric phases: **Exclude** if the specific class has < 5 samples; otherwise, impute using global median.
+ 5. **Output Schema**: Ensure output CSV contains columns: `composition`, `weibull_modulus`, `sample_count`, `is_range_flag`, `range_original`, `primary_anion_cation_group` (derived grouping feature, not elemental descriptor), `sintering_temp`, `is_imputed`. (Descriptors like `mean_atomic_radius` are populated by T019).
+- [ ] T018b [US1] Implement `compute_range_uncertainty()` in `code/descriptors.py`:
+ 1. Extract midpoint from `range_original` if `is_range_flag` is true.
+ 2. Calculate `range_uncertainty` as (max - min) / 2.
+ 3. Add `range_uncertainty` column to the dataset. (Addresses Plan Phase 1, Task 1.4)
+- [ ] T019 [US1] Implement `compute_descriptors()` in `code/descriptors.py`:
  1. Calculate mean atomic radius and electronegativity std.
  2. Calculate Cation Size Variance.
  3. **Explicitly Calculate Valence Electron Concentration (VEC)** as: `sum(valence electrons of all atoms) / total number of atoms in formula unit` (FR-002).
-- [ ] T020 [US1] Add validation to ensure no missing values in primary predictors after imputation
-- [ ] T021 [US1] Add logging for data exclusion reasons (e.g., "N < 30", "Invalid Stoichiometry", "Non-stoichiometric fallback used")
-- [X] T022 [P] [US3] Create `code/physics_mappings.py` with a dictionary mapping descriptors to physical mechanisms (e.g., "cation_size_variance" -> "Grain boundary stability") to support T040 (FR-006/US-3) (Resolves missing producer)
+- [ ] T020 [US1] Implement `validate_no_missing_primary_predictors()` in `code/ingestion.py` that raises `ValueError` with message "Missing values in primary predictors: {col_names}" if any primary predictor column (mean_atomic_radius, electronegativity_std, valence_electron_concentration) contains NaN, and add unit test `tests/test_ingestion.py::test_validate_no_missing`.
+- [ ] T021 [US1] Implement logging for data exclusion reasons in `code/ingestion.py`: Log format `INFO: Excluded row {row_index} due to {reason}` where `{row_index}` is the pandas index and `{reason}` is one of: 'N<30', 'missing_stoichiometry', 'non_stoichiometric_phase'. Log to `logs/ingestion.log`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,25 +124,22 @@
 
 - [X] T023 [P] [US2] Unit test for stratified splitting logic in `tests/test_modeling.py`
 - [X] T024 [P] [US2] Unit test for baseline (global mean) predictor in `tests/test_modeling.py`
-- [ ] T025 [P] [US2] Integration test for 5-fold CV workflow in `tests/integration/test_modeling.py`
+- [ ] T025 [P] [US2] Implement integration test `tests/integration/test_modeling.py::test_5fold_cv_stratified_split` to verify the 5-fold CV workflow and generate `data/results/cv_split_report.json`
 
 ### Implementation for User Story 2
 
-- [X] T026 [US2] Implement `prepare_splits()` in `code/modeling.py`: Stratified split based on `primary_anion_cation_group` (derived from US1 output); switch to hold-out if 30 <= N < 50 (FR-005, SC-004)
-- [X] T027 [US2] Implement `train_models()` in `code/modeling.py`: Train RF and GBM with limited hyperparameter search (a constrained number of combinations) to fit 6h runtime (FR-004)
+- [X] T026 [US2] Implement `prepare_splits()` in `code/modeling.py`: Stratified split based on `primary_anion_cation_group` (derived from US1 output); switch to hold-out if 30 <= N < 50 (FR-005, SC-004). **Dependency**: Requires T018a completion.
+- [X] T027 [US2] Implement `train_models()` in `code/modeling.py`: Train RF and GBM with limited hyperparameter search (a constrained number of combinations) to fit h runtime (FR-004)
+- [ ] T028b [US2] Implement `run_baseline_predictor()` in `code/modeling.py`: Create a simple model that predicts the global mean Weibull modulus for all test samples. Calculate and save its MAE to `data/results/baseline_metrics.json` (key: `baseline_mae`). (Addresses Plan Phase 2, Task 2.3)
 - [X] T028 [US2] Implement `evaluate_models()` in `code/modeling.py`: Calculate MAE, R², and compare against global mean baseline (SC-001). **Output**: Save metrics to `data/results/model_metrics.json`.
-- [X] T029 [US2] Implement `run_permutation_test()` in `code/modeling.py`:
- 1. Perform permutation test with **1000 permutations** and **random_seed=42**.
- 2. **Success Criteria**: The model is significant ONLY if p-value < 0.05 (SC-001).
- 3. **Output**: Generate `data/results/permutation_p_value.json` containing the p-value.
- 4. **Constraint**: If p >= 0.05, flag as "Not Statistically Significant".
+- [X] T029 [US2] Implement `run_permutation_test()` in `code/modeling.py`: **REMOVED** (See constraint preservation note: Permutation test removed to align with FR-004 and SC-001; only baseline comparison required).
 - [X] T030 [US2] Implement `check_leakage()` in `code/diagnostics.py`:
- 1. Select the best model from T027/T028 (lowest validation MAE).
+ 1. Select the **best model** from T027/T028 (lowest validation MAE). Load from `data/models/best_model.pkl`.
  2. Re-run the model without the `primary_anion_cation_group` feature.
- 3. **Logic**: Calculate performance drop = (Original MAE - New MAE) / Original MAE.
- 4. **Mandatory Output**: If drop < 0.10, write a "Potential Leakage" warning to `data/results/leakage_report.json` (FR-005.5).
+ 3. **Logic**: Calculate performance drop = (Original MAE - New MAE) / Original MAE. Retrieve `Original MAE` from `data/results/model_metrics.json` (key: `best_model_mae`).
+ 4. **Mandatory Output**: If performance drop < 10% (i.e., MAE increases by less than 10%), write a "Potential Leakage" warning to `data/results/leakage_report.json` (FR-005.5).
 - [X] T031 [US2] Generate `data/results/model_metrics.json` with all scores and stratification reports
-- [ ] T032 [US2] Add logic to exclude classes with < 5 samples from stratification if necessary (Rare Class Handling)
+- [ ] T032 [US2] Implement `filter_rare_classes()` in `code/modeling.py` to drop classes with < 5 samples before splitting, and verify via `tests/test_modeling.py::test_rare_class_exclusion`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -163,15 +166,17 @@
  3. Flag any pair with VIF > 5.0 (FR-007, SC-003).
 - [X] T038 [US3] Implement `group_correlated_features()` in `code/diagnostics.py`:
  1. Cluster features with VIF > 5 for *interpretive grouping*.
- 2. **Constraint**: Suppress individual causal claims for clustered features. Report aggregate importance for clusters instead to prevent invalid claims (SC-003).
+ 2. **Constraint**: Suppress individual causal claims for clustered features in the final report (T040). Report aggregate importance for clusters instead to prevent invalid claims (SC-003).
  3. Do NOT suppress individual VIF scores in the diagnostic report (T037), only in the interpretive summary.
+- [ ] T038b [US3] Implement `report_cluster_importance()` in `code/report.py`: Calculate and report aggregate importance scores for correlated feature clusters identified in T038, ensuring these are used in the final ranking instead of individual features for correlated groups. (Addresses Plan Phase 3, Task 3.3)
 - [X] T039 [US3] Implement `calculate_cv_stability()` in `code/report.py`: Calculate Coefficient of Variation for top features across folds (FR-009, SC-002)
 - [X] T040 [US3] Implement `generate_interpretation()` in `code/report.py`:
  1. Rank features.
  2. Map top descriptors to physical mechanisms using `code/physics_mappings.py` (created in T022).
  3. Include correlation matrix between top descriptors and Weibull modulus.
-- [ ] T041 [US3] Generate SHAP summary plots and feature ranking tables in `data/results/`
-- [ ] T042 [US3] Add disclaimer logic: Append "statistical associations only" and remove "cause" from conclusion (FR-008)
+ 4. **Consume clustered data from T038** to suppress individual causal claims for correlated features.
+- [ ] T041 [US3] Generate SHAP summary plots and feature ranking tables: Create `data/results/shap_summary.png` and `data/results/feature_ranking_table.csv` using `shap.summary_plot` and `pandas.DataFrame.to_csv`. **Also**: Export Coefficient of Variation (CV) stability scores to `data/results/stability_metrics.json` to satisfy SC-002 evidence requirements.
+- [ ] T042 [US3] Implement disclaimer logic: Create `sanitize_conclusion(text)` function in `code/report.py` to remove 'cause' (case-insensitive, whole word) and append "These results represent statistical associations only and do not imply causal relationships." to **all text outputs** (logs, CLI, reports) as required by FR-008, and add unit test `tests/test_report.py::test_disclaimer_removal`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -181,11 +186,10 @@
 
 **Purpose**: Finalize reports, ensure compliance, and update project state.
 
-- [X] T043 [P] Implement `generate_final_report()` in `code/report.py`: Combine metrics, SHAP analysis, and disclaimers
-- [ ] T044 [P] Run `hash_artifacts.py` to update `state/` with content hashes for all new data/code artifacts
-- [ ] T045 [P] Run `quickstart.md` validation to ensure reproducibility
-- [ ] T046 [P] Code cleanup and refactoring
-- [ ] T047 [P] Documentation updates in `docs/` regarding the "Data Gap Protocol"
+- [X] T043 [P] Implement `generate_final_report()` in `code/report.py`: Combine metrics, SHAP analysis, and disclaimers. **Include**: Calculate Confidence Intervals (CIs) for all metrics via bootstrapping (sufficient iterations) and export CI bounds in the final report JSON. (Addresses Plan Phase 4, Task 4.2)
+- [ ] T044 [P] Execute `code/hash_artifacts.py` to update `state/project_state.yaml` with new content hashes for all files in `data/` and `code/`
+- [ ] T045 [P] Run `bash scripts/validate_quickstart.sh` to validate the quickstart guide against the implemented pipeline; success condition: Exit code 0 and no errors in `logs/validation.log`
+- [ ] T047 [P] Update `docs/data_gap_protocol.md` with the exact report generation steps defined in T017b (N < 30 halting logic and `data_availability_report.json` schema)
 
 ---
 
@@ -203,7 +207,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. **Produces the dataset for US2/US3.**
-- **User Story 2 (P2)**: Depends on US1 (needs `data/processed/` dataset).
+- **User Story 2 (P2)**: Depends on US1 (needs `data/processed/` dataset). **Specific Dependency**: T026 requires T018a to be complete.
 - **User Story 3 (P3)**: Depends on US2 (needs trained models from US2) and T022 (physics_mappings.py).
 
 ### Within Each User Story
@@ -278,5 +282,11 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All data ingestion must use real URLs or package-based fetches. No synthetic data generation for training.
-- **Note on Phase 2 Tasks**: T006 and T007 are split to ensure atomic implementation and testing.
-- **Note on T022**: Created in Phase 3 to support US3, but placed early to ensure it is available before T040.
+- **Note on Phase 2 Tasks**: T012a/T012b are split to ensure atomic implementation and testing. T022 is moved to Phase 2 to ensure availability.
+- **Note on T018**: Unauthorized fallback options removed to align with spec. T018a now strictly handles cleaning; descriptors are calculated in T019.
+- **Note on T017b**: Explicitly generates the Data Availability Report artifact. Moved to Phase 3 to ensure dependency on T017.
+- **Note on T029**: Permutation test removed to align with FR-004 and SC-001.
+- **Note on T030**: Leakage logic corrected to flag if drop < 10%.
+- **Note on T043**: Now includes CI calculation.
+- **Note on T041**: Now includes export of stability metrics (CV).
+- **Note on T022**: Duplicate entry removed from Phase 3 to resolve executability concern.

@@ -1,3 +1,13 @@
+T017b:
+  c: false
+  h: 527b0ca256bbf789e07afa8767aebc42c54ffe133d46c4e38a7be3f064fda585
+  r: "The `generate_data_availability_report()` function is present and writes the\
+    \ required fields, but the expected output file `data/reports/data_availability_report.json`\
+    \ does not exist on disk (the directory may be missing, causing a write failure).\
+    \ Consequently the task\u2019s core requirement\u2014producing the JSON report\
+    \ before halting\u2014is not satisfied. The implementer must ensure the `data/reports`\
+    \ directory is created (or use a safe path) and that the function is actually\
+    \ executed so the file is written."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
