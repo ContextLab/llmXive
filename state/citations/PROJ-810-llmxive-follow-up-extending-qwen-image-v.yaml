@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/Qwen/Qwen2-VL-2B-Instruct
   verified_at: '2026-07-12T14:21:15.638978Z'
-- artifact_hash: 8e37789b0f575a12c4ceba9e0e4a0f32cf2deeb7c0c31907f65ede104e115fc7
+- artifact_hash: 65a14e8d13c65db3c56651977b6d78b52dc91272f20ee7591cf28f29b7319748
   artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -29,6 +29,6 @@
     Tests by Partitioning the Permutations'
   kind: url
   value: https://arxiv.org/abs/1605.03992
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/1605.03992
-  verified_at: '2026-07-12T14:51:25.969897Z'
+  verified_at: '2026-08-01T21:38:46.751874Z'

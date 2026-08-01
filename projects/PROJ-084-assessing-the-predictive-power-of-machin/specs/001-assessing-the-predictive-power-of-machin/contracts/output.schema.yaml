@@ -1,68 +1,78 @@
-# Output Schema Validation Contract
-# Defines the expected structure and data types for all pipeline output artifacts
-# Used by code/utils/schema_validator.py to validate results before final reporting
+# Output Schema Validation Contracts
+# Defines the expected structure and constraints for all model output artifacts
+# used in the llmXive automated science pipeline.
 #
-# This schema covers:
-# 1. Model performance metrics (R², RMSE, MAE)
-# 2. Per-reaction-class breakdowns
-# 3. Feature importance rankings
-# 4. Data quality exclusion reports
-# 5. Final aggregated report structure
-#
-# Version: 1.0
-# Last Updated: 2024
-#
+# Version: 1.0.0
+# Last Updated: 2024-01-15
 
-version: "1.0"
+schema_version: "1.0.0"
+description: "Schema for ML model output artifacts (predictions, metrics, reports)"
 
-# Root object structure for final_report.json
-final_report:
-  type: object
-  required:
-    - metadata
-    - model_performance
-    - per_class_metrics
-    - feature_importance
-    - data_quality
-    - success_criteria_check
-  properties:
+artifacts:
+  # ------------------------------------------------------------------------
+  # 1. Final Report (data/results/final_report.json)
+  # ------------------------------------------------------------------------
+  final_report:
+    file_path: "data/results/final_report.json"
+    format: "json"
+    required_keys:
+      - metadata
+      - split_ratios
+      - model_performance
+      - success_criteria_checks
+      - feature_importance_summary
+      - sc003_substructure_frequency
+
     metadata:
       type: object
       required:
         - project_id
-        - dataset_source
-        - timestamp
         - pipeline_version
+        - timestamp
+        - dataset_source
+        - random_seed
       properties:
         project_id:
           type: string
-          const: "PROJ-084-assessing-the-predictive-power-of-machin"
-        dataset_source:
-          type: string
-          description: "Source DOI or URL of the raw dataset"
-        timestamp:
-          type: string
-          format: date-time
+          pattern: "^PROJ-\\d+-[a-z-]+$"
+          description: "Project identifier"
         pipeline_version:
           type: string
+          description: "Version of the processing pipeline"
+        timestamp:
+          type: string
+          format: "date-time"
+          description: "ISO 8601 timestamp of report generation"
+        dataset_source:
+          type: string
+          description: "Source of the dataset (e.g., DOI, URL)"
         random_seed:
           type: integer
-        total_samples:
-          type: integer
-          minimum: 0
-        train_split_ratio:
+          description: "Random seed used for reproducibility"
+
+    split_ratios:
+      type: object
+      required:
+        - train
+        - validation
+        - test
+      properties:
+        train:
           type: number
           minimum: 0.0
           maximum: 1.0
-        val_split_ratio:
+          description: "Fraction of data in training set"
+        validation:
           type: number
           minimum: 0.0
           maximum: 1.0
-        test_split_ratio:
+          description: "Fraction of data in validation set"
+        test:
           type: number
           minimum: 0.0
           maximum: 1.0
-    
+          description: "Fraction of data in test set"
+
     model_performance:
       type: object
       required:
@@ -72,14 +82,14 @@ final_report:
         random_forest:
           type: object
           required:
-            - r2
+            - r2_score
             - rmse
             - mae
-            - best_params
+            - hyperparameters
           properties:
-            r2:
+            r2_score:
               type: number
-              description: "R² score on held-out test set"
+              description: "R-squared score on test set"
             rmse:
               type: number
               minimum: 0.0
@@ -88,39 +98,21 @@ final_report:
               type: number
               minimum: 0.0
               description: "Mean Absolute Error"
-            best_params:
+            hyperparameters:
               type: object
-              required:
-                - n_estimators
-                - max_depth
-              properties:
-                n_estimators:
-                  type: integer
-                  minimum: 1
-                max_depth:
-                  type: integer
-                  minimum: 1
-                  nullable: true
-                min_samples_split:
-                  type: integer
-                  minimum: 2
-                min_samples_leaf:
-                  type: integer
-                  minimum: 1
-                max_features:
-                  type: string
-                  nullable: true
+              description: "Best hyperparameters from grid search"
+
         svm:
           type: object
           required:
-            - r2
+            - r2_score
             - rmse
             - mae
-            - best_params
+            - hyperparameters
           properties:
-            r2:
+            r2_score:
               type: number
-              description: "R² score on held-out test set"
+              description: "R-squared score on test set"
             rmse:
               type: number
               minimum: 0.0
@@ -129,56 +121,83 @@ final_report:
               type: number
               minimum: 0.0
               description: "Mean Absolute Error"
-            best_params:
+            hyperparameters:
               type: object
-              required:
-                - C
-                - kernel
-              properties:
-                C:
-                  type: number
-                  minimum: 0.0
-                kernel:
-                  type: string
-                  enum: ["linear", "rbf", "poly", "sigmoid"]
-                gamma:
-                  type: string
-                  nullable: true
-                epsilon:
-                  type: number
-                  minimum: 0.0
-                  nullable: true
-    
-    per_class_metrics:
-      type: object
-      description: "Performance metrics broken down by reaction class"
-      additionalProperties:
-        type: object
-        required:
-          - r2
-          - rmse
-          - mae
-          - sample_count
-        properties:
-          r2:
-            type: number
-          rmse:
-            type: number
-            minimum: 0.0
-          mae:
-            type: number
-            minimum: 0.0
-          sample_count:
-            type: integer
-            minimum: 0
-    
-    feature_importance:
+              description: "Best hyperparameters from grid search"
+
+    success_criteria_checks:
       type: object
       required:
-        - top_bits
-        - top_substructures
+        - sc001_r2_threshold
+        - sc002_generalization_gap
+        - sc003_substructure_frequency
+        - sc005_exclusion_fraction
       properties:
-        top_bits:
+        sc001_r2_threshold:
+          type: object
+          required:
+            - threshold
+            - achieved
+            - value
+          properties:
+            threshold:
+              type: number
+              const: 0.40
+            achieved:
+              type: boolean
+            value:
+              type: number
+
+        sc002_generalization_gap:
+          type: object
+          required:
+            - threshold
+            - achieved
+            - value
+          properties:
+            threshold:
+              type: number
+              const: 0.10
+            achieved:
+              type: boolean
+            value:
+              type: number
+
+        sc003_substructure_frequency:
+          type: object
+          required:
+            - threshold
+            - achieved
+            - value
+          properties:
+            threshold:
+              type: number
+              const: 0.80
+            achieved:
+              type: boolean
+            value:
+              type: number
+
+        sc005_exclusion_fraction:
+          type: object
+          required:
+            - measured_value
+            - description
+          properties:
+            measured_value:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+            description:
+              type: string
+
+    feature_importance_summary:
+      type: object
+      required:
+        - top_features
+        - total_features
+      properties:
+        top_features:
           type: array
           minItems: 10
           items:
@@ -186,7 +205,8 @@ final_report:
             required:
               - bit_index
               - importance_score
-              - description
+              - substructure_smiles
+              - reaction_center_description
             properties:
               bit_index:
                 type: integer
@@ -194,243 +214,148 @@ final_report:
               importance_score:
                 type: number
                 minimum: 0.0
-              description:
+              substructure_smiles:
                 type: string
-        top_substructures:
-          type: array
-          minItems: 10
-          items:
-            type: object
-            required:
-              - smarts_pattern
-              - frequency
-              - average_importance
-              - reaction_center_atoms
-            properties:
-              smarts_pattern:
+              reaction_center_description:
                 type: string
-              frequency:
-                type: integer
-                minimum: 0
-              average_importance:
-                type: number
-                minimum: 0.0
-              reaction_center_atoms:
-                type: array
-                items:
-                  type: integer
-                description: "Atom indices involved in the reaction center"
-    
-    data_quality:
-      type: object
-      required:
-        - total_raw_records
-        - excluded_records
-        - exclusion_reasons
-        - exclusion_fraction
-      properties:
-        total_raw_records:
+        total_features:
           type: integer
-          minimum: 0
-        excluded_records:
-          type: integer
-          minimum: 0
-        exclusion_fraction:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-        exclusion_reasons:
-          type: object
-          additionalProperties:
-            type: integer
-            minimum: 0
-          description: "Map of reason -> count"
-        yield_statistics:
-          type: object
-          required:
-            - mean
-            - std
-            - min
-            - max
-          properties:
-            mean:
-              type: number
-            std:
-              type: number
-              minimum: 0.0
-            min:
-              type: number
-            max:
-              type: number
-    
-    success_criteria_check:
-      type: object
-      required:
-        - sc001_r2_threshold
-        - sc001_passed
-        - sc002_gap_threshold
-        - sc002_passed
-        - sc003_substructure_frequency
-        - sc003_passed
-        - sc005_exclusion_fraction_measured
-        - sc005_passed
-        - overall_passed
-      properties:
-        sc001_r2_threshold:
-          type: number
-          const: 0.40
-        sc001_passed:
-          type: boolean
-        sc002_gap_threshold:
-          type: number
-          const: 0.10
-        sc002_passed:
-          type: boolean
-        sc003_substructure_frequency:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: "Percentage of high-yield reactions in validation set containing top substructures"
-        sc003_passed:
-          type: boolean
-        sc005_exclusion_fraction_measured:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-        sc005_passed:
-          type: boolean
-        overall_passed:
-          type: boolean
+          minimum: 1
 
-# Schema for model artifact files (saved in data/results/best_models/)
-model_artifact:
-  type: object
-  required:
-    - model_type
-    - model_params
-    - feature_names
-    - metrics
-  properties:
-    model_type:
-      type: string
-      enum: ["RandomForest", "SVM"]
-    model_params:
-      type: object
-    feature_names:
-      type: array
-      items:
-        type: string
-    metrics:
-      type: object
-      required:
-        - r2
-        - rmse
-        - mae
-      properties:
-        r2:
-          type: number
-        rmse:
-          type: number
-          minimum: 0.0
-        mae:
-          type: number
-          minimum: 0.0
+  # ------------------------------------------------------------------------
+  # 2. Data Quality Report (data/results/data_quality_report.json)
+  # ------------------------------------------------------------------------
+  data_quality_report:
+    file_path: "data/results/data_quality_report.json"
+    format: "json"
+    required_keys:
+      - total_input_records
+      - valid_records
+      - excluded_records
+      - exclusion_reasons
+      - yield_distribution
 
-# Schema for data quality report (data/results/data_quality_report.json)
-data_quality_report:
-  type: object
-  required:
-    - raw_data_path
-    - processed_data_path
-    - total_raw_records
-    - total_processed_records
-    - exclusion_log
-    - yield_stats
-  properties:
-    raw_data_path:
-      type: string
-      format: uri-reference
-    processed_data_path:
-      type: string
-      format: uri-reference
-    total_raw_records:
+    total_input_records:
       type: integer
       minimum: 0
-    total_processed_records:
+
+    valid_records:
       type: integer
       minimum: 0
-    exclusion_log:
-      type: array
-      items:
-        type: object
-        required:
-          - reason
-          - count
-        properties:
-          reason:
-            type: string
-          count:
-            type: integer
-            minimum: 0
-    yield_stats:
+
+    excluded_records:
+      type: integer
+      minimum: 0
+
+    exclusion_reasons:
+      type: object
+      description: "Count of records excluded for each reason"
+      additionalProperties:
+        type: integer
+        minimum: 0
+
+    yield_distribution:
       type: object
       required:
-        - mean
-        - std
         - min
         - max
+        - mean
+        - median
+        - std
       properties:
-        mean:
-          type: number
-        std:
-          type: number
-          minimum: 0.0
         min:
           type: number
         max:
           type: number
+        mean:
+          type: number
+        median:
+          type: number
+        std:
+          type: number
 
-# Schema for validation set (data/processed/validation_set.parquet)
-validation_set:
-  type: object
-  required:
-    - columns
-    - row_count
-  properties:
+  # ------------------------------------------------------------------------
+  # 3. Split Indices (data/processed/split_indices.parquet)
+  # ------------------------------------------------------------------------
+  split_indices:
+    file_path: "data/processed/split_indices.parquet"
+    format: "parquet"
     columns:
-      type: array
-      items:
-        type: string
-      contains:
-        - "smiles"
-        - "yield"
-        - "reaction_class"
-        - "ecfp4"
-        - "maccs"
-        - "scaffold_group"
-    row_count:
-      type: integer
-      minimum: 1
+      - index:
+          type: integer
+          description: "Original row index"
+      - split:
+          type: string
+          enum:
+            - train
+            - validation
+            - test
+          description: "Split assignment"
+      - scaffold_group:
+          type: string
+          description: "Murcko scaffold group identifier"
+      - reaction_class:
+          type: string
+          description: "Reaction class label"
 
-# Schema for split indices (data/processed/split_indices.parquet)
-split_indices:
-  type: object
-  required:
-    - columns
-    - row_count
-  properties:
+  # ------------------------------------------------------------------------
+  # 4. Validation Set (data/processed/validation_set.parquet)
+  # ------------------------------------------------------------------------
+  validation_set:
+    file_path: "data/processed/validation_set.parquet"
+    format: "parquet"
+    description: "Held-out validation set for hyperparameter tuning and SC-003 checks"
     columns:
-      type: array
-      items:
-        type: string
-      contains:
-        - "index"
-        - "split"
-        - "reaction_class"
-        - "scaffold_group"
-    row_count:
-      type: integer
-      minimum: 1
-    split:
-      type: string
-      enum: ["train", "validation", "test"]
+      - reaction_smiles:
+          type: string
+          description: "Standardized reaction SMILES"
+      - yield:
+          type: number
+          description: "Reaction yield"
+      - ecfp4:
+          type: binary
+          description: "ECFP4 fingerprint vector"
+      - maccs:
+          type: binary
+          description: "MACCS fingerprint vector"
+      - scaffold_group:
+          type: string
+      - reaction_class:
+          type: string
+
+  # ------------------------------------------------------------------------
+  # 5. Best Models (data/results/best_models/)
+  # ------------------------------------------------------------------------
+  best_models:
+    directory: "data/results/best_models/"
+    format: "pickle"
+    files:
+      - random_forest.pkl:
+          description: "Trained Random Forest model"
+          required_columns:
+            - model_object
+            - best_params
+            - training_metrics
+      - svm.pkl:
+          description: "Trained SVM model"
+          required_columns:
+            - model_object
+            - best_params
+            - training_metrics
+
+validation_rules:
+  # Ensure split ratios sum to 1.0
+  - rule: "split_ratios.train + split_ratios.validation + split_ratios.test == 1.0"
+    message: "Split ratios must sum to 1.0"
+
+  # Ensure R2 is within valid range
+  - rule: "model_performance.random_forest.r2_score >= -1.0 and model_performance.random_forest.r2_score <= 1.0"
+    message: "R2 score must be between -1 and 1"
+
+  # Ensure substructure frequency is calculated correctly
+  - rule: "success_criteria_checks.sc003_substructure_frequency.value >= 0.0 and success_criteria_checks.sc003_substructure_frequency.value <= 1.0"
+    message: "Substructure frequency must be between 0 and 1"
+
+  # Ensure exclusion reasons are consistent
+  - rule: "sum(exclusion_reasons.values()) == excluded_records"
+    message: "Sum of exclusion reasons must equal total excluded records"

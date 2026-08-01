@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -58,15 +58,15 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [X] T004 [P] Implement data loading pipeline for ALFWorld/TextWorld benchmarks
-- [X] T004a [P] Generate `data/processed/trajectories.parquet` by parsing raw ALFWorld/TextWorld datasets (specifically `data/raw/alfworld/*.jsonl` and `data/raw/textworld/*.jsonl`) into (state, action, outcome) tuples; ensure at least 100 trajectories are generated for testing. Raise `ValueError` if < 100 valid tuples are found. Depends on: T004.
+- [X] T004a [P] Generate `data/processed/trajectories.parquet` by parsing raw ALFWorld/TextWorld datasets (specifically `data/raw/alfworld/*.jsonl` and `data/raw/textworld/*.jsonl`) into (state, action, outcome) tuples; ensure at least 100 trajectories are generated for testing [UNRESOLVED-CLAIM: c_9b255bcc — status=not_enough_info]. Raise `ValueError` if < 100 valid tuples are found. Depends on: T004.
 - [X] T004b [P] Generate SHA-256 checksum for `data/processed/trajectories.parquet` and record it in `data/checksums.txt` and update `state/projects/PROJ-587-episodic-future-thinking-in-llms-impleme.yaml` artifact_hashes. Depends on: T004a.
 - [X] T005 [P] Implement authentication/authorization framework
 - [X] T006 [P] Setup API routing and middleware structure
 - [X] T007 Create base models/entities that all stories depend on
 - [X] T008 [P] Setup environment configuration management
 - [X] T008a [P] Generate `config/config.yaml`at `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config/config.yaml` with concrete defaults: `similarity_threshold: 0.75 `, `{{claim:c_7ef7f8af}} (Wikipedia: Redmi Note 6 Pro, https://en.wikipedia.org/wiki/Redmi_Note_6_Pro)`, `faiss_hnsw_m: 16 `, `faiss_hnsw_ef_construction: 100 `.
-- [X] T008b [P] Implement `config_loader.py` to validate `config.yaml` keys and types; raise `ValueError` if `max_ram_gb` > 7 or `faiss_hnsw_m` is invalid. Depends on: T008a.
-- [X] T008c [P] Implement memory limit enforcement in `utils/memory_monitor.py` to raise RuntimeError if process exceeds 6 GB RAM. Depends on: T008a.
+- [X] T008b [P] Implement `config_loader.py` to validate `config.yaml` keys and types; raise `ValueError` if `max_ram_gb` > 7 [UNRESOLVED-CLAIM: c_a8cfa699 — status=not_enough_info] or `faiss_hnsw_m` is invalid. Depends on: T008a.
+- [X] T008c [P] Implement memory limit enforcement in `utils/memory_monitor.py` to raise RuntimeError if process exceeds 6 GB RAM [UNRESOLVED-CLAIM: c_fd9349bf — status=not_enough_info]. Depends on: T008a.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,7 +76,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Implement a CPU-optimized neural episodic control module that stores (state, action, outcome) tuples with semantic embeddings and supports high-precision retrieval.
 
-**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU.
+**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU [UNRESOLVED-CLAIM: c_aad045a0 — status=not_enough_info].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -109,7 +109,7 @@ Examples of foundational tasks (adjust based on your project):
  - *Experimental Override*: Allow `--override-threshold` flag (used by T029) to bypass the 0.75 check for sensitivity analysis.
  - *Addressing FR-002*: Ensures the fixed threshold is enforced for operational retrieval.
 
-- [ ] T017 [US1] Add logging for retrieval events, confidence scores, and fallback triggers in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/logging.py`.
+- [X] T017 [US1] Add logging for retrieval events, confidence scores, and fallback triggers in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/logging.py`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -119,7 +119,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Generate future planning scenarios by combining retrieved episodic memories with current state, ensuring coherence and statistical validity.
 
-**Independent Test**: Generate plans for a set of held-out tasks.; measure accuracy against baseline; report effect size d≥0.8.
+**Independent Test**: Generate plans for a set of held-out tasks.; measure accuracy against baseline; report effect size d≥0.8 [UNRESOLVED-CLAIM: c_98ceca80 — status=not_enough_info].
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -139,7 +139,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T022 [US2] Implement augmented LLM inference (Transformer + Episodic Control) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/augmented_llm.py`.
 
-- [ ] T023 [US2] Implement `run_mixed_effects_test()` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` using `statsmodels` with Bonferroni correction for multiple-comparison testing (FR-008).
+- [X] T023 [US2] Implement `run_mixed_effects_test()` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` using `statsmodels` with Bonferroni correction for multiple-comparison testing (FR-008).
 
 - [X] T023b [US2] Integrate `run_mixed_effects_test()` into the main evaluation pipeline in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/experiments/run_episodic.py`, ensuring Bonferroni correction is applied to final reported p-values. Depends on: T023.
 
@@ -160,7 +160,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [X] T027a [US3] Implement protocol for implement protocol for recruiting ≥ 3 human raters and managing the evaluation interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md`. This task defines the workflow, rater instructions, and data collection format.
+- [X] T027a [US3] Implement protocol for implement protocol for recruiting ≥ 3 human raters [UNRESOLVED-CLAIM: c_05afb4b8 — status=not_enough_info] and managing the evaluation interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md`. This task defines the workflow, rater instructions, and data collection format.
  - *Addressing Daniel Kahneman*: Distinguish "simulation" vs "evaluation"; ensure System 2 checks System 1.
 
 - [X] T027b [US3] Implement `CounterfactualGenerator` to create perturbed scenarios (swapping outcome values) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/counterfactual_gen.py`.
@@ -187,8 +187,8 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T032 [P] Update `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/docs/architecture.md` to document reproducibility mechanisms (human evaluation workflow) and address methodological concerns regarding episodic vs. semantic retrieval in plain prose.
 - [X] T033 [P] Code cleanup: Remove unused imports and refactor `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` (T012) to use dependency injection.
-- [X] T034 [P] Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` to achieve index build time < 10s for 10k entries.
-- [ ] T035 [P] Additional unit tests for statistical utilities in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/unit/test_stats.py`.
+- [X] T034 [P] Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` to achieve index build time < 10s for 10k entries [UNRESOLVED-CLAIM: c_f874fad8 — status=not_enough_info].
+- [X] T035 [P] Additional unit tests for statistical utilities in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/unit/test_stats.py`.
 - [X] T036 [P] Add GPG signature verification to `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/download_data.sh` for data download security.
 - [X] T037 [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/.github/workflows/validate_quickstart.yml` to run `quickstart.md` end-to-end validation.
 
@@ -283,7 +283,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM and run on a standard multi-core CPU configuration. No CUDA, no 8-bit quantization, no large LLMs.
+- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM [UNRESOLVED-CLAIM: c_efc90d8a — status=not_enough_info] and run on a standard multi-core CPU configuration. No CUDA, no 8-bit quantization, no large LLMs.
 - **Data Integrity**: Use real ALFWorld/TextWorld datasets via official repositories. No synthetic/fake data generation for inputs.
 - **Reproducibility**: All evaluation metrics (including human evaluation) must be reproducible via deterministic recording of raw ratings and calculation of inter-rater reliability in CI.
 - **Reviewer Alignment**:

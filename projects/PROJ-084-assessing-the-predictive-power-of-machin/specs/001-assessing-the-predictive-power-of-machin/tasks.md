@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a Create `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/` directories
-- [ ] T001b Create `code/config.py`, `code/__init__.py`, `code/requirements.txt`, `tests/__init__.py`
+- [X] T001b Create `code/config.py`, `code/__init__.py`, `code/requirements.txt`, `tests/__init__.py`
 - [X] T002 Initialize Python 3.11 project with `pandas`, `scikit-learn`, `rdkit`, `pyyaml`, `pytest` in `code/requirements.txt`
 - [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools in `code/`
 
@@ -57,7 +57,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/config.py` with pinned random seeds, path constants, and hyperparameter grids for RF/SVM
-- [ ] T005 [P] Implement `code/utils/io.py` for robust Parquet/CSV loading, checksumming, and batch processing to manage memory < 7GB
+- [X] T005 [P] Implement `code/utils/io.py` for robust Parquet/CSV loading, checksumming, and batch processing to manage memory < 7GB
 - [X] T006 [P] Create `code/preprocessing/__init__.py` and `code/modeling/__init__.py` package structures
 - [ ] T007 Implement data schema validation contracts in `specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml`
 - [ ] T008 Implement output schema validation contracts in `specs/001-assess-ml-predictive-power/contracts/output.schema.yaml`
@@ -77,15 +77,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T011 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
+- [X] T011 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
 - [X] T012 [P] [US1] Unit test for salt removal and SMILES standardization in `tests/unit/test_sanitize.py`
 - [X] T013 [P] [US1] Unit test for fingerprint dimensionality (ECFP4=2048, MACCS=167) in `tests/unit/test_fingerprints.py`
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset from canonical source DOI ``, verify checksum against canonical manifest, and perform Constitution Principle II (Verified Accuracy) gate check before saving to `data/raw/uspto_raw.parquet` (FR-001, Constitution II) <!-- FAILED: unspecified -->
-- [~] T014 [US1] Implement `code/preprocessing/sanitize.py`: Load USPTO parquet from `data/raw/uspto_raw.parquet`, remove salts, standardize reactions using RDKit (FR-002)
-- [ ] T015 [US1] Implement `code/preprocessing/sanitize.py`: Handle yield parsing (ranges vs. single values) and exclude malformed entries with logging (Edge Cases)
+- [ ] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset from canonical source DOI ``, verify checksum against canonical manifest, and perform Constitution Principle II (Verified Accuracy) gate check before saving to `data/raw/uspto_raw.parquet` (FR-001, Constitution II) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Implement `code/preprocessing/sanitize.py`: Load USPTO parquet from `data/raw/uspto_raw.parquet`, remove salts, standardize reactions using RDKit (FR-002)
+- [X] T015 [US1] Implement `code/preprocessing/sanitize.py`: Handle yield parsing (ranges vs. single values) and exclude malformed entries with logging (Edge Cases)
 - [X] T016 [US1] Implement `code/preprocessing/fingerprints.py`: Generate ECFP and MACCS vectors for all reactants/reagents (FR-003)
 - [ ] T017 [US1] Implement `code/preprocessing/ingest.py`: Orchestrate sanitization, fingerprinting, and save to `data/processed/cleaned_reactions.parquet` (FR-001)
 - [ ] T018 [US1] Add logging for exclusion reasons and data quality metrics (SC-005) in `code/preprocessing/ingest.py` and generate `data/results/data_quality_report.json`
@@ -103,7 +103,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
+- [X] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
 - [ ] T021 [P] [US2] Integration test for training pipeline on a subset in `tests/integration/test_training_pipeline.py`
 
 ### Implementation for User Story 2

@@ -1,10 +1,10 @@
 T019:
   c: false
-  h: eb3eb78419a7cf11f38ae3fa601aafacda9c8ca4d48dde7f9b8a5fed88c0df1f
-  r: The `code/main.py` file does not show any explicit runtime assertion that checks
-    for 3D calls or validates the existence/contents of `data/processed/descriptors.parquet`,
-    and the required `descriptors.parquet` file is missing from the repository. Both
-    the assertion and the valid descriptor file are needed to satisfy the task.
+  h: 1c0a4afea083d6cf51ed1732755b9884e21b1ce5d7928b2df254fcf87dea3f09
+  r: The `code/main.py` defines the validation functions but does not invoke them
+    in the execution flow, and the required `data/processed/descriptors.parquet` file
+    is absent, so the runtime assertion cannot actually verify a valid descriptors
+    file.
 T022:
   c: true
   h: cb148377dd81f34bfb57d8687237988429590599c5dc2a57908e1fcf13d9a227
@@ -42,3 +42,10 @@ T035:
     \ evidence; the implementer supplied no artifact demonstrating that Jaccard \u2265\
     \u202F0.7 was verified or that failures would be logged for either cluster or\
     \ individual metrics. The required output is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No SHAP summary plot, feature\u2011importance report, or any files distinguishing\
+    \ collinear clusters were supplied. The implementer\u2019s response contains only\
+    \ the task description and project context, without the required visual or data\
+    \ artifacts, so the requirement is not met."

@@ -1,6 +1,10 @@
-'|control error family rate wise':
-  quote: FWER under 0 .01, 0 .05 or 0 .1. As a general procedure to control k-FWER
-    (the probability of making
-  source_id: '2310.09493'
-  url: https://arxiv.org/abs/2310.09493
-  value: '0.05'
+0.05|permutation test:
+  quote: 4 0.04 0.047520825 0.047520824 0.0495
+  source_id: '1603.05766'
+  url: https://arxiv.org/abs/1603.05766
+  value: '0.047520825'
+'|key matching point score':
+  quote: 'P1533: Q16871354'
+  source_id: Q97107363
+  url: https://www.wikidata.org/wiki/Q97107363
+  value: '4'

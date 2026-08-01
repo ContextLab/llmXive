@@ -1,3 +1,2 @@
-"""
-Test package initialization.
-"""
+# Mark tests directory as a package
+pass

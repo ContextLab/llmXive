@@ -474,3 +474,187 @@
   source_type: external
   status: verified
   updated_at: '2026-07-12T14:51:25Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Permutation test with 1000 iterations for p-value less than 0.05
+  claim_id: c_25a17dce
+  context: Implement src/analysis/separability.py -> Permutation Test (1000 (1605.03992,
+    https://arxiv.org/abs/1605.03992) iterations) for p-value < 0.05 (Task 2.4).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 4 0.04 0.047520825 0.047520824 0.0495
+      source_id: '1603.05766'
+      url: https://arxiv.org/abs/1603.05766
+      value: '0.047520825'
+    filled: true
+  kind: magnitude
+  raw_text: Permutation Test (1000 iterations) for p-value < 0.05
+  resolved_value: '0.047520825'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T21:34:37Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 0
+  canonical: permutation test 1000 iterations for p value less than 0.05
+  claim_id: c_6f7d5970
+  context: T023 [US1] Implement src/analysis/separability.py -> Permutation Test (1000
+    (1605.03992, https://arxiv.org/abs/1605.03992) iterations) for p-value < 0.05
+    (Task 2.4).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 4 0.04 0.047520825 0.047520824 0.0495
+      source_id: '1603.05766'
+      url: https://arxiv.org/abs/1603.05766
+      value: '0.047520825'
+    filled: true
+  kind: magnitude
+  raw_text: Permutation Test (1000 iterations) for p-value < 0.05.
+  resolved_value: '0.047520825'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T21:35:56Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: derive text image labels using aspect ratio
+  claim_id: c_e3cd44b8
+  context: T009 [P] [Sanity Check] Implement src/data/preprocess.py -> Heuristic label
+    derivation (Aspect Ratio).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Derive_text_image_labels_using_aspect_ratio
+  kind: entity_fact
+  raw_text: Derive 'text'/'image' labels using aspect ratio.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T21:36:31Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: compare against manual labels in data manual audit labels csv
+  claim_id: c_ddde7030
+  context: 'T010 [P] Implement src/data/preprocess.py -> Manual Audit Logic (Task
+    1.4). Logic: Randomly sample N_audit regions (seed=42, size=N_audit from T000)
+    from data/interim/heuristic_labels_ocr.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_against_manual_labels_in_data_manual_audit_labels_cs
+  kind: entity_fact
+  raw_text: Compare against manual labels in data/manual/audit_labels.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T21:37:02Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: halt if agreement less than 80 percent
+  claim_id: c_5e60a3ba
+  context: 'T010 [P] Implement src/data/preprocess.py -> Manual Audit Logic (Task
+    1.4). Logic: Randomly sample N_audit regions (seed=42, size=N_audit from T000)
+    from data/interim/heuristic_labels_ocr.csv.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_agreement_less_than_80_percent
+  kind: magnitude
+  raw_text: Halt if agreement < 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T21:37:26Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: compute linearity metric with small alpha steps
+  claim_id: c_8d0706a4
+  context: T027 [US2] Implement src/analysis/editing.py -> Linearity Verification
+    (Task 3.1) with small alpha steps.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_linearity_metric_with_small_alpha_steps
+  kind: entity_fact
+  raw_text: Compute linearity metric with small alpha steps.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T21:37:51Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: keypoint matching score must be greater than or equal to 0.80
+  claim_id: c_d773c367
+  context: 'T031 [US2] Implement src/analysis/editing.py -> Keypoint Matching Score
+    (Task 3.4, FR-010). Logic: Detect keypoints (SIFT/ORB) in non-text regions of
+    baseline and edited images. Match and compute score.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q16871354'
+      source_id: Q97107363
+      url: https://www.wikidata.org/wiki/Q97107363
+      value: '4'
+    filled: true
+  kind: magnitude
+  raw_text: Key point Matching Score (must be >= 0.80).
+  resolved_value: '4'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T21:38:01Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: if accuracy less than 95 percent generate data manual verification queue
+    csv with 10 random samples for manual review
+  claim_id: c_ce4721d8
+  context: 'T032 [US2] Implement src/analysis/editing.py -> OCR validation and Manual
+    Verification Fallback (Task 3.5). Logic: Run PaddleOCR.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/If_accuracy_less_than_95_percent_generate_data_manual_verifi
+  kind: magnitude
+  raw_text: If accuracy < 95%, generate data/manual/verification_queue.csv with 10
+    random samples for manual review.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T21:38:27Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: generate data manual verification queue csv with 10 random samples for
+    manual review
+  claim_id: c_8bdba192
+  context: 'T032 [US2] Implement src/analysis/editing.py -> OCR validation and Manual
+    Verification Fallback (Task 3.5). Logic: Run PaddleOCR. If accuracy < 95%, generate
+    data/manual/verification_queue.csv with 10 random samples for manual review.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/manual/verification_queue.csv with 10 random samples for
+    manual review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T21:38:46Z'

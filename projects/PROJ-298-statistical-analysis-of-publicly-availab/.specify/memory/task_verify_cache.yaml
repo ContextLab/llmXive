@@ -7,12 +7,12 @@ T001a:
     is missing.
 T007:
   c: false
-  h: 21bfbe6cef985a3755790c5f2441ef9c18b2c8b5dd10331dc30fafa72096b4c7
-  r: The `code/data/generate_taxonomies.py` file exists, but the required output files
-    (`data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json`) are
-    missing, and the visible portion of the script does not show the full implementation
-    of taxonomy generation or validation against the Survey 2023 source. The task
-    is not fully satisfied.
+  h: 1e3a968277abb6c1aae227849828d474f765ff19a14d4c70b7b797a05d73abc3
+  r: "The required output files `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json`\
+    \ are not present, and the script contains placeholder logic (empty calendar,\
+    \ no real validation) rather than a full implementation that generates and validates\
+    \ the taxonomy. The next implementer must ensure the script creates both JSON\
+    \ files with real data and implements proper taxonomy\u2011structure validation."
 T030:
   c: false
   h: f3545099309a988f0278ef30ad7908ddf37d41b4538a651e0b78ac7d3d26941a
@@ -43,3 +43,26 @@ T035:
     \ fit RAM constraint\u201D requirement. Consequently the claimed work does not\
     \ provide the required implementation, measurements, or reproducible notebook\
     \ evidence."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `tests/unit/` files containing new unit tests for the Mann\u2011Kendall,\
+    \ Jaccard, or ADF functions are present; the provided evidence contains only the\
+    \ task description and no actual test code or files, so the required artifact\
+    \ is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No validation logs, reports, or any output confirming that `quickstart.md` was\
+    \ executed on a CPU\u2011only runner, completed within 6\u202Fhours, and that\
+    \ all notebooks ran reproducibly are present. The implementer only restated feature\
+    \ specifications and did not provide the required artifact proving the quickstart\
+    \ validation succeeded."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No generated reports or visualizations were provided, so there is no way to\
+    \ verify that the mandatory limitation disclosure (\"Limitation: All findings\
+    \ are associational and do not imply causality.\") appears in every artifact as\
+    \ required by FR\u2011011. The implementer must supply the actual report files\
+    \ and visualization outputs for inspection."

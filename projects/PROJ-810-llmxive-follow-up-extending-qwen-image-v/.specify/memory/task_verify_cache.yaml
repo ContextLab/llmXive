@@ -1,0 +1,15 @@
+T000:
+  c: false
+  h: 99c9984b44f61d80c7f11e0085677d4fe37ae557fd044a4db0d9d3614d2ba0a6
+  r: "The `src/analysis/separability.py` script exists and contains a power\u2011\
+    analysis implementation, but it writes its results to `data/results/power_analysis.json`,\
+    \ which is absent on disk. Moreover, the default `effect_size` is set to 0.8 (not\
+    \ strictly greater than 0.8) contrary to the task\u2019s \u201Cd > 0.8\u201D requirement.\
+    \ The required JSON output is therefore missing and the parameter condition is\
+    \ not met."
+T001:
+  c: false
+  h: 964e4e72e5aeb339811a201123db690e5870cbdae938a5657c253634c92a14c9
+  r: "The `src/models/vae_loader.py` contains placeholder model IDs and does not implement\
+    \ the logic to write the required `model_availability.json`. Moreover, the `data/results/model_availability.json`\
+    \ file is missing entirely. The task\u2019s deliverable is not present."

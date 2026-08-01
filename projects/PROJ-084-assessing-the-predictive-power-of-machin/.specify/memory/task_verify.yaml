@@ -1,6 +1,10 @@
-T001a Create `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/` directories: 1
-T001b Create `code/config.py`, `code/__init__.py`, `code/requirements.txt`, `tests/__init__.py`: 1
-T003 [P] Configure linting (`ruff`) and formatting (`black`) tools in `code/`: 1
-? T005 [P] Implement `code/utils/io.py` for robust Parquet/CSV loading, checksumming,
-  and batch processing to manage memory < 7GB
-: 1
+T001a: 1
+T003: 1
+T007: 1
+T008: 1
+T010: 1
+T014: 1
+T017: 1
+T018: 1
+T019: 1
+T021: 1

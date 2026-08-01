@@ -134,13 +134,13 @@
 
 - [X] T031a [US3] Implement `code/data/feature_clustering.py` to compute VIF and group correlated features (|r| > 0.8) into clusters for DIAGNOSTIC PURPOSES ONLY. **NO features are removed** based on VIF thresholds (per plan.md FR-007).
 - [X] T031b [US3] Implement `code/data/feature_clustering.py` iterative VIF-based feature removal loop (remove feature with highest VIF if VIF > 5.0 until all VIF ≤ 5.0). **Conflict Note**: This task implements spec FR-007 which contradicts the plan.md FR-007 "diagnostic only" stance. The code must explicitly document this deviation to satisfy the spec's functional requirement.
-- [ ] T032 [US3] Implement `code/models/interpret.py` with Cluster-Aware SHAP analysis using `data/processed/descriptors.parquet` and `data/processed/model.pkl`.
+- [ ] T032 [US3] Implement `code/models/interpret.py` with Cluster-Aware SHAP analysis using `data/processed/descriptors.parquet` and `data/processed/model.pkl`. <!-- FAILED: unspecified -->
 - [X] T033a [US3] Implement two-stage bootstrap in `code/models/interpret.py` (SHAP-only resampling as per plan.md Complexity Tracking): resample SHAP values without re-training.
 - [X] T033b [US3] Implement full dataset bootstrapping in `code/models/interpret.py` (resample dataset multiple times, re-train model, compute SHAP) to verify feature-set stability as per spec FR-005. **Conflict Note**: This task implements spec FR-005 which contradicts the plan.md "SHAP-only" approach.
 - [ ] T034a [US3] Calculate Jaccard similarity of top feature clusters across multiple bootstrap resamples (from T033a/T033b).
 - [ ] T034b [US3] Calculate Jaccard similarity of top individual SHAP features across multiple bootstrap resamples to satisfy spec SC-003. **Conflict Note**: This task implements spec SC-003 which contradicts the plan.md "cluster" metric.
 - [ ] T035 [US3] Generate stability report verifying Jaccard ≥ 0.7 (log failure if < 0.7 for both cluster and individual metrics).
-- [~] T036 [US3] Generate SHAP summary plot and feature importance report distinguishing collinear clusters.
+- [ ] T036 [US3] Generate SHAP summary plot and feature importance report distinguishing collinear clusters.
 - [ ] T037 [US3] Save all analysis artifacts (plots, reports, SHAP values) to `data/processed/analysis/`.
 
 **Checkpoint**: All user stories should now be independently functional

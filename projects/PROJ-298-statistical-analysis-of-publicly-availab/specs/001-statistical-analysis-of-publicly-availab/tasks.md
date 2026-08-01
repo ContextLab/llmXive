@@ -153,9 +153,9 @@
 - [ ] T033 [P] Documentation updates in `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md` and `quickstart.md`, ensuring notebooks are reproducible
 - [ ] T034 Code cleanup and refactoring across `code/analysis/` modules, including linting checks
 - [ ] T035 Performance optimization for streaming large data dumps to fit RAM constraint, ensuring notebooks are reproducible
-- [~] T036 [P] Additional unit tests for statistical functions (Mann-Kendall, Jaccard, ADF) in `tests/unit/`, ensuring notebooks are reproducible
-- [~] T037 Run `quickstart.md` validation to ensure all tasks execute successfully on CPU-only runner within 6 hours, ensuring notebooks are reproducible <!-- ATOMIZE: requested -->
-- [~] T038 Final verification of all limitation disclosures (FR-011) in all generated reports and visualizations
+- [ ] T036 [P] Additional unit tests for statistical functions (Mann-Kendall, Jaccard, ADF) in `tests/unit/`, ensuring notebooks are reproducible
+- [ ] T037 Run `quickstart.md` validation to ensure all tasks execute successfully on CPU-only runner within 6 hours, ensuring notebooks are reproducible <!-- ATOMIZE: requested -->
+- [ ] T038 Final verification of all limitation disclosures (FR-011) in all generated reports and visualizations
 
 ---
 

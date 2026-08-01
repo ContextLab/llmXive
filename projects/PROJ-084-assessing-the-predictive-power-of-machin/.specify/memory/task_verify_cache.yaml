@@ -1,0 +1,39 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the required directories (`code/`, `data/raw/`,\
+    \ `data/processed/`, `data/results/`, `tests/`) actually exist on disk; the response\
+    \ contains only the task description and no file\u2011system listing or screenshots\
+    \ showing those folders. The implementer must create the directories (and optionally\
+    \ include a brief directory tree) to satisfy the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.ruff.toml`, or a `pre-commit` config) were provided or referenced,
+    so there is no evidence that ruff and black have been set up in the `code/` directory.
+    The required artifacts are missing.
+T010:
+  c: false
+  h: 8a279e3ee4047ea1d7c112fa98e0dacd54f3b9a32bea756948e7d7d3bef3a97b
+  r: "The provided `scaffold.py` only defines helper functions and a placeholder `main()`\
+    \ that does nothing; it never reads `cleaned_reactions.parquet` nor writes `scaffold_groups.parquet`.\
+    \ Moreover, both the required input parquet file and the expected output parquet\
+    \ file are absent from the repository. The task\u2019s core requirement\u2014\
+    to generate scaffold grouping keys from the sanitized reactions and produce the\
+    \ output file\u2014is therefore not satisfied."
+T014:
+  c: false
+  h: a7531e2afe22ef6a6dfc853a8338d72956b9907121da32d52ecb324a3a023ad1
+  r: The provided `sanitize.py` defines helper functions but never loads `data/raw/uspto_raw.parquet`
+    nor applies `remove_salts` to the data, and the required parquet file is absent
+    from the repository. Consequently the script does not fulfill the stated requirement
+    of loading, sanitizing, and standardizing the USPTO reactions.
+T019:
+  c: false
+  h: 619d7c3ec744dbda61e49b0d4009f418552b7af60da81e62b3c29f55551dffad
+  r: The provided `download.py` contains only placeholder logic, raises a `FileNotFoundError`
+    instead of performing a real download, and leaves the expected MD5 checksum empty.
+    Moreover, the required output file `data/raw/uspto_raw.parquet` is missing. The
+    implementation does not fulfill the download, checksum verification, or Constitution
+    Principle II gate check as specified.

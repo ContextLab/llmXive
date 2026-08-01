@@ -1,34 +1,34 @@
 """
-Script to initialize the project directory structure.
-Creates standard folders for code, data (raw, processed, results), and tests.
+Setup script to create project directories.
 """
+
 import os
 from pathlib import Path
 
 def main():
-    # Define the project root (current directory)
-    root = Path(".")
-    
-    # Define relative paths based on T001a requirements
+    """Create all necessary project directories."""
+    project_root = Path(__file__).resolve().parent.parent
+
     directories = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "tests"
+        project_root / "code",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "results",
+        project_root / "tests"
     ]
-    
-    created_count = 0
-    for rel_path in directories:
-        full_path = root / rel_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-    
-    print(f"\nSetup complete. {created_count} new directories created.")
+
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
+
+    # Create __init__.py files
+    for directory in directories:
+        init_file = directory / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created {init_file}")
+
+    print("Directory setup complete.")
 
 if __name__ == "__main__":
     main()
