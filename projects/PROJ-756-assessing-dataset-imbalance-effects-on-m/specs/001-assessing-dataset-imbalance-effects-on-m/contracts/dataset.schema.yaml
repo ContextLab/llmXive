@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaterialEntrySchema"
+description: "Schema for processed material entries with descriptors."
+type: object
+properties:
+  material_id:
+    type: string
+    description: "Unique identifier for the material."
+  composition:
+    type: string
+    description: "Chemical formula (e.g., Fe2O3)."
+  targets:
+    type: object
+    description: "Target property values."
+    additionalProperties:
+      type: number
+  descriptors:
+    type: array
+    description: "14 L2-normalized Magpie compositional descriptors."
+    items:
+      type: number
+    minItems: 14
+    maxItems: 14
+  source:
+    type: string
+    enum: ["OQMD", "AFLOW", "MP"]
+    description: "Source dataset."
+  metadata:
+    type: object
+    description: "Additional metadata (optional)."
+required:
+  - material_id
+  - composition
+  - targets
+  - descriptors
+  - source

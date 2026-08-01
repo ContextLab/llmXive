@@ -1,0 +1,13 @@
+status: none
+intent: download OQMD AFLOW Materials Project materials property dataset with descriptors
+  python package dataset
+required_fields:
+- material_id
+- composition
+- formation_energy
+- band_gap
+- bulk_modulus
+- magpie_descriptors
+cache_key: 6fa6cc927378293e593155657db86a932d98be3e621b3ec9d6c189f98a797d18
+searched_at: '2026-08-01T16:56:18.558341+00:00'
+retry_count: 1
