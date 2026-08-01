@@ -13,7 +13,7 @@ This project investigates whether the "foresight" phenomenon in LLM reasoning st
 **Primary Dependencies**: `torch` (CPU-only build), `transformers`, `datasets`, `peft`, `scikit-learn` (for SVD/stats), `pandas`, `numpy`, `matplotlib`.  
 **Storage**: Local filesystem. `data/` is for raw datasets **only**. `results/` is for **all** derived artifacts including checkpoints, logs, matrices, and plots.  
 **Testing**: `pytest` for unit tests on projection logic; integration tests via GitHub Actions workflow.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: multiple vCPUs, 7GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple vCPUs, sufficient RAM).  
 **Project Type**: Computational research / ML Experimentation.  
 **Performance Goals**: Complete full pipeline (OPD + 6 RL variants + analysis) within 6 hours; memory peak < 7GB.  
 **Constraints**: No GPU; no full-model SVD (must be layer-wise or randomized); FP16 precision mandatory; strict seed pinning for reproducibility.  
@@ -93,8 +93,8 @@ requirements.txt
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | Layer-wise SVD instead of full-model SVD | Full-model SVD on a large-scale model exceeds available CPU memory resources.. | A full-model SVD would cause OOM errors, making the experiment impossible on the target hardware. |
-| M parameter model instead of 1.1B | 1.1B model + FP16 + optimizer states > 7GB RAM. | Larger models would prevent training within the limited time and memory constraint, even with CPU optimization. |
+| M parameter model instead of 1.1B | B model + FP16 + optimizer states > 7GB RAM. | Larger models would prevent training within the limited time and memory constraint, even with CPU optimization. |
 | Multiple independent seeds per variant | Statistical rigor (Principle VII) requires sufficient power (N=10) to detect medium effect sizes with Wilcoxon test. | A single run or N=3 cannot distinguish "foresight" effects from random stochasticity in RL. |
 | Random Walk Prior Baseline (Variant E) | Needed to isolate the effect of *specific* OPD geometry from general low-rank constraints and geometry learned from supervision. | Without this control, any improvement from Low-Rank RL could be attributed to the constraint itself, not the OPD geometry. |
 | OPD-Initialized RL Baseline (Variant F) | Needed to isolate the effect of the *projection constraint* from the *initialization* with OPD weights. | Without this, we cannot distinguish if success is due to the geometry constraint or simply starting from a better point. |
-| Pruning TinyLlamaB to 300M | No verified M TinyLlama artifact exists; must derive from verified 1.1B source. | Using an unverified or generic 300M model would violate Constitution Principle II (Verified Accuracy). |
+| Pruning TinyLlamaB to M | No verified M TinyLlama artifact exists; must derive from verified large-scale source. | Using an unverified or generic 300M model would violate Constitution Principle II (Verified Accuracy). |
