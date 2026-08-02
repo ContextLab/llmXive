@@ -1,0 +1,8 @@
+{
+  "n_total_subjects": 60,
+  "effect_size": 0.25,
+  "power": 0.85,
+  "alpha": 0.05,
+  "power_insufficient": false,
+  "justification": "Selected effect size 0.250 which requires N=60 for power=0.850. Based on T012-Sens sensitivity analysis. Power criteria met."
+}

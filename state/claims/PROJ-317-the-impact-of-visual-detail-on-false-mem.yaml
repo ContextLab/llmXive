@@ -3878,3 +3878,126 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T10:02:34Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
+  claim_id: c_fa0aadf5
+  context: Task T012.0 requires updating research.md with Section 2.1 stating the
+    effect size assumption.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T22:52:32Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: 'Aplysia presynaptic facilitation pathway: serotonin-cAMP-PKA-CREB'
+  claim_id: c_321e4577
+  context: Task T093 documents the biological gap in the ladder of explanation, citing
+    the pathway in Aplysia.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aplysia_presynaptic_facilitation_pathway:_serotonin-cAMP-PKA
+  kind: entity_fact
+  raw_text: "In Aplysia, presynaptic facilitation corresponds to serotonin \u2192\
+    \ cAMP \u2192 PKA \u2192 CREB."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T22:52:56Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Visual Genome train split loaded via HuggingFace datasets
+  claim_id: c_c1e6b630
+  context: Task T006.0-InitBundle describes fetching a representative sample from
+    Visual Genome.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Visual_Genome_train_split_loaded_via_HuggingFace_datasets
+  kind: entity_fact
+  raw_text: Visual Genome dataset is loaded using datasets.load_dataset with split='train'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T22:53:22Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/research.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
+  claim_id: c_928f05ed
+  context: Section 2.1 Theoretical Framework discusses the effect size assumption
+    derived from previous research.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T22:57:23Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/research.md
+  attempts: 1
+  canonical: Kandel 1999 Science paper pages 1030-1038 volume 5544
+  claim_id: c_56e01f36
+  context: Section 2.2 cites Kandel regarding the biological correlates of memory
+    storage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Kandel, E. R. (n.d.). The molecular biology of memory storage: a dialogue
+    between genes and synapses. Science, (5544), 1030-1038.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T22:58:09Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/research.md
+  attempts: 1
+  canonical: Cohen's f=0.25 medium effect size based on Loftus et al. 1974
+  claim_id: c_5a365a16
+  context: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974) ''The Misinformation Effect''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T23:00:29Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/research.md
+  attempts: 1
+  canonical: Kandel E.R. paper on molecular biology of memory storage in Science issue
+    5544 pages 1030-1038
+  claim_id: c_5f44529c
+  context: 'Citation: Kandel, E. R. (n.d.). The molecular biology of memory storage:
+    a dialogue between genes and synapses. Science, (5544), 1030-1038.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Kandel, E. R. (n.d.). The molecular biology of memory storage: a dialogue
+    between genes and synapses. Science, (5544), 1030-1038.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T23:00:30Z'

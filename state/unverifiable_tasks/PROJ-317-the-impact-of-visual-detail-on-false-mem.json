@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-317-the-impact-of-visual-detail-on-false-mem",
+  "tasks": [
+    {
+      "task_key": "T017",
+      "reject_count": 1,
+      "last_reason": "The provided `metadata.py` does not use `datetime.now(timezone.utc)`, never reads `data/assets/generation_log.json` (the file is missing), and contains no logic to write the required `data/stimuli/{id}_metadata.yaml` files or include the asset parameters. Additionally, the script is truncated (e.g., `return` statement is incomplete) and no generated metadata files are present. These omissions mean the task requirements are not met.",
+      "first_seen": "2026-08-02T23:00:35.438304+00:00",
+      "last_seen": "2026-08-02T23:00:35.438304+00:00"
+    },
+    {
+      "task_key": "T035#1",
+      "reject_count": 1,
+      "last_reason": "The repository contains `code/analysis/anova.py`, but the file is truncated and never writes the required `data/analysis/anova_results.json`. Moreover, the JSON results file is missing entirely, so the task\u2019s output artifact and schema verification are not satisfied.",
+      "first_seen": "2026-08-02T23:00:36.879192+00:00",
+      "last_seen": "2026-08-02T23:00:36.879192+00:00"
+    }
+  ],
+  "updated_at": "2026-08-02T23:00:36.879192+00:00"
+}

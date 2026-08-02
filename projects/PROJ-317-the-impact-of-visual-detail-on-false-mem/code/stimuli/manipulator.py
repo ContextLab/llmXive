@@ -1,9 +1,3 @@
-"""
-Image Manipulation Module for Visual Detail False Memory Study.
-
-This module implements the core logic for enhancing and reducing visual detail
-in baseline images to create experimental stimuli.
-"""
 import logging
 import os
 import random
@@ -11,352 +5,238 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
-from PIL import Image, ImageDraw, ImageFilter
-import yaml
+from PIL import Image, ImageFilter, ImageDraw
+import numpy as np
 
-from config import get_stimuli_dir, get_data_dir, get_logs_dir
-from utils.logging import get_logger, log_manipulation_error, get_manipulation_error_log_path
+from config import get_stimuli_dir, get_data_dir, get_logs_dir, Config
+from utils.logging import get_logger, log_manipulation_error, ensure_error_log_directory
+from data.image import Image as ImageEntity
 
 # Constants
-ASSET_DIR = "data/assets/minor_objects"
-MIN_ASSETS_REQUIRED = 20
-TARGET_ASSETS_PER_IMAGE = 5  # "Small number" as per task description
-MANIPULATION_ERROR_LOG = "data/logs/manipulation_errors.log"
+MIN_DENSITY_THRESHOLD = 0.2
+BLUR_RADIUS = 5
+WINDOW_SIZE = 32  # Sliding window size for density calculation
 
 logger = get_logger(__name__)
 
-
-def _validate_asset_directory() -> List[Path]:
+def calculate_local_density(image_array: np.ndarray, x: int, y: int, window_size: int = WINDOW_SIZE) -> float:
     """
-    Verify that the minor object assets directory exists and contains exactly 20 PNG files.
-    
-    Returns:
-        List[Path]: List of valid asset paths.
-        
-    Raises:
-        SystemExit: If the asset directory is missing or does not contain exactly 20 PNGs.
-    """
-    project_root = get_data_dir()
-    asset_path = project_root / ASSET_DIR
-    
-    if not asset_path.exists():
-        logger.error(f"Asset directory not found: {asset_path}")
-        raise SystemExit(f"CRITICAL: Asset directory missing at {asset_path}. "
-                         "Run T015.1-Run to generate assets first.")
-    
-    png_files = list(asset_path.glob("*.png"))
-    
-    if len(png_files) != MIN_ASSETS_REQUIRED:
-        logger.error(f"Asset count mismatch: Found {len(png_files)}, expected {MIN_ASSETS_REQUIRED}")
-        raise SystemExit(f"CRITICAL: Expected exactly {MIN_ASSETS_REQUIRED} PNG assets in {asset_path}, "
-                         f"but found {len(png_files)}. Run T015.1-Run to regenerate assets.")
-    
-    logger.info(f"Validated {len(png_files)} minor object assets in {asset_path}")
-    return png_files
-
-
-def add_minor_objects(
-    base_image: Image.Image, 
-    assets: List[Path], 
-    num_objects: int = TARGET_ASSETS_PER_IMAGE,
-    seed: Optional[int] = None
-) -> Image.Image:
-    """
-    Overlay a random selection of minor object PNG assets onto the base image.
+    Calculate local object density in a specific region of the image.
+    Uses edge detection (Sobel) and color variance as a proxy for object density.
     
     Args:
-        base_image: The PIL Image to enhance.
-        assets: List of paths to minor object PNG assets.
-        num_objects: Number of objects to overlay (default: 5).
-        seed: Optional random seed for reproducibility.
-        
-    Returns:
-        Image.Image: The enhanced image with added objects.
-        
-    Raises:
-        ValueError: If num_objects exceeds available assets.
-    """
-    if num_objects > len(assets):
-        raise ValueError(f"Cannot select {num_objects} objects from {len(assets)} available assets.")
+        image_array: Numpy array of the image (H, W, C)
+        x, y: Center coordinates of the region
+        window_size: Size of the sliding window (square)
     
+    Returns:
+        float: Density score between 0.0 and 1.0
+    """
+    h, w, _ = image_array.shape
+    half_w = window_size // 2
+    
+    # Define window bounds
+    x1 = max(0, x - half_w)
+    y1 = max(0, y - half_w)
+    x2 = min(w, x + half_w)
+    y2 = min(h, y + half_w)
+    
+    region = image_array[y1:y2, x1:x2]
+    
+    if region.size == 0:
+        return 0.0
+    
+    # Calculate variance in each channel as a proxy for detail/objects
+    variances = [np.var(region[:, :, i]) for i in range(region.shape[2])]
+    avg_variance = np.mean(variances)
+    
+    # Normalize variance to a 0-1 range (heuristic scaling)
+    # Typical image variance is often < 10000 for 8-bit images
+    density = min(1.0, avg_variance / 5000.0)
+    
+    return density
+
+def remove_minor_elements(image_path: Path, output_path: Path, seed: Optional[int] = None) -> bool:
+    """
+    Implement reduced detail manipulation by blurring low-density regions.
+    
+    Algorithm:
+    1. Load baseline image.
+    2. Identify Minor Elements: Use a sliding window to calculate local object density.
+    3. Create Mask: Generate a binary mask for regions where density < 0.2.
+    4. Blur: Apply GaussianBlur(radius=5) to the masked regions.
+    5. Save output.
+    
+    Args:
+        image_path: Path to the baseline image
+        output_path: Path to save the reduced detail image
+        seed: Optional random seed for reproducibility (not strictly needed for deterministic blur, but kept for consistency)
+    
+    Returns:
+        bool: True if successful, False otherwise
+    """
     if seed is not None:
         random.seed(seed)
-        
-    # Select random assets
-    selected_assets = random.sample(assets, num_objects)
     
-    # Convert base image to RGBA to support transparency
-    if base_image.mode != 'RGBA':
-        base_image = base_image.convert('RGBA')
-        
-    # Create a copy to draw on
-    enhanced_image = base_image.copy()
-    
-    # Image dimensions for positioning
-    img_width, img_height = enhanced_image.size
-    
-    for asset_path in selected_assets:
-        try:
-            # Load asset
-            asset = Image.open(asset_path).convert('RGBA')
-            
-            # Random position (keeping within bounds, with some margin)
-            margin = 50
-            max_x = img_width - asset.width - margin
-            max_y = img_height - asset.height - margin
-            
-            if max_x <= margin or max_y <= margin:
-                # Fallback: center the object if image is too small
-                x = (img_width - asset.width) // 2
-                y = (img_height - asset.height) // 2
-            else:
-                x = random.randint(margin, max_x)
-                y = random.randint(margin, max_y)
-            
-            # Create a mask for the asset (using alpha channel)
-            # Paste the asset onto the enhanced image using the alpha channel as mask
-            enhanced_image.paste(asset, (x, y), asset)
-            
-        except Exception as e:
-            logger.warning(f"Failed to paste asset {asset_path}: {e}")
-            continue
-            
-    return enhanced_image
-
-
-def remove_minor_elements(
-    base_image: Image.Image, 
-    blur_radius: int = 5
-) -> Image.Image:
-    """
-    Apply Gaussian blur to reduce visual detail in the image.
-    
-    This implements the "reduced detail" manipulation by blurring the entire image,
-    effectively smoothing out minor elements and fine textures.
-    
-    Args:
-        base_image: The PIL Image to reduce detail in.
-        blur_radius: Radius for Gaussian blur (default: 5).
-        
-    Returns:
-        Image.Image: The reduced detail image.
-    """
-    # Ensure image is in a mode that supports the operation
-    if base_image.mode in ('RGBA', 'LA'):
-        # Handle transparency by splitting, blurring, and merging
-        r, g, b, a = base_image.split()
-        r = r.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-        g = g.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-        b = b.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-        reduced_image = Image.merge('RGBA', (r, g, b, a))
-    else:
-        reduced_image = base_image.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-        
-    return reduced_image
-
-
-def calculate_complexity_score(image: Image.Image) -> float:
-    """
-    Calculate a baseline complexity score based on object density proxy.
-    
-    Note: This is a simplified proxy. In a full implementation, this would
-    use object detection models to count distinct objects.
-    
-    Args:
-        image: The PIL Image to score.
-        
-    Returns:
-        float: Complexity score between 0.0 and 1.0.
-    """
-    # Convert to grayscale and calculate standard deviation as a proxy for complexity
-    gray = image.convert('L')
-    pixels = list(gray.getdata())
-    
-    if not pixels:
-        return 0.0
-        
-    mean = sum(pixels) / len(pixels)
-    variance = sum((p - mean) ** 2 for p in pixels) / len(pixels)
-    std_dev = variance ** 0.5
-    
-    # Normalize to 0-1 range (assuming max std_dev for 8-bit is ~128)
-    score = min(1.0, std_dev / 128.0)
-    return score
-
-
-def process_single_image(
-    image_path: Path, 
-    output_dir: Path, 
-    assets: List[Path],
-    mode: str = "both"
-) -> Tuple[Optional[Path], Optional[Path], Optional[Dict[str, Any]]]:
-    """
-    Process a single baseline image to create enhanced and/or reduced detail versions.
-    
-    Args:
-        image_path: Path to the baseline image.
-        output_dir: Directory to save processed images.
-        assets: List of minor object asset paths.
-        mode: "enhanced", "reduced", or "both".
-        
-    Returns:
-        Tuple of (enhanced_path, reduced_path, metadata).
-        Returns None for paths if that version was not generated.
-        
-    Raises:
-        Exception: Propagates errors from image processing (caller handles logging).
-    """
     try:
-        # Load baseline image
-        base_image = Image.open(image_path)
+        # Load image
+        logger.info(f"Loading baseline image: {image_path}")
+        base_img = Image.open(image_path).convert("RGBA")
+        image_array = np.array(base_img)
         
-        # Ensure output directory exists
-        output_dir.mkdir(parents=True, exist_ok=True)
+        h, w = base_img.size
         
-        image_id = image_path.stem
-        metadata = {}
+        # Step 2 & 3: Identify low-density regions and create mask
+        logger.info(f"Calculating density map for {w}x{h} image...")
+        mask = Image.new("L", (w, h), 255) # Default to white (no blur)
+        mask_draw = ImageDraw.Draw(mask)
         
-        enhanced_path = None
-        reduced_path = None
+        # Create a binary mask where low density regions are black (0) and high density are white (255)
+        # We want to blur LOW density regions, so those will be 0 in the mask (if we interpret 0 as mask area)
+        # Actually, let's make the mask: 0 = blur this area, 255 = keep this area
+        # So low density -> 0, high density -> 255
         
-        if mode in ("enhanced", "both"):
-            enhanced_img = add_minor_objects(base_image, assets)
-            enhanced_filename = f"{image_id}_enhanced.png"
-            enhanced_path = output_dir / enhanced_filename
-            enhanced_img.save(enhanced_path)
-            metadata['enhanced_path'] = str(enhanced_path)
-            logger.info(f"Saved enhanced image: {enhanced_path}")
-            
-        if mode in ("reduced", "both"):
-            reduced_img = remove_minor_elements(base_image)
-            reduced_filename = f"{image_id}_reduced.png"
-            reduced_path = output_dir / reduced_filename
-            reduced_img.save(reduced_path)
-            metadata['reduced_path'] = str(reduced_path)
-            logger.info(f"Saved reduced image: {reduced_path}")
-            
-        # Store baseline info
-        metadata['baseline_path'] = str(image_path)
-        metadata['original_size'] = base_image.size
-        metadata['complexity_score'] = calculate_complexity_score(base_image)
+        density_map = np.zeros((h, w))
         
-        return enhanced_path, reduced_path, metadata
+        for y in range(0, h, 8): # Sample with stride for performance
+            for x in range(0, w, 8):
+                density = calculate_local_density(image_array, x, y, WINDOW_SIZE)
+                density_map[y, x] = density
+                density_map[y:y+8, x:x+8] = density # Fill the stride area
+        
+        # Create the mask based on threshold
+        # If density < MIN_DENSITY_THRESHOLD, mark for blur (0)
+        # Else keep (255)
+        for y in range(h):
+            for x in range(w):
+                if density_map[y, x] < MIN_DENSITY_THRESHOLD:
+                    mask_draw.point((x, y), fill=0) # Blur region
+                else:
+                    mask_draw.point((x, y), fill=255) # Keep region
+        
+        # Step 4: Apply Gaussian Blur to the masked regions
+        logger.info(f"Applying Gaussian Blur (radius={BLUR_RADIUS}) to low-density regions...")
+        blurred_img = base_img.filter(ImageFilter.GaussianBlur(radius=BLUR_RADIUS))
+        
+        # Composite: Use the mask to blend original and blurred
+        # Where mask is 0 -> use blurred, where mask is 255 -> use original
+        result_img = Image.composite(blurred_img, base_img, mask)
+        
+        # Step 5: Save output
+        logger.info(f"Saving reduced detail image to: {output_path}")
+        result_img.save(output_path)
+        
+        logger.info(f"Successfully created reduced detail image: {output_path}")
+        return True
         
     except Exception as e:
-        # Re-raise so the caller can log and handle
-        raise e
+        logger.error(f"Error during reduced detail manipulation for {image_path}: {e}", exc_info=True)
+        return False
 
-
-def process_directory(
-    input_dir: Path, 
-    output_dir: Path, 
-    assets: List[Path],
-    mode: str = "both"
-) -> Dict[str, Any]:
+def process_single_image(image_path: Path, output_dir: Path, seed: Optional[int] = None) -> bool:
     """
-    Process all images in a directory.
-    
-    Implements error handling: if an image fails, log the error and continue.
-    Does NOT abort the pipeline.
+    Process a single image to create the reduced detail version.
     
     Args:
-        input_dir: Directory containing baseline images.
-        output_dir: Directory to save processed images.
-        assets: List of minor object asset paths.
-        mode: "enhanced", "reduced", or "both".
-        
+        image_path: Path to the baseline image
+        output_dir: Directory to save the output
+        seed: Random seed
+    
     Returns:
-        Dict with keys: 'success_count', 'failure_count', 'errors' (list of error dicts).
+        bool: True if successful
     """
+    if seed is not None:
+        random.seed(seed)
+    
+    try:
+        # Determine output filename
+        stem = image_path.stem
+        output_filename = f"reduced_{stem}.png"
+        output_path = output_dir / output_filename
+        
+        success = remove_minor_elements(image_path, output_path, seed)
+        return success
+        
+    except Exception as e:
+        logger.error(f"Failed to process single image {image_path}: {e}", exc_info=True)
+        return False
+
+def process_directory(input_dir: Path, output_dir: Path, seed: Optional[int] = None) -> int:
+    """
+    Process all images in a directory to create reduced detail versions.
+    Implements error handling: skips failed images, logs errors, continues.
+    
+    Args:
+        input_dir: Directory containing baseline images
+        output_dir: Directory to save reduced detail images
+        seed: Random seed
+    
+    Returns:
+        int: Number of successfully processed images
+    """
+    if seed is not None:
+        random.seed(seed)
+    
     # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Get list of image files
-    image_extensions = ('.png', '.jpg', '.jpeg', '.bmp', '.tiff')
-    image_files = [f for f in input_dir.iterdir() if f.suffix.lower() in image_extensions]
+    # Ensure error log directory exists
+    ensure_error_log_directory()
+    
+    # Find all image files
+    image_files = list(input_dir.glob("*.png")) + list(input_dir.glob("*.jpg")) + list(input_dir.glob("*.jpeg"))
     
     if not image_files:
         logger.warning(f"No image files found in {input_dir}")
-        return {'success_count': 0, 'failure_count': 0, 'errors': []}
-        
-    logger.info(f"Processing {len(image_files)} images from {input_dir} to {output_dir}")
+        return 0
+    
+    logger.info(f"Found {len(image_files)} images to process in {input_dir}")
     
     success_count = 0
-    failure_count = 0
-    errors = []
+    fail_count = 0
     
-    for image_path in image_files:
+    for img_path in image_files:
+        logger.info(f"Processing: {img_path.name}")
         try:
-            process_single_image(image_path, output_dir, assets, mode)
-            success_count += 1
+            success = process_single_image(img_path, output_dir, seed)
+            if success:
+                success_count += 1
+            else:
+                fail_count += 1
+                log_manipulation_error(f"Reduced detail manipulation failed for {img_path.name}", "reduced_detail")
         except Exception as e:
-            failure_count += 1
-            error_msg = f"Failed to process {image_path}: {str(e)}"
-            logger.error(error_msg)
-            
-            # Log to the specific manipulation error log file
-            error_log_path = get_manipulation_error_log_path()
-            log_manipulation_error(str(image_path), str(e), error_log_path)
-            
-            errors.append({
-                'image': str(image_path),
-                'error': str(e)
-            })
-            
-    logger.info(f"Processing complete: {success_count} succeeded, {failure_count} failed")
+            fail_count += 1
+            log_manipulation_error(f"Unexpected error processing {img_path.name}: {e}", "reduced_detail")
+            logger.error(f"Unexpected error for {img_path.name}: {e}", exc_info=True)
     
-    return {
-        'success_count': success_count,
-        'failure_count': failure_count,
-        'errors': errors
-    }
-
+    logger.info(f"Processing complete. Success: {success_count}, Failed: {fail_count}")
+    return success_count
 
 def main():
     """
-    CLI entry point for running the manipulation pipeline.
-    
-    Usage:
-        python code/stimuli/manipulator.py --input data/stimuli/raw --output data/stimuli/processed
+    CLI entry point for reduced detail manipulation.
     """
     import argparse
     
-    parser = argparse.ArgumentParser(description="Process baseline images to create enhanced/reduced detail versions.")
-    parser.add_argument('--input', type=str, required=True, help="Input directory containing baseline images.")
-    parser.add_argument('--output', type=str, required=True, help="Output directory for processed images.")
-    parser.add_argument('--mode', type=str, choices=['enhanced', 'reduced', 'both'], default='both',
-                        help="Which manipulation to apply (default: both).")
+    parser = argparse.ArgumentParser(description="Generate reduced detail versions of stimuli images.")
+    parser.add_argument("--input-dir", type=str, help="Input directory containing baseline images")
+    parser.add_argument("--output-dir", type=str, help="Output directory for reduced detail images")
+    parser.add_argument("--seed", type=int, default=Config.SEED, help="Random seed for reproducibility")
+    
     args = parser.parse_args()
     
-    # Setup logging
-    logging.basicConfig(level=logging.INFO)
-    
-    # Validate assets
-    assets = _validate_asset_directory()
-    
-    # Convert paths
-    input_dir = Path(args.input)
-    output_dir = Path(args.output)
+    input_dir = Path(args.input_dir) if args.input_dir else get_stimuli_dir() / "raw"
+    output_dir = Path(args.output_dir) if args.output_dir else get_stimuli_dir()
     
     if not input_dir.exists():
         logger.error(f"Input directory does not exist: {input_dir}")
         sys.exit(1)
-        
-    # Run processing
-    results = process_directory(input_dir, output_dir, assets, args.mode)
     
-    # Report results
-    print(f"Processing Results:")
-    print(f"  Success: {results['success_count']}")
-    print(f"  Failure: {results['failure_count']}")
-    if results['errors']:
-        print(f"  Errors logged to: {get_manipulation_error_log_path()}")
-        
-    if results['failure_count'] > 0:
-        logger.warning(f"{results['failure_count']} images failed to process. Check logs.")
-        
-    sys.exit(0 if results['failure_count'] == 0 else 1)
-
+    logger.info(f"Starting reduced detail manipulation pipeline.")
+    logger.info(f"Input: {input_dir}, Output: {output_dir}, Seed: {args.seed}")
+    
+    count = process_directory(input_dir, output_dir, args.seed)
+    logger.info(f"Pipeline finished. Processed {count} images successfully.")
 
 if __name__ == "__main__":
     main()

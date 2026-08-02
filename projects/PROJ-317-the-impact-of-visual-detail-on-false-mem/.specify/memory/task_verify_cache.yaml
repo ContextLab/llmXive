@@ -15,13 +15,6 @@ T016:
     \ (Gaussian blur or masking) nor any error\u2011handling that writes to `data/logs/manipulation_errors.log`.\
     \ Additionally, the required log file does not exist. The task\u2019s core requirements\
     \ are therefore unmet."
-T017:
-  c: false
-  h: c978de72710ee5173a3b069aacf53ce828832fd62a5a71d72b14f8df2241e85d
-  r: The provided `code/stimuli/metadata.py` is truncated and never writes a YAML
-    file to `data/stimuli/{id}_metadata.yaml`; the expected output files are absent
-    (`_metadata.yaml` does not exist). Consequently the required `manipulation_timestamp`
-    field cannot be verified in generated metadata files.
 T032:
   c: false
   h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
@@ -34,13 +27,6 @@ T033:
   r: "The required artifact `tests/unit/test_stats.py` does not exist on disk, so\
     \ no unit test for multiple-comparison correction is present. The task\u2019s\
     \ primary deliverable is missing."
-T035#1:
-  c: false
-  h: 09f6b258dbcd8ee62dbe0647f6122af141fb88294244a7969dcae7df5dc600b0
-  r: "The repository contains `code/analysis/anova.py`, but the script is incomplete\
-    \ (the shown excerpt ends before any ANOVA computation or JSON output) and the\
-    \ required output file `data/analysis/anova_results.json` does not exist. Consequently\
-    \ the task\u2019s output artifact and schema verification are missing."
 T045:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

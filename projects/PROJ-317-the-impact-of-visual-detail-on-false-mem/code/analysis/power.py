@@ -1,183 +1,144 @@
-"""
-Power Analysis Module for Repeated-Measures ANOVA.
-"""
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-
 import numpy as np
-from statsmodels.stats.power import FTestAnovaPower
-from statsmodels.stats.anova import AnovaRM
 
-from config import get_project_root, get_data_dir, get_effect_size, get_alpha_level, get_power_target
-from analysis.stats import calculate_anova_power, save_power_analysis
+from config import get_data_dir, get_project_root
+from utils.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def run_power_analysis(
-    effect_size: Optional[float] = None,
-    alpha: Optional[float] = None,
-    power_target: Optional[float] = None,
-    n_measurements: int = 3,  # Baseline, Enhanced, Reduced
-    sensitivity_analysis_path: Optional[str] = None
-) -> Dict[str, Any]:
+def run_power_analysis() -> Dict[str, Any]:
     """
-    Perform power analysis for Repeated-Measures ANOVA.
-
-    Args:
-        effect_size: Cohen's f effect size. If None, loads from sensitivity analysis.
-        alpha: Significance level.
-        power_target: Target power (1 - beta).
-        n_measurements: Number of repeated measures (conditions).
-        sensitivity_analysis_path: Path to sensitivity analysis JSON.
-
+    Calculate required sample size for Repeated-Measures ANOVA.
+    
+    Algorithm:
+    1. Read sensitivity_analysis.json (from T012-Sens).
+    2. Select effect_size corresponding to minimum required_n >= 50.
+    3. If no value satisfies N>=50, select closest N and set power_insufficient=true.
+    
     Returns:
-        Dictionary with power analysis results.
+        Dict: Power analysis results.
     """
-    # Load sensitivity analysis if effect_size not provided
-    if effect_size is None and sensitivity_analysis_path:
-        sens_path = Path(sensitivity_analysis_path)
-        if sens_path.exists():
-            with open(sens_path, 'r') as f:
-                sens_data = json.load(f)
-            # Select effect_size based on logic: min required_n >= 50
-            required_n_list = sens_data.get("required_n", [])
-            effect_sizes = sens_data.get("effect_sizes", [])
-            
-            # Find minimum n that satisfies n >= 50
-            valid_indices = [i for i, n in enumerate(required_n_list) if n >= 50]
-            if valid_indices:
-                min_idx = min(valid_indices, key=lambda i: required_n_list[i])
-                effect_size = effect_sizes[min_idx]
-                logger.info(f"Selected effect_size {effect_size} from sensitivity analysis (N={required_n_list[min_idx]})")
-            else:
-                # Use largest N available
-                max_idx = np.argmax(required_n_list)
-                effect_size = effect_sizes[max_idx]
-                logger.warning(f"No N >= 50 found. Using effect_size {effect_size} (N={required_n_list[max_idx]})")
-        else:
-            logger.warning("Sensitivity analysis file not found. Using default effect size.")
-            effect_size = get_effect_size()
-
-    if alpha is None:
-        alpha = get_alpha_level()
-    if power_target is None:
-        power_target = get_power_target()
-
-    # Use FTestAnovaPower for repeated measures approximation
-    # Note: statsmodels doesn't have a dedicated repeated-measures power class,
-    # so we use F-test as approximation for within-subjects design
-    power_analysis = FTestAnovaPower()
-
-    # Calculate required sample size
-    n_subjects = power_analysis.solve_power(
-        effect_size=effect_size,
-        alpha=alpha,
-        power=power_target,
-        n_groups=n_measurements,  # Number of conditions
-        alternative='larger'
-    )
-
-    n_subjects = int(np.ceil(n_subjects))
-
-    # Calculate achieved power for this N
-    achieved_power = power_analysis.power(
-        effect_size=effect_size,
-        alpha=alpha,
-        nobs1=n_subjects / n_measurements,  # Per group
-        n_groups=n_measurements
-    )
-
-    # Determine if power is sufficient (N >= 50)
-    power_insufficient = n_subjects < 50
-
-    result = {
-        "n_total_subjects": n_subjects,
+    sensitivity_path = get_data_dir() / "analysis" / "sensitivity_analysis.json"
+    
+    if not sensitivity_path.exists():
+        logger.error(f"Sensitivity analysis file not found: {sensitivity_path}")
+        logger.error("Please run T012-Sens first.")
+        sys.exit(1)
+    
+    with open(sensitivity_path, 'r') as f:
+        sensitivity_data = json.load(f)
+    
+    effect_sizes = sensitivity_data['effect_sizes']
+    required_ns = sensitivity_data['required_n']
+    powers = sensitivity_data['power']
+    
+    # Find minimum required_n >= 50
+    valid_indices = [i for i, n in enumerate(required_ns) if n >= 50]
+    
+    power_insufficient = False
+    selected_idx = None
+    
+    if valid_indices:
+        # Select the one with minimum N >= 50
+        selected_idx = min(valid_indices, key=lambda i: required_ns[i])
+    else:
+        # No N >= 50 found, select closest to 50
+        selected_idx = required_ns.index(min(required_ns))
+        power_insufficient = True
+        logger.warning(f"No sample size >= 50 found. Using closest: N={required_ns[selected_idx]}")
+    
+    n_total_subjects = required_ns[selected_idx]
+    effect_size = effect_sizes[selected_idx]
+    power = powers[selected_idx]
+    
+    results = {
+        "n_total_subjects": n_total_subjects,
         "effect_size": effect_size,
-        "power": float(achieved_power),
-        "alpha": alpha,
+        "power": power,
+        "alpha": 0.05,
         "power_insufficient": power_insufficient,
-        "justification": f"Calculated for Repeated-Measures ANOVA with {n_measurements} conditions. "
-                        f"Effect size {effect_size} selected from sensitivity analysis. "
-                        f"Target power: {power_target}, Alpha: {alpha}."
+        "justification": f"Selected effect size {effect_size:.3f} which requires N={n_total_subjects} for power={power:.3f}. "
+                        f"Based on T012-Sens sensitivity analysis. "
+                        f"{'Power is insufficient (N < 50).' if power_insufficient else 'Power criteria met.'}"
     }
-
-    return result
-
-def validate_power_analysis(power_report_path: str) -> bool:
-    """
-    Validate that power analysis meets criteria.
-
-    Args:
-        power_report_path: Path to the power report JSON.
-
-    Returns:
-        True if validation passes, False otherwise.
-    """
-    path = Path(power_report_path)
-    if not path.exists():
-        logger.error(f"Power report not found: {power_report_path}")
-        return False
-
-    try:
-        with open(path, 'r') as f:
-            report = json.load(f)
-
-        if report.get("power_insufficient", True):
-            logger.error("Power analysis failed: power_insufficient is true")
-            return False
-
-        n_subjects = report.get("n_total_subjects", 0)
-        if n_subjects < 50:
-            logger.error(f"Power analysis failed: N={n_subjects} < 50")
-            return False
-
-        logger.info("Power analysis validation passed")
-        return True
-
-    except Exception as e:
-        logger.error(f"Failed to validate power analysis: {e}")
-        return False
-
-def main() -> None:
-    """Main entry point for power analysis."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run power analysis for repeated-measures ANOVA")
-    parser.add_argument("--sensitivity-path", default="data/analysis/sensitivity_analysis.json",
-                      help="Path to sensitivity analysis JSON")
-    parser.add_argument("--output-path", default="data/analysis/power_report.json",
-                      help="Path to output power report")
-    parser.add_argument("--validate", action="store_true", help="Run validation after calculation")
-    args = parser.parse_args()
-
-    # Run power analysis
-    result = run_power_analysis(sensitivity_analysis_path=args.sensitivity_path)
-
-    # Save result
-    output_path = Path(args.output_path)
+    
+    output_path = get_data_dir() / "analysis" / "power_report.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-
+        json.dump(results, f, indent=2)
+    
     logger.info(f"Power report saved to {output_path}")
-    logger.info(f"N subjects required: {result['n_total_subjects']}")
-    logger.info(f"Power sufficient: {not result['power_insufficient']}")
+    return results
 
-    # Validate if requested
+def validate_power_analysis() -> bool:
+    """
+    Validate that power analysis passed the gate criteria.
+    
+    Checks:
+    1. power_report.json exists.
+    2. power_insufficient is false.
+    3. n_total_subjects >= 50.
+    
+    Returns:
+        bool: True if validation passes.
+    """
+    report_path = get_data_dir() / "analysis" / "power_report.json"
+    
+    if not report_path.exists():
+        logger.error("Power report not found. Please run T012-Calc first.")
+        return False
+    
+    with open(report_path, 'r') as f:
+        report = json.load(f)
+    
+    if report.get('power_insufficient', True):
+        logger.error(f"Power insufficient: N={report['n_total_subjects']} < 50")
+        return False
+    
+    if report['n_total_subjects'] < 50:
+        logger.error(f"Sample size too small: N={report['n_total_subjects']} < 50")
+        return False
+    
+    # Gate passed
+    gate_path = get_data_dir() / "analysis" / "power_gate_passed.txt"
+    with open(gate_path, 'w') as f:
+        f.write("Power analysis validation passed.\n")
+    
+    log_path = get_data_dir() / "logs" / "power_gate.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, 'a') as f:
+        f.write(f"[PASS] Power gate passed at {Path(__file__).stem}.\n")
+    
+    logger.info("Power gate passed.")
+    return True
+
+def main():
+    """
+    CLI entry point for power analysis.
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Run power analysis for Repeated-Measures ANOVA.")
+    parser.add_argument("--validate", action="store_true", help="Only validate existing report")
+    
+    args = parser.parse_args()
+    
     if args.validate:
-        if not validate_power_analysis(args.output_path):
-            logger.error("Power analysis validation failed. Pipeline blocked.")
+        success = validate_power_analysis()
+        sys.exit(0 if success else 1)
+    else:
+        try:
+            run_power_analysis()
+            success = validate_power_analysis()
+            sys.exit(0 if success else 1)
+        except Exception as e:
+            logger.error(f"Power analysis failed: {e}", exc_info=True)
             sys.exit(1)
-        else:
-            # Write gate passed file
-            gate_path = Path("data/analysis/power_gate_passed.txt")
-            gate_path.parent.mkdir(parents=True, exist_ok=True)
-            gate_path.write_text("Power analysis validation passed.\n")
-            logger.info("Power gate passed. Pipeline can proceed.")
 
 if __name__ == "__main__":
     main()
