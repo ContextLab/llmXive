@@ -136,8 +136,8 @@ results/
 - **T026**: End-to-end integration test.
 
 ### Phase 3: Experiment Execution (Week 4)
-- **T027**: Run Zero-Shot condition (agents × 10 tasks).
-- **T028**: Run Scaffolded condition (agents × 10 tasks).
+- **T027**: Run Zero-Shot condition (agents × multiple tasks).
+- **T028**: Run Scaffolded condition (agents × multiple tasks).
 - **T029**: Score all runs and generate `results/paired_scores.json`.
 - **T030**: Generate `results/failure_mode_audit.csv`.
 

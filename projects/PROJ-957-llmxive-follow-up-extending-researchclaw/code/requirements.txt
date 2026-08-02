@@ -13,3 +13,4 @@ beautifulsoup4>=4.12.0
 # Development dependencies
 ruff>=0.1.0
 black>=23.0.0
+tomli  # auto-added: imported by run-book but missing from venv
