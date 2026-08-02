@@ -69,7 +69,7 @@ A researcher needs to train Random Forest and XGBoost models to predict Tg_resid
 - **FR-002**: The system MUST validate that weight fractions in every blend entry sum to 1.0 ± 0.02, excluding any entries that fail this check. (See US-1)
 - **FR-003**: The system MUST generate a minimum of 15 molecular descriptors per monomer using RDKit, including molecular weight, topological polar surface area, and fractional free volume. (See US-2)
 - **FR-004**: The system MUST compute blend-specific interaction features, specifically: (a) weighted averages of monomer descriptors, (b) absolute differences between component descriptors, and (c) non-linear mixing rule predictions using the Fox equation and Gordon-Taylor equation to derive the target variable `Tg_residual` (Tg_measured - Tg_Fox) for model training. (See US-2)
-- **FR-005**: The system MUST train Random Forest and XGBoost regressors using a majority split for training with smaller portions reserved for validation and testing if N≥500, OR Stratified Repeated K-Fold (5 folds, 3 repeats) if N<500. The validation set (or inner fold) is strictly for hyperparameter tuning; the test set is held out until the final evaluation. (See US-3)
+- **FR-005**: The system MUST train Random Forest and XGBoost regressors using a majority split for training with smaller portions reserved for validation and testing if N≥500, OR Stratified Repeated K-Fold (folds, 3 repeats) if N<500. The validation set (or inner fold) is strictly for hyperparameter tuning; the test set is held out until the final evaluation. (See US-3)
 - **FR-006**: The system MUST perform a paired t-test comparing the test-set errors of the best ML model against a linear regression baseline (trained on the same features and target) and report the resulting p-value. (See US-3)
 - **FR-007**: The system MUST generate SHAP values for the top-ranked predictions to provide interpretability of feature contributions. (See US-3)
 - **FR-008**: The system MUST detect predictor pairs with a Variance Inflation Factor (VIF) > 5.0. If VIF > 5.0, the system MUST perform a sensitivity analysis by re-training the model excluding the predictor with the highest VIF and reporting the delta in MAE and R². If N<100, this is a sensitivity analysis only; if VIF > 10, the system MUST exclude the predictor. (See US-2)
@@ -99,15 +99,15 @@ A researcher needs to train Random Forest and XGBoost models to predict Tg_resid
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The Mean Absolute Error (MAE) of the best predictive model is measured against the linear baseline MAE on a held-out test set (70/15/15 split if N≥500, OR Stratified Repeated K-Fold if N<500). (See US-3)
+- **SC-001**: The Mean Absolute Error (MAE) of the best predictive model is measured against the linear baseline MAE on a held-out test set (/15/15 split if N≥500, OR Stratified Repeated K-Fold if N<500). (See US-3)
 - **SC-002**: The statistical significance of the ML model's improvement over the linear baseline is measured by reporting the p-value from a paired t-test. (See US-3)
-- **SC-003**: The feature importance rankings are measured against the requirement to identify at least 3 distinct molecular descriptors that appear in the top-10 list for ≥ 80% of 5 independent training runs (seeds 1-5), aggregated by frequency. (See US-3)
+- **SC-003**: The feature importance rankings are measured against the requirement to identify at least 3 distinct molecular descriptors that appear in the top-10 list for ≥ 80% of Multiple independent training runs (seeds 1-5), aggregated by frequency. (See US-3)
 - **SC-004**: The data quality is measured against the requirement that ≥ 95% of the union (deduplicated by SMILES+Composition) of all successfully fetched records (HTTP 200 + valid JSON parse) from Polymer Database, NIST, and Materials Project pass the unit harmonization and weight-fraction validation checks. (See US-1)
 - **SC-005**: The computational feasibility is measured against the constraint that the entire pipeline (ingest, engineering, training) completes within 5 hours on a GitHub Actions `ubuntu-latest` runner (Multiple CPU, 7 GB RAM), measured from `01_ingest.py` start to `final_report.json` write. (See Assumptions)
 - **SC-006**: The ingestion success rate is measured as the percentage of raw records successfully harmonized (passed all validation checks) out of total fetched records, with a target of ≥ 80%. (See US-1)
 - **SC-007**: The feature generation utility is measured as the percentage of rows with ≥ 15 non-null descriptors, with a target of ≥ 95%. (See US-2)
 - **SC-008**: The stability of feature importance is measured by the frequency of top-10 features across multiple runs, with a target of ≥ 80% consistency. (See US-3)
-- **SC-009**: The rate-limit handling is measured by the system's ability to recover from 5 consecutive rate-limit errors within 30 seconds. (See Edge Cases)
+- **SC-009**: The rate-limit handling is measured by the system's ability to recover from consecutive rate-limit errors within 30 seconds. (See Edge Cases)
 - **SC-010**: The small dataset handling is measured by the system's ability to halt with "Data Insufficiency" error when N < 100. (See Edge Cases)
 - **SC-011**: The fallback logic is measured by the system's ability to switch to "component-level prediction mode" if the "perfect join" fails for >50% of records. (See Edge Cases)
 
