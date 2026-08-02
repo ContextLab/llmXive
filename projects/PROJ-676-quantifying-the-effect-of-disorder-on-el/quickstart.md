@@ -1,54 +1,32 @@
-# Quickstart Guide: Quantifying the Effect of Disorder on Electronic Transport
-
-This guide ensures the end-to-end reproducibility of the research pipeline.
+# Quickstart Guide
 
 ## Prerequisites
+- Python 3.8+
+- pip dependencies (see requirements.txt)
 
-- Python 3.9+
-- `pip install -r requirements.txt`
-
-## Execution Steps
-
-1. **Setup Project Structure** (Run once)
- ```bash
- python code/setup_project_structure.py
- ```
-
-2. **Generate Hamiltonians** (Data Generation)
- ```bash
- python code/generate_hamiltonian.py
- ```
- *Outputs: `data/raw/hamiltonians.h5`, `data/metadata/provenance.json`*
-
-3. **Analyze Participation Ratio (US1)**
- ```bash
- python code/analyze_pr.py
- ```
- *Outputs: `data/processed/scaling_fits.json`, `data/processed/pr_scaling_plot.png`, `data/metadata/residuals.json`*
-
-4. **Aggregate Results & Apply Bonferroni (T013b/T015)**
- ```bash
- python code/aggregate_and_correct_stats.py
- ```
- *Outputs: `data/processed/bonferroni_results.json` (validates T013b completion)*
-
-5. **Transfer Matrix Validation (US2)**
- ```bash
- python code/analyze_tm.py
- ```
- *Outputs: `data/processed/lyapunov_exponents.json`, `data/metadata/tm_convergence.json`*
-
-6. **Visualize Eigenstates (US3)**
- ```bash
- python code/visualize.py
- ```
- *Outputs: `data/processed/visualizations/*.png`, `docs/physical_interpretation.md`*
-
-## Verification
-
-Run the following to check for required artifacts:
+## Installation
 ```bash
-ls -l data/processed/scaling_fits.json
-ls -l data/processed/bonferroni_results.json
-ls -l data/metadata/residuals.json
+pip install -r requirements.txt
 ```
+
+## Run Full Analysis Pipeline
+This command generates data, runs scaling analysis, and applies statistical corrections.
+```bash
+python code/main.py --mode generate_and_analyze --Llist 100 200 400 800 1600 --Wlist 0.5 1.0 2.0 --realizations 100 --seed 42
+```
+
+## Run Scaling Analysis Only
+```bash
+python code/main.py --mode scaling_analysis --Llist 100 200 400 800 1600 --Wlist 0.5 1.0 2.0 --realizations 100 --seed 42 --output data/processed/scaling_results.csv
+```
+
+## Run Visualization
+```bash
+python code/main.py --mode visualize --L 200 --W 2.0 --realization 5 --output figures/eigenstate_decay.png
+```
+
+## Output Artifacts
+- `data/processed/scaling_fits.json`: Finite-size scaling results
+- `data/processed/bonferroni_results.json`: Bonferroni-corrected statistical results
+- `data/metadata/residuals.json`: Numerical stability logs
+- `figures/`: Generated plots

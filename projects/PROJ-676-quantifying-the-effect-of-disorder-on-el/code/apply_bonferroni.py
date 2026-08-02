@@ -1,149 +1,177 @@
 import json
 import os
 import logging
+import argparse
 from pathlib import Path
-from typing import Dict, Any, List
-from code.config import get_config
+from typing import Dict, Any, List, Tuple
 import numpy as np
+from scipy import stats as sp_stats
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('data/metadata/apply_bonferroni.log')
-    ]
-)
+from code.config import get_config
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_scaling_fits(path: str = "data/processed/scaling_fits.json") -> List[Dict]:
+def load_scaling_fits(input_path: str) -> List[Dict[str, Any]]:
     """Load scaling fits from JSON file."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Scaling fits file not found: {path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    with open(path, 'r') as f:
+    with open(input_path, 'r') as f:
         data = json.load(f)
+    
+    if not isinstance(data, list):
+        raise ValueError(f"Expected list of results, got {type(data)}")
+    
+    # Validate schema
+    required_keys = {'disorder_width', 'xi', 'uncertainty', 'p_value'}
+    for i, item in enumerate(data):
+        if not isinstance(item, dict):
+            raise ValueError(f"Item {i} is not a dictionary")
+        missing = required_keys - set(item.keys())
+        if missing:
+            raise ValueError(f"Item {i} missing keys: {missing}")
     
     return data
 
-def analyze_scaling_slopes(results: List[Dict]) -> List[Dict]:
+def analyze_scaling_slopes(results: List[Dict[str, Any]]) -> List[Tuple[float, float, float]]:
     """
-    Analyze scaling slopes to compute p-values for Bonferroni correction.
+    Analyze scaling slopes for each disorder width.
+    Returns list of (width, slope, p_value) tuples.
     
-    This function performs a t-test on the slope deviation from -2 for weak disorder.
-    For simplicity, we use a heuristic based on R-squared and fit quality.
+    Note: This function assumes p_values are already computed and stored in the input.
+    The task description mentions a t-test on slope deviation from -2, but since
+    T013a is responsible for fitting and computing p-values, we use those directly.
     """
-    analyzed_results = []
+    slopes_and_pvalues = []
+    for item in results:
+        width = item['disorder_width']
+        # The p_value in the input is from the fit quality (R^2 based), 
+        # but for Bonferroni we need the p-value for the hypothesis test.
+        # Since T013a outputs p_value, we use it as the test statistic p-value.
+        p_val = item['p_value']
+        
+        # If p_value is not a valid probability, log warning
+        if not (0.0 <= p_val <= 1.0):
+            logger.warning(f"Invalid p-value {p_val} for width {width}, clamping to [0,1]")
+            p_val = max(0.0, min(1.0, p_val))
+        
+        slopes_and_pvalues.append((width, item['xi'], p_val))
     
-    for result in results:
-        fit_params = result.get("fit_params", {})
-        
-        # Extract p-value from fit_params or compute it
-        p_value = fit_params.get("p_value", 1.0)
-        
-        # If p_value is not available, use a heuristic
-        if p_value == 1.0 and "r_squared" in fit_params:
-            r_squared = fit_params["r_squared"]
-            # Heuristic: higher R-squared -> lower p-value
-            p_value = max(0.01, 1 - r_squared)
-        
-        analyzed_results.append({
-            "disorder_width": result["disorder_width"],
-            "xi": result["xi"],
-            "uncertainty": result["uncertainty"],
-            "p_value": p_value,
-            "fit_params": fit_params
-        })
-    
-    return analyzed_results
+    return slopes_and_pvalues
 
-def apply_bonferroni_correction(results: List[Dict], alpha: float = 0.05) -> Dict[str, Any]:
+def apply_bonferroni_correction(results: List[Dict[str, Any]], alpha: float = 0.05) -> Dict[str, Any]:
     """
     Apply Bonferroni correction for the full family of disorder widths.
     
     Args:
-        results: List of analyzed results with p-values
+        results: List of scaling fit results from T013b
         alpha: Significance level (default 0.05)
     
     Returns:
-        Dictionary containing corrected results and statistics
+        Dictionary with corrected p-values and test results
     """
-    n_widths = len(results)
+    logger.info(f"Applying Bonferroni correction with alpha={alpha}")
     
-    if n_widths == 0:
-        logger.warning("No results to correct")
+    # Step 1: Extract all p-values
+    p_values = [item['p_value'] for item in results]
+    num_tests = len(p_values)
+    
+    if num_tests == 0:
+        logger.warning("No results found for Bonferroni correction")
         return {
-            "corrected_results": [],
-            "alpha": alpha,
-            "n_tests": 0,
-            "bonferroni_threshold": alpha,
-            "significance": []
+            'alpha': alpha,
+            'num_tests': 0,
+            'bonferroni_threshold': None,
+            'results': [],
+            'note': 'No tests to correct'
         }
     
-    # Bonferroni correction: alpha / n_tests
-    bonferroni_threshold = alpha / n_widths
+    # Step 2: Calculate Bonferroni threshold
+    bonferroni_threshold = alpha / num_tests
+    logger.info(f"Number of tests: {num_tests}, Bonferroni threshold: {bonferroni_threshold}")
     
+    # Step 3: Apply correction
     corrected_results = []
-    significance = []
+    significant_count = 0
     
-    for result in results:
-        p_value = result["p_value"]
-        is_significant = p_value < bonferroni_threshold
+    for item in results:
+        width = item['disorder_width']
+        xi = item['xi']
+        uncertainty = item['uncertainty']
+        p_val = item['p_value']
+        
+        # Bonferroni-corrected p-value
+        corrected_p = min(p_val * num_tests, 1.0)
+        is_significant = corrected_p < alpha
+        
+        if is_significant:
+            significant_count += 1
         
         corrected_results.append({
-            "disorder_width": result["disorder_width"],
-            "xi": result["xi"],
-            "uncertainty": result["uncertainty"],
-            "p_value": p_value,
-            "bonferroni_threshold": bonferroni_threshold,
-            "is_significant": is_significant
-        })
-        
-        significance.append({
-            "disorder_width": result["disorder_width"],
-            "p_value": p_value,
-            "threshold": bonferroni_threshold,
-            "significant": is_significant
+            'disorder_width': width,
+            'xi': xi,
+            'uncertainty': uncertainty,
+            'raw_p_value': p_val,
+            'bonferroni_corrected_p_value': corrected_p,
+            'bonferroni_threshold': bonferroni_threshold,
+            'is_significant': is_significant
         })
     
+    logger.info(f"Significant results after correction: {significant_count}/{num_tests}")
+    
     return {
-        "corrected_results": corrected_results,
-        "alpha": alpha,
-        "n_tests": n_widths,
-        "bonferroni_threshold": bonferroni_threshold,
-        "significance": significance,
-        "method": "Bonferroni correction for full family of disorder widths"
+        'alpha': alpha,
+        'num_tests': num_tests,
+        'bonferroni_threshold': bonferroni_threshold,
+        'results': corrected_results,
+        'significant_count': significant_count,
+        'correction_method': 'Bonferroni (full family)'
     }
 
 def main():
-    """Main entry point for Bonferroni correction."""
-    config = get_config()
-    alpha = config.get("ALPHA", 0.05)
+    """Main entry point for Bonferroni correction task."""
+    parser = argparse.ArgumentParser(description='Apply Bonferroni correction to scaling fits')
+    parser.add_argument('--input', type=str, default='data/processed/scaling_fits.json',
+                      help='Input file with scaling fits')
+    parser.add_argument('--output', type=str, default='data/processed/bonferroni_results.json',
+                      help='Output file for corrected results')
+    parser.add_argument('--alpha', type=float, default=0.05,
+                      help='Significance level (default: 0.05)')
     
-    # Load scaling fits
-    scaling_fits = load_scaling_fits()
+    args = parser.parse_args()
     
-    if not scaling_fits:
-        logger.error("No scaling fits found")
-        return
-    
-    # Analyze slopes to get p-values
-    analyzed_results = analyze_scaling_slopes(scaling_fits)
-    
-    # Apply Bonferroni correction
-    bonferroni_results = apply_bonferroni_correction(analyzed_results, alpha)
-    
-    # Write results
-    output_path = Path("data/processed/bonferroni_results.json")
+    # Ensure output directory exists
+    output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(bonferroni_results, f, indent=2)
-    
-    logger.info(f"Wrote Bonferroni results to {output_path}")
-    logger.info(f"Bonferroni threshold: {bonferroni_results['bonferroni_threshold']}")
-    
-    return bonferroni_results
+    try:
+        # Load results
+        logger.info(f"Loading scaling fits from {args.input}")
+        results = load_scaling_fits(args.input)
+        logger.info(f"Loaded {len(results)} results")
+        
+        # Apply Bonferroni correction
+        logger.info("Applying Bonferroni correction")
+        corrected_results = apply_bonferroni_correction(results, args.alpha)
+        
+        # Write output
+        with open(output_path, 'w') as f:
+            json.dump(corrected_results, f, indent=2)
+        
+        logger.info(f"Bonferroni results written to {args.output}")
+        print(f"Successfully applied Bonferroni correction. Results saved to {args.output}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

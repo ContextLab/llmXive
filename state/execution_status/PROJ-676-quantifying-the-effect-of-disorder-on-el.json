@@ -1,16 +1,18 @@
 {
   "project_id": "PROJ-676-quantifying-the-effect-of-disorder-on-el",
   "ok": false,
-  "reason": "every produced artifact is gitignored (data/processed/scaling_fits.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 declared deliverable(s) absent: data/metadata/residuals.json; data/processed/bonferroni_results.json",
-  "artifacts": [
-    "data/processed/scaling_fits.json"
+  "reason": "3 command(s) failed: python code/main.py  --mode generate_and_analyze  --Llist 100 200 400 800 1600  --Wlist 0.5 1.0 2.0  --realizations 100  --seed 42 (rc=1); python code/main.py  --mode scaling_analysis  --output data/processed/scaling_results.csv (rc=1); python code/main.py  --mode visualize  --L 200  --W 2.0  --realization 5  --output figures/eigenstate_decay.png (rc=1); 3 declared deliverable(s) absent: data/metadata/residuals.json; data/processed/bonferroni_results.json; data/processed/scaling_fits.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py  --mode generate_and_analyze  --Llist 100 200 400 800 1600  --Wlist 0.5 1.0 2.0  --realizations 100  --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/code/main.py\", line 19, in <module>\n    from code.analyze_pr import analyze_single_realization\nImportError: cannot import name 'analyze_single_realization' from 'code.analyze_pr' (/home/runner/work/llmXive/llmXive/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/code/analyze_pr.py)",
+    "python code/main.py  --mode scaling_analysis  --output data/processed/scaling_results.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/code/main.py\", line 19, in <module>\n    from code.analyze_pr import analyze_single_realization\nImportError: cannot import name 'analyze_single_realization' from 'code.analyze_pr' (/home/runner/work/llmXive/llmXive/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/code/analyze_pr.py)",
+    "python code/main.py  --mode visualize  --L 200  --W 2.0  --realization 5  --output figures/eigenstate_decay.png -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/code/main.py\", line 19, in <module>\n    from code.analyze_pr import analyze_single_realization\nImportError: cannot import name 'analyze_single_realization' from 'code.analyze_pr' (/home/runner/work/llmXive/llmXive/projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/code/analyze_pr.py)"
   ],
-  "failures": [],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-31T01:42:44Z"
+  "updated_at": "2026-08-02T03:06:48Z"
 }

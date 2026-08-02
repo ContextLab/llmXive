@@ -1,72 +1,88 @@
-"""
-Numerical logging infrastructure for Constitution Principle VI.
-Captures numerical residuals and convergence flags for eigenvalue problems.
-"""
 import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable
 import logging
 
-# Configure logger
-logger = logging.getLogger(__name__)
+DATA_METADATA = Path("data/metadata")
+DATA_METADATA.mkdir(parents=True, exist_ok=True)
 
 class NumericalLogger:
-    """
-    Logger for numerical stability metrics (residuals, convergence).
-    Writes JSON lines to data/metadata/residuals.json.
-    """
-    def __init__(self, output_path: Optional[str] = None):
-        self.output_path = output_path or "data/metadata/residuals.json"
-        self._ensure_directory()
+    def __init__(self, output_path: Optional[Path] = None):
+        self.output_path = output_path or DATA_METADATA / "residuals.json"
+        self.entries = []
+        self.logger = logging.getLogger("NumericalLogger")
 
-    def _ensure_directory(self):
-        """Ensure the output directory exists."""
-        Path(self.output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    def log_residual(self, norm: float, flag: bool, task: str = "eigh", **kwargs):
-        """
-        Log a residual norm and convergence flag.
-
-        Args:
-            norm: The residual norm (float).
-            flag: Convergence flag (True if converged, False otherwise).
-            task: The task name (e.g., 'eigh', 'tm').
-            **kwargs: Additional context (L, W, realization_index, seed, etc.).
-        """
+    def log_residual(self, norm: float, flag: bool):
         entry = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "task": task,
-            "residual_norm": norm,
-            "converged": flag,
-            **kwargs
+            "type": "residual",
+            "norm": norm,
+            "flag": flag,
+            "timestamp": str(datetime.now())
         }
-        self._append_entry(entry)
+        self.entries.append(entry)
+        self.logger.debug(f"Logged residual: norm={norm}, flag={flag}")
 
-    def log_convergence(self, metric: Dict[str, Any]):
-        """
-        Log convergence metrics for iterative solvers.
-
-        Args:
-            metric: Dictionary containing convergence details (iterations, history, etc.).
-        """
+    def log_convergence(self, metric: float):
         entry = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "type": "convergence_metric",
-            "metric": metric
+            "type": "convergence",
+            "metric": metric,
+            "timestamp": str(datetime.now())
         }
-        self._append_entry(entry)
+        self.entries.append(entry)
+        self.logger.debug(f"Logged convergence: metric={metric}")
 
-    def _append_entry(self, entry: Dict[str, Any]):
-        """Append a JSON line entry to the output file."""
-        try:
-            with open(self.output_path, "a") as f:
-                f.write(json.dumps(entry) + "\n")
-        except Exception as e:
-            logger.error(f"Failed to write log entry: {e}")
-            raise
+    def save(self):
+        with open(self.output_path, 'w') as f:
+            json.dump(self.entries, f, indent=2)
+        self.logger.info(f"Saved {len(self.entries)} entries to {self.output_path}")
 
-def get_logger(output_path: Optional[str] = None) -> NumericalLogger:
-    """Factory function to get a NumericalLogger instance."""
+def get_logger(output_path: Optional[Path] = None) -> NumericalLogger:
     return NumericalLogger(output_path)
+
+def log_residual_decorator(func: Callable) -> Callable:
+    def wrapper(*args, **kwargs):
+        logger = get_logger()
+        try:
+            result = func(*args, **kwargs)
+            logger.log_residual(norm=0.0, flag=True)
+            return result
+        except Exception as e:
+            logger.log_residual(norm=float(e), flag=False)
+            raise
+    return wrapper
+
+def log_convergence_decorator(func: Callable) -> Callable:
+    def wrapper(*args, **kwargs):
+        logger = get_logger()
+        try:
+            result = func(*args, **kwargs)
+            logger.log_convergence(metric=1.0)
+            return result
+        except Exception as e:
+            logger.log_convergence(metric=0.0)
+            raise
+    return wrapper
+
+def inject_log_residual(logger_instance: NumericalLogger, func: Callable) -> Callable:
+    def wrapper(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            logger_instance.log_residual(norm=0.0, flag=True)
+            return result
+        except Exception as e:
+            logger_instance.log_residual(norm=float(e), flag=False)
+            raise
+    return wrapper
+
+def inject_log_convergence(logger_instance: NumericalLogger, func: Callable) -> Callable:
+    def wrapper(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            logger_instance.log_convergence(metric=1.0)
+            return result
+        except Exception as e:
+            logger_instance.log_convergence(metric=0.0)
+            raise
+    return wrapper

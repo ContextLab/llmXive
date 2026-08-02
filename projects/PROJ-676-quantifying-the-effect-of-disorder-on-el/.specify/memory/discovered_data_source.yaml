@@ -1,19 +1,16 @@
 status: none
-intent: Synthetic 1D Anderson Hamiltonians reference theoretical values python package
-  dataset
+intent: Synthetic 1D Anderson Hamiltonians dataset with reference theoretical values
+  python package dataset
 required_fields:
-- system_size_L
-- disorder_strength_W
-- realization_index
-- random_seed
-- on_site_energies
-- hopping_parameter_t
+- system_size
+- disorder_strength
+- realization_id
+- seed
 - hamiltonian_matrix
 - eigenvalues
 - eigenvectors
 - participation_ratio
-- energy_E
-- position_index
-cache_key: b948bac65460f70d5a122933d89078db5c64e114c120466fca57d31606a9e536
-searched_at: '2026-07-31T01:43:17.985659+00:00'
+- energy
+cache_key: 76361517a65c797dc910696e1d2d5fbde22078a1b8efe39c209ef600efb5b0c7
+searched_at: '2026-08-02T03:07:19.682083+00:00'
 retry_count: 1

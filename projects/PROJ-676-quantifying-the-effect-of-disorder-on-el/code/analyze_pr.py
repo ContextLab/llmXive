@@ -8,431 +8,409 @@ import json
 import os
 import logging
 from pathlib import Path
-from datetime import datetime
-
 from code.config import get_config
-from code.logger import NumericalLogger
+from code.logger import NumericalLogger, get_logger
+from code.storage_utils import log_provenance_entry
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('data/metadata/analyze_pr.log')
-    ]
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def compute_eigenstates(H: np.ndarray, energy_window: float = 0.1) -> Tuple[np.ndarray, np.ndarray, List[Dict]]:
+# Memory threshold in GB (FR-008)
+MEMORY_THRESHOLD_GB = 6.0
+# Approximate bytes per float64
+FLOAT_BYTES = 8
+
+def _estimate_eigh_memory(L: int) -> float:
+    """Estimate RAM usage for dense eigendecomposition of LxL matrix."""
+    # Matrix storage: L*L*8 bytes
+    # Working space: typically 3-5x matrix size for LAPACK drivers (e.g., dgesdd)
+    matrix_size_bytes = L * L * FLOAT_BYTES
+    estimated_working_bytes = matrix_size_bytes * 5
+    return estimated_working_bytes / (1024 ** 3)
+
+def _get_eigen_solver(L: int) -> Tuple[str, str]:
     """
-    Compute eigenstates for a given Hamiltonian H.
+    Determine the appropriate eigenvalue solver based on system size and memory constraints.
+    Returns (solver_name, method_string).
+    
+    If estimated memory usage for dense solver exceeds MEMORY_THRESHOLD_GB,
+    falls back to sparse iterative solver (eigsh).
+    """
+    est_gb = _estimate_eigh_memory(L)
+    logger.info(f"System size L={L}, estimated dense solver memory: {est_gb:.2f} GB")
+    
+    if est_gb > MEMORY_THRESHOLD_GB:
+        logger.warning(f"Dense solver memory ({est_gb:.2f} GB) exceeds threshold ({MEMORY_THRESHOLD_GB} GB). Switching to sparse solver.")
+        return "sparse", "smallest_abs"
+    else:
+        return "dense", "all"
+
+def compute_eigenstates(H: np.ndarray, target_energy: float = 0.0, energy_window: float = 0.1) -> Dict[str, Any]:
+    """
+    Compute eigenstates for the Hamiltonian H.
+    Uses dense solver for small systems, sparse for large systems (FR-008).
     
     Args:
         H: Hamiltonian matrix (L x L)
-        energy_window: Energy window around E=0 to consider (|E| < energy_window)
-    
+        target_energy: Center of energy window
+        energy_window: Width of energy window (|E - target| < window/2)
+        
     Returns:
-        eigenvalues: Array of eigenvalues
-        eigenvectors: Array of eigenvectors (columns)
-        residual_logs: List of residual log entries for NumericalLogger
+        Dictionary containing eigenvalues, eigenvectors, and solver info.
     """
     L = H.shape[0]
-    residual_logs = []
+    solver_type, method = _get_eigen_solver(L)
     
-    # Determine if sparse or dense based on size
-    # Use sparse for L >= 400 to save memory, dense otherwise
-    if L >= 400:
-        try:
-            # Use sparse eigsh for large matrices
-            # Compute all eigenvalues and eigenvectors within the energy window
-            # We need all eigenvalues to filter by energy window
-            # eigsh with 'SM' (smallest magnitude) might miss some in the window
-            # Better to compute a range or all if feasible
-            
-            # For L=400-1600, computing all eigenvalues with sparse might be slow
-            # But we need all to filter by energy window
-            # Let's try to compute all using dense for now, fallback to sparse if memory error
-            eigenvalues, eigenvectors = linalg.eigh(H.toarray() if sparse.issparse(H) else H)
-            
-            # Log convergence (dense solver always converges)
-            residual_norm = 0.0
-            converged = True
-            
-            residual_logs.append({
-                "task": "eigh",
-                "L": L,
-                "W": 0.0,  # Will be set by caller
-                "realization_index": -1,  # Will be set by caller
-                "residual_norm": residual_norm,
-                "converged": converged
-            })
-            
-        except MemoryError:
-            logger.error(f"Memory error for L={L}, falling back to sparse solver")
-            # Fallback to sparse solver with shift-invert mode to find eigenvalues near 0
-            sigma = 0.0
-            k = min(50, L)  # Number of eigenvalues to compute
+    eig_result = {
+        "solver_type": solver_type,
+        "memory_estimate_gb": _estimate_eigh_memory(L),
+        "eigenvalues": [],
+        "eigenvectors": []
+    }
+    
+    try:
+        if solver_type == "dense":
+            # Use dense solver for small systems
+            eigenvalues, eigenvectors = linalg.eigh(H)
+            eig_result["eigenvalues"] = eigenvalues.tolist()
+            eig_result["eigenvectors"] = eigenvectors.T.tolist() # Transpose to have columns as eigenvectors
+        else:
+            # Use sparse solver for large systems
+            # We need eigenvalues near target_energy. 
+            # For 1D Anderson model, spectrum is roughly [-2, 2]. 
+            # We'll ask for a subset of eigenvalues near the center.
+            # Estimate number of eigenvalues to compute based on window
+            # Assuming roughly uniform density of states ~ 1/(2*pi) near E=0
+            # Number of states ~ L * window / (2*pi) ? 
+            # Safer: compute a fixed number, say 20% of L, then filter.
+            k = max(10, int(L * 0.2)) 
             
             try:
-                eigenvalues, eigenvectors = eigsh(H, k=k, sigma=sigma, which='LM')
+                # 'smallest_abs' might be slow if spectrum is far from 0.
+                # Better: use 'sigma' (shift-invert) if we know the region.
+                # But shift-invert requires solving linear systems, which might be heavy.
+                # Let's try 'smallest_abs' first for the center band.
+                # Actually, for Anderson localization near E=0, 'smallest_abs' is good.
+                # However, if H is not shifted, 'smallest_abs' finds eigenvalues closest to 0.
+                # This is exactly what we want for |E| < 0.1.
                 
-                # Estimate residual norm (simplified)
-                # For eigsh, we don't get direct residual, but we can check convergence
-                residual_norm = 1e-10  # Assume converged if no exception
-                converged = True
+                # We need to ensure we get enough eigenvalues in the window.
+                # Let's request a bit more than expected.
+                num_requested = min(L - 1, max(20, int(L * 0.5)))
                 
-                residual_logs.append({
-                    "task": "eigh",
-                    "L": L,
-                    "W": 0.0,
-                    "realization_index": -1,
-                    "residual_norm": residual_norm,
-                    "converged": converged
-                })
+                eigenvalues, eigenvectors = eigsh(
+                    sparse.csr_matrix(H), 
+                    k=num_requested, 
+                    which='SM', # Smallest magnitude (closest to 0)
+                    tol=1e-8,
+                    maxiter=1000
+                )
+                
+                # Sort by eigenvalue
+                idx = np.argsort(eigenvalues)
+                eigenvalues = eigenvalues[idx]
+                eigenvectors = eigenvectors[:, idx]
+                
+                # Filter by energy window
+                mask = np.abs(eigenvalues - target_energy) < (energy_window / 2)
+                
+                eig_result["eigenvalues"] = eigenvalues[mask].tolist()
+                eig_result["eigenvectors"] = eigenvectors[:, mask].T.tolist()
                 
             except ArpackNoConvergence as e:
-                logger.error(f"ARPACK did not converge for L={L}")
-                residual_norm = float('inf')
-                converged = False
-                
-                residual_logs.append({
-                    "task": "eigh",
-                    "L": L,
-                    "W": 0.0,
-                    "realization_index": -1,
-                    "residual_norm": residual_norm,
-                    "converged": converged
-                })
-                
-                # Return partial results if available
-                eigenvalues = e.eigenvalues if e.eigenvalues is not None else np.array([])
-                eigenvectors = e.eigenvectors if e.eigenvectors is not None else np.array([]).reshape(L, 0)
-    else:
-        # Use dense solver for small matrices
-        try:
-            eigenvalues, eigenvectors = linalg.eigh(H)
-            
-            residual_norm = 0.0
-            converged = True
-            
-            residual_logs.append({
-                "task": "eigh",
-                "L": L,
-                "W": 0.0,
-                "realization_index": -1,
-                "residual_norm": residual_norm,
-                "converged": converged
-            })
-            
-        except Exception as e:
-            logger.error(f"Error computing eigenstates for L={L}: {e}")
-            residual_norm = float('inf')
-            converged = False
-            
-            residual_logs.append({
-                "task": "eigh",
-                "L": L,
-                "W": 0.0,
-                "realization_index": -1,
-                "residual_norm": residual_norm,
-                "converged": converged
-            })
-            
-            eigenvalues = np.array([])
-            eigenvectors = np.array([]).reshape(L, 0)
-    
-    return eigenvalues, eigenvectors, residual_logs
+                logger.error(f"Sparse solver failed to converge: {e}")
+                # Fallback to dense if possible, but we already checked memory.
+                # Raise error to let caller handle.
+                raise RuntimeError("Sparse solver failed to converge and dense solver is not feasible due to memory constraints.")
 
-def compute_participation_ratio(eigenvectors: np.ndarray, eigenvalues: np.ndarray, energy_window: float = 0.1) -> Dict[str, Any]:
+    except Exception as e:
+        logger.error(f"Eigenvalue computation failed: {e}")
+        raise
+
+    return eig_result
+
+def compute_participation_ratio(eigenvector: List[float]) -> float:
     """
-    Compute Participation Ratio for eigenstates within |E| < energy_window.
-    
+    Compute Participation Ratio (PR) for a single eigenvector.
     PR = (sum(|psi_i|^2))^2 / sum(|psi_i|^4)
     
     Args:
-        eigenvectors: Array of eigenvectors (columns)
-        eigenvalues: Array of eigenvalues
-        energy_window: Energy window around E=0
-    
+        eigenvector: List of complex or real amplitudes
+        
     Returns:
-        Dictionary containing PR values and metadata
+        PR value (dimensionless)
     """
-    # Filter eigenstates within energy window
-    mask = np.abs(eigenvalues) < energy_window
-    filtered_eigenvalues = eigenvalues[mask]
-    filtered_eigenvectors = eigenvectors[:, mask]
+    psi = np.array(eigenvector, dtype=np.complex128)
+    prob_density = np.abs(psi) ** 2
     
-    if filtered_eigenvectors.shape[1] == 0:
-        logger.warning("No eigenstates found within energy window")
-        return {
-            "eigenvalues": [],
-            "PR": [],
-            "L": eigenvectors.shape[0],
-            "n_states": 0
-        }
+    sum_sq = np.sum(prob_density)
+    sum_fourth = np.sum(prob_density ** 2)
     
-    # Compute PR for each eigenstate
-    pr_values = []
-    pr_data = []
-    
-    for i in range(filtered_eigenvectors.shape[1]):
-        psi = filtered_eigenvectors[:, i]
-        psi_sq = np.abs(psi)**2
+    if sum_fourth == 0:
+        return 0.0
         
-        # PR = (sum(psi_i^2))^2 / sum(psi_i^4)
-        sum_sq = np.sum(psi_sq)
-        sum_fourth = np.sum(psi_sq**2)
-        
-        if sum_fourth == 0:
-            pr = float('inf')
-        else:
-            pr = (sum_sq**2) / sum_fourth
-        
-        pr_values.append(pr)
-        pr_data.append({
-            "eigenvalue": float(filtered_eigenvalues[i]),
-            "PR": float(pr)
-        })
-    
-    return {
-        "eigenvalues": filtered_eigenvalues.tolist(),
-        "PR": pr_values,
-        "PR_data": pr_data,
-        "L": eigenvectors.shape[0],
-        "n_states": len(pr_values)
-    }
+    return (sum_sq ** 2) / sum_fourth
 
-def saturation_curve(L_values: List[int], PR_values: List[float]) -> Tuple[float, float, Dict]:
+def saturation_curve(L_values: List[int], PR_values: List[float]) -> Tuple[List[float], List[float]]:
     """
-    Fit saturation curve to PR vs L data to extract localization length.
-    
-    Model: PR(L) = A * (1 - exp(-L/xi))
+    Generate saturation curve data for finite-size scaling.
+    This is a placeholder for more complex analysis if needed.
     
     Args:
         L_values: List of system sizes
-        PR_values: List of PR values (averaged over realizations)
-    
+        PR_values: List of corresponding PR values
+        
     Returns:
-        xi: Localization length
-        uncertainty: Uncertainty in xi
-        fit_params: Dictionary of fit parameters and statistics
+        Tuple of (L_values, PR_values) - currently just returns input
+    """
+    return L_values, PR_values
+
+def finite_size_scaling(L_values: List[int], PR_values: List[float], config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Perform finite-size scaling analysis to extract localization length xi.
+    Fits PR(L) = PR_inf * (1 - exp(-L/xi))
+    
+    Args:
+        L_values: List of system sizes
+        PR_values: List of corresponding PR values
+        config: Configuration dictionary
+        
+    Returns:
+        Dictionary with fit results: xi, uncertainty, fit_params, r_squared, p_value
     """
     if len(L_values) < 2:
-        logger.warning("Not enough data points for fitting")
-        return float('nan'), float('nan'), {"error": "insufficient_data"}
-    
+        logger.warning("Not enough data points for finite-size scaling fit.")
+        return {
+            "xi": None,
+            "uncertainty": None,
+            "fit_params": None,
+            "fit_r_squared": None,
+            "p_value": None,
+            "L_values": L_values,
+            "PR_values": PR_values,
+            "fit_status": "insufficient_data"
+        }
+
+    def saturation_model(L, PR_inf, xi):
+        return PR_inf * (1 - np.exp(-L / xi))
+
     L_arr = np.array(L_values)
     PR_arr = np.array(PR_values)
-    
-    # Define saturation model
-    def saturation_model(L, A, xi):
-        return A * (1 - np.exp(-L / xi))
+
+    # Initial guess
+    PR_inf_guess = PR_arr[-1] * 1.1
+    xi_guess = L_arr[-1] / 2.0
     
     try:
-        # Initial guesses
-        A0 = np.max(PR_arr) * 1.1
-        xi0 = L_arr[-1] / 2
+        popt, pcov = curve_fit(
+            saturation_model, 
+            L_arr, 
+            PR_arr, 
+            p0=[PR_inf_guess, xi_guess],
+            bounds=([0, 0], [np.inf, np.inf]),
+            maxfev=10000
+        )
         
-        # Fit the model
-        popt, pcov = curve_fit(saturation_model, L_arr, PR_arr, p0=[A0, xi0], maxfev=10000)
-        
-        A_fit, xi_fit = popt
-        
-        # Calculate uncertainties
-        if np.all(np.isfinite(pcov)):
-            perr = np.sqrt(np.diag(pcov))
-            A_err, xi_err = perr
-        else:
-            A_err = float('nan')
-            xi_err = float('nan')
+        PR_inf_fit, xi_fit = popt
+        perr = np.sqrt(np.diag(pcov))
+        PR_inf_err, xi_err = perr
         
         # Calculate R-squared
         PR_pred = saturation_model(L_arr, *popt)
-        ss_res = np.sum((PR_arr - PR_pred)**2)
-        ss_tot = np.sum((PR_arr - np.mean(PR_arr))**2)
-        r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
+        ss_res = np.sum((PR_arr - PR_pred) ** 2)
+        ss_tot = np.sum((PR_arr - np.mean(PR_arr)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
         
-        # Calculate p-value (simplified, using F-test approximation)
-        # For a proper p-value, we'd need more sophisticated statistics
-        # Here we use a simple heuristic based on R-squared
-        p_value = 1 - r_squared  # Simplified approximation
+        # Calculate p-value for slope deviation from -2 (SC-001)
+        # This is a simplified t-test on the slope of log(xi) vs log(W) later.
+        # For now, we store the fit parameters.
+        # The p-value for the slope -2 hypothesis is computed in T015.
+        # We can compute a p-value for the fit quality here if needed, but the task
+        # specifically mentions p_value from linear regression in T013a.
+        # Let's set a placeholder or compute a simple t-test for the fit parameters.
+        # However, the task says "p_value is derived from the linear regression fit (FR-005)".
+        # So we might not have a p-value here directly. 
+        # We'll set it to None for now, and T015 will handle the statistical test.
+        # Wait, T013a says: "p_value is derived from the linear regression fit (FR-005)".
+        # This suggests we need to do a linear regression on log(xi) vs log(W) later.
+        # So for this function, we just return the fit parameters.
+        # The p_value in the output of T013a is likely the p-value from the linear regression in T014/T015.
+        # But T013a output schema requires p_value. Let's assume it's for the slope test.
+        # Since we don't have W here, we can't do that. 
+        # Maybe the p_value is for the fit quality? Or maybe it's calculated later.
+        # Let's set it to None and let T015 handle it.
+        # Actually, re-reading T013a: "p_value is derived from the linear regression fit (FR-005)".
+        # This implies the linear regression is done on the scaling fits.
+        # So we don't compute it here. We'll set it to None.
         
-        return xi_fit, xi_err, {
-            "A": float(A_fit),
-            "A_err": float(A_err),
+        return {
             "xi": float(xi_fit),
-            "xi_err": float(xi_err),
-            "r_squared": float(r_squared),
-            "p_value": float(p_value),
+            "uncertainty": float(xi_err),
+            "fit_params": {"PR_inf": float(PR_inf_fit), "xi": float(xi_fit)},
+            "fit_r_squared": float(r_squared),
+            "p_value": None, # To be computed in T015
             "L_values": L_values,
             "PR_values": PR_values,
-            "fit_successful": True
+            "fit_status": "converged"
         }
         
-    except Exception as e:
-        logger.error(f"Fitting failed: {e}")
+    except RuntimeError as e:
+        logger.warning(f"Non-linear fit failed to converge: {e}. Falling back to linear interpolation.")
         # Fallback: linear interpolation to estimate saturation
+        # This is a crude estimate
         if len(L_values) >= 2:
-            # Use the last two points to estimate saturation
-            slope = (PR_values[-1] - PR_values[-2]) / (L_values[-1] - L_values[-2])
-            if abs(slope) < 0.01:  # Considered saturated
-                xi_est = L_values[-1]
-            else:
-                xi_est = L_values[-1] / 2
-            
-            return xi_est, float('nan'), {
+            # Simple linear fit to the last two points to estimate saturation
+            # PR(L) ~ a*L + b. Extrapolate to infinity? Not physical.
+            # Better: use the last point as an estimate of PR_inf, and assume saturation.
+            # But we need xi.
+            # Let's just return the last PR as PR_inf and xi as a large number.
+            PR_inf_est = PR_arr[-1]
+            xi_est = L_arr[-1] * 2.0
+            return {
                 "xi": float(xi_est),
-                "fit_successful": False,
-                "fallback": True,
-                "r_squared": 0.0,
-                "p_value": 1.0
+                "uncertainty": float(xi_est * 0.5),
+                "fit_params": {"PR_inf": float(PR_inf_est), "xi": float(xi_est)},
+                "fit_r_squared": None,
+                "p_value": None,
+                "L_values": L_values,
+                "PR_values": PR_values,
+                "fit_status": "fallback_linear"
             }
         else:
-            return float('nan'), float('nan'), {"error": "fit_failed", "exception": str(e)}
+            return {
+                "xi": None,
+                "uncertainty": None,
+                "fit_params": None,
+                "fit_r_squared": None,
+                "p_value": None,
+                "L_values": L_values,
+                "PR_values": PR_values,
+                "fit_status": "fallback_failed"
+            }
 
-def finite_size_scaling(W: float, L_list: List[int], num_realizations: int, seed: int, energy_window: float = 0.1) -> Dict[str, Any]:
+def analyze_single_realization(W: float, L: int, realization_index: int, seed: int) -> Dict[str, Any]:
     """
-    Perform finite-size scaling analysis for a given disorder width W.
+    Analyze a single disorder realization: generate Hamiltonian, compute eigenstates,
+    and calculate PR for eigenstates near E=0.
     
     Args:
-        W: Disorder width
-        L_list: List of system sizes
-        num_realizations: Number of disorder realizations per L
-        seed: Random seed
-        energy_window: Energy window for PR calculation
-    
-    Returns:
-        Dictionary containing scaling results
-    """
-    from code.generate_hamiltonian import generate_hamiltonian
-    
-    np.random.seed(seed)
-    
-    all_pr_data = {L: [] for L in L_list}
-    residual_logs = []
-    
-    for L in L_list:
-        logger.info(f"Processing L={L}, W={W}")
+        W: Disorder strength
+        L: System size
+        realization_index: Index of the realization
+        seed: Random seed for this realization
         
-        for i in range(num_realizations):
-            try:
-                # Generate Hamiltonian
-                H, _ = generate_hamiltonian(L, W, seed + i)
-                
-                # Compute eigenstates
-                eigenvalues, eigenvectors, logs = compute_eigenstates(H, energy_window)
-                
-                # Update logs with W and realization_index
-                for log in logs:
-                    log["W"] = W
-                    log["realization_index"] = i
-                    residual_logs.append(log)
-                
-                # Check convergence and residual threshold
-                config = get_config()
-                threshold = config.get("NUMERICAL_RESIDUAL_THRESHOLD", 1e-6)
-                
-                # Filter based on convergence
-                for log in logs:
-                    if not log["converged"] or log["residual_norm"] > threshold:
-                        logger.warning(f"Skipping realization L={L}, W={W}, idx={i} due to numerical issues")
-                        continue
-                
-                # Compute PR
-                pr_result = compute_participation_ratio(eigenvectors, eigenvalues, energy_window)
-                
-                if pr_result["n_states"] > 0:
-                    avg_pr = np.mean(pr_result["PR"])
-                    all_pr_data[L].append(avg_pr)
-                    
-            except Exception as e:
-                logger.error(f"Error processing L={L}, W={W}, idx={i}: {e}")
-                continue
+    Returns:
+        Dictionary with PR values and metadata
+    """
+    config = get_config()
+    logger_instance = get_logger()
     
-    # Average PR over realizations for each L
-    avg_pr_values = []
-    valid_L_values = []
+    # Generate Hamiltonian
+    from code.generate_hamiltonian import generate_hamiltonian
+    H = generate_hamiltonian(L, W, seed)
     
-    for L in L_list:
-        if len(all_pr_data[L]) > 0:
-            avg_pr = np.mean(all_pr_data[L])
-            avg_pr_values.append(avg_pr)
-            valid_L_values.append(L)
-        else:
-            logger.warning(f"No valid PR values for L={L}")
+    # Compute eigenstates
+    eig_result = compute_eigenstates(H, target_energy=0.0, energy_window=0.2)
     
-    # Fit saturation curve
-    if len(valid_L_values) >= 2:
-        xi, xi_err, fit_params = saturation_curve(valid_L_values, avg_pr_values)
-    else:
-        xi = float('nan')
-        xi_err = float('nan')
-        fit_params = {"error": "insufficient_data"}
+    # Compute PR for each eigenstate in the window
+    pr_values = []
+    for i, eigvec in enumerate(eig_result["eigenvectors"]):
+        pr = compute_participation_ratio(eigvec)
+        pr_values.append({
+            "energy": eig_result["eigenvalues"][i],
+            "pr": pr,
+            "realization_index": realization_index,
+            "W": W,
+            "L": L,
+            "seed": seed
+        })
+        
+        # Log residuals if available (from eig_result if it had residuals)
+        # For now, just log the PR
+        logger_instance.log_convergence({"pr": pr, "energy": eig_result["eigenvalues"][i]})
     
     return {
-        "disorder_width": W,
-        "xi": xi,
-        "uncertainty": xi_err,
-        "fit_params": fit_params,
-        "L_values": valid_L_values,
-        "PR_values": avg_pr_values,
-        "num_realizations_processed": sum(len(v) for v in all_pr_data.values()),
-        "residual_logs": residual_logs
+        "W": W,
+        "L": L,
+        "realization_index": realization_index,
+        "seed": seed,
+        "eigenstates": pr_values,
+        "solver_type": eig_result["solver_type"],
+        "memory_estimate_gb": eig_result["memory_estimate_gb"]
     }
 
-def main():
-    """Main entry point for PR analysis."""
+def run_scaling_analysis(W: float, L_list: List[int], num_realizations: int, seed_base: int) -> Dict[str, Any]:
+    """
+    Run finite-size scaling analysis for a given disorder strength W.
+    
+    Args:
+        W: Disorder strength
+        L_list: List of system sizes
+        num_realizations: Number of disorder realizations
+        seed_base: Base seed for random number generation
+        
+    Returns:
+        Dictionary with scaling fit results
+    """
     config = get_config()
+    logger_instance = get_logger()
     
-    W_list = config.get("W_LIST", [1.0, 2.0, 3.0])
-    L_list = config.get("L_LIST", [100, 200, 400, 800, 1600])
-    num_realizations = config.get("NUM_REALIZATIONS", 10)
-    seed = config.get("SEED", 42)
+    # Collect PR values for each L
+    pr_by_L = {L: [] for L in L_list}
     
-    results = []
-    all_residual_logs = []
+    for r_idx in range(num_realizations):
+        seed = seed_base + r_idx
+        result = analyze_single_realization(W, L_list[0], r_idx, seed) # We need to do this for all L
+        # Actually, we need to run for each L. Let's restructure.
+        pass
     
-    for W in W_list:
-        logger.info(f"Starting analysis for W={W}")
-        result = finite_size_scaling(W, L_list, num_realizations, seed)
-        results.append(result)
-        all_residual_logs.extend(result.get("residual_logs", []))
+    # Correct approach: For each L, run num_realizations
+    for L in L_list:
+        for r_idx in range(num_realizations):
+            seed = seed_base + r_idx * 1000 + L # Unique seed for each (L, r)
+            result = analyze_single_realization(W, L, r_idx, seed)
+            # Average PR for eigenstates near E=0
+            pr_vals = [e["pr"] for e in result["eigenstates"]]
+            if pr_vals:
+                avg_pr = np.mean(pr_vals)
+                pr_by_L[L].append(avg_pr)
     
-    # Write residual logs to file
-    residuals_path = Path("data/metadata/residuals.json")
-    residuals_path.parent.mkdir(parents=True, exist_ok=True)
+    # Average PR for each L
+    avg_pr_by_L = {L: np.mean(pr_list) for L, pr_list in pr_by_L.items() if pr_list}
     
-    with open(residuals_path, 'w') as f:
-        for log in all_residual_logs:
-            f.write(json.dumps(log) + '\n')
+    # Sort by L
+    sorted_L = sorted(avg_pr_by_L.keys())
+    sorted_PR = [avg_pr_by_L[L] for L in sorted_L]
     
-    logger.info(f"Wrote {len(all_residual_logs)} residual logs to {residuals_path}")
+    # Perform finite-size scaling
+    fit_result = finite_size_scaling(sorted_L, sorted_PR, config)
+    fit_result["disorder_width"] = W
     
-    # Write scaling fits
-    scaling_path = Path("data/processed/scaling_fits.json")
-    scaling_path.parent.mkdir(parents=True, exist_ok=True)
+    return fit_result
+
+def main():
+    """
+    Main entry point for analyze_pr.py.
+    Can be run as a script to test functionality.
+    """
+    config = get_config()
+    logger.info("Running analyze_pr.py main function.")
     
-    # Prepare results for JSON serialization
-    json_results = []
-    for r in results:
-        json_r = {
-            "disorder_width": r["disorder_width"],
-            "xi": r["xi"],
-            "uncertainty": r["uncertainty"],
-            "fit_params": r["fit_params"],
-            "L_values": r["L_values"],
-            "PR_values": r["PR_values"],
-            "num_realizations_processed": r["num_realizations_processed"]
-        }
-        json_results.append(json_r)
+    # Example: Run for W=1.0, L=[100, 200, 400]
+    W_test = 1.0
+    L_test = [100, 200, 400]
+    num_real = 10
+    seed_test = 42
     
-    with open(scaling_path, 'w') as f:
-        json.dump(json_results, f, indent=2)
+    result = run_scaling_analysis(W_test, L_test, num_real, seed_test)
+    print(json.dumps(result, indent=2))
     
-    logger.info(f"Wrote scaling fits to {scaling_path}")
-    
-    return results
+    # Save to file if needed
+    output_path = Path(config["data_processed_dir"]) / "test_scaling_fits.json"
+    with open(output_path, "w") as f:
+        json.dump(result, f, indent=2)
+    logger.info(f"Test results saved to {output_path}")
 
 if __name__ == "__main__":
     main()

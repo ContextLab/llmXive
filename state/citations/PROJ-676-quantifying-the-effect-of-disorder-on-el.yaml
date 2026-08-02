@@ -1,4 +1,4 @@
-- artifact_hash: 51d4b18534992298569650bac1884f37398630ab218786a2a87d07dc2b58f9fd
+- artifact_hash: 66d32e096a3009118f9858426341a861b07bbb5552737f176618d9e1d96900e4
   artifact_path: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-01T16:18:21.620253Z'
+  verified_at: '2026-08-02T03:26:46.742218Z'
