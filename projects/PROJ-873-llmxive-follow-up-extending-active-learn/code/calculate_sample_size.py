@@ -1,9 +1,11 @@
 """
-T013c: Calculate the dynamic sample size for LLM consensus validation.
+Calculate dynamic sample size for LLM consensus validation.
 
-Reads the count of flagged pairs from data/results/flagged_pairs_count.json,
-applies the dynamic sampling logic (min threshold, percentage cap), and writes
-the result to data/results/sample_config.json.
+This script reads the flagged pairs count from T013a's output and calculates
+the sample size using the formula:
+sample_size = max(minimum_threshold, int(0.05 * total_flagged_count))
+
+It writes the result to data/results/sample_config.json.
 """
 import os
 import sys
@@ -11,67 +13,98 @@ import json
 import logging
 import argparse
 
-# Add project root to path to allow imports from sibling modules
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Add project root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from metrics import calculate_dynamic_sample_size
 from config import get_config
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def main():
-    """
-    Entry point for T013c.
-    Reads flagged_pairs_count.json, calculates sample size, writes sample_config.json.
-    """
-    parser = argparse.ArgumentParser(description="Calculate dynamic sample size for consensus validation.")
-    parser.add_argument("--input", type=str, default="data/results/flagged_pairs_count.json",
-                        help="Path to the input file containing flagged pair counts.")
-    parser.add_argument("--output", type=str, default="data/results/sample_config.json",
-                        help="Path to write the sample configuration.")
+    parser = argparse.ArgumentParser(
+        description='Calculate dynamic sample size for LLM consensus validation.'
+    )
+    parser.add_argument(
+        '--input',
+        type=str,
+        default='data/results/flagged_pairs_count.json',
+        help='Path to the flagged pairs count JSON file (default: data/results/flagged_pairs_count.json)'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default='data/results/sample_config.json',
+        help='Path to write the sample config JSON file (default: data/results/sample_config.json)'
+    )
+    parser.add_argument(
+        '--minimum-threshold',
+        type=int,
+        default=None,
+        help='Minimum sample size threshold (overrides config if provided)'
+    )
+    parser.add_argument(
+        '--percentage',
+        type=float,
+        default=0.05,
+        help='Percentage of flagged count to use (default: 0.05 = 5%%)'
+    )
     args = parser.parse_args()
 
-    # Ensure output directory exists
-    output_dir = os.path.dirname(args.output)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    # Load input
+    # Load flagged pairs count
     if not os.path.exists(args.input):
         logger.error(f"Input file not found: {args.input}")
         sys.exit(1)
 
     with open(args.input, 'r') as f:
-        input_data = json.load(f)
+        flagged_data = json.load(f)
 
-    total_flagged = input_data.get("total_flagged_count")
-    if total_flagged is None:
-        logger.error("Input file missing 'total_flagged_count'.")
-        sys.exit(1)
+    total_flagged_count = flagged_data.get('total_flagged_count', 0)
+    logger.info(f"Total flagged count: {total_flagged_count}")
+
+    # Get minimum threshold from config or argument
+    config = get_config()
+    minimum_threshold = args.minimum_threshold
+    if minimum_threshold is None:
+        # Try to get from config, default to 10
+        minimum_threshold = getattr(config, 'MINIMUM_SAMPLE_THRESHOLD', 10)
+
+    logger.info(f"Using minimum threshold: {minimum_threshold}")
+    logger.info(f"Using percentage: {args.percentage}")
 
     # Calculate sample size
-    sample_size = calculate_dynamic_sample_size(total_flagged)
+    sample_size = calculate_dynamic_sample_size(
+        total_flagged_count,
+        minimum_threshold,
+        percentage=args.percentage
+    )
 
-    # Get config for max_limit (if needed, though calculate_dynamic_sample_size handles logic)
-    config = get_config()
-    max_limit = getattr(config, 'max_sample_size', 1000) # Fallback if config doesn't have it
+    logger.info(f"Calculated sample size: {sample_size}")
 
-    result = {
-        "total_flagged_count": total_flagged,
-        "max_limit": max_limit,
+    # Prepare output
+    sample_config = {
+        "total_flagged_count": total_flagged_count,
+        "minimum_threshold": minimum_threshold,
+        "percentage": args.percentage,
         "sample_size": sample_size,
         "calculation_method": "dynamic_percentage_capped"
     }
 
+    # Ensure output directory exists
+    output_dir = os.path.dirname(args.output)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        logger.info(f"Created output directory: {output_dir}")
+
     # Write output
     with open(args.output, 'w') as f:
-        json.dump(result, f, indent=2)
+        json.dump(sample_config, f, indent=2)
 
-    logger.info(f"Sample size calculated: {sample_size} (from {total_flagged} flagged pairs).")
-    logger.info(f"Result written to: {args.output}")
+    logger.info(f"Sample config written to: {args.output}")
+    print(f"Sample size: {sample_size}")
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    main()
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

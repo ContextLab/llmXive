@@ -4,130 +4,173 @@ import json
 import time
 import resource
 import logging
+from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, field
-from typing import Optional, Any, Dict, List
 
-logger = logging.getLogger(__name__)
+# Configuration defaults
+DEFAULT_MAX_RUNTIME_HOURS = 6
+DEFAULT_MAX_MEMORY_GB = 7
+DEFAULT_DATA_DIR = "data"
+DEFAULT_BEIR_CACHE_DIR = "beir_data"
+DEFAULT_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+DEFAULT_MINHASH_THRESHOLD_BASELINE = 0.95
+DEFAULT_MINHASH_THRESHOLD_SWEEP_START = 0.95
+DEFAULT_MINHASH_THRESHOLD_SWEEP_END = 0.99
+DEFAULT_MINHASH_THRESHOLD_SWEEP_STEP = 0.005
+DEFAULT_LLM_MODEL = "llama-3-8b-instruct"
+DEFAULT_LLM_TEMPERATURE = 0.0
+DEFAULT_LLM_MAX_TOKENS = 200
+DEFAULT_LOG_LEVEL = "INFO"
 
 @dataclass
 class PipelineConfig:
-    data_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "data"))
-    results_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "data", "results"))
-    logs_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "data", "logs"))
-    processed_dir: str = field(default_factory=lambda: os.path.join(os.getcwd(), "data", "processed"))
-    max_runtime_hours: float = 6.0
-    max_memory_gb: float = 7.0
-    embedding_model: str = "all-MiniLM-L6-v2"
-    llm_model: str = "llama-3-8b-instruct"
-    llm_temperature: float = 0.0
-    llm_max_tokens: int = 200
-    redundancy_threshold: float = 0.95
-    minhash_threshold: float = 0.95
-    budget_baseline: int = 100
-    budget_clustering: int = 50
-    seeds: list = field(default_factory=lambda: [42])
-    
-    # T025: MinHash-LSH threshold sweep range configuration
-    # Defines the range of Jaccard similarity thresholds to sweep for sensitivity analysis (SC-005)
-    minhash_threshold_start: float = 0.95
-    minhash_threshold_end: float = 0.99
-    minhash_threshold_step: float = 0.01
-    
-    def __post_init__(self):
-        # Ensure directories exist
-        for dir_path in [self.data_dir, self.results_dir, self.logs_dir, self.processed_dir]:
-            os.makedirs(dir_path, exist_ok=True)
+    """
+    Central configuration for the llmXive pipeline.
+    Supports both direct attribute access and method-style calls for logging-like flexibility.
+    """
+    max_runtime_hours: float = DEFAULT_MAX_RUNTIME_HOURS
+    max_memory_gb: float = DEFAULT_MAX_MEMORY_GB
+    data_dir: str = DEFAULT_DATA_DIR
+    beir_cache_dir: str = DEFAULT_BEIR_CACHE_DIR
+    embedding_model: str = DEFAULT_EMBEDDING_MODEL
+    minhash_threshold_baseline: float = DEFAULT_MINHASH_THRESHOLD_BASELINE
+    minhash_threshold_sweep_start: float = DEFAULT_MINHASH_THRESHOLD_SWEEP_START
+    minhash_threshold_sweep_end: float = DEFAULT_MINHASH_THRESHOLD_SWEEP_END
+    minhash_threshold_sweep_step: float = DEFAULT_MINHASH_THRESHOLD_SWEEP_STEP
+    llm_model: str = DEFAULT_LLM_MODEL
+    llm_temperature: float = DEFAULT_LLM_TEMPERATURE
+    llm_max_tokens: int = DEFAULT_LLM_MAX_TOKENS
+    log_level: str = DEFAULT_LOG_LEVEL
 
-_config_instance: Optional[PipelineConfig] = None
+    # Derived paths
+    processed_dir: str = field(default="data/processed", init=False)
+    results_dir: str = field(default="data/results", init=False)
+    figures_dir: str = field(default="figures", init=False)
+    state_dir: str = field(default="state/projects", init=False)
+    prompts_dir: str = field(default="code/prompts", init=False)
+
+    def __post_init__(self):
+        # Ensure derived paths are absolute relative to project root if needed
+        # For now, keeping them relative as per project conventions
+        self.processed_dir = os.path.join(self.data_dir, "processed")
+        self.results_dir = os.path.join(self.data_dir, "results")
+        self.figures_dir = os.path.join(self.data_dir, "figures")
+        self.state_dir = os.path.join("state", "projects")
+        self.prompts_dir = os.path.join("code", "prompts")
+
+    # Tolerant method access for logger-style calls
+    def info(self, *args, **kwargs):
+        logging.info(*args, **kwargs)
+
+    def debug(self, *args, **kwargs):
+        logging.debug(*args, **kwargs)
+
+    def warning(self, *args, **kwargs):
+        logging.warning(*args, **kwargs)
+
+    def error(self, *args, **kwargs):
+        logging.error(*args, **kwargs)
+
+    def critical(self, *args, **kwargs):
+        logging.critical(*args, **kwargs)
+
+    def get_threshold_sweep_range(self) -> List[float]:
+        """
+        Generate the list of thresholds for the MinHash-LSH sensitivity sweep.
+        Range: [start, end] with step size.
+        Serves SC-005 by defining the sweep parameters in config.
+        """
+        thresholds = []
+        current = self.minhash_threshold_sweep_start
+        while current <= self.minhash_threshold_sweep_end + 1e-9: # Float tolerance
+            thresholds.append(round(current, 4))
+            current += self.minhash_threshold_sweep_step
+        return thresholds
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "max_runtime_hours": self.max_runtime_hours,
+            "max_memory_gb": self.max_memory_gb,
+            "data_dir": self.data_dir,
+            "beir_cache_dir": self.beir_cache_dir,
+            "embedding_model": self.embedding_model,
+            "minhash_threshold_baseline": self.minhash_threshold_baseline,
+            "minhash_threshold_sweep_start": self.minhash_threshold_sweep_start,
+            "minhash_threshold_sweep_end": self.minhash_threshold_sweep_end,
+            "minhash_threshold_sweep_step": self.minhash_threshold_sweep_step,
+            "llm_model": self.llm_model,
+            "llm_temperature": self.llm_temperature,
+            "llm_max_tokens": self.llm_max_tokens,
+            "log_level": self.log_level,
+            "threshold_sweep_range": self.get_threshold_sweep_range()
+        }
+
+_global_config: Optional[PipelineConfig] = None
 
 def get_config() -> PipelineConfig:
-    """Get the global configuration instance."""
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = PipelineConfig()
-    return _config_instance
+    global _global_config
+    if _global_config is None:
+        _global_config = PipelineConfig()
+    return _global_config
 
-def update_config(**kwargs) -> None:
-    """Update the global configuration."""
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = PipelineConfig()
+def update_config(**kwargs):
+    global _global_config
+    if _global_config is None:
+        _global_config = PipelineConfig()
     for key, value in kwargs.items():
-        if hasattr(_config_instance, key):
-            setattr(_config_instance, key, value)
+        if hasattr(_global_config, key):
+            setattr(_global_config, key, value)
         else:
-            logger.warning(f"Unknown config key: {key}")
+            logging.warning(f"Config update ignored unknown key: {key}")
 
 def format_bytes(num_bytes: int) -> str:
-    """Format bytes into human-readable string."""
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
         if num_bytes < 1024.0:
             return f"{num_bytes:.2f} {unit}"
         num_bytes /= 1024.0
     return f"{num_bytes:.2f} PB"
 
-def check_system_limits() -> Dict[str, Any]:
-    """Check current system resource usage against limits."""
+def check_system_limits() -> Tuple[bool, str]:
+    """
+    Check if current system limits are sufficient for the configured constraints.
+    Returns (is_ok, message).
+    """
     config = get_config()
-    
-    usage = {}
-    try:
-        rusage = resource.getrusage(resource.RUSAGE_SELF)
-        usage['max_memory_mb'] = rusage.ru_maxrss # In KB on Linux, MB on macOS
-        # Adjust for platform differences if necessary
-        if sys.platform == 'linux':
-            usage['max_memory_mb'] /= 1024.0
-    except Exception as e:
-        logger.error(f"Failed to get resource usage: {e}")
-        usage['max_memory_mb'] = 0.0
-    
-    usage['current_time'] = time.time()
-    
-    return usage
+    max_mem_bytes = config.max_memory_gb * 1024 * 1024 * 1024
+
+    # Check soft limit
+    soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+    if soft != resource.RLIM_INFINITY and soft < max_mem_bytes:
+        return False, f"Soft memory limit ({format_bytes(soft)}) is below required ({format_bytes(max_mem_bytes)})"
+
+    # Check hard limit
+    if hard != resource.RLIM_INFINITY and hard < max_mem_bytes:
+        return False, f"Hard memory limit ({format_bytes(hard)}) is below required ({format_bytes(max_mem_bytes)})"
+
+    return True, "System limits are sufficient"
 
 def main():
-    """Main entry point for config script."""
+    """
+    CLI entry point for configuration inspection.
+    """
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Configuration management")
-    parser.add_argument("--show", action="store_true", help="Show current config")
-    parser.add_argument("--update", nargs="+", help="Update config (key=value)")
-    
+    parser = argparse.ArgumentParser(description="Inspect llmXive pipeline configuration")
+    parser.add_argument("--show", action="store_true", help="Print current config as JSON")
+    parser.add_argument("--check-limits", action="store_true", help="Check system limits against config")
     args = parser.parse_args()
-    
+
+    config = get_config()
+
     if args.show:
-        config = get_config()
-        print(json.dumps({
-            "data_dir": config.data_dir,
-            "results_dir": config.results_dir,
-            "logs_dir": config.logs_dir,
-            "processed_dir": config.processed_dir,
-            "max_runtime_hours": config.max_runtime_hours,
-            "max_memory_gb": config.max_memory_gb,
-            "embedding_model": config.embedding_model,
-            "llm_model": config.llm_model,
-            "llm_temperature": config.llm_temperature,
-            "llm_max_tokens": config.llm_max_tokens,
-            "redundancy_threshold": config.redundancy_threshold,
-            "minhash_threshold": config.minhash_threshold,
-            "minhash_threshold_start": config.minhash_threshold_start,
-            "minhash_threshold_end": config.minhash_threshold_end,
-            "minhash_threshold_step": config.minhash_threshold_step,
-            "budget_baseline": config.budget_baseline,
-            "budget_clustering": config.budget_clustering,
-            "seeds": config.seeds
-        }, indent=2))
-    elif args.update:
-        for item in args.update:
-            key, value = item.split("=")
-            # Simple type conversion
-            if value.isdigit():
-                value = int(value)
-            elif value.replace('.', '', 1).isdigit():
-                value = float(value)
-            update_config(**{key: value})
-        logger.info("Config updated.")
-    else:
+        print(json.dumps(config.to_dict(), indent=2))
+
+    if args.check_limits:
+        is_ok, msg = check_system_limits()
+        status = "OK" if is_ok else "FAIL"
+        print(f"System Limits Check: {status} - {msg}")
+        sys.exit(0 if is_ok else 1)
+
+    if not (args.show or args.check_limits):
         parser.print_help()
 
 if __name__ == "__main__":

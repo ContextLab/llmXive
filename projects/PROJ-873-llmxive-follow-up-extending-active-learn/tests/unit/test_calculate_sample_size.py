@@ -1,78 +1,107 @@
 """
-Unit tests for T013c: calculate_sample_size.py
+Unit tests for calculate_sample_size.py functionality.
+
+Tests the dynamic sample size calculation logic for T013c.
 """
+import pytest
 import os
 import sys
 import json
 import tempfile
-import pytest
-from unittest.mock import patch, MagicMock
+import shutil
 
 # Add project root to path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from metrics import calculate_dynamic_sample_size
 
-class TestCalculateDynamicSampleSize:
+
+class TestDynamicSampleSize:
     """Tests for the calculate_dynamic_sample_size function."""
 
-    def test_zero_flagged(self):
-        """Test with zero flagged pairs."""
-        assert calculate_dynamic_sample_size(0) == 0
+    def test_minimum_threshold_when_small_flagged(self):
+        """Test that minimum threshold is used when 5% is smaller."""
+        # 5% of 100 = 5, but minimum is 10
+        result = calculate_dynamic_sample_size(
+            total_flagged_count=100,
+            minimum_threshold=10,
+            percentage=0.05
+        )
+        assert result == 10
 
-    def test_small_count_below_minimum(self):
-        """Test with a small count that results in a value below minimum."""
-        # 5 * 0.2 = 1, but min is 20
-        assert calculate_dynamic_sample_size(5) == 20
+    def test_percentage_when_large_flagged(self):
+        """Test that percentage is used when it exceeds minimum."""
+        # 5% of 1000 = 50, minimum is 10, so 50 wins
+        result = calculate_dynamic_sample_size(
+            total_flagged_count=1000,
+            minimum_threshold=10,
+            percentage=0.05
+        )
+        assert result == 50
 
-    def test_large_count_capped_at_max(self):
-        """Test with a large count that results in a value above maximum."""
-        # 10000 * 0.2 = 2000, but max is 1000
-        assert calculate_dynamic_sample_size(10000) == 1000
+    def test_max_limit_capping(self):
+        """Test that max limit caps the sample size."""
+        # 5% of 50000 = 2500, but max is 1000
+        result = calculate_dynamic_sample_size(
+            total_flagged_count=50000,
+            minimum_threshold=10,
+            percentage=0.05,
+            max_limit=1000
+        )
+        assert result == 1000
 
-    def test_normal_count(self):
-        """Test with a normal count that falls between min and max."""
-        # 100 * 0.2 = 20
-        assert calculate_dynamic_sample_size(100) == 20
+    def test_zero_flagged_count(self):
+        """Test behavior with zero flagged count."""
+        result = calculate_dynamic_sample_size(
+            total_flagged_count=0,
+            minimum_threshold=10,
+            percentage=0.05
+        )
+        assert result == 10
 
-    def test_custom_parameters(self):
-        """Test with custom min/max/percentage."""
-        # 100 * 0.5 = 50, min=10, max=40 -> should be 40
-        assert calculate_dynamic_sample_size(100, min_sample=10, max_sample=40, percentage=0.5) == 40
+    def test_negative_flagged_count(self):
+        """Test behavior with negative flagged count (edge case)."""
+        result = calculate_dynamic_sample_size(
+            total_flagged_count=-100,
+            minimum_threshold=10,
+            percentage=0.05
+        )
+        assert result == 10
 
-class TestCalculateSampleSizeScript:
-    """Tests for the calculate_sample_size.py script execution."""
+    def test_custom_percentage(self):
+        """Test with custom percentage value."""
+        # 10% of 200 = 20
+        result = calculate_dynamic_sample_size(
+            total_flagged_count=200,
+            minimum_threshold=5,
+            percentage=0.10
+        )
+        assert result == 20
 
-    def test_script_execution(self, tmp_path):
-        """Test that the script runs and produces the correct output file."""
-        # Create input file
-        input_file = tmp_path / "flagged_pairs_count.json"
-        input_data = {"total_flagged_count": 100}
-        with open(input_file, 'w') as f:
-            json.dump(input_data, f)
+    def test_boundary_exact_match(self):
+        """Test when percentage exactly equals minimum."""
+        # 5% of 200 = 10, minimum = 10, so result is 10
+        result = calculate_dynamic_sample_size(
+            total_flagged_count=200,
+            minimum_threshold=10,
+            percentage=0.05
+        )
+        assert result == 10
 
-        output_file = tmp_path / "sample_config.json"
+    def test_fractional_rounding(self):
+        """Test that fractional results are truncated (int)."""
+        # 5% of 11 = 0.55, int(0.55) = 0, so minimum wins (10)
+        result = calculate_dynamic_sample_size(
+            total_flagged_count=11,
+            minimum_threshold=10,
+            percentage=0.05
+        )
+        assert result == 10
 
-        # Mock get_config to return a simple object with max_sample_size
-        class MockConfig:
-            max_sample_size = 1000
-
-        with patch('calculate_sample_size.get_config', return_value=MockConfig()):
-            # Import and run main
-            from calculate_sample_size import main
-            import argparse
-            
-            # We need to simulate the arguments
-            with patch('sys.argv', ['calculate_sample_size.py', '--input', str(input_file), '--output', str(output_file)]):
-                main()
-
-        # Verify output
-        assert output_file.exists()
-        with open(output_file, 'r') as f:
-            result = json.load(f)
-        
-        assert result["total_flagged_count"] == 100
-        assert result["sample_size"] == 20
-        assert result["calculation_method"] == "dynamic_percentage_capped"
+        # 5% of 300 = 15, minimum = 10, so 15 wins
+        result = calculate_dynamic_sample_size(
+            total_flagged_count=300,
+            minimum_threshold=10,
+            percentage=0.05
+        )
+        assert result == 15

@@ -1,393 +1,416 @@
+"""
+Data loading and redundancy injection module for llmXive.
+Handles BEIR dataset fetching, synthetic redundancy injection,
+and validation of injected similarity thresholds.
+"""
+
 import os
 import json
 import hashlib
 import logging
 import zipfile
 import io
-import tempfile
-import shutil
-from typing import List, Dict, Any, Tuple, Optional
+import random
+from typing import List, Dict, Any, Tuple, Optional, Set
+from dataclasses import dataclass, field, asdict
 
+# Third-party imports
 from beir import util
 from beir.datasets.data_loader import GenericDataLoader
-from sentence_transformers import SentenceTransformer
+import nltk
+from nltk.corpus import wordnet
 import numpy as np
+from sentence_transformers import SentenceTransformer
 
+# Local imports
 from config import get_config
-from metrics import get_embedding_model
 
-logging.basicConfig(level=logging.INFO)
+# Ensure NLTK resources are available
+try:
+    wordnet.synsets("test")
+except LookupError:
+    nltk.download("wordnet", quiet=True)
+    nltk.download("omw-1.4", quiet=True)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
-class RedundancyCluster:
-    def __init__(self, cluster_id: int, items: List[Dict[str, Any]]):
-        self.cluster_id = cluster_id
-        self.items = items
+# Constants
+SIMILARITY_THRESHOLD = 0.95
+EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 
+@dataclass
+class RedundancyCluster:
+    """Represents a cluster of near-duplicate passages."""
+    cluster_id: int
+    seed_doc_id: str
+    seed_text: str
+    member_doc_ids: List[str] = field(default_factory=list)
+    member_texts: List[str] = field(default_factory=list)
+    avg_similarity: float = 0.0
+
+@dataclass
 class DataInjectionError(Exception):
-    pass
+    """Custom exception for data injection failures."""
+    message: str
+    details: Dict[str, Any] = field(default_factory=dict)
+
+    def __str__(self):
+        return f"DataInjectionError: {self.message} - Details: {self.details}"
 
 def calculate_sha256(file_path: str) -> str:
+    """Calculate SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_beir_dataset(dataset_name: str) -> str:
-    """
-    Downloads and extracts a BEIR dataset.
-    Returns the path to the dataset folder.
-    """
+def download_beir_dataset(dataset_name: str, out_dir: str = "beir_data") -> str:
+    """Download and unzip a BEIR dataset."""
     url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset_name}.zip"
-    out_dir = tempfile.mkdtemp()
-    try:
-        data_path = util.download_and_unzip(url, out_dir)
-        # BEIR sometimes extracts to a subfolder named after the dataset
-        data_folder = os.path.join(data_path, dataset_name) if os.path.isdir(os.path.join(data_path, dataset_name)) else data_path
-        return data_folder
-    except Exception as e:
-        shutil.rmtree(out_dir)
-        raise RuntimeError(f"Failed to download dataset {dataset_name}: {e}")
+    data_path = util.download_and_unzip(url, out_dir)
+    logger.info(f"Downloaded {dataset_name} to {data_path}")
+    return data_path
 
-def load_beir_corpus(data_folder: str) -> Tuple[Dict[str, Dict], Dict[str, str], Dict[str, Dict[str, int]]]:
-    """
-    Loads corpus, queries, and qrels from a BEIR dataset folder.
-    """
-    corpus, queries, qrels = GenericDataLoader(data_folder=data_folder).load(split="test")
+def load_beir_corpus(data_path: str, split: str = "test") -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Dict[str, int]]]:
+    """Load BEIR corpus, queries, and qrels."""
+    loader = GenericDataLoader(data_path)
+    corpus, queries, qrels = loader.load(split=split)
     return corpus, queries, qrels
 
-def fetch_beir_datasets(dataset_names: List[str]) -> List[Dict[str, Any]]:
-    """
-    Fetches multiple BEIR datasets and returns a flat list of records.
-    Each record has: query_id, query_text, doc_id, doc_text, relevance_score, split
-    """
-    records = []
-    for ds_name in dataset_names:
-        data_folder = download_beir_dataset(ds_name)
-        corpus, queries, qrels = load_beir_corpus(data_folder)
-        
-        for qid, rels in qrels.items():
-            query_obj = queries[qid]
-            query_text = query_obj["text"] if isinstance(query_obj, dict) else query_obj
-            
-            for docid, score in rels.items():
-                doc_obj = corpus[docid]
-                doc_text = doc_obj["text"] if isinstance(doc_obj, dict) else doc_obj
-                
-                records.append({
-                    "query_id": qid,
-                    "query_text": query_text,
-                    "doc_id": docid,
-                    "doc_text": doc_text,
-                    "relevance_score": score,
-                    "split": "test"
-                })
-    return records
+def fetch_beir_datasets(datasets: List[str] = ["nfcorpus", "scifact"]) -> Dict[str, Dict[str, Any]]:
+    """Fetch multiple BEIR datasets and return as a structured dict."""
+    results = {}
+    for dataset_name in datasets:
+        try:
+            data_path = download_beir_dataset(dataset_name)
+            corpus, queries, qrels = load_beir_corpus(data_path)
+            results[dataset_name] = {
+                "corpus": corpus,
+                "queries": queries,
+                "qrels": qrels,
+                "path": data_path
+            }
+            logger.info(f"Loaded {dataset_name}: {len(corpus)} docs, {len(queries)} queries")
+        except Exception as e:
+            logger.error(f"Failed to load {dataset_name}: {e}")
+            raise
+    return results
 
-def fetch_nfcorpus_and_scifact() -> List[Dict[str, Any]]:
+def fetch_nfcorpus_and_scifact() -> Dict[str, Dict[str, Any]]:
+    """Convenience wrapper for fetching nfcorpus and scifact."""
     return fetch_beir_datasets(["nfcorpus", "scifact"])
 
-def fetch_trec_covid() -> List[Dict[str, Any]]:
-    return fetch_beir_datasets(["trec-covid"])
+def fetch_trec_covid() -> Dict[str, Any]:
+    """Fetch trec-covid dataset specifically for FR-009 validation."""
+    return fetch_beir_datasets(["trec-covid"])["trec-covid"]
 
 def get_synonyms(word: str) -> List[str]:
-    """
-    Placeholder for synonym retrieval. In a full implementation, this would use NLTK WordNet.
-    For this task, we rely on the existing implementation in the project.
-    """
-    return []
+    """Get synonyms for a word using WordNet."""
+    synonyms = set()
+    for syn in wordnet.synsets(word):
+        for lemma in syn.lemmas():
+            synonyms.add(lemma.name().lower().replace("_", " "))
+    synonyms.discard(word.lower())
+    return list(synonyms)
 
-def inject_synonym_replacement(text: str) -> str:
-    """
-    Placeholder for synonym replacement injection.
-    """
-    return text
+def inject_synonym_replacement(text: str, replacement_prob: float = 0.3) -> str:
+    """Replace words in text with synonyms to create near-duplicates."""
+    words = text.split()
+    new_words = []
+    for word in words:
+        if random.random() < replacement_prob:
+            synonyms = get_synonyms(word)
+            if synonyms:
+                new_words.append(random.choice(synonyms))
+            else:
+                new_words.append(word)
+        else:
+            new_words.append(word)
+    return " ".join(new_words)
 
 def inject_sentence_shuffle(text: str) -> str:
-    """
-    Placeholder for sentence shuffle injection.
-    """
+    """Shuffle sentences in text to create near-duplicates."""
+    sentences = text.split(". ")
+    if len(sentences) > 1:
+        shuffled = sentences.copy()
+        random.shuffle(shuffled)
+        return ". ".join(shuffled)
     return text
 
-def calculate_embedding_similarity(texts: List[str], model: SentenceTransformer, batch_size: int = 32) -> np.ndarray:
-    """
-    Calculates pairwise cosine similarity for a list of texts.
-    """
-    embeddings = model.encode(texts, batch_size=batch_size, show_progress_bar=False)
-    # Normalize embeddings for cosine similarity
-    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
-    embeddings_norm = embeddings / norms
-    return np.dot(embeddings_norm, embeddings_norm.T)
+def calculate_embedding_similarity(text1: str, text2: str, model: SentenceTransformer) -> float:
+    """Calculate cosine similarity between two texts using embeddings."""
+    embeddings = model.encode([text1, text2], convert_to_numpy=True)
+    similarity = np.dot(embeddings[0], embeddings[1]) / (np.linalg.norm(embeddings[0]) * np.linalg.norm(embeddings[1]))
+    return float(similarity)
 
 def create_redundancy_clusters(
-    documents: List[str],
-    model: SentenceTransformer,
-    target_similarity: float = 0.95,
-    cluster_size: int = 3
+    corpus: Dict[str, Any],
+    qrels: Dict[str, Dict[str, int]],
+    cluster_size: int = 3,
+    injection_method: str = "synonym"
 ) -> List[RedundancyCluster]:
-    """
-    Creates clusters of near-duplicate documents by injecting redundancy.
-    For this implementation, we simulate the injection by finding high-similarity pairs
-    in the real data and grouping them, then validating the similarity.
-    Note: The actual injection logic (synonyms/shuffling) is assumed to be implemented
-    in the full version. Here we focus on the validation and clustering structure.
-    """
-    if len(documents) < cluster_size:
-        return []
-
-    # Calculate similarities
-    similarities = calculate_embedding_similarity(documents, model)
-    
+    """Create clusters of near-duplicate passages from the corpus."""
+    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+    doc_ids = list(corpus.keys())
     clusters = []
-    used_indices = set()
     cluster_id = 0
 
-    # Simple greedy clustering for demonstration
-    # In a full implementation, this would involve generating synthetic variants
-    for i in range(len(documents)):
-        if i in used_indices:
-            continue
-        
-        cluster_indices = [i]
-        for j in range(i + 1, len(documents)):
-            if len(cluster_indices) >= cluster_size:
-                break
-            if j in used_indices:
-                continue
-            if similarities[i, j] > target_similarity:
-                cluster_indices.append(j)
-        
-        if len(cluster_indices) >= 2:
-            # Check if the cluster actually meets the threshold
-            cluster_docs = [documents[idx] for idx in cluster_indices]
-            cluster_sims = calculate_embedding_similarity(cluster_docs, model)
-            avg_sim = np.mean(cluster_sims[np.triu_indices(len(cluster_sims), k=1)])
-            
-            if avg_sim >= target_similarity:
-                cluster_items = [{"text": documents[idx], "original_idx": idx} for idx in cluster_indices]
-                clusters.append(RedundancyCluster(cluster_id, cluster_items))
-                used_indices.update(cluster_indices)
-                cluster_id += 1
+    # Select a subset of documents to inject redundancy into
+    # Use a deterministic seed for reproducibility
+    random.seed(42)
+    sample_docs = random.sample(doc_ids, min(100, len(doc_ids)))
+
+    for seed_doc_id in sample_docs:
+        seed_text = corpus[seed_doc_id]["text"] if isinstance(corpus[seed_doc_id], dict) else str(corpus[seed_doc_id])
+        members = [seed_doc_id]
+        member_texts = [seed_text]
+
+        # Generate synthetic duplicates
+        for _ in range(cluster_size - 1):
+            if injection_method == "synonym":
+                new_text = inject_synonym_replacement(seed_text, replacement_prob=0.3)
+            elif injection_method == "shuffle":
+                new_text = inject_sentence_shuffle(seed_text)
+            else:
+                raise ValueError(f"Unknown injection method: {injection_method}")
+
+            # Create a new doc_id for the synthetic duplicate
+            new_doc_id = f"{seed_doc_id}_syn_{len(members)}"
+            members.append(new_doc_id)
+            member_texts.append(new_text)
+
+            # Add to corpus (in-memory)
+            corpus[new_doc_id] = {"text": new_text}
+
+        # Calculate average similarity within the cluster
+        similarities = []
+        for i in range(len(members)):
+            for j in range(i + 1, len(members)):
+                sim = calculate_embedding_similarity(member_texts[i], member_texts[j], model)
+                similarities.append(sim)
+
+        avg_sim = np.mean(similarities) if similarities else 0.0
+
+        cluster = RedundancyCluster(
+            cluster_id=cluster_id,
+            seed_doc_id=seed_doc_id,
+            seed_text=seed_text,
+            member_doc_ids=members,
+            member_texts=member_texts,
+            avg_similarity=avg_sim
+        )
+        clusters.append(cluster)
+        cluster_id += 1
 
     return clusters
 
-def load_injected_dataset(file_path: str) -> List[Dict[str, Any]]:
-    with open(file_path, 'r') as f:
-        return json.load(f)
+def validate_injected_similarity(clusters: List[RedundancyCluster]) -> bool:
+    """
+    Validate that injected redundancy achieves target similarity > 0.95.
+    Raises DataInjectionError if validation fails.
+    """
+    if not clusters:
+        raise DataInjectionError(
+            message="No clusters to validate",
+            details={"reason": "Empty cluster list"}
+        )
 
-def save_injected_dataset(data: List[Dict[str, Any]], file_path: str):
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    with open(file_path, 'w') as f:
+    failed_clusters = []
+    for cluster in clusters:
+        if cluster.avg_similarity < SIMILARITY_THRESHOLD:
+            failed_clusters.append({
+                "cluster_id": cluster.cluster_id,
+                "seed_doc_id": cluster.seed_doc_id,
+                "avg_similarity": cluster.avg_similarity,
+                "threshold": SIMILARITY_THRESHOLD
+            })
+
+    if failed_clusters:
+        details = {
+            "total_clusters": len(clusters),
+            "failed_clusters": len(failed_clusters),
+            "failure_rate": len(failed_clusters) / len(clusters),
+            "sample_failures": failed_clusters[:5]  # Show first 5 failures
+        }
+        raise DataInjectionError(
+            message=f"Injected similarity validation failed: {len(failed_clusters)} clusters below threshold {SIMILARITY_THRESHOLD}",
+            details=details
+        )
+
+    logger.info(f"All {len(clusters)} clusters passed similarity validation (avg > {SIMILARITY_THRESHOLD})")
+    return True
+
+def save_injected_dataset(clusters: List[RedundancyCluster], output_path: str):
+    """Save injected dataset clusters to JSON file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    data = [asdict(cluster) for cluster in clusters]
+    with open(output_path, "w") as f:
         json.dump(data, f, indent=2)
+    logger.info(f"Saved injected dataset to {output_path}")
 
-def prepare_injected_datasets(
-    datasets: List[str],
-    output_dir: str,
-    target_similarity: float = 0.95
-):
+def load_injected_dataset(input_path: str) -> List[RedundancyCluster]:
+    """Load injected dataset clusters from JSON file."""
+    with open(input_path, "r") as f:
+        data = json.load(f)
+    return [RedundancyCluster(**item) for item in data]
+
+def prepare_injected_datasets(datasets: Dict[str, Dict[str, Any]], output_dir: str = "data/processed") -> Dict[str, str]:
     """
-    Prepares injected datasets for the specified BEIR datasets.
+    Prepare injected datasets for nfcorpus and scifact.
+    Returns paths to saved JSON files.
     """
-    config = get_config()
-    model = get_embedding_model()
-    
-    all_injected_data = {}
-    
-    for ds_name in datasets:
-        logger.info(f"Processing {ds_name}...")
-        data_folder = download_beir_dataset(ds_name)
-        corpus, queries, qrels = load_beir_corpus(data_folder)
-        
-        # Extract unique document texts
-        doc_texts = [v["text"] if isinstance(v, dict) else v for v in corpus.values()]
-        
-        if len(doc_texts) < 3:
-            logger.warning(f"Not enough documents in {ds_name} to create clusters.")
-            continue
+    output_paths = {}
+    os.makedirs(output_dir, exist_ok=True)
 
-        clusters = create_redundancy_clusters(doc_texts, model, target_similarity=target_similarity)
-        
-        injected_docs = []
-        for cluster in clusters:
-            for item in cluster.items:
-                injected_docs.append({
-                    "dataset": ds_name,
-                    "cluster_id": cluster.cluster_id,
-                    "text": item["text"],
-                    "original_idx": item["original_idx"]
-                })
-        
-        all_injected_data[ds_name] = injected_docs
-        
-        # Save individual dataset
-        ds_output_path = os.path.join(output_dir, f"{ds_name}_injected.json")
-        save_injected_dataset(injected_docs, ds_output_path)
-        
-        # Validate similarity
-        if injected_docs:
-            texts = [d["text"] for d in injected_docs]
-            sims = calculate_embedding_similarity(texts, model)
-            # Check upper triangle for non-self pairs
-            mask = ~np.eye(len(texts), dtype=bool)
-            avg_sim = np.mean(sims[mask])
-            
-            if avg_sim < target_similarity:
-                raise DataInjectionError(
-                    f"Injected similarity {avg_sim:.4f} is below threshold {target_similarity}. "
-                    f"Paraphrasing failed to generate sufficient semantic similarity for dataset {ds_name}."
-                )
-            logger.info(f"Successfully validated {ds_name} with avg similarity {avg_sim:.4f}")
+    for dataset_name, dataset_data in datasets.items():
+        logger.info(f"Creating redundancy clusters for {dataset_name}")
+        clusters = create_redundancy_clusters(
+            corpus=dataset_data["corpus"],
+            qrels=dataset_data["qrels"],
+            cluster_size=3,
+            injection_method="synonym"
+        )
 
-    # Save combined
+        # Validate similarity before saving
+        validate_injected_similarity(clusters)
+
+        output_path = os.path.join(output_dir, f"injected_{dataset_name}.json")
+        save_injected_dataset(clusters, output_path)
+        output_paths[dataset_name] = output_path
+
+    # Also save a combined file
+    all_clusters = []
+    for dataset_name, dataset_data in datasets.items():
+        clusters = create_redundancy_clusters(
+            corpus=dataset_data["corpus"],
+            qrels=dataset_data["qrels"],
+            cluster_size=3,
+            injection_method="synonym"
+        )
+        all_clusters.extend(clusters)
+
     combined_path = os.path.join(output_dir, "injected_datasets.json")
-    save_injected_dataset(all_injected_data, combined_path)
+    save_injected_dataset(all_clusters, combined_path)
+    output_paths["combined"] = combined_path
+
+    return output_paths
 
 def validate_redundancy_clusters_on_trec_covid(
-    target_similarity: float = 0.95,
+    trec_covid_data: Dict[str, Any],
     output_path: str = "data/results/trec_covid_validation.json"
 ) -> Dict[str, Any]:
     """
-    Validates synthetic redundancy injection logic on the trec-covid dataset.
-    Fetches trec-covid, creates redundancy clusters, and verifies similarity > 0.95.
-    Writes pass/fail status to output_path.
+    Validate redundancy clusters on trec-covid dataset.
+    Implements the "paraphrasing fails to generate sufficient semantic similarity"
+    edge case handling: if injected similarity < 0.95, raise DataInjectionError.
     """
-    logger.info("Starting validation on trec-covid dataset...")
-    
-    try:
-        # Fetch trec-covid
-        records = fetch_trec_covid()
-        if not records:
-            result = {
-                "dataset": "trec-covid",
-                "status": "FAIL",
-                "reason": "No records fetched from BEIR",
-                "avg_similarity": 0.0,
-                "target_similarity": target_similarity
+    logger.info("Validating redundancy clusters on trec-covid dataset")
+
+    corpus = trec_covid_data["corpus"]
+    qrels = trec_covid_data["qrels"]
+
+    # Create clusters
+    clusters = create_redundancy_clusters(
+        corpus=corpus,
+        qrels=qrels,
+        cluster_size=3,
+        injection_method="synonym"
+    )
+
+    result = {
+        "dataset": "trec-covid",
+        "injection_success": False,
+        "avg_similarity": 0.0,
+        "clusters_validated": len(clusters),
+        "failed_clusters": []
+    }
+
+    if not clusters:
+        raise DataInjectionError(
+            message="No clusters created for trec-covid",
+            details={"reason": "Empty corpus or qrels"}
+        )
+
+    # Calculate overall average similarity
+    all_similarities = [cluster.avg_similarity for cluster in clusters]
+    result["avg_similarity"] = float(np.mean(all_similarities))
+
+    # Validate each cluster - THIS IS THE CORE OF T037
+    # If any cluster fails the threshold, we raise DataInjectionError
+    failed_count = 0
+    for cluster in clusters:
+        if cluster.avg_similarity < SIMILARITY_THRESHOLD:
+            failed_count += 1
+            result["failed_clusters"].append({
+                "cluster_id": cluster.cluster_id,
+                "avg_similarity": cluster.avg_similarity
+            })
+
+    if failed_count > 0:
+        # Explicit failure mode handling: raise error instead of proceeding
+        raise DataInjectionError(
+            message=f"TREC-COVID injection validation failed: {failed_count}/{len(clusters)} clusters below threshold {SIMILARITY_THRESHOLD}",
+            details={
+                "total_clusters": len(clusters),
+                "failed_clusters": failed_count,
+                "avg_similarity": result["avg_similarity"],
+                "threshold": SIMILARITY_THRESHOLD
             }
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w') as f:
-                json.dump(result, f, indent=2)
-            return result
+        )
 
-        # Extract unique documents
-        doc_texts = list(set([r["doc_text"] for r in records]))
-        logger.info(f"Found {len(doc_texts)} unique documents in trec-covid.")
-        
-        if len(doc_texts) < 3:
-            result = {
-                "dataset": "trec-covid",
-                "status": "FAIL",
-                "reason": "Insufficient unique documents to form clusters",
-                "avg_similarity": 0.0,
-                "target_similarity": target_similarity
-            }
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w') as f:
-                json.dump(result, f, indent=2)
-            return result
+    result["injection_success"] = True
+    result["failed_clusters"] = []
 
-        # Load model
-        model = get_embedding_model()
-        
-        # Create clusters (simulating injection by clustering high-sim docs)
-        clusters = create_redundancy_clusters(doc_texts, model, target_similarity=target_similarity)
-        
-        if not clusters:
-            result = {
-                "dataset": "trec-covid",
-                "status": "FAIL",
-                "reason": "No valid redundancy clusters could be formed",
-                "avg_similarity": 0.0,
-                "target_similarity": target_similarity
-            }
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w') as f:
-                json.dump(result, f, indent=2)
-            return result
+    # Save result
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(result, f, indent=2)
 
-        # Collect all texts from clusters to calculate average similarity
-        cluster_texts = []
-        for cluster in clusters:
-            for item in cluster.items:
-                cluster_texts.append(item["text"])
-        
-        if len(cluster_texts) < 2:
-            result = {
-                "dataset": "trec-covid",
-                "status": "FAIL",
-                "reason": "Insufficient cluster items to calculate similarity",
-                "avg_similarity": 0.0,
-                "target_similarity": target_similarity
-            }
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w') as f:
-                json.dump(result, f, indent=2)
-            return result
-
-        # Calculate pairwise similarities within clusters
-        sims = calculate_embedding_similarity(cluster_texts, model)
-        mask = ~np.eye(len(cluster_texts), dtype=bool)
-        avg_sim = float(np.mean(sims[mask]))
-        
-        passed = avg_sim >= target_similarity
-        status = "PASS" if passed else "FAIL"
-        
-        logger.info(f"Validation result: {status}, Avg Similarity: {avg_sim:.4f}")
-        
-        result = {
-            "dataset": "trec-covid",
-            "status": status,
-            "avg_similarity": avg_sim,
-            "target_similarity": target_similarity,
-            "num_clusters": len(clusters),
-            "num_cluster_items": len(cluster_texts)
-        }
-        
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        
-        return result
-
-    except Exception as e:
-        logger.error(f"Validation failed with error: {e}")
-        result = {
-            "dataset": "trec-covid",
-            "status": "FAIL",
-            "reason": str(e),
-            "avg_similarity": 0.0,
-            "target_similarity": target_similarity
-        }
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        return result
+    logger.info(f"TREC-COVID validation successful: {result}")
+    return result
 
 def main():
+    """Main entry point for data_loader CLI."""
     import argparse
+
     parser = argparse.ArgumentParser(description="BEIR Data Loader and Redundancy Injector")
-    subparsers = parser.add_subparsers(dest="command", help="Commands")
-    
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
     # Prepare command
-    prep_parser = subparsers.add_parser("prepare", help="Prepare injected datasets")
-    prep_parser.add_argument("--datasets", nargs="+", default=["nfcorpus", "scifact"], help="Datasets to prepare")
-    prep_parser.add_argument("--output-dir", default="data/processed", help="Output directory")
-    
+    prepare_parser = subparsers.add_parser("prepare", help="Prepare injected datasets")
+    prepare_parser.add_argument("--datasets", nargs="+", default=["nfcorpus", "scifact"],
+                                help="Datasets to prepare")
+    prepare_parser.add_argument("--output-dir", default="data/processed",
+                                help="Output directory for injected datasets")
+
     # Validate TREC-COVID command
-    val_parser = subparsers.add_parser("validate_trec_covid", help="Validate redundancy on trec-covid")
-    val_parser.add_argument("--output", default="data/results/trec_covid_validation.json", help="Output path")
-    
+    validate_parser = subparsers.add_parser("validate_trec_covid", help="Validate redundancy on TREC-COVID")
+    validate_parser.add_argument("--output", default="data/results/trec_covid_validation.json",
+                                 help="Output path for validation result")
+
     args = parser.parse_args()
-    
+
     if args.command == "prepare":
-        prepare_injected_datasets(args.datasets, args.output_dir)
-        logger.info("Preparation complete.")
+        logger.info(f"Preparing injected datasets: {args.datasets}")
+        datasets = fetch_beir_datasets(args.datasets)
+        output_paths = prepare_injected_datasets(datasets, args.output_dir)
+        logger.info(f"Prepared datasets saved to: {output_paths}")
+
     elif args.command == "validate_trec_covid":
-        validate_redundancy_clusters_on_trec_covid(output_path=args.output)
-        logger.info("Validation complete.")
+        logger.info("Validating TREC-COVID dataset")
+        trec_covid_data = fetch_trec_covid()
+        result = validate_redundancy_clusters_on_trec_covid(trec_covid_data, args.output)
+        logger.info(f"Validation result: {result}")
+
     else:
         parser.print_help()
+        exit(1)
 
 if __name__ == "__main__":
     main()

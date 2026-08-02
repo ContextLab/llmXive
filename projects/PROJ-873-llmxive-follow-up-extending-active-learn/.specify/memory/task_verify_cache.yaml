@@ -1,19 +1,10 @@
-T014:
+T013b#1:
   c: false
-  h: ac8f5d90b27963c2f0f6fbff587e8a3f522feda81126092afff7fc1581d6e2d7
-  r: "The `validate_proxy_consensus` function is only partially shown and ends abruptly,\
-    \ so the LLM call, consensus comparison, and output writing are not implemented.\
-    \ Moreover, the required `data/results/consensus_sample.json` file is missing,\
-    \ so the function cannot even load the sample it is supposed to evaluate. These\
-    \ missing pieces mean the task\u2019s core requirement is not satisfied."
-T017:
-  c: false
-  h: cb978939f4dbffd2f90affb8c0083b5fd79204b2fe85ba635873987be7e022fa
-  r: "The provided `code/data_loader.py` contains generic BEIR dataset loading utilities\
-    \ but shows no implementation of synthetic redundancy injection, similarity verification\
-    \ (>\u202F0.95), or generation of `data/results/trec_covid_validation.json`. Moreover,\
-    \ the required JSON result file is absent from the repository. The task\u2019\
-    s core requirements are therefore unmet."
+  h: 02b942df0cadace6f9f2f8781df6662f23f6ae23c70e1c9cd1b32a16b82a930d
+  r: The required input file `data/processed/comparison_log.json` is missing, and
+    the expected output `data/results/consensus_sample.json` was not created. Without
+    these artifacts the filtering, stratified sampling, and index writing cannot have
+    been performed.
 T019:
   c: false
   h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a
