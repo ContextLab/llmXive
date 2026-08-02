@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-430-the-impact-of-asynchronous-communication/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies in `requirements.txt` (pandas, scikit-learn, nltk, requests, matplotlib, seaborn, pyyaml, langdetect, networkx)
+- [X] T002 Initialize Python 3.11 project with dependencies in `requirements.txt` (pandas, scikit-learn, nltk, requests, matplotlib, seaborn, pyyaml, langdetect, networkx)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -56,11 +56,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup `code/config.py` for paths, API keys, and deferred thresholds (sample_size, min_events)
-- [ ] T005 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state updates (Constitution Principle V)
+- [X] T005 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state updates (Constitution Principle V)
 - [ ] T006 [P] Setup `data/` directory structure (`raw/`, `derived/`, `validation/`) with `.gitignore` rules
 - [X] T007 Create base data models/entities in `code/models.py` (Project, Event, ContributorPair, Metric)
 - [X] T008 Configure logging infrastructure in `code/utils/logger.py` with JSON formatting for pipeline monitoring
-- [ ] T009 Setup rate-limit handling wrapper in `code/utils/github_client.py` for GitHub API interactions
+- [X] T009 Setup rate-limit handling wrapper in `code/utils/github_client.py` for GitHub API interactions
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,14 +74,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/data_ingestion.py` to fetch issues, PRs, and comments for a sample of projects (FR-001)
-- [ ] T011 [US1] Implement bot-exclusion logic in `code/data_ingestion.py` (filter names ending in '[bot]' or GitHub Apps) (FR-002)
+- [ ] T010 [US1] Implement `code/data_ingestion.py` to fetch issues, PRs, and comments for a sample of projects (FR-001) <!-- FAILED: unspecified -->
+- [ ] T011 [US1] Implement bot-exclusion logic in `code/data_ingestion.py` (filter names ending in '[bot]' or GitHub Apps) (FR-002) <!-- FAILED: unspecified -->
 - [X] T012a [US1] Implement Contributor Pair identification and metric calculation in `code/metrics.py`: identify pairs as any two distinct authors who have exchanged at least one message (excluding self-replies and internal bot events), calculate inter-arrival times, `response_time_variance`, and `mean_delay` (FR-002)
 - [ ] T014 [US1] Implement project-level filtering for insufficient data (< min_events) in `code/data_ingestion.py` (FR-001)
-- [~] T015 [US1] Aggregate pair-level variances to a project-level metric using the **weighted mean** (per plan.md Complexity Tracking) to address statistical instability (FR-010)
-- [~] T015a [US1] Persist intermediate timestamp-derived features to `data/derived/timestamp_features.parquet` to enforce Constitution Principle VI (Modality Separation) (FR-002, Const VI) 👉 **Handoff to US2**
-- [~] T016 [US1] Add error handling for API rate limits and large datasets (chunking if >100k events) to prevent OOM (FR-001)
-- [ ] T017 [US1] Unit test for metric derivation accuracy in `tests/unit/test_metrics.py` (compare against ground truth)
+- [ ] T015 [US1] Aggregate pair-level variances to a project-level metric using the **weighted mean** (per plan.md Complexity Tracking) to address statistical instability (FR-010)
+- [ ] T015a [US1] Persist intermediate timestamp-derived features to `data/derived/timestamp_features.parquet` to enforce Constitution Principle VI (Modality Separation) (FR-002, Const VI) 👉 **Handoff to US2**
+- [ ] T016 [US1] Add error handling for API rate limits and large datasets (chunking if >100k events) to prevent OOM (FR-001)
+- [X] T017 [US1] Unit test for metric derivation accuracy in `tests/unit/test_metrics.py` (compare against ground truth)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,11 +95,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement language detection filter in `code/sentiment.py` using `langdetect` (confidence ≥ 0.95) (FR-011)
-- [ ] T019 [US2] Implement VADER sentiment analysis for English-only text in `code/sentiment.py` (FR-003)
-- [ ] T020 [US2] Implement project-level `cohesion_proxy_score` aggregation (weighted average of compound scores) in `code/sentiment.py` (FR-003)
-- [ ] T021 [US2] Handle edge case: projects with no text content (assign 0 or flag "no_text_data") in `code/sentiment.py`
-- [ ] T022 [US2] Implement logic to select a representative sample of comments per project for manual coding and prepare the request file (schema and sampling list) for external human annotation (FR-009)
+- [X] T018 [P] [US2] Implement language detection filter in `code/sentiment.py` using `langdetect` (confidence ≥ 0.95) (FR-011)
+- [X] T019 [US2] Implement VADER sentiment analysis for English-only text in `code/sentiment.py` (FR-003)
+- [X] T020 [US2] Implement project-level `cohesion_proxy_score` aggregation (weighted average of compound scores) in `code/sentiment.py` (FR-003)
+- [X] T021 [US2] Handle edge case: projects with no text content (assign 0 or flag "no_text_data") in `code/sentiment.py`
+- [~] T022 [US2] Implement logic to select a representative sample of comments per project for manual coding and prepare the request file (schema and sampling list) for external human annotation (FR-009)
 - [ ] T022b [US2] Implement ingestion of the external human-annotated CSV at `data/validation/manual_ground_truth.csv` (columns: `project_id`, `comment_id`, `manual_cohesion_score`) (FR-009)
 - [ ] T023 [US2] Implement multi-modal validation logic (preparation) to align VADER scores with the manual ground truth data (FR-009)
 - [ ] T023a [US2] Calculate Spearman correlation (ρ) between VADER scores and manual scores; output pass/fail against threshold ρ ≥ 0.5 (SC-005)

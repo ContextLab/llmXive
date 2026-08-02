@@ -1,118 +1,185 @@
 """
-Setup script to generate configuration files for linting and formatting.
-This script creates .ruff.toml and .black.toml in the code/ directory
-if they do not already exist, ensuring consistent tooling across the project.
+Setup script for linting (ruff) and formatting (black) tools.
+Generates configuration files and a helper script to run checks.
 """
 import os
 import sys
+import subprocess
+from pathlib import Path
 
-# Configuration content for Ruff
-RUFF_CONFIG = """[lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+def ensure_directory_exists(path: str) -> bool:
+    """Create directory if it doesn't exist."""
+    try:
+        Path(path).mkdir(parents=True, exist_ok=True)
+        return True
+    except OSError as e:
+        print(f"Error creating directory {path}: {e}")
+        return False
+
+def write_config_file(filename: str, content: str) -> bool:
+    """Write content to a file."""
+    try:
+        Path(filename).write_text(content, encoding="utf-8")
+        return True
+    except OSError as e:
+        print(f"Error writing file {filename}: {e}")
+        return False
+
+def main():
+    """Main entry point to configure ruff and black."""
+    project_root = Path(__file__).parent.parent
+    print(f"Configuring linting and formatting for project at: {project_root}")
+
+    # 1. Create ruff.toml configuration
+    ruff_config = """
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I"]
 ignore = []
 
-# Allow autofix for all enabled rules
+# Allow autofix for all enabled rules (when `--fix` is provided)
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude specific files or directories
+# Exclude a few generated directories
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
     ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
     ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
+    "__pycache__",
     "build",
     "dist",
-    "node_modules",
-    "venv",
-    "data",
-    "figures",
 ]
 
-# Same as `--line-length`
-line-length = 100
+# Same as Black.
+line-length = 88
 
-# Allow unused variables when they start with an underscore
+# Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[lint.isort]
-known-first-party = ["code", "tests"]
-force-sort-within-sections = true
-lines-after-imports = 2
-"""
+# Assume Python 3.11
+target-version = "py311"
 
-# Configuration content for Black
-BLACK_CONFIG = """[tool.black]
-line-length = 100
+[format]
+# Same as Black.
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+"""
+    
+    if not write_config_file(str(project_root / "ruff.toml"), ruff_config):
+        return False
+    print("Created ruff.toml")
+
+    # 2. Create pyproject.toml for Black configuration (if not exists, or append)
+    # We will create a minimal one if it doesn't exist, or update it.
+    # For safety in this task, we ensure the [tool.black] section exists.
+    pyproject_path = project_root / "pyproject.toml"
+    
+    black_section = """
+[tool.black]
+line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
 exclude = '''
 /(
-    \\.git
-    | \\.hg
-    | \\.mypy_cache
-    | \\.tox
-    | \\.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
-    | figures
+    \.git
+  | \.tox
+  | __pycache__
+  | build
+  | dist
 )/
 '''
-extend-exclude = "data/|figures/"
 """
+    
+    if pyproject_path.exists():
+        content = pyproject_path.read_text(encoding="utf-8")
+        if "[tool.black]" not in content:
+            with open(pyproject_path, "a", encoding="utf-8") as f:
+                f.write("\n" + black_section)
+            print("Appended [tool.black] to pyproject.toml")
+        else:
+            print("pyproject.toml already contains [tool.black]")
+    else:
+        with open(pyproject_path, "w", encoding="utf-8") as f:
+            f.write("[build-system]\nrequires = [\"setuptools>=61.0\"]\nbuild-backend = \"setuptools.build_meta\"\n\n" + black_section)
+        print("Created pyproject.toml with [tool.black]")
 
-def ensure_directory_exists(path: str) -> None:
-    """Ensure the directory for the given path exists."""
-    directory = os.path.dirname(path)
-    if directory and not os.path.exists(directory):
-        os.makedirs(directory)
-        print(f"Created directory: {directory}")
+    # 3. Create a helper script to run checks
+    # We create a Python script that invokes ruff and black via subprocess
+    # to ensure the environment has the tools installed.
+    check_script_path = project_root / "scripts" / "run_lint_format.py"
+    ensure_directory_exists(str(check_script_path.parent))
+    
+    check_script_content = """
+import subprocess
+import sys
+from pathlib import Path
 
-def write_config_file(path: str, content: str) -> None:
-    """Write configuration content to a file if it doesn't exist."""
-    if os.path.exists(path):
-        print(f"Configuration file already exists: {path}")
-        return
-
-    ensure_directory_exists(path)
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"Created configuration file: {path}")
+def run_command(cmd: list[str], description: str) -> bool:
+    print(f"Running: {description}")
+    print(f"Command: {' '.join(cmd)}")
+    try:
+  result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+  if result.stdout:
+      print(result.stdout)
+  if result.stderr:
+      print(result.stderr)
+  print(f"✓ {description} passed")
+  return True
+    except subprocess.CalledProcessError as e:
+  print(f"✗ {description} failed")
+  if e.stdout:
+      print(e.stdout)
+  if e.stderr:
+      print(e.stderr)
+  return False
 
 def main():
-    """Main entry point for setting up linting and formatting tools."""
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    code_dir = os.path.join(project_root, "code")
+    root = Path(__file__).parent.parent
+    code_dir = root / "code"
+    
+    # Check if tools are installed
+    try:
+  import ruff
+  import black
+    except ImportError:
+  print("Error: 'ruff' or 'black' not installed. Please run: pip install ruff black")
+  sys.exit(1)
 
-    ruff_path = os.path.join(code_dir, ".ruff.toml")
-    black_path = os.path.join(code_dir, ".black.toml")
+    success = True
 
-    print("Setting up linting (ruff) and formatting (black) tools...")
+    # Run Ruff Check (Linting)
+    success &= run_command(
+  [sys.executable, "-m", "ruff", "check", str(code_dir)],
+  "Ruff Check"
+    )
 
-    write_config_file(ruff_path, RUFF_CONFIG)
-    write_config_file(black_path, BLACK_CONFIG)
+    # Run Black Check (Formatting - check only, no write)
+    success &= run_command(
+  [sys.executable, "-m", "black", "--check", "--diff", str(code_dir)],
+  "Black Check"
+    )
 
-    print("\nSetup complete. To verify installation, run:")
-    print("  pip install -r requirements.txt")
-    print("  ruff check code/")
-    print("  black --check code/")
+    if success:
+  print("\\nAll linting and formatting checks passed.")
+  sys.exit(0)
+    else:
+  print("\\nSome checks failed.")
+  sys.exit(1)
 
 if __name__ == "__main__":
     main()
+"""
+    
+    if not write_config_file(str(check_script_path), check_script_content):
+        return False
+    print(f"Created {check_script_path}")
+
+    print("\nLinting (ruff) and Formatting (black) configuration complete.")
+    print("To run checks: python scripts/run_lint_format.py")
+    return True
+
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)

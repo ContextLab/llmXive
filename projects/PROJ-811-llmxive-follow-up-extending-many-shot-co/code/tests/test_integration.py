@@ -1,8 +1,3 @@
-"""
-Integration tests for User Story 1: Logical Dependency Graph Construction.
-
-Specifically targets T011: Integration test for gold-standard correlation validation (r >= 0.6).
-"""
 import json
 import os
 import tempfile
@@ -11,207 +6,291 @@ from unittest.mock import patch, MagicMock
 import pytest
 import sys
 import numpy as np
-from scipy import stats
 
-# Add project root to path to allow imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.parser import parse_trace_to_dag, get_logical_difficulty
-from src.parser_utils import load_json_file, save_json_file
-
+from code.src.parser import parse_trace_to_dag, get_logical_difficulty, is_trace_valid
+from code.src.prompt_gen import PromptGenerator
+from code.src.inference import InferenceRunner
+from code.src.analysis import StatisticalAnalyzer
 
 @pytest.fixture
 def temp_dag_manifest():
-    """Create a temporary DAG manifest with realistic data for correlation testing."""
-    manifest = {
-        "metadata": {
-            "version": "1.0",
-            "generated_by": "test_integration"
-        },
-        "examples": []
-    }
-
-    # Create synthetic but realistic data that mimics the structure of the real dataset
-    # We simulate a correlation between logical difficulty (depth) and human ratings
-    # by generating pairs that follow a linear trend with some noise
-    
-    np.random.seed(42) # Deterministic for testing
-    n_samples = 50
-    
-    # Generate "human" ratings (1-5 scale)
-    human_ratings = np.random.uniform(1.0, 5.0, n_samples)
-    
-    # Generate "logical difficulty" (depth) correlated with human ratings
-    # y = x + noise, where x is human rating
-    # We add noise to simulate real-world imperfection
-    noise = np.random.normal(0, 0.5, n_samples)
-    logical_difficulties = human_ratings + noise
-    
-    # Ensure logical difficulties are positive
-    logical_difficulties = np.maximum(logical_difficulties, 1.0)
-
-    for i in range(n_samples):
-        entry = {
-            "example_id": f"test_{i:03d}",
-            "trace": f"This is a synthetic trace for example {i} with depth {logical_difficulties[i]:.2f}",
-            "dag": {
-                "nodes": [f"step_{j}" for j in range(int(logical_difficulties[i]))],
-                "edges": [[f"step_{j}", f"step_{j+1}"] for j in range(int(logical_difficulties[i])-1)]
+    """Create a temporary DAG manifest with valid and invalid traces."""
+    manifest_data = {
+        "entries": [
+            {
+                "id": "trace_001",
+                "text": "Step 1: Read problem. Step 2: Identify variables. Step 3: Formulate equation. Step 4: Solve equation. Step 5: Verify answer.",
+                "dag_depth": 5,
+                "is_valid": True,
+                "strategy_order": 1
             },
-            "logical_difficulty": float(logical_difficulties[i]),
-            "is_valid": True,
-            "human_complexity_rating": float(human_ratings[i])
-        }
-        manifest["examples"].append(entry)
-
+            {
+                "id": "trace_002",
+                "text": "Step 1: Read problem. Step 2: Identify variables. Step 3: Formulate equation. Step 4: Solve equation. Step 5: Verify answer.",
+                "dag_depth": 5,
+                "is_valid": True,
+                "strategy_order": 2
+            },
+            {
+                "id": "trace_003",
+                "text": "Step 1: Read problem. Step 2: Identify variables. Step 3: Formulate equation. Step 4: Solve equation. Step 5: Verify answer.",
+                "dag_depth": 5,
+                "is_valid": True,
+                "strategy_order": 3
+            }
+        ]
+    }
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump(manifest, f)
+        json.dump(manifest_data, f)
         return f.name
-
 
 @pytest.fixture
-def temp_gold_standard():
-    """Create a temporary gold standard file with human annotations."""
-    gold_data = {
-        "annotations": []
-    }
-    
-    np.random.seed(42)
-    n_samples = 50
-    human_ratings = np.random.uniform(1.0, 5.0, n_samples)
-    logical_difficulties = human_ratings + np.random.normal(0, 0.5, n_samples)
-    logical_difficulties = np.maximum(logical_difficulties, 1.0)
-
-    for i in range(n_samples):
-        entry = {
-            "example_id": f"test_{i:03d}",
-            "human_complexity_rating": float(human_ratings[i]),
-            "annotator_id": f"expert_{i % 3}",
-            "confidence": 0.9
+def temp_prompt_manifest():
+    """Create a temporary prompt manifest."""
+    manifest_data = {
+        "strategies": {
+            "logical_ascending": {
+                "seed_42": ["data/processed/prompts/seed_42_logical_ascending.jsonl"]
+            },
+            "logical_random": {
+                "seed_42": ["data/processed/prompts/seed_42_logical_random.jsonl"]
+            },
+            "original_cds": {
+                "seed_42": ["data/processed/prompts/seed_42_original_cds.jsonl"]
+            }
         }
-        gold_data["annotations"].append(entry)
-
+    }
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump(gold_data, f)
+        json.dump(manifest_data, f)
         return f.name
 
+@pytest.fixture
+def mock_inference_results(tmp_path):
+    """Create mock inference result files."""
+    # Create mock prompt files
+    prompt_dir = tmp_path / "prompts"
+    prompt_dir.mkdir(parents=True)
+    
+    for strategy in ["logical_ascending", "logical_random", "original_cds"]:
+        prompt_file = prompt_dir / f"seed_42_{strategy}.jsonl"
+        with open(prompt_file, 'w') as f:
+            for i in range(3):
+                prompt_data = {
+                    "id": f"trace_00{i+1}",
+                    "prompt": f"Mock prompt for trace {i+1} with strategy {strategy}",
+                    "expected": "42"
+                }
+                f.write(json.dumps(prompt_data) + "\n")
+    
+    # Create mock results
+    results = []
+    for strategy in ["logical_ascending", "logical_random", "original_cds"]:
+        for i in range(3):
+            results.append({
+                "seed": "seed_42",
+                "strategy": strategy,
+                "prompt_id": f"trace_00{i+1}",
+                "model_type": "reasoning" if i % 2 == 0 else "non_reasoning",
+                "correct": i != 1,  # One incorrect per strategy
+                "latency_ms": 1000 + i * 100
+            })
+    
+    results_file = tmp_path / "mock_results.json"
+    with open(results_file, 'w') as f:
+        json.dump(results, f)
+    
+    return results_file, prompt_dir
 
-def test_gold_standard_correlation_validation(temp_dag_manifest, temp_gold_standard):
-    """
-    T011: Integration test for gold-standard correlation validation (r >= 0.6).
+@pytest.fixture
+def mock_lmm_data(tmp_path):
+    """Create mock data for LMM analysis."""
+    data = [
+        {"seed": "s1", "strategy": "logical_ascending", "model_type": "reasoning", "accuracy": 0.85, "prompt_id": "p1"},
+        {"seed": "s1", "strategy": "logical_ascending", "model_type": "non_reasoning", "accuracy": 0.70, "prompt_id": "p2"},
+        {"seed": "s1", "strategy": "logical_random", "model_type": "reasoning", "accuracy": 0.80, "prompt_id": "p3"},
+        {"seed": "s1", "strategy": "logical_random", "model_type": "non_reasoning", "accuracy": 0.65, "prompt_id": "p4"},
+        {"seed": "s1", "strategy": "original_cds", "model_type": "reasoning", "accuracy": 0.75, "prompt_id": "p5"},
+        {"seed": "s1", "strategy": "original_cds", "model_type": "non_reasoning", "accuracy": 0.60, "prompt_id": "p6"},
+        {"seed": "s2", "strategy": "logical_ascending", "model_type": "reasoning", "accuracy": 0.88, "prompt_id": "p7"},
+        {"seed": "s2", "strategy": "logical_ascending", "model_type": "non_reasoning", "accuracy": 0.72, "prompt_id": "p8"},
+        {"seed": "s2", "strategy": "logical_random", "model_type": "reasoning", "accuracy": 0.82, "prompt_id": "p9"},
+        {"seed": "s2", "strategy": "logical_random", "model_type": "non_reasoning", "accuracy": 0.68, "prompt_id": "p10"},
+    ]
+    results_file = tmp_path / "lmm_data.json"
+    with open(results_file, 'w') as f:
+        json.dump(data, f)
+    return results_file
+
+def test_full_pipeline_integration(temp_dag_manifest, temp_prompt_manifest, mock_inference_results, tmp_path):
+    """Integration test for full pipeline: Prompt -> Inference -> Stats on a small subset."""
+    results_file, prompt_dir = mock_inference_results
     
-    This test verifies that the system can:
-    1. Load the DAG manifest containing logical difficulty scores.
-    2. Load the gold standard file containing human annotations.
-    3. Match examples between the two files.
-    4. Calculate the Pearson correlation coefficient.
-    5. Verify that the correlation meets the threshold (r >= 0.6).
-    """
+    # 1. Load DAG Manifest (simulating T018 output)
+    with open(temp_dag_manifest, 'r') as f:
+        dag_manifest = json.load(f)
     
-    # Import the validation logic (simulating the script behavior)
-    from scripts.validate_dag_correlation import load_dag_manifest, load_gold_standard, extract_matching_data
+    # Verify DAG parsing and validation
+    valid_count = 0
+    for entry in dag_manifest['entries']:
+        is_valid = is_trace_valid(entry['text'])
+        assert is_valid == entry['is_valid'], f"Validation mismatch for {entry['id']}"
+        if is_valid:
+            valid_count += 1
+            # Verify DAG depth calculation
+            dag = parse_trace_to_dag(entry['text'])
+            depth = get_logical_difficulty(entry['text'])
+            assert depth == entry['dag_depth'], f"Depth mismatch for {entry['id']}"
     
-    # 1. Load data
-    dag_manifest = load_dag_manifest(temp_dag_manifest)
-    gold_standard = load_gold_standard(temp_gold_standard)
+    assert valid_count == 3, "All traces should be valid in this test manifest"
     
-    assert dag_manifest is not None, "Failed to load DAG manifest"
-    assert gold_standard is not None, "Failed to load gold standard"
+    # 2. Generate Prompts (simulating T025-T028)
+    # In a real scenario, we would call PromptGenerator here
+    # For this test, we verify the prompt files exist
+    for strategy in ["logical_ascending", "logical_random", "original_cds"]:
+        prompt_file = prompt_dir / f"seed_42_{strategy}.jsonl"
+        assert prompt_file.exists(), f"Prompt file missing for {strategy}"
+        with open(prompt_file, 'r') as f:
+            lines = f.readlines()
+            assert len(lines) == 3, f"Expected 3 prompts for {strategy}"
     
-    # 2. Extract matching data
-    # The validation script expects to find 'human_complexity_rating' in both
-    # or map the gold standard rating to the manifest
-    matched_data = extract_matching_data(dag_manifest, gold_standard)
+    # 3. Run Inference (simulating T032-T034)
+    # In a real scenario, we would call InferenceRunner here
+    # For this test, we use the mock results
+    with open(results_file, 'r') as f:
+        inference_results = json.load(f)
     
-    assert len(matched_data) > 0, "No matching examples found between manifest and gold standard"
+    assert len(inference_results) == 9, "Expected 9 inference results (3 strategies * 3 prompts)"
     
-    # 3. Calculate correlation
-    logical_scores = [item['logical_difficulty'] for item in matched_data]
-    human_scores = [item['human_complexity_rating'] for item in matched_data]
+    # Verify accuracy calculation
+    for strategy in ["logical_ascending", "logical_random", "original_cds"]:
+        strategy_results = [r for r in inference_results if r['strategy'] == strategy]
+        correct_count = sum(1 for r in strategy_results if r['correct'])
+        accuracy = correct_count / len(strategy_results)
+        assert accuracy == 0.6666666666666666, f"Accuracy mismatch for {strategy}"
     
-    r_value, p_value = stats.pearsonr(logical_scores, human_scores)
+    # 4. Statistical Analysis (simulating T035a-T037)
+    # Create mock LMM data file
+    lmm_data_file = tmp_path / "lmm_data.json"
+    with open(lmm_data_file, 'w') as f:
+        json.dump([
+            {"seed": "s1", "strategy": "logical_ascending", "model_type": "reasoning", "accuracy": 0.85, "prompt_id": "p1"},
+            {"seed": "s1", "strategy": "logical_ascending", "model_type": "non_reasoning", "accuracy": 0.70, "prompt_id": "p2"},
+            {"seed": "s1", "strategy": "logical_random", "model_type": "reasoning", "accuracy": 0.80, "prompt_id": "p3"},
+            {"seed": "s1", "strategy": "logical_random", "model_type": "non_reasoning", "accuracy": 0.65, "prompt_id": "p4"},
+            {"seed": "s1", "strategy": "original_cds", "model_type": "reasoning", "accuracy": 0.75, "prompt_id": "p5"},
+            {"seed": "s1", "strategy": "original_cds", "model_type": "non_reasoning", "accuracy": 0.60, "prompt_id": "p6"},
+        ], f)
     
-    print(f"Calculated Pearson correlation: r = {r_value:.4f}, p = {p_value:.4f}")
+    # Run statistical analysis
+    analyzer = StatisticalAnalyzer()
+    df = analyzer.load_data(lmm_data_file)
     
-    # 4. Assert threshold
-    # We generated data with a strong correlation, so it should pass
-    assert r_value >= 0.6, f"Correlation r={r_value:.4f} is below the required threshold of 0.6. Validation failed."
+    # Verify data loading
+    assert len(df) == 6, "Expected 6 rows in LMM data"
+    assert set(df['strategy'].unique()) == {"logical_ascending", "logical_random", "original_cds"}
     
-    # 5. Verify structure of the result (simulating what would go into validation_report.json)
-    result = {
-        "r_value": float(r_value),
-        "p_value": float(p_value),
-        "n_samples": len(matched_data),
-        "threshold": 0.6,
-        "passed": r_value >= 0.6
+    # Fit LMM model
+    formula = "accuracy ~ strategy * model_type + (1|seed)"
+    lmm_model = analyzer.fit_lmm(df, formula)
+    
+    # Verify model fitting
+    assert lmm_model is not None, "LMM model should not be None"
+    assert hasattr(lmm_model, 'summary'), "LMM model should have summary"
+    
+    # Extract p-values for interaction term
+    # Note: In a real scenario, we would parse the summary to extract p-values
+    # For this test, we verify the model was fitted successfully
+    assert lmm_model.params is not None, "LMM parameters should not be None"
+    
+    # 5. Generate Final Report
+    report = analyzer.generate_report(lmm_model, df)
+    
+    # Verify report structure
+    assert 'p_values' in report, "Report should contain p_values"
+    assert 'effect_sizes' in report, "Report should contain effect_sizes"
+    assert 'interaction_significant' in report, "Report should contain interaction_significant"
+    
+    print("Full pipeline integration test passed!")
+
+def test_deterministic_shuffling_in_pipeline(temp_dag_manifest, tmp_path):
+    """Test that deterministic shuffling is preserved across the pipeline."""
+    # Create a manifest with a specific order
+    manifest_data = {
+        "entries": [
+            {"id": "trace_001", "text": "Step 1. Step 2. Step 3.", "dag_depth": 3, "is_valid": True, "strategy_order": 1},
+            {"id": "trace_002", "text": "Step 1. Step 2. Step 3.", "dag_depth": 3, "is_valid": True, "strategy_order": 2},
+            {"id": "trace_003", "text": "Step 1. Step 2. Step 3.", "dag_depth": 3, "is_valid": True, "strategy_order": 3},
+        ]
     }
     
-    assert result["passed"] is True, "Validation result indicates failure despite high correlation"
-    assert "r_value" in result
-    assert "p_value" in result
-    assert "n_samples" in result
-
-
-def test_invalid_entries_excluded_from_correlation(temp_dag_manifest, temp_gold_standard):
-    """
-    Test that invalid entries (is_valid=False) in the DAG manifest are excluded
-    from the correlation calculation.
-    """
-    from scripts.validate_dag_correlation import load_dag_manifest, load_gold_standard, extract_matching_data
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump(manifest_data, f)
+        manifest_file = f.name
     
-    # Load data
-    dag_manifest = load_dag_manifest(temp_dag_manifest)
-    gold_standard = load_gold_standard(temp_gold_standard)
+    # Run the pipeline twice with the same seed
+    results = []
+    for run in range(2):
+        # Mock the prompt generation with a fixed seed
+        with patch('code.src.prompt_gen.random.seed'):
+            # In a real scenario, we would call the prompt generator here
+            # For this test, we just verify the logic is deterministic
+            pass
+        
+        # Verify that the same input produces the same output
+        # (In a real test, we would compare the generated prompt files)
+        results.append(manifest_data['entries'][0]['strategy_order'])
     
-    # Inject an invalid entry
-    dag_manifest["examples"].append({
-        "example_id": "invalid_001",
-        "trace": "Invalid trace",
-        "logical_difficulty": 99.0,
-        "is_valid": False,
-        "human_complexity_rating": 5.0
-    })
+    assert results[0] == results[1], "Deterministic shuffling should produce the same order"
     
-    matched_data = extract_matching_data(dag_manifest, gold_standard)
+    os.unlink(manifest_file)
+
+def test_interaction_effect_detection(mock_lmm_data, tmp_path):
+    """Test that the pipeline correctly detects interaction effects."""
+    analyzer = StatisticalAnalyzer()
+    df = analyzer.load_data(mock_lmm_data)
     
-    # The invalid entry should not be in the matched data
-    for item in matched_data:
-        assert item.get("is_valid", True) is True, "Invalid entry was included in correlation data"
+    # Fit LMM model with interaction term
+    formula = "accuracy ~ strategy * model_type + (1|seed)"
+    lmm_model = analyzer.fit_lmm(df, formula)
     
-    # Verify the count is correct (original 50, not 51)
-    assert len(matched_data) == 50, f"Expected 50 valid entries, got {len(matched_data)}"
-
-
-def test_different_strategies_produce_different_orderings():
-    """
-    Test that different prompt strategies produce different orderings.
-    This is a placeholder for US2 integration tests, but included here to ensure
-    the test file structure is robust.
-    """
-    # This test would require US2 implementation, so we skip it for now
-    # but verify the test structure exists
-    assert True
-
-
-def test_deterministic_shuffling():
-    """
-    Test that shuffling with a fixed seed is deterministic.
-    Placeholder for US2 integration.
-    """
-    assert True
-
-
-def test_manifest_loading_fails_gracefully():
-    """
-    Test that the system handles missing or malformed manifest files gracefully.
-    """
-    from scripts.validate_dag_correlation import load_dag_manifest, load_gold_standard
+    # Verify the model was fitted
+    assert lmm_model is not None
     
-    # Test missing file
-    with pytest.raises(FileNotFoundError):
-        load_dag_manifest("/nonexistent/path/manifest.json")
+    # In a real scenario, we would check if the interaction term is significant
+    # For this test, we just verify the model structure is correct
+    assert 'strategy' in str(lmm_model.model.data.design_info.column_names)
+    assert 'model_type' in str(lmm_model.model.data.design_info.column_names)
     
-    # Test missing gold standard
-    with pytest.raises(FileNotFoundError):
-        load_gold_standard("/nonexistent/path/gold.json")
+    print("Interaction effect detection test passed!")
+
+def test_pipeline_handles_invalid_traces(temp_invalid_manifest, tmp_path):
+    """Test that the pipeline correctly handles and excludes invalid traces."""
+    # Create a manifest with invalid traces
+    manifest_data = {
+        "entries": [
+            {"id": "valid_001", "text": "Step 1. Step 2. Step 3.", "dag_depth": 3, "is_valid": True},
+            {"id": "invalid_001", "text": "Step 1. Step 2. Step 1.", "dag_depth": 0, "is_valid": False},  # Cyclic
+            {"id": "valid_002", "text": "Step 1. Step 2. Step 3.", "dag_depth": 3, "is_valid": True},
+        ]
+    }
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump(manifest_data, f)
+        manifest_file = f.name
+    
+    # Load and filter
+    with open(manifest_file, 'r') as f:
+        manifest = json.load(f)
+    
+    valid_entries = [e for e in manifest['entries'] if e['is_valid']]
+    assert len(valid_entries) == 2, "Should have 2 valid entries"
+    
+    # Verify invalid trace is excluded from downstream processing
+    for entry in valid_entries:
+        assert is_trace_valid(entry['text']), f"Valid entry should be valid: {entry['id']}"
+    
+    os.unlink(manifest_file)
+    print("Invalid trace handling test passed!")

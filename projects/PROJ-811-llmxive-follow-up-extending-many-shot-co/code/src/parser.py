@@ -1,8 +1,8 @@
 """
 CoT Trace Parser Module
 
-Converts raw Chain-of-Thought text traces into NetworkX Directed Acyclic Graphs (DAGs).
-Implements logical dependency extraction, cycle detection, and difficulty scoring.
+Converts Chain-of-Thought traces into Directed Acyclic Graphs (DAGs) using NetworkX.
+Implements cycle detection, logical difficulty scoring, and invalid trace flagging.
 """
 
 import networkx as nx
@@ -12,389 +12,451 @@ import logging
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants for step parsing
-STEP_PATTERNS = [
-    r'^Step\s*(\d+)[.:]\s*(.*)$',  # "Step 1: ..." or "Step 1. ..."
-    r'^(\d+)[.:]\s*(.*)$',          # "1. ..." or "1: ..."
-    r'^(Step\s*\d+)[.:]\s*(.*)$',   # "Step 1: ..." without number capture group in first part
-]
+# Constants for cycle detection thresholds
+MAX_CYCLE_LENGTH = 5
+MAX_INCOMING_EDGES = 3
 
-REFERENCE_PATTERNS = [
-    r'refer to (?:Step|step) (\d+)',
-    r'as in (?:Step|step) (\d+)',
-    r'based on (?:Step|step) (\d+)',
-    r'using (?:Step|step) (\d+)',
-    r'from (?:Step|step) (\d+)',
-    r'following (?:Step|step) (\d+)',
-    r'after (?:Step|step) (\d+)',
-    r'before (?:Step|step) (\d+)',
-    r'prior to (?:Step|step) (\d+)',
-    r'see (?:Step|step) (\d+)',
-]
 
-def split_trace_into_steps(trace_text: str) -> List[Tuple[int, str]]:
+def split_trace_into_steps(trace_text: str) -> List[str]:
     """
-    Split a raw CoT trace into numbered steps.
+    Split a raw CoT trace into individual logical steps.
+
+    Handles various formats: numbered lists, bullet points, and newline-separated steps.
+    Falls back to splitting by newlines if no structured format is detected.
 
     Args:
         trace_text: The raw CoT trace string.
 
     Returns:
-        List of tuples (step_number, step_text).
+        List of step strings.
     """
     if not trace_text or not trace_text.strip():
         return []
 
     lines = trace_text.strip().split('\n')
     steps = []
-    current_step_num = None
-    current_step_text = []
+
+    # Pattern for numbered lists (1., 2., etc.) or bullet points
+    step_pattern = re.compile(r'^(?:\d+\.|-|\*|•)\s*(.*)$')
 
     for line in lines:
         line = line.strip()
         if not line:
             continue
 
-        matched = False
-        for pattern in STEP_PATTERNS:
-            match = re.match(pattern, line, re.IGNORECASE)
-            if match:
-                # Save previous step if exists
-                if current_step_num is not None and current_step_text:
-                    steps.append((current_step_num, ' '.join(current_step_text)))
-
-                # Extract new step number and text
-                groups = match.groups()
-                if len(groups) == 2:
-                    # Pattern like "Step 1: text" or "1. text"
-                    first, second = groups
-                    if first.isdigit():
-                        current_step_num = int(first)
-                        current_step_text = [second]
-                    elif second.isdigit():
-                        # Pattern like "Step 1: text" where first is "Step 1"
-                        # Extract number from first group
-                        num_match = re.search(r'\d+', first)
-                        if num_match:
-                            current_step_num = int(num_match.group())
-                            current_step_text = [second]
-                        else:
-                            current_step_num = len(steps) + 1
-                            current_step_text = [line]
-                    else:
-                        current_step_num = len(steps) + 1
-                        current_step_text = [line]
-                else:
-                    current_step_num = len(steps) + 1
-                    current_step_text = [line]
-
-                matched = True
-                break
-
-        if not matched:
-            # Continuation of current step or unnumbered line
-            if current_step_num is not None:
-                current_step_text.append(line)
-            else:
-                # First unnumbered line - treat as step 1
-                if not steps:
-                    current_step_num = 1
-                    current_step_text = [line]
-
-    # Don't forget the last step
-    if current_step_num is not None and current_step_text:
-        steps.append((current_step_num, ' '.join(current_step_text)))
-
-    # Re-index steps to be sequential if gaps exist
-    if steps:
-        sequential_steps = []
-        for i, (num, text) in enumerate(steps, 1):
-            sequential_steps.append((i, text))
-        return sequential_steps
+        match = step_pattern.match(line)
+        if match:
+            steps.append(match.group(1).strip())
+        else:
+            # If line doesn't match pattern but is not empty, treat as step
+            steps.append(line)
 
     return steps
 
-def extract_references(step_text: str) -> List[int]:
+
+def extract_references(step_text: str) -> List[str]:
     """
-    Extract references to other steps from a step's text.
+    Extract references to previous steps from a step text.
+
+    Looks for patterns like "step 1", "previous step", "as mentioned above", etc.
 
     Args:
         step_text: The text of a single step.
 
     Returns:
-        List of referenced step numbers.
+        List of referenced step identifiers (as strings).
     """
     references = []
-    for pattern in REFERENCE_PATTERNS:
-        matches = re.findall(pattern, step_text, re.IGNORECASE)
-        for match in matches:
-            try:
-                ref_num = int(match)
-                if ref_num not in references:
-                    references.append(ref_num)
-            except ValueError:
-                continue
+
+    # Pattern for explicit step references: "step 1", "Step 2", "step #3"
+    step_ref_pattern = re.compile(r'step\s*(?:#\s*)?(\d+)', re.IGNORECASE)
+
+    # Pattern for relative references
+    relative_ref_pattern = re.compile(r'(?:previous|earlier|above)\s*(?:step)?', re.IGNORECASE)
+
+    # Extract explicit step numbers
+    matches = step_ref_pattern.findall(step_text)
+    references.extend(matches)
+
+    # Handle relative references by returning a special marker
+    if relative_ref_pattern.search(step_text):
+        # We'll resolve relative references later based on position
+        references.append("PREVIOUS")
+
     return references
 
-def detect_cycle(graph: nx.DiGraph) -> Optional[List[int]]:
-    """
-    Detect if the graph contains a cycle and return the cycle nodes if found.
 
-    Args:
-        graph: A NetworkX DiGraph.
-
-    Returns:
-        List of node IDs forming a cycle, or None if no cycle exists.
+def parse_trace_to_dag(trace_text: str) -> Tuple[Optional[nx.DiGraph], List[str]]:
     """
-    try:
-        cycle = nx.find_cycle(graph)
-        if cycle:
-            # Extract node IDs from edge tuples
-            return list(set([node for edge in cycle for node in edge]))
-    except nx.NetworkXNoCycle:
-        return None
-    return None
+    Parse a CoT trace into a Directed Acyclic Graph (DAG).
 
-def parse_trace_to_dag(trace_text: str) -> Tuple[Optional[nx.DiGraph], bool, str]:
-    """
-    Parse a raw CoT trace into a NetworkX DAG.
+    Each step becomes a node, and references between steps become directed edges.
+    Returns None for the graph if the trace is invalid or cannot be parsed.
 
     Args:
         trace_text: The raw CoT trace string.
 
     Returns:
-        Tuple of (DAG or None, is_valid, reason).
-        - DAG: The constructed NetworkX DiGraph if valid, None otherwise.
-        - is_valid: True if the trace is valid (no cycles, reasonable structure).
-        - reason: Explanation of validity or failure.
+        Tuple of (DAG graph or None, list of error messages).
     """
+    errors = []
+
     if not trace_text or not trace_text.strip():
-        return None, False, "Empty trace"
+        errors.append("Empty trace provided")
+        return None, errors
+
+    steps = split_trace_into_steps(trace_text)
+    if not steps:
+        errors.append("No valid steps found in trace")
+        return None, errors
+
+    G = nx.DiGraph()
+
+    # Add nodes for each step
+    for i, step in enumerate(steps):
+        node_id = i + 1  # 1-indexed
+        G.add_node(node_id, text=step, step_index=i)
+
+    # Add edges based on references
+    for i, step in enumerate(steps):
+        node_id = i + 1
+        references = extract_references(step)
+
+        for ref in references:
+            if ref == "PREVIOUS":
+                # Reference to immediately preceding step
+                if i > 0:
+                    prev_node_id = i
+                    G.add_edge(prev_node_id, node_id, type="explicit")
+                else:
+                    errors.append(f"Step {node_id} references previous step but is first step")
+            else:
+                # Explicit step number reference
+                try:
+                    ref_id = int(ref)
+                    if ref_id < 1 or ref_id > len(steps):
+                        errors.append(f"Step {node_id} references non-existent step {ref_id}")
+                    else:
+                        G.add_edge(ref_id, node_id, type="explicit")
+                except ValueError:
+                    errors.append(f"Step {node_id} has invalid reference: {ref}")
+
+    return G, errors
+
+
+def detect_cycle(G: nx.DiGraph) -> Tuple[bool, List[List[int]]]:
+    """
+    Detect cycles in a directed graph.
+
+    Args:
+        G: A NetworkX DiGraph.
+
+    Returns:
+        Tuple of (has_cycle, list_of_cycles).
+        Each cycle is represented as a list of node IDs.
+    """
+    if G is None or G.number_of_nodes() == 0:
+        return False, []
 
     try:
-        steps = split_trace_into_steps(trace_text)
-        if not steps:
-            return None, False, "No steps found in trace"
-
-        graph = nx.DiGraph()
-
-        # Add nodes
-        for step_num, step_text in steps:
-            graph.add_node(step_num, text=step_text)
-
-        # Add edges based on references
-        for step_num, step_text in steps:
-            references = extract_references(step_text)
-            for ref_num in references:
-                if ref_num in graph.nodes:
-                    # Edge from referenced step to current step (dependency direction)
-                    graph.add_edge(ref_num, step_num)
-                else:
-                    # Reference to non-existent step - could be invalid, but we'll note it
-                    logger.warning(f"Step {step_num} references non-existent step {ref_num}")
-
-        # Check for cycles
-        cycle = detect_cycle(graph)
-        if cycle:
-            return None, False, f"Cycle detected: {cycle}"
-
-        # Check for max incoming edges (heuristic for validity)
-        max_incoming = 5
-        for node in graph.nodes:
-            in_degree = graph.in_degree(node)
-            if in_degree > max_incoming:
-                logger.warning(f"Step {node} has {in_degree} incoming edges, exceeds threshold {max_incoming}")
-                # We don't mark as invalid for this alone, just warn
-
-        return graph, True, "Valid DAG"
-
+        cycles = list(nx.simple_cycles(G))
+        return len(cycles) > 0, cycles
     except Exception as e:
-        logger.error(f"Error parsing trace: {str(e)}")
-        return None, False, f"Parse error: {str(e)}"
+        logger.error(f"Error detecting cycles: {e}")
+        return False, []
 
-def get_max_path_depth(graph: nx.DiGraph) -> int:
+
+def get_max_path_depth(G: nx.DiGraph) -> int:
     """
     Calculate the maximum path depth (longest path) in a DAG.
 
-    Args:
-        graph: A NetworkX DiGraph (should be acyclic).
-
-    Returns:
-        The length of the longest path in the graph (number of nodes).
-    """
-    if not graph or graph.number_of_nodes() == 0:
-        return 0
-
-    try:
-        # Longest path in DAG
-        longest_path = nx.dag_longest_path(graph)
-        return len(longest_path)
-    except nx.NetworkXUnbounded:
-        # This shouldn't happen if graph is acyclic, but just in case
-        logger.error("Graph appears to have cycles despite validation")
-        return 0
-
-def get_logical_difficulty(graph: nx.DiGraph) -> Dict[str, Any]:
-    """
-    Calculate logical difficulty metrics for a DAG.
+    This represents the "Logical Difficulty Score" - the maximum number of
+    sequential dependencies in the reasoning chain.
 
     Args:
-        graph: A NetworkX DiGraph.
+        G: A NetworkX DiGraph (should be a DAG).
 
     Returns:
-        Dictionary containing difficulty metrics:
-        - max_depth: Maximum path depth
-        - num_nodes: Number of steps
-        - num_edges: Number of dependencies
-        - avg_in_degree: Average incoming edges per node
-        - avg_out_degree: Average outgoing edges per node
-        - is_valid: Whether the graph is a valid DAG
-        - cycle_info: Any cycle information if invalid
+        Integer representing the maximum path depth.
     """
-    if graph is None or graph.number_of_nodes() == 0:
-        return {
-            'max_depth': 0,
-            'num_nodes': 0,
-            'num_edges': 0,
-            'avg_in_degree': 0.0,
-            'avg_out_degree': 0.0,
-            'is_valid': False,
-            'cycle_info': 'Empty or null graph'
-        }
+    if G is None or G.number_of_nodes() == 0:
+        return 0
+
+    if not nx.is_directed_acyclic_graph(G):
+        # If graph has cycles, find the longest path ignoring cycle detection
+        # This is a fallback for invalid graphs
+        try:
+            # For cyclic graphs, we can't use dag_longest_path
+            # Instead, we'll find the longest simple path
+            longest_path_len = 0
+            for start_node in G.nodes():
+                for end_node in G.nodes():
+                    try:
+                        path = nx.shortest_path(G, start_node, end_node)
+                        if len(path) > longest_path_len:
+                            longest_path_len = len(path)
+                    except nx.NetworkXNoPath:
+                        continue
+            return longest_path_len - 1 if longest_path_len > 0 else 0
+        except Exception:
+            return 0
 
     try:
-        max_depth = get_max_path_depth(graph)
-        num_nodes = graph.number_of_nodes()
-        num_edges = graph.number_of_edges()
-
-        in_degrees = [d for n, d in graph.in_degree()]
-        out_degrees = [d for n, d in graph.out_degree()]
-
-        avg_in = sum(in_degrees) / num_nodes if num_nodes > 0 else 0.0
-        avg_out = sum(out_degrees) / num_nodes if num_nodes > 0 else 0.0
-
-        cycle_info = detect_cycle(graph)
-
-        return {
-            'max_depth': max_depth,
-            'num_nodes': num_nodes,
-            'num_edges': num_edges,
-            'avg_in_degree': avg_in,
-            'avg_out_degree': avg_out,
-            'is_valid': cycle_info is None,
-            'cycle_info': cycle_info if cycle_info else None
-        }
+        longest_path = nx.dag_longest_path(G)
+        return len(longest_path) - 1  # Depth is number of edges, not nodes
     except Exception as e:
-        logger.error(f"Error calculating difficulty: {str(e)}")
+        logger.error(f"Error calculating max path depth: {e}")
+        return 0
+
+
+def get_logical_difficulty(G: nx.DiGraph) -> Dict[str, Any]:
+    """
+    Calculate the logical difficulty score for a trace.
+
+    The score is primarily based on the maximum path depth (longest chain of
+    dependencies), which represents the complexity of the reasoning chain.
+
+    Args:
+        G: A NetworkX DiGraph.
+
+    Returns:
+        Dictionary containing difficulty metrics.
+    """
+    if G is None or G.number_of_nodes() == 0:
         return {
-            'max_depth': 0,
-            'num_nodes': 0,
-            'num_edges': 0,
-            'avg_in_degree': 0.0,
-            'avg_out_degree': 0.0,
-            'is_valid': False,
-            'cycle_info': f'Error: {str(e)}'
+            "depth": 0,
+            "num_nodes": 0,
+            "num_edges": 0,
+            "is_valid": False,
+            "reason": "Empty or null graph"
         }
+
+    has_cycle, cycles = detect_cycle(G)
+    max_depth = get_max_path_depth(G)
+
+    # Count nodes with high incoming edge count
+    high_indegree_nodes = [n for n in G.nodes() if G.in_degree(n) > MAX_INCOMING_EDGES]
+
+    return {
+        "depth": max_depth,
+        "num_nodes": G.number_of_nodes(),
+        "num_edges": G.number_of_edges(),
+        "is_valid": not has_cycle,
+        "cycles": cycles,
+        "high_indegree_nodes": high_indegree_nodes,
+        "reason": "Valid" if not has_cycle and len(high_indegree_nodes) == 0 else "Invalid"
+    }
+
+
+def is_trace_valid(G: nx.DiGraph, max_cycle_length: int = MAX_CYCLE_LENGTH) -> Tuple[bool, List[str]]:
+    """
+    Check if a trace is valid according to logical dependency rules.
+
+    A trace is invalid if:
+    1. It contains cycles of length <= max_cycle_length
+    2. It has nodes with more than max_incoming_edges incoming edges
+
+    Args:
+        G: A NetworkX DiGraph.
+        max_cycle_length: Maximum allowed cycle length (default: 5).
+
+    Returns:
+        Tuple of (is_valid, list_of_issues).
+    """
+    issues = []
+
+    if G is None or G.number_of_nodes() == 0:
+        return False, ["Empty or null graph"]
+
+    # Check for cycles
+    has_cycle, cycles = detect_cycle(G)
+    if has_cycle:
+        for cycle in cycles:
+            if len(cycle) <= max_cycle_length:
+                issues.append(f"Cycle detected of length {len(cycle)}: {cycle}")
+
+    # Check for nodes with too many incoming edges
+    for node in G.nodes():
+        in_degree = G.in_degree(node)
+        if in_degree > MAX_INCOMING_EDGES:
+            issues.append(f"Node {node} has {in_degree} incoming edges (max allowed: {MAX_INCOMING_EDGES})")
+
+    return len(issues) == 0, issues
+
+
+def flag_invalid_trace(G: nx.DiGraph) -> Dict[str, Any]:
+    """
+    Flag a trace as invalid if it contains logical errors.
+
+    This implements the flagging mechanism for invalid traces.
+
+    Args:
+        G: A NetworkX DiGraph.
+
+    Returns:
+        Dictionary with validation status and details.
+    """
+    is_valid, issues = is_trace_valid(G)
+
+    has_cycle, cycles = detect_cycle(G)
+    high_indegree_nodes = [n for n in G.nodes() if G.in_degree(n) > MAX_INCOMING_EDGES]
+
+    return {
+        "is_valid": is_valid,
+        "has_cycle": has_cycle,
+        "cycles": cycles,
+        "high_indegree_nodes": high_indegree_nodes,
+        "issues": issues,
+        "max_cycle_length_threshold": MAX_CYCLE_LENGTH,
+        "max_incoming_edges_threshold": MAX_INCOMING_EDGES
+    }
+
 
 class CoTParser:
     """
-    High-level parser for Chain-of-Thought traces.
+    Main parser class for processing CoT traces.
+
+    Provides high-level methods for parsing traces, validating them,
+    and extracting logical difficulty scores.
     """
 
-    def __init__(self, max_steps: int = 100, max_incoming_edges: int = 5):
+    def __init__(self, max_cycle_length: int = MAX_CYCLE_LENGTH, max_incoming_edges: int = MAX_INCOMING_EDGES):
         """
         Initialize the CoT parser.
 
         Args:
-            max_steps: Maximum number of steps allowed in a trace.
-            max_incoming_edges: Maximum incoming edges per node (heuristic).
+            max_cycle_length: Maximum allowed cycle length.
+            max_incoming_edges: Maximum allowed incoming edges per node.
         """
-        self.max_steps = max_steps
+        self.max_cycle_length = max_cycle_length
         self.max_incoming_edges = max_incoming_edges
-        logger.info(f"CoTParser initialized with max_steps={max_steps}, max_incoming_edges={max_incoming_edges}")
 
     def parse(self, trace_text: str) -> Dict[str, Any]:
         """
-        Parse a single CoT trace.
+        Parse a CoT trace and return comprehensive analysis.
 
         Args:
             trace_text: The raw CoT trace string.
 
         Returns:
-            Dictionary containing:
-            - success: Boolean indicating if parsing succeeded
-            - dag: The parsed DAG (or None)
-            - difficulty: Logical difficulty metrics
-            - steps: List of (step_num, text) tuples
-            - error: Error message if any
+            Dictionary containing parsed graph, validation status, and metrics.
         """
-        dag, is_valid, reason = parse_trace_to_dag(trace_text)
+        G, parse_errors = parse_trace_to_dag(trace_text)
 
-        result = {
-            'success': is_valid,
-            'dag': dag,
-            'difficulty': get_logical_difficulty(dag) if dag else None,
-            'steps': split_trace_into_steps(trace_text),
-            'error': None if is_valid else reason
+        if G is None:
+            return {
+                "success": False,
+                "graph": None,
+                "parse_errors": parse_errors,
+                "is_valid": False,
+                "difficulty": None
+            }
+
+        validation = flag_invalid_trace(G)
+        difficulty = get_logical_difficulty(G)
+
+        return {
+            "success": True,
+            "graph": G,
+            "parse_errors": parse_errors,
+            "is_valid": validation["is_valid"],
+            "validation_details": validation,
+            "difficulty": difficulty
         }
 
-        if dag and dag.number_of_nodes() > self.max_steps:
-            result['success'] = False
-            result['error'] = f"Too many steps: {dag.number_of_nodes()} > {self.max_steps}"
+    def parse_and_filter(self, trace_text: str) -> Optional[Dict[str, Any]]:
+        """
+        Parse a trace and return None if it's invalid.
+
+        This is a convenience method for filtering out invalid traces.
+
+        Args:
+            trace_text: The raw CoT trace string.
+
+        Returns:
+            Dictionary with analysis if valid, None if invalid.
+        """
+        result = self.parse(trace_text)
+
+        if not result["is_valid"]:
+            return None
 
         return result
 
-    def parse_batch(self, traces: List[str]) -> List[Dict[str, Any]]:
+    def get_depth(self, trace_text: str) -> int:
         """
-        Parse multiple CoT traces.
+        Get the logical difficulty score (max path depth) for a trace.
 
         Args:
-            traces: List of raw CoT trace strings.
+            trace_text: The raw CoT trace string.
 
         Returns:
-            List of parsing results.
+            Integer depth score, or 0 if parsing fails.
         """
-        return [self.parse(trace) for trace in traces]
+        result = self.parse(trace_text)
 
-    def filter_valid_traces(self, traces: List[str]) -> List[Tuple[str, Dict[str, Any]]]:
-        """
-        Filter and return only valid traces with their parsed results.
+        if result["success"] and result["difficulty"]:
+            return result["difficulty"]["depth"]
 
-        Args:
-            traces: List of raw CoT trace strings.
-
-        Returns:
-            List of tuples (trace_text, result_dict) for valid traces only.
-        """
-        valid_traces = []
-        for trace in traces:
-            result = self.parse(trace)
-            if result['success']:
-                valid_traces.append((trace, result))
-        return valid_traces
+        return 0
 
 
-# Convenience functions for direct use
-def parse_trace_to_dag(trace_text: str) -> Tuple[Optional[nx.DiGraph], bool, str]:
+# Convenience functions for direct usage
+
+def parse_trace_to_dag_and_validate(trace_text: str) -> Tuple[Optional[nx.DiGraph], bool, List[str]]:
     """
-    Parse a raw CoT trace into a NetworkX DAG.
-    (Wrapper for module-level function)
-    """
-    return parse_trace_to_dag(trace_text)
+    Parse a trace and immediately validate it.
 
-def get_logical_difficulty(graph: nx.DiGraph) -> Dict[str, Any]:
-    """
-    Calculate logical difficulty metrics for a DAG.
-    (Wrapper for module-level function)
-    """
-    return get_logical_difficulty(graph)
+    Args:
+        trace_text: The raw CoT trace string.
 
-def get_max_path_depth(graph: nx.DiGraph) -> int:
+    Returns:
+        Tuple of (graph or None, is_valid, list_of_issues).
     """
-    Calculate the maximum path depth (longest path) in a DAG.
-    (Wrapper for module-level function)
+    parser = CoTParser()
+    result = parser.parse(trace_text)
+
+    if not result["success"]:
+        return None, False, result.get("parse_errors", [])
+
+    is_valid = result["is_valid"]
+    issues = result.get("validation_details", {}).get("issues", [])
+
+    return result["graph"], is_valid, issues
+
+
+def get_logical_difficulty_score(trace_text: str) -> int:
     """
-    return get_max_path_depth(graph)
+    Calculate the logical difficulty score for a trace.
+
+    Args:
+        trace_text: The raw CoT trace string.
+
+    Returns:
+        Integer depth score.
+    """
+    return get_max_path_depth(parse_trace_to_dag(trace_text)[0]) if parse_trace_to_dag(trace_text)[0] else 0
+
+def detect_cycle(G: nx.DiGraph) -> Tuple[bool, List[List[int]]]:
+    """
+    Detect cycles in a directed graph.
+
+    Args:
+        G: A NetworkX DiGraph.
+
+    Returns:
+        Tuple of (has_cycle, list_of_cycles).
+        Each cycle is represented as a list of node IDs.
+    """
+    if G is None or G.number_of_nodes() == 0:
+        return False, []
+
+    try:
+        cycles = list(nx.simple_cycles(G))
+        return len(cycles) > 0, cycles
+    except Exception as e:
+        logger.error(f"Error detecting cycles: {e}")
+        return False, []

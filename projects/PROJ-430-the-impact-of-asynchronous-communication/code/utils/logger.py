@@ -1,9 +1,3 @@
-"""
-Logging infrastructure for the llmXive pipeline.
-
-Provides a JSON-formatted logger for pipeline monitoring, ensuring structured
-logs that can be easily parsed for analysis and debugging.
-"""
 import json
 import logging
 import sys
@@ -11,160 +5,46 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-from config import get_config_summary, ensure_directories_exist
-
-
 class JSONFormatter(logging.Formatter):
-    """Custom formatter that outputs logs as JSON lines."""
-
-    def format(self, record: logging.LogRecord) -> str:
-        log_entry: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+    def format(self, record):
+        log_obj = {
+            "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
-            "logger": record.name,
             "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
+            "logger": record.name
         }
+        if hasattr(record, 'extra_data'):
+            log_obj.update(record.extra_data)
+        return json.dumps(log_obj)
 
-        # Add exception info if present
-        if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
-
-        # Add extra fields if present
-        if hasattr(record, "extra_data"):
-            log_entry["data"] = record.extra_data
-
-        return json.dumps(log_entry)
-
-
-def setup_logger(
-    name: str = "llmXive_pipeline",
-    level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    console: bool = True,
-) -> logging.Logger:
-    """
-    Configure and return a logger with JSON formatting.
-
-    Args:
-        name: Logger name
-        level: Logging level (e.g., logging.INFO, logging.DEBUG)
-        log_file: Path to log file. If None, logs only to console.
-        console: Whether to log to console (stderr).
-
-    Returns:
-        Configured logger instance.
-    """
+def setup_logger(name: str, log_file: Optional[Path] = None) -> logging.Logger:
     logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        logger.handlers.clear()
-
-    formatter = JSONFormatter()
-
-    # Console handler
-    if console:
-        console_handler = logging.StreamHandler(sys.stderr)
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-    # File handler
-    if log_file:
-        log_path = Path(log_file)
-        ensure_directories_exist(log_path.parent)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
+    logger.setLevel(logging.INFO)
+    
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(JSONFormatter())
+        logger.addHandler(handler)
+        
+        if log_file:
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(JSONFormatter())
+            logger.addHandler(file_handler)
+    
     return logger
 
+def get_logger(name: str) -> logging.Logger:
+    return setup_logger(name)
 
-def log_event(
-    logger: logging.Logger,
-    level: int,
-    message: str,
-    data: Optional[Dict[str, Any]] = None,
-) -> None:
-    """
-    Log an event with optional structured data.
+def log_event(logger: logging.Logger, event_type: str, data: Dict[str, Any]):
+    extra = {'extra_data': {'event_type': event_type, **data}}
+    logger.info(f"Event: {event_type}", extra=extra)
 
-    Args:
-        logger: Logger instance to use
-        level: Logging level
-        message: Log message
-        data: Optional dictionary of structured data to include
-    """
-    extra = {}
-    if data:
-        extra["extra_data"] = data
+def log_pipeline_start(logger: logging.Logger, project_id: str):
+    log_event(logger, "pipeline_start", {"project_id": project_id})
 
-    logger.log(level, message, extra=extra)
+def log_pipeline_complete(logger: logging.Logger, project_id: str):
+    log_event(logger, "pipeline_complete", {"project_id": project_id})
 
-
-def log_pipeline_start(logger: logging.Logger, task_id: str) -> None:
-    """Log the start of a pipeline task."""
-    config_summary = get_config_summary()
-    log_event(
-        logger,
-        logging.INFO,
-        f"Pipeline task {task_id} started",
-        {
-            "task_id": task_id,
-            "config": config_summary,
-            "status": "started",
-        },
-    )
-
-
-def log_pipeline_complete(
-    logger: logging.Logger, task_id: str, duration_seconds: Optional[float] = None
-) -> None:
-    """Log the completion of a pipeline task."""
-    log_event(
-        logger,
-        logging.INFO,
-        f"Pipeline task {task_id} completed",
-        {
-            "task_id": task_id,
-            "status": "completed",
-            "duration_seconds": duration_seconds,
-        },
-    )
-
-
-def log_pipeline_error(
-    logger: logging.Logger, task_id: str, error_message: str
-) -> None:
-    """Log an error during pipeline execution."""
-    log_event(
-        logger,
-        logging.ERROR,
-        f"Pipeline task {task_id} failed",
-        {
-            "task_id": task_id,
-            "status": "failed",
-            "error": error_message,
-        },
-    )
-
-
-# Default logger instance for general use
-_default_logger: Optional[logging.Logger] = None
-
-
-def get_logger(name: str = "llmXive_pipeline") -> logging.Logger:
-    """Get or create the default logger instance."""
-    global _default_logger
-    if _default_logger is None:
-        _default_logger = setup_logger(
-            name=name,
-            log_file="data/validation/pipeline.log",
-            console=True,
-        )
-    return _default_logger
+def log_pipeline_error(logger: logging.Logger, project_id: str, error: str):
+    log_event(logger, "pipeline_error", {"project_id": project_id, "error": error})

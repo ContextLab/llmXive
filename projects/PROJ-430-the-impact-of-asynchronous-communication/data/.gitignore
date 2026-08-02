@@ -1,19 +1,27 @@
-# Data directories - keep structure but ignore content
-# Raw data: downloaded from external sources (large files)
-raw/
-# Derived data: processed datasets
-derived/
-# Validation data: manual annotations and ground truth
-validation/
+# Data directory: Track structure, exclude raw/ and derived/ content
+# Raw data files (large, often proprietary or API-rate-limited)
+raw/*
+!raw/.gitkeep
 
-# Exclude all files except this .gitignore
-!**/.gitkeep
+# Derived data (intermediate processing results, can be regenerated)
+derived/*
+!derived/.gitkeep
 
-# Optional: ignore common temporary files
+# Validation data (manual annotations, ground truth)
+validation/*
+!validation/.gitkeep
+
+# Logs and temporary files generated during data processing
+*.log
 *.tmp
-*.temp
+*.cache
+__pycache__/
+
+# IDE and OS artifacts
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
 
-# Ignore parquet files if they grow too large (optional)
-# *.parquet
+# Ensure directory structure is preserved but content is ignored
+**/.gitkeep

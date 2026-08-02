@@ -68,10 +68,10 @@ The researcher performs a permutation test to validate that feature importance i
 - **FR-003**: System MUST train a Random Forest classifier (n_estimators=100, max_depth=None, random_seed=42) to predict cognitive decline status using topological features and perform 5-fold cross-validation. (See US-2)
 - **FR-004**: System MUST evaluate model performance using ROC-AUC, accuracy, and F1-score and output these metrics for each fold. (See US-2)
 - **FR-005**: System MUST perform a permutation test with n=500 label shuffles (bounded by max_runtime=2 hours) and random_seed=42 to calculate the statistical significance (p-value) of the model's predictive power. (See US-3)
-- **FR-006**: System MUST execute a sensitivity analysis by sweeping the decision threshold over the set {0.45, 0.50, 0.55} (standard ±0.05 bounds) and reporting the variation in false-positive and false-negative rates. (See US-3)
+- **FR-006**: System MUST execute a sensitivity analysis by sweeping the decision threshold over a range of values near the nominal 0.50 boundary (standard ±0.05 bounds) and reporting the variation in false-positive and false-negative rates. (See US-3)
 - **FR-007**: System MUST explicitly label all reported findings as "associational" and avoid causal language in the final output report, given the observational nature of the data. (See US-3)
 - **FR-008**: System MUST detect and handle predictor collinearity (correlation > 0.95) by excluding the feature with lower variance before model training. (See US-1)
-- **FR-010**: System MUST implement nested cross-validation with an outer loop of folds and an inner loop grid search over n_estimators and max_depth ∈ {5, 10, None} to prevent overfitting. The range of values for n_estimators will be explored to optimize performance. (See US-2)
+- **FR-010**: System MUST implement nested cross-validation with an outer loop of folds and an inner loop grid search over n_estimators and max_depth ∈ {small, medium, None} to prevent overfitting. The range of values for n_estimators will be explored to optimize performance. (See US-2)
 - **FR-011**: System MUST validate the model against an external clinical outcome (e.g., MCI conversion) where available in the dataset; if unavailable, the system MUST document this limitation in the final report. (See US-2)
 - **FR-012**: System MUST perform a sensitivity analysis on the cognitive decline threshold definition (±1 point variation) to assess the robustness of the label definition. (See US-3)
 

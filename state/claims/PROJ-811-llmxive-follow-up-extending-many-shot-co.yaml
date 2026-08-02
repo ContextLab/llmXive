@@ -641,3 +641,94 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T12:35:21Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Inference using llama.cpp CPU mode with LMM analysis for interaction
+    effects
+  claim_id: c_bcac87f5
+  context: 'Independent Test: The system can run inference on a sample of few-shot
+    prompts using `llama.cpp` (CPU mode), collect accuracy metrics, aggregate them
+    by seed, and output a statistical report confirming whether the interaction term
+    in the LMM is significant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inference_using_llama.cpp_CPU_mode_with_LMM_analysis_for_int
+  kind: entity_fact
+  raw_text: The system can run inference on a sample of few-shot prompts using `llama.cpp`
+    (CPU mode), collect accuracy metrics, aggregate them by seed, and output a statistical
+    report confirming whether the interaction term in the LMM is significant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:28:21Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: cycle detection logic with max cycle length of 5 and max 3 incoming edges
+  claim_id: c_7723fd76
+  context: T013 [US1] Implement cycle detection logic (max cycle length of 5 steps,
+    >3 incoming edges) and flagging mechanism in code/src/parser.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: cycle detection logic (max cycle length of 5 steps, >3 incoming edges)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:33:43Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: power analysis with alpha 0.05, power 0.8, and effect size 0.25
+  claim_id: c_ac13a0ab
+  context: T035b [US3] Document the deviation from Spec FR-004 (ANOVA) to Plan LMM
+    in artifacts/stats_report.md including a power analysis justification (alpha=0.05,
+    power=0.8, effect_size=0.25) using statsmodels.stats.power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power analysis justification (alpha=0.05, power=0.8, effect_size=0.25)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:34:24Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: parser runtime under 15 minutes for 1000 traces
+  claim_id: c_2b5d8110
+  context: 'T042 Performance optimization for DAG parsing: Refactor parser.py to achieve
+    < 15 min runtime on 1000 raw/CoT traces; verify by running benchmark script and
+    recording time in artifacts/perf_log.txt'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor parser.py to achieve < 15 min runtime on 1000 raw/CoT traces
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:34:24Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Q4_K_M quantization fits within 7GB RAM
+  claim_id: c_99d92506
+  context: 'CRITICAL: Ensure llama.cpp inference tasks (T032) strictly use CPU-only
+    flags and Q4_K_M quantization to fit within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Q4_K_M_quantization_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: Q4_K_M quantization to fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:35:02Z'

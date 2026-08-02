@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to predict cognitive decline (stable vs. decline) using topological features derived from resting-state fMRI (rs-fMRI) networks. The approach involves downloading raw BIDS data from OpenNeuro dataset `ds000248` (ADNI rs-fMRI subset), filtering for subjects with longitudinal cognitive scores (MMSE/MOCA), constructing AAL atlas-based connectivity matrices, extracting graph metrics (degree, efficiency, clustering, path length), and training a Random Forest classifier with nested cross-validation. Statistical significance is validated via permutation testing (n=100), and robustness is assessed through threshold sensitivity analysis. All findings are framed as associational due to the observational nature of the data.
+This project implements a computational pipeline to predict cognitive decline (stable vs. decline) using topological features derived from resting-state fMRI (rs-fMRI) networks. The approach involves downloading raw BIDS data from OpenNeuro dataset `ds00XXXX` (ADNI rs-fMRI subset)., filtering for subjects with longitudinal cognitive scores (MMSE/MOCA), constructing AAL atlas-based connectivity matrices, extracting graph metrics (degree, efficiency, clustering, path length), and training a Random Forest classifier with nested cross-validation. Statistical significance is validated via permutation testing (n=100), and robustness is assessed through threshold sensitivity analysis. All findings are framed as associational due to the observational nature of the data.
 
 **Critical Note on Dataset**: The plan targets OpenNeuro datasets which contain rs-fMRI data and longitudinal cognitive scores. If this dataset is unavailable or lacks the required variables, the pipeline will halt at Phase 0 (Data Availability Gate).
 
@@ -32,8 +32,8 @@ This project implements a computational pipeline to predict cognitive decline (s
 - **III. Data Hygiene**: ✅ Plan includes checksumming of raw data (via `data/VERSION.txt` and artifact hash map). No in-place modifications; derivations written to new files. PII scan enforced via CI.
 - **IV. Single Source of Truth**: ⚠️ **Conditional**: SSoT is contingent on successful data ingestion. If the dataset is missing, no SSoT can be established, and the project fails at Phase 0.
 - **V. Versioning Discipline**: ✅ Content hashes for artifacts; `state/` updated on artifact changes.
-- **VI. Neuroimaging Dataset Versioning**: ✅ Plan specifies using OpenNeuro `ds000248` (ADNI rs-fMRI subset) with version tag recorded in `data/VERSION.txt` and checksum verification.
-- **VII. Graph‑Theoretical Metric Reproducibility**: ✅ Plan mandates `networkx` for graph metrics, -region AAL atlas, and pinned library versions in `requirements.txt`.
+- **VI. Neuroimaging Dataset Versioning**: ✅ Plan specifies using OpenNeuro ADNI rs-fMRI dataset with version tag recorded in `data/VERSION.txt` and checksum verification.
+- **VII. Graph‑Theoretical Metric Reproducibility**: ✅ Plan mandates `networkx` for graph metrics, a standard multi-region AAL atlas, and pinned library versions in `requirements.txt`.
 
 ## Requirement Mapping
 
@@ -51,7 +51,9 @@ This project implements a computational pipeline to predict cognitive decline (s
 | FR-011 (External Outcome) | ✅ Implemented in `09_generate_report.py` | Documented if unavailable |
 | FR-012 (Threshold Sensitivity) | ✅ Implemented in `07_sensitivity_analysis.py` | |
 | SC-002 (Verification) | ✅ Implemented in Phase 4 | Explicit check of ROC-AUC > 0.50 & p < 0.05 |
-| SC-005 (Runtime Measurement) | ✅ Implemented in Phase 4 | Explicit check against 6h limit |
+| SC-005 (Runtime Measurement) | ✅ Implemented in Phase 4 | Explicit check against a predefined time limit
+
+The research question is to determine the efficacy of the proposed method under temporal constraints. The method involves a systematic evaluation of performance against these constraints. References include [Citation]. |
 
 ## Project Structure
 

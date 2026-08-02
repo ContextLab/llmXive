@@ -119,3 +119,131 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T23:52:18Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Select 10-15 study sites based on >80% cloud-free coverage for spring
+    2020
+  claim_id: c_f616948c
+  context: Implement logic in `src/data/ingestion.py` to calculate cloud-free coverage
+    for spring (March-May) 2020 and select 10-15 study sites deterministically based
+    on >80% coverage from candidate sites list defined in config.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/data/ingestion.py` to calculate cloud-free coverage for
+    spring (March-May) 2020 and select 10-15 study sites deterministically based on
+    >80% coverage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:06:44Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Download Sentinel data for 10-15 sites from 2018 to 2023
+  claim_id: c_9b057b7e
+  context: Implement `src/data/ingestion.py` to download Sentinel data via Google
+    Earth Engine API for the selected 10-15 sites (2018-2023), extracting NDVI/EVI
+    at regular intervals
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/data/ingestion.py` to download Sentinel data via Google
+    Earth Engine API for the selected 10-15 sites (2018-2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:07:59Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Train model on 2018-2021 and test on 2022-2023
+  claim_id: c_2b67baf6
+  context: Implement `src/models/train.py` using golden_ratio and Temporal Holdout
+    (train on 2018-2021, test 2022-2023) as defined in Plan
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train model on 2018-2021 and test on 2022-2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:08:25Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Sweep regularization parameter alpha over 0.01, 0.05, and 0.1
+  claim_id: c_fee39574
+  context: "Implement `src/models/sensitivity.py` to sweep regularization parameter\
+    \ (alpha) over the discrete set {0.01, 0.05, 0.1} and report RMSE/R\xB2 variation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep regularization parameter (alpha) over the discrete set {0.01, 0.05,
+    0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:09:03Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Rank predictors with Permutation Importance score greater than 0.01
+  claim_id: c_f465c7ce
+  context: Implement `src/models/sensitivity.py` to calculate Permutation Importance
+    for all predictors, explicitly measuring the increase in RMSE when features are
+    permuted, and rank those with score > 0.01
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_predictors_with_Permutation_Importance_score_greater_th
+  kind: magnitude
+  raw_text: Rank predictors with Permutation Importance score > 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:09:28Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Linear interpolate if 1 or fewer consecutive 10-day gaps
+  claim_id: c_f6d1ef52
+  context: "Implement interpolation logic in `src/data/preprocessing.py`: Linear interpolate\
+    \ if \u22641 consecutive 10-day gaps; exclude rows if >1 gap"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Linear interpolate if \u22641 consecutive 10-day gaps"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:09:28Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Exclude rows if more than 1 consecutive 10-day gaps
+  claim_id: c_a440da19
+  context: "Implement interpolation logic in `src/data/preprocessing.py`: Linear interpolate\
+    \ if \u22641 consecutive 10-day gaps; exclude rows if >1 gap"
+  evidence:
+    candidates:
+    - - Exclude rows if more than 1 consecutive
+      - 10.0
+    - - Log in Exclude rows if more than
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Exclude_rows_if_more_than_1_consecutive_10-day_gaps
+  kind: magnitude
+  raw_text: Exclude rows if >1 consecutive 10-day gaps
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-02T01:10:52Z'

@@ -1,93 +1,87 @@
 """
-Unit tests for data ingestion and bot exclusion logic (T011).
+Unit tests for data ingestion and filtering logic.
 """
 import pytest
-from code.data_ingestion import is_bot_user, filter_events
+import pandas as pd
+from datetime import datetime
+from unittest.mock import patch, MagicMock
 
-class TestBotExclusion:
-    """Tests for the is_bot_user function."""
+from code.data_ingestion import filter_insufficient_data, filter_bots
+from code.models import Event, ContributorPair
 
-    def test_bot_suffix(self):
-        """Test detection of standard bot suffix."""
-        assert is_bot_user("dependabot[bot]") is True
-        assert is_bot_user("some-bot[bot]") is True
-        assert is_bot_user("renovate[bot]") is True
-
-    def test_app_suffix(self):
-        """Test detection of GitHub App suffix."""
-        assert is_bot_user("some-app[app]") is True
-        assert is_bot_user("github-actions[app]") is True
-
-    def test_case_insensitivity(self):
-        """Test that detection is case-insensitive."""
-        assert is_bot_user("Dependabot[bot]") is True
-        assert is_bot_user("Dependabot[BOT]") is True
-        assert is_bot_user("MyApp[APP]") is True
-
-    def test_human_users(self):
-        """Test that human users are not flagged."""
-        assert is_bot_user("octocat") is False
-        assert is_bot_user("torvalds") is False
-        assert is_bot_user("user-bot") is False # 'bot' in middle is ok
-        assert is_bot_user("bot-user") is False
-
-    def test_empty_and_none(self):
-        """Test edge cases."""
-        assert is_bot_user("") is False
-        assert is_bot_user(None) is False
-
-class TestFilterEvents:
-    """Tests for the filter_events function."""
-
-    def test_filter_removes_bots(self):
-        """Test that bot events are removed from the list."""
+class TestFilterBots:
+    def test_filter_bots_removes_bot_events(self):
         events = [
-            {"actor": {"login": "human1"}, "type": "PushEvent"},
-            {"actor": {"login": "bot1[bot]"}, "type": "IssuesEvent"},
-            {"actor": {"login": "human2"}, "type": "PullRequestEvent"},
-            {"actor": {"login": "app1[app]"}, "type": "CheckRunEvent"},
+            {'author': 'user1', 'is_bot': False},
+            {'author': 'dependabot[bot]', 'is_bot': True},
+            {'author': 'user2', 'is_bot': False},
+            {'author': 'github-actions[bot]', 'is_bot': True}
         ]
         
-        result = filter_events(events)
+        result = filter_bots(events)
         
         assert len(result) == 2
-        assert result[0]["actor"]["login"] == "human1"
-        assert result[1]["actor"]["login"] == "human2"
+        assert all(not e['is_bot'] for e in result)
+        assert result[0]['author'] == 'user1'
+        assert result[1]['author'] == 'user2'
 
-    def test_filter_preserves_order(self):
-        """Test that non-bot events maintain original order."""
-        events = [
-            {"actor": {"login": "user1"}, "type": "PushEvent"},
-            {"actor": {"login": "user2"}, "type": "PushEvent"},
+    def test_filter_bots_empty_list(self):
+        result = filter_bots([])
+        assert result == []
+
+class TestFilterInsufficientData:
+    def test_filter_removes_low_count_projects(self):
+        projects = [
+            {'repo': 'high-data', 'event_count': 100},
+            {'repo': 'low-data', 'event_count': 5},
+            {'repo': 'boundary', 'event_count': 10}
         ]
         
-        result = filter_events(events)
+        # Mock config to set min_events to 10
+        with patch('code.data_ingestion.get_config') as mock_config:
+            mock_config.return_value = {'min_events': 10}
+            result = filter_insufficient_data(projects)
         
         assert len(result) == 2
-        assert result[0]["actor"]["login"] == "user1"
-        assert result[1]["actor"]["login"] == "user2"
+        repos = [p['repo'] for p in result]
+        assert 'high-data' in repos
+        assert 'boundary' in repos
+        assert 'low-data' not in repos
 
-    def test_empty_input(self):
-        """Test handling of empty list."""
-        assert filter_events([]) == []
-
-    def test_all_bots(self):
-        """Test handling of a list with only bots."""
-        events = [
-            {"actor": {"login": "bot1[bot]"}, "type": "PushEvent"},
-            {"actor": {"login": "bot2[app]"}, "type": "PushEvent"},
+    def test_filter_keeps_all_above_threshold(self):
+        projects = [
+            {'repo': 'proj1', 'event_count': 20},
+            {'repo': 'proj2', 'event_count': 30}
         ]
         
-        result = filter_events(events)
+        with patch('code.data_ingestion.get_config') as mock_config:
+            mock_config.return_value = {'min_events': 10}
+            result = filter_insufficient_data(projects)
+        
+        assert len(result) == 2
+
+    def test_filter_removes_all_below_threshold(self):
+        projects = [
+            {'repo': 'proj1', 'event_count': 2},
+            {'repo': 'proj2', 'event_count': 5}
+        ]
+        
+        with patch('code.data_ingestion.get_config') as mock_config:
+            mock_config.return_value = {'min_events': 10}
+            result = filter_insufficient_data(projects)
+        
         assert len(result) == 0
 
-    def test_missing_actor(self):
-        """Test handling of events with missing actor field."""
-        events = [
-            {"type": "PushEvent"},
-            {"actor": {"login": "human"}, "type": "PushEvent"},
+    def test_filter_default_threshold(self):
+        projects = [
+            {'repo': 'proj1', 'event_count': 9},
+            {'repo': 'proj2', 'event_count': 10}
         ]
         
-        result = filter_events(events)
-        # Should keep the one with missing actor (safe default)
-        assert len(result) == 2
+        # Test with default min_events (10)
+        with patch('code.data_ingestion.get_config') as mock_config:
+            mock_config.return_value = {} # No min_events key
+            result = filter_insufficient_data(projects)
+        
+        assert len(result) == 1
+        assert result[0]['repo'] == 'proj2'

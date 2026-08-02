@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `projects/PROJ-430-the-impact-of-asynchronous-communication/`
+    directory or its contents is provided; without a directory listing or files, we
+    cannot confirm that the required project structure was created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    or a `black` config) or setup scripts are present in the provided evidence, so
+    the claim that linting (ruff) and formatting (black) have been configured cannot
+    be verified. The required artifacts are missing.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or `.gitignore` file was presented; the response contains only
+    the task description and user scenarios, with no concrete evidence that a `data/`
+    folder with `raw/`, `derived/`, `validation/` subfolders and appropriate ignore
+    rules exists. The required artifact is missing.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or data file was provided that performs the weighted\u2011\
+    mean aggregation of pair\u2011level response\u2011time variances into a project\u2011\
+    level metric, as required by task T015. The evidence consists only of the task\
+    \ description; the actual implementation artifact is missing."
+T015a:
+  c: false
+  h: 599e5435f4ae69674fdcdad2b321f70449f9628e5a02138d80860351534dc99c
+  r: "The required file `data/derived/timestamp_features.parquet` does not exist,\
+    \ so the intermediate timestamp-derived features have not been persisted as specified.\
+    \ The task\u2019s core deliverable is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation showing added error handling for GitHub\
+    \ API rate limits or chunking logic for datasets >100\u202Fk events is present.\
+    \ The claim lacks any artifact (e.g., updated ingestion script, tests, or logs)\
+    \ that demonstrates the required OOM\u2011prevention measures, so the task is\
+    \ not satisfied."

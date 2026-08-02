@@ -75,17 +75,17 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Unit test for data download validation in `tests/unit/test_preprocessing.py`: Implement `test_download_url_exists` which asserts `pipeline.download_url_exists('https://openneuro.org/datasets/ds000030')` returns `True`. Implement `test_download_checksum` which asserts `pipeline.verify_checksum('data/raw/ds000030.zip', 'expected_sha256')` returns `True`.
-- [ ] T010 [P] [US1] Integration test for preprocessing pipeline on 1 subject in `tests/integration/test_preprocessing.py`: Implement `test_preprocess_single_subject` which runs `pipeline.preprocess(subject_id='sub')` and asserts the output file `data/processed/sub-<id>_matrix.npy` exists, has shape `(90, 90)`, contains no NaNs, and all values are within `[-1.0, 1.0]`.
+- [X] T010 [P] [US1] Integration test for preprocessing pipeline on 1 subject in `tests/integration/test_preprocessing.py`: Implement `test_preprocess_single_subject` which runs `pipeline.preprocess(subject_id='sub')` and asserts the output file `data/processed/sub-<id>_matrix.npy` exists, has shape `(90, 90)`, contains no NaNs, and all values are within `[-1.0, 1.0]`.
 
 ### Implementation for User Story 1
 
 - [ ] T011 [US1] Implement `code/preprocessing/download.py`: Download logic for OpenNeuro dataset ds000030. The research question and method remain unchanged as per the planning document guidelines, with specific empirical identifiers generalized to reflect the dataset source without asserting precise low-level values. References: OpenNeuro (); handle missing diagnostic labels by excluding subjects and logging the count to `data/metadata/exclusion_log.txt`.
-- [ ] T012 [US1] Implement `code/preprocessing/preprocess.py`: motion correction, normalization, and bandpass filtering (low-frequency range) using nilearn's FSL-compatible wrappers; verify output headers match FSL standard logs to ensure Constitution Principle VI compliance.
-- [ ] T013 [US1] Implement `code/preprocessing/parcellate.py`: AAL atlas parcellation to generate connectivity matrices.
+- [X] T012 [US1] Implement `code/preprocessing/preprocess.py`: motion correction, normalization, and bandpass filtering (low-frequency range) using nilearn's FSL-compatible wrappers; verify output headers match FSL standard logs to ensure Constitution Principle VI compliance. <!-- FAILED: unspecified -->
+- [X] T013 [US1] Implement `code/preprocessing/parcellate.py`: AAL atlas parcellation to generate connectivity matrices.
 - [ ] T014 [US1] Implement motion flagging logic: exclude subjects with >2mm translation; update `data/metadata/subject_status.csv` with exclusion flags and reasons.
 - [ ] T015 [US1] Implement `code/preprocessing/metadata.py`: metadata generation (Subject ID -> Label mapping) and save to `data/metadata/subject_labels.csv`. <!-- FAILED: unspecified -->
 - [ ] T015.5 [US1] Implement metadata parsing in `code/preprocessing/metadata.py` to detect presence of `medication_status` field in OpenNeuro JSON sidecars; save result as `analysis_config.json` with key `medication_status_available: true/false`.
-- [~] T016 [US1] Add validation for positive semi-definite matrices (apply regularization if needed) and log anomalies.
+- [ ] T016 [US1] Add validation for positive semi-definite matrices (apply regularization if needed) and log anomalies.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,9 +106,9 @@
 
 - [X] T019 [P] [US2] Implement `code/graph_metrics/calculator.py` to compute Global Efficiency, Local Efficiency, Modularity (Louvain), Betweenness Centrality.
 - [X] T020 [US2] Implement `code/graph_metrics/calculator.py` to extract regional centrality specifically for Prefrontal and Hippocampal ROIs.
-- [~] T021 [US2] Implement collinearity check (r > 0.8) in `code/graph_metrics/calculator.py`; if found, apply PCA and save reduced matrix to `data/processed/features_pca.csv`, OR drop features and log to `data/metadata/collinearity_log.txt`.
+- [ ] T021 [US2] Implement collinearity check (r > 0.8) in `code/graph_metrics/calculator.py`; if found, apply PCA and save reduced matrix to `data/processed/features_pca.csv`, OR drop features and log to `data/metadata/collinearity_log.txt`.
 - [ ] T022 [US2] Implement feature vector assembly (multiple metrics) and save to `data/processed/features.csv`. This task must run AFTER T019, T020, T021. It produces the PRIMARY feature set for the main analysis.
-- [~] T023 [US2] Implement summary statistics report generation (mean/std per metric, stratified by group) in `docs/`.
+- [ ] T023 [US2] Implement summary statistics report generation (mean/std per metric, stratified by group) in `docs/`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
