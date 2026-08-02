@@ -26,7 +26,7 @@
 
 - [ ] T001 [P] Initialize project directory structure: Create `projects/PROJ-181-predicting-species-distribution-shifts-u/` and subdirectories `code/`, `data/`, `tests/`, `metrics/`, `reports/`, `logs/`, `state/`, `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/unit/`, `tests/integration/`, `contracts/`
 
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`requirements.txt`: `scikit-learn==1.5.0 `, `geopandas==0.14.2 `, `rasterio==1.3.9 `, `pandas==2.2.2 `, `numpy==1.26.4 `, `requests==2.32.3 `, `matplotlib==3.9.0 `, `seaborn==0.13.2 `)
+- [X] T002 Initialize {{claim:c_af601c6e}} (Wikipedia: History of Python, https://en.wikipedia.org/wiki/History_of_Python) project with pinned dependencies (`requirements.txt`: `scikit-learn==1.5.0 [UNRESOLVED-CLAIM: c_9efa1e28 — status=not_enough_info] `, `geopandas==0.14.2 [UNRESOLVED-CLAIM: c_23b5095f — status=not_enough_info] `, `rasterio==1.3.9 [UNRESOLVED-CLAIM: c_a147f828 — status=not_enough_info] `, `pandas==2.2.2 [UNRESOLVED-CLAIM: c_bfed9e77 — status=not_enough_info] `, `numpy==1.26.4 [UNRESOLVED-CLAIM: c_869d4703 — status=not_enough_info] `, `requests==2.32.3 [UNRESOLVED-CLAIM: c_0dff3c5f — status=not_enough_info] `, `matplotlib==3.9.0 [UNRESOLVED-CLAIM: c_07f75fe9 — status=not_enough_info] `, `seaborn==0.13.2 [UNRESOLVED-CLAIM: c_2a60535b — status=not_enough_info] `)
 - [ ] T003 [P] Configure linting (flake8) and formatting (black) tools
 
 ---
@@ -55,13 +55,13 @@
 
 ### Implementation for User Story 1
 
-- [~] T010 [P] [US1] Implement `code/download.py` to fetch North American bird occurrence data (1970-2000) via GBIF API (URL: `) using `maxResults` pagination and `year` filters to handle large ranges efficiently, saving to `data/raw/occurrence_1970_2000.csv`
+- [ ] T010 [P] [US1] Implement `code/download.py` to fetch North American bird occurrence data (1970-2000) via GBIF API [UNRESOLVED-CLAIM: c_7fc24639 — status=not_enough_info] (URL: `) using `maxResults` pagination and `year` filters to handle large ranges efficiently, saving to `data/raw/occurrence_1970_2000.csv`
 - [ ] T010b [P] [US1] Extend T010 logic to write `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns to `data/raw/occurrence_1970_2000.csv` (Constitution Principle VI)
-- [~] T011 [P] [US1] Implement `code/download.py` to fetch recent occurrence data (2005-2020) for evaluation, saving to `data/raw/occurrence_2005_2020.csv` (distinct file from T010)
+- [ ] T011 [P] [US1] Implement `code/download.py` to fetch recent occurrence data (2005-2020) for evaluation, saving to `data/raw/occurrence_2005_2020.csv` (distinct file from T010)
 - [ ] T011b [P] [US1] Extend T011 logic to write `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns to `data/raw/occurrence_2005_2020.csv` (Constitution Principle VI)
-- [~] T010c [US1] Implement `code/download.py` to derive "target-group effort data" as all-observer density from the historical GBIF dataset (T010) to serve as a bias proxy, saving to `data/raw/effort_data.csv` (Note: This is an internal derivation, not an external download)
+- [ ] T010c [US1] Implement `code/download.py` to derive "target-group effort data" as all-observer density from the historical GBIF dataset (T010) to serve as a bias proxy, saving to `data/raw/effort_data.csv` (Note: This is an internal derivation, not an external download)
 - [ ] T012 [US1] Implement `code/bias_correction.py` to generate `bias_layer.tif` from `data/raw/effort_data.csv` using Kernel Density Estimation (KDE) with 10km bandwidth, saving to `data/processed/bias_layer.tif`
-- [~] T013 [US1] Implement `code/preprocess.py` to filter records by breeding season, remove duplicates, spatially thin points to a minimum distance threshold (FR-002), and write `logs/preprocess_counts.yaml` with species, before_count, after_count, timestamp (Constitution Principle VI)
+- [ ] T013 [US1] Implement `code/preprocess.py` to filter records by breeding season, remove duplicates, spatially thin points to a minimum distance threshold (FR-002), and write `logs/preprocess_counts.yaml` with species, before_count, after_count, timestamp (Constitution Principle VI)
 - [ ] T016b [US1] Implement validation in `code/preprocess.py` to flag species with <10 records *after historical thinning* as 'INSUFFICIENT_TRAINING_DATA' to prevent model failure (distinct from FR-006's test-period threshold)
 - [ ] T014 [US1] Implement `code/preprocess.py` to extract climate variables from rasters at occurrence coordinates, handling missing data via nearest neighbor imputation (processes only valid species flagged by T016b)
 - [ ] T017 [US1] Create `data/processed/occurrence_clean.csv` and verify all records have non-null climate variables; log summary to `logs/validation_summary.txt` and exit with code 1 if any nulls remain
@@ -108,7 +108,7 @@
 - [ ] T031 [US3] Implement `code/evaluate.py` to perform niche stability checks (temporal validation vs. future projection degradation)
 - [ ] T032 [US3] Implement `code/evaluate.py` to run non-parametric permutation tests or bootstrapped CI for model comparison (FR-010)
 - [ ] T033b [US3] Implement validation in `code/evaluate.py` to flag species with <100 records in the 2005-2020 test period (from T029b) as 'INSUFFICIENT_DATA' and exclude from aggregation (FR-006)
-- [ ] T034 [P] [US3] Implement `code/sensitivity.py` to sweep suitability thresholds (0.01, 0.05, 0.1) and apply Bonferroni correction for the family of tests (all pairwise model comparisons across all valid species), outputting `metrics/sensitivity_report.csv` with corrected p-values (FR-005, SC-003)
+- [ ] T034 [P] [US3] Implement `code/sensitivity.py` to sweep suitability thresholds (0.01, 0.05, 0.1) [UNRESOLVED-CLAIM: c_626d3b4a — status=not_enough_info] and apply Bonferroni correction for the family of tests (all pairwise model comparisons across all valid species), outputting `metrics/sensitivity_report.csv` with corrected p-values (FR-005, SC-003)
 - [ ] T035 [US3] Save final results to `metrics/final_results.csv` and `metrics/sensitivity_report.csv`
 - [ ] T036 [US3] Generate `reports/associational_disclaimer.txt` explicitly stating findings are associational (FR-008)
 - [ ] T037 [US3] Verify total compute time stays within 6-hour limit (SC-002)

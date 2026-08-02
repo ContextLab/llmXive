@@ -1,3 +1,2 @@
-# Placeholder for data directory
-# Ensure .gitkeep is present to track the directory in git
-.gitkeep
+# This directory is for data artifacts.
+# The metadata registry database (metadata_registry.db) will be created here by code/utils/setup_db.py.

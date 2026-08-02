@@ -5,221 +5,219 @@ from datetime import datetime
 from pathlib import Path
 import requests
 import pandas as pd
+import yaml
 
-# Import project configuration and utilities
-from config import DATA_RAW_DIR, RND_SEED
-from utils.data_utils import validate_coordinates, handle_missing_values
+from config import DATA_DIR, RND_SEED
+from logging_config import get_logger
 
-# Setup logger
-from logging_config import setup_logger, get_logger
+# Ensure directories exist
+RAW_DIR = DATA_DIR / "raw"
+RAW_DIR.mkdir(parents=True, exist_ok=True)
+
 logger = get_logger(__name__)
 
-GBIF_API_BASE = "https://api.gbif.org/v1/occurrence/search"
-USER_AGENT = "llmXive-species-distribution-project"
+GBIF_API_BASE = "https://api.gbif.org/v2/occurrence/search"
 
-def fetch_occurrences(year_start, year_end, output_path, species_limit=None, max_records=50000):
+# Target species (North American birds) - simplified list for MVP
+# In a full implementation, this would be a larger curated list
+TARGET_SPECIES = [
+    "Turdus migratorius",  # American Robin
+    "Setophaga ruticilla", # American Redstart
+    "Cardinalis cardinalis", # Northern Cardinal
+    "Sialia sialis",       # Eastern Bluebird
+    "Poecile carolinensis" # Carolina Chickadee
+]
+
+def fetch_occurrences(year_start: int, year_end: int, output_file: Path) -> pd.DataFrame:
     """
-    Fetch occurrence data from GBIF for a specific year range.
-    
-    Args:
-        year_start (int): Start year for occurrence records.
-        year_end (int): End year for occurrence records.
-        output_path (str): Path to save the CSV output.
-        species_limit (int, optional): Limit number of species to fetch (for testing).
-        max_records (int): Maximum number of records to fetch per species.
+    Fetches bird occurrence data from GBIF API for a given year range.
+    Implements pagination and year filtering.
     """
-    logger.info(f"Fetching occurrences from {year_start} to {year_end}...")
-    
-    # We will fetch for a representative set of North American bird species
-    # In a full implementation, this would iterate over a list of species from a config or spec
-    # For now, we fetch a general dataset or specific common species to ensure real data
-    # Using a generic query for "Aves" (Birds) in North America for the time range
-    # Note: GBIF API requires a valid email in User-Agent for high volume, but we use a generic one for demo
-    
-    params = {
-        "taxonKey": 212,  # Aves (Birds)
-        "country": "US",  # Focusing on US for North America sample, can add CA, MX
-        "year": f"{year_start},{year_end}",
-        "hasCoordinate": "true",
-        "typeStatus": "holotype", # Filter for better quality, or remove to get more data
-        "limit": 1000, # Page size
-        "offset": 0
-    }
-    
     all_records = []
+    max_results_per_request = 300
     total_fetched = 0
-    
-    # Simple pagination loop for a single species/taxon query
-    # In a real robust system, we would handle multiple species and complex pagination
-    while total_fetched < max_records:
-        try:
-            response = requests.get(GBIF_API_BASE, params=params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            
-            if 'results' not in data or not data['results']:
+
+    for species in TARGET_SPECIES:
+        logger.info(f"Fetching data for species: {species}")
+        
+        # GBIF API parameters
+        params = {
+            'taxonKey': None, # We will search by scientificName as taxonKey lookup is complex without a registry
+            'scientificName': species,
+            'year': f"{year_start},{year_end}",
+            'hasCoordinate': True,
+            'limit': max_results_per_request,
+            'offset': 0,
+            'country': 'US,CA,MX' # North America focus
+        }
+
+        # Note: GBIF does not support direct scientificName search with year filter in a single call easily
+        # without a taxonKey. We will use the scientificName filter which is supported.
+        # The API endpoint 'search' allows scientificName.
+        
+        has_more = True
+        while has_more:
+            try:
+                # GBIF API requires a valid email in the User-Agent header
+                headers = {
+                    'User-Agent': 'llmXive-sdm-pipeline (research@example.com)'
+                }
+                
+                response = requests.get(GBIF_API_BASE, params=params, headers=headers, timeout=60)
+                response.raise_for_status()
+                data = response.json()
+                
+                results = data.get('results', [])
+                if not results:
+                    has_more = False
+                    break
+                
+                for record in results:
+                    # Filter for valid coordinates
+                    if 'decimalLatitude' in record and 'decimalLongitude' in record:
+                        all_records.append(record)
+                
+                total_fetched += len(results)
+                params['offset'] += max_results_per_request
+                
+                # Check if we got fewer results than requested (last page)
+                if len(results) < max_results_per_request:
+                    has_more = False
+                
+                # Rate limiting: GBIF suggests 5 requests per second max
+                time.sleep(0.25)
+                
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Error fetching data for {species}: {e}")
+                has_more = False
                 break
-                
-            for record in data['results']:
-                if record.get('decimalLatitude') and record.get('decimalLongitude'):
-                    all_records.append(record)
-            
-            total_fetched += len(data['results'])
-            if len(data['results']) < 1000:
-                break # Last page
-                
-            params['offset'] += 1000
-            time.sleep(0.5) # Rate limiting
-            
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error fetching data: {e}")
-            break
 
     if not all_records:
-        logger.warning("No records fetched. Creating empty dataframe with expected schema.")
-        df = pd.DataFrame(columns=[
-            'decimalLatitude', 'decimalLongitude', 'scientificName', 
-            'eventDate', 'basisOfRecord', 'source_identifier', 
-            'download_timestamp', 'original_dataset_name'
-        ])
-    else:
-        df = pd.DataFrame(all_records)
-        # Standardize column names to expected schema if they differ
-        # GBIF returns 'decimalLatitude', 'decimalLongitude', 'scientificName', 'eventDate', 'basisOfRecord'
-        # We map them directly if they exist
-        required_cols = ['decimalLatitude', 'decimalLongitude', 'scientificName', 'eventDate', 'basisOfRecord']
-        existing_cols = [c for c in required_cols if c in df.columns]
-        if len(existing_cols) != len(required_cols):
-            logger.warning(f"Missing expected columns in GBIF response: {set(required_cols) - set(existing_cols)}")
-        
-        df = df[existing_cols]
+        logger.warning("No records fetched. Returning empty dataframe.")
+        return pd.DataFrame()
 
-    # Add metadata columns (Constitution Principle VI)
-    df = add_metadata_columns(df, source_identifier="GBIF-AVES-US", original_dataset_name="GBIF Occurrence Download")
+    # Convert to DataFrame
+    df = pd.DataFrame(all_records)
     
-    # Validate and clean coordinates
-    df = validate_coordinates(df)
+    # Select relevant columns
+    columns_to_keep = [
+        'scientificName', 'decimalLatitude', 'decimalLongitude', 
+        'eventDate', 'year', 'basisOfRecord', 'institutionCode',
+        'datasetName', 'occurrenceID'
+    ]
     
-    # Handle missing values
-    df = handle_missing_values(df)
+    # Filter columns that exist
+    existing_columns = [c for c in columns_to_keep if c in df.columns]
+    df = df[existing_columns].copy()
     
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    # Ensure year is integer for filtering if needed (though API filters it)
+    if 'year' in df.columns:
+        df['year'] = pd.to_numeric(df['year'], errors='coerce')
+        df = df.dropna(subset=['year'])
+        df = df[(df['year'] >= year_start) & (df['year'] <= year_end)]
+    
+    # Remove duplicates based on occurrenceID
+    if 'occurrenceID' in df.columns:
+        df = df.drop_duplicates(subset=['occurrenceID'])
+    
+    logger.info(f"Fetched {len(df)} records for {year_start}-{year_end}")
+    return df
+
+def add_metadata_columns(df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
+    """
+    Adds required metadata columns per Constitution Principle VI:
+    - source_identifier
+    - download_timestamp
+    - original_dataset_name
+    """
+    if df.empty:
+        logger.warning("DataFrame is empty, cannot add metadata.")
+        return df
+
+    download_timestamp = datetime.now().isoformat()
+    
+    # Create metadata columns
+    df['source_identifier'] = 'GBIF_API'
+    df['download_timestamp'] = download_timestamp
+    
+    # Map datasetName to original_dataset_name (if present, else default)
+    if 'datasetName' in df.columns:
+        df['original_dataset_name'] = df['datasetName']
+    else:
+        df['original_dataset_name'] = 'Unknown_GBIF_Dataset'
+    
+    # Reorder columns to put metadata at the end or specific position
+    # Let's put them at the end for clarity
+    meta_cols = ['source_identifier', 'download_timestamp', 'original_dataset_name']
+    other_cols = [c for c in df.columns if c not in meta_cols]
+    df = df[other_cols + meta_cols]
     
     # Save to CSV
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(df)} records to {output_path}")
+    logger.info(f"Saved metadata-enhanced data to {output_path}")
     
     return df
 
-def add_metadata_columns(df, source_identifier="GBIF-AVES-US", original_dataset_name="GBIF Occurrence Download"):
+def derive_effort_data(df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
     """
-    Add required metadata columns to the dataframe as per Constitution Principle VI.
-    
-    Args:
-        df (pd.DataFrame): The occurrence dataframe.
-        source_identifier (str): Unique identifier for the data source.
-        original_dataset_name (str): Name of the original dataset.
-        
-    Returns:
-        pd.DataFrame: DataFrame with added metadata columns.
+    Derives target-group effort data (all-observer density) from the occurrence data.
+    This is an internal derivation, not an external download.
     """
-    df['source_identifier'] = source_identifier
-    df['download_timestamp'] = datetime.utcnow().isoformat()
-    df['original_dataset_name'] = original_dataset_name
-    return df
-
-def derive_effort_data(input_path, output_path):
-    """
-    Derive "target-group effort data" as all-observer density from the historical GBIF dataset.
-    
-    This function reads the historical occurrence data (T010), groups by spatial grid cells,
-    and counts the total number of observations per cell. This serves as a bias proxy for
-    sampling effort, independent of specific species presence.
-    
-    Args:
-        input_path (str): Path to the historical occurrence CSV (e.g., occurrence_1970_2000.csv).
-        output_path (str): Path to save the effort data CSV.
-    """
-    logger.info(f"Deriving effort data from {input_path}...")
-    
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    # Load historical data
-    df = pd.read_csv(input_path)
-    
     if df.empty:
-        logger.warning("Input data is empty. Creating empty effort data file.")
-        effort_df = pd.DataFrame(columns=['grid_cell_id', 'observation_count', 'lat_center', 'lon_center'])
-    else:
-        # Filter for valid coordinates
-        valid_df = df.dropna(subset=['decimalLatitude', 'decimalLongitude'])
-        
-        if valid_df.empty:
-            logger.warning("No valid coordinates found in input data.")
-            effort_df = pd.DataFrame(columns=['grid_cell_id', 'observation_count', 'lat_center', 'lon_center'])
-        else:
-            # Create spatial grid cells (0.1 degree resolution for effort density)
-            # This is a coarse grid to aggregate observer effort
-            bin_size = 0.1
-            valid_df['grid_lat'] = (valid_df['decimalLatitude'] / bin_size).astype(int) * bin_size
-            valid_df['grid_lon'] = (valid_df['decimalLongitude'] / bin_size).astype(int) * bin_size
-            
-            # Group by grid cell and count observations
-            effort_df = valid_df.groupby(['grid_lat', 'grid_lon']).agg(
-                observation_count=('decimalLatitude', 'count'),
-                lat_center=('decimalLatitude', 'mean'),
-                lon_center=('decimalLongitude', 'mean')
-            ).reset_index()
-            
-            # Create a unique ID for each grid cell
-            effort_df['grid_cell_id'] = effort_df['grid_lat'].astype(str) + "_" + effort_df['grid_lon'].astype(str)
-            
-            # Reorder columns
-            effort_df = effort_df[['grid_cell_id', 'observation_count', 'lat_center', 'lon_center']]
+        logger.warning("Empty input for effort data derivation.")
+        return pd.DataFrame()
     
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    # Simple binning approach for density:
+    # 1. Create a grid (e.g., 0.1 degree bins)
+    # 2. Count occurrences per bin
+    # This is a simplified proxy for "target-group" effort.
     
-    # Save to CSV
-    effort_df.to_csv(output_path, index=False)
-    logger.info(f"Saved effort data ({len(effort_df)} grid cells) to {output_path}")
+    # Create grid keys
+    lat_bins = pd.cut(df['decimalLatitude'], bins=100, labels=False)
+    lon_bins = pd.cut(df['decimalLongitude'], bins=100, labels=False)
     
-    return effort_df
+    df_temp = df.copy()
+    df_temp['lat_bin'] = lat_bins
+    df_temp['lon_bin'] = lon_bins
+    
+    effort = df_temp.groupby(['lat_bin', 'lon_bin']).size().reset_index(name='count')
+    
+    effort.to_csv(output_path, index=False)
+    logger.info(f"Derived effort data saved to {output_path}")
+    return effort
 
 def main():
-    """Main entry point for downloading recent occurrence data (2005-2020)."""
-    logger.info("Starting download of recent occurrence data (2005-2020)...")
+    """
+    Main entry point for T010: Fetch historical data (1970-2000).
+    """
+    logger.info("Starting historical data download (1970-2000)...")
+    output_file = RAW_DIR / "occurrence_1970_2000.csv"
     
-    output_path = DATA_RAW_DIR / "occurrence_2005_2020.csv"
-    
-    # Fetch data for the 2005-2020 range
-    df = fetch_occurrences(
-        year_start=2005,
-        year_end=2020,
-        output_path=output_path,
-        max_records=10000 # Limit for this specific task to ensure speed
-    )
-    
-    logger.info("Download complete.")
+    df = fetch_occurrences(1970, 2000, output_file)
+    if not df.empty:
+        add_metadata_columns(df, output_file)
+    else:
+        logger.error("Failed to fetch historical data.")
+        # Create empty file with headers to satisfy downstream checks if needed, 
+        # but strictly speaking, we should fail loudly if no data.
+        # Per constraints: "FAIL LOUDLY — never fall back to synthetic".
+        raise RuntimeError("No historical data fetched from GBIF.")
 
 def main_effort():
-    """Main entry point for deriving target-group effort data from historical occurrences."""
-    logger.info("Starting derivation of target-group effort data...")
+    """
+    Main entry point for T010c: Derive effort data from historical data.
+    """
+    logger.info("Starting effort data derivation...")
+    input_file = RAW_DIR / "occurrence_1970_2000.csv"
+    output_file = RAW_DIR / "effort_data.csv"
     
-    input_path = DATA_RAW_DIR / "occurrence_1970_2000.csv"
-    output_path = DATA_RAW_DIR / "effort_data.csv"
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_file}. Run main() first.")
     
-    derive_effort_data(input_path, output_path)
-    
-    logger.info("Effort data derivation complete.")
+    df = pd.read_csv(input_file)
+    derive_effort_data(df, output_file)
 
 if __name__ == "__main__":
-    # Check if running as main script for effort data
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "effort":
-        main_effort()
-    else:
-        main()
+    # Check which function to run based on environment or args could be added
+    # For now, run historical fetch
+    main()

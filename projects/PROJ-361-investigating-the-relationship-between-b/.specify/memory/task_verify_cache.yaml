@@ -12,3 +12,10 @@ T004:
     \ tables with the specified columns was provided. The implementer\u2019s claim\
     \ lacks any tangible artifact demonstrating that the metadata registry has been\
     \ set up."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `git_hooks/pre-commit` script or related configuration is present in the\
+    \ provided evidence; the required hook that would trigger state updates on artifact\
+    \ changes is missing. The implementer must add a functional pre\u2011commit hook\
+    \ at the specified path."

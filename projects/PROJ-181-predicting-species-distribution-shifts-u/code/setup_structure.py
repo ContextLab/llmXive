@@ -4,16 +4,17 @@ from pathlib import Path
 
 def main():
     """
-    Initialize the project directory structure for PROJ-181.
-    Creates the root project folder and all required subdirectories.
+    Initialize the project directory structure for PROJ-181-predicting-species-distribution-shifts-u.
+    Creates the root project folder and all required subdirectories as defined in tasks.md.
     """
-    # Define the project root relative to the script location or current working directory
-    # The task specifies the project is at projects/PROJ-181-predicting-species-distribution-shifts-u/
-    # We assume the script is run from the repository root or the parent of 'projects'
-    project_root = Path.cwd() / "projects" / "PROJ-181-predicting-species-distribution-shifts-u"
-    
-    # Define all required directories
-    directories = [
+    # Define the project root relative to the current working directory or script location
+    # Assuming this script is run from the repository root, we create the project folder inside 'projects/'
+    base_dir = Path.cwd()
+    project_root = base_dir / "projects" / "PROJ-181-predicting-species-distribution-shifts-u"
+
+    # Define the directory structure to create
+    # Top-level directories
+    top_level_dirs = [
         "code",
         "data",
         "tests",
@@ -21,44 +22,56 @@ def main():
         "reports",
         "logs",
         "state",
-        "data/raw",
-        "data/processed",
-        "data/artifacts",
-        "tests/unit",
-        "tests/integration",
         "contracts"
     ]
 
-    print(f"Initializing project structure at: {project_root}")
-    
-    created_count = 0
-    for dir_name in directories:
-        full_path = project_root / dir_name
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-    
-    # Create __init__.py files to ensure they are treated as Python packages
-    init_files = [
-        project_root / "code" / "__init__.py",
-        project_root / "code" / "utils" / "__init__.py",
-        project_root / "tests" / "__init__.py",
-        project_root / "tests" / "unit" / "__init__.py",
-        project_root / "tests" / "integration" / "__init__.py",
+    # Nested data directories
+    data_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/artifacts"
     ]
-    
-    # Ensure utils directory exists before creating __init__.py there
-    (project_root / "code" / "utils").mkdir(parents=True, exist_ok=True)
 
-    for init_file in init_files:
+    # Nested test directories
+    test_dirs = [
+        "tests/unit",
+        "tests/integration"
+    ]
+
+    all_dirs = top_level_dirs + data_dirs + test_dirs
+
+    created_count = 0
+    skipped_count = 0
+
+    print(f"Initializing project structure at: {project_root}")
+
+    for dir_path in all_dirs:
+        full_path = project_root / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            if full_path.is_dir():
+                created_count += 1
+                print(f"  Created: {full_path.relative_to(base_dir)}")
+            else:
+                print(f"  Warning: Path exists but is not a directory: {full_path}")
+        except PermissionError:
+            print(f"  Error: Permission denied creating {full_path}")
+        except Exception as e:
+            print(f"  Error creating {full_path}: {e}")
+
+    # Ensure __init__.py files exist in Python packages to make them importable
+    # We create them in code/, tests/, and their subdirectories
+    init_files = []
+    for root_dir in ["code", "tests", "tests/unit", "tests/integration"]:
+        full_path = project_root / root_dir
+        init_file = full_path / "__init__.py"
         if not init_file.exists():
             init_file.touch()
-            print(f"Created init file: {init_file}")
-        
-    print(f"Project initialization complete. {created_count} new directories created.")
+            init_files.append(init_file)
+            print(f"  Created: {init_file.relative_to(base_dir)}")
+
+    print(f"\nSummary: {created_count} directories created, {len(init_files)} __init__.py files added.")
+    print(f"Project root is ready at: {project_root}")
     return 0
 
 if __name__ == "__main__":

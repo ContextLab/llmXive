@@ -1,128 +1,205 @@
+"""
+SQLite schema definitions and database operations for llmXive metadata registry.
+Implements T004: Setup SQLite schema for metadata registry (tables: subjects, files).
+"""
+
 import sqlite3
 import os
 import hashlib
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-# Database file path relative to project root
-DB_PATH = Path("data/metadata_registry.db")
-
 def get_schema() -> str:
-    """
-    Returns the SQL schema string required to initialize the database.
-    Defines tables: subjects, files.
-    """
+    """Return the SQL schema for the metadata registry."""
     return """
-    -- Table for subject metadata
+    -- Subjects table: tracks research participants
     CREATE TABLE IF NOT EXISTS subjects (
         subject_id TEXT PRIMARY KEY,
-        status TEXT DEFAULT 'active',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        metadata TEXT
     );
-
-    -- Table for file indexing (does NOT store raw data)
+    
+    -- Files table: indexes all artifacts in the data/ directory
+    -- Does NOT store raw data, only metadata and checksums
     CREATE TABLE IF NOT EXISTS files (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        subject_id TEXT NOT NULL,
+        subject_id TEXT,
         file_path TEXT NOT NULL,
         checksum TEXT NOT NULL,
-        status TEXT DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (subject_id) REFERENCES subjects(subject_id) ON DELETE CASCADE
+        status TEXT NOT NULL DEFAULT 'registered',
+        artifact_type TEXT NOT NULL DEFAULT 'unknown',
+        metadata TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        modified_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (subject_id) REFERENCES subjects(subject_id)
     );
-
-    -- Indexes for performance
-    CREATE INDEX IF NOT EXISTS idx_files_subject ON files(subject_id);
-    CREATE INDEX IF NOT EXISTS idx_files_status ON files(status);
-    """
-
-def init_db(db_path: Optional[str] = None) -> sqlite3.Connection:
-    """
-    Initializes the SQLite database and creates tables if they don't exist.
-    Returns the active connection.
-    """
-    if db_path is None:
-        db_path = str(DB_PATH)
     
-    # Ensure directory exists
-    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+    -- Indexes for common queries
+    CREATE INDEX IF NOT EXISTS idx_files_path ON files(file_path);
+    CREATE INDEX IF NOT EXISTS idx_files_status ON files(status);
+    CREATE INDEX IF NOT EXISTS idx_files_subject ON files(subject_id);
+    CREATE INDEX IF NOT EXISTS idx_files_type ON files(artifact_type);
+    """
+
+def init_db(db_path: Path) -> None:
+    """
+    Initialize the SQLite database with the required schema.
+    
+    Args:
+        db_path: Path to the SQLite database file
+    """
+    # Ensure parent directory exists
+    db_path.parent.mkdir(parents=True, exist_ok=True)
     
     conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
     # Execute schema
     cursor.executescript(get_schema())
-    conn.commit()
     
-    return conn
-
-def ensure_subject(conn: sqlite3.Connection, subject_id: str, status: str = 'active') -> None:
-    """
-    Ensures a subject exists in the database. If not, inserts it.
-    Updates the timestamp if it already exists.
-    """
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO subjects (subject_id, status)
-        VALUES (?, ?)
-        ON CONFLICT(subject_id) DO UPDATE SET
-            status = excluded.status,
-            updated_at = CURRENT_TIMESTAMP
-    """, (subject_id, status))
     conn.commit()
+    conn.close()
 
-def register_file(conn: sqlite3.Connection, subject_id: str, file_path: str, status: str = 'pending') -> None:
+def ensure_subject(db_path: Path, subject_id: str, metadata: Optional[Dict[str, Any]] = None) -> bool:
     """
-    Registers a new file in the files table.
-    Computes the SHA-256 checksum of the file content to ensure integrity.
+    Ensure a subject exists in the database, creating if necessary.
+    
+    Args:
+        db_path: Path to the SQLite database file
+        subject_id: Unique subject identifier
+        metadata: Optional metadata dictionary
+        
+    Returns:
+        True if subject was created, False if already existed
     """
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Compute checksum
-    checksum = hashlib.sha256()
-    try:
-        with open(file_path, 'rb') as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                checksum.update(chunk)
-        file_checksum = checksum.hexdigest()
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Cannot compute checksum: file not found at {file_path}")
+    cursor.execute("SELECT 1 FROM subjects WHERE subject_id = ?", (subject_id,))
+    exists = cursor.fetchone() is not None
     
-    # Ensure subject exists first
-    ensure_subject(conn, subject_id)
+    if not exists:
+        metadata_json = json.dumps(metadata) if metadata else None
+        cursor.execute(
+            "INSERT INTO subjects (subject_id, metadata) VALUES (?, ?)",
+            (subject_id, metadata_json)
+        )
+        conn.commit()
+        conn.close()
+        return True
     
-    # Insert file record
-    cursor.execute("""
-        INSERT INTO files (subject_id, file_path, checksum, status)
-        VALUES (?, ?, ?, ?)
-    """, (subject_id, file_path, file_checksum, status))
-    conn.commit()
+    conn.close()
+    return False
 
-def update_file_status(conn: sqlite3.Connection, file_path: str, status: str) -> None:
+def register_file(
+    db_path: Path,
+    file_path: str,
+    checksum: str,
+    status: str = 'registered',
+    artifact_type: str = 'unknown',
+    metadata: Optional[Dict[str, Any]] = None,
+    subject_id: Optional[str] = None
+) -> None:
     """
-    Updates the status of a specific file record.
+    Register a file in the metadata registry.
+    
+    Args:
+        db_path: Path to the SQLite database file
+        file_path: Relative or absolute path to the file
+        checksum: SHA-256 hash of the file
+        status: Current status of the file
+        artifact_type: Type of artifact (code, data, test, spec, config)
+        metadata: Optional metadata dictionary
+        subject_id: Optional associated subject ID
     """
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    
+    # Check if file already exists
+    cursor.execute("SELECT id FROM files WHERE file_path = ?", (file_path,))
+    existing = cursor.fetchone()
+    
+    metadata_json = json.dumps(metadata) if metadata else None
+    
+    if existing:
+        # Update existing record
+        cursor.execute("""
+            UPDATE files 
+            SET checksum = ?, status = ?, artifact_type = ?, 
+                metadata = ?, subject_id = ?, modified_at = CURRENT_TIMESTAMP
+            WHERE file_path = ?
+        """, (checksum, status, artifact_type, metadata_json, subject_id, file_path))
+    else:
+        # Insert new record
+        cursor.execute("""
+            INSERT INTO files 
+            (file_path, checksum, status, artifact_type, metadata, subject_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (file_path, checksum, status, artifact_type, metadata_json, subject_id))
+    
+    conn.commit()
+    conn.close()
+
+def update_file_status(db_path: Path, file_path: str, status: str) -> None:
+    """
+    Update the status of a registered file.
+    
+    Args:
+        db_path: Path to the SQLite database file
+        file_path: Path to the file
+        status: New status value
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
     cursor.execute("""
-        UPDATE files
-        SET status = ?, updated_at = CURRENT_TIMESTAMP
+        UPDATE files 
+        SET status = ?, modified_at = CURRENT_TIMESTAMP
         WHERE file_path = ?
     """, (status, file_path))
+    
     conn.commit()
+    conn.close()
 
-def get_files_by_status(conn: sqlite3.Connection, status: str) -> List[Dict[str, Any]]:
+def get_files_by_status(db_path: Path, status: str) -> List[Dict[str, Any]]:
     """
-    Retrieves all file records matching a specific status.
-    Returns a list of dictionaries.
+    Retrieve all files with a specific status.
+    
+    Args:
+        db_path: Path to the SQLite database file
+        status: Status to filter by
+        
+    Returns:
+        List of file records as dictionaries
     """
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+    
     cursor.execute("""
-        SELECT id, subject_id, file_path, checksum, status, created_at
-        FROM files
-        WHERE status = ?
+        SELECT * FROM files WHERE status = ?
     """, (status,))
     
     rows = cursor.fetchall()
+    conn.close()
+    
     return [dict(row) for row in rows]
+
+def calculate_file_hash(file_path: Path) -> str:
+    """
+    Calculate SHA-256 hash of a file.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        Hexadecimal SHA-256 hash string
+    """
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+# Import json here to avoid circular imports in module-level scope
+import json

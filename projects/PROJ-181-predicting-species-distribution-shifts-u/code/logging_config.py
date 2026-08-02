@@ -4,63 +4,69 @@ import sys
 from pathlib import Path
 from config import LOGS_DIR
 
-def setup_logger(
-    name: str = "llmXive",
-    level: int = logging.INFO,
-    log_file: str = "pipeline.log",
-    format_str: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-) -> logging.Logger:
+# Ensure the logs directory exists
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Define a custom formatter to include timestamp, level, and module
+class DetailedFormatter(logging.Formatter):
+    def format(self, record):
+        # Add relative path info if available
+        if hasattr(record, 'relative_path'):
+            record.msg = f"[{record.relative_path}] {record.msg}"
+        return super().format(record)
+
+def setup_logger(name: str, log_file: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Configure and return a logger instance that writes to both stdout and a file.
-    
+    Configure a logger that writes to a specific file in the logs directory.
+
     Args:
-        name: Logger name (default: "llmXive")
-        level: Logging level (default: logging.INFO)
-        log_file: Filename relative to LOGS_DIR (default: "pipeline.log")
-        format_str: Log format string
-    
+        name (str): The name of the logger.
+        log_file (str): The filename (relative to logs/ directory) for the log output.
+        level (int): The logging level (e.g., logging.INFO, logging.DEBUG).
+
     Returns:
-        Configured logging.Logger instance
+        logging.Logger: The configured logger instance.
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    
-    # Prevent adding handlers multiple times if called repeatedly
+
+    # Avoid adding duplicate handlers if the logger is called multiple times
     if logger.handlers:
         return logger
-    
-    # Ensure logs directory exists
-    os.makedirs(LOGS_DIR, exist_ok=True)
-    
-    # File handler
-    file_path = Path(LOGS_DIR) / log_file
-    fh = logging.FileHandler(file_path)
-    fh.setLevel(level)
-    fh.setFormatter(logging.Formatter(format_str))
-    
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(level)
-    ch.setFormatter(logging.Formatter(format_str))
-    
-    # Add handlers
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    
+
+    # Create file handler for the specific log file
+    log_path = Path(LOGS_DIR) / log_file
+    file_handler = logging.FileHandler(log_path, mode='a', encoding='utf-8')
+    file_handler.setLevel(level)
+
+    # Create console handler for general visibility
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+
+    # Create formatter
+    formatter = DetailedFormatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    # Add handlers to the logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
     return logger
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
+def get_logger(name: str = 'project') -> logging.Logger:
     """
-    Retrieve an existing logger or create a default one if it doesn't exist.
-    
+    Retrieve a logger instance. If it doesn't exist, it will be created with default settings.
+    This is a convenience wrapper to ensure consistent logger retrieval.
+
     Args:
-        name: Logger name
-    
+        name (str): The name of the logger.
+
     Returns:
-        logging.Logger instance
+        logging.Logger: The logger instance.
     """
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        # If no handlers exist, set up default configuration
-        return setup_logger(name=name)
-    return logger
+    return logging.getLogger(name)

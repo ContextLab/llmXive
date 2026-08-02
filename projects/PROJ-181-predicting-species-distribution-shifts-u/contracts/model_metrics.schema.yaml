@@ -1,57 +1,69 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Metrics Schema
-description: Schema for validating model performance metrics output files (e.g., training_metrics.csv converted to JSON, sensitivity reports).
+description: JSON Schema for validating species distribution model performance metrics (AUC, TSS, etc.)
 type: object
 required:
+  - species
+  - algorithm
   - metrics
+  - timestamp
+  - fold_id
 properties:
+  species:
+    type: string
+    description: Scientific name of the species (e.g., 'Turdus migratorius')
+    minLength: 1
+  algorithm:
+    type: string
+    description: Model algorithm used
+    enum:
+      - random_forest
+      - bioclim
+      - logistic_regression_pb
   metrics:
-    type: array
-    items:
-      type: object
-      required:
-        - species
-        - algorithm
-        - auc
-        - tss
-      properties:
-        species:
-          type: string
-          description: Scientific name of the species.
-        algorithm:
-          type: string
-          description: Name of the modeling algorithm used (e.g., Random Forest, Bioclim).
-        auc:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: Area Under the Receiver Operating Characteristic Curve.
-        tss:
-          type: number
-          minimum: -1.0
-          maximum: 1.0
-          description: True Skill Statistic.
-        aic:
-          type: number
-          description: Akaike Information Criterion (optional).
-        cv_fold:
-          type: integer
-          minimum: 1
-          description: Cross-validation fold number if applicable.
-        timestamp:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp of metric calculation.
-        notes:
-          type: string
-          description: Optional notes regarding the metric calculation.
-  metadata:
     type: object
+    required:
+      - auc
+      - tss
     properties:
-      generated_by:
-        type: string
-      schema_version:
-        type: string
-      timestamp:
-        type: string
-        format: date-time
+      auc:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Area Under the Receiver Operating Characteristic Curve
+      tss:
+        type: number
+        minimum: -1.0
+        maximum: 1.0
+        description: True Skill Statistic
+      sensitivity:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Sensitivity (True Positive Rate)
+      specificity:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Specificity (True Negative Rate)
+      kappa:
+        type: number
+        minimum: -1.0
+        maximum: 1.0
+        description: Cohen's Kappa coefficient
+  fold_id:
+    type: integer
+    description: Spatial block fold identifier
+    minimum: 0
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of metric calculation
+  config_snapshot:
+    type: object
+    description: Snapshot of hyperparameters used for this fold
+    additionalProperties: true
+  notes:
+    type: string
+    description: Optional notes or warnings about the metric calculation
+additionalProperties: false

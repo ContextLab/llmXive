@@ -1,0 +1,64 @@
+#!/bin/bash
+# Pre-commit hook for llmXive pipeline: triggers state updates on artifact changes
+# This hook ensures that any modified code, data, or configuration files are
+# registered in the SQLite metadata registry with their current checksums.
+
+set -e
+
+# Determine project root (assuming this hook is at repo root in git_hooks/)
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$PROJECT_ROOT"
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED_FILES" ]; then
+    echo "No staged files to process."
+    exit 0
+fi
+
+echo "Processing staged artifacts for state update..."
+
+# Run the state update script for each staged file that matches our artifact patterns
+# We filter to only process files under code/, data/, tests/, specs/, and root config files
+for file in $STAGED_FILES; do
+    # Skip if file is not in our tracked directories
+    case "$file" in
+        code/*|data/*|tests/*|specs/*|requirements.txt|pyproject.toml|setup.cfg|*.md)
+            echo "  Updating state for: $file"
+            # Call the update_state.py main function for this file
+            # We pass the file path as an argument to the script
+            python -c "
+import sys
+sys.path.insert(0, '$PROJECT_ROOT/code')
+from utils.update_state import register_artifact, update_artifact_status, calculate_file_hash, get_file_metadata
+from pathlib import Path
+import json
+
+file_path = Path('$file')
+if not file_path.exists():
+    print(f'  Skipping non-existent file: $file')
+    sys.exit(0)
+
+try:
+    metadata = get_file_metadata(file_path)
+    file_hash = calculate_file_hash(file_path)
+    
+    # Register or update the artifact in the database
+    register_artifact(file_path, file_hash, metadata)
+    update_artifact_status(file_path, 'staged')
+    
+    print(f'  Registered: $file (hash: {file_hash[:12]}...)')
+except Exception as e:
+    print(f'  ERROR updating state for $file: {e}')
+    sys.exit(1)
+"
+            ;;
+        *)
+            echo "  Skipping non-artifact file: $file"
+            ;;
+    esac
+done
+
+echo "State update complete. Ready to commit."
+exit 0

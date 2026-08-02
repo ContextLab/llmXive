@@ -1,92 +1,119 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Occurrence Record Schema
-description: Schema for validating raw and processed species occurrence records.
+description: JSON Schema for validating species occurrence records (raw and processed)
 type: object
 required:
-  - records
+  - species
+  - latitude
+  - longitude
+  - year
 properties:
-  records:
+  species:
+    type: string
+    description: Scientific name of the species
+    minLength: 1
+  latitude:
+    type: number
+    minimum: -90.0
+    maximum: 90.0
+    description: WGS84 latitude
+  longitude:
+    type: number
+    minimum: -180.0
+    maximum: 180.0
+    description: WGS84 longitude
+  year:
+    type: integer
+    minimum: 1900
+    maximum: 2100
+    description: Year of observation
+  month:
+    type: integer
+    minimum: 1
+    maximum: 12
+    description: Month of observation (optional)
+  day:
+    type: integer
+    minimum: 1
+    maximum: 31
+    description: Day of observation (optional)
+  source_identifier:
+    type: string
+    description: Unique identifier for the source dataset (Constitution Principle VI)
+    minLength: 1
+  original_dataset_name:
+    type: string
+    description: Name of the original dataset (Constitution Principle VI)
+    minLength: 1
+  download_timestamp:
+    type: string
+    format: date-time
+    description: Timestamp when data was downloaded (Constitution Principle VI)
+  dataset_id:
+    type: string
+    description: GBIF dataset UUID or similar identifier
+  occurrence_id:
+    type: string
+    description: Unique occurrence identifier from source
+  basis_of_record:
+    type: string
+    description: Basis of record (e.g., 'HUMAN_OBSERVATION', 'MACHINE_OBSERVATION')
+  individual_count:
+    type: integer
+    minimum: 1
+    description: Number of individuals observed
+  sex:
+    type: string
+    description: Sex of the individual
+  life_stage:
+    type: string
+    description: Life stage of the individual
+  event_date:
+    type: string
+    format: date
+    description: Full event date (YYYY-MM-DD)
+  decimal_latitude:
+    type: number
+    minimum: -90.0
+    maximum: 90.0
+    description: Decimal latitude (alias for latitude)
+  decimal_longitude:
+    type: number
+    minimum: -180.0
+    maximum: 180.0
+    description: Decimal longitude (alias for longitude)
+  coordinate_uncertainty_in_meters:
+    type: number
+    minimum: 0.0
+    description: Uncertainty of coordinates in meters
+  geodetic_datum:
+    type: string
+    default: WGS84
+    description: Geodetic datum used
+  country:
+    type: string
+    description: Country code or name
+  state_province:
+    type: string
+    description: State or province
+  locality:
+    type: string
+    description: Locality description
+  comments:
+    type: string
+    description: Additional comments
+  flags:
     type: array
     items:
-      type: object
-      required:
-        - species
-        - latitude
-        - longitude
-        - year
-        - source_identifier
-        - download_timestamp
-        - original_dataset_name
-      properties:
-        species:
-          type: string
-          description: Scientific name of the species.
-        latitude:
-          type: number
-          minimum: -90.0
-          maximum: 90.0
-          description: Decimal latitude.
-        longitude:
-          type: number
-          minimum: -180.0
-          maximum: 180.0
-          description: Decimal longitude.
-        year:
-          type: integer
-          minimum: 1970
-          maximum: 2100
-          description: Year of occurrence.
-        source_identifier:
-          type: string
-          description: Unique identifier from the source (e.g., GBIF ID).
-        download_timestamp:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp when the data was downloaded.
-        original_dataset_name:
-          type: string
-          description: Name of the dataset from which the record originated.
-        eventDate:
-          type: string
-          description: Full date string if available (ISO 8601).
-        basisOfRecord:
-          type: string
-          description: Basis of record (e.g., HUMAN_OBSERVATION, MACHINE_OBSERVATION).
-        coordinateUncertaintyInMeters:
-          type: number
-          minimum: 0
-          description: Uncertainty in meters.
-        bias_proxy_density:
-          type: number
-          minimum: 0
-          description: Optional bias proxy density value from KDE.
-        climate_variables:
-          type: object
-          description: Optional nested object for extracted climate variables.
-          additionalProperties:
-            type: number
-  metadata:
+      type: string
+    description: List of validation flags (e.g., 'INSUFFICIENT_TRAINING_DATA')
+  climate_data:
     type: object
-    properties:
-      total_records:
-        type: integer
-        minimum: 0
-      date_range:
-        type: object
-        properties:
-          start:
-            type: string
-            format: date
-          end:
-            type: string
-            format: date
-      source_url:
-        type: string
-        format: uri
-      generated_by:
-        type: string
-      schema_version:
-        type: string
-      timestamp:
-        type: string
-        format: date-time
+    description: Extracted climate variables (added in preprocessing)
+    additionalProperties:
+      type: number
+  is_valid:
+    type: boolean
+    default: true
+    description: Flag indicating if the record passed validation
+additionalProperties: false

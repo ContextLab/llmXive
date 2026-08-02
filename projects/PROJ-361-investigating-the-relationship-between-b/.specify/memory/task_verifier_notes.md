@@ -5,3 +5,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T003** — No linting, formatting, or type‑checking configuration files (e.g., .flake8, pyproject.toml/black settings, mypy.ini) or any evidence of them being set up is present. The required artifacts to demonstrate that flake8, black, and mypy are configured are missing.
 - **T004** — No SQLite schema, SQL script, or code defining the required `subjects` and `files` tables with the specified columns was provided. The implementer’s claim lacks any tangible artifact demonstrating that the metadata registry has been set up.
 - **T005** — declared artifact(s) missing/empty/invalid: code/utils/config.py
+- **T007** — No `git_hooks/pre-commit` script or related configuration is present in the provided evidence; the required hook that would trigger state updates on artifact changes is missing. The implementer must add a functional pre‑commit hook at the specified path.

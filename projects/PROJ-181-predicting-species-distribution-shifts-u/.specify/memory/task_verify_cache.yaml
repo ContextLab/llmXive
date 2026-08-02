@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listings were provided; the required `projects/PROJ-181-predicting-species-distribution-shifts-u/`
+    folder with all specified subdirectories is absent from the evidence. The implementer
+    must create and show the full directory structure.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no linting or formatting configuration files (e.g., .flake8, pyproject.toml\
+    \ with black settings, or a pre\u2011commit hook) in the provided repository snapshot,\
+    \ nor any documentation indicating that flake8 and black have been set up. Without\
+    \ these artifacts, the requirement to configure linting and formatting tools is\
+    \ not satisfied."
+T010:
+  c: false
+  h: bd4104f02dada0977b946a6bdd84429e7bbc441a5bd508f073aa890d75030efe
+  r: "The repository contains a `code/download.py` file, but it is truncated (ends\
+    \ mid\u2011loop) and does not include logic to write the fetched records to `data/raw/occurrence_1970_2000.csv`.\
+    \ Moreover, the required CSV output file is absent. Consequently the implementation\
+    \ does not fulfill the task\u2019s requirement."
+T010c:
+  c: false
+  h: c061bd3552f30557980c88a8e9578a3991ac00cfaca4fe2f1302975a859f78cc
+  r: "The required `data/raw/effort_data.csv` file is absent, and the provided `code/download.py`\
+    \ is incomplete (truncated) and only sketches a GBIF API fetch; it does not compute\
+    \ or save the all\u2011observer density bias proxy as specified. The task\u2019\
+    s core output is therefore missing."
+T011:
+  c: false
+  h: d1f9ed9e3bca085726bb2a1db2f17931a037f294c248f26739b76e306ad2256e
+  r: "The required output file `data/raw/occurrence_2005_2020.csv` does not exist,\
+    \ and the provided `code/download.py` is incomplete (truncated) and contains no\
+    \ logic that writes fetched data to that specific CSV file. Consequently the task\u2019\
+    s core requirement\u2014fetching recent occurrence data and saving it to the designated\
+    \ file\u2014is not satisfied."
+T013:
+  c: false
+  h: 6966478272f285e639d8e283be7f8d257fafb835a56bca7aae7dff906148941a
+  r: 'Both required artifacts are absent: `code/preprocess.py` does not exist, and
+    the log file `logs/preprocess_counts.yaml` is missing, so the preprocessing functionality
+    and logging are not implemented.'

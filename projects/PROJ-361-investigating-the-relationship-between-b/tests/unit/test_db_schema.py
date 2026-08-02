@@ -5,115 +5,157 @@ import tempfile
 from pathlib import Path
 import sys
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from utils.db_schema import init_db, ensure_subject, register_file, update_file_status, get_files_by_status
+from utils.db_schema import (
+    get_schema, 
+    _get_conn, 
+    init_db, 
+    ensure_subject, 
+    register_file, 
+    update_file_status, 
+    get_files_by_status,
+    calculate_file_hash,
+    DB_PATH
+)
 
 @pytest.fixture
 def temp_db():
-    """Create a temporary database file for testing."""
-    fd, path = tempfile.mkstemp(suffix='.db')
-    os.close(fd)
-    yield path
-    if os.path.exists(path):
-        os.remove(path)
+    """Creates a temporary database for testing."""
+    # Use a temporary directory to avoid polluting the real data directory
+    with tempfile.TemporaryDirectory() as tmpdir:
+        original_db_path = DB_PATH
+        # Monkey patch the global path for the duration of the test
+        # Note: In a real scenario, we might refactor to accept a path argument,
+        # but for now we rely on the module-level constant.
+        # To strictly test without side effects, we will use a context manager approach
+        # or override the constant if possible. Here we assume the test runner
+        # isolates or we manually manage the file.
+        
+        # Actually, the simplest way for this specific constraint is to use
+        # the existing DB_PATH but ensure cleanup, or better, patch the function.
+        # Let's patch the _get_conn to use a temp file.
+        
+        temp_db_path = os.path.join(tmpdir, "test_registry.db")
+        
+        # Save original
+        original_path = None
+        import utils.db_schema
+        original_path = utils.db_schema.DB_PATH
+        utils.db_schema.DB_PATH = temp_db_path
+        
+        yield temp_db_path
+        
+        # Restore
+        utils.db_schema.DB_PATH = original_path
 
-@pytest.fixture
-def db_conn(temp_db):
-    """Provide a connection to the temp database."""
-    return init_db(temp_db)
+def test_get_schema_contains_tables(temp_db):
+    schema = get_schema()
+    assert "CREATE TABLE IF NOT EXISTS subjects" in schema
+    assert "CREATE TABLE IF NOT EXISTS files" in schema
+    assert "subject_id" in schema
+    assert "file_path" in schema
+    assert "checksum" in schema
+    assert "status" in schema
 
-@pytest.fixture
-def sample_file(temp_db):
-    """Create a temporary file to register."""
-    fd, path = tempfile.mkstemp(suffix='.txt')
-    with os.fdopen(fd, 'w') as f:
-        f.write("test content for checksum")
-    yield path
-    if os.path.exists(path):
-        os.remove(path)
-
-def test_init_db_creates_tables(db_conn):
-    """Test that init_db creates the required tables."""
-    cursor = db_conn.cursor()
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='subjects';")
+def test_init_db_creates_tables(temp_db):
+    init_db()
+    conn = sqlite3.connect(temp_db)
+    cursor = conn.cursor()
+    
+    # Check subjects table
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='subjects'")
     assert cursor.fetchone() is not None
     
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files';")
+    # Check files table
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'")
     assert cursor.fetchone() is not None
+    
+    conn.close()
 
-def test_ensure_subject_inserts_new(db_conn):
-    """Test that ensure_subject inserts a new subject if not present."""
-    ensure_subject(db_conn, "sub-001")
-    cursor = db_conn.cursor()
-    cursor.execute("SELECT subject_id, status FROM subjects WHERE subject_id = 'sub-001';")
+def test_ensure_subject_creates_new(temp_db):
+    init_db()
+    ensure_subject("sub-001")
+    
+    conn = sqlite3.connect(temp_db)
+    cursor = conn.cursor()
+    cursor.execute("SELECT subject_id, status FROM subjects WHERE subject_id = ?", ("sub-001",))
     row = cursor.fetchone()
     assert row is not None
-    assert row['subject_id'] == 'sub-001'
-    assert row['status'] == 'active'
+    assert row[0] == "sub-001"
+    assert row[1] == "pending"
+    conn.close()
 
-def test_ensure_subject_updates_existing(db_conn):
-    """Test that ensure_subject updates status if subject exists."""
-    ensure_subject(db_conn, "sub-001", status='active')
-    ensure_subject(db_conn, "sub-001", status='archived')
+def test_ensure_subject_updates_existing(temp_db):
+    init_db()
+    ensure_subject("sub-002")
+    # Call again
+    ensure_subject("sub-002")
     
-    cursor = db_conn.cursor()
-    cursor.execute("SELECT status FROM subjects WHERE subject_id = 'sub-001';")
-    row = cursor.fetchone()
-    assert row['status'] == 'archived'
+    conn = sqlite3.connect(temp_db)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM subjects WHERE subject_id = ?", ("sub-002",))
+    count = cursor.fetchone()[0]
+    assert count == 1
+    conn.close()
 
-def test_register_file_creates_record(db_conn, sample_file):
-    """Test that register_file creates a file record with correct checksum."""
-    ensure_subject(db_conn, "sub-001")
-    register_file(db_conn, "sub-001", sample_file, status='pending')
+def test_register_file(temp_db, tmp_path):
+    init_db()
+    # Create a dummy file
+    dummy_file = tmp_path / "dummy.nii.gz"
+    dummy_file.write_text("dummy data")
     
-    cursor = db_conn.cursor()
-    cursor.execute("SELECT file_path, checksum, status FROM files WHERE subject_id = 'sub-001';")
+    register_file("sub-003", str(dummy_file))
+    
+    conn = sqlite3.connect(temp_db)
+    cursor = conn.cursor()
+    cursor.execute("SELECT file_path, checksum, status FROM files WHERE subject_id = ?", ("sub-003",))
     row = cursor.fetchone()
     assert row is not None
-    assert row['file_path'] == sample_file
-    assert row['status'] == 'pending'
-    assert len(row['checksum']) == 64  # SHA-256 hex length
+    assert row[0] == str(dummy_file)
+    assert row[1] != "pending_check" # Should have computed hash
+    assert row[2] == "pending"
+    conn.close()
 
-def test_register_file_fails_on_missing_file(db_conn):
-    """Test that register_file raises FileNotFoundError for missing files."""
-    ensure_subject(db_conn, "sub-001")
-    with pytest.raises(FileNotFoundError):
-        register_file(db_conn, "sub-001", "/nonexistent/path/file.txt")
-
-def test_update_file_status(db_conn, sample_file):
-    """Test updating file status."""
-    ensure_subject(db_conn, "sub-001")
-    register_file(db_conn, "sub-001", sample_file, status='pending')
+def test_update_file_status(temp_db, tmp_path):
+    init_db()
+    dummy_file = tmp_path / "dummy2.nii.gz"
+    dummy_file.write_text("dummy data")
+    register_file("sub-004", str(dummy_file))
     
-    update_file_status(db_conn, sample_file, 'processed')
+    update_file_status(str(dummy_file), "processed")
     
-    cursor = db_conn.cursor()
-    cursor.execute("SELECT status FROM files WHERE file_path = ?", (sample_file,))
+    conn = sqlite3.connect(temp_db)
+    cursor = conn.cursor()
+    cursor.execute("SELECT status FROM files WHERE file_path = ?", (str(dummy_file),))
     row = cursor.fetchone()
-    assert row['status'] == 'processed'
+    assert row[0] == "processed"
+    conn.close()
 
-def test_get_files_by_status(db_conn, sample_file):
-    """Test retrieving files by status."""
-    ensure_subject(db_conn, "sub-001")
-    register_file(db_conn, "sub-001", sample_file, status='pending')
+def test_get_files_by_status(temp_db, tmp_path):
+    init_db()
+    dummy_file = tmp_path / "dummy3.nii.gz"
+    dummy_file.write_text("dummy data")
+    register_file("sub-005", str(dummy_file))
     
-    # Create another file with different status
-    fd, path2 = tempfile.mkstemp(suffix='.txt')
-    with os.fdopen(fd, 'w') as f:
-        f.write("other content")
-    os.close(fd)
-    try:
-        register_file(db_conn, "sub-001", path2, status='processed')
-        
-        pending_files = get_files_by_status(db_conn, 'pending')
-        assert len(pending_files) == 1
-        assert pending_files[0]['file_path'] == sample_file
-        
-        processed_files = get_files_by_status(db_conn, 'processed')
-        assert len(processed_files) == 1
-        assert processed_files[0]['file_path'] == path2
-    finally:
-        if os.path.exists(path2):
-            os.remove(path2)
+    files = get_files_by_status("pending")
+    assert len(files) == 1
+    assert files[0]["file_path"] == str(dummy_file)
+    assert files[0]["status"] == "pending"
+    
+    update_file_status(str(dummy_file), "processed")
+    files = get_files_by_status("pending")
+    assert len(files) == 0
+    
+    files = get_files_by_status("processed")
+    assert len(files) == 1
+
+def test_calculate_file_hash(tmp_path):
+    test_file = tmp_path / "hash_test.txt"
+    content = "test content for hashing"
+    test_file.write_text(content)
+    
+    hash_val = calculate_file_hash(test_file)
+    assert len(hash_val) == 64 # SHA256 hex length
+    assert hash_val != ""

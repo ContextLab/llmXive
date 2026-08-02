@@ -21,7 +21,7 @@ This project implements a synthetic benchmark to evaluate the resilience of a "S
 **Project Type**: Research Simulation / Benchmark Suite  
 **Performance Goals**: < 6 hours runtime for 500 workflows; < 4GB RAM peak; deterministic reproducibility.  
 **Constraints**: No external GPU; no internet access for data fetching (all data generated locally); strict checksumming of all artifacts.  
-**Scale/Scope**: 500 synthetic workflows; 3 corruption levels (concrete set: {0.05, 0.10, 0.20}); 2 architectural models.
+**Scale/Scope**: 500 synthetic workflows; Several corruption levels (concrete set: {0.05, 0.10, 0.20}); architectural models.
 
 ## Constitution Check
 
