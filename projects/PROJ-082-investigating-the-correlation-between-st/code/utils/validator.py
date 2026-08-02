@@ -1,8 +1,10 @@
 import logging
 import math
 import os
+import sys
+import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 from utils.logger import get_logger, log_error_context
 
 def validate_effect_size(effect_size: float, min_val: float = -1.0, max_val: float = 1.0) -> bool:
@@ -70,11 +72,11 @@ def filter_valid_studies(studies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     valid_studies = []
     
     for study in studies:
-      is_valid, error_msg = validate_study_row(study)
-      if is_valid:
-          valid_studies.append(study)
-      else:
-          logger.warning(f"Skipping invalid study: {study.get('study_id', 'unknown')} - {error_msg}")
+        is_valid, error_msg = validate_study_row(study)
+        if is_valid:
+            valid_studies.append(study)
+        else:
+            logger.warning(f"Skipping invalid study: {study.get('study_id', 'unknown')} - {error_msg}")
     
     return valid_studies
 
@@ -148,12 +150,55 @@ def validate_generated_plots(plot_dir: Union[str, Path], max_size_mb: float = 5.
         "results": validation_results
     }
 
+def run_validation_and_report(plot_dir: Union[str, Path], output_path: Union[str, Path], max_size_mb: float = 5.0) -> int:
+    """
+    Run validation on plots and generate a report.
+    
+    Args:
+        plot_dir: Directory containing plot files to validate
+        output_path: Path where the validation report JSON will be written
+        max_size_mb: Maximum allowed size in MB per plot
+        
+    Returns:
+        Exit code: 0 if validation passes, 1 if validation fails
+    """
+    logger = get_logger(__name__)
+    logger.info(f"Starting validation for plots in: {plot_dir}")
+    
+    report = validate_generated_plots(plot_dir, max_size_mb)
+    
+    # Ensure output directory exists
+    out_path = Path(output_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write report
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Validation report written to: {output_path}")
+    
+    if report.get("valid", False):
+        logger.info("Validation PASSED.")
+        return 0
+    else:
+        logger.error("Validation FAILED.")
+        return 1
+
 def main():
     """
-    Entry point for validator utility testing.
+    Entry point for validator utility.
+    Validates plots in data/derived/ and writes report to data/derived/validation_report.json.
     """
     logger = get_logger(__name__)
     logger.info("Validator utility module loaded successfully.")
+    
+    # Default paths based on project structure
+    project_root = Path(__file__).resolve().parent.parent.parent
+    plot_dir = project_root / "data" / "derived"
+    output_path = project_root / "data" / "derived" / "validation_report.json"
+    
+    exit_code = run_validation_and_report(plot_dir, output_path)
+    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()

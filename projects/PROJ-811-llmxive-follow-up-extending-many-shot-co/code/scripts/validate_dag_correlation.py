@@ -7,205 +7,155 @@ from typing import List, Dict, Any, Tuple
 import numpy as np
 from scipy.stats import pearsonr
 
-# Import from project modules
-from code.src.parser import get_logical_difficulty
-from code.src.parser_utils import load_json_file, save_json_file
-from code.src.config import get_config
+# Add code/src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+from parser_utils import load_json_file, save_json_file
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def load_dag_manifest(manifest_path: Path) -> Dict[str, Any]:
-    """Load the DAG manifest containing parsed traces and difficulty scores."""
-    logger.info(f"Loading DAG manifest from {manifest_path}")
+    """Load the DAG manifest containing logical difficulty scores."""
     if not manifest_path.exists():
         raise FileNotFoundError(f"DAG manifest not found at {manifest_path}")
     
     data = load_json_file(manifest_path)
-    if not isinstance(data, dict):
-        raise ValueError(f"Invalid manifest format: expected dict, got {type(data)}")
+    if not isinstance(data, dict) or 'entries' not in data:
+        raise ValueError(f"Invalid DAG manifest format: missing 'entries' key")
     
+    logger.info(f"Loaded DAG manifest with {len(data['entries'])} entries")
     return data
 
-def load_gold_standard(gs_path: Path) -> Dict[str, Any]:
-    """Load the gold standard annotations with human-rated logical complexity."""
-    logger.info(f"Loading gold standard from {gs_path}")
-    if not gs_path.exists():
-        raise FileNotFoundError(f"Gold standard not found at {gs_path}")
+def load_gold_standard(gold_path: Path) -> Dict[str, Any]:
+    """Load the gold standard annotations containing human ratings."""
+    if not gold_path.exists():
+        raise FileNotFoundError(f"Gold standard annotations not found at {gold_path}")
     
-    data = load_json_file(gs_path)
-    if not isinstance(data, dict):
-        raise ValueError(f"Invalid gold standard format: expected dict, got {type(data)}")
+    data = load_json_file(gold_path)
+    if not isinstance(data, dict) or 'annotations' not in data:
+        raise ValueError(f"Invalid gold standard format: missing 'annotations' key")
     
+    logger.info(f"Loaded gold standard with {len(data['annotations'])} annotations")
     return data
 
-def extract_matching_data(
-    dag_manifest: Dict[str, Any], 
-    gold_standard: Dict[str, Any]
-) -> Tuple[List[float], List[float], List[str]]:
+def extract_matching_data(manifest_data: Dict[str, Any], gold_data: Dict[str, Any]) -> Tuple[List[float], List[float]]:
     """
-    Extract paired (DAG depth, human rating) for examples present in both datasets.
-    
-    Returns:
-        Tuple of (dag_depths, human_ratings, example_ids)
+    Extract matching entries between DAG manifest and gold standard.
+    Returns two lists: [dag_depths], [human_ratings]
     """
-    dag_entries = dag_manifest.get('entries', [])
-    gs_entries = gold_standard.get('annotations', [])
-    
-    # Create lookup maps
-    dag_map = {entry['example_id']: entry for entry in dag_entries}
-    gs_map = {entry['example_id']: entry for entry in gs_entries}
-    
-    # Find common examples
-    common_ids = set(dag_map.keys()) & set(gs_map.keys())
-    
-    if not common_ids:
-        raise ValueError("No overlapping examples between DAG manifest and gold standard")
+    # Create a lookup dict from gold standard by example_id
+    gold_lookup = {ann['example_id']: ann['human_complexity_rating'] for ann in gold_data['annotations']}
     
     dag_depths = []
     human_ratings = []
-    matched_ids = []
-    
-    for example_id in sorted(common_ids):
-        dag_entry = dag_map[example_id]
-        gs_entry = gs_map[example_id]
-        
-        # Extract DAG depth (logical difficulty score)
-        dag_depth = dag_entry.get('logical_difficulty_score')
-        if dag_depth is None:
-            logger.warning(f"Missing logical_difficulty_score for {example_id}, skipping")
-            continue
-        
-        # Extract human rating
-        human_rating = gs_entry.get('logical_complexity_rating')
-        if human_rating is None:
-            logger.warning(f"Missing logical_complexity_rating for {example_id}, skipping")
-            continue
-        
-        dag_depths.append(float(dag_depth))
-        human_ratings.append(float(human_rating))
-        matched_ids.append(example_id)
-    
-    if len(dag_depths) < 2:
-        raise ValueError("Insufficient overlapping examples for correlation calculation (need >= 2)")
-    
-    logger.info(f"Matched {len(dag_depths)} examples for correlation analysis")
-    return dag_depths, human_ratings, matched_ids
+    matched_count = 0
+    unmatched_ids = []
 
-def compute_correlation(
-    dag_depths: List[float], 
-    human_ratings: List[float]
-) -> float:
-    """Compute Pearson correlation coefficient between DAG depth and human ratings."""
-    r, p_value = pearsonr(dag_depths, human_ratings)
-    logger.info(f"Pearson correlation r = {r:.4f} (p-value = {p_value:.4f})")
-    return float(r)
+    for entry in manifest_data['entries']:
+        example_id = entry.get('example_id')
+        if not example_id:
+            continue
+        
+        if example_id in gold_lookup:
+            dag_depth = entry.get('logical_difficulty_score')
+            if dag_depth is None:
+                logger.warning(f"Entry {example_id} missing logical_difficulty_score, skipping")
+                continue
+            
+            dag_depths.append(float(dag_depth))
+            human_ratings.append(float(gold_lookup[example_id]))
+            matched_count += 1
+        else:
+            unmatched_ids.append(example_id)
+
+    if matched_count == 0:
+        raise ValueError("No matching entries found between DAG manifest and gold standard")
+
+    logger.info(f"Matched {matched_count} entries for correlation analysis")
+    if unmatched_ids:
+        logger.info(f"Skipped {len(unmatched_ids)} entries not in gold standard")
+
+    return dag_depths, human_ratings
+
+def compute_correlation(dag_depths: List[float], human_ratings: List[float]) -> Tuple[float, float]:
+    """
+    Compute Pearson correlation coefficient between DAG depths and human ratings.
+    Returns (r_value, p_value)
+    """
+    if len(dag_depths) < 2:
+        raise ValueError("Need at least 2 data points to compute correlation")
+
+    r_value, p_value = pearsonr(dag_depths, human_ratings)
+    return r_value, p_value
 
 def main():
-    """Main validation script entry point."""
-    parser = argparse.ArgumentParser(description='Validate DAG depth vs human ratings correlation')
-    parser.add_argument('--manifest', type=str, default=None,
-                      help='Path to DAG manifest (default: from config)')
-    parser.add_argument('--gold-standard', type=str, default=None,
-                      help='Path to gold standard annotations (default: from config)')
-    parser.add_argument('--output', type=str, default=None,
-                      help='Output report path (default: from config)')
-    parser.add_argument('--threshold', type=float, default=0.6,
-                      help='Minimum correlation threshold (default: 0.6)')
+    parser = argparse.ArgumentParser(description='Validate DAG depth correlation with human ratings')
+    parser.add_argument('--manifest', type=str, required=True, help='Path to DAG manifest JSON')
+    parser.add_argument('--gold', type=str, required=True, help='Path to gold standard annotations JSON')
+    parser.add_argument('--output', type=str, default='data/processed/validation_report.json',
+                        help='Path to output validation report JSON')
+    parser.add_argument('--threshold', type=float, default=0.6, help='Minimum correlation threshold for pass')
     
     args = parser.parse_args()
-    
-    config = get_config()
-    
-    # Resolve paths
-    manifest_path = Path(args.manifest) if args.manifest else config.get_processed_dir() / 'dag_manifest.json'
-    gs_path = Path(args.gold_standard) if args.gold_standard else config.get_processed_dir() / 'gold_standard_annotations.json'
-    output_path = Path(args.output) if args.output else config.get_processed_dir() / 'validation_report.json'
-    
-    logger.info(f"Manifest path: {manifest_path}")
-    logger.info(f"Gold standard path: {gs_path}")
-    logger.info(f"Output path: {output_path}")
-    
+
+    manifest_path = Path(args.manifest)
+    gold_path = Path(args.gold)
+    output_path = Path(args.output)
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     try:
         # Load data
-        dag_manifest = load_dag_manifest(manifest_path)
-        gold_standard = load_gold_standard(gs_path)
+        logger.info(f"Loading DAG manifest from {manifest_path}")
+        manifest_data = load_dag_manifest(manifest_path)
         
+        logger.info(f"Loading gold standard from {gold_path}")
+        gold_data = load_gold_standard(gold_path)
+
         # Extract matching data
-        dag_depths, human_ratings, matched_ids = extract_matching_data(dag_manifest, gold_standard)
-        
-        logger.info(f"Sample data (first 5):")
-        for i in range(min(5, len(dag_depths))):
-            logger.info(f"  {matched_ids[i]}: DAG={dag_depths[i]:.2f}, Human={human_ratings[i]:.2f}")
-        
+        logger.info("Extracting matching data points")
+        dag_depths, human_ratings = extract_matching_data(manifest_data, gold_data)
+
         # Compute correlation
-        r_value = compute_correlation(dag_depths, human_ratings)
-        
+        logger.info("Computing Pearson correlation")
+        r_value, p_value = compute_correlation(dag_depths, human_ratings)
+
+        logger.info(f"Correlation result: r = {r_value:.4f}, p = {p_value:.4f}")
+
         # Determine pass/fail
         passed = r_value >= args.threshold
         status = "PASS" if passed else "FAIL"
-        
-        logger.info(f"Correlation {status}: r = {r_value:.4f} >= {args.threshold}")
-        
-        # Generate report
+
+        # Create report
         report = {
-            'status': status,
-            'pearson_r': r_value,
-            'threshold': args.threshold,
-            'num_matched_examples': len(dag_depths),
-            'dag_depth_stats': {
-                'mean': float(np.mean(dag_depths)),
-                'std': float(np.std(dag_depths)),
-                'min': float(np.min(dag_depths)),
-                'max': float(np.max(dag_depths))
+            "status": status,
+            "threshold": args.threshold,
+            "correlation": {
+                "r_value": float(r_value),
+                "p_value": float(p_value),
+                "sample_size": len(dag_depths)
             },
-            'human_rating_stats': {
-                'mean': float(np.mean(human_ratings)),
-                'std': float(np.std(human_ratings)),
-                'min': float(np.min(human_ratings)),
-                'max': float(np.max(human_ratings))
-            },
-            'matched_example_ids': matched_ids,
-            'manifest_path': str(manifest_path),
-            'gold_standard_path': str(gs_path)
+            "message": f"Correlation {'meets' if passed else 'does not meet'} threshold of {args.threshold}",
+            "timestamp": "N/A"  # Could add datetime if needed
         }
-        
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Save report
         save_json_file(output_path, report)
         logger.info(f"Validation report saved to {output_path}")
-        
+
         # Exit with appropriate code
         sys.exit(0 if passed else 1)
-        
+
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
-        report = {
-            'status': 'ERROR',
-            'error': str(e),
-            'pearson_r': None,
-            'threshold': args.threshold
-        }
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        save_json_file(output_path, report)
-        sys.exit(1)
+        sys.exit(2)
+    except ValueError as e:
+        logger.error(f"Data validation error: {e}")
+        sys.exit(3)
     except Exception as e:
-        logger.error(f"Validation failed: {e}")
-        report = {
-            'status': 'ERROR',
-            'error': str(e),
-            'pearson_r': None,
-            'threshold': args.threshold
-        }
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        save_json_file(output_path, report)
-        sys.exit(1)
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(4)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

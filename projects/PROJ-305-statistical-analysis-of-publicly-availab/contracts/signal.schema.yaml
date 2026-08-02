@@ -1,75 +1,232 @@
+# Signal Schema Definition
+# Defines the output structure for disproportionality analysis signals.
+# Used by T028 to generate output/signals.csv and for downstream validation.
+#
+# Schema Version: 1.0.0
+# Related Task: T006
+# Dependencies: contracts/dataset.schema.yaml (input data)
+
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Signal Detection Output Schema"
-description: "Schema for the output of disproportionality analysis (ROR, PRR, IC, CI, adjusted_p)."
+title: "Disproportionality Signal Schema"
+description: |
+  Output structure for statistical signals detected in VAERS data.
+  Contains metrics (ROR, PRR, IC), confidence intervals, and adjusted p-values
+  for each System Organ Class (SOC).
+
 type: object
 required:
-  - soc_code
-  - event_count_exposed
-  - event_count_unexposed
-  - total_count_exposed
-  - total_count_unexposed
-  - ROR
-  - ROR_CI_lower
-  - ROR_CI_upper
-  - PRR
-  - PRR_CI_lower
-  - PRR_CI_upper
-  - IC
-  - IC_CI_lower
-  - IC_CI_upper
-  - adjusted_p
-  - is_signal
-  - background_rate_flag
+  - schema_version
+  - generated_at
+  - signals
+
 properties:
-  soc_code:
+  schema_version:
     type: string
-    description: "System Organ Class code (e.g., 'SOC001')."
-  event_count_exposed:
-    type: integer
-    description: "Count of events in the COVID-19 vaccine group."
-  event_count_unexposed:
-    type: integer
-    description: "Count of events in the Non-COVID vaccine group."
-  total_count_exposed:
-    type: integer
-    description: "Total reports in the COVID-19 vaccine group."
-  total_count_unexposed:
-    type: integer
-    description: "Total reports in the Non-COVID vaccine group."
-  ROR:
-    type: number
-    description: "Reporting Odds Ratio point estimate."
-  ROR_CI_lower:
-    type: number
-    description: "Lower bound of the 95% Confidence Interval for ROR."
-  ROR_CI_upper:
-    type: number
-    description: "Upper bound of the 95% Confidence Interval for ROR."
-  PRR:
-    type: number
-    description: "Proportional Reporting Ratio point estimate."
-  PRR_CI_lower:
-    type: number
-    description: "Lower bound of the 95% Confidence Interval for PRR."
-  PRR_CI_upper:
-    type: number
-    description: "Upper bound of the 95% Confidence Interval for PRR."
-  IC:
-    type: number
-    description: "Information Component point estimate."
-  IC_CI_lower:
-    type: number
-    description: "Lower bound of the 95% Confidence Interval for IC."
-  IC_CI_upper:
-    type: number
-    description: "Upper bound of the 95% Confidence Interval for IC."
-  adjusted_p:
-    type: number
-    description: "Benjamini-Hochberg adjusted p-value."
-  is_signal:
-    type: boolean
-    description: "True if the signal meets the 2-out-of-3 rule (ROR>2.0/CI>1.0, PRR>1.5/CI>1.0, IC>0/CI>0)."
-  background_rate_flag:
+    description: "Version of this schema definition"
+    const: "1.0.0"
+
+  generated_at:
     type: string
-    description: "Status of background rate lookup. Values: 'Known', 'Unknown'."
-additionalProperties: false
+    format: date-time
+    description: "ISO 8601 timestamp of when the analysis was generated"
+
+  analysis_params:
+    type: object
+    description: "Parameters used for the analysis"
+    properties:
+      continuity_correction:
+        type: boolean
+        description: "Whether 0.5 continuity correction was applied"
+      fdr_method:
+        type: string
+        description: "Method used for p-value adjustment (e.g., 'benjamini_hochberg')"
+      min_reports_threshold:
+        type: integer
+        description: "Minimum number of reports required to calculate metrics"
+      thresholds:
+        type: object
+        properties:
+          ROR:
+            type: object
+            properties:
+              value:
+                type: number
+              ci_lower:
+                type: number
+              ci_upper:
+                type: number
+          PRR:
+            type: object
+            properties:
+              value:
+                type: number
+              ci_lower:
+                type: number
+              ci_upper:
+                type: number
+          IC:
+            type: object
+            properties:
+              value:
+                type: number
+              ci_lower:
+                type: number
+              ci_upper:
+                type: number
+
+  signals:
+    type: array
+    description: "List of signal records, one per SOC"
+    items:
+      type: object
+      required:
+        - soc_code
+        - soc_name
+        - total_reports
+        - ror
+        - ror_ci_lower
+        - ror_ci_upper
+        - prr
+        - prr_ci_lower
+        - prr_ci_upper
+        - ic
+        - ic_ci_lower
+        - ic_ci_upper
+        - p_value
+        - adjusted_p
+        - signal_ror
+        - signal_prr
+        - signal_ic
+        - signal_2of3
+        - background_rate_known
+
+      properties:
+        soc_code:
+          type: string
+          description: "System Organ Class code (e.g., 'SOC100000001')"
+
+        soc_name:
+          type: string
+          description: "Human-readable name of the SOC"
+
+        total_reports:
+          type: integer
+          description: "Total number of reports for this SOC in the dataset"
+          minimum: 0
+
+        # Contingency Table Counts
+        case_exposed:
+          type: integer
+          description: "Number of COVID-19 vaccine reports with this SOC"
+        case_unexposed:
+          type: integer
+          description: "Number of Non-COVID vaccine reports with this SOC"
+        control_exposed:
+          type: integer
+          description: "Number of COVID-19 vaccine reports without this SOC"
+        control_unexposed:
+          type: integer
+          description: "Number of Non-COVID vaccine reports without this SOC"
+
+        # Reporting Odds Ratio (ROR)
+        ror:
+          type: number
+          description: "Point estimate of the Reporting Odds Ratio"
+        ror_ci_lower:
+          type: number
+          description: "Lower bound of 95% Confidence Interval for ROR"
+        ror_ci_upper:
+          type: number
+          description: "Upper bound of 95% Confidence Interval for ROR"
+
+        # Proportional Reporting Ratio (PRR)
+        prr:
+          type: number
+          description: "Point estimate of the Proportional Reporting Ratio"
+        prr_ci_lower:
+          type: number
+          description: "Lower bound of 95% Confidence Interval for PRR"
+        prr_ci_upper:
+          type: number
+          description: "Upper bound of 95% Confidence Interval for PRR"
+
+        # Information Component (IC)
+        ic:
+          type: number
+          description: "Point estimate of the Information Component"
+        ic_ci_lower:
+          type: number
+          description: "Lower bound of 95% Confidence Interval for IC"
+        ic_ci_upper:
+          type: number
+          description: "Upper bound of 95% Confidence Interval for IC"
+
+        # Statistical Significance
+        p_value:
+          type: number
+          description: "Raw p-value from the Chi-squared or Fisher's exact test"
+        adjusted_p:
+          type: number
+          description: "Benjamini-Hochberg adjusted p-value (FDR corrected)"
+
+        # Signal Flags (Boolean)
+        signal_ror:
+          type: boolean
+          description: "True if ROR > 2.0 AND lower CI > 1.0"
+        signal_prr:
+          type: boolean
+          description: "True if PRR > 1.5 AND lower CI > 1.0"
+        signal_ic:
+          type: boolean
+          description: "True if IC > 0 AND lower CI > 0"
+        signal_2of3:
+          type: boolean
+          description: "True if at least 2 out of 3 metrics (ROR, PRR, IC) are positive signals"
+
+        # Contextual Flags
+        background_rate_known:
+          type: boolean
+          description: "True if SOC code exists in KNOWN_BACKGROUND_RATES (from config.py)"
+        background_rate_value:
+          type: ["number", "null"]
+          description: "Published incidence rate if known, null otherwise"
+
+        # Metadata
+        data_source:
+          type: string
+          description: "Source dataset identifier (e.g., 'VAERS_2020_2023')"
+        analysis_date:
+          type: string
+          format: date
+          description: "Date of analysis execution"
+
+examples:
+  - schema_version: "1.0.0"
+    generated_at: "2024-01-15T10:30:00Z"
+    signals:
+      - soc_code: "10000001"
+        soc_name: "Nervous system disorders"
+        total_reports: 1500
+        case_exposed: 800
+        case_unexposed: 200
+        control_exposed: 400
+        control_unexposed: 600
+        ror: 6.0
+        ror_ci_lower: 5.2
+        ror_ci_upper: 6.9
+        prr: 4.5
+        prr_ci_lower: 3.9
+        prr_ci_upper: 5.2
+        ic: 2.1
+        ic_ci_lower: 1.8
+        ic_ci_upper: 2.4
+        p_value: 0.00001
+        adjusted_p: 0.0001
+        signal_ror: true
+        signal_prr: true
+        signal_ic: true
+        signal_2of3: true
+        background_rate_known: true
+        background_rate_value: 0.05
+        data_source: "VAERS_2020_2023"
+        analysis_date: "2024-01-15"

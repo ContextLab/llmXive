@@ -1,58 +1,46 @@
-"""
-Script to initialize the project directory structure.
-This script creates the necessary directories for the project.
-"""
 import os
 from pathlib import Path
 
 def create_directories():
-    """Create the standard project directory structure."""
-    # Define the root based on where this script is run (project root)
-    root = Path.cwd()
+    """
+    Creates the project directory structure as per the implementation plan.
+    Directories: src/, tests/, data/, output/
+    """
+    base_dir = Path(__file__).parent.parent
     
-    # Directories to create based on tasks.md and plan.md
+    # Define the required directories
     directories = [
-        "code/src",
-        "code/tests",
-        "code/data",
-        "code/data/raw",
-        "code/data/processed",
-        "code/output",
-        "code/output/temporal_profiles",
-        "code/specs",
-        "code/contracts",
-        "code/figures",
-        # Root level aliases if needed, though code/ is the main tree
-        "src",
-        "tests",
-        "data",
-        "data/raw",
-        "data/processed",
-        "output",
-        "output/temporal_profiles",
-        "specs",
-        "contracts",
-        "figures",
+        base_dir / "src",
+        base_dir / "tests",
+        base_dir / "data",
+        base_dir / "output"
     ]
-
-    created = []
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_path)
-        # Ensure .gitkeep exists to track empty directories in git
-        gitkeep = full_path / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
-
-    return created
+    
+    # Create subdirectories for organization
+    subdirectories = [
+        base_dir / "src" / "utils",
+        base_dir / "src" / "data",
+        base_dir / "src" / "analysis",
+        base_dir / "tests" / "unit",
+        base_dir / "tests" / "integration",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "output" / "temporal_profiles"
+    ]
+    
+    all_dirs = directories + subdirectories
+    
+    created_count = 0
+    for directory in all_dirs:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created directory: {directory.relative_to(base_dir)}")
+        else:
+            print(f"Directory already exists: {directory.relative_to(base_dir)}")
+    
+    print(f"Project structure setup complete. {created_count} new directories created.")
+    return all_dirs
 
 if __name__ == "__main__":
-    print("Initializing project structure...")
-    created_dirs = create_directories()
-    if created_dirs:
-        print(f"Created directories: {', '.join(created_dirs)}")
-    else:
-        print("All directories already exist.")
-    print("Project structure initialization complete.")
+    create_directories()

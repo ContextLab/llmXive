@@ -1,165 +1,128 @@
-"""
-Profiling utilities for the llmXive pipeline.
-Measures runtime, memory, and identifies bottlenecks to ensure CI execution < 15 mins.
-"""
 import cProfile
 import pstats
 import io
 import sys
 import json
 import time
-import tracemalloc
+import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Callable, TypeVar
-from functools import wraps
+from typing import Optional, Dict, Any
 
-from utils.logger import get_logger, log_error_context
+# Import the main pipeline runner
+try:
+    from main import run_pipeline
+except ImportError:
+    # Fallback for testing if run from code directory directly
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from main import run_pipeline
 
-logger = get_logger(__name__)
 
-# Type hint for the decorated function
-F = TypeVar('F', bound=Callable[..., Any])
-
-def profile_pipeline_entrypoint(func: F) -> F:
+def profile_pipeline_entrypoint():
     """
-    Decorator to profile a pipeline entry point function.
-    Records CPU time, wall time, and saves a profile report.
+    Profiles the entire pipeline execution using cProfile.
+    Returns the raw stats object and execution time.
     """
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
-        # Start CPU profiling
-        pr = cProfile.Profile()
-        pr.enable()
-
-        # Start memory profiling
-        tracemalloc.start()
-
-        start_time = time.perf_counter()
-        try:
-            result = func(*args, **kwargs)
-        except Exception as e:
-            logger.error(f"Pipeline execution failed during profiling: {e}")
-            raise
-        finally:
-            end_time = time.perf_counter()
-            pr.disable()
-            
-            current, peak = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
-
-        # Calculate stats
-        total_time = end_time - start_time
-        elapsed_minutes = total_time / 60.0
-
-        # Check against CI limit (15 minutes)
-        CI_LIMIT_MINUTES = 15.0
-        if elapsed_minutes > CI_LIMIT_MINUTES:
-            logger.warning(
-                f"Pipeline execution exceeded CI limit of {CI_LIMIT_MINUTES} minutes. "
-                f"Actual time: {elapsed_minutes:.2f} minutes."
-            )
-        else:
-            logger.info(
-                f"Pipeline execution completed within CI limit. "
-                f"Time: {elapsed_minutes:.2f} minutes."
-            )
-
-        # Save profile results
-        profile_data = {
-            "function_name": func.__name__,
-            "total_time_seconds": total_time,
-            "elapsed_minutes": elapsed_minutes,
-            "peak_memory_mb": peak / (1024 * 1024),
-            "current_memory_mb": current / (1024 * 1024),
-            "ci_limit_minutes": CI_LIMIT_MINUTES,
-            "status": "PASS" if elapsed_minutes <= CI_LIMIT_MINUTES else "FAIL",
-            "top_10_functions": []
-        }
-
-        # Extract top 10 functions from stats
-        s = io.StringIO()
-        stats = pstats.Stats(pr, stream=s).sort_stats('cumulative')
-        stats.print_stats(10)
-        profile_data["top_10_functions"] = s.getvalue()
-
-        # Save to file
-        output_path = Path("data/logs/profile_report.json")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(profile_data, f, indent=2)
-        
-        logger.info(f"Profile report saved to {output_path}")
-        
-        return result
+    profiler = cProfile.Profile()
+    start_time = time.time()
     
-    return wrapper  # type: ignore
-
-def save_profile_results(pr: cProfile.Profile, output_path: str, top_n: int = 20) -> None:
-    """
-    Saves the results of a cProfile object to a JSON file.
-    """
-    s = io.StringIO()
-    stats = pstats.Stats(pr, stream=s).sort_stats('cumulative')
-    stats.print_stats(top_n)
-    
-    profile_data = {
-        "top_functions": s.getvalue()
-    }
-
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(profile_data, f, indent=2)
-    
-    logger.info(f"Profile results saved to {output_path}")
-
-def run_profiler(func: Callable, *args, **kwargs) -> Dict[str, Any]:
-    """
-    Runs a function under the profiler and returns the metrics dictionary.
-    """
-    pr = cProfile.Profile()
-    pr.enable()
-    
-    start = time.perf_counter()
-    result = func(*args, **kwargs)
-    end = time.perf_counter()
-    
-    pr.disable()
-    
-    s = io.StringIO()
-    stats = pstats.Stats(pr, stream=s).sort_stats('cumulative')
-    stats.print_stats(20)
-    
-    return {
-        "duration_seconds": end - start,
-        "top_stats": s.getvalue()
-    }
-
-def main() -> None:
-    """
-    CLI entry point to run the profiler on the main pipeline.
-    Usage: python code/utils/profiler.py
-    """
-    logger.info("Starting profiler for main pipeline...")
-    
-    # Import here to avoid circular imports if this module is imported elsewhere
     try:
-        from main import run_pipeline
-    except ImportError:
-        logger.error("Could not import run_pipeline from main. Ensure code/ is in PYTHONPATH.")
-        sys.exit(1)
-
-    try:
-        # Run the pipeline under the decorator logic manually or via wrapper
-        # We'll invoke the decorated version if possible, or wrap it here
-        # Since run_pipeline is likely the entry point, we wrap it
-        wrapped_pipeline = profile_pipeline_entrypoint(run_pipeline)
-        wrapped_pipeline()
+        # Run the main pipeline logic
+        # We wrap it to ensure it's captured in the profile
+        profiler.enable()
+        result = run_pipeline()
+        profiler.disable()
     except Exception as e:
-        logger.error(f"Profiling run failed: {e}")
-        sys.exit(1)
+        profiler.disable()
+        # Re-raise the error after profiling so the pipeline status is known
+        # but we still capture the time up to the crash
+        raise e
+    
+    end_time = time.time()
+    total_time = end_time - start_time
+    
+    return profiler, total_time
 
-    logger.info("Profiling complete. Check data/logs/profile_report.json")
 
-if __name__ == "__main__":
+def save_profile_results(profiler: cProfile.Profile, total_time: float, output_path: Path):
+    """
+    Saves the profiling results to a markdown file.
+    Analyzes bottlenecks and checks against the 15-minute threshold.
+    """
+    # Create string stream for stats
+    s = io.StringIO()
+    stats = pstats.Stats(profiler, stream=s)
+    stats.sort_stats('cumulative')
+    stats.print_stats(20)  # Print top 20 functions
+    
+    stats_output = s.getvalue()
+    
+    # Determine pass/fail status
+    threshold_seconds = 15 * 60  # 15 minutes
+    status = "PASS" if total_time < threshold_seconds else "FAIL"
+    time_minutes = total_time / 60.0
+    
+    report_lines = [
+        "# Pipeline Runtime Profile Report",
+        "",
+        f"**Status**: {status}",
+        f"**Total Runtime**: {total_time:.2f} seconds ({time_minutes:.2f} minutes)",
+        f"**Threshold**: {threshold_seconds} seconds (15 minutes)",
+        "",
+        "## Top 20 Cumulative Time Functions",
+        "",
+        "```",
+        stats_output,
+        "```",
+        "",
+        "## Bottleneck Analysis",
+        ""
+    ]
+    
+    if status == "FAIL":
+        report_lines.append("The pipeline exceeded the 15-minute limit. Consider optimizing the top cumulative functions listed above.")
+    else:
+        report_lines.append("The pipeline completed within the 15-minute limit.")
+        
+    # Write to file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(report_lines))
+        
+    print(f"Profile report saved to {output_path}")
+    print(f"Total runtime: {total_time:.2f}s")
+
+
+def run_profiler():
+    """
+    Main entry point for the profiler script.
+    """
+    parser = argparse.ArgumentParser(description="Profile the research pipeline runtime.")
+    parser.add_argument('--output', type=str, default='data/logs/profile_report.md',
+                        help='Path to save the profile report.')
+    args = parser.parse_args()
+    
+    output_path = Path(args.output)
+    
+    try:
+        profiler, total_time = profile_pipeline_entrypoint()
+        save_profile_results(profiler, total_time, output_path)
+        
+        # Exit with code 1 if threshold exceeded, 0 otherwise
+        if total_time >= 15 * 60:
+            sys.exit(1)
+        else:
+            sys.exit(0)
+            
+    except Exception as e:
+        print(f"Profiling failed with error: {e}")
+        # Even if the pipeline crashes, we should try to save what we have
+        # if the profiler captured any time
+        sys.exit(2)
+
+
+def main():
+    run_profiler()
+
+
+if __name__ == '__main__':
     main()

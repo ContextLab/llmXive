@@ -1,88 +1,43 @@
-# Dataset Schema for VAERS Statistical Analysis
-# Defines the required columns for the cleaned dataset used in disproportionality analysis.
-#
-# Source: VAERS Data Dictionary (https://vaers.hhs.gov/data/datasets)
-# Mapping:
-#   - VAX_TYPE: Derived from VAX_MANU and VAX_TYPE fields in raw data.
-#   - SOC_CODE: Mapped from MedDRA SOC codes (SOC_CODE) in raw data.
-#   - LLT: Lowest Level Term from MedDRA (used for granular analysis if needed).
-#   - REPT_DATE: Date of report submission.
-#   - AGE: Age of the patient.
-
-schema_name: vaers_cleaned_dataset
-version: "1.0"
-description: >
-  Schema for the cleaned and filtered VAERS dataset used in 
-  COVID-19 vs Non-COVID vaccine adverse event analysis.
-
+version: "1.0.0"
+description: "Schema for VAERS dataset after initial validation but before cleaning. Defines required columns for the statistical analysis pipeline."
 required_columns:
   - name: VAX_TYPE
     type: string
-    description: >
-      Vaccine type category. Must be either "COVID-19" or "Non-COVID".
-      Derived from raw VAX_MANU and VAX_TYPE fields.
+    description: "Vaccine type administered. Must contain values like 'COVID-19' or other vaccine identifiers. Used to define exposure groups."
     constraints:
-      - not_null
-      - allowed_values: ["COVID-19", "Non-COVID"]
-
+      min_length: 1
+      allow_null: false
   - name: SOC_CODE
     type: string
-    description: >
-      System Organ Class code from MedDRA.
-      Used for grouping adverse events into broad categories.
-      Format: 5-digit numeric code (e.g., "10000001").
+    description: "System Organ Class code from MedDRA. Used for grouping adverse events."
     constraints:
-      - not_null
-      - pattern: "^[0-9]{8}$" # MedDRA SOC codes are typically 8 digits (e.g., 10000001)
-
+      allow_null: false
+      # Note: LLT (Lowest Level Term) is an alternative or additional field in raw data,
+      # but SOC_CODE is the primary grouping key for this analysis.
   - name: LLT
     type: string
-    description: >
-      Lowest Level Term from MedDRA.
-      Provides the specific adverse event description.
-      May be empty if mapping to SOC failed, but raw term should exist.
+    description: "Lowest Level Term from MedDRA. Optional but required for granular mapping if SOC_CODE is missing."
     constraints:
-      - not_null # Required for audit trail, even if generic
-
+      allow_null: true
   - name: REPT_DATE
     type: date
-    description: >
-      Date the adverse event report was received by VAERS.
-      Format: YYYY-MM-DD.
-      Used for temporal analysis and cohort filtering.
+    format: "YYYY-MM-DD"
+    description: "Date of report submission. Used for temporal analysis and filtering."
     constraints:
-      - not_null
-      - format: "YYYY-MM-DD"
-
+      allow_null: false
   - name: AGE
     type: numeric
-    description: >
-      Age of the patient at the time of the adverse event.
-      Must be non-negative.
+    description: "Age of the patient at the time of the event."
     constraints:
-      - not_null
-      - min_value: 0
-      - max_value: 120
-
-optional_columns:
-  - name: CASE_ID
-    type: string
-    description: Unique VAERS case identifier.
-
-  - name: SEX
-    type: string
-    description: Patient sex (M/F).
-
-  - name: DEATH
-    type: boolean
-    description: Indicator if the case resulted in death.
-
+      allow_null: true
+      min_value: 0
+      max_value: 120
+source: "VAERS Data Files (2020-2023)"
 validation_rules:
-  - rule: "VAX_TYPE must be present for all records"
-    severity: error
-  - rule: "SOC_CODE must be a valid MedDRA SOC code"
-    severity: error
-  - rule: "REPT_DATE must be within the analysis range (2020-2023)"
-    severity: warning
-  - rule: "AGE must be a reasonable integer"
-    severity: warning
+  - "At least one of SOC_CODE or LLT must be present."
+  - "VAX_TYPE must not be empty."
+  - "REPT_DATE must be a valid date string."
+notes: |
+  This schema is used by src/data/validate.py to ensure raw data downloaded in T013
+  contains the necessary fields before proceeding to cleaning (T014).
+  Columns are case-sensitive as per VAERS CSV headers.

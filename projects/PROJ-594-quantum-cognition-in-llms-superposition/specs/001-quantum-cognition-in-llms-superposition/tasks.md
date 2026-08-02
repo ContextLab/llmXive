@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -65,11 +65,15 @@ Examples of foundational tasks (adjust based on your plan.md):
 - [X] T005 [P] Create `code/utils/logging.py` with `detect_nan_inf` and `safe_normalize` utilities
 - [X] T006 Create `code/data/download_wic.py` to fetch WiC from SuperGLUE via `datasets.load_dataset("super_glue", "wic")`
 - [X] T007 Create `code/models/baseline_bert.py` implementing frozen BERT inference (no gradient computation)
-- [X] T008 Create `code/models/bert_adapter.py` skeleton for the complex-valued adapter (linear projection to R^d + I^d)
-- [X] T009a [P] Create `projects/PROJ-594-quantum-cognition-in-llms-superposition/code/config.yaml` with keys: `seed: 42`, `device: cpu`, `batch_size:`, `max_epochs: a sufficient number of training epochs determined by convergence criteria.`, `timeout_hours: a configurable duration`, `max_ram_gb: a sufficient amount to accommodate the dataset and model requirements`.
-- [X] T009b [P] Create `code/utils/config_loader.py` to parse `config.yaml` and return a `Config` dataclass.
+- [X] T019 [P] [US2] [FR-001, FR-003] Implement `code/models/bert_adapter.py`: Linear projection R^d -> C^d. **Logic**: Define a `nn.Linear` layer mapping BERT hidden states (R^d) to a complex vector (R^d + iR^d). **Implementation**: Create `ComplexAdapter` class with `forward(h_real)` returning `c_complex`. **Constraint**: Freeze all BERT weights (`requires_grad=False`) in the parent class or wrapper. **Verification**: Unit test in `tests/unit/test_bert_adapter.py` asserting `c_complex.dtype == torch.complex64` and BERT weights remain frozen after adapter instantiation. **Dependency**: T006 (data loading), T004 (complex ops).
+- [X] T008 [X] [Foundational] [DEPRECATED] Replaced by T019.
+- [X] T023a [P] [US2] [Foundational] Define the FR-009 loss function: Create `code/models/loss_utils.py` with function `phase_penalty_loss(phase_diff, lambda=0.5)`. Formula: `loss += lambda * (1 + torch.cos(phase_diff))`. Verify this function produces negative gradients for non-anti-parallel phases in a unit test.
+- [X] T023b [P] [US2] [Foundational] Define explicit cross-term calculation: Create `code/models/loss_utils.py` with function `calculate_interference_cross_term(c1, c2)`. Formula: `2 * torch.real(c1 * torch.conj(c2))`. Verify this function can return negative values in a unit test.
+- [X] T009a [P] [Foundational] Create `code/config.yaml` with keys: `seed: 42`, `device: cpu`, `batch_size: 8`, `max_epochs: 3`, `timeout_hours: 6`, `max_ram_gb: 7`. **Note**: Values are fixed per SC-004 constraints.
+- [X] T009b [P] [Foundational] Create `code/utils/config_loader.py` to parse `config.yaml` and return a `Config` dataclass.
 - [X] T009c [P] [Foundational] Implement CPU pinning wrapper script `code/utils/cpu_pinning.sh` that executes `taskset --cpu-list 0` for all experiment runners, satisfying SC-004.
 - [X] T009d [P] [Foundational] Implement `code/utils/runtime_monitor.py` with functions `start_timer()`, `check_ram()`, `assert_limits()`. `assert_limits()` must raise an error if runtime > 6h or RAM > 7GB. This utility is to be *called* by execution tasks (T024b, T029a, T072), not run standalone.
+- [X] T073 [P] [Foundational] [FR-006] Create `code/utils/framing_utils.py` with function `format_associational_statement(text)`. **Logic**: Ensure all output strings explicitly use "associational" or "correlational" language and avoid "causal" or "deterministic" claims. **Usage**: All tasks generating text output (T012, T023, T024d, T031, T031b) MUST call this utility.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -90,7 +94,7 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/experiments/run_baseline.py`. Logic: Load frozen BERT, iterate WiC test split, compute accuracy/macro-F1. **Stability Check**: Run loop for multiple seeds (from `config.yaml`), collect metrics, calculate variance. **Output**: `data/results/baseline_metrics.json` with schema: `{"accuracy": float, "macro_f1": float, "seed": int, "variance_accuracy": float, "variance_macro_f1": float}`. Assert variance < 0.02; raise error if failed. **FR-006**: Use `code/utils/framing_utils.py` to ensure all output logs and JSON comments frame results as "associational".
+- [X] T012 [P] [US1] Implement `code/experiments/run_baseline.py`. Logic: Load frozen BERT, iterate WiC test split, compute accuracy/macro-F1. **Stability Check**: Run loop for 5 seeds (from `config.yaml`), collect metrics, calculate variance. **Output**: `data/results/baseline_metrics.json` with schema: `{"accuracy": float, "macro_f1": float, "seed": int, "variance_accuracy": float, "variance_macro_f1": float}`. Assert variance < 0.02; raise error if failed. **FR-006**: Use `code/utils/framing_utils.py` (T073) to ensure all output logs and JSON comments frame results as "associational". **Dependency**: T073, T007, T006.
 - [X] T012b [P] [US1] [FR-006] Implement framing utility call in `code/experiments/run_baseline.py`. Logic: Wrap all output strings with `framing_utils.format_associational_statement()`. **Dependency**: T073.
 - [X] T015 [US1] Add error handling for `[UNK]` tokens in WiC dataset processing. **File**: `code/utils/tokenizer_utils.py`. **Function**: `handle_unk_tokens(token_ids)`. **Logic**: Replace `[UNK]` with a learned embedding or context-based average. **Verification**: Unit test in `tests/unit/test_tokenizer_utils.py` asserting no crash and valid output shape for inputs containing `[UNK]`.
 
@@ -114,19 +118,17 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### Implementation for User Story 2
 
-- [X] T019 [P] [US2] Implement `code/models/bert_adapter.py`: Linear projection $\mathbb{R}^d \to \mathbb{C}^d$ (real/imag components) <!-- FAILED: unspecified -->
+- [X] T019 [P] [US2] Implement `code/models/bert_adapter.py`: Linear projection $\mathbb{R}^d \to \mathbb{C}^d$ (real/imag components). **Logic**: Define `nn.Linear(hidden_dim, 2*hidden_dim)` and split output into real/imag parts. **Verification**: Assert output dtype is `torch.complex64`. **Dependency**: T004, T007.
 - [X] T020 [US2] Implement `code/models/bert_adapter.py`: Context-dependent phase shift operator $U_c$. Input: [batch, seq_len, hidden] real. Operation: compute context embedding via attention pooling over sentence tokens, project to rotation angle theta, apply diagonal phase shift exp(i*theta). Output: [batch, seq_len, hidden] complex. Depends on T019.
 - [X] T021 [US2] Implement `code/models/bert_adapter.py`: Superposition (vector addition) and Born rule ($P_{raw} = \|c_{sum}\|^2$)
 - [X] T022 [US2] Implement `code/models/bert_adapter.py`: Softmax normalization $P_{final} = \frac{e^{P_{raw}}}{e^{P_{raw}} + e^{P_{alt}}}$
-- [X] T023a [US2] [Foundational] Define the FR-009 loss function: Create `code/models/loss_utils.py` with function `phase_penalty_loss(phase_diff, lambda=0.5)`. Formula: `loss += lambda * (1 + torch.cos(phase_diff))`. Verify this function produces negative gradients for non-anti-parallel phases in a unit test.
-- [X] T023b [US2] [Foundational] Define explicit cross-term calculation: Create `code/models/loss_utils.py` with function `calculate_interference_cross_term(c1, c2)`. Formula: `2 * torch.real(c1 * torch.conj(c2))`. Verify this function can return negative values in a unit test.
-- [ ] T023 [US2] Implement `code/models/bert_adapter.py`: Loss function with penalty term and cross-term logging. Depends on T023a and T023b. Integrate the specific phase-penalty logic from T023a into the training loop. Call `calculate_interference_cross_term` (T023b) for every forward pass and log values to `data/results/cross_term_log.json`. Verify gradient drives phases toward anti-parallelism in unit test.
-- [X] T024a [US2] [P] [Ablation] Implement `code/experiments/run_quantum.py` (Training Loop): Train adapter for a sufficient number of epochs., integrate `detect_nan_inf` from T005.
+- [X] T023 [US2] [Foundational] Implement `code/models/bert_adapter.py`: Loss function with penalty term and cross-term logging. **Logic**: Integrate `phase_penalty_loss` (T023a) and `calculate_interference_cross_term` (T023b) into the training loop. **Verification**: Unit test asserts gradient drives phases toward anti-parallelism (e.g., `assert phase_diff > 2.5 radians` after one step). **Dependency**: T023a, T023b.
+- [X] T024a [US2] [P] [Ablation] Implement `code/experiments/run_quantum.py` (Training Loop): Train adapter for 3 epochs, integrate `detect_nan_inf` from T005. **Dependency**: T023.
 - [X] T024b [US2] [P] [Ablation] Implement `code/experiments/run_quantum.py` (Error Handling): Wrap training in `runtime_monitor` (T009d) via T072 to enforce limits. **Dependency**: T072.
-- [ ] T024c [US2] [P] [Ablation] Implement `code/experiments/run_quantum.py` (Metrics Serialization): Output `data/results/quantum_metrics.json` with schema: `{"accuracy": float, "macro_f1": float, "loss_epoch_1": float, "loss_epoch_3": float, "seed": int}`. **Note**: `cross_term_stats` and `ambiguity_scores` are now handled by T025a/T025b. **Dependency**: T023.
-- [X] T024d [US2] [US2] [FR-006] Ensure `code/experiments/run_quantum.py` explicitly frames all output in `quantum_metrics.json` and inference logs as "associational improvements" to avoid causal claims, satisfying FR-006 for all system outputs. **Dependency**: T073. <!-- FAILED: unspecified -->
-- [ ] T025 [US2] [Foundational] Implement cross-term logging during training: Modify `code/experiments/run_quantum.py` to compute `calculate_interference_cross_term` (T023b) for every ambiguous token (label == 1) during the forward pass. Store these values in memory and write them to `data/results/cross_term_log.json` with schema: `{"cross_term_values": [float], "ambiguous_indices": [int]}`. **Dependency**: T023b.
-- [ ] T025b [US2] Verify interference cross-term ($2\text{Re}(c_1 \cdot c_2^*)$) can be negative for ambiguous inputs: Add unit test/assertion in `code/analysis/interference_check.py` that reads `data/results/cross_term_log.json`. **Logic**: Assert `min(cross_term_values) < 0`. **Output**: `data/results/interference_validation.json` with schema: `{"min_cross_term": float, "percentage_negative": float, "valid": bool}`. **Dependency**: T025.
+- [X] T024c [US2] [P] [Ablation] Implement `code/experiments/run_quantum.py` (Metrics Serialization): Output `data/results/quantum_metrics.json` with schema: `{"accuracy": float, "macro_f1": float, "loss_epoch_1": float, "loss_epoch_3": float, "seed": int}`. **Verification**: Assert that `quantum_metrics.json` exists and contains float values for `loss_epoch_1` and `loss_epoch_3`. **Dependency**: T023.
+- [X] T024d [US2] [US2] [FR-006] Ensure `code/experiments/run_quantum.py` explicitly frames all output in `quantum_metrics.json` and inference logs as "associational improvements" to avoid causal claims, satisfying FR-006 for all system outputs. **Dependency**: T073.
+- [X] T025 [US2] [Foundational] Implement cross-term logging during training: Modify `code/experiments/run_quantum.py` to compute `calculate_interference_cross_term` (T023b) for every ambiguous token (label == 1) during the forward pass. Store these values in memory and write them to `data/results/cross_term_log.json` with schema: `{"cross_term_values": [float], "ambiguous_indices": [int]}`. **Verification**: Assert that `cross_term_log.json` exists and contains a list of floats under `cross_term_values`. **Dependency**: T023b.
+- [X] T025b [US2] Verify interference cross-term ($2\text{Re}(c_1 \cdot c_2^*)$) can be negative for ambiguous inputs: Add unit test/assertion in `code/analysis/interference_check.py` that reads `data/results/cross_term_log.json`. **Logic**: Assert `min(cross_term_values) < 0`. **Output**: `data/results/interference_validation.json` with schema: `{"min_cross_term": float, "percentage_negative": float, "valid": bool}`. **Dependency**: T025.
 - [X] T025c [US2] [SC-003] Implement stability check for the complex-valued model: Modify `code/experiments/run_quantum.py` to run multiple seeds, calculate variance of accuracy/F1, and assert variance < 0.02, satisfying SC-003 for the primary hypothesis.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -146,15 +148,15 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/analysis/stats_test.py`: Paired t-test logic (α=0.05) across multiple seeds
-- [ ] T029a [US3] [SC-004] Implement runtime measurement: Add logging in `code/analysis/stats_test.py` to record wall-clock time and peak RAM usage for the full multi-seed run, verifying SC-004 (≤6h, ≤7GB). **Dependency**: T072 (Full Run Wrapper).
+- [X] T029 [P] [US3] Implement `code/analysis/stats_test.py`: Paired t-test logic (α=0.05) across multiple seeds. **Output**: `data/results/stats_report.json` with schema: `{"p_value": float, "t_statistic": float, "cohens_d": float}`. **Verification**: Assert that file exists and contains valid float values for all keys. **Dependency**: T012, T024c.
+- [X] T029a [US3] [SC-004] Implement runtime measurement: Add logging in `code/analysis/stats_test.py` to record wall-clock time and peak RAM usage for the full multi-seed run, verifying SC-004 (≤6h, ≤7GB). **Dependency**: T072 (Full Run Wrapper).
 - [X] T029b [US3] [Driver] Implement `code/experiments/run_seed_driver.py` to orchestrate a multi-seed loop for both baseline and complex models, aggregating results into a single JSON for the t-test.
-- [X] T030a [US3] [P] [Bootstrap] Define bootstrap parameters: Create `code/analysis/bootstrap_config.py` with `n_iterations: A sufficient number of iterations to ensure convergence.` and a `confidence_level` set to the standard threshold for statistical significance..
-- [ ] T030b [US3] [P] [Bootstrap] Implement `code/analysis/stats_test.py`: Bootstrap resampling (k=1000 iterations) to calculate confidence intervals for the mean difference. Depends on T030a.
-- [ ] T031 [US3] Implement `code/experiments/run_stats.py` to aggregate `baseline_metrics.json` and `quantum_metrics.json` and output `data/results/stats_report.json`. **Output Schema**: `{"p_value": float, "t_statistic": float, "cohens_d": float, "ci_lower": float, "ci_upper": float, "conclusion": "significant" | "not_significant"}`. **Mandatory**: `ci_lower` and `ci_upper` MUST be populated by the Bootstrap results from T030b. **Dependency**: T030b.
-- [ ] T031b [US3] Implement FR-006 framing in `code/analysis/stats_test.py`: Ensure all generated text in `stats_report.json` explicitly frames results as "associational improvements" and avoids causal claims. **Dependency**: T073.
-- [ ] T032 [US3] Verify `data/results/stats_report.json` contains p-value, t-statistic, Cohen's d, and a confidence interval. **Validation**: Assert `ci_lower` and `ci_upper` are not null and are populated by Bootstrap logic from T030b. **Dependency**: T031.
-- [ ] T033 [US3] Add a unit test in `tests/unit/test_stats_test.py` that mocks data to verify p-value logic (p < 0.05 when diff >= 0.05, p > 0.05 when diff < 0.01).
+- [X] T030a [US3] [P] [Bootstrap] Define bootstrap parameters: Create `code/analysis/bootstrap_config.py` with `n_iterations: 1000` and a `confidence_level` set to 0.95.
+- [X] T030b [US3] [P] [Bootstrap] Implement `code/analysis/stats_test.py`: Bootstrap resampling (k=1000 iterations) to calculate confidence intervals for the mean difference. **Output**: `data/results/bootstrap_ci.json` with schema: `{"ci_lower": float, "ci_upper": float}`. **Verification**: Assert that the confidence interval width is < 0.1. **Dependency**: T030a.
+- [X] T031 [US3] Implement `code/experiments/run_stats.py` to aggregate `baseline_metrics.json` and `quantum_metrics.json` and output `data/results/stats_report.json`. **Output Schema**: `{"p_value": float, "t_statistic": float, "cohens_d": float, "ci_lower": float, "ci_upper": float, "conclusion": "significant" | "not_significant"}`. **Mandatory**: `ci_lower` and `ci_upper` MUST be populated by the Bootstrap results from T030b. **Verification**: Assert that `ci_lower` and `ci_upper` are populated by Bootstrap logic from T030b. **Dependency**: T012, T024c, T030b.
+- [X] T031b [US3] Implement FR-006 framing in `code/analysis/stats_test.py`: Ensure all generated text in `stats_report.json` explicitly frames results as "associational improvements" and avoids causal claims. **Dependency**: T073.
+- [X] T032 [US3] Verify `data/results/stats_report.json` contains p-value, t-statistic, Cohen's d, and a confidence interval. **Validation**: Assert `ci_lower` and `ci_upper` are not null and are populated by Bootstrap logic from T030b. **Dependency**: T031.
+- [X] T033 [US3] Add a unit test in `tests/unit/test_stats_test.py` that mocks data to verify p-value logic (p < 0.05 when diff >= 0.05, p > 0.05 when diff < 0.01).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -168,9 +170,9 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 - [X] T034 [P] [Ablation] Implement `code/experiments/run_classical_baseline.py` for Classical Sum-of-Squares baseline ($P = \|c_1\|^2 + \|c_2\|^2$). This task implements the classical probability sum without interference cross-term, serving as the primary ablation condition.
 - [X] T035 [P] [Ablation] Implement `code/experiments/run_magnitude_control.py` for Phase-Randomized Control ($P = \|c_1 + e^{i\phi_{rand}}c_2\|^2$). **Logic**: Apply random phase shifts $\phi_{rand} \sim U(0, 2\pi)$ to $c_2$ before addition, destroying coherent interference while maintaining vector magnitudes. This isolates the *interference* mechanism specifically, distinct from the 'Sum-of-Squares' baseline.
-- [ ] T036 [Ablation] Implement `code/analysis/interference_check.py`. Input: list of (ambiguity_score, cross_term_value) pairs from `data/results/cross_term_log.json` (fields: `cross_term_values`, `ambiguous_indices`). Test: Spearman rank correlation. **Output**: `data/results/interference_correlation.json` with schema: `{"spearman_correlation": float, "p_value": float, "interpretation": "negative_correlation" | "no_correlation"}`.
-- [ ] T037 [Ablation] Generate `data/results/ablation_metrics.json` comparing Quantum vs. Classical vs. Magnitude-Only. Schema: `{"quantum_acc": float, "classical_acc": float, "magnitude_acc": float, "interference_contribution": float}`.
-- [ ] T038 [Ablation] Verify that interference cross-term assumption (negative values for ambiguity) holds in ablation results. Logic: Assert `spearman_correlation` in `data/results/interference_correlation.json` indicates a moderate to strong negative correlation.. If failed, log warning. Depends on T036.
+- [X] T036 [Ablation] Implement `code/analysis/interference_check.py`. Input: list of (ambiguity_score, cross_term_value) pairs from `data/results/cross_term_log.json` (fields: `cross_term_values`, `ambiguous_indices`). Test: Spearman rank correlation. **Output**: `data/results/interference_correlation.json` with schema: `{"spearman_correlation": float, "p_value": float, "interpretation": "negative_correlation" | "no_correlation"}`. **Verification**: Assert that file exists and contains a float for `spearman_correlation`. **Dependency**: T025.
+- [X] T037 [Ablation] Generate `data/results/ablation_metrics.json` comparing Quantum vs. Classical vs. Magnitude-Only. Schema: `{"quantum_acc": float, "classical_acc": float, "magnitude_acc": float, "interference_contribution": float}`. **Verification**: Assert that file exists and contains valid float values for all keys. **Dependency**: T034, T035.
+- [X] T038 [Ablation] Verify that interference cross-term assumption (negative values for ambiguity) holds in ablation results. Logic: Assert `spearman_correlation` in `data/results/interference_correlation.json` is < -0.3. If failed, log warning. Depends on T036.
 
 **Checkpoint**: At this point, all validation and ablation tasks are complete.
 
@@ -182,9 +184,9 @@ Examples of foundational tasks (adjust based on your plan.md):
 
 ### Sub-Phase 7A: Research Artifacts (Prerequisite)
 
-- [X] T071 [P] [Doc] Create initial `research.md` skeleton. **Content**: Title, Abstract, Introduction, Methods (summary), Results (placeholders), Discussion (placeholders). **Purpose**: Establish the artifact required for T074-T088.
+- [X] T071 [P] [Doc] Create initial `research.md` skeleton. **Content**: Title, Abstract, Introduction, Methods (summary), Results (placeholders), Discussion (placeholders). **Purpose**: Establish the artifact required for T074-T087.
 
-### Sub-Phase 7B: Reviewer Alignment (Depends on T071)
+### Sub-Phase 7B: Reviewer Alignment (Depends on T071, T012, T024c, T031, T037)
 
 - [X] T074 [P] [Doc] [Einstein/Feynman] Update `research.md` to include a concrete worked example (pseudocode + numerical values) demonstrating the "arrows" (amplitudes) adding up and interfering for a specific ambiguous sentence, explicitly distinguishing the quantum calculation from a classical probability sum. Add Section 5.2. **Dependency**: T071.
 - [X] T075 [P] [Doc] [Einstein/Von Neumann] Update `research.md` to explicitly define the "measurement" operator as the selection of the token with the highest Born-rule probability, and define the "observable" as the binary ambiguity label, satisfying the requirement for a physical correspondence. Add Section 4.1. **Dependency**: T071.
@@ -192,7 +194,7 @@ Examples of foundational tasks (adjust based on your plan.md):
 - [X] T077 [P] [Doc] [Lovelace] Update `research.md` to explicitly list the "instruction patterns" (mathematical operations) that generate the superposition state, clarifying that the machine is executing a defined algorithm and not "originating" the ambiguity. Add Section 5.7. **Dependency**: T071.
 - [X] T078 [P] [Doc] [Krakauer] Update `research.md` with a dedicated section on "Pronoun Resolution as a Test Case," detailing how the model handles a specific ambiguous pronoun (e.g., "The trophy doesn't fit in the suitcase because it is too large") and predicting the interference outcome. Add Section 5.5. **Dependency**: T071.
 - [X] T079 [P] [Doc] [Wolfram] Update `research.md` to discuss the computational irreducibility of the interference calculation, acknowledging that while the rules are simple (linear algebra), the outcome for complex contexts cannot be predicted without running the full computation. Add Section 5.6. **Dependency**: T071.
-- [X] T080 [P] [Doc] [Pauling] Update `research.md` to define the "energy landscape" of the reasoning process by mapping the loss function (FR-009) to a physical potential, explaining how the "resonance" of the superposition state minimizes this potential. Add Section 5.8. **Dependency**: T071.
+- [X] T080 [P] [Doc] [Pauling] Update `research.md` to define the "energy landscape" of the reasoning process by mapping the loss function (FR-009) to a physical potential, explaining how the "resonance" of the superposition state minimizes this potential. **Note**: This task consolidates T080 and T088. Add Section 5.8 "Resonance and Energy Landscapes". **Dependency**: T071.
 - [X] T081 [P] [Doc] [Lovelace/Einstein] Update `research.md` to explicitly distinguish between "operations ordered by the engine" (the algorithmic steps of phase rotation and vector addition) and "originating" ambiguity. Add a subsection "The Analytical Engine and Ambiguity" clarifying that the machine performs operations on abstract relations but does not originate the meaning, addressing the distinction between calculation and general symbolic manipulation. **Dependency**: T071.
 - [X] T082 [P] [Doc] [Einstein] Update `research.md` to address the "completeness" question directly: Explicitly state whether the model preserves locality (no instantaneous influence between distant tokens) or embraces non-locality, and justify the choice based on the architecture's design (e.g., attention mechanisms). Add a subsection "Locality and Completeness". **Dependency**: T071.
 - [X] T083 [P] [Doc] [Feynman] Update `research.md` with a "Worked Example: The Arrows" section containing a concrete numerical trace of a single ambiguous sentence. Show the initial amplitudes (arrows), the phase shifts applied, the vector addition (interference), and the final probability calculation, explicitly comparing the result to a classical probability sum to demonstrate the difference. **Dependency**: T071.
@@ -200,7 +202,6 @@ Examples of foundational tasks (adjust based on your plan.md):
 - [X] T085 [P] [Doc] [Von Neumann] Update `research.md` to explicitly define the inner product structure of the semantic Hilbert space and the self-adjoint operators corresponding to the "ambiguity" observable. Add a subsection "Mathematical Foundations: Inner Products and Observables". **Dependency**: T071.
 - [X] T086 [P] [Doc] [Wolfram] Update `research.md` to discuss "Computational Irreducibility": Explicitly test or argue whether the interference calculation exhibits computational irreducibility (i.e., cannot be compressed into a closed-form equation) and whether simple rewriting rules could reproduce the observed ambiguity patterns. Add a subsection "Search for Simple Rules". **Dependency**: T071.
 - [X] T087 [P] [Doc] [Curie] Update `research.md` to explicitly detail the "Measurement Protocol": Define the instrument (the evaluation script), the quantity measured (accuracy/F1), the control (classical baseline), and the statistical significance (p-values, confidence intervals). Add a subsection "Curie's Protocol for Verification". **Dependency**: T071.
-- [X] T088 [P] [Doc] [Pauling] Update `research.md` to define the "Energy Landscape" of the reasoning process by mapping the loss function to a physical potential, explaining how the "resonance" of the superposition state minimizes this potential. Add a subsection "Resonance and Energy Landscapes". **Dependency**: T071.
 
 ### Implementation for Documentation & Reviewer Alignment (General)
 
@@ -226,12 +227,13 @@ Examples of foundational tasks (adjust based on your plan.md):
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T050 [P] [Doc] Draft `docs/paper/manuscript.md` (Introduction, Methods, Results, Discussion) using `data/results/` artifacts.
-- [ ] T051 [P] [Code] Refactor `code/models/bert_adapter.py` and `code/utils/complex_ops.py` to remove duplication and improve type hinting.
+- [X] T051 [P] [Code] Refactor `code/models/bert_adapter.py` and `code/utils/complex_ops.py` to remove duplication and improve type hinting.
 - [X] T052 [P] [Perf] Optimize batch size in `config.yaml` to ensure memory usage < 7GB under load; verify with `runtime_monitor`.
 - [X] T053 [P] [Test] Add unit tests for edge cases (NaN, Inf, [UNK]) in `tests/unit/test_edge_cases.py`.
 - [X] T054 [P] [Sec] Security hardening: Pin all dependencies in `requirements.txt` and verify no CVEs via `pip-audit`.
 - [X] T055 [P] [Val] Run final validation suite: `pytest --cov`, `flake8`, `black --check`.
 - [X] T072 [P] [SC-004] Implement `code/experiments/run_full_experiment.py` (Full Run Wrapper). **Logic**: Orchestrate the full -seed loop (Baseline + Quantum + Ablation + Stats). **Mandatory**: Wrap the entire execution in `runtime_monitor` (T009d) to enforce the 6h/7GB constraint on the *total* run time. Output a final `runtime_report.json`.
+- [X] T089 [P] [Doc] Reconcile run-book vs implementation for `code/experiments/run_ablation.py`: the quickstart run-book invokes this script but it does not exist. **Action**: Update `quickstart.md` to invoke `code/experiments/run_quantum.py` OR create `code/experiments/run_ablation.py`. **Verification**: Verify the command in `quickstart.md` executes successfully.
 
 ---
 
@@ -337,4 +339,4 @@ With multiple developers:
 - [X] T071 [P] [Doc] Create initial `research.md` skeleton to enable Phase 7B tasks.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T089 Reconcile run-book vs implementation for `code/experiments/run_ablation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/experiments/run_ablation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T089 [P] [Doc] Reconcile run-book vs implementation for `code/experiments/run_ablation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/experiments/run_ablation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

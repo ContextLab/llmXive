@@ -2,9 +2,21 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `output/`)** — No evidence of the required directory structure (`src/`, `tests/`, `data/`, `output/`) is provided; the prompt contains no listing or description of these folders, so we cannot verify that they exist or contain any files. The implementer must create and show the project root with the four specified sub‑directories.
-- **T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, numpy, scipy, requests, pyarrow, matplotlib, pytest, pytest-cov)** — No `requirements.txt` file (or any other project initialization artifact) was presented, and no content showing Python 3.11 setup or pinned versions for the listed packages is available. The required artifact is missing, so the task is not satisfied.
-- **T003 [P] Configure linting (ruff/flake8) and formatting (black) tools** — No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) or related setup scripts are present in the provided evidence, so the requirement to configure ruff/flake8 and Black has not been satisfied.
-- **T004 [P] Create `src/utils/config.py` to define paths, random seeds, and metric thresholds (ROR>2.0, PRR>1.5, IC>0). **Include an embedded dictionary `KNOWN_BACKGROUND_RATES` mapping SOC codes to published incidence rates (source: CDC literature) for use in T024b.**** — No `src/utils/config.py` file was presented; thus the required paths, seeds, thresholds, and the `KNOWN_BACKGROUND_RATES` dictionary are missing. The task cannot be considered fulfilled without this module.
-- **T005 [P] Create `contracts/dataset.schema.yaml` defining required columns (`VAX_TYPE`, `SOC_CODE`/`LLT`, `REPT_DATE`, `AGE`)** — No `contracts/dataset.schema.yaml` file was presented in the evidence, and its contents (defining the required columns `VAX_TYPE`, `SOC_CODE`/`LLT`, `REPT_DATE`, `AGE`) cannot be verified. The required artifact is missing.
-- **T006 [P] Create `contracts/signal.schema.yaml` defining output structure for signals (ROR, PRR, IC, CI, adjusted_p)** — No `contracts/signal.schema.yaml` file was presented; the evidence contains no schema definition or any non‑empty artifact describing the required fields (ROR, PRR, IC, CI, adjusted_p). The task therefore remains unfulfilled.
+- **T001** — No directory structure (`src/`, `tests/`, `data/`, `output/`) was presented or described in the provided evidence; the implementer gave only a feature specification without showing the required folders or any files within them. Consequently the task requirement is not satisfied.
+- **T003** — No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) or documentation of their setup are present in the provided evidence, so the requirement to configure ruff/flake8 and Black cannot be confirmed. The implementer must add the actual configuration artifacts and demonstrate they are active in the project.
+- **T004** — declared artifact(s) missing/empty/invalid: src/utils/config.py
+- **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T006** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T007** — declared artifact(s) missing/empty/invalid: src/data/validate.py, schema.yaml
+- **T008** — declared artifact(s) missing/empty/invalid: src/utils/plots.py
+- **T009** — declared artifact(s) missing/empty/invalid: src/main.py
+- **T039** — The required file `src/main.py` is missing entirely, so no memory‑check logic or chunked‑processing code could be present. The task’s core deliverable does not exist.
+- **T040** — The required file `src/main.py` is missing entirely, so no memory‑check logic could have been added. Consequently the task’s deliverable does not exist.
+- **T011** — The repository lacks `src/data/validate.py`, so the unit tests cannot even import the functions they are meant to test. Moreover, the provided `tests/unit/test_validate.py` (truncated) does not contain a test that asserts an `E_SCHEMA_MISSING` exception is raised for missing columns; it only checks for a generic `SystemExit`. Both the required source file and the specific test for `E_SCHEMA_MISSING` are missing.
+- **T014** — declared artifact(s) missing/empty/invalid: src/data/clean.py
+- **T016** — declared artifact(s) missing/empty/invalid: src/data/clean.py
+- **T018** — declared artifact(s) missing/empty/invalid: src/data/clean.py
+- **T019** — Both required artifacts (`src/analysis/disproportionality.py` and `tests/unit/test_disproportionality.py`) are missing from the repository, so no unit test or implementation exists to verify the ROR/PRR/IC calculation logic. The task’s deliverable is therefore not present.
+- **T022** — declared artifact(s) missing/empty/invalid: src/analysis/disproportionality.py
+- **T023** — declared artifact(s) missing/empty/invalid: src/analysis/disproportionality.py
+- **T024** — declared artifact(s) missing/empty/invalid: src/analysis/disproportionality.py

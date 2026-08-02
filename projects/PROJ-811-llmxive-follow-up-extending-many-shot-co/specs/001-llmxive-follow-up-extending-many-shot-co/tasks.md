@@ -82,7 +82,7 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement CoT trace parser in `code/src/parser.py` to convert text steps to `networkx` DAG nodes/edges
-- [X] T013 [US1] Implement cycle detection logic (max cycle length of 5 steps, >3 incoming edges) [UNRESOLVED-CLAIM: c_7723fd76 — status=not_enough_info] and flagging mechanism in `code/src/parser.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T013 [US1] Implement cycle detection logic (max cycle length of 5 steps, >3 incoming edges) and flagging mechanism in `code/src/parser.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 4, column 1:
  **Input**: Design documents from...
  ^
@@ -91,10 +91,10 @@ expected alphabetic or numeric character, but found '*'
  **Input**: Design documents from...
  ^) -->
 - [X] T014 [US1] Implement "Logical Difficulty Score" calculation (max path depth) in `code/src/parser.py`
-- [ ] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, generate a template file with instructions for expert annotation (handling the 'deferred' assumption) rather than failing.
-- [ ] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6) (Plan Deviation: GeoQA replaced by SFT human ratings). **Depends on: T014, T015**.
-- [ ] T017 [US1] Implement filtering and exclusion logic to remove invalid traces (cycles) from `data/processed/dag_manifest.json` and ensure they are not included in downstream prompt generation (US-001 AC-2)
-- [ ] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
+- [X] T015 [US1] Load/Verify existence of `data/processed/gold_standard_annotations.json`. If missing, generate a template file with instructions for expert annotation (handling the 'deferred' assumption) rather than failing.
+- [X] T016 [US1] Implement validation script to compute Pearson correlation (r) between DAG depth (from T014) and human-rated logical complexity (from T015), outputting `data/processed/validation_report.json` with r-value and pass/fail status (exit 0 only if r ≥ 0.6) (Plan Deviation: GeoQA replaced by SFT human ratings). **Depends on: T014, T015**.
+- [X] T017 [US1] Implement filtering and exclusion logic to remove invalid traces (cycles) from `data/processed/dag_manifest.json` and ensure they are not included in downstream prompt generation (US-001 AC-2)
+- [X] T018 [US1] Generate `data/processed/dag_manifest.json` containing dependency depths for all VALID traces only
 
 **⚠️ GATING CHECK**: T016 must pass (r ≥ 0.6) AND T017 must complete before Phase 4 can begin.
 
@@ -123,7 +123,7 @@ expected alphabetic or numeric character, but found '*'
 - [X] T025 [US2] Implement prompt template assembler to combine a set of examples into a single prompt string in `code/src/prompt_gen.py`
 - [ ] T026 [US2] Create batch runner to generate prompts for multiple seeds across three strategies, saving to `data/processed/prompts/`
 - [ ] T027 [US2] Add validation to ensure no duplicate orderings within a strategy group across seeds
-- [ ] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
+- [X] T028 [US2] Generate `data/processed/prompt_manifest.json` mapping seed/strategy to file paths
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -143,11 +143,11 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `llama.cpp` inference runner in `code/src/inference.py` (CPU mode, Q4_K_M quantization, retry logic)
+- [X] T032 [US3] Implement `llama.cpp` inference runner in `code/src/inference.py` (CPU mode, Q4_K_M quantization, retry logic)
 - [ ] T033 [US3] Implement model selection logic for "Reasoning" vs "Non-Reasoning" classes in `code/src/inference.py`
 - [ ] T034 [US3] Implement result aggregation script to collect accuracy per seed/strategy/model in `code/src/analysis.py`
 - [ ] T035a [US3] Implement Linear Mixed-Effects Model (LMM) in `code/src/analysis.py` (Fixed: Strategy, ModelType, Interaction; Random: Seed, PromptID) to test interaction effects (Plan Deviation from Spec FR-004 ANOVA).
-- [ ] T035b [US3] Implement calculation of Partial Eta-Squared (or LMM-equivalent effect size like Cohen's f²) from the LMM results to satisfy SC-005. Document the deviation from Spec FR-004 (ANOVA) to Plan LMM in `artifacts/stats_report.md` including a power analysis justification (alpha=0.05, power=0.8, effect_size=0.25) [UNRESOLVED-CLAIM: c_ac13a0ab — status=not_enough_info] using `statsmodels.stats.power`.
+- [ ] T035b [US3] Implement calculation of Partial Eta-Squared (or LMM-equivalent effect size like Cohen's f²) from the LMM results to satisfy SC-005. Document the deviation from Spec FR-004 (ANOVA) to Plan LMM in `artifacts/stats_report.md` including a power analysis justification (alpha=0.05, power=0.8, effect_size=0.25) using `statsmodels.stats.power`.
 - [ ] T036 [US3] Implement Bonferroni correction for multiple comparisons on post-hoc tests in `code/src/analysis.py`
 - [ ] T038 [US3] Implement Levene's test for variance stability (SC-001): Calculate the variance of the MEAN accuracy across multiple seeds. for "Logical Ascending" and "Logical Random" strategies separately. Compare the two variances to verify ≥15% reduction (p < 0.10). Append results to `artifacts/stats_report.md`.
 - [ ] T037 [US3] Generate final statistical report (`artifacts/stats_report.md`) with p-values, effect sizes (partial eta-squared), variance comparisons, and the deviation note from T035b
@@ -262,7 +262,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: Ensure `llama.cpp` inference tasks (T032) strictly use CPU-only flags and Q4_K_M quantization to fit within 7GB RAM [UNRESOLVED-CLAIM: c_99d92506 — status=not_enough_info].
+- **CRITICAL**: Ensure `llama.cpp` inference tasks (T032) strictly use CPU-only flags and Q4_K_M quantization to fit within 7GB RAM.
 - **CRITICAL**: Ensure DAG parser (T012) handles edge cases (cycles, ambiguous steps) as per spec edge cases.
 - **CRITICAL**: T016 (Validation) is a hard gate. If r < 0.6, the "Logical Difficulty Score" is invalid, and the project must pivot or report failure before proceeding to US2.
 - **CRITICAL**: T017 (Exclusion) must remove invalid traces from the manifest to prevent data leakage.

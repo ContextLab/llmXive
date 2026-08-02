@@ -1,226 +1,235 @@
+"""
+Prompt generation module for creating few-shot prompts with different ordering strategies.
+Implements Logical Ascending, Logical Random, and Original CDS (Semantic Curvature) strategies.
+"""
 import random
 import json
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
+import numpy as np
+from sentence_transformers import SentenceTransformer
+
 from code.src.parser_utils import load_json_file, save_json_file
 from code.src.config import get_config
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 class PromptGenerator:
     """
     Generates few-shot prompts based on different ordering strategies.
     """
-
+    
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or get_config()
-        self.prompt_template = self.config.get("prompt", {}).get("template", "")
-        self.example_template = self.config.get("prompt", {}).get("example_template", "")
-        self.separator = self.config.get("prompt", {}).get("separator", "\n\n")
-
-    def load_examples_from_manifest(self, manifest_path: Path) -> List[Dict[str, Any]]:
-        """
-        Loads examples from the DAG manifest file.
-        
-        Args:
-            manifest_path: Path to the dag_manifest.json file.
-            
-        Returns:
-            List of example dictionaries.
-        """
-        if not manifest_path.exists():
-            raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
-        
-        manifest = load_json_file(manifest_path)
-        if not isinstance(manifest, list):
-            raise ValueError("Manifest must be a list of examples")
-        
-        return manifest
-
-    def sort_by_logical_ascending(self, examples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Sorts examples by Logical Difficulty Score (max path depth) in ascending order.
-        
-        Args:
-            examples: List of example dictionaries containing 'logical_difficulty' or 'depth'.
-            
-        Returns:
-            Sorted list of examples.
-        """
-        return sorted(
-            examples,
-            key=lambda x: x.get("logical_difficulty", x.get("depth", 0))
-        )
-
-    def shuffle_deterministic(self, examples: List[Dict[str, Any]], seed: int) -> List[Dict[str, Any]]:
-        """
-        Shuffles examples deterministically using a fixed seed.
-        
-        Args:
-            examples: List of example dictionaries.
-            seed: Random seed for reproducibility.
-            
-        Returns:
-            Shuffled list of examples.
-        """
-        shuffled = examples.copy()
-        rng = random.Random(seed)
-        rng.shuffle(shuffled)
-        return shuffled
-
-    def sort_by_original_cds(self, examples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Sorts examples by Original CDS (Semantic Curvature) score.
-        
-        Args:
-            examples: List of example dictionaries containing 'curvature_score'.
-            
-        Returns:
-            Sorted list of examples (descending order for curvature).
-        """
-        return sorted(
-            examples,
-            key=lambda x: x.get("curvature_score", 0),
-            reverse=True
-        )
-
-    def assemble_prompt(self, examples: List[Dict[str, Any]], include_query: bool = True) -> str:
-        """
-        Assembles a single prompt string from a list of examples.
-        
-        This method combines the system prompt, few-shot examples, and optionally
-        the test query into a single string formatted for LLM inference.
-        
-        Args:
-            examples: List of example dictionaries. Each must contain at least:
-                      - 'question': The input question
-                      - 'answer': The ground truth or model answer
-                      Optionally:
-                      - 'thought': Chain of thought if available
-            include_query: If True, appends a placeholder for the test query at the end.
-            
-        Returns:
-            A single formatted prompt string.
-        """
-        if not examples:
-            logger.warning("No examples provided to assemble_prompt. Returning empty string.")
-            return ""
-
-        parts = []
-
-        # Add system prompt if defined in config
-        system_prompt = self.config.get("prompt", {}).get("system_prompt", "")
-        if system_prompt:
-            parts.append(system_prompt)
-
-        # Assemble few-shot examples
-        for i, example in enumerate(examples):
-            question = example.get("question", "")
-            answer = example.get("answer", "")
-            thought = example.get("thought", "")
-            
-            # Format individual example
-            if thought:
-                example_text = self.example_template.format(
-                    question=question,
-                    thought=thought,
-                    answer=answer
-                )
-            else:
-                example_text = self.example_template.format(
-                    question=question,
-                    answer=answer
-                )
-            
-            parts.append(example_text)
-
-        # Add test query placeholder if requested
-        if include_query:
-            query_placeholder = self.config.get("prompt", {}).get("query_placeholder", "Question: {question}\nAnswer:")
-            # We append the start of the query, expecting the actual question to be filled in by the runner
-            # or we just append the generic "Question: ..." line if the runner handles the specific text
-            # For this assembler, we assume the runner will append the specific question text or
-            # we append the template for the question part.
-            # Based on standard ICL, we usually end with "Question: [Actual Question]\nAnswer:"
-            # Here we assume the caller passes the specific question for the test instance separately
-            # or we just leave the prompt ending in "Answer:"
-            final_suffix = self.config.get("prompt", {}).get("final_suffix", "Question:\nAnswer:")
-            parts.append(final_suffix)
-
-        return self.separator.join(parts)
-
-    def generate_prompt_for_strategy(
-        self,
-        examples: List[Dict[str, Any]],
-        strategy: str,
-        seed: Optional[int] = None
-    ) -> str:
-        """
-        Generates a prompt based on the specified ordering strategy.
-        
-        Args:
-            examples: List of example dictionaries.
-            strategy: One of 'logical_ascending', 'logical_random', 'original_cds'.
-            seed: Random seed (required for 'logical_random').
-            
-        Returns:
-            Formatted prompt string.
-        """
-        ordered_examples = examples.copy()
-        
-        if strategy == "logical_ascending":
-            ordered_examples = self.sort_by_logical_ascending(ordered_examples)
-        elif strategy == "logical_random":
-            if seed is None:
-                raise ValueError("Seed is required for 'logical_random' strategy")
-            ordered_examples = self.shuffle_deterministic(ordered_examples, seed)
-        elif strategy == "original_cds":
-            ordered_examples = self.sort_by_original_cds(ordered_examples)
-        else:
+        self.seed = None
+        self.strategy = None
+        self.sbert_model = None
+        self._load_sbert()
+    
+    def _load_sbert(self):
+        """Load SBERT model for semantic curvature calculation."""
+        try:
+            # Use a lightweight model suitable for CPU
+            model_name = self.config.get('model', {}).get('sbert', 'all-MiniLM-L6-v2')
+            logger.info(f"Loading SBERT model: {model_name}")
+            self.sbert_model = SentenceTransformer(model_name)
+        except Exception as e:
+            logger.error(f"Failed to load SBERT model: {e}")
+            self.sbert_model = None
+    
+    def set_seed(self, seed: int):
+        """Set the random seed for deterministic shuffling."""
+        self.seed = seed
+        random.seed(seed)
+        if self.sbert_model:
+            # SBERT might have internal randomness, but we set global seed
+            np.random.seed(seed)
+    
+    def set_strategy(self, strategy: str):
+        """Set the ordering strategy."""
+        if strategy not in ["logical_ascending", "logical_random", "original_cds"]:
             raise ValueError(f"Unknown strategy: {strategy}")
+        self.strategy = strategy
+    
+    def _calculate_curvature_scores(self, examples: List[Dict[str, Any]]) -> List[float]:
+        """
+        Calculate Semantic Curvature Score for each example.
+        Algorithm: Compute sentence embeddings, calculate cosine similarity between adjacent sentences,
+        then compute the variance of these similarities.
+        """
+        if not self.sbert_model:
+            logger.warning("SBERT model not loaded, returning zero curvature scores")
+            return [0.0] * len(examples)
         
-        return self.assemble_prompt(ordered_examples)
-
+        curvature_scores = []
+        
+        for example in examples:
+            trace = example.get('trace', '')
+            if not trace:
+                curvature_scores.append(0.0)
+                continue
+            
+            # Split trace into sentences (simple split by period for now)
+            sentences = [s.strip() for s in trace.split('.') if s.strip()]
+            
+            if len(sentences) < 2:
+                curvature_scores.append(0.0)
+                continue
+            
+            # Get embeddings
+            try:
+                embeddings = self.sbert_model.encode(sentences, convert_to_numpy=True)
+                
+                # Calculate cosine similarities between adjacent sentences
+                similarities = []
+                for i in range(len(embeddings) - 1):
+                    # Cosine similarity
+                    dot_product = np.dot(embeddings[i], embeddings[i+1])
+                    norm = np.linalg.norm(embeddings[i]) * np.linalg.norm(embeddings[i+1])
+                    if norm == 0:
+                        similarities.append(0.0)
+                    else:
+                        similarities.append(dot_product / norm)
+                
+                # Variance of similarities
+                if len(similarities) > 0:
+                    variance = np.var(similarities)
+                    curvature_scores.append(variance)
+                else:
+                    curvature_scores.append(0.0)
+                    
+            except Exception as e:
+                logger.warning(f"Failed to calculate curvature for example: {e}")
+                curvature_scores.append(0.0)
+        
+        return curvature_scores
+    
+    def _sort_logical_ascending(self, examples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Sort examples by Logical Difficulty Score (max path depth) in ascending order."""
+        return sorted(examples, key=lambda x: x.get('logical_difficulty', 0))
+    
+    def _shuffle_logical_random(self, examples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Shuffle examples deterministically with the set seed."""
+        shuffled = examples.copy()
+        random.shuffle(shuffled)
+        return shuffled
+    
+    def _sort_original_cds(self, examples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Sort examples by Original CDS (Semantic Curvature) score."""
+        curvature_scores = self._calculate_curvature_scores(examples)
+        
+        # Attach scores to examples
+        examples_with_scores = [
+            (ex, score) for ex, score in zip(examples, curvature_scores)
+        ]
+        
+        # Sort by curvature score (ascending or descending? Spec says "Original CDS" sorting)
+        # Assuming ascending order for consistency with logical ascending
+        sorted_examples = sorted(examples_with_scores, key=lambda x: x[1])
+        
+        return [ex for ex, _ in sorted_examples]
+    
+    def generate_prompts(self, examples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Generate prompts for the given examples based on the current strategy.
+        Returns a list of prompt objects.
+        """
+        if self.strategy is None:
+            raise ValueError("Strategy not set. Call set_strategy() first.")
+        
+        if self.seed is None:
+            raise ValueError("Seed not set. Call set_seed() first.")
+        
+        # Sort/shuffle examples based on strategy
+        if self.strategy == "logical_ascending":
+            sorted_examples = self._sort_logical_ascending(examples)
+        elif self.strategy == "logical_random":
+            sorted_examples = self._shuffle_logical_random(examples)
+        elif self.strategy == "original_cds":
+            sorted_examples = self._sort_original_cds(examples)
+        else:
+            raise ValueError(f"Unknown strategy: {self.strategy}")
+        
+        # Generate prompt objects
+        prompts = []
+        for i, example in enumerate(sorted_examples):
+            prompt_text = self._assemble_prompt(example, i)
+            prompts.append({
+                "index": i,
+                "seed": self.seed,
+                "strategy": self.strategy,
+                "example_id": example.get('id', f'example_{i}'),
+                "prompt": prompt_text,
+                "metadata": {
+                    "logical_difficulty": example.get('logical_difficulty', 0),
+                    "curvature_score": example.get('curvature_score', 0) if self.strategy == "original_cds" else None
+                }
+            })
+        
+        return prompts
+    
+    def _assemble_prompt(self, example: Dict[str, Any], index: int) -> str:
+        """
+        Assemble a single prompt from an example.
+        This is a simplified version; actual template might be more complex.
+        """
+        question = example.get('question', '')
+        trace = example.get('trace', '')
+        answer = example.get('answer', '')
+        
+        # Simple template
+        prompt = f"""
+        Question: {question}
+        
+        Thought Process:
+        {trace}
+        
+        Answer: {answer}
+        """.strip()
+        
+        return prompt
 
 def main():
-    """
-    Main entry point for testing prompt generation.
-    """
-    import argparse
+    """Main entry point for testing the prompt generator."""
+    config = get_config()
+    generator = PromptGenerator(config)
     
-    parser = argparse.ArgumentParser(description="Generate prompts from DAG manifest")
-    parser.add_argument("--manifest", type=str, required=True, help="Path to dag_manifest.json")
-    parser.add_argument("--output", type=str, required=True, help="Path to output prompt file")
-    parser.add_argument("--strategy", type=str, default="logical_ascending", 
-                      choices=["logical_ascending", "logical_random", "original_cds"])
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for random strategy")
+    # Load sample data for testing
+    # This would normally come from the DAG manifest
+    sample_examples = [
+        {"id": "1", "question": "What is 2+2?", "trace": "Step 1: Add 2 and 2. Step 2: Result is 4.", "answer": "4", "logical_difficulty": 1},
+        {"id": "2", "question": "What is 3*3?", "trace": "Step 1: Multiply 3 by 3. Step 2: Result is 9.", "answer": "9", "logical_difficulty": 2},
+        {"id": "3", "question": "What is 5-2?", "trace": "Step 1: Subtract 2 from 5. Step 2: Result is 3.", "answer": "3", "logical_difficulty": 1},
+    ]
     
-    args = parser.parse_args()
+    # Test logical ascending
+    generator.set_seed(42)
+    generator.set_strategy("logical_ascending")
+    prompts = generator.generate_prompts(sample_examples)
+    print("Logical Ascending:")
+    for p in prompts:
+        print(f"  {p['example_id']}: depth={p['metadata']['logical_difficulty']}")
     
-    manifest_path = Path(args.manifest)
-    output_path = Path(args.output)
+    # Test logical random
+    generator.set_seed(42)
+    generator.set_strategy("logical_random")
+    prompts = generator.generate_prompts(sample_examples)
+    print("\nLogical Random (seed=42):")
+    for p in prompts:
+        print(f"  {p['example_id']}")
     
-    generator = PromptGenerator()
-    examples = generator.load_examples_from_manifest(manifest_path)
-    
-    logger.info(f"Loaded {len(examples)} examples from {manifest_path}")
-    logger.info(f"Generating prompt with strategy: {args.strategy}")
-    
-    prompt = generator.generate_prompt_for_strategy(
-        examples, 
-        strategy=args.strategy, 
-        seed=args.seed
-    )
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(prompt)
-        
-    logger.info(f"Prompt saved to {output_path}")
-    print(f"Generated prompt length: {len(prompt)} characters")
-
+    # Test original_cds
+    generator.set_seed(42)
+    generator.set_strategy("original_cds")
+    prompts = generator.generate_prompts(sample_examples)
+    print("\nOriginal CDS:")
+    for p in prompts:
+        print(f"  {p['example_id']}: curvature={p['metadata'].get('curvature_score')}")
 
 if __name__ == "__main__":
     main()

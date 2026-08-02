@@ -1,213 +1,237 @@
-"""
-Report Generator Module
-
-Generates the final paper draft (docs/paper_draft.md) from the MetaAnalysisResult JSON
-using a Jinja2 template.
-"""
 import json
 import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Import config utilities from existing API surface
 from utils.config import get_project_root, ensure_directory
 from utils.logger import get_logger
 
 try:
-    from jinja2 import Template, Environment, FileSystemLoader
+    from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 except ImportError:
-    print("ERROR: Jinja2 is not installed. Please install it: pip install jinja2")
-    sys.exit(1)
+    raise ImportError(
+        "Jinja2 is required for report generation. "
+        "Please install it via 'pip install jinja2'."
+    )
 
 logger = get_logger(__name__)
 
-def load_meta_analysis_result(json_path: str) -> Dict[str, Any]:
+def load_meta_analysis_result(
+    json_path: Optional[Path] = None,
+) -> Dict[str, Any]:
     """
-    Load the MetaAnalysisResult from a JSON file.
-    
+    Load the meta-analysis result from a JSON file.
+
     Args:
-        json_path: Path to the JSON file containing analysis results.
-        
+        json_path: Path to the results JSON file. If None, uses the default
+                   path from project configuration.
+
     Returns:
-        Dictionary containing the analysis results.
-        
+        Dictionary containing the meta-analysis results.
+
     Raises:
-        FileNotFoundError: If the JSON file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
+        FileNotFoundError: If the results file does not exist.
+        json.JSONDecodeError: If the file contains invalid JSON.
     """
-    path = Path(json_path)
-    if not path.exists():
-        raise FileNotFoundError(f"MetaAnalysisResult file not found: {json_path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    logger.info(f"Loaded MetaAnalysisResult from {json_path}")
-    return data
+    if json_path is None:
+        project_root = get_project_root()
+        json_path = project_root / "data" / "derived" / "results.json"
 
-def render_paper_draft(result: Dict[str, Any], template_path: Optional[str] = None) -> str:
+    if not json_path.exists():
+        raise FileNotFoundError(f"Results file not found: {json_path}")
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def render_paper_draft(
+    results: Dict[str, Any],
+    template_name: str = "paper_draft.md.jinja2",
+    output_path: Optional[Path] = None,
+) -> Path:
     """
-    Render the paper draft markdown from the MetaAnalysisResult using a Jinja2 template.
-    
+    Render the paper draft using a Jinja2 template and the meta-analysis results.
+
     Args:
-        result: The MetaAnalysisResult dictionary.
-        template_path: Optional path to a custom template. If None, uses the embedded default template.
-        
+        results: The meta-analysis results dictionary.
+        template_name: Name of the Jinja2 template file.
+        output_path: Path to write the generated markdown file. If None,
+                     uses the default path.
+
     Returns:
-        The rendered markdown string.
+        Path to the generated paper draft.
+
+    Raises:
+        TemplateNotFound: If the specified template does not exist.
     """
-    if template_path:
-        env = Environment(loader=FileSystemLoader(str(Path(template_path).parent)))
-        template = env.get_template(Path(template_path).name)
-    else:
-        # Embedded default template for automated report generation
-        template_str = """
-# Correlation Between Structural Brain Connectivity and Individual Music Preferences: A Meta-Analysis
+    project_root = get_project_root()
 
-**Generated**: {{ timestamp }}
+    # Set up Jinja2 environment
+    template_dir = project_root / "templates"
+    ensure_directory(template_dir)
+    env = Environment(loader=FileSystemLoader(str(template_dir)))
 
----
+    try:
+        template = env.get_template(template_name)
+    except TemplateNotFound:
+        # Create a default template if one doesn't exist
+        logger.warning(
+            f"Template '{template_name}' not found. Creating a default template."
+        )
+        default_template_content = """
+# Structural Brain Connectivity and Music Preferences: Meta-Analysis Report
 
 ## Executive Summary
 
-This meta-analysis investigates the correlation between structural brain connectivity (dMRI metrics) and individual music preferences. 
-The synthesis mode employed was **{{ synthesis_mode }}** based on a total of **{{ study_count }}** eligible studies.
+**Synthesis Mode**: {{ results.get('synthesis_mode', 'N/A') }}
+**Study Count**: {{ results.get('N', 'N/A') }}
+**Timestamp**: {{ results.get('timestamp', 'N/A') }}
 
-{% if synthesis_mode == 'quantitative' %}
-### Key Quantitative Findings
+{% if results.get('synthesis_mode') == 'quantitative' %}
+## Quantitative Results
 
-- **Pooled Correlation (r)**: {{ weighted_mean_r }} (95% CI: {{ ci_lower }}, {{ ci_upper }})
-- **Heterogeneity (I²)**: {{ i_squared }}%
-- **Publication Bias (Egger's Test)**: 
-  - {% if egger_p_value is not none %}
-    - Intercept: {{ egger_intercept }}, p-value: {{ egger_p_value }}
-    - {% if egger_p_value < 0.05 %}
-*Significant asymmetry detected (p < 0.05), suggesting potential publication bias.*
-    - {% else %}
-*No significant asymmetry detected (p >= 0.05).*
-    - {% endif %}
-  - {% else %}
-    {{ egger_skipped_reason }}
-  - {% endif %}
+### Pooled Effect Size
+- **Weighted Mean r**: {{ "%.4f"|format(results.get('weighted_mean_r', 0)) }}
+- **95% CI**: [{{ "%.4f"|format(results.get('ci_lower', 0)) }}, {{ "%.4f"|format(results.get('ci_upper', 0)) }}]
+- **Model Type**: {{ results.get('model_type', 'Random Effects') }}
 
-### Tract-Specific Effects
+### Heterogeneity
+- **I² Statistic**: {{ results.get('i_squared', 'N/A') }}
+- **Egger's Test p-value**: {{ results.get('egger_p', 'N/A') }}
 
-{% for tract, data in tract_results.items() %}
-#### {{ tract }}
-- **Effect Size (r)**: {{ data.effect_size }}
-- **Studies (N)**: {{ data.n_studies }}
-- **Significance**: {% if data.p_value < 0.05 %}p < 0.05{% else %}p >= 0.05{% endif %}
-{% if data.adjusted_p_value is defined %}
-- **Bonferroni Adjusted p**: {{ data.adjusted_p_value }}
-- **Significance (Adjusted)**: {% if data.adjusted_p_value < 0.05 %}Significant{% else %}Not Significant{% endif %}
+### Multiple Comparison Correction
+- **Bonferroni Applied**: {{ results.get('bonferroni_applied', False) }}
+{% if results.get('bonferroni_applied') %}
+- **Adjusted Threshold**: {{ results.get('adjusted_threshold', 'N/A') }}
 {% endif %}
+{% endif %}
+
+{% if results.get('synthesis_mode') == 'narrative' %}
+## Narrative Synthesis
+
+### Study Overview
+{{ results.get('narrative_overview', 'No overview available.') }}
+
+### Qualitative Themes
+{% for theme in results.get('narrative_themes', []) %}
+- **{{ theme.get('name', 'Unnamed') }}**: {{ theme.get('description', 'No description') }} ({{ theme.get('count', 0) }} studies)
 {% endfor %}
 
-{% if limitations %}
 ### Limitations
-{{ limitations }}
+{{ results.get('limitations', 'Insufficient data for quantitative analysis (N < 10).') }}
 {% endif %}
 
+## Conclusions
+
+{% if results.get('synthesis_mode') == 'quantitative' and results.get('weighted_mean_r', 0) > 0.3 %}
+The meta-analysis indicates a **moderate positive correlation** between structural brain
+connectivity and individual music preferences.
+{% elif results.get('synthesis_mode') == 'quantitative' %}
+The meta-analysis indicates a **weak or negligible correlation** between structural brain
+connectivity and individual music preferences.
 {% else %}
-### Qualitative Synthesis (Narrative Mode)
-
-*Insufficient studies (N < 10) were available for quantitative meta-analysis. The following narrative summary describes emerging themes.*
-
-{{ narrative_summary }}
-
+Due to insufficient studies (N < 10), a quantitative meta-analysis was not possible.
+The narrative synthesis suggests preliminary patterns that warrant further investigation.
 {% endif %}
 
 ---
+*Generated automatically by llmXive on {{ results.get('timestamp', datetime.now().isoformat()) }}*
+"""
+        default_template_path = template_dir / template_name
+        with open(default_template_path, "w", encoding="utf-8") as f:
+            f.write(default_template_content)
+        template = env.get_template(template_name)
 
-## Methodology
+    # Render the template
+    rendered_content = template.render(results=results, datetime=datetime)
 
-### Data Extraction
-Effect sizes (Pearson's r) and sample sizes (n) were extracted from eligible studies. Qualitative descriptors regarding specific neural tracts were also captured.
+    # Determine output path
+    if output_path is None:
+        docs_dir = project_root / "docs"
+        ensure_directory(docs_dir)
+        output_path = docs_dir / "paper_draft.md"
+    else:
+        ensure_directory(output_path.parent)
 
-### Statistical Analysis
-{% if synthesis_mode == 'quantitative' %}
-A random-effects meta-analysis model was employed to calculate the pooled correlation coefficient. 
-Heterogeneity was assessed using the I² statistic. Publication bias was evaluated via Egger's linear regression test.
-Multiple comparison corrections (Bonferroni) were applied where applicable (N ≥ 10 and k ≥ 2 tracts).
-{% else %}
-Due to the limited number of studies (N < 10), a quantitative meta-analysis was not performed. 
-Instead, a qualitative thematic analysis was conducted to identify trends in neural circuitry associations.
-{% endif %}
+    # Write the output
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(rendered_content)
 
----
+    logger.info(f"Paper draft generated: {output_path}")
+    return output_path
 
-## References
-
-*Included in the source data.*
-
----
-
-*Automatically generated by llmXive pipeline on {{ timestamp }}*
-        """
-        template = Template(template_str)
-
-    # Prepare context with timestamp
-    context = result.copy()
-    context['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    rendered = template.render(**context)
-    logger.info("Paper draft template rendered successfully")
-    return rendered
-
-def run_report_generation(input_json: str, output_md: str) -> bool:
+def run_report_generation(
+    results_path: Optional[Path] = None,
+    template_name: str = "paper_draft.md.jinja2",
+    output_path: Optional[Path] = None,
+) -> Path:
     """
     Main entry point for report generation.
-    
+
     Args:
-        input_json: Path to the MetaAnalysisResult JSON file.
-        output_md: Path where the generated markdown file will be saved.
-        
+        results_path: Path to the results JSON file.
+        template_name: Name of the Jinja2 template.
+        output_path: Path for the output markdown file.
+
     Returns:
-        True if successful, False otherwise.
+        Path to the generated paper draft.
     """
-    try:
-        logger.info(f"Starting report generation from {input_json} to {output_md}")
-        
-        # Load results
-        result = load_meta_analysis_result(input_json)
-        
-        # Render draft
-        draft_content = render_paper_draft(result)
-        
-        # Ensure output directory exists
-        output_path = Path(output_md)
-        ensure_directory(output_path.parent)
-        
-        # Write file
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(draft_content)
-        
-        logger.info(f"Successfully generated paper draft: {output_md}")
-        return True
-        
-    except FileNotFoundError as e:
-        logger.error(f"Input file not found: {e}")
-        return False
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in input file: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Error during report generation: {e}")
-        return False
+    logger.info("Starting report generation...")
+
+    # Load results
+    results = load_meta_analysis_result(results_path)
+
+    # Render paper draft
+    output = render_paper_draft(results, template_name, output_path)
+
+    logger.info("Report generation complete.")
+    return output
 
 def main():
-    """CLI entry point for report generation."""
+    """Command-line entry point for report generation."""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate paper draft from MetaAnalysisResult JSON")
-    parser.add_argument("--input", required=True, help="Path to MetaAnalysisResult JSON file")
-    parser.add_argument("--output", required=True, help="Path for output markdown file")
-    
+
+    parser = argparse.ArgumentParser(
+        description="Generate paper draft from meta-analysis results."
+    )
+    parser.add_argument(
+        "--results",
+        type=Path,
+        default=None,
+        help="Path to results JSON file (default: data/derived/results.json)",
+    )
+    parser.add_argument(
+        "--template",
+        type=str,
+        default="paper_draft.md.jinja2",
+        help="Jinja2 template name (default: paper_draft.md.jinja2)",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Output path for paper draft (default: docs/paper_draft.md)",
+    )
+
     args = parser.parse_args()
-    
-    success = run_report_generation(args.input, args.output)
-    sys.exit(0 if success else 1)
+
+    try:
+        output_path = run_report_generation(
+            results_path=args.results,
+            template_name=args.template,
+            output_path=args.output,
+        )
+        print(f"Paper draft generated successfully: {output_path}")
+        return 0
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in results file: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Error during report generation: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

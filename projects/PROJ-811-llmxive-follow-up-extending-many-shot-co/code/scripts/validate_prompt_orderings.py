@@ -1,13 +1,3 @@
-"""
-Script to validate that no duplicate orderings exist within a strategy group across seeds.
-
-This script scans the generated prompt manifest or prompt files to ensure that
-the sequence of example IDs for a given strategy is unique across all seeds.
-Duplicate orderings would indicate a failure in the randomization logic or
-an error in the sorting logic.
-
-Output: Writes a validation report to data/processed/validation_orderings.json
-"""
 import argparse
 import json
 import logging
@@ -15,138 +5,192 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Set
 
-from code.src.parser_utils import load_json_file, save_json_file
-from code.src.config import get_config
-
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 def load_prompt_manifest(manifest_path: Path) -> Dict[str, Any]:
-    """Load the prompt manifest JSON file."""
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Prompt manifest not found at {manifest_path}")
-    return load_json_file(manifest_path)
-
-def extract_ordering_key(entry: Dict[str, Any]) -> Tuple[str, List[str]]:
     """
-    Extract the strategy name and the ordered list of example IDs from a manifest entry.
-    
-    Returns:
-        Tuple of (strategy_name, list_of_example_ids)
-    """
-    strategy = entry.get('strategy', 'unknown')
-    # The ordering is typically stored as a list of example IDs in the 'examples' or 'order' field
-    # We need to check the structure of the manifest. 
-    # Based on typical manifest structures from T028:
-    # entry might look like: {"seed": 123, "strategy": "ascending", "examples": [id1, id2, ...], "file": "..."}
-    examples = entry.get('examples', entry.get('order', []))
-    return strategy, examples
-
-def validate_no_duplicates(manifest: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
-    """
-    Validate that no duplicate orderings exist within a strategy group across seeds.
+    Load the prompt manifest JSON file.
     
     Args:
-        manifest: The loaded prompt manifest dictionary.
+        manifest_path: Path to the prompt manifest JSON file
         
     Returns:
-        Tuple of (is_valid, report_dict)
+        Dictionary containing the manifest data
+        
+    Raises:
+        FileNotFoundError: If the manifest file does not exist
+        json.JSONDecodeError: If the file contains invalid JSON
     """
-    entries = manifest.get('prompts', [])
-    if not entries:
-        logger.warning("No prompt entries found in manifest.")
-        return True, {"valid": True, "message": "No entries to validate."}
+    logger.info(f"Loading prompt manifest from {manifest_path}")
+    
+    with open(manifest_path, 'r', encoding='utf-8') as f:
+        manifest = json.load(f)
+        
+    logger.info(f"Loaded manifest with {len(manifest.get('entries', []))} entries")
+    return manifest
 
-    # Group orderings by strategy
-    strategy_orderings: Dict[str, Dict[str, List[str]]] = {}
+def extract_ordering_key(entry: Dict[str, Any]) -> str:
+    """
+    Extract a unique ordering key from a manifest entry.
+    
+    The ordering key is constructed from the seed, strategy, and the sequence
+    of example IDs in that prompt configuration. This allows us to detect
+    if two different seeds produced the exact same ordering of examples.
+    
+    Args:
+        entry: A single entry from the prompt manifest
+        
+    Returns:
+        A string key representing the ordering of examples
+    """
+    seed = entry.get('seed')
+    strategy = entry.get('strategy')
+    
+    # The examples list contains the sequence of example IDs
+    examples = entry.get('examples', [])
+    example_ids = [ex.get('id') for ex in examples]
+    
+    # Create a key that represents the ordering: seed is excluded to check
+    # if different seeds produced the same ordering
+    ordering_tuple = tuple(example_ids)
+    
+    return f"{strategy}:{ordering_tuple}"
+
+def validate_no_duplicates(manifest: Dict[str, Any]) -> Tuple[bool, List[str], Dict[str, List[str]]]:
+    """
+    Validate that there are no duplicate orderings within a strategy group across seeds.
+    
+    This function checks if the same sequence of examples appears in multiple
+    entries with the same strategy but different seeds. If duplicates are found,
+    it returns False and a list of duplicate entries.
+    
+    Args:
+        manifest: The loaded prompt manifest dictionary
+        
+    Returns:
+        Tuple of:
+            - is_valid: True if no duplicates found, False otherwise
+            - duplicates: List of formatted duplicate entries
+            - strategy_groups: Dictionary mapping strategy to list of ordering keys
+    """
+    entries = manifest.get('entries', [])
+    logger.info(f"Validating {len(entries)} entries for duplicate orderings")
+    
+    # Group entries by strategy
+    strategy_groups: Dict[str, List[Tuple[str, Dict[str, Any]]]] = {}
     
     for entry in entries:
-        strategy, ordering = extract_ordering_key(entry)
+        strategy = entry.get('strategy')
+        if strategy not in strategy_groups:
+            strategy_groups[strategy] = []
         
-        if strategy not in strategy_orderings:
-            strategy_orderings[strategy] = {}
+        ordering_key = extract_ordering_key(entry)
+        strategy_groups[strategy].append((ordering_key, entry))
+    
+    # Check for duplicates within each strategy group
+    duplicates: List[str] = []
+    duplicate_details: Dict[str, List[str]] = {}
+    is_valid = True
+    
+    for strategy, group in strategy_groups.items():
+        seen_keys: Dict[str, List[Dict[str, Any]]] = {}
         
-        # Convert ordering list to tuple for hashing/comparison
-        ordering_tuple = tuple(ordering)
-        seed_id = entry.get('seed', 'unknown')
+        for ordering_key, entry in group:
+            if ordering_key not in seen_keys:
+                seen_keys[ordering_key] = []
+            seen_keys[ordering_key].append(entry)
         
-        # Check for duplicates within this strategy
-        if ordering_tuple in strategy_orderings[strategy]:
-            existing_seed = strategy_orderings[strategy][ordering_tuple]
-            logger.error(f"Duplicate ordering found in strategy '{strategy}': "
-                         f"Seed {seed_id} matches Seed {existing_seed}")
-            return False, {
-                "valid": False,
-                "strategy": strategy,
-                "duplicate_seeds": [existing_seed, seed_id],
-                "ordering": list(ordering_tuple)
-            }
-        
-        strategy_orderings[strategy][ordering_tuple] = seed_id
-
-    logger.info("Validation passed: No duplicate orderings found within any strategy group.")
-    return True, {
-        "valid": True,
-        "strategies_checked": list(strategy_orderings.keys()),
-        "total_entries": len(entries)
-    }
+        # Find duplicates
+        for ordering_key, entries_with_key in seen_keys.items():
+            if len(entries_with_key) > 1:
+                is_valid = False
+                seed_list = [e.get('seed') for e in entries_with_key]
+                msg = f"Strategy '{strategy}': Duplicate ordering found across seeds {seed_list}"
+                duplicates.append(msg)
+                
+                if strategy not in duplicate_details:
+                    duplicate_details[strategy] = []
+                duplicate_details[strategy].append(msg)
+                
+                logger.warning(msg)
+    
+    if is_valid:
+        logger.info("Validation passed: No duplicate orderings found within strategy groups")
+    else:
+        logger.error(f"Validation failed: Found {len(duplicates)} duplicate ordering(s)")
+    
+    return is_valid, duplicates, duplicate_details
 
 def main():
+    """
+    Main entry point for the validation script.
+    
+    Loads the prompt manifest, validates for duplicate orderings,
+    and exits with appropriate status code.
+    """
     parser = argparse.ArgumentParser(
-        description="Validate that no duplicate orderings exist within a strategy group across seeds."
+        description='Validate prompt manifest for duplicate orderings within strategy groups'
     )
     parser.add_argument(
-        "--manifest",
+        '--manifest',
         type=str,
-        default="data/processed/prompt_manifest.json",
-        help="Path to the prompt manifest JSON file."
+        default='data/processed/prompt_manifest.json',
+        help='Path to the prompt manifest JSON file'
     )
     parser.add_argument(
-        "--output",
+        '--output',
         type=str,
-        default="data/processed/validation_orderings.json",
-        help="Path to write the validation report."
+        default='data/processed/validation_orderings.json',
+        help='Path to save the validation report'
     )
+    
     args = parser.parse_args()
-
     manifest_path = Path(args.manifest)
     output_path = Path(args.output)
-
-    try:
-        logger.info(f"Loading prompt manifest from {manifest_path}...")
-        manifest = load_prompt_manifest(manifest_path)
-        
-        logger.info("Validating orderings...")
-        is_valid, report = validate_no_duplicates(manifest)
-        
-        report["manifest_path"] = str(manifest_path)
-        report["status"] = "passed" if is_valid else "failed"
-        
-        logger.info(f"Validation result: {'PASSED' if is_valid else 'FAILED'}")
-        
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        save_json_file(output_path, report)
-        logger.info(f"Validation report saved to {output_path}")
-        
-        if not is_valid:
-            logger.error("Validation failed. Duplicate orderings detected.")
-            sys.exit(1)
-        else:
-            sys.exit(0)
-
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+    
+    if not manifest_path.exists():
+        logger.error(f"Manifest file not found: {manifest_path}")
         sys.exit(1)
+    
+    try:
+        manifest = load_prompt_manifest(manifest_path)
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in manifest: {e}")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during validation: {e}")
+    
+    is_valid, duplicates, duplicate_details = validate_no_duplicates(manifest)
+    
+    # Create validation report
+    report = {
+        'is_valid': is_valid,
+        'total_entries': len(manifest.get('entries', [])),
+        'duplicate_count': len(duplicates),
+        'duplicates': duplicates,
+        'strategy_groups': duplicate_details,
+        'manifest_path': str(manifest_path),
+        'validation_timestamp': 'validation_run'  # Placeholder for actual timestamp
+    }
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save report
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Validation report saved to {output_path}")
+    
+    # Exit with appropriate code
+    if is_valid:
+        logger.info("Validation PASSED")
+        sys.exit(0)
+    else:
+        logger.error("Validation FAILED")
         sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

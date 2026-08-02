@@ -1,11 +1,11 @@
 """
-Script to filter invalid traces (cycles) from the DAG manifest.
+Script to filter invalid DAG traces from the manifest.
 
-This script loads data/processed/dag_manifest.json, identifies entries
-flagged as invalid (due to cycles or other structural issues), removes
-them from the manifest, and writes the cleaned manifest back to disk.
+This script reads the `data/processed/dag_manifest.json`, removes entries
+where `is_valid` is False (indicating cycles or structural invalidity),
+updates the metadata counts, and writes the cleaned manifest back to disk.
 
-It also updates the manifest metadata to reflect the filtering operation.
+It ensures that downstream prompt generation (US2) only processes valid traces.
 """
 import json
 import logging
@@ -13,113 +13,94 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Import from the project's parser_utils to ensure consistent I/O
+from code.src.parser_utils import load_json_file, save_json_file
 
-from src.parser_utils import load_json_file, save_json_file
-from src.config import get_config
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_manifest(manifest_path: Path) -> Dict[str, Any]:
-    """Load the DAG manifest from disk."""
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
-    
-    logger.info(f"Loading manifest from {manifest_path}")
-    return load_json_file(manifest_path)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+MANIFEST_PATH = PROJECT_ROOT / "data" / "processed" / "dag_manifest.json"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "dag_manifest.json"
 
-def filter_invalid_entries(manifest: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
+def load_manifest(path: Path) -> Dict[str, Any]:
+    """Load the DAG manifest from JSON."""
+    if not path.exists():
+        raise FileNotFoundError(f"Manifest file not found: {path}")
+    
+    logger.info(f"Loading manifest from {path}")
+    data = load_json_file(path)
+    
+    if "entries" not in data:
+        raise ValueError("Manifest missing 'entries' key")
+    
+    return data
+
+def filter_invalid_entries(manifest_data: Dict[str, Any]) -> Tuple[Dict[str, Any], int, int]:
     """
     Filter out invalid entries from the manifest.
     
-    Invalid entries are those marked with 'is_valid': False or 
-    containing 'cycle_detected': True.
-    
     Returns:
-        Tuple of (filtered_manifest, list of removed trace_ids)
+        Tuple of (updated_manifest, count_removed, count_kept)
     """
-    entries = manifest.get("entries", [])
-    valid_entries = []
-    removed_ids = []
+    entries = manifest_data.get("entries", [])
+    valid_entries = [e for e in entries if e.get("is_valid", False)]
+    invalid_entries = [e for e in entries if not e.get("is_valid", False)]
     
-    logger.info(f"Processing {len(entries)} entries in manifest")
+    count_removed = len(invalid_entries)
+    count_kept = len(valid_entries)
     
-    for entry in entries:
-        trace_id = entry.get("trace_id", "unknown")
-        is_valid = entry.get("is_valid", True)
-        cycle_detected = entry.get("cycle_detected", False)
-        
-        # An entry is invalid if explicitly marked invalid OR if a cycle was detected
-        if not is_valid or cycle_detected:
-            removed_ids.append(trace_id)
-            logger.debug(f"Removing invalid trace: {trace_id} "
-                       f"(is_valid={is_valid}, cycle_detected={cycle_detected})")
-        else:
-            valid_entries.append(entry)
-    
-    # Create filtered manifest
-    filtered_manifest = manifest.copy()
-    filtered_manifest["entries"] = valid_entries
-    filtered_manifest["metadata"] = filtered_manifest.get("metadata", {})
-    filtered_manifest["metadata"]["filtered_count"] = len(removed_ids)
-    filtered_manifest["metadata"]["valid_count"] = len(valid_entries)
-    filtered_manifest["metadata"]["removed_trace_ids"] = removed_ids
-    
-    logger.info(f"Filtered manifest: {len(removed_ids)} invalid entries removed, "
-               f"{len(valid_entries)} valid entries remaining")
-    
-    return filtered_manifest, removed_ids
+    if count_removed > 0:
+        logger.warning(f"Removing {count_removed} invalid entries due to cycles or structural issues.")
+        for inv in invalid_entries:
+            logger.debug(f"  Removed: {inv.get('example_id')} (reason: invalid DAG structure)")
+    else:
+        logger.info("No invalid entries found. All traces are valid.")
 
-def save_manifest(manifest: Dict[str, Any], output_path: Path) -> None:
-    """Save the filtered manifest to disk."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    save_json_file(manifest, output_path)
-    logger.info(f"Saved filtered manifest to {output_path}")
+    # Update the entries list
+    manifest_data["entries"] = valid_entries
 
-def main():
-    """Main entry point for the filtering script."""
-    config = get_config()
-    processed_dir = config.get_processed_dir()
-    manifest_path = processed_dir / "dag_manifest.json"
-    output_path = processed_dir / "dag_manifest_filtered.json"
+    # Update metadata
+    if "metadata" in manifest_data:
+        manifest_data["metadata"]["total_entries"] = len(entries)
+        manifest_data["metadata"]["valid_entries"] = count_kept
+        manifest_data["metadata"]["invalid_entries"] = count_removed
     
+    return manifest_data, count_removed, count_kept
+
+def save_manifest(manifest_data: Dict[str, Any], path: Path) -> None:
+    """Save the filtered manifest back to JSON."""
+    logger.info(f"Saving filtered manifest to {path}")
+    save_json_file(path, manifest_data)
+    logger.info("Manifest saved successfully.")
+
+def main() -> int:
+    """Main entry point for the script."""
     try:
-        # Load manifest
-        manifest = load_manifest(manifest_path)
+        # Load
+        manifest = load_manifest(MANIFEST_PATH)
         
-        # Filter invalid entries
-        filtered_manifest, removed_ids = filter_invalid_entries(manifest)
+        # Filter
+        filtered_manifest, removed, kept = filter_invalid_entries(manifest)
         
-        # Save filtered manifest
-        save_manifest(filtered_manifest, output_path)
+        # Save
+        save_manifest(filtered_manifest, OUTPUT_PATH)
         
-        # Log summary
-        logger.info("Filtering complete!")
-        logger.info(f"  - Input: {manifest_path}")
-        logger.info(f"  - Output: {output_path}")
-        logger.info(f"  - Removed {len(removed_ids)} invalid traces")
-        logger.info(f"  - Remaining {filtered_manifest['metadata']['valid_count']} valid traces")
-        
-        if removed_ids:
-            logger.info("Removed trace IDs:")
-            for trace_id in removed_ids[:10]:  # Show first 10
-                logger.info(f"    - {trace_id}")
-            if len(removed_ids) > 10:
-                logger.info(f"    ... and {len(removed_ids) - 10} more")
-        
+        logger.info(f"Filter complete. Kept: {kept}, Removed: {removed}")
         return 0
         
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+        logger.error(f"File error: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
         return 1
     except Exception as e:
-        logger.error(f"Error during filtering: {e}", exc_info=True)
+        logger.exception(f"Unexpected error: {e}")
         return 1
 
 if __name__ == "__main__":

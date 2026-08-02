@@ -1,112 +1,86 @@
 import pytest
-import time
-import json
-import tempfile
+import sys
 import os
+import json
+import time
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-from io import StringIO
 
-# Mock the logger to avoid file writing issues in tests
-import sys
-from unittest.mock import MagicMock
+# Add parent directory to path to import code modules
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-mock_logger = MagicMock()
-sys.modules['utils.logger'] = MagicMock(get_logger=lambda x: mock_logger)
-sys.modules['utils.config'] = MagicMock(
-    get_project_root=lambda: Path(tempfile.gettempdir()),
-    ensure_directory=lambda x: None
-)
+from utils.profiler import profile_pipeline_entrypoint, save_profile_results
 
-# Now import the module after mocking dependencies
-from utils.profiler import profile_pipeline_entrypoint, save_profile_results, MAX_RUNTIME_SECONDS
 
 class TestProfiler:
-    def test_profile_decorator_runtime_check_pass(self):
-        """Test that a fast function passes the runtime check."""
-        @profile_pipeline_entrypoint
-        def fast_func():
-            time.sleep(0.1)
-            return "done"
+    
+    def test_save_profile_results_creates_file(self, tmp_path):
+        """Test that save_profile_results creates the markdown file."""
+        # Mock a profiler object
+        mock_profiler = MagicMock()
+        mock_profiler.enable = MagicMock()
+        mock_profiler.disable = MagicMock()
         
-        result = fast_func()
-        assert result == "done"
-
-    def test_profile_decorator_runtime_check_fail(self):
-        """Test that a slow function raises RuntimeError."""
-        @profile_pipeline_entrypoint
-        def slow_func():
-            time.sleep(MAX_RUNTIME_SECONDS + 1)
-            return "done"
-        
-        with pytest.raises(RuntimeError, match="exceeded 15-minute limit"):
-            slow_func()
-
-    def test_save_profile_results_structure(self):
-        """Test that profile results are saved with correct structure."""
-        # Create a mock profiler
-        profiler = MagicMock()
-        profiler.disable = MagicMock()
-        
-        # Mock pstats to return predictable data
-        with patch('utils.profiler.pstats') as mock_pstats:
+        # Mock the Stats class to return predictable output
+        with patch('utils.profiler.pstats.Stats') as mock_stats_class:
             mock_stats_instance = MagicMock()
             mock_stats_instance.sort_stats = MagicMock()
             mock_stats_instance.print_stats = MagicMock()
-            mock_stats_instance.stats = {
-                ('test.py', 1, 'func'): (1, 1, 0.01, 0.02, {})
-            }
-            mock_pstats.Stats.return_value = mock_stats_instance
+            mock_stats_class.return_value = mock_stats_instance
             
-            with patch('utils.profiler.io.StringIO') as mock_stringio:
-                mock_stringio.return_value.getvalue.return_value = "Mock stats text"
+            # Create a string stream with predictable content
+            import io
+            mock_stream = io.StringIO("Test Stats Output")
+            mock_stats_class.return_value.stream = mock_stream
+            
+            # We need to mock the actual pstats.Stats to return our mock
+            with patch('utils.profiler.cProfile.Profile'):
+                output_file = tmp_path / "test_report.md"
+                save_profile_results(mock_profiler, 10.0, output_file)
                 
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    with patch('utils.profiler.get_project_root') as mock_root:
-                        mock_root.return_value = Path(tmpdir)
-                        with patch('utils.profiler.ensure_directory'):
-                            save_profile_results(profiler, 0.5)
-                            
-                            output_file = Path(tmpdir) / "data" / "logs" / "profile_results.json"
-                            # Ensure directory exists for check
-                            output_file.parent.mkdir(parents=True, exist_ok=True)
-                            
-                            # Re-run save to actual file for verification logic
-                            # (The mock above prevented actual file write in the patch, 
-                            # so we verify the logic via the mock calls or a real minimal run)
-                            pass
-        
-        # Verify the logic via a real minimal run
-        with tempfile.TemporaryDirectory() as tmpdir:
-            test_path = Path(tmpdir)
-            with patch('utils.profiler.get_project_root', return_value=test_path):
-                with patch('utils.profiler.ensure_directory'):
-                    # Create a real cProfile to test the save function logic
-                    import cProfile
-                    p = cProfile.Profile()
-                    p.enable()
-                    time.sleep(0.01)
-                    p.disable()
-                    
-                    save_profile_results(p, 0.01)
-                    
-                    output_file = test_path / "data" / "logs" / "profile_results.json"
-                    assert output_file.exists()
-                    
-                    with open(output_file, 'r') as f:
-                        data = json.load(f)
-                    
-                    assert "total_runtime_seconds" in data
-                    assert "top_functions" in data
-                    assert "status" in data
-                    assert data["status"] == "passed"
+                assert output_file.exists()
+                content = output_file.read_text()
+                assert "Pipeline Runtime Profile Report" in content
+                assert "Total Runtime" in content
+                assert "Test Stats Output" in content
 
-    def test_profile_decorator_calls_save(self):
-        """Test that the decorator calls save_profile_results."""
-        with patch('utils.profiler.save_profile_results') as mock_save:
-            @profile_pipeline_entrypoint
-            def dummy():
-                return True
+    def test_save_profile_results_pass_threshold(self, tmp_path):
+        """Test PASS status when under 15 mins."""
+        mock_profiler = MagicMock()
+        with patch('utils.profiler.pstats.Stats') as mock_stats_class:
+            mock_stats_instance = MagicMock()
+            mock_stats_instance.sort_stats = MagicMock()
+            mock_stats_instance.print_stats = MagicMock()
+            mock_stats_class.return_value = mock_stats_instance
             
-            dummy()
-            mock_save.assert_called_once()
+            import io
+            mock_stream = io.StringIO("Stats")
+            mock_stats_class.return_value.stream = mock_stream
+            
+            output_file = tmp_path / "test_report.md"
+            # 10 seconds is well under 15 mins
+            save_profile_results(mock_profiler, 10.0, output_file)
+            
+            content = output_file.read_text()
+            assert "**Status**: PASS" in content
+
+    def test_save_profile_results_fail_threshold(self, tmp_path):
+        """Test FAIL status when over 15 mins."""
+        mock_profiler = MagicMock()
+        with patch('utils.profiler.pstats.Stats') as mock_stats_class:
+            mock_stats_instance = MagicMock()
+            mock_stats_instance.sort_stats = MagicMock()
+            mock_stats_instance.print_stats = MagicMock()
+            mock_stats_class.return_value = mock_stats_instance
+            
+            import io
+            mock_stream = io.StringIO("Stats")
+            mock_stats_class.return_value.stream = mock_stream
+            
+            output_file = tmp_path / "test_report.md"
+            # 20 minutes is over 15 mins
+            save_profile_results(mock_profiler, 20 * 60, output_file)
+            
+            content = output_file.read_text()
+            assert "**Status**: FAIL" in content
+            assert "exceeded the 15-minute limit" in content

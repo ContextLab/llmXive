@@ -1,8 +1,5 @@
 """
-Tests for the filter_invalid_dags.py script functionality.
-
-These tests verify that invalid traces (cycles, invalid flags) are 
-correctly removed from the DAG manifest.
+Unit tests for the filter_invalid_dags script.
 """
 import json
 import tempfile
@@ -12,178 +9,137 @@ import pytest
 import sys
 import os
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code to path if running directly
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from scripts.filter_invalid_dags import (
-    load_manifest,
-    filter_invalid_entries,
-    save_manifest,
-    main
-)
-from src.parser_utils import load_json_file, save_json_file
+from scripts.filter_invalid_dags import load_manifest, filter_invalid_entries, save_manifest, main
 
 @pytest.fixture
 def sample_manifest():
-    """Create a sample manifest with valid and invalid entries."""
+    """Create a sample manifest with mixed validity."""
     return {
         "metadata": {
-            "version": "1.0",
-            "generated_by": "test"
+            "source": "test",
+            "total_entries": 5,
+            "valid_entries": 5,
+            "invalid_entries": 0
         },
         "entries": [
-            {
-                "trace_id": "valid_1",
-                "is_valid": True,
-                "cycle_detected": False,
-                "depth": 5,
-                "content": "valid trace 1"
-            },
-            {
-                "trace_id": "invalid_cycle",
-                "is_valid": True,  # Explicitly valid but has cycle
-                "cycle_detected": True,
-                "depth": 3,
-                "content": "trace with cycle"
-            },
-            {
-                "trace_id": "invalid_flag",
-                "is_valid": False,
-                "cycle_detected": False,
-                "depth": 4,
-                "content": "invalid trace"
-            },
-            {
-                "trace_id": "valid_2",
-                "is_valid": True,
-                "cycle_detected": False,
-                "depth": 6,
-                "content": "valid trace 2"
-            },
-            {
-                "trace_id": "double_invalid",
-                "is_valid": False,
-                "cycle_detected": True,
-                "depth": 2,
-                "content": "double invalid"
-            }
+            {"example_id": "ex_001", "logical_difficulty_score": 2.0, "is_valid": True, "max_path_depth": 2},
+            {"example_id": "ex_002", "logical_difficulty_score": 3.5, "is_valid": True, "max_path_depth": 4},
+            {"example_id": "ex_003", "logical_difficulty_score": 1.0, "is_valid": False, "max_path_depth": 1},  # Invalid
+            {"example_id": "ex_004", "logical_difficulty_score": 4.0, "is_valid": True, "max_path_depth": 5},
+            {"example_id": "ex_005", "logical_difficulty_score": 2.5, "is_valid": False, "max_path_depth": 3},  # Invalid
         ]
     }
 
 @pytest.fixture
 def temp_manifest_file(sample_manifest):
-    """Create a temporary manifest file."""
+    """Create a temporary JSON file with sample manifest."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
         json.dump(sample_manifest, f)
-        temp_path = Path(f.name)
-    
-    yield temp_path
-    
-    # Cleanup
-    if temp_path.exists():
-        temp_path.unlink()
+        path = Path(f.name)
+    yield path
+    path.unlink()
 
 def test_load_manifest_success(temp_manifest_file, sample_manifest):
-    """Test successful loading of manifest."""
-    manifest = load_manifest(temp_manifest_file)
-    assert manifest == sample_manifest
-    assert len(manifest["entries"]) == 5
+    """Test loading a valid manifest file."""
+    data = load_manifest(temp_manifest_file)
+    assert "entries" in data
+    assert len(data["entries"]) == 5
+    assert data["metadata"]["source"] == "test"
 
 def test_load_manifest_not_found():
-    """Test loading non-existent file raises error."""
-    non_existent = Path("/tmp/non_existent_manifest.json")
+    """Test loading a non-existent file raises error."""
     with pytest.raises(FileNotFoundError):
-        load_manifest(non_existent)
+        load_manifest(Path("/nonexistent/path.json"))
 
 def test_filter_invalid_entries(sample_manifest):
-    """Test that invalid entries are correctly filtered."""
-    filtered_manifest, removed_ids = filter_invalid_entries(sample_manifest)
+    """Test that invalid entries are removed and counts updated."""
+    filtered, removed, kept = filter_invalid_entries(sample_manifest)
     
-    # Should remove 3 invalid entries: invalid_cycle, invalid_flag, double_invalid
-    assert len(removed_ids) == 3
-    assert set(removed_ids) == {"invalid_cycle", "invalid_flag", "double_invalid"}
+    assert removed == 2
+    assert kept == 3
+    assert len(filtered["entries"]) == 3
     
-    # Remaining entries should be valid
-    assert len(filtered_manifest["entries"]) == 2
-    remaining_ids = {e["trace_id"] for e in filtered_manifest["entries"]}
-    assert remaining_ids == {"valid_1", "valid_2"}
+    # Verify only valid entries remain
+    for entry in filtered["entries"]:
+        assert entry["is_valid"] is True
     
-    # Metadata should be updated
-    assert filtered_manifest["metadata"]["filtered_count"] == 3
-    assert filtered_manifest["metadata"]["valid_count"] == 2
-    assert set(filtered_manifest["metadata"]["removed_trace_ids"]) == set(removed_ids)
+    # Verify metadata update
+    assert filtered["metadata"]["total_entries"] == 5
+    assert filtered["metadata"]["valid_entries"] == 3
+    assert filtered["metadata"]["invalid_entries"] == 2
 
 def test_filter_all_valid():
     """Test filtering when all entries are valid."""
     manifest = {
-        "metadata": {"version": "1.0"},
+        "metadata": {"source": "test", "total_entries": 2, "valid_entries": 2, "invalid_entries": 0},
         "entries": [
-            {"trace_id": "v1", "is_valid": True, "cycle_detected": False},
-            {"trace_id": "v2", "is_valid": True, "cycle_detected": False}
+            {"example_id": "ex_001", "is_valid": True},
+            {"example_id": "ex_002", "is_valid": True}
         ]
     }
+    filtered, removed, kept = filter_invalid_entries(manifest)
     
-    filtered, removed = filter_invalid_entries(manifest)
-    
-    assert len(removed) == 0
+    assert removed == 0
+    assert kept == 2
     assert len(filtered["entries"]) == 2
 
 def test_filter_all_invalid():
     """Test filtering when all entries are invalid."""
     manifest = {
-        "metadata": {"version": "1.0"},
+        "metadata": {"source": "test", "total_entries": 2, "valid_entries": 2, "invalid_entries": 0},
         "entries": [
-            {"trace_id": "i1", "is_valid": False, "cycle_detected": False},
-            {"trace_id": "i2", "is_valid": True, "cycle_detected": True}
+            {"example_id": "ex_001", "is_valid": False},
+            {"example_id": "ex_002", "is_valid": False}
         ]
     }
+    filtered, removed, kept = filter_invalid_entries(manifest)
     
-    filtered, removed = filter_invalid_entries(manifest)
-    
-    assert len(removed) == 2
+    assert removed == 2
+    assert kept == 0
     assert len(filtered["entries"]) == 0
-    assert filtered["metadata"]["valid_count"] == 0
 
 def test_save_manifest(temp_manifest_file, sample_manifest):
-    """Test saving manifest to file."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        output_path = Path(f.name)
+    """Test saving the manifest."""
+    # Modify data slightly to ensure it's different
+    sample_manifest["metadata"]["source"] = "modified"
     
-    try:
-        save_manifest(sample_manifest, output_path)
-        assert output_path.exists()
-        
-        # Verify content
-        loaded = load_json_file(output_path)
-        assert loaded == sample_manifest
-    finally:
-        if output_path.exists():
-            output_path.unlink()
+    save_manifest(sample_manifest, temp_manifest_file)
+    
+    # Reload and verify
+    with open(temp_manifest_file, 'r') as f:
+        data = json.load(f)
+    
+    assert data["metadata"]["source"] == "modified"
+    assert len(data["entries"]) == 5
 
-@patch('scripts.filter_invalid_dags.get_config')
 @patch('scripts.filter_invalid_dags.load_manifest')
 @patch('scripts.filter_invalid_dags.filter_invalid_entries')
 @patch('scripts.filter_invalid_dags.save_manifest')
-def test_main_success(mock_save, mock_filter, mock_load, mock_config, 
-                     sample_manifest, temp_manifest_file):
-    """Test main function successful execution."""
-    # Setup mocks
-    mock_config.return_value.get_processed_dir.return_value = temp_manifest_file.parent
+def test_main_success(mock_save, mock_filter, mock_load, temp_manifest_file, sample_manifest):
+    """Test the main function execution path."""
     mock_load.return_value = sample_manifest
-    mock_filter.return_value = (sample_manifest, [])
+    mock_filter.return_value = (sample_manifest, 2, 3)
     
-    result = main()
-    
-    assert result == 0
-    mock_load.assert_called_once()
-    mock_filter.assert_called_once()
-    mock_save.assert_called_once()
+    # Patch the global paths used in main
+    with patch('scripts.filter_invalid_dags.MANIFEST_PATH', temp_manifest_file), \
+         patch('scripts.filter_invalid_dags.OUTPUT_PATH', temp_manifest_file):
+        
+        result = main()
+        
+        assert result == 0
+        mock_load.assert_called_once_with(temp_manifest_file)
+        mock_filter.assert_called_once()
+        mock_save.assert_called_once()
 
-@patch('scripts.filter_invalid_dags.get_config')
-def test_main_file_not_found(mock_config, temp_manifest_file):
-    """Test main function when manifest not found."""
-    mock_config.return_value.get_processed_dir.return_value = Path("/nonexistent")
+@patch('scripts.filter_invalid_dags.load_manifest')
+def test_main_file_not_found(mock_load):
+    """Test main returns error code when file not found."""
+    mock_load.side_effect = FileNotFoundError("Not found")
     
-    result = main()
-    
-    assert result == 1
+    with patch('scripts.filter_invalid_dags.MANIFEST_PATH', Path("/fake/path.json")):
+        result = main()
+        assert result == 1
+        mock_load.assert_called_once()

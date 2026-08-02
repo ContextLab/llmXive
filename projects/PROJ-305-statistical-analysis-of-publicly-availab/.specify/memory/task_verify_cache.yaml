@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`src/`, `tests/`, `data/`, `output/`) was presented or
+    described in the provided evidence; the implementer gave only a feature specification
+    without showing the required folders or any files within them. Consequently the
+    task requirement is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) or documentation of their setup are present
+    in the provided evidence, so the requirement to configure ruff/flake8 and Black
+    cannot be confirmed. The implementer must add the actual configuration artifacts
+    and demonstrate they are active in the project.
+T011:
+  c: false
+  h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d
+  r: The repository lacks `src/data/validate.py`, so the unit tests cannot even import
+    the functions they are meant to test. Moreover, the provided `tests/unit/test_validate.py`
+    (truncated) does not contain a test that asserts an `E_SCHEMA_MISSING` exception
+    is raised for missing columns; it only checks for a generic `SystemExit`. Both
+    the required source file and the specific test for `E_SCHEMA_MISSING` are missing.
+T019:
+  c: false
+  h: e9671214ec2f100cb331b8520abba9f935da8fdf77c8210c95c56a9a3baba6dc
+  r: "Both required artifacts (`src/analysis/disproportionality.py` and `tests/unit/test_disproportionality.py`)\
+    \ are missing from the repository, so no unit test or implementation exists to\
+    \ verify the ROR/PRR/IC calculation logic. The task\u2019s deliverable is therefore\
+    \ not present."
+T039:
+  c: false
+  h: fce98a4a94e7db63dc34e9ac2d87e3038cfdeb424a0e9716acfb93faef50d60c
+  r: "The required file `src/main.py` is missing entirely, so no memory\u2011check\
+    \ logic or chunked\u2011processing code could be present. The task\u2019s core\
+    \ deliverable does not exist."
+T040:
+  c: false
+  h: fce98a4a94e7db63dc34e9ac2d87e3038cfdeb424a0e9716acfb93faef50d60c
+  r: "The required file `src/main.py` is missing entirely, so no memory\u2011check\
+    \ logic could have been added. Consequently the task\u2019s deliverable does not\
+    \ exist."
