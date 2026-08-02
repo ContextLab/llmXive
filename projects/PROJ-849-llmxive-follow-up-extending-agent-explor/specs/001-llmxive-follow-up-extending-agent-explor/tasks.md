@@ -20,31 +20,15 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (transformers, rank_bm25, scikit-learn, pandas, datasets, pyyaml)
+- [ ] T001-struct Create project structure: `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/src/` (subdirs: `models/`, `services/`, `lib/`, `cli/`), `data/`, `results/`, `state/`, `contracts/`
+- [ ] T001-data Create `data/raw/`, `data/tool_mappings/`, `data/cached/` directories
+- [ ] T001-tests Create `tests/`, `tests/unit/`, `tests/contract/`, `tests/integration/` directories
+- [ ] T001-tests-unit Create `tests/unit/__init__.py` and `tests/contract/__init__.py`
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (transformers, rank_bm25, scikit-learn, pandas, datasets, pyyaml)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -55,15 +39,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `src/lib/config.py` with constants, seeds, paths, and memory/time limits (FR-007, FR-010)
-- [ ] T004-ext [P] Implement 5-hour hard timeout logic in `src/lib/config.py` or `src/cli/run_diagnostic.py` using `signal` module or `timeout` decorators to enforce FR-007 abort behavior (FR-007)
-- [ ] T005 [P] Create `src/lib/data_loader.py` with strict real-data fetch logic: HEAD request pre-check, `ERR_DATASET_UNREACHABLE` halt on failure, NO synthetic fallback (FR-001, Constitution Principle II)
-- [ ] T005-ext [P] Extend `src/lib/data_loader.py` to explicitly extract, parse, and validate the 'problem_type' attribute from the raw dataset fields (e.g., `dataset["problem_type"]`) and raise `ValueError` if null for stratification use (US-3, FR-010)
-- [ ] T006 [P] Create `src/lib/tool_mapper.py` to load `data/tool_mappings/mathvista_tool_map.json`, extract the 'tool_descriptions' list for each problem, and raise `ERR_TOOL_MAPPING_MISSING` if absent (FR-002, FR-009)
-- [ ] T007 [P] Implement `src/lib/metrics.py` with cosine similarity and zero-vector handling logic (FR-003, FR-004)
-- [ ] T008 [P] Setup `tests/unit/` and `tests/contract/` directory structure with schema validation utilities
+- [ ] T004 [P] Implement `src/lib/config.py` with constants, seeds, paths, and basic limits (FR-007, FR-010)
+- [ ] T004-ext [P] Implement `src/lib/resource_tracker.py` to enforce a hard timeout (using `signal`/`threading`) and 7 GB memory limit (using `psutil`), raising `TimeoutExceededError` or `MemoryLimitExceededError` respectively. This file is imported by `run_diagnostic.py` and `data_loader.py` (FR-007)
+- [ ] T004-integration [P] Implement `src/cli/run_diagnostic.py` entry point wrapper that imports `resource_tracker` and **wraps the main execution loop** in a context manager or decorator to **actively enforce** the Timeout
+
+The specific value to remove/generalize: 'timeout duration'
+
+Rewritten passage:
+A timeout mechanism is implemented to terminate operations that exceed a predefined duration limit. and 7 GB memory limits during the entire pipeline execution (FR-007)
+- [ ] T005 [P] Create `src/lib/data_loader.py` with strict real-data fetch logic: HEAD request pre-check, `ERR_DATASET_UNREACHABLE` halt on failure, NO synthetic fallback. **Must implement**: Load max 500 records; if memory usage > 7GB during load, downsample to a subset of records using `itertools.islice` with a fixed seed. (FR-001, FR-007, Constitution Principle II)
+- [ ] T005-ext [P] Extend `src/lib/data_loader.py` to explicitly extract, parse, and validate the 'problem_type' attribute from `record['metadata']['problem_type']` or `record['problem_type']`. **CRITICAL**: If the field is missing/null, skip the record and log `ERR_STRATIFICATION_FIELD_MISSING`. **Immediately after filtering**, calculate the remaining dataset size N. If N < 30, **raise a fatal error** "Insufficient Sample Size for Power Analysis" and halt execution. Do not proceed to Phase 3. (US-3, FR-010, Constitution Principle II)
+- [ ] T006 [P] Create `src/lib/tool_mapper.py` to load `data/tool_mappings/mathvista_tool_map.json`, extract the 'tool_descriptions' list for each problem, and raise `ERR_TOOL_MAPPING_MISSING` if the file or problem ID is absent (FR-002, FR-009)
+- [ ] T008-prep [P] Attempt to fetch `data/cached_axpo_results.json` from a verified remote source (if available). If not available, this task fails loudly, requiring T008-exec-axpo to run first. (FR-008)
+- [ ] T008-exec-axpo [P] Execute the original AXPO agent script (or a validated simulation wrapper defined in `code/scripts/run_axpo_simulation.py`) on the target problem subset to generate ground-truth outcomes. Output MUST be written to `data/cached_axpo_results.json`. This task satisfies FR-008's requirement to 'execute' the agent. (FR-008, US-2, US-3)
+- [ ] T008-impl-cache Load `data/cached_axpo_results.json` generated by T008-exec-axpo (or T008-prep if fetched). **CRITICAL**: Perform a pre-flight check to ensure the file exists and is non-empty. If missing or empty, raise `ERR_NO_SIMULATION_DATA` and halt. **Do not generate synthetic data**. Validate schema (`problem_id`, `simulated_failure`). Store in memory for downstream tasks. (FR-008, US-2, US-3)
 - [ ] T008-impl-schema [P] Define the data schema for `simulated_failure_rate` (e.g., `{'problem_id': str, 'simulated_failure': bool, 'failure_reason': str}`) in `src/lib/simulation_runner.py` or a dedicated schema file, ensuring it generates ground-truth outcomes for US2/US3 (FR-008, US-2, US-3)
-- [ ] T008-impl-axpo [P] Implement `src/services/axpo_simulator.py` to execute the original AXPO agent (or load cached simulation) on the problem subset; explicitly implement the `run()` method to generate ground-truth outcomes and store them as `simulated_failure_rate` (FR-008, US-2, US-3)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,12 +76,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `src/services/retrieval_service.py`: Build BM25 index from tool descriptions **using the loaded data from T006 (`src/lib/tool_mapper.py`)**, retrieve top-ranked, handle empty results (FR-002, FR-009)
-- [ ] T015 [US1] Implement `src/models/divergence_model.py`: Load DistilBERT, encode thinking prefix, calculate cosine similarity (FR-003, FR-004) <!-- FAILED: unspecified -->
-- [ ] T015-compute-centroid [US1] Implement logic to embed the retrieved tool descriptions (from T014) and compute the centroid vector using the SAME encoder as the thinking prefix; consume `retrieved_tool_descriptions` from T014 (FR-003)
-- [ ] T016-limit [US1] Implement logic in `src/lib/data_loader.py` or `src/cli/run_diagnostic.py` to limit the dataset to 500 records if the source contains more, as required by FR-001 (FR-001) <!-- ATOMIZE: requested -->
-- [ ] T016 [US1] Implement `src/cli/run_diagnostic.py` entry point: Orchestrate loading, retrieval, and scoring for the full dataset (FR-001) <!-- FAILED: unspecified -->
-- [ ] T017-n-check [US1] Add error handling for missing "thinking" prefix (skip record, log error code `ERR_MISSING_THINKING`) and enforce N ≥ 30 check with specific error message "Insufficient Sample Size for Power Analysis" raising a specific exception to halt execution (FR-010)
+- [ ] T014 [US1] Implement `src/services/retrieval_service.py`: Build BM25 index from tool descriptions **using the loaded data from T006 (`src/lib/tool_mapper.py`)**, retrieve top-ranked documents, handle empty results (FR-002, FR-009). **Depends on T006**
+- [ ] T015 [US1] Implement `src/models/divergence_model.py`: Load DistilBERT, encode thinking prefix, **compute centroid of retrieved tool descriptions**, calculate cosine similarity (FR-003, FR-004). **Depends on T014**
+- [ ] T016 [US1] Implement `src/cli/run_diagnostic.py` entry point: Orchestrate loading, retrieval, and scoring for the full dataset. **Must import and wrap execution with `resource_tracker` from T004-ext** (FR-001)
+- [ ] T017 [US1] Add error handling for missing "thinking" prefix (skip record, log error code `ERR_MISSING_THINKING`). **Note**: The N ≥ 30 check is handled in T005-ext and T024-verify (FR-010)
 - [ ] T018 [US1] Add logging for retrieval stats (number of tools retrieved per problem) and embedding dimensions
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -112,9 +100,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Extend `src/lib/simulation_runner.py` (referencing **T008-impl-axpo**) to generate or load `simulated_failure_rate` for the subset by calling `axpo_simulator.run()` or loading from `results/cached_simulations.json` using the **defined schema from T008-impl-schema** (FR-008, US-2) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T023 [US2] Implement `src/services/analysis_service.py`: Merge divergence scores with failure rates, perform Pearson correlation test (FR-005)
+- [ ] T022 [US2] Extend `src/lib/simulation_runner.py` to **load** `simulated_failure_rate` from `data/cached_axpo_results.json` (generated by **T008-impl-cache**). Do not attempt to generate outcomes dynamically. Merge with divergence scores. **Depends on T008-impl-cache**
+- [ ] T023 [US2] Implement `src/services/analysis_service.py`: Merge divergence scores with failure rates, perform Pearson correlation test. **Depends on T016/T017**
 - [ ] T024 [US2] Add logic to check sample size N ≥ 30 before correlation; raise "Statistical Power Insufficient" if N < 30 (FR-010)
+- [ ] T024-verify [US2] Add explicit check to verify that the dataset size **after** T017 and T005-ext filtering is ≥ 30. If N < 30, halt execution with "Insufficient Sample Size for Power Analysis" error. **Depends on T005-ext, T017** (FR-010)
 - [ ] T025 [US2] Add logic to flag "Significant Negative Correlation" if p < 0.05 and correlation < 0 (SC-001)
 - [ ] T026 [US2] Integrate US1 and US2 in `run_diagnostic.py` to produce a combined report
 
@@ -136,11 +125,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Extend `src/services/analysis_service.py` to split data (stratified by **problem_type extracted in T005-ext**) into train/test sets (FR-006, US-3)
-- [ ] T031 [US3] Implement Logistic Regression training using `scikit-learn` on divergence scores to predict binary failure (FR-006)
+- [ ] T030 [US3] Extend `src/services/analysis_service.py` to split data (stratified by **problem_type extracted in T005-ext**) into train/test sets. **Logic**: If `problem_type` is missing for a record, skip it for stratification (log warning) and fall back to a simple random split for that record. **Depends on T005-ext**
+- [ ] T031 [US3] Implement Logistic Regression training using `scikit-learn` on divergence scores to predict binary failure. **Depends on T023**
 - [ ] T032 [US3] Add evaluation logic: Calculate accuracy, precision, recall, and AUC-ROC on the test set (SC-002, SC-003)
+- [ ] T032-schema [US3] Create `contracts/output_schema.yaml` defining the exact schema for `results/classifier_metrics.json` with top-level keys `train` and `test`, each containing `accuracy`, `precision`, `recall`, `auc`. (SC-002)
 - [ ] T032-verify [US3] Add logic to verify/assert that the accuracy > 60% threshold is met as part of the success validation (SC-002)
-- [ ] T032-persist [US3] Implement mechanism to **persist and report** accuracy, precision, recall, and AUC-ROC for the **held-out test set separately** from training metrics in `results/classifier_metrics.json` (SC-002)
+- [ ] T032-persist [US3] Implement mechanism to **persist and report** accuracy, precision, recall, and AUC-ROC for the **held-out test set separately** from training metrics in `results/classifier_metrics.json`. **Must conform to schema in `contracts/output_schema.yaml`** (SC-002)
 - [ ] T033 [US3] Implement prediction function: Given a new divergence score, return predicted outcome and probability
 - [ ] T034 [US3] Integrate US3 into `run_diagnostic.py` to output full model metrics and save the trained model artifact
 
@@ -152,9 +142,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Enforce memory limit (≤ 7 GB) in `run_diagnostic.py` with graceful abort (FR-007)
-- [ ] T036 [P] Add dataset downsampling logic: if N > 500 or memory > 7GB, automatically downsample the dataset to 300 records (FR-007)
-- [ ] T037 [P] Generate content hashes for raw data and derived artifacts, updating `state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml` (Constitution Principle V)
+- [ ] T035 [P] (Removed: Logic moved to T004-ext/T005) Memory limit enforcement and downsampling logic are now handled in Foundational phase
+- [ ] T036 [P] (Removed: Logic moved to T004-ext/T005) Dynamic downsampling logic is now handled in Foundational phase
+- [ ] T037 [P] Generate content hashes for raw data and derived artifacts using SHA-256. Update `state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml` under the key `artifact_hashes` with the exact file paths and format: `filename: <sha256_hash>`. Files to hash: `data/raw/*.json`, `data/cached_axpo_results.json`, `results/*.json`. (Constitution Principle V)
 - [ ] T038 [P] Documentation updates in `docs/` and `quickstart.md`
 - [ ] T039 Code cleanup and refactoring
 - [ ] T040 Run `run_diagnostic.py` validation on a small subset to verify end-to-end flow
@@ -175,7 +165,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 outputs (divergence scores) and simulation data (T008-impl-axpo)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 outputs (divergence scores) and simulation data (T008-impl-cache)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires US1 and US2 data (scores + outcomes) and problem type extraction (T005-ext)
 
 ### Within Each User Story
@@ -188,11 +178,20 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2), EXCEPT T008-impl-cache which must run sequentially after T008-exec-axpo
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+
+### Critical Dependency Chains (Explicit Ordering)
+
+- **T024-verify** MUST run AFTER **T005-ext** and **T017** (Filtering must complete before sample size check).
+- **T008-exec-axpo** MUST run BEFORE **T008-impl-cache** (Ground truth generation before loading).
+- **T014** MUST run BEFORE **T015** (Retrieval before Embedding).
+- **T016/T017** MUST run BEFORE **T023** (US1 completion before US2 analysis).
+- **T023** MUST run BEFORE **T031** (Data preparation before Model Training).
+- **T008-impl-cache** MUST run AFTER **T008-exec-axpo** and BEFORE **T022** (Simulation data must exist before US2 consumption).
 
 ---
 
@@ -205,7 +204,7 @@ Task: "Unit test for zero-retrieval edge case in tests/unit/test_retrieval.py"
 
 # Launch all models/services for User Story 1 together:
 Task: "Implement retrieval_service.py"
-Task: "Implement divergence_model.py"
+Task: "Implement divergence_model.py" (Note: T015 depends on T014, so run sequentially or ensure T014 completes first)
 ```
 
 ---
@@ -243,7 +242,7 @@ With multiple developers:
 
 ## Notes
 
-- [P] tasks = different files, no dependencies
+- [P] tasks = different files, no dependencies (EXCEPT T008-impl-cache which is sequential)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
@@ -252,7 +251,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Data Rule**: All data loading tasks MUST fail loudly on real data fetch errors; NO synthetic fallbacks allowed.
 - **Compute Rule**: Use CPU-first (DistilBERT) for embeddings; only use GPU if absolutely necessary for the specific model type (not applicable here as per spec).
-- **Data Flow Rule**: T008-impl-axpo (producer) must precede T022 (consumer); T005-ext (producer) must precede T030 (consumer); T006 (producer) must precede T014 (consumer).
-- **Constraint Rule**: T004-ext implements the hard timeout for FR-007 in Foundational phase.
-- **Reporting Rule**: T032-persist ensures held-out test metrics are reported separately.
+- **Data Flow Rule**: T008-exec-axpo (producer) must precede T008-impl-cache (consumer); T008-impl-cache (producer) must precede T022 (consumer); T005-ext (producer) must precede T030 (consumer); T006 (producer) must precede T014 (consumer).
+- **Constraint Rule**: T004-ext implements the hard timeout and memory limit in `src/lib/resource_tracker.py`.
+- **Reporting Rule**: T032-persist ensures held-out test metrics are reported separately and conform to `contracts/output_schema.yaml`.
 - **Threshold Rule**: T032-verify ensures the 60% accuracy threshold is explicitly checked.
+- **Simulation Rule**: T008-exec-axpo executes the AXPO agent/simulation to generate ground truth; T008-impl-cache strictly loads this data.
+- **Integration Rule**: T004-integration ensures `resource_tracker` is invoked in the main flow to enforce limits.
+- **Verification Rule**: T024-verify ensures N >= 30 is checked after all filtering steps (T005-ext, T017).
+- **Ordering Rule**: Tasks marked [P] MUST NOT have explicit dependencies on other tasks in the same phase. Dependencies like T015->T014 are removed from [P] tags. T008-impl-cache is NOT [P].

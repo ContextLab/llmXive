@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T05:17:55.370418Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-849-llmxive-follow-up-extending-agent-explor
-last_run_id: be9234e5-2db4-40f0-9ee9-264967ae365c
+last_run_id: e4432d99-4458-4855-8dab-a17dd2de8837
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor
 title: 'llmXive follow-up: extending "Agent Explorative Policy Optimization for Multimodal
   Agentic Reasoning"'
-updated_at: '2026-07-30T16:19:08.428876Z'
+updated_at: '2026-08-02T00:17:40.496128Z'
