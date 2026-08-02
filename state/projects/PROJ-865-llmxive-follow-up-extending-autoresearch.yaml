@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-865-llmxive-follow-up-extending-autoresearch
-last_run_id: d9076fcd-7363-44f1-8b35-1f0ccdc3016a
+last_run_id: 5d2dab1e-a0f6-4d82-9a18-90efc56e8a53
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-865-llmxive-follow-up-extending-autoresearch/specs/001-llmxive-follow-up-extending-autoresearch
 title: 'llmXive follow-up: extending "AutoResearchClaw: Self-Reinforcing Autonomous
   Research with Human-AI C"'
-updated_at: '2026-08-01T23:19:31.549867Z'
+updated_at: '2026-08-02T00:31:23.686853Z'

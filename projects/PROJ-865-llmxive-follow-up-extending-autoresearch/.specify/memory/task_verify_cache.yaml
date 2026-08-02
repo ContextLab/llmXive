@@ -31,13 +31,11 @@ T013:
     \ complete."
 T015b:
   c: false
-  h: 8fa332a069e0ca765e612d1efc1f91ef361dda379a2dce2f5abe3c4cffd6acf2
-  r: "The repository lacks the required `data/derived/rules_library.json`, the schema\
-    \ file `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`, and\
-    \ the expected output `data/artifacts/rule_validation_report.json`. Moreover,\
-    \ the provided `validate_rules.py` does not demonstrate execution, nor does it\
-    \ exit with code\u202F1 when the schema is missing or empty. These essential artifacts\
-    \ and behavior are missing."
+  h: cfc439a05981677f666f5d9dd99aa8fb5cc37b6ccc92c9330c91e1557d733b59
+  r: "The repository contains `validate_rules.py`, but the required input files (`data/derived/rules_library.json`\
+    \ and `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`) are absent,\
+    \ and no `data/artifacts/rule_validation_report.json` was generated. Consequently\
+    \ the validator was never run and the task\u2019s output artifact is missing."
 T019:
   c: false
   h: 538a10cb0cc8afca3c596a27e24f8d74c40bb1a8692f027ec9705dfaaae2b1d8

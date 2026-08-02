@@ -17,5 +17,5 @@
   "evidence": [
     "python -c \"from datasets import load_dataset; ds = load_dataset('claw-ai-lab/arc-bench', streaming=True); print(next(iter(ds)))\""
   ],
-  "updated_at": "2026-08-01T22:24:52Z"
+  "updated_at": "2026-08-01T23:25:31Z"
 }
