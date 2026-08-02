@@ -1905,7 +1905,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/clock.py
 
 **Interfaces:**
 - Consumes: `Event`, `payload_field`, `COORDINATOR_STREAM` (Slice 1A).
-- Produces: `AttemptState`, `ProblemDisposition`, `Transition`, `TRANSITIONS`, `TERMINAL_STATES`, `COUNTED_TERMINALS`, `OPERATIONAL_TERMINALS`, `CLAIM_HOLDING_STATES`, `holds_claim`, `NON_TRANSITION_EVENTS`, `walk_attempt`, `project_attempt`, `IllegalTransition`, `legal_events_from`; `tests/helpers/lane_lifecycle.py` with `attempt_event`, `drive`, `parse_spec_transitions` (which returns `(rows, attempt_scoped_non_transitions)`).
+- Produces: `AttemptState`, `ProblemDisposition`, `Transition`, `TRANSITIONS`, `TERMINAL_STATES`, `COUNTED_TERMINALS`, `OPERATIONAL_TERMINALS`, `CLAIM_HOLDING_STATES`, `holds_claim`, `NON_TRANSITION_EVENTS`, `walk_attempt`, `Step`, `project_attempt`, `TransitionOutcome`, `NonTransition`, `NON_TRANSITIONS`, `holds_claim`, `IllegalTransition`, `legal_events_from`; `tests/helpers/lane_lifecycle.py` with `attempt_event`, `drive`, `parse_spec_transitions` (which returns `(rows, attempt_scoped_non_transitions)`).
 
 - [ ] **Step 1: Write the failing model tests**
 
@@ -2073,8 +2073,16 @@ def test_the_code_table_matches_the_spec_table():
 
 
 def _history(*event_types: str) -> list[Event]:
-    """A committed-looking Attempt history: `attempt_event` per type, `seq` 0..n."""
-    return [attempt_event(t, seq=i) for i, t in enumerate(event_types)]
+    """A committed-looking Attempt history: `attempt_event` per type, `seq` 0..n.
+
+    `ClaimGranted` and `ClaimHeartbeat` are stamped with generation 1, so a history built
+    here is one the writers could actually have produced. A helper that emitted beats with
+    no generation would make every heartbeat test fail for the wrong reason."""
+    return [attempt_event(t, seq=i, payload=({"claim_generation": 1, "tick": i}
+                                             if t == "ClaimHeartbeat" else
+                                             {"claim_generation": 1}
+                                             if t == "ClaimGranted" else {}))
+            for i, t in enumerate(event_types)]
 
 
 def test_heartbeats_do_not_disturb_a_projection():
@@ -2094,23 +2102,42 @@ def test_heartbeats_do_not_disturb_a_projection():
         project_attempt(quiet).claim_generation
 
 
-def test_a_heartbeat_after_the_last_transition_is_projectable():
-    """`releases_claim` reads the last TRANSITION, not the last event. Indexing `_BY_EVENT`
-    by `events[-1]` raises `KeyError` on a history that simply ends with a beat."""
-    history = _history("Proposed", "ProposalVerified", "ClaimGranted",
-                       "ImplementationFailed", "ClaimHeartbeat")
-    assert project_attempt(history).releases_claim
+@pytest.mark.parametrize("history, why", [
+    (_history("Proposed", "ClaimHeartbeat"), "before the grant"),
+    (_history("Proposed", "ProposalVerified", "ClaimGranted", "ImplementationFailed",
+              "ClaimHeartbeat"), "after the terminal released the claim"),
+])
+def test_a_heartbeat_outside_a_held_claim_is_refused(history, why):
+    """`cas_heartbeat` writes a beat only while the claim it names is held, so these are
+    histories no writer can produce — and an earlier draft of this plan asserted the second
+    one was LEGAL, which is how a fold ends up blessing records its own writer forbids.
+    `legal_states` is what makes the fold's rule the writer's rule."""
+    with pytest.raises(IllegalTransition, match="legal only in"):
+        project_attempt(history)
+
+
+def test_a_heartbeat_at_a_stale_generation_is_refused():
+    """A beat is evidence about ONE claim. Stamped with a generation the Attempt no longer
+    holds, it is a crashed runner's beat arriving after a reclaim — exactly the record the
+    fencing token exists to make detectable, so accepting it would defeat the token."""
+    history = _history("Proposed", "ProposalVerified", "ClaimGranted")   # generation 1
+    history.append(attempt_event("ClaimHeartbeat", seq=3,
+                                 payload={"claim_generation": 2, "tick": 1}))
+    with pytest.raises(IllegalTransition, match="no longer holds"):
+        project_attempt(history)
 
 
 def test_walk_attempt_yields_the_state_before_each_event():
     """The auditor's whole conditional-effects rule is defined over `state_before`, so the
     fold must hand it over rather than have each consumer recompute it."""
     steps = list(walk_attempt(_history("Proposed", "ProposalVerified", "ClaimGranted")))
-    assert [(b, e.event_type, a) for b, e, _t, a in steps] == [
+    assert [(s.state_before, s.event.event_type, s.state_after) for s in steps] == [
         (None, "Proposed", AttemptState.PROPOSED),
         (AttemptState.PROPOSED, "ProposalVerified", AttemptState.PROPOSAL_VERIFIED),
         (AttemptState.PROPOSAL_VERIFIED, "ClaimGranted", AttemptState.CLAIMED),
     ]
+    # The generation the beat rule compares against, carried by the same fold.
+    assert [s.claim_generation for s in steps] == [None, None, 1]
 
 
 def test_one_fold_means_one_verdict_on_an_illegal_history():
@@ -2541,18 +2568,48 @@ def holds_claim(state: AttemptState | None) -> bool:
     `None` — an Attempt with no events yet — holds nothing."""
     return state in CLAIM_HOLDING_STATES
 
-#: Events that live on an Attempt's stream, carry its `attempt_id`, and move NO state —
-#: the spec's `‡` rows keyed by `attempt_id`. `ClaimHeartbeat` is the one Slice 2 writes
-#: (`cas_heartbeat`, Task 9); `PublishRequested`/`Published` join it in a later slice.
-#:
-#: This set has to exist and be DECLARED. `project_attempt` folds every event on the
-#: stream and fails closed on any type it does not recognise — correct for an unknown
-#: type, wrong for a heartbeat, and the difference cannot be left implicit: without this,
-#: the first heartbeat makes every later projection of that Attempt raise
-#: `IllegalTransition`, which `cas_attempt_transition`'s precondition would read as an
-#: untrustworthy history and refuse to add to. A live claim would wedge itself by
-#: proving it was alive.
-NON_TRANSITION_EVENTS: frozenset[str] = frozenset({"ClaimHeartbeat"})
+@dataclass(frozen=True)
+class NonTransition:
+    """An event that lives on an Attempt's stream, carries its ``attempt_id``, and moves NO
+    state — the spec's ``‡`` rows keyed by ``attempt_id`` — TOGETHER WITH the rules that
+    make one legal.
+
+    A bare set of names was not enough. `walk_attempt` skipped every member without
+    checking anything, so a heartbeat before the grant, after the terminal, or stamped with
+    a stale generation folded cleanly — in the one component whose job is to refuse
+    histories the machine could not have produced. `cas_heartbeat` will not write any of
+    them, so accepting them is the auditor believing something no writer can create.
+
+    ``legal_states`` is the state the Attempt must be in when the event is recorded.
+    ``generation_field``, when set, names a payload field that must equal the claim
+    generation in force at that point.
+
+    There is deliberately NO ``required_payload`` here, though it was asked for: the
+    payload contract for every event type is declared once, in `events.py`'s validator
+    table, and enforced at the write boundary for records this fold only ever reads back.
+    A second list of required fields would be a second contract, and the first divergence
+    between them would be silent."""
+
+    event: str
+    legal_states: frozenset[AttemptState]
+    generation_field: str | None
+
+
+#: `ClaimHeartbeat` is the one Slice 2 writes (`cas_heartbeat`, Task 9);
+#: `PublishRequested`/`Published` join it in a later slice, with their own rules.
+NON_TRANSITIONS: tuple[NonTransition, ...] = (
+    NonTransition(event="ClaimHeartbeat", legal_states=CLAIM_HOLDING_STATES,
+                  generation_field="claim_generation"),
+)
+
+#: Declared, not remembered: `project_attempt` folds every event on the stream and fails
+#: closed on any type it does not recognise — correct for an unknown type, wrong for a
+#: heartbeat. Without this the first heartbeat would make every later projection of that
+#: Attempt raise `IllegalTransition`, which `cas_attempt_transition` reads as an
+#: untrustworthy history and refuses to add to: a live claim wedging itself by proving it
+#: was alive.
+NON_TRANSITION_EVENTS: frozenset[str] = frozenset(n.event for n in NON_TRANSITIONS)
+_BY_NON_TRANSITION: dict[str, NonTransition] = {n.event: n for n in NON_TRANSITIONS}
 
 _BY_EVENT: dict[str, Transition] = {t.event: t for t in TRANSITIONS}
 ATTEMPT_EVENT_TYPES: frozenset[str] = frozenset(_BY_EVENT) | NON_TRANSITION_EVENTS
@@ -2583,13 +2640,26 @@ class AttemptProjection:
         return self.state in OPERATIONAL_TERMINALS
 
 
-def walk_attempt(
-    events: list[Event],
-) -> Iterator[tuple[AttemptState | None, Event, Transition, AttemptState]]:
-    """The ONE fail-closed Attempt fold. Yields ``(before, event, transition, after)`` for
-    every state-moving event, in order, and raises on any history the machine could not
-    have produced — an unknown event, an out-of-order ``seq``, a transition with no row, a
-    transition illegal from the state it is in, or a second terminal.
+@dataclass(frozen=True)
+class Step:
+    """One state-moving event, with everything a consumer needs about its position in the
+    history. A record rather than a tuple because it has grown twice already, and each
+    consumer reads a different subset."""
+
+    state_before: AttemptState | None
+    event: Event
+    transition: Transition
+    state_after: AttemptState
+    #: The claim generation in force AFTER this event, or `None` before any grant.
+    claim_generation: int | None
+
+
+def walk_attempt(events: list[Event]) -> Iterator[Step]:
+    """The ONE fail-closed Attempt fold. Yields a :class:`Step` per state-moving event, in
+    order, and raises on any history the machine could not have produced — an unknown
+    event, an out-of-order ``seq``, a transition with no row, a transition illegal from the
+    state it is in, a second terminal, or a non-transition event recorded somewhere its
+    rule forbids.
 
     It is a generator so that BOTH consumers get the same interpretation:
     :func:`project_attempt` needs only the final state, while
@@ -2611,6 +2681,7 @@ def walk_attempt(
     if not events:
         raise IllegalTransition("an Attempt projection needs at least its Proposed event")
     state: AttemptState | None = None
+    generation: int | None = None
     attempt_id = events[0].attempt_id
     previous_seq = -1
     for position, e in enumerate(events):
@@ -2622,8 +2693,23 @@ def walk_attempt(
                 f"event {position} of {attempt_id!r} has seq {e.seq!r}, which does not "
                 f"follow {previous_seq} — the history is not in authoritative order")
         previous_seq = e.seq
-        if e.event_type in NON_TRANSITION_EVENTS:
-            continue                      # recorded on this stream, moves no state
+        rule = _BY_NON_TRANSITION.get(e.event_type)
+        if rule is not None:
+            # Moves no state, but is not therefore unconstrained. `cas_heartbeat` writes a
+            # beat only while the claim it names is held at the generation it stamps, so a
+            # beat anywhere else is a record no writer could have produced.
+            if state not in rule.legal_states:
+                raise IllegalTransition(
+                    f"{e.event_type!r} at {state.value if state else None!r}: legal only "
+                    f"in {sorted(s.value for s in rule.legal_states)}")
+            if rule.generation_field is not None:
+                stamped = payload_field(e, rule.generation_field)
+                if stamped != generation:
+                    raise IllegalTransition(
+                        f"{e.event_type!r} stamps {rule.generation_field}={stamped!r} but "
+                        f"the claim in force is generation {generation!r} — a beat for a "
+                        "claim this Attempt no longer holds")
+            continue
         transition = _BY_EVENT.get(e.event_type)
         if transition is None:
             raise IllegalTransition(f"unknown Attempt event {e.event_type!r} — fail closed")
@@ -2638,7 +2724,9 @@ def walk_attempt(
         elif state not in transition.from_states:
             raise IllegalTransition(
                 f"illegal transition {e.event_type!r} from {state.value!r}")
-        yield (state, e, transition, transition.to_state)
+        if e.event_type in ("ClaimGranted", "ClaimExpired"):
+            generation = payload_field(e, "claim_generation")
+        yield Step(state, e, transition, transition.to_state, generation)
         state = transition.to_state
 
 
@@ -2648,10 +2736,8 @@ def project_attempt(events: list[Event]) -> AttemptProjection:
     state: AttemptState | None = None
     last: Transition | None = None
     generation: int | None = None
-    for _before, e, transition, after in walk_attempt(events):
-        if e.event_type in ("ClaimGranted", "ClaimExpired"):
-            generation = payload_field(e, "claim_generation")
-        state, last = after, transition
+    for step in walk_attempt(events):
+        state, last, generation = step.state_after, step.transition, step.claim_generation
     if state is None:
         raise IllegalTransition(
             f"{events[0].attempt_id!r} has only non-transition events — no state to project")
@@ -2804,6 +2890,35 @@ forbids, and two builders drifting on id derivation would mint duplicate records
 decision. Update `coordinator.py`'s two call sites (`cas_claim`, `cas_release`); the
 docstring moves with it.
 
+Also add, in the same module, the ONE declaration of how a coordinator record is keyed:
+
+```python
+#: The idempotency-key prefix each cross-stream coordinator event is keyed by.
+#: Declared once because FOUR places need it and they must agree exactly: `coord_event`
+#: builds with it, `lifecycle`'s effect builders build with it, `cas_claim` derives its
+#: `ClaimAcquired` id from it, and both the replay path and `assert_lane_consistent`
+#: compute a partner's id from it WITHOUT building the event. It was a bare `"release"` /
+#: `"monitor"` / `"claim"` literal in five places across three modules; a typo in any one
+#: of them mints a second record for one decision, which is precisely the half-state the
+#: whole slice exists to prevent.
+COORDINATOR_KEYS: dict[str, str] = {
+    "ClaimAcquired": "claim",
+    "ClaimReleased": "release",
+    "MonitorStarted": "monitor",
+}
+
+
+def coordinator_event_id(event_type: str, problem_id: str, attempt_id: str) -> str:
+    """The derived id of a coordinator record — computed, never searched for.
+
+    This is what makes a transaction's partner LOCATABLE on replay and auditable after the
+    fact: given either half, the other half's id is a pure function of
+    ``(event_type, problem_id, attempt_id)``."""
+    return derive_event_id(
+        COORDINATOR_STREAM,
+        "\x00".join((COORDINATOR_KEYS[event_type], problem_id, attempt_id)))
+```
+
 - [ ] **Step 4: Run the tests**
 
 Run: `python -m pytest tests/unit/test_self_improvement_events.py -q`
@@ -2827,7 +2942,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/events.p
 
 **Interfaces:**
 - Consumes: `lane_log.append/append_many/read`, `LaneRevisionConflict`, `derive_event_id`, `project_coordinator`, `COORDINATOR_STREAM`.
-- Produces: `cas_attempt_transition(repo, *, problem_id, attempt_id, event_type, payload, actor, clock, config=None) -> AttemptProjection`; `_claim_required(transition, history) -> bool`; `_COORDINATOR_EFFECTS`; `seed_claim` in `tests/helpers/lane_lifecycle.py`.
+- Produces: `cas_attempt_transition(repo, *, problem_id, attempt_id, event_type, payload, actor, clock, config=None) -> TransitionOutcome`; `_claim_required(transition, state_before) -> bool`; `_state_before(history, event_id)`; `_COORDINATOR_EFFECTS`; `seed_claim` in `tests/helpers/lane_lifecycle.py`.
 
 **A transition emits its declared coordinator effects, atomically.** When the Attempt making
 the transition currently holds the lane — read from ITS OWN state, `_claim_required`, not
@@ -2900,6 +3015,16 @@ It writes `Proposed` and `ProposalVerified` on the Problem stream first (via
 `append_many` carrying `ClaimAcquired` + `ClaimGranted`. Task 7's tests use the REAL
 `cas_claim`; this fixture exists so Task 6 does not have to.
 
+13. **The lost-acknowledgement suite, parameterized over the WHOLE matrix.** One test body, four rows, in `tests/integration/test_self_improvement_lost_ack.py` — written here because rows 2 and 4 land in this task, and extended by Task 7 (row 1) and Task 9 (row 3) rather than re-implemented there. For each row: drive the lane to the row's precondition, invoke the row's operation with `_after_push` raising, then RE-INVOKE the same operation **from a different actor**. Assert, uniformly:
+    a. the retry does not raise;
+    b. it reports `created is False` (`ClaimOutcome.created` for row 1, `TransitionOutcome.created` for rows 2/3/4 — one shape is what makes the parameterization possible);
+    c. no new events on EITHER stream;
+    d. the stored records still name the ORIGINAL actor, byte-for-byte;
+    e. `assert_lane_consistent` passes.
+
+    Row 1 had all of this; rows 2, 3 and 4 had none of it, and that asymmetry is exactly how the replay defect survived — a per-row test written where each row was implemented tests each row's author's assumptions. A shared body tests the CONTRACT, and a row that cannot satisfy it fails at the row, not at review.
+14. **A replay whose coordinator half was damaged raises rather than passing.** For rows 2 and 4: land the transaction, delete the coordinator partner (direct manipulation), then re-invoke. It must raise `LaneInconsistent`. This is the case the naive replay reports as healthy — the Attempt event is present, so "already landed" is true, and nothing ever looks at the half that is gone. For row 4, delete each of the TWO partners in turn: a replay that checked only `ClaimReleased` would bless a lost `MonitorStarted`.
+
 - [ ] **Step 2: Run to verify they fail**
 
 Run: `python -m pytest tests/integration/test_self_improvement_lifecycle_cas.py -q`
@@ -2912,7 +3037,8 @@ def _release_effect(problem_id: str, attempt_id: str, actor: str, timestamp: str
     """The coordinator's release. Carries NO generation: the fencing token advances on
     ``ClaimAcquired`` alone, so putting one here would be a second, unread copy of a
     number with one owner."""
-    return coord_event("ClaimReleased", ("release", problem_id, attempt_id),
+    return coord_event("ClaimReleased",
+                        (COORDINATOR_KEYS["ClaimReleased"], problem_id, attempt_id),
                         {"problem_id": problem_id, "attempt_id": attempt_id},
                         actor, timestamp, attempt_id)
 
@@ -2922,7 +3048,8 @@ def _monitor_effect(problem_id: str, attempt_id: str, actor: str, timestamp: str
     Attempt's ``PromotionObserved`` carries, because they are one commit. It is the value
     `last_autonomous_merge_at` folds to, so the coordinator never has to guess when the
     merge it is monitoring actually landed."""
-    return coord_event("MonitorStarted", ("monitor", problem_id, attempt_id),
+    return coord_event("MonitorStarted",
+                        (COORDINATOR_KEYS["MonitorStarted"], problem_id, attempt_id),
                         {"problem_id": problem_id, "attempt_id": attempt_id,
                          "merged_at": timestamp},
                         actor, timestamp, attempt_id)
@@ -2937,30 +3064,85 @@ _COORDINATOR_EFFECTS: dict[str, Callable[[str, str, str, str], Event]] = {
 }
 
 
-def _claim_required(transition: Transition, history: list[Event]) -> bool:
-    """Does this transition, on this Attempt, have to write the coordinator too?
+def _claim_required(transition: Transition, state_before: AttemptState | None) -> bool:
+    """Does this transition, from this state, have to write the coordinator too?
 
     The matrix's conditional-effects clause, in code: the row must declare effects AND the
-    Attempt must currently hold the lane. "Holds the lane" is read from the Attempt's own
-    timeline (`CLAIM_HOLDING_STATES`) rather than from the coordinator, so that this — the
-    WRITER's rule — and `assert_lane_consistent`'s rule are the same predicate over the
-    same input. Two readings of "is a release required" is how a writer ends up
-    manufacturing precisely the half-state its auditor is looking for.
+    Attempt must hold the lane in the state the transition is LEAVING. "Holds the lane" is
+    read from the Attempt's own timeline (`holds_claim`) rather than from the coordinator,
+    so that this — the WRITER's rule — and `assert_lane_consistent`'s rule are the same
+    predicate over the same input. Two readings of "is a release required" is how a writer
+    ends up manufacturing precisely the half-state its auditor is looking for.
 
-    An unprojectable history raises rather than answering False: refusing to write is the
-    fail-closed answer, and a silent False here would downgrade a claim-holding transition
-    into a lone terminal, which is the defect this function exists to remove."""
-    if not transition.coordinator_effects or not history:
-        return False
-    return holds_claim(project_attempt(history).state)
+    It takes a STATE, not a history, because a replay must ask the question about the state
+    the stored event was written FROM — which is not the current state, since the event
+    already moved it. Passing a history would silently answer about the present."""
+    return bool(transition.coordinator_effects) and holds_claim(state_before)
+
+
+def replayed_transaction(stored: Event, effects: tuple[str, ...],
+                         coordinator_events: list[Event], *, problem_id: str,
+                         attempt_id: str) -> list[Event]:
+    """The event set of an already-landed cross-stream transaction, LOCATED not rebuilt.
+
+    `cas_attempt_transition` (rows 2 and 4) and `cas_reclaim` (row 3) call it with the
+    effects their row required. Row 1 does NOT, and the reason is worth stating so nobody
+    "unifies" it later: there, the Attempt-side `ClaimGranted` is not a reliable anchor —
+    the surviving half can be EITHER one, and `cas_claim` must detect a lone `ClaimAcquired`
+    (a lane wedged behind an Attempt that never started) as well as a lone grant. Its
+    bidirectional check is a stronger test, not a duplicate of this one; folding it into
+    this shape would delete a case.
+
+    Two properties, both learned the hard way:
+
+    **Located, not rebuilt.** `actor` is part of an event's identity
+    (`lane_log._IDENTITY_EXCLUDE` covers `seq`, `timestamp` and the revision anchors — not
+    `actor`), and recovery routinely runs under a different runner identity than the one
+    that died. Rebuilding would produce a different body under the same derived id and fail
+    append-only validation on exactly the cross-runner retry the lost-acknowledgement
+    contract exists to make survivable.
+
+    **Complete or refused.** A stored Attempt event whose declared partner is missing is
+    half a transaction. Returning just the Attempt event would let the retry report success
+    while the damage went unmentioned — the naive replay's failure, and the reason a
+    row-4 replay could pass with its `MonitorStarted` gone. Completing the missing half
+    instead is the repair this design does not offer: it would finish a transaction that
+    was never atomically started."""
+    partners = [
+        (name, next((e for e in coordinator_events
+                     if e.event_id == coordinator_event_id(name, problem_id, attempt_id)),
+                    None))
+        for name in effects
+    ]
+    missing = [name for name, found in partners if found is None]
+    if missing:
+        raise LaneInconsistent(
+            f"{problem_id}/{attempt_id}: {stored.event_type} is present but "
+            f"{', '.join(missing)} {'is' if len(missing) == 1 else 'are'} not — half a "
+            "transaction, which nothing that writes this lane can produce")
+    return [stored, *(found for _name, found in partners)]
+
+
+def _state_before(history: list[Event], event_id: str) -> AttemptState | None:
+    """The state this Attempt was in immediately before ``event_id`` was applied.
+
+    Read back through the SAME fold everything else uses, so a replay's applicability
+    answer is the one the original write computed and the one the auditor will compute."""
+    for step in walk_attempt(history):
+        if step.event.event_id == event_id:
+            return step.state_before
+    raise IllegalTransition(f"{event_id} is not a transition in this history")
 
 
 def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
                            event_type: str, payload: Mapping[str, Any], actor: str,
                            clock: Callable[[], str],
-                           config: LaneLogConfig | None = None) -> AttemptProjection:
-    """Append one Attempt transition under the table's rules, or raise
-    :class:`LaneRevisionConflict`.
+                           config: LaneLogConfig | None = None) -> TransitionOutcome:
+    """Append one Attempt transition — and the coordinator effects its row declares — under
+    the table's rules, or raise :class:`LaneRevisionConflict`.
+
+    Returns the resulting projection together with whether THIS call wrote it, so a retry
+    after a lost acknowledgement is an ordinary no-op rather than an error.
 
     The precondition is re-evaluated against the projection the CAS commits against — never
     a stale read — so a terminal that landed while this caller was deciding defeats it. That
@@ -2978,28 +3160,41 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
         # reclaim. Reaching it through the generic path would skip them.
         raise IllegalTransition("ClaimExpired is written by cas_reclaim, not by this path")
     events = read(repo, problem_id, config=config)
-    coordinator = project_coordinator(read(repo, COORDINATOR_STREAM, config=config))
-    event = Event(
-        event_id=derive_event_id(problem_id, f"{transition.key_suffix}\x00{attempt_id}"),
-        event_type=event_type, problem_id=problem_id, actor=actor,
-        payload={"problem_id": problem_id, "attempt_id": attempt_id, **payload},
-        timestamp=clock(), attempt_id=attempt_id,
-    )
-    writes, expected = [event], {problem_id: len(events)}
-    # Whether this transition must ALSO write the coordinator is a fact about the ATTEMPT —
-    # exactly the predicate `assert_lane_consistent` audits with. Deriving it from the
-    # coordinator's ownership instead makes a DISAGREEMENT between the two look like
-    # "nothing to release": an Attempt in `implementing` whose claim record is missing or
-    # names someone else would write its terminal alone, manufacturing the half-state the
-    # transaction exists to prevent and leaving the auditor to find it later. Reading it
-    # from the Attempt's own timeline makes the two readings agree by construction, and
-    # turns a divergence into a REFUSAL here instead of a corrupt commit.
-    requires_claim = _claim_required(transition, [e for e in events
-                                                  if e.attempt_id == attempt_id])
-    if requires_claim:
-        writes.extend(
+    coordinator_events = read(repo, COORDINATOR_STREAM, config=config)
+    coordinator = project_coordinator(coordinator_events)
+    history = [e for e in events if e.attempt_id == attempt_id]
+    event_id = derive_event_id(problem_id, f"{transition.key_suffix}\x00{attempt_id}")
+    stored = next((e for e in history if e.event_id == event_id), None)
+
+    if stored is not None:
+        event = stored
+        requires_claim = _claim_required(transition, _state_before(history, event_id))
+        writes = replayed_transaction(
+            stored, transition.coordinator_effects if requires_claim else (),
+            coordinator_events, problem_id=problem_id, attempt_id=attempt_id)
+    else:
+        event = Event(
+            event_id=event_id,
+            event_type=event_type, problem_id=problem_id, actor=actor,
+            payload={"problem_id": problem_id, "attempt_id": attempt_id, **payload},
+            timestamp=clock(), attempt_id=attempt_id,
+        )
+        # Whether this transition must ALSO write the coordinator is a fact about the
+        # ATTEMPT — exactly the predicate `assert_lane_consistent` audits with. Deriving it
+        # from the coordinator's ownership instead makes a DISAGREEMENT between the two
+        # look like "nothing to release": an Attempt in `implementing` whose claim record
+        # is missing or names someone else would write its terminal alone, manufacturing
+        # the half-state the transaction exists to prevent and leaving the auditor to find
+        # it later. Reading it from the Attempt's own timeline makes the two readings agree
+        # by construction, and turns a divergence into a REFUSAL here.
+        requires_claim = _claim_required(
+            transition, project_attempt(history).state if history else None)
+        writes = [event, *(
             _COORDINATOR_EFFECTS[name](problem_id, attempt_id, actor, event.timestamp)
-            for name in transition.coordinator_effects)
+            for name in (transition.coordinator_effects if requires_claim else ()))]
+
+    expected = {problem_id: len(events)}
+    if requires_claim:
         expected[COORDINATOR_STREAM] = coordinator.lane_revision
 
     def _legal_or_landed(observed: dict[str, list[Event]]) -> tuple[bool, str]:
@@ -3017,7 +3212,7 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
             return (False, f"{attempt_id!r} already terminal at {current.state.value!r}")
         if current.state not in transition.from_states:
             return (False, f"illegal from {current.state.value!r}")
-        if _claim_required(transition, history) != requires_claim:
+        if _claim_required(transition, current.state) != requires_claim:
             # The applicability decision is re-made at the parent, because `from_states`
             # alone does not pin it: `ReviewAborted` is legal from `proposed` (holds
             # nothing) AND from `implementing` (holds the lane). A stale read of `proposed`
@@ -3041,10 +3236,34 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
                         f"{now_holding.active_problem_id}/{now_holding.active_attempt_id}")
         return (True, "")
 
-    append_many(repo, writes, expected_revisions=expected, precondition=_legal_or_landed,
-                config=config)
-    return project_attempt(
-        [e for e in read(repo, problem_id, config=config) if e.attempt_id == attempt_id])
+    result = append_many(repo, writes, expected_revisions=expected,
+                         precondition=_legal_or_landed, config=config)
+    return TransitionOutcome(
+        projection=project_attempt(
+            [e for e in read(repo, problem_id, config=config)
+             if e.attempt_id == attempt_id]),
+        created=result.created)
+```
+
+`TransitionOutcome` is declared in Task 4 beside `AttemptProjection`:
+
+```python
+@dataclass(frozen=True)
+class TransitionOutcome:
+    """What a cross-stream write returns: the resulting projection, and whether THIS call
+    wrote it.
+
+    `created` exists on all four matrix rows for one reason — the lost-acknowledgement
+    contract. A durable transaction whose caller never learned it landed is
+    indistinguishable, to that caller, from one that never ran, so the recovery path is the
+    ordinary retry and the retry must report "already yours" rather than either raising or
+    claiming fresh work. `ClaimOutcome.created` (row 1) answers it for the claim grant;
+    this answers it for rows 2, 3 and 4. One question, one shape, four rows — which is also
+    what lets the lost-ack suite be parameterized over the matrix instead of written four
+    times with four different assertions."""
+
+    projection: AttemptProjection
+    created: bool
 ```
 
 - [ ] **Step 4: Run the tests**
@@ -3216,8 +3435,7 @@ def _acquired_for(coordinator_events: list[Event], problem_id: str,
     There is at most one per `(problem_id, attempt_id)` — the id is derived from exactly
     those two, and the table forbids re-claiming an Attempt — so this is unambiguous rather
     than "the most recent match"."""
-    acquired_id = derive_event_id(
-        COORDINATOR_STREAM, f"claim\x00{problem_id}\x00{attempt_id}")
+    acquired_id = coordinator_event_id("ClaimAcquired", problem_id, attempt_id)
     acquired = next(
         (e for e in coordinator_events if e.event_id == acquired_id), None)
     if acquired is None:
@@ -3277,8 +3495,7 @@ def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str,
     coordinator_events = read(repo, COORDINATOR_STREAM, config=config)
     problem_events = read(repo, problem_id, config=config)
     current = project_coordinator(coordinator_events)
-    acquired_id = derive_event_id(
-        COORDINATOR_STREAM, f"claim\x00{problem_id}\x00{attempt_id}")
+    acquired_id = coordinator_event_id("ClaimAcquired", problem_id, attempt_id)
     granted_id = derive_event_id(problem_id, f"claim\x00{attempt_id}")
     stored = (next((e for e in coordinator_events if e.event_id == acquired_id), None),
               next((e for e in problem_events if e.event_id == granted_id), None))
@@ -3392,8 +3609,8 @@ produces exactly those, and a current-state fold cannot see any of them — the 
 a released claim is that it left no current state behind.
 
 Pairing is checkable directly because **every paired event id is derived, not random.**
-`derive_event_id(COORDINATOR_STREAM, f"claim\x00{p}\x00{a}")` and
-`derive_event_id(p, f"claim\x00{a}")` are computable from `(problem_id, attempt_id)` alone,
+`coordinator_event_id("ClaimAcquired", p, a)` and `derive_event_id(p, f"claim\x00{a}")`
+are computable from `(problem_id, attempt_id)` alone,
 so for any record on one side the id of its partner is known without searching. The check is
 therefore a walk over all history, matching by id — and a matrix row's events are its
 pairing rule:
@@ -3408,7 +3625,6 @@ class _Pairing:
     rows: tuple[int, ...]
     matches: Callable[[Event], bool]
     coordinator_event: str
-    coordinator_key: Callable[[str, str], tuple[str, ...]]
     compare: tuple[str, ...]
     #: True when the partner is required ONLY IF the Attempt already held the lane — the
     #: matrix's conditional-effects clause. `ClaimGranted` is the one unconditional row: it
@@ -3443,15 +3659,12 @@ _CLAIM_PAIR_FIELDS: tuple[str, ...] = ("claim_generation", *_CLAIM_TERM_FIELDS)
 _PAIRINGS: tuple[_Pairing, ...] = (
     _Pairing(rows=(1,), matches=_is_type("ClaimGranted"),
              coordinator_event="ClaimAcquired",
-             coordinator_key=lambda p, a: ("claim", p, a),
              compare=_CLAIM_PAIR_FIELDS, requires_prior_hold=False),
     _Pairing(rows=(2, 3, 4), matches=_releases_the_claim,
-             coordinator_event="ClaimReleased",
-             coordinator_key=lambda p, a: ("release", p, a), compare=(),
+             coordinator_event="ClaimReleased", compare=(),
              requires_prior_hold=True),
     _Pairing(rows=(4,), matches=_is_type("PromotionObserved"),
-             coordinator_event="MonitorStarted",
-             coordinator_key=lambda p, a: ("monitor", p, a), compare=(),
+             coordinator_event="MonitorStarted", compare=(),
              requires_prior_hold=True),
 )
 ```
@@ -3556,14 +3769,14 @@ def assert_lane_consistent(repo: Path, *, problem_ids: Iterable[str],
             # illegal completed history fails closed here instead of being audited against
             # a state the machine could never have reached. `state_before` is what the
             # conditional-effects clause is defined over.
-            for state_before, event, _transition, _after in walk_attempt(history):
-                held = holds_claim(state_before)     # the writer's predicate, verbatim
+            for step in walk_attempt(history):
+                event = step.event
+                held = holds_claim(step.state_before)   # the writer's predicate, verbatim
                 for pairing in _PAIRINGS:
                     if not pairing.matches(event):
                         continue
-                    partner_id = derive_event_id(
-                        COORDINATOR_STREAM,
-                        "\x00".join(pairing.coordinator_key(problem_id, attempt_id)))
+                    partner_id = coordinator_event_id(
+                        pairing.coordinator_event, problem_id, attempt_id)
                     partner = by_id.get(partner_id)
                     if pairing.requires_prior_hold and not held:
                         # The matrix's conditional-effects clause: this row declares the
@@ -3846,7 +4059,10 @@ Time is injected via `FixedAnchorClock` driven by a controllable monotonic sourc
 4. `cas_reclaim` writes exactly matrix row 3 — the Attempt's `ClaimExpired` terminal (`attempt_abandoned`) and the coordinator's `ClaimReleased` — in ONE commit, and the NEXT claim then takes the next generation. Assert the events written equal the `ClaimExpired` row's declaration, so the generic path and the reclaim path cannot drift apart.
 4b. `cas_attempt_transition(event_type="ClaimExpired", ...)` RAISES and writes nothing, naming `cas_reclaim`. Reaching a reclaim through the generic path would skip the expiry and unreconciled-intent preconditions, which ARE the reclaim.
 5. The reclaim race: the original run's own terminal lands first ⇒ the reclaimer's ENTIRE transaction loses — no `ClaimExpired`, no second release. Assert exactly one terminal (the original's) and that the lane is **free**, because the winning terminal carried its own release in the same commit (matrix row 2). An earlier draft asserted "still occupied" here, which was the pre-transaction answer and contradicted case 6 two lines later; under the matrix a terminal by the holder can never leave the lane held.
-6. There is consequently nothing left for a second entry point to repair: assert that re-running `cas_reclaim` after case 5 is a no-op which raises rather than writing (the lane is free, so there is no claim to expire), and that the log still holds exactly one terminal. The wedged state an earlier draft planned a compensating transition for is unreachable, and this is the test that says so.
+6. There is consequently nothing left for a second entry point to repair: assert that re-running `cas_reclaim` after case 5 writes NOTHING and returns the stored outcome — `created=False`, the projection still `attempt_abandoned`, the lane still free — and that the log still holds exactly one terminal. The wedged state an earlier draft planned a compensating transition for is unreachable, and this is the test that says so.
+
+    **This replaced a `raises`.** An earlier draft asserted the retry RAISED, on the reasoning that the lane is free so there is nothing to expire. That reads the post-condition as a rejection: after a lost acknowledgement "the lane is free" is precisely the durable result the caller is retrying to discover, and raising makes a reclaim that SUCCEEDED indistinguishable from one that was never valid. It also contradicted this plan's own Global Constraint — "a retry after a lost acknowledgement is a no-op returning the stored result" — in the one operation whose entire purpose is recovering from a crashed run. Reclaim gets the same replay path as every other row: locate the stored transaction, verify it is complete, return it.
+6b. **The lost acknowledgement is exercised for real, under a different actor**: kill `cas_reclaim` at `_after_push`, then re-invoke from a second actor. Assert `created=False`, no new events on either stream, and that the STORED records still name the original actor. A reclaim is by definition run by a different process than the one that died, so the cross-runner case is the only case that matters here.
 7. `cas_reclaim` on an Attempt with an unreconciled intent is REFUSED (Task 8's `unreconciled_intents`, already available).
 8. A reclaim crashing at `_before_ref_update` leaves the Attempt non-terminal AND the lane still held by the original — never a terminal with a live claim, nor a free lane with a running Attempt.
 9. The reclaimer's `sample_uncertainty_s` is ADDED to the skew margin: a clock reporting ±30 s of sampling uncertainty needs 30 s more elapsed time before the same claim becomes reclaimable. Imprecision must never make eviction happen sooner.
@@ -3902,6 +4118,13 @@ because of (a) and (c): those preconditions are the reclaim, and a caller that c
 `cas_attempt_transition` therefore REFUSES `ClaimExpired` by name, pointing at
 `cas_reclaim` — the events written are still exactly the ones the table's row declares, and
 a test asserts that.
+
+It returns a `TransitionOutcome` (Task 4), the same shape rows 2 and 4 return, and it takes
+the same replay path: a stored `ClaimExpired` means the reclaim already landed, so locate
+its `ClaimReleased` partner by derived id, refuse if that half is missing, and otherwise
+return `created=False` with the stored projection. Reclaim is the operation MOST likely to
+be retried after a lost acknowledgement — it exists because a run died — so it is the last
+place a successful transaction may be reported as a failure.
 
 Document why there is no ordering to reason about:
 
