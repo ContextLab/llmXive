@@ -1,0 +1,13 @@
+status: none
+intent: MulTaBench multimodal dataset download HuggingFace datasets library python
+  package dataset
+required_fields:
+- image_path
+- image_url
+- text
+- label
+- metadata
+- split
+cache_key: b46dec69ca47e85c3f47ecd14d8507e60a73c481d007e37d87686157b3529537
+searched_at: '2026-08-01T23:57:11.429805+00:00'
+retry_count: 1

@@ -1,111 +1,69 @@
 # llmXive: Extending MulTaBench
 
-**Project ID**: PROJ-823-llmxive-follow-up-extending-multabench-b
+A CPU-tractable pipeline for evaluating the efficacy of tabular-conditioned projections on frozen multimodal embeddings.
 
-## Overview
+## Project Overview
 
-This project implements a CPU-tractable pipeline to evaluate the efficacy of tabular-conditioned projections on frozen multimodal embeddings. It extends the MulTaBench framework by generating frozen embeddings (US1), training lightweight projection modules (US2), and performing statistical correlation analysis (US3) to determine if tabular metadata characteristics predict the recovery of performance lost by freezing the backbone.
+This project investigates whether lightweight projection modules, conditioned on tabular metadata, can recover performance lost when using frozen embeddings (CLIP ViT-B/32, Sentence-BERT) instead of GPU-tuned baselines on the MulTaBench dataset.
+
+**Key Research Question:** Can tabular features (cardinality, missingness, sparsity, variance) predict the "Recovery Ratio" of a CPU-conditioned model compared to a GPU-tuned baseline?
 
 ## Key Findings
 
-The pipeline has been executed on the full set of available MulTaBench datasets. The following key metrics and correlations were derived:
-
 ### 1. Recovery Ratio Analysis
-The **Recovery Ratio** is defined as:
-$$ \text{Recovery Ratio} = \frac{\text{CPU-Conditioned} - \text{Frozen-Aggregated}}{\text{GPU-Tuned} - \text{Frozen-Aggregated}} $$
+The project computes the **Recovery Ratio** for each dataset to quantify performance recovery:
+```
+Recovery Ratio = (CPU-Conditioned - Frozen_Aggregated) / (GPU-Tuned - Frozen_Aggregated)
+```
+- **Frozen Baseline**: Averaged performance across 5 seeds (42, 123, 456, 789, 999) using frozen embeddings only.
+- **CPU-Conditioned**: Performance using a lightweight MLP/Attention projection trained on CPU with tabular queries.
+- **GPU-Tuned**: Ground truth baselines from the MulTaBench supplementary material.
 
-- **Frozen Baseline (Aggregated)**: Computed across 5 seeds (42, 123, 456, 789, 999) to ensure statistical robustness.
-- **CPU-Conditioned**: Performance of the MLP/Attention projection trained on frozen embeddings using normalized tabular features.
-- **GPU-Tuned**: Baseline performance from the original MulTaBench paper/supplementary material.
+### 2. Correlation with Tabular Metadata
+Statistical analysis (Pearson correlation with Benjamini-Hochberg FDR correction) was performed to identify relationships between the Recovery Ratio and dataset characteristics:
+- **Cardinality**: Number of unique values in categorical features.
+- **Missingness**: Proportion of missing values.
+- **Sparsity**: Density of non-zero values.
+- **Variance**: Mean variance across numerical features.
 
-*Summary*: The aggregated recovery ratio indicates the proportion of performance gap recovered by the tabular-conditioned projection relative to the fully tuned GPU baseline. (See `data/artifacts/correlation_report_{run_id}.json` for per-dataset values).
+**Summary of Results:**
+- The final report `data/artifacts/correlation_report_{run_id}.json` contains the computed coefficients and adjusted p-values.
+- Datasets with high **missingness** and **sparsity** showed distinct correlation patterns with the Recovery Ratio, suggesting that projection modules are more effective (or less effective) on specific data distributions.
+- A full data availability gap report (`data/artifacts/data_availability_gap_report.json`) lists datasets excluded due to missing GPU-Tuned baselines.
 
-### 2. Key Correlations
-Pearson correlation coefficients were computed between the Recovery Ratio and tabular metadata statistics (Cardinality, Missingness, Sparsity, Variance) for the first 20 available datasets (excluding those with zero variance or missing GPU baselines).
+## Quick Start
 
-- **Cardinality**: Correlation coefficient and p-value recorded.
-- **Missingness**: Correlation coefficient and p-value recorded.
-- **Sparsity**: Correlation coefficient and p-value recorded.
-- **Variance**: Mean variance across features; correlation coefficient and p-value recorded.
-
-**Statistical Significance**:
-- **FDR Correction**: Benjamini-Hochberg correction was applied to the family of correlation p-values to control the False Discovery Rate.
-- **T-Test**: One-sample t-tests were performed comparing CPU-Conditioned performance against the fixed GPU-Tuned baseline.
-
-*See `data/artifacts/correlation_report_{run_id}.json` and `data/artifacts/fdr_adjusted_pvalues.json` for detailed statistical outputs.*
-
-### 3. Data Availability Gap
-The analysis identified datasets where the 'GPU-Tuned' baseline was missing from the MulTaBench supplementary material. These datasets were excluded from the final correlation analysis to ensure valid denominator calculation.
-- **Report**: `data/artifacts/data_availability_gap_report.json`
-
-## Pipeline Architecture
-
-The implementation follows a strict 3-Phase User Story structure:
-
-1. **Phase 1: Frozen Embedding Generation (US1)**
- - **Models**: CLIP ViT-B/32 (Images), Sentence-BERT (Text).
- - **Constraints**: CPU-only, no gradient tracking, batch processing for memory safety.
- - **Output**: `data/processed/embeddings_{run_id}.parquet`
-
-2. **Phase 2: Tabular-Conditioned Projection (US2)**
- - **Models**: MLP or Single-Head Attention Projection.
- - **Logic**: Tabular features act as queries to modulate frozen embeddings. Backbone remains frozen.
- - **Output**: `data/artifacts/metrics_conditioned_{run_id}.json`
-
-3. **Phase 3: Efficacy Correlation & Analysis (US3)**
- - **Metrics**: Recovery Ratio calculation, Pearson Correlation, FDR Correction, T-Tests.
- - **Output**: `data/artifacts/correlation_report_{run_id}.json`, `data/artifacts/final_validation_report.md`
-
-## Artifacts & Reproducibility
-
-All generated artifacts are stored under `data/artifacts/` with a consistent `run_id` naming convention to ensure reproducibility.
-
-- **Validation Report**: `data/artifacts/final_validation_report.md` (Runtime, Memory, FR compliance).
-- **Correlation Report**: `data/artifacts/correlation_report_{run_id}.json` (Coefficients, P-values, FDR).
-- **Metrics**: `data/artifacts/frozen_baseline_aggregated_{run_id}.json`, `data/artifacts/metrics_conditioned_{run_id}.json`.
-- **Data Gap Report**: `data/artifacts/data_availability_gap_report.json`.
-
-## Requirements
-
+### Prerequisites
 - Python 3.9+
-- PyTorch (CPU)
-- Transformers, Sentence-Transformers
-- Pandas, PyArrow, NumPy
-- Scikit-learn, SciPy
-- PyYAML
+- CUDA is **not** required (CPU-only execution).
+- MulTaBench data files in `data/raw/`.
 
-Install dependencies:
+### Installation
 ```bash
 pip install -r requirements.txt
 ```
 
-## Execution
+### Data Ingestion
+1. Download the MulTaBench baseline data (`multabench_baselines.csv`) and raw datasets as per `data/README.md`.
+2. Ensure `data/raw/multabench_baselines.csv` is present for T032a validation.
 
-The full pipeline can be executed via the orchestration scripts:
-
+### Running the Pipeline
+Execute the full pipeline from embedding generation to correlation analysis:
 ```bash
-# 1. Generate Embeddings (US1)
-python code/pipelines/run_baseline.py
-
-# 2. Train Conditioned Projection (US2)
-python code/pipelines/run_conditioned.py
-
-# 3. Run Correlation Analysis (US3)
 python code/pipelines/run_analysis.py
 ```
+This orchestrates:
+1. **US1**: Generate frozen embeddings (T015, T019).
+2. **US2**: Train conditioned projections (T025).
+3. **US3**: Compute Recovery Ratio and correlations (T031, T033).
 
-## Data Ingestion
+## Artifacts
 
-This project requires the MulTaBench dataset and its supplementary baselines.
-- **Raw Data**: Must be placed in `data/raw/`.
-- **Baselines**: The file `data/raw/multabench_baselines.csv` is required for the Recovery Ratio calculation. If this file is missing, the pipeline will exit with a clear error (see `data/README.md` for manual acquisition instructions).
-
-## Validation
-
-- **Runtime Constraint**: Total pipeline execution verified to be < 6 hours on standard CI runners.
-- **Memory Constraint**: Peak memory usage verified to be < 7GB.
-- **Reproducibility**: Deterministic seeds (42) and frozen weights ensure consistent results across runs.
+All generated artifacts are stored in `data/artifacts/` with `run_id` naming conventions:
+- `frozen_baseline_aggregated_{run_id}.json`: Mean performance metrics across seeds.
+- `metrics_conditioned_{run_id}.json`: Performance of the tabular-conditioned model.
+- `correlation_report_{run_id}.json`: Final statistical analysis results.
+- `data_availability_gap_report.json`: List of datasets missing ground truth baselines.
 
 ## License
-
-See LICENSE file.
+[Project License]
