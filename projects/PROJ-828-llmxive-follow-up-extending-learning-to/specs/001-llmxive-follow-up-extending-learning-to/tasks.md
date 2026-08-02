@@ -68,7 +68,7 @@
 - [X] T006 Implement `src/utils/hasher.py` to compute SHA-256 hashes of all derived artifacts
 - [X] T007 Create `src/data/loader.py` to fetch GSM8K subset (≥1,000 problems) from HuggingFace `datasets` with checksum verification
 - [X] T008 Create `src/data/checksums.py` for data integrity verification
-- [X] T009 Implement `src/models/config.py` to programmatically prune `TinyLlama` to a reduced parameter scale. **Logic**: Detect source model layer count. Remove layers from the end until the total parameter count is within 5% of 300M. **Include verification logic** to validate the pruned model architecture (layer count, attention heads, hidden size) matches TinyLlama-300M specifications before training begins.
+- [X] T009 Implement `src/models/config.py` to programmatically prune `TinyLlama` to a reduced parameter scale. **Logic**: Detect source model layer count. Remove layers from the end until the total parameter count is within 5 (2303.06480, https://arxiv.org/abs/2303.06480)% of 300M. **Include verification logic** to validate the pruned model architecture (layer count, attention heads, hidden size) matches TinyLlama-300M specifications before training begins.
 - [X] T010 Implement `src/models/backbone.py` with hooks to capture attention projection updates
 - [X] T012 Create `src/cli/run_experiment.py` as the single entry point orchestrating all training and analysis. **Requirement**: Must define a `--rerun-seeds` CLI flag for adaptive sample size logic.
 - [X] T013 [P] Create `tests/unit/test_svd.py` to verify SVD on small matrices fits memory constraints
@@ -86,8 +86,8 @@
 
 ### Tests for User Story 1
 
-- [ ] T015 [P] [US1] Contract test for OPD SVD output shape in `tests/unit/test_opd_svd.py`
-- [ ] T016 [P] [US1] Integration test for OPD data flow in `tests/integration/test_opd_flow.py`
+- [X] T015 [P] [US1] Contract test for OPD SVD output shape in `tests/unit/test_opd_svd.py`
+- [X] T016 [P] [US1] Integration test for OPD data flow in `tests/integration/test_opd_flow.py`
 
 ### Implementation for User Story 1
 
@@ -98,7 +98,7 @@
 - [ ] T019 [US1] Implement **layer-wise SVD logic** in `src/training/projection_utils.py` for accumulated updates
 - [ ] T020 [US1] Implement logic to select $k$ such that cumulative explained variance ≥ 80% (default $k=10$ if none)
 - [ ] T021 [US1] Save stable subspace matrix (shape $k \times n_{params}$) to `results/opd_subspace.npy`
-- [ ] T022a [US1] Log memory usage during SVD and **Assert memory usage < 7GB**; raise exception if limit exceeded.
+- [ ] T022a [US1] Log memory usage during SVD and **Assert memory usage < 7GB **; raise exception if limit exceeded.
 - [ ] T022b [US1] **Log** peak memory usage to `results/memory_profile.json` for SC-004 verification, regardless of success or failure.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -122,7 +122,7 @@
 - [ ] T026 [US2] Implement `src/training/low_rank_rl.py` loading subspace from `results/opd_subspace.npy` (Depends on T021)
 - [ ] T027 [US2] Implement **gradient projection logic** in `low_rank_rl.py` to constrain raw RL gradients to top-$k$ vectors
 - [ ] T028 [US2] Add logging to verify update vector lies entirely within span of top-$k$ vectors
-- [ ] T029 [US2] Log cosine similarity between applied update and subspace basis and **Assert cosine similarity >= 0.99**; raise exception if violated.
+- [ ] T029 [US2] Log cosine similarity between applied update and subspace basis and **Assert cosine similarity >= 0.99 **; raise exception if violated.
 - [ ] T030 [US2] Save Low-Rank RL training logs and checkpoints to `results/low_rank_rl/`
 - [ ] T030b [US2] Implement per-step update direction logging in `src/training/low_rank_rl.py`. **Storage**: Save per-layer update vectors to separate files `results/low_rank_rl/updates_seed_{i}/layer_{l}.pt` (NOT a single stacked array).
 - [ ] T030c [US2] Implement real-time "Early Trajectory Alignment" logging in `src/training/low_rank_rl.py`. **Logic**: During the first `early_window` steps (from T018c), calculate cosine similarity between current update and OPD trajectory. **Action**: Log to `results/low_rank_rl/early_alignment_log.json` and **Flag run as 'Low Alignment'** if alignment < 0.95 (do NOT abort).

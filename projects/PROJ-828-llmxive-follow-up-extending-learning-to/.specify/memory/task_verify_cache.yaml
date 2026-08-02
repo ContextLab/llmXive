@@ -1,0 +1,7 @@
+T016:
+  c: false
+  h: 849c5d6ea9352c4eaff7be8fd5a03062a45c9e2565fa70b635a46982a7a22321
+  r: The required file `tests/integration/test_opd_flow.py` does not exist in the
+    repository, so the integration test artifact is missing entirely. Without this
+    test file, the OPD data flow cannot be verified. The implementer must add the
+    missing test file with appropriate test code.
