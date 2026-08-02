@@ -4,105 +4,146 @@ import tempfile
 import pytest
 from pathlib import Path
 import sys
+import torch
 
-# Ensure code is in path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add code root to path if running standalone
+code_root = Path(__file__).parent.parent.parent / "code"
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
 from src.experiments.baseline_runner import BaselineRunner, ExperimentConfig
+from src.training.homeostasis import log_gradient_norms
+from src.data.benchmarks import generate_training_data, generate_test_data
 
+@pytest.fixture
+def temp_output_dir():
+    """Create a temporary directory for test outputs."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
 class TestBaselineMetrics:
-    """Integration test for T016: baseline_metrics.json generation."""
+    """
+    Integration test for T015: Verify that run_and_record_metrics
+    produces a valid JSON file with the correct schema and logic.
+    """
 
-    def test_run_and_record_metrics_generates_json(self, tmp_path):
+    def test_run_and_record_metrics_creates_file(self, temp_output_dir):
         """
-        Verify that run_and_record_metrics produces data/results/baseline_metrics.json
-        with the correct schema and types.
+        Test that the baseline runner creates the output file at the specified path.
         """
-        # Setup temporary output directories
-        output_dir = tmp_path / "results"
-        log_dir = tmp_path / "logs"
-        output_dir.mkdir()
-        log_dir.mkdir()
-
-        # Configure a very small run for speed
+        output_path = os.path.join(temp_output_dir, "baseline_metrics.json")
+        
+        # Use a small config for speed in tests
         config = ExperimentConfig(
-            name="test_metrics",
-            seed=42,
             hidden_dim=16,
+            num_layers=2,
             num_heads=2,
-            num_layers=1,
-            batch_size=8,
-            epochs=2,
+            max_seq_len=32,
+            train_epochs=2, # Minimal epochs for unit test speed
+            batch_size=16,
             learning_rate=1e-3,
+            seed=42,
             device="cpu",
-            output_dir=str(output_dir),
-            log_dir=str(log_dir)
+            log_gradients=False
         )
-
+        
         runner = BaselineRunner(config)
-        result = runner.run_and_record_metrics()
+        result = runner.run_and_record_metrics(output_path)
 
-        # Verify return object
-        assert result is not None
-        assert isinstance(result.train_mae, float)
-        assert isinstance(result.test_mae, float)
-        assert isinstance(result.degradation_pct, float)
+        # Assert file exists
+        assert os.path.exists(output_path), f"Output file {output_path} was not created"
 
-        # Verify JSON file exists
-        metrics_path = output_dir / "baseline_metrics.json"
-        assert metrics_path.exists(), f"Expected {metrics_path} to exist"
-
-        # Verify JSON content
-        with open(metrics_path, 'r') as f:
+        # Assert content matches schema
+        with open(output_path, 'r') as f:
             data = json.load(f)
 
-        assert "train_mae" in data
-        assert "test_mae" in data
-        assert "degradation_pct" in data
+        required_keys = {"train_mae", "test_mae", "degradation_pct", "passed"}
+        assert required_keys.issubset(data.keys()), f"Missing keys in output: {required_keys - set(data.keys())}"
 
-        # Verify types in JSON (should be numbers)
-        assert isinstance(data["train_mae"], (int, float))
-        assert isinstance(data["test_mae"], (int, float))
-        assert isinstance(data["degradation_pct"], (int, float))
+        # Verify types
+        assert isinstance(data["train_mae"], float), "train_mae must be float"
+        assert isinstance(data["test_mae"], float), "test_mae must be float"
+        assert isinstance(data["degradation_pct"], float), "degradation_pct must be float"
+        assert isinstance(data["passed"], bool), "passed must be bool"
 
-        # Verify precision (4 decimal places) - check string representation or value
-        # Since JSON floats might lose trailing zeros, we check the value range and type
-        assert data["train_mae"] >= 0.0
-        assert data["test_mae"] >= 0.0
-
-        # Verify degradation calculation logic
-        expected_deg = ((data["test_mae"] - data["train_mae"]) / data["train_mae"]) * 100 if data["train_mae"] > 0 else 0.0
-        # Allow small floating point tolerance
-        assert abs(data["degradation_pct"] - expected_deg) < 0.0001
-
-    def test_degradation_warning_logged(self, tmp_path, caplog):
+    def test_degradation_calculation_logic(self, temp_output_dir):
         """
-        Verify that a warning is logged if degradation >= 10%, but no exception is raised.
+        Test that degradation_pct is calculated correctly:
+        ((test_mae - train_mae) / train_mae) * 100
         """
-        output_dir = tmp_path / "results"
-        log_dir = tmp_path / "logs"
-        output_dir.mkdir()
-        log_dir.mkdir()
-
+        # This test is tricky because we can't easily force specific MAE values
+        # without mocking the model. Instead, we verify the schema and that
+        # the calculation doesn't crash.
+        output_path = os.path.join(temp_output_dir, "baseline_metrics.json")
+        
         config = ExperimentConfig(
-            name="test_degradation",
-            seed=42,
             hidden_dim=16,
+            num_layers=2,
             num_heads=2,
-            num_layers=1,
-            batch_size=8,
-            epochs=2,
+            max_seq_len=32,
+            train_epochs=1,
+            batch_size=16,
+            seed=42,
             device="cpu",
-            output_dir=str(output_dir),
-            log_dir=str(log_dir)
+            log_gradients=False
         )
-
+        
         runner = BaselineRunner(config)
-        # This should not raise an exception
-        result = runner.run_and_record_metrics()
+        result = runner.run_and_record_metrics(output_path)
 
-        # The test passes if the function completed without error
-        # The warning check is implicit in the logging capture if we wanted to assert it
-        # but the requirement is "DO NOT raise an exception", which is satisfied.
-        assert result is not None
+        # Verify the math logic holds for the returned result
+        if result.train_mae > 0:
+            expected_deg = ((result.test_mae - result.train_mae) / result.train_mae) * 100
+            # Allow small floating point error
+            assert abs(result.degradation_pct - expected_deg) < 1e-3, \
+                f"Degradation calculation mismatch: {result.degradation_pct} vs {expected_deg}"
+        else:
+            assert result.degradation_pct == 0.0, "Degradation should be 0 if train_mae is 0"
+
+    def test_passed_flag_logic(self, temp_output_dir):
+        """
+        Test that 'passed' is True if degradation_pct < 10.0, else False.
+        """
+        output_path = os.path.join(temp_output_dir, "baseline_metrics.json")
+        
+        config = ExperimentConfig(
+            hidden_dim=16,
+            num_layers=2,
+            num_heads=2,
+            max_seq_len=32,
+            train_epochs=1,
+            batch_size=16,
+            seed=42,
+            device="cpu",
+            log_gradients=False
+        )
+        
+        runner = BaselineRunner(config)
+        result = runner.run_and_record_metrics(output_path)
+
+        if result.degradation_pct < 10.0:
+            assert result.passed is True, "passed should be True if degradation < 10%"
+        else:
+            assert result.passed is False, "passed should be False if degradation >= 10%"
+
+    def test_file_path_matches_task_requirement(self, temp_output_dir):
+        """
+        Ensure the default output path is data/results/baseline_metrics.json
+        """
+        # We override the default in the test, but verify the function accepts the path
+        custom_path = os.path.join(temp_output_dir, "custom_results.json")
+        config = ExperimentConfig(device="cpu", train_epochs=1, seed=42)
+        runner = BaselineRunner(config)
+        
+        # Call with custom path
+        runner.run_and_record_metrics(custom_path)
+        
+        assert os.path.exists(custom_path)
+        
+        # Verify default path logic (if we called without arg, it would be data/results/...)
+        # This is more of a code inspection, but we can verify the default value in the signature
+        import inspect
+        sig = inspect.signature(BaselineRunner.run_and_record_metrics)
+        default_path = sig.parameters['output_path'].default
+        assert default_path == "data/results/baseline_metrics.json", \
+            f"Default output path is incorrect: {default_path}"

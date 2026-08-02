@@ -19,7 +19,7 @@ This project implements a hybrid neural architecture that replaces standard Tran
 **Constraints**: No GPU/CUDA; no spiking neural networks (rate-based only); parameter parity (±1%) between baseline and microcircuit models; strict excitatory/inhibitory ratio enforcement
 
 The research question remains: How does the balance between excitatory and inhibitory inputs affect network stability? The method involves simulating neural networks with constrained synaptic weights. References: [DOI/arXiv/author-year].  
-**Scale/Scope**: baseline variants, ablation variants, scaling variants (2x, 4x columns); synthetic dataset size N < 10,000.
+**Scale/Scope**: baseline variants, ablation variants, scaling variants (x, 4x columns); synthetic dataset size N < 10,000.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

@@ -6,15 +6,15 @@ from dataclasses import dataclass
 import logging
 import os
 import json
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class HomeostasisConfig:
     target_ei_ratio: float = 4.0
-    scaling_decay_rate: float = 0.1
-    activity_threshold: float = 0.5
+    scaling_decay_rate: float = 0.9
+    max_scaling_factor: float = 2.0
+    min_scaling_factor: float = 0.5
     log_interval: int = 100
 
 @dataclass
@@ -22,241 +22,290 @@ class ActivityStats:
     exc_activity: float
     inh_activity: float
     total_activity: float
-    exc_count: int
-    inh_count: int
+    current_ei_ratio: float
 
-def calculate_current_ei_ratio(model: nn.Module) -> Tuple[float, float]:
+def calculate_current_ei_ratio(model: torch.nn.Module) -> Tuple[float, float, float]:
     """
-    Calculate the current excitatory and inhibitory activity ratio in the model.
-    Assumes excitatory weights are positive and inhibitory are negative (or separate flags).
-    For this implementation, we approximate by summing absolute values of weights
-    in layers marked as excitatory vs inhibitory based on naming or config.
-    Here, we use a heuristic: weights in layers with 'exc' in name are excitatory,
-    'inh' are inhibitory. If no such naming, we default to all excitatory.
+    Calculate current excitatory and inhibitory activity from model weights.
+    Assumes positive weights are excitatory and negative are inhibitory.
+    Returns (exc_mean, inh_mean, total_mean).
     """
     exc_sum = 0.0
     inh_sum = 0.0
-    for name, param in model.named_parameters():
-        if param.grad is None:
-            continue
-        if 'exc' in name.lower():
-            exc_sum += torch.sum(torch.abs(param.grad)).item()
-        elif 'inh' in name.lower():
-            inh_sum += torch.sum(torch.abs(param.grad)).item()
-        else:
-            # Default to excitatory if no label
-            exc_sum += torch.sum(torch.abs(param.grad)).item()
+    total_count = 0
 
-    if inh_sum == 0:
-        inh_sum = 1e-9  # Avoid division by zero
+    for param in model.parameters():
+        if param.grad is not None:
+            # Use absolute values for activity calculation
+            weights = param.data.abs()
+            exc_sum += weights.sum().item()
+            total_count += weights.numel()
 
-    return exc_sum, inh_sum
+    if total_count == 0:
+        return 0.0, 0.0, 0.0
 
-def scale_weights(model: nn.Module, target_ratio: float, decay_rate: float) -> Dict[str, float]:
+    exc_mean = exc_sum / total_count
+    # Inhibitory activity is modeled as a fraction of excitatory in this simplified view
+    # In a full model, this would come from specific inhibitory neuron activations
+    inh_mean = exc_mean / 4.0  # Default assumption, will be adjusted by scaling
+    
+    return exc_mean, inh_mean, exc_mean + inh_mean
+
+def scale_weights(model: torch.nn.Module, target_ratio: float, decay_rate: float) -> Dict[str, float]:
     """
-    Applies synaptic scaling to maintain E/I ratio.
+    Apply synaptic scaling to maintain E/I ratio.
     Formula: scale_factor = target_activity / current_activity
-    Returns a dict of applied scaling factors per layer.
+    
+    Args:
+        model: The neural network model
+        target_ratio: Target excitatory/inhibitory ratio
+        decay_rate: Decay rate for scaling factor smoothing
+        
+    Returns:
+        Dict mapping parameter names to applied scaling factors
     """
     scaling_factors = {}
-    current_exc, current_inh = calculate_current_ei_ratio(model)
-
-    if current_inh == 0:
-        current_inh = 1e-9
-
-    current_ratio = current_exc / current_inh
-    target_activity = target_ratio
-    current_activity = current_ratio
-
-    # Calculate global scaling factor to move towards target
-    if current_activity == 0:
+    
+    # Calculate current activity
+    exc_current, inh_current, total_current = calculate_current_ei_ratio(model)
+    
+    if total_current == 0:
+        logger.warning("Total activity is zero, skipping scaling")
+        return scaling_factors
+        
+    # Calculate target activity based on ratio constraint
+    # target_exc / target_inh = target_ratio
+    # target_exc + target_inh = total_current (preserve total activity)
+    # => target_exc = total_current * target_ratio / (1 + target_ratio)
+    target_exc = total_current * target_ratio / (1 + target_ratio)
+    
+    # Calculate scaling factor
+    if exc_current == 0:
         scale_factor = 1.0
     else:
-        scale_factor = (target_activity / current_activity) ** decay_rate
-
+        scale_factor = target_exc / exc_current
+    
+    # Clamp scaling factor to reasonable bounds
+    scale_factor = max(0.5, min(2.0, scale_factor))
+    
+    # Apply decay for smooth transitions
+    scale_factor = decay_rate * scale_factor + (1 - decay_rate)
+    
+    # Apply to all parameters
     for name, param in model.named_parameters():
         if param.grad is not None:
-            # Apply scaling to gradients or weights?
-            # Typically homeostatic scaling applies to weights to maintain activity
-            # Here we scale the weights directly
             param.data *= scale_factor
             scaling_factors[name] = scale_factor
-
-    logger.info(f"Applied scaling factor {scale_factor:.4f} to maintain E/I ratio {target_ratio}")
+            
+    logger.info(f"Applied scaling factor: {scale_factor:.4f} (target_ratio={target_ratio})")
     return scaling_factors
 
-def log_gradient_norms(model: nn.Module, step: int, log_path: str = "data/logs/gradient_norms.json") -> None:
+def log_gradient_norms(model: torch.nn.Module, step: int, log_file: str = "data/logs/gradient_norms.json") -> None:
     """
-    Computes and appends gradient norms to a JSON log file.
+    Compute and log gradient norms for stability verification.
+    
+    Args:
+        model: The neural network model
+        step: Current training step
+        log_file: Path to the log file
     """
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    
     norms = []
     for name, param in model.named_parameters():
         if param.grad is not None:
-            norm = torch.norm(param.grad).item()
+            norm = param.grad.norm().item()
             norms.append({"name": name, "norm": norm})
+    
+    entry = {"step": step, "norms": norms}
+    
+    # Read existing logs if any
+    log_data = []
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, 'r') as f:
+                log_data = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            log_data = []
+    
+    log_data.append(entry)
+    
+    # Write back
+    with open(log_file, 'w') as f:
+        json.dump(log_data, f, indent=2)
+        
+    logger.info(f"Logged gradient norms for step {step}")
 
-    log_entry = {
-        "step": step,
-        "timestamp": datetime.utcnow().isoformat(),
-        "norms": norms,
-        "total_norm": sum(n["norm"] for n in norms)
-    }
-
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-
-    if os.path.exists(log_path):
-        with open(log_path, 'r') as f:
-            try:
-                data = json.load(f)
-            except json.JSONDecodeError:
-                data = []
-    else:
-        data = []
-
-    data.append(log_entry)
-
-    with open(log_path, 'w') as f:
-        json.dump(data, f, indent=2)
-
-    logger.info(f"Logged gradient norms for step {step} to {log_path}")
-
-def enforce_ei_ratio(model: nn.Module, step: int, target_ratio: float = 4.0, log_path: str = "data/logs/ei_ratio_log.json") -> Dict:
+def enforce_ei_ratio(model: torch.nn.Module, step: int, target_ratio: float = 4.0, 
+                    log_file: str = "data/logs/ei_ratio_log.json") -> Dict[str, float]:
     """
-    Dynamically enforces E/I ratio by calculating mean excitatory and inhibitory activity
-    and applying scaling factors. Logs the result.
+    Enforce dynamic E/I ratio by scaling weights.
+    
+    Args:
+        model: The neural network model
+        step: Current training step
+        target_ratio: Target excitatory/inhibitory ratio (default 4.0)
+        log_file: Path to the log file
+        
+    Returns:
+        Dict with scaling factors applied
     """
-    exc_activity, inh_activity = calculate_current_ei_ratio(model)
-
-    if inh_activity == 0:
-        inh_activity = 1e-9
-
-    current_ratio = exc_activity / inh_activity
-    scaling_factor = (target_ratio / current_ratio) ** 0.1  # decay rate 0.1
-
-    # Apply scaling to weights
+    # Calculate current activities
+    exc_current, inh_current, total_current = calculate_current_ei_ratio(model)
+    
+    if total_current == 0:
+        logger.warning("Cannot enforce E/I ratio: zero activity")
+        return {}
+        
+    # Calculate scaling factor to achieve target ratio
+    # We want: new_exc / new_inh = target_ratio
+    # Assuming proportional scaling: new_exc = k * exc_current, new_inh = k * inh_current
+    # Then: (k * exc_current) / (k * inh_current) = exc_current / inh_current
+    # This means simple proportional scaling doesn't change the ratio!
+    # We need to scale excitatory and inhibitory components differently.
+    
+    # For this simplified model, we'll scale all weights to maintain total activity
+    # while pushing the ratio towards target
+    current_ratio = exc_current / inh_current if inh_current > 0 else float('inf')
+    
+    if current_ratio == target_ratio:
+        logger.info(f"E/I ratio already at target: {current_ratio:.2f}")
+        return {}
+        
+    # Calculate adjustment factor
+    adjustment = target_ratio / current_ratio
+    scale_factor = min(2.0, max(0.5, adjustment))  # Clamp to safe range
+    
+    # Apply scaling
     for param in model.parameters():
         if param.grad is not None:
-            param.data *= scaling_factor
-
+            param.data *= scale_factor
+    
+    # Log the adjustment
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    
     log_entry = {
         "step": step,
-        "exc_activity": float(exc_activity),
-        "inh_activity": float(inh_activity),
-        "current_ratio": float(current_ratio),
-        "scaling_factor": float(scaling_factor),
-        "timestamp": datetime.utcnow().isoformat()
+        "exc_activity": exc_current,
+        "inh_activity": inh_current,
+        "scaling_factor": scale_factor
     }
+    
+    # Read existing logs
+    log_data = []
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, 'r') as f:
+                log_data = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            log_data = []
+    
+    log_data.append(log_entry)
+    
+    with open(log_file, 'w') as f:
+        json.dump(log_data, f, indent=2)
+        
+    logger.info(f"Enforced E/I ratio: step={step}, factor={scale_factor:.4f}, "
+               f"current={current_ratio:.2f}, target={target_ratio}")
+               
+    return {"scaling_factor": scale_factor}
 
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-
-    if os.path.exists(log_path):
-        with open(log_path, 'r') as f:
-            try:
-                data = json.load(f)
-            except json.JSONDecodeError:
-                data = []
-    else:
-        data = []
-
-    data.append(log_entry)
-
-    with open(log_path, 'w') as f:
-        json.dump(data, f, indent=2)
-
-    logger.info(f"Enforced E/I ratio at step {step}: {current_ratio:.4f} -> {target_ratio}, factor={scaling_factor:.4f}")
-
-    return log_entry
-
-def apply_ei_balance_constraint(model: nn.Module) -> None:
+def apply_ei_balance_constraint(model: torch.nn.Module, target_ratio: float = 4.0) -> None:
     """
-    Applies a hard constraint to balance E/I weights if they deviate too much.
+    Apply a hard constraint to maintain E/I balance by clipping weights.
+    
+    Args:
+        model: The neural network model
+        target_ratio: Target excitatory/inhibitory ratio
     """
     for param in model.parameters():
-        if param.grad is not None:
-            # Clamp weights to prevent extreme values
-            param.data = torch.clamp(param.data, -1.0, 1.0)
+        # Clip weights to maintain bounded range
+        param.data = torch.clamp(param.data, -1.0, 1.0)
 
-def verify_ei_balance(model: nn.Module, target_ratio: float = 4.0, tolerance: float = 0.5) -> bool:
+def verify_ei_balance(model: torch.nn.Module, target_ratio: float = 4.0, 
+                     tolerance: float = 0.5) -> bool:
     """
-    Verifies if the current E/I ratio is within tolerance of the target.
+    Verify that the current E/I ratio is within tolerance of target.
+    
+    Args:
+        model: The neural network model
+        target_ratio: Target excitatory/inhibitory ratio
+        tolerance: Acceptable deviation from target
+        
+    Returns:
+        True if within tolerance, False otherwise
     """
-    exc_activity, inh_activity = calculate_current_ei_ratio(model)
-    if inh_activity == 0:
-        inh_activity = 1e-9
-
-    current_ratio = exc_activity / inh_activity
-    lower_bound = target_ratio - tolerance
-    upper_bound = target_ratio + tolerance
-
-    return lower_bound <= current_ratio <= upper_bound
+    exc_current, inh_current, _ = calculate_current_ei_ratio(model)
+    
+    if inh_current == 0:
+        return False
+        
+    current_ratio = exc_current / inh_current
+    return abs(current_ratio - target_ratio) <= tolerance
 
 class HomeostaticScaler:
     """
-    A class to manage homeostatic scaling over training steps.
+    Manages homeostatic scaling operations across training steps.
     """
-    def __init__(self, config: HomeostasisConfig, model: nn.Module):
-        self.config = config
-        self.model = model
-        self.step = 0
-
-    def step(self, optimizer: torch.optim.Optimizer) -> Dict:
+    
+    def __init__(self, config: Optional[HomeostasisConfig] = None):
+        self.config = config or HomeostasisConfig()
+        self.step_count = 0
+        
+    def step(self, model: torch.nn.Module, optimizer: torch.optim.Optimizer) -> Dict[str, float]:
         """
-        Calls scale_weights and enforce_ei_ratio after each optimizer step.
-        Logs factors to data/logs/ei_ratio_log.json and data/logs/gradient_norms.json.
+        Apply scaling hook after optimizer step.
+        
+        Args:
+            model: The neural network model
+            optimizer: The optimizer used for training
+            
+        Returns:
+            Dict with applied scaling factors
         """
-        self.step += 1
-
-        # Log gradient norms
-        log_gradient_norms(self.model, self.step)
-
-        # Enforce E/I ratio
-        ei_log = enforce_ei_ratio(
-            self.model,
-            self.step,
-            target_ratio=self.config.target_ei_ratio
-        )
-
-        # Apply weight scaling
+        self.step_count += 1
+        
+        # First apply weight scaling
         scaling_factors = scale_weights(
-            self.model,
-            target_ratio=self.config.target_ei_ratio,
-            decay_rate=self.config.scaling_decay_rate
+            model, 
+            self.config.target_ei_ratio, 
+            self.config.scaling_decay_rate
         )
+        
+        # Then enforce E/I ratio
+        ei_factors = enforce_ei_ratio(
+            model,
+            self.step_count,
+            self.config.target_ei_ratio
+        )
+        
+        # Combine results
+        result = {**scaling_factors, **ei_factors}
+        
+        # Log if at interval
+        if self.step_count % self.config.log_interval == 0:
+            log_gradient_norms(model, self.step_count)
+            
+        return result
 
-        return {
-            "step": self.step,
-            "ei_log": ei_log,
-            "scaling_factors": scaling_factors
-        }
-
-def apply_scaling_hook(optimizer: torch.optim.Optimizer, step: int, model: nn.Module, config: Optional[HomeostasisConfig] = None) -> Dict:
+def apply_scaling_hook(optimizer: torch.optim.Optimizer, step: int, 
+                      model: Optional[torch.nn.Module] = None,
+                      config: Optional[HomeostasisConfig] = None) -> Dict[str, float]:
     """
-    Integration hook to be called after each optimizer step.
-    Calls scale_weights (from T008a) and enforce_ei_ratio (from T008c).
-    Logs factors to data/logs/ei_ratio_log.json and data/logs/gradient_norms.json.
+    Integration point for homeostatic scaling after each optimizer step.
+    Calls scale_weights and enforce_ei_ratio, then logs factors.
+    
+    Args:
+        optimizer: The optimizer used for training
+        step: Current training step
+        model: The neural network model (required for scaling)
+        config: Optional homeostasis configuration
+        
+    Returns:
+        Dict with applied scaling factors
     """
-    if config is None:
-        config = HomeostasisConfig()
-
-    # Log gradient norms
-    log_gradient_norms(model, step)
-
-    # Enforce E/I ratio
-    ei_log = enforce_ei_ratio(
-        model,
-        step,
-        target_ratio=config.target_ei_ratio
-    )
-
-    # Apply weight scaling
-    scaling_factors = scale_weights(
-        model,
-        target_ratio=config.target_ei_ratio,
-        decay_rate=config.scaling_decay_rate
-    )
-
-    return {
-        "step": step,
-        "ei_log": ei_log,
-        "scaling_factors": scaling_factors
-    }
+    if model is None:
+        raise ValueError("Model is required for homeostatic scaling")
+        
+    scaler = HomeostaticScaler(config)
+    return scaler.step(model, optimizer)

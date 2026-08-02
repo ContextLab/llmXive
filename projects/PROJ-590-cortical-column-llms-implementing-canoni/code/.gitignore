@@ -21,6 +21,7 @@ wheels/
 *.egg
 
 # Virtual Environments
+.venv/
 venv/
 ENV/
 env/
@@ -36,29 +37,24 @@ env/
 .DS_Store
 Thumbs.db
 
-# Project Specific: Data (Exclude all data to prevent git bloat)
+# Project specific data (EXCLUDE most data, but TRACK configs, results, and state)
+# T003 CRITICAL: Exclude data/ but explicitly include configs, results, and state
 data/
+!data/configs/
+!data/configs/**
+!data/results/
+!data/results/**
+!data/logs/
+!data/logs/**
+
+# State directory MUST be tracked for Constitution Principle V
+state/
+!state/*.yaml
+!state/**/*.yaml
 
 # Logs
 *.log
 
-# State (CRITICAL: Do NOT ignore state/*.yaml as per Constitution Principle V)
-# The state directory contains checksums and artifact versions that MUST be tracked.
-# We explicitly DO NOT list state/ or state/*.yaml here to ensure they are versioned.
-# If you need to ignore temporary state files, name them .tmp or .bak.
-
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-.tox/
-coverage.xml
-*.cover
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# MyPy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# Temporary files
+*.tmp
+.tmp/

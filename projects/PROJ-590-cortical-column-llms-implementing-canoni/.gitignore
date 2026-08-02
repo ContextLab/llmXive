@@ -1,11 +1,12 @@
-# Data directories (raw, processed, interim, results, logs, configs)
-data/
-
-# Python cache and bytecode
+# Python bytecode and cache
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+
+# Compiled C extensions
+*.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -23,32 +24,58 @@ wheels/
 .installed.cfg
 *.egg
 
-# Logs
-*.log
-logs/
+# PyInstaller
+*.manifest
+*.spec
 
-# IDE and editor files
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Virtual environments
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs and editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS files
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
+# Logs
+*.log
 
-# Virtual environments (optional, usually tracked in .gitignore)
-venv/
-ENV/
-env/
+# Data directory (general exclusion)
+data/
 
-# Note: state/*.yaml MUST NOT be ignored per Constitution Principle V
-# They are tracked for artifact versioning and checksumming.
-# state/
-# state/*.yaml
+# EXCEPTIONS: Track experiment metadata and results for Constitution Principle IV
+!data/configs/
+!data/configs/**
+!data/results/
+!data/results/**
+!data/logs/gradient_norms.json
+!data/logs/gradient_norms_microcircuit.json
+!data/logs/ei_ratio_log.json
+
+# State directory (must be tracked for Constitution Principle V)
+state/

@@ -1,1 +1,1 @@
-"""Executable scripts for project setup and execution."""
+"""Scripts package."""
