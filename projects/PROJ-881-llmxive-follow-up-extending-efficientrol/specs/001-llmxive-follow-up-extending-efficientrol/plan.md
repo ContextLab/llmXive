@@ -111,7 +111,7 @@ projects/PROJ-881-llmxive-follow-up-extending-efficientrol/
 
 ### Phase 2: Intermediate State Extraction (FR-003, FR-007)
 - **T020**: Re-run generation with hooks to capture logits at every layer.
-- **T021**: Process sequences **one at a time** (single-sequence streaming) to fit 7GB RAM. Calculate Shannon entropy for each token at each layer.
+- **T021**: Process sequences **one at a time** (single-sequence streaming) to fit GB RAM. Calculate Shannon entropy for each token at each layer.
 - **T022**: Merge temporary batch files (if any) into `data/processed/entropy_profiles.jsonl`.
 - **T023**: Validate schema using `contracts/entropy_profile.schema.yaml`.
 
