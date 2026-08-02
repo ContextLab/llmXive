@@ -11,13 +11,16 @@ samples:
 - at: '2026-08-02T10:45:00.404429+00:00'
   backlog: 167
   wip: 574
+- at: '2026-08-02T14:43:03.765073+00:00'
+  backlog: 164
+  wip: 576
 last_decision:
   requested: 5
   allowed: 0
-  backlog: 167
-  growth: 0
+  backlog: 164
+  growth: -3
   window_hours: 24.0
   kind: auto
-  reason: damped to 0% by downstream-WIP-ceiling (idea growth=0, wip=574, wip growth=1,
+  reason: damped to 0% by downstream-WIP-ceiling (idea growth=-3, wip=576, wip growth=3,
     ceiling=250)
-  decided_at: '2026-08-02T10:45:00.404429+00:00'
+  decided_at: '2026-08-02T14:43:03.765073+00:00'
