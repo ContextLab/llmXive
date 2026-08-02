@@ -1231,24 +1231,6 @@
   status: not_enough_info
   updated_at: '2026-07-29T18:40:35Z'
 - artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
-  attempts: 1
-  canonical: Fetch metadata for 50 code chunks from codeparrot/github-code
-  claim_id: c_83863a7b
-  context: 'Input: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
-    (Python/Java) using datasets.load_dataset(..., streaming=True).take(50) to estimate
-    complexity variance WITHOUT downloading full files.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
-    (Python/Java).
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-29T18:40:35Z'
-- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
   attempts: 2
   canonical: Retry up to 3 times with backoff factor 2
   claim_id: c_b6eae1f3
@@ -1930,3 +1912,1267 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T17:41:28Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: retry 3 times with exponential backoff factor 2
+  claim_id: c_33c37862
+  context: On TimeoutError, ConnectionError, or generic OSError (non-OOM), retry up
+    to 3 times with exponential backoff (factor 2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry up to 3 times with exponential backoff (factor 2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:26:33Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: 6 hour limit based on TinyLlama-1.1B CPU throughput
+  claim_id: c_e3e5a9a2
+  context: If calculated N > max feasible chunks for 6 h limit (based on TinyLlama-1.1B
+    CPU throughput), Cap N to the maximum feasible size.
+  evidence:
+    asserted: '6.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: 6 h limit (based on TinyLlama-1.1B CPU throughput)
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:26:33Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Mistral-7B violates 6 hour CPU limit
+  claim_id: c_7e528734
+  context: If TinyLlama fails to load or exceeds per-chunk time, ABORT pipeline (do
+    not fallback to Mistral-7B as it violates 6h CPU limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: violates 6h CPU limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:26:58Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: build 5-gram model
+  claim_id: c_7bf4ada5
+  context: Build 5-gram model from data/processed/train_python/.
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '1701.08702'
+        url: https://arxiv.org/abs/1701.08702
+        value: '5730'
+      quote: on data statistics from Google Web 1T 5-gram data set (Google Inc., 2006)
+        which encompasses a massive
+      source_id: '1204.5852'
+      url: https://arxiv.org/abs/1204.5852
+      value: Google Web 1T 5-gram data set
+    filled: true
+  kind: numeric
+  raw_text: Build 5-gram model
+  resolved_value: Google Web 1T 5-gram data set
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:27:33Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: model outputs log-probability in nats
+  claim_id: c_b2187435
+  context: 'Unit: Ensure model outputs log-probability in nats.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_outputs_log-probability_in_nats
+  kind: entity_fact
+  raw_text: Ensure model outputs log-probability in nats
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:28:12Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: max shift threshold 0.05
+  claim_id: c_12cbd98c
+  context: 'Calculate max_shift from all perturbations. If max_shift > 0.05, set stability_status:
+    failed; otherwise stability_status: passed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_shift > 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:28:13Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: cluster-robust permutation test block permutation at repository level
+  claim_id: c_6133286f
+  context: Implement code/analysis/stats.py for cluster-robust permutation test (block
+    permutation at repository level) to compute p-values (FR-007).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cluster-robust_permutation_test_block_permutation_at_reposit
+  kind: entity_fact
+  raw_text: block permutation at repository level
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:28:46Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: chunk size 100
+  claim_id: c_ffd07046
+  context: Refactor code/data/download.py to use chunked streaming with explicit chunk_size=100
+    and max_workers=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: chunk_size=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:29:13Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: max workers 4
+  claim_id: c_cdb7d84f
+  context: Refactor code/data/download.py to use chunked streaming with explicit chunk_size=100
+    and max_workers=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_workers=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:29:36Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: batch size 1
+  claim_id: c_e66238fe
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit batch_size=1
+    to keep memory < 6 GB.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We find that small batch sizes (1) train stably, (2) are consistently
+        more robust to
+      source_id: '2507.07101'
+      url: https://arxiv.org/abs/2507.07101
+      value: '1'
+    filled: true
+  kind: numeric
+  raw_text: batch_size=1
+  resolved_value: '1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:30:02Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: memory less than 6 GB
+  claim_id: c_3ae1e7c7
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit batch_size=1
+    to keep memory < 6 GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_less_than_6_GB
+  kind: magnitude
+  raw_text: memory < 6 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:30:34Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram dataset cited as 1204.5852
+  claim_id: c_0b908010
+  context: "Implement code/data/ngram.py (Python) to build KenLM n\u2011gram model\
+    \ for the Python training set."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\u2011\
+    gram model from data/processed/train_python/."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:31:14Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram dataset cited as 1204.5852
+  claim_id: c_0ded6b47
+  context: "Implement code/data/ngram.py (Java) to build KenLM n\u2011gram model for\
+    \ the Java validation set."
+  evidence:
+    ok: true
+    reason: ''
+    status: grounded
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\u2011\
+    gram model from data/processed/val_java/."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:31:15Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Memory optimization technique cited as 2507.07101
+  claim_id: c_838bab2d
+  context: 'Optimize T017 inference memory: Refactor code/inference/engine.py to use
+    torch.no_grad() and explicit claim reference.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Refactor code/inference/engine.py to use torch.no_grad() and explicit
+    {{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory
+    < 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:31:19Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram dataset identified by arXiv:1204.5852
+  claim_id: c_c95811d9
+  context: "Implement code/data/ngram.py (Python) to build KenLM n-gram model for\
+    \ the Python training set. Logic: Build Google Web 1T 5-gram data set (1204.5852,\
+    \ https://arxiv.org/abs/1204.5852)\u2011gram model from data/processed/train_python/."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\u2011\
+    gram model from data/processed/train_python/."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:31:53Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram dataset identified by arXiv:1204.5852
+  claim_id: c_93b1a08c
+  context: "Implement code/data/ngram.py (Java) to build KenLM n-gram model for the\
+    \ Java validation set. Logic: Build Google Web 1T 5-gram data set (1204.5852,\
+    \ https://arxiv.org/abs/1204.5852)\u2011gram model from data/processed/val_java/\
+    \ (if Java data exists)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\u2011\
+    gram model from data/processed/val_java/ (if Java data exists)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:31:53Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram dataset arXiv 1204.5852
+  claim_id: c_b5ca5809
+  context: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\u2011\
+    gram model from data/processed/train_python/."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:33:07Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: memory optimization technique arXiv 2507.07101 keeps memory under 6 GB
+  claim_id: c_12018920
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit {{claim:c_e66238fe}}
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: torch.no_grad() and explicit (2507.07101, https://arxiv.org/abs/2507.07101)
+    to keep memory < 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:33:41Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B model used as primary inference engine
+  claim_id: c_5d3431a0
+  context: 'PRIMARY: Load TinyLlama/TinyLlama-1.1B-Chat-v1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TinyLlama-1.1B
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:34:16Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: codeparrot/github-code dataset used for code chunk metadata
+  claim_id: c_de11f0b2
+  context: Fetch metadata only (N=50) of code chunks from codeparrot/github-code (Python/Java).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Codeparrot/github-code_dataset_used_for_code_chunk_metadata
+  kind: entity_fact
+  raw_text: codeparrot/github-code
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:34:58Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: codeparrot/codecomplexity benchmark attempted for validation
+  claim_id: c_4ffd7964
+  context: Attempt to load codeparrot/codecomplexity or a verified complexity benchmark
+    from HuggingFace.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Codeparrot/codecomplexity_benchmark_attempted_for_validation
+  kind: entity_fact
+  raw_text: codeparrot/codecomplexity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:35:12Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram dataset arXiv 1204.5852
+  claim_id: c_ce3eab38
+  context: "Implement `code/data/ngram.py` (Python) to build KenLM n\u2011gram model\
+    \ for the Python training set. Logic: Build Google Web 1T 5-gram data set (1204.5852,\
+    \ https://arxiv.org/abs/1204.5852) \u2011gram model from `data/processed/train_python/`."
+  evidence:
+    ok: true
+    reason: ''
+    status: grounded
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:36:26Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram dataset arXiv 1204.5852
+  claim_id: c_3bef0df0
+  context: "Implement `code/data/ngram.py` (Java) to build KenLM n\u2011gram model\
+    \ for the Java validation set. Logic: Build Google Web 1T 5-gram data set (1204.5852,\
+    \ https://arxiv.org/abs/1204.5852) \u2011gram model from `data/processed/val_java/`\
+    \ (if Java data exists)."
+  evidence:
+    ok: true
+    reason: ''
+    status: grounded
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:36:27Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: arXiv 2507.07101 memory optimization technique
+  claim_id: c_5df680d3
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit {{claim:c_e66238fe}}
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: refactor code/inference/engine.py to use torch.no_grad() and explicit
+    {{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory
+    < 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:37:27Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram data set arXiv 1204.5852
+  claim_id: c_a07de8d5
+  context: "Logic: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/train_python/."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:37:33Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram dataset source is arXiv 1204.5852
+  claim_id: c_bc0959f3
+  context: "Logic: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from `data/processed/train_python/`."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from `data/processed/train_python/`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:37:46Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram dataset source is arXiv 1204.5852
+  claim_id: c_3c5195e9
+  context: "Logic: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from `data/processed/val_java/` (if Java data exists)."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from `data/processed/val_java/` (if Java data exists)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:37:53Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Google Web 1T 5-gram arXiv 1204.5852
+  claim_id: c_cc68c847
+  context: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/train_python/."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Google Web 1T 5-gram data set is identified by arXiv ID 1204.5852.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:39:40Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B primary model
+  claim_id: c_c0942c76
+  context: 'PRIMARY: Load TinyLlama/TinyLlama-1.1B -Chat-v1.0.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'TinyLlama: An Open-Source Small Language Model'
+      source_id: '2401.02385'
+      url: https://arxiv.org/abs/2401.02385
+      value: TinyLlama
+    filled: true
+  kind: numeric
+  raw_text: TinyLlama-1.1B is the primary model specified for inference.
+  resolved_value: TinyLlama
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:40:28Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 2
+  canonical: default perturbation magnitude 0.05
+  claim_id: c_d8af90ef
+  context: Calculate perturbation_magnitude (default 0.05 if not calculable) and bootstrap_count
+    (default 1000) based on N.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default 0.05 if not calculable
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:40:29Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 2
+  canonical: default bootstrap count 1000
+  claim_id: c_62f73a35
+  context: Calculate perturbation_magnitude (default 0.05 if not calculable) and bootstrap_count
+    (default 1000) based on N.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:40:29Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: stability fail if max shift > 0.05
+  claim_id: c_c9b4f6b0
+  context: 'If max_shift > 0.05 , set stability_status: ''failed''; otherwise stability_status:
+    ''passed''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stability status is set to 'failed' if the maximum shift from perturbations
+    exceeds 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:41:03Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: feasibility sample size 50
+  claim_id: c_721faaa6
+  context: Fetch metadata only (N=50) of code chunks from codeparrot/github-code.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feasibility sample size estimate uses N=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:41:58Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: power analysis alpha 0.05
+  claim_id: c_3521a3a2
+  context: Perform a priori power analysis (alpha=0.05, Power=0.8, estimated effect
+    size r=0.3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an alpha of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:42:30Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: power analysis power 0.8
+  claim_id: c_adfe20b9
+  context: Perform a priori power analysis (alpha=0.05, Power=0.8, estimated effect
+    size r=0.3).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis uses a power of 0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:42:44Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: power analysis effect size 0.3
+  claim_id: c_d9a2f094
+  context: Perform a priori power analysis (alpha=0.05, Power=0.8, estimated effect
+    size r=0.3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis assumes an estimated effect size r of 0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:43:58Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: inference retry count 3
+  claim_id: c_68843215
+  context: Retry up to 3 times with exponential backoff (factor 2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference engine retries up to 3 times on specific errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:44:36Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: KenLM output unit nats
+  claim_id: c_00fe8ab7
+  context: Ensure model outputs log-probability in nats.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/KenLM_output_unit_nats
+  kind: entity_fact
+  raw_text: The KenLM model outputs are required to be in nats.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:45:10Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: memory limit 6 GB
+  claim_id: c_d5fc7925
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit {{claim:c_e66238fe}}
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimization task T034b targets keeping memory usage under 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:45:38Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: streaming chunk size 100
+  claim_id: c_8855bf36
+  context: Refactor code/data/download.py to use chunked streaming with explicit chunk_size=100
+    and max_workers=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimization task T034a specifies a chunk_size of 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:46:09Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: streaming max workers 4
+  claim_id: c_484cd13a
+  context: Refactor code/data/download.py to use chunked streaming with explicit chunk_size=100
+    and max_workers=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimization task T034a specifies max_workers of 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:46:23Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: arXiv 2507.07101
+  claim_id: c_ee92db79
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit {{claim:c_e66238fe}}
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The arXiv ID 2507.07101 is referenced for memory optimization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:46:53Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram data set arxiv 1204.5852
+  claim_id: c_fafec047
+  context: "T018a [US1] Implement code/data/ngram.py (Python) to build KenLM n\u2011\
+    gram model for the Python training set. Logic: Build Google Web 1T 5-gram data\
+    \ set (1204.5852, https://arxiv.org/abs/1204.5852) \u2011gram model from data/processed/train_python/."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/train_python/."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:48:19Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram data set arxiv 1204.5852
+  claim_id: c_58ee0977
+  context: "T018b [US1] Implement code/data/ngram.py (Java) to build KenLM n\u2011\
+    gram model for the Java validation set. Logic: Build Google Web 1T 5-gram data\
+    \ set (1204.5852, https://arxiv.org/abs/1204.5852) \u2011gram model from data/processed/val_java/\
+    \ (if Java data exists)."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/val_java/ (if Java data exists)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:48:19Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: fetch metadata N=50 codeparrot github-code
+  claim_id: c_8ec3b363
+  context: 'T011 [US1] Implement code/analysis/feasibility.py (Pilot Sample & A Priori
+    Power Analysis): Input: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
+    (Python/Java) using datasets.load_dataset(..., streaming=True).take(50) to estimate
+    complexity variance WITHOUT downloading full files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
+    (Python/Java) using datasets.load_dataset(..., streaming=True).take(50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:48:48Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B primary model
+  claim_id: c_37b02a57
+  context: "T017 [US1] Implement code/inference/engine.py to run frozen LLM (TinyLlama-1.1B\
+    \ primary) with retry logic, n\u2011gram normalization, and OOM fallback."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 1Our latest model, TinyLlama v1.1, is only trained for 2 trillion tokens.
+        More details about this latest version
+      source_id: '2401.02385'
+      url: https://arxiv.org/abs/2401.02385
+      value: TinyLlama v1.1
+    filled: true
+  kind: numeric
+  raw_text: Use TinyLlama-1.1B primary model.
+  resolved_value: TinyLlama v1.1
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:49:26Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Chat-v1.0 model
+  claim_id: c_610a30ad
+  context: 'T017 [US1] Model Strategy: 1. PRIMARY: Load TinyLlama/TinyLlama-1.1B -Chat-v1.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load model TinyLlama/TinyLlama-1.1B -Chat-v1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:49:44Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: retry 3 times exponential backoff factor 2
+  claim_id: c_d29d5c3e
+  context: "T017 [US1] Retry Logic: On TimeoutError, ConnectionError, or generic OSError\
+    \ (non\u2011OOM), retry up to 3 times with exponential backoff (factor 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times with exponential backoff (factor 2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:49:44Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: default perturbation magnitude 0.05 bootstrap count 1000
+  claim_id: c_57a7d172
+  context: 'T011 [US1] Gate: 2. Calculate perturbation_magnitude (default 0.05 if
+    not calculable) and bootstrap_count (default 1000) based on N.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate perturbation_magnitude (default 0.05 if not calculable) and
+    bootstrap_count (default 1000) based on N.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:50:57Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: stability check max shift 0.05
+  claim_id: c_ca2cf65c
+  context: 'T026 [US2] SC-002 Check: Calculate max_shift from all perturbations. If
+    max_shift > 0.05, set stability_status: failed; otherwise stability_status: passed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If max_shift > 0.05, set stability_status: failed.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:50:58Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: arxiv 2507.07101 memory limit 6 GB
+  claim_id: c_4a6e0f27
+  context: 'T034b [P] Optimize T017 inference memory: Refactor code/inference/engine.py
+    to use torch.no_grad() and explicit {{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101)
+    to keep memory < 6 GB.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Refactor code/inference/engine.py to use torch.no_grad() and explicit
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:51:19Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: chunked streaming chunk size 100 max workers 4
+  claim_id: c_e49a93d0
+  context: 'T034a [P] Optimize T015 streaming logic: Refactor code/data/download.py
+    to use chunked streaming with explicit chunk_size=100 and max_workers=4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/data/download.py to use chunked streaming with explicit
+    chunk_size=100 and max_workers=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:51:48Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: bootstrap resamples count
+  claim_id: c_034fe4f5
+  context: "T026 [US2] Bootstrap Perturbation: Perform bootstrap_count resamples of\
+    \ the chunk\u2011level data (with replacement) and recompute thresholds, recording\
+    \ shift distribution."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resamples_count
+  kind: entity_fact
+  raw_text: "Perform bootstrap_count resamples of the chunk\u2011level data (with\
+    \ replacement)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:52:32Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Build KenLM n-gram model from Google Web 1T 5-gram dataset
+  claim_id: c_3bbb48bb
+  context: "Logic: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/train_python/."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/train_python/."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:53:45Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Build KenLM n-gram model from Google Web 1T 5-gram dataset for Java
+  claim_id: c_bd0e4b32
+  context: "Logic: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/val_java/ (if Java data exists)."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/val_java/ (if Java data exists)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:53:45Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Default perturbation magnitude 0.05 and bootstrap count 1000
+  claim_id: c_f245ea2f
+  context: Calculate perturbation_magnitude (default 0.05 if not calculable) and bootstrap_count
+    (default 1000) based on N.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate perturbation_magnitude (default 0.05 if not calculable) and
+    bootstrap_count (default 1000) based on N.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:53:49Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 2
+  canonical: Fetch metadata for 50 code chunks from codeparrot/github-code
+  claim_id: c_83863a7b
+  context: 'Input: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
+    (Python/Java) using datasets.load_dataset(..., streaming=True).take(50) to estimate
+    complexity variance WITHOUT downloading full files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch metadata only (N=50) of code chunks from codeparrot/github-code
+    (Python/Java).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:54:12Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Stability status failed if max shift exceeds 0.05
+  claim_id: c_206a530f
+  context: 'SC-002 Check: Calculate max_shift from all perturbations. If max_shift
+    > 0.05 , set stability_status: ''failed''; otherwise stability_status: ''passed''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If max_shift > 0.05, set stability_status: ''failed''; otherwise stability_status:
+    ''passed''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:54:13Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: 'Retry logic: 3 attempts with exponential backoff factor 2'
+  claim_id: c_7fb87a15
+  context: "Retry Logic: On TimeoutError, ConnectionError, or generic OSError (non\u2011\
+    OOM), retry up to 3 times with exponential backoff (factor 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times with exponential backoff (factor 2) on TimeoutError,
+    ConnectionError, or generic OSError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:54:28Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Use optimization from arXiv 2507.07101 to keep memory under 6 GB
+  claim_id: c_90f15b49
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit {{claim:c_e66238fe}}
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Refactor code/inference/engine.py to use torch.no_grad() and explicit
+    2507.07101 (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:54:30Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram dataset arXiv 1204.5852
+  claim_id: c_af5aaf23
+  context: "T018a [US1] Implement `code/data/ngram.py` (Python) to build KenLM n\u2011\
+    gram model for the Python training set. Logic: Build Google Web 1T 5-gram data\
+    \ set (1204.5852, https://arxiv.org/abs/1204.5852) \u2011gram model from `data/processed/train_python/`."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from `data/processed/train_python/`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:55:29Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram dataset arXiv 1204.5852
+  claim_id: c_c15c9977
+  context: "T018b [US1] Implement `code/data/ngram.py` (Java) to build KenLM n\u2011\
+    gram model for the Java validation set. Logic: Build Google Web 1T 5-gram data\
+    \ set (1204.5852, https://arxiv.org/abs/1204.5852) \u2011gram model from `data/processed/val_java/`."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from `data/processed/val_java/`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:55:29Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Memory optimization paper arXiv 2507.07101
+  claim_id: c_525864d5
+  context: 'T034b [P] Optimize T017 inference memory: Refactor `code/inference/engine.py`
+    to use `torch.no_grad()` and explicit `{{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101)
+    ` to keep memory < 6 GB.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Refactor `code/inference/engine.py` to use `torch.no_grad()` and explicit
+    `{{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101) ` to keep
+    memory < 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:55:30Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram dataset arXiv 1204.5852
+  claim_id: c_8f2f7153
+  context: "Logic: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/train_python/."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T04:56:29Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: KenLM model outputs log-probability in nats
+  claim_id: c_9e73f056
+  context: 'Unit: Ensure model outputs log-probability in nats.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/KenLM_model_outputs_log-probability_in_nats
+  kind: entity_fact
+  raw_text: Ensure model outputs log-probability in nats
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:56:36Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Retry logic 3 times exponential backoff factor 2
+  claim_id: c_f7890386
+  context: "Retry Logic: On TimeoutError, ConnectionError, or generic OSError (non\u2011\
+    OOM), retry up to 3 times with exponential backoff (factor 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry up to 3 times with exponential backoff (factor 2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:56:36Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Compute Pearson r between human-labeled and computed complexity metrics
+  claim_id: c_fd065218
+  context: 'If Available: ... Compute Pearson r between benchmark labels and computed
+    complexity metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Pearson_r_between_human-labeled_and_computed_complex
+  kind: entity_fact
+  raw_text: Compute Pearson r between benchmark labels and computed complexity metrics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:59:16Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Streaming configuration chunk_size 100 max_workers 4
+  claim_id: c_29b1cc46
+  context: 'Optimize T015 streaming logic: Refactor code/data/download.py to use chunked
+    streaming with explicit chunk_size=100 and max_workers=4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use chunked streaming with explicit chunk_size=100 and max_workers=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T05:04:11Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Inference memory constraint less than 6 GB
+  claim_id: c_c7e15f6d
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit {{claim:c_e66238fe}}
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_memory_constraint_less_than_6_GB
+  kind: magnitude
+  raw_text: keep memory < 6 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T05:05:05Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: ArXiv paper 2507.07101
+  claim_id: c_31d7f2e0
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit {{claim:c_e66238fe}}
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2507.07101'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T05:05:12Z'

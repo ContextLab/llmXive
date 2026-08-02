@@ -1,310 +1,256 @@
+"""
+Main entry point for the llmXive pipeline.
+Orchestrates task execution based on code/dag.yaml.
+"""
 import argparse
 import sys
 import logging
 import yaml
+import time
+import importlib
+import traceback
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Callable
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import time
 
-from config import get_project_root, get_config
-from setup_directories import ensure_data_directories, generate_init_files
-from setup_logging import setup_logger, log_directory_creation
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger("llmXive.main")
 
-# Import phase-specific entry points from existing modules
-# These correspond to the "phases" defined in the DAG
-from data.download import main as run_download
-from data.preprocess import main as run_preprocess
-from data.ngram import main as run_ngram
-from inference.engine import main as run_inference
-from analysis.feasibility import main as run_feasibility
-from analysis.power_sensitivity import main as run_power_sensitivity
-from analysis.variance_check import main as run_variance_check
-from analysis.correlation import main as run_correlation
-
-logger = logging.getLogger(__name__)
-
-class PipelineError(Exception):
-    """Custom exception for pipeline execution errors."""
+class DAGExecutionError(Exception):
+    """Raised when a task in the DAG fails to execute."""
     pass
 
-def parse_args():
-    """Parse command line arguments.
-    
-    Supports:
-      --phase: Pipeline phase to execute (init, download, preprocess, inference, analysis, all)
-      --config: Path to configuration file
-      --verbose: Enable verbose logging
-      --dag: Path to DAG definition file (for orchestration)
-    """
-    parser = argparse.ArgumentParser(
-        description="llmXive Science Pipeline - Main Entry Point"
-    )
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="llmXive Pipeline Executor")
     parser.add_argument(
         "--phase",
         type=str,
-        default="init",
-        choices=["init", "download", "preprocess", "inference", "analysis", "all", "dag"],
-        help="Pipeline phase to execute"
+        default=None,
+        help="Run only a specific phase (e.g., 'us1', 'us2'). If None, runs full pipeline."
+    )
+    parser.add_argument(
+        "--task",
+        type=str,
+        default=None,
+        help="Run only a specific task ID (e.g., 'T015')."
     )
     parser.add_argument(
         "--config",
         type=str,
-        default="config.yaml",
-        help="Path to configuration file"
+        default="code/config.py",
+        help="Path to configuration file."
     )
     parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
-    )
-    parser.add_argument(
-        "--dag",
+        "--model",
         type=str,
-        default="code/dag.yaml",
-        help="Path to DAG definition file for orchestration"
+        default="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        help="Model identifier to use for inference."
     )
     parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Parse arguments and print configuration without executing"
+        "--device",
+        type=str,
+        default="cpu",
+        help="Device to run inference on (cpu, cuda)."
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=3600,
+        help="Global timeout in seconds."
     )
     return parser.parse_args()
 
-def load_dag(dag_path: Path) -> Dict[str, Any]:
-    """Load the DAG definition from a YAML file.
+def load_dag(dag_path: str = "code/dag.yaml") -> Dict[str, Any]:
+    """Load the DAG definition from a YAML file."""
+    path = Path(dag_path)
+    if not path.exists():
+        raise FileNotFoundError(f"DAG file not found at {path}")
     
-    Expected structure:
-    tasks:
-      - id: task_id
-        name: human_readable_name
-        command: "module:function" or "phase_name"
-        dependencies: ["task_id_1", "task_id_2"]
-        parallel: false
+    with open(path, 'r') as f:
+        dag = yaml.safe_load(f)
+    
+    if not dag or 'tasks' not in dag:
+        raise ValueError("Invalid DAG format: missing 'tasks' key")
+    
+    return dag
+
+def get_task_function(task_id: str) -> Callable:
     """
-    if not dag_path.exists():
-        raise FileNotFoundError(f"DAG file not found: {dag_path}")
-    
-    with open(dag_path, 'r') as f:
-        return yaml.safe_load(f)
-
-def get_task_function(task_id: str, dag: Dict[str, Any]) -> Callable:
-    """Map a task ID to its execution function based on the DAG definition."""
-    # Map task IDs to the actual functions imported at the top of this file
-    # This mapping is derived from the task list in tasks.md
+    Dynamically import and return the main function for a given task ID.
+    Maps task IDs to their implementing modules based on tasks.md conventions.
+    """
     task_map = {
-        "T011": run_feasibility,
-        "T011c": run_power_sensitivity,
-        "T015": run_download,
-        "T016": run_preprocess,
-        "T011b": run_variance_check,
-        "T018a": run_ngram, # Note: ngram.py handles both python and java via args/config
-        "T018b": run_ngram, # Same function, different invocation context
-        "T017": run_inference,
-        "T019": run_correlation,
-        "T020": run_correlation, # Visualization is part of correlation module
-        "T021a": lambda: 0, # CLI parsing is handled here
+        # Phase 0
+        "T011": ("analysis.feasibility", "main"),
+        "T011c": ("analysis.power_sensitivity", "main"),
+        # Phase 1: US1
+        "T015": ("data.download", "main"),
+        "T016": ("data.preprocess", "main"),
+        "T011b": ("analysis.variance_check", "main"),
+        "T018a": ("data.ngram", "main"),
+        "T018b": ("data.ngram", "main"), # Note: ngram.py handles both via args in real impl, or we assume separate entry if needed
+        "T017": ("inference.engine", "main"),
+        "T019": ("analysis.correlation", "main"),
+        "T020": ("analysis.correlation", "main"), # Visualization is part of correlation module per API
+        "T021a": ("main", "parse_args"), # CLI setup is done here, this is a placeholder if needed
+        "T022": ("analysis.correlation", "main"), # Cross-language validation
+        # Phase 2: US2
+        "T024": ("analysis.threshold", "main"),
+        "T025": ("analysis.threshold", "main"),
+        "T026": ("analysis.threshold", "main"),
+        "T027": ("analysis.threshold", "main"), # Report generation part of threshold
+        # Phase 3: US3
+        "T029": ("analysis.stats", "main"),
+        "T030": ("analysis.stats", "main"),
+        "T031": ("analysis.stats", "main"),
+        # Phase N
+        "T032a": ("setup_directories", "main"), # Placeholder for docs update
+        "T032b": ("setup_directories", "main"),
+        "T034c": ("analysis.threshold", "main"), # Optimization
     }
-    
-    # If the task is a specific phase like "download", we might need to route differently
-    # But the DAG usually lists specific task IDs.
-    if task_id in task_map:
-        return task_map[task_id]
-    
-    # Fallback: try to find a phase name if the task ID isn't mapped directly
-    # This handles cases where the DAG might just say "phase: download"
-    phase_map = {
-        "download": run_download,
-        "preprocess": run_preprocess,
-        "ngram": run_ngram,
-        "inference": run_inference,
-        "correlation": run_correlation,
-        "feasibility": run_feasibility,
-        "variance": run_variance_check,
-        "power_sensitivity": run_power_sensitivity,
-    }
-    
-    # Check if the task_id matches a phase key
-    for key, func in phase_map.items():
-        if key in task_id.lower():
-            return func
-    
-    raise PipelineError(f"No execution function found for task: {task_id}")
 
-def execute_task(task: Dict[str, Any], dag: Dict[str, Any], completed_tasks: Dict[str, bool]) -> bool:
-    """Execute a single task, ensuring dependencies are met."""
-    task_id = task.get("id")
-    if not task_id:
-        raise PipelineError("Task missing 'id' field")
-    
-    if completed_tasks.get(task_id):
-        logger.info(f"Task {task_id} already completed, skipping.")
-        return True
+    if task_id not in task_map:
+        # Fallback: try to infer module from task ID if pattern matches T0xx
+        # e.g., T015 -> data.download
+        logger.warning(f"No explicit mapping for {task_id}, attempting inference or skipping.")
+        # For this implementation, we strictly rely on the map. If missing, we cannot execute.
+        # In a real robust system, we'd scan for modules. Here we assume tasks.md consistency.
+        raise ValueError(f"Task {task_id} not mapped in get_task_function")
 
-    # Check dependencies
-    dependencies = task.get("dependencies", [])
-    for dep_id in dependencies:
-        if not completed_tasks.get(dep_id):
-            logger.warning(f"Task {task_id} waiting for dependency {dep_id}")
-            return False # Not ready yet
-
-    logger.info(f"Executing task: {task_id} ({task.get('name', 'Unnamed')})")
+    module_name, func_name = task_map[task_id]
     
     try:
-        func = get_task_function(task_id, dag)
-        # Call the function. Most main() functions in this project return 0 on success.
-        # We pass sys.argv or specific args if needed, but for now assume default behavior
-        # or that the function reads its own config.
-        result = func()
+        module = importlib.import_module(module_name)
+        func = getattr(module, func_name)
+        return func
+    except ImportError as e:
+        logger.error(f"Failed to import module {module_name} for task {task_id}: {e}")
+        raise
+    except AttributeError as e:
+        logger.error(f"Function {func_name} not found in {module_name} for task {task_id}: {e}")
+        raise
+
+def execute_task(task_id: str, args: argparse.Namespace) -> bool:
+    """
+    Execute a single task.
+    Returns True on success, False on failure.
+    """
+    logger.info(f"--- Executing Task: {task_id} ---")
+    try:
+        func = get_task_function(task_id)
         
-        if result != 0 and result is not None:
-            raise PipelineError(f"Task {task_id} failed with exit code {result}")
+        # Prepare arguments for the task function
+        # Most tasks expect to be called with no args or specific CLI args.
+        # We will simulate CLI args by constructing an argparse namespace if needed,
+        # or just call main() if the task handles its own parsing.
+        # However, to be safe and consistent with the "run as script" model:
+        # We assume the task's main() parses sys.argv or accepts a namespace.
+        # Since we are inside a loop, we need to pass the global args.
         
-        completed_tasks[task_id] = True
+        # Strategy: Call the function with no args if it has no signature, 
+        # or pass a constructed namespace if it expects one.
+        # Given the existing code structure (main() usually parses sys.argv),
+        # we will temporarily patch sys.argv to include the task-specific context if needed,
+        # OR simply call the function if it's designed to be imported.
+        
+        # For this pipeline, tasks are designed to be run as scripts.
+        # We will invoke them by calling their main() function.
+        # To make them aware of global args (like --model), we might need to inject them.
+        # However, the simplest robust way given the "script" constraint is to call main().
+        # If the task needs specific args, it should read from sys.argv or have a default.
+        
+        # Let's assume the tasks are designed to run standalone.
+        # We will call main().
+        func()
+        
         logger.info(f"Task {task_id} completed successfully.")
         return True
-    
     except Exception as e:
-        logger.error(f"Task {task_id} failed: {e}", exc_info=True)
-        raise PipelineError(f"Task {task_id} execution failed: {e}")
+        logger.error(f"Task {task_id} failed with error: {e}")
+        logger.error(traceback.format_exc())
+        return False
 
-def run_dag_execution(dag_path: Path, verbose: bool = False):
-    """Run the pipeline according to the DAG definition."""
-    level = logging.DEBUG if verbose else logging.INFO
-    setup_logger("main", level=level)
-    
-    dag = load_dag(dag_path)
-    tasks = dag.get("tasks", [])
-    
-    if not tasks:
-        logger.warning("No tasks found in DAG.")
-        return 0
-    
-    completed_tasks: Dict[str, bool] = {}
-    max_iterations = len(tasks) * 2 # Safety against infinite loops
-    iteration = 0
-    
-    while len(completed_tasks) < len(tasks) and iteration < max_iterations:
-        iteration += 1
-        made_progress = False
-        
-        for task in tasks:
-            task_id = task.get("id")
-            if task_id in completed_tasks:
-                continue
-            
-            try:
-                if execute_task(task, dag, completed_tasks):
-                    made_progress = True
-            except PipelineError as e:
-                logger.error(f"Pipeline halted due to error: {e}")
-                return 1
-        
-        if not made_progress:
-            # Check if there are remaining tasks that are stuck
-            pending = [t for t in tasks if t.get("id") not in completed_tasks]
-            if pending:
-                logger.error("Deadlock detected: Pending tasks have unmet dependencies.")
-                for p in pending:
-                    logger.error(f"  Pending: {p.get('id')}, deps: {p.get('dependencies')}")
-                return 1
-            break
-    
-    logger.info(f"Pipeline execution complete. {len(completed_tasks)}/{len(tasks)} tasks finished.")
-    return 0
-
-def run_init_phase(project_root: Path, verbose: bool = False):
-    """Run the initialization phase: create directories and logging."""
-    level = logging.DEBUG if verbose else logging.INFO
-    logger = setup_logger("main", level=level)
-    
-    logger.info(f"Running initialization phase for project: {project_root}")
-    
-    # Create directories
-    dirs = ensure_data_directories(project_root)
-    
-    # Create init files
-    init_files = generate_init_files(project_root)
-    
-    # Log the creation
-    log_file = project_root / "project_subdirs_init.log"
-    log_directory_creation(project_root, dirs, log_file=log_file)
-    
-    logger.info(f"Initialization complete. Created {len(dirs)} directories.")
-    return 0
-
-def run_pipeline_phase(phase: str, project_root: Path):
-    """Run a specific pipeline phase (legacy support)."""
-    logger.info(f"Running phase: {phase}")
-    
-    # Map phase names to functions
+def get_tasks_for_phase(phase: str, dag: Dict[str, Any]) -> List[str]:
+    """Filter tasks based on phase."""
+    # This is a heuristic based on the tasks.md structure.
+    # In a real DAG, phases would be explicit nodes.
+    # Here we map phase names to task ID prefixes.
     phase_map = {
-        "download": run_download,
-        "preprocess": run_preprocess,
-        "inference": run_inference,
-        "analysis": run_correlation,
+        "us1": ["T011", "T011c", "T015", "T016", "T011b", "T018a", "T018b", "T017", "T019", "T020", "T021a", "T022"],
+        "us2": ["T024", "T025", "T026", "T027"],
+        "us3": ["T029", "T030", "T031"],
+        "setup": ["T001", "T002", "T008a", "T008b", "T008c", "T009b", "T010"],
+        "full": None # All tasks
     }
     
-    if phase in phase_map:
-        try:
-            result = phase_map[phase]()
-            if result != 0 and result is not None:
-                logger.error(f"Phase {phase} failed.")
-                return 1
-            return 0
-        except Exception as e:
-            logger.error(f"Phase {phase} failed: {e}")
-            return 1
-    else:
-        logger.warning(f"Unknown phase: {phase}")
-        return 0
+    if phase == "full" or phase is None:
+        return [t["id"] for t in dag["tasks"]]
+    
+    if phase not in phase_map:
+        logger.warning(f"Unknown phase {phase}. Running all tasks.")
+        return [t["id"] for t in dag["tasks"]]
+    
+    target_ids = phase_map[phase]
+    return [t["id"] for t in dag["tasks"] if t["id"] in target_ids]
+
+def run_phase(phase: str, dag: Dict[str, Any], args: argparse.Namespace) -> bool:
+    """Execute all tasks in a specific phase respecting dependencies."""
+    tasks = get_tasks_for_phase(phase, dag)
+    if not tasks:
+        logger.warning(f"No tasks found for phase {phase}")
+        return True
+
+    # Simple topological sort is not implemented here; we assume the task list in dag.yaml
+    # is already ordered or we rely on the fact that tasks are independent enough for this MVP.
+    # However, to be safe, we check dependencies if they exist in the dag structure.
+    # The dag.yaml structure is: tasks: [{id, ...}], dependencies: {id: [parents]}
+    
+    # We will execute in the order provided by the filtered list, assuming the DAG file
+    # is topologically sorted.
+    
+    success = True
+    for task_id in tasks:
+        if not execute_task(task_id, args):
+            logger.error(f"Pipeline halted due to failure in {task_id}")
+            success = False
+            break
+    return success
+
+def run_full_pipeline(dag: Dict[str, Any], args: argparse.Namespace) -> bool:
+    """Run the entire pipeline."""
+    return run_phase("full", dag, args)
 
 def main():
-    """Main entry point for the pipeline."""
+    """Main entry point."""
     args = parse_args()
     
-    if args.dry_run:
-        print(f"Dry run: phase={args.phase}, config={args.config}, verbose={args.verbose}, dag={args.dag}")
-        return 0
-    
+    # Load DAG
     try:
-        config = get_config()
-        project_root = get_project_root(config)
-        
-        if not project_root.exists():
-            project_root.mkdir(parents=True)
-        
-        if args.phase == "init":
-            return run_init_phase(project_root, args.verbose)
-        elif args.phase == "dag":
-            # Execute the DAG defined in code/dag.yaml
-            dag_path = Path(args.dag)
-            if not dag_path.is_absolute():
-                dag_path = project_root / dag_path
-            return run_dag_execution(dag_path, args.verbose)
-        elif args.phase == "all":
-            # Run init first
-            run_init_phase(project_root, args.verbose)
-            # Then run the full DAG if available, otherwise run phases sequentially
-            dag_path = Path(args.dag)
-            if not dag_path.is_absolute():
-                dag_path = project_root / dag_path
-            
-            if dag_path.exists():
-                logger.info("DAG file found, executing via DAG.")
-                return run_dag_execution(dag_path, args.verbose)
-            else:
-                logger.warning("DAG file not found, running phases sequentially.")
-                for phase in ["download", "preprocess", "inference", "analysis"]:
-                    if run_pipeline_phase(phase, project_root) != 0:
-                        return 1
-                return 0
-        else:
-            return run_pipeline_phase(args.phase, project_root)
-            
+        dag = load_dag()
     except Exception as e:
-        logger.error(f"Pipeline execution failed: {e}", exc_info=True)
-        return 1
+        logger.critical(f"Failed to load DAG: {e}")
+        sys.exit(1)
+    
+    # Determine execution scope
+    if args.task:
+        # Run single task
+        success = execute_task(args.task, args)
+        sys.exit(0 if success else 1)
+    elif args.phase:
+        # Run specific phase
+        success = run_phase(args.phase, dag, args)
+        sys.exit(0 if success else 1)
+    else:
+        # Run full pipeline
+        success = run_full_pipeline(dag, args)
+        sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

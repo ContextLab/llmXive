@@ -18,13 +18,6 @@ T008c:
     bytes), and contains a detailed JSON\u2011Schema with explicit field definitions\
     \ for the final report (metadata, feasibility_summary, variance_check, etc.).\
     \ No required artifact is missing."
-T009a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.env.template` file was presented in the evidence, nor any listing of required\
-    \ environment variables such as `HF_TOKEN` or `HF_DATASET_NAME`. Without the actual\
-    \ file content, the task requirement is not satisfied. The implementer must add\
-    \ a non\u2011empty `.env.template` file containing the specified variables."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

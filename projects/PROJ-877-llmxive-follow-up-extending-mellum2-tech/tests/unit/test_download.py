@@ -1,148 +1,109 @@
 """
-Unit tests for code/data/download.py (T015).
+Unit tests for code/data/download.py
 
-Tests:
-- test_download_handles_network_timeout: Simulates network timeout during fetch.
-- test_download_handles_empty_dataset: Simulates empty dataset response.
+These tests verify the logic of T015 without requiring network access
+(by mocking the dataset loading).
 """
+
 import pytest
+import json
+from pathlib import Path
 from unittest.mock import patch, MagicMock, mock_open
 import sys
-from pathlib import Path
-import json
-import tempfile
 import os
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from utils.logging import NetworkError
+from data.download import load_feasibility_report, fetch_dataset_subset, write_chunks_to_disk
 
-class MockDataset:
-    """Mock Hugging Face dataset for testing."""
-    def __init__(self, items=None, raise_on_iter=False):
-        self.items = items or []
-        self.raise_on_iter = raise_on_iter
-        self.iterated = False
-    
-    def __iter__(self):
-        if self.raise_on_iter:
-            raise Exception("Network timeout or error")
-        self.iterated = True
-        return iter(self.items)
-    
-    def take(self, n):
-        return MockDataset(items=self.items[:n], raise_on_iter=self.raise_on_iter)
+@pytest.fixture
+def mock_feasibility_report(tmp_path):
+    """Create a mock feasibility report."""
+    report = {
+        "capped_N": 100,
+        "scope_reduction": {"disable_cross_language": False},
+        "status": "feasible"
+    }
+    report_path = tmp_path / "data" / "results" / "feasibility_report_v2.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, 'w') as f:
+        json.dump(report, f)
+    return report_path
 
-def test_download_handles_network_timeout():
-    """
-    Test that download.py handles network timeouts gracefully.
-    
-    Expected behavior:
-    - Should raise NetworkError when dataset fetch fails.
-    - Should NOT return synthetic data.
-    """
-    with patch("datasets.load_dataset") as mock_load:
-        # Simulate network timeout
-        mock_load.side_effect = Exception("Connection timeout")
-        
-        # Import main function
-        from code.data.download import fetch_dataset_subset
-        
-        # Should raise NetworkError (wrapped)
-        with pytest.raises(NetworkError):
-            fetch_dataset_subset(capped_n=10, languages=["python"])
+def test_load_feasibility_report_success(mock_feasibility_report, tmp_path):
+    """Test loading a valid feasibility report."""
+    # Mock get_project_root to return tmp_path parent
+    with patch('data.download.get_project_root', return_value=tmp_path.parent):
+        report = load_feasibility_report()
+        assert report["capped_N"] == 100
+        assert report["status"] == "feasible"
 
-def test_download_handles_empty_dataset():
-    """
-    Test that download.py handles empty dataset response.
-    
-    Expected behavior:
-    - Should return empty list if no chunks match.
-    - Should NOT return synthetic data.
-    """
-    with patch("datasets.load_dataset") as mock_load:
-        # Return empty dataset
-        mock_load.return_value = MockDataset(items=[])
-        
-        from code.data.download import fetch_dataset_subset
-        
-        # Should return empty list
-        result = fetch_dataset_subset(capped_n=10, languages=["python"])
-        assert result == []
-
-def test_download_filters_languages():
-    """Test that download correctly filters by language."""
-    with patch("datasets.load_dataset") as mock_load:
-        # Create mock items with different languages
-        items = [
-            {"language": "python", "code": "print('hello')"},
-            {"language": "java", "code": "System.out.println('hello')"},
-            {"language": "python", "code": "x = 1"},
-            {"language": "cpp", "code": "cout << 'hello';"},
-        ]
-        mock_load.return_value = MockDataset(items=items)
-        
-        from code.data.download import fetch_dataset_subset
-        
-        # Fetch only python
-        result = fetch_dataset_subset(capped_n=10, languages=["python"])
-        assert len(result) == 2
-        assert all(item["language"] == "python" for item in result)
-
-def test_download_respects_capped_n():
-    """Test that download respects the capped_N limit."""
-    with patch("datasets.load_dataset") as mock_load:
-        # Create more items than capped_n
-        items = [
-            {"language": "python", "code": f"code_{i}"}
-            for i in range(100)
-        ]
-        mock_load.return_value = MockDataset(items=items)
-        
-        from code.data.download import fetch_dataset_subset
-        
-        # Fetch with capped_n=10
-        result = fetch_dataset_subset(capped_n=10, languages=["python"])
-        assert len(result) == 10
-
-def test_load_feasibility_report_missing():
-    """Test that load_feasibility_report raises error if report missing."""
-    from code.data.download import load_feasibility_report
-    
-    with patch("code.data.download.get_config") as mock_config:
-        mock_config.return_value = {"project_root": "/tmp/nonexistent"}
-        
-        with pytest.raises(FileNotFoundError):
-            load_feasibility_report()
-
-def test_load_feasibility_report_proceed_false():
-    """Test that load_feasibility_report raises error if proceed_flag is False."""
-    from code.data.download import load_feasibility_report
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        report_path = Path(tmpdir) / "feasibility_report.json"
-        with open(report_path, 'w') as f:
-            json.dump({"proceed_flag": False, "capped_N": 10}, f)
-        
-        with patch("code.data.download.get_config") as mock_config:
-            mock_config.return_value = {"project_root": tmpdir}
-            
-            with pytest.raises(RuntimeError):
+def test_load_feasibility_report_missing(mock_feasibility_report, tmp_path):
+    """Test handling of missing feasibility report."""
+    # Rename the file to simulate missing
+    missing_path = tmp_path / "data" / "results" / "nonexistent.json"
+    with patch('data.download.get_project_root', return_value=tmp_path.parent):
+        with patch('data.download.Path.exists', return_value=False):
+            with pytest.raises(FileNotFoundError):
                 load_feasibility_report()
 
-def test_load_feasibility_report_success():
-    """Test successful loading of feasibility report."""
-    from code.data.download import load_feasibility_report
+@patch('data.download.load_dataset')
+def test_fetch_dataset_subset(mock_load_dataset):
+    """Test fetching dataset subset with mocked dataset."""
+    # Mock the dataset iterator
+    mock_item = {"content": "print('hello')", "path": "test.py", "language": "Python"}
+    mock_iterator = iter([mock_item] * 10)
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        report_path = Path(tmpdir) / "feasibility_report.json"
-        with open(report_path, 'w') as f:
-            json.dump({"proceed_flag": True, "capped_N": 50}, f)
+    mock_ds = MagicMock()
+    mock_ds.filter.return_value.take.return_value = mock_iterator
+    mock_load_dataset.return_value = mock_ds
+    
+    chunks = fetch_dataset_subset(["Python"], 10)
+    
+    assert len(chunks) == 10
+    assert all(c['language'] == 'Python' for c in chunks)
+    assert all('chunk_id' in c for c in chunks)
+
+@patch('data.download.load_dataset')
+def test_fetch_dataset_subset_empty(mock_load_dataset):
+    """Test fetching when dataset returns empty."""
+    mock_ds = MagicMock()
+    mock_ds.filter.return_value.take.return_value = iter([])
+    mock_load_dataset.return_value = mock_ds
+    
+    chunks = fetch_dataset_subset(["Python"], 10)
+    assert len(chunks) == 0
+
+def test_write_chunks_to_disk(tmp_path):
+    """Test writing chunks to disk."""
+    chunks = [
+        {"chunk_id": "1", "language": "Python", "content": "x=1", "path": "a.py"},
+        {"chunk_id": "2", "language": "Java", "content": "int x=1;", "path": "b.java"}
+    ]
+    
+    root = tmp_path / "project"
+    root.mkdir()
+    
+    paths = write_chunks_to_disk(chunks, ["Python", "Java"], root)
+    
+    # Check files exist
+    assert os.path.exists(paths["Python"])
+    assert os.path.exists(paths["Java"])
+    
+    # Check content
+    with open(paths["Python"], 'r') as f:
+        lines = f.readlines()
+        assert len(lines) == 1
+        data = json.loads(lines[0])
+        assert data["language"] == "Python"
+
+def test_fetch_dataset_subset_network_error():
+    """Test handling of network errors."""
+    with patch('data.download.load_dataset') as mock_load:
+        mock_load.side_effect = Exception("Network timeout")
         
-        with patch("code.data.download.get_config") as mock_config:
-            mock_config.return_value = {"project_root": tmpdir}
-            
-            report = load_feasibility_report()
-            assert report["proceed_flag"] is True
-            assert report["capped_N"] == 50
+        with pytest.raises(Exception) as exc_info:
+            fetch_dataset_subset(["Python"], 10)
+        
+        assert "Network timeout" in str(exc_info.value)

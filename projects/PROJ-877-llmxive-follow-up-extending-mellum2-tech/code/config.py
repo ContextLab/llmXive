@@ -9,8 +9,20 @@ from typing import Any, Dict, List, Optional
 import json
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables from .env file immediately upon import
+# This ensures variables are available for get_config() and other functions
 load_dotenv()
+
+# Define required environment variables for the pipeline
+REQUIRED_ENV_VARS = [
+    "HF_TOKEN",
+    "HF_DATASET_NAME",
+    "MAX_WORKERS",
+    "TIMEOUT_SECONDS",
+    "RANDOM_SEED",
+    "BATCH_SIZE",
+    "DEVICE"
+]
 
 def get_project_root() -> Path:
     """
@@ -41,17 +53,22 @@ def load_environment() -> Dict[str, str]:
     """
     return dict(os.environ)
 
-def validate_required_env_vars(required_vars: List[str]) -> bool:
+def validate_required_env_vars(required_vars: Optional[List[str]] = None) -> bool:
     """
     Validate that all required environment variables are set.
     
     Args:
-        required_vars: List of required environment variable names.
-        
+        required_vars: List of required environment variable names. 
+                       If None, uses the predefined REQUIRED_ENV_VARS.
+                        
     Returns:
-        True if all variables are set, False otherwise.
+        True if all variables are set.
+        
+    Raises:
+        ValueError: If any required variable is missing.
     """
-    missing = [var for var in required_vars if not os.getenv(var)]
+    vars_to_check = required_vars if required_vars is not None else REQUIRED_ENV_VARS
+    missing = [var for var in vars_to_check if not os.getenv(var)]
     if missing:
         raise ValueError(f"Missing required environment variables: {missing}")
     return True
@@ -59,10 +76,17 @@ def validate_required_env_vars(required_vars: List[str]) -> bool:
 def get_config() -> Dict[str, Any]:
     """
     Get the configuration dictionary from environment variables.
+    Validates required variables before returning config.
     
     Returns:
         Configuration dictionary.
+        
+    Raises:
+        ValueError: If required environment variables are missing.
     """
+    # Validate required variables first
+    validate_required_env_vars()
+    
     config = {
         "project_root": str(get_project_root()),
         "hf_token": os.getenv("HF_TOKEN", ""),
@@ -124,6 +148,7 @@ def ensure_dirs(base_path: Path, dirs: List[str]) -> List[Path]:
 def main() -> int:
     """
     Main entry point for config validation.
+    Validates environment variables and prints configuration.
     
     Returns:
         0 on success, 1 on failure.
@@ -137,6 +162,9 @@ def main() -> int:
                 value = "***"
             print(f"  {key}: {value}")
         return 0
+    except ValueError as e:
+        print(f"Configuration validation error: {e}")
+        return 1
     except Exception as e:
         print(f"Configuration error: {e}")
         return 1

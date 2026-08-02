@@ -1,13 +1,14 @@
 status: none
-intent: HuggingFace dataset code complexity cyclomatic nesting depth per file repository
-  python java python package dataset
+intent: bigcode the-stack code dataset python java static analysis loss correlation
+  python package dataset
 required_fields:
 - repository_id
 - file_path
-- source_code
 - language
 - cyclomatic_complexity
 - nesting_depth
-cache_key: bf39f6c156a40cb7dd58de40b4cb062601efc0c4de120f287a5b71baa0db9317
-searched_at: '2026-07-24T21:29:17.124447+00:00'
+- average_token_loss
+- per_token_loss_values
+cache_key: 93c6a1902b5d5e30783f2601008fbef9b09396c8c75d7be0ec0c98f387203730
+searched_at: '2026-08-02T04:24:04.273042+00:00'
 retry_count: 1

@@ -1,0 +1,25 @@
+{
+  "project_id": "PROJ-877-llmxive-follow-up-extending-mellum2-tech",
+  "ok": false,
+  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python code/data/ngram.py --input data/processed/labeled.parquet --output data/models/ngram.arpa; python code/analysis/thresholds.py --input data/processed/inferred.parquet; python code/analysis/significance.py --input data/processed/inferred.parquet; 6 command(s) failed: python code/main.py --model mistral-7b --device cpu --timeout 60 (rc=1); python code/main.py --phase power-analysis (rc=1); python code/data/download.py --lang python --lang java --sample-size 500 (rc=1); 4 declared deliverable(s) absent: data/results/feasibility_report.json; data/results/us1_correlation_stats.json; data/results/us2_threshold_candidates.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --model mistral-7b --device cpu --timeout 60 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/main.py\", line 4, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/main.py --phase power-analysis -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/main.py\", line 4, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/data/download.py --lang python --lang java --sample-size 500 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/data/download.py\", line 13, in <module>\n    from config import get_project_root, get_config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/config.py\", line 10, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
+    "python code/data/preprocess.py --input data/raw/sample.parquet --output data/processed/labeled.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/data/preprocess.py\", line 13, in <module>\n    import tree_sitter_python as tspython\nModuleNotFoundError: No module named 'tree_sitter_python'",
+    "python code/data/ngram.py --input data/processed/labeled.parquet --output data/models/ngram.arpa -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/data/ngram.py': [Errno 2] No such file or directory",
+    "python code/inference/engine.py --model mistral-7b --input data/processed/labeled.parquet --output data/processed/inferred.parquet --device cpu --timeout 60 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/inference/engine.py\", line 15, in <module>\n    import torch\nModuleNotFoundError: No module named 'torch'",
+    "python code/analysis/correlation.py --input data/processed/inferred.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/analysis/correlation.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analysis/thresholds.py --input data/processed/inferred.parquet -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/analysis/thresholds.py': [Errno 2] No such file or directory",
+    "python code/analysis/significance.py --input data/processed/inferred.parquet -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/analysis/significance.py': [Errno 2] No such file or directory",
+    "python code/viz/plots.py --input data/results/analysis_results.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/code/viz/plots.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-02T04:22:52Z"
+}

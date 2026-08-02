@@ -46,8 +46,8 @@
 - [X] T001 [P] Initialize project structure and configuration: Create `projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/` root directory and all required subdirectories (`code/`, `data/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`). Create `.gitignore`, `README.md`, `.env.template`, `ruff.toml`, `pyproject.toml`, and `requirements.txt` with pinned dependencies.
  - **Action**: `mkdir -p` all directories; write config files.
  - **Config Details**:
-  - `ruff.toml`: `target-version = "py311"`, `line-length = 88`.
-  - `pyproject.toml`: `[project] requires-python = ">=3.11"`.
+ - `ruff.toml`: `target-version = "py311"`, `line-length = 88`.
+ - `pyproject.toml`: `[project] requires-python = ">=3.11"`.
  - **Artifacts**: `.gitignore`, `README.md`, `.env.template`, `ruff.toml`, `pyproject.toml`, `requirements.txt`, directory structure.
 
 - [X] T002 [P] Create `requirements.txt` with exact versions for datasets, transformers, tree-sitter, codeql, scikit-learn, statsmodels, pandas, numpy, matplotlib, seaborn, kenlm, pwlf, ruptures.
@@ -62,11 +62,11 @@
  - **Artifact**: `code/config.py` (updated).
 - [X] T010 [P] Implement timeout enforcement and benchmarking logic in `code/utils/timeout.py` to enforce a fixed per‑chunk duration constraint (FR‑003); must raise `TimeoutError` on breach.
 - [X] T011 [US1] Implement `code/analysis/feasibility.py` (Pilot Sample & A Priori Power Analysis):
- - **Input**: Fetch metadata only (N=50) of code chunks from `codeparrot/github-code` (Python/Java) using `datasets.load_dataset(..., streaming=True).take(50)` to estimate complexity variance WITHOUT downloading full files.
+ - **Input**: Fetch metadata only (N=50) of code chunks from `codeparrot/github-code ` (Python/Java) using `datasets.load_dataset(..., streaming=True).take(50)` to estimate complexity variance WITHOUT downloading full files.
  - **Dependency**: **MUST run BEFORE T015** (Download).
  - **Action**: Perform a priori power analysis (alpha=0.05, Power=0.8, estimated effect size r=0.3). Compute required sample size N.
  - **Gate**:
- 1. If calculated N > max feasible chunks for 6 h limit (based on **TinyLlama-1.1B** CPU throughput), **Cap N** to the maximum feasible size.
+ 1. If calculated N > max feasible chunks for 6 h limit (based on **TinyLlama-1.1B ** CPU throughput), **Cap N** to the maximum feasible size.
  2. Calculate `perturbation_magnitude` (default **0.05** if not calculable) and `bootstrap_count` (default **1000**) based on N.
  3. Calculate `perturbation_magnitudes` list for T026 (e.g., `[0.01, 0.05, 0.1]`).
  - **Write** `data/results/feasibility_report.json` with:
@@ -98,7 +98,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `code/data/download.py` to fetch `codeparrot/github-code` subset (Python/Java) with streaming to stay within Disk storage constraints.
+- [X] T015 [US1] Implement `code/data/download.py` to fetch `codeparrot/github-code ` subset (Python/Java) with streaming to stay within Disk storage constraints.
  - **Dependency**: **T011c** (Feasibility & Scope passed).
  - **Logic**:
  1. Read `capped_N` and `scope_reduction` from `feasibility_report_v2.json`.
@@ -115,20 +115,20 @@
 - [X] T011b [US1] Implement `code/analysis/variance_check.py` (Variance Detection & Graceful Degradation):
  - **Dependency**: **T016** (Preprocess).
  - **Action**: Load annotated JSONL files, compute variance of `cyclomatic_complexity` and `nesting_depth`.
- - **Logic**: 
+ - **Logic**:
  1. If any metric has zero variance, write `data/results/variance_null_report.json` with status `"null_variance"` and **exit with code 1** (or set a `halt` flag) to force the DAG orchestrator to skip T019.
  2. If variance > 0, produce **no artifact** (proceed).
  - **Artifact**: `data/results/variance_null_report.json` (only on zero variance).
 
 - [X] T018a [US1] Implement `code/data/ngram.py` (Python) to build KenLM n‑gram model for the Python training set.
  - **Dependency**: **T016** (Preprocess).
- - **Logic**: Build 5‑gram model from `data/processed/train_python/`.
+ - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) [UNRESOLVED-CLAIM: c_8f2f7153 — status=verified] ‑gram model from `data/processed/train_python/`.
  - **Unit**: Ensure model outputs **log-probability in nats**.
  - **Artifact**: `data/processed/kenlm_model_python.arpa`.
 
-- [X] T018b [US1] Implement `code/data/ngram.py` (Java) to build KenLM n‑gram model for the Java validation set.
+- [X] T018b [US1] Implement `code/data/ngram.py` (Java) to build KenLM n‑gram model for the Java validation set. <!-- FAILED: unspecified -->
  - **Dependency**: **T016** (Preprocess).
- - **Logic**: Build 5‑gram model from `data/processed/val_java/` (if Java data exists).
+ - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) [UNRESOLVED-CLAIM: c_8f2f7153 — status=verified] ‑gram model from `data/processed/val_java/` (if Java data exists).
  - **Unit**: Ensure model outputs **log-probability in nats**.
  - **Artifact**: `data/processed/kenlm_model_java.arpa`.
 
@@ -136,7 +136,7 @@
  - **Dependency**: **T018a** and **T018b** (KenLM models ready – PRIMARY GATE).
  - **Constraint**: Must load model with `device='cpu'` and enforce `torch.set_num_threads()`; no GPU usage.
  - **Model Strategy**:
- 1. **PRIMARY**: Load `TinyLlama/TinyLlama-1.1B-Chat-v1.0`.
+ 1. **PRIMARY**: Load `TinyLlama/TinyLlama-1.1B -Chat-v1.0`.
  2. **FALLBACK**: If TinyLlama fails to load or exceeds per‑chunk time, **ABORT** pipeline (do not fallback to Mistral-7B as it violates 6h CPU limit).
  - **Retry Logic**: On `TimeoutError`, `ConnectionError`, or generic `OSError` (non‑OOM), retry up to 3 times with exponential backoff (factor 2). After retries, skip the chunk, log failure, and continue.
  - **Normalization**:
@@ -169,7 +169,7 @@
 - [X] T021c [US1] Implement `code/main.py` execution loop that reads `code/dag.yaml` and runs tasks in order, respecting parallel groups.
  - **Artifact**: `code/main.py` (Execution section).
 
-- [X] T022 [US1] Extend `code/analysis/correlation.py` for cross‑language validation.
+- [ ] T022 [US1] Extend `code/analysis/correlation.py` for cross‑language validation.
  - **Dependency**: **T019** (Correlation results).
  - **Logic**: Compare Pearson/Spearman coefficients between Python and Java subsets, append comparison stats to `us1_correlation_stats.json`.
  - **Artifact**: Updated `data/results/us1_correlation_stats.json`.
@@ -199,7 +199,7 @@
  1. Read `perturbation_magnitudes` list from `feasibility_report.json`.
  2. **Perturbation Sweep**: For each magnitude value in the list, re‑run the threshold detection and record the shift in identified threshold (`delta`).
  3. **Bootstrap Perturbation**: Perform `bootstrap_count` resamples of the chunk‑level data (with replacement) and recompute thresholds, recording shift distribution.
- 4. **SC-002 Check**: Calculate `max_shift` from all perturbations. If `max_shift > 0.05`, set `stability_status: "failed"`; otherwise `stability_status: "passed"`.
+ 4. **SC-002 Check**: Calculate `max_shift` from all perturbations. If `max_shift > 0.05 `, set `stability_status: "failed"`; otherwise `stability_status: "passed"`.
  5. Append `threshold_shifts_by_magnitude`, `dataset_perturbation_shifts`, and `stability_status` to `us2_threshold_candidates.json`.
  - **Artifact**: Updated `data/results/us2_threshold_candidates.json`.
 
@@ -227,17 +227,17 @@
  - **Artifact**: `data/results/us3_corrected_pvalues.json`.
 
 - [X] T031 [US3] Validate complexity metrics against the human-labeled CodeXGLUE benchmark (or generate limitation report).
- - **Source**: Attempt to load `codeparrot/codecomplexity` or a verified complexity benchmark from HuggingFace.
+ - **Source**: Attempt to load `codeparrot/codecomplexity ` or a verified complexity benchmark from HuggingFace.
  - **Logic**:
  1. **Attempt Load**: Try to fetch the complexity benchmark.
  2. **If Available**:
-  - Identify the column containing human-labeled complexity scores (e.g., `complexity_score`).
-  - Compute Pearson r between benchmark labels and computed complexity metrics.
-  - Write `data/results/us3_validation_result.json` with `status: "validated"` and correlation details.
+ - Identify the column containing human-labeled complexity scores (e.g., `complexity_score`).
+ - Compute Pearson r between benchmark labels and computed complexity metrics [UNRESOLVED-CLAIM: c_fd065218 — status=not_enough_info].
+ - Write `data/results/us3_validation_result.json` with `status: "validated"` and correlation details.
  3. **If Unavailable**:
-  - **Do NOT abort**.
-  - Write `data/results/us3_limitation_report.md` describing the missing external validation and the impact on study conclusions.
-  - Write `data/results/us3_validation_result.json` with `status: "limitation_report_generated"`.
+ - **Do NOT abort**.
+ - Write `data/results/us3_limitation_report.md` describing the missing external validation and the impact on study conclusions.
+ - Write `data/results/us3_validation_result.json` with `status: "limitation_report_generated"`.
  - **Artifact**: `data/results/us3_validation_result.json` or `data/results/us3_limitation_report.md`.
 
 **Checkpoint**: All user stories now functional with proper statistical rigor.
@@ -248,9 +248,9 @@
  - **Artifact**: `README.md` (updated).
 - [X] T032b [P] Create docs/ with API reference: Generate `docs/api.md` with function signatures for `code/` modules.
  - **Artifact**: `docs/api.md`.
-- [X] T034a [P] Optimize T015 streaming logic: Refactor `code/data/download.py` to use chunked streaming with explicit `chunk_size=100 ` and `max_workers=4 `.
+- [ ] T034a [P] Optimize T015 streaming logic: Refactor `code/data/download.py` to use chunked streaming with explicit `chunk_size=100 ` and `max_workers=4 `.
  - **Artifact**: `code/data/download.py` (updated).
-- [X] T034b [P] Optimize T017 inference memory: Refactor `code/inference/engine.py` to use `torch.no_grad()` and explicit `batch_size=1 ` to keep memory < 6 GB.
+- [ ] T034b [P] Optimize T017 inference memory: Refactor `code/inference/engine.py` to use `torch.no_grad()` and explicit `{{claim:c_e66238fe}} (2507.07101 [UNRESOLVED-CLAIM: c_31d7f2e0 — status=not_enough_info], https://arxiv.org/abs/2507.07101 [UNRESOLVED-CLAIM: c_31d7f2e0 — status=not_enough_info]) ` to keep memory < 6 GB.
  - **Artifact**: `code/inference/engine.py` (updated).
 - [X] T034c [P] Optimize T026 perturbation: Refactor `code/analysis/threshold.py` to use `joblib` for parallel processing of the bootstrap samples.
  - **Artifact**: `code/analysis/threshold.py` (updated).
@@ -286,3 +286,8 @@
 - **Phase N (Polish)**: Independent optimizations and documentation updates.
 
 All tasks now respect data flow, resource constraints, and the strict requirements of the specification.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T038 Reconcile run-book vs implementation for `code/analysis/thresholds.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis/thresholds.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T039 Reconcile run-book vs implementation for `code/analysis/significance.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis/significance.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T040 Reconcile run-book vs implementation for `code/viz/plots.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/viz/plots.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
