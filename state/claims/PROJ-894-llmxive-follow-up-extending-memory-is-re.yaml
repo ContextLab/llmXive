@@ -1907,3 +1907,710 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T19:20:20Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: default model TheBloke/Llama-7B-Chat-GGUF Q4_K_M
+  claim_id: c_cad4af4c
+  context: 'Default Model: MUST allow configuration via config.py; if no path provided,
+    default to TheBloke/Llama-7B-Chat-GGUF (Q4_K_M quantization) via huggingface_hub.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_model_TheBloke/Llama-7B-Chat-GGUF_Q4_K_M
+  kind: entity_fact
+  raw_text: The default model for inference is TheBloke/Llama-7B-Chat-GGUF (Q4_K_M
+    quantization).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:07:13Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: download file Llama-2-7B-Chat-GGUF.Q4_K_M.gguf
+  claim_id: c_0f31ddf4
+  context: 'Specific File: Must download Llama-2-7B-Chat-GGUF.Q4_K_M.gguf (or the
+    alphabetically first file matching *.Q4_K_M.gguf if multiple exist).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must download the file Llama-2-7B-Chat-GGUF.Q4_K_M.gguf.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:09:09Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: trigger streaming if dataset size > 6GB
+  claim_id: c_3ab35bc7
+  context: Implement an iterator-based processing loop in code/runner.py that processes
+    tasks in configurable chunks without loading the entire dataset into memory, ensuring
+    compliance with the ~6GB RAM limit (trigger streaming if estimated dataset size
+    > 6GB).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/trigger_streaming_if_dataset_size_%3E_6GB
+  kind: entity_fact
+  raw_text: The system must trigger streaming mode if the estimated dataset size exceeds
+    6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:12:21Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: noise injection tolerance 1%
+  claim_id: c_2126c259
+  context: "Tolerance: \xB11%; Test: Chi-square test for randomness."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The noise injection verification test uses a tolerance of \xB11%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:12:22Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Chi-square test for noise injection randomness
+  claim_id: c_aea6b929
+  context: "Tolerance: \xB11%; Test: Chi-square test for randomness."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-square_test_for_noise_injection_randomness
+  kind: entity_fact
+  raw_text: The noise injection verification test uses a Chi-square test for randomness.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:12:46Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Lazy heuristic default evidence threshold 0.7
+  claim_id: c_1880d94e
+  context: 'Requirement: Log the specific evidence threshold value used for each task
+    execution (e.g., confidence score > 0.7) in the execution log.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lazy traversal heuristic uses a default evidence threshold of 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:13:04Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Lazy heuristic sensitivity analysis thresholds 0.7 and 0.9
+  claim_id: c_08e8a795
+  context: Implement sensitivity analysis sweep for Lazy heuristic evidence threshold
+    (values , 0.7, 0.9) and output results to data/processed/sweep_results.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis for the Lazy heuristic tests evidence threshold
+    values 0.7 and 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:13:27Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test for method selection
+  claim_id: c_7c27605b
+  context: 'Method Selection: Run Shapiro-Wilk test; if p < 0.05, use Wilcoxon; otherwise,
+    use paired t-test.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_test_for_method_selection
+  kind: entity_fact
+  raw_text: The Shapiro-Wilk test is used to determine statistical test selection.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:13:47Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test if Shapiro-Wilk p < 0.05
+  claim_id: c_412184d3
+  context: 'Method Selection: Run Shapiro-Wilk test; if p < 0.05, use Wilcoxon; otherwise,
+    use paired t-test.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The Wilcoxon test is used if the Shapiro-Wilk test p-value is less than
+    0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T10:13:48Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: paired t-test if Shapiro-Wilk p >= 0.05
+  claim_id: c_7ab48c3d
+  context: 'Method Selection: Run Shapiro-Wilk test; if p < 0.05, use Wilcoxon; otherwise,
+    use paired t-test.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The paired t-test is used if the Shapiro-Wilk test p-value is greater
+    than or equal to 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T10:13:48Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: binning algorithm minimum 3 tasks per bin
+  claim_id: c_d5cd35d0
+  context: "(2) Iteratively merge adjacent bins until every bin contains at least\
+    \ 3 tasks (n \u2265 3);"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Binning_algorithm_minimum_3_tasks_per_bin
+  kind: magnitude
+  raw_text: The binning algorithm merges adjacent bins until every bin contains at
+    least 3 tasks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:14:22Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: sparse definition unique node counts > 50% of total tasks
+  claim_id: c_a35a6892
+  context: 'initial binning: unique node counts or deciles if sparse, where ''sparse''
+    is defined as unique node counts > 50% of total tasks'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/sparse_definition_unique_node_counts_%3E_50%25_of_total_tasks
+  kind: magnitude
+  raw_text: A bin is considered sparse if unique node counts are greater than 50%
+    of total tasks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:15:07Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: inflection point mean accuracy < 95% of baseline
+  claim_id: c_962135bf
+  context: (4) Identify the first bin with mean accuracy < 95% of the baseline mean
+    (computed from baseline_results.csv considering only status=completed tasks);
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/inflection_point_mean_accuracy_%3C_95%25_of_baseline
+  kind: magnitude
+  raw_text: The inflection point is identified as the first bin with mean accuracy
+    less than 95% of the baseline mean.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:16:03Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: reduce average task latency by 15%
+  claim_id: c_0fa19c3e
+  context: identify the top hotspots, and implement optimizations to reduce average
+    task latency by at least 15% in the full.py traversal loop.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_average_task_latency_by_15%25
+  kind: magnitude
+  raw_text: The optimization goal is to reduce average task latency by at least 15%
+    in the full.py traversal loop.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:16:24Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: LoCoMo dataset ID locomo/locomo-benchmark
+  claim_id: c_a3b101e6
+  context: Implement a script in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py
+    to download the LoCoMo benchmark subset from HuggingFace dataset locomo/locomo-benchmark
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LoCoMo_dataset_ID_locomo/locomo-benchmark
+  kind: entity_fact
+  raw_text: The LoCoMo benchmark dataset ID is locomo/locomo-benchmark.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:16:55Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: LoCoMo dataset split test
+  claim_id: c_8a0db30d
+  context: 'download the LoCoMo benchmark subset from HuggingFace dataset locomo/locomo-benchmark
+    (split: test, columns: question, context, answer).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LoCoMo_dataset_split_test
+  kind: entity_fact
+  raw_text: The LoCoMo benchmark dataset split used is 'test'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:17:12Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: LoCoMo dataset columns question context answer
+  claim_id: c_4e0c4c30
+  context: 'download the LoCoMo benchmark subset from HuggingFace dataset locomo/locomo-benchmark
+    (split: test, columns: question, context, answer).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LoCoMo_dataset_columns_question_context_answer
+  kind: entity_fact
+  raw_text: The LoCoMo benchmark dataset columns are question, context, and answer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:17:45Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Trigger streaming if dataset size exceeds 6GB
+  claim_id: c_821dca7c
+  context: Implement an iterator-based processing loop in code/runner.py that processes
+    tasks in configurable chunks without loading the entire dataset into memory, ensuring
+    compliance with the ~6GB RAM limit (trigger streaming if estimated dataset size
+    > 6GB).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trigger_streaming_if_dataset_size_exceeds_6GB
+  kind: entity_fact
+  raw_text: The system must trigger streaming if estimated dataset size > 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:19:39Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Default model is TheBloke/Llama-7B-Chat-GGUF Q4_K_M
+  claim_id: c_5cb2b65e
+  context: 'Default Model: MUST allow configuration via config.py; if no path provided,
+    default to TheBloke/Llama-7B-Chat-GGUF (Q4_K_M quantization) via huggingface_hub.'
+  evidence:
+    entailment_evidence: Default model is TheBloke/Llama-7B-Chat-GGUF Q4 K M
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Default_model_is_TheBloke/Llama-7B-Chat-GGUF_Q4_K_M
+  kind: entity_fact
+  raw_text: The default model must be TheBloke/Llama-7B-Chat-GGUF (Q4_K_M quantization)
+    if no path is provided.
+  resolved_value: Default model is TheBloke/Llama-7B-Chat-GGUF Q4_K_M
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T10:19:42Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Edge injection ratio tolerance is 1 percent
+  claim_id: c_44e528f3
+  context: "Tolerance: \xB11%; Test: Chi-square test for randomness. Dependency: T011b."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The tolerance for verifying edge injection ratio is \xB11%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:19:42Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Lazy strategy default evidence threshold is 0.7
+  claim_id: c_a3a8ce56
+  context: 'Implementation for User Story 2 ... Parameters: Lazy uses a default evidence
+    threshold.. Output Schema: task_id (str), accuracy (float)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lazy strategy uses a default evidence threshold of 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:20:10Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep values are 0.7 and 0.9
+  claim_id: c_8efe4468
+  context: Implement sensitivity analysis sweep for Lazy heuristic evidence threshold
+    (values , 0.7, 0.9) and output results to data/processed/sweep_results.csv...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep for the Lazy heuristic evidence threshold
+    includes values 0.7 and 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:20:26Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Binning algorithm minimum tasks per bin is 3
+  claim_id: c_fcf8d5bb
+  context: "Iteratively merge adjacent bins until every bin contains at least 3 tasks\
+    \ (n \u2265 3); Calculate mean accuracy per bin..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Binning_algorithm_minimum_tasks_per_bin_is_3
+  kind: magnitude
+  raw_text: The binning algorithm requires every bin to contain at least 3 tasks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:20:52Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Inflection point threshold is 95 percent of baseline mean
+  claim_id: c_606f20ba
+  context: Identify the first bin with mean accuracy < 95% of the baseline mean (computed
+    from baseline_results.csv considering only status=completed tasks)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inflection point is identified where mean accuracy drops below 95%
+    of the baseline mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:20:53Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Reduce average task latency by 15 percent
+  claim_id: c_e0aea4d6
+  context: Profile graph traversal loops in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py
+    using cProfile, identify the top hotspots, and implement optimizations to reduce
+    average task latency by at least 15% in the full.py traversal loop.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_average_task_latency_by_15_percent
+  kind: magnitude
+  raw_text: Optimizations must reduce average task latency by at least 15% in the
+    full.py traversal loop.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:21:14Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk p-value threshold is 0.05
+  claim_id: c_92dd55e7
+  context: 'Method Selection: Run Shapiro-Wilk test; if p < 0.05, use Wilcoxon; otherwise,
+    use paired t-test.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk test uses a p-value threshold of 0.05 to select between
+    Wilcoxon and paired t-test.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T10:21:14Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: LoCoMo benchmark dataset ID is locomo/locomo-benchmark
+  claim_id: c_a2d781a6
+  context: Verify that code/data_loader.py uses the exact HuggingFace dataset ID locomo/locomo-benchmark
+    as specified in the plan and spec.
+  evidence:
+    entailment_evidence: LoCoMo benchmark dataset ID is locomo/locomo-benchmark -
+      Wikipedia Jump to content Main menu Main menu move to sidebar hide
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/LoCoMo_benchmark_dataset_ID_is_locomo/locomo-benchmark
+  kind: entity_fact
+  raw_text: The LoCoMo benchmark dataset ID is locomo/locomo-benchmark.
+  resolved_value: LoCoMo benchmark dataset ID is locomo/locomo-benchmark
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T10:21:17Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Sparse definition is unique node counts exceeding 50 percent of total
+    tasks
+  claim_id: c_82c609db
+  context: 'initial binning: unique node counts or deciles if sparse, where ''sparse''
+    is defined as unique node counts > 50% of total tasks...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sparse_definition_is_unique_node_counts_exceeding_50_percent
+  kind: magnitude
+  raw_text: The sparse definition for binning is unique node counts greater than 50%
+    of total tasks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:21:55Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Baseline algorithm outputs CSV with task_id, accuracy, nodes_visited,
+    inference_time_seconds for LoCoMo subset
+  claim_id: c_5c698b8d
+  context: 'Independent Test: The system runs the baseline algorithm on a fixed subset
+    of LoCoMo tasks and outputs a CSV containing task_id, accuracy, nodes_visited,
+    and inference_time_seconds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_algorithm_outputs_CSV_with_task_id,_accuracy,_nodes
+  kind: entity_fact
+  raw_text: The system runs the baseline algorithm on a fixed subset of LoCoMo tasks
+    and outputs a CSV containing task_id, accuracy, nodes_visited, and inference_time_seconds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:25:19Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Heuristic implementations generate comparison report showing accuracy
+    delta and efficiency gain relative to P1 baseline
+  claim_id: c_e4884dbf
+  context: 'Independent Test: The system runs the two heuristic implementations and
+    generates a comparison report showing accuracy delta and efficiency gain relative
+    to the P1 baseline.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Heuristic_implementations_generate_comparison_report_showing
+  kind: entity_fact
+  raw_text: The system runs the two heuristic implementations and generates a comparison
+    report showing accuracy delta and efficiency gain relative to the P1 baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:25:49Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: System run against dataset with known edge cases logs all errors
+  claim_id: c_0a79dca2
+  context: 'Independent Test: The system is run against a dataset containing known
+    edge cases and logs all errors.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_run_against_dataset_with_known_edge_cases_logs_all_er
+  kind: entity_fact
+  raw_text: The system is run against a dataset containing known edge cases and logs
+    all errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:26:19Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: System generates statistical report with p-values, confidence intervals,
+    and correlation coefficients from results CSVs
+  claim_id: c_9a702d16
+  context: 'Independent Test: The system ingests results CSVs and generates a statistical
+    report containing p-values, confidence intervals, and correlation coefficients.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_generates_statistical_report_with_p-values,_confidenc
+  kind: entity_fact
+  raw_text: The system ingests results CSVs and generates a statistical report containing
+    p-values, confidence intervals, and correlation coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:26:38Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Audit confirms no try/except blocks swallow network errors and streaming
+    logic triggers correctly for large inputs
+  claim_id: c_d70e28b6
+  context: 'Independent Test: A manual audit of code/data_loader.py and code/runner.py
+    confirms no try/except blocks swallow network errors, and that streaming logic
+    is triggered correctly for large inputs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Audit_confirms_no_try/except_blocks_swallow_network_errors_a
+  kind: entity_fact
+  raw_text: A manual audit of code/data_loader.py and code/runner.py confirms no try/except
+    blocks swallow network errors, and that streaming logic is triggered correctly
+    for large inputs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:26:57Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Script exits with non-zero code and produces no synthetic data files
+    on simulated network failure
+  claim_id: c_11506aa6
+  context: 'Mechanism: Mock datasets.load_dataset using pytest fixtures or unittest.mock
+    to raise ConnectionError. Capture the output and verify that the script exits
+    with a non-zero code and produces no synthetic data files.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Script_exits_with_non-zero_code_and_produces_no_synthetic_da
+  kind: entity_fact
+  raw_text: The script exits with a non-zero code and produces no synthetic data files
+    when datasets.load_dataset is mocked to raise ConnectionError.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:27:22Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Memory usage remains stable during iteration with streaming=True on large
+    subset
+  claim_id: c_e65fa61e
+  context: Monitor memory usage and generate a log data/audit/streaming_log.json proving
+    that memory usage remains stable (does not spike) during iteration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_remains_stable_during_iteration_with_streaming=
+  kind: entity_fact
+  raw_text: Memory usage remains stable (does not spike) during iteration when code/runner.py
+    is executed with streaming=True on a large subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:27:41Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Code uses exact HuggingFace dataset ID loco/locomo-benchmark
+  claim_id: c_481e7b9f
+  context: Verify that code/data_loader.py uses the exact HuggingFace dataset ID loco/locomo-benchmark
+    as specified in the plan and spec.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_uses_exact_HuggingFace_dataset_ID_loco/locomo-benchmark
+  kind: entity_fact
+  raw_text: The code uses the exact HuggingFace dataset ID loco/locomo-benchmark as
+    specified in the plan and spec.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T10:28:05Z'
+- artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/tasks.md
+  attempts: 1
+  canonical: Optimizations reduce average task latency by at least 15% in full.py
+    traversal loop
+  claim_id: c_2c41dd07
+  context: Profile graph traversal loops in projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/strategies/full.py
+    using cProfile, identify the top hotspots, and implement optimizations to reduce
+    average task latency by at least 15% in the full.py traversal loop.
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 15.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Optimizations_reduce_average_task_latency_by_at_least_15%25_in
+  kind: magnitude
+  raw_text: Optimizations reduce average task latency by at least 15% in the full.py
+    traversal loop.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-02T10:28:24Z'

@@ -12,7 +12,7 @@ This project implements a comparative analysis of memory reconstruction strategi
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `networkx`, `huggingface_hub`, `transformers`, `llama-cpp-python` (for CPU quantized inference), `pytest`, `spacy` (for graph construction), `statsmodels` (for mixed-effects models)  
 **Storage**: Local `data/` directory (raw CSVs, generated graphs, results CSVs)  
 **Testing**: `pytest` (unit tests for graph generation, integration tests for strategy execution)  
-**Target Platform**: Linux (GitHub Actions Free Tier: limited CPU resources, ~7GB RAM, No GPU)  
+**Target Platform**: Linux (GitHub Actions Free Tier: limited CPU resources, ~GB RAM, No GPU)  
 **Project Type**: Research CLI / Data Analysis Pipeline  
 **Performance Goals**: Complete full benchmark subset within 6 hours; individual task timeout < 30 mins.  
 **Constraints**: CPU-only execution; memory < 7GB; no external API calls for inference (local quantized model); robust handling of disconnected graphs and timeouts.  
