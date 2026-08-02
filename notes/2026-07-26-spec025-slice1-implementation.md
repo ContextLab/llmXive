@@ -614,5 +614,45 @@ correct notation, but its unbalanced `)` defeats the paren-balance check the pla
 runs, and a check that has to be special-cased stops being a check.
 
 **Deferred, not skipped.** Step 6's second command runs `parse_spec_transitions()` against
-the amended table. That helper is written in Task 4, so the command runs at Task 4 Step 5.
-The first command passed here: 28 rows, every row exactly 6 fields, parens balanced.
+the amended table. That helper is written in the transition-table task, so the command runs
+at that task's Step 5 (Task 4 Step 5 at the time; **Task 5 Step 5** after the renumbering
+below). The first command passed here: 28 rows, every row exactly 6 fields, parens balanced.
+
+## Slice 2 — maintainer decisions on the thirteen open questions (2026-08-02)
+
+All thirteen resolved; every proposed direction approved. Four changed the plan and one
+changed the spec (rev 24). The full text of each question and its ruling now lives in the
+plan under "Maintainer decisions (2026-08-02)"; what is worth recording HERE is the work
+they caused and the two premises that turned out to be wrong.
+
+**Spec rev 24** — one normative change, from decision 1: the time authority MUST be read
+under an authenticated request. Rev 23 said `GET /rate_limit` supplies the instant without
+saying under what identity, and the unauthenticated path's 60/hr allowance is per IP and
+shared with every other tenant of the runner's address. That would make "the lane has no
+trusted time" a state an unrelated workload could induce, on the one input that decides
+whether a live claim-holder is evicted.
+
+**Task renumbering** — decision 7 split the pre-existing `append_to_log` rewind fix into its
+own task ahead of the transaction work, so Tasks 2–13 became 3–14. The new **Task 2** fixes
+`update-ref` with no expected-old value, introduces `Seam` and `_after_push` on
+`append_to_log`, and gates on `append_to_log`'s complete consumer set. Task 1 (the spec
+amendment, already committed) is unchanged.
+
+**Two premises in the questions were wrong**, both found by checking rather than assuming —
+same class as Task 1's Step 2c:
+- Decision 12 asks that "existing 1A projection tests" pass unchanged. There are none:
+  `grep -rn project_attempt src/ tests/` returns nothing, because this slice introduces the
+  function. The compatibility requirement is real, so it is discharged by PINNING
+  `project_attempt`'s error messages in the task that writes them.
+- Question 10 asks for an audit of `cas_release`'s callers. Done, and the answer is that
+  there are no production callers at all — it is exported and reached only by tests. The
+  change is additive at every call site. That is worth knowing before an implementer goes
+  looking for breakage.
+
+**Wrong test paths in the plan, fixed while wiring decision 3's gate.** The plan named
+`tests/unit/test_model_selection_ledger_transport.py` as the ledger gate; no such file
+exists. The credit ledger reaches the shared transport through
+`model_selection/ledger_transport.py`, and its suite is
+`tests/integration/test_credit_ledger_transport.py`. `grep -rl append_to_log src/` also
+turned up a THIRD consumer the plan never mentioned — `self_improvement/audit_sink.py` —
+now included in the gate. Its tests are `tests/integration/test_self_improvement_audit_sink.py`.

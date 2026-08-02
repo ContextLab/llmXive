@@ -4,7 +4,7 @@
 
 **Goal:** Make the Attempt lifecycle a durable, executable state machine — the transition table as DATA with a fold that fails closed on any illegal history — and give it the four mechanisms rev 22 specified: claim generations, renewable heartbeats with skew-padded expiry, side-effect intents with the four dispositions, and authoritative time. Underneath all four, give the store the capability they actually need: **atomic transactions across the lane ref's subtrees**, so a mutation touching both the claim and an Attempt is one commit and one compare-and-swap. Closes the seam Slice 1B deliberately left open: a proposal review now has somewhere to record its verdict.
 
-**Architecture:** Everything is a projection over the existing append-only lane log — no new store, no new ref. The Attempt machine lives on the per-Problem stream and the claim lives on the coordinator stream, but those streams are SUBTREES OF ONE REF, so a mutation spanning both is a single commit under a single compare-and-swap. Task 2 adds that transaction; every claim/terminal/reclaim path is built on it, which is what removes the crash windows a two-step sequence would need compensating repairs for. Slice 1A's CAS discipline (`append(..., expected_revision, precondition)`) remains the write path for single-stream events, and the terminal-slot precondition still arbitrates a reclaim race. `coordinator.py` is EXTENDED (generations, heartbeats, expiry) rather than shadowed by a parallel claim module.
+**Architecture:** Everything is a projection over the existing append-only lane log — no new store, no new ref. The Attempt machine lives on the per-Problem stream and the claim lives on the coordinator stream, but those streams are SUBTREES OF ONE REF, so a mutation spanning both is a single commit under a single compare-and-swap. Task 3 adds that transaction; every claim/terminal/reclaim path is built on it, which is what removes the crash windows a two-step sequence would need compensating repairs for. Slice 1A's CAS discipline (`append(..., expected_revision, precondition)`) remains the write path for single-stream events, and the terminal-slot precondition still arbitrates a reclaim race. `coordinator.py` is EXTENDED (generations, heartbeats, expiry) rather than shadowed by a parallel claim module.
 
 **Tech Stack:** Python ≥ 3.11; `pytest`; packages `llmxive.self_improvement`. No new third-party dependencies — the model tests are exhaustive table enumeration plus seeded random walks, not `hypothesis` (deterministic, no dep, and reproducible from the seed printed on failure).
 
@@ -12,10 +12,10 @@
 
 Every task's requirements implicitly include this section. Values are copied verbatim from spec 025 rev 22.
 
-- **The transition table is DATA, declared once (Constitution I).** `TRANSITIONS` in `lifecycle.py` is the single source of truth for from-states, event, to-state, idempotency key, terminal?, counted?. No function re-encodes a transition in an `if` chain; no test hard-codes a table row it could read. The spec's table and `TRANSITIONS` are checked against each other by a test that parses the spec (Task 4, Step 6) — a spec/code drift is a FAILING TEST, not a review finding.
+- **The transition table is DATA, declared once (Constitution I).** `TRANSITIONS` in `lifecycle.py` is the single source of truth for from-states, event, to-state, idempotency key, terminal?, counted?. No function re-encodes a transition in an `if` chain; no test hard-codes a table row it could read. The spec's table and `TRANSITIONS` are checked against each other by a test that parses the spec (Task 5, Step 6) — a spec/code drift is a FAILING TEST, not a review finding.
 - **Fail closed on any illegal history.** `project_attempt` RAISES on an unknown event type, an out-of-order `seq`, a transition not in the table, or a second terminal. It never ignores, never "best-effort skips". This matches `project_coordinator` (`coordinator.py:40-83`), which is the house pattern.
 - **Exactly one terminal per Attempt (FR-035).** Every terminal append is CAS-conditioned on the freshly-rebuilt projection having NO terminal for that Attempt. First writer wins; the loser discards its own terminal and performs NO further side effect. This guards two DIFFERENT terminals racing, which per-transition idempotency keys do not.
-- **Cross-stream preconditions are ENFORCED, because every stream is a subtree of ONE ref.** `lane_log._log_ref` builds `LogRef(ref=LANE_REF, event_dir=…/{problem_id})` — the coordinator and every Problem share `refs/llmxive/self-improvement`, and the module docstring states the consequence: "the single ref serializes all lane mutations (FR-008)". A mutation spanning the coordinator and a Problem is therefore ONE commit under ONE compare-and-swap (`append_many`, Task 2), and a predicate that reads the coordinator's `claim_generation` while writing an Attempt event is deciding against the exact parent the commit is built on. **Never describe a cross-stream check as advisory or best-effort** — it is binding, and the multi-step sequences that would have needed compensating recovery paths do not exist in this design.
+- **Cross-stream preconditions are ENFORCED, because every stream is a subtree of ONE ref.** `lane_log._log_ref` builds `LogRef(ref=LANE_REF, event_dir=…/{problem_id})` — the coordinator and every Problem share `refs/llmxive/self-improvement`, and the module docstring states the consequence: "the single ref serializes all lane mutations (FR-008)". A mutation spanning the coordinator and a Problem is therefore ONE commit under ONE compare-and-swap (`append_many`, Task 3), and a predicate that reads the coordinator's `claim_generation` while writing an Attempt event is deciding against the exact parent the commit is built on. **Never describe a cross-stream check as advisory or best-effort** — it is binding, and the multi-step sequences that would have needed compensating recovery paths do not exist in this design.
 - **All-or-nothing, never a compensating path.** Any operation that changes both the claim and the Attempt (grant, reclaim, terminal-plus-release, promotion-observed) is a single transaction. If a crash can leave one half durable and the other not, the operation is built wrong — fix the transaction, do not add a repair step. Every such operation carries crash tests at each seam (parent fixed, commit built, pushed-but-unacknowledged) asserting the complete transition or none of it, plus an idempotent retry after the last one. The complete set is the **Cross-stream invariant matrix** below; an operation that is not a row there touches exactly one stream.
 - **"All or nothing" is about VISIBILITY, and visibility changes at the ref CAS.** Before it, nothing; after it, everything; a retry after a lost acknowledgement is a no-op returning the stored result. A crash AFTER a successful push leaves the transaction fully durable — saying otherwise is not a stronger guarantee, it is a false one, and it would send an implementer looking for a repair path that must not exist. See the matrix's commit-point note.
 - **Coordinator effects are DECLARED IN THE TABLE, never written per call site.** `Transition.coordinator_effects` lists the coordinator events a transition emits in the same commit (`("ClaimReleased",)`, or `("MonitorStarted", "ClaimReleased")` for `PromotionObserved`). `cas_attempt_transition` emits exactly what the row declares. `terminal` and `releases_claim` are DERIVED properties, never separately-maintained fields — a transition is terminal iff its `to_state` is in `TERMINAL_STATES`, and it releases iff `"ClaimReleased"` is among its effects. Terminality and release are NOT the same predicate: `PromotionObserved` releases without being terminal, and `Rejected`/`Retained`/`RevertObserved` are terminal without releasing (nobody holds the lane at those points).
@@ -39,7 +39,7 @@ Every task's requirements implicitly include this section. Values are copied ver
 ## Cross-stream invariant matrix
 
 Every operation that touches MORE THAN ONE stream is listed here, and this table is the
-contract Tasks 6/7/9/11 implement and Task 12 attacks. An operation not on this list touches
+contract Tasks 6/7/9/11 implement and Task 13 attacks. An operation not on this list touches
 exactly one stream and uses `lane_log.append`. Adding a cross-stream operation later means
 adding a row here FIRST — a transaction whose invariants were never written down is how the
 half-states this slice exists to eliminate get reintroduced.
@@ -51,10 +51,10 @@ property the design buys.
 
 |# |Operation (task)|Events in the ONE commit, IN ORDER|Precondition, re-evaluated at the parent|Post-state invariant|Crash BEFORE the commit point|
 |-|-|-|-|-|-|
-|1|**Claim grant** — `cas_claim` (Task 7)|coordinator `ClaimAcquired`; Problem `ClaimGranted`|lane free **AND** the Attempt is `proposal_verified`|the lane is held by exactly `(P,A)`; the Attempt is `claimed`; BOTH records carry the identical generation + terms|neither record; lane free; Attempt still `proposal_verified`|
-|2|**Terminal + release** — `cas_attempt_transition` (Task 6)|Problem terminal; coordinator `ClaimReleased` **iff the Attempt held the lane** (see below)|the Attempt has NO terminal and its state is in `from_states`; **if that state is claim-holding**, the lane must still be held by that exact `(P,A)` pair|exactly one terminal; the lane is free if this Attempt held it, and otherwise UNTOUCHED|neither; Attempt non-terminal; lane unchanged|
-|3|**Reclaim** — `cas_reclaim` (Task 9)|Problem `ClaimExpired`; coordinator `ClaimReleased`|the claim is still held by `(P,A)` AT the observed generation, the Attempt has NO terminal, **AND** it has no unreconciled intent|exactly one terminal (`attempt_abandoned`); lane free; the next claim takes the next generation|neither; Attempt non-terminal; lane still held by the original|
-|4|**Promotion observed** — `cas_attempt_transition` (Task 11)|Problem `PromotionObserved`; coordinator `MonitorStarted`; coordinator `ClaimReleased` (all three, always — `promotion_requested` IS claim-holding)|the Attempt is `promotion_requested` **AND** the lane is still held by that exact `(P,A)` pair|the Attempt is `monitoring`; it IS in `monitored_attempts`; lane free; `last_autonomous_merge_at` is this event's instant|none of the three; Attempt still `promotion_requested`; lane still held; not monitored|
+|1|**Claim grant** — `cas_claim` (Task 8)|coordinator `ClaimAcquired`; Problem `ClaimGranted`|lane free **AND** the Attempt is `proposal_verified`|the lane is held by exactly `(P,A)`; the Attempt is `claimed`; BOTH records carry the identical generation + terms|neither record; lane free; Attempt still `proposal_verified`|
+|2|**Terminal + release** — `cas_attempt_transition` (Task 7)|Problem terminal; coordinator `ClaimReleased` **iff the Attempt held the lane** (see below)|the Attempt has NO terminal and its state is in `from_states`; **if that state is claim-holding**, the lane must still be held by that exact `(P,A)` pair|exactly one terminal; the lane is free if this Attempt held it, and otherwise UNTOUCHED|neither; Attempt non-terminal; lane unchanged|
+|3|**Reclaim** — `cas_reclaim` (Task 10)|Problem `ClaimExpired`; coordinator `ClaimReleased`|the claim is still held by `(P,A)` AT the observed generation, the Attempt has NO terminal, **AND** it has no unreconciled intent|exactly one terminal (`attempt_abandoned`); lane free; the next claim takes the next generation|neither; Attempt non-terminal; lane still held by the original|
+|4|**Promotion observed** — `cas_attempt_transition` (Task 12)|Problem `PromotionObserved`; coordinator `MonitorStarted`; coordinator `ClaimReleased` (all three, always — `promotion_requested` IS claim-holding)|the Attempt is `promotion_requested` **AND** the lane is still held by that exact `(P,A)` pair|the Attempt is `monitoring`; it IS in `monitored_attempts`; lane free; `last_autonomous_merge_at` is this event's instant|none of the three; Attempt still `promotion_requested`; lane still held; not monitored|
 
 **The commit point, and what happens after it.** "All or nothing" is a claim about
 VISIBILITY, and visibility changes at exactly one instant: the ref compare-and-swap — the
@@ -62,7 +62,7 @@ fast-forward push when the log has a remote, the local `update-ref` when it does
 earlier draft of this matrix said "a crash at ANY seam leaves no events", which is false
 after that instant and contradicted this plan's own `_after_push` test: once the push
 succeeds the whole transaction is durable, and only the local acknowledgement is missing.
-The honest contract has three parts, and all three are tested (Task 2 Step 3):
+The honest contract has three parts, and all three are tested (Task 3 Step 3):
 
 - **Before the commit point:** no event of the transaction is visible to any reader. The
   commit object may exist and be unreachable; unreachable is not visible.
@@ -86,12 +86,12 @@ Three consequences the rows encode, which no task may quietly contradict:
   advanced. It writes THREE events, and the two coordinator events are ordered
   `MonitorStarted` then `ClaimReleased` because BOTH fold branches check ownership against
   the current holder: reversed, the release clears the slot and `MonitorStarted` then has no
-  owner to match. That is only true because Task 11 ADDS the ownership check to
+  owner to match. That is only true because Task 12 ADDS the ownership check to
   `MonitorStarted` — an earlier draft asserted the order was enforced by the release's check
   alone, which is backwards (the release runs while the owner still exists, so the reversed
   order would have folded cleanly and the mutation test would have proved nothing).
 - **Rows 2, 3 and 4 all release the claim, so the release is TABLE-DRIVEN, not a special
-  case per call site.** `Transition.coordinator_effects` (Task 4) declares which coordinator
+  case per call site.** `Transition.coordinator_effects` (Task 5) declares which coordinator
   events a transition emits, and `cas_attempt_transition` emits exactly those. No task
   hand-writes "and then release" — that is the duplication Constitution I forbids, and it is
   how row 4 came to be missing a release in the first place.
@@ -102,7 +102,7 @@ Three consequences the rows encode, which no task may quietly contradict:
   dagger marks *must not leave the lane occupied*, not *always mutates the coordinator*."
   So "this row declares `ClaimReleased`" does NOT mean "a `ClaimReleased` exists"; it means
   one exists **iff the Attempt held the lane**. A checker that reads only the row rejects
-  the healthy non-holder terminal that Task 6 case 8 requires — the exact false positive a
+  the healthy non-holder terminal that Task 7 case 8 requires — the exact false positive a
   first draft of `assert_lane_consistent` shipped.
 
   The affected rows are not a remembered list. Deriving
@@ -118,7 +118,7 @@ Three consequences the rows encode, which no task may quietly contradict:
   this design (the lane is a singleton, and every release rides with the transition that
   leaves a claim-holding state).
 
-  **The WRITER derives it the same way** (`_claim_required`, Task 6) — this is one
+  **The WRITER derives it the same way** (`_claim_required`, Task 7) — this is one
   predicate with two readers, not two readings that ought to agree. An earlier draft had
   the writer gate on coordinator ownership while the checker gated on Attempt state, and
   that asymmetry is a defect, not a redundancy: where the two disagree, an ownership-gated
@@ -127,7 +127,7 @@ Three consequences the rows encode, which no task may quietly contradict:
   boundary. What the coordinator is still consulted for is the transaction's precondition —
   when the Attempt's state says a release is required, the commit's parent must show that
   exact pair holding the lane, or the whole transaction loses. Detecting a coordinator that
-  is corrupt in some OTHER way is `assert_lane_consistent`'s job, which Task 13's driver
+  is corrupt in some OTHER way is `assert_lane_consistent`'s job, which Task 14's driver
   runs before any lane work; the writer's job is to never create one.
 
   The three checkable statements, for an Attempt event `E` whose row declares effects:
@@ -141,7 +141,7 @@ Three consequences the rows encode, which no task may quietly contradict:
      released somebody ELSE's claim.
 - **The crash column is identical everywhere because it is enforced identically.** One
   commit, one ref compare-and-swap. Each row's task carries a crash test at
-  `_after_parent` and at `_before_ref_update`, and Task 12 re-attacks rows 2 and 3 under
+  `_after_parent` and at `_before_ref_update`, and Task 13 re-attacks rows 2 and 3 under
   live contention.
 
 ### The crash seams are part of the contract
@@ -177,41 +177,41 @@ are deliberate:
 
 |Reference|Where|Why it is not a forward dependency|
 |-|-|-|
-|`cas_claim` in Tasks 5, 6|prose + a `coord_event` call-site list|1A already ships it. Task 7 REPLACES it; it is not first created there. Task 6's tests use `seed_claim`, not `cas_claim`, so they do not depend on which version exists.|
-|`cas_reclaim` in Task 6|an error-message string in `cas_attempt_transition`|A literal naming the function a caller should use instead. Nothing calls it.|
-|`cas_reclaim` in Task 8|one sentence saying it does not exist yet|Task 8 was moved ahead of reclaim precisely so it does not depend on it; the sentence records that.|
-|`TRANSITIONS` / `parse_spec_transitions` in Task 1|prose describing what Task 4 will compare, plus one verification command|Task 1 Step 6 already says to defer that command to Task 4 Step 5 if Task 1 runs first, and to note the deferral in the commit body.|
-|`cas_attempt_transition` (Task 6) in Task 4|two comments explaining what an unprojectable history costs|The reason `NON_TRANSITION_EVENTS` exists. Task 4 writes a constant and a fold; nothing there calls it.|
-|`assert_lane_consistent` (Task 7) in Task 4|one comment naming `CLAIM_HOLDING_STATES`'s consumer|Tells a Task-4 implementer why the set is exported rather than kept private. No dependency.|
-|`cas_heartbeat` (Task 9) in Task 4|one comment naming the only writer of `ClaimHeartbeat`|Same shape: it records which task will produce the event this constant exists for.|
-|`_claim_required` (Task 6) in Task 4|`holds_claim`'s docstring, listing its three callers|The point of the docstring is that the callers must not diverge; naming them is the guard. No dependency.|
-|`assert_lane_consistent` (Task 7) in Task 6|two comments on why the writer derives applicability from Attempt state|The reason the writer's rule is what it is. Task 6 neither calls nor tests the auditor.|
+|`cas_claim` in Tasks 5, 6|prose + a `coord_event` call-site list|1A already ships it. Task 8 REPLACES it; it is not first created there. Task 7's tests use `seed_claim`, not `cas_claim`, so they do not depend on which version exists.|
+|`cas_reclaim` in Task 7|an error-message string in `cas_attempt_transition`|A literal naming the function a caller should use instead. Nothing calls it.|
+|`cas_reclaim` in Task 9|one sentence saying it does not exist yet|Task 9 was moved ahead of reclaim precisely so it does not depend on it; the sentence records that.|
+|`TRANSITIONS` / `parse_spec_transitions` in Task 1|prose describing what Task 5 will compare, plus one verification command|Task 1 Step 6 already says to defer that command to Task 5 Step 5 if Task 1 runs first, and to note the deferral in the commit body.|
+|`cas_attempt_transition` (Task 7) in Task 5|two comments explaining what an unprojectable history costs|The reason `NON_TRANSITION_EVENTS` exists. Task 5 writes a constant and a fold; nothing there calls it.|
+|`assert_lane_consistent` (Task 8) in Task 5|one comment naming `CLAIM_HOLDING_STATES`'s consumer|Tells a Task-4 implementer why the set is exported rather than kept private. No dependency.|
+|`cas_heartbeat` (Task 10) in Task 5|one comment naming the only writer of `ClaimHeartbeat`|Same shape: it records which task will produce the event this constant exists for.|
+|`_claim_required` (Task 7) in Task 5|`holds_claim`'s docstring, listing its three callers|The point of the docstring is that the callers must not diverge; naming them is the guard. No dependency.|
+|`assert_lane_consistent` (Task 8) in Task 7|two comments on why the writer derives applicability from Attempt state|The reason the writer's rule is what it is. Task 7 neither calls nor tests the auditor.|
 
 Two boundary defects the audit DID find, both now fixed: `CLAIM_HOLDING_STATES` was
-specified inside Task 7 while belonging to Task 4's module (a Task-4 implementer reading
-only their own brief would never have written it), and Task 6's claim setup depended on a
-`cas_claim` that could not produce a claimed Attempt until Task 7 — resolved by the
-`seed_claim` fixture rather than by reordering, since Task 7 needs Task 6's
+specified inside Task 8 while belonging to Task 5's module (a Task-4 implementer reading
+only their own brief would never have written it), and Task 7's claim setup depended on a
+`cas_claim` that could not produce a claimed Attempt until Task 8 — resolved by the
+`seed_claim` fixture rather than by reordering, since Task 8 needs Task 7's
 `cas_attempt_transition` for its own preludes and the dependency runs both ways.
 
 Re-run after the conditional-effects revision: the three new crossings above are all
 comments, and the round's other additions introduce none — `NON_TRANSITION_EVENTS` and
-`CLAIM_HOLDING_STATES` are Task 4's and are consumed only later; `_validate_claim_pair`
-and `_acquired_for` are created and used within Task 7.
+`CLAIM_HOLDING_STATES` are Task 5's and are consumed only later; `_validate_claim_pair`
+and `_acquired_for` are created and used within Task 8.
 
 Re-run again after the writer/checker unification: `holds_claim` and `walk_attempt` are
-Task 4's and flow forward to Tasks 6 and 7; `_claim_required` is created and used within
-Task 6. The two crossings it added are both docstrings naming the counterpart rule, which
+Task 5's and flow forward to Tasks 6 and 7; `_claim_required` is created and used within
+Task 7. The two crossings it added are both docstrings naming the counterpart rule, which
 is the point of those docstrings.
 
 Re-run after the replay-integrity revision, which found a REAL defect and moved three
-symbols to fix it. Task 6's `replayed_transaction` raised `LaneInconsistent` and its test 14
-asserted that raise, while `LaneInconsistent` was listed as Task 7's — a test that could
+symbols to fix it. Task 7's `replayed_transaction` raised `LaneInconsistent` and its test 14
+asserted that raise, while `LaneInconsistent` was listed as Task 8's — a test that could
 not fail at the task stating it, and the exact shape this audit exists to catch. Making the
-replay check integrity and provenance would have added `events_by_commit` (also Task 7's) to
-the same backwards edge. Both now belong to **Task 6**, the first task that needs them,
-along with `assert_partner_intact`; Task 7 CONSUMES all three, which runs the right way.
-`_PAIRINGS`, `_CLAIM_PAIR_FIELDS` and `_validate_claim_pair` stay in Task 7 — the auditor's
+replay check integrity and provenance would have added `events_by_commit` (also Task 8's) to
+the same backwards edge. Both now belong to **Task 7**, the first task that needs them,
+along with `assert_partner_intact`; Task 8 CONSUMES all three, which runs the right way.
+`_PAIRINGS`, `_CLAIM_PAIR_FIELDS` and `_validate_claim_pair` stay in Task 8 — the auditor's
 row declarations and row 1's bidirectional half-presence check are that task's, and they are
 created and used there.
 
@@ -225,18 +225,18 @@ created and used there.
 
 **Out of scope (later slices):** the implementer, the candidate publisher, container testing, evaluation, promotion/revert side effects, discovery + issue ranking. Those transitions are DECLARED in `TRANSITIONS` (so the machine is complete and the model tests exercise it) but no producer drives them in this slice. A transition with no producer is not dead code — it is the contract the next slice implements against.
 
-**Deliberately NOT changed:** `run_proposal_review` and the 1B convergence wiring keep their current signatures; Task 13 adds the terminal write at the ONE call site that already computes the verdict.
+**Deliberately NOT changed:** `run_proposal_review` and the 1B convergence wiring keep their current signatures; Task 14 adds the terminal write at the ONE call site that already computes the verdict.
 
 ## File Structure
 
-- `src/llmxive/git_event_log.py` — **modified**: `TransactionResult`, `append_transaction`, `Seam` (the test-only crash-seam type, named once and forwarded by every writer above it), and one shared tree builder (`_commit_events`) that both the single-event and multi-subtree writers call. One responsibility: git-native CAS over an append-only log, now across several subtrees of one ref.
+- `src/llmxive/git_event_log.py` — **modified**: `Seam` + `_sync_local_ref` (Task 2, the pre-existing rewind fix), then `TransactionResult`, `append_transaction`, and one shared tree builder (`_commit_events`) that both the single-event and multi-subtree writers call. One responsibility: git-native CAS over an append-only log, now across several subtrees of one ref.
 - `src/llmxive/self_improvement/lane_log.py` — **modified**: `append_many`, the lane-level transaction with per-stream expected revisions and one predicate over every touched stream; `list_problem_streams` (a `git ls-tree` over the event dir — "which streams exist" is a question about the ref's tree, so the store answers it); `events_by_commit` (one `git log --diff-filter=A` pass, so "were these two events written by ONE transaction" is checkable rather than merely asserted — same reason: the ref's shape is this module's knowledge).
-- `src/llmxive/self_improvement/policy.py` — the Policy Contract v1 constants, derived where the spec derives them. Created in Task 3 (the clock is the first consumer), extended in Task 9 with the phase budgets and counter caps. Imports nothing from the lane, so every other module may depend on it.
+- `src/llmxive/self_improvement/policy.py` — the Policy Contract v1 constants, derived where the spec derives them. Created in Task 4 (the clock is the first consumer), extended in Task 10 with the phase budgets and counter caps. Imports nothing from the lane, so every other module may depend on it.
 - `src/llmxive/self_improvement/clock.py` — `AuthoritativeClock` protocol, `TimeSample`, `GitHubDateClock`, `FixedAnchorClock` (test/CI double with real logic), `NoTrustedTimeError`, `parse_http_date`, `MAX_CLOCK_REGRESSION_S`. One responsibility: producing an instant the whole lane can compare — monotonic, floored, and fail-closed past the tolerance rather than frozen.
 - `src/llmxive/self_improvement/lifecycle.py` — `AttemptState`, `ProblemDisposition`, `Transition`, `TRANSITIONS`, `TERMINAL_STATES`, `COUNTED_TERMINALS`, `CLAIM_HOLDING_STATES`, `NON_TRANSITION_EVENTS`, `walk_attempt`, `project_attempt`, `_claim_required`, `cas_attempt_transition`, `IllegalTransition`. `walk_attempt` is the single fail-closed fold and `_claim_required` the single applicability predicate — the writer and the auditor consume both rather than each carrying its own. One responsibility: what may legally happen to an Attempt.
 - `src/llmxive/self_improvement/intents.py` — `IntentDisposition`, `IntentRecord`, `Reconciler`, `record_intent`, `observe_intent`, `unreconciled_intents`, `LaneQuarantine`. One responsibility: the saga's intent bookkeeping and its four outcomes.
 - `src/llmxive/self_improvement/cooldown.py` — `CooldownCause`, `CooldownState`, `problem_cooldown`, `cas_cooldown`. One responsibility: the two independent counters.
-- `src/llmxive/self_improvement/coordinator.py` — **modified**: `claim_generation` on `LaneCoordinator`; `ClaimTerms`; `cas_heartbeat`; `cas_reclaim`; `ClaimOutcome.generation`; `MonitorEnded` + `last_autonomous_merge_at` folding; `assert_lane_consistent`/`LaneInconsistent`. No `cas_release_terminal` and no `cas_promotion_observed`: Task 2's transaction makes the state the first would repair unreachable, and the second is what `cas_attempt_transition` plus the table's declared effects already does.
+- `src/llmxive/self_improvement/coordinator.py` — **modified**: `claim_generation` on `LaneCoordinator`; `ClaimTerms`; `cas_heartbeat`; `cas_reclaim`; `ClaimOutcome.generation`; `MonitorEnded` + `last_autonomous_merge_at` folding; `assert_lane_consistent`/`LaneInconsistent`. No `cas_release_terminal` and no `cas_promotion_observed`: Task 3's transaction makes the state the first would repair unreachable, and the second is what `cas_attempt_transition` plus the table's declared effects already does.
 - `src/llmxive/self_improvement/events.py` — **modified**: new event types + validators (vocabulary extension only; `SCHEMA_VERSION` stays 1, per Slice 1A's F7 rule); `MonitorStarted` gains `merged_at`; `_coord_event` becomes the public `coord_event` both `coordinator.py` and `lifecycle.py` build coordinator events with.
 - `src/llmxive/self_improvement/__init__.py` — **modified**: exports.
 - `specs/025-self-improvement-lane/spec.md` — **modified** (Task 1, rev 23): the store's real shape, terminal-and-release atomicity, and the clock's sampling construction.
@@ -377,7 +377,7 @@ Event cell. Six edits, all in `specs/025-self-improvement-lane/spec.md:300-331`:
    what makes "which stream is this event on?" answerable from the type alone.
 
 A test then parses this table and compares COMPLETE ROWS — from-states, to-state,
-idempotency key, and effects — against `TRANSITIONS` in both directions (Task 4). The
+idempotency key, and effects — against `TRANSITIONS` in both directions (Task 5). The
 column set and the markers are therefore a contract: changing either means updating the
 parser in the same commit.
 
@@ -483,7 +483,7 @@ print('OK')
 Expected: `rows with != 6 fields: []`, `table rows: 28`, then `OK`.
 
 Then run the parser itself — the amendment is not done until the drift test can consume it.
-This is the same check Task 4's test performs, run early so a table defect is found here
+This is the same check Task 5's test performs, run early so a table defect is found here
 rather than five tasks later:
 
 ```bash
@@ -497,8 +497,8 @@ assert rows['PromotionObserved'][3]==('MonitorStarted','ClaimReleased'), rows['P
 print('OK')
 "
 ```
-Expected: `attempt-transition rows parsed: 22` then `OK`. (Task 4 writes the helper; if
-Task 1 runs first, defer this command to Task 4 Step 5 and note it in the commit body —
+Expected: `attempt-transition rows parsed: 22` then `OK`. (Task 5 writes the helper; if
+Task 1 runs first, defer this command to Task 5 Step 5 and note it in the commit body —
 do not skip it.)
 
 - [ ] **Step 7: Commit**
@@ -512,7 +512,164 @@ git log --oneline -1
 
 ---
 
-### Task 2: Atomic multi-subtree transactions on the lane ref
+### Task 2: Fix the post-push local-ref rewind in `append_to_log`
+
+**A pre-existing defect in shared code, fixed on its own.** Nothing in this task is
+Slice-2 work: `append_to_log` is what the 026 credit ledger and Slice 1A's lane log
+already use, and the bug is reachable by both today. Maintainer decision (2026-08-02, open
+question 7): land it as a separate commit immediately before the transaction work, so it
+carries a focused regression test, reviews on its own terms, and can be reverted or
+bisected without touching the slice.
+
+After a successful push, `append_to_log` runs `update-ref <ref> <new>` with NO expected-old
+value ([git_event_log.py:684-686](../../../src/llmxive/git_event_log.py#L684-L686)), which
+SETS the local ref regardless of where it now points. Two writers in one clone reach that:
+A pushes `P→C_A` and stalls before its local update; B syncs (local ref `= C_A`), builds
+`C_B` on it, pushes `C_A→C_B`, and updates local (`= C_B`); A then resumes and rewinds the
+local ref from `C_B` to `C_A`. **B's event disappears from every local read until the next
+`sync_and_verify`** — and in this lane the read that matters is a claim decision, so the
+consequence is two runners believing the lane is free.
+
+**Files:**
+- Modify: `src/llmxive/git_event_log.py`
+- Test: `tests/integration/test_git_event_log.py` (extends the existing module)
+
+**Interfaces:**
+- Consumes: `LogRef`, `_rev`, `_git`, `_ZERO_OID`, `GitLogError` (all existing).
+- Produces: `_sync_local_ref(repo, log, commit, parent) -> None`, used by `append_to_log`
+  here and by `append_transaction` in Task 3.
+
+- [ ] **Step 1: Write the failing tests**
+
+Both go in `tests/integration/test_git_event_log.py`, against real repos. Neither mentions
+`append_transaction`, which does not exist yet — that is what makes this task reviewable
+alone.
+
+```python
+def test_a_successful_append_never_rewinds_a_local_ref_that_moved(repo, bare_remote):
+    """The defect at the seam where it actually occurs: between OUR push and OUR local
+    update. Before the push, a competing writer simply loses the fast-forward and we
+    retry — no rewind is possible. So the second writer completes its whole cycle inside
+    `_after_push`."""
+    ahead = {}
+
+    def a_second_writer_finishes_first():
+        ahead["commit"] = _independent_append(repo, {"event_id": "other"},
+                                              remote=bare_remote)
+
+    result = _append(repo, {"event_id": "ours"}, remote=bare_remote,
+                     _after_push=a_second_writer_finishes_first)
+    tip = _rev_parse(repo, LEDGER_REF)
+    assert tip == ahead["commit"], "the local ref was rewound past a newer commit"
+    assert _is_ancestor(repo, result.commit, tip), "our commit is not reachable locally"
+    assert {e["event_id"] for e in _read(repo)} == {"other", "ours"}
+
+
+def test_sync_local_ref_leaves_a_newer_tip_alone_but_fails_on_divergence(repo):
+    """The two outcomes that are NOT the same: a moved ref that CONTAINS our commit is
+    another writer getting ahead of us (leave it), and one that does not is a divergence
+    (fail closed). Collapsing them either way is a bug — ignoring all failures hides
+    divergence; raising on all of them turns a normal race into an error."""
+    from llmxive.git_event_log import _sync_local_ref
+
+    parent = _rev_parse(repo, LEDGER_REF)
+    ours = _empty_commit_on(repo, parent)
+    newer = _empty_commit_on(repo, ours)          # contains `ours`
+    _force_ref(repo, LEDGER_REF, newer)
+    _sync_local_ref(repo, _log(), ours, parent)   # no rewind, no raise
+    assert _rev_parse(repo, LEDGER_REF) == newer
+
+    unrelated = _empty_commit_on(repo, parent)    # does NOT contain `ours`
+    _force_ref(repo, LEDGER_REF, unrelated)
+    with pytest.raises(GitLogError, match="diverged"):
+        _sync_local_ref(repo, _log(), ours, parent)
+```
+
+`append_to_log` needs an `_after_push` seam to write the first test at all — the same
+TEST-ONLY seam contract the rest of the slice follows, applied to the writer that already
+exists. That is where the shared type is introduced:
+
+```python
+#: A TEST-ONLY crash seam: a zero-argument callback a test raises from to stop the process
+#: at a named point in the commit sequence. Named once so every entry point that forwards
+#: the seams reads as one contract rather than as a dozen incidental parameters.
+Seam = Callable[[], None] | None
+```
+
+Add `_after_push: Seam = None` (keyword-only) to `append_to_log`, called immediately after
+a successful push and before the local ref update.
+
+- [ ] **Step 2: Run to verify they fail**
+
+Run: `python -m pytest tests/integration/test_git_event_log.py -q -k "rewind or sync_local_ref"`
+Expected: FAIL — `TypeError: append_to_log() got an unexpected keyword argument
+'_after_push'`, then (once the seam exists) the rewind assertion.
+
+- [ ] **Step 3: Implement**
+
+```python
+def _sync_local_ref(repo: Path, log: LogRef, commit: str, parent: str | None) -> None:
+    """Point the local ref at what we just pushed, WITHOUT rewinding it.
+
+    The CAS is the same one the local-only path uses. Failure is not an error here: the
+    push already made ``commit`` durable, so a moved local ref means another writer in this
+    clone got ahead of us, and the correct action is to leave their newer tip alone. What
+    is NOT acceptable is a local ref that does not contain our commit at all — that is a
+    divergence, not a race, and it fails closed."""
+    proc = _git(["update-ref", log.ref, commit, parent or _ZERO_OID],
+                cwd=repo, identity=log.git_identity, check=False)
+    if proc.returncode == 0:
+        return
+    current = _rev(repo, log.ref, identity=log.git_identity)
+    contains = _git(["merge-base", "--is-ancestor", commit, current or _ZERO_OID],
+                    cwd=repo, identity=log.git_identity, check=False)
+    if current is None or contains.returncode != 0:
+        raise GitLogError(
+            f"pushed {commit} but the local {log.ref} is {current} and does not contain it "
+            "— local and remote have diverged"
+        )
+```
+
+`append_to_log` calls `_sync_local_ref(repo, log, new_commit, parent)` in place of its bare
+`update-ref`.
+
+- [ ] **Step 4: Run the new tests**
+
+Run: `python -m pytest tests/integration/test_git_event_log.py -q`
+Expected: all pass.
+
+- [ ] **Step 5: Run the OTHER consumers of this code path**
+
+This edits a helper the credit ledger depends on, so the ledger's own suite is the gate,
+not an afterthought — and the lane log's, since Slice 1A writes through the same function:
+
+```bash
+python -m pytest tests/integration/test_git_event_log.py \
+  tests/integration/test_self_improvement_lane_log.py \
+  tests/integration/test_credit_ledger_transport.py \
+  tests/integration/test_self_improvement_audit_sink.py -q
+```
+
+Those four are `append_to_log`'s complete consumer set, established by
+`grep -rl append_to_log src/`: the lane log, the credit ledger (through
+`model_selection/ledger_transport.py`), and the audit sink. The audit sink is easy to
+forget — it is not a ledger and not the lane, but it writes through the same function.
+
+Expected: all pass, with no test edited to make them pass. If one fails, the fix is wrong
+for a consumer it has to serve — that is the finding this step exists to produce.
+
+- [ ] **Step 6: Commit**
+
+```bash
+PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/git_event_log.py \
+  tests/integration/test_git_event_log.py \
+  -m "fix(git-event-log): never rewind the local ref after a successful push"
+git log --oneline -1
+```
+
+---
+
+### Task 3: Atomic multi-subtree transactions on the lane ref
 
 This is the foundation the rest of the slice rests on, and it exists because the first draft
 of this plan asserted something false: that the coordinator and each Problem live on
@@ -537,8 +694,8 @@ on, so a stale generation is REJECTED, not merely noticed.
 - Test: `tests/integration/test_self_improvement_lane_transaction.py`
 
 **Interfaces:**
-- Consumes: `LogRef`, `_rev`, `_read_log_at`, `_push_fast_forward`, `sync_and_verify`, `GitLogDenied`, `GitLogError`, `GitLogContention` (all existing, `git_event_log.py`).
-- Produces: `TransactionResult(commit, seqs, created)`, `Seam`, `append_transaction(...)` in `git_event_log.py`; `append_many(...)` in `lane_log.py`.
+- Consumes: `LogRef`, `_rev`, `_read_log_at`, `_push_fast_forward`, `sync_and_verify`, `GitLogDenied`, `GitLogError`, `GitLogContention` (all existing, `git_event_log.py`); `Seam` + `_sync_local_ref` (Task 2).
+- Produces: `TransactionResult(commit, seqs, created)`, `append_transaction(...)` in `git_event_log.py`; `append_many(...)` in `lane_log.py`.
 
 - [ ] **Step 1: Refactor the tree builder to take many events (no behavior change)**
 
@@ -602,15 +759,25 @@ def _append_commit(
 The credit ledger and slice 1A both append through `_append_commit`; if the refactor altered
 tree layout or commit shape, they fail here rather than in a later task.
 
-Run: `python -m pytest tests/integration/test_self_improvement_lane_log.py tests/integration/test_self_improvement_coordinator_cas.py tests/unit/test_model_selection_ledger_transport.py -q`
-Expected: green, unchanged.
+```bash
+python -m pytest tests/integration/test_self_improvement_lane_log.py \
+  tests/integration/test_self_improvement_coordinator_cas.py \
+  tests/integration/test_credit_ledger_transport.py \
+  tests/integration/test_self_improvement_audit_sink.py -q
+```
+
+Expected: green, unchanged. This is a GATE, not a smoke check — maintainer decision
+(2026-08-02, open question 3): further slice work is blocked on the existing ledger and
+lane-log suites passing. A failure here means the refactor changed the shared transport's
+behaviour for someone else, and the answer is to fix the refactor, never the other
+consumer's test.
 
 - [ ] **Step 3: Write the failing transaction tests**
 
 `tests/integration/test_git_event_log_transaction.py`, against real temp-git repos:
 
 ```python
-"""Multi-subtree transactions on one ref (spec 025 slice 2, Task 2).
+"""Multi-subtree transactions on one ref (spec 025 slice 2, Task 3).
 
 Every case here is about ONE question: can an observer ever see half of a transaction?
 """
@@ -724,7 +891,9 @@ def test_a_replay_reports_the_STORED_seqs_not_recomputed_ones(repo):
 
 
 def test_a_successful_push_never_rewinds_a_local_ref_that_moved(repo, bare_remote):
-    """The pre-existing `append_to_log` defect, at the seam where it actually occurs.
+    """Task 2 fixed this for `append_to_log`; this is the same guarantee at the
+    TRANSACTION writer's seam, because a shared helper is only shared while both callers
+    use it.
 
     The window is between OUR push and OUR local update — not before the push, where a
     competing push would simply lose the fast-forward and force a retry. So the second
@@ -799,22 +968,6 @@ def test_both_writers_sync_the_local_ref_through_the_same_helper(writer, repo):
     source = inspect.getsource(getattr(git_event_log, writer))
     assert "_sync_local_ref" in source
     assert '"update-ref", log.ref, new_commit]' not in source, "bare update-ref survives"
-
-
-def test_sync_local_ref_leaves_a_newer_tip_alone_but_fails_on_divergence(repo):
-    from llmxive.git_event_log import _sync_local_ref
-
-    parent = _rev_parse(repo, LANE_REF)
-    ours = _empty_commit_on(repo, parent)
-    newer = _empty_commit_on(repo, ours)          # contains `ours`
-    _force_ref(repo, LANE_REF, newer)
-    _sync_local_ref(repo, _log(), ours, parent)   # no rewind, no raise
-    assert _rev_parse(repo, LANE_REF) == newer
-
-    unrelated = _empty_commit_on(repo, parent)    # does NOT contain `ours`
-    _force_ref(repo, LANE_REF, unrelated)
-    with pytest.raises(GitLogError, match="diverged"):
-        _sync_local_ref(repo, _log(), ours, parent)
 
 
 def test_the_predicate_sees_every_touched_stream_at_ONE_parent(repo):
@@ -935,12 +1088,6 @@ class TransactionResult:
     commit: str
     seqs: Mapping[tuple[str, str], int]
     created: bool
-
-
-#: A TEST-ONLY crash seam: a zero-argument callback a test raises from to stop the process
-#: at a named point in the commit sequence. Named once so the four entry points that
-#: forward the seams read as one contract rather than as twelve incidental parameters.
-Seam = Callable[[], None] | None
 
 
 def append_transaction(
@@ -1086,46 +1233,9 @@ def append_transaction(
     )
 ```
 
-Four supporting edits in the same file:
-
-0. **Fix the post-push local-ref rewind — in BOTH writers.** After a successful push,
-   `append_to_log` runs `update-ref <ref> <new>` with NO expected-old value
-   (`git_event_log.py:684-686`), which SETS the local ref regardless of where it now points.
-   Two writers in one clone reach that: A pushes `P→C_A` and stalls before its local update;
-   B syncs (local ref `= C_A`), builds `C_B` on it, pushes `C_A→C_B`, and updates local
-   (`= C_B`); A then resumes and rewinds the local ref from `C_B` to `C_A`. B's event
-   disappears from every local read until the next `sync_and_verify` — and the read that
-   matters is a claim decision. It is a pre-existing defect, it is on the path this
-   transaction copies, and this slice's whole premise is that the ref is the serialization
-   point, so it gets fixed here rather than inherited:
-
-```python
-def _sync_local_ref(repo: Path, log: LogRef, commit: str, parent: str | None) -> None:
-    """Point the local ref at what we just pushed, WITHOUT rewinding it.
-
-    The CAS is the same one the local-only path uses. Failure is not an error here: the
-    push already made ``commit`` durable, so a moved local ref means another writer in this
-    clone got ahead of us, and the correct action is to leave their newer tip alone. What
-    is NOT acceptable is a local ref that does not contain our commit at all — that is a
-    divergence, not a race, and it fails closed."""
-    proc = _git(["update-ref", log.ref, commit, parent or _ZERO_OID],
-                cwd=repo, identity=log.git_identity, check=False)
-    if proc.returncode == 0:
-        return
-    current = _rev(repo, log.ref, identity=log.git_identity)
-    contains = _git(["merge-base", "--is-ancestor", commit, current or _ZERO_OID],
-                    cwd=repo, identity=log.git_identity, check=False)
-    if current is None or contains.returncode != 0:
-        raise GitLogError(
-            f"pushed {commit} but the local {log.ref} is {current} and does not contain it "
-            "— local and remote have diverged"
-        )
-```
-
-   `append_to_log` calls `_sync_local_ref(repo, log, new_commit, parent)` in place of its
-   bare `update-ref`. One implementation, both writers.
-
-Three more:
+Three supporting edits in the same file. `_sync_local_ref` is NOT among them: Task 2
+already landed it, and `append_transaction` calls the same helper — one implementation,
+both writers, which is the property Task 2's parity test pins.
 
 1. `from dataclasses import dataclass, field, replace` and
    `from collections.abc import Callable, Mapping, Sequence` at the top.
@@ -1272,7 +1382,7 @@ git log --oneline -1
 ---
 
 ---
-### Task 3: Authoritative clock (FR-036)
+### Task 4: Authoritative clock (FR-036)
 
 Everything downstream is a duration, so this comes early. The design point that makes or
 breaks it: **the wall clock is never read.** An offset sampled against local wall time and
@@ -1310,6 +1420,7 @@ from pathlib import Path
 
 import pytest
 
+from llmxive.self_improvement import clock as clock_mod
 from llmxive.self_improvement.clock import (
     MAX_CLOCK_REGRESSION_S,
     FixedAnchorClock,
@@ -1363,6 +1474,37 @@ def test_parse_http_date_refuses_anything_it_cannot_parse(bad):
     # Fail closed: a silently-wrong anchor poisons every duration in the lane.
     with pytest.raises(NoTrustedTimeError):
         parse_http_date(bad)
+
+
+def test_the_default_fetch_REQUIRES_a_token_and_never_calls_out_without_one(monkeypatch):
+    # Maintainer decision (open question 1): a safety-critical clock does not fall back to
+    # the unauthenticated 60/hr per-IP allowance, which a co-tenant can exhaust for us.
+    # Asserting the network is never reached is the point — an unauthenticated request that
+    # HAPPENS to succeed today is the failure this refuses to depend on.
+    for name in ("GITHUB_TOKEN", "GH_TOKEN"):
+        monkeypatch.delenv(name, raising=False)
+    def _never(*a, **kw):
+        raise AssertionError("the clock attempted an unauthenticated request")
+    monkeypatch.setattr(clock_mod.urllib.request, "urlopen", _never)
+    with pytest.raises(NoTrustedTimeError, match="GITHUB_TOKEN"):
+        clock_mod._default_fetch()
+
+
+def test_the_default_fetch_sends_the_token_it_found(monkeypatch):
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    monkeypatch.setenv("GITHUB_TOKEN", "t0ken")
+    sent = {}
+    class _Resp:
+        headers = {"Date": DATE_HDR}
+        def __enter__(self): return self
+        def __exit__(self, *exc): return False
+    def _capture(request, timeout=None):
+        sent.update(request.headers)
+        return _Resp()
+    monkeypatch.setattr(clock_mod.urllib.request, "urlopen", _capture)
+    assert clock_mod._default_fetch() == DATE_HDR
+    # urllib title-cases header keys.
+    assert sent["Authorization"] == "Bearer t0ken"
 
 
 def test_the_clock_reports_authority_time_and_tracks_monotonic_elapsed():
@@ -1594,7 +1736,7 @@ Expected: collection error, `ModuleNotFoundError: llmxive.self_improvement.clock
 
 - [ ] **Step 3a: Create `policy.py` with the timing constants**
 
-The clock is the Policy Contract's first consumer, so the module is born here and Task 9
+The clock is the Policy Contract's first consumer, so the module is born here and Task 10
 appends the phase budgets to it. Splitting these across two modules — or letting the clock
 keep private copies of `refresh_interval` and `max_sample_rtt` while `policy.py` declares
 them again — is the Constitution I violation this plan keeps citing, one file away.
@@ -1605,7 +1747,7 @@ them again — is the Constitution I violation this plan keeps citing, one file 
 LLM-call-ceiling row is the precedent). ONE module: every bound the lane enforces is read
 from here, so a value cannot be edited in one consumer and not another.
 
-Task 9 appends the post-claim phase budgets and the counter caps. This module imports
+Task 10 appends the post-claim phase budgets and the counter caps. This module imports
 nothing from the lane, which is what lets `clock.py` depend on it without a cycle."""
 
 MINUTE = 60
@@ -1644,6 +1786,7 @@ from __future__ import annotations
 
 import datetime as dt
 import email.utils
+import os
 import time
 import urllib.request
 from collections.abc import Callable
@@ -1652,8 +1795,9 @@ from typing import Protocol
 
 from llmxive.self_improvement import policy
 
-#: Read from any authenticated response; ``/rate_limit`` is documented as not counting
+#: Read from an AUTHENTICATED response; ``/rate_limit`` is documented as not counting
 #: against the rate limit, so a run that has not yet called the API pays nothing for it.
+#: The request is never made unauthenticated — see `_github_token`.
 RATE_LIMIT_URL = "https://api.github.com/rate_limit"
 
 #: Policy Contract: re-measure each ``heartbeat_interval`` so a long run cannot drift. The
@@ -1735,8 +1879,35 @@ def parse_http_date(raw: str) -> dt.datetime:
     return parsed.astimezone(dt.timezone.utc)
 
 
+def _github_token() -> str:
+    """The token the time authority is read UNDER. No token, no trusted time.
+
+    Maintainer decision (2026-08-02, open question 1): the clock is safety-critical — its
+    output decides whether a live claim-holder is evicted — so it may not depend on the
+    unauthenticated 60/hr per-IP allowance, which a busy shared runner can exhaust and
+    which any other tenant of that IP can exhaust FOR us. An exhausted allowance would not
+    look like an outage; it would look like a run with no time, at an unpredictable
+    moment. FR-036 already says no trusted time ⇒ no lane work, so requiring the token is
+    not a new failure mode, it is the existing one made deterministic.
+
+    Offline and local work injects `FixedAnchorClock` instead — a real-logic double, not a
+    mock — so nothing needs an unauthenticated escape hatch."""
+    for name in ("GITHUB_TOKEN", "GH_TOKEN"):
+        token = os.environ.get(name)
+        if token:
+            return token
+    raise NoTrustedTimeError(
+        "no GITHUB_TOKEN/GH_TOKEN: the time authority must be read under an authenticated "
+        "request, and a run that cannot establish trusted time performs NO lane work "
+        "(FR-036). Inject FixedAnchorClock for offline or local runs.")
+
+
 def _default_fetch() -> str:
-    with urllib.request.urlopen(RATE_LIMIT_URL, timeout=10) as resp:  # noqa: S310
+    request = urllib.request.Request(  # noqa: S310
+        RATE_LIMIT_URL,
+        headers={"Authorization": f"Bearer {_github_token()}",
+                 "Accept": "application/vnd.github+json"})
+    with urllib.request.urlopen(request, timeout=10) as resp:  # noqa: S310
         header = resp.headers.get("Date")
     if not header:
         raise NoTrustedTimeError(f"{RATE_LIMIT_URL} returned no Date header")
@@ -1942,7 +2113,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/clock.py
 
 ---
 
-### Task 4: The transition table as data + `project_attempt`
+### Task 5: The transition table as data + `project_attempt`
 
 **Files:**
 - Create: `src/llmxive/self_improvement/lifecycle.py`
@@ -1976,7 +2147,7 @@ from llmxive.self_improvement.lifecycle import (
     project_attempt,
 )
 
-from tests.helpers.lane_lifecycle import attempt_event, drive  # Task 4 Step 3 helper
+from tests.helpers.lane_lifecycle import attempt_event, drive  # Task 5 Step 3 helper
 
 
 def test_every_transition_names_states_that_exist():
@@ -2098,7 +2269,7 @@ def test_the_code_table_matches_the_spec_table():
     # forces a decision here rather than surfacing as a fail-closed projection in
     # production. `PublishRequested→Published` is not a literal Attempt event type: it
     # names the publish SAGA, whose records are the `SideEffectRequested`/
-    # `SideEffectObserved` pair in `intents.py` (Task 10 asserts neither is an Attempt
+    # `SideEffectObserved` pair in `intents.py` (Task 11 asserts neither is an Attempt
     # event). Nothing lands on the Attempt's own stream for it.
     _NOT_ATTEMPT_STREAM_EVENTS = {"PublishRequested→Published"}
     assert spec_non_transitions - NON_TRANSITION_EVENTS == _NOT_ATTEMPT_STREAM_EVENTS, (
@@ -2197,11 +2368,33 @@ def test_one_fold_means_one_verdict_on_an_illegal_history():
         list(walk_attempt(illegal))
 
 
+@pytest.mark.parametrize("history, message", [
+    ([], "an Attempt projection needs at least its Proposed event"),
+    (_history("Proposed", "Implementing"), "illegal transition"),
+    (_history("Proposed", "Rejected", "ReviewAborted"), "already terminal"),
+    ([*_history("Proposed"), attempt_event("NotAnEvent", seq=1)], "unknown Attempt event"),
+])
+def test_project_attempt_raises_the_MESSAGE_it_is_specified_to_raise(history, message):
+    """Maintainer decision (2026-08-02, open question 12): `project_attempt`'s error
+    messages are a compatibility requirement, so they are PINNED rather than left to
+    whatever `walk_attempt` happens to say.
+
+    The decision's premise needs one correction, recorded here because a future reader
+    will otherwise look for something that does not exist: there are no pre-existing 1A
+    projection tests to run — `grep -rn project_attempt src/ tests/` returns nothing
+    before this task, because this slice introduces the function. So the requirement
+    cannot be discharged by re-running an old suite; it is discharged by pinning the
+    messages HERE, in the task that writes them, which is what makes a later change to the
+    shared fold a failing test rather than a silent change in what every caller sees."""
+    with pytest.raises(IllegalTransition, match=message):
+        project_attempt(history)
+
+
 def test_non_transition_events_are_declared_and_disjoint():
     """The set is a DECLARATION, not a skip-list that grew. Nothing may be in both: an
     event that both moves state and is skipped by the fold would be silently ignored.
 
-    That every member is a known event type is already asserted by Task 5's
+    That every member is a known event type is already asserted by Task 6's
     `ATTEMPT_EVENT_TYPES - KNOWN_EVENT_TYPES_V1` check, which now covers this set because
     `ATTEMPT_EVENT_TYPES` includes it — so it is not re-asserted here."""
     assert not (NON_TRANSITION_EVENTS & set(_BY_EVENT))
@@ -2597,7 +2790,7 @@ def _claim_holding_states() -> frozenset[AttemptState]:
     return frozenset(holding)
 
 
-#: Consumed by `coordinator.assert_lane_consistent` (Task 7) to decide whether a held claim
+#: Consumed by `coordinator.assert_lane_consistent` (Task 8) to decide whether a held claim
 #: agrees with its Attempt's own timeline, and whether a declared coordinator effect was
 #: required at the point it would have been written.
 CLAIM_HOLDING_STATES: frozenset[AttemptState] = _claim_holding_states()
@@ -2640,7 +2833,7 @@ class NonTransition:
     generation_field: str | None
 
 
-#: `ClaimHeartbeat` is the one Slice 2 writes (`cas_heartbeat`, Task 9);
+#: `ClaimHeartbeat` is the one Slice 2 writes (`cas_heartbeat`, Task 10);
 #: `PublishRequested`/`Published` join it in a later slice, with their own rules.
 NON_TRANSITIONS: tuple[NonTransition, ...] = (
     NonTransition(event="ClaimHeartbeat", legal_states=CLAIM_HOLDING_STATES,
@@ -2816,6 +3009,11 @@ __all__ = [
 Run: `python -m pytest tests/unit/test_self_improvement_lifecycle_model.py -q`
 Expected: all pass. If `test_every_non_terminal_state_can_be_left` fails, a state was added without an exit — fix the TABLE, never the test.
 
+`test_project_attempt_raises_the_MESSAGE_it_is_specified_to_raise` is the compatibility
+gate open question 12 asks for. Its wording is now a contract: a later task that changes
+what `walk_attempt` says changes what every consumer of `project_attempt` reports, and this
+is where that shows up as a failure rather than as a surprise in a log.
+
 - [ ] **Step 6: Verify the model tests are load-bearing**
 
 Temporarily delete the `elif state in TERMINAL_STATES:` branch in `project_attempt`, re-run, and confirm `test_a_second_terminal_is_refused_whichever_two_they_are` FAILS. Restore it and confirm `git diff` on `lifecycle.py` is empty. A model test that passes against a broken machine is decoration.
@@ -2831,7 +3029,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/lifecycl
 
 ---
 
-### Task 5: Attempt event vocabulary + validators
+### Task 6: Attempt event vocabulary + validators
 
 **Files:**
 - Modify: `src/llmxive/self_improvement/events.py`
@@ -2845,7 +3043,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/lifecycl
 
 Extend `tests/unit/test_self_improvement_events.py` with one test per new type asserting (a) a well-formed payload validates, (b) a missing required key raises, (c) an EXTRA key raises (`_exact_keys` house style — extras make the contract untestable), and (d) the envelope `attempt_id` must match the payload's.
 
-**First, the coverage gap.** `KNOWN_EVENT_TYPES_V1` currently holds only four Attempt events (`ProblemDiscovered`, `Proposed`, `ProposalVerified`, `Rejected`). Every OTHER transition in `TRANSITIONS` — `ClaimGranted`, `Implementing`, `ImplementationFailed`, `PublishFailed`, `TestingFailed`, `EvaluationFailed`, `ScopeUnsupported`, `FreshnessStale`, `EvaluationPassed`, `PromotionRequested`, `PromotionObserved`, `PromotionAborted`, `RevertRequested`, `RevertObserved`, `RevertAborted`, `Retained`, `BreakerTripped`, `ReviewAborted`, `ClaimExpired` — must be added, or Task 6's CAS rejects them at the write boundary. Pin it so the two cannot drift:
+**First, the coverage gap.** `KNOWN_EVENT_TYPES_V1` currently holds only four Attempt events (`ProblemDiscovered`, `Proposed`, `ProposalVerified`, `Rejected`). Every OTHER transition in `TRANSITIONS` — `ClaimGranted`, `Implementing`, `ImplementationFailed`, `PublishFailed`, `TestingFailed`, `EvaluationFailed`, `ScopeUnsupported`, `FreshnessStale`, `EvaluationPassed`, `PromotionRequested`, `PromotionObserved`, `PromotionAborted`, `RevertRequested`, `RevertObserved`, `RevertAborted`, `Retained`, `BreakerTripped`, `ReviewAborted`, `ClaimExpired` — must be added, or Task 7's CAS rejects them at the write boundary. Pin it so the two cannot drift:
 
 ```python
 def test_every_declared_transition_has_a_writable_event_type():
@@ -2857,7 +3055,7 @@ def test_every_declared_transition_has_a_writable_event_type():
 
 **Second, the dual-stream names.** `ClaimGranted`/`ClaimExpired` (Attempt stream) and `ClaimAcquired`/`ClaimReleased` (coordinator stream) describe the same real-world moments from two sides. Neither is a duplicate of the other, and it must be documented at the definition, or a reader will delete one:
 
-> `ClaimGranted`/`ClaimExpired` on a Problem stream are ATTEMPT transitions (they move the Attempt). `ClaimAcquired`/`ClaimReleased` on the coordinator stream are LANE mutations (they move the singleton). Neither is derivable from the other: they live on different STREAMS with independent revision lines, so each needs its own record. They are not independent in TIME, though — the pair is written in one transaction (Task 2), which is why no reconciler ever has to correlate them or handle seeing one without the other.
+> `ClaimGranted`/`ClaimExpired` on a Problem stream are ATTEMPT transitions (they move the Attempt). `ClaimAcquired`/`ClaimReleased` on the coordinator stream are LANE mutations (they move the singleton). Neither is derivable from the other: they live on different STREAMS with independent revision lines, so each needs its own record. They are not independent in TIME, though — the pair is written in one transaction (Task 3), which is why no reconciler ever has to correlate them or handle seeing one without the other.
 >
 > **No event type appears on both streams.** `ClaimExpired` is an Attempt terminal only; a reclaim's coordinator side is the ordinary `ClaimReleased` every other release writes (rev 23). Rev 22's table implied a coordinator-side `ClaimExpired` carrying a generation bump, which would have been a second event type whose only content — the next generation — the next `ClaimAcquired` computes anyway. Keeping the streams' vocabularies disjoint also means "which stream is this?" is answerable from the event type alone.
 
@@ -2885,13 +3083,13 @@ New types and their exact payload key sets:
 One EXISTING type also changes shape. `MonitorStarted` gains two required keys:
 `merged_at` — the instant the promotion it is monitoring was observed, which is what
 `last_autonomous_merge_at` folds to — and `problem_id`, without which the fold's new
-ownership check (Task 11) cannot compare the PAIR and would fall back to matching an
+ownership check (Task 12) cannot compare the PAIR and would fall back to matching an
 `attempt_id` alone, the 1A F6 mistake. Its `_MONITOR_KEYS` becomes
 `frozenset({"problem_id", "attempt_id", "merged_at"})`, and the five 1A call sites that
 construct one (`tests/unit/test_self_improvement_coordinator.py:94-95`,
 `tests/unit/test_self_improvement_events.py:325-329`) gain both fields plus a claim so the
 ownership check is satisfiable. **Add the fields — do not make them optional.**
-`MonitorStarted` has exactly one producer (Task 6's effect builder), which always knows
+`MonitorStarted` has exactly one producer (Task 7's effect builder), which always knows
 both; an optional field would exist solely so a record could be written without the value
 the coordinator then needs, which is how `last_autonomous_merge_at` would end up `None` for
 a merge that demonstrably happened.
@@ -2927,9 +3125,9 @@ Expected: failures naming the unknown event types.
 Add each type to `KNOWN_EVENT_TYPES_V1` with a comment marking it a Slice-2 vocabulary extension (record SHAPE unchanged ⇒ `SCHEMA_VERSION` stays 1, per Slice 1A's F7 rule). Write one `_validate_*` per type following the existing house style — `_same_attempt(raw)`, `_exact_keys(payload, frozenset({...}), "<Type>")`, `_require(payload, key, str)`, and a membership check against a module-level frozenset for each constrained vocabulary. Register all of them in `TYPE_VALIDATORS`.
 
 Also **move `coordinator._coord_event` to `events.coord_event`** (same body, now public) and
-have `coordinator.py` import it. Task 6's effect builders construct coordinator events, and
+have `coordinator.py` import it. Task 7's effect builders construct coordinator events, and
 `events.py` is the module that owns event construction and the only one both can import
-without a cycle (`coordinator.py` imports `lifecycle` from Task 7 onward). The alternative —
+without a cycle (`coordinator.py` imports `lifecycle` from Task 8 onward). The alternative —
 a second deterministic-id builder in `lifecycle.py` — is the duplication Constitution I
 forbids, and two builders drifting on id derivation would mint duplicate records of one
 decision. Update `coordinator.py`'s two call sites (`cas_claim`, `cas_release`); the
@@ -2979,20 +3177,20 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/events.p
 
 ---
 
-### Task 6: `cas_attempt_transition` — the terminal-slot CAS
+### Task 7: `cas_attempt_transition` — the terminal-slot CAS
 
 **Files:**
 - Modify: `src/llmxive/self_improvement/lifecycle.py`
 - Test: `tests/integration/test_self_improvement_lifecycle_cas.py`
 
 **Interfaces:**
-- Consumes: `lane_log.append/append_many/read`, `Seam` (Task 2), `LaneRevisionConflict`, `derive_event_id`, `project_coordinator`, `COORDINATOR_STREAM`.
+- Consumes: `lane_log.append/append_many/read`, `Seam` (Task 3), `LaneRevisionConflict`, `derive_event_id`, `project_coordinator`, `COORDINATOR_STREAM`.
 - Produces: `cas_attempt_transition(repo, *, problem_id, attempt_id, event_type, payload, actor, clock, config=None, _after_parent=None, _before_ref_update=None, _after_push=None) -> TransitionOutcome`; `_claim_required(transition, state_before) -> bool`; `_state_before(history, event_id)`; `_COORDINATOR_EFFECTS`; `LaneInconsistent`; `assert_partner_intact(...)`; `replayed_transaction(repo, stored, declared_effects, coordinator_events, *, problem_id, attempt_id, required, config=None)`; `events_by_commit` in `lane_log.py`; `seed_claim` in `tests/helpers/lane_lifecycle.py`.
 
 **A transition emits its declared coordinator effects, atomically.** When the Attempt making
 the transition currently holds the lane — read from ITS OWN state, `_claim_required`, not
 from the coordinator's ownership — `cas_attempt_transition` writes that row's
-`coordinator_effects` in the SAME transaction (Task 2). That is not an optimization: writing
+`coordinator_effects` in the SAME transaction (Task 3). That is not an optimization: writing
 them separately creates a window in which an Attempt is terminal while its claim is still
 held, and the only repair for that window would be a compensating transition — which spec
 rev 23 explicitly declines to add because the transaction makes the window unreachable.
@@ -3001,10 +3199,10 @@ release is read from the table rather than re-decided here.
 
 This is the ONE place matrix rows 2 and 4 are implemented — they differ only in what the
 row declares. This task builds the mechanism and proves the WRITER: that a row's declared
-effects are emitted, in the declared order, in one commit. Task 11 adds the coordinator-side
+effects are emitted, in the declared order, in one commit. Task 12 adds the coordinator-side
 folding row 4 needs and proves the READER: that the reversed order is rejected, and that the
-row's four facts land or none do. Anything that depends on Task 11's ownership check belongs
-in Task 11 — a test that cannot fail at its own task is not a gate.
+row's four facts land or none do. Anything that depends on Task 12's ownership check belongs
+in Task 12 — a test that cannot fail at its own task is not a gate.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -3025,48 +3223,48 @@ Real temp-git repos throughout. The cases:
 10. **Every declared effect has a builder** (`test_every_declared_effect_has_a_builder`): `{n for t in TRANSITIONS for n in t.coordinator_effects} == set(_COORDINATOR_EFFECTS)`, in both directions — a row naming an effect nobody builds, and a builder no row names, are both drift.
 11. **A non-terminal transition that declares an effect still emits it**: `PromotionObserved` is not terminal but releases, so drive P1/A1 to `promotion_requested` while holding the lane, apply it, and assert the lane is free, the Attempt is `monitoring`, and all THREE events share one commit. This is the case a `transition.terminal`-gated release silently skips — the exact defect the matrix was added to prevent.
 
-**The effect ORDER is proved in Task 11, not here.** What makes `MonitorStarted` before
-`ClaimReleased` semantically required is the ownership precondition Task 11 adds to the
+**The effect ORDER is proved in Task 12, not here.** What makes `MonitorStarted` before
+`ClaimReleased` semantically required is the ownership precondition Task 12 adds to the
 `MonitorStarted` fold; until it exists, `project_coordinator` accepts either order and a
-mutation test would pass against a reversed table, proving nothing. Task 6 asserts the
+mutation test would pass against a reversed table, proving nothing. Task 7 asserts the
 `seq` order matches the row's declaration (a mechanical property of the writer, true now)
-and Task 11 asserts the reversal is REJECTED. Splitting it this way is the point of the
+and Task 12 asserts the reversal is REJECTED. Splitting it this way is the point of the
 task boundary: each task's tests must be able to fail at that task.
 
-12. **Effects are emitted in the ROW's declared order**: in case 11's commit, the coordinator stream's `MonitorStarted` has a LOWER `seq` than its `ClaimReleased`, and the order of `writes` matches `transition.coordinator_effects` element for element. This pins the WRITER against the table. Whether the fold *rejects* the reversal is Task 11's case.
+12. **Effects are emitted in the ROW's declared order**: in case 11's commit, the coordinator stream's `MonitorStarted` has a LOWER `seq` than its `ClaimReleased`, and the order of `writes` matches `transition.coordinator_effects` element for element. This pins the WRITER against the table. Whether the fold *rejects* the reversal is Task 12's case.
 
 **Test fixture: `seed_claim`.** Several cases above need an Attempt that genuinely holds the
 lane, which at this task nothing can produce: 1A's `cas_claim` writes only the coordinator's
 `ClaimAcquired`, so the Attempt would still be `proposal_verified` and no claim-holding
-transition would be legal — and Task 7's paired `cas_claim` does not exist yet. Rather than
-order Task 6 after Task 7 (which needs `cas_attempt_transition` for its own preludes — the
+transition would be legal — and Task 8's paired `cas_claim` does not exist yet. Rather than
+order Task 7 after Task 8 (which needs `cas_attempt_transition` for its own preludes — the
 dependency runs both ways), the tests seed the claim through `append_many` directly, which
-Task 2 delivered:
+Task 3 delivered:
 
 ```python
 def seed_claim(repo, *, problem_id="P1", attempt_id="A1", generation=1, terms=None):
     """Put the lane in the state a paired claim leaves it in, WITHOUT going through
     `cas_claim`.
 
-    Writes the same two records in the same one commit that Task 7's `cas_claim` will —
+    Writes the same two records in the same one commit that Task 8's `cas_claim` will —
     so these tests assert against the claim's SHAPE rather than against whichever version
-    of `cas_claim` exists when they run, and Task 7 replacing that function leaves them
+    of `cas_claim` exists when they run, and Task 8 replacing that function leaves them
     green. It is a fixture, not a second claim API: it takes no preconditions and lives in
     `tests/helpers/`, so nothing in `src/` can reach it."""
 ```
 
 It writes `Proposed` and `ProposalVerified` on the Problem stream first (via
 `cas_attempt_transition`, which this task is building and which needs no claim), then one
-`append_many` carrying `ClaimAcquired` + `ClaimGranted`. Task 7's tests use the REAL
-`cas_claim`; this fixture exists so Task 6 does not have to.
+`append_many` carrying `ClaimAcquired` + `ClaimGranted`. Task 8's tests use the REAL
+`cas_claim`; this fixture exists so Task 7 does not have to.
 
-13. **The lost-acknowledgement suite, parameterized over the WHOLE matrix.** One test body, four rows, in `tests/integration/test_self_improvement_lost_ack.py` — written here because rows 2 and 4 land in this task, and extended by Task 7 (row 1) and Task 9 (row 3) rather than re-implemented there. For each row: drive the lane to the row's precondition, invoke the row's operation with `_after_push` raising, then RE-INVOKE the same operation **from a different actor**. Assert, uniformly:
+13. **The lost-acknowledgement suite, parameterized over the WHOLE matrix.** One test body, four rows, in `tests/integration/test_self_improvement_lost_ack.py` — written here because rows 2 and 4 land in this task, and extended by Task 8 (row 1) and Task 10 (row 3) rather than re-implemented there. For each row: drive the lane to the row's precondition, invoke the row's operation with `_after_push` raising, then RE-INVOKE the same operation **from a different actor**. Assert, uniformly:
     a. the retry does not raise;
     b. it reports `created is False` (`ClaimOutcome.created` for row 1, `TransitionOutcome.created` for rows 2/3/4 — one shape is what makes the parameterization possible);
     c. no new events on EITHER stream;
     d. the stored records still name the ORIGINAL actor, byte-for-byte.
 
-    Task 7 adds a fifth assertion, `assert_lane_consistent` passes, when it lands the auditor and row 1 — it is that task's function, and asserting it here would be a test Task 6 cannot run.
+    Task 8 adds a fifth assertion, `assert_lane_consistent` passes, when it lands the auditor and row 1 — it is that task's function, and asserting it here would be a test Task 7 cannot run.
 
     Row 1 had all of this; rows 2, 3 and 4 had none of it, and that asymmetry is exactly how the replay defect survived — a per-row test written where each row was implemented tests each row's author's assumptions. A shared body tests the CONTRACT, and a row that cannot satisfy it fails at the row, not at review.
 13b. **The DELAYED replay: the same retry, after the lane has moved on.** Same parameterization, one extra step — after the row's transaction lands (crashed at `_after_push`), append UNRELATED activity before retrying, then assert 13's (a)–(d) plus:
@@ -3075,7 +3273,7 @@ It writes `Proposed` and `ProposalVerified` on the Problem stream first (via
     h. no `LaneRevisionConflict`: the replay's `expected_revisions` are read at the CURRENT tip, so a longer stream is not a stale-revision failure. Every row already reads them fresh; this is the test that says so, and the one that would fail if a future refactor "helpfully" pinned them to the transaction being replayed.
 
     Each row supplies its own `later_activity` because "unrelated" is row-specific: after rows 2, 3 and 4 the lane is FREE, so a second Problem claims it (growing both streams and changing current ownership); after row 1 the lane is HELD by the pair under test, so the activity is a transition on a second Problem's stream. The lost-ack cases above all retry immediately, which is the easy half of the contract — a retry after a crash is usually the NEXT run, minutes and several commits later.
-14. **A replay whose coordinator half is not intact raises rather than passing.** Land the transaction, damage the stored partner, then re-invoke and require `LaneInconsistent`. Four damage classes, each a thing presence alone cannot see, and each parameterized over rows 2 and 4 here (Task 7 adds row 1's, Task 9 row 3's):
+14. **A replay whose coordinator half is not intact raises rather than passing.** Land the transaction, damage the stored partner, then re-invoke and require `LaneInconsistent`. Four damage classes, each a thing presence alone cannot see, and each parameterized over rows 2 and 4 here (Task 8 adds row 1's, Task 10 row 3's):
     a. **Missing** — delete the partner blob. This is the case the naive replay reports as healthy: the Attempt event is present, so "already landed" is true, and nothing ever looks at the half that is gone. For row 4, delete each of the TWO partners in turn — a replay that checked only `ClaimReleased` would bless a lost `MonitorStarted`.
     b. **Wrong record at the right id** — replace it with a different `event_type`, and separately with one whose payload names another `attempt_id`.
     c. **Disagreeing halves** — rewrite the partner's `actor`/`timestamp` so the pair no longer looks like one construction.
@@ -3130,7 +3328,7 @@ def events_by_commit(
     return added
 ```
 
-and in `coordinator.py`, the exception both the writer and (in Task 7) the auditor raise —
+and in `coordinator.py`, the exception both the writer and (in Task 8) the auditor raise —
 defined here because this is the task whose replay path first refuses:
 
 ```python
@@ -3476,7 +3674,7 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
         created=result.created)
 ```
 
-`TransitionOutcome` is declared in Task 4 beside `AttemptProjection`:
+`TransitionOutcome` is declared in Task 5 beside `AttemptProjection`:
 
 ```python
 @dataclass(frozen=True)
@@ -3521,7 +3719,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/lifecycl
 
 ---
 
-### Task 7: Claim generations + claim-bound terms
+### Task 8: Claim generations + claim-bound terms
 
 **Files:**
 - Modify: `src/llmxive/self_improvement/coordinator.py`
@@ -3529,11 +3727,11 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/lifecycl
 
 **Interfaces:**
 - Produces: `LaneCoordinator.claim_generation`, `ClaimOutcome.generation`, `ClaimOutcome.created`, `ClaimTerms`, `cas_claim(..., terms=, _after_parent=, _before_ref_update=, _after_push=)`, `cas_release` returning generation + `created`, `_PAIRINGS`, `_CLAIM_PAIR_FIELDS`, `_validate_claim_pair`, `assert_lane_consistent`; `list_problem_streams` in `lane_log.py`.
-- Consumes: `append_many` + `Seam` (Task 2), `CLAIM_HOLDING_STATES` + `TRANSITIONS` + `project_attempt` + `walk_attempt` + `holds_claim` (Task 4), `cas_attempt_transition` + `_claim_required` + `assert_partner_intact` + `LaneInconsistent` + `events_by_commit` (Task 6).
+- Consumes: `append_many` + `Seam` (Task 3), `CLAIM_HOLDING_STATES` + `TRANSITIONS` + `project_attempt` + `walk_attempt` + `holds_claim` (Task 5), `cas_attempt_transition` + `_claim_required` + `assert_partner_intact` + `LaneInconsistent` + `events_by_commit` (Task 7).
 
 **`cas_claim` becomes a transaction, and stays the ONE way to claim.** Granting the lane is
 two facts — the coordinator's `ClaimAcquired` and the Attempt's `ClaimGranted` — so it is
-one `append_many` (Task 2). It is not a second claim API alongside the 1A one: the existing
+one `append_many` (Task 3). It is not a second claim API alongside the 1A one: the existing
 function is REPLACED in place, because two ways to take the same lock is exactly the
 duplication Constitution I forbids, and the older one would be the unsafe path.
 
@@ -3558,18 +3756,20 @@ duplication Constitution I forbids, and the older one would be the unsafe path.
     b. an Attempt-side `ClaimGranted` with NO coordinator record, **while the coordinator is idle** ⇒ raises. Losing the coordinator half is exactly what makes the lane look idle, so an early return on "idle" reports health precisely when the damage is worst;
     c. **an orphan `ClaimGranted` followed by a terminal** ⇒ raises. The Attempt is in no claim-holding state and the lane is idle, so NOTHING in any projection records that this claim ever existed — only the events do. A state-based checker passes this, which is why the pairing walk is over history;
     d. **a released claim whose `ClaimGranted` was later removed** (restore/hand-repair) ⇒ raises via the orphaned `ClaimAcquired`/`ClaimReleased`, again with no live state to inspect;
-    e. **a completed pair whose terms or generation disagree** ⇒ raises. The write-time invariant (Task 7 test 6) is only real if something reads it back, and reading it back only in live claims means it is unchecked for every claim that ever ended;
+    e. **a completed pair whose terms or generation disagree** ⇒ raises. The write-time invariant (Task 8 test 6) is only real if something reads it back, and reading it back only in live claims means it is unchecked for every claim that ever ended;
     f. a `ClaimReleased` with no releasing Attempt transition, and a `MonitorStarted` with no `PromotionObserved` ⇒ raise. Rows 2/3/4 and row 4 respectively — every row that writes to both streams has a case here;
     g. a held claim whose Attempt is `terminal` / `monitoring` / `rejected` ⇒ raises (not merely `proposal_verified`, which was the only state an early draft rejected);
     h. a live coordinator and Attempt at DIFFERENT generations ⇒ raises naming both. Both halves are PRESENT here, so pairing accepts it and only the active-projection check catches it — which is why there are two checks and not one.
-12i. **A stored pair that is COMPLETE but not intact is refused by `cas_claim` itself, not only by the auditor.** Hand-build (by direct `append`) a `ClaimAcquired`/`ClaimGranted` pair that disagrees — one case per class: mismatched `claim_generation`, mismatched terms, a `ClaimGranted` whose payload names a different `attempt_id`, mismatched `actor`/`timestamp`, and — the class no payload comparison can reach — a well-formed pair whose halves were added by **two different commits** (12l checks the auditor's verdict on that same lane; this checks `cas_claim`'s, and a writer that returns before the audit runs is the one a caller actually depends on). Re-invoke `cas_claim` for that pair and assert `LaneInconsistent` each time. The half-present case (10b) is already refused; this is its complement, and it is the one `append_many` CANNOT catch: on the replay path each stored event is compared against ITSELF, so append-only validation is a tautology there and a corrupt-but-complete pair would be reported back as a live claim. These are Task 6's `assert_partner_intact` cases applied to row 1, which is the point — one check, so row 1 cannot be the weak one.
-12j. **A non-holder terminal is ACCEPTED** — the false positive that a table-only reading of `releases_claim` produces. PARAMETERIZE over the derived set, never a hand-written list: `{(t.event, s) for t in TRANSITIONS if t.releases_claim for s in t.from_states - CLAIM_HOLDING_STATES}`. It currently yields three pairs (`ReviewAborted`/`proposed`, `ScopeUnsupported`/`proposal_verified`, `BreakerTripped`/either), and a row that becomes reachable from a new non-holding state joins the test without anyone remembering to add it. Drive each pair to its terminal, assert the checker passes, and assert the set is non-empty so the parameterization cannot silently become vacuous. Run one of them WHILE a different Attempt holds the lane (Task 6 case 8's scenario). Every one of these rows declares `ClaimReleased` and none of them wrote one, because the Attempt held nothing — and a checker that demands the partner from the row alone rejects a lane that is working correctly, which is worse than not checking, because the honest response to it is to stop trusting the checker.
+12i. **A stored pair that is COMPLETE but not intact is refused by `cas_claim` itself, not only by the auditor.** Hand-build (by direct `append`) a `ClaimAcquired`/`ClaimGranted` pair that disagrees — one case per class: mismatched `claim_generation`, mismatched terms, a `ClaimGranted` whose payload names a different `attempt_id`, mismatched `actor`/`timestamp`, and — the class no payload comparison can reach — a well-formed pair whose halves were added by **two different commits** (12l checks the auditor's verdict on that same lane; this checks `cas_claim`'s, and a writer that returns before the audit runs is the one a caller actually depends on). Re-invoke `cas_claim` for that pair and assert `LaneInconsistent` each time. The half-present case (10b) is already refused; this is its complement, and it is the one `append_many` CANNOT catch: on the replay path each stored event is compared against ITSELF, so append-only validation is a tautology there and a corrupt-but-complete pair would be reported back as a live claim. These are Task 7's `assert_partner_intact` cases applied to row 1, which is the point — one check, so row 1 cannot be the weak one.
+12j. **A non-holder terminal is ACCEPTED** — the false positive that a table-only reading of `releases_claim` produces. PARAMETERIZE over the derived set, never a hand-written list: `{(t.event, s) for t in TRANSITIONS if t.releases_claim for s in t.from_states - CLAIM_HOLDING_STATES}`. It currently yields three pairs (`ReviewAborted`/`proposed`, `ScopeUnsupported`/`proposal_verified`, `BreakerTripped`/either), and a row that becomes reachable from a new non-holding state joins the test without anyone remembering to add it. Drive each pair to its terminal, assert the checker passes, and assert the set is non-empty so the parameterization cannot silently become vacuous. Run one of them WHILE a different Attempt holds the lane (Task 7 case 8's scenario). Every one of these rows declares `ClaimReleased` and none of them wrote one, because the Attempt held nothing — and a checker that demands the partner from the row alone rejects a lane that is working correctly, which is worse than not checking, because the honest response to it is to stop trusting the checker.
 12k. **A release by a transition that held nothing RAISES**: hand-build a `ClaimReleased` for an Attempt whose terminal came from a pre-claim state. It is the mirror of 12j and cannot be conflated with it — the same missing/extra partner, opposite verdicts, decided only by the Attempt's state at that point.
 12l. **Both halves present but committed SEPARATELY raises.** Write a claim's two records with two successive `append` calls instead of one `append_many`, then check: everything a presence-only test looks at is satisfied, and the transaction the matrix promises never happened. This is what `events_by_commit` is for, and it is the guard against a future refactor quietly re-splitting a transaction while the audit stays green.
 12m. **`cas_release` reports the generation of the claim it released, not the counter's**: claim P1/A1 (generation 1), release it, claim P2/A2 (generation 2), then re-invoke the FIRST `cas_release` verbatim. Assert `generation == 1`, `created is False`, and that `owner_problem_id`/`owner_attempt_id` still name P2/A2. `ClaimReleased` carries no generation of its own, so this passes only if the value came from the claim's `ClaimAcquired` — the release-side twin of case 9, and the only way to catch a `cas_release` that answered from `LaneCoordinator.claim_generation` and handed a caller the NEXT holder's fencing token.
+
+    Write it by EXTENDING `test_a_delayed_duplicate_release_does_not_disturb_a_newer_claim` ([test_self_improvement_coordinator_cas.py:113-128](../../../tests/integration/test_self_improvement_coordinator_cas.py#L113-L128)), which already drives exactly this sequence and already asserts ownership survives. It is missing only the two new fields. A second test driving the same three calls to assert two more fields would be a duplicate, and the two would drift.
 12n. **An illegal COMPLETED history is refused by the auditor, not audited.** Hand-build a Problem stream whose Attempt goes `Proposed → Implementing` (skipping the claim), then run `assert_lane_consistent`. It must raise, because `walk_attempt` is the same fail-closed fold `project_attempt` uses. An auditor with its own `state = transition.to_state` loop reports this lane healthy AND misclassifies effect applicability while doing it — the second interpreter is the bug, not the missing check.
 12o. **Commit attribution is keyed by `(stream, event_id)`.** Assert directly on `events_by_commit`: every key is a 2-tuple whose first element is a real stream (`COORDINATOR_STREAM` or a Problem id), a claim's two records map to the SAME commit under their two different stream keys, and the mapping's size equals the total event count across all streams — which a bare-id keying would silently undercount the moment two streams shared an id.
-12p. **Row 1 joins the shared suites.** Add row 1 to the lost-ack parameterization (Task 6's test 13), to the delayed replay (13b, with its own `later_activity`: the lane is HELD after a claim, so the unrelated activity goes on a second Problem's stream), and to the damage classes (14). Also add assertion (e) — `assert_lane_consistent` passes — to test 13's body for ALL rows, now that the auditor exists; Task 6 deliberately left it out rather than writing a test it could not run.
+12p. **Row 1 joins the shared suites.** Add row 1 to the lost-ack parameterization (Task 7's test 13), to the delayed replay (13b, with its own `later_activity`: the lane is HELD after a claim, so the unrelated activity goes on a second Problem's stream), and to the damage classes (14). Also add assertion (e) — `assert_lane_consistent` passes — to test 13's body for ALL rows, now that the auditor exists; Task 7 deliberately left it out rather than writing a test it could not run.
 13. **It is not vacuous.** With an empty `problem_ids` and a lane carrying an orphaned coordinator record, it still raises (the orphan sweep runs over the coordinator stream regardless of what was scanned) — and `list_problem_streams` on a repo with three Problems returns three ids. A consistency checker that passes on an empty scan is worse than none, so the emptiness is tested rather than assumed.
 14. **Every `_PAIRINGS` entry is exercised, on BOTH sides of its condition**: a parameterized test asserts that, for each pairing in turn, removing the coordinator partner *from a transaction where it was required* raises — so a rule that is declared but never reachable is a failing test rather than dead configuration — and that each `requires_prior_hold` pairing ACCEPTS the same Attempt event written from a non-holding state. One-sided parameterization is how the false positive in 12j survived review: every removal test passed, because they all ran on histories where the partner was genuinely required. And `{r for p in _PAIRINGS for r in p.rows}` covers every matrix row that writes to both streams — the matrix and the checker cannot drift apart silently.
 
@@ -3809,6 +4009,22 @@ from an empty Problem stream, which the table now forbids; each needs a two-even
 the precondition. Assertions about coordinator event COUNTS stay valid, since `_events()`
 reads the coordinator stream only.
 
+**The `cas_release` return-shape audit, already done — here is its result.** Maintainer
+decision (2026-08-02, open question 10) requires auditing every existing caller for
+assumptions about the old return. `grep -rn cas_release src/ tests/` gives the complete
+set, and it is small:
+
+|Caller|Assumption|Effect of the change|
+|-|-|-|
+|`src/` production code|**none — there are no callers**|`cas_release` is exported ([`__init__.py:33`](../../../src/llmxive/self_improvement/__init__.py#L33)) and reached only by tests. Adding fields breaks nothing in `src/`.|
+|`test_self_improvement_coordinator_cas.py:96-140`|reads `acquired`, `owner_problem_id`, `owner_attempt_id`, `coordinator.*`|All retained; the return GAINS `generation` and `created`. No assertion inverts.|
+|`test_self_improvement_exports.py:7`|the NAME is exported|Unaffected.|
+
+So the change is purely additive at every call site, which is worth knowing BEFORE the
+implementer starts looking: the risk in "changes a signed-off return type" lives in the
+callers, and here there are none. What the tests gain is coverage, not repair — case 12m
+extends the one that already drives the delayed re-grant sequence.
+
 **Pre-transaction half-states: there are none to migrate, and that is a verified fact, not
 an assumption.** 1A's `cas_claim` wrote ONLY the coordinator's `ClaimAcquired`, so a lane it
 had ever run would hold exactly the half-state this task fuses: a claim with no
@@ -3892,7 +4108,7 @@ _PAIRINGS: tuple[_Pairing, ...] = (
 )
 ```
 
-`events_by_commit` is Task 6's (it is what that task's replay integrity check reads); this
+`events_by_commit` is Task 7's (it is what that task's replay integrity check reads); this
 task adds `list_problem_streams` beside it and becomes its second caller.
 
 In `coordinator.py`, the orphan sweep and the checker itself:
@@ -3943,7 +4159,7 @@ def assert_lane_consistent(repo: Path, *, problem_ids: Iterable[str],
     ``problem_ids`` is required, not discovered, because "which Problems exist" is a
     question about the ref's tree rather than about any one stream, and a checker that
     silently examined an empty set would pass vacuously — the failure mode this whole
-    function exists to avoid. Task 13's driver passes `list_problem_streams(repo)`."""
+    function exists to avoid. Task 14's driver passes `list_problem_streams(repo)`."""
     coordinator_events = read(repo, COORDINATOR_STREAM, config=config)
     by_id = {e.event_id: e for e in coordinator_events}
     commit_of = events_by_commit(repo, config=config)
@@ -4024,7 +4240,7 @@ def assert_lane_consistent(repo: Path, *, problem_ids: Iterable[str],
             "DIFFERENT claims, which no single transaction could have written")
 ```
 
-`CLAIM_HOLDING_STATES` is imported from `lifecycle.py`, where Task 4 derives it from the
+`CLAIM_HOLDING_STATES` is imported from `lifecycle.py`, where Task 5 derives it from the
 table. This task only consumes it — deriving it here would be the second declaration.
 
 Two supporting helpers. `_attempts` groups a stream by `attempt_id` PRESERVING order, so
@@ -4052,13 +4268,13 @@ def list_problem_streams(repo: Path, config: LaneLogConfig | None = None) -> tup
     added by another runner."""
 ```
 
-`_assert_terms_agree` re-checks the invariant Task 7 test 6 establishes at write time — that
+`_assert_terms_agree` re-checks the invariant Task 8 test 6 establishes at write time — that
 the coordinator's `ClaimAcquired` and the Attempt's `ClaimGranted` carry identical terms and
 generation — because "the two agreeing is an invariant, not a fallback" is only true if
 something eventually reads both. Writing it once and never re-reading it is how an invariant
 becomes an assumption.
 
-Task 13's driver calls this once at startup with the full Problem set, before any lane work.
+Task 14's driver calls this once at startup with the full Problem set, before any lane work.
 That is the whole migration story: prove the state cannot occur, detect it anyway in both
 directions, refuse to run on it.
 
@@ -4078,14 +4294,14 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/coordina
 
 ---
 
-### Task 8: Side-effect intents and the four dispositions
+### Task 9: Side-effect intents and the four dispositions
 
 **Files:**
 - Create: `src/llmxive/self_improvement/intents.py`
 - Test: `tests/integration/test_self_improvement_intents.py`
 
 Intents come BEFORE reclaim because reclaim's precondition consumes `unreconciled_intents`.
-Nothing here references `cas_reclaim`, which does not exist yet; Task 9 wires the two
+Nothing here references `cas_reclaim`, which does not exist yet; Task 10 wires the two
 together and owns the tests that assert reclaim is actually blocked.
 
 **Interfaces:**
@@ -4138,7 +4354,7 @@ EFFECT_DISPOSITION_POLICY: dict[str, frozenset[IntentDisposition]] = {
 }
 ```
 
-`observe_intent` validates the disposition against `EFFECT_DISPOSITION_POLICY` and raises `ValueError` with the reason when a caller asks for one the effect cannot support. `AMBIGUOUS` additionally raises `LaneQuarantine` after appending the record — the record is durable so the quarantine is visible and repairable; the raise stops the run. `unreconciled_intents` returns intents with no `SideEffectObserved` **plus** those observed `AMBIGUOUS`. It is a pure projection over a stream's events, which is why it can be written and tested before any reclaim path exists; Task 9 calls it from `cas_reclaim`'s predicate.
+`observe_intent` validates the disposition against `EFFECT_DISPOSITION_POLICY` and raises `ValueError` with the reason when a caller asks for one the effect cannot support. `AMBIGUOUS` additionally raises `LaneQuarantine` after appending the record — the record is durable so the quarantine is visible and repairable; the raise stops the run. `unreconciled_intents` returns intents with no `SideEffectObserved` **plus** those observed `AMBIGUOUS`. It is a pure projection over a stream's events, which is why it can be written and tested before any reclaim path exists; Task 10 calls it from `cas_reclaim`'s predicate.
 
 - [ ] **Step 4: Run the tests**
 
@@ -4155,25 +4371,25 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/intents.
 
 ---
 
-### Task 9: Heartbeats, expiry, and reclaim
+### Task 10: Heartbeats, expiry, and reclaim
 
 **Files:**
 - Modify: `src/llmxive/self_improvement/coordinator.py`
-- Modify: `src/llmxive/self_improvement/policy.py` (created in Task 3)
+- Modify: `src/llmxive/self_improvement/policy.py` (created in Task 4)
 - Test: `tests/integration/test_self_improvement_claim_liveness.py`
 
 **Interfaces:**
-- Consumes: `append_many` + `Seam` (Task 2), `unreconciled_intents` (Task 8), `AuthoritativeClock.sample_uncertainty_s` (Task 3), `policy.MAX_CLOCK_SKEW_S` (Task 3).
+- Consumes: `append_many` + `Seam` (Task 3), `unreconciled_intents` (Task 9), `AuthoritativeClock.sample_uncertainty_s` (Task 4), `policy.MAX_CLOCK_SKEW_S` (Task 4).
 - Produces: `cas_heartbeat`, `cas_reclaim`, `MAX_CLAIM_HOLD_TIME_S` and the phase budgets it derives from, the counter caps, `reclaimable`.
 
 There is deliberately **no** `cas_release_terminal`. An Attempt that is terminal while its
 claim is still held is unreachable once the terminal and the release share a transaction
-(Task 6), so the repair entry point an earlier draft specified would be dead code guarding
+(Task 7), so the repair entry point an earlier draft specified would be dead code guarding
 a state the store cannot produce.
 
 - [ ] **Step 1: EXTEND `policy.py` — derived, not literal**
 
-Task 3 created the module with the timing constants the clock needs
+Task 4 created the module with the timing constants the clock needs
 (`HEARTBEAT_INTERVAL_S`, `CLAIM_EXPIRY_S`, `MAX_CLOCK_SKEW_S`, `MAX_SAMPLE_RTT_S`). Append
 the phase budgets and counter caps below them; do not restate the four that already exist.
 
@@ -4229,8 +4445,8 @@ Time is injected via `FixedAnchorClock` driven by a controllable monotonic sourc
 
     **This replaced a `raises`.** An earlier draft asserted the retry RAISED, on the reasoning that the lane is free so there is nothing to expire. That reads the post-condition as a rejection: after a lost acknowledgement "the lane is free" is precisely the durable result the caller is retrying to discover, and raising makes a reclaim that SUCCEEDED indistinguishable from one that was never valid. It also contradicted this plan's own Global Constraint — "a retry after a lost acknowledgement is a no-op returning the stored result" — in the one operation whose entire purpose is recovering from a crashed run. Reclaim gets the same replay path as every other row: locate the stored transaction, verify it is complete, return it.
 6b. **The lost acknowledgement is exercised for real, under a different actor**: kill `cas_reclaim` at `_after_push`, then re-invoke from a second actor. Assert `created=False`, no new events on either stream, and that the STORED records still name the original actor. A reclaim is by definition run by a different process than the one that died, so the cross-runner case is the only case that matters here.
-6c. **Row 3 joins the shared suites.** Add it to the lost-ack parameterization (Task 6's test 13), to the delayed replay (13b — the lane is free after a reclaim, so a second Problem claims it before the retry), and to the damage classes (14: partner missing, wrong record at the derived id, disagreeing `actor`/`timestamp`, and separately committed). Reclaim is the row most likely to be retried — it exists because a run died — so it is the last row that may be exempted from the shared contract.
-7. `cas_reclaim` on an Attempt with an unreconciled intent is REFUSED (Task 8's `unreconciled_intents`, already available).
+6c. **Row 3 joins the shared suites.** Add it to the lost-ack parameterization (Task 7's test 13), to the delayed replay (13b — the lane is free after a reclaim, so a second Problem claims it before the retry), and to the damage classes (14: partner missing, wrong record at the derived id, disagreeing `actor`/`timestamp`, and separately committed). Reclaim is the row most likely to be retried — it exists because a run died — so it is the last row that may be exempted from the shared contract.
+7. `cas_reclaim` on an Attempt with an unreconciled intent is REFUSED (Task 9's `unreconciled_intents`, already available).
 8. A reclaim crashing at `_before_ref_update` leaves the Attempt non-terminal AND the lane still held by the original — never a terminal with a live claim, nor a free lane with a running Attempt.
 9. The reclaimer's `sample_uncertainty_s` is ADDED to the skew margin: a clock reporting ±30 s of sampling uncertainty needs 30 s more elapsed time before the same claim becomes reclaimable. Imprecision must never make eviction happen sooner.
 
@@ -4245,7 +4461,7 @@ def reclaimable(*, claimed_at: str, last_beat: str | None, now: str,
     holder, because that is the worse error (FR-036).
 
     ``sample_uncertainty_s`` is the reclaimer's own clock uncertainty (half its anchoring
-    round trip, Task 3). It WIDENS the margin rather than narrowing it: a less certain clock
+    round trip, Task 4). It WIDENS the margin rather than narrowing it: a less certain clock
     must wait longer before evicting, never less."""
     margin = terms.max_clock_skew_s + sample_uncertainty_s
     beat = _parse(last_beat or claimed_at)
@@ -4268,10 +4484,10 @@ anchor every claim and release is evaluated against; heartbeating on the coordin
 make a healthy live run continuously invalidate the preconditions of every other lane
 operation. On its own Problem stream the only writer it contends with is itself. Second,
 because it lands there, `project_attempt` folds it — which is why `ClaimHeartbeat` must be
-in `NON_TRANSITION_EVENTS` (Task 4). Without that, the first beat makes every later
+in `NON_TRANSITION_EVENTS` (Task 5). Without that, the first beat makes every later
 projection of that Attempt raise `IllegalTransition`, `cas_attempt_transition` reads the
 unprojectable history as untrustworthy and refuses to add to it, and the run wedges its own
-claim by proving it is alive. Task 9's tests therefore include: **a claimed Attempt that has
+claim by proving it is alive. Task 10's tests therefore include: **a claimed Attempt that has
 heartbeated several times can still make a normal transition**, and **`assert_lane_consistent`
 accepts a lane whose Attempt streams carry beats** — the two places the fold is on the path.
 
@@ -4286,7 +4502,7 @@ because of (a) and (c): those preconditions are the reclaim, and a caller that c
 `cas_reclaim` — the events written are still exactly the ones the table's row declares, and
 a test asserts that.
 
-It returns a `TransitionOutcome` (Task 4), the same shape rows 2 and 4 return, and it takes
+It returns a `TransitionOutcome` (Task 5), the same shape rows 2 and 4 return, and it takes
 the same replay path — literally the same function: `replayed_transaction(repo, stored,
 ("ClaimReleased",), coordinator_events, problem_id=..., attempt_id=..., required=True,
 config=config)` — `required=True` unconditionally, because `ClaimExpired` is legal only
@@ -4331,7 +4547,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/coordina
 
 ---
 
-### Task 10: The two counters and cooldown epochs
+### Task 11: The two counters and cooldown epochs
 
 **Files:**
 - Create: `src/llmxive/self_improvement/cooldown.py`
@@ -4374,7 +4590,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/cooldown
 
 ---
 
-### Task 11: Matrix row 4 — promotion observed, monitoring removal, the merge timestamp
+### Task 12: Matrix row 4 — promotion observed, monitoring removal, the merge timestamp
 
 **Files:**
 - Modify: `src/llmxive/self_improvement/coordinator.py`
@@ -4382,7 +4598,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/cooldown
 - Test: `tests/integration/test_self_improvement_coordinator_cas.py` (extend)
 
 **Interfaces:**
-- Consumes: `cas_attempt_transition` (Task 6) and the `PromotionObserved` row's declared effects; `append_many` (Task 2).
+- Consumes: `cas_attempt_transition` (Task 7) and the `PromotionObserved` row's declared effects; `append_many` (Task 3).
 - Produces: `MonitorEnded` folding; the `MonitorStarted` ownership precondition; `last_autonomous_merge_at` folded from `MonitorStarted.merged_at`.
 
 **This is a cross-stream transaction, not a coordinator append.** An earlier draft wrote only
@@ -4391,7 +4607,7 @@ coordinator believed it was monitored and the lane free — a claim released for
 that never advanced, and the exact half-state class this slice exists to remove. Four facts
 land together (matrix row 4): the Attempt reaches `monitoring`, the claim is released, the
 Attempt joins `monitored_attempts`, and `last_autonomous_merge_at` records the instant. The
-mechanism is already built — Task 4 declares the effects, Task 6 emits them — so this task
+mechanism is already built — Task 5 declares the effects, Task 7 emits them — so this task
 adds the coordinator-side FOLDING and proves the row end-to-end.
 
 - [ ] **Step 1: Write the failing tests**
@@ -4409,7 +4625,7 @@ Row 4 end-to-end (`test_self_improvement_promotion_observed.py`, real temp-git r
 6. **Crash at `_before_ref_update` leaves NONE of it**: the Attempt is still `promotion_requested`, the lane is still held, `monitored_attempts` is empty, and `last_autonomous_merge_at` is unchanged. Then a retry succeeds and case 5's assertions hold.
 7. **Crash at `_after_parent` likewise**, and the retry is not a duplicate: exactly one `PromotionObserved`, one `MonitorStarted`, one `ClaimReleased`.
 8. **Concurrency**: with the lane held by P1/A1, a concurrent writer appends an unrelated coordinator event between the read and the CAS (`_after_parent`), and `PromotionObserved` retries against the new tip and still lands exactly once with all four facts.
-9. **A `PromotionObserved` by a non-holder writes no coordinator event and does not release anyone else's claim** — the same guard as Task 6 case 8, asserted here because this row is the one that releases a claim WITHOUT a terminal, so a mis-scoped release would leave a live Attempt lane-less rather than merely double-terminal.
+9. **A `PromotionObserved` by a non-holder writes no coordinator event and does not release anyone else's claim** — the same guard as Task 7 case 8, asserted here because this row is the one that releases a claim WITHOUT a terminal, so a mis-scoped release would leave a live Attempt lane-less rather than merely double-terminal.
 10. **Idempotent replay**: re-applying `PromotionObserved` after it landed returns the same projection and adds no events — the claim is already released, so a second attempt must not try to release it again and trip the coordinator fold's non-owner check.
 
 - [ ] **Step 2: Run to verify they fail**
@@ -4458,7 +4674,7 @@ elif e.event_type == "MonitorEnded":
 
 No new CAS entry point: `PromotionObserved` goes through `cas_attempt_transition` like every
 other transition, and the effects come from its row. A `cas_promotion_observed` would be a
-second way to do what Task 6 already does — and the second way is always the one that
+second way to do what Task 7 already does — and the second way is always the one that
 forgets an effect.
 
 - [ ] **Step 4: Run the tests**
@@ -4491,7 +4707,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/coordina
 
 ---
 
-### Task 12: The adversarial suite
+### Task 13: The adversarial suite
 
 The four scenarios the rev-22 review named, plus the one the rev-23 review implied. Each has
 a definite expected outcome now, which it did not before rev 22.
@@ -4625,7 +4841,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o tests/integration/test_self_improveme
 
 ---
 
-### Task 13: Wire the proposal verdict + the default-off driver
+### Task 14: Wire the proposal verdict + the default-off driver
 
 Closes the 1B seam: a proposal review currently computes a verdict with nowhere to record it.
 
@@ -4713,24 +4929,74 @@ python -m pytest tests/integration/test_self_improvement_coordinator_cas.py \
 ```
 Expected: at least one crash case per matrix row (claim, terminal, reclaim, promotion) — four rows, and a row with no crash test is a row whose atomicity nobody checked.
 
-- [ ] **Docs updated in the same commits as the code** (CLAUDE.md rule): `notes/2026-07-26-spec025-slice1-implementation.md` gains a Slice-2 section covering (a) the false premise this plan was first drafted on — that the lane's streams are separate refs, when they are subtrees of one — and what it cost: an "honest limit" about advisory fencing and a compensating transition, both of which evaporated once the store was read correctly; (b) that the fix was a store capability, not a workaround; (c) that the SAME defect recurred one layer up — `PromotionObserved` was written as a coordinator-only append after the transaction existed, which is why the cross-stream invariant matrix is now a normative list rather than a set of individually-remembered cases; (d) that the matrix's FIRST draft then made the mirror-image error in the checker — reading a row's declared effect as an unconditional one, which would have rejected every healthy pre-claim terminal — and that the fix was to derive the condition (`state ∈ CLAIM_HOLDING_STATES`) and to parameterize the test over the derived set rather than over three remembered examples; (e) that the SAME split then showed up a third time as an asymmetry — the writer gating on coordinator ownership while the auditor gated on Attempt state, which meant a divergence between them produced a lone terminal instead of a refusal — resolved by making `holds_claim` and `walk_attempt` single functions with several callers rather than a rule several components each implement; and (f) the load-bearing verifications from Task 2 Step 9, Task 3 Step 5, Task 6 Step 5, Task 11 Step 5, and Task 12 Step 3.
+- [ ] **Docs updated in the same commits as the code** (CLAUDE.md rule): `notes/2026-07-26-spec025-slice1-implementation.md` gains a Slice-2 section covering (a) the false premise this plan was first drafted on — that the lane's streams are separate refs, when they are subtrees of one — and what it cost: an "honest limit" about advisory fencing and a compensating transition, both of which evaporated once the store was read correctly; (b) that the fix was a store capability, not a workaround; (c) that the SAME defect recurred one layer up — `PromotionObserved` was written as a coordinator-only append after the transaction existed, which is why the cross-stream invariant matrix is now a normative list rather than a set of individually-remembered cases; (d) that the matrix's FIRST draft then made the mirror-image error in the checker — reading a row's declared effect as an unconditional one, which would have rejected every healthy pre-claim terminal — and that the fix was to derive the condition (`state ∈ CLAIM_HOLDING_STATES`) and to parameterize the test over the derived set rather than over three remembered examples; (e) that the SAME split then showed up a third time as an asymmetry — the writer gating on coordinator ownership while the auditor gated on Attempt state, which meant a divergence between them produced a lone terminal instead of a refusal — resolved by making `holds_claim` and `walk_attempt` single functions with several callers rather than a rule several components each implement; and (f) the load-bearing verifications from Task 3 Step 9, Task 4 Step 5, Task 7 Step 5, Task 12 Step 5, and Task 13 Step 3.
 
 - [ ] **Nothing swept**: `git status --short` still shows exactly the six untracked pipeline artifacts, unchanged.
 
 - [ ] **Do NOT push.** Rebase onto `origin/main` at PR time.
 
-## Open questions for the maintainer
+## Maintainer decisions (2026-08-02)
+
+All thirteen open questions are RESOLVED. Every proposed direction was approved; four
+rulings changed this plan, and one changed the spec. The questions are kept below their
+answers so a later reader can see what was actually decided rather than only what the plan
+now says — a decision with its reasoning deleted becomes an arbitrary constraint.
+
+**What changed as a result**
+
+|Decision|Change|Where|
+|-|-|-|
+|1 — require authenticated time|`_default_fetch` now sends a token and raises `NoTrustedTimeError` without one; two new tests, one asserting the network is never reached|Task 4; **spec rev 24**, FR-036|
+|3 — shared transport approved|the existing-suite run is now an explicit GATE naming `append_to_log`'s complete consumer set|Task 3 Step 2|
+|7 — isolate the rewind fix|split out as its own task, ahead of the transaction work, with its own regression test and commit; Tasks 2–13 renumbered to 3–14|**new Task 2**|
+|10 — release return shape|the caller audit is DONE and its result recorded (no production callers); case 12m extends the 1A test that already drives the re-grant sequence|Task 8|
+|12 — one fold, messages preserved|`project_attempt`'s error messages are pinned by a parameterized test|Task 5|
+
+Decisions 2, 4, 5, 6, 8, 9, 11 and 13 confirmed what the plan already specified and needed
+no edit.
+
+**Two premises in the questions themselves were wrong, and are corrected here rather than
+silently worked around:**
+
+- **Decision 12** asks that "existing 1A projection tests" pass unchanged. There are none:
+  `grep -rn project_attempt src/ tests/` returns nothing before Task 5, because this slice
+  introduces the function. The compatibility requirement is real, so it is discharged the
+  only way it can be — by pinning the messages in the task that writes them.
+- **Decision 5** notes rev 23 has already landed as `b4ef64d013`. Correct; the spec is now
+  at **rev 24**, which adds only decision 1's authenticated-time requirement.
+
+### The questions, as asked — each with its ruling
+
+Task numbers inside the questions and the quoted rulings are the POST-SPLIT numbering
+(decision 7 renumbered Tasks 2–13 to 3–14). Decision 13 was written against the numbering
+that existed when it was given, "policy.py in Task 3 … extend it in Task 9"; it appears
+below as Task 4 and Task 10, which are the same two tasks. Nothing else in a quoted ruling
+is altered.
 
 1. **`GET /rate_limit` unauthenticated** is what the clock falls back to when the run has made no API call yet. In CI the lane will already hold a token, so the authenticated response's `Date` is free — but the unauthenticated path is subject to a 60/hr per-IP limit that a busy shared runner could exhaust. Should the clock REQUIRE a token (fail closed rather than fall back), given FR-036 already says no trusted time ⇒ no lane work?
+   > **Require it.** Do not rely on the unauthenticated shared-IP allowance for a safety-critical clock. Local tests and offline workflows inject `FixedAnchorClock`; without a token or another trusted authority, fail closed as FR-036 requires.
+1. **`GET /rate_limit` unauthenticated** is what the clock falls back to when the run has made no API call yet. In CI the lane will already hold a token, so the authenticated response's `Date` is free — but the unauthenticated path is subject to a 60/hr per-IP limit that a busy shared runner could exhaust. Should the clock REQUIRE a token (fail closed rather than fall back), given FR-036 already says no trusted time ⇒ no lane work?
 2. **`MAX_CLAIM_HOLD_TIME_S` = 3 h 40 min** is a long wedge if a run dies at minute 1 without ever beating. The heartbeat bound (15 min) covers that case, so the hold time only bites a run that beats but never progresses. Confirm that is the intended trade.
-3. **Task 2 modifies `git_event_log.py`, which the 026 credit ledger also depends on.** The change is additive (`append_transaction` alongside `append_to_log`) plus one refactor of the shared tree builder, and Step 2 runs the ledger's suite before anything else is built on it. Confirm you are comfortable with slice-2 work touching that shared transport rather than adding a lane-only copy — the alternative duplicates the CAS loop, which is the Constitution I trade going the other way.
+   > **Confirmed.** The 15-minute heartbeat expiry handles dead or disconnected workers; the 3 h 40 min cap handles workers that remain alive and heartbeat but fail to complete. That longer bound is the intended safe trade against prematurely evicting legitimate long-running work.
+3. **Task 3 modifies `git_event_log.py`, which the 026 credit ledger also depends on.** The change is additive (`append_transaction` alongside `append_to_log`) plus one refactor of the shared tree builder, and Step 2 runs the ledger's suite before anything else is built on it. Confirm you are comfortable with slice-2 work touching that shared transport rather than adding a lane-only copy — the alternative duplicates the CAS loop, which is the Constitution I trade going the other way.
+   > **Approved.** Put the transaction capability in the shared transport rather than duplicating the CAS loop in lane-specific code. Keep the change additive, preserve `append_to_log`, and gate further work on the existing ledger and lane-log suites passing.
 4. **`cas_claim` now requires the Attempt to be `proposal_verified`,** so the ten signed-off 1A coordinator tests each gain a two-event prelude. That is a contract change to signed-off code, made because a claim that skips the table is a claim the machine cannot reason about. Flagging it rather than doing it silently.
+   > **Approved.** `proposal_verified` should be a real precondition of `cas_claim`. Update the signed-off tests with the two-event prelude; do not retain a compatibility path that creates claims outside the lifecycle machine.
 5. **Task 1 amends the spec again (rev 23).** If you would rather review rev 23 before any Slice-2 code lands, Task 1 is separable — it touches only the spec and notes. The invariant matrix you asked to review before Task 1 is in this plan, above; rev 23 copies it in verbatim.
+   > **Approved, and rev 23 should land before implementation.** The spec must describe the actual one-ref transaction substrate and normative matrix before code is written against it. In the current branch, rev 23 has already landed as `b4ef64d013`.
 6. **`MonitorStarted` gains a REQUIRED `merged_at`,** changing a 1A event's payload contract and five 1A test call sites. It has exactly one producer, which always knows the value, so an optional field would exist only to let the coordinator record a merge it cannot date. Same class of flag as item 4: a contract change to signed-off code, surfaced rather than slipped in.
-7. **Task 2 now also fixes a PRE-EXISTING defect in `append_to_log`** — the post-push `update-ref` with no expected-old value, which lets a slow writer rewind the local ref past a newer commit from the same clone (`git_event_log.py:684-686`). It is on the code path this transaction copies and it affects the 026 credit ledger too, so it is fixed in the shared helper rather than worked around. If you would rather that landed as its own commit ahead of the slice, Task 2 Step 5 edit 0 is separable.
+   > **Approved.** Make `merged_at` required. The sole producer always knows it, and an optional value would permit an unusable `MonitorStarted` record that cannot support cooldown or monitoring projections.
+7. **Task 3 now also fixes a PRE-EXISTING defect in `append_to_log`** — the post-push `update-ref` with no expected-old value, which lets a slow writer rewind the local ref past a newer commit from the same clone (`git_event_log.py:684-686`). It is on the code path this transaction copies and it affects the 026 credit ledger too, so it is fixed in the shared helper rather than worked around. If you would rather that landed as its own commit ahead of the slice, Task 3 Step 5 edit 0 is separable. *(That edit no longer exists: the ruling below separated it, and it is now Task 2 in full.)*
+   > **Fix it in the shared helper, but land it as a separate commit immediately before the transaction work.** The defect affects existing consumers independently of Slice 2, and a standalone commit gives it a focused regression test, clearer review scope, and easier reversion/bisection.
 8. **`assert_lane_consistent` is a detector for a state that currently cannot exist.** Both `git for-each-ref 'refs/llmxive/*'` and `git ls-remote origin 'refs/llmxive/*'` are empty, so there is no lane history to migrate and no converter is written. The detector guards a future clone, restore, or hand-repair. Confirm you want it rather than a migration — writing a converter for records that do not exist would be the more expensive answer.
+   > **Use the detector, not a migration.** There is no existing lane history to convert. `assert_lane_consistent` should fail closed on future restore, cloning, or manual-repair corruption; writing a converter now would add unexercised policy for nonexistent data.
 9. **`MonitorStarted` gains an ownership precondition in the coordinator fold** (finding 4's first option, not the second). It makes row 4's ordering semantically enforced rather than conventional, and it is a real corruption check on its own — a `MonitorStarted` for an unclaimed Attempt is the lane watching a merge it never promoted. The cost is a second contract change to a 1A event: its payload gains `problem_id` (the check compares the PAIR, per the 1A F6 guard) alongside `merged_at`, and the 1A folding tests need a claim prelude. If you would rather keep `MonitorStarted` unconditional, the fallback is to document the order as canonical and delete the reversal mutation test — say which.
+   > **Add the ownership precondition.** `MonitorStarted` must name the exact `(problem_id, attempt_id)` currently holding the lane. This makes the ordering semantically enforced and rejects monitoring records for promotions the lane never owned. Update the payload and add claim preludes to the folding tests.
 10. **`cas_release` (1A, signed off) changes its return.** It now reports the generation of the claim it released — read from that claim's `ClaimAcquired`, because `ClaimReleased` carries no generation — and its own `created`. The old return could not answer either question, and the counter it would otherwise read from is the NEXT holder's after a re-grant. Third contract change to signed-off code in this list (with 4 and 6); flagging it for the same reason.
+   > **Approved.** Return the released claim's historical generation and `created`. Preserve current ownership separately in the outcome. Audit all existing callers for assumptions about the old return shape and add delayed replay after a subsequent re-grant.
 11. **`ClaimHeartbeat` lands on the ATTEMPT's stream, and `NON_TRANSITION_EVENTS` exists because of it.** Found while fixing the conditional-effects defect, not reported by review: `project_attempt` folds every event on the stream and fails closed on unknown types, so without a declared non-transition set the first heartbeat would make every later projection of that Attempt raise — and `cas_attempt_transition` treats an unprojectable history as untrustworthy, so a live run would wedge its own claim by proving it was alive. The alternative placement (coordinator stream) is worse: beats are frequent and every coordinator append moves the `lane_revision` that every claim CAS is anchored to. Confirm the stream choice; the set is derived from the spec's `‡` rows keyed by `attempt_id`, so it cannot drift.
-12. **`project_attempt` is rebuilt on `walk_attempt`, a 1A-visible refactor with no behaviour change.** The auditor needs the state BEFORE each event, and giving it its own fold made it a second, weaker interpreter of the table — one that accepted illegal completed histories in the component whose job is to disbelieve them. Extracting the generator keeps one fail-closed fold. All existing `project_attempt` behaviour and error messages are preserved; the 1A projection tests should pass unchanged, and Task 4 Step 4 runs them to prove it.
-13. **`policy.py` moves from Task 9 to Task 3.** The clock's `max_sample_rtt` and refresh interval ARE Policy Contract values, and the regression tolerance is derived from `max_clock_skew`; leaving `policy.py` in Task 9 would have the clock keeping private copies of contract values declared elsewhere. Task 9 now extends the module rather than creating it.
+   > **Put `ClaimHeartbeat` on the Attempt stream.** Frequent heartbeats should not churn the singleton coordinator revision. Keep non-transition behaviour declarative and enforce its legality: heartbeat only in claim-holding states and only at the active claim generation.
+12. **`project_attempt` is rebuilt on `walk_attempt`, a 1A-visible refactor with no behaviour change.** The auditor needs the state BEFORE each event, and giving it its own fold made it a second, weaker interpreter of the table — one that accepted illegal completed histories in the component whose job is to disbelieve them. Extracting the generator keeps one fail-closed fold. All existing `project_attempt` behaviour and error messages are preserved; the 1A projection tests should pass unchanged, and Task 5 Step 4 runs them to prove it.
+   > **Approved.** Extract `walk_attempt` and implement `project_attempt` on top of it so the writer, projector, and auditor share one fail-closed interpreter. Treat unchanged error messages and existing 1A projection tests as compatibility requirements.
+13. **`policy.py` moves from Task 10 to Task 4.** The clock's `max_sample_rtt` and refresh interval ARE Policy Contract values, and the regression tolerance is derived from `max_clock_skew`; leaving `policy.py` in Task 10 would have the clock keeping private copies of contract values declared elsewhere. Task 10 now extends the module rather than creating it.
+   > **Approved.** Create `policy.py` in Task 4, where the first policy consumers appear, and extend it in Task 10. Clock sampling limits, refresh timing, skew, and regression tolerance should come from one policy module rather than private copies.
