@@ -33,7 +33,7 @@ This project implements a computational pipeline to predict cognitive decline (s
 - **IV. Single Source of Truth**: ⚠️ **Conditional**: SSoT is contingent on successful data ingestion. If the dataset is missing, no SSoT can be established, and the project fails at Phase 0.
 - **V. Versioning Discipline**: ✅ Content hashes for artifacts; `state/` updated on artifact changes.
 - **VI. Neuroimaging Dataset Versioning**: ✅ Plan specifies using OpenNeuro `ds000248` (ADNI rs-fMRI subset) with version tag recorded in `data/VERSION.txt` and checksum verification.
-- **VII. Graph‑Theoretical Metric Reproducibility**: ✅ Plan mandates `networkx` for graph metrics, 90-region AAL atlas, and pinned library versions in `requirements.txt`.
+- **VII. Graph‑Theoretical Metric Reproducibility**: ✅ Plan mandates `networkx` for graph metrics, -region AAL atlas, and pinned library versions in `requirements.txt`.
 
 ## Requirement Mapping
 

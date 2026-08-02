@@ -1,3 +1,12 @@
+T017b:
+  c: false
+  h: 9f4139b43159585a81c4aef3c1a944e4261a26b5d412d83ece19a18eb6f93768
+  r: "The script `code/01_download_and_filter.py` is truncated and never reaches the\
+    \ filtering or file\u2011writing logic; the required output files `data/processed/eligible_subjects.csv`\
+    \ and `data/processed/excluded_subjects.log` are absent. The status artifact shows\
+    \ an error and zero eligible subjects, and there is no evidence that the script\
+    \ exits with `sys.exit(2)` when no eligible subjects are found. The task\u2019\
+    s core functionality is therefore not fulfilled."
 T024:
   c: false
   h: 10de7ca2e707b90f90157a9b1083a325152b0d6926d1c13d194afc6a78459685

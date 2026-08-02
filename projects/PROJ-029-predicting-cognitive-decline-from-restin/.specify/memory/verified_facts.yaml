@@ -1,5 +1,9 @@
-'|label permutation shuffle test time':
-  quote: "conservativeness also occurs if very few (e.g. 25\u2013100) random pe rmutations"
-  source_id: '1411.7565'
-  url: https://arxiv.org/abs/1411.7565
-  value: '100'
+'|check runtime':
+  quote: The film received a U/A 13+ certificate on 2 July 2026 by the Central Board
+    of Film Certification (CBFC). In two places in the film, the scenes having 'obscene'
+    hand gestures were modified and replaced. The CBFC's Examining Committee had also
+    asked the makers to replace 'obscene' words in seven places in the film. No scene
+    in the film was cut. The runtime of the film is 143 minutes.
+  source_id: Dhamaal 4
+  url: https://en.wikipedia.org/wiki/Dhamaal_4
+  value: 143 minutes
