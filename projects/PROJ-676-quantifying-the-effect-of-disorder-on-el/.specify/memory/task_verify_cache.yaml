@@ -1,10 +1,10 @@
 T011:
   c: false
-  h: 7a515fbbb0a64f9e5957e450e5d01c3921b8c0d58ece6b5fb7e2eebccea3b0b2
-  r: "The repository contains the integration test `tests/integration/test_pr_scaling.py`,\
-    \ but the required file `data/processed/scaling_fits.json` does not exist, causing\
-    \ the test\u2019s existence assertion to fail. The missing JSON file must be generated\
-    \ (or added) for the task to be satisfied."
+  h: 9a9ff1f4c20cedc40b7f410a6e87f4fa35040da89782ad3b4b1e17973802c4f3
+  r: The integration test file `tests/integration/test_pr_scaling.py` is present,
+    but the required output `data/processed/scaling_fits.json` does not exist, so
+    the test cannot pass and the schema validation cannot be performed. The missing
+    JSON file must be generated (or added) for the task to be satisfied.
 T015a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,14 +13,22 @@ T015a:
     \ we cannot confirm that the phrase \u201CBonferroni correction for pairwise comparisons\
     \ only\u201D was replaced with \u201CBonferroni correction for the full family\
     \ of disorder widths\u201D. The required artifact is missing."
-T017:
+T017a:
+  c: true
+  h: 966f900f5fe700bdaf214c65f50bba3a55a77e884eda1db9896f2a687d1749dc
+  r: "The repository contains a non\u2011empty `code/logger.py` defining `NumericalLogger`\
+    \ with the required `log_residual` and `log_convergence` methods, using `'a'`\
+    \ mode and `flush()`. It also provides utility functions/decorators (`get_logger`,\
+    \ `log_residual_decorator`, etc.). The absence of a pre\u2011created `data/metadata/residuals.json`\
+    \ is acceptable because the logger creates/appends to it at runtime."
+T023:
   c: false
-  h: 44adc46e31cba71e3b51ea21bb3f88316b375f164d3072c8f15500b91d6eb4d5
-  r: "The `code/logger.py` file exists and provides the required class and decorators,\
-    \ but it does not write JSON\u2011lines to `data/metadata/residuals.json` as specified\
-    \ (it only accumulates entries in memory and writes a full JSON array on `save`).\
-    \ Moreover, the required `data/metadata/residuals.json` file is missing. The task\u2019\
-    s output format and persistent logging requirements are therefore not met."
+  h: 6ba104488a26de211d6f832b9ef309a292753d75eb202b0dcdb77dfdba170060
+  r: The repository contains a `code/compare_methods.py` file, but the required input
+    files `data/processed/scaling_fits.json` and `data/processed/lyapunov_exponents.json`
+    are absent, and the expected output `data/processed/method_agreement_report.json`
+    was not generated. Consequently the script cannot be executed nor produce the
+    required report, so the task is not genuinely completed.
 T029:
   c: false
   h: d6f06b969823f56b8680fc4e48389a1ec4e28eb08e7d79eb0e825a4356f17539
@@ -37,3 +45,11 @@ T033a:
     \ the provided `code/analyze_pr.py` snippet shows no implementation that detects\
     \ `W=0`, checks PR scaling, or writes an `is_delocalized` flag to a JSON file.\
     \ Both the output artifact and the necessary boundary\u2011case logic are missing."
+T037:
+  c: false
+  h: d6f06b969823f56b8680fc4e48389a1ec4e28eb08e7d79eb0e825a4356f17539
+  r: "The required `docs/physical_interpretation.md` file does not exist, and the\
+    \ provided `code/visualize.py` contains no implementation that computes a clean\u2011\
+    limit eigenstate, extracts the max\u2011amplitude site, calculates a spread, or\
+    \ writes a \u201CClean Limit: W=0\u201D markdown table. Both the output document\
+    \ and the specific analysis code are missing."

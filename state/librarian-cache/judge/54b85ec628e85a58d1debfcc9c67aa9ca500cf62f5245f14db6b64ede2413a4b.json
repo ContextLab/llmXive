@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1204.3928",
+  "judged_at": "2026-08-02T09:59:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantitative analysis of gene expression dynamics during human brain development biology",
+  "rationale": "This paper satisfies criterion (a) by measuring the same biological mechanism (brain development dynamics) and providing quantitative data on a key physiological variable (metabolic energy consumption) that is intrinsically linked to gene expression and synaptogenesis during human brain development. It also meets criterion (e) as it is a canonical empirical study specifically analyzing the human brain's developmental trajectory, which is the exact population of interest.",
+  "relevant": true
+}

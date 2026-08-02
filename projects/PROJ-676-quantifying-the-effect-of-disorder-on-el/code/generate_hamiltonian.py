@@ -8,7 +8,7 @@ from code.config import get_config
 from scipy import linalg
 from scipy import sparse
 from scipy.sparse import diags
-from code.logger import get_logger
+from code.logger import get_logger, inject_log_residual
 import logging
 
 logger = logging.getLogger(__name__)

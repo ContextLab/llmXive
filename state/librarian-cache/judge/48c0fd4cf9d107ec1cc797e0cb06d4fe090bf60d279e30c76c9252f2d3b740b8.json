@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1301.1730",
+  "judged_at": "2026-08-02T09:59:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantitative analysis of gene expression dynamics during human brain development biology",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the same biological mechanism (gene co-expression networks) and domain (brain-wide gene expression) using quantitative methods, even though it focuses on the adult mouse brain rather than human development. It provides the canonical computational tools and empirical baselines for analyzing spatially mapped gene expression data, which are essential for a literature review on the quantitative analysis of brain gene dynamics.",
+  "relevant": true
+}

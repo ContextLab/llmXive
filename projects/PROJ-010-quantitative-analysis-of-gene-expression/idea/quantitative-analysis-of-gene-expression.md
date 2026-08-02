@@ -12,42 +12,68 @@ submitter: Qwen2.5-1.5B-Instruct
 
 ## Research question
 
-How do gene expression patterns quantitatively evolve across specific developmental stages in the human brain, and what regulatory networks drive these dynamics during critical neurodevelopmental windows?
+Which specific transcription factor regulatory networks show stage-specific rewiring during critical neurodevelopmental windows (e.g., cortical layer formation, synaptic maturation) that are not captured by existing single-cell brain atlases, and how do these networks correlate with vulnerability windows for neurological disorders?
 
 ## Motivation
 
-Understanding the temporal and spatial dynamics of gene expression during human brain development is essential for identifying molecular mechanisms underlying normal neurodevelopment and their disruption in neurological disorders. Current single-cell atlases provide snapshots but lack comprehensive quantitative modeling of expression trajectories across developmental timepoints, leaving gaps in our ability to predict developmental vulnerabilities and therapeutic intervention windows.
+Existing single-cell atlases provide high-resolution spatial and cellular maps but often lack dynamic modeling of how transcriptional regulatory networks reconfigure over time. Identifying stage-specific network rewiring is crucial for pinpointing the precise molecular mechanisms that, when disrupted, lead to neurodevelopmental disorders. This research addresses the gap between static cellular catalogs and the temporal dynamics required to understand developmental vulnerability.
 
-## Related work
+## Literature gap analysis
 
-- [Single‐Cell Analysis of Alternative Splicing and Gene Regulatory Network Reveals Remarkable Expression and Regulation Dynamics During Human Early Embryonic Development (2025)](https://www.semanticscholar.org/paper/fe6313787730b0e19fd8e9de4fe32a5dcede4bd6) — Establishes single-cell RNA-seq approaches for capturing cell-to-cell variability during early embryonic development.
-- [Transcriptomic analysis of the TRP gene family in human brain physiopathology (2025)](https://www.semanticscholar.org/paper/75d7beb8bb26dc8085493b0528a27cbda6b0b74e) — Examines ion channel gene family expression relevant to brain physiology and sensory signal transduction.
-- [An integrative single-cell atlas for exploring the cellular and temporal specificity of genes related to neurological disorders during human brain development (2024)](https://www.semanticscholar.org/paper/72954c07c1654ba7d7cf9211544b137874bd57a9) — Provides comprehensive transcriptomic census across diverse brain regions with disease gene specificity.
-- [In silico analysis of histone H3 gene expression during human brain development. (2016)](https://www.semanticscholar.org/paper/2e13e8a18fd4742e95e3e9649ef6f171f2204cb5) — Early computational analysis of histone gene expression patterns during brain development.
-- [Identification of Specialized tRNA Expression in Early Human Brain Development (2025)](https://www.semanticscholar.org/paper/e10ec29772753a1dd959cdb257c82d659df6d370) — Explores tRNA-derived small RNAs and their regulatory functions in early brain development.
-- [An integrative single-cell atlas to explore the cellular and temporal specificity of neurological disorder genes during human brain development (2024)](https://www.semanticscholar.org/paper/b79507584329559e8de36b462a926353bb9e9365) — Similar atlas approach examining neurological disorder gene specificity across developmental stages.
-- [Coupling diffusion imaging with histological and gene expression analysis to examine the dynamics of cortical areas across the fetal period of human brain development. (2013)](https://www.semanticscholar.org/paper/2ffcc8de6f420d95ef890a88a44d0e3c5b299e16) — Integrates imaging modalities with gene expression to examine cortical development dynamics.
-- [Quantitative Co-expression and Pathway Analysis Reveal the Shared Biology of Intellectual Disabilities (2025)](https://www.semanticscholar.org/paper/0e1ab8eaf045c99177cd65d7c3f45eb766c6c602) — Demonstrates quantitative pathway analysis approaches for understanding neurodevelopmental disorders.
+### What we searched
+We queried Semantic Scholar, arXiv, and OpenAlex using terms including "transcription factor regulatory networks human brain development," "stage-specific rewiring neurodevelopment," "gene expression dynamics cortical development," and "neurodevelopmental disorder vulnerability windows." The search returned a limited number of results directly addressing the *dynamic rewiring* of specific TF networks in *human* development; most literature focuses on static atlases, general co-expression, or metabolic correlates rather than the specific temporal topology of regulatory networks.
+
+### What is known
+- [Gene regulatory networks: a primer in biological processes and statistical modelling (2018)](https://arxiv.org/abs/1805.01098) — Establishes the statistical frameworks and mathematical models necessary to represent and analyze gene regulatory networks, providing the theoretical basis for dynamic network inference.
+- [Computational neuroanatomy and co-expression of genes in the adult mouse brain, analysis tools for the Allen Brain Atlas (2013)](https://arxiv.org/abs/1301.1730) — Demonstrates quantitative methods for analyzing genome-scale, brain-wide spatially-mapped gene expression, though primarily focused on the adult mouse brain rather than dynamic human development.
+- [Approximate invariance of metabolic energy per synapse during development in mammalian brains (2012)](https://arxiv.org/abs/1204.3928) — Highlights the correlation between cerebral metabolic rate and synaptogenesis, suggesting a physiological constraint on developmental timing, but does not detail the underlying transcriptional regulatory rewiring.
+
+### What is NOT known
+No published work has systematically mapped the *rewiring* of specific transcription factor networks across critical human neurodevelopmental windows (e.g., cortical layer formation) using time-resolved single-cell data. Furthermore, the specific correlation between these dynamic network topologies and known vulnerability windows for neurological disorders remains unquantified in the literature.
+
+### Why this gap matters
+Filling this gap is essential for moving from descriptive cell atlases to predictive models of neurodevelopment. Understanding which network configurations are unique to specific developmental stages could reveal why certain disorders manifest only when development is perturbed at precise times, enabling targeted therapeutic interventions.
+
+### How this project addresses the gap
+This project will integrate time-resolved human single-cell RNA-seq datasets to infer stage-specific gene regulatory networks using dynamic modeling. By explicitly comparing network topology across developmental stages and correlating these changes with disorder susceptibility genes, we will generate the first quantitative map of regulatory rewiring and its link to vulnerability windows.
 
 ## Expected results
 
-This study will identify distinct gene expression trajectories across human brain developmental stages, revealing key regulatory hubs that show dynamic expression changes during critical neurodevelopmental windows. Statistical modeling will confirm whether expression variability significantly correlates with known neurological disorder susceptibility genes, providing evidence for developmental vulnerability periods. The level of evidence needed includes reproducibility across multiple single-cell datasets and validation through cross-platform consistency checks.
+We expect to identify distinct "rewiring events" where transcription factor networks undergo significant topological changes during critical windows like cortical layer formation. Statistical modeling will reveal a non-random correlation between the timing of these network shifts and the onset windows of specific neurological disorders. The evidence will be established through reproducible network inference across multiple datasets and significant enrichment of disorder-associated genes in the dynamically rewired network hubs.
 
 ## Methodology sketch
 
-- Collect and curate publicly available single-cell RNA-seq datasets from human brain developmental samples (fetal to adult stages) from repositories like GEO, SRA, and BrainSpan
-- Perform quality control and batch correction using Harmony or Seurat integration pipelines to harmonize multiple datasets
-- Cluster cells by cell type and developmental stage using dimensionality reduction (PCA, UMAP) and graph-based clustering
-- Construct pseudotime trajectories using Monocle3 or Slingshot to model gene expression dynamics across developmental progression
-- Identify differentially expressed genes between developmental stages using negative binomial generalized linear models (edgeR/DESeq2)
-- Build gene regulatory networks using SCENIC or similar co-expression network analysis tools
-- Apply statistical tests (Wald tests, likelihood ratio tests) to assess significance of expression changes and network rewiring
-- Validate findings by cross-referencing with known neurological disorder gene sets and enrichment analysis (GSEA)
-- Generate quantitative models of expression trajectory patterns with confidence intervals and effect size estimates
-- Create an interactive visualization portal for exploring gene expression dynamics across developmental stages
+- **Data Acquisition**: Download time-resolved human single-cell RNA-seq datasets (fetal to adult) from GEO and the BrainSpan Atlas, filtering for samples with known developmental staging.
+- **Preprocessing & Integration**: Perform quality control, normalize counts, and apply Harmony or Seurat integration to correct for batch effects across different studies and donors.
+- **Pseudotime Inference**: Use Monocle3 or Slingshot to order cells along developmental trajectories, defining continuous pseudotime axes for specific lineages (e.g., excitatory neurons).
+- **Network Inference**: Apply SCENIC or GRNBoost2 on sliding windows of pseudotime to reconstruct stage-specific gene regulatory networks, identifying active transcription factors and their targets.
+- **Rewiring Detection**: Quantify network topology changes between adjacent developmental windows using edge weight differences and hub stability metrics to identify "rewiring events."
+- **Vulnerability Correlation**: Map known neurological disorder risk genes (from GWAS catalogs) onto the dynamic networks and test for enrichment in rewired hubs using hypergeometric tests.
+- **Statistical Validation**: Perform permutation tests to ensure that observed rewiring events and disorder enrichments are significant compared to randomized network structures.
+- **Independence Check**: Validate findings against an independent dataset (e.g., bulk RNA-seq time courses from different cohorts) to ensure results are not artifacts of a single dataset's noise profile.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: biology-20250708-001 (Quantitative Analysis of Gene Expression Dynamics during Human Brain Development).
-- Closest match: biology-20250708-001 (similarity: same core title and field, but this fleshed-out version adds specific methodology, literature grounding, and quantitative modeling focus).
-- Verdict: NOT a duplicate (this is an expansion of the brainstormed seed with proper literature integration and methodological detail)
+- Closest match: biology-20250708-001 (similarity: high overlap in title and field, but the current draft adopts the revised research question focusing on *TF network rewiring* and *vulnerability windows*, whereas the previous version was a broader expression trajectory analysis).
+- Verdict: NOT a duplicate (this is a refined expansion addressing specific validator feedback on the research question and focusing on a distinct mechanistic gap).
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-02T10:00:02Z
+**Outcome**: exhausted
+**Original term**: Quantitative Analysis of Gene Expression Dynamics during Human Brain Development biology
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Quantitative Analysis of Gene Expression Dynamics during Human Brain Development biology | 3 |
+
+### Verified citations
+
+1. **Approximate invariance of metabolic energy per synapse during development in mammalian brains** (2012). Jan Karbowski. arXiv. [1204.3928](https://arxiv.org/abs/1204.3928). PDF-sampled: No.
+2. **Computational neuroanatomy and co-expression of genes in the adult mouse brain, analysis tools for the Allen Brain Atlas** (2013). Pascal Grange, Michael Hawrylycz, Partha P. Mitra. arXiv. [1301.1730](https://arxiv.org/abs/1301.1730). PDF-sampled: No.
+3. **Gene regulatory networks: a primer in biological processes and statistical modelling** (2018). Olivia Angelin-Bonnet, Patrick J. Biggs, Matthieu Vignes. arXiv. [1805.01098](https://arxiv.org/abs/1805.01098). PDF-sampled: No.

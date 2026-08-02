@@ -1,95 +1,104 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: Schema for the output of the statistical modeling phase (US2).
 type: object
+required:
+  - models
+  - diagnostics
+  - metadata
 properties:
-  model_name:
-    type: string
-  fixed_effects:
+  metadata:
     type: object
+    description: Metadata about the run.
     properties:
-      total_steps:
-        type: object
-        properties:
-          coefficient:
-            type: number
-          std_error:
-            type: number
-          p_value:
-            type: number
-          ci_lower:
-            type: number
-          ci_upper:
-            type: number
-      sleep_duration:
-        type: object
-        properties:
-          coefficient:
-            type: number
-          std_error:
-            type: number
-          p_value:
-            type: number
-          ci_lower:
-            type: number
-          ci_upper:
-            type: number
-      day_of_week:
-        type: array
-        items:
-          type: object
-          properties:
-            day:
-              type: string
-            coefficient:
-              type: number
-            std_error:
-              type: number
-            p_value:
-              type: number
-            ci_lower:
-              type: number
-            ci_upper:
-              type: number
-      baseline_affect:
-        type: object
-        properties:
-          coefficient:
-            type: number
-          std_error:
-            type: number
-          p_value:
-            type: number
-          ci_lower:
-            type: number
-          ci_upper:
-            type: number
-  random_effects:
+      timestamp:
+        type: string
+        format: date-time
+      version:
+        type: string
+      analysis_type:
+        type: string
+        description: Must be "associational" per T024.
+      dataset_source:
+        type: string
+    required:
+      - timestamp
+      - analysis_type
+  models:
     type: object
+    description: Results for each fitted model.
     properties:
-      participant_id:
+      mood_std_model:
         type: object
+        description: Results for the model predicting log(mood_std).
         properties:
-          variance:
-            type: number
+          formula:
+            type: string
+          outcome:
+            type: string
+          predictor:
+            type: string
+          fixed_effects:
+            type: array
+            items:
+              type: object
+              properties:
+                term:
+                  type: string
+                estimate:
+                  type: number
+                std_err:
+                  type: number
+                p_value:
+                  type: number
+                ci_lower:
+                  type: number
+                ci_upper:
+                  type: number
+          convergence:
+            type: boolean
+      mean_mood_model:
+        type: object
+        description: Results for the model predicting mean_mood.
+        properties:
+          formula:
+            type: string
+          outcome:
+            type: string
+          predictor:
+            type: string
+          fixed_effects:
+            type: array
+            items:
+              type: object
+              properties:
+                term:
+                  type: string
+                estimate:
+                  type: number
+                std_err:
+                  type: number
+                p_value:
+                  type: number
+                ci_lower:
+                  type: number
+                ci_upper:
+                  type: number
+          convergence:
+            type: boolean
+    required:
+      - mood_std_model
+      - mean_mood_model
   diagnostics:
     type: object
+    description: Model diagnostics and plots info.
     properties:
-      convergence:
-        type: boolean
-      shapiro_wilk:
-        type: object
-        properties:
-          statistic:
-            type: number
-          p_value:
-            type: number
-      breusch_pagan:
-        type: object
-        properties:
-          statistic:
-            type: number
-          p_value:
-            type: number
-required:
-  - model_name
-  - fixed_effects
-  - random_effects
-  - diagnostics
+      residuals_vs_fitted_path:
+        type: string
+      shapiro_wilk_pvalue:
+        type: number
+      breusch_pagan_pvalue:
+        type: number
+    required:
+      - residuals_vs_fitted_path
+additionalProperties: false

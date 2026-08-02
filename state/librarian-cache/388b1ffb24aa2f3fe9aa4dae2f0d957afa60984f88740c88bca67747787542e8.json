@@ -1,0 +1,386 @@
+{
+  "fetched_at": "2026-08-02T10:00:02Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Quantitative Analysis of Gene Expression Dynamics during Human Brain Development",
+      "target_n": 5
+    },
+    "duration_seconds": 42.381,
+    "ended_at": "2026-08-02T10:00:02Z",
+    "expansion": null,
+    "extracted_queries": [
+      "single-cell RNA sequencing transcriptome atlas neurogenesis",
+      "BrainSpan developing human cortex fetal postnatal",
+      "cortical layer specification excitatory inhibitory interneuron",
+      "developmental trajectory pseudotime velocity RNA velocity",
+      "gene regulatory network enhancer promoter chromatin accessibility"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1204.3928"
+      ]
+    },
+    "per_query_hit_count": {
+      "BrainSpan developing human cortex fetal postnatal": 3,
+      "Quantitative Analysis of Gene Expression Dynamics during Human Brain Development biology": 3,
+      "cortical layer specification excitatory inhibitory interneuron": 3,
+      "developmental trajectory pseudotime velocity RNA velocity": 3,
+      "gene regulatory network enhancer promoter chromatin accessibility": 3,
+      "single-cell RNA sequencing transcriptome atlas neurogenesis": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1607.06358",
+          "rationale": "The paper focuses on a general Bayesian methodology for parameter uncertainty in systems biology models and demonstrates it using Arabidopsis (plant) root development, which is an off-domain application for a question specifically about human brain development. While it touches on gene function evaluation, it does not measure the specific biological mechanism (human brain gene expression dynamics) or the empirical population required by the user's question, failing to meet the criteria for inclu",
+          "title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions"
+        },
+        {
+          "primary_pointer": "1803.08575",
+          "rationale": "The paper studies gene expression regulation and chromatin dynamics in *Tetrahymena thermophila* (a single-celled protist), which is an off-domain population compared to the user's specific requirement for \"Human Brain Development.\" While it addresses the general mechanism of gene expression, it fails the \"off-domain entirely\" rejection rule because it does not study the human empirical population or the specific developmental context of the brain.",
+          "title": "The bromodomain-containing protein Ibd1 links multiple chromatin related protein complexes to highly expressed genes in Tetrahymena thermophila"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-02T09:59:20Z",
+    "term_input": {
+      "normalized": "quantitative analysis of gene expression dynamics during human brain development biology",
+      "raw": "Quantitative Analysis of Gene Expression Dynamics during Human Brain Development biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A measurement of the Higgs boson mass is presented based on the combined data samples of the ATLAS and CMS experiments at the CERN LHC in the $H \\rightarrow γγ$ and $H \\rightarrow ZZ\\rightarrow 4\\ell$ decay channels. The results are obtained from a simultaneous fit to the reconstructed invariant mass peaks in the two channels and for the two experiments. The measured masses from the individual channels and the two experiments are found to be consistent among themselves. The combined measured mass of the Higgs boson is $m_{H} = 125.09\\pm0.21\\,\\mathrm{(stat.)}\\pm0.11\\,\\mathrm{(syst.)}~\\mathrm{GeV}$.",
+          "claimed_authors": [
+            " ATLAS",
+            "CMS Collaborations"
+          ],
+          "claimed_title": "Combined Measurement of the Higgs Boson Mass in $pp$ Collisions at $\\sqrt{s}=7$ and 8 TeV with the ATLAS and CMS Experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.07589"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Combined Measurement of the Higgs Boson Mass in $pp$ Collisions at $\\\\sqrt{s}=7$ and 8 TeV with the ATLAS and CMS Experiments')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ATLAS experiment at the Large Hadron Collider has a broad physics programme ranging from precision measurements to direct searches for new particles and new interactions, requiring ever larger and ever more accurate datasets of simulated Monte Carlo events. Detector simulation with \\textsc{Geant4} is accurate but requires significant CPU resources. Over the past decade, ATLAS has developed and utilized tools that replace the most CPU-intensive component of the simulation -- the calorimeter shower simulation -- with faster simulation methods. Here, AtlFast3, the next generation of high-accuracy fast simulation in ATLAS, is introduced. AtlFast3 combines parameterized approaches with machine-learning techniques and is deployed to meet current and future computing challenges and simulation needs of the ATLAS experiment. With highly accurate performance and significantly improved modelling of substructure within jets, AtlFast3 can simulate large numbers of events for a wide range of physics processes.",
+          "claimed_authors": [
+            " ATLAS Collaboration"
+          ],
+          "claimed_title": "AtlFast3: the next generation of fast simulation in ATLAS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.02551"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='AtlFast3: the next generation of fast simulation in ATLAS')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "During 2015 the ATLAS experiment recorded 3.8 fb$^{-1}$ of proton--proton collision data at a centre-of-mass energy of 13 TeV. The ATLAS trigger system is a crucial component of the experiment, responsible for selecting events of interest at a recording rate of approximately 1 kHz from up to 40 MHz of collisions. This paper presents a short overview of the changes to the trigger and data acquisition systems during the first long shutdown of the LHC and shows the performance of the trigger system and its components based on the 2015 proton--proton collision data.",
+          "claimed_authors": [
+            " ATLAS Collaboration"
+          ],
+          "claimed_title": "Performance of the ATLAS Trigger System in 2015",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.09661"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Performance of the ATLAS Trigger System in 2015')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "By defining the current limits (and thereby the frontiers), many boundaries are shaping, and will continue to shape, the future of Artificial Intelligence (AI). We push on these boundaries in order to make further progress into what were yesterday's frontiers. They are both pliable and resilient - always creating new boundaries of what AI can (or should) achieve. Among these are technical boundaries (such as processing capacity), psychological boundaries (such as human trust in AI systems), ethical boundaries (such as with AI weapons), and conceptual boundaries (such as the AI people can imagine). It is within this final category while it can play a fundamental role in all other boundaries} that we find the construct of needs and the limitations that our current concept of need places on the future AI.",
+          "claimed_authors": [
+            "Ryan Watkins",
+            "Soheil Human"
+          ],
+          "claimed_title": "Needs-aware Artificial Intelligence: AI that 'serves [human] needs'",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.04977"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title=\"Needs-aware Artificial Intelligence: AI that 'serves [human] needs'\")",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Advanced Data Protection Control (ADPC) is a technical specification - and a set of sociotechnical mechanisms surrounding it - that can change the current practice of Internet-based personal data protection and consenting by providing novel and standardized means for the communication of privacy and consenting data, meta-data, information, requests, preferences, and decisions. The ADPC supports humans in practicing their rights to privacy and agency by giving them more human-centric control over the processing of their personal data and consent. It helps the data controllers to improve their users' experiences and provides them with easy-to-adopt means to comply with the relevant legal and ethical requirements and expectations.",
+          "claimed_authors": [
+            "Soheil Human"
+          ],
+          "claimed_title": "Advanced Data Protection Control (ADPC): An Interdisciplinary Overview",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.09724"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Advanced Data Protection Control (ADPC): An Interdisciplinary Overview')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Congenital heart disease (CHD) screening from fetal echocardiography requires accurate analysis of multiple standard cardiac views, yet developing reliable artificial intelligence models remains challenging due to limited annotations and variable image quality. In this work, we propose FM-DACL, a semi-supervised Dual Agreement Consistency Learning framework for the FETUS 2026 challenge on fetal heart ultrasound segmentation and diagnosis. The method combines a pretrained ultrasound foundation model (EchoCare) with a convolutional network through heterogeneous co-training and an exponential moving average teacher to better exploit unlabeled data. Experiments on the multi-center challenge dataset show that FM-DACL achieves a Dice score of 59.66 and NSD of 42.82 using heterogeneous backbones, demonstrating the feasibility of the proposed semi-supervised framework. These results suggest that FM-DACL provides a flexible approach for leveraging heterogeneous models in low-annotation fetal cardiac ultrasound analysis. The code is available on https://github.com/13204942/FM-DACL.",
+          "claimed_authors": [
+            "Fangyijie Wang",
+            "Guénolé Silvestre",
+            "Kathleen M. Curran"
+          ],
+          "claimed_title": "Dual Agreement Consistency Learning with Foundation Models for Semi-Supervised Fetal Heart Ultrasound Segmentation and Diagnosis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.18119"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Dual Agreement Consistency Learning with Foundation Models for Semi-Supervised Fetal Heart Ultrasound Segmentation and Diagnosis')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The original Convolutional Neural Networks (CNNs) and their modern updates such as the ResNet are heavily inspired by the mammalian visual system. These models include afferent connections (retina and LGN to the visual cortex) and long-range projections (connections across different visual cortical areas). However, in the mammalian visual system, there are connections within each visual cortical area, known as lateral (or horizontal) connections. These would roughly correspond to connections within CNN feature maps, and this important architectural feature is missing in current CNN models. In this paper, we present how such lateral connections can be modeled within the standard CNN framework, and test its benefits and analyze its emergent properties in relation to the biological visual system. We will focus on two main architectural features of lateral connections: (1) recurrent activation and (2) separation of excitatory and inhibitory connections. We show that recurrent CNN using weight sharing is equivalent to lateral connections, and propose a custom loss function to separate excitatory and inhibitory weights. The addition of these two leads to increased classification accuracy, and importantly, the activation properties and connection properties of the resulting model show properties similar to those observed in the biological visual system. We expect our approach to help align CNN closer to its biological counterpart and better understand the principles of visual cortical computation.",
+          "claimed_authors": [
+            "Jin Hyun Park",
+            "Cheng Zhang",
+            "Yoonsuck Choe"
+          ],
+          "claimed_title": "Incorporating Visual Cortical Lateral Connection Properties into CNN: Recurrent Activation and Excitatory-Inhibitory Separation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.15460"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Incorporating Visual Cortical Lateral Connection Properties into CNN: Recurrent Activation and Excitatory-Inhibitory Separation')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We review the use of mean field theory for describing the dynamics of dense, randomly connected cortical circuits. For a simple network of excitatory and inhibitory leaky integrate-and-fire neurons, we can show how the firing irregularity, as measured by the Fano factor, increases with the strength of the synapses in the network and with the value to which the membrane potential is reset after a spike. Generalizing the model to include conductance-based synapses gives insight into the connection between the firing statistics and the high-conductance state observed experimentally in visual cortex. Finally, an extension of the model to describe an orientation hypercolumn provides understanding of how cortical interactions sharpen orientation tuning, in a way that is consistent with observed firing statistics.",
+          "claimed_authors": [
+            "John Hertz",
+            "Alexander Lerchner",
+            "Mandana Ahmadi"
+          ],
+          "claimed_title": "Mean field methods for cortical network dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "q-bio/0402023"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Mean field methods for cortical network dynamics')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We classify connected 3-node restricted excitatory-inhibitory networks, extending our previous paper (`Classification of 2-node Excitatory-Inhibitory Networks', Mathematical Biosciences 373 (2024) 109205). We assume that there are two node-types and two arrow-types, excitatory and inhibitory; all excitatory arrows are identical and all inhibitory arrows are identical; and excitatory (resp. inhibitory) nodes can only output excitatory (resp. inhibitory) arrows. The classification is performed under the following two network perspectives: ODE-equivalence and minimality; and valence less or equal to 2. The results of this and the previous work constitute a first step towards analysing dynamics and bifurcations of excitatory-inhibitory networks and have potential applications to biological network models.",
+          "claimed_authors": [
+            "Manuela Aguiar",
+            "Ana Dias",
+            "Ian Stewart"
+          ],
+          "claimed_title": "Classification of 3-Node Restricted Excitatory-Inhibitory Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.17359"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Classification of 3-Node Restricted Excitatory-Inhibitory Networks')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report on the results from the radial-velocity follow-up program performed to establish the planetary nature and to characterize the transiting candidates discovered by the space mission CoRoT. We use the SOPHIE at OHP, HARPS at ESO and the HIRES at Keck spectrographs to collect spectra and high- precision radial velocity (RV) measurements for several dozens dif- ferent candidates from CoRoT. We have measured the Rossiter- McLaughlin effect of several confirmed planets, especially CoRoT- 1b which revealed that it is another highly inclined system. Such high-precision RV data are necessary for the discovery of new tran- siting planets. Furthermore, several low mass planet candidates have emerged from our Keck and HARPS data.",
+          "claimed_authors": [
+            "A. Santerne",
+            "M. Endl",
+            "A. Hatzes",
+            "F. Bouchy",
+            "C. Moutou",
+            "M. Deleuil",
+            "the CoRoT radial velocity team"
+          ],
+          "claimed_title": "Radial velocity follow-up of CoRoT transiting exoplanets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.0463"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Radial velocity follow-up of CoRoT transiting exoplanets')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "RNA is a fundamental class of biomolecules that mediate a large variety of molecular processes within the cell. Computational algorithms can be of great help in the understanding of RNA structure-function relationship. One of the main challenges in this field is the development of structure-prediction algorithms, which aim at the prediction of the three-dimensional (3D) native fold from the sole knowledge of the sequence. In a recent paper, we have introduced a scoring function for RNA structure prediction. Here, we analyze in detail the performance of the method, we underline strengths and shortcomings, and we discuss the results with respect to state-of-the-art techniques. These observations provide a starting point for improving current methodologies, thus paving the way to the advances of more accurate approaches for RNA 3D structure prediction.",
+          "claimed_authors": [
+            "Sandro Bottaro",
+            "Francesco Di Palma",
+            "Giovanni Bussi"
+          ],
+          "claimed_title": "Towards de novo RNA 3D structure prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1502.05667"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Towards de novo RNA 3D structure prediction')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have realized that under Lorentz transformations the tick number of a moving common clock remains unchanged, that is, the hand of the clock never runs slow, but the time interval between its two consecutive ticks contracts, so the relative time has to be recorded by using the tau-clocks required by the transformations, instead of unreal slowing clocks. Thus it is argued that using rest common clocks or the equivalent the measured velocity of light emitted by a moving source, which is quasi-velocity of foreign light, is dependent of the source velocity. Nevertheless, the velocity of foreign light that should be measured by using tau-clocks is independent of the source velocity. The velocity of native light emitted by a rest source obeys the postulate of relativity in accordance with both Maxwell equations and the result of Michelson-Morley experiment. On the other hand, the velocity of foreign light obeys both Ritz's emission theory except the Lorentz factor and the postulate of constancy of light velocity if measured by using tau-clocks. Thus the emission theory does not conflict with special relativity. The present argument leads to a logical consequence that the so-called positive conclusions from experiments testing constancy of the velocity of light emitted by moving sources if using common clocks or the equivalent, instead of tau-clocks, exactly contradicts Lorentz transformations.",
+          "claimed_authors": [
+            "Wang Guowen"
+          ],
+          "claimed_title": "Attempt at clarification of Einstein's postulate of constancy of light velocity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "physics/0512036"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title=\"Attempt at clarification of Einstein's postulate of constancy of light velocity\")",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Gene regulatory networks are powerful abstractions of biological systems. Since the advent of high-throughput measurement technologies in biology in the late 90s, reconstructing the structure of such networks has been a central computational problem in systems biology. While the problem is certainly not solved in its entirety, considerable progress has been made in the last two decades, with mature tools now available. This chapter aims to provide an introduction to the basic concepts underpinning network inference tools, attempting a categorisation which highlights commonalities and relative strengths. While the chapter is meant to be self-contained, the material presented should provide a useful background to the later, more specialised chapters of this book.",
+          "claimed_authors": [
+            "Vân Anh Huynh-Thu",
+            "Guido Sanguinetti"
+          ],
+          "claimed_title": "Gene regulatory network inference: an introductory survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.04087"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Quantitative Analysis of Gene Expression Dynamics during Human Brain Development', candidate_title='Gene regulatory network inference: an introductory survey')",
+        "failed_at": "2026-08-02T09:59:49Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jan Karbowski"
+          ],
+          "title": "Approximate invariance of metabolic energy per synapse during development in mammalian brains",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1204.3928",
+        "summary": "During mammalian development the cerebral metabolic rate correlates qualitatively with synaptogenesis, and both often exhibit bimodal temporal profiles. Despite these non-monotonic dependencies, it is found based on empirical data for different mammals that regional metabolic rate per synapse is approximately conserved from birth to adulthood for a given species (with a slight deviation from this constancy for human visual and temporal cortices during adolescence). A typical synapse uses about $(7\\pm 2)\\cdot 10^{3}$ glucose molecules per second in primate cerebral cortex, and about 5 times of that amount in cat and rat visual cortices. A theoretical model for brain metabolic expenditure is used to estimate synaptic signaling and neural spiking activity during development. It is found that synaptic efficacy is generally inversely correlated with average firing rate, and additionally, synapses consume a bulk of metabolic energy, roughly $50-90 %$ during most of the developmental process (except human temporal cortex $ < 50%$). Overall, these results suggest a tight regulation of brain electrical and chemical activities during the formation and consolidation of neural connections. This presumably reflects strong energetic constraints on brain development.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1204.3928",
+          "http_status": 200,
+          "pdf_sample_score": 0.2041,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T09:59:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pascal Grange",
+            "Michael Hawrylycz",
+            "Partha P. Mitra"
+          ],
+          "title": "Computational neuroanatomy and co-expression of genes in the adult mouse brain, analysis tools for the Allen Brain Atlas",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1301.1730",
+        "summary": "We review quantitative methods and software developed to analyze genome-scale, brain-wide spatially-mapped gene-expression data. We expose new methods based on the underlying high-dimensional geometry of voxel space and gene space, and on simulations of the distribution of co-expression networks of a given size. We apply them to the Allen Atlas of the adult mouse brain, and to the co-expression network of a set of genes related to nicotine addiction retrieved from the NicSNP database. The computational methods are implemented in {\\ttfamily{BrainGeneExpressionAnalysis}}, a Matlab toolbox available for download.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1301.1730",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T09:59:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Olivia Angelin-Bonnet",
+            "Patrick J. Biggs",
+            "Matthieu Vignes"
+          ],
+          "title": "Gene regulatory networks: a primer in biological processes and statistical modelling",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1805.01098",
+        "summary": "Modelling gene regulatory networks not only requires a thorough understanding of the biological system depicted but also the ability to accurately represent this system from a mathematical perspective. Throughout this chapter, we aim to familiarise the reader with the biological processes and molecular factors at play in the process of gene expression regulation.We first describe the different interactions controlling each step of the expression process, from transcription to mRNA and protein decay. In the second section, we provide statistical tools to accurately represent this biological complexity in the form of mathematical models. Amongst other considerations, we discuss the topological properties of biological networks, the application of deterministic and stochastic frameworks and the quantitative modelling of regulation. We particularly focus on the use of such models for the simulation of expression data that can serve as a benchmark for the testing of network inference algorithms.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1805.01098",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T09:59:49Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantitative analysis of gene expression dynamics during human brain development biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

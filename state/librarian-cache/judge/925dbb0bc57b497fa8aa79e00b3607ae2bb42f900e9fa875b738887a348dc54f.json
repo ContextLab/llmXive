@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1803.08575",
+  "judged_at": "2026-08-02T09:59:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantitative analysis of gene expression dynamics during human brain development biology",
+  "rationale": "The paper studies gene expression regulation and chromatin dynamics in *Tetrahymena thermophila* (a single-celled protist), which is an off-domain population compared to the user's specific requirement for \"Human Brain Development.\" While it addresses the general mechanism of gene expression, it fails the \"off-domain entirely\" rejection rule because it does not study the human empirical population or the specific developmental context of the brain.",
+  "relevant": false
+}

@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-24T21:11:52Z",
+  "fetched_at": "2026-08-02T10:28:28Z",
   "field": "neuroscience",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,13 +9,13 @@
       "idea_body_excerpt": "Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics",
       "target_n": 5
     },
-    "duration_seconds": 47.82,
-    "ended_at": "2026-07-24T21:11:52Z",
+    "duration_seconds": 37.544,
+    "ended_at": "2026-08-02T10:28:28Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Social exclusion Default Mode Network activation"
+          "Social exclusion Default Mode Network fMRI"
         ],
         [
           2,
@@ -23,90 +23,90 @@
         ],
         [
           3,
-          "Neural mechanisms of social ostracism"
+          "Neural mechanisms of social rejection DMN"
         ],
         [
           4,
-          "DMN deactivation during social rejection"
+          "Social pain Default Mode Network activity"
         ],
         [
           5,
-          "Social pain network and Default Mode Network"
+          "Ostracism neural correlates Default Mode Network"
         ],
         [
           6,
-          "Anterior cingulate cortex and Default Mode Network in exclusion"
+          "DMN deactivation during social exclusion"
         ],
         [
           7,
-          "Functional connectivity changes during simulated isolation"
+          "Social exclusion resting-state functional connectivity"
         ],
         [
           8,
-          "fMRI evidence of social exclusion on DMN"
+          "Anterior cingulate and Default Mode Network in social pain"
         ],
         [
           9,
-          "Neural response to social rejection Default Mode Network"
+          "Temporal dynamics of DMN during simulated exclusion"
         ],
         [
           10,
-          "Default Mode Network dynamics in interpersonal exclusion"
+          "Social isolation neural signature Default Mode Network"
         ],
         [
           11,
-          "Social threat processing and DMN modulation"
+          "Rejection sensitivity Default Mode Network modulation"
         ],
         [
           12,
-          "Resting state networks during social exclusion tasks"
+          "Social threat response Default Mode Network"
         ],
         [
           13,
-          "Medial prefrontal cortex activity in social ostracism"
+          "Interpersonal exclusion Default Mode Network fluctuations"
         ],
         [
           14,
-          "Neural correlates of loneliness and DMN function"
+          "Social exclusion task Default Mode Network connectivity patterns"
         ],
         [
           15,
-          "Social decision-making networks and Default Mode Network"
+          "Neural basis of social exclusion DMN"
         ],
         [
           16,
-          "Pain matrix and Default Mode Network in exclusion"
+          "Default Mode Network response to social rejection"
         ],
         [
           17,
-          "Temporal dynamics of DMN during social stress"
+          "Social exclusion and DMN functional integration"
         ],
         [
           18,
-          "Neuroimaging of social rejection and self-referential processing"
+          "Cyberball Default Mode Network time series"
         ],
         [
           19,
-          "DMN hyperconnectivity in social exclusion contexts"
+          "Social exclusion affective processing Default Mode Network"
         ],
         [
           20,
-          "Neural basis of social isolation effects on brain networks"
+          "DMN dysregulation in social exclusion contexts"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics neuroscience": 0,
-        "Social exclusion Default Mode Network activation": 5
+        "Social exclusion Default Mode Network fMRI": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "Cyberball social ostracism neural response",
-      "fMRI Cyberball task default mode network",
+      "Cyberball paradigm ostracism fMRI",
       "social pain network medial prefrontal cortex",
-      "DMN functional connectivity deactivation exclusion",
-      "self-referential processing social rejection mechanism"
+      "DMN deactivation social rejection",
+      "functional connectivity posterior cingulate cortex",
+      "mentalizing network self-referential processing"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,15 +120,15 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2409.07720"
+        "1511.02429"
       ]
     },
     "per_query_hit_count": {
-      "Cyberball social ostracism neural response": 2,
-      "DMN functional connectivity deactivation exclusion": 3,
+      "Cyberball paradigm ostracism fMRI": 3,
+      "DMN deactivation social rejection": 1,
       "Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics neuroscience": 3,
-      "fMRI Cyberball task default mode network": 2,
-      "self-referential processing social rejection mechanism": 2,
+      "functional connectivity posterior cingulate cortex": 3,
+      "mentalizing network self-referential processing": 3,
       "social pain network medial prefrontal cortex": 1
     },
     "relevance_judge": {
@@ -164,7 +164,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-24T21:11:04Z",
+    "started_at": "2026-08-02T10:27:50Z",
     "term_input": {
       "normalized": "neural correlates of simulated social exclusion on default mode network dynamics neuroscience",
       "raw": "Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics neuroscience"
@@ -185,7 +185,7 @@
           "primary_pointer": "1303.0093"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Multidimensional Social Network in the Social Recommender System')",
-        "failed_at": "2026-07-24T21:11:32Z",
+        "failed_at": "2026-08-02T10:28:17Z",
         "reason": "query_irrelevant"
       },
       {
@@ -203,44 +203,7 @@
           "primary_pointer": "2409.07720"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Keeping it Authentic: The Social Footprint of the Trolls Network')",
-        "failed_at": "2026-07-24T21:11:32Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We describe the design of an immersive virtual Cyberball task that included avatar customization, and user feedback on this design. We first created a prototype of an avatar customization template and added it to a Cyberball prototype built in the Unity3D game engine. Then, we conducted in-depth user testing and feedback sessions with 15 Cyberball stakeholders: five naive participants with no prior knowledge of Cyberball and ten experienced researchers with extensive experience using the Cyberball paradigm. We report the divergent perspectives of the two groups on the following design insights; designing for intuitive use, inclusivity, and realistic experiences versus minimalism. Participant responses shed light on how system design problems may contribute to or perpetuate negative experiences when customizing avatars. They also demonstrate the value of considering multiple stakeholders' feedback in the design process for virtual reality, presenting a more comprehensive view in designing future Cyberball prototypes and interactive systems for social science research.",
-          "claimed_authors": [
-            "Tao Long",
-            "Swati Pandita",
-            "Andrea Stevenson Won"
-          ],
-          "claimed_title": "Perspectives from Naive Participants and Experienced Social Science Researchers on Addressing Embodiment in a Virtual Cyberball Task",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.02897"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Perspectives from Naive Participants and Experienced Social Science Researchers on Addressing Embodiment in a Virtual Cyberball Task')",
-        "failed_at": "2026-07-24T21:11:33Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Online misinformation poses a global risk with harmful implications for society. Ordinary social media users are known to actively reply to misinformation posts with counter-misinformation messages, which is shown to be effective in containing the spread of misinformation. Such a practice is defined as \"social correction\". Nevertheless, it remains unknown how users respond to social correction in real-world scenarios, especially, will it have a corrective or backfire effect on users. Investigating this research question is pivotal for developing and refining strategies that maximize the efficacy of social correction initiatives. To fill this gap, we conduct an in-depth study to characterize and predict the user response to social correction in a data-driven manner through the lens of X (Formerly Twitter), where the user response is instantiated as the reply that is written toward a counter-misinformation message. Particularly, we first create a novel dataset with 55, 549 triples of misinformation tweets, counter-misinformation replies, and responses to counter-misinformation replies, and then curate a taxonomy to illustrate different kinds of user responses. Next, fine-grained statistical analysis of reply linguistic and engagement features as well as repliers' user attributes is conducted to illustrate the characteristics that are significant in determining whether a reply will have a corrective or backfire effect. Finally, we build a user response prediction model to identify whether a social correction will be corrective, neutral, or have a backfire effect, which achieves a promising F1 score of 0.816. Our work enables stakeholders to monitor and predict user responses effectively, thus guiding the use of social correction to maximize their corrective impact and minimize backfire effects. The code and data is accessible on https://github.com/claws-lab/response-to-social-correction.",
-          "claimed_authors": [
-            "Bing He",
-            "Yingchen Ma",
-            "Mustaque Ahamad",
-            "Srijan Kumar"
-          ],
-          "claimed_title": "Corrective or Backfire: Characterizing and Predicting User Response to Social Correction",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.04852"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Corrective or Backfire: Characterizing and Predicting User Response to Social Correction')",
-        "failed_at": "2026-07-24T21:11:33Z",
+        "failed_at": "2026-08-02T10:28:17Z",
         "reason": "query_irrelevant"
       },
       {
@@ -261,27 +224,43 @@
           "primary_pointer": "2511.21760"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
-        "failed_at": "2026-07-24T21:11:33Z",
+        "failed_at": "2026-08-02T10:28:18Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The functional network approach, where fMRI BOLD time series are mapped to networks depicting functional relationships between brain areas, has opened new insights into the function of the human brain. In this approach, the choice of network nodes is of crucial importance. One option is to consider fMRI voxels as nodes. This results in a large number of nodes, making network analysis and interpretation of results challenging. A common alternative is to use pre-defined clusters of anatomically close voxels, Regions of Interest (ROIs). This approach assumes that voxels within ROIs are functionally similar. Because these two approaches result in different network structures, it is crucial to understand what happens to network connectivity when moving from the voxel level to the ROI level. We show that the consistency of ROIs, defined as the mean Pearson correlation coefficient between the time series of their voxels, varies widely in resting-state experimental data. Therefore the assumption of similar voxel dynamics within each ROI does not generally hold. Further, the time series of low-consistency ROIs may be highly correlated, resulting in spurious links in ROI-level networks. Based on these results, we recommend that averaging BOLD signals over anatomically defined ROIs should be carefully considered.",
+          "claimed_abstract": "Brain development in the first few months of human life is a critical phase characterized by rapid structural growth and functional organization. Accurately predicting developmental outcomes during this time is crucial for identifying delays and enabling timely interventions. This study introduces the SwiFT (Swin 4D fMRI Transformer) model, designed to predict Bayley-III composite scores using neonatal fMRI from the Developing Human Connectome Project (dHCP). To enhance predictive accuracy, we apply dimensionality reduction via group independent component analysis (ICA) and pretrain SwiFT on large adult fMRI datasets to address the challenges of limited neonatal data. Our analysis shows that SwiFT significantly outperforms baseline models in predicting cognitive, motor, and language outcomes, leveraging both single-label and multi-label prediction strategies. The model's attention-based architecture processes spatiotemporal data end-to-end, delivering superior predictive performance. Additionally, we use Integrated Gradients with Smoothgrad sQuare (IG-SQ) to interpret predictions, identifying neural spatial representations linked to early cognitive and behavioral development. These findings underscore the potential of Transformer models to advance neurodevelopmental research and clinical practice.",
           "claimed_authors": [
-            "Onerva Korhonen",
-            "Heini Saarimäki",
-            "Enrico Glerean",
-            "Mikko Sams",
-            "Jari Saramäki"
+            "Patrick Styll",
+            "Dowon Kim",
+            "Jiook Cha"
           ],
-          "claimed_title": "Consistency of Regions of Interest as nodes of functional brain networks measured by fMRI",
+          "claimed_title": "Swin fMRI Transformer Predicts Early Neurodevelopmental Outcomes from Neonatal fMRI",
           "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1704.07635"
+          "claimed_year": 2024,
+          "primary_pointer": "2412.07783"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Consistency of Regions of Interest as nodes of functional brain networks measured by fMRI')",
-        "failed_at": "2026-07-24T21:11:33Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Swin fMRI Transformer Predicts Early Neurodevelopmental Outcomes from Neonatal fMRI')",
+        "failed_at": "2026-08-02T10:28:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the design of an immersive virtual Cyberball task that included avatar customization, and user feedback on this design. We first created a prototype of an avatar customization template and added it to a Cyberball prototype built in the Unity3D game engine. Then, we conducted in-depth user testing and feedback sessions with 15 Cyberball stakeholders: five naive participants with no prior knowledge of Cyberball and ten experienced researchers with extensive experience using the Cyberball paradigm. We report the divergent perspectives of the two groups on the following design insights; designing for intuitive use, inclusivity, and realistic experiences versus minimalism. Participant responses shed light on how system design problems may contribute to or perpetuate negative experiences when customizing avatars. They also demonstrate the value of considering multiple stakeholders' feedback in the design process for virtual reality, presenting a more comprehensive view in designing future Cyberball prototypes and interactive systems for social science research.",
+          "claimed_authors": [
+            "Tao Long",
+            "Swati Pandita",
+            "Andrea Stevenson Won"
+          ],
+          "claimed_title": "Perspectives from Naive Participants and Experienced Social Science Researchers on Addressing Embodiment in a Virtual Cyberball Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.02897"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Perspectives from Naive Participants and Experienced Social Science Researchers on Addressing Embodiment in a Virtual Cyberball Task')",
+        "failed_at": "2026-08-02T10:28:18Z",
         "reason": "query_irrelevant"
       },
       {
@@ -299,7 +278,23 @@
           "primary_pointer": "1303.0095"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
-        "failed_at": "2026-07-24T21:11:33Z",
+        "failed_at": "2026-08-02T10:28:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
+          "claimed_authors": [
+            "Emilio Ferrara"
+          ],
+          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.08134"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
+        "failed_at": "2026-08-02T10:28:18Z",
         "reason": "query_irrelevant"
       },
       {
@@ -319,7 +314,7 @@
           "primary_pointer": "1309.5840"
         },
         "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies')",
-        "failed_at": "2026-07-24T21:11:33Z",
+        "failed_at": "2026-08-02T10:28:18Z",
         "reason": "query_irrelevant"
       },
       {
@@ -335,23 +330,25 @@
           "primary_pointer": "1304.7934"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Maximum Lebesgue Extension of Monotone Convex Functions')",
-        "failed_at": "2026-07-24T21:11:33Z",
+        "failed_at": "2026-08-02T10:28:18Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This article presents a construction of the concept of stochastic integration in Riemannian manifolds from a purely functional-analytic point of view. We show that there are infinitely many such integrals, and that any two of them are related by a simple formula. We also find that the Stratonovich and Itô integrals known to probability theorists are two instances of the general concept constructed herein.",
+          "claimed_abstract": "Neural connectivity at the cellular and mesoscopic level appears very specific and is presumed to arise from highly specific developmental mechanisms. However, there are general shared features of connectivity in systems as different as the networks formed by individual neurons in Caenorhabditis elegans or in rat visual cortex and the mesoscopic circuitry of cortical areas in the mouse, macaque, and human brain. In all these systems, connection length distributions have very similar shapes, with an initial large peak and a long flat tail representing the admixture of long-distance connections to mostly short-distance connections. Furthermore, not all potentially possible synapses are formed, and only a fraction of axons (called filling fraction) establish synapses with spatially neighboring neurons. We explored what aspects of these connectivity patterns can be explained simply by random axonal outgrowth. We found that random axonal growth away from the soma can already reproduce the known distance distribution of connections. We also observed that experimentally observed filling fractions can be generated by competition for available space at the target neurons--a model markedly different from previous explanations. These findings may serve as a baseline model for the development of connectivity that can be further refined by more specific mechanisms.",
           "claimed_authors": [
-            "Alexandru Mustăţea"
+            "Marcus Kaiser",
+            "Claus C. Hilgetag",
+            "Arjen van Ooyen"
           ],
-          "claimed_title": "Stochastic integration in Riemannian manifolds from a functional-analytic point of view",
+          "claimed_title": "A simple rule for axon outgrowth and synaptic competition generates realistic connection lengths and filling fractions",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.08285"
+          "claimed_year": 2009,
+          "primary_pointer": "0906.0685"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Stochastic integration in Riemannian manifolds from a functional-analytic point of view')",
-        "failed_at": "2026-07-24T21:11:33Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='A simple rule for axon outgrowth and synaptic competition generates realistic connection lengths and filling fractions')",
+        "failed_at": "2026-08-02T10:28:18Z",
         "reason": "query_irrelevant"
       },
       {
@@ -367,23 +364,43 @@
           "primary_pointer": "1407.6255"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Adaptive Fault Diagnosis using Self-Referential Reasoning')",
-        "failed_at": "2026-07-24T21:11:33Z",
+        "failed_at": "2026-08-02T10:28:18Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
+          "claimed_abstract": "The ILC Technology Network (ITN) was established in 2022 by the ILC International Development Team, a subcommittee of the International Committee for Future Accelerators, to advance engineering studies toward the realisation of the International Linear Collider (ILC). While the ITN work packages focus on engineering activities for the ILC, their topics are also relevant to a broad range of accelerator applications in particle physics and beyond. These work packages are being carried out now by laboratories in Asia and Europe in close collaboration. This report summarises the current status of the ITN activities.",
           "claimed_authors": [
-            "Emilio Ferrara"
+            "ILC Technology Network"
           ],
-          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
+          "claimed_title": "Midterm Status Report of the ILC Technology Network Activities",
           "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1708.08134"
+          "claimed_year": 2026,
+          "primary_pointer": "2603.01172"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
-        "failed_at": "2026-07-24T21:11:33Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Midterm Status Report of the ILC Technology Network Activities')",
+        "failed_at": "2026-08-02T10:28:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-channel acoustic signal processing is a well-established and powerful tool to exploit the spatial diversity between a target signal and non-target or noise sources for signal enhancement. However, the textbook solutions for optimal data-dependent spatial filtering rest on the knowledge of second-order statistical moments of the signals, which have traditionally been difficult to acquire. In this contribution, we compare model-based, purely data-driven, and hybrid approaches to parameter estimation and filtering, where the latter tries to combine the benefits of model-based signal processing and data-driven deep learning to overcome their individual deficiencies. We illustrate the underlying design principles with examples from noise reduction, source separation, and dereverberation.",
+          "claimed_authors": [
+            "Reinhold Haeb-Umbach",
+            "Tomohiro Nakatani",
+            "Marc Delcroix",
+            "Christoph Boeddeker",
+            "Tsubasa Ochiai"
+          ],
+          "claimed_title": "Microphone Array Signal Processing and Deep Learning for Speech Enhancement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.07215"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics', candidate_title='Microphone Array Signal Processing and Deep Learning for Speech Enhancement')",
+        "failed_at": "2026-08-02T10:28:18Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -414,7 +431,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-24T21:11:32Z"
+          "verified_at": "2026-08-02T10:28:17Z"
         }
       },
       {
@@ -442,7 +459,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-24T21:11:38Z"
+          "verified_at": "2026-08-02T10:28:26Z"
         }
       },
       {
@@ -464,13 +481,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2409.07720",
           "http_status": 200,
-          "pdf_sample_score": 0.2881,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-24T21:11:38Z"
+          "verified_at": "2026-08-02T10:28:26Z"
         }
       },
       {
@@ -498,7 +515,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-24T21:11:39Z"
+          "verified_at": "2026-08-02T10:28:26Z"
         }
       },
       {
@@ -520,13 +537,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/1511.02429",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.1975,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-24T21:11:39Z"
+          "verified_at": "2026-08-02T10:28:27Z"
         }
       }
     ]

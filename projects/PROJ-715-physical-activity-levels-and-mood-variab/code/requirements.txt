@@ -4,5 +4,4 @@ scikit-learn
 pyyaml
 requests
 numpy
-flake8
-black
+pyarrow

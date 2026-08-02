@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-06-30T04:09:16.854430Z'
-- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
+- artifact_hash: 24ebeb548c79356f83b380e3965121c7cac06ced24c505d7efc6d581bc075066
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -50,10 +50,10 @@
   fetched_title: Tests - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q18615098
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q18615098
-  verified_at: '2026-07-15T10:44:29.652432Z'
-- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
+  verified_at: '2026-08-02T10:17:57.121587Z'
+- artifact_hash: 24ebeb548c79356f83b380e3965121c7cac06ced24c505d7efc6d581bc075066
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -61,10 +61,10 @@
   fetched_title: '[1405.1250] New tight approximations for Fisher&#39;s exact test'
   kind: url
   value: https://arxiv.org/abs/1405.1250
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/1405.1250
-  verified_at: '2026-07-15T10:44:29.652432Z'
-- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
+  verified_at: '2026-08-02T10:17:57.121587Z'
+- artifact_hash: 24ebeb548c79356f83b380e3965121c7cac06ced24c505d7efc6d581bc075066
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -72,10 +72,10 @@
   fetched_title: p-value - Wikipedia
   kind: url
   value: https://en.wikipedia.org/wiki/P-value
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-07-15T10:44:29.652432Z'
-- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
+  verified_at: '2026-08-02T10:17:57.121587Z'
+- artifact_hash: 24ebeb548c79356f83b380e3965121c7cac06ced24c505d7efc6d581bc075066
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -84,10 +84,10 @@
     Learning Algorithms on the Wisconsin Diagnostic Dataset'
   kind: url
   value: https://arxiv.org/abs/1711.07831
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/1711.07831
-  verified_at: '2026-07-15T10:44:29.652432Z'
-- artifact_hash: 5bd72917f1589ce5cd74ebf95fb468bfa623b31571ea6f4e8acf35901904ef12
+  verified_at: '2026-08-02T10:17:57.121587Z'
+- artifact_hash: 24ebeb548c79356f83b380e3965121c7cac06ced24c505d7efc6d581bc075066
   artifact_path: projects/PROJ-341-evaluating-the-sensitivity-of-common-sta/specs/001-evaluating-the-sensitivity-of-common-sta/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -96,6 +96,6 @@
     Prediction'
   kind: url
   value: https://arxiv.org/abs/1810.10076
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/1810.10076
-  verified_at: '2026-07-15T10:44:29.652432Z'
+  verified_at: '2026-08-02T10:17:57.121587Z'
