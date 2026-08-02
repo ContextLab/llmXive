@@ -9,4 +9,3 @@ requests
 datasets
 pytest
 pyyaml
-scipy  # auto-added: imported by run-book but missing from venv

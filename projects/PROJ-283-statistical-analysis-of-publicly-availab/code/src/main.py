@@ -1,121 +1,192 @@
 """
-Main entry point for the Chess Elo Analysis pipeline.
+Main orchestration script for the Chess Elo Analysis Pipeline.
 
-Orchestrates the full workflow:
-1. Setup directories
-2. Download raw data (if needed)
-3. Parse PGNs to extract features
-4. Process data (calculate probabilities, deviations)
-5. Validate output against GameRecord schema
-6. Save validated dataset to Parquet
+This script orchestrates the full pipeline:
+1. Ensures directory structure exists.
+2. Downloads/streams raw data.
+3. Parses PGN games into structured records.
+4. Processes records (calculates probabilities, deviations).
+5. Validates the output against schema contracts.
+6. Fits models and saves metrics.
+7. Generates diagnostic reports.
+
+Exit codes:
+0: Success
+1: Pipeline failure or validation error
 """
-
 import sys
 import logging
 import argparse
 from pathlib import Path
+import json
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
 
 from src.config import ensure_directories
 from src.data.download import download_dataset
 from src.data.parse import main as parse_main
 from src.data.process import main as process_main
-from src.validation.validate_contracts import validate_dataframe_against_contract, load_schema, SchemaValidationError
+from src.validation.validate_contracts import validate_dataframe_against_contract, load_schema
+from src.models.fit import main as fit_main
+from src.models.save_metrics import main as save_metrics_main
+from src.models.validate import main as validate_main
+from src.reports.generate_plots import main as plots_main
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+SCHEMAS_DIR = PROJECT_ROOT / "specs" / "contracts"
 
-def run_pipeline(sample_size: int = None, force_redownload: bool = False):
-    """
-    Execute the full data ingestion and validation pipeline.
-
-    Args:
-        sample_size: If provided, limits processing to this many games.
-        force_redownload: If True, re-downloads the dataset.
-    """
-    logger.info("Starting Chess Elo Analysis Pipeline")
-
-    # 1. Ensure directories exist
+def run_pipeline(args):
+    """Execute the full analysis pipeline."""
+    logger.info("Starting Chess Elo Analysis Pipeline...")
+    
+    # 1. Setup directories
     logger.info("Ensuring directory structure...")
     ensure_directories()
 
-    # 2. Download dataset (if needed)
-    # Note: T009 handles the verification logic inside download_dataset
-    raw_data_path = Path("data/raw/lichess_games.pgn")
-    if force_redownload or not raw_data_path.exists():
-        logger.info("Downloading dataset...")
-        download_dataset()
+    # 2. Download Data
+    # Note: download_dataset handles its own argument parsing or defaults if not provided via CLI args
+    # For T018, we assume the download step is either skipped if data exists or run with defaults
+    # to ensure the pipeline is end-to-end.
+    if not args.skip_download:
+        logger.info("Step 1: Downloading raw data...")
+        try:
+            download_dataset(args.sample_size, args.output_raw)
+        except Exception as e:
+            logger.critical(f"Failed to download data: {e}")
+            return 1
     else:
-        logger.info(f"Dataset found at {raw_data_path}, skipping download.")
+        logger.info("Skipping download step (--skip-download).")
 
-    # 3. Parse PGN files
-    logger.info("Parsing PGN files and extracting features...")
-    parse_main(sample_size=sample_size)
-
-    # 4. Process data (calculate Elo probabilities, deviations)
-    logger.info("Processing game records...")
-    process_main()
-
-    # 5. Validate against schema
-    processed_path = Path("data/processed/games.csv")
-    if not processed_path.exists():
-        logger.error("Processed data file not found. Pipeline stopped.")
-        sys.exit(1)
-
-    logger.info(f"Loading processed data from {processed_path}...")
-    import pandas as pd
-    df = pd.read_csv(processed_path)
-
-    logger.info("Loading GameRecord schema...")
+    # 3. Parse PGN
+    logger.info("Step 2: Parsing PGN games...")
     try:
-        schema = load_schema("game_record")
-    except FileNotFoundError as e:
-        logger.error(f"Schema file not found: {e}")
-        sys.exit(1)
+        # Pass arguments to parse_main if it supports them, otherwise rely on defaults/config
+        parse_main() 
+    except Exception as e:
+        logger.critical(f"Failed to parse PGN data: {e}")
+        return 1
 
-    logger.info("Validating dataset against GameRecord contract...")
+    # 4. Process Data (Calculate probabilities, deviations)
+    logger.info("Step 3: Processing game records...")
     try:
+        process_main()
+    except Exception as e:
+        logger.critical(f"Failed to process game records: {e}")
+        return 1
+
+    # 5. Validate Output against Contracts
+    logger.info("Step 4: Validating output against schema contracts...")
+    try:
+        # Load the game record schema
+        schema_path = SCHEMAS_DIR / "game_record.schema.yaml"
+        if not schema_path.exists():
+            logger.error(f"Schema file not found: {schema_path}")
+            return 1
+        
+        schema = load_schema(str(schema_path))
+        
+        # The output file path is defined in process.py (typically data/processed/games.parquet)
+        # We need to load the generated data to validate it.
+        # Assuming the process step outputs to data/processed/games.parquet
+        input_data_path = DATA_PROCESSED_DIR / "games.parquet"
+        
+        if not input_data_path.exists():
+            # Fallback to CSV if parquet doesn't exist but CSV does
+            if (DATA_PROCESSED_DIR / "game_records.csv").exists():
+                input_data_path = DATA_PROCESSED_DIR / "game_records.csv"
+            else:
+                raise FileNotFoundError(f"Processed data file not found: {input_data_path}")
+
+        import pandas as pd
+        if input_data_path.suffix == '.parquet':
+            df = pd.read_parquet(input_data_path)
+        elif input_data_path.suffix == '.csv':
+            df = pd.read_csv(input_data_path)
+        else:
+            raise ValueError(f"Unsupported file format: {input_data_path.suffix}")
+
+        # Validate
         validate_dataframe_against_contract(df, schema)
-        logger.info("Validation PASSED: Dataset conforms to GameRecord schema.")
-    except SchemaValidationError as e:
-        logger.error(f"Validation FAILED: {e}")
-        logger.error("Aborting pipeline. Data was not saved.")
-        sys.exit(1)
+        logger.info("Schema validation PASSED.")
+        
+    except Exception as e:
+        logger.critical(f"Schema validation FAILED: {e}")
+        # Exit with error code 1 as per task requirement
+        return 1
 
-    # 6. Save to Parquet
-    output_path = Path("data/processed/games.parquet")
-    logger.info(f"Saving validated dataset to {output_path}...")
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Pipeline completed successfully. Output saved to {output_path}")
+    # 6. Fit Models
+    logger.info("Step 5: Fitting models...")
+    try:
+        fit_main()
+    except Exception as e:
+        logger.critical(f"Failed to fit models: {e}")
+        return 1
+
+    # 7. Save Metrics
+    logger.info("Step 6: Saving model metrics...")
+    try:
+        save_metrics_main()
+    except Exception as e:
+        logger.critical(f"Failed to save metrics: {e}")
+        return 1
+
+    # 8. Cross-Validation
+    logger.info("Step 7: Running cross-validation...")
+    try:
+        validate_main()
+    except Exception as e:
+        logger.critical(f"Failed during cross-validation: {e}")
+        return 1
+
+    # 9. Generate Plots
+    logger.info("Step 8: Generating diagnostic plots...")
+    try:
+        plots_main()
+    except Exception as e:
+        logger.critical(f"Failed to generate plots: {e}")
+        return 1
+
+    logger.info("Pipeline completed successfully.")
+    return 0
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the Chess Elo Analysis Pipeline")
+    parser = argparse.ArgumentParser(description="Chess Elo Analysis Pipeline")
     parser.add_argument(
-        "--sample",
-        type=int,
-        default=None,
-        help="Limit processing to N games (useful for testing)"
+        "--sample-size", 
+        type=int, 
+        default=1000,
+        help="Number of games to sample/download (default: 1000)"
     )
     parser.add_argument(
-        "--force-download",
+        "--output-raw",
+        type=str,
+        default="data/raw/sample_games.parquet",
+        help="Path for raw output file (default: data/raw/sample_games.parquet)"
+    )
+    parser.add_argument(
+        "--skip-download",
         action="store_true",
-        help="Force re-download of the dataset"
+        help="Skip the download step if data already exists"
     )
-
+    
     args = parser.parse_args()
+    
+    # Ensure output paths are relative to project root if not absolute
+    if not Path(args.output_raw).is_absolute():
+        args.output_raw = str(PROJECT_ROOT / args.output_raw)
 
-    try:
-        run_pipeline(sample_size=args.sample, force_redownload=args.force_download)
-    except Exception as e:
-        logger.critical(f"Pipeline failed with critical error: {e}")
-        sys.exit(1)
+    exit_code = run_pipeline(args)
+    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()

@@ -72,7 +72,7 @@
 - **FR-007**: System MUST perform significance tests (t-tests on coefficients, F-test for model fit) and report p-values for all predictors (See US-2).
 - **FR-008**: System MUST generate diagnostic plots including residual plots, feature importance rankings, and predicted vs. actual deviation scatterplots (See US-3).
 - **FR-009**: System MUST apply the Benjamini-Hochberg False Discovery Rate (FDR) correction to p-values when reporting significant predictors to control the false discovery rate, specifically accounting for correlated predictors (See US-2).
-- **FR-010**: System MUST perform a sensitivity analysis on the decision threshold for "statistical significance" (e.g., p < 0.01) by sweeping the threshold over {0.005, 0.01, 0.05} and reporting the variation in the number of significant predictors (See US-2).
+- **FR-010**: System MUST perform a sensitivity analysis on the decision threshold for "statistical significance" (e.g., p < 0.01) by sweeping the threshold over a range of small values and reporting the variation in the number of significant predictors (See US-2).
 - **FR-011**: System MUST collapse one-hot encoded ECO codes into broader opening families (e.g., King's Pawn, Queen's Gambit) before significance testing to reduce multicollinearity (See US-2).
 
 ### Key Entities

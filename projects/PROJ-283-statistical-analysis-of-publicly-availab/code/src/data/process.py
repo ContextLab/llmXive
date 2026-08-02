@@ -1,11 +1,9 @@
 """
-Process game data to compute derived metrics.
+Data processing module for Chess Elo Analysis.
 
-This module implements the calculation of outcome deviation,
-which is defined as (actual_result - expected_probability).
-
-It also provides utilities for capping probabilities and
-calculating expected probabilities from Elo ratings.
+Calculates:
+- Expected probability of outcome based on Elo difference
+- Outcome deviation (actual - expected)
 """
 import pandas as pd
 import numpy as np
@@ -13,171 +11,89 @@ from typing import Optional, List, Dict, Any
 from pathlib import Path
 import logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def cap_probability(p: float, min_val: float = 0.01, max_val: float = 0.99) -> float:
-    """
-    Cap a probability value to a safe range to avoid numerical instability.
-    
-    Args:
-        p: The probability value to cap.
-        min_val: Minimum allowed value (default 0.01).
-        max_val: Maximum allowed value (default 0.99).
-        
-    Returns:
-        The capped probability value.
-    """
-    return max(min_val, min(max_val, p))
+def cap_probability(p: float) -> float:
+    """Cap probability between 0.01 and 0.99 to avoid log(0) or division by zero."""
+    return max(0.01, min(0.99, p))
 
 def calculate_expected_probability(white_rating: float, black_rating: float) -> float:
     """
-    Calculate the expected probability of White winning based on Elo ratings.
-    
-    Formula: P = 1 / (1 + 10^((R_black - R_white) / 400))
-    
-    Args:
-        white_rating: White player's Elo rating.
-        black_rating: Black player's Elo rating.
-        
-    Returns:
-        The expected probability of White winning, capped to [0.01, 0.99].
+    Calculate expected probability of White winning using Elo formula.
+    E_A = 1 / (1 + 10^((R_B - R_A) / 400))
     """
     if pd.isna(white_rating) or pd.isna(black_rating):
         return np.nan
-        
+    
     diff = black_rating - white_rating
-    exponent = diff / 400.0
-    prob = 1.0 / (1.0 + (10.0 ** exponent))
-    
-    return cap_probability(prob)
+    expected = 1.0 / (1.0 + 10 ** (diff / 400.0))
+    return cap_probability(expected)
 
-def calculate_outcome_deviation(actual_result: float, expected_probability: float) -> float:
+def calculate_outcome_deviation(actual: float, expected: float) -> float:
     """
-    Calculate the outcome deviation for a game.
-    
-    Outcome deviation is defined as (actual_result - expected_probability).
-    
-    Args:
-        actual_result: The actual game result (1.0 for White win, 0.5 for draw, 0.0 for Black win).
-        expected_probability: The expected probability of White winning.
-        
-    Returns:
-        The outcome deviation value.
+    Calculate outcome deviation: actual_result - expected_probability.
     """
-    if pd.isna(actual_result) or pd.isna(expected_probability):
+    if pd.isna(actual) or pd.isna(expected):
         return np.nan
-        
-    return actual_result - expected_probability
+    return actual - expected
 
-def map_outcome_to_result(outcome: str) -> float:
-    """
-    Map a string outcome to a numeric result value.
-    
-    Args:
-        outcome: The game outcome string (e.g., '1-0', '0-1', '1/2-1/2', '*').
-        
-    Returns:
-        Numeric result (1.0, 0.5, 0.0) or np.nan if outcome is invalid/unknown.
-    """
-    outcome_map = {
+def map_outcome_to_result(result_str: str) -> float:
+    """Map PGN result string to numeric outcome."""
+    mapping = {
         '1-0': 1.0,
-        '0-1': 0.0,
         '1/2-1/2': 0.5,
-        '*': np.nan,  # Unknown outcome
+        '0-1': 0.0,
+        '*': np.nan
     }
-    return outcome_map.get(str(outcome).strip(), np.nan)
+    return mapping.get(result_str, np.nan)
 
-def process_game_record(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Process a DataFrame of game records to add derived metrics.
+def process_game_record(row: pd.Series) -> Dict[str, Any]:
+    """Process a single game record row."""
+    white_rating = row.get('white_rating')
+    black_rating = row.get('black_rating')
+    outcome = row.get('outcome')
     
-    This function:
-    1. Calculates expected probability from ratings.
-    2. Maps outcome strings to numeric results.
-    3. Calculates outcome deviation.
+    expected_prob = calculate_expected_probability(white_rating, black_rating)
+    deviation = calculate_outcome_deviation(outcome, expected_prob)
     
-    Args:
-        df: DataFrame with columns including 'white_rating', 'black_rating', and 'outcome'.
-        
-    Returns:
-        DataFrame with new columns: 'elo_expected_prob', 'outcome_result', 'outcome_deviation'.
-    """
-    logger.info(f"Processing {len(df)} game records...")
-    
-    # Create a copy to avoid modifying the original
-    result_df = df.copy()
-    
-    # Calculate expected probability
-    logger.info("Calculating expected probabilities...")
-    result_df['elo_expected_prob'] = result_df.apply(
-        lambda row: calculate_expected_probability(row['white_rating'], row['black_rating']),
-        axis=1
-    )
-    
-    # Map outcome to numeric result
-    logger.info("Mapping outcomes to numeric results...")
-    result_df['outcome_result'] = result_df['outcome'].apply(map_outcome_to_result)
-    
-    # Calculate outcome deviation
-    logger.info("Calculating outcome deviations...")
-    result_df['outcome_deviation'] = result_df.apply(
-        lambda row: calculate_outcome_deviation(row['outcome_result'], row['elo_expected_prob']),
-        axis=1
-    )
-    
-    # Log statistics
-    valid_deviation_count = result_df['outcome_deviation'].notna().sum()
-    logger.info(f"Successfully calculated outcome deviation for {valid_deviation_count} records.")
-    
-    return result_df
+    return {
+        'game_id': row.get('game_id'),
+        'white_rating': white_rating,
+        'black_rating': black_rating,
+        'eco_code': row.get('eco_code'),
+        'outcome': outcome,
+        'material_imbalance_move10': row.get('material_imbalance_move10'),
+        'elo_expected_prob': expected_prob,
+        'outcome_deviation': deviation
+    }
 
 def main():
     """
-    Main entry point for processing game data.
-    
-    This function:
-    1. Loads the processed game data from data/processed/games.parquet.
-    2. Processes the data to add outcome deviation metrics.
-    3. Saves the result to data/results/games_with_deviation.parquet.
+    Main entry point for processing.
+    Reads from data/processed/games.parquet (intermediate) and updates with calculated fields.
+    Actually, parse.py writes the initial record. This script adds the calculated fields.
     """
-    # Define paths
     input_path = Path("data/processed/games.parquet")
-    output_path = Path("data/results/games_with_deviation.parquet")
+    output_path = Path("data/processed/games.parquet") # Overwrite or save to new? Task says save to games.parquet.
     
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
-        logger.info("Please run the ingestion pipeline first to generate games.parquet")
         return
-    
+
     logger.info(f"Loading data from {input_path}...")
     df = pd.read_parquet(input_path)
     
-    logger.info(f"Loaded {len(df)} records with columns: {list(df.columns)}")
+    logger.info("Calculating expected probabilities and deviations...")
+    processed_records = []
+    for _, row in df.iterrows():
+        processed_records.append(process_game_record(row))
     
-    # Process the data
-    processed_df = process_game_record(df)
+    out_df = pd.DataFrame(processed_records)
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save the result
-    logger.info(f"Saving processed data to {output_path}...")
-    processed_df.to_parquet(output_path, index=False)
-    
-    logger.info("Processing complete!")
-    logger.info(f"Output saved to: {output_path}")
-    logger.info(f"Columns in output: {list(processed_df.columns)}")
-    
-    # Print sample of outcome deviation
-    if 'outcome_deviation' in processed_df.columns:
-        sample = processed_df[['outcome', 'white_rating', 'black_rating', 'elo_expected_prob', 'outcome_result', 'outcome_deviation']].head(5)
-        logger.info("Sample of processed data:")
-        print(sample.to_string())
+    # Save to parquet
+    out_df.to_parquet(output_path, index=False)
+    logger.info(f"Processed data saved to {output_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,17 +1,51 @@
-status: none
-intent: download Lichess Games Database PGN with move times and ratings from HuggingFace
-  python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets
+
+
+  builder = datasets.load_dataset_builder("Lichess/standard-chess-games")
+
+  split_info = builder.info.splits["train"]
+
+  count = split_info.num_examples
+
+  fields = list(builder.info.features.keys())
+
+
+  print(f"RECORDS={count}")
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 7136017970
+sample_fields:
+- Event
+- Site
+- White
+- Black
+- Result
+- WhiteTitle
+- BlackTitle
+- WhiteElo
+- BlackElo
+- WhiteRatingDiff
+- BlackRatingDiff
+- UTCDate
+- UTCTime
+- ECO
+- Opening
+- Termination
+- TimeControl
+- movetext
+field_coverage: 0.5
 required_fields:
 - game_id
+- eco_code
 - white_rating
 - black_rating
-- eco_code
 - move_times
-- avg_move_time
-- material_imbalance_move10
-- elo_expected_prob
-- outcome
-- outcome_deviation
-cache_key: 7d8d230a0642cff459eca3eadff74bd0ae956604aca1b83339025f4a80458840
-searched_at: '2026-08-02T01:51:57.709411+00:00'
-retry_count: 1
+- result
+- moves
+- material_state
+intent: download Lichess games dataset with move times and ratings from HuggingFace
+  python package dataset
+cache_key: 42884f58b14bc149f2654715578a12a950a2747f6b33cd7197e5f573b0bdefe0
