@@ -6,4 +6,6 @@ pandas
 numpy
 openneuro-py
 dipy
-psutil
+matplotlib
+seaborn
+pytest

@@ -8,7 +8,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T001d** — No evidence was provided showing that the `data/`, `state/`, and `docs/` directories were actually created; the implementer’s claim is unsubstantiated. The required directory artifacts are missing from the supplied information.
 - **T001f** — No README.md file or its contents were provided in the evidence; therefore we cannot confirm that a non‑empty project overview and quickstart instructions exist. The required artifact is missing.
 - **T004** — declared artifact(s) missing/empty/invalid: code/config.py
-- **T008** — declared artifact(s) missing/empty/invalid: code/utils/checkpoint.py
-- **T010** — declared artifact(s) missing/empty/invalid: tests/integration/test_data_pipeline.py, data/processed/test_subset.json
 - **T015** — No code, test, or documentation showing the added validation logic that detects degenerate cases (such as a 1‑bit collapse) and flags them as “Invalid Data” was provided. The required artifact is missing, so the task is not satisfied.
-- **T016** — No code, logs, or data files were supplied; the implementer did not provide any artifact showing logging of quantization levels, noise seeds, or peak RAM usage per task. Consequently, the requirement cannot be verified as met.

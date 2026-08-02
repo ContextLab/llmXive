@@ -1,25 +1,33 @@
-# llmXive: Extending "Kairos: A Native World Model Stack for Physical AI"
+# llmXive: Extending Kairos - A Native World Model Stack for Physical AI
 
 **Project ID**: PROJ-888-llmxive-follow-up-extending-kairos-a-nat
 
 ## Overview
 
-This project implements a follow-up study to "Kairos: A Native World Model Stack for Physical AI," focusing on discrete state scaling, quantization sensitivity, and stability analysis in a CPU-only environment. The goal is to convert continuous physical AI datasets into discrete, JSON-serialized state vectors, train a modified Kairos model on this discrete data, and statistically validate the degradation in performance relative to a continuous baseline.
+This project implements a discrete scaling study of the **Kairos** world model stack, focusing on the transition from continuous visual modalities to discrete state vectors for Physical AI. The goal is to quantify the stability and information density thresholds required for robust world modeling under resource constraints (CPU-only, limited RAM).
 
-The pipeline adheres to strict resource constraints (CPU-only, <7GB RAM peak) and constitutional principles regarding error metrics and statistical validation (paired t-test/Wilcoxon, no Bayesian Hierarchical Modeling).
+The pipeline converts the **LIBERO** dataset into discrete, JSON-serialized state vectors with configurable quantization (4/8/16-bit) and noise injection, trains a CPU-only adapter model, and performs statistical stability analysis to identify minimum information density thresholds.
 
-## Quickstart
+## Key Features
 
-### 1. Prerequisites
+- **Data Construction**: Automated download, quantization, and noise injection for the LIBERO dataset.
+- **CPU-Only Training**: Optimized training loop for environments without GPU acceleration.
+- **Stability Analysis**: Statistical validation (paired t-test/Wilcoxon) to measure relative degradation against continuous baselines.
+- **Resource Awareness**: Built-in monitoring for RAM usage, CPU load, and graceful exit strategies for long-running jobs.
+
+## Prerequisites
 
 - Python 3.9+
 - pip
-- Access to HuggingFace Hub (for dataset and model weights)
+- 7GB+ available RAM (for dataset processing)
+- 20GB+ disk space
 
-### 2. Installation
+## Quickstart
+
+### 1. Setup Environment
 
 ```bash
-# Create virtual environment (optional but recommended)
+# Create virtual environment (recommended)
 python -m venv venv
 source venv/bin/activate # On Windows: venv\Scripts\activate
 
@@ -27,89 +35,107 @@ source venv/bin/activate # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Directory Structure Initialization
+### 2. Directory Structure
 
-Ensure the project directories exist:
+The project initializes the following directories automatically or via manual creation:
+- `code/`: Source code modules
+- `tests/`: Unit and integration tests
+- `data/`: Raw and processed datasets
+- `state/`: Checkpoint and state files
+- `docs/`: Documentation and reports
+
+### 3. Run the Data Pipeline (User Story 1)
+
+This step downloads a subset of the LIBERO dataset, quantizes it, injects noise, and saves the result.
 
 ```bash
-python code/setup_directories.py
+cd code
+python main.py --mode download --quantize --noise --subset-size 50
 ```
 
-This creates `code/`, `tests/`, `data/`, `state/`, and `docs/`.
+**Expected Output**:
+- `data/processed/test_subset.json`: Discrete state vectors
+- Logs confirming successful download and processing.
 
-### 4. Configuration
+### 4. Run CPU-Only Training (User Story 2)
 
-Edit `code/config.py` to set:
-- `QUANTIZATION_LEVELS`: [4, 8, 16] bits
-- `NOISE_STD_DEVS`: Gaussian noise standard deviations
+Trains the Kairos adapter on the processed discrete data.
+
+```bash
+cd code
+python main.py --mode train --epochs 10 --batch-size 32
+```
+
+**Note**: Ensure `data/models/kairos_base.pt` exists or the fallback training logic is enabled in `config.py`.
+
+### 5. Run Stability Analysis (User Story 3)
+
+Computes error metrics and statistical significance against the continuous baseline.
+
+```bash
+cd code
+python main.py --mode analyze
+```
+
+**Expected Output**:
+- `data/results/stats.json`: Statistical test results (p-values, confidence intervals)
+- `data/results/baseline_metrics.json`: Baseline performance metrics
+- Plots in `figures/`
+
+## Configuration
+
+Edit `code/config.py` to adjust:
 - `SEED`: Random seed for reproducibility
-- `DATA_PATH`: Path to input HDF5 datasets (downloaded automatically if missing)
+- `QUANTIZATION_LEVEL`: 'low' (4-bit), 'medium' (8-bit), 'high' (16-bit)
+- `NOISE_STD`: Standard deviation for Gaussian noise injection
+- `RAM_LIMIT_MB`: Maximum allowed RAM usage (default: 7000 MB)
 
-### 5. Running the Pipeline
+## Project Structure
 
-The main orchestration script handles the full workflow:
-1. Download LIBERO dataset subset (N=50 episodes)
-2. Validate dataset size (header-only check)
-3. Quantize continuous states to discrete integers
-4. Inject Gaussian noise and clamp to valid bins
-5. Train the Kairos adapter on CPU
-6. Perform inference and stability analysis
-
-```bash
-# Run the full pipeline (MVP: User Story 1)
-python code/main.py --stage data_pipeline --quantization low --noise_seed 42
-
-# Run training (User Story 2) - requires data pipeline completion
-python code/main.py --stage training --epochs 50 --horizon 100
-
-# Run stability analysis (User Story 3)
-python code/main.py --stage analysis --horizons 100 250 500
+```
+.
+├── code/
+│ ├── main.py # Orchestration logic
+│ ├── config.py # Global configuration
+│ ├── data/
+│ │ ├── download_libero.py # Data fetching
+│ │ ├── quantize.py # Discretization logic
+│ │ ├── noise.py # Noise injection
+│ │ └── schema.py # Data schemas
+│ ├── models/
+│ │ ├── kairos_adapter.py # Model definition
+│ │ ├── training_loop.py # Training logic
+│ │ └── inference.py # Inference engine
+│ ├── analysis/
+│ │ ├── metrics.py # Error calculation
+│ │ ├── stats.py # Statistical tests
+│ │ └── run_baseline.py # Baseline generation
+│ └── utils/
+│ ├── logging.py # Logging infrastructure
+│ ├── monitor.py # Resource monitoring
+│ └── checkpoint.py # Graceful exit handling
+├── tests/
+│ ├── contract/ # Schema validation tests
+│ └── integration/ # End-to-end pipeline tests
+├── data/
+│ ├── raw/ # Downloaded HDF5 files
+│ └── processed/ # Quantized JSON outputs
+├── figures/ # Generated plots
+├── requirements.txt # Dependencies
+└── README.md
 ```
 
-### 6. Output Artifacts
+## Constraints & Notes
 
-- **Data**: `data/processed/quantized_<level>.json`
-- **Models**: `data/models/kairos_adapter.pt`
-- **Results**: `data/results/metrics.json`, `data/results/stats.json`
-- **Figures**: `figures/error_vs_bandwidth.png`, `figures/threshold_map.png`
-
-## Architecture
-
-### Core Components
-
-- **Data Pipeline** (`code/data/`): Handles HDF5 download, quantization, and noise injection.
-- **Models** (`code/models/`): Kairos adapter with fixed discrete projection, CPU-only training loop.
-- **Analysis** (`code/analysis/`): MSE calculation, statistical validation (t-test/Wilcoxon), sensitivity sweeps.
-- **Utilities** (`code/utils/`): Resource monitoring, logging, error handling, checkpointing.
-
-### Data Flow
-
-```mermaid
-graph LR
-A[LIBERO HDF5] --> B[Quantize]
-B --> C[Inject Noise]
-C --> D[Discrete JSON]
-D --> E[Kairos Adapter]
-E --> F[Inference]
-F --> G[Stability Analysis]
-```
-
-## Constraints & Principles
-
-- **CPU-Only**: No CUDA or bitsandbytes dependencies.
-- **Resource Limits**: Hard fail if RAM > 7GB or runtime > 6h.
-- **Real Data Only**: No synthetic fallbacks. Data fetch failures must raise errors.
-- **Statistical Rigor**: Paired t-test or Wilcoxon signed-rank test only. BHM is forbidden.
-- **Error Metrics**: Normalized by state space dimensionality; horizons [100, 250, 500].
-
-## Contributing
-
-1. Create a feature branch.
-2. Implement tasks from `tasks.md`.
-3. Write tests first (if applicable) and ensure they fail.
-4. Run `pytest` to verify.
-5. Submit a pull request.
+- **CPU-Only**: No CUDA dependencies. The model must run on standard CPU hardware.
+- **Real Data Only**: The pipeline fetches real data from HuggingFace. Synthetic fallbacks are disabled and will cause a hard failure if the source is unreachable.
+- **Resource Limits**: The pipeline enforces a 7GB RAM limit and a 6-hour time limit via checkpointing.
+- **Statistical Rigor**: Stability claims are framed as "relative degradation" using paired t-tests or Wilcoxon signed-rank tests.
 
 ## License
 
-MIT License. See `LICENSE` for details.
+Internal Research Use Only.
+
+## Contact
+
+llmXive Research Team

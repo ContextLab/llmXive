@@ -1,16 +1,3 @@
-T004b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `spec.md` file or any excerpt showing the corrected SC-005 section is provided;
-    the required artifact is missing, so the task of fixing the corrupted text cannot
-    be verified as completed.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure (`data/raw/`, `data/processed/`, `data/models/`, `logs/`)
-    is shown or referenced in the provided artifacts; the implementer gave no file
-    listings, screenshots, or code that creates these folders. The required folder
-    hierarchy is therefore missing.
 T011b:
   c: false
   h: 8cd91b70233f2221a7fcdd404a34c0096ca0fa36d82da1a14ea3e9eb59517c13
@@ -85,3 +72,38 @@ T026:
     \ loading and correlation utilities and does not contain any implementation of\
     \ external validation or code that writes the R\xB2 result. These missing artifacts\
     \ mean the task\u2019s deliverables are not satisfied."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `logs/profiling.log` file was presented or described in the provided evidence,
+    so the required artifact that logs memory usage and runtime does not exist. The
+    task remains unfinished until this log file is created and supplied.
+T030:
+  c: false
+  h: 1f71d4ea1d30bd4c647932d9a1f26079458fe2f4181d7396a95dc21a3bc05a12
+  r: "The required `data/processed/feature_importance.csv` file does not exist, and\
+    \ the `extract_feature_importance` function in `code/interpret.py` uses a placeholder\
+    \ that generates random importances instead of extracting non\u2011zero coefficients\
+    \ from a trained model. Both the artifact and the correct functionality are missing."
+T031:
+  c: false
+  h: 17fa2a73d0b722457fcfa66865e0c0a3db1b79a164d5422465f6b424afd8b9f3
+  r: The required output file `data/processed/peak_annotations.csv` does not exist,
+    and the `map_peaks_to_tss` function in `code/interpret.py` contains a placeholder
+    implementation that generates random distances instead of performing a real mapping.
+    Both the artifact and the functional behavior are missing.
+T032:
+  c: false
+  h: 59bb7ba3efeb058faa1158e5562aa0ec8fc3a9eb439ecf2337a3ade9a498eb0f
+  r: "The required output file `data/processed/tss_proximity_stats.json` does not\
+    \ exist, and the `calculate_tss_proximity_stats` function in `code/interpret.py`\
+    \ uses placeholder random data rather than real peak\u2011to\u2011TSS distances,\
+    \ so the percentage is not genuinely computed. The task\u2019s deliverable is\
+    \ therefore missing and the implementation is not a true calculation."
+T033:
+  c: false
+  h: c780b67a95797ada482858ffccc1ea27e233343dbf79564f02110a7e91c759de
+  r: "The repository lacks the required `data/processed/performance_gap.json` file,\
+    \ and `code/interpret.py` contains only placeholder logic (random importance,\
+    \ no calculation of \u0394R\xB2 or JSON output). No function writes the performance\
+    \ gap, so the deliverable is missing."

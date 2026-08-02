@@ -4,75 +4,65 @@ from pathlib import Path
 
 def create_directories():
     """
-    Create the necessary directory structure for the project.
-    Includes data subdirectories, code, tests, and reports.
+    Create the required project directory structure.
+    
+    Creates:
+    - data/raw, data/interim, data/processed
+    - code (already exists per T001c)
+    - tests/unit, tests/integration (already exists per T001d)
+    - reports (NEW for T001e)
     """
-    base_path = Path(".")
+    root = Path(".")
     
     directories = [
-        base_path / "data" / "raw",
-        base_path / "data" / "interim",
-        base_path / "data" / "processed",
-        base_path / "code",
-        base_path / "tests" / "unit",
-        base_path / "tests" / "integration",
-        base_path / "reports",
-        base_path / "figures",
-        base_path / "logs",
+        root / "data" / "raw",
+        root / "data" / "interim",
+        root / "data" / "processed",
+        root / "reports",
     ]
     
     created = []
     for dir_path in directories:
         dir_path.mkdir(parents=True, exist_ok=True)
         created.append(str(dir_path))
-        
+        print(f"Created directory: {dir_path}")
+    
     return created
 
 def create_init_files():
     """
-    Create __init__.py files in code and tests directories to make them packages.
+    Create __init__.py files in code and tests directories if they don't exist.
     """
-    base_path = Path(".")
+    root = Path(".")
     
     init_paths = [
-        base_path / "code" / "__init__.py",
-        base_path / "tests" / "__init__.py",
-        base_path / "tests" / "unit" / "__init__.py",
-        base_path / "tests" / "integration" / "__init__.py",
+        root / "code" / "__init__.py",
+        root / "tests" / "__init__.py",
+        root / "tests" / "unit" / "__init__.py",
+        root / "tests" / "integration" / "__init__.py",
     ]
     
     created = []
     for init_path in init_paths:
         if not init_path.exists():
+            init_path.parent.mkdir(parents=True, exist_ok=True)
             init_path.touch()
             created.append(str(init_path))
+            print(f"Created __init__.py: {init_path}")
         else:
-            # Ensure it's not empty if it exists but was previously a placeholder
-            # For now, we just ensure the file exists.
-            pass
-            
+            print(f"__init__.py already exists: {init_path}")
+    
     return created
 
 def main():
     """
-    Main entry point to set up the project directory structure.
+    Main entry point to setup the project directory structure.
     """
     print("Setting up project directories...")
-    
     dirs = create_directories()
-    print(f"Created directories: {dirs}")
-    
     inits = create_init_files()
-    print(f"Created/Verified init files: {inits}")
-    
-    # Create a placeholder README in reports to satisfy "at least one file" requirement
-    reports_dir = Path("reports")
-    placeholder = reports_dir / ".gitkeep"
-    if not placeholder.exists():
-        placeholder.touch()
-        print(f"Created placeholder: {placeholder}")
-        
-    print("Directory setup complete.")
+    print(f"Setup complete. Created {len(dirs)} directories and {len(inits)} init files.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

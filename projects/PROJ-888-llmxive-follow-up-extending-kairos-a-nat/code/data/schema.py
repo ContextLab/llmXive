@@ -1,6 +1,3 @@
-"""
-Data schemas and validation logic for llmXive Kairos project.
-"""
 import sys
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -8,60 +5,102 @@ from typing import List, Union, Optional, Dict, Any, Literal
 from enum import Enum
 import json
 import numpy as np
-import logging
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-from utils.logging import get_logger
-
-logger = get_logger(__name__)
 
 class QuantizationLevel(Enum):
+    """Supported quantization levels (bits)."""
     LOW = 4
     MEDIUM = 8
     HIGH = 16
 
 @dataclass
 class DiscreteStateVector:
-    """Represents a quantized state vector."""
+    """
+    A discrete state vector represented as a list of integers.
+    Values must be within [0, 2^bits - 1].
+    """
     values: List[int]
     bits: int
-    episode_id: int
-
-    def __post_init__(self):
-        validate_quantization_level(self.bits)
-        if not all(isinstance(x, int) for x in self.values):
-            raise ValueError("All values in state vector must be integers.")
-        if not all(0 <= x < (2 ** self.bits) for x in self.values):
-            raise ValueError(f"All values must be in range [0, {2 ** self.bits - 1}]")
 
 @dataclass
 class ErrorMetric:
-    """Represents an error metric result."""
+    """
+    Metrics calculated for error analysis.
+    """
     mse: float
-    horizon: int
     p_value: Optional[float] = None
-    confidence_interval: Optional[Dict[str, float]] = None
+    horizon: int = 0
+    confidence_interval: Optional[tuple] = None
 
-def validate_quantization_level(bits: int) -> bool:
-    """Validate that the quantization level is supported."""
-    if bits not in [4, 8, 16]:
-        raise ValueError(f"Unsupported quantization level: {bits}. Must be 4, 8, or 16.")
-    return True
+def validate_quantization_level(level: Union[int, QuantizationLevel]) -> QuantizationLevel:
+    """
+    Validates and returns a QuantizationLevel enum.
+    
+    Args:
+        level: An integer (4, 8, 16) or a QuantizationLevel enum.
+    
+    Returns:
+        The corresponding QuantizationLevel enum.
+    
+    Raises:
+        ValueError: If the level is not supported.
+    """
+    if isinstance(level, QuantizationLevel):
+        return level
+    
+    if level in [4, 8, 16]:
+        return QuantizationLevel(level)
+    
+    raise ValueError(f"Unsupported quantization level: {level}. Must be 4, 8, or 16.")
 
-def validate_state_vector_consistency(state_vector: DiscreteStateVector) -> bool:
-    """Validate the consistency of a state vector."""
-    if len(state_vector.values) == 0:
-        raise ValueError("State vector cannot be empty.")
-    return True
+def validate_state_vector_consistency(vector: List[int], bits: int) -> bool:
+    """
+    Validates that all values in a vector are consistent with the bit depth.
+    
+    Args:
+        vector: List of integers.
+        bits: Bit depth (4, 8, 16).
+    
+    Returns:
+        True if valid, False otherwise.
+    """
+    max_val = (1 << bits) - 1
+    return all(0 <= v <= max_val for v in vector)
 
-def clamp_to_bin(arr: np.ndarray, bits: int) -> np.ndarray:
-    """Clamp an array to the valid range for a given bit depth."""
-    max_val = (2 ** bits) - 1
-    return np.clip(arr, 0, max_val)
+def clamp_to_bin(value: Union[int, float], bits: int) -> int:
+    """
+    Clamps a value to the valid range for a given bit depth.
+    
+    Args:
+        value: The value to clamp.
+        bits: Bit depth (4, 8, 16).
+    
+    Returns:
+        The clamped integer value.
+    """
+    min_val = 0
+    max_val = (1 << bits) - 1
+    clamped = int(np.clip(value, min_val, max_val))
+    return clamped
 
-def calculate_mse(original: np.ndarray, quantized: np.ndarray) -> float:
-    """Calculate Mean Squared Error between original and quantized vectors."""
-    if original.shape != quantized.shape:
-        raise ValueError("Arrays must have the same shape.")
-    return float(np.mean((original - quantized) ** 2))
+def calculate_mse(predicted: List[int], actual: List[int], bits: int) -> float:
+    """
+    Calculates Mean Squared Error between two discrete state vectors.
+    
+    Args:
+        predicted: List of predicted integer values.
+        actual: List of actual integer values.
+        bits: Bit depth (used for normalization if needed, though MSE is absolute here).
+    
+    Returns:
+        The MSE value.
+    """
+    if len(predicted) != len(actual):
+        raise ValueError("Vectors must have the same length")
+    
+    if not predicted:
+        return 0.0
+    
+    # Normalize by state space dimensionality if required by FR-004
+    # Here we calculate raw MSE. Normalization can be applied externally.
+    sq_errors = [(p - a) ** 2 for p, a in zip(predicted, actual)]
+    return float(np.mean(sq_errors))

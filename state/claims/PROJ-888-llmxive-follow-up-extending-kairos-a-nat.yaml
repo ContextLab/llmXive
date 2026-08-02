@@ -19,25 +19,6 @@
   updated_at: '2026-07-22T12:57:48Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: Bayesian Hierarchical Modeling forbidden
-  claim_id: c_5d22a84a
-  context: '**Constraint**: Bayesian Hierarchical Modeling (BHM) is **explicitly forbidden**
-    and must not be implemented.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Bayesian_Hierarchical_Modeling_forbidden
-  kind: entity_fact
-  raw_text: Bayesian Hierarchical Modeling (BHM) is explicitly forbidden for statistical
-    validation.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-22T12:58:07Z'
-- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
-  attempts: 1
   canonical: training time target less than or equal to 4 hours
   claim_id: c_7ea537f8
   context: "confirming that the total training time is a target \u2264 4 hours (graceful\
@@ -419,3 +400,199 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-22T13:09:22Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 2
+  canonical: Bayesian Hierarchical Modeling forbidden
+  claim_id: c_5d22a84a
+  context: '**Constraint**: Bayesian Hierarchical Modeling (BHM) is **explicitly forbidden**
+    and must not be implemented.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bayesian_Hierarchical_Modeling_forbidden
+  kind: entity_fact
+  raw_text: Bayesian Hierarchical Modeling (BHM) is explicitly forbidden for statistical
+    validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:21:01Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: fallback training runs until loss change less than 5 percent
+  claim_id: c_1b224660
+  context: Fallback must run until loss change < 5% or MIN_EPOCHS reached, then flag
+    output as UNTRAINED_BASELINE.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_training_runs_until_loss_change_less_than_5_percent
+  kind: magnitude
+  raw_text: The continuous baseline training fallback must run until loss change is
+    less than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:21:26Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: training runs with 6 hour time limit
+  claim_id: c_042a2dba
+  context: Implement `code/models/training_loop.py` for CPU-only training with epoch
+    checkpointing and 6h graceful exit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The continuous baseline training fallback must respect a 6-hour graceful
+    exit limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:21:43Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: 7GB RAM constraint
+  claim_id: c_90efe35f
+  context: Validates full dataset size via header-only read to ensure < 7GB RAM constraint
+    before processing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7GB_RAM_constraint
+  kind: entity_fact
+  raw_text: The project enforces a 7GB RAM constraint for data processing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:22:30Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: data pipeline test uses 50 episode subset
+  claim_id: c_979162a8
+  context: Specify input subset size (N=50 episodes), output path `data/processed/test_subset.json`,
+    and assert `output_file_size < 100MB`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The integration test for the data pipeline specifies an input subset size
+    of 50 episodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:22:54Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: data pipeline test output size less than 100MB
+  claim_id: c_33d85d54
+  context: Specify input subset size (N=50 episodes), output path `data/processed/test_subset.json`,
+    and assert `output_file_size < 100MB`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_test_output_size_less_than_100MB
+  kind: magnitude
+  raw_text: The integration test for the data pipeline asserts an output file size
+    of less than 100MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:23:41Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: data pipeline test asserts no NaN values
+  claim_id: c_4303cfff
+  context: Specify input subset size (N=50 episodes), output path `data/processed/test_subset.json`,
+    and assert `output_file_size < 100MB` and `no NaN values`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_test_asserts_no_NaN_values
+  kind: entity_fact
+  raw_text: The integration test for the data pipeline asserts that there are no NaN
+    values in the output.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:24:31Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: 4-bit quantized values between 0 and 15
+  claim_id: c_8f517a62
+  context: Implement function `test_quantized_schema_4bit` asserting `all(0 <= x <=
+    15 for x in data)`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The contract test for quantized JSON schema asserts that all values in
+    4-bit data are between 0 and 15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:24:58Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis bit-widths 4 8 16
+  claim_id: c_f3dc4d5e
+  context: Implement sensitivity analysis sweep across **bit-width increments** [4,
+    8, 16] and report variation in headline error rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep across bit-width increments includes 4,
+    8, and 16 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:25:38Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: 12-bit quantization excluded from sensitivity analysis
+  claim_id: c_e36022c2
+  context: '**Constraint**: Do NOT include 12-bit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis explicitly excludes 12-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T04:26:08Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: statistical analysis output path data/results/stats.json
+  claim_id: c_96c11bb9
+  context: Specify running `paired t-test` (or Wilcoxon if Levene's fails), expected
+    p-value range, and exact output path `data/results/stats.json`.
+  evidence:
+    entailment_evidence: Statistical analysis output path data/results/stats.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_output_path_data/results/stats.json
+  kind: entity_fact
+  raw_text: The integration test for statistical analysis expects the output path
+    to be data/results/stats.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-02T04:26:43Z'

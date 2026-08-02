@@ -41,7 +41,7 @@
 - [X] T005 [P] Implement resource monitoring utilities in `code/utils/monitor.py` (RAM, CPU, time tracking)
 - [X] T006 [P] Setup error handling and logging infrastructure in `code/utils/logging.py`
 - [X] T007 Create base data schemas and validation logic in `code/data/schema.py` (DiscreteStateVector, ErrorMetric)
-- [ ] T008 Configure checkpointing mechanism for graceful exit at 6h limit in `code/utils/checkpoint.py`
+- [X] T008 Configure checkpointing mechanism for graceful exit at 6h limit in `code/utils/checkpoint.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,7 +58,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Contract test for quantized JSON schema in `tests/contract/test_quantized_schema.py`: Implement function `test_quantized_schema_4bit` asserting `all(0 <= x <= 15 for x in data)`.
-- [ ] T010 [P] [US1] Integration test for full download-quantize-noise pipeline in `tests/integration/test_data_pipeline.py`: Specify input subset size (N=50 episodes), output path `data/processed/test_subset.json`, and assert `output_file_size < 100MB` and `no NaN values`.
+- [X] T010 [P] [US1] Integration test for full download-quantize-noise pipeline in `tests/integration/test_data_pipeline.py`: Specify input subset size (N=50 episodes), output path `data/processed/test_subset.json`, and assert `output_file_size < 100MB` and `no NaN values`.
 
 ### Implementation for User Story 1
 

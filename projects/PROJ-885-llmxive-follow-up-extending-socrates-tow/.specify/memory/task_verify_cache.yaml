@@ -7,20 +7,18 @@ T011:
     \ criteria cannot be satisfied."
 T014:
   c: false
-  h: 24fc332b4399a1190fcd111365b5ef67cbfd0db46b8a95f9b40b154f50b4e22d
-  r: "The required output files `data/processed/trajectories.json` and `data/processed/generation_stats.json`\
-    \ are not present, and the provided `code/data/generator.py` snippet shows no\
-    \ logic that writes trajectories or a summary report to those locations. The implementation\
-    \ therefore does not fulfill the task\u2019s requirement to generate and save\
-    \ the specified JSON files with the required category counts and percentages."
+  h: b12f769e7391bf0ecd71fef35116bd4521763f465c207e3b47933fc0ca1cd706
+  r: The repository contains `code/data/generator.py`, but the required output files
+    `data/processed/trajectories.json` and `data/processed/generation_stats.json`
+    are absent, so the writer functionality and the required summary (counts and percentages
+    per category) have not been produced. The task is therefore not fulfilled.
 T015:
   c: false
-  h: d5c47603f7e057c74bfcb37bf38d2f4c67c9eeace8764f45350de954a22d3046
-  r: The repository contains a `code/data/generator.py` file, but the shown portion
-    does not demonstrate logic that enforces generating exactly 500 trajectories or
-    raising an error if fewer are produced. Moreover, the required output file `data/processed/trajectories.json`
-    is missing entirely. Both the generation constraint and the expected output artifact
-    are absent.
+  h: c0c61abfc3d0859724610075b380352147095a48e82a1815bd55f76685506eaa
+  r: "The repository contains an updated `code/data/generator.py`, but the required\
+    \ output file `data/processed/trajectories.json` is missing, so we cannot confirm\
+    \ that exactly 500 unique trajectories are produced or that an error is raised\
+    \ when fewer are generated. The task\u2019s primary output is absent."
 T019:
   c: false
   h: aad431d9c0b011c366c4a16105d06833a2cc336057da969837ed1654180da566

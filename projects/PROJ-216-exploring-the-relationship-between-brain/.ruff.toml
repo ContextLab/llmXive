@@ -1,0 +1,2 @@
+# Standalone ruff config for CLI usage if pyproject.toml is not picked up
+extend = "pyproject.toml"

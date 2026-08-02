@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/SoCRATES/socrates-eval
   verified_at: '2026-07-30T01:51:40.989438Z'
-- artifact_hash: fbd42bc8a99f622e9a4876a3e2a0215433e2e948f25637e72d267756fc9c9f5c
+- artifact_hash: 430fc2bfdf306cdcbd81802b9afe5151f4d85606b91acdaa1ab245b5a6c81ac3
   artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,4 +20,15 @@
   value: https://arxiv.org/abs/2511.14546
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2511.14546
-  verified_at: '2026-07-31T13:25:02.642345Z'
+  verified_at: '2026-08-02T05:00:16.520779Z'
+- artifact_hash: 430fc2bfdf306cdcbd81802b9afe5151f4d85606b91acdaa1ab245b5a6c81ac3
+  artifact_path: projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/specs/001-llmxive-follow-up-extending-socrates-tow/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'CODATA Value:    Avogadro constant'
+  kind: url
+  value: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  verification_status: pending
+  verified_against_url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  verified_at: '2026-08-02T05:00:16.520779Z'

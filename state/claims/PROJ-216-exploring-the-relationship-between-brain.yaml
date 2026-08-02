@@ -31,3 +31,37 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T07:25:24Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Tasks designed for 10 subjects on 2 core 7GB RAM 6 hour limit
+  claim_id: c_48620bd2
+  context: Notes section regarding feasibility constraints for the project implementation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Feasibility: All tasks designed for N=10 subjects on CPU-only CI (2 cores,
+    7GB RAM, 6h limit).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T05:12:00Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Analysis uses real OpenNeuro data without synthetic generation
+  claim_id: c_dda2eb3c
+  context: Notes section regarding data integrity and source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_real_OpenNeuro_data_without_synthetic_generati
+  kind: entity_fact
+  raw_text: 'Data Integrity: No synthetic data generation; all analysis uses real
+    OpenNeuro data.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T05:12:23Z'

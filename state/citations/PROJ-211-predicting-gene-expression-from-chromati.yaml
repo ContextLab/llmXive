@@ -1,4 +1,4 @@
-- artifact_hash: ce09df9cbce453b628723142b49d05c0324cc6cd07654c31d5272670a13f40d0
+- artifact_hash: bf9dfdd711bb5ddd18f3dbdde34a582258b8351e30da4fe7358b7c7fb60a16a5
   artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://www.encodeproject.org/
   verification_status: pending
   verified_against_url: https://www.encodeproject.org/
-  verified_at: '2026-08-01T10:18:40.701992Z'
-- artifact_hash: b1a775a7b0abc3092733be4be245a561534ab99e440083f88c14e7e4b8f85298
+  verified_at: '2026-08-02T05:00:56.245772Z'
+- artifact_hash: b5d3d9f146588f2d4e77934cac0a1c422449d16bbee77b562d6204878af0d9bc
   artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://www.wikidata.org/wiki/Q385989
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q385989
-  verified_at: '2026-08-01T10:36:50.254712Z'
+  verified_at: '2026-08-02T05:11:02.221147Z'
