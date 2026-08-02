@@ -4,6 +4,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T001a** — No evidence was provided showing that `code/` and `tests/` directories actually exist in the repository (or contain any files). The implementer’s claim cannot be verified without such artifacts. The next implementer should create the two directories at the repository root and ensure they are present in the project’s file tree.
 - **T001b** — No evidence was provided showing that the `data/raw`, `data/processed`, and `data/models` directories exist in the repository root; without visible directory listings or files, the requirement cannot be confirmed. The implementer must add the three directories (even if empty) to the project and show their presence.
-- **T003b** — declared artifact(s) missing/empty/invalid: black.toml
 - **T005b** — declared artifact(s) missing/empty/invalid: state/projects/PROJ-214-decoding-emotional-valence-from-facial-e.yaml
-- **T018** — The required `data/processed/exclusions.log` file does not exist, and the shown portion of `code/preprocessing.py` contains no implementation of median‑filter imputation for missing channels nor any code that writes exclusions to that log or adds them to a final report. Consequently the task’s edge‑case handling is not satisfied.

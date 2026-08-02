@@ -13,10 +13,10 @@ The pipeline employs **Nested Leave-One-Subject-Out (LOSO)** cross-validation:
 3.  **Prediction**: Window-level predictions are aggregated via **majority voting** to produce a single subject-level label, resolving temporal autocorrelation issues and defining the unit of analysis as the subject.
 
 Two models are trained per fold:
-*   **Random Forest (100 trees)**: Used for prediction accuracy, permutation importance, and SHAP analysis.
+*   **Random Forest (a forest of multiple decision trees)**: Used for prediction accuracy, permutation importance, and SHAP analysis.
 *   **Logistic Regression**: Used specifically to calculate **Nagelkerke’s R²** for hierarchical variance explanation (FR-007), as this metric is mathematically undefined for Random Forests. This dual-model strategy resolves the construct validity gap.
 
-Statistical validation includes a **Permutation Test (1000 shuffles)** AND a **Paired T-Test** against the label-shuffled baseline to satisfy Constitution Principle VII. All operations are constrained to run on CPU-only GitHub Actions runners (<7 GB RAM, <6 hours) via parallelized outer folds and sequential subject processing.
+Statistical validation includes a **Permutation Test (shuffles)** AND a **Paired T-Test** against the label-shuffled baseline to satisfy Constitution Principle VII. All operations are constrained to run on CPU-only GitHub Actions runners (<7 GB RAM, <6 hours) via parallelized outer folds and sequential subject processing.
 
 ## Technical Context
 
@@ -24,11 +24,11 @@ Statistical validation includes a **Permutation Test (1000 shuffles)** AND a **P
 **Primary Dependencies**: `numpy`, `scipy`, `scikit-learn`, `pandas`, `joblib`, `shap` (CPU-optimized), `requests`, `scikit-learn-extra`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/models`), intermediate files deleted sequentially.  
 **Testing**: `pytest` (unit tests for signal processing, integration tests for pipeline flow), `pytest-cov` for coverage.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM, no GPU).  
 **Project Type**: Data Science / Research Pipeline  
 **Performance Goals**: Complete nested LOSO and reporting within 6 hours; peak RAM < 7 GB.  
 **Constraints**: No GPU/CUDA; no large model training; **Parallelize outer LOSO folds** to meet time constraints; strict adherence to DEAP-EMG dataset structure.  
-**Scale/Scope**: participants, ~30 trials each, 32 channels (subset to 3 EMG), [deferred] of data per subject.
+**Scale/Scope**: participants, A series of trials will be conducted for each condition to ensure sufficient data collection for analysis., A multichannel configuration will be employed. (subset to 3 EMG), [deferred] of data per subject.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -36,7 +36,7 @@ Statistical validation includes a **Permutation Test (1000 shuffles)** AND a **P
 To guarantee the <6 hour runtime on a 2-CPU runner:
 1.  **Parallelization**: The 32 outer LOSO folds will be processed in parallel using `joblib` with `n_jobs=4`.
 2.  **Data Type**: All feature matrices stored as `float32` to halve memory footprint.
-3.  **Inner Loop**: Limited to 5 parameter combinations to reduce inner CV overhead.
+3.  **Inner Loop**: Limited to parameter combinations to reduce inner CV overhead.
 4.  **Memory**: Only the current subject's data is loaded into RAM; processed data is flushed immediately.
 5.  **Model Loading**: `train.py` saves a single `model_bundle.pkl` containing both RF and LogReg models. Subsequent scripts (`importance.py`, `validate.py`) load this bundle to avoid redundant training.
 

@@ -1,5 +1,5 @@
-60|filter hz notch project use:
-  quote: Fnotch or fcutoff = 49.7 Hz
+60|apply filter filtering hz notch signal:
+  quote: notch filter specifically designed to attenuate 40 Hz power-line
   source_id: '2504.02847'
   url: https://arxiv.org/abs/2504.02847
-  value: 49.7 Hz
+  value: 40 Hz

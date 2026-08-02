@@ -1,4 +1,3 @@
 """
-llmXive Project: Decoding Emotional Valence from Facial EMG Patterns
-Package initialization for the code module.
+llmXive Research Pipeline: Decoding Emotional Valence from Facial EMG
 """
