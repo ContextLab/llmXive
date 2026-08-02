@@ -3185,7 +3185,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/events.p
 
 **Interfaces:**
 - Consumes: `lane_log.append/append_many/read`, `Seam` (Task 3), `LaneRevisionConflict`, `derive_event_id`, `project_coordinator`, `COORDINATOR_STREAM`.
-- Produces: `cas_attempt_transition(repo, *, problem_id, attempt_id, event_type, payload, actor, clock, config=None, _after_parent=None, _before_ref_update=None, _after_push=None) -> TransitionOutcome`; `_claim_required(transition, state_before) -> bool`; `_state_before(history, event_id)`; `_COORDINATOR_EFFECTS`; `LaneInconsistent`; `assert_partner_intact(...)`; `replayed_transaction(repo, stored, declared_effects, coordinator_events, *, problem_id, attempt_id, required, config=None)`; `events_by_commit` in `lane_log.py`; `seed_claim` in `tests/helpers/lane_lifecycle.py`.
+- Produces: `cas_attempt_transition(repo, *, problem_id, attempt_id, event_type, payload, actor, clock, config=None, _after_parent=None, _before_ref_update=None, _after_push=None) -> TransitionOutcome`; `_claim_required(transition, state_before) -> bool`; `_state_before(history, event_id)`; `_COORDINATOR_EFFECTS`; `LaneInconsistent`; `assert_member_identity(...)`; `assert_partner_intact(...)`; `replayed_transaction(repo, stored, declared_effects, coordinator_events, *, problem_id, attempt_id, expected_event_type, required, config=None)`; `events_by_commit` in `lane_log.py`; `seed_claim` in `tests/helpers/lane_lifecycle.py`.
 
 **A transition emits its declared coordinator effects, atomically.** When the Attempt making
 the transition currently holds the lane — read from ITS OWN state, `_claim_required`, not
@@ -3273,11 +3273,19 @@ It writes `Proposed` and `ProposalVerified` on the Problem stream first (via
     h. no `LaneRevisionConflict`: the replay's `expected_revisions` are read at the CURRENT tip, so a longer stream is not a stale-revision failure. Every row already reads them fresh; this is the test that says so, and the one that would fail if a future refactor "helpfully" pinned them to the transaction being replayed.
 
     Each row supplies its own `later_activity` because "unrelated" is row-specific: after rows 2, 3 and 4 the lane is FREE, so a second Problem claims it (growing both streams and changing current ownership); after row 1 the lane is HELD by the pair under test, so the activity is a transition on a second Problem's stream. The lost-ack cases above all retry immediately, which is the easy half of the contract — a retry after a crash is usually the NEXT run, minutes and several commits later.
-14. **A replay whose coordinator half is not intact raises rather than passing.** Land the transaction, damage the stored partner, then re-invoke and require `LaneInconsistent`. Four damage classes, each a thing presence alone cannot see, and each parameterized over rows 2 and 4 here (Task 8 adds row 1's, Task 10 row 3's):
+14. **A replay whose stored transaction is not intact raises rather than passing.** Land the transaction, damage ONE member, then re-invoke and require `LaneInconsistent`. Damage each member in turn — the **anchor** (the stored Attempt event) as well as each **partner** — because both are located by a derived id and both are reused verbatim, so the id proves only where a record would be, never that the record there is the right one. Parameterized over rows 2 and 4 here (Task 8 adds row 1's, Task 10 row 3's).
+
+    Partner damage:
     a. **Missing** — delete the partner blob. This is the case the naive replay reports as healthy: the Attempt event is present, so "already landed" is true, and nothing ever looks at the half that is gone. For row 4, delete each of the TWO partners in turn — a replay that checked only `ClaimReleased` would bless a lost `MonitorStarted`.
     b. **Wrong record at the right id** — replace it with a different `event_type`, and separately with one whose payload names another `attempt_id`.
     c. **Disagreeing halves** — rewrite the partner's `actor`/`timestamp` so the pair no longer looks like one construction.
     d. **Separately committed** — build the pair as TWO commits at the derived ids (both blobs present, both well-formed, both reachable) and re-invoke. Everything a presence-or-payload check can see is fine here; only the introducing commit differs. This is the regression a future "optimization" that splits the transaction back into two appends would cause, and it is the case that makes `events_by_commit` load-bearing in the writer rather than only in the auditor.
+
+    Anchor damage — the same two classes, on the other member:
+    e. **Wrong event type at the anchor's derived id** — replace the stored Attempt event with a different `event_type` (still a legal Attempt type, so nothing else objects) and re-invoke the ORIGINAL transition. It must raise. Without `expected_event_type` this replays as "already landed" and returns a `TransitionOutcome` describing a transition that never happened.
+    f. **Anchor naming another Attempt** — rewrite the stored event's payload `attempt_id`. Same requirement.
+
+    Run **e and f against BOTH branches of `required`**: a claim-holding terminal (partners expected) and a pre-claim terminal such as `ReviewAborted` from `proposed` (no partners expected). The second is the one a partner-only check cannot reach at all — with no partner to cross-check against, the anchor check is the only thing between a corrupt record at the right id and a replay reported as success.
 
     Damage is applied by writing the blobs directly and committing on the ref — NOT by calling lane APIs, which correctly refuse to produce any of these states.
 
@@ -3392,17 +3400,54 @@ def _claim_required(transition: Transition, state_before: AttemptState | None) -
     return bool(transition.coordinator_effects) and holds_claim(state_before)
 
 
+def assert_member_identity(event: Event, expected_type: str, stream: str,
+                           problem_id: str, attempt_id: str) -> None:
+    """A located record IS the record it was located as: right type, right stream, naming
+    this Problem and Attempt. Raise otherwise.
+
+    Every caller that finds a record by DERIVED ID needs this, because a derived id is a
+    hypothesis ("if this transaction landed, its record is here") and the record found
+    there is evidence, not proof. Reusing it verbatim without checking is how a corrupt
+    record gets replayed as a healthy transaction — `append_many` cannot catch it, since
+    on the replay path each stored event is compared against ITSELF.
+
+    `expected_type` is REQUIRED and has no default. An earlier revision made the anchor's
+    type check optional, and both replay paths then silently omitted it: the parameter
+    existed, defaulted to `None`, and disabled exactly the check it was added for. A
+    caller that genuinely cannot name a type must not call this function at all."""
+    if event.event_type != expected_type:
+        raise LaneInconsistent(
+            f"{problem_id}/{attempt_id}: expected {expected_type} on {stream!r}, "
+            f"found {event.event_type}")
+    if event.problem_id != stream:
+        raise LaneInconsistent(
+            f"{problem_id}/{attempt_id}: {event.event_type} is on stream "
+            f"{event.problem_id!r}, expected {stream!r}")
+    if (payload_field(event, "problem_id"), payload_field(event, "attempt_id")) != (
+            problem_id, attempt_id):
+        raise LaneInconsistent(
+            f"{problem_id}/{attempt_id}: {event.event_type} names "
+            f"{payload_field(event, 'problem_id')}/"
+            f"{payload_field(event, 'attempt_id')} instead")
+
+
 def assert_partner_intact(*, anchor: Event, partner: Event | None, coordinator_event: str,
                           compare: tuple[str, ...],
                           commit_of: Mapping[tuple[str, str], str],
-                          problem_id: str, attempt_id: str,
-                          anchor_event: str | None = None) -> Event:
+                          problem_id: str, attempt_id: str) -> Event:
     """One anchor→partner pairing, checked to the FULL strength of the matrix, or raise.
 
-    Five things, in the order a corruption is cheapest to describe: the partner exists; it
-    is the declared type on the coordinator stream; both members' payloads name this
-    Problem and Attempt; both were introduced by the SAME commit; and the fields the row
-    calls shared agree. `actor` and `timestamp` are checked too, unconditionally — every
+    Four things, in the order a corruption is cheapest to describe: the partner exists; it
+    is the declared type on the coordinator stream naming this Problem and Attempt
+    (`assert_member_identity`); both members were introduced by the SAME commit; and the
+    fields the row calls shared agree.
+
+    **The ANCHOR's own identity is the caller's job, not this function's**, because only
+    the caller knows how the anchor was obtained. A caller that located it by derived id
+    (both replay paths) MUST call `assert_member_identity` on it first; the auditor need
+    not, because its anchor comes out of `walk_attempt`, which has already refused unknown
+    types and illegal transitions. Making that an optional parameter here was the bug: it
+    read as covered and was not. `actor` and `timestamp` are checked too, unconditionally — every
     row builds all of its members from one actor and one timestamp (row 1 from one `body`,
     rows 2/4 from `_COORDINATOR_EFFECTS[...](..., actor, event.timestamp)`, row 3 from
     `cas_reclaim`'s single pair), and the store never stamps them itself: `lane_log.append`
@@ -3416,6 +3461,9 @@ def assert_partner_intact(*, anchor: Event, partner: Event | None, coordinator_e
     - `replayed_transaction` — the writer, replaying rows 2/3/4 after a lost ack;
     - `_validate_claim_pair` — the writer, replaying row 1;
     - `assert_lane_consistent` — the auditor, over all history.
+
+    The first two also call `assert_member_identity` on their anchor; the auditor does
+    not, for the reason above.
 
     They previously carried three strengths of the same check, weakest at the writer: the
     replay path verified only that a partner was PRESENT. A record at a derived id can be
@@ -3433,25 +3481,8 @@ def assert_partner_intact(*, anchor: Event, partner: Event | None, coordinator_e
             f"{problem_id}/{attempt_id}: {anchor.event_type} is present but its "
             f"{coordinator_event} is not — half a transaction, which nothing that writes "
             "this lane can produce")
-    # The anchor's expected stream is `problem_id`, NOT `anchor.problem_id` — comparing a
-    # record against its own field is a check that cannot fail.
-    members = ((anchor, anchor_event, problem_id),
-               (partner, coordinator_event, COORDINATOR_STREAM))
-    for event, expected_type, stream in members:
-        if expected_type is not None and event.event_type != expected_type:
-            raise LaneInconsistent(
-                f"{problem_id}/{attempt_id}: expected {expected_type} on {stream!r}, "
-                f"found {event.event_type}")
-        if event.problem_id != stream:
-            raise LaneInconsistent(
-                f"{problem_id}/{attempt_id}: {event.event_type} is on stream "
-                f"{event.problem_id!r}, expected {stream!r}")
-        if (payload_field(event, "problem_id"), payload_field(event, "attempt_id")) != (
-                problem_id, attempt_id):
-            raise LaneInconsistent(
-                f"{problem_id}/{attempt_id}: {event.event_type} names "
-                f"{payload_field(event, 'problem_id')}/"
-                f"{payload_field(event, 'attempt_id')} instead")
+    assert_member_identity(partner, coordinator_event, COORDINATOR_STREAM,
+                           problem_id, attempt_id)
     # Scoped by (stream, id) — the store's identity, not the bare id.
     commits = {}
     for event in (anchor, partner):
@@ -3485,7 +3516,7 @@ def assert_partner_intact(*, anchor: Event, partner: Event | None, coordinator_e
 
 def replayed_transaction(repo: Path, stored: Event, declared_effects: tuple[str, ...],
                          coordinator_events: list[Event], *, problem_id: str,
-                         attempt_id: str, required: bool,
+                         attempt_id: str, expected_event_type: str, required: bool,
                          config: LaneLogConfig | None = None) -> list[Event]:
     """The event set of an already-landed cross-stream transaction, LOCATED not rebuilt.
 
@@ -3521,6 +3552,11 @@ def replayed_transaction(repo: Path, stored: Event, declared_effects: tuple[str,
     wrong place to save a traversal. Completing a missing half instead is the repair this
     design does not offer: it would finish a transaction that was never atomically
     started."""
+    # FIRST, and on BOTH branches below: the anchor was located by a derived id, so its
+    # own identity is a hypothesis until checked. The `not required` path returns it with
+    # no partner to cross-check against, which makes this the only thing standing between
+    # a corrupt record at the right id and a replay reported as success.
+    assert_member_identity(stored, expected_event_type, problem_id, problem_id, attempt_id)
     found = {
         name: next((e for e in coordinator_events
                     if e.event_id == coordinator_event_id(name, problem_id, attempt_id)),
@@ -3597,8 +3633,8 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
         requires_claim = _claim_required(transition, _state_before(history, event_id))
         writes = replayed_transaction(
             repo, stored, transition.coordinator_effects, coordinator_events,
-            problem_id=problem_id, attempt_id=attempt_id, required=requires_claim,
-            config=config)
+            problem_id=problem_id, attempt_id=attempt_id,
+            expected_event_type=event_type, required=requires_claim, config=config)
     else:
         event = Event(
             event_id=event_id,
@@ -3727,7 +3763,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/lifecycl
 
 **Interfaces:**
 - Produces: `LaneCoordinator.claim_generation`, `ClaimOutcome.generation`, `ClaimOutcome.created`, `ClaimTerms`, `cas_claim(..., terms=, _after_parent=, _before_ref_update=, _after_push=)`, `cas_release` returning generation + `created`, `_PAIRINGS`, `_CLAIM_PAIR_FIELDS`, `_validate_claim_pair`, `assert_lane_consistent`; `list_problem_streams` in `lane_log.py`.
-- Consumes: `append_many` + `Seam` (Task 3), `CLAIM_HOLDING_STATES` + `TRANSITIONS` + `project_attempt` + `walk_attempt` + `holds_claim` (Task 5), `cas_attempt_transition` + `_claim_required` + `assert_partner_intact` + `LaneInconsistent` + `events_by_commit` (Task 7).
+- Consumes: `append_many` + `Seam` (Task 3), `CLAIM_HOLDING_STATES` + `TRANSITIONS` + `project_attempt` + `walk_attempt` + `holds_claim` (Task 5), `cas_attempt_transition` + `_claim_required` + `assert_member_identity` + `assert_partner_intact` + `LaneInconsistent` + `events_by_commit` (Task 7).
 
 **`cas_claim` becomes a transaction, and stays the ONE way to claim.** Granting the lane is
 two facts — the coordinator's `ClaimAcquired` and the Attempt's `ClaimGranted` — so it is
@@ -3890,8 +3926,9 @@ def _validate_claim_pair(repo: Path, acquired: Event, granted: Event, problem_id
     Row 1 keeps its OWN half-presence logic in `cas_claim` (the bidirectional check, which
     must also catch a lone `ClaimAcquired`), and delegates only the both-present case here.
     That split is the reason this wrapper exists rather than a direct call."""
+    assert_member_identity(granted, "ClaimGranted", problem_id, problem_id, attempt_id)
     assert_partner_intact(
-        anchor=granted, partner=acquired, anchor_event="ClaimGranted",
+        anchor=granted, partner=acquired,
         coordinator_event="ClaimAcquired", compare=_CLAIM_PAIR_FIELDS,
         commit_of=events_by_commit(repo, config=config),
         problem_id=problem_id, attempt_id=attempt_id)
@@ -4203,6 +4240,12 @@ def assert_lane_consistent(repo: Path, *, problem_ids: Iterable[str],
                     # completed claims no projection retains), not from a private copy of
                     # the check; a private copy is how the writer's copy came to be the
                     # weaker of the two.
+                    #
+                    # No `assert_member_identity` on `event` here, unlike the replay
+                    # paths: this anchor came out of `walk_attempt`, which already refused
+                    # unknown types and illegal transitions, and out of `_attempts`, which
+                    # grouped it by this stream and Attempt. The replay paths located
+                    # theirs by a derived id, which proves nothing about the record found.
                     assert_partner_intact(
                         anchor=event, partner=partner,
                         coordinator_event=pairing.coordinator_event,
@@ -4504,9 +4547,10 @@ a test asserts that.
 
 It returns a `TransitionOutcome` (Task 5), the same shape rows 2 and 4 return, and it takes
 the same replay path — literally the same function: `replayed_transaction(repo, stored,
-("ClaimReleased",), coordinator_events, problem_id=..., attempt_id=..., required=True,
-config=config)` — `required=True` unconditionally, because `ClaimExpired` is legal only
-from claim-holding states, so a reclaim that landed necessarily released — so
+("ClaimReleased",), coordinator_events, problem_id=..., attempt_id=...,
+expected_event_type="ClaimExpired", required=True, config=config)` — `required=True`
+unconditionally, because `ClaimExpired` is legal only from claim-holding states, so a
+reclaim that landed necessarily released — so
 a stored `ClaimExpired` whose partner is missing, malformed, or separately committed is
 refused here on exactly the terms rows 2 and 4 are, and an intact one returns
 `created=False` with the stored projection.
