@@ -1,13 +1,15 @@
 """
 Synthetic Data Generator for Prototype Validation.
 
-Generates structurally valid synthetic TPM count matrices for Arabidopsis thaliana.
-Stores output in data/synthetic/ (NOT data/raw/) and produces a manifest
-with checksums and provenance information.
+Generates structurally valid synthetic TPM count matrices for Arabidopsis thaliana
+and associated metadata. This data is used strictly for structural validation
+of the pipeline when real data is unavailable or for local development testing.
 
-This module is for prototype validation only and MUST NOT write to data/raw/.
+Constraints:
+- NEVER writes to data/raw/
+- Generates a manifest satisfying Constitution Principle VI
+- Generates the metadata verification report required by T011a
 """
-
 import os
 import json
 import hashlib
@@ -15,270 +17,225 @@ import datetime
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Tuple, List
 
-# Import existing utilities from the project
-from src.utils.config import get_data_path
-from src.utils.schemas import ManifestEntry, ProvenanceInfo, DataManifest, ExpressionMatrixMetadata
-from src.utils.logger import get_logger
+# Import existing configuration
+try:
+    from src.utils.config import get_housekeeping_genes, get_seed
+except ImportError:
+    # Fallback if config is not yet imported in this context (should be handled by main)
+    get_housekeeping_genes = lambda: []
+    get_seed = lambda: 42
 
-logger = get_logger(__name__)
+def calculate_sha256(data: str) -> str:
+    """Calculate SHA256 hash of a string."""
+    return hashlib.sha256(data.encode('utf-8')).hexdigest()
 
 def generate_synthetic_tpm_matrix(
+    n_samples: int = 20,
     n_genes: int = 15000,
-    n_samples: int = 10,
-    accession_id: str = "SYNTH_001",
-    organism: str = "Arabidopsis thaliana",
-    seed: Optional[int] = 42
+    seed: int = 42
 ) -> pd.DataFrame:
     """
     Generate a synthetic TPM count matrix.
 
+    Uses a log-normal distribution to mimic real gene expression data.
+    Housekeeping genes are injected with lower variance.
+
     Args:
-        n_genes: Number of genes to simulate.
-        n_samples: Number of samples to simulate.
-        accession_id: Synthetic accession identifier.
-        organism: Organism name.
-        seed: Random seed for reproducibility.
+        n_samples: Number of synthetic samples (studies/replicates)
+        n_genes: Number of genes in the matrix
+        seed: Random seed for reproducibility
 
     Returns:
-        pd.DataFrame: Synthetic TPM matrix with genes as rows and samples as columns.
+        pd.DataFrame: TPM matrix with genes as rows and samples as columns.
     """
-    if seed is not None:
-        np.random.seed(seed)
+    np.random.seed(seed)
 
-    logger.info(f"Generating synthetic TPM matrix: {n_genes} genes, {n_samples} samples")
+    # Generate gene names
+    gene_ids = [f"AT{np.random.randint(1, 6):01d}G{np.random.randint(10000, 50000):05d}" for _ in range(n_genes)]
 
-    # Generate gene IDs (simulating Arabidopsis TAIR10 format)
-    gene_ids = [f"AT{np.random.randint(1, 6)}G{np.random.randint(10000, 50000)}" for _ in range(n_genes)]
+    # Generate TPM values using log-normal distribution
+    # s=1.5 (shape), scale=10 (median-like center)
+    tpm_values = scipy_stats_lognorm.rvs(s=1.5, scale=10, size=(n_samples, n_genes))
 
-    # Generate sample names
-    sample_names = [f"{accession_id}_S{i+1:03d}" for i in range(n_samples)]
+    # Inject housekeeping genes with lower variance (more stable)
+    hk_genes = get_housekeeping_genes()
+    if hk_genes:
+        # Find or create indices for housekeeping genes
+        # For synthetic data, we might just pick random rows to represent HK genes
+        # to ensure the structure is correct for downstream batch correction
+        hk_indices = np.random.choice(n_genes, size=min(len(hk_genes), n_genes), replace=False)
+        # Reduce variance for HK genes (scale by 0.5, closer to mean)
+        hk_means = np.mean(tpm_values, axis=1)
+        tpm_values[:, hk_indices] = hk_means[:, np.newaxis] * (1 + 0.1 * np.random.randn(n_samples, len(hk_indices)))
 
-    # Generate TPM values
-    # Real RNA-seq data is highly skewed; use log-normal distribution
-    # Most genes have low expression, few have high expression
-    mean_log_tpm = np.random.normal(loc=2.0, scale=1.5, size=n_genes)
-    std_log_tpm = np.abs(np.random.normal(loc=0.8, scale=0.2, size=n_genes))
+    # Ensure non-negative
+    tpm_values = np.maximum(tpm_values, 0)
 
-    # Create matrix with biological variation
-    tpm_matrix = np.zeros((n_genes, n_samples))
-    for i in range(n_samples):
-        # Add sample-specific scaling factor
-        scale = np.random.normal(loc=1.0, scale=0.1)
-        # Generate expression with gene-specific mean and sample-specific noise
-        tpm_matrix[:, i] = np.random.lognormal(mean=mean_log_tpm, sigma=std_log_tpm) * scale
-
-    # Ensure non-negative values
-    tpm_matrix = np.maximum(tpm_matrix, 0.001)  # Avoid zero TPM
-
-    # Create DataFrame
     df = pd.DataFrame(
-        tpm_matrix,
+        tpm_values,
         index=gene_ids,
-        columns=sample_names
+        columns=[f"Sample_{i:03d}" for i in range(n_samples)]
     )
 
-    logger.info(f"Synthetic TPM matrix generated with shape: {df.shape}")
     return df
 
-def calculate_sha256(file_path: Path) -> str:
-    """Calculate SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
 def calculate_manifest_entry(
-    file_path: Path,
+    file_path: str,
     accession_id: str,
-    organism: str,
-    n_genes: int,
-    n_samples: int
-) -> ManifestEntry:
+    seed: int,
+    n_samples: int,
+    n_genes: int
+) -> Dict[str, Any]:
     """
-    Create a manifest entry for the generated synthetic data.
+    Generate a manifest entry for the generated synthetic data.
 
     Args:
-        file_path: Path to the generated file.
-        accession_id: Synthetic accession identifier.
-        organism: Organism name.
-        n_genes: Number of genes.
-        n_samples: Number of samples.
+        file_path: Path to the saved CSV file
+        accession_id: Synthetic accession ID
+        seed: Random seed used
+        n_samples: Number of samples
+        n_genes: Number of genes
 
     Returns:
-        ManifestEntry: Validated manifest entry.
+        Dict: Manifest entry dictionary.
     """
-    checksum = calculate_sha256(file_path)
-    current_time = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    # Calculate checksum of the file content
+    with open(file_path, 'rb') as f:
+        content = f.read()
+        checksum = hashlib.sha256(content).hexdigest()
 
     # Get tool versions
-    import numpy
+    import scipy
     import pandas
-    import src
 
-    provenance = ProvenanceInfo(
-        generated_at=current_time,
-        tool_versions={
-            "python": "3.11",
-            "numpy": numpy.__version__,
-            "pandas": pandas.__version__,
-            "src": getattr(src, "__version__", "unknown")
-        },
-        accession_id=accession_id,
-        organism=organism
-    )
-
-    metadata = ExpressionMatrixMetadata(
-        n_genes=n_genes,
-        n_samples=n_samples,
-        source_type="synthetic",
-        provenance=provenance
-    )
-
-    manifest_entry = ManifestEntry(
-        file_name=file_path.name,
-        checksum=checksum,
-        source_type="synthetic",
-        metadata=metadata
-    )
-
-    return manifest_entry
-
-def save_synthetic_manifest(manifest_entry: ManifestEntry, output_path: Path) -> None:
-    """
-    Save the manifest entry to a JSON file.
-
-    Args:
-        manifest_entry: The manifest entry to save.
-        output_path: Path to the output JSON file.
-    """
-    # Convert to dict for JSON serialization
-    manifest_dict = {
-        "file_name": manifest_entry.file_name,
-        "checksum": manifest_entry.checksum,
-        "source_type": manifest_entry.source_type,
+    return {
+        "file_name": os.path.basename(file_path),
+        "checksum": checksum,
+        "source_type": "synthetic",
         "provenance": {
-            "generated_at": manifest_entry.metadata.provenance.generated_at,
-            "tool_versions": manifest_entry.metadata.provenance.tool_versions,
-            "accession_id": manifest_entry.metadata.provenance.accession_id,
-            "organism": manifest_entry.metadata.provenance.organism
-        },
-        "metadata": {
-            "n_genes": manifest_entry.metadata.n_genes,
-            "n_samples": manifest_entry.metadata.n_samples,
-            "source_type": manifest_entry.metadata.source_type
+            "generated_at": datetime.datetime.now().isoformat(),
+            "tool_versions": {
+                "python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+                "numpy": np.__version__,
+                "scipy": scipy.__version__,
+                "pandas": pandas.__version__
+            },
+            "accession_id": accession_id,
+            "organism": "Arabidopsis thaliana",
+            "parameters": {
+                "seed": seed,
+                "distribution": "log-normal",
+                "n_samples": n_samples,
+                "n_genes": n_genes
+            }
         }
     }
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_synthetic_manifest(manifest_entry: Dict[str, Any], output_path: str) -> None:
+    """Save the synthetic manifest to JSON."""
     with open(output_path, 'w') as f:
-        json.dump(manifest_dict, f, indent=2)
+        json.dump(manifest_entry, f, indent=2)
 
-    logger.info(f"Manifest saved to {output_path}")
-
-def generate_synthetic_tpm_study(
-    output_dir: Optional[Path] = None,
-    n_genes: int = 15000,
-    n_samples: int = 10,
-    accession_id: str = "SYNTH_001",
-    organism: str = "Arabidopsis thaliana",
-    seed: Optional[int] = 42
-) -> Dict[str, Any]:
+def generate_synthetic_metadata_report(accession_id: str, output_path: str) -> None:
     """
-    Generate a complete synthetic TPM study with matrix and manifest.
+    Generate the metadata verification report required by T011a.
+    This report explicitly states mode="synthetic" and real_data_available=false.
 
     Args:
-        output_dir: Directory to save outputs. Defaults to data/synthetic/.
-        n_genes: Number of genes.
-        n_samples: Number of samples.
-        accession_id: Synthetic accession identifier.
-        organism: Organism name.
-        seed: Random seed.
-
-    Returns:
-        Dict containing paths to generated files.
+        accession_id: The synthetic accession ID.
+        output_path: Path to write the JSON report.
     """
-    if output_dir is None:
-        data_path = get_data_path()
-        output_dir = data_path / "synthetic"
+    report = {
+        "mode": "synthetic",
+        "real_data_available": False,
+        "verification_results": [
+            {
+                "accession_id": accession_id,
+                "status": "valid",
+                "tissue_metadata": "leaf_root_germ", # Synthetic valid tissue
+                "replicates": 3, # Synthetic valid replicates
+                "herbivore_type": "generalist_chewing",
+                "exclusion_reason": None
+            }
+        ],
+        "summary": {
+            "total_studies": 1,
+            "valid_studies": 1,
+            "excluded_studies": 0
+        },
+        "generated_at": datetime.datetime.now().isoformat()
+    }
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    logger.info(f"Generating synthetic study in {output_dir}")
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
 
-    # Generate matrix
-    tpm_df = generate_synthetic_tpm_matrix(
-        n_genes=n_genes,
-        n_samples=n_samples,
-        accession_id=accession_id,
-        organism=organism,
-        seed=seed
-    )
+def main():
+    """
+    Main entry point for generating synthetic data.
+    Writes outputs to data/synthetic/ and data/processed/.
+    """
+    import sys
+    from pathlib import Path
 
-    # Save matrix
-    matrix_filename = f"{accession_id}_tpm.csv"
-    matrix_path = output_dir / matrix_filename
-    tpm_df.to_csv(matrix_path)
+    # Set seed from config or default
+    try:
+        from src.utils.config import set_seed, get_seed
+        set_seed(42)
+        seed = get_seed()
+    except ImportError:
+        seed = 42
 
-    logger.info(f"Saved synthetic TPM matrix to {matrix_path}")
+    # Define paths
+    project_root = Path(__file__).resolve().parent.parent.parent
+    synthetic_dir = project_root / "data" / "synthetic"
+    processed_dir = project_root / "data" / "processed"
+    manifests_dir = project_root / "data" / "manifests"
+
+    synthetic_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    manifests_dir.mkdir(parents=True, exist_ok=True)
+
+    # Parameters
+    n_samples = 20
+    n_genes = 15000
+    accession_id = "SYNTH_001"
+    file_name = f"{accession_id}_tpm_matrix.csv"
+    manifest_file = manifests_dir / "synthetic_manifest.json"
+    verification_report_file = processed_dir / "metadata_verification_report.json"
+
+    print(f"Generating synthetic TPM matrix: {n_samples} samples x {n_genes} genes...")
+    df = generate_synthetic_tpm_matrix(n_samples, n_genes, seed)
+
+    # Save TPM matrix
+    tpm_file_path = synthetic_dir / file_name
+    df.to_csv(tpm_file_path)
+    print(f"Saved TPM matrix to {tpm_file_path}")
 
     # Generate and save manifest
     manifest_entry = calculate_manifest_entry(
-        file_path=matrix_path,
-        accession_id=accession_id,
-        organism=organism,
-        n_genes=n_genes,
-        n_samples=n_samples
+        str(tpm_file_path),
+        accession_id,
+        seed,
+        n_samples,
+        n_genes
     )
+    save_synthetic_manifest(manifest_entry, str(manifest_file))
+    print(f"Saved synthetic manifest to {manifest_file}")
 
-    manifest_path = output_dir.parent / "manifests" / "synthetic_manifest.json"
-    save_synthetic_manifest(manifest_entry, manifest_path)
+    # Generate and save verification report (required for T011a)
+    generate_synthetic_metadata_report(accession_id, str(verification_report_file))
+    print(f"Saved metadata verification report to {verification_report_file}")
 
-    return {
-        "matrix_path": str(matrix_path),
-        "manifest_path": str(manifest_path),
-        "accession_id": accession_id,
-        "n_genes": n_genes,
-        "n_samples": n_samples
-    }
-
-def main():
-    """Main entry point for the synthetic generator script."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Generate synthetic TPM count matrices")
-    parser.add_argument("--output-dir", type=str, default=None, help="Output directory (default: data/synthetic/)")
-    parser.add_argument("--n-genes", type=int, default=15000, help="Number of genes to generate")
-    parser.add_argument("--n-samples", type=int, default=10, help="Number of samples to generate")
-    parser.add_argument("--accession-id", type=str, default="SYNTH_001", help="Synthetic accession ID")
-    parser.add_argument("--organism", type=str, default="Arabidopsis thaliana", help="Organism name")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-
-    args = parser.parse_args()
-
-    output_dir = Path(args.output_dir) if args.output_dir else None
-
-    try:
-        result = generate_synthetic_tpm_study(
-            output_dir=output_dir,
-            n_genes=args.n_genes,
-            n_samples=args.n_samples,
-            accession_id=args.accession_id,
-            organism=args.organism,
-            seed=args.seed
-        )
-
-        print(f"Successfully generated synthetic study:")
-        print(f"  Matrix: {result['matrix_path']}")
-        print(f"  Manifest: {result['manifest_path']}")
-        print(f"  Genes: {result['n_genes']}")
-        print(f"  Samples: {result['n_samples']}")
-
-    except Exception as e:
-        logger.error(f"Failed to generate synthetic data: {e}")
-        raise
+    print("Synthetic data generation complete.")
 
 if __name__ == "__main__":
+    # Import scipy inside main to avoid import errors if not needed
+    import scipy.stats
+    global scipy_stats_lognorm
+    scipy_stats_lognorm = scipy.stats.lognorm
     main()

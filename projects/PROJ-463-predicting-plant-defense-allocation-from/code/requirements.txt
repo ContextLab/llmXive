@@ -16,3 +16,5 @@ ete3
 # New dependency for T025a (already in list, but explicit for clarity)
 # requests is required for fetching from TRY API
 requests>=2.31.0
+pytest  # auto-added: imported by run-book but missing from venv
+tomli  # auto-added: imported by run-book but missing from venv

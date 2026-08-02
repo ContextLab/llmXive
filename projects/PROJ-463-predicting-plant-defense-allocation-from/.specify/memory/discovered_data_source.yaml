@@ -1,0 +1,19 @@
+status: none
+intent: plant herbivory RNA-seq NCBI GEO SRA TRY database download python package
+  dataset
+required_fields:
+- sample_id
+- study_accession
+- sra_accession
+- geo_accession
+- species
+- tissue_type
+- herbivore_type
+- treatment
+- replicate_number
+- batch_id
+- fastq_url
+- gene_id
+cache_key: dc37c569247a9857a7a0637eaf2c4035e200a6e5ee8d6d81fb53cb18fe89f245
+searched_at: '2026-08-02T15:58:00.864927+00:00'
+retry_count: 1

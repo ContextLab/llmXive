@@ -1,7 +1,8 @@
 """
-Reproducibility analysis module for T040.
+Reproducibility analysis module.
+
 Calculates Jaccard similarity between raw DE results and a published herbivory response gene list.
-Implements fallback strategy: Primary URL -> Local Backup -> Synthetic (structural validation only).
+Strictly enforces real data usage; fails loudly if no published list is found in real mode.
 """
 import os
 import sys
@@ -9,214 +10,290 @@ import json
 import logging
 import requests
 from pathlib import Path
-from typing import List, Set, Dict, Any, Optional
-from datetime import datetime
+from typing import Set, List, Dict, Optional, Tuple
+from urllib.parse import urljoin
 
-# Add project root to path for imports if running as script
-if "code" in os.getcwd():
-    sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..")))
-else:
-    sys.path.insert(0, os.path.abspath(os.getcwd()))
+# Import from existing project utilities
+from src.utils.config import get_data_path, get_seed
 
-from src.utils.logger import get_logger
-from src.utils.schemas import DEGResult
-
-logger = get_logger(__name__)
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Constants
-PRIMARY_SOURCES = [
-    "https://raw.githubusercontent.com/Plant-Defense-Project/herbivory-genes/main/gene_list.json",
-    "https://raw.githubusercontent.com/Arabidopsis-Herbivory/consensus/main/list.json"
-]
-LOCAL_BACKUP_PATH = Path("data/processed/curated_gene_list.json")
-OUTPUT_PATH = Path("data/processed/reproducibility_report.json")
-SYNTHETIC_WARNING = "Synthetic gene list used for structural validation only"
+PUBLISHED_GENE_LIST_URL = "https://raw.githubusercontent.com/Plant-Response-Data/herbivory_genes/main/published_list.json"
+LOCAL_BACKUP_PATH = "data/processed/published_gene_list_backup.json"
 
-def fetch_published_gene_list() -> Optional[Set[str]]:
+def load_de_results(de_results_path: Path) -> Set[str]:
     """
-    Attempt to fetch the published herbivory response gene list from primary sources.
-    Returns a set of gene IDs if successful, None otherwise.
-    """
-    for url in PRIMARY_SOURCES:
-        try:
-            logger.info(f"Attempting to fetch gene list from: {url}")
-            response = requests.get(url, timeout=30)
-            if response.status_code == 200:
-                data = response.json()
-                # Handle both list of strings and list of dicts with 'gene_id'
-                if isinstance(data, list):
-                    if isinstance(data[0], str):
-                        return set(data)
-                    elif isinstance(data[0], dict) and 'gene_id' in data[0]:
-                        return {item['gene_id'] for item in data}
-                logger.warning(f"Unexpected format from {url}, skipping.")
-            else:
-                logger.warning(f"Failed to fetch from {url}: HTTP {response.status_code}")
-        except Exception as e:
-            logger.warning(f"Error fetching from {url}: {e}")
-    return None
+    Load DE results from a CSV file and return the set of gene IDs.
 
-def load_local_backup() -> Optional[Set[str]]:
-    """
-    Attempt to load the local curated backup file.
-    """
-    if LOCAL_BACKUP_PATH.exists():
-        try:
-            with open(LOCAL_BACKUP_PATH, 'r') as f:
-                data = json.load(f)
-            if isinstance(data, list):
-                return set(data)
-            elif isinstance(data, dict) and 'genes' in data:
-                return set(data['genes'])
-            logger.warning("Local backup found but invalid format.")
-        except Exception as e:
-            logger.warning(f"Error loading local backup: {e}")
-    return None
+    Args:
+        de_results_path: Path to the DE results CSV file.
 
-def generate_synthetic_list(de_results_genes: Set[str]) -> Set[str]:
+    Returns:
+        Set of gene IDs from the DE results.
+
+    Raises:
+        FileNotFoundError: If the DE results file does not exist.
+        ValueError: If the file is empty or malformed.
     """
-    Generate a small synthetic list for structural validation only.
-    Uses a deterministic subset of the input DE genes to ensure reproducibility.
+    import pandas as pd
+
+    if not de_results_path.exists():
+        raise FileNotFoundError(f"DE results file not found: {de_results_path}")
+
+    try:
+        df = pd.read_csv(de_results_path)
+        # Expecting a column named 'gene_id' or 'gene'
+        gene_col = None
+        for col in ['gene_id', 'gene', 'GeneID', 'Gene']:
+            if col in df.columns:
+                gene_col = col
+                break
+
+        if gene_col is None:
+            raise ValueError(f"DE results file must contain a 'gene_id' or 'gene' column. Found columns: {df.columns.tolist()}")
+
+        genes = set(df[gene_col].dropna().astype(str).unique())
+        if not genes:
+            raise ValueError("DE results file contains no gene IDs.")
+
+        logger.info(f"Loaded {len(genes)} genes from {de_results_path}")
+        return genes
+    except Exception as e:
+        logger.error(f"Failed to load DE results: {e}")
+        raise
+
+def fetch_published_gene_list(url: str, timeout: int = 30) -> Set[str]:
     """
-    logger.warning(SYNTHETIC_WARNING)
-    sorted_genes = sorted(list(de_results_genes))
-    # Take top 10 genes as synthetic "published" list
-    return set(sorted_genes[:10]) if len(sorted_genes) >= 10 else set(sorted_genes)
+    Fetch a published gene list from a public URL.
+
+    Args:
+        url: The URL to fetch the gene list from.
+        timeout: Request timeout in seconds.
+
+    Returns:
+        Set of gene IDs from the published list.
+
+    Raises:
+        RuntimeError: If the fetch fails or the response is invalid.
+    """
+    logger.info(f"Fetching published gene list from {url}")
+    try:
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
+
+        data = response.json()
+        if isinstance(data, list):
+            genes = set(str(g).strip() for g in data if g)
+        elif isinstance(data, dict) and 'genes' in data:
+            genes = set(str(g).strip() for g in data['genes'] if g)
+        elif isinstance(data, dict) and 'gene_list' in data:
+            genes = set(str(g).strip() for g in data['gene_list'] if g)
+        else:
+            raise ValueError(f"Unexpected JSON structure: {type(data)}")
+
+        if not genes:
+            raise ValueError("Published gene list is empty.")
+
+        logger.info(f"Successfully fetched {len(genes)} genes from {url}")
+        return genes
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch published gene list: {e}")
+        raise RuntimeError(f"Failed to fetch published gene list from {url}: {e}")
+    except ValueError as e:
+        logger.error(f"Invalid published gene list format: {e}")
+        raise RuntimeError(f"Invalid published gene list format: {e}")
+
+def load_local_backup(backup_path: Path) -> Optional[Set[str]]:
+    """
+    Load a locally cached backup of the published gene list.
+
+    Args:
+        backup_path: Path to the backup JSON file.
+
+    Returns:
+        Set of gene IDs if found, None otherwise.
+    """
+    if not backup_path.exists():
+        return None
+
+    try:
+        with open(backup_path, 'r') as f:
+            data = json.load(f)
+
+        if isinstance(data, list):
+            genes = set(str(g).strip() for g in data if g)
+        elif isinstance(data, dict) and 'genes' in data:
+            genes = set(str(g).strip() for g in data['genes'] if g)
+        else:
+            logger.warning(f"Invalid backup format at {backup_path}")
+            return None
+
+        logger.info(f"Loaded {len(genes)} genes from local backup")
+        return genes
+    except Exception as e:
+        logger.warning(f"Failed to load local backup: {e}")
+        return None
 
 def calculate_jaccard_similarity(set_a: Set[str], set_b: Set[str]) -> float:
     """
-    Calculate Jaccard similarity coefficient between two sets.
-    J = |A ∩ B| / |A ∪ B|
+    Calculate the Jaccard similarity coefficient between two sets.
+
+    Jaccard = |A ∩ B| / |A ∪ B|
+
+    Args:
+        set_a: First set of gene IDs.
+        set_b: Second set of gene IDs.
+
+    Returns:
+        Jaccard similarity score between 0.0 and 1.0.
     """
     if not set_a or not set_b:
         return 0.0
-    intersection = len(set_a & set_b)
-    union = len(set_a | set_b)
-    return intersection / union if union > 0 else 0.0
 
-def load_de_results() -> Set[str]:
-    """
-    Load raw DE results from T018 output.
-    Expects a CSV file with a 'gene_id' column.
-    """
-    # Look for DE results in data/processed (common location after T018)
-    # The exact filename might vary, so we search for a pattern
-    de_dir = Path("data/processed")
-    if not de_dir.exists():
-        raise FileNotFoundError("data/processed directory not found. T018 may not have completed.")
-    
-    # Try common filenames
-    candidate_files = [
-        de_dir / "de_results.csv",
-        de_dir / "deseq2_results.csv",
-        de_dir / "herbivore_response_vectors.csv"
-    ]
-    
-    de_file = None
-    for candidate in candidate_files:
-        if candidate.exists():
-            de_file = candidate
-            break
-    
-    if not de_file:
-        # Fallback: look for any CSV in the directory
-        csv_files = list(de_dir.glob("*.csv"))
-        if csv_files:
-            de_file = csv_files[0]
-            logger.warning(f"Using first available CSV: {de_file.name} for DE results")
-        else:
-            raise FileNotFoundError("No DE results CSV found in data/processed. T018 output missing.")
-    
-    import pandas as pd
-    df = pd.read_csv(de_file)
-    
-    # Identify gene ID column
-    gene_col = None
-    possible_cols = ['gene_id', 'gene', 'GeneID', 'id']
-    for col in possible_cols:
-        if col in df.columns:
-            gene_col = col
-            break
-    
-    if not gene_col:
-        # Assume first column is gene ID
-        gene_col = df.columns[0]
-        logger.warning(f"Could not find standard gene ID column, using first column: {gene_col}")
-    
-    return set(df[gene_col].astype(str).unique())
+    intersection = len(set_a.intersection(set_b))
+    union = len(set_a.union(set_b))
 
-def main():
+    if union == 0:
+        return 0.0
+
+    return intersection / union
+
+def main(mode: str = "real", de_results_path: Optional[str] = None) -> None:
     """
-    Main execution function for T040.
+    Main entry point for reproducibility analysis.
+
+    Args:
+        mode: 'real' or 'synthetic'. In 'real' mode, fails if no published list is found.
+        de_results_path: Optional path to DE results. If not provided, uses default path.
     """
-    logger.info("Starting T040: Reproducibility Analysis")
-    
-    # Step 1: Load DE results from T018
+    data_path = get_data_path()
+    manifests_path = data_path / "manifests"
+    processed_path = data_path / "processed"
+
+    # Ensure output directory exists
+    manifests_path.mkdir(parents=True, exist_ok=True)
+
+    # Determine DE results path
+    if de_results_path is None:
+        # Default path based on project structure
+        de_results_path = processed_path / "de_results.csv"
+    else:
+        de_results_path = Path(de_results_path)
+
+    output_report_path = manifests_path / "reproducibility_report.json"
+
+    logger.info(f"Starting reproducibility analysis in '{mode}' mode")
+    logger.info(f"DE results path: {de_results_path}")
+    logger.info(f"Output report path: {output_report_path}")
+
+    # Load DE results
     try:
-        de_gene_set = load_de_results()
-        logger.info(f"Loaded {len(de_gene_set)} genes from DE results")
+        de_genes = load_de_results(de_results_path)
     except Exception as e:
         logger.error(f"Failed to load DE results: {e}")
-        # Create error report and exit gracefully
+        # Write a failure report
         report = {
-            "status": "failed",
+            "jaccard_similarity": None,
+            "source_url": None,
+            "used_fallback": False,
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "mode": mode
         }
-        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(OUTPUT_PATH, 'w') as f:
+        with open(output_report_path, 'w') as f:
             json.dump(report, f, indent=2)
-        return 1
-    
-    # Step 2: Fetch published gene list with fallbacks
-    published_list = None
-    source_used = None
-    
-    # Try primary sources
-    published_list = fetch_published_gene_list()
-    if published_list:
-        source_used = "primary_url"
-        logger.info(f"Successfully fetched published list from primary source ({len(published_list)} genes)")
+        raise
+
+    published_genes = None
+    source_url = None
+    used_fallback = False
+
+    if mode == "real":
+        # Try to fetch from primary source
+        try:
+            published_genes = fetch_published_gene_list(PUBLISHED_GENE_LIST_URL)
+            source_url = PUBLISHED_GENE_LIST_URL
+        except RuntimeError as e:
+            logger.warning(f"Primary source failed: {e}")
+            # Try local backup
+            backup_path = processed_path / "published_gene_list_backup.json"
+            published_genes = load_local_backup(backup_path)
+
+            if published_genes is None:
+                logger.error("No published gene list found in primary source or local backup.")
+                # Write failure report and raise
+                report = {
+                    "jaccard_similarity": None,
+                    "source_url": None,
+                    "used_fallback": False,
+                    "error": "No published gene list found in real mode",
+                    "mode": "real"
+                }
+                with open(output_report_path, 'w') as f:
+                    json.dump(report, f, indent=2)
+                raise RuntimeError("No published gene list found in real mode. Cannot proceed with reproducibility analysis.")
+            else:
+                source_url = "local_backup"
+                used_fallback = True
+                logger.info("Using local backup for published gene list")
     else:
-        # Try local backup
-        published_list = load_local_backup()
-        if published_list:
-            source_used = "local_backup"
-            logger.info(f"Loaded published list from local backup ({len(published_list)} genes)")
-        else:
-            # Generate synthetic
-            published_list = generate_synthetic_list(de_gene_set)
-            source_used = "synthetic"
-            logger.warning(f"Using synthetic gene list for structural validation ({len(published_list)} genes)")
-    
-    # Step 3: Calculate Jaccard similarity
-    jaccard_score = calculate_jaccard_similarity(de_gene_set, published_list)
-    intersection_genes = list(de_gene_set & published_list)
-    union_genes = list(de_gene_set | published_list)
-    
-    # Step 4: Generate report
+        # Synthetic mode: Use a predefined small list for structural validation only
+        # This is NOT a real measurement, just for pipeline structure validation
+        logger.warning("Running in synthetic mode. Using a small predefined list for structural validation only.")
+        published_genes = {"AT1G01010", "AT1G01020", "AT1G01030", "AT1G01040", "AT1G01050"}
+        source_url = "synthetic_predefined"
+        used_fallback = True
+
+    # Calculate Jaccard similarity
+    jaccard_score = calculate_jaccard_similarity(de_genes, published_genes)
+
+    logger.info(f"Jaccard similarity: {jaccard_score:.4f}")
+    logger.info(f"DE genes: {len(de_genes)}, Published genes: {len(published_genes)}")
+    logger.info(f"Intersection: {len(de_genes.intersection(published_genes))}, Union: {len(de_genes.union(published_genes))}")
+
+    # Prepare report
     report = {
-        "status": "completed",
-        "timestamp": datetime.now().isoformat(),
-        "source_used": source_used,
-        "de_results_count": len(de_gene_set),
-        "published_list_count": len(published_list),
         "jaccard_similarity": jaccard_score,
-        "intersection_count": len(intersection_genes),
-        "union_count": len(union_genes),
-        "intersection_genes": intersection_genes[:20],  # Limit to first 20 for readability
-        "notes": SYNTHETIC_WARNING if source_used == "synthetic" else "Real data source used"
+        "source_url": source_url,
+        "used_fallback": used_fallback,
+        "de_gene_count": len(de_genes),
+        "published_gene_count": len(published_genes),
+        "intersection_count": len(de_genes.intersection(published_genes)),
+        "union_count": len(de_genes.union(published_genes)),
+        "mode": mode
     }
-    
-    # Step 5: Write output
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(OUTPUT_PATH, 'w') as f:
+
+    # Write report
+    with open(output_report_path, 'w') as f:
         json.dump(report, f, indent=2)
-    
-    logger.info(f"Reproducibility report written to {OUTPUT_PATH}")
-    logger.info(f"Jaccard Similarity: {jaccard_score:.4f} (Source: {source_used})")
-    
-    return 0
+
+    logger.info(f"Reproducibility report written to {output_report_path}")
+
+    # Gate: If using fallback in real mode, halt with a warning
+    if mode == "real" and used_fallback:
+        logger.warning("Reproducibility analysis used a fallback source. Results may be less reliable.")
+        # Do not raise, but log the warning. The task specification says "halt" if fallback is true in real mode,
+        # but since we successfully computed a score, we just warn. If the task strictly requires halting,
+        # we would raise SystemExit here. Based on the spec: "Gate: If used_fallback is true and mode is real, halt."
+        # We interpret "halt" as stopping further pipeline execution, which is handled by the caller.
+        # We raise a warning that can be caught by the pipeline orchestrator.
+        # For strict compliance, we raise SystemExit if fallback was used in real mode.
+        # However, the spec also says "raise RuntimeError" if no list is found. Since we found a list (via backup),
+        # we proceed but warn. The "halt" might refer to not continuing to model training if the score is poor,
+        # but the task only asks to calculate and report. We'll log the warning and let the pipeline decide.
+        # Re-reading: "Gate: If used_fallback is true and mode is real, halt." -> This likely means stop the pipeline.
+        # We'll raise SystemExit to comply.
+        logger.error("HALTING: Reproducibility analysis used a fallback source in real mode.")
+        raise SystemExit("Reproducibility analysis used a fallback source in real mode. Pipeline halted.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Calculate Jaccard similarity for reproducibility analysis.")
+    parser.add_argument("--mode", choices=["real", "synthetic"], default="real", help="Data mode (real or synthetic)")
+    parser.add_argument("--de_results", type=str, default=None, help="Path to DE results CSV file")
+
+    args = parser.parse_args()
+
+    main(mode=args.mode, de_results_path=args.de_results)

@@ -1,394 +1,319 @@
-"""
-verify_metadata.py
-
-Verifies downloaded FASTQ files and their associated metadata against FR-001 requirements
-(tissue, herbivore type, replicates) BEFORE preprocessing.
-
-Supports both real data (from NCBI GEO/SRA) and synthetic data modes.
-"""
-
 import os
 import sys
 import json
 import time
 import hashlib
 import logging
+import argparse
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime
 
-# Import from project utils
-try:
-    from src.utils.logger import get_logger, setup_logging
-    from src.utils.config import get_data_path
-    from src.utils.schemas import RNASeqStudy
-except ImportError:
-    # Fallback for direct execution or different import context
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-    from src.utils.logger import get_logger, setup_logging
-    from src.utils.config import get_data_path
-    from src.utils.schemas import RNASeqStudy
+# Import from existing project modules
+from src.utils.config import get_housekeeping_genes, get_data_path
+from src.utils.logger import setup_logging, get_logger
+from src.utils.schemas import RNASeqStudy
 
-# Constants
-MIN_REPLICATES = 2
-REQUIRED_METADATA_FIELDS = ["tissue", "treatment", "herbivore_type"]
-
+# Configure logger
 logger = get_logger(__name__)
 
-def fetch_sra_metadata(accession_id: str) -> Optional[Dict[str, Any]]:
+def fetch_sra_metadata(accession_id: str) -> Dict[str, Any]:
     """
-    Fetch metadata for an SRA accession from NCBI E-utilities.
-
-    Args:
-        accession_id: The SRA accession ID (e.g., SRX123456)
-
-    Returns:
-        Dictionary containing metadata or None if fetch fails.
+    Fetch metadata for a given SRA accession from NCBI E-utilities.
+    This is a simplified fetcher. In a production environment, this would
+    handle retries, error checking, and parsing of the full XML/JSON response.
     """
-    import requests
-
+    logger.info(f"Fetching metadata for {accession_id} from NCBI E-utilities")
+    
+    # Base URL for E-utilities
     base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+    
+    # Parameters
     params = {
         "db": "sra",
         "id": accession_id,
         "retmode": "json"
     }
-
+    
+    import requests
     try:
-        response = requests.get(base_url, params=params, timeout=10)
+        response = requests.get(base_url, params=params, timeout=30)
         response.raise_for_status()
         data = response.json()
-
+        
         if "result" in data and accession_id in data["result"]:
             return data["result"][accession_id]
-        return None
-    except Exception as e:
-        logger.warning(f"Failed to fetch metadata for {accession_id}: {e}")
-        return None
+        else:
+            logger.warning(f"No result found for {accession_id} in response")
+            return {}
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch metadata for {accession_id}: {e}")
+        return {}
 
-def extract_required_metadata(sra_meta: Dict[str, Any]) -> Dict[str, Any]:
+def extract_required_metadata(sra_metadata: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Extract required fields from SRA metadata.
-
-    Args:
-        sra_meta: Raw metadata from SRA
-
-    Returns:
-        Dictionary with extracted fields.
+    Extract required metadata fields from SRA metadata.
+    Maps SRA fields to our internal schema requirements.
     """
-    extracted = {}
-
-    # Try to find tissue information
-    # SRA metadata structure can vary, common keys: 'tissue', 'organism', 'sample_attribute'
-    if "tissue" in sra_meta:
-        extracted["tissue"] = sra_meta["tissue"]
-    elif "sample_attribute" in sra_meta:
-        attrs = sra_meta["sample_attribute"]
-        for attr in attrs:
-            if attr.get("field", "").lower() == "tissue":
-                extracted["tissue"] = attr.get("value", "")
-                break
-
-    # Try to find treatment/herbivore information
-    if "treatment" in sra_meta:
-        extracted["treatment"] = sra_meta["treatment"]
-    elif "sample_attribute" in sra_meta:
-        attrs = sra_meta["sample_attribute"]
-        for attr in attrs:
-            field = attr.get("field", "").lower()
-            if "treatment" in field or "herbivore" in field:
-                extracted["herbivore_type"] = attr.get("value", "")
-                extracted["treatment"] = attr.get("value", "")
-                break
-
-    # Try to find replicates (usually inferred from study design or sample count)
-    # For now, we'll set this to 1 as a default, which will be flagged if < MIN_REPLICATES
-    # In a real scenario, this would come from the study design file
-    extracted["replicates"] = sra_meta.get("replicates", 1)
-
+    extracted = {
+        "accession_id": sra_metadata.get("accession", ""),
+        "species": "",
+        "tissue": "",
+        "treatment": "",
+        "replicates": 0,
+        "source_url": sra_metadata.get("study_accession", "")
+    }
+    
+    # Extract organism (species)
+    if "organism" in sra_metadata:
+        extracted["species"] = sra_metadata["organism"]
+        
+    # Extract sample attributes (tissue, treatment)
+    # SRA metadata structure can vary, so we check common locations
+    sample_attributes = sra_metadata.get("attributes", [])
+    for attr in sample_attributes:
+        if isinstance(attr, dict):
+            tag = attr.get("tag", "").lower()
+            value = attr.get("value", "")
+            
+            if "tissue" in tag or "organ" in tag:
+                extracted["tissue"] = value
+            elif "treatment" in tag or "condition" in tag or "factor" in tag:
+                extracted["treatment"] = value
+            elif "replicate" in tag:
+                try:
+                    extracted["replicates"] = int(value)
+                except ValueError:
+                    extracted["replicates"] = 1
+    
+    # If we couldn't find replicates in attributes, estimate from study
+    if extracted["replicates"] == 0:
+        # This is a fallback estimate; real logic might parse study design
+        extracted["replicates"] = 1 
+        
     return extracted
 
 def verify_metadata_requirements(metadata: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Verify that metadata meets FR-001 requirements.
-
-    Args:
-        metadata: Dictionary containing extracted metadata
-
-    Returns:
-        Tuple of (is_valid, list_of_exclusion_reasons)
+    Verify that metadata meets FR-001 requirements:
+    1. Tissue metadata must be present
+    2. Biological replicates must be >= 2
+    3. Treatment labels must be present (herbivore type)
     """
-    reasons = []
+    issues = []
+    
+    # Check tissue
+    if not metadata.get("tissue"):
+        issues.append("Missing tissue metadata")
+        
+    # Check replicates
+    if metadata.get("replicates", 0) < 2:
+        issues.append(f"Insufficient biological replicates: {metadata.get('replicates', 0)} (required >= 2)")
+        
+    # Check treatment
+    if not metadata.get("treatment"):
+        issues.append("Missing treatment/herbivore type metadata")
+        
+    return len(issues) == 0, issues
 
-    # Check for tissue metadata
-    if "tissue" not in metadata or not metadata["tissue"]:
-        reasons.append("Missing tissue metadata")
-
-    # Check for herbivore treatment
-    if "herbivore_type" not in metadata and "treatment" not in metadata:
-        reasons.append("Missing herbivore treatment metadata")
-
-    # Check replicate count
-    replicates = metadata.get("replicates", 0)
-    if replicates < MIN_REPLICATES:
-        reasons.append(f"Insufficient biological replicates (found {replicates}, required {MIN_REPLICATES})")
-
-    return len(reasons) == 0, reasons
-
-def verify_fastq_metadata(fastq_files: List[Path], manifest_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def verify_fastq_metadata(fastq_path: Path, accession_id: str) -> Dict[str, Any]:
     """
-    Verify metadata for a list of FASTQ files.
-
-    Args:
-        fastq_files: List of FASTQ file paths
-        manifest_path: Optional path to the manifest file containing metadata
-
-    Returns:
-        List of verification results for each file
-    """
-    results = []
-
-    # Try to load manifest if provided
-    manifest_data = None
-    if manifest_path and manifest_path.exists():
-        try:
-            with open(manifest_path, 'r') as f:
-                manifest_data = json.load(f)
-        except Exception as e:
-            logger.warning(f"Failed to load manifest: {e}")
-
-    for fastq_file in fastq_files:
-        file_result = {
-            "file": str(fastq_file),
-            "accession_id": None,
-            "metadata": {},
-            "is_valid": False,
-            "exclusion_reasons": []
-        }
-
-        # Extract accession ID from filename
-        accession_id = fastq_file.stem
-        file_result["accession_id"] = accession_id
-
-        # Try to get metadata from manifest first
-        if manifest_data:
-            for entry in manifest_data.get("entries", []):
-                if entry.get("accession_id") == accession_id:
-                    file_result["metadata"] = entry.get("metadata", {})
-                    break
-
-        # If no metadata in manifest, try to fetch from NCBI
-        if not file_result["metadata"]:
-            sra_meta = fetch_sra_metadata(accession_id)
-            if sra_meta:
-                file_result["metadata"] = extract_required_metadata(sra_meta)
-            else:
-                file_result["metadata"] = {}
-
-        # Verify requirements
-        if file_result["metadata"]:
-            is_valid, reasons = verify_metadata_requirements(file_result["metadata"])
-            file_result["is_valid"] = is_valid
-            file_result["exclusion_reasons"] = reasons
-        else:
-            file_result["is_valid"] = False
-            file_result["exclusion_reasons"] = ["No metadata available"]
-
-        results.append(file_result)
-
-    return results
-
-def verify_synthetic_metadata(synthetic_manifest_path: Path) -> List[Dict[str, Any]]:
-    """
-    Verify metadata for synthetic data.
-
-    Args:
-        synthetic_manifest_path: Path to the synthetic manifest file
-
-    Returns:
-        List of verification results
-    """
-    results = []
-
-    if not synthetic_manifest_path.exists():
-        logger.warning(f"Synthetic manifest not found: {synthetic_manifest_path}")
-        return results
-
-    try:
-        with open(synthetic_manifest_path, 'r') as f:
-            manifest_data = json.load(f)
-
-        # Synthetic data should have predefined valid metadata
-        # We'll create a verification result that indicates synthetic mode
-        result = {
-            "file": synthetic_manifest_path.name,
-            "accession_id": manifest_data.get("provenance", {}).get("accession_id", "SYNTH_001"),
-            "metadata": {
-                "tissue": "leaf",
-                "treatment": "herbivore",
-                "herbivore_type": "chewing",
-                "replicates": 3
-            },
-            "is_valid": True,
-            "exclusion_reasons": [],
-            "is_synthetic": True
-        }
-        results.append(result)
-
-    except Exception as e:
-        logger.error(f"Failed to verify synthetic metadata: {e}")
-        results.append({
-            "file": str(synthetic_manifest_path),
-            "accession_id": "UNKNOWN",
-            "metadata": {},
-            "is_valid": False,
-            "exclusion_reasons": [f"Failed to parse synthetic manifest: {e}"],
-            "is_synthetic": True
-        })
-
-    return results
-
-def save_verification_report(results: List[Dict[str, Any]], output_path: Path, mode: str = "real") -> None:
-    """
-    Save the verification report to a JSON file.
-
-    Args:
-        results: List of verification results
-        output_path: Path to save the report
-        mode: Mode of operation ("real" or "synthetic")
+    Verify FASTQ file metadata and structure.
+    For this task, we primarily rely on the SRA metadata fetch.
+    We also check that the file exists and is readable.
     """
     report = {
-        "mode": mode,
-        "timestamp": datetime.now().isoformat(),
-        "summary": {
-            "total_studies": len(results),
-            "valid_studies": sum(1 for r in results if r.get("is_valid", False)),
-            "invalid_studies": sum(1 for r in results if not r.get("is_valid", False)),
-            "real_data_available": mode == "real" and any(r.get("accession_id", "").startswith("SRX") or r.get("accession_id", "").startswith("GSM"))
-        },
-        "results": results
+        "accession_id": accession_id,
+        "file_exists": fastq_path.exists(),
+        "file_readable": False,
+        "metadata_fetched": False,
+        "metadata_valid": False,
+        "issues": []
     }
+    
+    if not report["file_exists"]:
+        report["issues"].append(f"FASTQ file not found: {fastq_path}")
+        return report
+        
+    # Try to open the file (it's gzipped)
+    try:
+        import gzip
+        with gzip.open(fastq_path, 'rt') as f:
+            # Read first few lines to verify format
+            for i, line in enumerate(f):
+                if i > 3:
+                    break
+        report["file_readable"] = True
+    except Exception as e:
+        report["issues"].append(f"FASTQ file not readable: {e}")
+        return report
+        
+    # Fetch and verify SRA metadata
+    sra_meta = fetch_sra_metadata(accession_id)
+    if not sra_meta:
+        report["issues"].append("Failed to fetch SRA metadata from NCBI")
+        return report
+        
+    report["metadata_fetched"] = True
+    
+    # Extract and verify required fields
+    extracted = extract_required_metadata(sra_meta)
+    valid, issues = verify_metadata_requirements(extracted)
+    
+    report["extracted_metadata"] = extracted
+    report["metadata_valid"] = valid
+    report["issues"].extend(issues)
+    
+    return report
 
-    # Ensure output directory exists
+def verify_synthetic_metadata(synthetic_manifest_path: Path) -> Dict[str, Any]:
+    """
+    Verify synthetic data metadata structure.
+    This is used when running in synthetic mode.
+    """
+    report = {
+        "mode": "synthetic",
+        "file_exists": synthetic_manifest_path.exists(),
+        "metadata_valid": False,
+        "issues": []
+    }
+    
+    if not report["file_exists"]:
+        report["issues"].append(f"Synthetic manifest not found: {synthetic_manifest_path}")
+        return report
+        
+    try:
+        with open(synthetic_manifest_path, 'r') as f:
+            manifest = json.load(f)
+            
+        # Check for required fields
+        required_fields = ["accession_id", "organism", "source_type"]
+        missing = [f for f in required_fields if f not in manifest]
+        
+        if missing:
+            report["issues"].append(f"Missing required fields in synthetic manifest: {missing}")
+        else:
+            report["metadata_valid"] = True
+            report["extracted_metadata"] = {
+                "accession_id": manifest.get("accession_id", ""),
+                "species": manifest.get("organism", ""),
+                "tissue": "synthetic_tissue",
+                "treatment": "synthetic_treatment",
+                "replicates": 3  # Synthetic data typically has fixed replicates
+            }
+    except json.JSONDecodeError as e:
+        report["issues"].append(f"Invalid JSON in synthetic manifest: {e}")
+        
+    return report
+
+def save_verification_report(report: Dict[str, Any], output_path: Path) -> None:
+    """
+    Save the verification report to the specified path.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-
     logger.info(f"Verification report saved to {output_path}")
 
-def main(mode: str = "real", fastq_dir: Optional[str] = None, manifest_path: Optional[str] = None, synthetic_manifest_path: Optional[str] = None) -> int:
+def main():
     """
-    Main function to run metadata verification.
-
-    Args:
-        mode: "real" or "synthetic"
-        fastq_dir: Directory containing FASTQ files (for real mode)
-        manifest_path: Path to the manifest file (for real mode)
-        synthetic_manifest_path: Path to the synthetic manifest (for synthetic mode)
-
-    Returns:
-        Exit code (0 for success, 1 for failure)
+    Main entry point for metadata verification.
+    Usage: python src/data/verify_metadata.py --mode [real|synthetic] --accession_ids [id1,id2,...]
     """
+    parser = argparse.ArgumentParser(description="Verify metadata for downloaded FASTQ files")
+    parser.add_argument("--mode", choices=["real", "synthetic"], required=True,
+                      help="Mode: real (fetch from NCBI) or synthetic (check manifest)")
+    parser.add_argument("--accession_ids", type=str, required=False,
+                      help="Comma-separated list of accession IDs (required for real mode)")
+    parser.add_argument("--synthetic_manifest", type=str, required=False,
+                      help="Path to synthetic manifest (required for synthetic mode)")
+    parser.add_argument("--output", type=str, default="data/processed/metadata_verification_report.json",
+                      help="Output path for verification report")
+    
+    args = parser.parse_args()
+    
     # Setup logging
     setup_logging(level=logging.INFO)
-
-    logger.info(f"Starting metadata verification in {mode} mode")
-
-    output_dir = get_data_path() / "processed"
-    output_path = output_dir / "metadata_verification_report.json"
-    flag_path = get_data_path() / "manifests" / "human_input_needed.flag"
-
-    results = []
-    all_valid = True
-
-    if mode == "synthetic":
-        if synthetic_manifest_path:
-            results = verify_synthetic_metadata(Path(synthetic_manifest_path))
-        else:
-            # Look for synthetic manifest in default location
-            default_synthetic_manifest = get_data_path() / "synthetic" / "synthetic_manifest.json"
-            if default_synthetic_manifest.exists():
-                results = verify_synthetic_metadata(default_synthetic_manifest)
-            else:
-                logger.error("No synthetic manifest found")
-                results = [{
-                    "file": "unknown",
-                    "accession_id": "UNKNOWN",
-                    "metadata": {},
-                    "is_valid": False,
-                    "exclusion_reasons": ["No synthetic manifest found"],
-                    "is_synthetic": True
-                }]
-    else:
-        # Real mode
-        if fastq_dir:
-            fastq_files = list(Path(fastq_dir).glob("*.fastq.gz"))
-        else:
-            # Default location
-            fastq_files = list((get_data_path() / "raw").glob("*.fastq.gz"))
-
-        if not fastq_files:
-            logger.warning("No FASTQ files found in real mode")
-            # Check if we should fallback to synthetic
-            synthetic_manifest = get_data_path() / "synthetic" / "synthetic_manifest.json"
-            if synthetic_manifest.exists():
-                logger.info("Falling back to synthetic data")
-                results = verify_synthetic_metadata(synthetic_manifest)
-                mode = "synthetic"  # Update mode for reporting
-            else:
-                results = [{
-                    "file": "none",
-                    "accession_id": "NONE",
-                    "metadata": {},
-                    "is_valid": False,
-                    "exclusion_reasons": ["No FASTQ files found and no synthetic fallback available"]
-                }]
-        else:
-            manifest_p = Path(manifest_path) if manifest_path else None
-            if not manifest_p:
-                manifest_p = get_data_path() / "manifests" / "real_data_manifest.json"
+    
+    output_path = Path(args.output)
+    data_path = get_data_path()
+    
+    overall_report = {
+        "mode": args.mode,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "studies": [],
+        "summary": {
+            "total_studies": 0,
+            "valid_studies": 0,
+            "invalid_studies": 0,
+            "excluded_studies": []
+        }
+    }
+    
+    if args.mode == "real":
+        if not args.accession_ids:
+            logger.error("Accession IDs required for real mode")
+            sys.exit(1)
             
-            results = verify_fastq_metadata(fastq_files, manifest_p)
-
-    # Check if all results are valid
-    for result in results:
-        if not result.get("is_valid", False):
-            all_valid = False
-            break
-
-    # Save report
-    save_verification_report(results, output_path, mode)
-
-    # If not all valid, write flag and exit
-    if not all_valid:
-        logger.warning("Metadata verification failed for some studies")
+        accession_list = [aid.strip() for aid in args.accession_ids.split(",")]
+        
+        for accession_id in accession_list:
+            # Construct expected FASTQ path
+            fastq_path = data_path / "raw" / f"{accession_id}.fastq.gz"
+            
+            logger.info(f"Verifying metadata for {accession_id}")
+            verification = verify_fastq_metadata(fastq_path, accession_id)
+            
+            overall_report["studies"].append(verification)
+            overall_report["summary"]["total_studies"] += 1
+            
+            if verification["metadata_valid"]:
+                overall_report["summary"]["valid_studies"] += 1
+            else:
+                overall_report["summary"]["invalid_studies"] += 1
+                overall_report["summary"]["excluded_studies"].append({
+                    "accession_id": accession_id,
+                    "reasons": verification["issues"]
+                })
+                
+    elif args.mode == "synthetic":
+        if not args.synthetic_manifest:
+            logger.error("Synthetic manifest path required for synthetic mode")
+            sys.exit(1)
+            
+        manifest_path = Path(args.synthetic_manifest)
+        verification = verify_synthetic_metadata(manifest_path)
+        
+        overall_report["studies"].append(verification)
+        overall_report["summary"]["total_studies"] += 1
+        
+        if verification["metadata_valid"]:
+            overall_report["summary"]["valid_studies"] += 1
+        else:
+            overall_report["summary"]["invalid_studies"] += 1
+            overall_report["summary"]["excluded_studies"].append({
+                "accession_id": "SYNTH_001",
+                "reasons": verification["issues"]
+            })
+            
+    # Save the report
+    save_verification_report(overall_report, output_path)
+    
+    # Check if any studies were invalid
+    if overall_report["summary"]["invalid_studies"] > 0:
+        logger.warning(f"{overall_report['summary']['invalid_studies']} studies failed metadata verification")
+        
+        # Write flag file for human intervention
+        flag_path = Path(data_path) / "manifests" / "human_input_needed.flag"
         flag_path.parent.mkdir(parents=True, exist_ok=True)
         with open(flag_path, 'w') as f:
-            f.write(f"Metadata verification failed at {datetime.now().isoformat()}\n")
-            f.write("Human review required before proceeding.\n")
-        logger.info(f"Human input needed flag written to {flag_path}")
-        return 1
-
-    logger.info("Metadata verification completed successfully")
-    return 0
+            f.write(f"Metadata verification failed for {overall_report['summary']['invalid_studies']} studies.\n")
+            f.write("Please review the report and resolve issues before proceeding.\n")
+        
+        logger.info(f"Flag written to {flag_path}")
+        sys.exit(1)
+        
+    logger.info("All studies passed metadata verification")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    # Parse command line arguments
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Verify metadata for downloaded FASTQ files")
-    parser.add_argument("--mode", choices=["real", "synthetic"], default="real", help="Mode of operation")
-    parser.add_argument("--fastq-dir", help="Directory containing FASTQ files")
-    parser.add_argument("--manifest-path", help="Path to the manifest file")
-    parser.add_argument("--synthetic-manifest-path", help="Path to the synthetic manifest")
-
-    args = parser.parse_args()
-
-    exit_code = main(
-        mode=args.mode,
-        fastq_dir=args.fastq_dir,
-        manifest_path=args.manifest_path,
-        synthetic_manifest_path=args.synthetic_manifest_path
-    )
-    sys.exit(exit_code)
+    main()
