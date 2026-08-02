@@ -144,6 +144,30 @@ Three consequences the rows encode, which no task may quietly contradict:
   `_after_parent` and at `_before_ref_update`, and Task 12 re-attacks rows 2 and 3 under
   live contention.
 
+### The crash seams are part of the contract
+
+The durability contract is stated per row and tested per row, so the seams that make it
+testable are not an implementation detail of `append_transaction` — they are part of every
+signature on the path from a caller to the commit point:
+
+```
+cas_claim (row 1) · cas_attempt_transition (rows 2, 4) · cas_reclaim (row 3)
+                              ↓  _after_parent, _before_ref_update, _after_push
+                          append_many
+                              ↓  (same three, verbatim)
+                        append_transaction
+```
+
+All three are keyword-only, default `None`, typed `Seam`, and **test-only**: production
+callers never pass them, and nothing in `src/` outside these signatures mentions them. The
+rule is mechanical — *a function that can reach the commit point forwards all three* — so
+that a row's crash test can be written against the row's own entry point rather than
+against a lower layer that shares none of its preconditions.
+
+A plan that declared `_after_push` crash tests for four rows while exposing the seam on one
+internal function would have shipped four tests that cannot be written. The forwarding is
+listed here once instead of being re-argued at each of the four call sites.
+
 ## Task-boundary audit
 
 Every test must be able to FAIL at the task that states it — a test that can only pass once
@@ -172,13 +196,24 @@ only their own brief would never have written it), and Task 6's claim setup depe
 
 Re-run after the conditional-effects revision: the three new crossings above are all
 comments, and the round's other additions introduce none — `NON_TRANSITION_EVENTS` and
-`CLAIM_HOLDING_STATES` are Task 4's and are consumed only later; `events_by_commit`,
-`_validate_claim_pair` and `_acquired_for` are all created and used within Task 7.
+`CLAIM_HOLDING_STATES` are Task 4's and are consumed only later; `_validate_claim_pair`
+and `_acquired_for` are created and used within Task 7.
 
 Re-run again after the writer/checker unification: `holds_claim` and `walk_attempt` are
 Task 4's and flow forward to Tasks 6 and 7; `_claim_required` is created and used within
 Task 6. The two crossings it added are both docstrings naming the counterpart rule, which
 is the point of those docstrings.
+
+Re-run after the replay-integrity revision, which found a REAL defect and moved three
+symbols to fix it. Task 6's `replayed_transaction` raised `LaneInconsistent` and its test 14
+asserted that raise, while `LaneInconsistent` was listed as Task 7's — a test that could
+not fail at the task stating it, and the exact shape this audit exists to catch. Making the
+replay check integrity and provenance would have added `events_by_commit` (also Task 7's) to
+the same backwards edge. Both now belong to **Task 6**, the first task that needs them,
+along with `assert_partner_intact`; Task 7 CONSUMES all three, which runs the right way.
+`_PAIRINGS`, `_CLAIM_PAIR_FIELDS` and `_validate_claim_pair` stay in Task 7 — the auditor's
+row declarations and row 1's bidirectional half-presence check are that task's, and they are
+created and used there.
 
 ## Dependencies + scope boundary
 
@@ -194,7 +229,7 @@ is the point of those docstrings.
 
 ## File Structure
 
-- `src/llmxive/git_event_log.py` — **modified**: `TransactionResult`, `append_transaction`, and one shared tree builder (`_commit_events`) that both the single-event and multi-subtree writers call. One responsibility: git-native CAS over an append-only log, now across several subtrees of one ref.
+- `src/llmxive/git_event_log.py` — **modified**: `TransactionResult`, `append_transaction`, `Seam` (the test-only crash-seam type, named once and forwarded by every writer above it), and one shared tree builder (`_commit_events`) that both the single-event and multi-subtree writers call. One responsibility: git-native CAS over an append-only log, now across several subtrees of one ref.
 - `src/llmxive/self_improvement/lane_log.py` — **modified**: `append_many`, the lane-level transaction with per-stream expected revisions and one predicate over every touched stream; `list_problem_streams` (a `git ls-tree` over the event dir — "which streams exist" is a question about the ref's tree, so the store answers it); `events_by_commit` (one `git log --diff-filter=A` pass, so "were these two events written by ONE transaction" is checkable rather than merely asserted — same reason: the ref's shape is this module's knowledge).
 - `src/llmxive/self_improvement/policy.py` — the Policy Contract v1 constants, derived where the spec derives them. Created in Task 3 (the clock is the first consumer), extended in Task 9 with the phase budgets and counter caps. Imports nothing from the lane, so every other module may depend on it.
 - `src/llmxive/self_improvement/clock.py` — `AuthoritativeClock` protocol, `TimeSample`, `GitHubDateClock`, `FixedAnchorClock` (test/CI double with real logic), `NoTrustedTimeError`, `parse_http_date`, `MAX_CLOCK_REGRESSION_S`. One responsibility: producing an instant the whole lane can compare — monotonic, floored, and fail-closed past the tolerance rather than frozen.
@@ -503,7 +538,7 @@ on, so a stale generation is REJECTED, not merely noticed.
 
 **Interfaces:**
 - Consumes: `LogRef`, `_rev`, `_read_log_at`, `_push_fast_forward`, `sync_and_verify`, `GitLogDenied`, `GitLogError`, `GitLogContention` (all existing, `git_event_log.py`).
-- Produces: `TransactionResult(commit, seqs, created)`, `append_transaction(...)` in `git_event_log.py`; `append_many(...)` in `lane_log.py`.
+- Produces: `TransactionResult(commit, seqs, created)`, `Seam`, `append_transaction(...)` in `git_event_log.py`; `append_many(...)` in `lane_log.py`.
 
 - [ ] **Step 1: Refactor the tree builder to take many events (no behavior change)**
 
@@ -902,6 +937,12 @@ class TransactionResult:
     created: bool
 
 
+#: A TEST-ONLY crash seam: a zero-argument callback a test raises from to stop the process
+#: at a named point in the commit sequence. Named once so the four entry points that
+#: forward the seams read as one contract rather than as twelve incidental parameters.
+Seam = Callable[[], None] | None
+
+
 def append_transaction(
     repo: Path,
     *,
@@ -913,9 +954,9 @@ def append_transaction(
     prepare: Callable[[dict[str, list[dict]]], list[tuple[str, dict]] | None],
     finalize: Callable[[dict, int], dict] | None = None,
     identity_exclude: frozenset[str] = frozenset(),
-    _after_parent: Callable[[], None] | None = None,
-    _before_ref_update: Callable[[], None] | None = None,
-    _after_push: Callable[[], None] | None = None,
+    _after_parent: Seam = None,
+    _before_ref_update: Seam = None,
+    _after_push: Seam = None,
     max_retries: int = _DEFAULT_MAX_RETRIES,
 ) -> TransactionResult:
     """Append events across SEVERAL subtrees of one ref as a single compare-and-swap.
@@ -1121,8 +1162,8 @@ def append_many(repo: Path, events: Sequence[Event], *,
                 expected_revisions: Mapping[str, int],
                 precondition: Callable[[dict[str, list[Event]]], tuple[bool, str]] | None = None,
                 config: LaneLogConfig | None = None,
-                _after_parent: Callable[[], None] | None = None,
-                _before_ref_update: Callable[[], None] | None = None) -> TransactionResult:
+                _after_parent: Seam = None, _before_ref_update: Seam = None,
+                _after_push: Seam = None) -> TransactionResult:
     """CAS-append several lane events ACROSS STREAMS as one transaction.
 
     The lane's streams are subtrees of ONE ref, so a mutation spanning the coordinator and a
@@ -1130,7 +1171,10 @@ def append_many(repo: Path, events: Sequence[Event], *,
     precondition read one stream while writing another and have that read be BINDING.
     ``expected_revisions`` names the revision each touched stream must still be at;
     ``precondition`` sees every touched stream, keyed by stream id, at the common parent.
-    Raises :class:`LaneRevisionConflict` when either loses."""
+    Raises :class:`LaneRevisionConflict` when either loses.
+
+    The three underscore-prefixed arguments are the TEST-ONLY crash seams, forwarded
+    verbatim (see "The crash seams are part of the contract" above)."""
     streams = sorted({e.problem_id for e in events} | set(expected_revisions))
     if not events:
         raise ValueError("append_many requires at least one event")
@@ -1159,6 +1203,7 @@ def append_many(repo: Path, events: Sequence[Event], *,
             validate=validate_lane_event, message_fn=_txn_message, prepare=_prepare,
             finalize=_finalize, identity_exclude=_IDENTITY_EXCLUDE,
             _after_parent=_after_parent, _before_ref_update=_before_ref_update,
+            _after_push=_after_push,
         )
     except GitLogDenied as exc:
         raise LaneRevisionConflict(str(exc)) from exc
@@ -2941,8 +2986,8 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/events.p
 - Test: `tests/integration/test_self_improvement_lifecycle_cas.py`
 
 **Interfaces:**
-- Consumes: `lane_log.append/append_many/read`, `LaneRevisionConflict`, `derive_event_id`, `project_coordinator`, `COORDINATOR_STREAM`.
-- Produces: `cas_attempt_transition(repo, *, problem_id, attempt_id, event_type, payload, actor, clock, config=None) -> TransitionOutcome`; `_claim_required(transition, state_before) -> bool`; `_state_before(history, event_id)`; `_COORDINATOR_EFFECTS`; `seed_claim` in `tests/helpers/lane_lifecycle.py`.
+- Consumes: `lane_log.append/append_many/read`, `Seam` (Task 2), `LaneRevisionConflict`, `derive_event_id`, `project_coordinator`, `COORDINATOR_STREAM`.
+- Produces: `cas_attempt_transition(repo, *, problem_id, attempt_id, event_type, payload, actor, clock, config=None, _after_parent=None, _before_ref_update=None, _after_push=None) -> TransitionOutcome`; `_claim_required(transition, state_before) -> bool`; `_state_before(history, event_id)`; `_COORDINATOR_EFFECTS`; `LaneInconsistent`; `assert_partner_intact(...)`; `replayed_transaction(repo, stored, declared_effects, coordinator_events, *, problem_id, attempt_id, required, config=None)`; `events_by_commit` in `lane_log.py`; `seed_claim` in `tests/helpers/lane_lifecycle.py`.
 
 **A transition emits its declared coordinator effects, atomically.** When the Attempt making
 the transition currently holds the lane — read from ITS OWN state, `_claim_required`, not
@@ -3019,11 +3064,24 @@ It writes `Proposed` and `ProposalVerified` on the Problem stream first (via
     a. the retry does not raise;
     b. it reports `created is False` (`ClaimOutcome.created` for row 1, `TransitionOutcome.created` for rows 2/3/4 — one shape is what makes the parameterization possible);
     c. no new events on EITHER stream;
-    d. the stored records still name the ORIGINAL actor, byte-for-byte;
-    e. `assert_lane_consistent` passes.
+    d. the stored records still name the ORIGINAL actor, byte-for-byte.
+
+    Task 7 adds a fifth assertion, `assert_lane_consistent` passes, when it lands the auditor and row 1 — it is that task's function, and asserting it here would be a test Task 6 cannot run.
 
     Row 1 had all of this; rows 2, 3 and 4 had none of it, and that asymmetry is exactly how the replay defect survived — a per-row test written where each row was implemented tests each row's author's assumptions. A shared body tests the CONTRACT, and a row that cannot satisfy it fails at the row, not at review.
-14. **A replay whose coordinator half was damaged raises rather than passing.** For rows 2 and 4: land the transaction, delete the coordinator partner (direct manipulation), then re-invoke. It must raise `LaneInconsistent`. This is the case the naive replay reports as healthy — the Attempt event is present, so "already landed" is true, and nothing ever looks at the half that is gone. For row 4, delete each of the TWO partners in turn: a replay that checked only `ClaimReleased` would bless a lost `MonitorStarted`.
+13b. **The DELAYED replay: the same retry, after the lane has moved on.** Same parameterization, one extra step — after the row's transaction lands (crashed at `_after_push`), append UNRELATED activity before retrying, then assert 13's (a)–(d) plus:
+    f. the stored records' `seq` values on both streams are unchanged (the retry did not renumber history);
+    g. the outcome's OWNERSHIP fields describe the lane NOW, while its generation and `created` describe the ORIGINAL transaction — the historical/current split that broke once already;
+    h. no `LaneRevisionConflict`: the replay's `expected_revisions` are read at the CURRENT tip, so a longer stream is not a stale-revision failure. Every row already reads them fresh; this is the test that says so, and the one that would fail if a future refactor "helpfully" pinned them to the transaction being replayed.
+
+    Each row supplies its own `later_activity` because "unrelated" is row-specific: after rows 2, 3 and 4 the lane is FREE, so a second Problem claims it (growing both streams and changing current ownership); after row 1 the lane is HELD by the pair under test, so the activity is a transition on a second Problem's stream. The lost-ack cases above all retry immediately, which is the easy half of the contract — a retry after a crash is usually the NEXT run, minutes and several commits later.
+14. **A replay whose coordinator half is not intact raises rather than passing.** Land the transaction, damage the stored partner, then re-invoke and require `LaneInconsistent`. Four damage classes, each a thing presence alone cannot see, and each parameterized over rows 2 and 4 here (Task 7 adds row 1's, Task 9 row 3's):
+    a. **Missing** — delete the partner blob. This is the case the naive replay reports as healthy: the Attempt event is present, so "already landed" is true, and nothing ever looks at the half that is gone. For row 4, delete each of the TWO partners in turn — a replay that checked only `ClaimReleased` would bless a lost `MonitorStarted`.
+    b. **Wrong record at the right id** — replace it with a different `event_type`, and separately with one whose payload names another `attempt_id`.
+    c. **Disagreeing halves** — rewrite the partner's `actor`/`timestamp` so the pair no longer looks like one construction.
+    d. **Separately committed** — build the pair as TWO commits at the derived ids (both blobs present, both well-formed, both reachable) and re-invoke. Everything a presence-or-payload check can see is fine here; only the introducing commit differs. This is the regression a future "optimization" that splits the transaction back into two appends would cause, and it is the case that makes `events_by_commit` load-bearing in the writer rather than only in the auditor.
+
+    Damage is applied by writing the blobs directly and committing on the ref — NOT by calling lane APIs, which correctly refuse to produce any of these states.
 
 - [ ] **Step 2: Run to verify they fail**
 
@@ -3031,6 +3089,62 @@ Run: `python -m pytest tests/integration/test_self_improvement_lifecycle_cas.py 
 Expected: `ImportError: cannot import name 'cas_attempt_transition'`.
 
 - [ ] **Step 3: Implement**
+
+First, two pieces the replay check needs. In `lane_log.py`, beside `append_many` — the ref
+and its layout are that module's knowledge, and the coordinator should no more shell out to
+git than it should parse a tree:
+
+```python
+def events_by_commit(
+    repo: Path, config: LaneLogConfig | None = None
+) -> dict[tuple[str, str], str]:
+    """``{(stream, event_id): commit}`` for every event on the lane ref, in ONE traversal.
+
+    Each event is its own blob at ``<event_dir>/<event_id>.json``
+    (`git_event_log._append_commit`) and the ref is append-only and linear, so
+    ``--diff-filter=A`` attributes every record to the commit that introduced it, exactly.
+    This is what makes "written by ONE transaction" checkable after the fact rather than
+    merely asserted: two events in one commit were committed together, and no later edit
+    can make two separate commits look like one.
+
+    Keyed by the PAIR, matching `TransactionResult.seqs` and the store's own notion of
+    identity: an id is unique within a stream, and the same id on two streams is a
+    different record. Keying on the bare id would let one silently overwrite the other and
+    produce a same-commit verdict about the wrong event — a false PASS in the checker whose
+    job is to disbelieve.
+
+    The NUL-prefixed format matters — an event id is a hex digest and would be
+    indistinguishable from a bare ``%H`` line, and a path can never begin with NUL."""
+    proc = _git(["log", "--reverse", "--format=%x00%H", "--name-only", "--diff-filter=A",
+                 LANE_REF], cwd=repo,
+                identity=_log_ref(COORDINATOR_STREAM, config).git_identity, check=False)
+    if proc.returncode != 0:          # no ref yet → no events, not an error
+        return {}
+    added, commit = {}, ""
+    for line in proc.stdout.splitlines():
+        if line.startswith("\x00"):
+            commit = line[1:]
+        elif line.endswith(".json"):
+            path = PurePosixPath(line)      # …/events/<stream>/<event_id>.json
+            added[(path.parent.name, path.stem)] = commit
+    return added
+```
+
+and in `coordinator.py`, the exception both the writer and (in Task 7) the auditor raise —
+defined here because this is the task whose replay path first refuses:
+
+```python
+class LaneInconsistent(RuntimeError):
+    """A cross-stream transaction is not intact: a declared half is missing, malformed,
+    or was added by a different commit than its partner.
+
+    Distinct from `LaneRevisionConflict` (someone else got there first — retry) and from
+    `IllegalTransition` (this event cannot follow that state — a caller bug). This one
+    means the LOG disagrees with itself, so there is nothing to retry and nothing to
+    recompute: fail closed and stop."""
+```
+
+Then the row's effects and the transition itself:
 
 ```python
 def _release_effect(problem_id: str, attempt_id: str, actor: str, timestamp: str) -> Event:
@@ -3080,13 +3194,109 @@ def _claim_required(transition: Transition, state_before: AttemptState | None) -
     return bool(transition.coordinator_effects) and holds_claim(state_before)
 
 
-def replayed_transaction(stored: Event, effects: tuple[str, ...],
+def assert_partner_intact(*, anchor: Event, partner: Event | None, coordinator_event: str,
+                          compare: tuple[str, ...],
+                          commit_of: Mapping[tuple[str, str], str],
+                          problem_id: str, attempt_id: str,
+                          anchor_event: str | None = None) -> Event:
+    """One anchor→partner pairing, checked to the FULL strength of the matrix, or raise.
+
+    Five things, in the order a corruption is cheapest to describe: the partner exists; it
+    is the declared type on the coordinator stream; both members' payloads name this
+    Problem and Attempt; both were introduced by the SAME commit; and the fields the row
+    calls shared agree. `actor` and `timestamp` are checked too, unconditionally — every
+    row builds all of its members from one actor and one timestamp (row 1 from one `body`,
+    rows 2/4 from `_COORDINATOR_EFFECTS[...](..., actor, event.timestamp)`, row 3 from
+    `cas_reclaim`'s single pair), and the store never stamps them itself: `lane_log.append`
+    and `append_many` pass no `now_field`, so `git_event_log`'s `setdefault` never fires and
+    the caller's values are what land. If a future row legitimately writes its halves under
+    different identities, that belongs on `_Pairing` where the row is declared — not as a
+    weakening here.
+
+    ONE function for THREE callers, and that is the point:
+
+    - `replayed_transaction` — the writer, replaying rows 2/3/4 after a lost ack;
+    - `_validate_claim_pair` — the writer, replaying row 1;
+    - `assert_lane_consistent` — the auditor, over all history.
+
+    They previously carried three strengths of the same check, weakest at the writer: the
+    replay path verified only that a partner was PRESENT. A record at a derived id can be
+    present and still be the wrong type, name another Attempt, disagree on generation, or —
+    the one presence can never see — have been added by a DIFFERENT COMMIT, which is a
+    transaction that was re-split into two and is exactly the regression the atomicity
+    argument rests on. Feeding such a record back to `append_many` proves nothing, because
+    there each stored event is compared against ITSELF: on the replay path append-only
+    validation is a tautology, so everything it cannot see must be checked here.
+
+    `commit_of` is passed in rather than read, so a caller checking several pairings pays
+    for one `events_by_commit` traversal."""
+    if partner is None:
+        raise LaneInconsistent(
+            f"{problem_id}/{attempt_id}: {anchor.event_type} is present but its "
+            f"{coordinator_event} is not — half a transaction, which nothing that writes "
+            "this lane can produce")
+    # The anchor's expected stream is `problem_id`, NOT `anchor.problem_id` — comparing a
+    # record against its own field is a check that cannot fail.
+    members = ((anchor, anchor_event, problem_id),
+               (partner, coordinator_event, COORDINATOR_STREAM))
+    for event, expected_type, stream in members:
+        if expected_type is not None and event.event_type != expected_type:
+            raise LaneInconsistent(
+                f"{problem_id}/{attempt_id}: expected {expected_type} on {stream!r}, "
+                f"found {event.event_type}")
+        if event.problem_id != stream:
+            raise LaneInconsistent(
+                f"{problem_id}/{attempt_id}: {event.event_type} is on stream "
+                f"{event.problem_id!r}, expected {stream!r}")
+        if (payload_field(event, "problem_id"), payload_field(event, "attempt_id")) != (
+                problem_id, attempt_id):
+            raise LaneInconsistent(
+                f"{problem_id}/{attempt_id}: {event.event_type} names "
+                f"{payload_field(event, 'problem_id')}/"
+                f"{payload_field(event, 'attempt_id')} instead")
+    # Scoped by (stream, id) — the store's identity, not the bare id.
+    commits = {}
+    for event in (anchor, partner):
+        commit = commit_of.get((event.problem_id, event.event_id))
+        if commit is None:
+            raise LaneInconsistent(
+                f"{problem_id}/{attempt_id}: no commit introduces {event.event_type} — "
+                "the ref does not contain a record that `read` returned")
+        commits[event.event_type] = commit
+    if len(set(commits.values())) != 1:
+        # Both present is not the invariant; both present IN ONE COMMIT is.
+        raise LaneInconsistent(
+            f"{problem_id}/{attempt_id}: " + " and ".join(
+                f"{t} was added by {c}" for t, c in commits.items()) +
+            " — the matrix says one transaction writes both")
+    for field in compare:
+        if payload_field(anchor, field) != payload_field(partner, field):
+            raise LaneInconsistent(
+                f"{problem_id}/{attempt_id}: {field} is "
+                f"{payload_field(anchor, field)!r} on {anchor.event_type} and "
+                f"{payload_field(partner, field)!r} on {partner.event_type} — one "
+                "transaction wrote both from one construction, so they cannot disagree")
+    if (anchor.actor, anchor.timestamp) != (partner.actor, partner.timestamp):
+        raise LaneInconsistent(
+            f"{problem_id}/{attempt_id}: the halves disagree on actor/timestamp "
+            f"({anchor.actor}@{anchor.timestamp} vs {partner.actor}@{partner.timestamp}); "
+            "the replay path reuses both verbatim, so a disagreement here would be carried "
+            "forward as fact")
+    return partner
+
+
+def replayed_transaction(repo: Path, stored: Event, declared_effects: tuple[str, ...],
                          coordinator_events: list[Event], *, problem_id: str,
-                         attempt_id: str) -> list[Event]:
+                         attempt_id: str, required: bool,
+                         config: LaneLogConfig | None = None) -> list[Event]:
     """The event set of an already-landed cross-stream transaction, LOCATED not rebuilt.
 
     `cas_attempt_transition` (rows 2 and 4) and `cas_reclaim` (row 3) call it with the
-    effects their row required. Row 1 does NOT, and the reason is worth stating so nobody
+    effects their row DECLARES and with `required` = whether the Attempt held the lane in
+    the state the stored event was written from. Both clauses of the conditional-effects
+    rule are checked here, not only the one that expects a partner — passing the pruned
+    list instead of `(declared, required)` would make "correctly wrote nothing" and
+    "wrongly holds another Attempt's release" the same input. Row 1 does NOT, and the reason is worth stating so nobody
     "unifies" it later: there, the Attempt-side `ClaimGranted` is not a reliable anchor —
     the surviving half can be EITHER one, and `cas_claim` must detect a lone `ClaimAcquired`
     (a lane wedged behind an Attempt that never started) as well as a lone grant. Its
@@ -3102,25 +3312,41 @@ def replayed_transaction(stored: Event, effects: tuple[str, ...],
     append-only validation on exactly the cross-runner retry the lost-acknowledgement
     contract exists to make survivable.
 
-    **Complete or refused.** A stored Attempt event whose declared partner is missing is
-    half a transaction. Returning just the Attempt event would let the retry report success
-    while the damage went unmentioned — the naive replay's failure, and the reason a
-    row-4 replay could pass with its `MonitorStarted` gone. Completing the missing half
-    instead is the repair this design does not offer: it would finish a transaction that
-    was never atomically started."""
-    partners = [
-        (name, next((e for e in coordinator_events
-                     if e.event_id == coordinator_event_id(name, problem_id, attempt_id)),
-                    None))
-        for name in effects
-    ]
-    missing = [name for name, found in partners if found is None]
-    if missing:
-        raise LaneInconsistent(
-            f"{problem_id}/{attempt_id}: {stored.event_type} is present but "
-            f"{', '.join(missing)} {'is' if len(missing) == 1 else 'are'} not — half a "
-            "transaction, which nothing that writes this lane can produce")
-    return [stored, *(found for _name, found in partners)]
+    **Intact or refused.** A stored Attempt event whose declared partner is missing is half
+    a transaction; one whose partner is present but malformed, or present but added by a
+    different commit, is a transaction that was never atomically written. Returning the
+    Attempt event anyway would let the retry report success while the damage went
+    unmentioned — the naive replay's failure, and the reason a row-4 replay could pass with
+    its `MonitorStarted` gone. Every member therefore goes through `assert_partner_intact`,
+    the SAME check the auditor applies to history: a replay is an audit of one transaction,
+    and running a weaker one at the moment a caller is about to be handed the result is the
+    wrong place to save a traversal. Completing a missing half instead is the repair this
+    design does not offer: it would finish a transaction that was never atomically
+    started."""
+    found = {
+        name: next((e for e in coordinator_events
+                    if e.event_id == coordinator_event_id(name, problem_id, attempt_id)),
+                   None)
+        for name in declared_effects
+    }
+    if not required:
+        # Clause 3 of the conditional-effects rule, which the auditor also enforces: a row
+        # can DECLARE an effect and correctly not have written one. Then the absence is the
+        # invariant, and a partner that exists released somebody else's claim.
+        present = sorted(name for name, event in found.items() if event is not None)
+        if present:
+            raise LaneInconsistent(
+                f"{problem_id}/{attempt_id}: {stored.event_type} was written from a state "
+                f"that held nothing, so it wrote no coordinator effect — but "
+                f"{', '.join(present)} exists for it, which released another Attempt's "
+                "claim")
+        return [stored]
+    commit_of = events_by_commit(repo, config=config)
+    return [stored, *(
+        assert_partner_intact(anchor=stored, partner=found[name], coordinator_event=name,
+                              compare=(), commit_of=commit_of,
+                              problem_id=problem_id, attempt_id=attempt_id)
+        for name in declared_effects)]
 
 
 def _state_before(history: list[Event], event_id: str) -> AttemptState | None:
@@ -3137,7 +3363,9 @@ def _state_before(history: list[Event], event_id: str) -> AttemptState | None:
 def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
                            event_type: str, payload: Mapping[str, Any], actor: str,
                            clock: Callable[[], str],
-                           config: LaneLogConfig | None = None) -> TransitionOutcome:
+                           config: LaneLogConfig | None = None,
+                           _after_parent: Seam = None, _before_ref_update: Seam = None,
+                           _after_push: Seam = None) -> TransitionOutcome:
     """Append one Attempt transition — and the coordinator effects its row declares — under
     the table's rules, or raise :class:`LaneRevisionConflict`.
 
@@ -3170,8 +3398,9 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
         event = stored
         requires_claim = _claim_required(transition, _state_before(history, event_id))
         writes = replayed_transaction(
-            stored, transition.coordinator_effects if requires_claim else (),
-            coordinator_events, problem_id=problem_id, attempt_id=attempt_id)
+            repo, stored, transition.coordinator_effects, coordinator_events,
+            problem_id=problem_id, attempt_id=attempt_id, required=requires_claim,
+            config=config)
     else:
         event = Event(
             event_id=event_id,
@@ -3237,7 +3466,9 @@ def cas_attempt_transition(repo: Path, *, problem_id: str, attempt_id: str,
         return (True, "")
 
     result = append_many(repo, writes, expected_revisions=expected,
-                         precondition=_legal_or_landed, config=config)
+                         precondition=_legal_or_landed, config=config,
+                         _after_parent=_after_parent,
+                         _before_ref_update=_before_ref_update, _after_push=_after_push)
     return TransitionOutcome(
         projection=project_attempt(
             [e for e in read(repo, problem_id, config=config)
@@ -3297,8 +3528,8 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/lifecycl
 - Test: `tests/integration/test_self_improvement_coordinator_cas.py` (extend)
 
 **Interfaces:**
-- Produces: `LaneCoordinator.claim_generation`, `ClaimOutcome.generation`, `ClaimOutcome.created`, `ClaimTerms`, `cas_claim(..., terms=)`, `cas_release` returning generation + `created`, `assert_lane_consistent`, `LaneInconsistent`; `list_problem_streams` and `events_by_commit` in `lane_log.py`.
-- Consumes: `append_many` (Task 2), `CLAIM_HOLDING_STATES` + `TRANSITIONS` + `project_attempt` (Task 4), `cas_attempt_transition` (Task 6, for the `proposal_verified` preludes).
+- Produces: `LaneCoordinator.claim_generation`, `ClaimOutcome.generation`, `ClaimOutcome.created`, `ClaimTerms`, `cas_claim(..., terms=, _after_parent=, _before_ref_update=, _after_push=)`, `cas_release` returning generation + `created`, `_PAIRINGS`, `_CLAIM_PAIR_FIELDS`, `_validate_claim_pair`, `assert_lane_consistent`; `list_problem_streams` in `lane_log.py`.
+- Consumes: `append_many` + `Seam` (Task 2), `CLAIM_HOLDING_STATES` + `TRANSITIONS` + `project_attempt` + `walk_attempt` + `holds_claim` (Task 4), `cas_attempt_transition` + `_claim_required` + `assert_partner_intact` + `LaneInconsistent` + `events_by_commit` (Task 6).
 
 **`cas_claim` becomes a transaction, and stays the ONE way to claim.** Granting the lane is
 two facts — the coordinator's `ClaimAcquired` and the Attempt's `ClaimGranted` — so it is
@@ -3331,13 +3562,14 @@ duplication Constitution I forbids, and the older one would be the unsafe path.
     f. a `ClaimReleased` with no releasing Attempt transition, and a `MonitorStarted` with no `PromotionObserved` ⇒ raise. Rows 2/3/4 and row 4 respectively — every row that writes to both streams has a case here;
     g. a held claim whose Attempt is `terminal` / `monitoring` / `rejected` ⇒ raises (not merely `proposal_verified`, which was the only state an early draft rejected);
     h. a live coordinator and Attempt at DIFFERENT generations ⇒ raises naming both. Both halves are PRESENT here, so pairing accepts it and only the active-projection check catches it — which is why there are two checks and not one.
-12i. **A stored pair that is COMPLETE but internally inconsistent is refused by `cas_claim` itself, not only by the auditor.** Hand-build (by direct `append`) a `ClaimAcquired`/`ClaimGranted` pair that disagrees — one case per class: mismatched `claim_generation`, mismatched terms, a `ClaimGranted` whose payload names a different `attempt_id`, and mismatched `actor`/`timestamp`. Re-invoke `cas_claim` for that pair and assert `LaneInconsistent` each time. The half-present case (10b) is already refused; this is its complement, and it is the one `append_many` CANNOT catch: on the replay path each stored event is compared against ITSELF, so append-only validation is a tautology there and a corrupt-but-complete pair would be reported back as a live claim.
+12i. **A stored pair that is COMPLETE but not intact is refused by `cas_claim` itself, not only by the auditor.** Hand-build (by direct `append`) a `ClaimAcquired`/`ClaimGranted` pair that disagrees — one case per class: mismatched `claim_generation`, mismatched terms, a `ClaimGranted` whose payload names a different `attempt_id`, mismatched `actor`/`timestamp`, and — the class no payload comparison can reach — a well-formed pair whose halves were added by **two different commits** (12l checks the auditor's verdict on that same lane; this checks `cas_claim`'s, and a writer that returns before the audit runs is the one a caller actually depends on). Re-invoke `cas_claim` for that pair and assert `LaneInconsistent` each time. The half-present case (10b) is already refused; this is its complement, and it is the one `append_many` CANNOT catch: on the replay path each stored event is compared against ITSELF, so append-only validation is a tautology there and a corrupt-but-complete pair would be reported back as a live claim. These are Task 6's `assert_partner_intact` cases applied to row 1, which is the point — one check, so row 1 cannot be the weak one.
 12j. **A non-holder terminal is ACCEPTED** — the false positive that a table-only reading of `releases_claim` produces. PARAMETERIZE over the derived set, never a hand-written list: `{(t.event, s) for t in TRANSITIONS if t.releases_claim for s in t.from_states - CLAIM_HOLDING_STATES}`. It currently yields three pairs (`ReviewAborted`/`proposed`, `ScopeUnsupported`/`proposal_verified`, `BreakerTripped`/either), and a row that becomes reachable from a new non-holding state joins the test without anyone remembering to add it. Drive each pair to its terminal, assert the checker passes, and assert the set is non-empty so the parameterization cannot silently become vacuous. Run one of them WHILE a different Attempt holds the lane (Task 6 case 8's scenario). Every one of these rows declares `ClaimReleased` and none of them wrote one, because the Attempt held nothing — and a checker that demands the partner from the row alone rejects a lane that is working correctly, which is worse than not checking, because the honest response to it is to stop trusting the checker.
 12k. **A release by a transition that held nothing RAISES**: hand-build a `ClaimReleased` for an Attempt whose terminal came from a pre-claim state. It is the mirror of 12j and cannot be conflated with it — the same missing/extra partner, opposite verdicts, decided only by the Attempt's state at that point.
 12l. **Both halves present but committed SEPARATELY raises.** Write a claim's two records with two successive `append` calls instead of one `append_many`, then check: everything a presence-only test looks at is satisfied, and the transaction the matrix promises never happened. This is what `events_by_commit` is for, and it is the guard against a future refactor quietly re-splitting a transaction while the audit stays green.
 12m. **`cas_release` reports the generation of the claim it released, not the counter's**: claim P1/A1 (generation 1), release it, claim P2/A2 (generation 2), then re-invoke the FIRST `cas_release` verbatim. Assert `generation == 1`, `created is False`, and that `owner_problem_id`/`owner_attempt_id` still name P2/A2. `ClaimReleased` carries no generation of its own, so this passes only if the value came from the claim's `ClaimAcquired` — the release-side twin of case 9, and the only way to catch a `cas_release` that answered from `LaneCoordinator.claim_generation` and handed a caller the NEXT holder's fencing token.
 12n. **An illegal COMPLETED history is refused by the auditor, not audited.** Hand-build a Problem stream whose Attempt goes `Proposed → Implementing` (skipping the claim), then run `assert_lane_consistent`. It must raise, because `walk_attempt` is the same fail-closed fold `project_attempt` uses. An auditor with its own `state = transition.to_state` loop reports this lane healthy AND misclassifies effect applicability while doing it — the second interpreter is the bug, not the missing check.
 12o. **Commit attribution is keyed by `(stream, event_id)`.** Assert directly on `events_by_commit`: every key is a 2-tuple whose first element is a real stream (`COORDINATOR_STREAM` or a Problem id), a claim's two records map to the SAME commit under their two different stream keys, and the mapping's size equals the total event count across all streams — which a bare-id keying would silently undercount the moment two streams shared an id.
+12p. **Row 1 joins the shared suites.** Add row 1 to the lost-ack parameterization (Task 6's test 13), to the delayed replay (13b, with its own `later_activity`: the lane is HELD after a claim, so the unrelated activity goes on a second Problem's stream), and to the damage classes (14). Also add assertion (e) — `assert_lane_consistent` passes — to test 13's body for ALL rows, now that the auditor exists; Task 6 deliberately left it out rather than writing a test it could not run.
 13. **It is not vacuous.** With an empty `problem_ids` and a lane carrying an orphaned coordinator record, it still raises (the orphan sweep runs over the coordinator stream regardless of what was scanned) — and `list_problem_streams` on a repo with three Problems returns three ids. A consistency checker that passes on an empty scan is worse than none, so the emptiness is tested rather than assumed.
 14. **Every `_PAIRINGS` entry is exercised, on BOTH sides of its condition**: a parameterized test asserts that, for each pairing in turn, removing the coordinator partner *from a transaction where it was required* raises — so a rule that is declared but never reachable is a failing test rather than dead configuration — and that each `requires_prior_hold` pairing ACCEPTS the same Attempt event written from a non-holding state. One-sided parameterization is how the false positive in 12j survived review: every removal test passed, because they all ran on histories where the partner was genuinely required. And `{r for p in _PAIRINGS for r in p.rows}` covers every matrix row that writes to both streams — the matrix and the checker cannot drift apart silently.
 
@@ -3445,38 +3677,24 @@ def _acquired_for(coordinator_events: list[Event], problem_id: str,
     return acquired
 
 
-def _validate_claim_pair(acquired: Event, granted: Event, problem_id: str,
-                         attempt_id: str) -> None:
-    """Everything that makes a stored claim pair well-formed, checked BEFORE it is reused.
+def _validate_claim_pair(repo: Path, acquired: Event, granted: Event, problem_id: str,
+                         attempt_id: str, *, config: LaneLogConfig | None = None) -> None:
+    """Row 1's stored pair, checked BEFORE it is reused — through the shared check.
 
-    Shares `_CLAIM_PAIR_FIELDS` with `_PAIRINGS` row 1 deliberately: the write boundary and
-    the auditor are checking one notion of well-formedness, and two lists of fields would
-    become two notions the first time somebody added a term to only one of them."""
-    for event, expected_type, stream in ((acquired, "ClaimAcquired", COORDINATOR_STREAM),
-                                         (granted, "ClaimGranted", problem_id)):
-        if event.event_type != expected_type or event.problem_id != stream:
-            raise LaneInconsistent(
-                f"claim {problem_id}/{attempt_id}: expected {expected_type} on {stream!r}, "
-                f"found {event.event_type} on {event.problem_id!r}")
-        if (payload_field(event, "problem_id"), payload_field(event, "attempt_id")) != (
-                problem_id, attempt_id):
-            raise LaneInconsistent(
-                f"claim {problem_id}/{attempt_id}: {event.event_type} names "
-                f"{payload_field(event, 'problem_id')}/"
-                f"{payload_field(event, 'attempt_id')} instead")
-    for field in _CLAIM_PAIR_FIELDS:
-        if payload_field(acquired, field) != payload_field(granted, field):
-            raise LaneInconsistent(
-                f"claim {problem_id}/{attempt_id}: {field} is "
-                f"{payload_field(acquired, field)!r} on ClaimAcquired and "
-                f"{payload_field(granted, field)!r} on ClaimGranted — one transaction "
-                "wrote both from one `body`, so they cannot disagree")
-    if (acquired.actor, acquired.timestamp) != (granted.actor, granted.timestamp):
-        raise LaneInconsistent(
-            f"claim {problem_id}/{attempt_id}: the halves disagree on actor/timestamp "
-            f"({acquired.actor}@{acquired.timestamp} vs {granted.actor}@"
-            f"{granted.timestamp}); the replay path reuses both verbatim, so a disagreement "
-            "here would be carried forward as fact")
+    A wrapper, not a second implementation: a claim pair IS a pairing, with `ClaimGranted`
+    on the Problem stream as the anchor and `ClaimAcquired` on the coordinator as the
+    partner, sharing `_CLAIM_PAIR_FIELDS` — the same tuple `_PAIRINGS` row 1 declares, so
+    the write boundary and the auditor cannot come to hold two notions of what a
+    well-formed claim is.
+
+    Row 1 keeps its OWN half-presence logic in `cas_claim` (the bidirectional check, which
+    must also catch a lone `ClaimAcquired`), and delegates only the both-present case here.
+    That split is the reason this wrapper exists rather than a direct call."""
+    assert_partner_intact(
+        anchor=granted, partner=acquired, anchor_event="ClaimGranted",
+        coordinator_event="ClaimAcquired", compare=_CLAIM_PAIR_FIELDS,
+        commit_of=events_by_commit(repo, config=config),
+        problem_id=problem_id, attempt_id=attempt_id)
 ```
 
 - `cas_claim` gains a required `terms: ClaimTerms` keyword and becomes transactional:
@@ -3484,7 +3702,9 @@ def _validate_claim_pair(acquired: Event, granted: Event, problem_id: str,
 ```python
 def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str,
               timestamp: str, terms: ClaimTerms,
-              config: LaneLogConfig | None = None) -> ClaimOutcome:
+              config: LaneLogConfig | None = None,
+              _after_parent: Seam = None, _before_ref_update: Seam = None,
+              _after_push: Seam = None) -> ClaimOutcome:
     """Take the singleton lane for ``(problem_id, attempt_id)`` and move that Attempt to
     ``claimed`` — ONE transaction over the coordinator and Problem subtrees.
 
@@ -3521,12 +3741,13 @@ def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str,
         # Reusing them verbatim is why they must be VALIDATED here. `append_many` compares
         # each stored event against itself, so it is a tautology on this path: a pair whose
         # halves disagree — mismatched generation, terms edited by a hand repair, a grant
-        # naming another Attempt — would replay "successfully" and be reported as a live
-        # claim. `assert_lane_consistent` would catch it eventually, but a direct `cas_claim`
-        # can return long before any audit runs, and a corrupt claim is exactly the thing a
-        # caller must never be handed.
+        # naming another Attempt, or two halves added by two DIFFERENT COMMITS — would
+        # replay "successfully" and be reported as a live claim. `assert_lane_consistent`
+        # would catch it eventually, but a direct `cas_claim` can return long before any
+        # audit runs, and a corrupt claim is exactly the thing a caller must never be
+        # handed. So it runs the auditor's own check on this one pair, now.
         acquired, granted = stored
-        _validate_claim_pair(acquired, granted, problem_id, attempt_id)
+        _validate_claim_pair(repo, acquired, granted, problem_id, attempt_id, config=config)
     elif any(stored):
         # Exactly one half present, which no transaction could have produced. Refuse here
         # rather than reconstructing the missing half from the surviving one — that would
@@ -3564,7 +3785,9 @@ def cas_claim(repo: Path, *, problem_id: str, attempt_id: str, actor: str,
     result = append_many(repo, [acquired, granted],
                          expected_revisions={COORDINATOR_STREAM: current.lane_revision,
                                              problem_id: len(problem_events)},
-                         precondition=_free_and_verified, config=config)
+                         precondition=_free_and_verified, config=config,
+                         _after_parent=_after_parent,
+                         _before_ref_update=_before_ref_update, _after_push=_after_push)
     # Ownership comes from the CURRENT projection — "who holds the lane now" is a question
     # about now. Generation and `created` come from THIS transaction and its own event
     # pair, because they are questions about THIS claim, and after a release-and-regrant
@@ -3669,46 +3892,10 @@ _PAIRINGS: tuple[_Pairing, ...] = (
 )
 ```
 
-In `lane_log.py`, beside `list_problem_streams` — the ref and its layout are that module's
-knowledge, and the coordinator should no more shell out to git than it should parse a tree:
+`events_by_commit` is Task 6's (it is what that task's replay integrity check reads); this
+task adds `list_problem_streams` beside it and becomes its second caller.
 
-```python
-def events_by_commit(
-    repo: Path, config: LaneLogConfig | None = None
-) -> dict[tuple[str, str], str]:
-    """``{(stream, event_id): commit}`` for every event on the lane ref, in ONE traversal.
-
-    Each event is its own blob at ``<event_dir>/<event_id>.json``
-    (`git_event_log._append_commit`) and the ref is append-only and linear, so
-    ``--diff-filter=A`` attributes every record to the commit that introduced it, exactly.
-    This is what makes "written by ONE transaction" checkable after the fact rather than
-    merely asserted: two events in one commit were committed together, and no later edit
-    can make two separate commits look like one.
-
-    Keyed by the PAIR, matching `TransactionResult.seqs` and the store's own notion of
-    identity: an id is unique within a stream, and the same id on two streams is a
-    different record. Keying on the bare id would let one silently overwrite the other and
-    produce a same-commit verdict about the wrong event — a false PASS in the checker whose
-    job is to disbelieve.
-
-    The NUL-prefixed format matters — an event id is a hex digest and would be
-    indistinguishable from a bare ``%H`` line, and a path can never begin with NUL."""
-    proc = _git(["log", "--reverse", "--format=%x00%H", "--name-only", "--diff-filter=A",
-                 LANE_REF], cwd=repo,
-                identity=_log_ref(COORDINATOR_STREAM, config).git_identity, check=False)
-    if proc.returncode != 0:          # no ref yet → no events, not an error
-        return {}
-    added, commit = {}, ""
-    for line in proc.stdout.splitlines():
-        if line.startswith("\x00"):
-            commit = line[1:]
-        elif line.endswith(".json"):
-            path = PurePosixPath(line)      # …/events/<stream>/<event_id>.json
-            added[(path.parent.name, path.stem)] = commit
-    return added
-```
-
-Back in `coordinator.py`, the orphan sweep and the checker itself:
+In `coordinator.py`, the orphan sweep and the checker itself:
 
 ```python
 #: Coordinator types that MUST have an Attempt-side partner. Derived from `_PAIRINGS`, so a
@@ -3729,10 +3916,12 @@ def assert_lane_consistent(repo: Path, *, problem_ids: Iterable[str],
 
     1. **Pairing over all history.** For every Attempt-side fact that a matrix row pairs
        with a coordinator record, and for which the pairing was REQUIRED — the row is
-       unconditional, or the Attempt held the lane at that point — the partner exists (by
-       derived id), was added by the SAME commit, and agrees on the fields the row says are
-       shared; where it was not required, no partner exists; and every coordinator
-       claim/release/monitor record is consumed by exactly one such pair. This catches
+       unconditional, or the Attempt held the lane at that point — the partner passes
+       `assert_partner_intact`: it exists at the derived id, is the declared type on the
+       coordinator stream, names this Problem and Attempt, was added by the SAME commit,
+       and agrees on the row's shared fields and on actor/timestamp. Where the pairing was
+       not required, no partner exists; and every coordinator claim/release/monitor record
+       is consumed by exactly one such pair. This catches
        half-states in COMPLETED claims, which no projection retains — a released claim
        leaves no current state, so a state-based check cannot see that its grant was
        removed.
@@ -3792,40 +3981,17 @@ def assert_lane_consistent(repo: Path, *, problem_ids: Iterable[str],
                                 f"{pairing.coordinator_event} for an Attempt that did not "
                                 "hold the lane released somebody else's claim")
                         continue
-                    if partner is None:
-                        raise LaneInconsistent(
-                            f"{problem_id}/{attempt_id} has {event.event_type} but the "
-                            f"coordinator has no {pairing.coordinator_event} for it — "
-                            "half a transaction, which nothing that writes this lane can "
-                            "produce")
-                    if partner.event_type != pairing.coordinator_event:
-                        raise LaneInconsistent(
-                            f"{partner_id} is {partner.event_type}, expected "
-                            f"{pairing.coordinator_event}")
-                    # Scoped by (stream, id) — the store's identity, not the bare id.
-                    attempt_commit = commit_of.get((problem_id, event.event_id))
-                    partner_commit = commit_of.get((COORDINATOR_STREAM, partner_id))
-                    if attempt_commit is None or partner_commit is None:
-                        raise LaneInconsistent(
-                            f"{problem_id}/{attempt_id}: no commit introduces "
-                            f"{event.event_type} or its {pairing.coordinator_event} — the "
-                            "ref does not contain a record that `read` returned")
-                    if attempt_commit != partner_commit:
-                        # Both present is not the invariant; both present IN ONE COMMIT is.
-                        # Presence alone would accept a regression that re-split the write,
-                        # reintroducing the crash window with the audit still green.
-                        raise LaneInconsistent(
-                            f"{problem_id}/{attempt_id}: {event.event_type} was added by "
-                            f"{attempt_commit} and its {pairing.coordinator_event} by "
-                            f"{partner_commit} — the matrix says one transaction writes both")
-                    for field in pairing.compare:
-                        if payload_field(partner, field) != payload_field(event, field):
-                            raise LaneInconsistent(
-                                f"{problem_id}/{attempt_id}: {field} is "
-                                f"{payload_field(event, field)!r} on {event.event_type} "
-                                f"and {payload_field(partner, field)!r} on "
-                                f"{partner.event_type} — one transaction wrote both, so "
-                                "they cannot disagree")
+                    # Presence, type, identity, ONE introducing commit, and the shared
+                    # fields — the same function the writer's replay paths call. The
+                    # auditor's independence comes from its INPUT (all history, including
+                    # completed claims no projection retains), not from a private copy of
+                    # the check; a private copy is how the writer's copy came to be the
+                    # weaker of the two.
+                    assert_partner_intact(
+                        anchor=event, partner=partner,
+                        coordinator_event=pairing.coordinator_event,
+                        compare=pairing.compare, commit_of=commit_of,
+                        problem_id=problem_id, attempt_id=attempt_id)
                     consumed.add(partner_id)
 
     orphans = sorted(
@@ -3997,7 +4163,7 @@ PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -o src/llmxive/self_improvement/intents.
 - Test: `tests/integration/test_self_improvement_claim_liveness.py`
 
 **Interfaces:**
-- Consumes: `append_many` (Task 2), `unreconciled_intents` (Task 8), `AuthoritativeClock.sample_uncertainty_s` (Task 3), `policy.MAX_CLOCK_SKEW_S` (Task 3).
+- Consumes: `append_many` + `Seam` (Task 2), `unreconciled_intents` (Task 8), `AuthoritativeClock.sample_uncertainty_s` (Task 3), `policy.MAX_CLOCK_SKEW_S` (Task 3).
 - Produces: `cas_heartbeat`, `cas_reclaim`, `MAX_CLAIM_HOLD_TIME_S` and the phase budgets it derives from, the counter caps, `reclaimable`.
 
 There is deliberately **no** `cas_release_terminal`. An Attempt that is terminal while its
@@ -4063,6 +4229,7 @@ Time is injected via `FixedAnchorClock` driven by a controllable monotonic sourc
 
     **This replaced a `raises`.** An earlier draft asserted the retry RAISED, on the reasoning that the lane is free so there is nothing to expire. That reads the post-condition as a rejection: after a lost acknowledgement "the lane is free" is precisely the durable result the caller is retrying to discover, and raising makes a reclaim that SUCCEEDED indistinguishable from one that was never valid. It also contradicted this plan's own Global Constraint — "a retry after a lost acknowledgement is a no-op returning the stored result" — in the one operation whose entire purpose is recovering from a crashed run. Reclaim gets the same replay path as every other row: locate the stored transaction, verify it is complete, return it.
 6b. **The lost acknowledgement is exercised for real, under a different actor**: kill `cas_reclaim` at `_after_push`, then re-invoke from a second actor. Assert `created=False`, no new events on either stream, and that the STORED records still name the original actor. A reclaim is by definition run by a different process than the one that died, so the cross-runner case is the only case that matters here.
+6c. **Row 3 joins the shared suites.** Add it to the lost-ack parameterization (Task 6's test 13), to the delayed replay (13b — the lane is free after a reclaim, so a second Problem claims it before the retry), and to the damage classes (14: partner missing, wrong record at the derived id, disagreeing `actor`/`timestamp`, and separately committed). Reclaim is the row most likely to be retried — it exists because a run died — so it is the last row that may be exempted from the shared contract.
 7. `cas_reclaim` on an Attempt with an unreconciled intent is REFUSED (Task 8's `unreconciled_intents`, already available).
 8. A reclaim crashing at `_before_ref_update` leaves the Attempt non-terminal AND the lane still held by the original — never a terminal with a live claim, nor a free lane with a running Attempt.
 9. The reclaimer's `sample_uncertainty_s` is ADDED to the skew margin: a clock reporting ±30 s of sampling uncertainty needs 30 s more elapsed time before the same claim becomes reclaimable. Imprecision must never make eviction happen sooner.
@@ -4120,9 +4287,20 @@ because of (a) and (c): those preconditions are the reclaim, and a caller that c
 a test asserts that.
 
 It returns a `TransitionOutcome` (Task 4), the same shape rows 2 and 4 return, and it takes
-the same replay path: a stored `ClaimExpired` means the reclaim already landed, so locate
-its `ClaimReleased` partner by derived id, refuse if that half is missing, and otherwise
-return `created=False` with the stored projection. Reclaim is the operation MOST likely to
+the same replay path — literally the same function: `replayed_transaction(repo, stored,
+("ClaimReleased",), coordinator_events, problem_id=..., attempt_id=..., required=True,
+config=config)` — `required=True` unconditionally, because `ClaimExpired` is legal only
+from claim-holding states, so a reclaim that landed necessarily released — so
+a stored `ClaimExpired` whose partner is missing, malformed, or separately committed is
+refused here on exactly the terms rows 2 and 4 are, and an intact one returns
+`created=False` with the stored projection.
+
+Its signature carries the three crash seams (`_after_parent`, `_before_ref_update`,
+`_after_push`, typed `Seam`), forwarded verbatim to its single `append_many` — case 6b
+below kills it at `_after_push`, which it cannot do through a parameter the function does
+not accept. Both events are built from ONE `actor` and ONE timestamp, like every other
+row: `assert_partner_intact` checks that agreement on replay, and a reclaim that stamped
+its halves separately would fail its own retry. Reclaim is the operation MOST likely to
 be retried after a lost acknowledgement — it exists because a run died — so it is the last
 place a successful transaction may be reported as a failure.
 
