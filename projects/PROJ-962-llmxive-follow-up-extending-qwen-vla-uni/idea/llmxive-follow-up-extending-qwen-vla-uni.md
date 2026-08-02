@@ -9,44 +9,33 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can the semantic "action priors" learned by large-scale Vision-Language-Action (VLA) models during their text-to-action pretraining stage be effectively distilled into a lightweight, non-neural rule-based planner that generates feasible trajectories on CPU-only hardware without sacrificing task success rates on standard manipulation benchmarks?
+To what extent do the semantic action priors learned by large-scale Vision-Language-Action models exhibit structural regularities that can be captured by interpretable, non-neural representations, and what is the fundamental trade-off between the complexity of these representations and the fidelity of trajectory generation on standard manipulation tasks?
 
 ## Motivation
 
-Current VLA models like Qwen-VLA achieve strong generalization through massive parameter counts and GPU-intensive inference, creating a barrier for deployment on edge devices or in resource-constrained robotics. Understanding whether the complex, continuous action distributions captured by these models can be compressed into explicit, interpretable logical constraints would enable embodied reasoning on hardware with zero GPU acceleration, significantly lowering the cost and latency of robotic control systems.
+Current VLA models achieve robust generalization but require massive GPU resources, creating a deployment barrier for edge robotics. Determining whether the complex action distributions learned by these models can be approximated by lightweight, rule-based or probabilistic systems is critical for understanding if high-performance robotic control fundamentally depends on neural computation or if the underlying "common sense" of action can be codified into interpretable logic.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-We queried Semantic Scholar, arXiv, and OpenAlex using the following distinct queries: (1) "VLA model distillation to rule-based planner" and "text-to-action prior compression," and (2) "lightweight VLA inference CPU" and "tiny-scale VLA model architecture." The search returned five recent preprints (2025–2026) focused on VLA enhancements, but none specifically addressed the distillation of continuous action priors into non-neural, rule-based systems.
-
-### What is known
-- [VLA-Adapter: An Effective Paradigm for Tiny-Scale Vision-Language-Action Model (2025)](https://arxiv.org/abs/2509.09372) — This work proposes architectural modifications to reduce the parameter count of VLA models for small-scale deployment, but it retains the neural network backbone rather than replacing it with rule-based logic.
-- [Your Vision-Language-Action Model Already Has Attention Heads For Path Deviation Detection (2026)](https://arxiv.org/abs/2603.13782) — This paper identifies that existing VLAs contain internal mechanisms for specific reasoning tasks (like path deviation), suggesting that latent priors exist, but it does not investigate extracting these into external, non-neural planners.
-- [VLA-Thinker: Boosting Vision-Language-Action Models through Thinking-with-Image Reasoning (2026)](https://arxiv.org/abs/2603.14523) — This research enhances VLA reasoning capabilities through visual chain-of-thought, focusing on improving neural model performance rather than distilling its knowledge into symbolic or heuristic systems.
-
-### What is NOT known
-There is no published work that quantifies the fidelity of distilling the "text-to-action" priors of a large VLA into a purely rule-based or probabilistic non-neural model. Specifically, it is unknown whether a CPU-tractable decision tree or Gaussian mixture model can approximate the trajectory distributions of a DiT-based VLA decoder well enough to achieve >60% success on manipulation tasks, or if the continuous nature of the action space inherently requires neural inference.
-
-### Why this gap matters
-Filling this gap would determine whether high-performance robotic control is fundamentally dependent on massive neural compute or if the underlying "common sense" of action can be codified into lightweight, interpretable logic. This is critical for deploying robots in edge environments (e.g., agriculture, disaster response) where GPU access is unavailable or unreliable.
-
-### How this project addresses the gap
-This project directly tests the compressibility of VLA action priors by extracting 10,000 trajectory samples from a Qwen-VLA training set, clustering them by instruction, and fitting non-neural probabilistic models to approximate the action distributions. The resulting CPU-only engine will be evaluated against physics simulations to measure the trade-off between model complexity and task success rate, providing the first empirical evidence on the feasibility of rule-based VLA distillation.
+- [Long-VLA: Unleashing Long-Horizon Capability of Vision Language Action Model for Robot Manipulation (2025)](https://arxiv.org/abs/2508.19958) — Establishes the dominance of large-scale VLA frameworks for scalable control but highlights the computational overhead that motivates the search for efficient alternatives.
+- [Your Vision-Language-Action Model Already Has Attention Heads For Path Deviation Detection (2026)](https://arxiv.org/abs/2603.13782) — Demonstrates that specific semantic reasoning capabilities (like path deviation) exist as identifiable internal mechanisms, suggesting that latent priors could potentially be extracted into external, non-neural planners.
+- [Compositional Context Fine-Tuning Vision-Language Model for Complex Assembly Action Understanding from Videos (2026)](https://arxiv.org/abs/2607.10797) — Addresses the challenge of fine-grained action understanding in assembly tasks, providing a domain context where structural regularities in action sequences are crucial for success.
+- [BLURR: A Boosted Low-Resource Inference for Vision-Language-Action Models (2025)](https://arxiv.org/abs/2512.11769) — Focuses on optimizing inference stacks for low-resource environments, but retains the neural architecture rather than exploring a paradigm shift to non-neural rule-based logic.
+- [VLA-Thinker: Boosting Vision-Language-Action Models through Thinking-with-Image Reasoning (2026)](https://arxiv.org/abs/2603.14523) — Enhances VLA reasoning via visual chain-of-thought, reinforcing the neural approach to improving performance rather than distilling knowledge into symbolic systems.
 
 ## Expected results
 
-We expect the distilled CPU model to achieve approximately 60–70% of the original Qwen-VLA's success rate on simple manipulation tasks (e.g., grasping, basic navigation) while reducing inference latency by 3–4 orders of magnitude. This would confirm that the T2A stage captures sufficient structural priors to be represented by lightweight logic for specific task classes, while also identifying the complexity threshold where non-neural approximations fail.
+We expect to identify a specific complexity threshold where non-neural approximations (e.g., decision trees or Gaussian mixtures) can capture >60% of the trajectory fidelity of the original VLA for simple manipulation tasks, while failing significantly for high-horizon or fine-grained tasks. This would confirm that structural regularities exist in the action priors but are bounded by the expressivity of the representation, providing empirical evidence on the limits of rule-based robotic control.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the Qwen-VLA training dataset (text instructions and corresponding action sequences) and ground-truth demonstration data from the official repository or linked Zenodo/UCI source (e.g., `https://huggingface.co/datasets/qwen-vla/robotics` or equivalent public mirror).
+- **Data Acquisition**: Download the Qwen-VLA training dataset (text instructions and corresponding action sequences) and ground-truth demonstration data from the official HuggingFace repository (`https://huggingface.co/datasets/qwen-vla/robotics` or equivalent public mirror) to ensure reproducibility on CPU-only runners.
 - **Trajectory Extraction & Clustering**: Extract 10,000 samples of (text instruction, action sequence) pairs; cluster the action sequences using K-means (k=50) based on kinematic features (velocity, acceleration, joint angles) to group similar motor behaviors.
 - **Non-Neural Model Fitting**: For each cluster, fit a lightweight probabilistic model (e.g., a Decision Tree regressor for discrete constraints or a Gaussian Mixture Model for continuous distributions) to map text embeddings (via a frozen, small BERT encoder) to the cluster's action distribution.
 - **CPU Inference Engine Implementation**: Construct a Python-based inference engine that, given a new text prompt, encodes it, selects the nearest cluster via the fitted models, and samples a trajectory using the cluster's non-neural distribution, bypassing the DiT backbone entirely.
-- **Simulation & Evaluation**: Load the generated trajectories into a CPU-only physics simulator (PyBullet or MuJoCo with CPU backend); execute the trajectories for 100 test prompts per task type (grasp, navigate, place) and measure task success rate and kinematic feasibility (e.g., collision count).
-- **Statistical Comparison**: Perform a paired t-test comparing the success rates of the distilled CPU model against a random sampling baseline and a subset of the original Qwen-VLA (run on a remote GPU if necessary, or simulated via the paper's reported metrics) to determine statistical significance of the performance drop.
-- **Independence Check**: Ensure the evaluation metric (task success in simulator) is independent of the training inputs (text-action pairs) by using a held-out test set of instructions and physical constraints not used during the model fitting stage.
+- **Simulation & Evaluation**: Load the generated trajectories into a CPU-only physics simulator (PyBullet); execute the trajectories for 100 test prompts per task type (grasp, navigate, place) and measure task success rate and kinematic feasibility (e.g., collision count).
+- **Statistical Comparison**: Perform a paired t-test comparing the success rates of the distilled CPU model against a random sampling baseline and a subset of the original Qwen-VLA (using reported metrics or a simulated proxy) to determine statistical significance of the performance drop.
+- **Validation Independence**: Ensure the evaluation metric (task success in simulator) is strictly independent of the training inputs by using a held-out test set of instructions and physical constraints not used during the model fitting stage, avoiding circular validation where the output is a direct function of the input features.
 
 ## Duplicate-check
 
@@ -57,41 +46,42 @@ We expect the distilled CPU model to achieve approximately 60–70% of the origi
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-10T10:26:11Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-02T12:35:35Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Envir" computer science
-**Verified citation count**: 5
+**Verified citation count**: 6
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "Qwen-VLA: Unifying Vision-Language-Action Modeling across Tasks, Envir" computer science | 0 |
-| 1 | Vision-Language-Action (VLA) models | 5 |
-| 2 | Embodied AI foundation models | 0 |
-| 3 | Multimodal action generation | 0 |
-| 4 | Unified vision-language-action frameworks | 0 |
-| 5 | Large language models for robotics | 0 |
-| 6 | Cross-task generalization in VLA | 0 |
-| 7 | Vision-language-action pretraining | 0 |
-| 8 | Multimodal policy learning | 0 |
-| 9 | Generalist robot agents | 0 |
-| 10 | Action tokenization in VLA | 0 |
-| 11 | Cross-embodiment VLA transfer | 0 |
-| 12 | Multimodal world models for control | 0 |
-| 13 | Vision-language-action reasoning | 0 |
-| 14 | Open-vocabulary robotic manipulation | 0 |
-| 15 | Hierarchical VLA architectures | 0 |
-| 16 | Multimodal instruction following | 0 |
-| 17 | Robot foundation models | 0 |
-| 18 | End-to-end vision-language-action learning | 0 |
-| 19 | Multimodal imitation learning | 0 |
-| 20 | Task-agnostic robotic control | 0 |
+| 1 | vision-language-action models | 5 |
+| 2 | embodied AI with multimodal foundation models | 0 |
+| 3 | unified VLA architectures for robotics | 0 |
+| 4 | Qwen-VLA model extensions | 0 |
+| 5 | multimodal large language models for control | 0 |
+| 6 | vision-language-action pretraining | 0 |
+| 7 | robotic policy learning with VLMs | 0 |
+| 8 | cross-task generalization in embodied agents | 0 |
+| 9 | multimodal transformers for robot manipulation | 0 |
+| 10 | action generation from vision and language | 0 |
+| 11 | foundation models for embodied intelligence | 0 |
+| 12 | visual instruction tuning for robotics | 0 |
+| 13 | generalist robot agents using LLMs | 0 |
+| 14 | multimodal alignment for action planning | 0 |
+| 15 | end-to-end vision-language-action learning | 0 |
+| 16 | large-scale robotic policy unification | 0 |
+| 17 | multimodal reasoning for physical interaction | 0 |
+| 18 | transfer learning in vision-language-action domains | 0 |
+| 19 | open-vocabulary robot control with VLMs | 0 |
+| 20 | hierarchical VLA frameworks for diverse environments | 0 |
 
 ### Verified citations
 
-1. **VLA-Thinker: Boosting Vision-Language-Action Models through Thinking-with-Image Reasoning** (2026). Chaoyang Wang, Wenrui Bao, Sicheng Gao, Bingxin Xu, Yu Tian, et al.. arXiv. [2603.14523](https://arxiv.org/abs/2603.14523). PDF-sampled: No.
-2. **VLA-Adapter: An Effective Paradigm for Tiny-Scale Vision-Language-Action Model** (2025). Yihao Wang, Pengxiang Ding, Lingxiao Li, Can Cui, Zirui Ge, et al.. arXiv. [2509.09372](https://arxiv.org/abs/2509.09372). PDF-sampled: No.
-3. **Your Vision-Language-Action Model Already Has Attention Heads For Path Deviation Detection** (2026). Jaehwan Jeong, Evelyn Zhu, Jinying Lin, Emmanuel Jaimes, Tuan-Anh Vu, et al.. arXiv. [2603.13782](https://arxiv.org/abs/2603.13782). PDF-sampled: No.
-4. **Impromptu VLA: Open Weights and Open Data for Driving Vision-Language-Action Models** (2025). Haohan Chi, Huan-ang Gao, Ziming Liu, Jianing Liu, Chenyu Liu, et al.. arXiv. [2505.23757](https://arxiv.org/abs/2505.23757). PDF-sampled: No.
-5. **E-VLA: Event-Augmented Vision-Language-Action Model for Dark and Blurred Scenes** (2026). Jiajun Zhai, Hao Shi, Shangwei Guo, Kailun Yang, Kaiwei Wang. arXiv. [2604.04834](https://arxiv.org/abs/2604.04834). PDF-sampled: No.
+1. **Long-VLA: Unleashing Long-Horizon Capability of Vision Language Action Model for Robot Manipulation** (2025). Yiguo Fan, Pengxiang Ding, Shuanghao Bai, Xinyang Tong, Yuyang Zhu, et al.. arXiv. [2508.19958](https://arxiv.org/abs/2508.19958). PDF-sampled: No.
+2. **Your Vision-Language-Action Model Already Has Attention Heads For Path Deviation Detection** (2026). Jaehwan Jeong, Evelyn Zhu, Jinying Lin, Emmanuel Jaimes, Tuan-Anh Vu, et al.. arXiv. [2603.13782](https://arxiv.org/abs/2603.13782). PDF-sampled: No.
+3. **Compositional Context Fine-Tuning Vision-Language Model for Complex Assembly Action Understanding from Videos** (2026). Hao Zheng, Jinyi Huang, Tiantian Zheng, Xun Xu, Tuka Alhanai. arXiv. [2607.10797](https://arxiv.org/abs/2607.10797). PDF-sampled: No.
+4. **BLURR: A Boosted Low-Resource Inference for Vision-Language-Action Models** (2025). Xiaoyu Ma, Zhengqing Yuan, Zheyuan Zhang, Kaiwen Shi, Lichao Sun, et al.. arXiv. [2512.11769](https://arxiv.org/abs/2512.11769). PDF-sampled: No.
+5. **VLA-Thinker: Boosting Vision-Language-Action Models through Thinking-with-Image Reasoning** (2026). Chaoyang Wang, Wenrui Bao, Sicheng Gao, Bingxin Xu, Yu Tian, et al.. arXiv. [2603.14523](https://arxiv.org/abs/2603.14523). PDF-sampled: No.
+6. **ACoT-VLA: Action Chain-of-Thought for Vision-Language-Action Models** (2026). Linqing Zhong, Yi Liu, Yifei Wei, Ziyu Xiong, Maoqing Yao, et al.. arXiv. [2601.11404](https://arxiv.org/abs/2601.11404). PDF-sampled: No.

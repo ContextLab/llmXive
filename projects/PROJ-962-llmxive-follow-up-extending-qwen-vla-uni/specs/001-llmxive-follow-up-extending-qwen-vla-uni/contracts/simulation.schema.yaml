@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Result Schema"
+description: "Schema for the output of the PyBullet simulation evaluation."
+type: "object"
+required:
+  - "prompt_id"
+  - "task_type"
+  - "model_used"
+  - "success"
+  - "collision_count"
+  - "execution_time_ms"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Unique identifier for the test prompt."
+  task_type:
+    type: "string"
+    description: "Category of the task executed."
+    enum:
+      - "grasp"
+      - "navigate"
+      - "place"
+  model_used:
+    type: "string"
+    description: "Name of the model used for generation."
+    enum:
+      - "NonNeural"
+      - "Random"
+      - "VLA_Proxy"
+  success:
+    type: "boolean"
+    description: "Whether the task was completed successfully in simulation."
+  collision_count:
+    type: "integer"
+    description: "Number of collisions detected during execution."
+    minimum: 0
+  execution_time_ms:
+    type: "number"
+    description: "Time taken to execute the trajectory in milliseconds."
+    minimum: 0
+  fidelity_score:
+    type: "number"
+    description: "Calculated fidelity score (0.0 to 1.0) against the VLA proxy."
+    minimum: 0.0
+    maximum: 1.0
+  error_log:
+    type: "string"
+    description: "Optional error message if the simulation failed unexpectedly."
+additionalProperties: false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.10797",
+  "judged_at": "2026-08-02T12:35:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-vla: unifying vision-language-action modeling across tasks, envir\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the core mechanism of \"Vision-Language-Action (VLA) modeling\" and the specific domain of \"action understanding\" in robotics, which are the central components of the user's question regarding extending VLA models. Although it focuses on assembly tasks rather than the specific \"Qwen\" architecture mentioned, it provides the canonical prior work on the VLA mechanism and the empirical population (assembly videos) that a literature rev",
+  "relevant": true
+}
