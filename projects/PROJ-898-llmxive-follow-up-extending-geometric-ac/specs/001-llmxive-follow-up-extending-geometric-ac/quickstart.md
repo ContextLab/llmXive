@@ -2,86 +2,89 @@
 
 ## Prerequisites
 
-- **Python**: 3.10 or higher
-- **System Dependencies**: `gcc`, `g++` (for compiling PyBullet extensions if necessary)
-- **Hardware**: 2-core CPU, 8GB RAM (minimum), no GPU required.
+-   **Python**: 3.11+
+-   **OS**: Linux (Ubuntu 20.04+ recommended for PyBullet compatibility)
+-   **Memory**: > 7 GB RAM
+-   **Disk**: > 14 GB free space
 
 ## Installation
 
-1. **Clone the Repository** (if not already done):
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-898-llmxive-follow-up-extending-geometric-ac
-   ```
+1.  **Clone and Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-898-llmxive-follow-up-extending-geometric-ac
+    python -m venv venv
+    source venv/bin/activate
+    ```
 
-2. **Create a Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Dependencies include: `pybullet`, `torch`, `cvxpy`, `scipy`, `datasets`, `pandas`, `pytest`, `lifelines`.*
 
-3. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note*: Ensure `pybullet`, `torch`, `cvxpy`, and `scipy` are installed.
+3.  **Verify Environment**:
+    ```bash
+    python -c "import pybullet; import torch; print('Environment OK')"
+    ```
 
-4. **Verify Environment**:
-   ```bash
-   python -c "import pybullet; import torch; print('Environment OK')"
-   ```
+## Data Preparation
 
-## Configuration
+1.  **Download GFM Weights (Phase 0.1)**:
+    The script `code/data/loader.py` will automatically download the GFM weights from the verified source `GFM-Bench/3D-Robotics` if `data/raw/gfm_weights.pt` is missing.
+    ```bash
+    python code/data/loader.py --download
+    ```
+    *This fetches weights from `https://huggingface.co/GFM-Bench/3D-Robotics`.*
 
-Edit `code/config.yaml` to set:
-- `random_seed`: Fixed integer (e.g., 42).
-- `solver_timeout`: Max seconds per step (default: 300).
-- `num_trials`: Number of trials per condition (default: 50).
-- `gfm_weights_path`: Path to the frozen GFM weights (must exist in `data/raw/`).
+2.  **Generate Synthetic Test Set (Phase 1)**:
+    ```bash
+    python code/data/generator.py --num-topologies 50 --seed 42
+    ```
+    *This creates `data/generated/topology_shift_set/`, verifies uniqueness, and generates `data/raw/gam_reference_stats.json`.*
 
-## Running the Pipeline
+3.  **Run Pilot Study (Phase 0.2)**:
+    ```bash
+    python code/eval/runner.py --method symbolic --trials 5 --pilot
+    ```
+    *This estimates solver latency to determine final trial count.*
 
-The pipeline is executed in three stages.
+## Running the Experiment
 
-### Stage 1: Generate Topology-Shift Test Set
-```bash
-python code/data_generation/topology_generator.py
-```
-- **Output**: `data/raw/novel_topology_set.json`.
-- **Check**: Ensure `total_count` in the JSON is >= 50. If the script exits with `error_code: 1`, the generation failed (not enough unique topologies found).
+1.  **Execute Baseline & Symbolic Trials (Phase 2 & 3)**:
+    ```bash
+    python code/eval/runner.py --method symbolic --method baseline_gam --trials 50 --timeout 300
+    ```
+    *This runs both methods on the generated test set, enforcing timeouts and logging results to `data/results/trial_log.csv`.*
 
-### Stage 2: Run Experiments (Symbolic vs. Baseline)
-```bash
-python code/main.py
-```
-- **Process**:
-  1. Loads the novel topology set.
-  2. Runs multiple trials for the **Symbolic** approach.
-  3. Runs multiple trials for the **Baseline** GAM.
-  4. Records results in `data/results/trial_log.csv`.
-  5. Verifies gradient flow and logs to `data/results/gradient_flow_log.json`.
-- **Duration**: Estimated -4 hours on a 2-core CPU.
-
-### Stage 3: Statistical Analysis
-```bash
-python code/analysis/statistics.py
-```
-- **Input**: `data/results/trial_log.csv`.
-- **Output**: Prints the p-values, confidence intervals, and effect sizes to the console.
-- **Report**: Generates a summary JSON in `data/results/statistical_summary.json`.
+2.  **Run Statistical Analysis (Phase 3)**:
+    ```bash
+    python code/eval/stats.py --input data/results/trial_log.csv
+    ```
+    *This generates `data/results/stats_report.json` with p-values and effect sizes (Log-Rank/Wilcoxon for latency if censored).*
 
 ## Verification
 
-To verify the integrity of the run:
-1. **Schema Validation**:
-   ```bash
-   pytest tests/contract/test_schema_validation.py
-   ```
-2. **Reproducibility Check**:
-   Re-run `python code/main.py` with the same `random_seed` and verify that the checksum of `data/results/trial_log.csv` matches the previous run.
+1.  **Check Results**:
+    ```bash
+    cat data/results/stats_report.json
+    ```
+    *Verify `null_hypothesis_rejected` is True/False as expected.*
+
+2.  **Check Gradient Logs**:
+    ```bash
+    cat data/results/gradient_flow_log.json
+    ```
+    *Verify `is_differentiable` is true for all entries.*
+
+3.  **Run Tests**:
+    ```bash
+    pytest tests/ -v
+    ```
+    *Ensures all contract tests (schema validation) and unit tests pass.*
 
 ## Troubleshooting
 
-- **Solver Timeout**: If many trials fail with `timeout=true`, consider reducing the complexity of the generated topologies or increasing the `solver_timeout` in `config.yaml` (if the CI window allows).
-- **Latent Drift**: If `ood_flag` is frequently true, the GFM may not be robust to the generated topologies. This is a valid result and should be reported as a failure mode.
-- **Missing GFM Weights**: Ensure `data/raw/gfm_weights.pth` exists. If not, the original GAM weights must be downloaded and placed there.
+-   **PyBullet Errors**: Ensure `libGLU.so` and `libGL` are installed (common on headless Linux).
+-   **Timeout Failures**: If many trials time out, check `data/results/failure_report.json` for solver infeasibility.
+-   **GPU Errors**: If `torch` tries to use CUDA, ensure `CUDA_VISIBLE_DEVICES=""` is set or `torch.device("cpu")` is used.

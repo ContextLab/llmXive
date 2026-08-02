@@ -34,11 +34,5 @@ properties:
     type: string
     nullable: true
     description: "Reason for failure (e.g., 'infeasible', 'collision', 'timeout')."
-  ood_flag:
-    type: boolean
-    description: "True if latent drift exceeded threshold."
-  seed:
-    type: integer
-    description: "Random seed used for this trial."
-required: ["trial_id", "method", "topology_id", "step", "success", "latency_ms", "timeout", "timeout_reason", "seed"]
+required: ["trial_id", "method", "topology_id", "step", "success", "latency_ms", "timeout", "timeout_reason"]
 additionalProperties: false

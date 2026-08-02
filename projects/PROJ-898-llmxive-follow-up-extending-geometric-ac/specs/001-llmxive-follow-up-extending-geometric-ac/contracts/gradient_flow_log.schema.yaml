@@ -1,5 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Gradient Flow Log Schema"
+description: "Schema for the numerical gradient verification log (Phase 2.5)."
 type: "object"
 properties:
   verification_run_id:
@@ -7,6 +8,10 @@ properties:
   timestamp:
     type: "string"
     format: "date-time"
+  method:
+    type: "string"
+    const: "numerical_finite_difference"
+    description: "The method used for verification."
   results:
     type: "array"
     items:
@@ -14,20 +19,30 @@ properties:
       properties:
         topology_id:
           type: "string"
+        solver_param_perturbation:
+          type: "number"
+          description: "The epsilon value used for perturbation."
         gradient_norm:
           type: "number"
-          description: "Norm of the gradient from constraint loss to solver params"
+          description: "Norm of the gradient from constraint loss to solver params."
         is_differentiable:
           type: "boolean"
-          description: "True if gradient norm > 0 and finite"
+          description: "True if gradient norm > 0 and finite."
+        decoder_frozen:
+          type: "boolean"
+          const: true
+          description: "Confirms decoder was frozen during check."
         error_message:
           type: "string"
           nullable: true
       required:
         - topology_id
+        - solver_param_perturbation
         - gradient_norm
         - is_differentiable
+        - decoder_frozen
 required:
   - verification_run_id
+  - method
   - results
 additionalProperties: false

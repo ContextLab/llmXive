@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-898-llmxive-follow-up-extending-geometric-ac
-last_run_id: fb2cb689-c9ac-4a5e-ad57-314088364414
+last_run_id: 8cd1d67d-9192-414a-950c-8ab43b4a9180
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac
 title: 'llmXive follow-up: extending "Geometric Action Model for Robot Policy Learning"'
-updated_at: '2026-07-31T09:01:26.336127Z'
+updated_at: '2026-08-02T19:06:27.514399Z'

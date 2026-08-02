@@ -1,15 +1,16 @@
 status: none
-intent: SoftGym deformable object manipulation dataset python package dataset
+intent: download GAM manipulation dataset PyBullet synthetic topology shift reference
+  meta-world python package dataset
 required_fields:
-- object topology definition
-- kinematic chain parameters
-- vertex positions per timestep
-- joint states per timestep
-- action commands
-- simulation timestamps
-- environment configuration metadata
-- object type (rigid or deformable)
-- dataset checksum or hash
-cache_key: 6900a84fcf07ca8b7253811a9b1712024ac64e9906f688a9f5af08c00184caed
-searched_at: '2026-07-31T08:32:12.148351+00:00'
+- task_id
+- topology_definition
+- object_type
+- material_properties
+- initial_state
+- simulation_states
+- actions
+- timestamps
+- metadata_hash
+cache_key: c8b9ef67175fe33d0c51ba53f8f3395c23592fe8b8d13eb5daede96239fbf52f
+searched_at: '2026-08-02T18:49:44.848967+00:00'
 retry_count: 1

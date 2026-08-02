@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Report Schema"
+description: "Schema for the final statistical analysis report."
+type: object
+properties:
+  success_rate_comparison:
+    type: object
+    properties:
+      test:
+        type: string
+        const: "Fisher_Exact_Test"
+        description: "Name of the statistical test used."
+      p_value:
+        type: number
+        description: "P-value from the test."
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+        description: "95% Confidence Interval [lower, upper]."
+      effect_size:
+        type: number
+        description: "Odds Ratio or other effect size metric."
+    required: ["test", "p_value", "confidence_interval", "effect_size"]
+  latency_comparison:
+    type: object
+    properties:
+      test:
+        type: string
+        enum: ["Paired_T_Test", "Wilcoxon_Signed_Rank", "Log_Rank_Test"]
+        description: "Name of the statistical test used (selected based on data)."
+      p_value:
+        type: number
+        description: "P-value from the test."
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+        description: "95% Confidence Interval [lower, upper]."
+      effect_size:
+        type: number
+        description: "Cohen's d or Hazard Ratio."
+      censored_percentage:
+        type: number
+        minimum: 0.0
+        maximum: 100.0
+        description: "Percentage of censored data that triggered the test selection."
+    required: ["test", "p_value", "confidence_interval", "effect_size", "censored_percentage"]
+  null_hypothesis_rejected:
+    type: boolean
+    description: "True if p < 0.05 for the primary hypothesis."
+required: ["success_rate_comparison", "latency_comparison", "null_hypothesis_rejected"]
+additionalProperties: false

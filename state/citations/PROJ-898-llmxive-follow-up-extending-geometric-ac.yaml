@@ -20,7 +20,42 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Omnibus_test
   verified_at: '2026-07-21T07:31:39.584547Z'
-- artifact_hash: eb59e2dfde64ca91267bfae4173b5da8cc5ca3045b78099bb33c1e5bfb8e62f5
+- artifact_hash: 39ad87d4cb4c3cb83f6d2901c649a392922d641f2da782a4819fd6f06922a923
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/GFM-Bench/3D-Robotics`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/GFM-Bench/3D-Robotics
+  verified_at: '2026-08-02T19:05:50.296005Z'
+- artifact_hash: a4057967d920857f9d6ba01b94470f2429a2d0315392663ebe9d592bcdc21a37
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/GFM-Bench/3D-Robotics`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/GFM-Bench/3D-Robotics
+  verified_at: '2026-08-02T19:06:24.317386Z'
+- artifact_hash: a4057967d920857f9d6ba01b94470f2429a2d0315392663ebe9d592bcdc21a37
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - bulletphysics/bullet3: Bullet Physics SDK: real-time collision\
+    \ detection and multi-physics simulation for VR, games, visual effects, robotics,\
+    \ machine learning etc. \xB7 GitHub"
+  kind: url
+  value: https://github.com/bulletphysics/bullet3`
+  verification_status: pending
+  verified_against_url: https://github.com/bulletphysics/bullet3
+  verified_at: '2026-08-02T19:06:24.317386Z'
+- artifact_hash: ebcf3ab4bed64b741652fc21013a32367718f03b30a61068cf3e70557a7a4e47
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/data-model.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +65,15 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-31T09:01:18.962858Z'
+  verified_at: '2026-08-02T19:06:25.828637Z'
+- artifact_hash: 5d8ad9376e9a80144deb4c6c1e4952a9ca4c0252feb558f847a776b0f0be4961
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/GFM-Bench/3D-Robotics`.*
+  verification_status: pending
+  verified_against_url: https://huggingface.co/GFM-Bench/3D-Robotics%60.*
+  verified_at: '2026-08-02T19:06:26.737676Z'

@@ -1,0 +1,5 @@
+- **T004** — No evidence of the required `data/raw`, `data/generated`, `data/results` directories or accompanying `.gitkeep` files is provided; without these artifacts the task’s requirement cannot be confirmed as satisfied.
+- **T014a** — declared artifact(s) missing/empty/invalid: data/results/gradient_flow_log.json
+- **T010b** — The required output file `data/raw/gam_reference_stats.json` is missing, so the mean/covariance statistics were never saved. The source data file exists, but without the resulting stats file the task is not fulfilled.
+- **T018a** — declared artifact(s) missing/empty/invalid: data/results/trial_log.csv
+- **T017** — The config file defines the timeout limits, but there is no evidence that the solver reads these limits, enforces a per‑step timeout, or writes timeout events (with `timeout=true` and `timeout_reason: step_limit`) to `data/results/trial_log.csv`. The CSV contains only a header and no recorded entries, and no code implementing the mechanism is provided. The task therefore remains unfinished.
