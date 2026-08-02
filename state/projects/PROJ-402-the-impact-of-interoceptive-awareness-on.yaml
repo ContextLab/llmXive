@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T16:41:53.129016Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-402-the-impact-of-interoceptive-awareness-on
-last_run_id: 41116091-b251-4a14-9207-f5f4f06b5767
+last_run_id: 86e9ba75-cc95-4231-8cf7-0d52286dd641
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on
 title: The Impact of Interoceptive Awareness on Emotional Regulation During Simulated
   Stress
-updated_at: '2026-07-31T16:27:27.363852Z'
+updated_at: '2026-08-02T06:50:56.478171Z'

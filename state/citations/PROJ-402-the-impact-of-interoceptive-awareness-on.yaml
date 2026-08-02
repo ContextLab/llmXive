@@ -53,14 +53,14 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
   verified_at: '2026-07-31T16:21:21.169019Z'
-- artifact_hash: 0afcf382aef465d7e0ff00e5367b5c410011734eebb6b1dc7543ae82c46b441c
+- artifact_hash: 4fd360000742e289f2a380dc865995819d770b08b5ee301475858c972432fc39
   artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1292932
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
-  verified_at: '2026-07-31T16:27:07.785515Z'
+  fetched_title: History of Python - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/History_of_Python
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/History_of_Python
+  verified_at: '2026-08-02T06:50:48.813576Z'

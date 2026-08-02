@@ -1,0 +1,51 @@
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or function was provided that actually scans BIDS `events.tsv`\
+    \ files for a `task` column containing \u201CSchandry\u201D or \u201Cheartbeat\u201D\
+    \ (case\u2011insensitive). The required artifact is missing, so the task is not\
+    \ satisfied."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script or code implementing the metadata scan for TSST stress markers is provided,
+    nor is a `data_audit.md` report generated. Without these artifacts, we cannot
+    verify that the required detection logic exists or works. The implementer must
+    supply the scanning implementation and its output file.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or timing evidence was provided showing that error\
+    \ handling was added, that the script guarantees exit code\u202F0, that it logs\
+    \ fetch failures, or that it completes within 15\u202Fminutes and produces the\
+    \ required report. The required artifact is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data_audit.md` (or any audit report) was provided, nor any evidence that
+    the implementer ran a scan of the full WESAD dataset and compared the results
+    to the report. Without the actual report file and validation output, the task
+    requirement is not satisfied.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing signal cleaning with the `hrv-analysis`\
+    \ library and the specified <5% valid\u2011beat artifact rejection threshold was\
+    \ provided. Consequently, the required artifact is missing, so the task is not\
+    \ satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV, script, or any output file containing RMSSD and SDNN values for baseline\
+    \ and stress phases was provided; without such artifacts we cannot confirm that\
+    \ HRV metrics were actually computed as required. The implementer must supply\
+    \ the preprocessing code and the resulting data file (e.g., `hrv_metrics.csv`)\
+    \ with the specified columns and non\u2011missing values."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a preprocessing script, CSV output, or any extracted HRV metric
+    is present; the claim provides only the task description and spec, but no actual
+    artifact (e.g., code, data file, or report) demonstrating that the stress HRV
+    metric was extracted as required. The implementer must supply the implementation
+    and resulting output.

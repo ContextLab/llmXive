@@ -1,0 +1,675 @@
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: WESAD dataset Zenodo DOI 10.5281/zenodo.1292932
+  claim_id: c_2e513b4a
+  context: 'Implement code/utils/data_loader.py with strict fail-on-error logic for
+    WESAD (Zenodo DOI: 10.5281/zenodo.1292932) and OpenNeuro GraphQL API queries.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'WESAD (Zenodo DOI: 10.5281/zenodo.1292932)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:16:17Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_208d3e66
+  context: Initialize Python 3.11 project with dependencies (pandas, numpy, scikit-learn,
+    hrv-analysis, pybids, requests, pyyaml, jsonschema) in requirements.txt
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Python 3.11 expanded exception handling functionality. Around this version,\
+        \ there has been a focus on making Python faster; 3.11 is claimed to be 10\u2013\
+        60% faster than 3.10, and 3.12 increases by an additional 5%."
+      source_id: History of Python
+      url: https://en.wikipedia.org/wiki/History_of_Python
+      value: "10\u201360%"
+    filled: true
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: "10\u201360%"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T06:16:22Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: HRV artifact rejection threshold less than 5 percent valid beats
+  claim_id: c_dc6231c8
+  context: Implement code/utils/hrv_utils.py for artifact rejection (threshold < 5%
+    valid beats) and signal validation
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HRV_artifact_rejection_threshold_less_than_5_percent_valid_b
+  kind: magnitude
+  raw_text: artifact rejection (threshold < 5% valid beats)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:16:43Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Data loader timeout threshold greater than 60 seconds
+  claim_id: c_cc3865e1
+  context: 'Error contract: Exit code 1 on HTTP 404, timeout > 60s, or schema mismatch
+    (validate against contracts/dataset.schema.yaml).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_loader_timeout_threshold_greater_than_60_seconds
+  kind: magnitude
+  raw_text: timeout > 60s
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:16:58Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Data availability audit execution time limit of 15 minutes
+  claim_id: c_0e600232
+  context: 'Constraint: Do NOT download the full WESAD archive in this step; only
+    download the specific file list or small metadata index to verify presence within
+    the 15-minute limit (SC-001, FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 15-minute limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:18:06Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Subjects with less than 5 percent valid beats are flagged and excluded
+  claim_id: c_927cb67b
+  context: Integration test test_artifact_rejection_threshold in tests/test_hrv.py
+    asserting subjects with <5% valid beats are flagged and excluded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_less_than_5_percent_valid_beats_are_flagged_an
+  kind: magnitude
+  raw_text: subjects with <5% valid beats are flagged and excluded
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:18:22Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time limit of 45 minutes
+  claim_id: c_9f248389
+  context: 'Time Constraint: Audit phase must complete within 15 minutes (SC-001,
+    FR-007). Full pipeline within 45 minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full pipeline within 45 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:18:37Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: WESAD dataset Zenodo DOI 10.5281/zenodo.1292932
+  claim_id: c_6d2a1597
+  context: 'T004 Implement `code/utils/data_loader.py` with strict fail-on-error logic
+    for WESAD (Zenodo DOI: 10.5281/zenodo.1292932) and OpenNeuro GraphQL API queries.'
+  evidence:
+    asserted: '10.5281'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: 'Implement `code/utils/data_loader.py` with strict fail-on-error logic
+    for WESAD (Zenodo DOI: 10.5281/zenodo.1292932) and OpenNeuro GraphQL API queries.'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T06:18:46Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: RMSSD matches PhysioNet reference within 1% tolerance
+  claim_id: c_e1a56268
+  context: T017 [P] [US2] Unit test `test_compute_rmssd_against_mitbih` in `tests/test_hrv.py`
+    asserting calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test `test_compute_rmssd_against_mitbih` in `tests/test_hrv.py` asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:18:47Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: MIT-BIH dataset used for HRV validation
+  claim_id: c_fd60cf9d
+  context: Unit test test_compute_rmssd_against_mitbih in tests/test_hrv.py asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MIT-BIH_dataset_used_for_HRV_validation
+  kind: entity_fact
+  raw_text: The MIT-BIH dataset is used as a reference for HRV validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:19:19Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Subjects with less than 5% valid beats excluded
+  claim_id: c_4e094439
+  context: Integration test test_artifact_rejection_threshold in tests/test_hrv.py
+    asserting subjects with <5% valid beats are flagged and excluded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_less_than_5%25_valid_beats_excluded
+  kind: magnitude
+  raw_text: Subjects with less than 5% valid beats are flagged and excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:19:48Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Audit phase must complete within 15 minutes
+  claim_id: c_3d08701d
+  context: 'Time Constraint: Audit phase must complete within 15 minutes (SC-001,
+    FR-007). Full pipeline within 45 minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The audit phase must complete within 15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:20:04Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: MDES calculation assumes R-squared of 0.10
+  claim_id: c_4d135209
+  context: "Statistical Constraint: MDES calculation (T029/T030) must use observed\
+    \ variance (if available) and R\xB2=0.10; report 'Undeterminable' if no variance\
+    \ data exists."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MDES calculation assumes an R-squared value of 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:20:41Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Error contract timeout greater than 60 seconds
+  claim_id: c_ba9ccb70
+  context: 'Error contract: Exit code 1 on HTTP 404, timeout > 60s, or schema mismatch.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Error_contract_timeout_greater_than_60_seconds
+  kind: magnitude
+  raw_text: The timeout for error contracts is greater than 60 seconds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:21:04Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Subjects with less than 5 percent valid beats are excluded
+  claim_id: c_d00ba51f
+  context: Integration test 'test_artifact_rejection_threshold' in 'tests/test_hrv.py'
+    asserting subjects with <5% valid beats are flagged and excluded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_less_than_5_percent_valid_beats_are_excluded
+  kind: magnitude
+  raw_text: Subjects with <5% valid beats are flagged and excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:23:08Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: RMSSD calculation matches PhysioNet reference within 1 percent tolerance
+  claim_id: c_0a5d68bd
+  context: Unit test 'test_compute_rmssd_against_mitbih' in 'tests/test_hrv.py' asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculated RMSSD must match PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:23:08Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Error contract exit code 1 for HTTP 404 timeout over 60 seconds or schema
+    mismatch
+  claim_id: c_32b056cd
+  context: 'Error contract: Exit code 1 on HTTP 404, timeout > 60s, or schema mismatch
+    (validate against ''contracts/dataset.schema.yaml'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Error contract requires exit code 1 on HTTP 404, timeout > 60s, or schema
+    mismatch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:23:20Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 2
+  canonical: Full pipeline time limit is 45 minutes
+  claim_id: c_3700f282
+  context: 'Time Constraint: Audit phase must complete within 15 minutes (SC-001,
+    FR-007). Full pipeline within 45 minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full pipeline must complete within 45 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:27:42Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Subjects with less than 5 percent valid beats are excluded
+  claim_id: c_d99cf623
+  context: Integration test test_artifact_rejection_threshold in tests/test_hrv.py
+    asserting subjects with <5% valid beats are flagged and excluded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_less_than_5_percent_valid_beats_are_excluded
+  kind: magnitude
+  raw_text: Subjects with less than 5% valid beats are flagged and excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:27:43Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 2
+  canonical: RMSSD calculation matches PhysioNet reference within 1 percent tolerance
+  claim_id: c_a4cdd881
+  context: Unit test test_compute_rmssd_against_mitbih in tests/test_hrv.py asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RMSSD matches PhysioNet reference within 1% tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:27:43Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: MIT-BIH dataset required for HRV validation
+  claim_id: c_0a07af39
+  context: 'Validation Constraint: MIT-BIH dataset must be available for HRV validation
+    (SC-002) or mocked appropriately in tests.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MIT-BIH_dataset_required_for_HRV_validation
+  kind: entity_fact
+  raw_text: The MIT-BIH dataset is required for HRV validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:27:59Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: RMSSD calculation matches PhysioNet reference within 1% tolerance
+  claim_id: c_db77ae26
+  context: Unit test test_compute_rmssd_against_mitbih in tests/test_hrv.py asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Asserts calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:29:15Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Audit phase completion time limit is 15 minutes
+  claim_id: c_0e366bf4
+  context: 'Time Constraint: Audit phase must complete within 15 minutes (SC-001,
+    FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Audit phase must complete within 15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:29:15Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Full pipeline completion time limit is 45 minutes
+  claim_id: c_1f81e23a
+  context: 'Time Constraint: Full pipeline within 45 minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full pipeline must complete within 45 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:29:15Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Compute HRV metrics RMSSD and SDNN for Baseline and Stress phases
+  claim_id: c_d197234f
+  context: Implement `code/02_preprocess_hrv.py` to load raw ECG/PPG signals from
+    WESAD/OpenNeuro derived data. Implement signal cleaning... Compute HRV metrics
+    (RMSSD, SDNN) for 'Baseline' (resting) and 'Stress' (TSST) phases per FR-003.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_HRV_metrics_RMSSD_and_SDNN_for_Baseline_and_Stress_p
+  kind: entity_fact
+  raw_text: Compute HRV metrics (RMSSD, SDNN) for 'Baseline' (resting) and 'Stress'
+    (TSST) phases.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:30:32Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Audit phase must complete within 15 minutes
+  claim_id: c_c24a06d0
+  context: Do NOT download the full WESAD archive in this step; only download the
+    specific file list or small metadata index to verify presence within the 15-minute
+    limit (SC-001, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Audit phase must complete within 15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:30:32Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 2
+  canonical: Full pipeline must complete within 45 minutes
+  claim_id: c_1a971957
+  context: 'Time Constraint: Audit phase must complete within 15 minutes (SC-001,
+    FR-007). Full pipeline within 45 minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline must complete within 45 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:30:32Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Subjects with less than 5 percent valid beats are excluded
+  claim_id: c_d9b6beaa
+  context: Implement signal cleaning using `hrv-analysis` library with artifact rejection
+    thresholds (< 5% valid beats) per Edge Cases. Integration test `test_artifact_rejection_threshold`...
+    asserting subjects with <5% valid beats are flagged and excluded.
+  evidence:
+    entailment_evidence: Subjects with less than 5 percent valid beats are excluded
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_less_than_5_percent_valid_beats_are_excluded
+  kind: magnitude
+  raw_text: Subjects with less than 5% valid beats are flagged and excluded.
+  resolved_value: Subjects with less than 5 percent valid beats are excluded
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T06:30:33Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Calculated RMSSD matches PhysioNet reference within 1 percent tolerance
+  claim_id: c_6f39f24a
+  context: Unit test `test_compute_rmssd_against_mitbih` in `tests/test_hrv.py` asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculated RMSSD must match PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:30:34Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Exit code 1 on HTTP 404 timeout greater than 60 seconds or schema mismatch
+  claim_id: c_f788549c
+  context: 'Error contract: Exit code 1 on HTTP 404, timeout > 60s, or schema mismatch
+    (validate against `contracts/dataset.schema.yaml`).'
+  evidence:
+    candidates:
+    - - Exit code 1 on HTTP
+      - 404.0
+    - - HTTP 404 timeout greater than
+      - 60.0
+    - - Donate Create account Log in Exit code
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Exit_code_1_on_HTTP_404_timeout_greater_than_60_seconds_or_s
+  kind: magnitude
+  raw_text: Exit code 1 is used on HTTP 404, timeout greater than 60s, or schema mismatch.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-02T06:31:07Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: calculated RMSSD matches PhysioNet reference within 1% tolerance
+  claim_id: c_42143ea6
+  context: 'Tests for User Story 2: Unit test test_compute_rmssd_against_mitbih in
+    tests/test_hrv.py asserting calculated RMSSD matches PhysioNet reference within
+    1% tolerance. Note: Ensure MIT-BIH dataset is downloaded or mocked for this specific
+    validation test as per SC-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test test_compute_rmssd_against_mitbih in tests/test_hrv.py asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:41:56Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 0
+  canonical: Subjects with less than 5% valid beats are flagged and excluded
+  claim_id: c_8b4d5839
+  context: Integration test `test_artifact_rejection_threshold` in `tests/test_hrv.py`
+    asserting subjects with <5% valid beats are flagged and excluded.
+  evidence:
+    entailment_evidence: Subjects with less than 5 percent valid beats are excluded
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_less_than_5_percent_valid_beats_are_excluded
+  kind: magnitude
+  raw_text: Subjects with less than 5% valid beats are flagged and excluded.
+  resolved_value: Subjects with less than 5 percent valid beats are excluded
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-02T06:42:49Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: MIT-BIH dataset used as reference for HRV validation
+  claim_id: c_423fdbc1
+  context: Unit test `test_compute_rmssd_against_mitbih` in `tests/test_hrv.py` asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MIT-BIH_dataset_used_as_reference_for_HRV_validation
+  kind: entity_fact
+  raw_text: The MIT-BIH dataset is used as a reference for HRV validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:42:51Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: RMSSD calculation matches PhysioNet reference within 1% tolerance
+  claim_id: c_1895dc5e
+  context: Unit test `test_compute_rmssd_against_mitbih` in `tests/test_hrv.py` asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RMSSD calculation matches the PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:42:51Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: MDES calculation assumes R-squared value of 0.10
+  claim_id: c_80722689
+  context: "Integration test `test_mdes_calculation` in `tests/test_regression.py`\
+    \ asserting MDES is calculated using observed variance and sample size with R\xB2\
+    =0.10 assumption."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MDES calculation assumes an R-squared value of 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:42:51Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Audit phase must complete within 15 minutes
+  claim_id: c_fe9ad9bf
+  context: Log `GITHUB_JOB_DURATION` timestamps and **verify** the measured duration
+    against the 15-minute (audit) and 45-minute (full) limits defined in SC-004 and
+    FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The audit phase must complete within 15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:42:51Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: Full pipeline must complete within 45 minutes
+  claim_id: c_a3dabf74
+  context: Log `GITHUB_JOB_DURATION` timestamps and **verify** the measured duration
+    against the 15-minute (audit) and 45-minute (full) limits defined in SC-004 and
+    FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline must complete within 45 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:42:51Z'
+- artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
+  attempts: 1
+  canonical: calculated RMSSD matches PhysioNet reference within 1% tolerance
+  claim_id: c_541f1708
+  context: Tests for User Story 2 (OPTIONAL - only if tests requested) ... [X] T017
+    [P] [US2] Unit test test_compute_rmssd_against_mitbih in tests/test_hrv.py asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test test_compute_rmssd_against_mitbih in tests/test_hrv.py asserting
+    calculated RMSSD matches PhysioNet reference within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T06:50:51Z'

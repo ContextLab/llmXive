@@ -1,0 +1,33 @@
+# Dataset Schema Contract for llmXive Research Pipeline
+# Used by T004 to validate downloaded datasets immediately after fetch.
+# This schema defines the expected structure for the primary WESAD/OpenNeuro derived data.
+
+type: csv
+description: "Expected schema for HRV metrics derived from physiological signals."
+required_columns:
+  - subject_id
+  - phase
+  - RMSSD
+  - SDNN
+  - timestamp
+optional_columns:
+  - valid_beats_percentage
+  - artifact_rejection_status
+constraints:
+  subject_id:
+    type: string
+    pattern: "^sub-[0-9]+$"
+  phase:
+    type: string
+    enum:
+      - Baseline
+      - Stress
+  RMSSD:
+    type: number
+    min: 0
+  SDNN:
+    type: number
+    min: 0
+  timestamp:
+    type: string
+    format: date-time
