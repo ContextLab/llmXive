@@ -55,7 +55,7 @@ As a system operator, I need the pipeline to handle missing birth years, zero-va
 ## 3. Functional Requirements
 
 ### FR-001: Primary Predictor Definition (See US-001)
-The primary predictor variable is the `adolescent_exposure_ratio`. This is defined as the ratio of the number of listens to a specific track during the user's adolescence (defined as birth year to birth year + 15) to the total number of listens to that track by the user.
+The primary predictor variable is the `adolescent_exposure_ratio`. This is defined as the ratio of the number of listens to a specific track during the user's adolescence (defined as birth year to roughly the mid‑teens) to the total number of listens to that track by the user.
 Formula: `adolescent_exposure_ratio = listens_adolescence / total_listens`
 *Note: This raw ratio is used to directly test the 'incidental exposure' hypothesis, controlling for popularity in the model (FR-005) rather than pre-residualizing, to avoid statistical tautology.*
 
@@ -84,7 +84,7 @@ Significance testing must be performed via a **block-permutation** test on the *
 - **Constraint**: Do not shuffle the predictor variable directly; shuffle the outcome within user blocks to preserve the user-level correlation structure.
 
 ### FR-008: Fallback Mechanism (See US-001)
-If the proportion of missing birth years exceeds 50%, the pipeline must trigger a fallback mechanism to calculate a "Global Exposure" metric.
+If the proportion of missing birth years is notably high—exceeding a majority-level threshold—the pipeline must trigger a fallback mechanism to calculate a “Global Exposure” metric.
 The "Global Exposure" metric is defined as the mean `adolescent_exposure_ratio` across all available tracks in the Million Song Dataset for the user's birth decade (e.g., if birth year is 1990, use tracks released between 1980-1999). This serves as a population-level proxy for the missing individual data.
 
 ### FR-009: Minimum Listen Threshold (See US-003)

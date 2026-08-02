@@ -1,12 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T120` (rejected 1x): The repository contains a `write_parquet` implementation, but the required output file `data/processed/ingested_cohort.parquet` is missing, indicating the function has not been executed (or does not write to the expected default location). The task’s core deliverable—a parquet file at the specified path—is absent.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- Task T050 'Verify Artifacts' requires checking checksums against `state.yaml`, but `state.yaml` initialization is not guaranteed by a preceding task that explicitly creates the *structure* (keys) required for these checksums. T009 creates the mechanism, but T050 assumes the file exists with specific keys populated by T018/T029/T038/T045c-2. If T018/T029 etc. fail to update the file correctly, T050 has no clear 'pass' condition other than 'file exists', which is ambiguous.

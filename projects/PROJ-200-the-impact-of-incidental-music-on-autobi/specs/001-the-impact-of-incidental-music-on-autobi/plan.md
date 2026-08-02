@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a statistical pipeline to test the hypothesis that incidental music exposure during adolescence (ages 0-15) predicts the vividness and valence of autobiographical memories associated with those tracks later in life. The core predictor is the `adolescent_exposure_ratio` (FR-001). The pipeline aggregates data to the User-Track Pair level (FR-004), fits a Linear Mixed-Effects Model (LMM) with a random intercept for users (FR-005), and validates results via sensitivity analysis on matching thresholds (FR-006) and a **parametric bootstrap** (replacing the original block-permutation test to ensure statistical validity, FR-007). It includes robust fallback mechanisms for missing birth years (FR-008), which now **excludes** users with missing birth years from the primary causal inference to avoid ecological fallacy, and handles data quality issues like low match rates (US-002, SC-004) and multicollinearity (EC-003).
+This project implements a statistical pipeline to test the hypothesis that Incidental music exposure during childhood and adolescence predicts the vividness and valence of autobiographical memories associated with those tracks later in life.. The core predictor is the `adolescent_exposure_ratio` (FR-001). The pipeline aggregates data to the User-Track Pair level (FR-004), fits a Linear Mixed-Effects Model (LMM) with a random intercept for users (FR-005), and validates results via sensitivity analysis on matching thresholds (FR-006) and a **parametric bootstrap** (replacing the original block-permutation test to ensure statistical validity, FR-007). It includes robust fallback mechanisms for missing birth years (FR-008), which now **excludes** users with missing birth years from the primary causal inference to avoid ecological fallacy, and handles data quality issues like low match rates (US-002, SC-004) and multicollinearity (EC-003).
 
 **Prototype Status**: This iteration uses **simulated data** with known ground truth *strictly for prototype validation* of pipeline logic and power calculations. The **final** implementation must use real, verified datasets (MSD, AMT). If real data is unavailable, the pipeline must explicitly report the "Path to Real Data" gap and halt before statistical inference.
 
@@ -15,7 +15,7 @@ This project implements a statistical pipeline to test the hypothesis that incid
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyarrow`, `huggingface_hub`, `levenshtein` (or `python-Levenshtein`)  
 **Storage**: Local Parquet files (`data/processed/`), CSV outputs (`data/final/`)  
 **Testing**: `pytest` (unit tests for exposure calculation, integration tests for pipeline flow)  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: multiple CPUs, 7 GB RAM)  
 **Project Type**: Data Science Pipeline / Research Script (Prototype)  
 **Performance Goals**: Complete full pipeline (download, clean, aggregate, model, bootstrap) in ≤ 6 hours on CPU.  
 **Constraints**: 
