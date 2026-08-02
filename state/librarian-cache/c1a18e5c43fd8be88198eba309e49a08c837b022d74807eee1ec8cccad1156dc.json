@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-10T10:18:52Z",
+  "fetched_at": "2026-08-02T11:14:46Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,13 +9,13 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradient\"",
       "target_n": 5
     },
-    "duration_seconds": 56.942,
-    "ended_at": "2026-07-10T10:18:52Z",
+    "duration_seconds": 48.349,
+    "ended_at": "2026-08-02T11:14:46Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "prompt engineering for reinforcement learning"
+          "teacher forcing in large language models"
         ],
         [
           2,
@@ -23,90 +23,90 @@
         ],
         [
           3,
-          "teacher-student prompting in large language models"
+          "prompt-based reinforcement learning for language models"
         ],
         [
           4,
-          "zero-shot policy adaptation via prompts"
+          "zero-shot policy gradient methods"
         ],
         [
           5,
-          "linguistic scaffolding in generative AI"
+          "linguistic scaffolding via prompt engineering"
         ],
         [
           6,
-          "meta-learning through prompt-based instruction"
+          "cognitive apprenticeship in generative AI"
         ],
         [
           7,
-          "reinforcement learning from human feedback without gradients"
+          "Vygotsky's zone of proximal development in NLP"
         ],
         [
           8,
-          "cognitive apprenticeship in large language models"
+          "chain-of-thought prompting as teacher guidance"
         ],
         [
           9,
-          "proximal policy optimization via natural language"
+          "gradient-free optimization for language generation"
         ],
         [
           10,
-          "instruction tuning as policy search"
+          "meta-learning with prompt-based teachers"
         ],
         [
           11,
-          "prompt-based gradient-free optimization"
+          "human-in-the-loop prompt optimization"
         ],
         [
           12,
-          "linguistic zone of proximal development in AI"
+          "instruction tuning via policy constraints"
         ],
         [
           13,
-          "self-improvement via prompt refinement"
+          "self-correction mechanisms in LLMs"
         ],
         [
           14,
-          "language model policy learning without backpropagation"
+          "verbal reinforcement learning signals"
         ],
         [
           15,
-          "few-shot policy optimization in NLP"
+          "implicit reward modeling in prompt contexts"
         ],
         [
           16,
-          "implicit reasoning chains for policy improvement"
+          "adaptive prompting for linguistic tasks"
         ],
         [
           17,
-          "prompt chaining for RLHF alignment"
+          "few-shot learning as policy shaping"
         ],
         [
           18,
-          "natural language interface for reinforcement learning agents"
+          "natural language instruction as gradient substitute"
         ],
         [
           19,
-          "cognitive load theory in prompt design"
+          "cognitive load reduction in LLM prompting"
         ],
         [
           20,
-          "emergent capabilities in prompt-based policy learning"
+          "dialogic teaching strategies in generative models"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradient\" linguistics": 0,
-        "prompt engineering for reinforcement learning": 5
+        "teacher forcing in large language models": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "proximal policy optimization teacher prompting language models",
-      "in-context learning linguistic scaffolding few-shot prompting",
-      "reinforcement learning from human feedback prompt engineering",
-      "linguistic competence emergent capabilities instruction tuning",
-      "gradient-free optimization prompt-based learning transfer"
+      "in-context learning prompt engineering teacher models",
+      "linguistic scaffolding dynamic few-shot prompting",
+      "chain-of-thought reasoning cognitive apprenticeship LLM",
+      "prompt tuning zero-shot generalization performance metrics",
+      "meta-learning gradient-free optimization language acquisition"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,56 +115,56 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2606.18216"
+        "2501.05032"
       ]
     },
     "per_query_hit_count": {
-      "gradient-free optimization prompt-based learning transfer": 3,
-      "in-context learning linguistic scaffolding few-shot prompting": 3,
-      "linguistic competence emergent capabilities instruction tuning": 3,
+      "chain-of-thought reasoning cognitive apprenticeship LLM": 3,
+      "in-context learning prompt engineering teacher models": 3,
+      "linguistic scaffolding dynamic few-shot prompting": 3,
       "llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradient\" linguistics": 3,
-      "proximal policy optimization teacher prompting language models": 3,
-      "reinforcement learning from human feedback prompt engineering": 3
+      "meta-learning gradient-free optimization language acquisition": 2,
+      "prompt tuning zero-shot generalization performance metrics": 3
     },
     "relevance_judge": {
       "enabled": true,
-      "marginal_fallback_used": false,
+      "marginal_fallback_used": true,
       "rejected_count": 5,
       "rejections": [
         {
-          "primary_pointer": "2602.12375",
-          "rationale": "The paper focuses on general reinforcement learning exploration mechanisms (Value Bonuses with Ensemble errors) and does not address the specific domain of Large Language Models (LLMs), the \"Zone of Proximal Development\" concept, or the \"Teacher in Prompts\" methodology central to the user's question. While both involve RL, the paper lacks the necessary connection to the user's specific mechanism (prompt-based teaching) or domain (linguistics/LLMs), failing criteria (a), (b), and (e).",
-          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning"
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general techniques for improving human-like qualities (fine-tuning, emotional intelligence) in LLMs, which is an off-domain topic relative to the user's specific question about extending a particular reinforcement learning mechanism (\"Zone of Proximal Policy Optimization\") within a linguistics context. It does not measure the same mechanism, address the specific variables (teacher-in-prompts vs. gradient), or provide a foundational reference for the specific \"ZPPO\" framework",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
         },
         {
-          "primary_pointer": "2604.26615",
-          "rationale": "The paper focuses on Test-Driven Development (TDD) governance and workflow constraints for code generation, which is a distinct application domain from the user's question about \"Zone of Proximal Policy Optimization\" (ZPPO) and its linguistic extensions. While both involve prompt engineering, the paper does not measure the same mechanism (ZPPO's teacher-in-prompts vs. gradient-free optimization), nor does it address the specific variables or empirical population of the user's inquiry, failing to",
-          "title": "TDD Governance for Multi-Agent Code Generation via Prompt Engineering"
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates the consistency between LLM self-reported personality and behavioral actions, which is a distinct construct from the user's question regarding the \"Zone of Proximal Policy Optimization\" mechanism (specifically the \"Teacher in Prompts\" approach) and its linguistic extensions. While both involve LLMs, the candidate paper does not measure the same causal mechanism, variables, or empirical setting as the user's specific query about prompt-based policy optimization, failing to ",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
         },
         {
-          "primary_pointer": "2507.02910",
-          "rationale": "The paper focuses on curriculum reinforcement learning and task sequencing using Structural Causal Models (SCMs) to improve sample efficiency, which is a distinct methodological domain from the user's question about extending a specific prompt-based policy optimization framework (\"Zone of Proximal Policy Optimization\") through a linguistics lens. While both involve reinforcement learning, the candidate paper does not measure the same mechanism (prompt-based teacher signals vs. causal task novelt",
-          "title": "Causal-Paced Deep Reinforcement Learning"
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a fundamental linguistic limitation of LLMs (character-level understanding) but does not address the specific mechanism of \"Zone of Proximal Policy Optimization\" (ZPPO), the \"Teacher in Prompts\" methodology, or the policy optimization framework central to the user's question. While both topics relate to LLM capabilities, the paper studies a static architectural/representational deficit rather than the dynamic prompt-based optimization mechanism the user is extending, faili",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
         },
         {
-          "primary_pointer": "1807.05037",
-          "rationale": "The paper focuses on Bayesian Inverse Reinforcement Learning (BIRL) and hierarchical planning in human behavior modeling, which is a distinct methodological domain from the user's question about extending a specific Prompt-based Policy Optimization (PPO) framework for LLMs. While both involve reinforcement learning concepts, the paper does not measure the same mechanism (prompt-based teacher vs. gradient-based teacher), address the same variables (linguistic prompting strategies vs. hierarchical",
-          "title": "Exploring Hierarchy-Aware Inverse Reinforcement Learning"
+          "primary_pointer": "2403.09676",
+          "rationale": "The paper focuses on the taxonomy, risks, and governance of AI deception (a social safety and alignment topic), whereas the user's question concerns a specific reinforcement learning algorithm (\"Zone of Proximal Policy Optimization\") and its application to linguistics. There is no overlap in the mechanism (PPO vs. deception categorization), variables, or empirical domain, and the paper does not establish a baseline or foundational method for the user's specific technical inquiry.",
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
         },
         {
-          "primary_pointer": "2301.08028",
-          "rationale": "The paper is a general survey on meta-reinforcement learning and does not address the specific mechanism of \"Teacher in Prompts\" (in-context learning) or the linguistic domain central to the user's question about extending the \"Zone of Proximal Policy Optimization\" framework. While both involve reinforcement learning concepts, the candidate paper lacks the specific connection to prompt-based teaching or linguistic applications required by criteria (a) or (b), and it is not the foundational refer",
-          "title": "A Tutorial on Meta-Reinforcement Learning"
+          "primary_pointer": "2309.02144",
+          "rationale": "The paper focuses on \"Assessment Misalignment\" and \"Alignment Fine-Tuning\" for reasoning capabilities using Chain-of-Thought, which is a distinct mechanism from the user's specific query about \"Zone of Proximal Policy Optimization\" (ZPPO) and the linguistic extension of teacher-in-prompts versus gradient-based optimization. While both involve LLM alignment and reasoning, the candidate paper does not measure the ZPPO mechanism, the specific \"teacher in prompts\" construct, or the linguistic proper",
+          "title": "Making Large Language Models Better Reasoners with Alignment"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-10T10:17:55Z",
+    "started_at": "2026-08-02T11:13:57Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"zone of proximal policy optimization: teacher in prompts, not gradient\" linguistics",
       "raw": "llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradient\" linguistics"
@@ -184,7 +184,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-07-10T10:18:27Z",
+        "failed_at": "2026-08-02T11:14:24Z",
         "reason": "query_irrelevant"
       },
       {
@@ -201,7 +201,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-07-10T10:18:27Z",
+        "failed_at": "2026-08-02T11:14:24Z",
         "reason": "query_irrelevant"
       },
       {
@@ -217,63 +217,92 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-07-10T10:18:27Z",
+        "failed_at": "2026-08-02T11:14:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The increasing importance of robots and automation creates a demand for learnable controllers which can be obtained through various approaches such as Evolutionary Algorithms (EAs) or Reinforcement Learning (RL). Unfortunately, these two families of algorithms have mainly developed independently and there are only a few works comparing modern EAs with deep RL algorithms. We show that Multidimensional Archive of Phenotypic Elites (MAP-Elites), which is a modern EA, can deliver better-performing solutions than one of the state-of-the-art RL methods, Proximal Policy Optimization (PPO) in the generation of locomotion controllers for a simulated hexapod robot. Additionally, extensive hyper-parameter tuning shows that MAP-Elites displays greater robustness across seeds and hyper-parameter sets. Generally, this paper demonstrates that EAs combined with modern computational resources display promising characteristics and have the potential to contribute to the state-of-the-art in controller learning.",
+          "claimed_abstract": "Large language models (LLMs) accelerate software development but often exhibit instability, non-determinism, and weak adherence to development discipline in unconstrained workflows. While test-driven development (TDD) provides a structured Red-Green-Refactor process, existing LLM-based approaches typically use tests as auxiliary inputs rather than enforceable process constraints. We present an AI-native TDD framework that operationalizes classical TDD principles as structured prompt-level and workflow-level governance mechanisms. Extracted principles are formalized in a machine-readable manifesto and distributed across planning, generation, repair, and validation stages within a layered architecture that separates model proposal from deterministic engine authority. The system enforces phase ordering, bounded repair loops, validation gates, and atomic mutation control to improve stability and reproducibility. We describe architecture and discuss encoding software engineering discipline directly into prompt orchestration, which we think offers a promising direction for reliable LLM-assisted development.",
           "claimed_authors": [
-            "Szymon Brych",
-            "Antoine Cully"
+            "Tarlan Hasanli",
+            "Shahbaz Siddeeq",
+            "Bishwash Khanal",
+            "Pyry Kotilainen",
+            "Tommi Mikkonen",
+            "Pekka Abrahamsson"
           ],
-          "claimed_title": "Competitiveness of MAP-Elites against Proximal Policy Optimization on locomotion tasks in deterministic simulations",
+          "claimed_title": "TDD Governance for Multi-Agent Code Generation via Prompt Engineering",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2009.08438"
+          "claimed_year": 2026,
+          "primary_pointer": "2604.26615"
         },
-        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Competitiveness of MAP-Elites against Proximal Policy Optimization on locomotion tasks in deterministic simulations')",
-        "failed_at": "2026-07-10T10:18:27Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='TDD Governance for Multi-Agent Code Generation via Prompt Engineering')",
+        "failed_at": "2026-08-02T11:14:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We develop model-based methods for solving stochastic convex optimization problems, introducing the approximate-proximal point, or aProx, family, which includes stochastic subgradient, proximal point, and bundle methods. When the modeling approaches we propose are appropriately accurate, the methods enjoy stronger convergence and robustness guarantees than classical approaches, even though the model-based methods typically add little to no computational overhead over stochastic subgradient methods. For example, we show that improved models converge with probability 1 and enjoy optimal asymptotic normality results under weak assumptions; these methods are also adaptive to a natural class of what we term easy optimization problems, achieving linear convergence under appropriate strong growth conditions on the objective. Our substantial experimental investigation shows the advantages of more accurate modeling over standard subgradient methods across many smooth and non-smooth optimization problems.",
+          "claimed_abstract": "Qualitative analysis plays a pivotal role in understanding the human and social aspects of software engineering. However, it remains a demanding process shaped by the subjective interpretation of individual researchers and sensitive to methodological choices such as prompt design. Recent advancements in Large Language Models (LLMs) offer promising opportunities to support this type of analysis, although their reliability in reproducing human qualitative reasoning under varying prompting conditions remains largely untested. This study presents a controlled empirical evaluation of three LLMs -- Claude Haiku, DeepSeek-Chat, and Gemini 2.5 Flash -- across two prompt engineering strategies (zero-shot and multi-shot closed coding), using Cohen's kappa as the primary agreement metric over ten independent runs per configuration. Results suggest that multi-shot prompting significantly improves agreement for Claude Haiku (Delta kappa = +0.034, Wilcoxon p = 0.004) but not for DeepSeek-Chat or Gemini 2.5 Flash. Intra-model stability varies substantially -- DeepSeek-Chat and Claude Haiku exhibit the lowest variance (SD approx. 0.017), while Gemini 2.5 Flash is the least stable (SD = 0.038). A systematic over-prediction of \"Sharing Negative Feedback\" is identified across all models (bias ratios up to 5.25x), alongside consistent under-prediction of \"Expressing Concerns.\" Collectively, these findings provide empirical evidence for prompt engineering guidelines in LLM-assisted qualitative coding for software engineering research.",
           "claimed_authors": [
-            "Hilal Asi",
-            "John C. Duchi"
+            "Moaath Alshaikh",
+            "Tasneem Alshaher",
+            "Ricardo Vieira",
+            "Beatriz Santana",
+            "Clelio Xavier",
+            "Jose Amancio",
+            "Glauco Carneiro",
+            "Julio Leite",
+            "Savio Freire",
+            "Manoel Mendonca"
           ],
-          "claimed_title": "Stochastic (Approximate) Proximal Point Methods: Convergence, Optimality, and Adaptivity",
+          "claimed_title": "Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1810.05633"
+          "claimed_year": 2026,
+          "primary_pointer": "2605.07422"
         },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Stochastic (Approximate) Proximal Point Methods: Convergence, Optimality, and Adaptivity')",
-        "failed_at": "2026-07-10T10:18:28Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Prompt Engineering Strategies for LLM-based Qualitative Coding of Psychological Safety in Software Engineering Communities: A Controlled Empirical Study')",
+        "failed_at": "2026-08-02T11:14:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the realm of few-shot learning, foundation models like CLIP have proven effective but exhibit limitations in cross-domain robustness especially in few-shot settings. Recent works add text as an extra modality to enhance the performance of these models. Most of these approaches treat text as an auxiliary modality without fully exploring its potential to elucidate the underlying class visual features distribution. In this paper, we present a novel approach that leverages text-derived statistics to predict the mean and covariance of the visual feature distribution for each class. This predictive framework enriches the latent space, yielding more robust and generalizable few-shot learning models. We demonstrate the efficacy of incorporating both mean and covariance statistics in improving few-shot classification performance across various datasets. Our method shows that we can use text to predict the mean and covariance of the distribution offering promising improvements in few-shot learning scenarios.",
+          "claimed_abstract": "Predicting the biophysical and functional properties of proteins is essential for in silico protein design. Machine learning has emerged as a promising technique for such prediction tasks. However, the relative scarcity of in vitro annotations means that these models often have little, or no, specific data on the desired fitness prediction task. As a result of limited data, protein language models (PLMs) are typically trained on general protein sequence modeling tasks, and then fine-tuned, or applied zero-shot, to protein fitness prediction. When no task data is available, the models make strong assumptions about the correlation between the protein sequence likelihood and fitness scores. In contrast, we propose meta-learning over a distribution of standard fitness prediction tasks, and demonstrate positive transfer to unseen fitness prediction tasks. Our method, called Metalic (Meta-Learning In-Context), uses in-context learning and fine-tuning, when data is available, to adapt to new tasks. Crucially, fine-tuning enables considerable generalization, even though it is not accounted for during meta-training. Our fine-tuned models achieve strong results with 18 times fewer parameters than state-of-the-art models. Moreover, our method sets a new state-of-the-art in low-data settings on ProteinGym, an established fitness-prediction benchmark. Due to data scarcity, we believe meta-learning will play a pivotal role in advancing protein engineering.",
           "claimed_authors": [
-            "Yassir Bendou",
-            "Vincent Gripon",
-            "Bastien Pasdeloup",
-            "Giulia Lioi",
-            "Lukas Mauch",
-            "Fabien Cardinaux",
-            "Ghouthi Boukli Hacene"
+            "Jacob Beck",
+            "Shikha Surana",
+            "Manus McAuliffe",
+            "Oliver Bent",
+            "Thomas D. Barrett",
+            "Juan Jose Garau Luis",
+            "Paul Duckworth"
           ],
-          "claimed_title": "Inferring Latent Class Statistics from Text for Robust Visual Few-Shot Learning",
+          "claimed_title": "Metalic: Meta-Learning In-Context with Protein Language Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.14544"
+          "claimed_year": 2024,
+          "primary_pointer": "2410.08355"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Inferring Latent Class Statistics from Text for Robust Visual Few-Shot Learning')",
-        "failed_at": "2026-07-10T10:18:28Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Metalic: Meta-Learning In-Context with Protein Language Models')",
+        "failed_at": "2026-08-02T11:14:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Few-shot prompting, the practice of prepending a small number of input-output demonstration pairs to a query before presenting it to a large language model (LLM), is among the most widely adopted inference-time techniques in NLP. Yet little systematic work investigates how shot count interacts with model scale, architecture, and output format compliance in determining classification performance. This paper presents a controlled study of five LLMs across six shot-count configurations (k in {0,1,2,3,5,8}) on the AG News four-class benchmark (n=200). Our models span proprietary and open-source families: Gemini Flash Lite, GPT-4o-mini, Llama 3.1 8B, Llama 3.3 70B, and Llama 4 Scout 17B. We report macro-averaged F1 with 95% bootstrap confidence intervals (B=10,000), permutation-test p-values, and Cohen's d effect sizes across all 30 configurations. Our findings reveal four qualitatively distinct behavioral regimes: (1) models already well-calibrated at zero-shot that show modest, statistically insignificant gains (Gemini, GPT-4o-mini); (2) models that undergo catastrophic zero-shot failure but recover dramatically with a single example (Llama 3.1 8B, d=10.98, p<0.0001); (3) models optimal at zero-shot that degrade monotonically with additional examples (Llama 4 Scout); and (4) models exhibiting a U-shaped curve (Llama 3.3 70B: 0-shot F1=0.907, 2-shot F1=0.635, 5-shot F1=0.785 with parser corrected). We additionally identify, diagnose, and correct a systematic parsing artifact that artificially deflated Llama 3.3 70B performance by up to 206%, constituting a methodological contribution to LLM evaluation practice. Our results demonstrate that the relationship between shot count and classification performance is not monotonic, not universal, and not predictable from model scale alone.",
+          "claimed_authors": [
+            "Ayush Dwivedi",
+            "Ashvi Soni"
+          ],
+          "claimed_title": "When Does Few-Shot Prompting Help? A Systematic Empirical Study of Shot-Count Effects Across Model Scale, Architecture, and Output Parsing Robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.22969"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='When Does Few-Shot Prompting Help? A Systematic Empirical Study of Shot-Count Effects Across Model Scale, Architecture, and Output Parsing Robustness')",
+        "failed_at": "2026-08-02T11:14:24Z",
         "reason": "query_irrelevant"
       },
       {
@@ -295,209 +324,194 @@
           "primary_pointer": "2308.10783"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Zero- and Few-Shot Prompting with LLMs: A Comparative Study with Fine-tuned Models for Bangla Sentiment Analysis')",
-        "failed_at": "2026-07-10T10:18:28Z",
+        "failed_at": "2026-08-02T11:14:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Despite the prevalence of tabular datasets, few-shot learning remains under-explored within this domain. Existing few-shot methods are not directly applicable to tabular datasets due to varying column relationships, meanings, and permutational invariance. To address these challenges, we propose FLAT-a novel approach to tabular few-shot learning, encompassing knowledge sharing between datasets with heterogeneous feature spaces. Utilizing an encoder inspired by Dataset2Vec, FLAT learns low-dimensional embeddings of datasets and their individual columns, which facilitate knowledge transfer and generalization to previously unseen datasets. A decoder network parametrizes the predictive target network, implemented as a Graph Attention Network, to accommodate the heterogeneous nature of tabular datasets. Experiments on a diverse collection of 118 UCI datasets demonstrate FLAT's successful generalization to new tabular datasets and a considerable improvement over the baselines.",
+          "claimed_abstract": "We introduce meta-prompting, an effective scaffolding technique designed to enhance the functionality of language models (LMs). This approach transforms a single LM into a multi-faceted conductor, adept at managing and integrating multiple independent LM queries. By employing high-level instructions, meta-prompting guides the LM to break down complex tasks into smaller, more manageable subtasks. These subtasks are then handled by distinct \"expert\" instances of the same LM, each operating under specific, tailored instructions. Central to this process is the LM itself, in its role as the conductor, which ensures seamless communication and effective integration of the outputs from these expert models. It additionally employs its inherent critical thinking and robust verification processes to refine and authenticate the end result. This collaborative prompting approach empowers a single LM to simultaneously act as a comprehensive orchestrator and a panel of diverse experts, significantly enhancing its performance across a wide array of tasks. The zero-shot, task-agnostic nature of meta-prompting greatly simplifies user interaction by obviating the need for detailed, task-specific instructions. Furthermore, our research demonstrates the seamless integration of external tools, such as a Python interpreter, into the meta-prompting framework, thereby broadening its applicability and utility. Through rigorous experimentation with GPT-4, we establish the superiority of meta-prompting over conventional scaffolding methods: When averaged across all tasks, including the Game of 24, Checkmate-in-One, and Python Programming Puzzles, meta-prompting, augmented with a Python interpreter functionality, surpasses standard prompting by 17.1%, expert (dynamic) prompting by 17.3%, and multipersona prompting by 15.2%.",
           "claimed_authors": [
-            "Max Zhu",
-            "Katarzyna Kobalczyk",
-            "Andrija Petrovic",
-            "Mladen Nikolic",
-            "Mihaela van der Schaar",
-            "Boris Delibasic",
-            "Petro Lio"
+            "Mirac Suzgun",
+            "Adam Tauman Kalai"
           ],
-          "claimed_title": "Tabular Few-Shot Generalization Across Heterogeneous Feature Spaces",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.10051"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Tabular Few-Shot Generalization Across Heterogeneous Feature Spaces')",
-        "failed_at": "2026-07-10T10:18:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "To use reinforcement learning from human feedback (RLHF) in practical applications, it is crucial to learn reward models from diverse sources of human feedback and to consider human factors involved in providing feedback of different types. However, the systematic study of learning from diverse types of feedback is held back by limited standardized tooling available to researchers. To bridge this gap, we propose RLHF-Blender, a configurable, interactive interface for learning from human feedback. RLHF-Blender provides a modular experimentation framework and implementation that enables researchers to systematically investigate the properties and qualities of human feedback for reward learning. The system facilitates the exploration of various feedback types, including demonstrations, rankings, comparisons, and natural language instructions, as well as studies considering the impact of human factors on their effectiveness. We discuss a set of concrete research opportunities enabled by RLHF-Blender. More information is available at https://rlhfblender.info/.",
-          "claimed_authors": [
-            "Yannick Metz",
-            "David Lindner",
-            "Raphaël Baur",
-            "Daniel Keim",
-            "Mennatallah El-Assady"
-          ],
-          "claimed_title": "RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.04332"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback')",
-        "failed_at": "2026-07-10T10:18:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We argue for the epistemic and ethical advantages of pluralism in Reinforcement Learning from Human Feedback (RLHF) in the context of Large Language Models (LLM). Drawing on social epistemology and pluralist philosophy of science, we suggest ways in which RHLF can be made more responsive to human needs and how we can address challenges along the way. The paper concludes with an agenda for change, i.e. concrete, actionable steps to improve LLM development.",
-          "claimed_authors": [
-            "Kristian González Barman",
-            "Simon Lohse",
-            "Henk de Regt"
-          ],
-          "claimed_title": "Reinforcement Learning from Human Feedback: Whose Culture, Whose Values, Whose Perspectives?",
+          "claimed_title": "Meta-Prompting: Enhancing Language Models with Task-Agnostic Scaffolding",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2407.17482"
+          "primary_pointer": "2401.12954"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Reinforcement Learning from Human Feedback: Whose Culture, Whose Values, Whose Perspectives?')",
-        "failed_at": "2026-07-10T10:18:28Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Meta-Prompting: Enhancing Language Models with Task-Agnostic Scaffolding')",
+        "failed_at": "2026-08-02T11:14:24Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
           "claimed_authors": [
-            "Abdul Wahab",
-            "Raksha Kumaraswamy",
-            "Martha White"
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
           ],
-          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.12375"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
-        "failed_at": "2026-07-10T10:18:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
-          "claimed_authors": [
-            "Zhiyang Xu",
-            "Chao Feng",
-            "Rulin Shao",
-            "Trevor Ashby",
-            "Ying Shen",
-            "Di Jin",
-            "Yu Cheng",
-            "Qifan Wang",
-            "Lifu Huang"
-          ],
-          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.11690"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
-        "failed_at": "2026-07-10T10:18:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
-          "claimed_authors": [
-            "Neng Wang",
-            "Hongyang Yang",
-            "Christina Dan Wang"
-          ],
-          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2310.04793"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
-        "failed_at": "2026-07-10T10:18:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
-          "claimed_authors": [
-            "Renxi Wang",
-            "Haonan Li",
-            "Minghao Wu",
-            "Yuxia Wang",
-            "Xudong Han",
-            "Chiyu Zhang",
-            "Timothy Baldwin"
-          ],
-          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.10793"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
-        "failed_at": "2026-07-10T10:18:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
-          "claimed_authors": [
-            "Ehsan Hallaji",
-            "Roozbeh Razavi-Far",
-            "Mehrdad Saif"
-          ],
-          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.02337"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
-        "failed_at": "2026-07-10T10:18:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The transfer learning toolkit wraps the codes of 17 transfer learning models and provides integrated interfaces, allowing users to use those models by calling a simple function. It is easy for primary researchers to use this toolkit and to choose proper models for real-world applications. The toolkit is written in Python and distributed under MIT open source license. In this paper, the current state of this toolkit is described and the necessary environment setting and usage are introduced.",
-          "claimed_authors": [
-            "Fuzhen Zhuang",
-            "Keyu Duan",
-            "Tongjia Guo",
-            "Yongchun Zhu",
-            "Dongbo Xi",
-            "Zhiyuan Qi",
-            "Qing He"
-          ],
-          "claimed_title": "Transfer Learning Toolkit: Primers and Benchmarks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1911.08967"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Transfer Learning Toolkit: Primers and Benchmarks')",
-        "failed_at": "2026-07-10T10:18:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
-          "claimed_authors": [
-            "Iat Hang Fong",
-            "Tengyue Li",
-            "Simon Fong",
-            "Raymond K. Wong",
-            "Antonio J. Tallón-Ballesteros"
-          ],
-          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2502.01654"
+          "primary_pointer": "2504.16021"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
-        "failed_at": "2026-07-10T10:18:28Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-02T11:14:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chain-of-Thought (CoT) reasoning improves multi-step mathematical problem solving in large language models but remains vulnerable to exposure bias and error accumulation, as early mistakes propagate irreversibly through autoregressive decoding. In this work, we propose DiffCoT, a diffusion-styled CoT framework that reformulates CoT reasoning as an iterative denoising process. DiffCoT integrates diffusion principles at the reasoning-step level via a sliding-window mechanism, enabling unified generation and retrospective correction of intermediate steps while preserving token-level autoregression. To maintain causal consistency, we further introduce a causal diffusion noise schedule that respects the temporal structure of reasoning chains. Extensive experiments on three multi-step CoT reasoning benchmarks across diverse model backbones demonstrate that DiffCoT consistently outperforms existing CoT preference optimization methods, yielding improved robustness and error-correction capability in CoT reasoning.",
+          "claimed_authors": [
+            "Shidong Cao",
+            "Hongzhan Lin",
+            "Yuxuan Gu",
+            "Ziyang Luo",
+            "Jing Ma"
+          ],
+          "claimed_title": "DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03559"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs')",
+        "failed_at": "2026-08-02T11:14:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
+          "claimed_authors": [
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
+          ],
+          "claimed_title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Understanding Reasoning in Chain-of-Thought from the Hopfieldian View')",
+        "failed_at": "2026-08-02T11:14:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
+          "claimed_authors": [
+            "Chunting Zhou",
+            "Junxian He",
+            "Xuezhe Ma",
+            "Taylor Berg-Kirkpatrick",
+            "Graham Neubig"
+          ],
+          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00049"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
+        "failed_at": "2026-08-02T11:14:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual prompt tuning (VPT) is a promising solution incorporating learnable prompt tokens to customize pre-trained models for downstream tasks. However, VPT and its variants often encounter challenges like prompt initialization, prompt length, and subpar performance in self-supervised pretraining, hindering successful contextual adaptation. This study commences by exploring the correlation evolvement between prompts and patch tokens during proficient training. Inspired by the observation that the prompt tokens tend to share high mutual information with patch tokens, we propose initializing prompts with downstream token prototypes. The strategic initialization, a stand-in for the previous initialization, substantially improves performance in fine-tuning. To refine further, we optimize token construction with a streamlined pipeline that maintains excellent performance with almost no increase in computational expenses compared to VPT. Exhaustive experiments show our proposed approach outperforms existing methods by a remarkable margin. For instance, it surpasses full fine-tuning in 19 out of 24 tasks, using less than 0.4% of learnable parameters on the FGVC and VTAB-1K benchmarks. Notably, our method significantly advances the adaptation for self-supervised pretraining, achieving impressive task performance gains of at least 10% to 30%. Besides, the experimental results demonstrate the proposed SPT is robust to prompt lengths and scales well with model capacity and training data size. We finally provide an insightful exploration into the amount of target data facilitating the adaptation of pre-trained models to downstream tasks. The code is available at https://github.com/WangYZ1608/Self-Prompt-Tuning.",
+          "claimed_authors": [
+            "Yuzhu Wang",
+            "Lechao Cheng",
+            "Chaowei Fang",
+            "Dingwen Zhang",
+            "Manni Duan",
+            "Meng Wang"
+          ],
+          "claimed_title": "Revisiting the Power of Prompt for Visual Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.02382"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Revisiting the Power of Prompt for Visual Tuning')",
+        "failed_at": "2026-08-02T11:14:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-08-02T11:14:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learned optimization aims to improve upon hand-designed optimizers (e.g., Adam and Muon) by meta-learning small neural network optimizers over a distribution of tasks. While recent work has greatly advanced the architectural design and inductive biases of learned optimizers (LOs), their meta-training remains biased toward short-unroll learning on particular tasks, resulting in redundant computation and leaving LOs often unable to compete with hand-designed optimizers. We introduce Efficient Long-hOrizon (ELO) learning, an efficient meta-training algorithm that (1) reallocates wasted meta-training compute to longer failure regimes, achieving efficient long-horizon learning, and (2) enforces decoupled progressive expert supervision, providing stable meta-learning signals that additionally improve the generalization of LOs. Our empirical study evaluates ELO for meta-training both element-wise and matrix-based LOs. Across downstream language modeling (GPT-2-124M/350M on FineWeb) and image classification (ViT-B/16, ResNet-50 on ImageNet-1K) tasks, ELO substantially improves the long-unroll performance and out-of-distribution generalization of the base LOs. In particular, ELO-Celo2 consistently outperforms well-tuned AdamW across all evaluated tasks, while remaining competitive with Muon on language modeling. \\textit{Notably, all ELO baselines require less than 7 H100 GPU-hours for meta-training.}",
+          "claimed_authors": [
+            "Xiaolong Huang",
+            "Benjamin Thérien",
+            "James Harrison",
+            "Eugene Belilovsky"
+          ],
+          "claimed_title": "Efficient Long-Horizon Learning for Learned Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.06772"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='Efficient Long-Horizon Learning for Learned Optimization')",
+        "failed_at": "2026-08-02T11:14:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While deep reinforcement learning (RL) has fueled multiple high-profile successes in machine learning, it is held back from more widespread adoption by its often poor data efficiency and the limited generality of the policies it produces. A promising approach for alleviating these limitations is to cast the development of better RL algorithms as a machine learning problem itself in a process called meta-RL. Meta-RL is most commonly studied in a problem setting where, given a distribution of tasks, the goal is to learn a policy that is capable of adapting to any new task from the task distribution with as little data as possible. In this survey, we describe the meta-RL problem setting in detail as well as its major variations. We discuss how, at a high level, meta-RL research can be clustered based on the presence of a task distribution and the learning budget available for each individual task. Using these clusters, we then survey meta-RL algorithms and applications. We conclude by presenting the open problems on the path to making meta-RL part of the standard toolbox for a deep RL practitioner.",
+          "claimed_authors": [
+            "Jacob Beck",
+            "Risto Vuorio",
+            "Evan Zheran Liu",
+            "Zheng Xiong",
+            "Luisa Zintgraf",
+            "Chelsea Finn",
+            "Shimon Whiteson"
+          ],
+          "claimed_title": "A Tutorial on Meta-Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.08028"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Zone of Proximal Policy Optimization: Teacher in P', candidate_title='A Tutorial on Meta-Reinforcement Learning')",
+        "failed_at": "2026-08-02T11:14:24Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -505,36 +519,147 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Byung-Kwan Lee",
-            "Ximing Lu",
-            "Shizhe Diao",
-            "Minki Kang",
-            "Saurav Muralidharan",
-            "Karan Sapra",
-            "Andrew Tao",
-            "Pavlo Molchanov",
-            "Yejin Choi",
-            "Yu-Chiang Frank Wang",
-            "Ryo Hachiuma"
+            "Ethem Yağız Çalık",
+            "Talha Rüzgar Akkuş"
           ],
-          "title": "Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients",
+          "title": "Enhancing Human-Like Responses in Large Language Models",
+          "topically_marginal": true,
           "venue": "arXiv",
-          "year": 2026
+          "year": 2025
         },
-        "primary_pointer": "2606.18216",
-        "summary": "Knowledge distillation transfers a teacher's competence to a small student but is brittle in the small-student regime: forcing the student to imitate logits from a much larger teacher concentrates it on the teacher's sharpest modes, hurting generalization on benchmark families beyond the training corpus. Reinforcement learning (RL) avoids logit imitation by training on the student's own rollouts. However, on questions where every rollout fails-yielding zero advantage and being silently discarded-injecting a stronger teacher's response into the policy gradient breaks the on-policy assumption and induces drift. We introduce Zone of Proximal Policy Optimization (ZPPO), inspired by Vygotsky's zone of proximal development, which keeps the teacher inside the prompt rather than the policy gradient. On hard questions, ZPPO constructs two reformulated prompts: a Binary Candidate-included Question (BCQ) pairs one correct teacher response with one incorrect student response as anonymized candidates the student must discriminate, and a Negative Candidate-included Question (NCQ) aggregates the student's wrong rollouts into a single prompt to surface their shared failure modes. A prompt replay buffer recirculates each hard question until it either graduates-the student's mean rollout accuracy on it reaches half- or is FIFO-evicted under finite capacity, amplifying BCQ and NCQ inside the student's current zone of proximal development. On the Qwen3.5 family at four student scales (0.8B-9B) with a 27B teacher, post-trained as vision-language models and evaluated on a 31-benchmark suite (16 VLM, 10 LLM, 5 Video), ZPPO outperforms off/on-policy distillation and GRPO, with the largest gains at the smallest scale.",
+        "primary_pointer": "2501.05032",
+        "summary": "This paper explores the advancements in making large language models (LLMs) more human-like. We focus on techniques that enhance natural language understanding, conversational coherence, and emotional intelligence in AI systems. The study evaluates various approaches, including fine-tuning with diverse datasets, incorporating psychological principles, and designing models that better mimic human reasoning patterns. Our findings demonstrate that these enhancements not only improve user interactions but also open new possibilities for AI applications across different domains. Future work will address the ethical implications and potential biases introduced by these human-like attributes.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.18216",
+          "final_url": "https://arxiv.org/abs/2501.05032",
           "http_status": 200,
-          "pdf_sample_score": 0.3407,
-          "query_relevance_score": 0.6364,
+          "pdf_sample_score": 0.1866,
+          "query_relevance_score": 0.6,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T10:18:27Z"
+          "verified_at": "2026-08-02T11:14:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiming Ai",
+            "Zhiwei He",
+            "Ziyin Zhang",
+            "Wenhong Zhu",
+            "Hongkun Hao",
+            "Kai Yu",
+            "Lingjun Chen",
+            "Rui Wang"
+          ],
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.14679",
+        "summary": "In this study, we delve into the validity of conventional personality questionnaires in capturing the human-like personality traits of Large Language Models (LLMs). Our objective is to assess the congruence between the personality traits LLMs claim to possess and their demonstrated tendencies in real-world scenarios. By conducting an extensive examination of LLM outputs against observed human response patterns, we aim to understand the disjunction between self-knowledge and action in LLMs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.14679",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T11:14:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrew Shin",
+            "Kunitake Kaneko"
+          ],
+          "title": "Large Language Models Lack Understanding of Character Composition of Words",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.11357",
+        "summary": "Large language models (LLMs) have demonstrated remarkable performances on a wide range of natural language tasks. Yet, LLMs' successes have been largely restricted to tasks concerning words, sentences, or documents, and it remains questionable how much they understand the minimal units of text, namely characters. In this paper, we examine contemporary LLMs regarding their ability to understand character composition of words, and show that most of them fail to reliably carry out even the simple tasks that can be handled by humans with perfection. We analyze their behaviors with comparison to token level performances, and discuss the potential directions for future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.11357",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T11:14:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Linge Guo"
+          ],
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.09676",
+        "summary": "This research critically navigates the intricate landscape of AI deception, concentrating on deceptive behaviours of Large Language Models (LLMs). My objective is to elucidate this issue, examine the discourse surrounding it, and subsequently delve into its categorization and ramifications. The essay initiates with an evaluation of the AI Safety Summit 2023 (ASS) and introduction of LLMs, emphasising multidimensional biases that underlie their deceptive behaviours.The literature review covers four types of deception categorised: Strategic deception, Imitation, Sycophancy, and Unfaithful Reasoning, along with the social implications and risks they entail. Lastly, I take an evaluative stance on various aspects related to navigating the persistent challenges of the deceptive AI. This encompasses considerations of international collaborative governance, the reconfigured engagement of individuals with AI, proposal of practical adjustments, and specific elements of digital education.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.09676",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T11:14:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Liang Chen",
+            "Feifan Song",
+            "Binghuai Lin",
+            "Yunbo Cao",
+            "Tianyu Liu",
+            "Zhifang Sui"
+          ],
+          "title": "Making Large Language Models Better Reasoners with Alignment",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.02144",
+        "summary": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.02144",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T11:14:32Z"
         }
       }
     ]
