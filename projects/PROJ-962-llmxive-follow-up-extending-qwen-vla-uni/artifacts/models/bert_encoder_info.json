@@ -1,0 +1,5 @@
+{
+  "model_name": "bert-base-uncased",
+  "hidden_size": 768,
+  "device": "cpu"
+}

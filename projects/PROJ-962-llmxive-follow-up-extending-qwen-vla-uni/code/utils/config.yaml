@@ -1,0 +1,28 @@
+seed: 42
+
+clustering:
+  max_k: 50
+  min_samples_per_cluster: 100
+  silhouette_threshold: 0.25
+  k_decrement_step: 5
+  max_attempts: 10
+
+data:
+  dataset_name: Qwen/Qwen-VL-Chat
+  text_column: text
+  action_column: action
+  batch_size: 32
+  streaming: true
+
+embedding:
+  model_name: bert-base-uncased
+  max_length: 128
+  device: cpu
+  batch_size: 32
+
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  results: data/results
+  models: artifacts/models
+  figures: figures

@@ -1,0 +1,41 @@
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the textual acceptance criteria but no concrete artifacts\
+    \ such as benchmark logs, memory usage reports, or timing measurements demonstrating\
+    \ that 100 prompts are processed within 10\u202Fminutes and memory stays below\
+    \ 7\u202FGB on a CPU runner. Without these evidential files, the requirement is\
+    \ not verified."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `artifacts/models/` directory containing the trained CGMM models
+    and the BERT encoder is provided; the claim lacks any actual files or listings
+    to verify that the models were saved. The required artifact is missing.
+T032b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation was provided that attempts to generate the
+    VLA proxy baseline, raises a clear error if generation is not implemented, or
+    saves the result to the configured path. The required artifact is missing, so
+    the task is not satisfied.
+T034:
+  c: false
+  h: e1ce9290e1a676e1e6a1df8b2f7ea86b81e168ab03d42a77d246c7ddc7daf6ab
+  r: The required `data/results/simulation_logs.csv` file does not exist, so no simulation
+    results have been logged as specified (task type, success flag, collision count,
+    execution time). The implementer must create this CSV file with the appropriate
+    columns and populate it with the simulation data.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (script, notebook, data file, or report) showing the calculation\
+    \ of the \u201Ctrajectory fidelity metric\u201D was provided. Consequently there\
+    \ is no evidence that the percentage of kinematic features within the VLA proxy\
+    \ error margin was computed or documented. The required output is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` or `research.md` files were presented, nor any excerpts showing\
+    \ the required execution instructions or methodology notes (CGMM, McNemar's Test).\
+    \ The task\u2019s documentation updates are therefore missing."

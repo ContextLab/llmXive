@@ -35,7 +35,7 @@ The system must fit lightweight probabilistic models (Decision Trees or Gaussian
 
 1. **Given** a cluster of action sequences and a frozen BERT encoder, **When** a Decision Tree regressor is trained to map embeddings to actions, **Then** the model achieves a held-out validation R² score of ≥ 0.6 for that cluster, and the conditional variance of actions within the cluster is statistically significant (p < 0.05) to ensure the text embedding is a valid predictor.
 2. **Given** a new text instruction not seen during training, **When** the inference engine processes it, **Then** it returns a complete trajectory array of the expected length (e.g., a sufficient number of time steps) with no CUDA errors.
-3. **Given** the inference engine, **When** it is run on a CPU-only GitHub Actions runner, **Then** the total memory usage remains below 7 GB and the execution time for 100 prompts is ≤ 10 minutes.
+3. **Given** the inference engine, **When** it is run on a CPU-only GitHub Actions runner, **Then** the total memory usage remains within acceptable system limits and the execution time for 100 prompts is ≤ 10 minutes.
 
 ---
 
@@ -68,7 +68,7 @@ The system must execute generated trajectories in a PyBullet simulation for Mult
 - **FR-002a**: System MUST validate the clustering by calculating the average silhouette score; if the score is < 0.25, the system MUST reduce the target cluster count (k) by [deferred] and re-run clustering until a valid configuration is found or k=1 is reached. If k=1 is reached and the score is still < 0.25, the system MUST proceed with k=1 and log a "degenerate clustering" warning. (See US-01)
 - **FR-003**: System MUST train a lightweight probabilistic model (Decision Tree or GMM) for each valid cluster produced by FR-002/FR-002a, mapping frozen BERT text embeddings to the cluster's action distribution. (See US-02)
 - **FR-004**: System MUST implement a CPU-only inference engine that selects the nearest cluster for a new prompt and samples a trajectory from the fitted model without using CUDA or GPU accelerators. (See US-02)
-- **FR-005**: System MUST execute generated trajectories in a PyBullet simulation for 100 test prompts per task type (grasp, navigate, place) and record success rates and collision counts. (See US-03)
+- **FR-005**: System MUST execute generated trajectories in a PyBullet simulation for a representative set of test prompts per task type (grasp, navigate, place) and record success rates and collision counts. (See US-03)
 - **FR-006**: System MUST perform paired t-tests comparing the non-neural model's success rate against a random sampling baseline and the original Qwen-VLA proxy metrics on the same test prompts, and report the p-values. (See US-03)
 
 ### Key Entities

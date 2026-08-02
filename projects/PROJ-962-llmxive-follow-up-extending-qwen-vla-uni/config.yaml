@@ -1,0 +1,26 @@
+# Project Configuration for llmXive
+# T036: Added fidelity_error_margin under simulation
+
+simulation:
+  robot_model: "franka_panda"
+  tasks: ["grasp", "navigate", "place"]
+  max_steps: 100
+  fidelity_error_margin: 0.05
+  baseline_path: "data/results/vla_proxy_baseline.parquet"
+
+clustering:
+  max_k: 50
+  silhouette_threshold: 0.25
+  k_decrement_step: 5
+  max_attempts: 10
+
+data:
+  dataset_name: "Qwen-VLA/Hy-Embodied"
+  streaming: true
+  batch_size: 1024
+
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  results: "data/results"
+  models: "artifacts/models"

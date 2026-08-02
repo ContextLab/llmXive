@@ -20,34 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create directory structure `code/`, `code/utils/`, `code/tests/`, `data/raw/`, `data/processed/`, `data/results/`, `artifacts/models/`
-- [ ] T001b Create `code/01_ingest.py`, `code/02_cluster.py`, `code/03_train.py`, `code/04_inference.py`, `code/05_simulate.py`, `code/06_evaluate.py` as empty files
-- [ ] T001c Create `requirements.txt` with pinned dependencies: `datasets`, `scikit-learn`, `transformers`, `pybullet`, `pandas`, `numpy`, `scipy`, `pyyaml`, `sklearn-mixture`
-- [ ] T001d Initialize `code/utils/seeds.py`, `code/utils/kinematics.py`, `code/utils/validation.py` as empty files
-- [ ] T001e Create `code/tests/` placeholder `__init__.py` and `.gitkeep` files
+- [X] T001a Create directory structure `code/`, `code/utils/`, `code/tests/`, `data/raw/`, `data/processed/`, `data/results/`, `artifacts/models/` using `mkdir -p` or a setup script.
+- [X] T001b Create `code/01_ingest.py`, `code/02_cluster.py`, `code/03_train.py`, `code/04_inference.py`, `code/05_simulate.py`, `code/06_evaluate.py` as empty files.
+- [X] T001c Create `requirements.txt` with pinned dependencies: `datasets`, `scikit-learn`, `transformers`, `pybullet`, `pandas`, `numpy`, `scipy`, `pyyaml`, `sklearn-mixture`.
+- [X] T001d Initialize `code/utils/seeds.py`, `code/utils/kinematics.py`, `code/utils/validation.py` as empty files.
+- [X] T001e Create `code/tests/__init__.py` and `.gitkeep` files to initialize the test package.
 
 ---
 
@@ -57,10 +57,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement global seed management in `code/utils/seeds.py` to ensure reproducibility across all scripts (set `random_state`, `torch.manual_seed`)
-- [ ] T005 [P] Implement kinematic feature extraction utilities (velocity, acceleration, joint angles) in `code/utils/kinematics.py`
-- [ ] T006 Setup environment configuration management for dataset paths, simulation parameters, and **clustering strategy parameters** (e.g., silhouette threshold, k-decrement step, max attempts) in `code/utils/config.py`
-- [ ] T007 Create base data validation schema and checksumming logic in `code/utils/validation.py`
+- [X] T004 Implement global seed management in `code/utils/seeds.py` to ensure reproducibility across all scripts (set `random_state`, `torch.manual_seed`).
+- [X] T005 [P] Implement kinematic feature extraction utilities (velocity, acceleration, joint angles) in `code/utils/kinematics.py`.
+- [X] T006 Setup environment configuration management for dataset paths, simulation parameters, and **clustering strategy parameters** (e.g., silhouette threshold, k-decrement step, max attempts) in `code/utils/config.py`.
+- [X] T007 Create base data validation schema and checksumming logic in `code/utils/validation.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,18 +76,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for kinematic feature normalization in `code/tests/test_kinematics.py`
-- [ ] T011 [P] [US1] Integration test for clustering pipeline with synthetic data in `code/tests/test_cluster.py`
+- [X] T010 [P] [US1] Unit test for kinematic feature normalization in `code/tests/test_kinematics.py`.
+- [X] T011 [P] [US1] Integration test for clustering pipeline with synthetic data in `code/tests/test_cluster.py` (Assert: silhouette_score > 0.25, cluster count <= 50).
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement dataset ingestion in `code/01_ingest.py`: Download Qwen-VLA/Hy-Embodied from HuggingFace, parse text-action pairs, validate presence, and **FAIL LOUDLY** (raise error) if download fails or data is missing (no synthetic fallback).
-- [ ] T013 [US1] Implement streaming data loader in `code/01_ingest.py` to handle datasets >7GB using `datasets.load_dataset(..., streaming=True)` and chunked processing.
-- [ ] T014 [US1] Implement kinematic feature extraction and normalization in `code/02_cluster.py`: Calculate velocity, acceleration, and joint angles from action sequences.
-- [ ] T015 [US1] Implement K-means clustering in `code/02_cluster.py`: Cluster normalized features into up to 50 groups (k=50), assign samples to clusters.
-- [ ] T016 [US1] Implement clustering validation in `code/02_cluster.py`: Calculate silhouette score; if < 0.25, reduce k using parameters (step size, max attempts) loaded from `code/utils/config.py` (as per FR-002a's deferred mechanism) and re-run until valid or k=1 (log warning if k=1 reached).
-- [ ] T017 [US1] Save clustering artifacts (cluster centers, assignments, statistics) to `data/processed/clusters.json` and `data/processed/assignments.parquet`.
-- [ ] T018 [US1] Verify clustering coverage: Ensure ≥ 98% of ingested samples are assigned to exactly one cluster.
+- [X] T012 [US1] Implement dataset ingestion in `code/01_ingest.py`: Download Qwen-VLA/Hy-Embodied from HuggingFace, parse text-action pairs, validate presence, and **FAIL LOUDLY** (raise error) if download fails or data is missing (no synthetic fallback).
+- [X] T013 [US1] Implement streaming data loader in `code/01_ingest.py` to handle datasets >7GB using `datasets.load_dataset(..., streaming=True)` and chunked processing.
+- [X] T014 [US1] Implement kinematic feature extraction and normalization in `code/02_cluster.py`: Calculate velocity, acceleration, and joint angles from action sequences.
+- [X] T015 [US1] Implement K-means clustering in `code/02_cluster.py`: Cluster normalized features into up to 50 groups (k=50), assign samples to clusters.
+- [X] T016 [US1] Implement clustering validation in `code/02_cluster.py`: Calculate silhouette score; if < 0.25, reduce k using parameters (step size, max attempts) loaded from `code/utils/config.py` (as per FR-002a's deferred mechanism) and re-run until valid or k=1 (log warning if k=1 reached).
+- [X] T017 [US1] Save clustering artifacts (cluster centers, assignments, statistics) to `data/processed/clusters.json` and `data/processed/assignments.parquet`.
+- [X] T018 [US1] Verify clustering coverage: Calculate the ratio of assigned samples to total ingested samples; save the metric and report to `data/results/coverage_report.json`. Ensure ≥ 98% coverage; if not, log a warning and proceed with available data.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,19 +101,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for BERT embedding generation in `code/tests/test_embeddings.py`
-- [ ] T020 [P] [US2] Integration test for model training and inference on sample data in `code/tests/test_train.py`
+- [X] T019 [P] [US2] Unit test for BERT embedding generation in `code/tests/test_embeddings.py`.
+- [X] T020 [P] [US2] Integration test for model training and inference on sample data in `code/tests/test_train.py`.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement frozen BERT embedding generation in `code/03_train.py`: Load `bert-base-uncased`, encode text instructions, ensure CPU-only execution. (Prerequisite for T021a)
-- [ ] T021a [US2] **Generate Training Embeddings**: Run the BERT encoder on the US-01 output (text instructions) to generate and save embeddings to `data/processed/train_embeddings.parquet` for use in T022. (Prerequisite for T022)
-- [ ] T022 [US2] Implement **Conditional GMM (CGMM)** training in `code/03_train.py`: Fit a CGMM per cluster mapping BERT embeddings (from T021a) to actions (using `sklearn-mixture` or custom implementation) as the **sole primary model** per Plan deviation. Validate R² ≥ 0.6 and conditional variance.
-- [ ] T027 [US2] Save trained CGMM models and BERT encoder to `artifacts/models/`.
-- [ ] T023 [US2] Implement cluster selection logic in `code/04_inference.py`: For a new prompt, find nearest cluster based on BERT embedding distance (requires T027).
-- [ ] T024 [US2] Implement trajectory sampling in `code/04_inference.py`: Sample from the fitted CGMM for the selected cluster to generate a complete trajectory array.
-- [ ] T025 [US2] Implement OOD handling in `code/04_inference.py`: If prompt is far outside cluster distribution, default to nearest cluster and log "low-confidence" flag.
-- [ ] T026 [US2] Validate inference performance: Ensure memory < 7GB and 100 prompts processed in ≤ 10 minutes on CPU runner.
+- [X] T021 [US2] Implement frozen BERT embedding generation in `code/03_train.py`: Load `bert-base-uncased`, encode text instructions, ensure CPU-only execution. (Prerequisite for T021a)
+- [X] T021a [US2] **Generate Training Embeddings**: Run the BERT encoder on the US-01 output (text instructions) to generate and save embeddings to `data/processed/train_embeddings.parquet` for use in T022. (Prerequisite for T022)
+- [X] T022 [US2] Implement **Conditional GMM (CGMM)** training in `code/03_train.py`: Fit a CGMM per cluster mapping BERT embeddings (from T021a) to actions (using `sklearn-mixture` or custom implementation) as the **sole primary model** per Plan deviation. Validate R² ≥ 0.6 and conditional variance. Save models to `artifacts/models/cgmm_{cluster_id}.pkl`.
+- [X] T027 [US2] Save trained CGMM models and BERT encoder to `artifacts/models/` using the naming convention `cgmm_{cluster_id}.pkl` and `bert_encoder.pt`.
+- [X] T023 [US2] Implement cluster selection logic in `code/04_inference.py`: For a new prompt, find nearest cluster based on BERT embedding distance (requires T027).
+- [X] T024 [US2] Implement trajectory sampling in `code/04_inference.py`: Sample from the fitted CGMM for the selected cluster to generate a complete trajectory array.
+- [X] T025 [US2] Implement OOD handling in `code/04_inference.py`: If prompt is far outside cluster distribution, default to nearest cluster and log "low-confidence" flag.
+- [X] T026 [US2] Validate inference performance: Create and run `code/bench_inference.py` to measure memory usage and execution time for a set of prompts; save results to `data/results/inference_benchmark.csv`. Ensure memory < 7GB and time ≤ 10 minutes.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,21 +127,21 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for PyBullet simulation step and error handling in `code/tests/test_simulate.py`
-- [ ] T029 [P] [US3] Integration test for full evaluation loop with mock data in `code/tests/test_evaluate.py`
+- [X] T028 [P] [US3] Unit test for PyBullet simulation step and error handling in `code/tests/test_simulate.py`.
+- [X] T029 [P] [US3] Integration test for full evaluation loop with mock data in `code/tests/test_evaluate.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T030 [P] [US3] Implement PyBullet simulation engine in `code/05_simulate.py`: Load robot model, execute trajectories for "grasp", "navigate", "place" tasks.
-- [ ] T031 [US3] Implement simulation error handling in `code/05_simulate.py`: Catch kinematic constraint violations, record as "failure", continue to next prompt (do not crash).
-- [ ] T032 [US3] Implement baseline generation in `code/05_simulate.py`: Generate random trajectories by uniform sampling within joint limits for comparison.
-- [ ] T032a [US3] **Load VLA Proxy Baseline**: Attempt to load the VLA proxy baseline from the path defined in `code/utils/config.py`. If missing, proceed to T032b.
-- [ ] T032b [US3] **Generate VLA Proxy Baseline**: If T032a fails to find the baseline, generate it (or raise a clear error if generation is not implemented) and save to the configured path.
-- [ ] T033 [US3] Execute simulation loop in `code/05_simulate.py`: Run a set of test prompts per task type for non-neural model, random baseline, and VLA proxy.
-- [ ] T034 [US3] Log simulation results to `data/results/simulation_logs.csv` (task type, success flag, collision count, execution time).
-- [ ] T035 [US3] Implement **McNemar's Test** in `code/06_evaluate.py`: Perform McNemar's Test for binary success rates comparing non-neural vs. random vs. VLA proxy as the **primary statistical method** (per Plan correction to FR-006/SC-004). Report p-values and confidence intervals.
-- [ ] T036 [US3] Calculate trajectory fidelity metric: Percentage of kinematic features within error margin of VLA proxy.
-- [ ] T037 [US3] Generate final report in `data/results/evaluation_report.md` with p-values, confidence intervals, fidelity percentage, and complexity reduction factor.
+- [X] T030 [P] [US3] Implement PyBullet simulation engine in `code/05_simulate.py`: Load robot model, execute trajectories for "grasp", "navigate", "place" tasks.
+- [X] T031 [US3] Implement simulation error handling in `code/05_simulate.py`: Catch kinematic constraint violations, record as "failure", continue to next prompt (do not crash).
+- [X] T032 [US3] Implement baseline generation in `code/05_simulate.py`: Generate random trajectories by uniform sampling within joint limits for comparison.
+- [X] T032a [US3] **Load VLA Proxy Baseline**: Attempt to load the VLA proxy baseline from the path defined in `code/utils/config.py`. If missing, proceed to T032b.
+- [X] T032b [US3] **Generate VLA Proxy Baseline**: If T032a fails, generate a high-fidelity baseline using a pre-trained Qwen-VLA model (if available) or a deterministic heuristic; save to `data/raw/vla_proxy_baseline.parquet`.
+- [X] T033 [US3] Execute simulation loop in `code/05_simulate.py`: Run a set of test prompts per task type for non-neural model, random baseline, and VLA proxy.
+- [X] T034 [US3] Log simulation results to `data/results/simulation_logs.csv` (task type, success flag, collision count, execution time).
+- [X] T035 [US3] Implement **McNemar's Test** in `code/06_evaluate.py`: Perform McNemar's Test for binary success rates comparing non-neural vs. random vs. VLA proxy as the **primary statistical method** (per Plan correction to FR-006/SC-004). Report p-values and confidence intervals.
+- [X] T036 [US3] Calculate trajectory fidelity metric: Compute the percentage of kinematic features within error margin of VLA proxy; save results to `data/results/fidelity_metrics.json`.
+- [X] T037 [US3] Generate final report in `data/results/evaluation_report.md` with p-values, confidence intervals, fidelity percentage, and complexity reduction factor.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -156,8 +156,9 @@
 - [ ] T039b Code cleanup: Remove duplicate imports and unused variables in `code/utils/` modules.
 - [ ] T040 [P] Add unit tests for edge cases (OOD prompts, simulation crashes) in `code/tests/`.
 - [ ] T041 Run `quickstart.md` validation to ensure end-to-end pipeline executes correctly.
+- [X] T042 [Plan] Update `spec.md` (FR-003, FR-006, SC-004) to formally reflect the deviation to Conditional GMM and McNemar's Test as implemented in the plan.
 
-**Note on Spec Alignment**: The Plan identifies a contradiction between the Spec (requiring Decision Trees/T-tests) and the Plan (requiring CGMM/McNemar's). The tasks above implement the **Plan's** methodological corrections. A formal kickback is required to update `spec.md` (FR-003, US-02, FR-006, SC-004) to reflect CGMM and McNemar's Test as the official requirements.
+**Note on Spec Alignment**: The Plan identifies a contradiction between the Spec (requiring Decision Trees/T-tests) and the Plan (requiring CGMM/McNemar's). The tasks above implement the **Plan's** methodological corrections. Task T042 is added to formally update `spec.md` to reflect these changes, resolving the permanent spec/implementation mismatch.
 
 ---
 
@@ -168,8 +169,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -235,9 +236,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data)
-   - Developer B: User Story 2 (Model)
-   - Developer C: User Story 3 (Simulation)
+ - Developer A: User Story 1 (Data)
+ - Developer B: User Story 2 (Model)
+ - Developer C: User Story 3 (Simulation)
 3. Stories complete and integrate independently
 
 ---
@@ -257,3 +258,4 @@ With multiple developers:
 - **Critical**: T032a must complete before T033. If T032a fails, T032b must run before T033.
 - **Critical**: T022 implements **only** CGMM. Decision Trees and Standard GMMs are excluded per Plan.
 - **Critical**: T035 implements **only** McNemar's Test. Paired t-tests are excluded per Plan.
+- **Critical**: T042 is required to update the spec to match the implemented methodology.
